@@ -14,20 +14,21 @@ Column heuristics (all read from the asset text; `scripts/lib/suiteInventory.mjs
 | Tier | Assets | Tests / checks | Needs LLM | Guards nothing named | Vacuous | Runtime |
 |---|---|---|---|---|---|---|
 | jest: pure unit | 119 | 2371 | 0 | 31 | 0 | 57.9 s |
-| jest: unit (host faked) | 226 | 2249 | 0 | 34 | 0 | 291.8 s |
-| Storybook | 37 | 274 stories, 270 plays | 0 | — | 0 files without a play | build + run, minutes |
-| harness (node --test) | 70 | 549 | 0 | 31 | 0 | seconds |
+| jest: unit (host faked) | 228 | 2275 | 0 | 33 | 0 | 291.8 s |
+| Storybook | 37 | 275 stories, 271 plays | 0 | — | 0 files without a play | build + run, minutes |
+| harness (node --test) | 71 | 553 | 0 | 32 | 0 | seconds |
 | debug tools (not tests) | 42 | — | — | — | 23 without a harness test | — |
 | no-LLM scenario | 101 | 1290 steps | 0 | 31 | 0 | ~51 min est. |
 | LLM scenario | 72 | 1906 steps | 72 | 19 | 0 | ~387 min est. |
 | journey check | 14 journeys | 143 checks (21 human) | 45 | 66 with no finding id | 0 | ~114 min est. |
 | live suite (extractor fixtures) | 29 | 93 tiers | 29 (live); goldens replay in jest | — | 14 | ~12 min est. |
-| fixtures / goldens (support) | 190 | — | — | — | 0 unreferenced | — |
+| fixtures / goldens (support) | 190 | — | — | — | 1 unreferenced | — |
+| measurement (test/measurements, budget rule 4) | 1 | — | — | — | — | not regression |
 | spike fixture | 1 | — | — | — | 0 unreferenced | — |
 | story fixtures in test/scenarios | 20 | — | — | — | — | — |
 | archived run records | 1987 files in 34 dirs | 1987 cited | — | — | — | 24.04 MB (24.04 MB cited) |
 
-jest total: 345 files, 4620 tests, 349.7 s summed per-file runtime.
+jest total: 347 files, 4646 tests, 349.7 s summed per-file runtime.
 
 ## jest files
 
@@ -63,7 +64,7 @@ jest total: 345 files, 4620 tests, 349.7 s summed per-file runtime.
 | `src/extraction/callBudget.test.ts` | pure unit | 6 | 0.2 | contract |  | 1 |  |  |
 | `src/extraction/callBudgetScale.test.ts` | unit (host faked) | 6 | 0.4 | contract |  | 1 |  |  |
 | `src/extraction/chunker.test.ts` | pure unit | 9 | 9.1 | contract |  | 0 |  |  |
-| `src/extraction/client.test.ts` | unit (host faked) | 18 | 0.7 | nothing named |  | 1 |  |  |
+| `src/extraction/client.test.ts` | unit (host faked) | 18 | 0.7 | contract |  | 1 |  |  |
 | `src/extraction/clientSlowBackend.test.ts` | unit (host faked) | 12 | 0.5 | nothing named |  | 0 |  |  |
 | `src/extraction/commitGuard.test.ts` | pure unit | 7 | 0.1 | nothing named |  | 0 |  |  |
 | `src/extraction/cues.test.ts` | pure unit | 3 | 0.1 | nothing named |  | 1 |  |  |
@@ -256,6 +257,7 @@ jest total: 345 files, 4620 tests, 349.7 s summed per-file runtime.
 | `src/runtime/promptCost.test.ts` | unit (host faked) | 9 | 0.2 | contract |  | 0 |  |  |
 | `src/runtime/qualityMacros.test.ts` | unit (host faked) | 9 | 0.2 | contract |  | 0 |  |  |
 | `src/runtime/quarantineExclusion.review.test.ts` | unit (host faked) | 7 | 0.5 | defect |  | 0 |  |  |
+| `src/runtime/reasoningControl.test.ts` | unit (host faked) | 17 | ? | contract |  | 0 |  |  |
 | `src/runtime/reloadPromptBlocks.review.test.ts` | unit (host faked) | 9 | 5.3 | defect |  | 0 |  |  |
 | `src/runtime/repair.test.ts` | unit (host faked) | 32 | 0.5 | defect |  | 1 |  |  |
 | `src/runtime/requestBudget.test.ts` | unit (host faked) | 4 | 0.5 | contract |  | 0 |  |  |
@@ -345,6 +347,7 @@ jest total: 345 files, 4620 tests, 349.7 s summed per-file runtime.
 | `src/services/stHost/persistence.test.ts` | unit (host faked) | 2 | 0.1 | defect |  | 0 |  |  |
 | `src/services/stHost/popup.test.ts` | unit (host faked) | 4 | 0.3 | contract |  | 0 |  |  |
 | `src/services/stHost/promptBucketsParse.test.ts` | unit (host faked) | 5 | 0.1 | contract |  | 0 |  |  |
+| `src/services/stHost/reasoningPayload.test.ts` | unit (host faked) | 9 | ? | defect |  | 0 |  |  |
 | `src/services/stHost/saveWatcher.test.ts` | unit (host faked) | 22 | 0.8 | defect | save-binds-late-empty-save (killed) | 4 |  |  |
 | `src/services/stHost/saveWatcherStop.test.ts` | unit (host faked) | 3 | 0.1 | nothing named |  | 1 |  |  |
 | `src/services/stHost/slashCommands.test.ts` | unit (host faked) | 4 | 0.2 | nothing named |  | 0 |  |  |
@@ -395,7 +398,7 @@ jest total: 345 files, 4620 tests, 349.7 s summed per-file runtime.
 | `src/components/settings/CapabilitiesGroup.stories.tsx` | 8 | 8 | 0 |
 | `src/components/settings/EntryPoints.stories.tsx` | 6 | 6 | 0 |
 | `src/components/settings/JudgeSettingsGroup.stories.tsx` | 17 | 17 | 1 |
-| `src/components/settings/RoleProfilesGroup.stories.tsx` | 3 | 3 | 0 |
+| `src/components/settings/RoleProfilesGroup.stories.tsx` | 4 | 4 | 0 |
 | `src/components/settings/WorldInfoGatingGroup.stories.tsx` | 8 | 8 | 0 |
 | `src/components/studio/FeedbackAlert.stories.tsx` | 3 | 2 | 0 |
 | `src/components/studio/GraphPanel.stories.tsx` | 2 | 1 | 0 |
@@ -448,6 +451,7 @@ jest total: 345 files, 4620 tests, 349.7 s summed per-file runtime.
 | `scripts/debug/lib/overSteer.test.mts` | 12 | contract | 0 |  |
 | `scripts/debug/lib/payloadAssert.test.mts` | 9 | contract | 0 |  |
 | `scripts/debug/lib/replyEffect.test.mts` | 7 | nothing named | 1 |  |
+| `scripts/debug/lib/roleEffort.test.mts` | 4 | nothing named | 0 |  |
 | `scripts/debug/lib/roleVerdict.test.mts` | 7 | nothing named | 0 |  |
 | `scripts/debug/lib/scenarioCleanup.test.mts` | 3 | nothing named | 1 |  |
 | `scripts/debug/lib/settingsSave.test.mts` | 2 | defect | 1 |  |
@@ -860,7 +864,7 @@ jest total: 345 files, 4620 tests, 349.7 s summed per-file runtime.
 
 Support files whose name, stem or directory no test, scenario, journey or script mentions.
 
-- none
+- `test/measurements/v2.6-05/r3-matrix.json` (measurement (budget rule 4))
 
 ## Debug tools without a harness test
 

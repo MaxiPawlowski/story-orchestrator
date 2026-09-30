@@ -124,14 +124,14 @@ export function collect({ jestJson = null, replayPath = null } = {}) {
     return { path, name: path.split('/').pop().replace(/\.expected\.json$/, ''), tiers: Object.keys(expected).filter((key) => ['deltas', 'facts', 'rejected', 'memory', 'epistemic', 'ledger', 'arcs'].includes(key)), vacuous };
   });
 
-  const supportFiles = files.filter((path) => /^test\/(fixtures|goldens)\//.test(path) && !/^test\/fixtures\/extractor\d*\./.test(path) && !/^test\/goldens\/extractor\d*\./.test(path));
+  const supportFiles = files.filter((path) => /^test\/(fixtures|goldens|measurements)\//.test(path) && !/^test\/fixtures\/extractor\d*\./.test(path) && !/^test\/goldens\/extractor\d*\./.test(path));
   const searchable = files.filter((path) => /^(src|scripts|test\/scenarios|test\/journeys\/[^/]+\.json|server-plugin)/.test(path) && /\.(ts|tsx|mts|mjs|json|cjs)$/.test(path) && !path.startsWith(RECORDS)).map((path) => read(path)).join('\n');
   const support = supportFiles.map((path) => {
     const base = path.split('/').pop();
     const stem = base.replace(/\.(story|transcript|expected|hints|response)?\.?(json|txt|js)$/, '');
     const dir = path.split('/').slice(0, -1).join('/');
     const referenced = searchable.includes(base) || searchable.includes(stem) || searchable.includes(dir.replace(/^test\/(fixtures|goldens)\//, ''));
-    return { path, tier: path.includes('/spikes/') ? 'spike fixture' : 'fixture/golden', referenced };
+    return { path, tier: path.startsWith('test/measurements/') ? 'measurement (budget rule 4)' : path.includes('/spikes/') ? 'spike fixture' : 'fixture/golden', referenced };
   });
 
   const recordFiles = files.filter((path) => path.startsWith(RECORDS));
@@ -189,6 +189,7 @@ function main() {
   L.push(`| journey check | ${new Set(journeys.map((row) => row.path)).size} journeys | ${journeys.length} checks (${count(journeys, (row) => row.mode === 'human')} human) | ${count(journeys, (row) => row.shape.needsLlm)} | ${count(journeys, (row) => !row.findings.length)} with no finding id | ${count(journeys, (row) => row.shape.vacuous && row.mode !== 'human')} | ~${Math.round(journeys.reduce((sum, row) => sum + row.est, 0) / 60)} min est. |`);
   L.push(`| live suite (extractor fixtures) | ${liveSuite.length} | ${liveSuite.reduce((sum, row) => sum + row.tiers.length, 0)} tiers | ${liveSuite.length} (live); goldens replay in jest | — | ${count(liveSuite, (row) => row.vacuous.length)} | ~${Math.round(liveSuite.length * 25 / 60)} min est. |`);
   L.push(`| fixtures / goldens (support) | ${count(support, (row) => row.tier === 'fixture/golden')} | — | — | — | ${count(support, (row) => !row.referenced)} unreferenced | — |`);
+  L.push(`| measurement (test/measurements, budget rule 4) | ${count(support, (row) => row.tier.startsWith('measurement'))} | — | — | — | — | not regression |`);
   L.push(`| spike fixture | ${count(support, (row) => row.tier === 'spike fixture')} | — | — | — | ${count(support, (row) => row.tier === 'spike fixture' && !row.referenced)} unreferenced | — |`);
   L.push(`| story fixtures in test/scenarios | ${storyFixtures} | — | — | — | — | — |`);
   const recordBytes = [...recordDirs.values()].reduce((sum, row) => sum + row.bytes, 0);

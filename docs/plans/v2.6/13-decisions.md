@@ -17,14 +17,16 @@ Rules applied:
 | LLM scenario | demote | 34 |
 | LLM scenario | keep | 32 |
 | LLM scenario | merge | 6 |
-| harness | keep | 69 |
-| jest | keep | 342 |
+| harness | keep | 71 |
+| jest | keep | 347 |
 | journey check | keep | 143 |
 | live suite | fix (pending decision) | 14 |
 | live suite | keep | 15 |
 | no-LLM scenario | keep | 101 |
 | retired | retire (merged) | 1 |
 | storybook | keep | 37 |
+
+Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 71.9% killed of 199 scored mutants (sample 200 of 4469, seed 20260930). The R3 gate "not lower after pruning" holds by construction for this wave: no jest file was retired, so the same sample runs against the same tests.
 
 ## Every asset
 
@@ -60,7 +62,7 @@ Rules applied:
 | jest | `src/extraction/callBudget.test.ts` | keep | guards a named contract |
 | jest | `src/extraction/callBudgetScale.test.ts` | keep | guards a named contract |
 | jest | `src/extraction/chunker.test.ts` | keep | guards a named contract |
-| jest | `src/extraction/client.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 1 fix commit(s)); name it on next touch (budget rule 1) |
+| jest | `src/extraction/client.test.ts` | keep | guards a named contract |
 | jest | `src/extraction/clientSlowBackend.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/extraction/commitGuard.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/extraction/cues.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 1 fix commit(s)); name it on next touch (budget rule 1) |
@@ -105,6 +107,7 @@ Rules applied:
 | jest | `src/judge/expansion.test.ts` | keep | guards a named contract |
 | jest | `src/judge/extraction.test.ts` | keep | guards a named contract |
 | jest | `src/judge/judge.test.ts` | keep | guards a named defect |
+| jest | `src/judge/llamaLogprob.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/judge/lore.test.ts` | keep | guards a named contract |
 | jest | `src/judge/loreRanking.test.ts` | keep | guards a named contract |
 | jest | `src/judge/loreRelevance.test.ts` | keep | guards a named contract |
@@ -210,6 +213,8 @@ Rules applied:
 | jest | `src/runtime/judgeMeter.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/judgeMeterRollback.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/judgeOwnership.review.test.ts` | keep | guards a named defect |
+| jest | `src/runtime/judgeProviderRouting.test.ts` | keep | guards a named contract |
+| jest | `src/runtime/judgeSeam.golden.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/legacyFree.guard.test.ts` | keep | guards a named invariant |
 | jest | `src/runtime/librarySave.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/lifecycleDispose.review.test.ts` | keep | guards a named defect |
@@ -250,6 +255,7 @@ Rules applied:
 | jest | `src/runtime/promptCost.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/qualityMacros.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/quarantineExclusion.review.test.ts` | keep | guards a named defect |
+| jest | `src/runtime/reasoningControl.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/reloadPromptBlocks.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/repair.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/requestBudget.test.ts` | keep | guards a named contract |
@@ -339,6 +345,7 @@ Rules applied:
 | jest | `src/services/stHost/persistence.test.ts` | keep | guards a named defect |
 | jest | `src/services/stHost/popup.test.ts` | keep | guards a named contract |
 | jest | `src/services/stHost/promptBucketsParse.test.ts` | keep | guards a named contract |
+| jest | `src/services/stHost/reasoningPayload.test.ts` | keep | guards a named defect |
 | jest | `src/services/stHost/saveWatcher.test.ts` | keep | defect-replay killer: save-binds-late-empty-save (killed) |
 | jest | `src/services/stHost/saveWatcherStop.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 1 fix commit(s)); name it on next touch (budget rule 1) |
 | jest | `src/services/stHost/slashCommands.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
@@ -383,8 +390,8 @@ Rules applied:
 | storybook | `src/components/drawer/StagecraftPanel.stories.tsx` | keep | UI contract: 16 interaction plays + a11y |
 | storybook | `src/components/settings/CapabilitiesGroup.stories.tsx` | keep | UI contract: 8 interaction plays + a11y |
 | storybook | `src/components/settings/EntryPoints.stories.tsx` | keep | UI contract: 6 interaction plays + a11y |
-| storybook | `src/components/settings/JudgeSettingsGroup.stories.tsx` | keep | UI contract: 14 interaction plays + a11y |
-| storybook | `src/components/settings/RoleProfilesGroup.stories.tsx` | keep | UI contract: 3 interaction plays + a11y |
+| storybook | `src/components/settings/JudgeSettingsGroup.stories.tsx` | keep | UI contract: 17 interaction plays + a11y |
+| storybook | `src/components/settings/RoleProfilesGroup.stories.tsx` | keep | UI contract: 4 interaction plays + a11y |
 | storybook | `src/components/settings/WorldInfoGatingGroup.stories.tsx` | keep | UI contract: 8 interaction plays + a11y |
 | storybook | `src/components/studio/FeedbackAlert.stories.tsx` | keep | UI contract: 2 interaction plays + a11y |
 | storybook | `src/components/studio/GraphPanel.stories.tsx` | keep | UI contract: 1 interaction plays + a11y |
@@ -432,6 +439,7 @@ Rules applied:
 | harness | `scripts/debug/lib/overSteer.test.mts` | keep | harness guard (contract) |
 | harness | `scripts/debug/lib/payloadAssert.test.mts` | keep | harness guard (contract) |
 | harness | `scripts/debug/lib/replyEffect.test.mts` | keep | harness guard (nothing named) |
+| harness | `scripts/debug/lib/roleEffort.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/roleVerdict.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/scenarioCleanup.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/settingsSave.test.mts` | keep | harness guard (defect) |
@@ -459,6 +467,7 @@ Rules applied:
 | harness | `scripts/debug/st-lanes.test.mts` | keep | harness guard (contract) |
 | harness | `scripts/debug/st-payload.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/lib/stRoot.test.mjs` | keep | harness guard (nothing named) |
+| harness | `scripts/lib/suiteDecisions.test.mjs` | keep | harness guard (contract) |
 | harness | `scripts/lib/suiteInventory.test.mjs` | keep | harness guard (defect) |
 | harness | `scripts/lib/suiteMutants.test.mjs` | keep | harness guard (defect) |
 | harness | `scripts/release/artifact.test.mjs` | keep | harness guard (contract) |
