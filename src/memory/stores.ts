@@ -159,13 +159,13 @@ export function editEntryText(state: MemoryStoreState, id: string, text: string,
 }
 
 export function capTier(state: MemoryStoreState, tier: MemoryTier, cap: number): MemoryStoreState {
-  const tierEntries = state.entries.filter((entry) => entry.tier === tier);
+  const tierEntries = state.entries.filter((entry) => entry.tier === tier && !entry.foldedInto);
   if (tierEntries.length <= cap) return state;
   const pinned = tierEntries.filter((entry) => entry.pinned);
   const rest = tierEntries.filter((entry) => !entry.pinned);
   const keepRest = rest.slice(-Math.max(0, cap - pinned.length));
   const keepIds = new Set([...pinned, ...keepRest].map((entry) => entry.id));
-  return { ...state, entries: state.entries.filter((entry) => entry.tier !== tier || keepIds.has(entry.id)) };
+  return { ...state, entries: state.entries.filter((entry) => entry.tier !== tier || entry.foldedInto || keepIds.has(entry.id)) };
 }
 
 export const DEFAULT_TIER_BUDGETS: Record<MemoryTier, number> = {

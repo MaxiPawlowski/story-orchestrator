@@ -20,7 +20,7 @@ const unscaledTimeoutMs = (maxTokens: number, inputTokens: number): number =>
 export const callTimeoutMs = (maxTokens: number, inputTokens = 0, kind?: string): number =>
   Math.round(unscaledTimeoutMs(maxTokens, inputTokens) * debugCallBudgetScale(kind));
 
-export type PassFamily = "sharedRead" | "sceneSummary" | "shortTerm" | "arcSummary" | "canon" | "epistemic" | "ledger" | "curator";
+export type PassFamily = "sharedRead" | "sceneSummary" | "shortTerm" | "arcSummary" | "canon" | "chapterSeal" | "epistemic" | "ledger" | "curator";
 
 export type ResponseBudget = { fixed: number } | { ratio: number; floor: number; cap: number };
 
@@ -30,6 +30,7 @@ export const MAX_TOKENS_TABLE: Record<PassFamily, ResponseBudget> = {
   shortTerm: { ratio: 0.25, floor: 256, cap: 1024 },
   arcSummary: { ratio: 0.25, floor: 256, cap: 1024 },
   canon: { ratio: 0.25, floor: 768, cap: 1536 },
+  chapterSeal: { ratio: 0.25, floor: 1024, cap: 1536 },
   epistemic: { ratio: 0.25, floor: 384, cap: 1024 },
   ledger: { ratio: 0.25, floor: 384, cap: 1024 },
   curator: { ratio: 0.25, floor: 384, cap: 1024 },

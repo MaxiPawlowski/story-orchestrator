@@ -8,6 +8,7 @@ import { buildReachability, readTransition, validateGate, validateLiteral } from
 import { readCheckpoint, readRoster } from "./validate/checkpoints";
 import { addBuiltinTensionQuality, addProgressQualities, readQuality } from "./validate/qualities";
 import { readArcBridges, readStoryOptions } from "./validate/storyOptions";
+import { indexChapters, readChapters, readMemoryOptions } from "./validate/chapters";
 
 export const INTERMEDIATE_UNREACHABLE = "intermediate checkpoint has no reachable anchor beyond it";
 
@@ -102,6 +103,8 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const options = readStoryOptions(json, errors);
   const roster = readRoster(json.roster as StoryV2["roster"], errors);
   const arcBridges = readArcBridges(json.arc_bridges, errors);
+  const chapters = readChapters(json.chapters, errors);
+  const memoryOptions = readMemoryOptions(json.memory, errors);
 
   const checkpointById = indexUnique(checkpoints, (checkpoint) => checkpoint.id, (index) => `checkpoints.${index}.id`, "checkpoint", errors);
   const qualityByKey = indexUnique(qualities, (quality) => quality.key, (index) => `qualities.${index}.key`, "quality", errors);
@@ -115,6 +118,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const normalizedTransitions = transitions.map((transition, declarationIndex) => ({ ...transition, declarationIndex }));
   const reachableByCheckpoint = buildReachability(checkpoints, normalizedTransitions);
   checkIntermediates(checkpoints, checkpointById, reachableByCheckpoint, errors);
+  const chapterIndex = indexChapters(chapters, checkpoints, errors);
   if (errors.length) return errors;
 
   return {
@@ -138,11 +142,14 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
     ...(options.house_rules ? { house_rules: options.house_rules } : {}),
     ...(options.objective_block ? { objective_block: options.objective_block } : {}),
     ...(options.display ? { display: options.display } : {}),
+    ...(chapters ? { chapters } : {}),
+    ...(memoryOptions ? { memory: memoryOptions } : {}),
     startCheckpointId,
     checkpointById,
     outgoingByCheckpoint: orderOutgoing(checkpoints, normalizedTransitions),
     qualityByKey,
     reachableByCheckpoint,
+    ...chapterIndex,
   };
 };
 

@@ -3,7 +3,7 @@ import { rollbackEpistemic } from "./epistemic";
 import { rollbackLedger } from "./ledger";
 import { dropByMessageId, hashMemoryText, stripLinksAfter } from "./stores";
 import { rollbackArcs } from "./arcs";
-import type { ArcEntry, MemoryEntry, MemoryStoreState } from "./types";
+import type { ArcEntry, ChapterRecord, ChronicleState, MemoryEntry, MemoryStoreState } from "./types";
 
 // Everything a rollback means for memory, in one pure function: the rows a mutation
 // invalidated, the derived artifacts built from them, and the three stores that keep their own
@@ -19,9 +19,22 @@ export interface MemoryRollbackState extends MemoryStoreState {
   verifyDrops: Array<{ entry: MemoryEntry }>;
   derived: DerivedRecord[];
   storyStart: number;
+  chapters?: ChapterRecord[];
+  chronicle?: ChronicleState;
+  chapterBridge?: { recordId: string; text: string } | null;
 }
 
-export function reverseMemoryState<S extends MemoryRollbackState>(state: S, messageId: number, boundary: number): Partial<S> {
+export interface ChapterStoresIn {
+  entries: MemoryEntry[];
+  arcs: ArcEntry[];
+  chapters: ChapterRecord[];
+  chronicle: ChronicleState;
+  chapterBridge?: { recordId: string; text: string } | null;
+}
+
+export type ChapterReversal = (stores: ChapterStoresIn, messageId: number, dropped: readonly string[]) => Omit<ChapterStoresIn, "chapterBridge"> & { chapterBridge?: null };
+
+export function reverseMemoryState<S extends MemoryRollbackState>(state: S, messageId: number, boundary: number, unfold?: ChapterReversal): Partial<S> {
   const dropped = dropByMessageId(state, messageId, boundary);
   const removedIds = new Set(state.entries.filter((entry) => !dropped.entries.some((candidate) => candidate.id === entry.id)).map((entry) => entry.id));
   const reversal = rollbackDerived(state.derived, messageId, removedIds);
@@ -36,8 +49,11 @@ export function reverseMemoryState<S extends MemoryRollbackState>(state: S, mess
   reversal.restored.forEach((entry) => {
     if (!excluded.includes(hashMemoryText(entry.text))) byId.set(entry.id, stripLinksAfter(entry, messageId));
   });
-  const entries = [...byId.values()];
-  let arcs = rollbackArcs(state.arcs, messageId, boundary);
+  const unfolded = state.chapters?.length && unfold
+    ? unfold({ entries: [...byId.values()], arcs: state.arcs, chapters: state.chapters, chronicle: state.chronicle ?? { eras: [] }, chapterBridge: state.chapterBridge }, messageId, reversal.outputIds)
+    : null;
+  const entries = unfolded?.entries ?? [...byId.values()];
+  let arcs = rollbackArcs(unfolded?.arcs ?? state.arcs, messageId, boundary);
   const staleArcSummaries = new Set(reversal.dropped.filter((record) => record.kind === "arc_summary").flatMap((record) => record.inputs));
   if (staleArcSummaries.size) arcs = arcs.map((arc) => {
     if (!staleArcSummaries.has(arc.id)) return arc;
@@ -57,6 +73,7 @@ export function reverseMemoryState<S extends MemoryRollbackState>(state: S, mess
     verifyDrops: state.verifyDrops.filter((drop) => (drop.entry.messageId ?? -1) < messageId),
     shortTermSummaryEnd: reversal.watermark === null ? state.shortTermSummaryEnd : Math.min(state.shortTermSummaryEnd, reversal.watermark),
     ...(canonStale ? { canon: null } : {}),
+    ...(unfolded ? { chapters: unfolded.chapters, chronicle: unfolded.chronicle, ...(unfolded.chapterBridge === null ? { chapterBridge: null } : {}) } : {}),
     ...(state.storyStart > messageId ? { storyStart: messageId } : {}),
   } as Partial<S>;
 }

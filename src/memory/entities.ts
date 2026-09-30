@@ -2,6 +2,7 @@ import type { NormalizedStoryV2 } from "@engine/index";
 import type { LedgerBinding } from "./ledger";
 import type { LedgerEntry, MemoryEntry } from "./types";
 import { isLive } from "./provenance";
+import { scoreEntry, type ScoreContext } from "./score";
 
 // Who and what the memory model is allowed to talk about, derived from the story and
 // the ledger rather than owned by a coordinator: the ledger pass, the extraction scope and the
@@ -33,6 +34,16 @@ export function storyEntities(story: NormalizedStoryV2 | null, ledger: LedgerEnt
   for (const binding of ledgerBindings(story)) names.add(binding.entity);
   for (const entry of ledger) names.add(entry.entity);
   return [...names].filter(Boolean);
+}
+
+/** Canon's facts: the best-scoring live ones (pinned and locked first), kept in store order so the
+ *  input hash moves only when the chosen set does. */
+export function selectCanonFacts(entries: MemoryEntry[], limit: number, context: ScoreContext): MemoryEntry[] {
+  const usable = highImportanceFacts(entries, Number.POSITIVE_INFINITY);
+  const held = usable.filter((entry) => entry.pinned || entry.locked);
+  const ranked = usable.filter((entry) => !entry.pinned && !entry.locked).map((entry) => ({ entry, score: scoreEntry(entry, context) })).sort((a, b) => b.score - a.score);
+  const chosen = new Set([...held, ...ranked.map((item) => item.entry)].slice(0, limit).map((entry) => entry.id));
+  return usable.filter((entry) => chosen.has(entry.id));
 }
 
 /** The facts a synthesis is allowed to be built from: live, unretired, and worth carrying. */

@@ -80,13 +80,28 @@ const seeded: StoryV2 = {
   house_rules: ["No guns; no swords.", "Magic cannot heal wounds."],
 };
 
+const anchor = (id: string, chapter?: string, start = false) => ({ id, name: id, objective: "", type: "anchor" as const, ...(chapter ? { chapter } : {}), ...(start ? { start } : {}) });
+const hop = (from: string, to: string) => ({ from, to, priority: 0, gate: { all: [] } });
+
+const chaptered: StoryV2 = {
+  ...clean,
+  qualities: [],
+  chapters: [{ id: "a", title: "A" }, { id: "b", title: "B" }, { id: "c", title: "C", final: true }, { id: "u", title: "Empty", final: true }],
+  checkpoints: [anchor("a1", "a", true), anchor("a2", "a"), anchor("b1", "b"), anchor("b2", "b"), anchor("c1", "c"), anchor("m"), anchor("g", "ghost")],
+  transitions: [hop("a1", "a2"), hop("a1", "b1"), hop("b1", "b2"), hop("b2", "b1"), hop("a1", "c1"), hop("c1", "a1"), hop("a1", "m"), hop("a1", "g")],
+};
+
 describe("runDiagnostics", () => {
   it("reports nothing for a clean story", () => {
     expect(runDiagnostics(clean)).toHaveLength(0);
   });
 
   it("fires every diagnostic exactly once on the seeded-error story, plus the exclusive lore-select with no book (it cannot share the seeded scope)", () => {
-    const diagnostics = [...runDiagnostics(seeded, { worldInfoGating: "scan" }), ...runDiagnostics({ ...clean, lore_select: { lorebooks: [], exclusive: true } })];
+    const diagnostics = [
+      ...runDiagnostics(seeded, { worldInfoGating: "scan" }),
+      ...runDiagnostics({ ...clean, lore_select: { lorebooks: [], exclusive: true } }),
+      ...runDiagnostics(chaptered),
+    ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));
     DIAGNOSTIC_CODES.forEach((code) => {

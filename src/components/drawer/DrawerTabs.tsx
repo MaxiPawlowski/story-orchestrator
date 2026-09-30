@@ -183,6 +183,7 @@ export const DrawerTabs = ({
           onRestart={() => void manager.restartStory()}
           onRetry={() => void manager.retryExtraction()}
           onBranchFromOldest={onBranchFromOldest}
+          onFlagChapter={(title) => void manager.flagMoment(`chapter summary looks wrong: ${title}`)}
         />}
         {activeTab === "overview" && <div className="so-chat-tools flex flex-col gap-3">
         <section id="so-chat-preferences" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2 text-sm">

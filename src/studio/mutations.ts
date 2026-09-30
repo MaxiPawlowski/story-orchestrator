@@ -1,5 +1,5 @@
 import type {
-  ArcBridge, ArcTemplate, Checkpoint, CheckpointEffects, GateNode, PrimitiveValue, Quality, RosterMember,
+  ArcBridge, ArcTemplate, Chapter, ChapterSealPolicy, Checkpoint, CheckpointEffects, GateNode, PrimitiveValue, Quality, RosterMember,
   StoryRequirements, StoryLoreSelect, StorySceneRead, StoryStagecraft, Transition,
 } from "@engine/index";
 import type { StoryDraft } from "./draft";
@@ -178,6 +178,46 @@ export const setHouseRules = (draft: StoryDraft, rules: string[]): StoryDraft =>
   const { house_rules: _dropped, ...rest } = draft;
   return rules.length ? { ...rest, house_rules: rules } : rest;
 };
+
+export const addChapter = (draft: StoryDraft, chapter?: Chapter): StoryDraft => {
+  const chapters = draft.chapters ?? [];
+  const id = chapter?.id ?? nextId(chapters.map((entry) => entry.id), "chapter");
+  return { ...draft, chapters: [...chapters, chapter ?? { id, title: id }] };
+};
+
+export const updateChapter = (draft: StoryDraft, id: string, patch: Partial<Omit<Chapter, "id">>): StoryDraft => ({
+  ...draft,
+  chapters: (draft.chapters ?? []).map((chapter) => (chapter.id === id ? { ...chapter, ...patch } : chapter)),
+});
+
+export const removeChapter = (draft: StoryDraft, id: string): StoryDraft => {
+  const { chapters: _dropped, ...rest } = draft;
+  const chapters = (draft.chapters ?? []).filter((chapter) => chapter.id !== id);
+  const checkpoints = draft.checkpoints.map((checkpoint) => {
+    if (checkpoint.chapter !== id) return checkpoint;
+    const { chapter: _gone, ...kept } = checkpoint;
+    return kept;
+  });
+  return chapters.length ? { ...rest, chapters, checkpoints } : { ...rest, checkpoints };
+};
+
+export const setCheckpointChapter = (draft: StoryDraft, checkpointId: string, chapterId: string): StoryDraft => ({
+  ...draft,
+  checkpoints: draft.checkpoints.map((checkpoint) => {
+    if (checkpoint.id !== checkpointId) return checkpoint;
+    const { chapter: _dropped, ...rest } = checkpoint;
+    return chapterId ? { ...rest, chapter: chapterId } : rest;
+  }),
+});
+
+export const setChapterPolicy = (draft: StoryDraft, id: string, seal: ChapterSealPolicy): StoryDraft => ({
+  ...draft,
+  chapters: (draft.chapters ?? []).map((chapter) => {
+    if (chapter.id !== id) return chapter;
+    const { seal: _dropped, ...rest } = chapter;
+    return Object.keys(seal).length ? { ...rest, seal } : rest;
+  }),
+});
 
 export const setStoryId = (draft: StoryDraft, id: string): StoryDraft => {
   const { id: _dropped, ...rest } = draft;

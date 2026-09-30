@@ -6,14 +6,14 @@ import { generateMemoryId, type MemoryEntry } from "./types";
 // past any of its inputs can drop it AND put back exactly what it removed. Without the second half
 // a rolled-back dedup would leave the loser deleted forever, and a rolled-back exclusion would keep
 // a fact out of the store it was derived for.
-export const DERIVED_KINDS = ["short_term", "scene_summary", "arc_summary", "canon", "exclusion", "dedup"] as const;
+export const DERIVED_KINDS = ["short_term", "scene_summary", "arc_summary", "canon", "exclusion", "dedup", "chapter_seal", "era_merge"] as const;
 export type DerivedKind = typeof DERIVED_KINDS[number];
 
 export const DERIVED_LIMIT = 200;
 
 /** Kinds whose output is re-synthesised by the next pass, so dropping the record marks the canon
  *  stale rather than restoring anything. */
-const RE_DERIVED: DerivedKind[] = ["short_term", "scene_summary", "arc_summary", "canon"];
+const RE_DERIVED: DerivedKind[] = ["short_term", "scene_summary", "arc_summary", "canon", "chapter_seal"];
 
 export interface DerivedRecord {
   id: string;

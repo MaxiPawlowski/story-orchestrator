@@ -41,6 +41,7 @@ export type StoryDiffCode =
   | "house-rules-changed"
   | "arc-template-changed"
   | "arc-bridges-changed"
+  | "chapters-changed"
   | "text-changed";
 
 export interface StoryDiffEntry {
@@ -293,6 +294,9 @@ const diffStoryFields = (ctx: DiffContext) => {
   if (!sameValue(previous.scene_read, next.scene_read)) push("compatible", "scene-read-changed", "scene_read", "The scene tracker's places or times changed.");
   if (!sameValue(previous.arc_template, next.arc_template)) push("compatible", "arc-template-changed", "arc_template", "The dramatic shape changed.");
   if (!sameValue(previous.arc_bridges, next.arc_bridges)) push("compatible", "arc-bridges-changed", "arc_bridges", "How resolved threads feed convergence changed.");
+  if (!sameValue(previous.chapters, next.chapters) || !sameValue(previous.chapterByCheckpoint, next.chapterByCheckpoint) || !sameValue(previous.memory, next.memory)) {
+    push("compatible", "chapters-changed", "chapters", "The story's chapters changed; chapters already sealed keep their records.");
+  }
   if (previous.title !== next.title || previous.description !== next.description) push("compatible", "text-changed", "story", "Title or description changed.");
 };
 
