@@ -33,6 +33,7 @@ const harness = (entries: MemoryEntry[]) => {
     capable: () => false,
     ledgerBindings: () => [],
     setPinnedOverflow: (count) => { overflow.push(count); },
+    beatFor: () => "",
     hosts: () => hosts,
   });
   return { injector, memory, overflow };

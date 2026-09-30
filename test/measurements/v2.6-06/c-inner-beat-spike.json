@@ -1,0 +1,39 @@
+{
+  "plan": "docs/plans/v2.6/06-inner-voice.md",
+  "step": "C0-C6 (spike; the code is built behind memory.innerBeat, default off)",
+  "declaredAt": "2026-09-30",
+  "rule": "Build (switch default on / player surface) only if C1-C5 all pass; otherwise record not built and keep the measurement. Floors are predeclared and never retuned (v2.3 plan 10 invariant).",
+  "switches": {
+    "beat": "extensionSettings[\"story-orchestrator\"].settings.memory.innerBeat = true (default absent = off)",
+    "fanOut": "settings.memory.innerFanOut = \"lead\" (default) | \"top2\" - the two arms of Q3",
+    "role": "Models per task -> Inner voice (PassRole 'inner'); set effort 'off' on a cheap profile (plan 05 R1). Unset = the memory model profile."
+  },
+  "arms": [
+    { "id": "control", "innerBeat": false },
+    { "id": "beat-lead", "innerBeat": true, "innerFanOut": "lead" },
+    { "id": "beat-top2", "innerBeat": true, "innerFanOut": "top2" }
+  ],
+  "c0": {
+    "corpus": "30 decision-point turns: 10 each from Adolion (adolion-fresh import, overview rule 14), sun-ruins (test/fixtures), and the J-fixture story (test/journeys J5 story). A decision point = the turn after a character reply where some member has an authored drive/motive or an open intent.",
+    "procedure": [
+      "Seed each turn's chat up to the decision point (seed_metadata + the transcript), same sampler and seed per pair.",
+      "Arm A: memory.innerBeat on, wait for 'Inner beat used' / 'No inner beat' in the journal for the drafted member, capture the reply.",
+      "Arm B: memory.innerBeat off, same seed, capture the reply.",
+      "Blind the pair order per turn; hand the pack to the human rater (overview rule 11 rating pack) and to the judge rubric."
+    ],
+    "rubric": ["in character", "pursues an established aim (drive / motive / intent)", "never narrates the player's action"]
+  },
+  "floors": {
+    "C1": { "what": "beat ready at draft start", "floor": ">= 0.80 of drafts journal 'Inner beat used for <member>' at a scripted 20 s player pause, AND in one human session", "evidence": "so-journal.mts export -> count 'Inner beat used' / ('Inner beat used' + 'No inner beat' + 'Inner beat stale') per drafted member" },
+    "C2": { "what": "cost", "floor": "<= 2 'inner' calls per player turn", "evidence": "structural: src/runtime/coordinators/innerCoordinator.test.ts#C2 structural bound: at most two inner calls per player turn, repairs and group chains included (INNER_CALLS_PER_TURN = 2); live: the Calls list (model-calls) rows with role inner per player turn" },
+    "C3": { "what": "quality", "floor": "beat arm preferred >= 0.60 of the 30 pairs by the human rater AND by the judge rubric" },
+    "C4": { "what": "agency", "floor": "replies narrating the player's action: beat arm <= control" },
+    "C5": { "what": "no regression", "floor": "J3, J5 (privacy, block-scoped) and J7 green with memory.innerBeat on" }
+  },
+  "c1Recipe": {
+    "journey": "a scripted journey over the J5 story with memory.innerBeat on: per turn send_generate, then wait 20000 ms (the realistic pause), then send the next player line; run once per arm (lead, top2).",
+    "note": "LLM_PARALLEL is 2 and shared with extraction, so top2 may queue behind reads; that queueing is exactly what C1 measures."
+  },
+  "c6": { "gate": "only if C1-C5 pass", "what": "fold BEAT into the director's on-path call (SPEAKER + BEAT, talk/prompt.ts)", "floor": "director accuracy >= its measured baseline AND p95 director latency <= +20%" },
+  "status": "not run (needs real LLMs; overview rule 13 batches measurements when the build decision needs them)"
+}

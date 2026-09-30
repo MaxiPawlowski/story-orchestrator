@@ -38,6 +38,18 @@ export const EmptyThenAdd: Story = {
   },
 };
 
+export const AuthorsADriveAndNarratorView: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(canvas.getByLabelText("Member 1 drive"), "find the lost map");
+    await userEvent.click(canvas.getByLabelText("Member 1 narrator view"));
+    await expect(useDraftStore.getState().draft.roster[0]).toMatchObject({ id: "guide", drive: "find the lost map", view: "omniscient" });
+    await userEvent.clear(canvas.getByLabelText("Member 1 drive"));
+    await userEvent.click(canvas.getByLabelText("Member 1 narrator view"));
+    await expect(useDraftStore.getState().draft.roster[0]).toEqual({ id: "guide", name: "The Guide" });
+  },
+};
+
 export const RemoveMember: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

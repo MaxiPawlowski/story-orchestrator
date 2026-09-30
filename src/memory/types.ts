@@ -90,7 +90,7 @@ export interface ChronicleState {
   eras: EraLine[];
 }
 
-export const EPISTEMIC_TAGS = ["knows", "unaware", "suspects", "believes", "hiding"] as const;
+export const EPISTEMIC_TAGS = ["knows", "unaware", "suspects", "believes", "hiding", "intends"] as const;
 export type EpistemicTag = typeof EPISTEMIC_TAGS[number];
 
 export interface ParsedEpistemicSignal {
@@ -117,6 +117,18 @@ export interface EpistemicEntry {
   /** When a reveal retired this belief. The `supersededBy` marker is display
    *  only; this is what a rollback keys on. */
   retiredAt?: { messageId: number; boundary?: number };
+  affirmedAt?: Array<{ messageId: number; boundary: number }>;
+}
+
+export interface InnerBeat {
+  chatId: string;
+  memberId: string;
+  basedOnMessageId: number;
+  checkpointId: string;
+  beat: string;
+  tone?: string;
+  at: string;
+  used?: boolean;
 }
 
 export interface ParsedLedgerSignal {

@@ -25,6 +25,16 @@ export const Populated: Story = {
   },
 };
 
+export const AuthorsAMotivePerMember: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(canvas.getByLabelText("Motive for The Guide"), "keep the party off the east stair");
+    await expect(useDraftStore.getState().draft.checkpoints[0].motives).toEqual({ guide: "keep the party off the east stair" });
+    await userEvent.clear(canvas.getByLabelText("Motive for The Guide"));
+    await expect(useDraftStore.getState().draft.checkpoints[0].motives).toBeUndefined();
+  },
+};
+
 export const EditName: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

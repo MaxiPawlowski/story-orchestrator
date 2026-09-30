@@ -1,0 +1,26 @@
+{
+  "plan": "docs/plans/v2.6/06-inner-voice.md",
+  "step": "A and D live legs (batched into the final LLM suite, overview rule 13)",
+  "declaredAt": "2026-09-30",
+  "A": {
+    "check": "a payload capture shows the authored drive and motive inside the drafted member's private block only",
+    "recipe": [
+      "import a story whose roster carries drive on two members and a checkpoint motives map",
+      "st-payload.mts arm --persist --out <f.jsonl>",
+      "draft each member with /trigger await=true \"<name>\" (one generation per member, 2026-09-25 gotcha)",
+      "assert inside the private block region (header 'Your private aims') of each request: its own 'What you want:' / 'Right now:' lines, and never another member's"
+    ],
+    "deterministicHalf": "src/runtime/coordinators/innerVoiceInjection.review.test.ts#reach the drafted member only, and the group resting block stays empty"
+  },
+  "D": {
+    "check": "the narrator's request carries the others' rows inside the narrator block; every non-narrator request carries only its own (J5.8 lesson: block-scoped, never whole-body)",
+    "recipe": [
+      "roster with one member view: omniscient (the Adolion narrator pattern)",
+      "seed hiding / intends rows for two members via applyExtractionAudit with a window, draft each member",
+      "narrator request: rows found between the NARRATOR_HEADER line and the next blank line",
+      "other requests: no NARRATOR_HEADER, and their private block names only their own rows"
+    ],
+    "deterministicHalf": "src/runtime/coordinators/innerVoiceInjection.review.test.ts#an omniscient member's block carries the others' private rows under the concealment header; no other member's does"
+  },
+  "status": "not run (needs real LLMs)"
+}

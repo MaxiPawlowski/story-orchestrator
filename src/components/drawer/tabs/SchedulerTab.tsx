@@ -3,6 +3,7 @@ import type { RuntimeManager } from "@runtime/index";
 import StagecraftPanel from "../StagecraftPanel";
 import ChaptersPanel from "../ChaptersPanel";
 import ModelCallsPanel from "../ModelCallsPanel";
+import InnerVoicePanel from "../InnerVoicePanel";
 import { MessageCitation } from "../MessageCitation";
 
 const TALK_SOURCE_LABELS: Record<string, string> = {
@@ -73,6 +74,7 @@ export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: Runt
     <ChaptersPanel snapshot={snapshot} manager={manager} />
     <StagecraftPanel snapshot={snapshot} manager={manager} onOpenFact={onOpenFact} />
     <TalkDecisionsPanel snapshot={snapshot} />
+    <InnerVoicePanel snapshot={snapshot} />
     <ModelCallsPanel calls={snapshot.modelCalls ?? []} />
     <div className="text-xs opacity-80">
       <div className="font-medium opacity-100">Extraction</div>

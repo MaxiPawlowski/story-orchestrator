@@ -542,7 +542,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   rosterIdForName(name: string): string | null { return rosterIdForName(this.loaded?.story ?? null, name); }
 
   onGenerationStarted(type: unknown, dryRun?: unknown) {
-    if (withholds(type)) this.withholdTurnBlocks(); else this.memory.releaseStaleHold();
+    if (withholds(type)) this.withholdTurnBlocks(); else { this.memory.releaseStaleHold(); this.memory.injector.onSoloGeneration(); }
     this.memory.chapters.carryBridge(type);
     this.stagecraft.onGenerationStarted(type, dryRun);
   }

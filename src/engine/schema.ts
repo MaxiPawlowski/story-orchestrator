@@ -187,6 +187,7 @@ export interface Checkpoint {
   agency?: Partial<AgencyPolicy>;
   guidance?: string;
   convergence_threshold?: number;
+  motives?: Record<string, string>;
   chapter?: string;
 }
 
@@ -237,10 +238,15 @@ export interface Transition {
   extraction_hint?: string;
 }
 
+export const ROSTER_VIEWS = ["own", "omniscient"] as const;
+export type RosterView = (typeof ROSTER_VIEWS)[number];
+
 export interface RosterMember {
   id: string;
   name?: string;
   role?: string;
+  drive?: string;
+  view?: RosterView;
 }
 
 export interface ScaffoldingBeat {

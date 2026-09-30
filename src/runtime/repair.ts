@@ -59,6 +59,7 @@ export const ROLE_CONSEQUENCES: Record<PassRole, string> = {
   authoring: "The wizard, the driver's suggestions and the prepared road ahead stop working.",
   director: "Speaker direction falls back to ST's own choice.",
   curator: "The World Info curator stops proposing changes.",
+  inner: "Characters stop preparing a private intent before they speak.",
 };
 
 function roleStep(snapshot: RuntimeSnapshot): RepairStep | null {

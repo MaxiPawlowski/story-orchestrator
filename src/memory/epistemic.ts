@@ -1,13 +1,15 @@
 import { jaccardSimilarity } from "./similarity";
 import { isLive, keepPinnedFrom, provenance as provenanceOf, type ProvenanceSource } from "./provenance";
 import { EPISTEMIC_TAGS, generateMemoryId, type EpistemicEntry, type EpistemicTag, type ParsedEpistemicSignal } from "./types";
+import { lastAffirmed } from "./innerVoice";
 
 export const EPISTEMIC_MIN_LENGTH = 3;
 export const EPISTEMIC_DEDUP_THRESHOLD = 0.6;
 export const EPISTEMIC_CAP = 80;
 export const EPISTEMIC_SUBJECT_CAP = 12;
+export const AFFIRMATION_CAP = 32;
 
-const PRIVATE_TAGS: EpistemicTag[] = ["knows", "suspects", "believes", "hiding"];
+const PRIVATE_TAGS: EpistemicTag[] = ["knows", "suspects", "believes", "hiding", "intends"];
 
 const normalize = (value: string): string => value.trim().toLowerCase();
 
@@ -71,7 +73,11 @@ export function applyEpistemicSignals(
     if (content.length < EPISTEMIC_MIN_LENGTH) continue;
     const subject = signal.subject.trim();
     if (!subject) continue;
-    if ([...next, ...added].some((entry) => isDuplicate(entry, signal))) continue;
+    const same = [...next, ...added].find((entry) => isDuplicate(entry, signal));
+    if (same && signal.tag === "intends" && typeof ctx.messageId === "number" && ctx.messageId > lastAffirmed(same).messageId) {
+      same.affirmedAt = [...(same.affirmedAt ?? []), { messageId: ctx.messageId, boundary: ctx.boundary }].slice(-AFFIRMATION_CAP);
+    }
+    if (same) continue;
     added.push({
       id: generateMemoryId(),
       ...withProvenance(ctx, `epistemic:${signal.tag}`),
@@ -105,6 +111,7 @@ const TAG_PHRASING: Record<EpistemicTag, string> = {
   believes: "You believe",
   unaware: "You are unaware that",
   hiding: "You are concealing",
+  intends: "You intend",
 };
 
 export function renderPrivateEpistemicBlock(entries: EpistemicEntry[], names: string[]): string {
@@ -120,15 +127,16 @@ export function renderPrivateEpistemicBlock(entries: EpistemicEntry[], names: st
   return ["Your private knowledge (stay in character — never narrate what you conceal or do not know):", ...lines].join("\n");
 }
 
-const ATTRIBUTED_TAGS: EpistemicTag[] = ["knows", "suspects", "believes", "unaware", "hiding"];
+const ATTRIBUTED_TAGS: EpistemicTag[] = ["knows", "suspects", "believes", "unaware", "hiding", "intends"];
 
-function attributedLine(subject: string, entry: EpistemicEntry): string {
+export function attributedEpistemicLine(subject: string, entry: EpistemicEntry): string {
   switch (entry.tag) {
     case "knows": return `- ${subject} knows: ${entry.content}`;
     case "suspects": return `- ${subject} suspects ${entry.content}`;
     case "believes": return `- ${subject} believes ${entry.content}`;
     case "unaware": return `- ${subject} is unaware that ${entry.content}`;
     case "hiding": return entry.hiddenFrom ? `- ${subject} is concealing from ${entry.hiddenFrom}: ${entry.content}` : `- ${subject} is concealing: ${entry.content}`;
+    case "intends": return `- ${subject} intends: ${entry.content}`;
   }
 }
 
@@ -144,7 +152,7 @@ export function renderAttributedEpistemicBlock(entries: EpistemicEntry[], names:
     seen.add(key);
     const theirs = active.filter((entry) => normalize(entry.subject) === key);
     for (const tag of ATTRIBUTED_TAGS) {
-      for (const entry of theirs.filter((candidate) => candidate.tag === tag)) lines.push(attributedLine(name.trim(), entry));
+      for (const entry of theirs.filter((candidate) => candidate.tag === tag)) lines.push(attributedEpistemicLine(name.trim(), entry));
     }
   }
   if (!lines.length) return "";
@@ -175,8 +183,10 @@ export function rollbackEpistemic(entries: EpistemicEntry[], messageId: number):
   return entries
     .flatMap((entry) => keepPinnedFrom(entry, messageId))
     .map((entry) => {
-      if (!entry.retiredAt || entry.retiredAt.messageId < messageId) return entry;
-      const { supersededBy: _by, retiredAt: _at, ...rest } = entry;
+      const affirmed = entry.affirmedAt?.filter((stamp) => stamp.messageId < messageId);
+      const kept = affirmed ? { ...entry, affirmedAt: affirmed.length ? affirmed : undefined } : entry;
+      if (!kept.retiredAt || kept.retiredAt.messageId < messageId) return kept;
+      const { supersededBy: _by, retiredAt: _at, ...rest } = kept;
       return rest;
     });
 }

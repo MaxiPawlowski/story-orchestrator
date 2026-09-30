@@ -1,6 +1,11 @@
+import type { RosterView } from "@engine/index";
 import type { ProposalOp } from "../types";
 
-export type AgentOnlyOp = { kind: "setHouseRules"; rules: string[] };
+export type AgentOnlyOp =
+  | { kind: "setHouseRules"; rules: string[] }
+  | { kind: "setRosterDrive"; id: string; drive: string }
+  | { kind: "setRosterView"; id: string; view: RosterView }
+  | { kind: "setCheckpointMotive"; id: string; member: string; motive: string };
 
 export type AgentOp = ProposalOp | AgentOnlyOp;
 

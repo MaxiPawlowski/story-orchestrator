@@ -162,7 +162,7 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
       continue;
     }
 
-    if (/^\[(knows|unaware|suspects|believes|hiding)\]/i.test(line)) {
+    if (/^\[(knows|unaware|suspects|believes|hiding|intends)\]/i.test(line)) {
       const signal = parseEpistemicLine(line);
       if (signal) result.epistemic.push(signal);
       else result.rejected.push({ line, reason: "invalid epistemic line" });

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { TENSION_LEVELS, type ArcBridge, type Checkpoint, type CheckpointEffects, type PrimitiveValue, type TalkControl, type TensionLevel } from "@engine/index";
 import { useDraftStore } from "../draft";
 import { addCheckpoint, clearStartCheckpoint, removeCheckpoint, setArcBridges, setStartCheckpoint, updateCheckpoint } from "../mutations";
+import { setCheckpointMotive } from "../innerVoiceMutations";
 import AgencyEditor from "./AgencyEditor";
 import SnapshotEditor from "./SnapshotEditor";
 import EffectsEditor from "./EffectsEditor";
@@ -162,6 +163,28 @@ const CheckpointBasics = ({ selected, patch, onStart }: { selected: Checkpoint; 
   </>
 );
 
+const MotivesEditor = ({ selected, draft }: { selected: Checkpoint; draft: Draft }) => {
+  const mutate = useDraftStore((state) => state.mutate);
+  if (!draft.roster.length) return <div className="text-xs st-muted">Add cast in the Roster tab to give each character a motive here.</div>;
+  return (
+    <div data-so="motives-editor" className="flex flex-col gap-2">
+      {draft.roster.map((member) => (
+        <label key={member.id} className="flex flex-col gap-1 text-xs">
+          <span>{member.name || member.id}</span>
+          <input
+            className="text_pole st-input"
+            aria-label={`Motive for ${member.name || member.id}`}
+            maxLength={200}
+            placeholder="optional — what they want in this beat"
+            value={selected.motives?.[member.id] ?? ""}
+            onChange={(event) => mutate((current) => setCheckpointMotive(current, selected.id, member.id, event.target.value))}
+          />
+        </label>
+      ))}
+    </div>
+  );
+};
+
 const CheckpointBehaviour = ({ selected, draft, backgroundNames, patch }: { selected: Checkpoint; draft: Draft; backgroundNames: string[]; patch: Patch }) => (
   <>
     <div className="flex flex-col gap-1">
@@ -190,6 +213,11 @@ const CheckpointBehaviour = ({ selected, draft, backgroundNames, patch }: { sele
         roster={draft.roster}
         onChange={(next: TalkControl | undefined) => patch({ talk_control: next })}
       />
+    </div>
+
+    <div className="flex flex-col gap-1">
+      <span className="text-xs st-muted">Motives (each character is told only their own)</span>
+      <MotivesEditor selected={selected} draft={draft} />
     </div>
 
     <div className="flex flex-col gap-1">
