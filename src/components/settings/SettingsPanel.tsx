@@ -8,11 +8,11 @@ import CapabilitiesGroup, { type CapabilitiesGroupProps } from "./CapabilitiesGr
 import EntryPoints from "./EntryPoints";
 import JudgeSettingsGroup, { type JudgeSettingsGroupProps, type JudgeSettingsPatch } from "./JudgeSettingsGroup";
 import { StoryGroup } from "./StoryGroup";
-import { MemoryModelGroup } from "./MemoryModelGroup";
 import { DisplayGroup, LorebooksGroup, PacingGroup, StagecraftGroup, TalkGroup } from "./PlayGroups";
 
 const ImageGroup = lazy(() => import("../../image/ImageGroup"));
 const SpriteGroup = lazy(() => import("../../sprites/SpriteGroup"));
+const MemoryModelGroup = lazy(() => import("./MemoryModelGroup").then((module) => ({ default: module.MemoryModelGroup })));
 
 export interface SettingsHost {
   extensionVersion: string;
@@ -117,7 +117,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             <summary>General setup <span className="opacity-60">— shared by every chat</span></summary>
             <div className="flex flex-col gap-3 pt-2">
               <p className="text-xs opacity-80">Connection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.</p>
-              <MemoryModelGroup snapshot={snapshot} manager={manager} />
+              <Suspense fallback={null}><MemoryModelGroup snapshot={snapshot} manager={manager} /></Suspense>
               <DisplayGroup snapshot={snapshot} manager={manager} />
               <Suspense fallback={<div className="text-xs">Loading image setup…</div>}><ImageGroup manager={manager} /></Suspense>
               <Suspense fallback={null}><SpriteGroup manager={manager} /></Suspense>

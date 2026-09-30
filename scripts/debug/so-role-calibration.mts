@@ -7,8 +7,9 @@ import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { saveSettingsNow } from './lib/settingsSave.mts';
 import { roleVerdict, summarizeHoldout, type RoleRun } from './lib/roleVerdict.mts';
+import { effortArmLabel, parseEffortArm, pinRoleEffort, readRoleReasoning, restoreRoleEfforts, type EffortArm } from './lib/roleEffort.mts';
 
-const USAGE = `Usage: node scripts/debug/so-role-calibration.mts run --role director|curator|authoring|synthesis [--profile <name|id>] [--arm <label>] [--filter <id>] [--record] [--expect-count <n>] [--holdout] [--digest-pad <book>]
+const USAGE = `Usage: node scripts/debug/so-role-calibration.mts run --role director|curator|authoring|synthesis [--profile <name|id>] [--effort default|off|low|medium|high] [--arm <label>] [--filter <id>] [--record] [--expect-count <n>] [--holdout] [--digest-pad <book>]
        node scripts/debug/so-role-calibration.mts verdict <report-run1.json> <report-run2.json>
 
 v2.4 plan 08 T18 per-role calibration. Runs every case of the role's fixture through the role's real
@@ -19,6 +20,9 @@ then scores it against the floors predeclared in docs/plans/v2.4/08-author-obser
   --profile <name|id>  route the role to this Connection Manager profile for the run (extraction.profiles[role]);
                        without it the role is UNSET for the run (the memory-model fallback). The role map is
                        restored afterwards and read back.
+  --effort <level>     v2.6 plan 05 R3: pin this role's reasoning effort for the run (extraction.routes[role]); the role map is
+                       restored afterwards and read back. The report records what the connection did with it (applied /
+                       unsupported / collapsed) and the reasoning it spent. The arm label gains -effort-<level>.
   --arm <label>        golden file suffix (default: routed when --profile is given, else shared)
   --record             write test/goldens/live/role-calibration/<role>-<arm>.json (replayed in jest)
   --expect-count <n>   fail unless exactly n cases ran (the fixture's cases; hold-out rows are counted apart)
@@ -178,13 +182,16 @@ async function runCases(page, role: string, cases, digestPad: string | null = nu
   return { records, incomplete };
 }
 
-async function runRole(page, { role, profile, arm, filter, record, expectCount, holdout, digestPad = null }) {
+async function runRole(page, { role, profile, effort = null, arm, filter, record, expectCount, holdout, digestPad = null }: { role: string; profile: string | null; effort?: EffortArm | null; arm: string; filter: string; record: boolean; expectCount: number | null; holdout: boolean; digestPad?: string | null }) {
   if (!ROLES.includes(role)) throw new Error(`--role must be one of ${ROLES.join(', ')}`);
   if (digestPad && role !== 'curator') throw new Error('--digest-pad is a curator calibration option');
   const loaded = await loadCases(role);
   const cases = loaded.cases.filter((entry) => !filter || entry.id.includes(filter));
   const manifest = JSON.parse(await readFile(join(PROJECT_ROOT, 'dist/manifest.json'), 'utf-8'));
   const route = await setRoute(page, role, profile);
+  const pinned = effort ? await pinRoleEffort(page, role, effort) : null;
+  let reasoning = null;
+  let effortsRestored = null;
   const holdoutCases = holdout ? (await loadHoldout(role))?.cases ?? null : null;
   if (holdout && !holdoutCases) throw new Error(`--holdout: the ${role} role has no hold-out fixture`);
   let run = { records: [], incomplete: [] };
@@ -194,8 +201,10 @@ async function runRole(page, { role, profile, arm, filter, record, expectCount, 
     await evaluateInST(page, () => { for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return true; });
     run = await runCases(page, role, cases, digestPad);
     if (holdoutCases) held = await runCases(page, role, holdoutCases);
+    reasoning = await readRoleReasoning(page, role);
   } finally {
     restored = await restoreRoute(page, route.before);
+    if (pinned) effortsRestored = await restoreRoleEfforts(page, pinned.before);
   }
   const { records, incomplete } = run;
   const holdoutSummary = holdoutCases ? summarizeHoldout(held.records) : null;
@@ -206,13 +215,16 @@ async function runRole(page, { role, profile, arm, filter, record, expectCount, 
     ...(held.incomplete.length ? [`hold-out incomplete: ${held.incomplete.map((entry) => entry.id).join(', ')}`] : []),
     ...(expectCount !== null && records.length + incomplete.length !== expectCount ? [`ran ${records.length + incomplete.length} case(s), expected ${expectCount}`] : []),
   ];
-  const armLabel = arm || (digestPad ? 'digest' : profile ? 'routed' : 'shared');
+  const armLabel = arm || effortArmLabel(digestPad ? 'digest' : profile ? 'routed' : 'shared', effort);
   const digestRatios = digestPad ? records.map((entry) => entry.digest?.ratio).filter((value) => typeof value === 'number') : [];
   const report = {
     role,
     arm: armLabel,
     profile: route.profile,
     routeDuringRun: route.route,
+    effort: effort ?? 'unpinned',
+    reasoning,
+    effortsRestored,
     roleMapRestored: restored,
     fixtureFrozenAt: loaded.frozenAt,
     bundle: String(manifest.bundle?.sha256 ?? '').slice(0, 12),
@@ -251,6 +263,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   runCli((page) => runRole(page, {
     role: argValue('--role', ''),
     profile: argValue('--profile', '') || null,
+    effort: parseEffortArm(argValue('--effort', '')),
     arm: argValue('--arm', ''),
     filter: argValue('--filter', ''),
     record: process.argv.includes('--record'),

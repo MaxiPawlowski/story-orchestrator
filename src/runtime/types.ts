@@ -15,7 +15,8 @@ import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./nar
 import type { AgencyRecovery } from "./agencyRecovery";
 import type { NextTurnContributor, NextTurnCost, NextTurnForeignRow } from "./nextTurn";
 import type { ChatJumpIndex } from "./messageJump";
-import type { PassProfiles } from "./passProfiles";
+import type { PassProfiles, RoleRoutes } from "./passProfiles";
+import type { ReasoningBudget } from "@utils/reasoningEffort";
 import type { RoleRouteView } from "./roleHealth";
 import type { ModelCallRow } from "./modelCalls";
 import type { PromptBucketState } from "./promptBuckets";
@@ -297,6 +298,8 @@ export interface ExtractionRuntimeSettings {
   profileId: string | null;
   /** Install-wide per-role profiles; an unset role uses `profileId`. */
   profiles?: PassProfiles;
+  routes?: RoleRoutes;
+  reasoningBudget?: ReasoningBudget;
   cadence: number;
   reconciliationMultiplier: number;
   stabilityLag: number;

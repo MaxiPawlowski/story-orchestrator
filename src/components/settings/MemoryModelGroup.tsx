@@ -5,11 +5,12 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import type { SelfTestReport } from "@runtime/selfTest";
 import { createModelCall } from "@runtime/modelCall";
 import { roleHealth } from "@runtime/roleHealth";
-import { resolvedProfileId, resolveRoute } from "@runtime/passProfiles";
+import { resolvedProfileId, resolveRoute, withRoleEffort } from "@runtime/passProfiles";
+import type { ReasoningEffort } from "@utils/reasoningEffort";
 import type { PassRole } from "@extraction/passRole";
 import HelpTooltip from "@components/studio/HelpTooltip";
-import { RoleProfilesGroup } from "./RoleProfilesGroup";
 import { GroupHeader } from "./GroupHeader";
+import { RoleProfilesGroup } from "./RoleProfilesGroup";
 
 type Settings = RuntimeSnapshot["extraction"]["settings"];
 
@@ -88,6 +89,8 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
     manager.setExtractionSettings({ profiles: profileId ? { ...rest, [role]: profileId } : rest });
   };
 
+  const setRoleEffort = (role: PassRole, effort: ReasoningEffort) => manager.setExtractionSettings({ routes: withRoleEffort(settings.routes, role, effort) });
+
   const testRole = async (role: PassRole) => {
     const route = resolveRoute(settings, role, (id) => profiles.some((profile) => profile.id === id));
     setTestingRole(role);
@@ -133,6 +136,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         testing={testingRole}
         onAssign={assignRole}
         onTest={(role) => void testRole(role)}
+        onEffort={setRoleEffort}
       />
     </div>
   );

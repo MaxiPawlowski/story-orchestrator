@@ -5,9 +5,10 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
+import { latencyPercentiles, parseEffortArm, pinRoleEffort, readRoleReasoning, restoreRoleEfforts, type EffortArm } from './lib/roleEffort.mts';
 import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
 
-const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge]
+const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high]
 
 Runs every test/fixtures/extractor*.{story,transcript,expected}.json triple through the live
 extraction model (globalThis.storyOrchestratorLiveSuite.runFixture) and scores exact-match on
@@ -19,6 +20,8 @@ memory profile selected in the extension settings.
   --min <n>       minimum accuracy for exit 0 (default 0.9)
   --filter <s>    only run fixtures whose name contains <s>
   --record        write each live raw response to test/goldens/live/<name>.response.txt
+  --effort <lvl>  v2.6 plan 05 R3: pin the read role's reasoning effort for the run (restored and read back after);
+                  the report gains effort, the connection's reasoning read-out and p50/p95 latency. Not with --record.
   --min-tier <s>  per-tier floors over the defaults facts=0.85,rejected=0.9,epistemic=0.8,ledger=0.8,arcs=0.8
                   (a tier below its floor fails; tier=0 switches one off, and the report says so)
   --expect-count <n>  fail unless exactly n fixtures ran — a shrinking denominator cannot raise accuracy
@@ -80,44 +83,53 @@ async function discoverFixtures(filter) {
   return fixtures;
 }
 
-async function runSuite(page, { min, filter, record, judge = false, floors = DEFAULT_TIER_FLOORS as Partial<Record<string, number>>, floorsGiven = [] as string[], expectCount = null }) {
+async function runSuite(page, { min, filter, record, judge = false, floors = DEFAULT_TIER_FLOORS as Partial<Record<string, number>>, floorsGiven = [] as string[], expectCount = null, effort = null as EffortArm | null }) {
+  if (effort && record) throw new Error('--effort is a measurement arm; it never records over the live goldens');
   const fixtures = await discoverFixtures(filter);
   if (!fixtures.length) throw new Error(`No fixtures found in ${FIX_DIR}`);
   if (record) await mkdir(judge ? JUDGE_GOLDEN_DIR : LIVE_GOLDEN_DIR, { recursive: true });
+  const pinned = effort ? await pinRoleEffort(page, 'read', effort) : null;
+  let reasoning = null;
+  let effortsRestored = null;
 
   const results = [];
-  for (const fixture of fixtures) {
-    const startedAt = Date.now();
-    try {
-      const live = await evaluateInST(page, async (spec) => {
-        const suite = globalThis.storyOrchestratorLiveSuite;
-        if (!suite) throw new Error('storyOrchestratorLiveSuite not registered');
-        return suite.runFixture({ story: spec.story, transcript: spec.transcript, ...(spec.overrides ?? {}) }, spec.judge ? { judge: true, hints: spec.hints ?? {} } : {});
-      }, { story: fixture.story, transcript: fixture.transcript, overrides: fixture.expected?.spec ?? {}, judge, hints: fixture.hints });
+  try {
+    for (const fixture of fixtures) {
+      const startedAt = Date.now();
+      try {
+        const live = await evaluateInST(page, async (spec) => {
+          const suite = globalThis.storyOrchestratorLiveSuite;
+          if (!suite) throw new Error('storyOrchestratorLiveSuite not registered');
+          return suite.runFixture({ story: spec.story, transcript: spec.transcript, ...(spec.overrides ?? {}) }, spec.judge ? { judge: true, hints: spec.hints ?? {} } : {});
+        }, { story: fixture.story, transcript: fixture.transcript, overrides: fixture.expected?.spec ?? {}, judge, hints: fixture.hints });
 
-      const { pass, expectedNorm, liveNorm } = scoreFixture(fixture.expected.deltas ?? [], live.deltas ?? []);
-      // §F: score every tier the fixture states, not only the plot deltas. `facts` and `rejected`
-      // expectations have been in these files all along with nothing reading them.
-      const tiers = [
-        { tier: 'deltas' as const, scored: true, pass, detail: `expected=[${expectedNorm.join(', ')}] live=[${liveNorm.join(', ')}]` },
-        scoreContains('facts', fixture.expected.facts, live.facts ?? []),
-        scoreRejected(fixture.expected.rejected, live.rejected ?? []),
-        scoreContains('memory', fixture.expected.memory, live.memory ?? []),
-        scoreContains('arcs', fixture.expected.arcs, live.arcs ?? []),
-        scoreContains('epistemic', fixture.expected.epistemic, live.epistemic ?? []),
-        scoreContains('ledger', fixture.expected.ledger, live.ledger ?? []),
-      ].filter((row) => row.scored);
-      const tierFailures = tiers.filter((row) => !row.pass);
-      const sources = (live.deltas ?? []).map((d) => `${d.q}:${d.judge === undefined ? 'llm' : `judge@${d.judge}`}`);
-      results.push({ name: fixture.name, pass, tiers, expected: expectedNorm, live: liveNorm, ...(judge ? { sources, judged: live.judged?.answered ?? [] } : {}), ms: Date.now() - startedAt });
-      for (const row of tierFailures) console.log(`  ${row.tier}: ${row.detail}`);
-      if (record && judge) await writeFile(join(JUDGE_GOLDEN_DIR, `${fixture.name}.json`), `${JSON.stringify({ rawResponse: live.rawResponse, judged: live.judged ?? null }, null, 2)}\n`);
-      else if (record) await writeFile(join(LIVE_GOLDEN_DIR, `${fixture.name}.response.txt`), `${live.rawResponse}\n`);
-      console.log(`${pass ? 'PASS' : 'FAIL'} ${fixture.name} expected=[${expectedNorm.join(', ')}] live=[${liveNorm.join(', ')}]${judge ? ` sources=[${sources.join(', ')}]` : ''}`);
-    } catch (err) {
-      results.push({ name: fixture.name, pass: false, error: err instanceof Error ? err.message : String(err), ms: Date.now() - startedAt });
-      console.log(`FAIL ${fixture.name} ERROR ${err instanceof Error ? err.message : String(err)}`);
+        const { pass, expectedNorm, liveNorm } = scoreFixture(fixture.expected.deltas ?? [], live.deltas ?? []);
+        // §F: score every tier the fixture states, not only the plot deltas. `facts` and `rejected`
+        // expectations have been in these files all along with nothing reading them.
+        const tiers = [
+          { tier: 'deltas' as const, scored: true, pass, detail: `expected=[${expectedNorm.join(', ')}] live=[${liveNorm.join(', ')}]` },
+          scoreContains('facts', fixture.expected.facts, live.facts ?? []),
+          scoreRejected(fixture.expected.rejected, live.rejected ?? []),
+          scoreContains('memory', fixture.expected.memory, live.memory ?? []),
+          scoreContains('arcs', fixture.expected.arcs, live.arcs ?? []),
+          scoreContains('epistemic', fixture.expected.epistemic, live.epistemic ?? []),
+          scoreContains('ledger', fixture.expected.ledger, live.ledger ?? []),
+        ].filter((row) => row.scored);
+        const tierFailures = tiers.filter((row) => !row.pass);
+        const sources = (live.deltas ?? []).map((d) => `${d.q}:${d.judge === undefined ? 'llm' : `judge@${d.judge}`}`);
+        results.push({ name: fixture.name, pass, tiers, expected: expectedNorm, live: liveNorm, ...(judge ? { sources, judged: live.judged?.answered ?? [] } : {}), ms: Date.now() - startedAt });
+        for (const row of tierFailures) console.log(`  ${row.tier}: ${row.detail}`);
+        if (record && judge) await writeFile(join(JUDGE_GOLDEN_DIR, `${fixture.name}.json`), `${JSON.stringify({ rawResponse: live.rawResponse, judged: live.judged ?? null }, null, 2)}\n`);
+        else if (record) await writeFile(join(LIVE_GOLDEN_DIR, `${fixture.name}.response.txt`), `${live.rawResponse}\n`);
+        console.log(`${pass ? 'PASS' : 'FAIL'} ${fixture.name} expected=[${expectedNorm.join(', ')}] live=[${liveNorm.join(', ')}]${judge ? ` sources=[${sources.join(', ')}]` : ''}`);
+      } catch (err) {
+        results.push({ name: fixture.name, pass: false, error: err instanceof Error ? err.message : String(err), ms: Date.now() - startedAt });
+        console.log(`FAIL ${fixture.name} ERROR ${err instanceof Error ? err.message : String(err)}`);
+      }
     }
+    if (pinned) reasoning = await readRoleReasoning(page, 'read');
+  } finally {
+    if (pinned) effortsRestored = await restoreRoleEfforts(page, pinned.before);
   }
 
   const passed = results.filter((entry) => entry.pass).length;
@@ -140,9 +152,10 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
     ok: verdict.ok,
     recorded: record,
     judge,
+    ...(effort ? { effort, reasoning, effortsRestored, latency: latencyPercentiles(results.map((entry) => entry.ms)) } : {}),
     results,
   };
-  await writeJSON(report, judge ? 'so-live-suite-judge-report' : 'so-live-suite-report');
+  await writeJSON(report, judge ? 'so-live-suite-judge-report' : effort ? `so-live-suite-effort-${effort}-report` : 'so-live-suite-report');
   for (const [tier, total] of Object.entries(totals)) {
     console.log(`${total.ok ? 'ok  ' : 'FAIL'} ${tier.padEnd(10)} ${total.passed}/${total.scored}${total.floor === undefined ? '' : ` floor ${total.floor}`}${total.vacuous.length ? `  [vacuous expectations: ${total.vacuous.join(', ')}]` : ''}`);
   }
@@ -167,5 +180,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   }
   const expectCountRaw = argValue('--expect-count', '');
-  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null }));
+  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null, effort: parseEffortArm(argValue('--effort', '')) }));
 }
