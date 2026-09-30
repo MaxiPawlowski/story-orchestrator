@@ -47,17 +47,35 @@ Captures (the "verify by" column above) need a live ST + backend and run with R3
 **OpenRouter (W23):** `bodyParams.reasoning = { exclude: !include_reasoning }` and `reasoning.effort = reasoning_effort` verbatim
 (`chat-completions.js:2301-2350`). The client maps `min` to `none` for OpenRouter (`openai.js:2619`), so `none` is accepted.
 
-**Mapping as built (`src/services/stHost/reasoningPayload.ts`):**
+**Mapping as built (`src/services/stHost/reasoningPayload.ts`).** Kept to the sources this install plays on plus the ones
+whose server branch takes the level verbatim; the rest say "not mapped" instead of guessing (the bundle budget, §Gate record,
+also argued for a short table). DeepSeek (`low`/`high` only, `chat-completions.js:1122`) and `koboldcpp/*` behind `custom`
+(`:2604`) are verified and deliberately left unmapped until a profile needs them.
 
 | Source | `off` | `low` / `medium` / `high` |
 |---|---|---|
 | `openrouter` | `reasoning_effort: "none"`, reasoning excluded | the level, `include_reasoning: true` |
 | `custom` (llama-server etc.) | `custom_include_body` merged with `chat_template_kwargs.enable_thinking: false` | `enable_thinking: true` (collapsed: one "on" level) |
-| `custom` + `koboldcpp/*` | `reasoning_effort: "minimal"` | the level |
 | `makersuite`, `vertexai` | `reasoning_effort: "min"` (Flash budget 0; Pro keeps its minimum, `prompt-converters.js:1182`) | the level |
-| `openai`, `azure_openai`, `claude`, `xai`, `aimlapi`, `electronhub`, `perplexity`, `chutes`, `fireworks` | **unsupported** | the level (the server maps or drops it per model: OpenAI only for reasoning models, Claude via `calculateClaudeBudgetTokens` as a fraction of `max_tokens` with a 1024 floor) |
-| `deepseek` | **unsupported** | `low` → low, `medium`/`high` → high (the client's own mapping) |
-| anything else, Text Completion | **unsupported** | **unsupported** |
+| `openai`, `azure_openai`, `claude`, `xai` | **unsupported** | the level (the server maps or drops it per model: OpenAI only for reasoning models, Claude via `calculateClaudeBudgetTokens` as a fraction of `max_tokens` with a 1024 floor) |
+| anything else, Text Completion | **unsupported** ("not mapped" / "Text Completion sends a raw prompt") | **unsupported** |
+
+**Decisions made while building (R1/R2):**
+
+- `inner` is not added to `PASS_ROLES` here. Plan 06 Q4 makes it its own role, and plan 06 owns the pass, its self-test run
+  (`roleSelfTest.ts` `RUNS`), its live-suite `ROLE_PASS` entry and its Repair consequence. Effort and budget are keyed by
+  `PassRole` everywhere (`sanitizeRoleRoutes` iterates `PASS_ROLES`), so `inner` gets both the moment plan 06 adds it.
+- `reasoningBudget` is an install-wide settings key (`extraction.reasoningBudget`, sanitized per level to an integer in
+  0–32768, defaults low 512 / medium 2048 / high 6144). No panel control: R3 sets it, and the three number inputs cost more
+  bundle than the budget had left.
+- The "Models per task" disclosure (`RoleProfilesGroup`) is now a lazy chunk (the `SettingsPanel` `ImageGroup` shape): the
+  effort select lives there, and the main entry had 6.9 KB of headroom against ~8 KB for the feature.
+- `reasoning-exhausted` is also raised when a reply was ONLY an inline think block (`stripReasoningBlocks` left nothing):
+  before, that read as an empty answer and a parse failure. A probe that exhausts still counts as the model answering.
+- The call record is per role, in memory, on `roleHealth` (the snapshot's `roleRoutes`), not a new ring: the last
+  observation per role carries the meter (`effort`, `applied`, `collapsed`, `unsupported`, `budget`, reasoning `chars`,
+  `tokens`) or the exhaustion. An observation made under another profile or effort is ignored, so a fixed setting clears the
+  Repair row at once. There is no plan 13 call ring in the tree to extend.
 
 ## R1 — One `effort` per role, across every route kind
 

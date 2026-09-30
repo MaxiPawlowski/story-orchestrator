@@ -1,4 +1,4 @@
-import { useRef, useState } from "react";
+import { lazy, Suspense, useRef, useState } from "react";
 import { listConnectionProfiles, profileExists } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
@@ -6,11 +6,12 @@ import type { SelfTestReport } from "@runtime/selfTest";
 import { createModelCall } from "@runtime/modelCall";
 import { roleHealth } from "@runtime/roleHealth";
 import { resolvedProfileId, resolveRoute, withRoleEffort } from "@runtime/passProfiles";
-import { DEFAULT_REASONING_BUDGET, type ReasoningEffort, type ReasoningLevel } from "@utils/reasoningEffort";
+import type { ReasoningEffort } from "@utils/reasoningEffort";
 import type { PassRole } from "@extraction/passRole";
 import HelpTooltip from "@components/studio/HelpTooltip";
-import { RoleProfilesGroup } from "./RoleProfilesGroup";
 import { GroupHeader } from "./GroupHeader";
+
+const RoleProfilesGroup = lazy(() => import("./RoleProfilesGroup").then((module) => ({ default: module.RoleProfilesGroup })));
 
 type Settings = RuntimeSnapshot["extraction"]["settings"];
 
@@ -91,9 +92,6 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
 
   const setRoleEffort = (role: PassRole, effort: ReasoningEffort) => manager.setExtractionSettings({ routes: withRoleEffort(settings.routes, role, effort) });
 
-  const setReasoningBudget = (level: ReasoningLevel, tokens: number) =>
-    manager.setExtractionSettings({ reasoningBudget: { ...(settings.reasoningBudget ?? DEFAULT_REASONING_BUDGET), [level]: tokens } });
-
   const testRole = async (role: PassRole) => {
     const route = resolveRoute(settings, role, (id) => profiles.some((profile) => profile.id === id));
     setTestingRole(role);
@@ -132,17 +130,17 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         <span className="min-w-0 text-xs opacity-70">Runs fixed scenes through the real pipeline and reports what this model can actually do.</span>
       </div>
       {selfTest && <SelfTestResult report={selfTest} onApply={applySelfTestSuggestion} />}
-      <RoleProfilesGroup
-        routes={snapshot.roleRoutes ?? []}
-        assigned={settings.profiles ?? {}}
-        profiles={profiles}
-        testing={testingRole}
-        onAssign={assignRole}
-        onTest={(role) => void testRole(role)}
-        budget={settings.reasoningBudget}
-        onEffort={setRoleEffort}
-        onBudget={setReasoningBudget}
-      />
+      <Suspense fallback={null}>
+        <RoleProfilesGroup
+          routes={snapshot.roleRoutes ?? []}
+          assigned={settings.profiles ?? {}}
+          profiles={profiles}
+          testing={testingRole}
+          onAssign={assignRole}
+          onTest={(role) => void testRole(role)}
+          onEffort={setRoleEffort}
+        />
+      </Suspense>
     </div>
   );
 };

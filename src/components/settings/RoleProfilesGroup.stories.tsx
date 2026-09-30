@@ -25,7 +25,7 @@ const profiles = [{ id: "memory", name: "Memory RunPod", model: "artemis" }, { i
 const meta: Meta<typeof RoleProfilesGroup> = {
   title: "Settings/RoleProfilesGroup",
   component: RoleProfilesGroup,
-  args: { routes: allFallback, assigned: {}, profiles, testing: null, onAssign: fn(), onTest: fn(), onEffort: fn(), onBudget: fn() },
+  args: { routes: allFallback, assigned: {}, profiles, testing: null, onAssign: fn(), onTest: fn(), onEffort: fn() },
 };
 
 export default meta;
@@ -85,15 +85,15 @@ export const Testing: Story = {
 
 export const ReasoningEffort: Story = {
   args: {
-    budget: { low: 512, medium: 2048, high: 6144 },
     routes: allFallback.map((entry) => {
       const tc = "a Text Completion connection sends a raw prompt; reasoning cannot be changed per request";
       const exhausted = "The model spent its whole budget thinking — lower the effort for Speaker direction or raise the budget.";
       if (entry.role === "read") {
-        return { ...route("read", "Story reads", "fallback", "memory", "Same as memory model", "off"), reasoning: { applied: false, collapsed: false, unsupported: tc, chars: 0, tokens: null } };
+        const reasoning = { effort: "off" as const, applied: false, collapsed: false, unsupported: tc, budget: 0, chars: 0, tokens: null };
+        return { ...route("read", "Story reads", "fallback", "memory", "Same as memory model", "off"), reasoning };
       }
       if (entry.role === "synthesis") {
-        const reasoning = { applied: true, collapsed: true, unsupported: null, chars: 812, tokens: null };
+        const reasoning = { effort: "medium" as const, applied: true, collapsed: true, unsupported: null, budget: 2048, chars: 812, tokens: null };
         return { ...route("synthesis", "Summaries and canon", "fallback", "memory", "Same as memory model", "medium"), reasoning };
       }
       if (entry.role === "director") return route("director", "Speaker direction", "reasoning-exhausted", "memory", exhausted, "high");
@@ -105,7 +105,7 @@ export const ReasoningEffort: Story = {
     await userEvent.click(canvas.getByText(/Models per task/));
     const read = canvasElement.querySelector('[data-role="read"]') as HTMLElement;
     await expect((read.querySelector("#so-role-effort-read") as HTMLSelectElement).value).toBe("off");
-    await expect(read.querySelector('[data-so="role-reasoning-note"]')?.textContent).toContain("cannot change reasoning");
+    await expect(read.querySelector('[data-so="role-reasoning-note"]')?.textContent).toContain("Not applied");
     await expect(canvasElement.querySelector('[data-role="synthesis"] [data-so="role-reasoning-note"]')?.textContent).toContain("only switches thinking on or off");
     await expect(canvasElement.querySelector('[data-role="curator"] [data-so="role-reasoning-note"]')).toBeNull();
     const director = canvasElement.querySelector('[data-role="director"]') as HTMLElement;
@@ -113,9 +113,5 @@ export const ReasoningEffort: Story = {
     await expect(director.textContent).toContain("lower the effort for Speaker direction");
     await userEvent.selectOptions(canvasElement.querySelector("#so-role-effort-curator") as HTMLSelectElement, "low");
     await expect(args.onEffort).toHaveBeenCalledWith("curator", "low");
-    const medium = canvasElement.querySelector("#so-reasoning-budget-medium") as HTMLInputElement;
-    await expect(medium.value).toBe("2048");
-    await userEvent.type(medium, "0");
-    await expect(args.onBudget).toHaveBeenLastCalledWith("medium", 20480);
   },
 };

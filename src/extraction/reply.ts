@@ -44,11 +44,12 @@ export const replyVia = (transport: ModelTransport): RouteReply => async (prompt
   const reasoningBudget = reasoningBudgetFor(effort, options.reasoningBudget);
   const timeoutMs = Math.round(callTimeoutMs(maxTokens + reasoningBudget, estimateTokens(prompt), options.budgetKind) * (options.timeoutScale ?? 1));
   const startedAt = Date.now();
-  const reply = await transport(profileId, prompt, maxTokens, {
+  const request: ModelRequestOptions = {
     signal: anySignal([options.signal, AbortSignal.timeout(timeoutMs)]),
     samplers: { temperature: options.temperature ?? 0.1, top_p: 0.9 },
-    ...(effort !== "default" ? { effort, reasoningBudget } : {}),
-  });
+  };
+  if (effort !== "default") Object.assign(request, { effort, reasoningBudget });
+  const reply = await transport(profileId, prompt, maxTokens, request);
   if (!reply.ok) throw new ModelCallError(
     reply.kind,
     reply.kind === "timeout" ? `the memory model did not answer within ${timeoutMs} ms` : reply.message,
@@ -57,9 +58,6 @@ export const replyVia = (transport: ModelTransport): RouteReply => async (prompt
   );
   answeredObserver?.({ profileId, ms: Date.now() - startedAt });
   const text = stripReasoningBlocks(reply.text);
-  if (text.trim() === "" && reply.text.trim() !== "") {
-    const inline = { chars: reply.text.length, tokens: reply.meter?.tokens ?? null };
-    throw new ModelCallError("reasoning-exhausted", reasoningExhaustedMessage(inline, reply.finish), profileId);
-  }
-  return { text, finish: reply.finish, ...(reply.meter ? { meter: { ...reply.meter, chars: reply.meter.chars + reply.text.length - text.length } } : {}) };
+  if (!text.trim() && reply.text.trim()) throw new ModelCallError("reasoning-exhausted", reasoningExhaustedMessage({ chars: reply.text.length, tokens: null }, reply.finish), profileId);
+  return reply.meter ? { text, finish: reply.finish, meter: reply.meter } : { text, finish: reply.finish };
 };

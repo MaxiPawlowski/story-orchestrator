@@ -84,11 +84,10 @@ describe("replyVia: the budget, the timeout and inline reasoning (v2.6 plan 05 R
     await expect(call("p", { kind: "profile", profileId: "m" })).rejects.toMatchObject({ name: "ModelCallError", kind: "reasoning-exhausted", profileId: "m" });
   });
 
-  it("control: an answer after the think block survives and the meter counts the stripped block", async () => {
+  it("control: an answer after the think block survives with the transport's meter", async () => {
     const { call } = transport({ ok: true, text: "<think>abc</think>NO_DELTA", finish: "stop", meter: meter({ chars: 0 }) });
     const reply = await call("p", { kind: "profile", profileId: "m", effort: "low" });
-    expect(reply.text).toBe("NO_DELTA");
-    expect(reply.meter?.chars).toBe("<think>abc</think>".length);
+    expect(reply).toEqual({ text: "NO_DELTA", finish: "stop", meter: meter({ chars: 0 }) });
   });
 
   it("a transport-reported exhaustion becomes a typed ModelCallError the scheduler does not treat as transport", async () => {
@@ -144,6 +143,6 @@ describe("the call record per role and the Repair line (v2.6 plan 05 R2)", () =>
 
   it("an answered call exposes whether the effort applied, so the row can say the connection cannot change it", () => {
     const calls = { director: { outcome: "answered" as const, profileId: "memory", effort: "high" as const, meter: meter({ effort: "high", applied: false, unsupported: "no lever" }) } };
-    expect(buildRoleRoutes({ settings, exists: () => true, health: () => null, selfTests: {}, calls }).find((route) => route.role === "director")?.reasoning).toEqual({ applied: false, collapsed: false, unsupported: "no lever", chars: 10, tokens: null });
+    expect(buildRoleRoutes({ settings, exists: () => true, health: () => null, selfTests: {}, calls }).find((route) => route.role === "director")?.reasoning).toEqual(meter({ effort: "high", applied: false, unsupported: "no lever" }));
   });
 });

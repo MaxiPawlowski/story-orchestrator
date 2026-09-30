@@ -229,7 +229,7 @@ describe("requestModelReply: reasoning effort, budget and reasoning-exhausted (v
 
   it("an empty answer with reasoning present is reasoning-exhausted (the 2026-09-25 llama-server shape)", async () => {
     const { host } = ccHost({ choices: [{ message: { content: "", reasoning_content: "x".repeat(900) }, finish_reason: "length" }], usage: { completion_tokens_details: { reasoning_tokens: 300 } } });
-    expect(await requestModelReply(host, "p1", "prompt", 300)).toEqual({ ok: false, kind: "reasoning-exhausted", message: "the model spent its whole budget thinking and gave no answer (900 reasoning chars, 300 reasoning tokens, finish length)" });
+    expect(await requestModelReply(host, "p1", "prompt", 300)).toEqual({ ok: false, kind: "reasoning-exhausted", message: "the model spent its whole budget thinking (900 chars, 300 tokens, finish length)" });
   });
 
   it("an empty answer cut at the limit is reasoning-exhausted even without reasoning evidence", async () => {

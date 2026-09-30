@@ -18,21 +18,19 @@ export interface ReasoningPlan {
 
 const NOTHING: ReasoningPlan = { payload: {}, applied: false, thinks: false, collapsed: false, unsupported: null };
 
-const refuse = (reason: string): ReasoningPlan => ({ ...NOTHING, unsupported: reason });
+const refuse = (reason: string): ReasoningPlan => ({ payload: {}, applied: false, thinks: false, collapsed: false, unsupported: reason });
 
 const effortSource = (payload: Record<string, unknown>, thinks: boolean): ReasoningPlan => ({ payload, applied: true, thinks, collapsed: false, unsupported: null });
 
-const LEVEL_SOURCES = new Set(["openai", "azure_openai", "claude", "makersuite", "vertexai", "xai", "aimlapi", "electronhub", "perplexity", "chutes", "fireworks"]);
+const LEVEL_SOURCES = new Set(["openai", "azure_openai", "claude", "makersuite", "vertexai", "xai"]);
 
 const OFF_VALUES: Record<string, string> = { openrouter: "none", makersuite: "min", vertexai: "min" };
-
-const KOBOLD_MODEL = /^koboldcpp\//;
 
 function customPlan(route: ReasoningRoute, effort: "off" | ReasoningLevel): ReasoningPlan {
   const body = route.includeBody ?? {};
   const kwargs = isRecord(body.chat_template_kwargs) ? body.chat_template_kwargs : {};
   const thinks = effort !== "off";
-  const merged = { ...body, chat_template_kwargs: { ...kwargs, enable_thinking: thinks } };
+  const merged = Object.assign({}, body, { chat_template_kwargs: Object.assign({}, kwargs, { enable_thinking: thinks }) });
   const payload = { custom_include_body: JSON.stringify(merged), include_reasoning: thinks };
   return { payload, applied: true, thinks, collapsed: thinks, unsupported: null };
 }
@@ -43,24 +41,22 @@ const lowest = (value: string): ReasoningPlan => effortSource({ reasoning_effort
 
 function chatPlan(route: ReasoningRoute, effort: "off" | ReasoningLevel): ReasoningPlan {
   const source = route.source ?? "";
-  if (source === "custom" && !KOBOLD_MODEL.test(route.model ?? "")) return customPlan(route, effort);
-  if (source === "custom") return effort === "off" ? lowest("minimal") : level(effort);
-  if (source === "deepseek") return effort === "off" ? refuse("DeepSeek has no effort below low") : level(effort === "medium" ? "high" : effort);
-  if (source !== "openrouter" && !LEVEL_SOURCES.has(source)) return refuse(`this connection (${source || "unknown source"}) cannot change reasoning`);
+  if (source === "custom") return customPlan(route, effort);
+  if (source !== "openrouter" && !LEVEL_SOURCES.has(source)) return refuse(`${source || "this source"} is not mapped`);
   if (effort !== "off") return level(effort);
   const off = OFF_VALUES[source];
-  return off ? lowest(off) : refuse(`this connection (${source}) cannot switch reasoning off`);
+  return off ? lowest(off) : refuse(`${source} cannot switch it off`);
 }
 
 export function reasoningPayload(route: ReasoningRoute | null, effort: ReasoningEffort): ReasoningPlan {
   if (effort === "default") return NOTHING;
-  if (!route?.api) return refuse("the profile has no API this can read");
-  if (route.api === "text") return refuse("a Text Completion connection sends a raw prompt; reasoning cannot be changed per request");
+  if (!route?.api) return refuse("no API");
+  if (route.api === "text") return refuse("Text Completion sends a raw prompt");
   return chatPlan(route, effort);
 }
 
 export const foldIncludeBody = (parsed: unknown): Record<string, unknown> | null => {
-  if (isRecord(parsed)) return { ...parsed };
+  if (isRecord(parsed)) return Object.assign({}, parsed);
   if (!Array.isArray(parsed)) return null;
   const items = parsed.filter(isRecord);
   return items.length ? Object.assign({}, ...items) as Record<string, unknown> : null;
@@ -71,27 +67,12 @@ export interface ReasoningRead {
   tokens: number | null;
 }
 
-const textLength = (value: unknown): number => (typeof value === "string" ? value.length : 0);
-
-const blockChars = (blocks: unknown, match: (block: Record<string, unknown>) => unknown): number =>
-  Array.isArray(blocks) ? blocks.filter(isRecord).reduce((sum, block) => sum + textLength(match(block)), 0) : 0;
-
-const usageTokens = (json: Record<string, unknown>): number | null => {
-  const usage = isRecord(json.usage) ? json.usage : null;
-  const details = usage && isRecord(usage.completion_tokens_details) ? usage.completion_tokens_details : null;
-  if (details && typeof details.reasoning_tokens === "number") return details.reasoning_tokens;
-  const gemini = isRecord(json.usageMetadata) ? json.usageMetadata.thoughtsTokenCount : undefined;
-  return typeof gemini === "number" ? gemini : null;
-};
+const size = (value: unknown): number => (typeof value === "string" ? value.length : 0);
 
 export function readReasoning(json: unknown): ReasoningRead {
-  if (!isRecord(json)) return { chars: 0, tokens: null };
-  const choice = Array.isArray(json.choices) && isRecord(json.choices[0]) ? json.choices[0] : null;
-  const message = choice && isRecord(choice.message) ? choice.message : null;
-  const candidate = Array.isArray(json.candidates) && isRecord(json.candidates[0]) ? json.candidates[0] : null;
-  const parts = candidate && isRecord(candidate.content) ? candidate.content.parts : null;
-  const chars = textLength(message?.reasoning_content) || textLength(message?.reasoning)
-    || blockChars(json.content, (block) => (block.type === "thinking" ? block.thinking : null))
-    || blockChars(parts, (part) => (part.thought === true ? part.text : null));
-  return { chars, tokens: usageTokens(json) };
+  const choice = isRecord(json) && Array.isArray(json.choices) ? json.choices[0] : null;
+  const message = isRecord(choice) && isRecord(choice.message) ? choice.message : {};
+  const usage = isRecord(json) && isRecord(json.usage) ? json.usage.completion_tokens_details : null;
+  const tokens = isRecord(usage) ? usage.reasoning_tokens : null;
+  return { chars: size(message.reasoning_content) || size(message.reasoning), tokens: typeof tokens === "number" ? tokens : null };
 }

@@ -262,6 +262,18 @@ describe("v2.4 plan 03 D3: config and bug failures are not transport", () => {
     expect(h.scheduler.getSnapshot().lastError).toBeNull();
   });
 
+  it("v2.6 plan 05 R2: reasoning-exhausted is a failed read named in the journal, not retried at the same budget, never a breaker, a config problem or a pause", async () => {
+    read.mockRejectedValue(new ModelCallError("reasoning-exhausted", "the model spent its whole budget thinking (900 chars, finish length)", "artemis"));
+    const h = harness();
+    h.scheduler.schedule(cadenceRead(0, 4));
+    await jest.advanceTimersByTimeAsync(800);
+    expect(read).toHaveBeenCalledTimes(1);
+    expect(h.scheduler.breakerOpen()).toBe(false);
+    expect(h.scheduler.health()).toBeNull();
+    expect(h.failures).toEqual([["extraction failed: cadence", "the model spent its whole budget thinking (900 chars, finish length)"]]);
+    expect(h.settings.enabled).toBe(true);
+  });
+
   it("a bug after the world changed writes nothing into the new world", async () => {
     const h = harness();
     h.scheduler.schedule({ priority: 0, reason: "cadence:1", run: async () => { h.endTheWorld(); throw new Error("parse crash"); } });

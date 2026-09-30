@@ -34,8 +34,6 @@ export type RoleCallObservation =
   | { outcome: "answered"; profileId: string; effort: NonNullable<ModelRoute["effort"]>; meter: ReasoningMeter | null }
   | { outcome: "reasoning-exhausted"; profileId: string; effort: NonNullable<ModelRoute["effort"]>; detail: string };
 
-const exhausted = (error: unknown): error is ModelCallError => error instanceof ModelCallError && error.kind === "reasoning-exhausted";
-
 export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): ModelCall => {
   const planted = deps.planted === false ? () => null : debugResponseFor;
   const call: ModelCall = async (prompt, ask) => {
@@ -45,14 +43,16 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
     const resolution = resolveRoute(settings, ask.role, deps.exists);
     if (!resolution.ok) throw new ModelCallError("config", resolution.reason, resolution.profileId);
     const route = resolution.route;
-    const effort = route?.effort ?? "default";
+    const observe = deps.observe && route ? deps.observe.bind(null, ask.role) : null;
+    const seen = { profileId: route ? route.profileId : "", effort: route?.effort ?? "default" };
     try {
-      const { maxTokens, temperature, signal, timeoutScale, budgetKind } = ask;
-      const answer = await reply(prompt, route, { maxTokens, temperature, signal, timeoutScale, budgetKind, reasoningBudget: settings.reasoningBudget });
-      if (route) deps.observe?.(ask.role, { outcome: "answered", profileId: route.profileId, effort, meter: answer.meter ?? null });
+      const answer = await reply(prompt, route, {
+        maxTokens: ask.maxTokens, temperature: ask.temperature, signal: ask.signal, timeoutScale: ask.timeoutScale, budgetKind: ask.budgetKind, reasoningBudget: settings.reasoningBudget,
+      });
+      if (observe) observe(Object.assign({ outcome: "answered" as const, meter: answer.meter ?? null }, seen));
       return answer;
     } catch (error) {
-      if (route && exhausted(error)) deps.observe?.(ask.role, { outcome: "reasoning-exhausted", profileId: route.profileId, effort, detail: error.message });
+      if (observe && error instanceof ModelCallError && error.kind === "reasoning-exhausted") observe(Object.assign({ outcome: "reasoning-exhausted" as const, detail: error.message }, seen));
       throw error;
     }
   };

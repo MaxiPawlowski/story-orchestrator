@@ -1,7 +1,9 @@
 import { PASS_ROLES, PASS_ROLE_LABELS, type PassRole } from "@extraction/passRole";
 import type { ExtractionHealth } from "@extraction/breaker";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
+import type { ReasoningMeter } from "@services/STAPI";
 import type { RoleCallObservation } from "./modelCallCore";
+import type { RouteResolution } from "@extraction/modelRoute";
 import { resolvedProfileId, resolveRoute, roleEffort, type RouteSettings } from "./passProfiles";
 import type { RoleSelfTestResult } from "./roleSelfTest";
 
@@ -16,15 +18,7 @@ export interface RoleRouteView {
   state: RoleRouteState;
   detail: string;
   effort: ReasoningEffort;
-  reasoning?: RoleReasoningView;
-}
-
-export interface RoleReasoningView {
-  applied: boolean;
-  collapsed: boolean;
-  unsupported: string | null;
-  chars: number;
-  tokens: number | null;
+  reasoning?: ReasoningMeter;
 }
 
 export interface RoleRouteInput {
@@ -38,10 +32,17 @@ export interface RoleRouteInput {
 export const reasoningExhaustedDetail = (label: string): string =>
   `The model spent its whole budget thinking — lower the effort for ${label} or raise the budget.`;
 
-const reasoningOf = (call: RoleCallObservation | undefined, profileId: string | null, effort: ReasoningEffort): RoleReasoningView | undefined => {
-  if (call?.outcome !== "answered" || call.profileId !== profileId || call.effort !== effort || !call.meter) return undefined;
-  const { applied, collapsed, unsupported, chars, tokens } = call.meter;
-  return { applied, collapsed, unsupported, chars, tokens };
+const stateOf = (input: RoleRouteInput, role: PassRole, label: string, route: RouteResolution & { ok: true }, effort: ReasoningEffort): [RoleRouteState, string] => {
+  const profileId = resolvedProfileId(route);
+  const health = profileId && route.source === "role" ? input.health(profileId) : null;
+  const call = input.calls?.[role];
+  if (health?.kind === "config") return ["not-configured", `${label}: ${health.detail}`];
+  if (health?.kind === "transport") return ["not-answering", `${label}: the profile is not answering (${health.detail})`];
+  if (call?.outcome === "reasoning-exhausted" && call.profileId === profileId && call.effort === effort) return ["reasoning-exhausted", reasoningExhaustedDetail(label)];
+  if (route.source === "fallback") return ["fallback", "Same as memory model"];
+  const selfTest = input.selfTests[role];
+  if (!selfTest || selfTest.profileId !== profileId) return ["untested", `${label}: not tested yet`];
+  return selfTest.status === "fail" ? ["failed", `${label} failed its self-test: ${selfTest.detail}`] : ["ok", `${label}: ${selfTest.detail}`];
 };
 
 const routeOf = (input: RoleRouteInput, role: PassRole): RoleRouteView => {
@@ -50,20 +51,11 @@ const routeOf = (input: RoleRouteInput, role: PassRole): RoleRouteView => {
   const route = resolveRoute(input.settings, role, input.exists);
   if (!route.ok) return { role, label, profileId: route.profileId, state: "missing", detail: route.reason, effort };
   const profileId = resolvedProfileId(route);
+  const [state, detail] = stateOf(input, role, label, route, effort);
   const call = input.calls?.[role];
-  const reasoning = reasoningOf(call, profileId, effort);
-  const base = { role, label, profileId, effort, ...(reasoning ? { reasoning } : {}) };
-  const health = profileId ? input.health(profileId) : null;
-  if (route.source === "role" && health?.kind === "config") return { ...base, state: "not-configured", detail: `${label}: ${health.detail}` };
-  if (route.source === "role" && health?.kind === "transport") return { ...base, state: "not-answering", detail: `${label}: the profile is not answering (${health.detail})` };
-  if (call?.outcome === "reasoning-exhausted" && call.profileId === profileId && call.effort === effort) {
-    return { ...base, state: "reasoning-exhausted", detail: reasoningExhaustedDetail(label) };
-  }
-  if (route.source === "fallback") return { ...base, state: "fallback", detail: "Same as memory model" };
-  const selfTest = input.selfTests[role];
-  if (!selfTest || selfTest.profileId !== profileId) return { ...base, state: "untested", detail: `${label}: not tested yet` };
-  if (selfTest.status === "fail") return { ...base, state: "failed", detail: `${label} failed its self-test: ${selfTest.detail}` };
-  return { ...base, state: "ok", detail: `${label}: ${selfTest.detail}` };
+  const view: RoleRouteView = { role, label, profileId, state, detail, effort };
+  if (call?.outcome === "answered" && call.meter && call.profileId === profileId && call.effort === effort) view.reasoning = call.meter;
+  return view;
 };
 
 export const buildRoleRoutes = (input: RoleRouteInput): RoleRouteView[] => PASS_ROLES.map((role) => routeOf(input, role));
@@ -100,7 +92,7 @@ export class RoleHealth {
     const previous = this.calls[role];
     this.calls = { ...this.calls, [role]: call };
     if (!this.host) return;
-    if (previous?.outcome !== call.outcome || call.outcome === "reasoning-exhausted" || (call.meter && !previous)) this.host.notify();
+    if (previous?.outcome !== call.outcome || previous.effort !== call.effort) this.host.notify();
   }
 
   view(): RoleRouteView[] {
