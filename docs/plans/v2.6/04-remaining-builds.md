@@ -242,6 +242,8 @@ B's), plus the witness lab's secrets run with the guidance split (SP9 F1–F5).
 
 ### Questions for the user (C3, C4, C12, C13)
 
+**Answered by the user 2026-09-30: every recommendation approved** — C3 (b) presentation effects only; C4 (c) release then apply; C12 (c) onEnter reply joins its transition's rollback; C13 (b) per-member guidance, (a) as the authoring rule meanwhile. Build next, with the gates named in each section.
+
 - C3: approve (b) restricted to presentation effects?
 - C4: approve (c) release-then-apply for jumps?
 - C12: approve (c) onEnter reply joins its transition's rollback?
