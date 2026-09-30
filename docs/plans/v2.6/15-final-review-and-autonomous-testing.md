@@ -36,6 +36,22 @@ The user is away until their quota returns. Their instructions, verbatim in subs
 3. **Build every `close-before-testing` item** as the final development step, with a gate per task and the overall gates (rule 16).
 4. **Only then mark v2.6 development done** (update the CLAUDE.md status row).
 
+### Part A additions (user, 2026-09-30), done before any test run
+
+5. **Model configuration audit (Artemis).** Verify, on the live install and on the lanes, every Connection Manager profile the product uses (main RP, memory/extraction, per-role routes):
+   - API type: Text Completion vs Chat Completion, and whether that is the right choice for Artemis on llama-server;
+   - instruct/context template (Gemma 4), stop strings, and reasoning/thinking handling (`enable_thinking`, reasoning template, `stripReasoningBlocks` coverage);
+   - sampler preset ('Artemis v1.1 RP'), context size vs the model's, max response tokens, and the per-role budgets (plan 05);
+   - the pod's llama-server flags (`LLM_PARALLEL`, ctx, `--kv-unified`, `--host`).
+
+   Fix the wrong ones, record before/after in `15-model-config.md`, and prove each with one real call.
+6. **Prompt audit.** Re-read every prompt the product sends to a model:
+   - the shared read, scene, short-term, canon, arc, epistemic/ledger, supersession, consolidation;
+   - director, curator, warden, wizard/agent, expansion and critic, inner voice, chapter seal;
+   - judge questions, image director.
+
+   For each prompt, check whether it carries enough context (story, checkpoint, cast roles, recent turns, established facts), whether its instructions are clear, rich and consistent with the parser, and whether it wastes tokens. Improve the weak ones. Keep deterministic goldens green or re-record them deliberately, and record the changes in `15-prompts.md`.
+
 ## Part B: autonomous plan 14
 
 - **The player is Claude**, driving the charters through the harness with a real model on the pod.
