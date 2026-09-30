@@ -4,18 +4,11 @@ import { createTokenMeter, defaultContextLimit, preflightMessage, preflightNeede
 import { resolvedProfileId, resolveRoute } from "./passProfiles";
 import { getGlobalSettings } from "./settingsStore";
 
-const HARNESS_OUTPUT_RESERVE = 4096;
-
-const harnessContext = (harness: NonNullable<ReturnType<typeof parseHarnessKey>>): ContextLimit => {
-  const options = Object.values(getGlobalSettings().extraction.routes ?? {}).find((entry) => entry?.route.harness === harness.harness && entry.route.model === harness.model)?.route.options;
-  if (options?.maxInputTokens) return { value: options.maxInputTokens, source: "preset" };
-  const context = harnessContextLimit(harness.harness, harness.model);
-  return context ? { value: Math.max(1000, context - HARNESS_OUTPUT_RESERVE), source: "preset" } : defaultContextLimit("the harness plugin has not reported this model's context yet");
-};
-
 const contextLimitFor = (key: string | null): ContextLimit => {
   const harness = key ? parseHarnessKey(key) : null;
-  return harness ? harnessContext(harness) : readProfileContextLimit(key);
+  if (!harness) return readProfileContextLimit(key);
+  const context = harnessContextLimit(harness.harness, harness.model);
+  return context ? { value: context - 4096, source: "preset" } : defaultContextLimit("the harness has not reported its context");
 };
 
 export const requestBudget = (profileId: string | null): RequestBudget => ({

@@ -1,9 +1,9 @@
 import { ModelCallError } from "@extraction/modelError";
 import type { PassRole } from "@extraction/passRole";
-import type { ModelFailureKind, ReasoningMeter } from "@services/STAPI";
-import { routeKey, type ExtractionReply, type ModelAsk, type ModelCall, type ModelPass, type ModelRoute } from "@extraction/modelRoute";
+import type { ReasoningMeter } from "@services/STAPI";
+import { routeKey, type ExtractionReply, type ModelCall, type ModelPass, type ModelRoute } from "@extraction/modelRoute";
 import type { RouteReply } from "@extraction/reply";
-import { fallbackRoute, resolveRoute, type HarnessListed, type RouteSettings } from "./passProfiles";
+import { resolveRoute, type HarnessListed, type RouteSettings } from "./passProfiles";
 import type { ModelCallRecord } from "./modelCallLog";
 
 const DEBUG_RESPONSES: Record<ModelPass, () => string | null | undefined> = {
@@ -37,22 +37,12 @@ type Effort = NonNullable<ModelRoute["effort"]>;
 
 export type RoleCallObservation =
   | { outcome: "answered"; profileId: string; effort: Effort; meter: ReasoningMeter | null }
-  | { outcome: "reasoning-exhausted"; profileId: string; effort: Effort; detail: string }
-  | { outcome: "auth" | "quota"; profileId: string; effort: Effort; detail: string };
+  | { outcome: "reasoning-exhausted" | "auth" | "quota"; profileId: string; effort: Effort; detail: string };
 
-export const FALLBACK_KINDS: ReadonlySet<ModelFailureKind> = new Set(["auth", "quota", "transport", "timeout"]);
+export type NoteCall = (route: ModelRoute, startedAt: number, result: ModelCallRecord["result"], answer?: ExtractionReply, fallbackFrom?: string) => void;
 
-const recordOf = (ask: ModelAsk, route: ModelRoute, startedAt: number, result: ModelCallRecord["result"], answer?: ExtractionReply): ModelCallRecord => {
-  const record: ModelCallRecord = {
-    at: new Date(startedAt).toISOString(), role: ask.role, pass: ask.pass, route: routeKey(route), result, ms: Date.now() - startedAt,
-    samplers: route.kind === "profile" ? "applied" : "not-applied",
-  };
-  if (typeof answer?.spawnMs === "number") record.spawnMs = answer.spawnMs;
-  if (typeof answer?.usage?.input === "number") record.inputTokens = answer.usage.input;
-  if (typeof answer?.usage?.output === "number") record.outputTokens = answer.usage.output;
-  if (typeof answer?.usage?.costUsd === "number") record.costUsd = answer.usage.costUsd;
-  return record;
-};
+const OBSERVED = ["reasoning-exhausted", "auth", "quota"];
+const FALLBACK_KINDS = ["auth", "quota", "transport", "timeout"];
 
 export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): ModelCall => {
   const planted = deps.planted === false ? () => null : debugResponseFor;
@@ -68,23 +58,23 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
     const options = {
       maxTokens: ask.maxTokens, temperature: ask.temperature, signal: ask.signal, timeoutScale: ask.timeoutScale, budgetKind: ask.budgetKind, reasoningBudget: settings.reasoningBudget, role: ask.role,
     };
+    const note: NoteCall = (used, startedAt, result, answer, fallbackFrom) => deps.record && deps.record({
+      at: new Date(startedAt).toISOString(), role: ask.role, pass: ask.pass, route: routeKey(used), result, ms: Date.now() - startedAt,
+      samplers: used.kind === "profile" ? "applied" : "not-applied", usage: answer && answer.usage, spawnMs: answer && answer.spawnMs, fallbackFrom,
+    });
     const startedAt = Date.now();
     try {
       const answer = await reply(prompt, route, options);
-      if (route) deps.record?.(recordOf(ask, route, startedAt, "ok", answer));
+      if (route) note(route, startedAt, "ok", answer);
       if (observe) observe(Object.assign({ outcome: "answered" as const, meter: answer.meter ?? null }, seen));
       return answer;
     } catch (error) {
       const kind = error instanceof ModelCallError ? error.kind : null;
-      if (route && kind) deps.record?.(recordOf(ask, route, startedAt, kind));
-      if (observe && kind === "reasoning-exhausted") observe(Object.assign({ outcome: "reasoning-exhausted" as const, detail: (error as Error).message }, seen));
-      if (observe && (kind === "auth" || kind === "quota")) observe(Object.assign({ outcome: kind, detail: (error as Error).message }, seen));
-      const fallback = route?.kind === "harness" && kind && FALLBACK_KINDS.has(kind) ? fallbackRoute(settings, ask.role, deps.exists) : null;
-      if (!route || !fallback) throw error;
-      const fallbackStarted = Date.now();
-      const answer = await reply(prompt, fallback, options);
-      deps.record?.({ ...recordOf(ask, fallback, fallbackStarted, "fallback", answer), fallbackFrom: routeKey(route) });
-      return answer;
+      if (!route || !kind) throw error;
+      note(route, startedAt, kind);
+      if (observe && OBSERVED.includes(kind)) observe(Object.assign({ outcome: kind as "auth", detail: (error as Error).message }, seen));
+      if (route.kind === "profile" || !FALLBACK_KINDS.includes(kind)) throw error;
+      return (await import("./harnessFallback")).answerFallback({ error, route, settings, role: ask.role, exists: deps.exists, run: (used) => reply(prompt, used, options), note });
     }
   };
   call.planted = planted;

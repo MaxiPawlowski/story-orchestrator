@@ -21,7 +21,6 @@ import { promptCost } from "./promptCost";
 import { promptBuckets } from "./promptBuckets";
 import { roleHealth } from "./roleHealth";
 import { buildModelCalls } from "./modelCalls";
-import { routeMeters } from "./modelCallLog";
 import type { InlineSources, InlineView } from "./inlineTimeline";
 import { effectiveInlineLevel } from "./settingsModel";
 import { readChatIdentity } from "./chatIdentity";
@@ -295,6 +294,6 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     lore: extras.lore,
     inline,
     modelCalls: buildModelCalls({ judgeCalls: extras.judge.calls, audits: extras.extraction.audits, talkDecisions: extras.talk.decisions, curatorPass: extras.stagecraft.lastPass, routed: extras.modelCalls }),
-    routeMeters: routeMeters(extras.modelCalls),
+    modelCallRing: extras.modelCalls,
   };
 }

@@ -1,11 +1,17 @@
+const mockStatus: { value: unknown } = { value: null };
+jest.mock("@services/STAPI", () => ({ harnessStatusCached: () => null, refreshHarnessStatus: async () => mockStatus.value }));
+
 import { ModelCallError } from "@extraction/modelError";
+import { probeHarness } from "@extraction/harnessReply";
 import { replyVia, setAnsweredObserver, type HarnessTransport, type ModelTransport } from "@extraction/reply";
 import type { ModelRoute } from "@extraction/modelRoute";
 import type { HarnessRequest, ModelReply } from "@services/STAPI";
 import { createModelCallVia } from "./modelCallCore";
 import type { ModelCallRecord } from "./modelCallLog";
-import { appendModelCall, MODEL_CALL_LIMIT, routeMeters, sanitizeModelCalls } from "./modelCallLog";
-import { fallbackRoute, resolvedProfileId, resolveRoute, sanitizeRoleRoutes, withRoleEffort, withRoleFallback, withRoleHarness, type RouteSettings } from "./passProfiles";
+import { appendModelCall, MODEL_CALL_LIMIT, sanitizeModelCalls } from "./modelCallLog";
+import { routeMeters, withRoleEffort, withRoleFallback, withRoleHarness } from "./roleRouteEdits";
+import { resolvedProfileId, resolveRoute, sanitizeRoleRoutes, type RouteSettings } from "./passProfiles";
+import { fallbackRoute } from "./harnessFallback";
 import { buildRoleRoutes } from "./roleHealth";
 
 const meter = { effort: "default" as const, applied: false, collapsed: false, unsupported: null, budget: 0, chars: 0, tokens: null };
@@ -20,7 +26,7 @@ describe("H1: the route type", () => {
   it("an unset role asks the memory profile; a harness role resolves to its harness route", () => {
     const settings = routed();
     expect(resolveRoute(settings, "read", exists(["memory"]))).toEqual({ ok: true, route: { kind: "profile", profileId: "memory" }, source: "fallback" });
-    expect(resolveRoute(settings, "synthesis", exists(["memory"]))).toEqual({ ok: true, route: { kind: "harness", harness: "claude", model: "sonnet" }, source: "role" });
+    expect(resolveRoute(settings, "synthesis", exists(["memory"]))).toEqual({ ok: true, route: { kind: "harness", harness: "claude", model: "sonnet", options: {} }, source: "role" });
     expect(resolvedProfileId(resolveRoute(settings, "synthesis", exists([])))).toBe("harness:claude:sonnet");
   });
 
@@ -28,14 +34,14 @@ describe("H1: the route type", () => {
     const routes = withRoleEffort(withRoleHarness(undefined, "read", { harness: "opencode", model: "openai/gpt-6-astra" }), "read", "high");
     const settings: RouteSettings = { profileId: "memory", profiles: { read: "fast" }, routes: sanitizeRoleRoutes({ read: { ...routes.read, route: { ...routes.read?.route, options: { effort: "high", timeoutScale: 2 } } } }) };
     expect(resolveRoute(settings, "read", exists(["fast"]))).toEqual({
-      ok: true, route: { kind: "harness", harness: "opencode", model: "openai/gpt-6-astra", effort: "high", options: { timeoutScale: 2 } }, source: "role",
+      ok: true, route: { kind: "harness", harness: "opencode", model: "openai/gpt-6-astra", effort: "high", options: { effort: "high", timeoutScale: 2 } }, source: "role",
     });
   });
 
   it("a harness model the plugin does not list is refused as config and named; an unknown status does not refuse", () => {
     const refused = resolveRoute(routed(), "synthesis", exists([]), () => false);
     expect(refused).toMatchObject({ ok: false, profileId: "harness:claude:sonnet" });
-    expect(refused.ok ? "" : refused.reason).toContain("Claude Code does not offer sonnet");
+    expect(refused.ok ? "" : refused.reason).toContain("harness:claude:sonnet is not offered");
     expect(resolveRoute(routed(), "synthesis", exists([]), () => null).ok).toBe(true);
   });
 
@@ -148,7 +154,7 @@ describe("H1/H4: no silent fallback, and every call recorded with its route", ()
 
 describe("H4: the call ring and the meter", () => {
   const record = (route: string, result: ModelCallRecord["result"], tokens = 10): ModelCallRecord => ({
-    at: "2026-09-30T12:00:00.000Z", role: "read", pass: "read", route, result, ms: 5, inputTokens: tokens, outputTokens: 1, samplers: "not-applied",
+    at: "2026-09-30T12:00:00.000Z", role: "read", pass: "read", route, result, ms: 5, usage: { input: tokens, output: 1, costUsd: null }, samplers: "not-applied",
   });
 
   it("caps at 300 and drops malformed rows on hydrate", () => {
@@ -163,5 +169,21 @@ describe("H4: the call ring and the meter", () => {
       { route: "h", calls: 2, ok: 1, failed: 1, fallback: 0, inputTokens: 100, outputTokens: 2, costUsd: 0 },
       { route: "local", calls: 1, ok: 0, failed: 0, fallback: 1, inputTokens: 7, outputTokens: 1, costUsd: 0 },
     ]);
+  });
+});
+
+describe("H3: a harness breaker is probed by status, never by a model call", () => {
+  const row = (extra: Record<string, unknown> = {}) => ({ installed: true, offered: true, fresh: true, quotaUntil: null, models: [], ...extra });
+  it("closes only when the harness is installed, offered, logged in and not held by a usage limit", async () => {
+    mockStatus.value = { harnesses: { claude: row() } };
+    await expect(probeHarness("harness:claude:haiku")).resolves.toEqual({ ok: true });
+    mockStatus.value = { harnesses: { claude: row({ fresh: false, loginProblem: "run `claude` once" }) } };
+    await expect(probeHarness("harness:claude:haiku")).resolves.toEqual({ ok: false, kind: "transport", message: "run `claude` once" });
+    mockStatus.value = { harnesses: { claude: row({ quotaUntil: Date.now() + 60_000 }) } };
+    await expect(probeHarness("harness:claude:haiku")).resolves.toMatchObject({ ok: false, message: expect.stringContaining("usage limit") });
+    mockStatus.value = { harnesses: { claude: row({ offered: false }) } };
+    await expect(probeHarness("harness:claude:haiku")).resolves.toMatchObject({ ok: false, kind: "config" });
+    mockStatus.value = null;
+    await expect(probeHarness("harness:claude:haiku")).resolves.toMatchObject({ ok: false, kind: "transport" });
   });
 });

@@ -85,7 +85,7 @@ export function buildModelCalls(sources: ModelCallSources): ModelCallRow[] {
     ...(sources.curatorPass ? [curatorRow(sources.curatorPass)] : []),
     ...(sources.routed ?? []).map((call): ModelCallRow => ({
       at: call.at, kind: "llm", role: `${call.role}:${call.pass}`, route: call.route, result: call.fallbackFrom ? `fallback from ${call.fallbackFrom}` : call.result,
-      ms: call.ms, tokens: call.inputTokens !== undefined || call.outputTokens !== undefined ? (call.inputTokens ?? 0) + (call.outputTokens ?? 0) : null, messageId: null,
+      ms: call.ms, tokens: call.usage ? (call.usage.input ?? 0) + (call.usage.output ?? 0) : null, messageId: null,
     })),
   ];
   return rows.sort((left, right) => Date.parse(right.at) - Date.parse(left.at)).slice(0, MODEL_CALLS_SHOWN);

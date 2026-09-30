@@ -6,7 +6,6 @@ import type { PassRole } from "./passRole";
 import type { RequestBudget } from "./tokenMeter";
 
 export interface HarnessRouteOptions {
-  maxInputTokens?: number;
   timeoutScale?: number;
 }
 

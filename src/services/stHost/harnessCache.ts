@@ -1,10 +1,10 @@
 import type { HarnessId } from "@utils/harness";
 import type { ModelReply } from "./modelReply";
-import type { HarnessRequest, HarnessStatus } from "./harness";
+import type { HarnessModel, HarnessRequest, HarnessStatus } from "./harness";
 
 let last: HarnessStatus | null = null;
 
-const load = () => import(/* webpackChunkName: "so-harness" */ "./harness");
+const load = () => import("./harness");
 
 export const harnessStatusCached = (): HarnessStatus | null => last;
 
@@ -15,10 +15,17 @@ export async function refreshHarnessStatus(refresh = false): Promise<HarnessStat
 
 export const sendHarness = async (request: HarnessRequest): Promise<ModelReply> => (await load()).sendHarnessRequest(request);
 
-export const harnessListed = (harness: HarnessId, model: string): boolean | null => {
-  const row = last?.harnesses[harness];
-  return row ? row.models.some((entry) => entry.id === model) : last ? false : null;
+const modelOf = (harness: HarnessId, model: string): HarnessModel | null | undefined => {
+  const row = last && last.harnesses[harness];
+  return row ? row.models.find((entry) => entry.id === model) || null : last ? null : undefined;
 };
 
-export const harnessContextLimit = (harness: HarnessId, model: string): number | null =>
-  last?.harnesses[harness]?.models.find((entry) => entry.id === model)?.context ?? null;
+export const harnessListed = (harness: HarnessId, model: string): boolean | null => {
+  const found = modelOf(harness, model);
+  return found === undefined ? null : found !== null;
+};
+
+export const harnessContextLimit = (harness: HarnessId, model: string): number | null => {
+  const found = modelOf(harness, model);
+  return found ? found.context : null;
+};

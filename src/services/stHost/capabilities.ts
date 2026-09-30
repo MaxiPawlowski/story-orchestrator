@@ -1,7 +1,6 @@
 import { getContext, hostArgMacrosAvailable, hostMacrosAvailable } from "./context";
 import { readPromptBudget } from "./contextBudget";
 import { judgeStatus, JUDGE_PLUGIN_BASE } from "./judge";
-import { refreshHarnessStatus } from "./harnessCache";
 import { backgroundsModule } from "./modules";
 import { listSlashCommands } from "./selectors";
 import { getHostVersion, macroEngineInUse } from "./version";
@@ -83,12 +82,7 @@ const judgeProbe: Probe = async () => {
   return status.configured ? present(`plugin ${status.pluginVersion ?? "?"}, ${status.model ?? "model unknown"}`) : absent("the judge plugin is installed but holds no key");
 };
 
-const harnessProbe: Probe = async () => {
-  const status = await refreshHarnessStatus();
-  if (!status) return absent("the harness plugin is not installed (or refused this user), so every task stays on a connection profile");
-  const offered = Object.entries(status.harnesses).filter(([, row]) => row?.installed && row.offered).map(([id, row]) => `${id} ${row?.version ?? "?"}${row?.fresh ? "" : " (not logged in)"}`);
-  return offered.length ? present(`plugin ${status.pluginVersion ?? "?"}: ${offered.join(", ")}`) : absent("the harness plugin offers no installed harness on this server");
-};
+const harnessProbe: Probe = () => import("./harness").then((module) => module.harnessCapability());
 
 // The next-turn preview states its blocks as a share of the main API's prompt budget.
 // A build that cannot say it shows "budget unknown", never a guessed number.

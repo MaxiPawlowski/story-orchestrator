@@ -5,8 +5,9 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import type { SelfTestReport } from "@runtime/selfTest";
 import { createModelCall } from "@runtime/modelCall";
 import { roleHealth } from "@runtime/roleHealth";
-import { resolvedProfileId, resolveRoute, roleHarness, withRoleEffort, withRoleFallback, withRoleHarness } from "@runtime/passProfiles";
-import { HARNESS_IDS, HARNESS_LABELS, harnessKey, harnessVendor, parseHarnessKey } from "@utils/harness";
+import { resolvedProfileId, resolveRoute, roleHarness } from "@runtime/passProfiles";
+import { HARNESS_LABELS, harnessVendor, routeMeters, withRoleEffort, withRoleFallback, withRoleHarness } from "@runtime/roleRouteEdits";
+import { HARNESS_IDS, harnessKey, parseHarnessKey } from "@utils/harness";
 import { PASS_ROLES } from "@extraction/passRole";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
 import type { PassRole } from "@extraction/passRole";
@@ -167,7 +168,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         onEffort={setRoleEffort}
         harnesses={harnessOptions(harnessStatus)}
         harnessRoutes={harnessRoutes}
-        meters={snapshot.routeMeters ?? []}
+        meters={routeMeters(snapshot.modelCallRing ?? [])}
         onHarness={setRoleHarness}
         onFallback={setRoleFallback}
         onOpen={() => setAskHarness(true)}

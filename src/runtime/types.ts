@@ -19,7 +19,7 @@ import type { PassProfiles, RoleRoutes } from "./passProfiles";
 import type { ReasoningBudget } from "@utils/reasoningEffort";
 import type { RoleRouteView } from "./roleHealth";
 import type { ModelCallRow } from "./modelCalls";
-import type { ModelCallRecord, RouteMeter } from "./modelCallLog";
+import type { ModelCallRecord } from "./modelCallLog";
 import type { PromptBucketState } from "./promptBuckets";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook } from "./mirrorReaper";
@@ -492,7 +492,7 @@ export interface RuntimeSnapshot {
   /** Which profile each family of passes asks, and whether it answers. */
   roleRoutes?: RoleRouteView[];
   modelCalls?: ModelCallRow[];
-  routeMeters?: RouteMeter[];
+  modelCallRing?: ModelCallRecord[];
   nextTurnBuckets?: PromptBucketState;
   /** World Info activations persisted per rendered reply. */
   lore: LoreRuntimeState;

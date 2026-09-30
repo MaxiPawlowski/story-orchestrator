@@ -68,6 +68,12 @@ const readRow = (row: Record<string, unknown>): HarnessRow => ({
   ...(typeof row.cacheWarm === "boolean" ? { cacheWarm: row.cacheWarm } : {}),
 });
 
+export async function harnessCapability(): Promise<{ state: "present" | "absent"; detail: string }> {
+  const status = await (await import("./harnessCache")).refreshHarnessStatus();
+  const offered = Object.entries(status?.harnesses ?? {}).filter(([, row]) => row?.installed && row.offered).map(([id, row]) => `${id} ${row?.version ?? "?"}${row?.fresh ? "" : " (log in)"}`);
+  return offered.length ? { state: "present", detail: offered.join(", ") } : { state: "absent", detail: `${status ? "no harness is offered" : "no harness plugin"}; every task stays on a profile` };
+}
+
 export async function fetchHarnessStatus(refresh = false): Promise<HarnessStatus | null> {
   try {
     const response = await fetch(`${HARNESS_PLUGIN_BASE}/status${refresh ? "?refresh=1" : ""}`, { method: "GET", headers: headers() });

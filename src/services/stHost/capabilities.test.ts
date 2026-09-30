@@ -25,9 +25,9 @@ describe("harness capability", () => {
     const { probeCapability } = await import("./capabilities");
     await expect(probeCapability("harness", { refresh: true })).resolves.toMatchObject({ state: "present", detail: expect.stringContaining("claude 2.1.282") });
     mockHarness.status = { pluginVersion: "1.0.0", harnesses: { claude: { installed: true, offered: false } } };
-    await expect(probeCapability("harness", { refresh: true })).resolves.toMatchObject({ state: "absent", detail: expect.stringContaining("offers no installed harness") });
+    await expect(probeCapability("harness", { refresh: true })).resolves.toMatchObject({ state: "absent", detail: expect.stringContaining("no harness is offered") });
     mockHarness.status = null;
-    await expect(probeCapability("harness", { refresh: true })).resolves.toMatchObject({ state: "absent", detail: expect.stringContaining("not installed") });
+    await expect(probeCapability("harness", { refresh: true })).resolves.toMatchObject({ state: "absent", detail: expect.stringContaining("no harness plugin") });
     mockHarness.status = { pluginVersion: "1.0.0", harnesses: { claude: { installed: true, offered: true, fresh: true, version: "2.1.282" } } };
     await probeCapability("harness", { refresh: true });
   });

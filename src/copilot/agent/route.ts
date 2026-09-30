@@ -62,10 +62,22 @@ export interface HarnessTransport {
   call: (input: { prompt: string; expect: "plan" | "step"; tools: Array<Record<string, unknown>> }) => Promise<string>;
 }
 
+export const AGENT_BRIDGE_PATH = "/api/plugins/story-orchestrator-harness/agent";
+
+export interface AgentToolBridge {
+  open: (input: { tools: Array<Record<string, unknown>>; harness: string; model: string }) => Promise<{ sessionId: string }>;
+  nextCall: (sessionId: string) => Promise<{ tool: string; args: Record<string, unknown> } | { done: string }>;
+  answer: (sessionId: string, result: { ok: boolean; text: string }) => Promise<void>;
+  close: (sessionId: string) => Promise<void>;
+}
+
+export const HARNESS_ROUTE_REFUSAL = "The harness tool bridge is designed but not built (v2.6 plan 04 H, Agent tool bridge). Route \"Wizard and road ahead\" to a harness " +
+  "under Models per task: the agent then runs there through its text route. The wizard does not fall back to the local profile.";
+
 export const harnessRoute = (transport: HarnessTransport | null, tools: Array<Record<string, unknown>>): AgentRoute => ({
   id: "harness",
   ask: async (prompt, expect, check) => {
-    if (!transport) throw new AgentRouteUnavailable("harness", "The harness route is not available yet (v2.6 plan 04 H). The wizard does not fall back to the local profile.");
+    if (!transport) throw new AgentRouteUnavailable("harness", HARNESS_ROUTE_REFUSAL);
     const raw = await transport.call({ prompt, expect, tools });
     const parsed = parseAgentReply(raw, expect);
     return { route: "harness", parsed, firstTryValid: !problemsOf(parsed, check).length, repaired: false, tokens: estimateTokens(prompt, raw), audit: { prompt, raw } };

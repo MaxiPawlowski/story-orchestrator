@@ -194,7 +194,7 @@ export function buildSessionJournal(sources: JournalSources): JournalEvent[] {
       boundary: -1,
       messageId: -1,
       kind: "model-call" as const,
-      summary: `${call.role} ${call.pass} via ${call.route}: ${call.result}${call.fallbackFrom ? ` (fell back from ${call.fallbackFrom})` : ""} in ${call.ms} ms`,
+      summary: `${call.pass} via ${call.route}: ${call.result}`,
       detail: { ...call },
     })),
   ];

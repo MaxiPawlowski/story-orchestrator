@@ -1,7 +1,7 @@
 import type { PassRole } from "@extraction/passRole";
 import type { PassProfiles } from "@runtime/passProfiles";
 import type { RoleRouteView } from "@runtime/roleHealth";
-import type { RouteMeter } from "@runtime/modelCallLog";
+import type { RouteMeter } from "@runtime/roleRouteEdits";
 import { HARNESS_KEY_PREFIX } from "@utils/harness";
 import { effortLabel, isReasoningEffort, REASONING_EFFORTS, type ReasoningEffort } from "@utils/reasoningEffort";
 
