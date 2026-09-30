@@ -403,6 +403,8 @@ fixes on master are listed with their merge; each still owes its live check on t
 
 ## Status
 
+**Closed 2026-09-30 without a release (user decision).** v2.5 is folded into v2.6: its open rows, decisions sheet and spike verdicts carry into `docs/plans/v2.6/` (`00-overview.md` §Why v2.6 absorbs v2.5). The table below is the state at close.
+
 | Plan | Status |
 |---|---|
 | 00 overview | DRAFT 2026-09-25, reconciled the same day (E9 + research); awaits user approval |

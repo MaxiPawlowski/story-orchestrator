@@ -1,5 +1,7 @@
 # v2.5 decisions sheet: what only you can decide
 
+**Answered 2026-09-30 (user): every recommendation accepted, except the rows v2.6 re-asked:** A2/A3 (move in step 0), A4 (sessions last), A5 (a), C4 (provider-agnostic judge, v2.6 plan 12), C6 (rule 7 holds until a release), B6/B8/B10 (v2.6 plan 12), B16 (chance gates ship). See `docs/plans/v2.6/00-overview.md` W11–W22.
+
 Compiled 2026-09-26 from `00-overview.md` (U-questions), plans 01–13 (open questions and gate records), the spike reports and
 `research/`. Decisions already made are left out: U3, plan 13 Q4–Q7 (including the plugin-owned login homes), overview rule 14
 and plan 11's Q1–Q5.
