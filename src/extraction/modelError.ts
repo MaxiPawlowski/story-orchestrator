@@ -2,7 +2,7 @@ import type { ModelFailureKind } from "@services/STAPI";
 import { TIMEOUT_RETRY_SCALE } from "./callBudget";
 
 export class ModelCallError extends Error {
-  constructor(readonly kind: ModelFailureKind, message: string, readonly profileId: string | null = null, readonly timeoutMs: number | null = null) {
+  constructor(readonly kind: ModelFailureKind, message: string, readonly profileId: string | null = null, readonly timeoutMs: number | null = null, readonly retryAt: number | null = null) {
     super(message);
     this.name = "ModelCallError";
   }

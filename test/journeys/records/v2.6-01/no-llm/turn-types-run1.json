@@ -1,0 +1,308 @@
+{
+  "ok": true,
+  "checks": [
+    {
+      "id": "setup",
+      "ok": true,
+      "detail": {
+        "sandboxChatId": "2026-09-30@17h59m17s230ms",
+        "state": {
+          "chatId": "2026-09-30@17h59m17s230ms",
+          "groupId": "1759606632088",
+          "chatLength": 1,
+          "storyId": "so-turn-types-check",
+          "boundary": 0,
+          "lastRollback": null,
+          "persisted": {
+            "selectedStoryId": "so-turn-types-check",
+            "storyIds": [
+              "so-turn-types-check"
+            ],
+            "boundaries": {
+              "so-turn-types-check": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "b-image",
+      "ok": true,
+      "detail": {
+        "posted": {
+          "via": "synthetic",
+          "ok": true,
+          "messageId": 1
+        },
+        "extensionEvent": {
+          "event": "message_received",
+          "messageId": 1,
+          "type": "extension",
+          "chatId": "2026-09-30@17h59m17s230ms"
+        },
+        "commits": [],
+        "afterSpeak": [],
+        "boundaryBefore": 0,
+        "boundaryAfter": 0,
+        "events": [
+          {
+            "event": "message_received",
+            "messageId": 1,
+            "type": "extension",
+            "chatId": "2026-09-30@17h59m17s230ms"
+          }
+        ]
+      }
+    },
+    {
+      "id": "c-greetings",
+      "ok": true,
+      "detail": {
+        "newChatId": "2026-09-30@17h59m24s036ms",
+        "greetings": [
+          {
+            "event": "message_received",
+            "messageId": 0,
+            "type": "first_message",
+            "chatId": "2026-09-30@17h59m24s036ms"
+          }
+        ],
+        "commits": [],
+        "afterSpeak": [],
+        "onDisk": {
+          "selectedStoryId": null,
+          "storyIds": []
+        },
+        "state": {
+          "chatId": "2026-09-30@17h59m24s036ms",
+          "groupId": "1759606632088",
+          "chatLength": 1,
+          "storyId": null,
+          "boundary": null,
+          "lastRollback": null,
+          "persisted": {
+            "selectedStoryId": null,
+            "storyIds": [],
+            "boundaries": {}
+          }
+        }
+      }
+    },
+    {
+      "id": "c-origin",
+      "ok": true,
+      "detail": {
+        "boundaryBefore": 0,
+        "state": {
+          "chatId": "2026-09-30@17h59m17s230ms",
+          "groupId": "1759606632088",
+          "chatLength": 2,
+          "storyId": "so-turn-types-check",
+          "boundary": 0,
+          "lastRollback": null,
+          "persisted": {
+            "selectedStoryId": "so-turn-types-check",
+            "storyIds": [
+              "so-turn-types-check"
+            ],
+            "boundaries": {
+              "so-turn-types-check": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "e-duplicate",
+      "ok": true,
+      "detail": {
+        "note": "two events for one message id are one accepted turn",
+        "afterSpeak": [
+          {
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@17h59m17s230ms"
+          }
+        ],
+        "commits": [
+          {
+            "boundary": 1,
+            "lastMessageId": 1,
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@17h59m17s230ms"
+          }
+        ],
+        "messageId": 1
+      }
+    },
+    {
+      "id": "e-slow-listener",
+      "ok": true,
+      "detail": {
+        "note": "a repeat of the same id is one turn however late it arrives — identity, not elapsed time",
+        "commits": [],
+        "messageId": 1
+      }
+    },
+    {
+      "id": "e-swipe-same-id",
+      "ok": true,
+      "detail": {
+        "note": "a swipe gives the same id new content, so the re-render is a new turn",
+        "commits": [
+          {
+            "boundary": 2,
+            "lastMessageId": 1,
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@17h59m17s230ms"
+          }
+        ],
+        "messageId": 1
+      }
+    },
+    {
+      "id": "e-distinct-rapid",
+      "ok": true,
+      "detail": {
+        "note": "two different ids inside the old 250ms window are two accepted turns",
+        "afterSpeak": [
+          {
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@17h59m17s230ms"
+          },
+          {
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@17h59m17s230ms"
+          }
+        ],
+        "commits": [
+          {
+            "boundary": 3,
+            "lastMessageId": 2,
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@17h59m17s230ms"
+          },
+          {
+            "boundary": 4,
+            "lastMessageId": 3,
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@17h59m17s230ms"
+          }
+        ],
+        "ids": [
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "d-reopen",
+      "ok": true,
+      "detail": {
+        "character": "Xianxia fantasy",
+        "soloChatId": "Xianxia fantasy - 2026-09-30@17h59m42s169ms",
+        "boundaryBefore": 0,
+        "reloadGreetings": [
+          {
+            "event": "message_received",
+            "messageId": 0,
+            "type": "first_message",
+            "chatId": "Xianxia fantasy - 2026-09-30@17h59m42s169ms"
+          }
+        ],
+        "commits": [],
+        "afterSpeak": [],
+        "state": {
+          "chatId": "Xianxia fantasy - 2026-09-30@17h59m42s169ms",
+          "groupId": null,
+          "chatLength": 1,
+          "storyId": "so-turn-types-check",
+          "boundary": 0,
+          "lastRollback": null,
+          "persisted": {
+            "selectedStoryId": "so-turn-types-check",
+            "storyIds": [
+              "so-turn-types-check"
+            ],
+            "boundaries": {
+              "so-turn-types-check": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "d-swipe",
+      "ok": true,
+      "detail": {
+        "swiped": {
+          "messageId": 0,
+          "previousSwipeId": 0,
+          "swipeId": 1,
+          "eventPayloads": [
+            0
+          ]
+        },
+        "swipeEvents": [
+          {
+            "event": "message_swiped",
+            "messageId": 0,
+            "type": null,
+            "chatId": "Xianxia fantasy - 2026-09-30@17h59m42s169ms"
+          }
+        ],
+        "commits": [],
+        "afterSpeak": [],
+        "boundaryBefore": 0,
+        "state": {
+          "chatId": "Xianxia fantasy - 2026-09-30@17h59m42s169ms",
+          "groupId": null,
+          "chatLength": 1,
+          "storyId": "so-turn-types-check",
+          "boundary": 0,
+          "lastRollback": null,
+          "persisted": {
+            "selectedStoryId": "so-turn-types-check",
+            "storyIds": [
+              "so-turn-types-check"
+            ],
+            "boundaries": {
+              "so-turn-types-check": 0
+            }
+          }
+        }
+      }
+    }
+  ],
+  "skipped": [],
+  "cleanup": {
+    "solo": {
+      "deleted": true,
+      "chatId": "Xianxia fantasy - 2026-09-30@17h59m42s169ms"
+    },
+    "sandbox": {
+      "sandboxChatId": "2026-09-30@17h59m17s230ms",
+      "owned": [
+        "2026-09-30@17h59m17s230ms",
+        "2026-09-30@17h59m24s036ms"
+      ],
+      "deleted": [
+        "2026-09-30@17h59m17s230ms",
+        "2026-09-30@17h59m24s036ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 1517,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-30@17h59m24s036ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "mirrorBooks": [],
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "story": true
+  }
+}

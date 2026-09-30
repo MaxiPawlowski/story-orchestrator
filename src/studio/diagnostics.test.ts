@@ -60,7 +60,7 @@ const seeded: StoryV2 = {
       effects: { author_note: "Hold the line.", world_info: { enable: [{ lorebook: "Ruins", comments: ["Gate"] }] } },
     },
     { id: "cache", name: "Cache", objective: "", type: "anchor", convergence_threshold: 5, guidance: { members: { "ghost-member": "Hide the key." } } },
-    { id: "lost", name: "Lost", objective: "", type: "anchor" },
+    { id: "lost", name: "Lost", objective: "", type: "anchor", motives: { guide: "find the gate", nobody: "hide", player: "win" } },
     { id: "stubby", name: "Stubby", objective: "", type: "intermediate", agency: { alternate: "stubby" }, talk_control: { chain: { mode: "scripted" } }, effects: { author_note: null } },
   ],
   scaffolding: { stubby: { beats: [], basis: {} } },

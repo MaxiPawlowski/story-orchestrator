@@ -9,7 +9,7 @@ export const CHECKPOINT_BOOK = /^Adolion .+ Checkpoints$/;
 export const GROUP_PREFIX = 'Adolion - ';
 export const MIRROR_PREFIX = 'Story Orchestrator - ';
 
-export interface ManifestStory { id: string; version: number; title: string; checkpoints: number; lorebooks: string[]; members: string[]; personas: string[] }
+export interface ManifestStory { id: string; version: number; title: string; checkpoints: number; lorebooks: string[]; members: string[]; personas: string[]; startCast: { disable: string[]; enable: string[] } }
 export interface ManifestGroup { name: string; story: string; members: string[] }
 export interface ManifestCard { avatar: string; name: string }
 export interface ManifestBook { name: string; entries: number }
@@ -52,10 +52,14 @@ export function buildManifest(input: ManifestInput): AdolionManifest {
   const stories = input.stories.map((raw) => {
     const story = record(raw);
     const requirements = record(story.requirements);
+    const checkpoints = Array.isArray(story.checkpoints) ? story.checkpoints.map(record) : [];
+    const start = checkpoints.find((checkpoint) => checkpoint.start === true) ?? checkpoints[0];
+    const cast = record(record(start?.effects).cast_changes);
     return {
       id: String(story.id), version: Number(story.version), title: String(story.title ?? story.id),
-      checkpoints: Array.isArray(story.checkpoints) ? story.checkpoints.length : 0,
+      checkpoints: checkpoints.length,
       lorebooks: sorted(strings(requirements.lorebooks)), members: sorted(strings(requirements.members)), personas: sorted(strings(requirements.personas)),
+      startCast: { disable: sorted(strings(cast.disable)), enable: sorted(strings(cast.enable)) },
     };
   }).sort((a, b) => a.id.localeCompare(b.id));
   const cards = input.cards.map(({ avatar, data }) => ({ avatar, name: String(record(record(data).data).name ?? record(data).name ?? avatar.replace(/\.png$/i, '')) }))
@@ -160,6 +164,8 @@ export interface Inventory {
   media: { image: boolean; sprites: boolean };
   ledger: { lorebooks: string[]; characters: string[] } | null;
   runtime: Record<string, RuntimeReadiness> | null;
+  /** The group whose chat is open when the inventory is read: its story's cast is in force, every other group's was put back on leave. */
+  openGroup?: string | null;
 }
 
 const canonical = (value: unknown): unknown => {
@@ -185,6 +191,7 @@ export interface InventoryInput {
   settings: Record<string, any>;
   ledger?: { lorebooks?: string[]; characters?: string[] } | null;
   runtime?: Record<string, RuntimeReadiness> | null;
+  openGroup?: string | null;
 }
 
 export function buildInventory(manifest: AdolionManifest, input: InventoryInput): Inventory {
@@ -213,7 +220,20 @@ export function buildInventory(manifest: AdolionManifest, input: InventoryInput)
     media: { image: record(record(root.settings).image).enabled !== false, sprites: !spritesSwitchedOff(record(root.settings).sprites) },
     ledger: input.ledger ? { lorebooks: sorted(strings(input.ledger.lorebooks)), characters: sorted(strings(input.ledger.characters)) } : null,
     runtime: input.runtime ? Object.fromEntries(Object.keys(input.runtime).sort().map((id) => [id, input.runtime![id]])) : null,
+    ...(input.openGroup !== undefined ? { openGroup: input.openGroup } : {}),
   };
+}
+
+/**
+ * The members a fresh import leaves disabled: the start checkpoint's `cast_changes`, applied
+ * disable-then-enable like `EffectsApplier.applyCastChanges`, over a group created with none disabled.
+ */
+export function expectedStartDisabled(manifest: AdolionManifest, group: ManifestGroup): string[] {
+  const story = manifest.stories.find((candidate) => candidate.id === group.story);
+  if (!story) return [];
+  const enabled = new Set(story.startCast.enable.map((name) => name.toLowerCase()));
+  const disabled = new Set(story.startCast.disable.map((name) => name.toLowerCase()).filter((name) => !enabled.has(name)));
+  return sorted(manifest.cards.filter((card) => group.members.includes(card.avatar) && disabled.has(card.name.toLowerCase())).map((card) => card.avatar));
 }
 
 const setDiff = (want: string[], have: string[]) => ({ missing: want.filter((item) => !have.includes(item)), extra: have.filter((item) => !want.includes(item)) });
@@ -248,6 +268,13 @@ export function checkInventory(manifest: AdolionManifest, inventory: Inventory):
     const members = setDiff(group.members, found[0].members);
     if (members.missing.length || members.extra.length) problems.push(`group ${group.name}: members missing [${members.missing.join(', ')}] extra [${members.extra.join(', ')}]`);
     if (found[0].story !== group.story) problems.push(`group ${group.name}: bound to ${found[0].story ?? 'nothing'}, want ${group.story}`);
+    if (inventory.openGroup !== undefined) {
+      const open = inventory.openGroup === group.name;
+      const cast = setDiff(open ? expectedStartDisabled(manifest, group) : [], found[0].disabled);
+      if (cast.missing.length || cast.extra.length) problems.push(open
+        ? `group ${group.name} (open): start cast not in force: disabled missing [${cast.missing.join(', ')}] extra [${cast.extra.join(', ')}]`
+        : `group ${group.name}: cast left behind after its chat was left: disabled [${cast.extra.join(', ')}]`);
+    }
   }
   const strayGroups = inventory.groups.filter((group) => !manifest.groups.some((wanted) => wanted.name === group.name)).map((group) => group.name);
   if (strayGroups.length) problems.push(`groups not in the build: ${strayGroups.join(', ')}`);

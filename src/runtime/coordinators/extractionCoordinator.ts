@@ -13,7 +13,7 @@ import type {
   SharedReadAudit,
 } from "@extraction/index";
 import {
-  buildEpistemicPassPrompt, buildLedgerPassPrompt, buildShortTermSummaryPrompt, detectSceneBreakHeuristic, fitShortTerm,
+  buildEpistemicPassPrompt, buildLedgerPassPrompt, buildShortTermSummaryPrompt, innerRender, loadInnerRender, detectSceneBreakHeuristic, fitShortTerm,
   generateMemoryId, parseEpistemicLine, parseEpistemicRetire, parseLedgerLine, provenance, summarizeScene, type ArcEntry,
   type MemoryEntry, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type ParsedMemoryLine,
 } from "@memory/index";
@@ -238,14 +238,16 @@ export class ExtractionCoordinator {
     // The window matters as much as the chat: these entries are claims ABOUT the messages that
     // were read, so an edit inside that span invalidates them, while a reply merely appended after
     // it does not.
+    const intents = epistemicSignals.some((signal) => signal.tag === "intends") ? loadInnerRender() : null;
     const run = beginRun(this.deps.ownership, { from: audit.window.from, to: audit.window.to });
     const verified = await this.verifyEntries(newMemoryEntries, audit.window);
+    if (intents) await intents;
     if (!run.stillOwns()) return;
     await memory.applyEntries(verified.kept, audit.window);
     if (!run.stillOwns()) return;
     memory.recordVerifyDrops(verified.dropped);
     const resolvedArcs = memoryEnabled && arcSignals.length ? memory.applyArcSignals(arcSignals, audit.window.to) : [];
-    if (memory.capable && epistemicSignals.length) memory.applyEpistemic(epistemicSignals, audit.window.to);
+    if (memory.capable && epistemicSignals.length) memory.applyEpistemic(epistemicSignals, audit.window.to, [], audit.window);
     if (memory.capable && ledgerSignals.length) memory.applyLedger(ledgerSignals, audit.window.to);
     this.state.audits = [...this.state.audits, audit].slice(-20);
     if (audit.reason.startsWith("reconcile:")) this.resolveReconciliation(audit);
@@ -416,10 +418,11 @@ export class ExtractionCoordinator {
     // before the ledger prompt is even sent, so one check at the end would leave the first store
     // written in a chat that had already been replaced.
     const run = beginRun(this.deps.ownership, { from: audit.window.from, to: audit.window.to });
+    const inner = innerRender() ?? (await loadInnerRender());
     const existing = memory.activeEpistemic();
     const epistemicPrompt = buildEpistemicPassPrompt(sceneText, enabledCharacterNames(story, this.deps.hosts.roster),
         existing.map((entry) => ({ tag: entry.tag, subject: entry.subject, content: entry.content,
-        hiddenFrom: entry.hiddenFrom })));
+        hiddenFrom: entry.hiddenFrom })), memory.harvestsReasoning ? inner.harvestReasoning(this.deps.hosts.chat.chatRows(), audit.window) : "");
     const epistemicResponse = await askText(this.deps.model, epistemicPrompt, { role: "read", pass: "epistemic", maxTokens: maxTokensForInput("epistemic", sceneText), signal: run.signal });
     if (!run.stillOwns()) return false;
     const epistemicSignals: ParsedEpistemicSignal[] = [];
@@ -432,7 +435,7 @@ export class ExtractionCoordinator {
       if (signal) epistemicSignals.push(signal);
     }
     const retireIds = [...retireIndices].map((index) => existing[index - 1]?.id).filter((id): id is string => Boolean(id));
-    memory.applyEpistemic(epistemicSignals, audit.window.to, retireIds);
+    memory.applyEpistemic(epistemicSignals, audit.window.to, retireIds, audit.window);
 
     const ledgerResponse = await askText(this.deps.model, buildLedgerPassPrompt(sceneText, memory.ledgerEntityList()), {
       role: "read", pass: "ledger", maxTokens: maxTokensForInput("ledger", sceneText), signal: run.signal,

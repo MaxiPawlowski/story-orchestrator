@@ -56,10 +56,12 @@ export const CHECKPOINT_COVERAGE: readonly CoverageField<Checkpoint>[] = [
   field("effects.background", "Background", "setCheckpointEffects", "The scene switches background when the beat starts.", (checkpoint) => filled(checkpoint.effects?.background)),
   field("effects.author_note", "Author's note", "setCheckpointEffects", "A per-beat note steers every reply in it.", (checkpoint) => filled(checkpoint.effects?.author_note)),
   field("effects.world_info", "Beat lore", "setCheckpointEffects", "Lore opens and closes with the beat.", (checkpoint) => filled(checkpoint.effects?.world_info)),
+  field("motives", "Motives", "setCheckpointMotive", "Each character is privately told what they want in this beat.", (checkpoint) => filled(checkpoint.motives)),
 ];
 
 export const MEMBER_COVERAGE: readonly CoverageField<RosterMember>[] = [
   field("role", "Role", "updateRosterMember", "Speaker direction and the judge director can pick this member for a reason.", (member) => filled(member.role)),
+  field("drive", "Drive", "setRosterDrive", "The character is privately told what they want across the story.", (member) => filled(member.drive)),
 ];
 
 export const TRANSITION_COVERAGE: readonly CoverageField<Transition>[] = [

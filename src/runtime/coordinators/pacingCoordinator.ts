@@ -25,6 +25,7 @@ export interface PacingCoordinatorDeps {
   getPacing: () => PacingSettings;
   hosts: { prompt: PromptHost };
   ended?: () => boolean;
+  soloMember?: () => string | null;
 }
 
 // Tension is written twice: optimistically while extractor deltas are queued (so the smoothed
@@ -125,7 +126,7 @@ export class PacingCoordinator {
   }
 
   private memberLine(story: NormalizedStoryV2, active: Checkpoint | null) {
-    const id = this.withheld ? null : this.drafted;
+    const id = this.withheld ? null : this.drafted ?? this.deps.soloMember?.() ?? null;
     const text = guidanceForMember(active?.guidance, id);
     if (!id || !text) return null;
     const member = story.roster.find((entry) => entry.id === id);

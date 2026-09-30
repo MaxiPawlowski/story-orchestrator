@@ -8,16 +8,11 @@
   ],
   "rejected": [
     {
-      "reason": "unknown quality", "scope": "golden"
+      "reason": "unknown quality",
+      "scope": "golden"
     }
   ],
   "facts": {
-    "minCount": 0,
-    "mustContain": [
-      ""
-    ],
-    "mustNotContain": [
-      "zzz"
-    ]
+    "none": "a lowered bridge is state the bridge_lowered delta already carries; no durable fact is claimed"
   }
 }

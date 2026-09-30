@@ -8,12 +8,6 @@
   ],
   "rejected": [],
   "facts": {
-    "minCount": 0,
-    "mustContain": [
-      ""
-    ],
-    "mustNotContain": [
-      "zzz"
-    ]
+    "none": "a collapsing room is scene tension the tension_current delta already carries; no durable fact is claimed"
   }
 }

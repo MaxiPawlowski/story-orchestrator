@@ -410,3 +410,18 @@ describe("L6 step 0: every sync says whether it ran and how many rows were live"
     expect((await syncMemoryMirror(input([memory(), memory()]), wrote.host))!.summary).toMatchObject({ ran: true, skipped: null, live: 2, created: 2 });
   });
 });
+
+describe("v2.6 plan 01, G-L1 U6: in file mode the book is adopted by the first relationship fact, never by a scene summary", () => {
+  it("leaves a scene-only chat without a book or a bound slot, then adopts and binds on the first relationship fact", async () => {
+    const fake = fakeHost();
+    const scene = memory({ tier: "scene_history", type: "scene", entities: [] });
+    const sceneOnly = await syncMemoryMirror(input([scene]), fake.host);
+    expect(sceneOnly!.summary).toMatchObject({ ran: false, skipped: "nothing-live", live: 0, binding: null });
+    expect(sceneOnly!.book).toBeNull();
+    expect([fake.calls.created, fake.calls.binds, fake.state.slot]).toEqual([[], [], ""]);
+    const adopted = await syncMemoryMirror(input([scene, memory()]), fake.host);
+    expect(adopted!.summary).toMatchObject({ ran: true, created: 1, binding: "bound", lorebook: "Story Orchestrator - Crossing - chat-a" });
+    expect(adopted!.book).toEqual({ name: "Story Orchestrator - Crossing - chat-a", chatId: "chat-a" });
+    expect(fake.state.slot).toBe("Story Orchestrator - Crossing - chat-a");
+  });
+});

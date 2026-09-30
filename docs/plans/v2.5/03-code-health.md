@@ -651,3 +651,15 @@ Budgets (effective lines) are unchanged:
 | copilotCoordinator | 262 | 560 |
 | sceneCoordinator | 223 | 560 |
 | pacingCoordinator | 126 | 560 |
+
+## Gate record (v2.6 carry-over, bundle f8eaa0675102)
+
+| Row | Result |
+|---|---|
+| E2 sweep live | green x2, `test/scenarios/e2-failed-pass-player-clean.json` (a real failed pass, no key) |
+| E4 disable/enable cycle | red first: `storyOrchestratorWizardAgent` outlived `storyOrchestratorStop` (lazy Studio chunk, module-scope global). Fixed via `ui.global`; guard `src/studio/lazyGlobals.guard.test.ts`, replay `studio-chunk-global-outlives-stop`. Then green x2 (roots 4 to 0, globals 17 to 0, macro unresolved, reload restarts). The one real turn after re-enable is a final-suite row |
+| `so-mutation-check.mts` | green x2 |
+| `so-turn-types-check.mts --image synthetic --skip-reply` | run 1 green; run 2 green except `d-solo` (no usable solo character left on the lane: harness pool) |
+| J1/J5/J7/J8/J9/J10, MemorizeBacklog, F2/F3, reply-path p95 | need a model: final suite (journeys section, 01-v25-03) |
+
+Full record: `docs/plans/v2.6/01-carry-over-proof.md` §Gate record (no-LLM half, 2026-09-30); records under `test/journeys/records/v2.6-01/`.

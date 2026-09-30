@@ -10,6 +10,7 @@ describe("role routes (v2.4 plan 08 T18)", () => {
     const routes = buildRoleRoutes({ settings: { profileId: "memory" }, exists: exists(["memory"]), health: healthy, selfTests: {} });
     expect(routes.map((route) => [route.role, route.state, route.profileId])).toEqual([
       ["read", "fallback", "memory"], ["synthesis", "fallback", "memory"], ["authoring", "fallback", "memory"], ["director", "fallback", "memory"], ["curator", "fallback", "memory"],
+      ["inner", "fallback", "memory"],
     ]);
   });
 

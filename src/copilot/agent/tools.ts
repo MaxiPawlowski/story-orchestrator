@@ -1,10 +1,13 @@
 import { isRecord } from "@utils/guards";
 import { nearestKey } from "@utils/levenshtein";
 import type { ProvisioningOpKind } from "@wizard/index";
-import type * as Mutations from "../../studio/mutations";
+import type * as CoreMutations from "../../studio/mutations";
+import type * as InnerVoiceMutations from "../../studio/innerVoiceMutations";
 import { parseProposal } from "../index";
 import type { ProposalOpKind } from "../types";
 import type { AgentOnlyOp, AgentOp, AgentToolCall, AgentToolFamily } from "./types";
+
+type Mutations = typeof CoreMutations & typeof InnerVoiceMutations;
 
 export type AgentArgType = "string" | "number" | "boolean" | "object" | "array" | "value";
 
@@ -19,7 +22,7 @@ export interface AgentToolSpec {
   family: AgentToolFamily;
   doc: string;
   args: Record<string, AgentArgSpec>;
-  backedBy?: keyof typeof Mutations;
+  backedBy?: keyof Mutations;
 }
 
 export type DraftOpKind = Exclude<ProposalOpKind, ProvisioningOpKind>;
@@ -33,7 +36,7 @@ const QUALITY = "{key, type: string|int|float|bool|enum, values?: string[], sour
 const CHECKPOINT = "{id, name, objective, type: anchor|intermediate, tension_target?, guidance?, agency?, talk_control?, convergence_threshold?}";
 const GATE = "{q, op: ==|!=|>=|<=|>|<|in, v} | {all: gate[]} | {any: gate[]} | {not: gate}";
 
-type EditSpec = Omit<AgentToolSpec, "name" | "family"> & { backedBy: keyof typeof Mutations };
+type EditSpec = Omit<AgentToolSpec, "name" | "family"> & { backedBy: keyof Mutations };
 
 export const EDIT_TOOLS = {
   setStoryField: {
@@ -63,15 +66,34 @@ export const EDIT_TOOLS = {
   removeTransition: { backedBy: "removeTransition", doc: "Remove a transition.", args: { ref: REF } },
   setTransitionGate: { backedBy: "setTransitionGate", doc: "Replace a transition's gate.", args: { ref: REF, gate: req("object", GATE) } },
   addRosterMember: { backedBy: "addRosterMember", doc: "Add a cast member.", args: { member: req("object", "{id, name?, role?}") } },
-  updateRosterMember: { backedBy: "updateRosterMember", doc: "Patch a cast member's name or role.", args: { id: req("string", "member id"), patch: req("object", "{name?, role?}") } },
+  updateRosterMember: {
+    backedBy: "updateRosterMember",
+    doc: "Patch a cast member's name, role, drive or view.",
+    args: { id: req("string", "member id"), patch: req("object", "{name?, role?, drive?, view?}") },
+  },
   removeRosterMember: { backedBy: "removeRosterMember", doc: "Remove a cast member.", args: { id: req("string", "member id") } },
   setArcTemplate: { backedBy: "setArcTemplate", doc: "Set the dramatic shape, or null to clear it.", args: { template: req("value", "a template name, a custom curve, or null") } },
   setArcBridges: { backedBy: "setArcBridges", doc: "Replace the thread bridges (the full list).", args: { bridges: req("array", "[{arcMatch, anchor, amount}]") } },
   setRequirements: { backedBy: "setRequirements", doc: "Replace what the story requires to run.", args: { requirements: req("object", "{personas?, members?, lorebooks?}") } },
   setStagecraft: { backedBy: "setStagecraft", doc: "Replace the curator's lorebook scope.", args: { stagecraft: req("object", "{lorebooks: string[]}") } },
   setSceneRead: { backedBy: "setSceneRead", doc: "Replace the scene places and times.", args: { sceneRead: req("object", "{locations?, times?, inject?}") } },
-  setLoreSelect: { backedBy: "setLoreSelect", doc: "Replace the lore-select books.", args: { loreSelect: req("object", "{lorebooks, top_k?}") } },
+  setLoreSelect: { backedBy: "setLoreSelect", doc: "Replace the lore-select books.", args: { loreSelect: req("object", "{lorebooks, top_k?, exclusive?}") } },
   setHouseRules: { backedBy: "setHouseRules", doc: "Replace the house rules (the full list).", args: { rules: req("array", "one rule per string") } },
+  setRosterDrive: {
+    backedBy: "setRosterDrive",
+    doc: "Set a cast member's standing goal, told only to that member. Empty text clears it. Never for the player.",
+    args: { id: req("string", "member id"), drive: req("string", "one line: what they want across the story") },
+  },
+  setRosterView: {
+    backedBy: "setRosterView",
+    doc: "omniscient: this member (a narrator) is told every character's private rows, to foreshadow; own: only their own.",
+    args: { id: req("string", "member id"), view: req("string", "own | omniscient") },
+  },
+  setCheckpointMotive: {
+    backedBy: "setCheckpointMotive",
+    doc: "Set what one cast member wants at one beat, told only to that member. Empty text clears it. Never for the player.",
+    args: { id: ID, member: req("string", "member id"), motive: req("string", "one line: what they want right now") },
+  },
 } satisfies Record<DraftOpKind | AgentOnlyOp["kind"], EditSpec>;
 
 export const PROVISION_TOOLS = {
@@ -126,7 +148,7 @@ export const AGENT_TOOLS: Record<string, AgentToolSpec> = Object.fromEntries([
 
 export const AGENT_TOOL_NAMES = Object.keys(AGENT_TOOLS);
 
-export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof typeof Mutations, string>> = {
+export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> = {
   nextId: "id helper",
   newQuality: "constructor; addQuality takes the full quality",
   newCheckpoint: "constructor; addCheckpoint takes the full checkpoint",
@@ -206,6 +228,13 @@ export const checkToolCall = (call: AgentToolCall): ToolCheck => {
   if (call.tool === "setHouseRules") {
     const rules = (Array.isArray(call.args.rules) ? call.args.rules : []).filter((rule): rule is string => typeof rule === "string" && rule.trim().length > 0);
     return { ok: true, spec, op: { kind: "setHouseRules", rules } };
+  }
+  const text = (key: string) => String(call.args[key]).trim();
+  if (call.tool === "setRosterDrive") return { ok: true, spec, op: { kind: "setRosterDrive", id: text("id"), drive: text("drive") } };
+  if (call.tool === "setCheckpointMotive") return { ok: true, spec, op: { kind: "setCheckpointMotive", id: text("id"), member: text("member"), motive: text("motive") } };
+  if (call.tool === "setRosterView") {
+    const view = text("view");
+    return view === "own" || view === "omniscient" ? { ok: true, spec, op: { kind: "setRosterView", id: text("id"), view } } : { ok: false, message: "setRosterView.view: expected own or omniscient" };
   }
   const parsed = parseProposal(JSON.stringify({ summary: "", ops: [{ ...call.args, kind: call.tool }] }));
   const issues = parsed.issues.map((issue) => issue.replace(/^ops\.0/, call.tool));

@@ -924,6 +924,8 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   '[data-so="gate-replay"]', '[data-so="model-calls"]', '[data-so="model-call"]', '[data-so="next-turn-buckets"]', '.so-inspect', '#so-inspector',
   // v2.5 plan 08 L2: which binding ST scans each required book through, and the file-mode slot conflict.
   '[data-so="lore-satisfied-by"]', '[data-so="lore-character-gap"]', '[data-so="mirror-slot-conflict"]',
+  // v2.6 plan 06: drives, motives, intents and beats are author view only until the sessions (W14).
+  '#so-inner-voice', '[data-so="inner-voice-row"]', '[data-so="inner-voice-beat"]',
 ];
 
 // v2.6 plan 08: the inline timeline's author half. Player levels (1-2) render chips, counts and player

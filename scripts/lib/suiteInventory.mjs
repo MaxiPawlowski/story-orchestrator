@@ -63,9 +63,11 @@ export function estimateSeconds(shape) {
 }
 
 export function isVacuousNeedleSpec(spec) {
-  if (!spec || typeof spec !== 'object') return [];
+  if (!spec || typeof spec !== 'object' || typeof spec.none === 'string') return [];
   const found = [];
   for (const key of ['mustContain', 'mustNotContain']) for (const needle of spec[key] ?? []) if (typeof needle === 'string' && !needle.trim()) found.push(`${key}: ""`);
+  const claims = (spec.minCount ?? 0) > 0 || ['mustContain', 'mustNotContain'].some((key) => (spec[key] ?? []).some((needle) => typeof needle === 'string' && needle.trim()));
+  if (!claims) found.push('no assertion');
   return found;
 }
 

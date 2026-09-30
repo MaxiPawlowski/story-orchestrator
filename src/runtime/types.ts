@@ -3,7 +3,7 @@ import type { JudgeCallRecord, JudgeMeterView, JudgeRuntimeState, SceneReadRecor
 import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type {
-  ConflictPair, ArcEntry, ChapterRecord, ChronicleState, DerivedRecord, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryInjectionView,
+  CastVoice, ConflictPair, ArcEntry, ChapterRecord, ChronicleState, DerivedRecord, EpistemicEntry, InnerBeat, LedgerEntry, LedgerView, MemoryEntry, MemoryInjectionView,
   MemoryStoreState, MemoryTier, Provenance, ScoreWeights,
 } from "@memory/index";
 import type { ChapterSettings, ChapterView } from "./chapters";
@@ -21,6 +21,7 @@ import type { PassProfiles, RoleRoutes } from "./passProfiles";
 import type { ReasoningBudget } from "@utils/reasoningEffort";
 import type { RoleRouteView } from "./roleHealth";
 import type { ModelCallRow } from "./modelCalls";
+import type { ModelCallRecord } from "./modelCallLog";
 import type { PromptBucketState } from "./promptBuckets";
 import type { PipelineStatus } from "./pipeline";
 import type { OrphanedLorebook } from "./mirrorReaper";
@@ -134,6 +135,7 @@ export interface RuntimeExtras {
   /** Which World Info entries each rendered reply's scans activated, by message. */
   lore: LoreRuntimeState;
   journal: JournalRecord[];
+  modelCalls: ModelCallRecord[];
   lastSessionAt: string | null;
   updatedAt: string;
 }
@@ -162,8 +164,13 @@ export interface MemoryRuntimeSettings {
   tierBudgets: Record<MemoryTier, number>;
   tierTokenBudgets: Record<MemoryTier, number>;
   scoreWeights?: ScoreWeights;
+  innerBeat?: boolean;
+  innerFanOut?: InnerFanOut;
+  harvestReasoning?: boolean;
   chapters?: Partial<ChapterSettings>;
 }
+
+export type InnerFanOut = "lead" | "top2";
 
 export interface MemoryBackfillState {
   running: boolean;
@@ -290,6 +297,7 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   /** The first message this story's play covers in this chat: the player's last message when it
    *  started, or 0 before the player spoke. The first scene summary starts here; earlier history is the backlog's. */
   storyStart: number;
+  innerBeats?: InnerBeat[];
   chapters?: ChapterRecord[];
   chronicle?: ChronicleState;
   chapterBridge?: { recordId: string; text: string } | null;
@@ -461,6 +469,7 @@ export interface RuntimeSnapshot {
   // The story's authored curator allowlist, so the review panel can say what is in scope without
   // reading the story record itself.
   stagecraftScope: string[];
+  innerCast?: CastVoice[];
   pendingDeltas: PendingDeltaReadout[];
   convergence: ConvergenceReadout[];
   tension: {
@@ -498,6 +507,7 @@ export interface RuntimeSnapshot {
   /** Which profile each family of passes asks, and whether it answers. */
   roleRoutes?: RoleRouteView[];
   modelCalls?: ModelCallRow[];
+  modelCallRing?: ModelCallRecord[];
   nextTurnBuckets?: PromptBucketState;
   /** World Info activations persisted per rendered reply. */
   lore: LoreRuntimeState;

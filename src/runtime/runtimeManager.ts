@@ -1,5 +1,6 @@
 import { appendJudgeCall, type JudgeCallRecord, type SceneReadRecord } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
+import { appendModelCall, type ModelCallRecord } from "./modelCallLog";
 import {
   StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryLogEntry, type BoundaryResult, type EngineState,
   type NormalizedStoryV2, type NormalizedTransition, type TalkControl, type ValidationError,
@@ -161,7 +162,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     const { extraction, talk, judge } = this.extras;
     return this.journal.build({ boundaryLog: this.loaded ? this.engine.stateLog : [], audits: extraction.audits,
         reconciliationEvents: extraction.reconciliationEvents, talkDecisions: talk.decisions,
-        judgeCalls: judge.calls, pending: this.loaded ? this.engine.pendingWrites : [] });
+        judgeCalls: judge.calls, modelCalls: this.extras.modelCalls, pending: this.loaded ? this.engine.pendingWrites : [] });
   }
   getExtractionAudits() { return this.extras.extraction.audits; }
   async flagMoment(note = "") {
@@ -383,6 +384,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   recordLoreFired(record: LoreFiredRecord) { if (!this.loaded) return; this.extras.lore = recordLoreFired(this.extras.lore, record); void this.persist(); this.notify(); }
   setInlineSettings(patch: Partial<InlineSettings>) { this.setUiSettings({ inline: { ...this.extras.ui.inline, ...patch } }); }
   recordJudgeCall(record: JudgeCallRecord) { this.extras.judge = appendJudgeCall(this.extras.judge, record); this.touch(); }
+  recordModelCall(record: ModelCallRecord) { this.extras.modelCalls = appendModelCall(this.extras.modelCalls, record); this.touch(); }
   getSceneRead(): SceneReadRecord | null { return this.extras.judge.scene; }
   recordSceneRead(read: SceneReadRecord | null) { this.extras.judge = { ...this.extras.judge, scene: read }; this.notify(); }
 
@@ -556,7 +558,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   rosterIdForName(name: string): string | null { return rosterIdForName(this.loaded?.story ?? null, name); }
 
   onGenerationStarted(type: unknown, dryRun?: unknown) {
-    if (withholds(type)) this.withholdTurnBlocks(); else { this.memory.releaseStaleHold(); this.pacing.releaseStaleGuidanceHold(); }
+    if (withholds(type)) this.withholdTurnBlocks(); else { this.memory.releaseStaleHold(); this.pacing.releaseStaleGuidanceHold(); this.memory.injector.onSoloGeneration(); }
     this.memory.chapters.carryBridge(type);
     this.stagecraft.onGenerationStarted(type, dryRun);
   }

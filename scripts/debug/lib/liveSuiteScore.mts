@@ -32,11 +32,17 @@ export interface ContainsSpec {
   minCount?: number;
   mustContain?: string[];
   mustNotContain?: string[];
+  /** An explicit "this tier claims nothing here", with the reason. Never scored, never vacuous. */
+  none?: string;
+  /** `golden`: describes the hand-written golden only (jest); `live`: the model's answer only (this suite). */
+  scope?: 'golden' | 'live';
 }
 
 /** Shared shape for the free-text tiers: a floor on how many lines, and words that must (not) appear. */
 export function scoreContains(tier: TierName, spec: ContainsSpec | undefined, live: unknown[]): TierOutcome {
   if (!spec) return { tier, scored: false, pass: false, detail: 'the fixture states no expectation for this tier' };
+  if (typeof spec.none === 'string') return { tier, scored: false, pass: false, detail: `the fixture declares no ${tier} expectation: ${spec.none || '(no reason given)'}` };
+  if (spec.scope === 'golden') return { tier, scored: false, pass: false, detail: `the ${tier} expectation is golden-scoped: it describes the hand-written golden, which jest asserts` };
   const haystack = joined(live ?? []);
   const problems: string[] = [];
   const vacuous: string[] = [];
@@ -54,6 +60,8 @@ export function scoreContains(tier: TierName, spec: ContainsSpec | undefined, li
     if (!needle.trim()) { vacuous.push('mustNotContain: ""'); continue; }
     if (haystack.includes(needle.toLowerCase())) problems.push(`must not contain "${needle}"`);
   }
+  const claims = (spec.minCount ?? 0) > 0 || [...(spec.mustContain ?? []), ...(spec.mustNotContain ?? [])].some((needle) => needle.trim());
+  if (!claims) vacuous.push('no assertion');
 
   return {
     tier,

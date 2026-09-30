@@ -8,27 +8,27 @@ Lane time per row: a measured median where archived records hold one (journeys),
 
 | | Sized (lane-h) | Phase F cap (lane-h) |
 |---|---|---|
-| no-LLM scenarios (phase F step 1, any lane) (no model) | 0.8 | 0.8 |
+| no-LLM scenarios (phase F step 1, any lane) (no model) | 0.9 | 0.9 |
 | journeys | 3.2 | 3.2 |
 | live scenarios kept by R3 | 3.3 | 3.3 |
-| carry-over rows (01) | 7.5 | 4.2 |
+| carry-over rows (01) | 8.8 | 4.9 |
 | recommended-config rows (05, 11, 12) | 5.4 | 3.3 |
 | kept spike rows (03) | 8.3 | 2.9 |
 | integration (09) | 7.8 | 6.7 |
 | judge-off column (10) | 1.2 | 0.8 |
-| **one pass (LLM rows)** | **36.8** | **24.3** |
-| **x2** | **73.6** | **48.6** |
+| **one pass (LLM rows)** | **38.1** | **25.1** |
+| **x2** | **76.3** | **50.1** |
 | capacity: 2 nights x 10 h x 2 lanes | 40.0 | 40.0 |
 
 The cut already applied by R3: 34 LLM scenarios demoted (spike legs, calibration arms, and LLM scenarios that name no guard; 5.0 lane-hours per pass by the step estimate) and 1 duplicate retired. Placeholder minutes are each plan's own sizing; capMinutes is the phase F budget this plan (R5) gives the owning plan: the regression leg only, because measurement legs run once in their own plan (overview rule 13).
 
-**Does not fit, even at the caps**: x2 needs 48.6 of 40.0 lane-hours, 8.6 over (at the plans' own sizing: 73.6). The rows already built (journeys, live scenarios) take 13.1 lane-hours x2; the rest is placeholder rows for plans not yet built. Closing the gap is a plan 10 / user call, not a silent cut: a third night, integration (09) x2 on its own night, or the measurement-adjacent rows (03, 05 R3) x1 in phase F.
+**Does not fit, even at the caps**: x2 needs 50.1 of 40.0 lane-hours, 10.1 over (at the plans' own sizing: 76.3). The rows already built (journeys, live scenarios) take 13.1 lane-hours x2; the rest is placeholder rows for plans not yet built. Closing the gap is a plan 10 / user call, not a silent cut: a third night, integration (09) x2 on its own night, or the measurement-adjacent rows (03, 05 R3) x1 in phase F.
 
 ## no-LLM scenarios (phase F step 1, any lane)
 
 | Row | What | Minutes | Phase F cap | Note |
 |---|---|---|---|---|
-| 101 fixtures | every kept no-LLM scenario (13-decisions.md) | 51 | 51 |  |
+| 103 fixtures | every kept no-LLM scenario (13-decisions.md) | 52 | 52 |  |
 
 ## journeys
 
@@ -97,15 +97,16 @@ The cut already applied by R3: 34 LLM scenarios demoted (spike legs, calibration
 
 | Row | What | Minutes | Phase F cap | Note |
 |---|---|---|---|---|
-| 01-fixes | the seven post-batch-2 fix rows (J3.6/04 N1/SP2 R4, J8.10/SP6 K2, J5.8, E4 cycle, F2 live suite, C2 guard+control, J13 judge-on) | 60 | 40 | journey rows run inside the journeys section; the remainder is E4, F2, C2; journey rows already counted; E4, F2, C2 only |
-| 01-v25-01 | G1(a/b), G2, G5, G8; G1(c)/G5 extension-disabled; the scanGatingActive mutant control | 60 | 30 | the mutant control moves to the defect replay once it has a jest kill |
-| 01-v25-02 | C1 + mutant; C2 guard/control; C7 + J3 scan-mode re-run; A37; A11 forced arm; A6/A11 mutants; four host-fact rows | 75 | 35 | four host-fact rows are one-shot facts (verified once in 01), C1/A6/A11 mutants go to the defect replay |
-| 01-v25-03 | MemorizeBacklog; turn-types and mutation checks; E4 cycle; E2 sweep; F2/F3; reply-path p95 (J1/J5/J7/J8/J9/J10 are in the journeys section) | 60 | 30 | E2 sweep and reply-path p95 are measurements, ×1 in 01 |
-| 01-v25-04 | N1 re-run; K0 scored (Adolion variant from 02 D5) | 30 | 20 |  |
-| 01-v25-05 | F2 live suite toy + Adolion D6; J3/J12 after F1a (journeys section); F7 CC arm | 45 | 30 | F3 arm report is a reading, not a run |
-| 01-v25-06 | J13 judge-on arm (journeys section); recommended-config curator row | 20 | 10 |  |
-| 01-v25-07 | A4 buckets on a CC profile lane (live-v25-07-a4-buckets) | 10 | 10 |  |
-| 01-v25-08 | G-L1 U6 file-mode fallback; G-L4 P2; G-L5 X5 + story-flag column; L6 step-0 J7 replay; G-J | 90 | 45 | L6 step-0 J7 replay is J7 (journeys section) |
+| 01-fixes | post-batch-2 fixes: E4 cycle (`globalThis.storyOrchestratorStop()` + `st-session.mts reload`, 0 roots/globals, `{{story_title}}` unresolved, then ONE real turn); F2 live suite (`so-live-suite.mts run --min 0.9 --expect-count 29`, facts column now 5 claims + 9 declared none); J13 judge-on arm (`so-journey.mts run J13 --strict --judge-uses houseRules --warden-mode auto`). J3.6, J5.8, J8.10 run inside the journeys section; SP2 R4 and SP6 K2 are 03's; C2 is no-LLM (01 open item: fixture rebuild) | 45 | 35 | plan 14 tiers: E4 T0 (T0-2 reload), F2 T2, J13 T6; journey rows already counted; E4 one turn, F2 suite, J13 on-arm only |
+| 01-v25-01 | `st-lanes.mts batch --lanes <n> --repeat 2 --group 1759606632088 test/scenarios/live-v25-01-real-books.json` in scan mode (G1 a/b, G2, G5 Repair row + re-normalise, G8 p95); G1(c)/G5 extension-disabled half by `_design` with `--keep` (manual, one lane run); `live-v25-01-g7-sticky.json` rides the live-scenario section | 45 | 30 | plan 14 tier T1 (T1-4 lore that appears and disappears); the scanGatingActive mutant is a defect-replay kill now (scan-mode-file-writes-before-gating) |
+| 01-v25-02 | C7 + J3 in scan mode (`st-lanes.mts batch --lanes <n> --strict J3` with `worldInfo.gatingMode: scan`); A11 forced arm (`live-v24-03-memorize.json`, then `so-timeout-arm.mts scale <log>` and `live-v25-05-memorize-timeout.json`); A6 (`live-v25-05-breaker-slow.json`, live-scenario section) | 60 | 30 | plan 14 tiers: C7 T1, A11 T2, A6 T6; C1 mutant is a defect-replay kill (npc-stream-lands-in-next-chat); A37/C7 note order and the host facts are no-LLM (01 record) |
+| 01-v25-03 | MemorizeBacklog (`live-v24-03-memorize.json` x1, shared with 01-v25-02's A11 run); `so-turn-types-check.mts` a-reply leg (real turn); F2/F3 macro-after-boundary; reply-path p95 probe (J1/J5/J7/J8/J9/J10 are journeys) | 50 | 25 | plan 14 tiers: MemorizeBacklog T2, turn types T4, F2/F3 T5, reply-path p95 T0; E2 sweep, mutation check and the event-level turn types are no-LLM (01 record) |
+| 01-v25-04 | N1 `so-scenario.mts run test/scenarios/live-v25-04-negation.json --sandbox --group <id>` (judge off; its /sendas boundaries take real extraction reads); K0 `so-contradiction-cosine.mts capture --record` then `npx jest src/memory/contradictions.fixture.test.ts` (Adolion variant from 02 D5) | 30 | 20 | plan 14 tier T2 (T2-3 contradiction) |
+| 01-v25-05 | F2 live suite toy (`so-live-suite.mts run --min 0.9 --expect-count 29 --min-tier facts=0.68,rejected=0.9,epistemic=0.8,ledger=0.8,arcs=0.8`) + Adolion D6; F7 CC arm (`live-v25-05-token-estimate.json` on a CC profile with `chat_template_kwargs {enable_thinking:false}`); J3/J12 in the journeys section | 40 | 30 | plan 14 tiers: live suite T2, F7 CC T6; F3 arm report is a reading, not a run |
+| 01-v25-06 | J13 judge-on arm (journeys section); curator row: `so-role-calibration.mts run --role curator --arm shared-<bundle>-r1` (+ `-r2`, `verdict`) to rename recommended-config.md's bundle | 20 | 10 | plan 14 tier T6 |
+| 01-v25-07 | A4 buckets on a CC profile lane (live-v25-07-a4-buckets, live-scenario section); A3 correctness: J3/J7 with `so-ui.mts gate-replay-history` before cleanup, then `npx jest src/studio/gateReplay.records.test.ts` | 15 | 10 | plan 14 tier T5; A3 red/green is Storybook (no-LLM, 01 record) |
+| 01-v25-08 | G-L1 U6 `so-scenario.mts run test/scenarios/live-memory-mirror.json --sandbox --group 1759606632088` in FILE mode (fixture fixed in 01: seeds its own relationship fact after schedulerIdle, asserts file mode, expectReply; the no-LLM half is memory-mirror-file.json); G-L4 P2 J3 with `worldInfo.scanMemory` off then on; G-L5 X5 `live-v25-08-l5-fallback.json` with Vectors > World Info on + `/api/vector/` recorder, and the story-flag column (keyword arm, `lore_select.exclusive: true`); G-J J3/J7 in scan mode | 75 | 45 | plan 14 tiers: U6/L4 T2 (memory mirror), L5/G-J T1; L6 step-0 J7 replay is J7 (journeys section) |
+| 01-v25-14-19 | Adolion live legs from `adolion-fresh`: 14 C1/C2/C5-C10 + C11 tokens; 15 image cue on a real transition; 16 fifth-reply cadence and cadence+cue on one reply; 17/19 Pass D/E playtests + free-text cadence; 18 commit guard with a planted refusal; 19 clean fresh-Saga replay. Every image leg needs ComfyUI, so it runs only in a window the user grants for 8188 | 150 | 60 | plan 14 tiers: T0-T1 (cue, cadence, guard); saga replay T2-1; integration (09) I1-I3 plays the same routes; 01 keeps the cue/cadence/guard assertions only |
 
 ## recommended-config rows (05, 11, 12)
 

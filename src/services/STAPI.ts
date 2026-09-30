@@ -75,7 +75,9 @@ export { observeWorldInfoScans, loadedEntries, type HostEntriesLoaded, type Worl
 export { observeSamplerPayloads, readSamplerPreset, samplerApi, type SamplerPayloadHandlers } from "@services/stHost/samplerOverlay";
 export { installScanGating, probeScanGating, vectorsScanWorldInfo, type ScanGatingHandle } from "@services/stHost/worldInfoScan";
 export { getSelectedConnectionProfileId, listConnectionProfiles, profileExists, sendConnectionProfileRequest } from "@services/stHost/connectionProfiles";
-export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, ModelSamplers, ReasoningMeter } from "@services/stHost/modelReply";
+export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, ModelSamplers, ModelUsage, ReasoningMeter } from "@services/stHost/modelReply";
+export { harnessContextLimit, harnessListed, harnessStatusCached, refreshHarnessStatus, sendHarness } from "@services/stHost/harnessCache";
+export type { HarnessModel, HarnessRequest, HarnessRow, HarnessStatus } from "@services/stHost/harness";
 export type { ConnectionProfileSummary } from "@services/stHost/connectionProfiles";
 export { countTokens, countTokensBatch } from "@services/stHost/tokenizer";
 export { readProfileContextLimit, readProfilePresetName } from "@services/stHost/contextLimit";

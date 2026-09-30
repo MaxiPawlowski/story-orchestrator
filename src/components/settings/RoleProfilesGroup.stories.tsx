@@ -25,7 +25,7 @@ const profiles = [{ id: "memory", name: "Memory RunPod", model: "artemis" }, { i
 const meta: Meta<typeof RoleProfilesGroup> = {
   title: "Settings/RoleProfilesGroup",
   component: RoleProfilesGroup,
-  args: { routes: allFallback, assigned: {}, profiles, testing: null, onAssign: fn(), onTest: fn(), onEffort: fn() },
+  args: { routes: allFallback, assigned: {}, profiles, testing: null, onAssign: fn(), onTest: fn(), onEffort: fn(), onHarness: fn(), onFallback: fn(), onOpen: fn() },
 };
 
 export default meta;
@@ -113,5 +113,41 @@ export const ReasoningEffort: Story = {
     await expect(director.textContent).toContain("lower the effort for Speaker direction");
     await userEvent.selectOptions(canvasElement.querySelector("#so-role-effort-curator") as HTMLSelectElement, "low");
     await expect(args.onEffort).toHaveBeenCalledWith("curator", "low");
+  },
+};
+
+export const HarnessRoute: Story = {
+  args: {
+    harnesses: [
+      { key: "harness:claude:sonnet", label: "Claude Code · sonnet", vendor: "Anthropic" },
+      { key: "harness:opencode:openai/gpt-6-astra", label: "opencode · openai/gpt-6-astra", vendor: "OpenAI" },
+    ],
+    harnessRoutes: { synthesis: { key: "harness:claude:sonnet", fallback: null } },
+    meters: [{ route: "harness:claude:sonnet", calls: 3, ok: 2, failed: 1, fallback: 0, inputTokens: 1200, outputTokens: 90, costUsd: 0 }],
+    routes: allFallback.map((entry) => (entry.role === "synthesis"
+      ? route("synthesis", "Summaries and canon", "not-logged-in", "harness:claude:sonnet",
+        "Summaries and canon: claude is not logged in on the machine running SillyTavern: run `claude` once in a terminal there")
+      : entry)),
+    onHarness: fn(),
+    onFallback: fn(),
+    onOpen: fn(),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText(/Models per task/));
+    await expect(args.onOpen).toHaveBeenCalled();
+    const synthesis = canvasElement.querySelector('[data-role="synthesis"]') as HTMLElement;
+    await expect((synthesis.querySelector("#so-role-profile-synthesis") as HTMLSelectElement).value).toBe("harness:claude:sonnet");
+    await expect(synthesis.querySelector('[data-so="role-egress"]')?.textContent).toContain("to Anthropic via Claude Code · sonnet");
+    await expect(synthesis.querySelector('[data-so="role-meter"]')?.textContent).toContain("3 calls this chat (1 failed");
+    await expect(synthesis.textContent).toContain("run `claude` once");
+    await expect(canvasElement.querySelector('[data-role="read"] [data-so="role-egress"]')).toBeNull();
+    await userEvent.selectOptions(synthesis.querySelector("#so-role-fallback-synthesis") as HTMLSelectElement, "fast");
+    await expect(args.onFallback).toHaveBeenCalledWith("synthesis", "fast");
+    await userEvent.selectOptions(canvasElement.querySelector("#so-role-profile-read") as HTMLSelectElement, "harness:opencode:openai/gpt-6-astra");
+    await expect(args.onHarness).toHaveBeenCalledWith("read", "harness:opencode:openai/gpt-6-astra");
+    await userEvent.selectOptions(synthesis.querySelector("#so-role-profile-synthesis") as HTMLSelectElement, "memory");
+    await expect(args.onHarness).toHaveBeenCalledWith("synthesis", null);
+    await expect(args.onAssign).toHaveBeenCalledWith("synthesis", "memory");
   },
 };

@@ -1,5 +1,5 @@
 import {
-  NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, TALK_CHAIN_MAX_CAP, TENSION_LEVELS, type BackgroundEffect, type AgencyPolicy, type Checkpoint,
+  NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, ROSTER_VIEWS, TALK_CHAIN_MAX_CAP, TENSION_LEVELS, type BackgroundEffect, type AgencyPolicy, type Checkpoint,
   type CheckpointEffects, type PrimitiveValue, type StoryV2, type TalkControl, type TalkControlChain, type TalkControlSpeaker,
   type ValidationError,
 } from "../schema";
@@ -8,15 +8,37 @@ import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
 import { readCheckpointChapter } from "./chapters";
 import { readGuidance } from "../checkpointGuidance";
 
-export const readRoster = (roster: StoryV2["roster"], errors: ValidationError[]): StoryV2["roster"] => roster.map((member, index) => {
-  if (!isRecord(member) || member.role === undefined) return member;
-  if (typeof member.role !== "string") {
-    addError(errors, `roster.${index}.role`, "roster role must be a string");
+type Member = StoryV2["roster"][number];
+
+const readMemberText = (member: Member, key: "role" | "drive", path: string, errors: ValidationError[]): Member => {
+  const { [key]: value, ...rest } = member;
+  if (value === undefined) return member;
+  if (typeof value !== "string") {
+    addError(errors, `${path}.${key}`, `roster ${key} must be a string`);
     return member;
   }
-  const { role, ...rest } = member;
-  return role.trim() ? { ...rest, role: role.trim() } : rest;
+  return value.trim() ? { ...rest, [key]: value.trim() } : rest;
+};
+
+export const readRoster = (roster: StoryV2["roster"], errors: ValidationError[]): StoryV2["roster"] => roster.map((member, index) => {
+  if (!isRecord(member)) return member;
+  const path = `roster.${index}`;
+  if (member.view !== undefined && !isOneOf(member.view, ROSTER_VIEWS)) addError(errors, `${path}.view`, "roster view must be own or omniscient");
+  return readMemberText(readMemberText(member, "role", path, errors), "drive", path, errors);
 });
+
+const readMotives = (value: unknown, path: string, errors: ValidationError[]): Record<string, string> | undefined => {
+  if (!isRecord(value)) {
+    addError(errors, path, "motives must be an object of roster id to text");
+    return undefined;
+  }
+  const motives: Record<string, string> = {};
+  Object.entries(value).forEach(([id, text]) => {
+    if (typeof text !== "string") addError(errors, `${path}.${id}`, "a motive must be text");
+    else if (id.trim() && text.trim()) motives[id.trim()] = text.trim();
+  });
+  return Object.keys(motives).length ? motives : undefined;
+};
 
 // `background: "tavern day.jpg"` and `background: { name: "tavern day.jpg" }` are the same effect;
 // the shorthand collapses here so the applier only ever sees one shape.
@@ -245,6 +267,8 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
   if (typeof value.convergence_threshold === "number" && Number.isFinite(value.convergence_threshold)) {
     checkpoint.convergence_threshold = value.convergence_threshold;
   }
+  const motives = value.motives === undefined ? undefined : readMotives(value.motives, `${path}.motives`, errors);
+  if (motives) checkpoint.motives = motives;
   readCheckpointChapter(value, checkpoint, path, errors);
   return checkpoint;
 };

@@ -44,6 +44,8 @@ export const DIAGNOSTIC_CODES = [
   "house-rule-compound",
   "checkpoint-inherits-author-note",
   "world-info-rests-off",
+  "motive-member-unknown",
+  "motive-for-player",
   "chapter-missing",
   "chapter-unknown",
   "chapter-unreachable",
@@ -85,6 +87,8 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "house-rule-compound": "The check asks one question per rule, so a rule that demands two things is judged on whichever one the model reads.",
   "checkpoint-inherits-author-note": "The model keeps being told an earlier checkpoint's note here.",
   "world-info-rests-off": "These lorebook entries stay off in their lorebooks, and are switched on only in this story's own chats.",
+  "motive-member-unknown": "Nobody is told this motive: no cast member has that id.",
+  "motive-for-player": "The player's choices are theirs, so nobody is told this motive.",
   "chapter-missing": "The story cannot load, because this checkpoint belongs to no chapter.",
   "chapter-unknown": "The story cannot load, because this checkpoint names a chapter that does not exist.",
   "chapter-unreachable": "This chapter is never played, so it is never written up.",
@@ -489,6 +493,16 @@ const checkWorldInfoGating = (run: DiagnosticRun) => {
   }
 };
 
+const checkMotives = ({ draft, push }: DiagnosticRun) => {
+  const cast = draft.roster.map((member) => member.id);
+  const players = ["player", "user", "{{user}}"].concat(draft.requirements?.personas ?? []).map((name) => name.trim().toLowerCase());
+  draft.checkpoints.forEach((checkpoint, index) => Object.keys(checkpoint.motives ?? {}).forEach((id) => {
+    if (cast.includes(id)) return;
+    const player = players.includes(id.trim().toLowerCase());
+    push(player ? "motive-for-player" : "motive-member-unknown", "warning", `checkpoints.${index}.motives.${id}`, player ? `'${id}' is the player` : `no cast member '${id}'`);
+  }));
+};
+
 const DIAGNOSTIC_CHECKS = [
   checkGates,
   checkAnchorsReachable,
@@ -506,6 +520,7 @@ const DIAGNOSTIC_CHECKS = [
   checkHouseRules,
   checkSceneLocation,
   checkWorldInfoGating,
+  checkMotives,
   checkChapters,
 ];
 

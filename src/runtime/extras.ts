@@ -1,12 +1,14 @@
 import { EXPANSION_CONTRACT, type ExpansionRuntimeState } from "@generation/index";
-import { CONFLICT_LIMIT, createMemoryState, DERIVED_LIMIT, isProvenance, type ChapterRecord, type ChronicleState } from "@memory/index";
+import { BEAT_RING_CAP, CONFLICT_LIMIT, createMemoryState, DERIVED_LIMIT, isProvenance, type ChapterRecord, type ChronicleState, type InnerBeat } from "@memory/index";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { capProposalRing } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
+import { sanitizeModelCalls } from "./modelCallLog";
 import { sanitizeJournalRecords } from "./journal";
 import { defaultExtractionSettings, defaultInlineSettings, defaultMemorySettings, defaultStagecraftSettings, type ChatOverrides, type GlobalSettings } from "./settingsModel";
 import { createLore, sanitizeLore } from "./loreFired";
-import { EFFECT_LEDGER_LIMIT, JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
+import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
+import { trimLedger } from "./effectLedger";
 import { createSaveHealth } from "./saveHealth";
 import { sanitizeOnEnterPosts } from "./npcReplyRewind";
 import type {
@@ -92,6 +94,9 @@ const sanitizeMirrorBook = (value: unknown): MemoryMirrorBook | null => {
   return typeof book?.name === "string" && typeof book.chatId === "string" && book.name && book.chatId ? { name: book.name, chatId: book.chatId } : null;
 };
 
+const sanitizeInnerBeats = (value: unknown): { innerBeats?: InnerBeat[] } =>
+  (Array.isArray(value) && value.length ? { innerBeats: (value as InnerBeat[]).slice(-BEAT_RING_CAP) } : {});
+
 export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState => {
   const existing = value?.memory;
   if (existing && Array.isArray(existing.entries)) {
@@ -124,6 +129,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       resolvedConflicts: Array.isArray(existing.resolvedConflicts) ? existing.resolvedConflicts.filter((key) => typeof key === "string").slice(-CONFLICT_LIMIT) : [],
       pinnedOverflow: typeof existing.pinnedOverflow === "number" ? existing.pinnedOverflow : 0,
       storyStart: typeof existing.storyStart === "number" ? existing.storyStart : 0,
+      ...sanitizeInnerBeats(existing.innerBeats),
       chapters: sanitizeChapters(existing.chapters),
       chronicle: sanitizeChronicle(existing.chronicle),
       chapterBridge: sanitizeBridge(existing.chapterBridge),
@@ -178,7 +184,7 @@ export const sanitizeEffects = (value: RuntimeExtras | undefined): EffectsRuntim
   if (!existing) return createEffects();
   return {
     ledger: Array.isArray(existing.ledger)
-      ? existing.ledger.filter((row): row is EffectLedgerRow => Boolean(row) && typeof row.id === "string" && typeof row.effect === "string" && Boolean(row.target)).slice(-EFFECT_LEDGER_LIMIT)
+      ? trimLedger(existing.ledger.filter((row): row is EffectLedgerRow => Boolean(row) && typeof row.id === "string" && typeof row.effect === "string" && Boolean(row.target)))
       : [],
     cast: Array.isArray(existing.cast) ? existing.cast.filter((entry) => entry && typeof entry.member === "string").map((entry) => ({ member: entry.member, disabled: entry.disabled === true })) : [],
   };
@@ -233,6 +239,7 @@ export const createExtras = (read: () => GlobalSettings): RuntimeExtras => withG
   judge: createJudgeRuntime(),
   lore: createLore(),
   journal: [],
+  modelCalls: [],
   lastSessionAt: null,
   updatedAt: new Date().toISOString(),
 }, read);
@@ -336,6 +343,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.judge = sanitizeJudgeRuntime(extras.judge);
   extras.lore = sanitizeLore(extras.lore);
   extras.journal = sanitizeJournalRecords(extras.journal);
+  extras.modelCalls = sanitizeModelCalls(extras.modelCalls);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;
   extras.firedNpcReplies = extras.firedNpcReplies && typeof extras.firedNpcReplies === "object" ? extras.firedNpcReplies : {};
   extras.firedNpcRepliesAt = extras.firedNpcRepliesAt && typeof extras.firedNpcRepliesAt === "object" ? extras.firedNpcRepliesAt : {};

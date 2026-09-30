@@ -2,6 +2,7 @@ import React from "react";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
 import { addRosterMember, nextId, removeRosterMember, updateRosterMember } from "../mutations";
+import { setRosterDrive, setRosterView } from "../innerVoiceMutations";
 
 // The roster is what every cast-facing picker offers: talk_control speakers and lead, npc_replies
 // members, cast_changes. Studio-born stories used to render those pickers empty (finding).
@@ -64,6 +65,28 @@ const RosterEditor: React.FC<{ memberNames?: string[] }> = ({ memberNames = [] }
                   value={member.role ?? ""}
                   onChange={(event) => mutate((current) => updateRosterMember(current, member.id, { role: event.target.value || undefined }))}
                 />
+              </label>
+              <label className="flex basis-full flex-col gap-1 text-sm">
+                <span className="text-xs st-muted">Drive <HelpTooltip title={"What this character wants across the whole story, e.g. 'clear his brother's name'. Only this " +
+                  "character is told it, privately, before they speak."} /></span>
+                <input
+                  className="text_pole st-input"
+                  aria-label={`Member ${index + 1} drive`}
+                  maxLength={200}
+                  placeholder="optional — their standing goal"
+                  value={member.drive ?? ""}
+                  onChange={(event) => mutate((current) => setRosterDrive(current, member.id, event.target.value))}
+                />
+              </label>
+              <label className="flex items-center gap-2 text-sm">
+                <input
+                  type="checkbox"
+                  aria-label={`Member ${index + 1} narrator view`}
+                  checked={member.view === "omniscient"}
+                  onChange={(event) => mutate((current) => setRosterView(current, member.id, event.target.checked ? "omniscient" : "own"))}
+                />
+                <span className="text-xs st-muted">Narrator view <HelpTooltip title={"A narrator is told every character's private aims and secrets, to foreshadow. It is told " +
+                  "never to reveal what a character conceals."} /></span>
               </label>
               <button type="button" className="st-button danger" aria-label={`Remove member ${index + 1}`} onClick={() => mutate((current) => removeRosterMember(current, member.id))}>×</button>
             </li>

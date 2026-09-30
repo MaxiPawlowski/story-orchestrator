@@ -1,0 +1,319 @@
+{
+  "lane": 3,
+  "file": "C:\\dev\\so-lanes\\3\\adolion-fresh\\inventory-2026-09-30T20-34-59-173Z.json",
+  "problems": [
+    "import adolion-east: the start cast never finished applying (21/22 disabled, stalled 60191 ms)",
+    "group Adolion - House Nightriver: start cast not applied: disabled missing [Ashleigh.png, Eriana.png, Forre.png, Haley.png, Hana.png, Javon.png, Kane.png, Merryn.png, Tahlia.png] extra []",
+    "group Adolion - The Adventurer's Road: start cast not applied: disabled missing [Alder.png, Alida.png, Domas.png, Fiana.png, Giada.png, Gustall.png, Kashina.png, Naomi.png, Riyo.png, Rydel.png, Talis.png, Tatiana.png] extra []",
+    "group Adolion - Between the Roads: start cast not applied: disabled missing [Akari.png, Alarise.png, Arryn.png, Calithra.png, Celedir.png, Celeste.png, Dahlia.png, Diosanea.png, Dixton.png, Fiana.png, Grant.png, Jasira.png, Kaian.png, Karia.png, Karos.png, Karrus.png, Kashina.png, Kass.png, Konako.png, Liora.png, Lirael.png, Manako.png, Mina.png, Naomi.png, Oswyn.png, Panne.png, Riyo.png, Rosea.png, Rydel.png, Ryenne.png, Sophie.png, Thorne.png, Yrelra.png] extra []",
+    "group Adolion - Crimsonwing & Ebonwing: start cast not applied: disabled missing [Amthir.png, Anax.png, Caelia.png, Caetus.png, Idira.png, Nendira.png, Runo.png, Safie.png, Sana.png, Shadur.png, Shelur.png, Unira.png, Yuna.png] extra []",
+    "group Adolion - The Eastern Road: start cast not applied: disabled missing [Akito.png, Daigo.png, Ebisu.png, Eunie.png, Fumio.png, Hanabi.png, Hanzo.png, Himari.png, Kanai.png, Kanami.png, Koharu.png, Megumi.png, Miyabi.png, Rikako.png, Rinne.png, Shiba.png, Shinen.png, Sota.png, Tanabe.png, Tanya.png, Watara.png, Yurine.png] extra []",
+    "group Adolion - Eshalanore: start cast not applied: disabled missing [Elowyn.png, The Lady of the Forest.png] extra []",
+    "group Adolion - Night Courts: start cast not applied: disabled missing [Alice.png, Camilla.png, Cassius.png, Erevan.png, Felthorn.png, Gabriel.png, Kayla.png, Kuromu.png, Lobo.png, Morrigan.png, Nalea.png, Ren.png, Selena.png, Vivie.png, Zariah.png] extra []",
+    "group Adolion - The Saga: start cast not applied: disabled missing [Akari.png, Akito.png, Alarise.png, Alexander.png, Alice.png, Amthir.png, Anax.png, Arryn.png, Ashleigh.png, Ashliel.png, Caelia.png, Caetus.png, Calithra.png, Camilla.png, Cassius.png, Ced.png, Celedir.png, Celeste.png, Dahlia.png, Daigo.png, Diosanea.png, Dixton.png, Ebisu.png, Elowyn.png, Erevan.png, Eunie.png, Fael.png, Felthorn.png, Forre.png, Fumio.png, Gabriel.png, Grant.png, Haley.png, Hana.png, Hanabi.png, Hanzo.png, Himari.png, Honami.png, Idira.png, Jasira.png, Kaian.png, Kanai.png, Kanami.png, Kane.png, Kanna.png, Karia.png, Karos.png, Karrus.png, Kass.png, Kayla.png, Keder.png, Kela.png, Koharu.png, Konako.png, Kuromu.png, Leila.png, Liora.png, Lirael.png, Lobo.png, Malach.png, Manako.png, Megumi.png, Melisande.png, Merryn.png, Mina.png, Miyabi.png, Morrigan.png, Nalea.png, Nendira.png, Nyl.png, Oswyn.png, Panne.png, Ren.png, Rikako.png, Rinne.png, Rosea.png, Runo.png, Ryenne.png, Safie.png, Sali.png, Sana.png, Selena.png, Shadur.png, Shelara.png, Shelur.png, Shiba.png, Shinen.png, Sophie.png, Sota.png, Tahlia.png, Tanabe.png, Tanya.png, The Lady of the Forest.png, Thorne.png, Unira.png, Vivie.png, Watara.png, Welden.png, Yrelra.png, Yuna.png, Yurine.png, Zariah.png] extra []"
+  ],
+  "sameAsPrevious": null,
+  "drift": null,
+  "commit": "5e2974bdfa534af1fc99b011db7c4944bf40d0df",
+  "pinned": true,
+  "stripped": {
+    "worlds": 16,
+    "characters": 147,
+    "chatDirs": 2,
+    "groups": 9,
+    "groupChats": 28,
+    "stories": [
+      "adolion-aegis",
+      "adolion-deep",
+      "adolion-esha",
+      "adolion-war",
+      "adolion-academy",
+      "adolion-night",
+      "adolion-adventurer",
+      "adolion-east",
+      "adolion-saga"
+    ],
+    "bindings": [
+      "1790528943228",
+      "1790528943246",
+      "1790528943256",
+      "1790528943263",
+      "1790528943270",
+      "1790528943277",
+      "1790528943284",
+      "1790528943291",
+      "1790528943297"
+    ],
+    "selected": [
+      "Adolion - Aegis City Noble Life",
+      "Adolion - Eshalanore",
+      "Adolion - Mountains of Shadow",
+      "Adolion - The Third Kingdom",
+      "Adolion - Tiunhime Village",
+      "Adolion Academy Checkpoints",
+      "Adolion Adventurer Checkpoints",
+      "Adolion Aegis Checkpoints",
+      "Adolion Chronicle",
+      "Adolion Deep Checkpoints",
+      "Adolion East Checkpoints",
+      "Adolion Eshalanore Checkpoints",
+      "Adolion Night Checkpoints",
+      "Adolion Saga Checkpoints",
+      "Adolion War Checkpoints",
+      "Adolion World"
+    ]
+  },
+  "baseline": "C:\\dev\\so-lanes\\3\\debug\\adolion-fresh-asset-baseline.json",
+  "baselineTrusted": true,
+  "extraction": {
+    "before": {
+      "enabled": true,
+      "cadence": 1,
+      "stabilityLag": 0,
+      "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "profiles": {
+        "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+      }
+    },
+    "restore": {
+      "restored": false,
+      "unchanged": true,
+      "settings": {
+        "enabled": true,
+        "cadence": 1,
+        "stabilityLag": 0,
+        "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "profiles": {
+          "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+        }
+      }
+    }
+  },
+  "groups": [
+    {
+      "name": "Adolion - House Nightriver",
+      "story": "adolion-academy",
+      "created": "1790800046031",
+      "status": 200,
+      "members": 15
+    },
+    {
+      "name": "Adolion - The Adventurer's Road",
+      "story": "adolion-adventurer",
+      "created": "1790800046197",
+      "status": 200,
+      "members": 18
+    },
+    {
+      "name": "Adolion - Between the Roads",
+      "story": "adolion-aegis",
+      "created": "1790800046409",
+      "status": 200,
+      "members": 40
+    },
+    {
+      "name": "Adolion - Crimsonwing & Ebonwing",
+      "story": "adolion-deep",
+      "created": "1790800046599",
+      "status": 200,
+      "members": 19
+    },
+    {
+      "name": "Adolion - The Eastern Road",
+      "story": "adolion-east",
+      "created": "1790800046676",
+      "status": 200,
+      "members": 26
+    },
+    {
+      "name": "Adolion - Eshalanore",
+      "story": "adolion-esha",
+      "created": "1790800046839",
+      "status": 200,
+      "members": 7
+    },
+    {
+      "name": "Adolion - Night Courts",
+      "story": "adolion-night",
+      "created": "1790800046996",
+      "status": 200,
+      "members": 20
+    },
+    {
+      "name": "Adolion - The Saga",
+      "story": "adolion-saga",
+      "created": "1790800047197",
+      "status": 200,
+      "members": 125
+    },
+    {
+      "name": "Adolion - Fire and War",
+      "story": "adolion-war",
+      "created": "1790800047332",
+      "status": 200,
+      "members": 20
+    }
+  ],
+  "imports": [
+    {
+      "story": "adolion-academy",
+      "group": "Adolion - House Nightriver",
+      "chatId": "2026-09-30@17h27m25s825ms",
+      "ok": true,
+      "storyId": "adolion-academy",
+      "checkpoint": "nightriver-house",
+      "status": "Following Home to Nightriver",
+      "cast": {
+        "done": true,
+        "expected": 9,
+        "disabled": 9,
+        "ms": 30,
+        "stalledMs": 0
+      }
+    },
+    {
+      "story": "adolion-adventurer",
+      "group": "Adolion - The Adventurer's Road",
+      "chatId": "2026-09-30@17h27m26s043ms",
+      "ok": true,
+      "storyId": "adolion-adventurer",
+      "checkpoint": "guild-hall",
+      "status": "Started Adolion: The Adventurer's Road",
+      "cast": {
+        "done": true,
+        "expected": 12,
+        "disabled": 12,
+        "ms": 19,
+        "stalledMs": 0
+      }
+    },
+    {
+      "story": "adolion-aegis",
+      "group": "Adolion - Between the Roads",
+      "chatId": "2026-09-30@17h27m26s212ms",
+      "ok": true,
+      "storyId": "adolion-aegis",
+      "checkpoint": "aegis-homecoming",
+      "status": "Following Homecoming",
+      "cast": {
+        "done": true,
+        "expected": 33,
+        "disabled": 33,
+        "ms": 27,
+        "stalledMs": 0
+      }
+    },
+    {
+      "story": "adolion-deep",
+      "group": "Adolion - Crimsonwing & Ebonwing",
+      "chatId": "2026-09-30@17h27m26s422ms",
+      "ok": true,
+      "storyId": "adolion-deep",
+      "checkpoint": "deep-joint-posting",
+      "status": "Following Two Wings at One Counter",
+      "cast": {
+        "done": true,
+        "expected": 13,
+        "disabled": 13,
+        "ms": 18,
+        "stalledMs": 0
+      }
+    },
+    {
+      "story": "adolion-east",
+      "group": "Adolion - The Eastern Road",
+      "chatId": "2026-09-30@17h27m26s609ms",
+      "ok": true,
+      "storyId": "adolion-east",
+      "checkpoint": "east-landfall",
+      "status": "Following Landfall at Hianxo",
+      "cast": {
+        "done": false,
+        "expected": 22,
+        "disabled": 21,
+        "ms": 60280,
+        "stalledMs": 60191
+      }
+    },
+    {
+      "story": "adolion-esha",
+      "group": "Adolion - Eshalanore",
+      "chatId": "2026-09-30@17h27m26s685ms",
+      "ok": true,
+      "storyId": "adolion-esha",
+      "checkpoint": "esha-the-last-chapel",
+      "status": "Following The Last Chapel",
+      "cast": {
+        "done": true,
+        "expected": 2,
+        "disabled": 2,
+        "ms": 24,
+        "stalledMs": 0
+      }
+    },
+    {
+      "story": "adolion-night",
+      "group": "Adolion - Night Courts",
+      "chatId": "2026-09-30@17h27m26s847ms",
+      "ok": true,
+      "storyId": "adolion-night",
+      "checkpoint": "night-the-slums",
+      "status": "Following Missing in the Slums",
+      "cast": {
+        "done": true,
+        "expected": 15,
+        "disabled": 15,
+        "ms": 24,
+        "stalledMs": 0
+      }
+    },
+    {
+      "story": "adolion-saga",
+      "group": "Adolion - The Saga",
+      "chatId": "2026-09-30@17h27m27s046ms",
+      "ok": true,
+      "storyId": "adolion-saga",
+      "checkpoint": "guild-hall",
+      "status": "Following The Guild Hall",
+      "cast": {
+        "done": true,
+        "expected": 119,
+        "disabled": 119,
+        "ms": 12,
+        "stalledMs": 0
+      }
+    },
+    {
+      "story": "adolion-war",
+      "group": "Adolion - Fire and War",
+      "chatId": "2026-09-30@17h27m27s231ms",
+      "ok": true,
+      "storyId": "adolion-war",
+      "checkpoint": "war-the-summons",
+      "status": "Following The King's War Council",
+      "cast": {
+        "done": true,
+        "expected": 13,
+        "disabled": 13,
+        "ms": 46,
+        "stalledMs": 0
+      }
+    }
+  ],
+  "summary": {
+    "books": 16,
+    "cards": 147,
+    "groups": 9,
+    "stories": 9,
+    "selected": 16,
+    "ready": 9
+  }
+}

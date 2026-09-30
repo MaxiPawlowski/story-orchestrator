@@ -1,0 +1,29 @@
+2026-09-30T21:08:08.469Z DIFF build.manifest.builtAt  "2026-09-30T20:39:40.053Z" -> "2026-09-30T21:06:42.695Z"
+2026-09-30T21:08:08.472Z WARNING: the page is running a bundle that is not the built one: served f8eaa067510289c8 vs dist 0f632bc6b68d7ef7
+2026-09-30T21:08:08.472Z DIFF build.manifest.fileSha256  "d40b739d8725629d" -> "b54bfb25227e6dfb"
+2026-09-30T21:08:08.472Z DIFF build.manifest.sourceSha256  "fa5a720ccfee6f893bab2b93ebef27c3e366f73e6fbc775503ed5b10c33bbd71" -> "b9b51d6e6ed9e2d5c8e094a42c8522ad1a3fa8ca748835fb655e7c0183173d20"
+2026-09-30T21:08:08.472Z DIFF bundle.served.bytes  1282585 -> 1282636
+2026-09-30T21:08:08.472Z DIFF bundle.served.sha256  "c001f0fa8526165be0cd1fb3bcf4fc12ac035d2e27c79682c23be9a2de38e58b" -> "f8eaa067510289c869f177c72730611d7633842ea3d3e57eccf8f69b094b3bd4"
+2026-09-30T21:08:08.472Z DIFF warnings  +the page is running a bundle that is not the built one: served f8eaa067510289c8 vs dist 0f632bc6b68d7ef7 -the page is running a bundle that is not the built one: served c001f0fa8526165b vs dist 0f632bc6b68d7ef7
+2026-09-30T21:08:08.498Z {
+2026-09-30T21:08:08.498Z   "baseline": "C:/dev/so-lanes/3/debug/run-header-v26-01-nollm.json",
+2026-09-30T21:08:08.499Z   "label": "diff-end",
+2026-09-30T21:08:08.499Z   "allow": [],
+2026-09-30T21:08:08.499Z   "differences": 6,
+2026-09-30T21:08:08.499Z   "progress": 0,
+2026-09-30T21:08:08.499Z   "blocking": 6,
+2026-09-30T21:08:08.499Z   "blockingPaths": [
+2026-09-30T21:08:08.499Z     "build.manifest.builtAt",
+2026-09-30T21:08:08.499Z     "build.manifest.fileSha256",
+2026-09-30T21:08:08.499Z     "build.manifest.sourceSha256",
+2026-09-30T21:08:08.499Z     "bundle.served.bytes",
+2026-09-30T21:08:08.499Z     "bundle.served.sha256",
+2026-09-30T21:08:08.499Z     "warnings"
+2026-09-30T21:08:08.499Z   ],
+2026-09-30T21:08:08.499Z   "warnings": [
+2026-09-30T21:08:08.499Z     "the page is running a bundle that is not the built one: served c001f0fa8526165b vs dist 0f632bc6b68d7ef7",
+2026-09-30T21:08:08.499Z     "the page is running a bundle that is not the built one: served f8eaa067510289c8 vs dist 0f632bc6b68d7ef7"
+2026-09-30T21:08:08.499Z   ],
+2026-09-30T21:08:08.499Z   "wrote": "C:\\dev\\so-lanes\\3\\debug\\run-header-diff-end.json",
+2026-09-30T21:08:08.499Z   "ok": false
+2026-09-30T21:08:08.499Z }

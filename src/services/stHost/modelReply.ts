@@ -5,7 +5,7 @@ import { isReasoningExhausted, reasoningExhaustedMessage, type ReasoningEffort }
 import { readReasoning, reasoningPayload, type ReasoningRoute } from "./reasoningPayload";
 
 export type ModelFinish = "stop" | "length" | "unknown";
-export type ModelFailureKind = "lapsed" | "timeout" | "transport" | "config" | "reasoning-exhausted";
+export type ModelFailureKind = "lapsed" | "timeout" | "transport" | "config" | "reasoning-exhausted" | "auth" | "quota" | "malformed" | "refused";
 
 export interface ReasoningMeter {
   effort: ReasoningEffort;
@@ -17,7 +17,15 @@ export interface ReasoningMeter {
   tokens: number | null;
 }
 
-export type ModelReply = { ok: true; text: string; finish: ModelFinish; meter: ReasoningMeter } | { ok: false; kind: ModelFailureKind; message: string };
+export interface ModelUsage {
+  input: number | null;
+  output: number | null;
+  costUsd: number | null;
+}
+
+export type ModelReply =
+  | { ok: true; text: string; finish: ModelFinish; meter: ReasoningMeter; usage?: ModelUsage; spawnMs?: number | null }
+  | { ok: false; kind: ModelFailureKind; message: string; retryAt?: number };
 
 export interface ModelSamplers {
   temperature?: number;

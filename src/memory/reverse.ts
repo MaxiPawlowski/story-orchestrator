@@ -1,9 +1,10 @@
 import { rollbackDerived, type DerivedRecord } from "./derived";
 import { rollbackEpistemic } from "./epistemic";
+import { rollbackBeats } from "./innerVoice";
 import { rollbackLedger } from "./ledger";
 import { dropByMessageId, hashMemoryText, stripLinksAfter } from "./stores";
 import { rollbackArcs } from "./arcs";
-import type { ArcEntry, ChapterRecord, ChronicleState, MemoryEntry, MemoryStoreState } from "./types";
+import type { ArcEntry, ChapterRecord, ChronicleState, InnerBeat, MemoryEntry, MemoryStoreState } from "./types";
 
 // Everything a rollback means for memory, in one pure function: the rows a mutation
 // invalidated, the derived artifacts built from them, and the three stores that keep their own
@@ -19,6 +20,7 @@ export interface MemoryRollbackState extends MemoryStoreState {
   verifyDrops: Array<{ entry: MemoryEntry }>;
   derived: DerivedRecord[];
   storyStart: number;
+  innerBeats?: InnerBeat[];
   chapters?: ChapterRecord[];
   chronicle?: ChronicleState;
   chapterBridge?: { recordId: string; text: string } | null;
@@ -75,5 +77,6 @@ export function reverseMemoryState<S extends MemoryRollbackState>(state: S, mess
     ...(canonStale ? { canon: null } : {}),
     ...(unfolded ? { chapters: unfolded.chapters, chronicle: unfolded.chronicle, ...(unfolded.chapterBridge === null ? { chapterBridge: null } : {}) } : {}),
     ...(state.storyStart > messageId ? { storyStart: messageId } : {}),
+    ...(state.innerBeats ? { innerBeats: rollbackBeats(state.innerBeats, messageId) } : {}),
   } as Partial<S>;
 }

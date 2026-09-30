@@ -1,6 +1,6 @@
 import { agencyFor, gateKeys, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
-import { sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
+import { castVoices, sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks } from "@stagecraft/index";
 import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
 import { buildConvergenceReadout, buildLastTransition, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot } from "./snapshot";
@@ -165,6 +165,13 @@ const chapterParts = (sources: SnapshotSources, story: NormalizedStoryV2 | null,
   return { chapters, openThreads, chapterLines };
 };
 
+const modelCallSlices = (extras: SnapshotSources["extras"]) => ({
+  modelCalls: buildModelCalls({
+    judgeCalls: extras.judge.calls, audits: extras.extraction.audits, talkDecisions: extras.talk.decisions, curatorPass: extras.stagecraft.lastPass, routed: extras.modelCalls,
+  }),
+  modelCallRing: extras.modelCalls,
+});
+
 export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot {
   const { loaded, state, extras } = sources;
   const story = loaded?.story ?? null;
@@ -287,7 +294,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     scanGate: scanGateView(),
     wiGating: wiGatingStatus(),
     samplerOverlay: samplerOverlay.view(),
-    stagecraftScope: curatorLorebooks(story),
+    stagecraftScope: curatorLorebooks(story), innerCast: castVoices(story, state?.activeCheckpointId ?? null),
     pendingDeltas,
     convergence: buildConvergenceReadout(story, state),
     tension,
@@ -312,6 +319,6 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     roleRoutes: roleHealth.view(),
     lore: extras.lore,
     inline,
-    modelCalls: buildModelCalls({ judgeCalls: extras.judge.calls, audits: extras.extraction.audits, talkDecisions: extras.talk.decisions, curatorPass: extras.stagecraft.lastPass }),
+    ...modelCallSlices(extras),
   };
 }

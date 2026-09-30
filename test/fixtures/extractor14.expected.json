@@ -8,12 +8,6 @@
   ],
   "rejected": [],
   "facts": {
-    "minCount": 0,
-    "mustContain": [
-      ""
-    ],
-    "mustNotContain": [
-      "zzz"
-    ]
+    "none": "a cut rope is a one-off event the rope_cut delta already carries; no durable fact is claimed"
   }
 }

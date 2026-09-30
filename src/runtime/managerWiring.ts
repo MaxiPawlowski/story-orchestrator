@@ -19,6 +19,8 @@ import type { StoryUpdateDeps } from "./storyUpdate";
 import type { RunOwnership } from "./runToken";
 import type { LoadedStory, RuntimeExtras } from "./types";
 import { loadWizardSession, saveWizardSession } from "./wizardSessions";
+import type { InnerBeatHost } from "./innerBeatHost";
+import { loadInnerRender } from "@memory/index";
 import { getPlayerName } from "@services/STAPI";
 import { storyEnded } from "./chapterPort";
 
@@ -61,11 +63,20 @@ export function wireCoordinators(port: ManagerPort) {
     getScene: () => port.extras().judge.scene,
     rereadWindow: (window, reason) => extraction.runNow(undefined, reason, window),
     unsaved: () => port.unsaved(),
+    beatFor: (rosterId) => inner.beatFor(rosterId),
     chapterHost: {
       closeScene: (to) => extraction.closeSceneAt(to), announce: (text) => port.announce(text),
       journal: (summary, note) => port.journal("chapter", summary, note), playerName: () => getPlayerName(),
     },
   });
+  let innerHost: InnerBeatHost | null = null;
+  let innerLoad: Promise<InnerBeatHost> | null = null;
+  const inner = {
+    due: () => port.extras().memory.settings.innerBeat === true && Boolean(view.getStory()),
+    run: async () => (await (innerLoad ??= loadInnerRender().then(() => import("./innerBeatHost"))
+      .then(({ innerBeatHostFor }) => (innerHost = innerBeatHostFor(port, memory, pacing))))).run(),
+    beatFor: (rosterId: string) => innerHost?.beatFor(rosterId) ?? "",
+  };
   const expansion: ExpansionCoordinator = new ExpansionCoordinator({
     ...view,
     getStoryRaw: () => port.loaded()?.record.raw,
@@ -109,6 +120,10 @@ export function wireCoordinators(port: ManagerPort) {
     setTension: (next) => { port.extras().tension = next; },
     getPacing: () => port.extras().pacing,
     ended: () => storyEnded(port.extras().memory.chapters ?? []),
+    soloMember: () => {
+      const story = view.getStory();
+      return story && story.roster.length === 1 && !view.hosts.roster.getActiveGroup() ? story.roster[0].id : null;
+    },
   });
   const stagecraft = new StagecraftCoordinator({
     ...view,
@@ -142,5 +157,5 @@ export function wireCoordinators(port: ManagerPort) {
     ...port.storyUpdate, getLoaded: () => port.loaded(), getState: () => (port.loaded() ? engine.serialize() : null),
     mergeStory: (raw, base) => expansion.mergedStoryOrBase(raw, base), ownership: lifecycle.ownership,
   };
-  return { memory, expansion, extraction, pacing, stagecraft, copilot, rollbackDeps, storyUpdateDeps };
+  return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, rollbackDeps, storyUpdateDeps };
 }

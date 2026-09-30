@@ -1,0 +1,250 @@
+{
+  "ok": false,
+  "checks": [
+    {
+      "id": "setup",
+      "ok": true,
+      "detail": {
+        "sandboxChatId": "2026-09-30@18h00m17s709ms",
+        "state": {
+          "chatId": "2026-09-30@18h00m17s709ms",
+          "groupId": "1759606632088",
+          "chatLength": 1,
+          "storyId": "so-turn-types-check",
+          "boundary": 0,
+          "lastRollback": null,
+          "persisted": {
+            "selectedStoryId": "so-turn-types-check",
+            "storyIds": [
+              "so-turn-types-check"
+            ],
+            "boundaries": {
+              "so-turn-types-check": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "b-image",
+      "ok": true,
+      "detail": {
+        "posted": {
+          "via": "synthetic",
+          "ok": true,
+          "messageId": 1
+        },
+        "extensionEvent": {
+          "event": "message_received",
+          "messageId": 1,
+          "type": "extension",
+          "chatId": "2026-09-30@18h00m17s709ms"
+        },
+        "commits": [],
+        "afterSpeak": [],
+        "boundaryBefore": 0,
+        "boundaryAfter": 0,
+        "events": [
+          {
+            "event": "message_received",
+            "messageId": 1,
+            "type": "extension",
+            "chatId": "2026-09-30@18h00m17s709ms"
+          }
+        ]
+      }
+    },
+    {
+      "id": "c-greetings",
+      "ok": true,
+      "detail": {
+        "newChatId": "2026-09-30@18h00m24s546ms",
+        "greetings": [
+          {
+            "event": "message_received",
+            "messageId": 0,
+            "type": "first_message",
+            "chatId": "2026-09-30@18h00m24s546ms"
+          }
+        ],
+        "commits": [],
+        "afterSpeak": [],
+        "onDisk": {
+          "selectedStoryId": null,
+          "storyIds": []
+        },
+        "state": {
+          "chatId": "2026-09-30@18h00m24s546ms",
+          "groupId": "1759606632088",
+          "chatLength": 1,
+          "storyId": null,
+          "boundary": null,
+          "lastRollback": null,
+          "persisted": {
+            "selectedStoryId": null,
+            "storyIds": [],
+            "boundaries": {}
+          }
+        }
+      }
+    },
+    {
+      "id": "c-origin",
+      "ok": true,
+      "detail": {
+        "boundaryBefore": 0,
+        "state": {
+          "chatId": "2026-09-30@18h00m17s709ms",
+          "groupId": "1759606632088",
+          "chatLength": 2,
+          "storyId": "so-turn-types-check",
+          "boundary": 0,
+          "lastRollback": null,
+          "persisted": {
+            "selectedStoryId": "so-turn-types-check",
+            "storyIds": [
+              "so-turn-types-check"
+            ],
+            "boundaries": {
+              "so-turn-types-check": 0
+            }
+          }
+        }
+      }
+    },
+    {
+      "id": "e-duplicate",
+      "ok": true,
+      "detail": {
+        "note": "two events for one message id are one accepted turn",
+        "afterSpeak": [
+          {
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@18h00m17s709ms"
+          }
+        ],
+        "commits": [
+          {
+            "boundary": 1,
+            "lastMessageId": 1,
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@18h00m17s709ms"
+          }
+        ],
+        "messageId": 1
+      }
+    },
+    {
+      "id": "e-slow-listener",
+      "ok": true,
+      "detail": {
+        "note": "a repeat of the same id is one turn however late it arrives — identity, not elapsed time",
+        "commits": [],
+        "messageId": 1
+      }
+    },
+    {
+      "id": "e-swipe-same-id",
+      "ok": true,
+      "detail": {
+        "note": "a swipe gives the same id new content, so the re-render is a new turn",
+        "commits": [
+          {
+            "boundary": 2,
+            "lastMessageId": 1,
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@18h00m17s709ms"
+          }
+        ],
+        "messageId": 1
+      }
+    },
+    {
+      "id": "e-distinct-rapid",
+      "ok": true,
+      "detail": {
+        "note": "two different ids inside the old 250ms window are two accepted turns",
+        "afterSpeak": [
+          {
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@18h00m17s709ms"
+          },
+          {
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@18h00m17s709ms"
+          }
+        ],
+        "commits": [
+          {
+            "boundary": 3,
+            "lastMessageId": 2,
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@18h00m17s709ms"
+          },
+          {
+            "boundary": 4,
+            "lastMessageId": 3,
+            "storyId": "so-turn-types-check",
+            "chatId": "2026-09-30@18h00m17s709ms"
+          }
+        ],
+        "ids": [
+          2,
+          3
+        ]
+      }
+    },
+    {
+      "id": "d-solo",
+      "ok": false,
+      "detail": {
+        "reason": "no usable solo character",
+        "pick": {
+          "found": false,
+          "rejected": [
+            {
+              "name": "Adventure Awaits!",
+              "reason": "last chat plays a story"
+            },
+            {
+              "name": "Adventure Awaits!",
+              "reason": "last chat plays a story"
+            },
+            {
+              "name": "Xianxia fantasy",
+              "reason": "last chat plays a story"
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "skipped": [],
+  "cleanup": {
+    "sandbox": {
+      "sandboxChatId": "2026-09-30@18h00m17s709ms",
+      "owned": [
+        "2026-09-30@18h00m17s709ms",
+        "2026-09-30@18h00m24s546ms"
+      ],
+      "deleted": [
+        "2026-09-30@18h00m17s709ms",
+        "2026-09-30@18h00m24s546ms"
+      ],
+      "notDeleted": [],
+      "resurrected": [],
+      "lateFileRepaired": [],
+      "saveSettleMs": 1530,
+      "skipped": [],
+      "currentChatAtCleanup": "2026-09-30@18h00m24s546ms",
+      "currentGroupAtCleanup": "1759606632088",
+      "chatAfterCleanup": "2026-09-20@07h06m38s396ms"
+    },
+    "mirrorBooks": [],
+    "reapPrompts": {
+      "dismissed": [],
+      "leaked": []
+    },
+    "story": true
+  }
+}

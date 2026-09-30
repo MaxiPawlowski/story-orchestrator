@@ -617,6 +617,62 @@
     "wiNormalize|aborted": {
       "status": "na",
       "note": "Performs no model call, so nothing can be cancelled mid-call."
-    }
+    },
+    "inner|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#control: the same held call that lands in its own chat is written",
+      "note": "v2.6 plan 06 C: a held inner call released after the await is written to its own chat's beat ring."
+    },
+    "inner|delayedError": {
+      "status": "partial",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#a backend failure rejects the pass and writes nothing (the boundary work catches it)",
+      "note": "The rejection is immediate in the test, not held; a held rejection takes the same path (no write before the check)."
+    },
+    "inner|malformedResponse": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#repairs a malformed answer once, and journals an unusable one without writing",
+      "note": "One repair pass at most, then journaled as unusable; nothing is written."
+    },
+    "inner|duplicateCompletion": {
+      "status": "partial",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#C2 structural bound: at most two inner calls per player turn, repairs and group chains included",
+      "note": "Repeated runs in one player turn are bounded to two calls; pushBeat keeps one beat per member, chat and reply. No test re-delivers one completion twice."
+    },
+    "inner|backendUnavailable": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#a backend failure rejects the pass and writes nothing (the boundary work catches it)",
+      "note": "The draft never waits on it; a missing beat is journaled at draft time."
+    },
+    "inner|beforeHostWrite": {
+      "status": "na",
+      "note": "The pass writes no host state: its only write is the memory slice's beat ring; the private block that carries it is the memory package's write."
+    },
+    "inner|afterHostWrite": {
+      "status": "na",
+      "note": "The pass writes no host state: its only write is the memory slice's beat ring; the private block that carries it is the memory package's write."
+    },
+    "inner|persistFailure": {
+      "status": "na",
+      "note": "The coordinator only asks the manager to save; a failing save is the persistence package's row, and a lost beat only costs the next draft its intent line."
+    },
+    "inner|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#writes nothing when the chat changed while the call was out",
+      "note": "The token is minted over the reply the beat reads and checked after each call, before the ring write and the persist."
+    },
+    "inner|aborted": {
+      "status": "todo",
+      "note": "No test aborts a held inner call. The run signal is passed to the model call, so an abort rejects like a backend failure, but that path is not exercised."
+    },
+    "harnessTransport|delayedSuccess": {"status": "partial", "evidence": "src/runtime/harnessRouting.test.ts#a harness route goes to the harness transport, with the role, the bound and a spawn-padded deadline", "note": "v2.6 plan 04 H: covered: a late harness answer is returned to its caller like a profile answer, keyed on its route. Not covered here: the caller's RunOwnership decides whether it is written (the census row for createModelCallVia.call says the call record itself lands in the chat open at the time)."},
+    "harnessTransport|delayedError": {"status": "covered", "evidence": "src/runtime/harnessRouting.test.ts#with no fallback chosen the role pauses: the failure is thrown, never answered from the memory profile", "note": "A harness failure is thrown as a ModelCallError keyed on the route; with no author fallback nothing answers in its place."},
+    "harnessTransport|malformedResponse": {"status": "covered", "evidence": "src/runtime/harnessRouting.test.ts#a harness failure is a ModelCallError keyed on the route, carrying the quota's retry time", "alsoEvidence": ["server-plugin/story-orchestrator-harness/plugin.test.mjs#HARNESS_LIVE=1: one real PONG per offered, logged-in harness"], "note": "An empty harness answer is `malformed` (a breaker failure, never a fallback); the plugin classifies unreadable CLI output as `malformed` itself."},
+    "harnessTransport|duplicateCompletion": {"status": "na", "note": "One HTTP request carries one plugin answer: the transport has no path by which one call completes twice."},
+    "harnessTransport|backendUnavailable": {"status": "covered", "evidence": "src/services/stHost/harness.test.ts#names a missing plugin and a refused user as config, never as a model failure", "note": "A missing plugin or a refused user reads as config, so the role shows why instead of tripping a transport breaker."},
+    "harnessTransport|beforeHostWrite": {"status": "na", "note": "The harness transport performs no SillyTavern host write; it only answers text."},
+    "harnessTransport|afterHostWrite": {"status": "na", "note": "The harness transport performs no SillyTavern host write; it only answers text."},
+    "harnessTransport|persistFailure": {"status": "na", "note": "The transport persists nothing itself: the call record rides the chat's ordinary persist, whose failure the save evidence already covers."},
+    "harnessTransport|worldSwitched": {"status": "todo", "note": "A harness call that lands after a chat switch is recorded in the call ring of the chat now open (telemetry only); no test pins that yet."},
+    "harnessTransport|aborted": {"status": "covered", "evidence": "server-plugin/story-orchestrator-harness/plugin.test.mjs#cancel stops only the call of the user who made it", "alsoEvidence": ["server-plugin/story-orchestrator-harness/plugin.test.mjs#rule 6 / P0-3: the deadline kills the process tree and answers timeout"], "note": "A cancelled or timed-out harness call kills its process tree and answers lapsed/timeout."}
   }
 }

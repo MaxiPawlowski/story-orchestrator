@@ -23,7 +23,7 @@ const raw = (guidance: unknown) => ({
 
 const story = parseStoryV2OrThrow(raw({ all: "The duel is at noon.", members: { Haley: "You rigged the blade.", forre: "You owe the duke money." } }));
 
-function harness(loaded: NormalizedStoryV2) {
+function harness(loaded: NormalizedStoryV2, soloMember: string | null = null) {
   const blocks = new Map<string, string>();
   const prompt = {
     setStoryExtensionPrompt: (key: string, value: string) => { blocks.set(key, value); },
@@ -39,6 +39,7 @@ function harness(loaded: NormalizedStoryV2) {
     setTension: (next) => { tension = next; },
     getPacing: () => ({ alpha: 0.5, shapeOverride: null, hintEnabled: false }),
     hosts: { prompt },
+    soloMember: () => soloMember,
   });
   return { pacing, block: () => blocks.get(KEY) ?? "" };
 }
@@ -79,6 +80,16 @@ describe("v2.6 plan 04 C13: per-member guidance is staged per drafted member", (
     expect(block()).toBe("Scene direction: The duel is at noon.");
   });
 
+  it("a solo chat whose roster is one member hears that member's part at rest, and a withheld run still does not", () => {
+    const { pacing, block } = harness(story, "forre");
+    pacing.updateSteering();
+    expect(block()).toContain("You owe the duke money.");
+    expect(block()).not.toContain("You rigged the blade.");
+    pacing.withholdGuidance();
+    pacing.updateSteering();
+    expect(block()).not.toContain("You owe the duke money.");
+  });
+
   it("a withheld generation (quiet, impersonate) never carries a member part, until the hold is released", () => {
     const { pacing, block } = harness(story);
     pacing.withholdGuidance();
@@ -100,6 +111,7 @@ describe("v2.6 plan 04 C13: the drafted member is resolved without the epistemic
       capable: () => false,
       ledgerBindings: () => [],
       setPinnedOverflow: () => undefined,
+      beatFor: () => "",
       hosts: () => ({ injection: { getCharacterNameById: (id: number | undefined) => (id === undefined ? undefined : names[id]) } }) as unknown as InjectorHosts,
     });
     expect(injector.draftedRosterId(4)).toBe("haley");

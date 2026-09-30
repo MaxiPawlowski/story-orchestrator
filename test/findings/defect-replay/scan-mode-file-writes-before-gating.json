@@ -1,0 +1,13 @@
+{
+  "id": "scan-mode-file-writes-before-gating",
+  "defect": "P01-L1 (v2.5 plan 01 G5): in scan mode the file-path lorebook writers skipped only while scanGatingActive(), which is false from page start until verify + normalise finish, so the start-up release wrote real books and a hand-enabled drifted entry never reached the Repair row",
+  "guards": "v2.6 plan 01 carry-over: the v2.5 plan 01 mutant control (old scanGatingActive()-only guard) as a deterministic kill",
+  "fixCommit": "57d131b5 v2.5 P01-L1 (G5): hold file-path WI writes in scan mode until the gating activates",
+  "file": "src/runtime/worldInfoMode.ts",
+  "find": "export const worldInfoFilesHeld = (): boolean => scanGating || (!scanSettled && gatingMode() === \"scan\");",
+  "replace": "export const worldInfoFilesHeld = (): boolean => scanGating;",
+  "tests": [
+    "src/runtime/effectsApplier.test.ts",
+    "src/runtime/worldInfoGating.test.ts"
+  ]
+}

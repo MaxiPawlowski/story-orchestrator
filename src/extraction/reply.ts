@@ -1,12 +1,14 @@
-import type { ModelReply, ModelRequestOptions } from "@services/STAPI";
+import type { HarnessRequest, ModelReply, ModelRequestOptions } from "@services/STAPI";
 import { anySignal } from "@utils/signals";
 import { reasoningBudgetFor, reasoningExhaustedMessage, type ReasoningBudget } from "@utils/reasoningEffort";
 import { callTimeoutMs, DEFAULT_MAX_TOKENS, estimateTokens } from "./callBudget";
 import { ModelCallError } from "./modelError";
-import type { ExtractionReply, ModelRoute } from "./modelRoute";
+import { routeKey, type ExtractionReply, type ModelRoute } from "./modelRoute";
 import { stripReasoningBlocks } from "./parse";
 
 export type ModelTransport = (profileId: string, prompt: string, maxTokens: number, options: ModelRequestOptions) => Promise<ModelReply>;
+
+export type HarnessTransport = (request: HarnessRequest) => Promise<ModelReply>;
 
 export interface CallOptions {
   maxTokens?: number;
@@ -16,6 +18,7 @@ export interface CallOptions {
   timeoutScale?: number;
   budgetKind?: string;
   reasoningBudget?: ReasoningBudget;
+  role?: string;
 }
 
 export type RouteReply = (prompt: string, route: ModelRoute | null, options?: CallOptions) => Promise<ExtractionReply>;
@@ -35,9 +38,12 @@ export function setAnsweredObserver(observer: (call: CallAnswered) => void): () 
   };
 }
 
-export const replyVia = (transport: ModelTransport): RouteReply => async (prompt, route, options = {}) => {
+const noHarness: HarnessTransport = () => Promise.resolve({ ok: false, kind: "config", message: "no harness transport" });
+
+export const replyVia = (transport: ModelTransport, harness: HarnessTransport = noHarness): RouteReply => async (prompt, route, options = {}) => {
   if (options.debugResponse !== undefined && options.debugResponse !== null) return { text: stripReasoningBlocks(options.debugResponse), finish: "unknown" };
   if (!route) throw new ModelCallError("config", "No memory LLM profile selected");
+  if (route.kind === "harness") return (await import("./harnessReply")).viaHarness(harness, route, prompt, options, (ms) => answeredObserver?.({ profileId: routeKey(route), ms }));
   const profileId = route.profileId;
   const maxTokens = options.maxTokens ?? DEFAULT_MAX_TOKENS;
   const effort = route.effort ?? "default";

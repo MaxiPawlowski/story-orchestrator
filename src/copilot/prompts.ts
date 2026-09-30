@@ -40,7 +40,7 @@ const OP_GRAMMAR = [
   '  { "kind": "setArcBridges", "bridges": [{ "arcMatch": string, "anchor": checkpoint_id, "amount": number }] }',
   '  { "kind": "setRequirements", "requirements": { "personas"?: string[], "members"?: string[], "lorebooks"?: string[] } }',
   '  { "kind": "setStagecraft", "stagecraft": { "lorebooks": string[] } }',
-  '  { "kind": "setLoreSelect", "loreSelect": { "lorebooks": string[], "top_k"?: number } }',
+  '  { "kind": "setLoreSelect", "loreSelect": { "lorebooks": string[], "top_k"?: number, "exclusive"?: true } }',
   '  { "kind": "setSceneRead", "sceneRead": { "locations": string[], "times"?: string[], "inject"?: boolean } }',
   "Transitions are referenced by { from, to }, never by index. Only reference ids that already exist in the draft.",
   "setArcBridges, setRequirements, setStagecraft, setSceneRead and setLoreSelect replace the whole list — send the full intended set, never a fragment.",

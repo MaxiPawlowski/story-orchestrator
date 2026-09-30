@@ -368,3 +368,10 @@ Live re-runs owed (lane 3, after `npm run build` and `node scripts/debug/st-lane
 - G1 (c) and the G5 extension-disabled half: a second manual run (×2), as in the record above.
 - Control on a mutant build with the old `scanGatingActive()`-only guard: expect G5 red again with the +4680 ms edit.
 - G7 clean host: still owed, unchanged by this fix.
+
+## Gate record (v2.6 carry-over, bundle f8eaa0675102)
+
+- Mutant control (old `scanGatingActive()`-only guard): now a deterministic kill, defect replay `scan-mode-file-writes-before-gating` (killed by `effectsApplier.test.ts`).
+- G1(a/b), G2, G5, G8 and the G1(c)/G5 extension-disabled half: need a model (the vehicle plays real turns); v2.6 final suite row 01-v25-01. The inv-14 rewording stays unapplied until they pass.
+
+Full record: `docs/plans/v2.6/01-carry-over-proof.md` §Gate record (no-LLM half, 2026-09-30); records under `test/journeys/records/v2.6-01/`.
