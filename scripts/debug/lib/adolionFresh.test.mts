@@ -164,11 +164,15 @@ test('the strip removes the campaign\'s assets from the lane copy and nothing of
   assert.deepEqual(Object.keys(plan.settings.tag_map), ['Seraphina.png']);
 });
 
-test('v2.6 plan 01: the start cast must be fully applied, so a cast apply cut short by the next import is a problem, not seed noise', () => {
+test('v2.6 plan 01 (Saga cast): the open group holds its start cast, and every group left behind holds none', () => {
   assert.deepEqual(manifest.groups.map((group) => expectedStartDisabled(manifest, group)), [[], ['Belle.png']]);
   const input = cleanInput();
+  assert.deepEqual(checkInventory(manifest, buildInventory(manifest, input)), [], 'without an open-group reading the cast is not judged');
+  input.openGroup = 'Adolion - Eshalanore';
+  assert.deepEqual(checkInventory(manifest, buildInventory(manifest, input)), []);
   input.groups[1].disabled_members = [];
-  assert.deepEqual(checkInventory(manifest, buildInventory(manifest, input)), ['group Adolion - Eshalanore: start cast not applied: disabled missing [Belle.png] extra []']);
-  input.groups[0].disabled_members = ['Natalia.png'];
-  assert.match(checkInventory(manifest, buildInventory(manifest, input)).join(' | '), /Adolion - House Nightriver: start cast not applied: disabled missing \[\] extra \[Natalia.png\]/);
+  assert.deepEqual(checkInventory(manifest, buildInventory(manifest, input)), ['group Adolion - Eshalanore (open): start cast not in force: disabled missing [Belle.png] extra []']);
+  input.openGroup = 'Adolion - House Nightriver';
+  input.groups[1].disabled_members = ['Belle.png'];
+  assert.deepEqual(checkInventory(manifest, buildInventory(manifest, input)), ['group Adolion - Eshalanore: cast left behind after its chat was left: disabled [Belle.png]']);
 });

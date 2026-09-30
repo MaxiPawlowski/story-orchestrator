@@ -120,7 +120,7 @@ async function strip(manifest: AdolionManifest, user: string) {
   return { worlds: plan.worlds.length, characters: plan.characters.length, chatDirs: plan.chatDirs.length, groups: plan.groupFiles.length, groupChats: plan.groupChats.length, ...plan.removed };
 }
 
-async function laneInventory(manifest: AdolionManifest, user: string, exportDir: string, runtime: Record<string, RuntimeReadiness> | null): Promise<Inventory> {
+async function laneInventory(manifest: AdolionManifest, user: string, exportDir: string, runtime: Record<string, RuntimeReadiness> | null, openGroup: string | null = null): Promise<Inventory> {
   const disk = await readLaneDisk(user);
   const titles = manifest.stories.map((story) => `Story Orchestrator - ${story.title}`);
   const wanted = disk.worlds.filter((name) => isInstalledBook(name) || name.startsWith('Adolion') || titles.some((title) => name.startsWith(title)));
@@ -128,7 +128,7 @@ async function laneInventory(manifest: AdolionManifest, user: string, exportDir:
   const ledgerPath = join(exportDir, 'build', 'installed.json');
   return buildInventory(manifest, {
     commit: manifest.commit, books, characters: disk.characters, groups: disk.groups as any, settings: disk.settings,
-    ledger: existsSync(ledgerPath) ? await readJson(ledgerPath) : null, runtime,
+    ledger: existsSync(ledgerPath) ? await readJson(ledgerPath) : null, runtime, openGroup,
   });
 }
 
@@ -190,13 +190,13 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
   const page = await readJson(pageOut);
   await writeFile(join(paths.debug, 'adolion-fresh-asset-baseline.json'), JSON.stringify(page.baseline, null, 2), 'utf-8');
   console.log('[6/7] inventory');
-  const inventory = await laneInventory(manifest, paths.user, exportDir, page.runtime);
+  const inventory = await laneInventory(manifest, paths.user, exportDir, page.runtime, page.openGroup ?? null);
   const mediaCalls = await mediaCallsSince(paths.root, logFrom);
   const problems = [...page.problems, ...checkInventory(manifest, inventory), ...(pin.pinned ? [] : [`campaign ${pin.commit} is not the pinned commit`]),
     ...(mediaCalls.length ? [`the lane server made ${mediaCalls.length} image-generation call(s) during the seed: ${mediaCalls[0]}`] : [])];
   const report = await writeRecord(n, inventory, problems, {
     commit: pin.commit, pinned: pin.pinned, stripped, baseline: join(paths.debug, 'adolion-fresh-asset-baseline.json'), baselineTrusted: page.baseline?.trusted ?? false,
-    extraction: page.extraction, groups: page.groups, imports: page.imports, summary: summary(inventory),
+    extraction: page.extraction, groups: page.groups, imports: page.imports, notes: page.notes ?? [], summary: summary(inventory),
   });
   if (stopAfter) { console.log('[7/7] stop lane'); await lanes('stop', String(n)); } else console.log(`[7/7] lane ${n} left running at ${paths.url}`);
   return report;
@@ -214,7 +214,7 @@ async function check(n: number, dropBook: string | null) {
   await rm(pageOut, { force: true });
   await inLane(n, 'scripts/debug/adolion-fresh.mts', '_page', 'check', exportDir, commit, pageOut, ...(dropBook ? ['--drop-book', dropBook] : []));
   const page = await readJson(pageOut);
-  const inventory = await laneInventory(manifest, paths.user, exportDir, page.runtime);
+  const inventory = await laneInventory(manifest, paths.user, exportDir, page.runtime, page.openGroup ?? null);
   const mediaCalls = await mediaCallsSince(paths.root, logFrom);
   const problems = [...page.problems, ...checkInventory(manifest, inventory), ...(mediaCalls.length ? [`the lane server made ${mediaCalls.length} image-generation call(s): ${mediaCalls[0]}`] : [])];
   const previous = await readJson(latest);
@@ -233,7 +233,8 @@ async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: stri
   const manifest = await manifestFromExport(exportDir, commit);
   await runCli(async (page) => {
     const problems: string[] = [];
-    const out: Record<string, unknown> = { mode, problems };
+    const notes: string[] = [];
+    const out: Record<string, unknown> = { mode, problems, notes };
     const settle = async () => {
       await waitForSettledChat(page, { quietMs: 1500, timeoutMs: 60000 });
       const started = Date.now();
@@ -308,6 +309,7 @@ async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: stri
 
     if (mode === 'seed') {
       const extraction = await readExtractionSettings(page);
+      await evaluateInST(page, () => { (globalThis as any).storyOrchestratorRuntime?.setExtractionSettings({ enabled: false }); });
       const unlisted = await evaluateInST(page, async (avatars: string[]) => {
         const ctx = SillyTavern.getContext();
         const started = Date.now();
@@ -358,7 +360,7 @@ async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: stri
         const cast = await waitForStartCast(group.name, expectedStartDisabled(manifest, group));
         imports.push({ story: story.id, group: group.name, chatId: where.chatId, ...result, cast });
         if (!result.ok || result.storyId !== story.id) problems.push(`import ${story.id}: ${JSON.stringify(result)}`);
-        if (!cast.done) problems.push(`import ${story.id}: the start cast never finished applying (${cast.disabled}/${cast.expected} disabled, stalled ${cast.stalledMs} ms)`);
+        if (!cast.done) notes.push(`import ${story.id}: the start cast was not complete after the import (${cast.disabled}/${cast.expected} disabled, stalled ${cast.stalledMs} ms); a refused write-ahead is re-applied by the next hydrate`);
         await settle();
       }
       out.imports = imports;
@@ -383,6 +385,10 @@ async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: stri
     }
     out.runtime = runtime;
     await settle();
+    out.openGroup = await evaluateInST(page, () => {
+      const ctx = SillyTavern.getContext();
+      return (ctx.groups ?? []).find((group) => group.id === ctx.groupId)?.name ?? null;
+    });
     if (mode === 'seed') out.baseline = await snapshotAssets(page);
     await saveSettingsNow(page);
     await writeFile(outFile, JSON.stringify(out, null, 2), 'utf-8');

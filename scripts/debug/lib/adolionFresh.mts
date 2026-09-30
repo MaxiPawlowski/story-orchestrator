@@ -162,6 +162,8 @@ export interface Inventory {
   media: { image: boolean; sprites: boolean };
   ledger: { lorebooks: string[]; characters: string[] } | null;
   runtime: Record<string, RuntimeReadiness> | null;
+  /** The group whose chat is open when the inventory is read: its story's cast is in force, every other group's was put back on leave. */
+  openGroup?: string | null;
 }
 
 const canonical = (value: unknown): unknown => {
@@ -187,6 +189,7 @@ export interface InventoryInput {
   settings: Record<string, any>;
   ledger?: { lorebooks?: string[]; characters?: string[] } | null;
   runtime?: Record<string, RuntimeReadiness> | null;
+  openGroup?: string | null;
 }
 
 export function buildInventory(manifest: AdolionManifest, input: InventoryInput): Inventory {
@@ -215,6 +218,7 @@ export function buildInventory(manifest: AdolionManifest, input: InventoryInput)
     media: { image: record(record(root.settings).image).enabled !== false, sprites: record(record(root.settings).sprites).enabled !== false },
     ledger: input.ledger ? { lorebooks: sorted(strings(input.ledger.lorebooks)), characters: sorted(strings(input.ledger.characters)) } : null,
     runtime: input.runtime ? Object.fromEntries(Object.keys(input.runtime).sort().map((id) => [id, input.runtime![id]])) : null,
+    ...(input.openGroup !== undefined ? { openGroup: input.openGroup } : {}),
   };
 }
 
@@ -262,8 +266,13 @@ export function checkInventory(manifest: AdolionManifest, inventory: Inventory):
     const members = setDiff(group.members, found[0].members);
     if (members.missing.length || members.extra.length) problems.push(`group ${group.name}: members missing [${members.missing.join(', ')}] extra [${members.extra.join(', ')}]`);
     if (found[0].story !== group.story) problems.push(`group ${group.name}: bound to ${found[0].story ?? 'nothing'}, want ${group.story}`);
-    const cast = setDiff(expectedStartDisabled(manifest, group), found[0].disabled);
-    if (cast.missing.length || cast.extra.length) problems.push(`group ${group.name}: start cast not applied: disabled missing [${cast.missing.join(', ')}] extra [${cast.extra.join(', ')}]`);
+    if (inventory.openGroup !== undefined) {
+      const open = inventory.openGroup === group.name;
+      const cast = setDiff(open ? expectedStartDisabled(manifest, group) : [], found[0].disabled);
+      if (cast.missing.length || cast.extra.length) problems.push(open
+        ? `group ${group.name} (open): start cast not in force: disabled missing [${cast.missing.join(', ')}] extra [${cast.extra.join(', ')}]`
+        : `group ${group.name}: cast left behind after its chat was left: disabled [${cast.extra.join(', ')}]`);
+    }
   }
   const strayGroups = inventory.groups.filter((group) => !manifest.groups.some((wanted) => wanted.name === group.name)).map((group) => group.name);
   if (strayGroups.length) problems.push(`groups not in the build: ${strayGroups.join(', ')}`);

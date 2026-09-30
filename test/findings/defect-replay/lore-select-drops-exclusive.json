@@ -1,0 +1,12 @@
+{
+  "id": "lore-select-drops-exclusive",
+  "defect": "v2.5 plan 08 S: the copilot's setLoreSelect reader kept lorebooks and top_k only, so a wizard scope edit silently dropped the story's lore_select.exclusive flag",
+  "guards": "v2.6 plan 01 carry-over (v2.5 plan 08 row: the Copilot setLoreSelect drops exclusive)",
+  "fixCommit": "b041eaa7 v2.6 plan 01: G-L1 U6 diagnosed; copilot setLoreSelect keeps exclusive",
+  "file": "src/copilot/parseOps.ts",
+  "find": ", ...(source.exclusive === true ? { exclusive: true } : {}) } };",
+  "replace": " } };",
+  "tests": [
+    "src/copilot/parse.test.ts"
+  ]
+}

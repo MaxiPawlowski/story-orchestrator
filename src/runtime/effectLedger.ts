@@ -23,8 +23,24 @@ export interface EffectWrite {
 
 export const pendingRow = (write: EffectWrite): EffectLedgerRow => ({ ...write, id: generateMemoryId(), status: "pending" });
 
+const owesRestore = (row: EffectLedgerRow) => row.status === "applied" || row.status === "pending";
+
+/**
+ * The limit trims SETTLED rows only, oldest first. A row that is applied or pending is the chat's
+ * only record of a host change it still owes back; forgetting it leaks the change on leave.
+ */
+export function trimLedger(rows: EffectLedgerRow[]): EffectLedgerRow[] {
+  let excess = rows.length - EFFECT_LEDGER_LIMIT;
+  if (excess <= 0) return rows;
+  return rows.filter((row) => {
+    if (excess <= 0 || owesRestore(row)) return true;
+    excess -= 1;
+    return false;
+  });
+}
+
 export function appendRow(rows: EffectLedgerRow[], row: EffectLedgerRow): EffectLedgerRow[] {
-  return [...rows, row].slice(-EFFECT_LEDGER_LIMIT);
+  return trimLedger([...rows, row]);
 }
 
 export function setStatus(rows: EffectLedgerRow[], id: string, status: EffectLedgerStatus, patch: Partial<EffectLedgerRow> = {}): EffectLedgerRow[] {
