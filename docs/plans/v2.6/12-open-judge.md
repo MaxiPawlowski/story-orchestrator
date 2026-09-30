@@ -116,3 +116,57 @@ per their fixtures, ×1 here and ×2 of anything recommended in plan 10.
 
 - Does the user want a **local provider as the shipped default** once one meets every recommended use's floor, with
   TypeSafe as the opt-in? This is decided after Phase B, not now.
+
+## Gate record — Phase 0 + Phase A (2026-09-30)
+
+Branch `worktree-agent-a2da981ef2f1b73bd`, base `a272ce8c`. No real-LLM or live TypeSafe run (rule 13). Phases B/C not started.
+
+### Phase 0
+
+- `v2.6/12-survey.md`: seven families, every row cites URL + 2026-09-30, pass check table at the end. F1–F6 pass; F7 (anything else) rows
+  carry "not found" with the sources checked, which the pass rule allows.
+- **J4 written** (TypeSafe terms): no training on Input (Privacy Policy, MCA §4.1); telemetry usable without restriction (MCA §4.3);
+  retention "as long as reasonably necessary", no number; US hosting, DPA with EU SCCs; ZDR enterprise-only; MCA §2.3 forbids
+  distillation, so Phase B never trains on Jev answers. Sub-processor names unread (trust page is JS-only).
+- Findings Phase A used: llama-server `/completion` + `n_probs` returns `completion_probabilities[0].top_logprobs[{token, logprob}]`
+  (`top_probs`/`prob` with `post_sampling_probs`, legacy `probs[{tok_str, prob}]`); raw-prompt `/completion` avoids the Gemma thinking
+  template that emptied Chat Completion replies on Artemis.
+
+### Phase A — as built
+
+| Task | Where | Gate |
+|---|---|---|
+| `DecisionProvider {id, contract, ask}` behind `askJudge`; validation, cache, timeout, fallback unchanged in `judge/client.ts` | `judge/providers.ts`, `runtime/judge.ts` (`transportFor`, per-provider cache, availability per provider) | `judgeSeam.golden.test.ts` |
+| TypeSafe requests byte-identical through the seam | golden `test/goldens/judge/seam-typesafe.requests.json`, recorded on the unchanged code in its own commit (`ffe19aa5`) before the seam existed: 9 requests (director, pairs, verify, curator filter, contradiction, warden, background, a score/noul/choice mix, probe) — body string + timeout | jest byte compare; mutant (`{model, ...request}` key order) fails it |
+| Plugin upstream byte-identical | `plugin.test.mjs` "seam golden": URL, method, headers, body string to `api.typesafe.ai` | node:test, recorded pre-seam |
+| `llama-logprob` provider: one 1-token `/completion` per question, `n_probs` 20, temperature 0, `cache_prompt`, state before question (prefix reuse); p = labels' probability mass renormalised over the answer tokens (Yes/No, A–T, 0–9); score = expected level index, confidence = max p; a question with no label in the top candidates stays unanswered (reader null → that use's fallback); >20 options refused | `judge/llamaLogprob.ts` (lazy chunk: loaded on the first routed call) | `llamaLogprob.test.ts` 8 cases over both response shapes |
+| `judge.provider[use]` (16 uses + warden) default `typesafe`, sanitised; `judge.noticesSeen` | `judge/settings.ts`, `runtime/settingsStore.ts` | `judgeProviderRouting.test.ts` sanitize case |
+| Routing refuses an uncalibrated provider (fallback `uncalibrated`, never sent, never metered) and a split shared call (scene = trigger/tracker/lookahead; lore = select/exclusive; warden = warden/agency/house rules), counting only active uses | `judge/readiness.ts` `judgeRoute`, `RING_USE_ROUTE_KEYS` | routing test; **mutant**: guard `if (route.refused)` disabled → 2 of 7 fail |
+| Readiness keyed provider × model × use: `JUDGE_READINESS_BY_PROVIDER` (typesafe = today's table, llama-logprob empty); off-default provider without a row → `unproven` + `uncalibratedOn`; split → `unproven` + `splitFrom`; model mismatch only on the default provider | `judge/readiness.ts` | routing test; existing `readiness.test.ts`/`accounting.review.test.ts` unchanged and green |
+| Default provider cleared for every use (W2 behaviour kept: loreExclusive/expressions still run on TypeSafe unmeasured) | `providerCleared` | no-behaviour-change case |
+| Plugin provider table (`PROVIDERS`), `/providers/llama-logprob/completion` (whitelisted fields only, URL from `SO_JUDGE_LLAMA_URL` on the server, never the page), status `providers{configured, local, host}` | `server-plugin/.../index.mjs` 1.2.0 | 4 new node:test cases |
+| W12: with `enableUserAccounts` on, keys come from the user's own ST secrets only; env/.env ignored | `resolveKey(request, provider, {accountsEnabled})`, reads ST `getConfigValue` | W12 test; **mutant**: guard removed → fails |
+| Privacy notice once per provider that leaves the machine (policy link, "Got it" → `noticesSeen`); a loopback llama-server says nothing leaves; per-use provider select + warden select | `JudgeSettingsGroup.tsx` (`JudgeUseRows`, `JudgeProviderNotices`) | 3 new stories |
+
+### Overall gates (worktree, 2026-09-30)
+
+- `npm run typecheck` 0 · `npm run typecheck:test` 0 · `npm run lint` 0
+- `npm test`: 345 suites / 4619 tests passed (architecture, ownership, fault-matrix, code-health guards included)
+- `npm run test:debug`: 421/421 · `npm run test:plugin`: 25 pass, 1 skipped (live) · `npm run build` ok · `npm run build:dev` + `npm run test:release`: 77 pass, 2 skipped, 0 fail
+- Storybook: `storybook build -o .sb-static-12`, served on 6112, `test-storybook --index-json`: 37 suites / 274 tests passed (the file-scan mode finds 0 stories through the worktree's `node_modules` junction, so `--index-json` was used)
+
+### Deviations
+
+- Plugin status test extended (the body gained `providers`); every other existing judge test untouched.
+- Census row `JudgeRuntime.available` renamed to `JudgeRuntime.currentStatus` (same `local` reasoning).
+- Main entry **1,249,941 B against the 1,250,000 B budget** (base 1,243,063). Kept under by lazy-loading the llama provider and a shared
+  plugin POST helper; 59 B headroom is left for every later plan.
+- `.claude/rules/architecture.md` judge invariant ("the only place the TypeSafe key is read: ST secrets, env, `~/.typesafe`") is now
+  per provider and per user under accounts; not edited here.
+- The live J11 ×1 on TypeSafe named in §Gates is not run (rule 13 batches it into plan 10 phase F).
+
+### Open
+
+- Loopback is judged local by host; an SSH tunnel to a pod on `127.0.0.1` reads local while leaving the machine.
+- The meter's `lastAnsweredModel` is not per provider, so an off-default provider's model mismatch is not yet read.
+- The calibration harness (`createJudgeHarness`) still probes TypeSafe; `probe(request, model, provider)` exists for Phase B.

@@ -13,44 +13,34 @@ export interface DecisionProvider {
   ask: JudgeTransport;
 }
 
-export type JudgeProviderReach = "remote" | "by-host";
-
 export interface JudgeProviderInfo {
   label: string;
-  contract: DecisionContract;
-  reach: JudgeProviderReach;
-  needsKey: boolean;
+  remote: boolean;
   notice: string;
-  policyUrl: string | null;
+  policyUrl?: string;
 }
 
 export const JUDGE_PROVIDERS: Record<JudgeProviderId, JudgeProviderInfo> = {
   typesafe: {
     label: "TypeSafe (Jev)",
-    contract: "native",
-    reach: "remote",
-    needsKey: true,
+    remote: true,
     notice: "Judge on: for each use routed here, the chat excerpts it lists are sent to TypeSafe.",
     policyUrl: "https://typesafe.ai/legal/privacy-policy",
   },
   "llama-logprob": {
     label: "llama-server (log-probabilities)",
-    contract: "logprob",
-    reach: "by-host",
-    needsKey: false,
-    notice: "Judge on: for each use routed here, the chat excerpts it lists are sent to the llama-server the SillyTavern server is configured with, which is not on this machine.",
-    policyUrl: null,
+    remote: false,
+    notice: "Judge on: excerpts for uses routed here go to the configured llama-server, off this machine.",
   },
 };
 
-export const isJudgeProviderId = (value: unknown): value is JudgeProviderId => typeof value === "string" && (JUDGE_PROVIDER_IDS as readonly string[]).includes(value);
+export const isJudgeProviderId = (value: unknown): value is JudgeProviderId => JUDGE_PROVIDER_IDS.includes(value as JudgeProviderId);
 
 export interface JudgeProviderStatus {
   configured: boolean;
-  keySource: string | null;
   local: boolean;
   host: string | null;
 }
 
 export const providerLeavesMachine = (id: JudgeProviderId, status: JudgeProviderStatus | null | undefined): boolean =>
-  JUDGE_PROVIDERS[id].reach === "remote" || status?.local !== true;
+  JUDGE_PROVIDERS[id].remote || status?.local !== true;

@@ -225,15 +225,15 @@ export const RoutedToAnUncalibratedLocalProvider: Story = {
     status: {
       ...ready,
       providers: {
-        typesafe: { configured: true, keySource: "st-secrets", local: false, host: "api.typesafe.ai" },
-        "llama-logprob": { configured: true, keySource: null, local: true, host: "127.0.0.1:8080" },
+        typesafe: { configured: true, local: false, host: "api.typesafe.ai" },
+        "llama-logprob": { configured: true, local: true, host: "127.0.0.1:8080" },
       },
     },
   },
   play: async ({ args, canvasElement }) => {
     const select = required(canvasElement.querySelector<HTMLSelectElement>("#so-judge-provider-stall-check"), "stall provider select");
     await expect(select.value).toBe("llama-logprob");
-    await expect(canvasElement.querySelector("#so-judge-readiness")?.textContent).toContain("which nothing has calibrated it on");
+    await expect(canvasElement.querySelector("#so-judge-readiness")?.textContent).toContain("not calibrated there");
     await expect(canvasElement.querySelector("#so-judge-local-llama-logprob")?.textContent).toContain("runs on this machine (127.0.0.1:8080)");
     await expect(canvasElement.querySelector("#so-judge-privacy-llama-logprob")).toBeNull();
     await userEvent.selectOptions(required(canvasElement.querySelector<HTMLSelectElement>("#so-judge-provider-memory-verify"), "memory provider select"), "llama-logprob");

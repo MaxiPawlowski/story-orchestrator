@@ -1,4 +1,4 @@
-import { isJudgeProviderId, JudgeBusyError, type JudgeProviderId, type JudgeProviderStatus, type JudgeRequest, type JudgeResponse, type JudgeTransport } from "@judge/index";
+import { JUDGE_PROVIDER_IDS, JudgeBusyError, type JudgeProviderId, type JudgeProviderStatus, type JudgeRequest, type JudgeResponse, type JudgeTransport } from "@judge/index";
 import type { LlamaComplete } from "@judge/llamaLogprob";
 import { getContext } from "./context";
 import { importSTModule } from "./modules";
@@ -18,18 +18,10 @@ export interface JudgeStatus {
   providers?: Partial<Record<JudgeProviderId, JudgeProviderStatus>>;
 }
 
-const readProviders = (value: unknown): Partial<Record<JudgeProviderId, JudgeProviderStatus>> | undefined => {
-  if (!isRecord(value)) return undefined;
-  return Object.fromEntries(Object.entries(value).filter(([id, entry]) => isJudgeProviderId(id) && isRecord(entry)).map(([id, entry]) => {
-    const row = entry as Record<string, unknown>;
-    return [id, {
-      configured: row.configured === true,
-      keySource: typeof row.keySource === "string" ? row.keySource : null,
-      local: row.local === true,
-      host: typeof row.host === "string" ? row.host : null,
-    }];
-  }));
-};
+const readProviders = (value: unknown): Partial<Record<JudgeProviderId, JudgeProviderStatus>> | undefined => (isRecord(value)
+  ? Object.fromEntries(JUDGE_PROVIDER_IDS.map((id) => [id, value[id]]).filter((pair): pair is [JudgeProviderId, Record<string, unknown>] => isRecord(pair[1]))
+    .map(([id, row]) => [id, { configured: row.configured === true, local: row.local === true, host: typeof row.host === "string" ? row.host : null }]))
+  : undefined);
 
 // public/scripts/secrets.js:349 — writes through /api/secrets/write, clears nothing we own, and the
 // server never hands a non-exportable key back to the page (src/endpoints/secrets.js:568).
@@ -61,6 +53,18 @@ export async function judgeStatus(): Promise<JudgeStatus | null> {
   }
 }
 
+async function postToPlugin(path: string, body: unknown, signal?: AbortSignal): Promise<unknown> {
+  const response = await fetch(`${JUDGE_PLUGIN_BASE}${path}`, {
+    method: "POST",
+    headers: { ...headers(), "Content-Type": "text/plain;charset=UTF-8", "X-SO-Plugin": "1" },
+    body: JSON.stringify(body),
+    signal,
+  });
+  if (BUSY_STATUSES.has(response.status)) throw new JudgeBusyError(response.status);
+  if (!response.ok) throw new Error(`judge plugin ${response.status}`);
+  return await response.json() as unknown;
+}
+
 export const judgeTransport: JudgeTransport = async (request: JudgeRequest, options) => {
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), options.timeoutMs);
@@ -70,32 +74,14 @@ export const judgeTransport: JudgeTransport = async (request: JudgeRequest, opti
   options.signal?.addEventListener("abort", onEpochAbort);
   if (options.signal?.aborted) controller.abort();
   try {
-    const response = await fetch(`${JUDGE_PLUGIN_BASE}/systemone`, {
-      method: "POST",
-      headers: { ...headers(), "Content-Type": "text/plain;charset=UTF-8", "X-SO-Plugin": "1" },
-      body: JSON.stringify(request),
-      signal: controller.signal,
-    });
-    if (BUSY_STATUSES.has(response.status)) throw new JudgeBusyError(response.status);
-    if (!response.ok) throw new Error(`judge plugin ${response.status}`);
-    return await response.json() as JudgeResponse;
+    return await postToPlugin("/systemone", request, controller.signal) as JudgeResponse;
   } finally {
     clearTimeout(timer);
     options.signal?.removeEventListener("abort", onEpochAbort);
   }
 };
 
-export const judgeLlamaComplete: LlamaComplete = async (body, options) => {
-  const response = await fetch(`${JUDGE_PLUGIN_BASE}/providers/llama-logprob/completion`, {
-    method: "POST",
-    headers: { ...headers(), "Content-Type": "text/plain;charset=UTF-8", "X-SO-Plugin": "1" },
-    body: JSON.stringify(body),
-    ...(options.signal ? { signal: options.signal } : {}),
-  });
-  if (BUSY_STATUSES.has(response.status)) throw new JudgeBusyError(response.status);
-  if (!response.ok) throw new Error(`judge plugin llama-logprob ${response.status}`);
-  return await response.json() as unknown;
-};
+export const judgeLlamaComplete: LlamaComplete = (body, options) => postToPlugin("/providers/llama-logprob/completion", body, options.signal);
 
 export async function writeJudgeSecret(value: string): Promise<WriteResult> {
   const trimmed = value.trim();

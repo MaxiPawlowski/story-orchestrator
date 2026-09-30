@@ -38,8 +38,8 @@ const labelOf = (key: JudgeReadinessKey): string => (key === "warden" ? "Continu
 
 const concernText = (row: JudgeReadinessRow): string => {
   if (row.verdict === "blocked" && row.blockedBy) return `on, but "${JUDGE_USE_COPY[row.blockedBy].label}" is off, so it does nothing`;
-  if (row.uncalibratedOn) return `routed to ${JUDGE_PROVIDERS[row.uncalibratedOn].label}, which nothing has calibrated it on, so it keeps its usual path`;
-  if (row.splitFrom?.length) return `shares one call with ${row.splitFrom.map(labelOf).join(", ")}, routed to another provider, so none of them runs`;
+  if (row.uncalibratedOn) return `routed to ${JUDGE_PROVIDERS[row.uncalibratedOn].label}, not calibrated there`;
+  if (row.splitFrom?.length) return `shares a call with ${row.splitFrom.map(labelOf).join(", ")} on another provider: none of them runs`;
   if (row.modelMismatch) return `on, but not measured on ${row.modelMismatch.answered ?? row.modelMismatch.configured} (measured on ${row.modelMismatch.measuredOn})`;
   return "on, but nothing has measured it";
 };
@@ -138,7 +138,7 @@ const JudgeProviderNotices = ({ settings, status, providers, onChange }: JudgePr
       if (settings.noticesSeen.includes(provider)) return null;
       return (
         <div key={provider} id={`so-judge-privacy-${provider}`} className="flex flex-wrap items-center gap-2 text-xs text-yellow-300">
-          <span>{info.notice}{providerStatus?.host && info.reach !== "remote" ? ` (${providerStatus.host})` : ""}</span>
+          <span>{info.notice}{providerStatus?.host && !info.remote ? ` (${providerStatus.host})` : ""}</span>
           {info.policyUrl && <a className="underline" href={info.policyUrl} target="_blank" rel="noreferrer">Privacy policy</a>}
           <button id={`so-judge-privacy-ack-${provider}`} className="menu_button" onClick={() => onChange({ noticesSeen: [...settings.noticesSeen, provider] })}>Got it</button>
         </div>

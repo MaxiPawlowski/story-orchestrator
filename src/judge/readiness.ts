@@ -1,6 +1,6 @@
 import { canonicalModel, isFloatingModel } from "./policy";
 import { judgeUseActive, JUDGE_USE_KEYS, type JudgeRouteKey, type JudgeSettings, type JudgeUseKey } from "./settings";
-import { DEFAULT_JUDGE_PROVIDER, JUDGE_PROVIDERS, type JudgeProviderId } from "./providers";
+import { DEFAULT_JUDGE_PROVIDER, type JudgeProviderId } from "./providers";
 
 // Re-measured The recommended-configuration table as data the settings
 // panel can render — the numbers are RECORDED measurements, not a re-run, so the panel says where
@@ -131,7 +131,7 @@ export const readinessFact = (provider: JudgeProviderId, key: JudgeReadinessKey)
     latencyP50Ms: null,
     live: null,
     measuredOn: null,
-    recommendation: `Not calibrated on ${JUDGE_PROVIDERS[provider].label}: this use keeps its usual path until it is.`,
+    recommendation: "Not calibrated on this provider: keeps its usual path until it is.",
   };
 
 export const providerCleared = (provider: JudgeProviderId, key: JudgeReadinessKey): boolean =>
