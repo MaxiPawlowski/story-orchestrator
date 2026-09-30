@@ -58,6 +58,7 @@ declare global {
   var storyOrchestratorDebugCopilotResponse: string | null | undefined;
   var storyOrchestratorDebugSelfTestResponses: string[] | null | undefined;
   var storyOrchestratorDebugDirectorResponse: string | null | undefined;
+  var storyOrchestratorDebugInnerResponse: string | null | undefined;
   var storyOrchestratorJudge: import("./src/runtime/judgeHarness").JudgeHarness | undefined;
   var storyOrchestratorSpikes: ({
     refresh?: () => Promise<import("./src/runtime/settingsModel").SpikeSettings>;

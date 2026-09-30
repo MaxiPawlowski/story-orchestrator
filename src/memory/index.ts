@@ -7,6 +7,7 @@ export * from "./derived";
 export * from "./entities";
 export * from "./reverse";
 export * from "./epistemic";
+export * from "./innerVoice";
 export * from "./ledger";
 export * from "./canon";
 export * from "./budget";

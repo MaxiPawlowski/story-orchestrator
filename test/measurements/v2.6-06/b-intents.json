@@ -1,0 +1,21 @@
+{
+  "plan": "docs/plans/v2.6/06-inner-voice.md",
+  "step": "B (intends tier) and B2 (reasoning harvest spike)",
+  "declaredAt": "2026-09-30",
+  "rule": "Floors are predeclared; a tier below its floor is reported, never retuned.",
+  "intentsTier": {
+    "source": "the live suite's epistemic tier filtered to tag 'intends' (liveReadTiers already carries tag/subject/content; the scorer needs an 'intents' tier that scores exactly those rows)",
+    "fixtures": "at least 12 extractor fixtures with an 'expected.intents' list. Candidates: the 6 existing epistemic fixtures plus 6 new ones where a character states an aim in dialogue, 2 where only the player's narration implies one (must yield none), and 2 with meta-commentary in the reply",
+    "command": "node scripts/debug/so-live-suite.mts run --expect-count <pinned> --min-tier intents=0.8",
+    "floors": { "precision": 0.8, "recall": 0.5, "playerAttributed": 0, "expectCount": "pinned to the fixture count when the fixtures land" },
+    "deterministicHalf": "src/memory/innerVoice.test.ts (evidence rule: player-attributed and meta-commentary dropped) and src/runtime/coordinators/innerVoiceInjection.review.test.ts"
+  },
+  "b2Harvest": {
+    "switch": "settings.memory.harvestReasoning = true (default absent = off, Resolved table)",
+    "what": "message.extra.reasoning of each character reply in the P2 window is fed to the epistemic pass as that character's own evidence for its [intends] lines (meta-commentary sentences removed first)",
+    "floors": { "harvestedIntentPrecision": 0.8, "metaCommentaryRejected": 0.95 },
+    "procedure": "on a Chat Completion profile that returns reasoning (plan 05 F7), replay the intents fixtures with extra.reasoning attached; score precision of intents whose only evidence is the reasoning, and the share of meta sentences ('I should write...', 'the user wants...') that never reach a row",
+    "ifBelowFloor": "recorded not built: the switch stays off and its settings key is removed"
+  },
+  "status": "not run (needs real LLMs)"
+}

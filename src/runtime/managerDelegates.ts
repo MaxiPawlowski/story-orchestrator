@@ -76,6 +76,8 @@ export abstract class CoordinatorDelegates {
   scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) { return this.co.expansion.scheduleForActive(schedule); }
   async runExpansionNow(debugResponse?: string, confirm = false) { return this.co.expansion.runNow(debugResponse, confirm ? (preflight) => confirmPreflight(preflight, "authoring") : undefined); }
   onMemberDrafted(chId: number | [number]) { this.co.memory.onMemberDrafted(chId); }
+  innerBeatDue(): boolean { return this.co.inner.due(); }
+  runInnerBeat(): Promise<number> { return this.co.inner.run(); }
   commitContinuityNote(rendered: boolean) { this.co.stagecraft.commitNote(rendered); }
   runWardenPass(replyMessageId: number) { return this.co.stagecraft.runWardenPass(replyMessageId); }
   withholdTurnBlocks() { this.co.memory.withholdPrivateKnowledge(); this.co.pacing.withholdGuidance(); }

@@ -614,6 +614,52 @@
     "wiNormalize|aborted": {
       "status": "na",
       "note": "Performs no model call, so nothing can be cancelled mid-call."
+    },
+    "inner|delayedSuccess": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#control: the same held call that lands in its own chat is written",
+      "note": "v2.6 plan 06 C: a held inner call released after the await is written to its own chat's beat ring."
+    },
+    "inner|delayedError": {
+      "status": "partial",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#a backend failure rejects the pass and writes nothing (the boundary work catches it)",
+      "note": "The rejection is immediate in the test, not held; a held rejection takes the same path (no write before the check)."
+    },
+    "inner|malformedResponse": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#repairs a malformed answer once, and journals an unusable one without writing",
+      "note": "One repair pass at most, then journaled as unusable; nothing is written."
+    },
+    "inner|duplicateCompletion": {
+      "status": "partial",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#C2 structural bound: at most two inner calls per player turn, repairs and group chains included",
+      "note": "Repeated runs in one player turn are bounded to two calls; pushBeat keeps one beat per member, chat and reply. No test re-delivers one completion twice."
+    },
+    "inner|backendUnavailable": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#a backend failure rejects the pass and writes nothing (the boundary work catches it)",
+      "note": "The draft never waits on it; a missing beat is journaled at draft time."
+    },
+    "inner|beforeHostWrite": {
+      "status": "na",
+      "note": "The pass writes no host state: its only write is the memory slice's beat ring; the private block that carries it is the memory package's write."
+    },
+    "inner|afterHostWrite": {
+      "status": "na",
+      "note": "The pass writes no host state: its only write is the memory slice's beat ring; the private block that carries it is the memory package's write."
+    },
+    "inner|persistFailure": {
+      "status": "na",
+      "note": "The coordinator only asks the manager to save; a failing save is the persistence package's row, and a lost beat only costs the next draft its intent line."
+    },
+    "inner|worldSwitched": {
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#writes nothing when the chat changed while the call was out",
+      "note": "The token is minted over the reply the beat reads and checked after each call, before the ring write and the persist."
+    },
+    "inner|aborted": {
+      "status": "todo",
+      "note": "No test aborts a held inner call. The run signal is passed to the model call, so an abort rejects like a backend failure, but that path is not exercised."
     }
   }
 }

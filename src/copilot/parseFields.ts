@@ -292,7 +292,8 @@ export const readRosterMember = (value: unknown, path: string, issues: string[])
     issues.push(`${path}.id: required`);
     return null;
   }
-  return { id: value.id, ...(typeof value.name === "string" ? { name: value.name } : {}), ...(typeof value.role === "string" && value.role.trim() ? { role: value.role.trim() } : {}), ...readInnerVoice(value) };
+  const role = typeof value.role === "string" && value.role.trim() ? { role: value.role.trim() } : {};
+  return { id: value.id, ...(typeof value.name === "string" ? { name: value.name } : {}), ...role, ...readInnerVoice(value) };
 };
 
 export const readInnerVoice = (value: Record<string, unknown>): Pick<RosterMember, "drive" | "view"> => ({

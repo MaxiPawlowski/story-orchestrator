@@ -31,11 +31,27 @@ const manager = {
   detectSceneBreak: () => null,
   shouldCompactShortTerm: () => false,
   curatorDueForRun: () => false,
+  innerBeatDue: () => false,
   recordReconciliation: jest.fn(),
   judgedExtraction: jest.fn(() => false),
 } as unknown as RuntimeManager;
 
 const scheduler = { onBoundary: jest.fn(), schedule: jest.fn(), cadenceQueuedAt: jest.fn(() => false) } as unknown as ExtractionScheduler;
+
+describe("inner beat (v2.6 plan 06 C)", () => {
+  it("runs off-path after the scene read, only while the switch is on, and never as a scheduler job", async () => {
+    const order = BOUNDARY_WORK.map((item) => item.id);
+    expect(order.indexOf("inner-beat")).toBeGreaterThan(order.indexOf("scene-read"));
+    const runInnerBeat = jest.fn(async () => 1);
+    const on = { ...manager, innerBeatDue: () => true, runInnerBeat } as unknown as RuntimeManager;
+    const schedule = scheduler.schedule as unknown as jest.Mock;
+    schedule.mockClear();
+    runBoundaryWork({ result: result(2, 4), manager: on, scheduler });
+    runBoundaryWork({ result: result(4, 5), manager, scheduler });
+    expect(runInnerBeat).toHaveBeenCalledTimes(1);
+    expect(schedule.mock.calls.map(([job]) => (job as { reason: string }).reason)).not.toContain("inner-beat");
+  });
+});
 
 describe("forced-cue scan window", () => {
   it("covers the greeting and the player's first message on the story's first boundary", () => {

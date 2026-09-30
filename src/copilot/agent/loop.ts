@@ -4,7 +4,7 @@ import { isRecord } from "@utils/guards";
 import { truncate } from "@utils/string";
 import { runDiagnostics } from "../../studio/diagnostics";
 import type { ProvisioningOp } from "@wizard/index";
-import { setHouseRules } from "../../studio/mutations";
+import { setCheckpointMotive, setHouseRules, setRosterDrive, setRosterView } from "../../studio/mutations";
 import { applyOp, applyOps, applyOpsChecked, diffProposal, isProvisioningOp, provisioningFollowUpOps, type OpAction, type OpDescription } from "../index";
 import { renderPlanPrompt, renderStepPrompt } from "./prompt";
 import { runReadTool } from "./readTools";
@@ -19,18 +19,49 @@ const CHECK_LINES = 12;
 
 const now = () => new Date().toISOString();
 
-const isAgentOnly = (op: AgentOp): op is AgentOnlyOp => op.kind === "setHouseRules";
+const AGENT_ONLY_KINDS: ReadonlySet<string> = new Set<AgentOnlyOp["kind"]>(["setHouseRules", "setRosterDrive", "setRosterView", "setCheckpointMotive"]);
+
+const isAgentOnly = (op: AgentOp): op is AgentOnlyOp => AGENT_ONLY_KINDS.has(op.kind);
+
+const applyAgentOnly = (draft: StoryV2, op: AgentOnlyOp): StoryV2 => {
+  switch (op.kind) {
+    case "setHouseRules": return setHouseRules(draft, op.rules);
+    case "setRosterDrive": return setRosterDrive(draft, op.id, op.drive);
+    case "setRosterView": return setRosterView(draft, op.id, op.view);
+    case "setCheckpointMotive": return setCheckpointMotive(draft, op.id, op.member, op.motive);
+  }
+};
+
+const describeAgentOnly = (op: AgentOnlyOp): OpDescription => {
+  switch (op.kind) {
+    case "setHouseRules": return { action: "update", entity: "story.house_rules", label: op.rules.length ? `Set ${op.rules.length} house rule(s)` : "Clear the house rules" };
+    case "setRosterDrive": return { action: "update", entity: `roster.${op.id}.drive`, label: op.drive ? `Drive for ${op.id}: ${op.drive}` : `Clear ${op.id}'s drive` };
+    case "setRosterView": return { action: "update", entity: `roster.${op.id}.view`, label: `${op.id} sees ${op.view === "omniscient" ? "every character's private rows" : "only their own"}` };
+    case "setCheckpointMotive": {
+      const label = op.motive ? `${op.member} wants at ${op.id}: ${op.motive}` : `Clear ${op.member}'s motive at ${op.id}`;
+      return { action: "update", entity: `checkpoints.${op.id}.motives.${op.member}`, label };
+    }
+  }
+};
+
+const agentOnlyProblem = (draft: StoryV2, op: AgentOnlyOp): string | null => {
+  if (op.kind === "setHouseRules") return null;
+  const member = op.kind === "setCheckpointMotive" ? op.member : op.id;
+  if (!draft.roster.some((entry) => entry.id === member)) return `'${member}' is not a roster id`;
+  if (op.kind === "setCheckpointMotive" && !draft.checkpoints.some((entry) => entry.id === op.id)) return `'${op.id}' is not a checkpoint`;
+  return null;
+};
 
 export const isProvisionOp = (op: AgentOp): op is ProvisioningOp => !isAgentOnly(op) && isProvisioningOp(op);
 
-export const applyAgentOp = (draft: StoryV2, op: AgentOp): StoryV2 => (isAgentOnly(op) ? setHouseRules(draft, op.rules) : applyOp(draft, op));
+export const applyAgentOp = (draft: StoryV2, op: AgentOp): StoryV2 => (isAgentOnly(op) ? applyAgentOnly(draft, op) : applyOp(draft, op));
 
 export const describeAgentOp = (op: AgentOp): OpDescription => {
   if (!isAgentOnly(op)) {
     const diff = diffProposal([op]);
     return diff.items[0] ?? diff.provisioning[0];
   }
-  return { action: "update", entity: "story.house_rules", label: op.rules.length ? `Set ${op.rules.length} house rule(s)` : "Clear the house rules" };
+  return describeAgentOnly(op);
 };
 const clip = (text: string) => truncate(text, OBSERVATION_LIMIT);
 
@@ -139,7 +170,7 @@ export const recordUnparsed = (session: AgentSession, issues: string[], meta: St
   });
 
 const editProblem = (draft: StoryV2, op: AgentOp): string | null => {
-  if (isAgentOnly(op)) return null;
+  if (isAgentOnly(op)) return agentOnlyProblem(draft, op);
   const issue = applyOpsChecked(draft, [op]).issues[0];
   return issue ? issue.replace(/^ops\.0: /, "") : null;
 };

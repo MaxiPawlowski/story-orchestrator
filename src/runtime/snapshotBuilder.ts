@@ -1,6 +1,6 @@
 import { agencyFor, gateKeys, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
-import { sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
+import { castVoices, sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks } from "@stagecraft/index";
 import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
 import { buildConvergenceReadout, buildLastTransition, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot } from "./snapshot";
@@ -269,6 +269,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     wiGating: wiGatingStatus(),
     samplerOverlay: samplerOverlay.view(),
     stagecraftScope: curatorLorebooks(story),
+    innerCast: castVoices(story, state?.activeCheckpointId ?? null),
     pendingDeltas,
     convergence: buildConvergenceReadout(story, state),
     tension,

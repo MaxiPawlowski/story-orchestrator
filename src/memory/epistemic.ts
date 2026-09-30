@@ -128,7 +128,7 @@ export function renderPrivateEpistemicBlock(entries: EpistemicEntry[], names: st
 
 const ATTRIBUTED_TAGS: EpistemicTag[] = ["knows", "suspects", "believes", "unaware", "hiding", "intends"];
 
-function attributedLine(subject: string, entry: EpistemicEntry): string {
+export function attributedEpistemicLine(subject: string, entry: EpistemicEntry): string {
   switch (entry.tag) {
     case "knows": return `- ${subject} knows: ${entry.content}`;
     case "suspects": return `- ${subject} suspects ${entry.content}`;
@@ -151,7 +151,7 @@ export function renderAttributedEpistemicBlock(entries: EpistemicEntry[], names:
     seen.add(key);
     const theirs = active.filter((entry) => normalize(entry.subject) === key);
     for (const tag of ATTRIBUTED_TAGS) {
-      for (const entry of theirs.filter((candidate) => candidate.tag === tag)) lines.push(attributedLine(name.trim(), entry));
+      for (const entry of theirs.filter((candidate) => candidate.tag === tag)) lines.push(attributedEpistemicLine(name.trim(), entry));
     }
   }
   if (!lines.length) return "";

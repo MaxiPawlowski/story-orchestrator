@@ -16,6 +16,8 @@ export function renderArcContractSection(openArcs: string[] = []): string {
   ].join("\n");
 }
 
+const INTENDS_LINE = "[intends] Character | what they are trying to achieve — only when that character says or shows it in their own words or actions; never the player's";
+
 export function renderEpistemicContractSection(): string {
   return [
     "On a high-signal knowledge shift (a secret revealed, a lie told, a character learns or is deliberately kept from a fact), also emit per-character knowledge lines:",
@@ -24,6 +26,7 @@ export function renderEpistemicContractSection(): string {
     "[suspects] Character | something they sense without proof",
     "[believes] Character | something they hold as true that is actually false",
     "[hiding] Concealer from Target | what they are actively concealing",
+    INTENDS_LINE,
     "Use each name exactly as it appears in the transcript. Emit these only when the transcript establishes the knowledge — never infer.",
   ].join("\n");
 }
@@ -83,7 +86,7 @@ export interface EpistemicPassEntry {
   hiddenFrom?: string;
 }
 
-export function buildEpistemicPassPrompt(sceneText: string, participants: string[], existingEntries: EpistemicPassEntry[] = []): string {
+export function buildEpistemicPassPrompt(sceneText: string, participants: string[], existingEntries: EpistemicPassEntry[] = [], reasoning = ""): string {
   const participantHint = participants.length ? `Characters present in this scene: ${participants.join(", ")}.` : "";
   const existingBlock = existingEntries.length
     ? [
@@ -106,6 +109,7 @@ export function buildEpistemicPassPrompt(sceneText: string, participants: string
     "[suspects] Character | incomplete belief — they sense something but lack proof",
     "[believes] Character | something they hold as true that is actually false",
     "[hiding]   Concealer from Target | what they are actively concealing",
+    INTENDS_LINE,
     "Rules:",
     "- Only record what the scene establishes — do not infer beyond what is shown.",
     "- Use each character's name exactly as it appears. One character and one fact per line. No duplicates.",
@@ -121,6 +125,7 @@ export function buildEpistemicPassPrompt(sceneText: string, participants: string
     participantHint,
     "Scene:",
     sceneText,
+    ...(reasoning ? ["", "Each character's own private reasoning (evidence ONLY for that same character's [intends] lines; never for anyone else):", reasoning] : []),
     "",
     "Output:",
   ].filter((line) => line !== "").join("\n");

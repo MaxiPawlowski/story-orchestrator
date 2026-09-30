@@ -19,6 +19,7 @@ const DEBUG_RESPONSES: Record<ModelPass, () => string | null | undefined> = {
   critic: () => globalThis.storyOrchestratorDebugGenerationResponse,
   copilot: () => globalThis.storyOrchestratorDebugCopilotResponse,
   director: () => globalThis.storyOrchestratorDebugDirectorResponse,
+  inner: () => globalThis.storyOrchestratorDebugInnerResponse,
 };
 
 export const debugResponseFor = (pass: ModelPass): string | null => (__SO_DEV__ ? DEBUG_RESPONSES[pass]() ?? null : null);

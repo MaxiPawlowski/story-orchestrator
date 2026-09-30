@@ -63,7 +63,11 @@ export const EDIT_TOOLS = {
   removeTransition: { backedBy: "removeTransition", doc: "Remove a transition.", args: { ref: REF } },
   setTransitionGate: { backedBy: "setTransitionGate", doc: "Replace a transition's gate.", args: { ref: REF, gate: req("object", GATE) } },
   addRosterMember: { backedBy: "addRosterMember", doc: "Add a cast member.", args: { member: req("object", "{id, name?, role?}") } },
-  updateRosterMember: { backedBy: "updateRosterMember", doc: "Patch a cast member's name or role.", args: { id: req("string", "member id"), patch: req("object", "{name?, role?}") } },
+  updateRosterMember: {
+    backedBy: "updateRosterMember",
+    doc: "Patch a cast member's name, role, drive or view.",
+    args: { id: req("string", "member id"), patch: req("object", "{name?, role?, drive?, view?}") },
+  },
   removeRosterMember: { backedBy: "removeRosterMember", doc: "Remove a cast member.", args: { id: req("string", "member id") } },
   setArcTemplate: { backedBy: "setArcTemplate", doc: "Set the dramatic shape, or null to clear it.", args: { template: req("value", "a template name, a custom curve, or null") } },
   setArcBridges: { backedBy: "setArcBridges", doc: "Replace the thread bridges (the full list).", args: { bridges: req("array", "[{arcMatch, anchor, amount}]") } },
@@ -72,6 +76,21 @@ export const EDIT_TOOLS = {
   setSceneRead: { backedBy: "setSceneRead", doc: "Replace the scene places and times.", args: { sceneRead: req("object", "{locations?, times?, inject?}") } },
   setLoreSelect: { backedBy: "setLoreSelect", doc: "Replace the lore-select books.", args: { loreSelect: req("object", "{lorebooks, top_k?}") } },
   setHouseRules: { backedBy: "setHouseRules", doc: "Replace the house rules (the full list).", args: { rules: req("array", "one rule per string") } },
+  setRosterDrive: {
+    backedBy: "setRosterDrive",
+    doc: "Set a cast member's standing goal, told only to that member. Empty text clears it. Never for the player.",
+    args: { id: req("string", "member id"), drive: req("string", "one line: what they want across the story") },
+  },
+  setRosterView: {
+    backedBy: "setRosterView",
+    doc: "omniscient: this member (a narrator) is told every character's private rows, to foreshadow; own: only their own.",
+    args: { id: req("string", "member id"), view: req("string", "own | omniscient") },
+  },
+  setCheckpointMotive: {
+    backedBy: "setCheckpointMotive",
+    doc: "Set what one cast member wants at one beat, told only to that member. Empty text clears it. Never for the player.",
+    args: { id: ID, member: req("string", "member id"), motive: req("string", "one line: what they want right now") },
+  },
 } satisfies Record<DraftOpKind | AgentOnlyOp["kind"], EditSpec>;
 
 export const PROVISION_TOOLS = {
@@ -201,6 +220,13 @@ export const checkToolCall = (call: AgentToolCall): ToolCheck => {
   if (call.tool === "setHouseRules") {
     const rules = (Array.isArray(call.args.rules) ? call.args.rules : []).filter((rule): rule is string => typeof rule === "string" && rule.trim().length > 0);
     return { ok: true, spec, op: { kind: "setHouseRules", rules } };
+  }
+  const text = (key: string) => String(call.args[key]).trim();
+  if (call.tool === "setRosterDrive") return { ok: true, spec, op: { kind: "setRosterDrive", id: text("id"), drive: text("drive") } };
+  if (call.tool === "setCheckpointMotive") return { ok: true, spec, op: { kind: "setCheckpointMotive", id: text("id"), member: text("member"), motive: text("motive") } };
+  if (call.tool === "setRosterView") {
+    const view = text("view");
+    return view === "own" || view === "omniscient" ? { ok: true, spec, op: { kind: "setRosterView", id: text("id"), view } } : { ok: false, message: "setRosterView.view: expected own or omniscient" };
   }
   const parsed = parseProposal(JSON.stringify({ summary: "", ops: [{ ...call.args, kind: call.tool }] }));
   const issues = parsed.issues.map((issue) => issue.replace(/^ops\.0/, call.tool));

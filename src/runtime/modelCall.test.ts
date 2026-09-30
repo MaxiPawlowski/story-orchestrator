@@ -26,6 +26,7 @@ const GLOBALS: Record<ModelPass, string> = {
   critic: "storyOrchestratorDebugGenerationResponse",
   copilot: "storyOrchestratorDebugCopilotResponse",
   director: "storyOrchestratorDebugDirectorResponse",
+  inner: "storyOrchestratorDebugInnerResponse",
 };
 const clearGlobals = () => Object.values(GLOBALS).forEach((name) => Reflect.deleteProperty(globalThis, name));
 

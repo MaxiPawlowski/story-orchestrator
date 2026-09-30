@@ -4,6 +4,7 @@ import { runAuthoringStage } from "@copilot/index";
 import { parseDirectorResponse, renderDirectorPrompt } from "@talk/index";
 import { buildWiCuratorPrompt, parseCuratorResponse, type CuratorScope } from "@stagecraft/index";
 import { buildSceneSummaryPrompt } from "@memory/contract";
+import { INNER_BEAT_MAX_TOKENS, parseInnerBeat, renderInnerBeatPrompt } from "@memory/innerBeat";
 import { runModelSelfTest } from "./selfTest";
 
 export interface RoleSelfTestResult {
@@ -99,11 +100,13 @@ const CURATOR_SCOPE: CuratorScope = {
   ],
 };
 
-const SCENE_TEXT = [
+const SCENE_LINES = [
   "Player: I pick up the brass lantern from the crate and light it.",
   "Bel: Bel nods. \"Then we go down.\" She leads the way into the tunnel.",
   "Player: I follow Bel into the tunnel, lantern raised.",
-].join("\n");
+];
+
+const SCENE_TEXT = SCENE_LINES.join("\n");
 
 const AUTHORING_DRAFT: StoryV2 = {
   format: 2,
@@ -162,7 +165,18 @@ const runRead: Run = async (profileId, answer) => {
   return { passed: core.length > 0 && passing === core.length, detail: `${String(passing)} of ${String(core.length)} core read tiers passed` };
 };
 
-const RUNS: Record<PassRole, Run> = { read: runRead, synthesis: runSynthesis, authoring: runAuthoring, director: runDirector, curator: runCurator };
+const runInner: Run = async (profileId, answer) => {
+  const prompt = renderInnerBeatPrompt({
+    storyTitle: "Model self-test", memberName: "Bel", checkpointName: "Tunnel", objective: "Go under.", steering: "",
+    agency: "- The player's own acts are theirs to write.", privateRows: "- What you want: to reach the flooded vault before the rival crew",
+    window: SCENE_LINES.map((line) => ({ speaker: line.split(":")[0], text: line.slice(line.indexOf(":") + 1).trim() })),
+  });
+  const raw = await askText(routedModel(profileRoute(profileId)), prompt, { role: "inner", pass: "inner", maxTokens: INNER_BEAT_MAX_TOKENS, debugResponse: answer(0) });
+  const beat = parseInnerBeat(stripChannelNoise(raw));
+  return { passed: beat !== null, detail: beat ? "wrote a usable BEAT line" : "no usable BEAT line came back" };
+};
+
+const RUNS: Record<PassRole, Run> = { read: runRead, synthesis: runSynthesis, authoring: runAuthoring, director: runDirector, curator: runCurator, inner: runInner };
 
 export async function runRoleSelfTest(role: PassRole, options: RoleSelfTestOptions): Promise<RoleSelfTestResult> {
   const ranAt = new Date().toISOString();

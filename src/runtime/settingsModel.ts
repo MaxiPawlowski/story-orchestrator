@@ -165,6 +165,16 @@ export const defaultGlobalSettings = (): GlobalSettings => ({
   spikes: defaultSpikeSettings(),
 });
 
+const sanitizeInnerVoice = (memory: MemoryRuntimeSettings): MemoryRuntimeSettings => {
+  const { innerBeat, innerFanOut, harvestReasoning, ...rest } = memory;
+  return {
+    ...rest,
+    ...(innerBeat === true ? { innerBeat } : {}),
+    ...(innerFanOut === "top2" ? { innerFanOut } : {}),
+    ...(harvestReasoning === true ? { harvestReasoning } : {}),
+  };
+};
+
 const clampAlpha = (value: unknown) => (typeof value === "number" && value >= 0 && value <= 1 ? value : DEFAULT_TENSION_EMA_ALPHA);
 
 const sanitizeTalkChain = (value: unknown): TalkChainSettings => {
@@ -213,7 +223,9 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
     pacing: { alpha: clampAlpha(pacing.alpha), hintEnabled: pacing.hintEnabled !== false },
     display: { announceTransitions: display.announceTransitions !== false, hudEnabled: display.hudEnabled !== false, inline: sanitizeInlineSettings(display.inline) },
     copilot: { enabled: isRecord(value.copilot) ? value.copilot.enabled !== false : true },
-    memory: { ...defaults.memory, ...memory, injectionDepths: { ...defaults.memory.injectionDepths, ...(isRecord(memory.injectionDepths) ? memory.injectionDepths : {}) } } as MemoryRuntimeSettings,
+    memory: sanitizeInnerVoice({
+      ...defaults.memory, ...memory, injectionDepths: { ...defaults.memory.injectionDepths, ...(isRecord(memory.injectionDepths) ? memory.injectionDepths : {}) },
+    } as MemoryRuntimeSettings),
     talk: sanitizeTalkSettings(value.talk),
     stagecraft: {
        curatorEnabled: isRecord(value.stagecraft) && typeof value.stagecraft.curatorEnabled === "boolean" ? value.stagecraft.curatorEnabled : defaults.stagecraft.curatorEnabled,

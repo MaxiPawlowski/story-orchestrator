@@ -3,7 +3,7 @@ import type { JudgeCallRecord, JudgeMeterView, JudgeRuntimeState, SceneReadRecor
 import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type {
-  ConflictPair, ArcEntry, DerivedRecord, EpistemicEntry, LedgerEntry, LedgerView, MemoryEntry, MemoryInjectionView,
+  CastVoice, ConflictPair, ArcEntry, DerivedRecord, EpistemicEntry, InnerBeat, LedgerEntry, LedgerView, MemoryEntry, MemoryInjectionView,
   MemoryStoreState, MemoryTier, Provenance, ScoreWeights,
 } from "@memory/index";
 import type { DriverContext } from "@copilot/index";
@@ -159,7 +159,12 @@ export interface MemoryRuntimeSettings {
   tierBudgets: Record<MemoryTier, number>;
   tierTokenBudgets: Record<MemoryTier, number>;
   scoreWeights?: ScoreWeights;
+  innerBeat?: boolean;
+  innerFanOut?: InnerFanOut;
+  harvestReasoning?: boolean;
 }
+
+export type InnerFanOut = "lead" | "top2";
 
 export interface MemoryBackfillState {
   running: boolean;
@@ -286,6 +291,7 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   /** The first message this story's play covers in this chat: the player's last message when it
    *  started, or 0 before the player spoke. The first scene summary starts here; earlier history is the backlog's. */
   storyStart: number;
+  innerBeats?: InnerBeat[];
   updatedAt: string;
 }
 
@@ -452,6 +458,7 @@ export interface RuntimeSnapshot {
   // The story's authored curator allowlist, so the review panel can say what is in scope without
   // reading the story record itself.
   stagecraftScope: string[];
+  innerCast?: CastVoice[];
   pendingDeltas: PendingDeltaReadout[];
   convergence: ConvergenceReadout[];
   tension: {

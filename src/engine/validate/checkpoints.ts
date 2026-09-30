@@ -6,7 +6,9 @@ import {
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
 
-const readMemberText = (member: Record<string, unknown>, key: "role" | "drive", path: string, errors: ValidationError[]) => {
+type Member = StoryV2["roster"][number];
+
+const readMemberText = (member: Member, key: "role" | "drive", path: string, errors: ValidationError[]): Member => {
   const { [key]: value, ...rest } = member;
   if (value === undefined) return member;
   if (typeof value !== "string") {
@@ -20,7 +22,7 @@ export const readRoster = (roster: StoryV2["roster"], errors: ValidationError[])
   if (!isRecord(member)) return member;
   const path = `roster.${index}`;
   if (member.view !== undefined && !isOneOf(member.view, ROSTER_VIEWS)) addError(errors, `${path}.view`, "roster view must be own or omniscient");
-  return readMemberText(readMemberText(member, "role", path, errors), "drive", path, errors) as StoryV2["roster"][number];
+  return readMemberText(readMemberText(member, "role", path, errors), "drive", path, errors);
 });
 
 const readMotives = (value: unknown, path: string, errors: ValidationError[]): Record<string, string> | undefined => {

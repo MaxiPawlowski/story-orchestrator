@@ -72,3 +72,11 @@ export const chooseByRules = (control: TalkControl, candidates: TalkCandidate[],
   }
   return pool[pool.length - 1];
 };
+
+export const likelyNextSpeakers = (control: TalkControl, candidates: TalkCandidate[], lastSpeakerRosterId: string | null, limit: number): TalkCandidate[] => {
+  const others = candidates.filter((candidate) => candidate.rosterId !== lastSpeakerRosterId);
+  const pool = control.no_repeat !== false && others.length ? others : candidates;
+  const lead = control.lead ? pool.find((candidate) => matchesRef(candidate, control.lead ?? "")) : undefined;
+  const rest = pool.filter((candidate) => candidate !== lead).sort((left, right) => right.weight - left.weight);
+  return [...(lead ? [lead] : []), ...rest].slice(0, Math.max(0, limit));
+};

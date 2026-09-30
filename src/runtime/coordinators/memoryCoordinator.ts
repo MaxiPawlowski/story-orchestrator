@@ -14,7 +14,7 @@ import {
   removeLedger, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned,
   type ArcEntry, type DerivedRecord, type EpistemicEntry, type LedgerBinding, type LedgerView, type MemoryEntry,
   type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type UncertainPair,
-  consolidateTierJudged, clearContradicted, sceneRangeFrom, rollingShortTerm, type ShortTermPlacement,
+  consolidateTierJudged, clearContradicted, sceneRangeFrom, rollingShortTerm, type ShortTermPlacement, admitIntents, capIntents, intentEvidence,
 } from "@memory/index";
 import { PAIR_JACCARD_FLOOR, type SceneReadRecord } from "@judge/index";
 import type { Provenance } from "@memory/provenance";
@@ -56,6 +56,7 @@ export interface MemoryCoordinatorDeps {
   /** Read a named span again, rather than whatever the transcript now ends with. */
   rereadWindow?: (window: { from: number; to: number }, reason: string) => Promise<unknown>;
   hosts: MemoryHosts;
+  beatFor?: (rosterId: string) => string;
 }
 
 // Owns everything that reads or writes extras.memory: tiers, arcs, canon, epistemic, ledger,
@@ -71,6 +72,7 @@ export class MemoryCoordinator {
     ledgerBindings: () => this.ledgerBindings(),
     setPinnedOverflow: (count) => this.patch({ pinnedOverflow: count }),
     hosts: () => this.deps.hosts,
+    beatFor: (rosterId) => this.deps.beatFor?.(rosterId) ?? "",
   });
   readonly canon = new CanonSynthesis({
     getStory: () => this.deps.getStory(), getState: () => this.deps.getState(), memory: () => this.state,
@@ -124,6 +126,8 @@ export class MemoryCoordinator {
   get enabled(): boolean {
     return this.state.settings.enabled;
   }
+
+  get harvestsReasoning(): boolean { return this.capable && this.state.settings.harvestReasoning === true; }
 
   get capable(): boolean {
     return this.state.settings.enabled && this.state.settings.epistemicLedgerCapable;
@@ -314,11 +318,12 @@ export class MemoryCoordinator {
 
   // --- epistemic / ledger ------------------------------------------------
 
-  applyEpistemic(signals: ParsedEpistemicSignal[], messageId: number, retireIds: string[] = []) {
-    const kept = dropCommonKnowledge(signals, enabledCharacterNames(this.deps.getStory(), this.deps.hosts.roster));
+  applyEpistemic(signals: ParsedEpistemicSignal[], messageId: number, retireIds: string[] = [], window?: { from: number; to: number }) {
+    const evidence = window ? intentEvidence(this.deps.hosts.chat.chatWindow(window.from, window.to).messages, this.deps.getStory()?.requirements?.personas ?? []) : null;
+    const kept = admitIntents(dropCommonKnowledge(signals, enabledCharacterNames(this.deps.getStory(), this.deps.hosts.roster)), evidence);
     const applied = applyEpistemicSignals(this.state.epistemic, kept, { boundary: this.boundaryStamp(), messageId }, retireIds);
     // Refresh here too, or a pass that lapses after this write injects the member an empty block.
-    this.patch({ epistemic: capEpistemic(applied.entries) }); this.updateInjection();
+    this.patch({ epistemic: capEpistemic(capIntents(applied.entries)) }); this.updateInjection();
   }
 
   applyLedger(signals: ParsedLedgerSignal[], messageId: number) {
@@ -354,6 +359,8 @@ export class MemoryCoordinator {
   releaseStaleHold() { if (this.injector.releaseWithhold()) this.injector.update(); }
   withholdPrivateKnowledge() { this.injector.withholdPrivateKnowledge(); }
   onMemberDrafted(chId: number | [number]) { this.injector.onMemberDrafted(chId); }
+  onSoloGeneration() { this.injector.onSoloGeneration(); }
+  privateBlockFor(rosterId: string): string { return this.injector.memberPrivateBlock(rosterId); }
   getInjectionBlocks(): Record<MemoryTier, string> { return this.injector.blocks(); }
 
   // --- consolidation -----------------------------------------------------
