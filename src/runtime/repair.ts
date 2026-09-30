@@ -8,7 +8,7 @@ import { ROLE_PROBLEM_STATES } from "./roleHealth";
 // panel all have to point at the same one. So it is derived once, here, worst-first — and the plain
 // consequence comes before the technical line, because "the story will not advance" is the part a
 // player can act on.
-export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save";
+export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter";
 
 export interface RepairStep {
   area: RepairArea;
@@ -149,6 +149,10 @@ export function nextRepairStep(snapshot: RuntimeSnapshot): RepairStep | null {
   }
   if (hasUnsavedChanges(snapshot.saveHealth)) {
     return { area: "save", consequence: "Your last turn is not saved on the server yet.", detail: SAVE_PLAYER_TEXT, targetId: null, provisionable: false };
+  }
+  const degraded = (snapshot.memory?.chapters ?? []).find((record) => record.status === "degraded");
+  if (degraded) {
+    return { area: "chapter", consequence: `Chapter "${degraded.playerTitle}" was sealed without a written summary.`, detail: "Re-seal it from the Chapters panel.", targetId: null, provisionable: false };
   }
   return wiGatingStep(snapshot) ?? orphanedLorebookStep(snapshot);
 }

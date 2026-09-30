@@ -208,7 +208,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   };
 
   async loadSelectedFromChat() {
-    if (await loadSelectedStory(this.selectionDeps)) { void this.showAwayRecap(); return; }
+    if (await loadSelectedStory(this.selectionDeps)) { void this.showAwayRecap().then((shown) => !shown && this.memory.chapters.showPreviously()); return; }
     if (getSelectedStoryId()) return;
     const run = beginRun(this.owner.ownership);
     const id = boundStoryForOpenChat();

@@ -43,6 +43,7 @@ export class ChapterPort {
   due(): SealTarget | null { return kit?.due(this.host) ?? null; }
   fold(rows: Array<{ extra?: unknown }>, type: unknown, live: readonly unknown[]) { return kit?.fold(this.host, rows, type, live) ?? null; }
   carryBridge(type: unknown) { kit?.carryBridge(this, type); }
+  async showPreviously() { return (await loadChapterKit()).showPreviously(this); }
   commitBridge(rendered: boolean) { kit?.commitBridge(this, rendered); }
   async seal(target: SealTarget, at: SealAt) { return (await this.load()).seal(target, at); }
   async sealNow() { return (await this.load()).sealNow(); }

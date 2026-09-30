@@ -6,7 +6,7 @@ export interface PlayerChaptersProps {
 }
 
 // "Your story": the chapters that have ended, one line each, opening to the full summary. A player can
-// only flag a summary for the author; editing it is author view (overview W21).
+// only flag a summary for the author; editing it is author view.
 export const PlayerChapters = ({ chapters, onFlag }: PlayerChaptersProps) => (
   <div id="so-player-chapters" className="flex flex-col gap-1">
     <div className="font-medium">Your story</div>

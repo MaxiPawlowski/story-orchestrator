@@ -10,6 +10,7 @@ import WorldInfoGatingGroup from "./WorldInfoGatingGroup";
 import { GroupHeader } from "./GroupHeader";
 
 const InlineControls = lazy(() => import("./InlineControls"));
+const ChapterControls = lazy(() => import("./ChapterControls"));
 
 interface GroupProps {
   snapshot: RuntimeSnapshot;
@@ -27,6 +28,7 @@ export const DisplayGroup = ({ snapshot, manager }: GroupProps) => (
   <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
     <GroupHeader title="Display" scope="install" id="so-display-header" />
     <Suspense fallback={null}><InlineControls snapshot={snapshot} manager={manager} /></Suspense>
+    <Suspense fallback={null}><ChapterControls snapshot={snapshot} manager={manager} /></Suspense>
     <label className="flex items-center gap-2 text-sm">
       <input id="so-announce-transitions" type="checkbox" checked={snapshot.ui.announceTransitions} onChange={(event) => manager.setUiSettings({ announceTransitions: event.target.checked })} />
       <span>Also post a chat note when the checkpoint changes</span>

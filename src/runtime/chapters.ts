@@ -1,5 +1,6 @@
 import type { Chapter, NormalizedStoryV2 } from "@engine/index";
 import type { ChapterRecord } from "@memory/types";
+import { DEFAULT_CHRONICLE_TOKENS } from "@memory/chronicle";
 
 export interface SealTarget {
   chapter: Chapter;
@@ -57,7 +58,7 @@ export interface ChapterSettings {
 }
 
 export const DEFAULT_CHAPTER_SETTINGS: ChapterSettings = {
-  seal: false, storySoFar: false, fold: false, chronicleTokens: 700, chapterTokens: 500, threadTokens: 150, recap: true, dossierWindow: 12,
+  seal: false, storySoFar: false, fold: false, chronicleTokens: DEFAULT_CHRONICLE_TOKENS, chapterTokens: 500, threadTokens: 150, recap: true, dossierWindow: 12,
 };
 
 export const chapterSettings = (stored: Partial<ChapterSettings> | undefined): ChapterSettings => {

@@ -10,7 +10,7 @@ import type { PromptHost } from "./hostPorts";
 import { chaptersFrom, unfoldChapters, type ChapterStores } from "@memory/chapterUnfold";
 
 import { chronicleMarkdown } from "@memory/chronicle";
-import { registerHostMacro, unregisterHostMacro } from "@services/STAPI";
+import { registerHostMacro, showTextPopup, unregisterHostMacro } from "@services/STAPI";
 import { exportState } from "./stateExport";
 import { log } from "@utils/log";
 import type { RuntimeManager } from "./runtimeManager";
@@ -38,6 +38,16 @@ export async function chapterSlash(manager: RuntimeManager, command: string, arg
   const copied = { ok: "The chronicle is on your clipboard", fallback: "Could not reach the clipboard; the chronicle is in the console" };
   await exportState({ writeClipboard: (value) => navigator.clipboard.writeText(value), toast: window.toastr ?? {}, log: (value) => log.info(value) }, text, copied);
   return text;
+}
+
+export function showPreviously(port: ChapterPort): boolean {
+  const memory = port.host.memory();
+  const record = (memory.chapters ?? []).at(-1);
+  if (!record || !chapterSettings(memory.settings.chapters).recap || memory.chapterRecapSeen === record.id) return false;
+  port.host.patch({ chapterRecapSeen: record.id });
+  void port.host.save();
+  showTextPopup(`Previously — ${record.playerTitle}\n\n${record.summary}`, { okButton: "Continue" });
+  return true;
 }
 
 export function registerChapterMacros(manager: RuntimeManager): () => void {
