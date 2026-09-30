@@ -5,7 +5,7 @@ import type { ExtractionRuntimeState } from "./types";
 // What the machine is doing right now, in one derived value the player surface can render calmly
 // (spec addendum §Stall surfacing). A dead pipeline (no model, paused, error) must never look
 // like a slow one, and a stall re-check must read as "catching up", not as silence.
-export type PipelineState = "working" | "reading" | "stalled-rechecking" | "idle" | "not-configured" | "error";
+export type PipelineState = "working" | "reading" | "stalled-rechecking" | "idle" | "not-configured" | "error" | "complete";
 
 /**
  * What the player can actually do about the state, in their own words — or nothing.
@@ -46,7 +46,8 @@ export interface ExpansionActivity {
 export const expansionInFlight = (expansion: ExpansionRuntimeState): boolean =>
   Boolean(expansion.scheduler.inFlight) || Object.values(expansion.entries).some((entry) => entry.status === "queued" || entry.status === "generating");
 
-export function derivePipelineStatus(extraction: ExtractionRuntimeState, expansion?: ExpansionActivity, health: ExtractionHealth | null = null): PipelineStatus {
+export function derivePipelineStatus(extraction: ExtractionRuntimeState, expansion?: ExpansionActivity, health: ExtractionHealth | null = null, ended = false): PipelineStatus {
+  if (ended) return { state: "complete", text: "The story has ended. You can keep playing on in the epilogue.", detail: null, needsSetup: false, nextAction: null };
   const problem = pipelineProblem(extraction, health);
   if (problem) return problem;
   if (expansion?.generating) {

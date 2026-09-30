@@ -45,6 +45,49 @@ export interface ArcEntry {
   summary?: string;
   pinned?: boolean;
   bridgeApplied?: boolean;
+  originChapter?: string;
+  resolvedBy?: string;
+  foldedInto?: string;
+}
+
+export const CHAPTER_DISPOSITIONS = ["carry", "closed-offscreen", "abandoned"] as const;
+export type ChapterDisposition = typeof CHAPTER_DISPOSITIONS[number];
+export const CHAPTER_RECORD_STATUSES = ["sealed", "degraded", "author-edited"] as const;
+export type ChapterRecordStatus = typeof CHAPTER_RECORD_STATUSES[number];
+
+export interface ChapterRecord {
+  id: string;
+  chapterId: string;
+  part: number;
+  title: string;
+  playerTitle: string;
+  range: { from: number; to: number };
+  boundaries: { from: number; to: number };
+  checkpoints: string[];
+  summary: string;
+  short: string;
+  consequences: Array<{ text: string; sources: string[] }>;
+  people: Array<{ rosterId: string; name: string; text: string }>;
+  open: Array<{ arcId: string; text: string; disposition: ChapterDisposition }>;
+  blackboardDelta: Record<string, { from: unknown; to: unknown }>;
+  blackboardAt: Record<string, unknown>;
+  status: ChapterRecordStatus;
+  provenance: Provenance;
+  tokens: { summary: number; short: number };
+  sealedAt: { boundary: number; messageId: number; at: number; pathLength: number };
+  final?: boolean;
+  epilogue?: string;
+}
+
+export interface EraLine {
+  id: string;
+  recordIds: string[];
+  text: string;
+  messageId: number;
+}
+
+export interface ChronicleState {
+  eras: EraLine[];
 }
 
 export const EPISTEMIC_TAGS = ["knows", "unaware", "suspects", "believes", "hiding", "intends"] as const;

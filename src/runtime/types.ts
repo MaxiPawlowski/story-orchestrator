@@ -3,9 +3,10 @@ import type { JudgeCallRecord, JudgeMeterView, JudgeRuntimeState, SceneReadRecor
 import type { ExtractionHealth, ReconciliationEvent, SharedReadAudit } from "@extraction/index";
 import type { ExpansionRuntimeState } from "@generation/index";
 import type {
-  CastVoice, ConflictPair, ArcEntry, DerivedRecord, EpistemicEntry, InnerBeat, LedgerEntry, LedgerView, MemoryEntry, MemoryInjectionView,
+  CastVoice, ConflictPair, ArcEntry, ChapterRecord, ChronicleState, DerivedRecord, EpistemicEntry, InnerBeat, LedgerEntry, LedgerView, MemoryEntry, MemoryInjectionView,
   MemoryStoreState, MemoryTier, Provenance, ScoreWeights,
 } from "@memory/index";
+import type { ChapterSettings, ChapterView } from "./chapters";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
 import type { CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
@@ -162,6 +163,7 @@ export interface MemoryRuntimeSettings {
   innerBeat?: boolean;
   innerFanOut?: InnerFanOut;
   harvestReasoning?: boolean;
+  chapters?: Partial<ChapterSettings>;
 }
 
 export type InnerFanOut = "lead" | "top2";
@@ -292,6 +294,10 @@ export interface MemoryRuntimeState extends MemoryStoreState {
    *  started, or 0 before the player spoke. The first scene summary starts here; earlier history is the backlog's. */
   storyStart: number;
   innerBeats?: InnerBeat[];
+  chapters?: ChapterRecord[];
+  chronicle?: ChronicleState;
+  chapterBridge?: { recordId: string; text: string } | null;
+  chapterRecapSeen?: string | null;
   updatedAt: string;
 }
 
@@ -436,6 +442,7 @@ export interface RuntimeSnapshot {
   extraction: ExtractionRuntimeState;
   expansion: ExpansionRuntimeState;
   memory: MemoryRuntimeState;
+  chapters?: ChapterView;
   pacing: PacingSettings;
   copilot: CopilotRuntimeSettings;
   ui: UiRuntimeSettings;

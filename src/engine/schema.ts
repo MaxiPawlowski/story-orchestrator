@@ -188,6 +188,37 @@ export interface Checkpoint {
   guidance?: string;
   convergence_threshold?: number;
   motives?: Record<string, string>;
+  chapter?: string;
+}
+
+export const CHAPTER_KINDS = ["chapter", "interlude"] as const;
+export type ChapterKind = typeof CHAPTER_KINDS[number];
+export const OPEN_THREAD_POLICIES = ["carry", "close", "decide"] as const;
+export type OpenThreadPolicy = typeof OPEN_THREAD_POLICIES[number];
+export const RECORD_STYLES = ["prose", "chronicle"] as const;
+export type RecordStyle = typeof RECORD_STYLES[number];
+
+export interface ChapterSealPolicy {
+  open_threads?: OpenThreadPolicy;
+  keep_tail?: number;
+  fold_messages?: boolean;
+  record_style?: RecordStyle;
+}
+
+export interface Chapter {
+  id: string;
+  title: string;
+  player_title?: string;
+  kind?: ChapterKind;
+  seal?: ChapterSealPolicy;
+  final?: boolean;
+}
+
+export const STORY_SO_FAR_MODES = ["block", "macro", "off"] as const;
+export type StorySoFarMode = typeof STORY_SO_FAR_MODES[number];
+
+export interface StoryMemoryOptions {
+  story_so_far?: StorySoFarMode;
 }
 
 export interface TransitionEffects {
@@ -320,6 +351,8 @@ export interface StoryV2 {
   scaffolding?: Record<string, Scaffolding>;
   objective_block?: "auto" | "off";
   display?: StoryDisplay;
+  chapters?: Chapter[];
+  memory?: StoryMemoryOptions;
 }
 
 export interface StoryDisplay {
@@ -337,6 +370,8 @@ export interface NormalizedStoryV2 extends StoryV2 {
   outgoingByCheckpoint: Record<string, NormalizedTransition[]>;
   qualityByKey: Record<string, Quality>;
   reachableByCheckpoint: Record<string, string[]>;
+  chapterById?: Record<string, Chapter>;
+  chapterByCheckpoint?: Record<string, string>;
 }
 
 export interface ValidationError {

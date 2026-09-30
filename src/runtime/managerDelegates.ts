@@ -20,6 +20,9 @@ type WiredCoordinators = ReturnType<typeof wireCoordinators>;
 export abstract class CoordinatorDelegates {
   protected abstract readonly co: WiredCoordinators;
 
+  get chapters() { return this.co.memory.chapters; }
+  refreshMemoryInjection() { this.co.memory.updateInjection(); }
+
   async runCopilotStage(
     input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment },
     debugResponse?: string,
@@ -78,7 +81,7 @@ export abstract class CoordinatorDelegates {
   onMemberDrafted(chId: number | [number]) { this.co.memory.onMemberDrafted(chId); }
   innerBeatDue(): boolean { return this.co.inner.due(); }
   runInnerBeat(): Promise<number> { return this.co.inner.run(); }
-  commitContinuityNote(rendered: boolean) { this.co.stagecraft.commitNote(rendered); }
+  commitContinuityNote(rendered: boolean) { this.co.stagecraft.commitNote(rendered); this.co.memory.chapters.commitBridge(rendered); }
   runWardenPass(replyMessageId: number) { return this.co.stagecraft.runWardenPass(replyMessageId); }
   withholdTurnBlocks() { this.co.memory.withholdPrivateKnowledge(); this.co.pacing.withholdGuidance(); }
   getEpistemic(): EpistemicEntry[] { return this.co.memory.getEpistemic(); }

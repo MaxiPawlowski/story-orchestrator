@@ -20,6 +20,7 @@ const GLOBALS: Record<ModelPass, string> = {
   ledger: "storyOrchestratorDebugLedgerResponse",
   arcSummary: "storyOrchestratorDebugArcSummaryResponse",
   canon: "storyOrchestratorDebugCanonResponse",
+  chapterSeal: "storyOrchestratorDebugChapterSealResponse",
   supersession: "storyOrchestratorDebugSupersessionResponse",
   curator: "storyOrchestratorDebugCuratorResponse",
   generation: "storyOrchestratorDebugGenerationResponse",

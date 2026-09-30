@@ -1,6 +1,7 @@
 import { getContext, sendSystemChatMessage } from "@services/STAPI";
 import type { RuntimeManager } from "./runtimeManager";
 import { renderBlackboardMemo } from "./blackboardMemo";
+import { loadChapterKit } from "./chapterPort";
 
 type SlashArgs = Record<string, unknown>;
 type SlashCommandFactory = { fromProps: (props: Record<string, unknown>) => unknown };
@@ -82,12 +83,14 @@ async function cpCommand(manager: RuntimeManager, value: string | string[]) {
     if (!snapshot.convergence.length) return show("No convergence anchors with progress qualities.");
     return dump(snapshot.convergence.map((entry) => `${entry.reached ? "✔" : "○"} ${entry.anchorId} ${entry.progress}/${entry.threshold}`).join("\n"));
   }
+  if (command === "chapters" || command === "seal" || command === "unseal") return (await loadChapterKit()).chapterSlash(manager, `cp-${command}`, parts[1], dump, show);
   if (command === "memorize") {
     const ok = await manager.memorizeChat();
     if (!ok) return show(manager.getSnapshot().memory.backfill?.lastError ?? "Memorize backlog could not start.");
     return show(manager.getSnapshot().status);
   }
-  return dump("Author commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>, /cp converge · debug: /cp extract [response], /cp expand [response] · players want /story");
+  return dump("Author commands: /cp list, /cp state, /cp activate <id>, /cp set <quality> <value>, /cp converge, /cp chapters, /cp seal, /cp unseal <recordId>"
+    + " · debug: /cp extract [response], /cp expand [response] · players want /story");
 }
 
 async function memCommand(manager: RuntimeManager, value: string | string[]) {
@@ -135,7 +138,8 @@ async function storyCommand(manager: RuntimeManager, value: string | string[]) {
     await manager.flagMoment(parts.slice(1).join(" "));
     return show("Flagged this moment.");
   }
-  return dump("Commands: /story recap, /story threads, /story flag [note]");
+  if (command === "chapters" || command === "chapter" || command === "chronicle") return (await loadChapterKit()).chapterSlash(manager, command, parts[1], dump, show);
+  return dump("Commands: /story recap, /story threads, /story chapters, /story chapter <n>, /story chronicle export, /story flag [note]");
 }
 
 export function registerSlashCommands(manager: RuntimeManager): boolean {
@@ -167,10 +171,13 @@ export function registerSlashCommands(manager: RuntimeManager): boolean {
     name: "story",
     rawQuotes: true,
     unnamedArgumentList: stringArgument(context, {
-      description: "recap | threads | flag [note]",
+      description: "recap | threads | chapters | chapter <n> | chronicle export | flag [note]",
       enumList: buildEnumList(context, [
         ["recap", "where the story is right now"],
         ["threads", "what is still open"],
+        ["chapters", "the chapters that have ended"],
+        ["chapter", "one ended chapter's summary"],
+        ["chronicle", "copy the chronicle as Markdown"],
         ["flag", "mark this moment for later review"],
       ]),
     }),

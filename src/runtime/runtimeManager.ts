@@ -110,6 +110,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     fireSceneBreakReplies: (occurrence) => this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", occurrence),
     sceneBreakListeners: this.sceneBreakListeners, arcResolvedListeners: this.arcResolvedListeners,
     journal: (kind, summary, note) => { this.journal.record(kind, summary, this.journalContext(), note); this.extras.journal = this.journal.getRecords(); },
+    announce: (text) => this.effects.announceText(text, this.extras, this.owner.ownsOpenChat()),
     rollback: {
       journal: this.journal, context: () => ({ ...this.getBoundaryContext(), journal: this.journalContext() }), refreshRequirements: () => this.refreshRequirements(),
       reapplyCheckpoint: async (messageId) => { await this.effects.restoreFor(this.extras, { since: messageId }); await this.applyActive("hydrate"); },
@@ -207,7 +208,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   };
 
   async loadSelectedFromChat() {
-    if (await loadSelectedStory(this.selectionDeps)) { void this.showAwayRecap(); return; }
+    if (await loadSelectedStory(this.selectionDeps)) { void this.showAwayRecap().then((shown) => !shown && this.memory.chapters.showPreviously()); return; }
     if (getSelectedStoryId()) return;
     const run = beginRun(this.owner.ownership);
     const id = boundStoryForOpenChat();
@@ -542,6 +543,7 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   onGenerationStarted(type: unknown, dryRun?: unknown) {
     if (withholds(type)) this.withholdTurnBlocks(); else { this.memory.releaseStaleHold(); this.memory.injector.onSoloGeneration(); }
+    this.memory.chapters.carryBridge(type);
     this.stagecraft.onGenerationStarted(type, dryRun);
   }
 

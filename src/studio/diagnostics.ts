@@ -3,6 +3,7 @@ import {
   type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError,
 } from "@engine/index";
 import { directorEnabled } from "@talk/index";
+import { checkChapters } from "./chapterDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -44,6 +45,12 @@ export const DIAGNOSTIC_CODES = [
   "world-info-rests-off",
   "motive-member-unknown",
   "motive-for-player",
+  "chapter-missing",
+  "chapter-unknown",
+  "chapter-unreachable",
+  "chapter-no-exit",
+  "chapter-reentry",
+  "story-dead-end",
 ] as const;
 
 // Every code says what it costs the story before it says what is technically wrong: the
@@ -80,6 +87,12 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "world-info-rests-off": "These lorebook entries stay off in their lorebooks, and are switched on only in this story's own chats.",
   "motive-member-unknown": "Nobody is told this motive: no cast member has that id.",
   "motive-for-player": "The player's choices are theirs, so nobody is told this motive.",
+  "chapter-missing": "The story cannot load, because this checkpoint belongs to no chapter.",
+  "chapter-unknown": "The story cannot load, because this checkpoint names a chapter that does not exist.",
+  "chapter-unreachable": "This chapter is never played, so it is never written up.",
+  "chapter-no-exit": "The story stops in this chapter, but it is not marked as the last one, so it is never closed.",
+  "chapter-reentry": "Going back to an earlier chapter reopens a closed record, so the story so far repeats itself.",
+  "story-dead-end": "The story stops here without an ending, so its last chapter is never written up.",
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -503,6 +516,7 @@ const DIAGNOSTIC_CHECKS = [
   checkSceneLocation,
   checkWorldInfoGating,
   checkMotives,
+  checkChapters,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

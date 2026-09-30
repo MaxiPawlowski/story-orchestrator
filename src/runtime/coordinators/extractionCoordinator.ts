@@ -344,7 +344,9 @@ export class ExtractionCoordinator {
     return detectSceneBreakHeuristic(text, locationChanged, castChanged);
   }
 
-  async runSceneBreakPass(audit: SharedReadAudit) {
+  async closeSceneAt(to: number) { await this.runSceneBreakPass({ sceneBreak: { at: to, reason: "divider" }, window: { from: to, to } }); }
+
+  async runSceneBreakPass(audit: Pick<SharedReadAudit, "sceneBreak" | "window">) {
     const memory = this.deps.memory;
     if (!this.deps.getStory() || !audit.sceneBreak || !memory.enabled) return;
     // The whole scene since the previous summary, not only the read that detected the

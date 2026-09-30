@@ -194,10 +194,14 @@ export class EffectsApplier {
   // story moved (opt-out in settings), kept to one line.
   // A transition the player was never told about leaves a trace: both ways out of this used to be silent.
   async announceTransition(checkpoint: Checkpoint | undefined, extras: RuntimeExtras, ownsOpenChat = true) {
-    if (!extras.ui.announceTransitions || !checkpoint) return;
-    const unannounced = `transition to "${checkpoint.name}" was not announced`;
+    if (!checkpoint) return;
+    await this.announceText(checkpoint.objective ? `◈ ${checkpoint.name} — ${checkpoint.objective}` : `◈ ${checkpoint.name}`, extras, ownsOpenChat, `transition to "${checkpoint.name}"`);
+  }
+
+  async announceText(raw: string, extras: RuntimeExtras, ownsOpenChat = true, what = `"${raw}"`) {
+    if (!extras.ui.announceTransitions) return;
+    const unannounced = `${what} was not announced`;
     if (!ownsOpenChat) return this.deps.journal?.(unannounced, "the open chat is not the chat this boundary belongs to");
-    const raw = checkpoint.objective ? `◈ ${checkpoint.name} — ${checkpoint.objective}` : `◈ ${checkpoint.name}`;
     if (!(await executeSlashCommands(`/comment compact=true raw=false ${quoteSlashArg(raw.replace(/\s*\r?\n\s*/g, " ").trim())}`, { silent: true }))) {
       this.deps.journal?.(unannounced, "the /comment that posts the note was refused");
     }

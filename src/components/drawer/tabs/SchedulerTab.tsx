@@ -1,6 +1,7 @@
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import StagecraftPanel from "../StagecraftPanel";
+import ChaptersPanel from "../ChaptersPanel";
 import ModelCallsPanel from "../ModelCallsPanel";
 import InnerVoicePanel from "../InnerVoicePanel";
 import { MessageCitation } from "../MessageCitation";
@@ -70,6 +71,7 @@ const judgeText = (judge: { contradicts: number; advances: number; newCharacter:
 
 export const SchedulerTab = ({ snapshot, manager, onOpenFact }: { snapshot: RuntimeSnapshot; manager: RuntimeManager; onOpenFact?: (id: string) => void }) => (
   <div className="flex flex-col gap-3">
+    <ChaptersPanel snapshot={snapshot} manager={manager} />
     <StagecraftPanel snapshot={snapshot} manager={manager} onOpenFact={onOpenFact} />
     <TalkDecisionsPanel snapshot={snapshot} />
     <InnerVoicePanel snapshot={snapshot} />

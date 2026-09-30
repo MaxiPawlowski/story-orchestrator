@@ -5,6 +5,7 @@ import {
 } from "../schema";
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
+import { readCheckpointChapter } from "./chapters";
 
 type Member = StoryV2["roster"][number];
 
@@ -266,5 +267,6 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
   }
   const motives = value.motives === undefined ? undefined : readMotives(value.motives, `${path}.motives`, errors);
   if (motives) checkpoint.motives = motives;
+  readCheckpointChapter(value, checkpoint, path, errors);
   return checkpoint;
 };

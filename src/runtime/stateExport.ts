@@ -17,13 +17,13 @@ export interface StateExportDeps {
 export const exportStateText = (): string => JSON.stringify(dumpPersistedRuntime(), null, 2);
 
 /** Returns whether the clipboard took it, so a caller that wants to say more can. */
-export async function exportState(deps: StateExportDeps, text = exportStateText()): Promise<boolean> {
+export async function exportState(deps: StateExportDeps, text = exportStateText(), what = { ok: EXPORT_STATE_OK, fallback: EXPORT_STATE_FALLBACK }): Promise<boolean> {
   try {
     await deps.writeClipboard(text);
-    deps.toast.success?.(EXPORT_STATE_OK, "Story Orchestrator");
+    deps.toast.success?.(what.ok, "Story Orchestrator");
     return true;
   } catch {
-    deps.toast.info?.(EXPORT_STATE_FALLBACK, "Story Orchestrator");
+    deps.toast.info?.(what.fallback, "Story Orchestrator");
     deps.log(text);
     return false;
   }

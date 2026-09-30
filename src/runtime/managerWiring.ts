@@ -21,6 +21,8 @@ import type { LoadedStory, RuntimeExtras } from "./types";
 import { loadWizardSession, saveWizardSession } from "./wizardSessions";
 import type { InnerBeatHost } from "./innerBeatHost";
 import { loadInnerRender } from "@memory/index";
+import { getPlayerName } from "@services/STAPI";
+import { storyEnded } from "./chapterPort";
 
 export interface ManagerPort {
   view: { getStory: () => NormalizedStoryV2 | null; getState: () => EngineState | null; hosts: typeof coordinatorHosts };
@@ -40,6 +42,7 @@ export interface ManagerPort {
   sceneBreakListeners: Set<(audit: SharedReadAudit, collect?: SchedulerJob[]) => void>;
   arcResolvedListeners: Set<(arcIds: string[]) => void>;
   journal: (kind: JournalRecordKind, summary: string, note?: string) => void;
+  announce: (text: string) => Promise<void>;
   rollback: Pick<RollbackDeps, "journal" | "context" | "refreshRequirements" | "reapplyCheckpoint" | "notices" | "onApplied">;
   storyUpdate: Pick<StoryUpdateDeps, "swapStory" | "restart" | "journal">;
 }
@@ -61,6 +64,10 @@ export function wireCoordinators(port: ManagerPort) {
     rereadWindow: (window, reason) => extraction.runNow(undefined, reason, window),
     unsaved: () => port.unsaved(),
     beatFor: (rosterId) => inner.beatFor(rosterId),
+    chapterHost: {
+      closeScene: (to) => extraction.closeSceneAt(to), announce: (text) => port.announce(text),
+      journal: (summary, note) => port.journal("chapter", summary, note), playerName: () => getPlayerName(),
+    },
   });
   let innerHost: InnerBeatHost | null = null;
   let innerLoad: Promise<InnerBeatHost> | null = null;
@@ -112,6 +119,7 @@ export function wireCoordinators(port: ManagerPort) {
     getTension: () => port.extras().tension,
     setTension: (next) => { port.extras().tension = next; },
     getPacing: () => port.extras().pacing,
+    ended: () => storyEnded(port.extras().memory.chapters ?? []),
   });
   const stagecraft = new StagecraftCoordinator({
     ...view,

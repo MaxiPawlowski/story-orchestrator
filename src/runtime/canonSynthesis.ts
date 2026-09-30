@@ -5,7 +5,7 @@ import { lapseAsEmpty } from "@extraction/modelError";
 import { askText, type ModelCall } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
 import type { ParsedFact } from "@extraction/types";
-import { buildCanonSummaryPrompt, canonHistory, canonInputHash, highImportanceFacts, resolvedArcs, type DerivedRecord } from "@memory/index";
+import { buildCanonSummaryPrompt, canonHistory, canonInputHash, openArcTexts, resolvedArcs, selectCanonFacts, type DerivedRecord } from "@memory/index";
 import { beginRun, type RunOwnership } from "./runToken";
 import type { CanonSource, MemoryRuntimeState } from "./types";
 
@@ -43,15 +43,25 @@ export class CanonSynthesis {
 
   // Canon-lite is prompt scaffolding ("Anchor cp1: …", "Gate a -> b"): fine for the memory model,
   // never for the player, which takes the synthesized prose or nothing.
-  getCanonProse(): string { return this.canonStale() ? "" : canonHistory(this.deps.memory().canon?.text ?? ""); }
+  getCanonProse(): string {
+    const memory = this.deps.memory();
+    if (memory.canon?.text) return this.canonStale() ? "" : canonHistory(memory.canon.text);
+    return memory.entries.filter((entry) => entry.tier === "scene_history" && !entry.foldedInto && !entry.supersededBy).map((entry) => entry.text).join("\n\n");
+  }
+
+  private canonFacts(memory: MemoryRuntimeState) {
+    const state = this.deps.getState();
+    const objective = this.deps.getStory()?.checkpointById[state?.activeCheckpointId ?? ""]?.objective ?? "";
+    return selectCanonFacts(memory.entries, 30, { boundary: state?.boundary ?? 0, lastMessageId: state?.lastMessageId, turnText: objective, turnEntities: [], openArcs: openArcTexts(memory.arcs, 8) });
+  }
 
   async regenerateCanon(force = false): Promise<boolean> {
     const story = this.deps.getStory();
     const memory = this.deps.memory();
     if (!story || !this.deps.enabled() || this.inFlight) return false;
-    const arcSummaries = resolvedArcs(memory.arcs).map((arc) => arc.summary).filter((summary): summary is string => Boolean(summary));
+    const arcSummaries = resolvedArcs(memory.arcs).filter((arc) => !arc.foldedInto).map((arc) => arc.summary).filter((summary): summary is string => Boolean(summary));
     if (!arcSummaries.length) return false;
-    const facts = highImportanceFacts(memory.entries, 30).map((entry) => entry.text);
+    const facts = this.canonFacts(memory).map((entry) => entry.text);
     const active = story.checkpointById[this.deps.getState()?.activeCheckpointId ?? ""];
     const checkpoint = active ? { id: active.id, name: active.name, objective: active.objective } : null;
     const inputHash = canonInputHash(arcSummaries, facts, checkpoint);
@@ -68,8 +78,8 @@ export class CanonSynthesis {
       const trimmed = stripChannelNoise(text);
       if (!trimmed || !run.stillOwns()) return false;
       const current = this.deps.memory();
-      const arcs = resolvedArcs(current.arcs);
-      const sourceFacts = highImportanceFacts(current.entries, 30);
+      const arcs = resolvedArcs(current.arcs).filter((arc) => !arc.foldedInto);
+      const sourceFacts = this.canonFacts(current);
       const sources: CanonSource[] = [
         ...sourceFacts.map((entry) => ({ store: "memory" as const, id: entry.id, ...(entry.provenance ? { provenance: entry.provenance } : {}) })),
         ...arcs.map((arc) => ({ store: "memory" as const, id: arc.id }))

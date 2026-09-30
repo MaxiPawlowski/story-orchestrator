@@ -4,7 +4,7 @@ import type { PipelineStatus } from "./pipeline";
 // The one "where am I" composition (finding). The player Overview renders it, the away-recap
 // popup renders the same thing modally, and /story recap prints its text — three surfaces, one
 // source. Player voice only: checkpoint names, thread texts, no ids, no counters, no gates.
-export type NarrativeSectionId = "now" | "about" | "recently" | "threads" | "story" | "pending" | "status";
+export type NarrativeSectionId = "now" | "about" | "recently" | "threads" | "story" | "chapters" | "end" | "pending" | "status";
 
 export interface NarrativeSection {
   id: NarrativeSectionId;
@@ -78,6 +78,9 @@ export interface NarrativeInput {
    * an objective that needs the player's own act must not read as one the world will resolve for them.
    */
   objectiveKind?: ObjectiveKind;
+  /** Sealed chapters as "title — short", the current one last; the saga record once the story ended. */
+  chapters?: string[];
+  epilogue?: string | null;
 }
 
 export interface NarrativeStatus {
@@ -126,8 +129,10 @@ export function buildNarrativeStatus(input: NarrativeInput): NarrativeStatus {
     sections.push({ id: "threads", label: "Open threads", lines: input.openThreads });
   }
 
+  if (input.epilogue) sections.push({ id: "end", label: "The End", lines: [input.epilogue] });
+  if (input.chapters?.length) sections.push({ id: "chapters", label: "Your story", lines: input.chapters });
   const canon = input.canon.trim();
-  if (canon) sections.push({ id: "story", label: "The story so far", lines: [excerpt(canon)] });
+  if (canon) sections.push({ id: "story", label: input.chapters?.length ? "This chapter" : "The story so far", lines: [excerpt(canon)] });
 
   if (input.pendingCount > 0) {
     const noun = input.pendingCount === 1 ? "thing" : "things";
