@@ -68,8 +68,14 @@ also argued for a short table). DeepSeek (`low`/`high` only, `chat-completions.j
 - `reasoningBudget` is an install-wide settings key (`extraction.reasoningBudget`, sanitized per level to an integer in
   0–32768, defaults low 512 / medium 2048 / high 6144). No panel control: R3 sets it, and the three number inputs cost more
   bundle than the budget had left.
-- The "Models per task" disclosure (`RoleProfilesGroup`) is now a lazy chunk (the `SettingsPanel` `ImageGroup` shape): the
-  effort select lives there, and the main entry had 6.9 KB of headroom against ~8 KB for the feature.
+- The whole "Memory model" settings group (`MemoryModelGroup`, which holds "Models per task" and its new effort select) is
+  now a lazy chunk, the `SettingsPanel` `ImageGroup`/`SpriteGroup` shape (`lazy(() => import(...))` in a `Suspense`, fallback
+  `null`). After plan 12 merged, master's main entry had 59 B of F1 headroom; the budget is not raised. It sits inside the
+  collapsed "General setup" disclosure, and the chunk loads when the panel mounts, so `#so-extraction-profile` and
+  `#so-role-profile-*` exist before anyone can open it.
+- A `reasoning-exhausted` read is NOT retried (the scheduler's 3-attempt loop now stops on it like `config`): the same
+  request at the same budget spends it again. It is still recorded as this chat's failed read (journal via `noteHealth`),
+  never a breaker trip, never a config problem, never a pause.
 - `reasoning-exhausted` is also raised when a reply was ONLY an inline think block (`stripReasoningBlocks` left nothing):
   before, that read as an empty answer and a parse failure. A probe that exhausts still counts as the model answering.
 - The call record is per role, in memory, on `roleHealth` (the snapshot's `roleRoutes`), not a new ring: the last
@@ -214,3 +220,68 @@ latency ≤ 2× control; a miss is recorded as not built.
 None. The hosted source is **OpenRouter** (overview W23). R0 checks how ST's OpenRouter source passes
 `reasoning_effort` and picks one reasoning-capable model per R3 run, stated before the run. Budget: about 300–600
 calls.
+
+## Gate record
+
+### 2026-09-30 — R0, R1, R2 built (code + unit tests); R3, R4 not run
+
+Worktree branch `worktree-agent-a8b067543e2b713fe`, merged with master `0aec773c` (plan 12) before the final gates.
+
+**What landed**
+
+- R0: the verified host-facts table above (§R0), source-read against ST `7c3994196`. F3 was wrong as written (line 1122 is
+  DeepSeek); F5 stays open until the pod is up; captures run with R3.
+- R1: `ReasoningEffort` (`src/utils/reasoningEffort.ts`), per role under `extraction.routes[role].route.options.effort`
+  (plan 13 H7 key shape; `sanitizeRoleRoutes`, unknown → dropped = `default`), carried on the resolved `ModelRoute.effort`
+  (`passProfiles.resolveRoute`, fallback and role routes alike), mapped by the pure `reasoningPayload(route, effort)`
+  (`src/services/stHost/reasoningPayload.ts`), host read of source/model/preset body in `connectionProfiles.ts`
+  (`readReasoningRoute`, merge per F4 via `parseHostYaml` in `context.ts`). `default` reads no route and sends nothing.
+  Unsupported sends nothing and says why (`meter.unsupported`, the role row's note). UI: an effort select per role in
+  "Models per task" (`#so-role-effort-<role>`), with the unsupported / collapsed note (`[data-so="role-reasoning-note"]`).
+- R2: `maxTokens = answer budget + reasoningBudget[level]` only when applied and not `off` (`requestModelReply`); the call
+  timeout grows with it (`replyVia`). New failure kind `reasoning-exhausted` (empty answer with reasoning present, or cut at
+  the limit; also an inline-think-only reply). Scheduler: failed read, journaled, not retried, never a breaker/config/pause.
+  A probe that exhausts still closes the breaker. Repair: `roleRoutes` state `reasoning-exhausted` →
+  "The model spent its whole budget thinking — lower the effort for <role> or raise the budget." Meter per call
+  (`ReasoningMeter`: effort, applied, collapsed, unsupported, budget, reasoning chars, tokens) on the role row.
+- R3/R4: recipes above; `test/measurements/v2.6-05/r3-matrix.json` pre-declares arms, commands, floors and latency bounds;
+  `so-live-suite.mts` and `so-role-calibration.mts` gained `--effort <level>` (`scripts/debug/lib/roleEffort.mts`: pin,
+  read back what the connection did, restore + read back, p50/p95).
+
+**Gates (all from this worktree, after the merge with master `0aec773c`)**
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | exit 0 |
+| `npm run typecheck:test` | exit 0 |
+| `npm run lint` | exit 0 |
+| `npm test` | 347 suites, 4654 tests passed (one earlier run under load timed out `startupWiring.review` "unbinds the parent's mirror…" at 5 s; passes alone and on the full re-run) |
+| `npm run test:debug` | 425 pass, 0 fail (run after `npm run build`; before a build the run-header manifest test has nothing to read) |
+| `npm run build` | exit 0; **main entry `dist/manifest.json` `bundle.bytes` = 1 247 877** (F1 budget 1 250 000; master `0aec773c` was 1 249 941) |
+| `npm run build:dev` then `npm run test:release` | 77 pass, 0 fail (the dev-flavour check needs `dist-dev/`) |
+| Storybook: `storybook build --output-dir .sb-static-05`, `http-server -p 6105`, `test-storybook --url http://127.0.0.1:6105 --index-json` | 37 suites, 275 tests passed, incl. `settings-roleprofilesgroup--reasoning-effort` (`--index-json` because the `node_modules` junction resolves the runner's rootDir to the main checkout) |
+
+**Mutants (budget rule 3), each killed by the named test file:** budget not added (`modelReply.test`), include body
+replaced instead of merged (`reasoningPayload.test`), exhaustion never detected (`modelReply.test`), exhausted role not a
+Repair row (`reasoningControl.test`), exhausted read retried (`scheduler.breaker.test`), probe exhaustion counted as a
+failure (`client.test`), effort dropped from the route (`reasoningControl.test`), inline think block not exhausted
+(`client.test`), sanitizer keeping an unknown effort (`reasoningControl.test`). 9 of 9 killed.
+
+**Deviations**
+
+- Bundle: the feature costs ~8 KB minified; the whole `MemoryModelGroup` became a lazy chunk (see §Decisions) instead of
+  raising F1. The install-wide budget has no panel control (settings key only).
+- The per-profile capability probe (`stHost/capabilities.ts` shape) and the `CapabilitiesGroup` read-out are NOT built: the
+  answer comes from the mapping plus the per-call meter on the role row, which needs no extra call. Add the probe only if
+  R3 shows a source whose acceptance the mapping cannot predict.
+- Mapping is narrower than the R0 survey (DeepSeek, `koboldcpp/*`, and six OpenAI-shaped sources read "not mapped").
+- `inner` role not added (plan 06 owns it; effort/budget attach automatically).
+- Journal: the exhaustion reaches the journal through the scheduler's existing `noteHealth` ("extraction failed: <reason>"),
+  no new journal kind. Off-path passes outside the scheduler (curator, synthesis, director) surface it on the role row only.
+
+**Live gate: NOT run** (overview rule 13: batched; no backend used here). Pending for the final suite / measurement schedule:
+the runtime gate in §Gates (one real call per role × level on Artemis TC + CC, payload captured at the server hop asserting the
+key landed or `applied: false`, a forced small budget reproducing `reasoning-exhausted`, run-header diff around the batch),
+R3 (recipe + matrix above; OpenRouter model to be written into the matrix before the first call) and R4 (needs its spike
+build first).
+
