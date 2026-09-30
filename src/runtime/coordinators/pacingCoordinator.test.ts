@@ -2,6 +2,7 @@ import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@
 import { PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { PromptHost } from "../hostPorts";
+import type { TensionRuntimeState } from "../types";
 import { PacingCoordinator } from "./pacingCoordinator";
 
 const story = parseStoryV2OrThrow({
@@ -24,14 +25,14 @@ function harness(loaded: NormalizedStoryV2 | null) {
     setStoryExtensionPrompt: (key: string) => { calls.push(`set:${key}`); },
     clearStoryExtensionPrompt: (key: string) => { calls.push(`clear:${key}`); },
   } as unknown as PromptHost;
-  let tension = { levels: [], smoothed: null } as { levels: never[]; smoothed: number | null };
+  let tension: TensionRuntimeState = { levels: [], smoothed: null, history: [] };
   const pacing = new PacingCoordinator({
     getStory: () => loaded,
     getState: () => (loaded ? ({ activeCheckpointId: "a" } as EngineState) : null),
     getStateLog: () => [],
     getTensionTarget: () => undefined,
     getTension: () => tension,
-    setTension: (next) => { tension = next as typeof tension; },
+    setTension: (next) => { tension = next; },
     getPacing: () => ({ alpha: 0.5, shapeOverride: null, hintEnabled: true }),
     hosts: { prompt },
   });

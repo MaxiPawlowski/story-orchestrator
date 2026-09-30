@@ -1,0 +1,93 @@
+#chat .so-inline-host {
+  margin-top: 4px;
+  font-size: calc(var(--mainFontSize, 1rem) * 0.8);
+  color: var(--SmartThemeEmColor, inherit);
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-strip {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-chips {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-chip {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--st-info) 12%, transparent);
+  border: 1px solid color-mix(in srgb, var(--st-border) 40%, transparent);
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+  opacity: 0.7;
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-chip[aria-expanded="true"] {
+  opacity: 1;
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-panel {
+  padding: 4px 8px;
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--st-bg-tint) 60%, transparent);
+  border: 1px solid color-mix(in srgb, var(--st-border) 30%, transparent);
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-list {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-row {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-line {
+  display: flex;
+  align-items: flex-start;
+  gap: 4px;
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-state {
+  flex-shrink: 0;
+  margin-top: 2px;
+  opacity: 0.6;
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-text {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-more {
+  padding-left: 16px;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  opacity: 0.7;
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-left: 16px;
+}
+
+:is(#chat .so-inline-host, #so-inspector) .so-inline-actions .menu_button {
+  font-size: inherit;
+}

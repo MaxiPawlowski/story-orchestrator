@@ -9,7 +9,7 @@ jest.mock("@extraction/index", () => ({
 const { appendJudgeCall, createJudgeRuntime } = jest.requireActual("../judge/settings") as typeof import("../judge/settings");
 
 function harness(judge: RuntimeExtras["judge"]) {
-  const extras = { extraction: { audits: [] }, judge } as unknown as RuntimeExtras;
+  const extras = { extraction: { audits: [] }, judge, lore: { fired: [] }, tension: { levels: [], smoothed: null, history: [] } } as unknown as RuntimeExtras;
   const deps = {
     engine: {
       shouldRollbackFromMessage: () => false,

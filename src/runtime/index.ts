@@ -25,6 +25,7 @@ import type { Disposers, LiveParts, WindowAccess } from "./wiring/types";
 import { log } from "@utils/log";
 import { readGatingModeWith } from "./worldInfoMode";
 import { getGlobalSettings } from "./settingsStore";
+import { loadInlineComposer } from "./snapshotBuilder";
 
 let started = false;
 let bridge: TurnBridge | null = null;
@@ -128,6 +129,7 @@ export function startRuntime() {
   runtimeDisposers.push(startSaveWatcherSurface());
   runtimeDisposers.push(readGatingModeWith(() => getGlobalSettings().worldInfo.gatingMode));
   startScheduler(live, runtimeDisposers);
+  void loadInlineComposer().then(() => { if (started) runtimeManager.notify(); });
   registerHostSurfaces();
   startWatches();
   const access = windowAccess();

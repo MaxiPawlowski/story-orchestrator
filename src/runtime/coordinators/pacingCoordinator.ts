@@ -9,7 +9,7 @@ import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 
 const GUIDANCE = INJECTION_REGISTRY.checkpointGuidance;
 import { computeExpectedTension } from "../snapshot";
-import { defaultTension } from "../tensionState";
+import { appendTensionHistory, defaultTension } from "../tensionState";
 import type { PromptHost } from "../hostPorts";
 import type { PacingSettings, TensionRuntimeState } from "../types";
 
@@ -44,7 +44,7 @@ export class PacingCoordinator {
       if (entry.delta.q !== TENSION_CURRENT_KEY || !entry.rawLevel) return;
       const base = this.pending ?? this.deps.getTension();
       const smoothed = updateEma(base.smoothed, entry.delta.v as number, this.deps.getPacing().alpha);
-      this.pending = { levels: [...base.levels, entry.rawLevel].slice(-TENSION_LEVEL_LIMIT), smoothed };
+      this.pending = { ...base, levels: [...base.levels, entry.rawLevel].slice(-TENSION_LEVEL_LIMIT), smoothed };
       levels.push(entry.rawLevel);
       entry.delta.v = smoothed;
     });
@@ -63,6 +63,7 @@ export class PacingCoordinator {
         this.deps.setTension({
           levels: level ? [...current.levels, level].slice(-TENSION_LEVEL_LIMIT) : current.levels,
           smoothed: delta.v,
+          history: appendTensionHistory(current.history, { messageId: result.context.lastMessageId, level, smoothed: delta.v }),
         });
       });
     });
@@ -72,7 +73,10 @@ export class PacingCoordinator {
   // rather than unwound.
   replayCommitted() {
     const tension = defaultTension();
-    this.deps.getStateLog().forEach((entry) => {
+    const log = this.deps.getStateLog();
+    const floor = log[0]?.context.lastMessageId;
+    tension.history = floor === undefined ? [] : this.deps.getTension().history.filter((row) => row.messageId < floor);
+    log.forEach((entry) => {
       entry.queue.applied.forEach((applied) => {
         const levels = applied.tensionLevels ?? [];
         let levelIndex = 0;
@@ -82,6 +86,7 @@ export class PacingCoordinator {
           levelIndex += 1;
           if (level) tension.levels = [...tension.levels, level].slice(-TENSION_LEVEL_LIMIT);
           tension.smoothed = delta.v;
+          tension.history = appendTensionHistory(tension.history, { messageId: entry.context.lastMessageId, level, smoothed: delta.v });
         });
       });
     });

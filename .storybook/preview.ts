@@ -10,7 +10,9 @@ const mountRootFor = (title: string) => {
   return "so-studio-root";
 };
 
-const withMountRoot: Decorator = (Story, context) => createElement("div", { id: mountRootFor(context.title) }, createElement(Story));
+const withMountRoot: Decorator = (Story, context) => (context.title.startsWith("Inline/")
+  ? createElement("div", { id: "chat" }, createElement("div", { id: "so-inline-0", className: "so-inline-host" }, createElement(Story)))
+  : createElement("div", { id: mountRootFor(context.title) }, createElement(Story)));
 
 const preview: Preview = {
   decorators: [withMountRoot],

@@ -24,7 +24,7 @@ const intentHandlers = (live: LiveParts, lore: LoreWiring) => ({
   opened: (intent: IntentOf<"opened">) => {
     lore.loreWatch.opened(intent.type);
     runtimeManager.onGenerationStarted(intent.type);
-    runtimeManager.capturePayload();
+    runtimeManager.capturePayload("generation", intent.type);
     live.talk?.onGenerationStarted(intent.params);
   },
   nested: (intent: IntentOf<"nested">) => {

@@ -17,7 +17,7 @@ import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, readChatOnDisk, reopenSandboxChat } from './st-navigation.mts';
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
-import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, branchContinue, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, getMemoryFates, getModelCallsState, getGateReplayState, getNextTurnState, jumpToCitation, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
+import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, branchContinue, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, getMemoryFates, getModelCallsState, getGateReplayState, getNextTurnState, getInlineState, setInlineLevel, jumpToCitation, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
 import { leakCount, listMarkedAssets, removeMarkedAssets } from './so-assets.mts';
 import { cleanupSoloChats, restoreActiveEntity, soloChat, withoutSoloChats } from './lib/soloSandbox.mts';
 import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
@@ -785,6 +785,8 @@ async function uiStep(page, spec) {
   if (action === 'memory-fates') return getMemoryFates(page);
   if (action === 'model-calls') return getModelCallsState(page);
   if (action === 'gate-replay') return getGateReplayState(page, { transition: spec?.transition ?? 0 });
+  if (action === 'inline') return getInlineState(page, { messageId: typeof spec?.messageId === 'number' ? spec.messageId : null });
+  if (action === 'inline-level') return setInlineLevel(page, Number(spec?.level ?? label));
   if (action === 'jump') return jumpToCitation(page, { selector: spec?.selector ?? '[data-so="jump-to-message"]', index: spec?.index ?? 0 });
   // §H: a scripted `.click()` fires whether or not the element is on top, so a control can be
   // unreachable to a real pointer while every journey that drives it passes.
