@@ -1,8 +1,10 @@
 // v2.6 plan 13 R2: a throwaway copy of the working tree to mutate, so a crashed run can never leave
-// a mutant in the real checkout. The path is fixed per purpose, which keeps jest's transform cache warm.
+// a mutant in the real checkout. The path is fixed per purpose and checkout, which keeps jest's transform cache warm
+// and keeps parallel worktrees from deleting each other's copy.
 import { cpSync, existsSync, mkdirSync, readFileSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { dirname, join } from 'node:path';
+import { dirname, join, resolve } from 'node:path';
+import { createHash } from 'node:crypto';
 import { spawn, spawnSync } from 'node:child_process';
 
 const SKIP = [/^test\/journeys\/records\//, /^dist(-dev)?\//, /\.(png|jpe?g|webp|gif|mp4)$/i];
@@ -14,7 +16,7 @@ export function trackedFiles(root) {
 }
 
 export function stageCopy(root, purpose) {
-  const dir = join(tmpdir(), `so-${purpose}`);
+  const dir = join(tmpdir(), `so-${purpose}-${createHash('sha256').update(resolve(root)).digest('hex').slice(0, 8)}`);
   rmSync(dir, { recursive: true, force: true });
   mkdirSync(dir, { recursive: true });
   for (const path of trackedFiles(root)) {
