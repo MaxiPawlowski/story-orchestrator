@@ -24,7 +24,7 @@ export interface CallUsage {
 export type RouteResolution = { ok: true; route: ModelRoute | null; source: "role" | "fallback" } | { ok: false; profileId: string; reason: string };
 
 export const MODEL_PASSES = [
-  "read", "sceneSummary", "shortTerm", "epistemic", "ledger", "arcSummary", "canon", "supersession", "curator", "generation", "critic", "copilot", "director",
+  "read", "sceneSummary", "shortTerm", "epistemic", "ledger", "arcSummary", "canon", "chapterSeal", "supersession", "curator", "generation", "critic", "copilot", "director",
 ] as const;
 
 export type ModelPass = typeof MODEL_PASSES[number];

@@ -1,5 +1,5 @@
 import { EXPANSION_CONTRACT, type ExpansionRuntimeState } from "@generation/index";
-import { CONFLICT_LIMIT, createMemoryState, DERIVED_LIMIT, isProvenance } from "@memory/index";
+import { CONFLICT_LIMIT, createMemoryState, DERIVED_LIMIT, isProvenance, type ChapterRecord, type ChronicleState } from "@memory/index";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { capProposalRing } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
@@ -55,8 +55,28 @@ export const createMemory = (): MemoryRuntimeState => ({
   epistemic: [],
   ledger: [],
   canon: null,
+  chapters: [],
+  chronicle: { eras: [] },
+  chapterBridge: null,
+  chapterRecapSeen: null,
   updatedAt: new Date().toISOString(),
 });
+
+const sanitizeChapters = (value: unknown): ChapterRecord[] => (Array.isArray(value) ? value.filter((record: Partial<ChapterRecord> | null) => Boolean(record)
+  && typeof record?.id === "string" && typeof record.chapterId === "string" && typeof record.summary === "string" && typeof record.short === "string"
+  && typeof record.range?.from === "number" && typeof record.range.to === "number" && typeof record.sealedAt?.messageId === "number" && isProvenance(record.provenance)) as ChapterRecord[] : []);
+
+const sanitizeChronicle = (value: unknown): ChronicleState => {
+  const eras = (value as Partial<ChronicleState> | null)?.eras;
+  const valid = (era: ChronicleState["eras"][number]) => Boolean(era) && typeof era.id === "string" && typeof era.text === "string"
+    && Array.isArray(era.recordIds) && typeof era.messageId === "number";
+  return { eras: Array.isArray(eras) ? eras.filter(valid) : [] };
+};
+
+const sanitizeBridge = (value: unknown) => {
+  const bridge = value as { recordId?: unknown; text?: unknown } | null;
+  return typeof bridge?.recordId === "string" && typeof bridge.text === "string" ? { recordId: bridge.recordId, text: bridge.text } : null;
+};
 
 // A stored row without a valid envelope is dropped, never dressed with a default one;
 // the count goes to the console so a dropped row is never silent.
@@ -104,6 +124,10 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       resolvedConflicts: Array.isArray(existing.resolvedConflicts) ? existing.resolvedConflicts.filter((key) => typeof key === "string").slice(-CONFLICT_LIMIT) : [],
       pinnedOverflow: typeof existing.pinnedOverflow === "number" ? existing.pinnedOverflow : 0,
       storyStart: typeof existing.storyStart === "number" ? existing.storyStart : 0,
+      chapters: sanitizeChapters(existing.chapters),
+      chronicle: sanitizeChronicle(existing.chronicle),
+      chapterBridge: sanitizeBridge(existing.chapterBridge),
+      chapterRecapSeen: typeof existing.chapterRecapSeen === "string" ? existing.chapterRecapSeen : null,
       updatedAt: existing.updatedAt ?? new Date().toISOString(),
     };
   }

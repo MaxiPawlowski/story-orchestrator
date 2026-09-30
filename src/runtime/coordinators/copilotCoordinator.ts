@@ -1,10 +1,9 @@
 import {
   Blackboard, authorsOwnNote, evaluateGate, objectiveLineApplies, renderGateText, type EngineState, type NormalizedStoryV2, type StoryV2,
 } from "@engine/index";
-import {
-  runAuthoringStage, runDriverReport, runDriverSuggest, type CopilotMessage, type CopilotStage, type DriverContext,
-  type ProposalResult, type Suggestion,
-} from "@copilot/index";
+import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Suggestion } from "@copilot/index";
+
+const authoring = () => import("@copilot/index");
 import type { ModelAsk, ModelCall } from "@extraction/index";
 import {
   newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment,
@@ -46,7 +45,7 @@ export class CopilotCoordinator {
 
   async runStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> {
     const environment = input.environment ?? (input.stage === "provisioning" ? this.getProvisioningEnvironment(input.draft) : undefined);
-    return runAuthoringStage({ ...input, environment }, this.deps.model, this.ask(debugResponse));
+    return (await authoring()).runAuthoringStage({ ...input, environment }, this.deps.model, this.ask(debugResponse));
   }
 
   // What the install already has, plus which lorebooks this story owns — the only facts the
@@ -205,13 +204,13 @@ export class CopilotCoordinator {
   async runSuggest(debugResponse?: string): Promise<Suggestion[]> {
     const context = this.getDriverContext();
     if (!context) return [];
-    return runDriverSuggest(context, this.deps.model, this.ask(debugResponse));
+    return (await authoring()).runDriverSuggest(context, this.deps.model, this.ask(debugResponse));
   }
 
   async runReport(debugResponse?: string): Promise<string> {
     const context = this.getDriverContext();
     if (!context) return "";
-    return runDriverReport(context, this.deps.model, this.ask(debugResponse));
+    return (await authoring()).runDriverReport(context, this.deps.model, this.ask(debugResponse));
   }
 
   setNudge(text: string, depth = 1) {

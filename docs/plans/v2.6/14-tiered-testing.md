@@ -1,0 +1,240 @@
+# Plan 14 — Tiered testing: playable first, then feature groups, fixing as we go
+
+**Status: DRAFT 2026-09-30.**
+
+**Decided by the user on 2026-09-30:**
+- Testing starts when **all development is finished**. That build is the base.
+- The list is ordered. The first goal is **playable**; after that, features are tested **group by group**.
+- Findings are **fixed during the tier that found them**, not batched until the end.
+
+This plan changes plan 10's order:
+- The user's sessions come **first** within each tier, not after the machine matrix.
+- Phase F's single final batch becomes **one closing run per tier**, plus a cumulative ×2 at freeze.
+
+## Rules
+
+1. **Tiers run in order.**
+   - A tier starts only when the previous tier's exit criteria hold.
+   - Later tiers depend on earlier ones: a memory finding means nothing while turns do not commit.
+2. **Human first, then evals.** Each tier runs this loop:
+   - the user plays that tier's charters;
+   - I digest the logs;
+   - we review them together;
+   - fixes land;
+   - evals are written from the findings;
+   - the tier closes.
+3. **Every finding gets a severity and a class, in the review.**
+   - Severity is **blocker**, **broken**, **annoying** or **cosmetic**.
+   - Class is **product**, **quality**, **expectation** (a spec or UX gap) or **harness**.
+   - Blocker and broken findings are fixed inside the tier.
+   - Annoying findings are fixed inside the tier or deferred, and a deferral is decided in the review.
+   - Cosmetic findings go to a list.
+4. **A fix is proved like any change** (overview rules 15–16):
+   - it has its own gate;
+   - the overall gates pass;
+   - a replay fixture comes from the recorded session where the defect is deterministic;
+   - one targeted real-model run proves the fix where it is not.
+   - The fix commit names the finding id.
+5. **Evals come from findings.**
+   - A bug becomes a replay fixture or a no-LLM scenario.
+   - A quality problem becomes a small scored LLM eval, with the session transcripts as its corpus.
+   - Plan 13's inventory rows are mapped onto the tiers. At each tier close, a row the sessions never touched is kept only if it guards a real past defect; otherwise it is retired. This resolves plan 13's deferred suite-gap decision tier by tier.
+6. **The regression set is cumulative.**
+   - Each tier closes by running its own evals and its mapped suite rows ×2.
+   - A fix in tier N also re-runs the evals of any earlier tier whose code it touches.
+7. **The fresh-import rule stays.** Each session runs on its own lane, freshly imported with `adolion-fresh`, in a visible browser, so the real install stays clean.
+8. **Blind-rating legs move into the tier that owns the feature** (overview rule 11 is unchanged otherwise). Each leg is rated when its tier runs:
+   - 07 Q-M in T2;
+   - 06 C3 in T3;
+   - 05 R4 in T6;
+   - 03's rater legs in their tier.
+
+## Before T0: session tooling (development, gated like any plan)
+
+`scripts/debug/so-session.mts`:
+- **`start <tier> <charter>`** does the following:
+  - seeds a lane with `adolion-fresh`, with images and sprites switched off unless the charter needs them (and never on the shared ComfyUI);
+  - launches the browser headed;
+  - captures a run header;
+  - starts `so-journal follow` and `st-payload arm --persist`;
+  - writes everything to `test/sessions/<tier>/<charter>-<n>/`.
+- **`stop`** does the following:
+  - diffs the run header;
+  - exports the journal;
+  - stops the tails.
+- **`digest`** turns a session into `findings.md`. It includes:
+  - every ⚑ flag with its surrounding turns;
+  - automatic anomalies: stalls, rejected extraction lines, an empty private block, lost forced lore or a missed constant entry, judge fallbacks, lost saves, unexpected checkpoint jumps, rollback notices, console errors.
+- **Gate:** a node:test over a recorded fixture session. A planted anomaly of each kind must be found, and a clean session must yield zero.
+
+The findings register is `docs/plans/v2.6/14-findings.md`. It has one row per finding, with these columns:
+- id (`T<tier>-<n>`);
+- tier;
+- severity;
+- class;
+- evidence path;
+- status;
+- fix commit;
+- eval.
+
+## Budget and pacing
+
+The user has a week (decided 2026-09-30), so the plan is about **32 hours of play**. The hours per tier are targets, not caps: a tier ends at its exit criteria.
+
+| Tier | Play | Charters |
+|---|---|---|
+| T0 Playable | 2 h | 3 |
+| T1 Story engine | 6 h | 7 |
+| T2 Memory and continuity | 6 h | 6 |
+| T3 Player surface | 5 h | 6 |
+| T4 Mutations | 3 h | 4 |
+| T5 Author loop | 5 h | 5 |
+| T6 Model and judge | 4 h | 4 |
+| T7 Freeze | 1 h + machine | 1 |
+
+**Overlap.** Tiers stay in order, but a tier does not wait for every fix:
+- The next tier's first charter may start once the current tier has **no open blocker**.
+- Broken and annoying findings are fixed while the user plays the next tier.
+- The tier closes (evals ×2) once its fixes land.
+
+**Coverage.** Across the week, every one of the nine Adolion stories is played at least once:
+- academy, adventurer, aegis, deep, east, esha, night, saga, war.
+
+Every charter also names a story from outside Adolion when it needs one:
+- the wizard's own stories;
+- `wendhope-gate` as the small example.
+
+**Charter card.** Each charter is one row in `test/sessions/charters.json`, and `so-session start` prints it:
+- the story, persona, mode and settings;
+- what to try;
+- what to watch;
+- a rubric with one row per feature it touches, each scored works, annoying, broken or not noticed, with a note.
+
+## Tiers
+
+The charters list what to try, not steps to follow.
+
+### T0 — Playable (2 h)
+
+| Charter | Story | Try | Exit signal |
+|---|---|---|---|
+| T0-1 First contact | adventurer, player mode | Fresh install; Start from the entry points; 20 turns | requirements green; boundaries commit; the HUD and Overview read right |
+| T0-2 Come back | the T0-1 chat | Reload the page; reopen the chat next day (away recap); continue 10 turns | state restored; no Repair row |
+| T0-3 First slips | adventurer | Swipe, edit your own line, delete the last reply, regenerate | the story rewinds only what was undone |
+
+**Exit when:**
+- a one-hour session has no blocker;
+- no console errors from the extension;
+- every story in the library reads ready.
+
+### T1 — Story engine loop (6 h)
+
+| Charter | Story | Try |
+|---|---|---|
+| T1-1 Follow the hook | adventurer | Play cooperatively to the second checkpoint and beyond |
+| T1-2 Refuse the hook | adventurer, new chat | Refuse the prepared route three different ways |
+| T1-3 Group direction | war (or any group-heavy story) | Narrator plus 2–3 members; talk to one by name, then to nobody |
+| T1-4 Effects | east or deep | Watch each checkpoint change: background, AN, lore that appears and disappears, cast joins and leaves |
+| T1-5 Off the map | night | Push into territory the story did not author; watch generated routes |
+| T1-6 Pacing | esha | A slow, talky stretch, then a rush; does tension follow? |
+| T1-7 Second story | aegis | Start a different story in a fresh chat; nothing carries over |
+
+**Exit when:**
+- transitions fire from play (never from `/cp`);
+- the player's actions are never narrated;
+- no story stalls longer than its authored beats;
+- speaker choice feels right in at least 4 of 5 group turns.
+
+### T2 — Memory and continuity (6 h)
+
+| Charter | Story | Try |
+|---|---|---|
+| T2-1 Long run | saga | 80+ turns across one act change (chapters, the saga summary) |
+| T2-2 Secrets | academy (group) | Tell one character something another must not know; later check who acts on it |
+| T2-3 Contradiction | the T2-1 chat | Assert something that contradicts an established fact; watch the warden and the memory queue |
+| T2-4 Away and back | any 40+ turn chat | Leave for a day; read the recap cold |
+| T2-5 Memory tab | the T2-1 chat | Pin, edit and exclude facts; lock one as canon; check the next turns obey |
+| T2-6 Two chats, one story | adventurer ×2 | Play two chats of the same story side by side; nothing crosses |
+
+**Exit when:**
+- established facts hold across 80 turns;
+- no private knowledge leaks;
+- the recap and chapter titles are correct;
+- the 07 Q-M legs are rated.
+
+### T3 — Player surface and presentation (5 h)
+
+| Charter | Story | Try |
+|---|---|---|
+| T3-1 Everything on | deep | Images, sprites, inner voice, timeline level 1; note what helps and what distracts |
+| T3-2 Timeline levels | the T3-1 chat | Levels 0–2 in player mode, 3–4 in author view; the message inspector |
+| T3-3 Inner voice | esha or night | Decision moments; does the voice add or repeat? |
+| T3-4 Spoiler hunt | any story, player mode | Actively look for leaks: ids, gated lore names, future checkpoints, internals |
+| T3-5 Curator ring | east | Review curator proposals in the drawer; accept some, reject some |
+| T3-6 Small screen | any | Narrow viewport (phone width) across the drawer, HUD, timeline and Studio |
+
+**Exit when:**
+- no spoilers in player mode;
+- every surface is scored works, annoying or not wanted;
+- 06 C3 is rated;
+- the C5/C6 surface decisions are made.
+
+### T4 — Mutations and robustness (3 h)
+
+| Charter | Story | Try |
+|---|---|---|
+| T4-1 Abuse | any group story, everything on | Swipe, edit and delete at every feature's moment: a transition, a memory write, a curator proposal, a chapter end |
+| T4-2 Switching | two stories | Switch chats mid-generation; branch; reload during generation |
+| T4-3 Cleanup | a throwaway chat | Delete it; answer the mirror-lorebook prompt both ways |
+| T4-4 Restart and update | adventurer | Restart the story; take a library update mid-run |
+
+**Exit when:**
+- the story, memory, timeline and saves agree after every mutation;
+- nothing leaks across chats;
+- no chat loses messages.
+
+### T5 — Author loop (5 h)
+
+| Charter | Story | Try |
+|---|---|---|
+| T5-1 Wizard, premise 1 | new | Create a story from the user's first A11 premise, review mode; play 20 turns |
+| T5-2 Wizard, premises 2–3 | new | Auto-draft mode; provisioning cards (characters, lorebook, group) |
+| T5-3 Studio edit | a T5 story | Edit a checkpoint, gate and effect; save; take the hot-swap and the invalidating choice |
+| T5-4 Repair | a T5 story | Break a requirement (disable a member, drop a book); follow Repair and Fix with wizard |
+| T5-5 Author view | war | Author view on: the blackboard, scheduler, payload, next-turn preview and driver; steer with Nudge/Advance |
+
+**Exit when:**
+- the whole loop runs without touching JSON;
+- the wizard never writes without confirmation;
+- the A1 inspector decision is made.
+
+### T6 — Model and judge configuration (4 h)
+
+| Charter | Story | Try |
+|---|---|---|
+| T6-1 Reasoning | replay T1-1 | Each recommended reasoning setting (05) |
+| T6-2 Judge providers | replay T1-3 | Each recommended provider per use (12) |
+| T6-3 Harness routing | replay T5-1 | The wizard through the CLI harness route (04 H) |
+| T6-4 Judge off | replay T2-2 | Judge fully off; every feature falls back silently |
+
+**Exit when:**
+- each recommended configuration plays no worse than the default;
+- the judge off falls back silently;
+- 05 R4 is rated.
+
+### T7 — Freeze and cumulative run
+
+- Freeze the candidate.
+- Run the whole cumulative regression set ×2 (plan 10 phase F, expected green on arrival).
+- The user plays one final free session on the frozen build (1 h).
+- Write the attestation.
+- The verdict follows plan 10, with "all four sessions scored" replaced by "every tier's exit criteria met".
+
+## Before T0, from the user
+
+- The three A11 wizard premises (T5-1/T5-2).
+- A claude/codex CLI login refresh (T6-3).
+
+## Unresolved
+
+None.

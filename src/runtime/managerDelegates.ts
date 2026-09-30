@@ -20,6 +20,9 @@ type WiredCoordinators = ReturnType<typeof wireCoordinators>;
 export abstract class CoordinatorDelegates {
   protected abstract readonly co: WiredCoordinators;
 
+  get chapters() { return this.co.memory.chapters; }
+  refreshMemoryInjection() { this.co.memory.updateInjection(); }
+
   async runCopilotStage(
     input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment },
     debugResponse?: string,
@@ -76,7 +79,7 @@ export abstract class CoordinatorDelegates {
   scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) { return this.co.expansion.scheduleForActive(schedule); }
   async runExpansionNow(debugResponse?: string, confirm = false) { return this.co.expansion.runNow(debugResponse, confirm ? (preflight) => confirmPreflight(preflight, "authoring") : undefined); }
   onMemberDrafted(chId: number | [number]) { this.co.memory.onMemberDrafted(chId); }
-  commitContinuityNote(rendered: boolean) { this.co.stagecraft.commitNote(rendered); }
+  commitContinuityNote(rendered: boolean) { this.co.stagecraft.commitNote(rendered); this.co.memory.chapters.commitBridge(rendered); }
   runWardenPass(replyMessageId: number) { return this.co.stagecraft.runWardenPass(replyMessageId); }
   withholdTurnBlocks() { this.co.memory.withholdPrivateKnowledge(); this.co.pacing.withholdGuidance(); }
   getEpistemic(): EpistemicEntry[] { return this.co.memory.getEpistemic(); }

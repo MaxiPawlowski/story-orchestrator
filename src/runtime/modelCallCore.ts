@@ -14,6 +14,7 @@ const DEBUG_RESPONSES: Record<ModelPass, () => string | null | undefined> = {
   ledger: () => globalThis.storyOrchestratorDebugLedgerResponse,
   arcSummary: () => globalThis.storyOrchestratorDebugArcSummaryResponse,
   canon: () => globalThis.storyOrchestratorDebugCanonResponse,
+  chapterSeal: () => globalThis.storyOrchestratorDebugChapterSealResponse,
   supersession: () => globalThis.storyOrchestratorDebugSupersessionResponse,
   curator: () => globalThis.storyOrchestratorDebugCuratorResponse,
   generation: () => globalThis.storyOrchestratorDebugGenerationResponse,
