@@ -331,6 +331,8 @@ Options:
 
 **Recommendation:** stay on 3 through v2.6. Build 2 only if Phase A shows the harness text route misses the plan 11 floors while native tool use would meet them. User decision.
 
+**Decided by the user 2026-09-30:** build option 2 (long-poll bridge) now. Harness scope for v2.6 is **opencode only**: Claude Code and Codex are skipped (no login refresh, no Phase A legs on them; their plugin support stays, unoffered). The bridge and Phase A target opencode.
+
 ### CLI login states (2026-09-30)
 
 Read-only checks: `loginFreshness` and `--version`. No login, no config change, no model call.
