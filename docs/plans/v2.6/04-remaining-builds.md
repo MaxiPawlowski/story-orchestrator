@@ -250,3 +250,43 @@ B's), plus the witness lab's secrets run with the guidance split (SP9 F1–F5).
 ## Unresolved questions
 
 - C3, C4, C12, C13: the four design calls above (§Design calls) await the user's review.
+
+## Gate record — 2026-09-30 (code items S, B17, G, A1, C1r; design C3/C4/C12/C13)
+
+Worktree branch `worktree-agent-ac0f760cd08d6e7ce`, master merged twice (last at `25b32284`, plan 07). No lane, no main
+ST, no real-LLM run (rule 13); nothing under `C:\dev\so-lanes` touched, ComfyUI not reached.
+
+| Item | State | Evidence |
+|---|---|---|
+| S | built | §S; `sprites.test.ts` W11 U1 ×2 (2 mutants killed: default `enabled: true`; activation ignoring `explicit`), `capabilities.test.ts` probe case, Storybook `Settings/SpriteSettingsView` ×4, `adolionFresh.test.mts` |
+| B17 | fixed | `proposal.test.ts` B17 (mutant: old `setLoreSelect(draft, op.loreSelect)` fails), Storybook `ExclusiveLoreIsAuthorOnly`, `AuthorSeesExclusiveLoreReadiness` |
+| G | built | `groupStoryBinding.test.ts` ×2 new, Storybook `Settings/GroupStoryBindingView` ×4, `errorCopy.json` row for the panel's reason line |
+| A1 | done (plan 08) | `inlineTimeline.test.ts` inspector case extended (gate, talk, delta, audit); mutant "inspector drops L4 items" fails it |
+| C1r | fixture red 2/4 on the unchanged applier, then built | `npcLateLanding.review.test.ts` 4/4, `streamGuard.test.ts` watcher ×2; fault matrix `effects\|aborted` partial + 2 citations; census `EffectsApplier.speak` note |
+| C3/C4/C12/C13 | design written, not built | §Design calls |
+
+Commands (worktree, after the second master merge):
+
+- `npm run typecheck` 0 · `npm run typecheck:test` 0 · `npm run lint` 0
+- `npm test -- --silent` 0: 356 suites passed, 1 skipped; 4766 tests passed, 1 skipped
+- `npm run build:dev` 0 · `npm run build` 0 (prod, bundle `7fad8abafda2`)
+- `npm run test:debug` 0: 454 pass, 0 fail
+- `npm run test:release` 0: 77 pass, 2 skip, 0 fail
+- `npm run test:replay` 0: 25 of 25 killed (run with a private `TEMP`: the shared `%TEMP%\so-defect-replay` was locked by a
+  parallel agent's run, EBUSY on the first attempt)
+- `npx storybook build -o .sb-static-04 --quiet` 0; `npx http-server .sb-static-04 -p 6104 -s -c-1`;
+  `npx test-storybook --url http://127.0.0.1:6104 --index-json` 0: 46 suites, 308 tests passed (server stopped, dir deleted)
+
+**Main entry:** `dist/index.js` 1,193,811 B vs master `25b32284` built the same way 1,192,501 B: **+1,310 B**. The panels
+(`SpriteSettingsView`, `GroupStoryBinding`) are lazy chunks; `sprites/activation.ts` and
+`runtime/groupStoryBindingEdit.ts` were split out so the main entry keeps only `settings.ts` and `boundStoryForEmptyChat`
+(before the split: +3,345 B on the previous master). What remains in main: the C1r watcher, the `sprites` probe, B17's
+two small changes and the lazy import.
+
+**Deviations:**
+- `JudgeSettingsGroup.stories.tsx` `ReadinessNamesWhatIsNotWorking` now sets `authorView: true`. It asserted the
+  "Prepare ahead" (author-only `expansionLookahead`) concern in player view, the same leak B17 closes; its own comment
+  says the concern shows "where the author turned it on", which is author view.
+- `scripts/debug/lib/adolionFresh.mts` writes `explicit: true` with `sprites.enabled: false`, because an unmarked
+  `enabled: false` now means "unset", which an Adolion story would turn on.
+- Live checks for S, G and C1r are owed to plan 10's final suite (rule 13); none ran here.
