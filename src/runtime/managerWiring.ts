@@ -120,6 +120,10 @@ export function wireCoordinators(port: ManagerPort) {
     setTension: (next) => { port.extras().tension = next; },
     getPacing: () => port.extras().pacing,
     ended: () => storyEnded(port.extras().memory.chapters ?? []),
+    soloMember: () => {
+      const story = view.getStory();
+      return story && story.roster.length === 1 && !view.hosts.roster.getActiveGroup() ? story.roster[0].id : null;
+    },
   });
   const stagecraft = new StagecraftCoordinator({
     ...view,
