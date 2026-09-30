@@ -290,3 +290,101 @@ two small changes and the lazy import.
 - `scripts/debug/lib/adolionFresh.mts` writes `explicit: true` with `sprites.enabled: false`, because an unmarked
   `enabled: false` now means "unset", which an Adolion story would turn on.
 - Live checks for S, G and C1r are owed to plan 10's final suite (rule 13); none ran here.
+
+## Gate record — H (2026-09-30, harness routing H1–H4 + agent bridge stub)
+
+Branch `worktree-agent-ac6fe5ee6515e1256`, merged with master `fb31e640`. Not merged to master.
+
+### Built
+
+| Part | Where | What |
+|---|---|---|
+| Server plugin | `server-plugin/story-orchestrator-harness/` (`index.mjs`, own `package.json` type module) | Spawns `claude -p`, `codex exec`, `opencode run` per call. Fixed argv with `shell:false`; `.cmd`/`.ps1`/`.bat` shims refused. The prompt goes on stdin. The system text goes by file (Claude `--system-prompt-file`, opencode `OPENCODE_CONFIG_CONTENT` `{file:…}`); Codex gets it prepended on stdin. Tools are off per CLI (Claude `--tools "" --strict-mcp-config --setting-sources ""`; Codex `--ignore-user-config --ignore-rules -s read-only --ephemeral` plus a `--disable` per tool feature; opencode `--pure` with a tools-off `so-text` agent). Each call gets an owned home (mkdtemp; only the login file is copied; the real login is hash-checked; the home is deleted after the call). Env allowlist plus named pass-through. Deadline with a tree kill. Output bound; body bound before parse (`text/plain`). `X-SO-Plugin` header plus same-origin guard. Admin-only by default. Model allowlist per harness. Concurrency 2 and queue 8 per harness; single-flight per user, harness and role. Errors are classified as `auth`, `quota` (+`retryAt`), `timeout`, `config`, `malformed`, `refused`, `transport`, `lapsed` or `busy`. The log line carries only `{harness, model, ms, usage, kind}`. Routes: `GET /status`, `POST /complete`, `/cancel`, `/warm` (admin, B2) and `/agent` (501 stub). Nothing is offered unless the server `config.json` sets `offer: true`. |
+| H1 route type | `extraction/modelRoute.ts`, `runtime/passProfiles.ts`, `utils/harness.ts` | `ModelRoute` gains a harness kind. `routeKey` is the profile id or `harness:<name>:<model>`. `routes[role].route` holds the harness route; `resolveRoute` refuses a model the plugin does not list. |
+| H3 transport | `extraction/reply.ts`, `extraction/harnessReply.ts` (lazy), `services/stHost/harness.ts` (lazy) + `harnessCache.ts` | The deadline is `callTimeoutMs × timeoutScale` + 15 s spawn. The output bound is maxTokens × 6. The debug short-circuit runs before routing. A 429 (busy) is retried until the deadline. |
+| Breaker/scheduler | `extraction/breaker.ts`, `extraction/scheduler.ts`, `runtime/wiring/scheduler.ts` | The breaker keys on the route. A quota hold lasts until `retryAt`. A harness breaker is probed by `/status` and spends no quota. The dangling check skips harness keys. The heavy lane is gated by the synthesis route (`heavyRouteKey`). |
+| H1/H4 no silent fallback | `runtime/modelCallCore.ts`, `runtime/harnessFallback.ts` (lazy) | `onFailure` falls back to a profile only on auth, quota, transport or timeout, and only when the author set one; it is recorded as `fallback` with `fallbackFrom`. config, refused, malformed and lapsed never fall back. With no fallback set, the role pauses. |
+| H4 record | `runtime/modelCallLog.ts`, `extras.modelCalls` (cap 300), `journal.ts` `model-call`, `modelCalls.ts` routed rows | Every non-narrative call is recorded with its route, result, ms, usage and spawnMs. Role health gains `not-logged-in` and `quota`, which feed Repair. The `harness` capability probe is lazy. |
+| UI | `RoleProfilesGroup.tsx`, `MemoryModelGroup.tsx` (already lazy), `runtime/roleRouteEdits.ts` | Per-role select, split into "Connection profiles" and "Cloud harness (on the SillyTavern server)". The default stays "Same as memory model". Egress copy per role (`[data-so="role-egress"]`), an "On failure" select (`#so-role-fallback-<role>`) and a meter (`[data-so="role-meter"]`). Status is fetched only when a role is routed to a harness or the details are opened. New story: `HarnessRoute`. |
+| Calibration arm | `scripts/debug/so-role-calibration.mts --profile harness:<name>:<model>` | Sets `extraction.routes[role]` and restores profiles and routes afterwards. |
+| Census | `test/findings/faultMatrix.json` (package `harnessTransport`, 10 cells), `errorCopy.json` (2 probe rows) | The ownership row added for `modelCallCore#createModelCallVia.call` went stale after the fallback moved lazy (the census no longer sees a write-after-await there) and was removed. The telemetry-in-the-wrong-chat note is kept below as an open item. |
+
+### B1–B5 as applied
+
+- **B1:** a login that expires within 90 minutes is refused. The message tells the user to run the CLI once in a terminal; the plugin never refreshes it inside a copy. A real login file that changes during a call holds every later call.
+- **B2:** opencode runs from a pre-warmed owned cache with `OPENCODE_DISABLE_MODELS_FETCH=1`. The warm-up is the admin `/warm` route. An unwarmed opencode is refused before spawn.
+- **B3:** personal use only; there is no hosted surface.
+- **B4:** admin-only unless `allowNonAdmin` is set in the server config.
+- **B5:** subscription logins only. API-key variables (`ANTHROPIC_API_KEY`, `OPENAI_API_KEY`) are not on the env allowlist.
+
+### Agent tool bridge (plan 11 harness route): design + typed stub
+
+The v2.5 design does not cover an MCP bridge. What was built is the stub: plugin `POST /agent` answers 501 with `AGENT_BRIDGE_REFUSAL`, and it has a test that it never spawns. The client side, in `copilot/agent/route.ts`, has the `AgentToolBridge` interface (open / nextCall / answer / close), `HarnessTransport.bridge?` and the existing `harnessRoute` refusal, which now names the endpoint.
+
+Options:
+
+1. **MCP inside the CLI.** Rejected. It needs `--strict-mcp-config` off and an MCP server the CLI can reach, which breaks the H-N1b isolation (tools off, no user config). The tools also run in the page's zustand draft store, which the server cannot reach.
+2. **Long-poll bridge (the stub's shape).** The plugin runs the CLI with one tool, a local MCP stdio shim owned by the plugin. It parks each tool call in a session. The page polls `nextCall`, executes the tool against the draft through `mutations.ts`, and posts `answer`. Isolation holds because the only tool is the plugin's own shim. Costs: a stdio MCP shim per CLI, a session store with deadlines, and a CSRF'd poll loop.
+3. **Text route only (today).** Route "Wizard and road ahead" to a harness under Models per task, and the agent runs through its JSON text protocol (plan 11 local route). There are no native tool calls, and nothing new is exposed.
+
+**Recommendation:** stay on 3 through v2.6. Build 2 only if Phase A shows the harness text route misses the plan 11 floors while native tool use would meet them. User decision.
+
+### CLI login states (2026-09-30)
+
+Read-only checks: `loginFreshness` and `--version`. No login, no config change, no model call.
+
+| CLI | Version | State |
+|---|---|---|
+| Claude Code | 2.1.282 | stale: access token expired. **Login refresh needed (user).** |
+| Codex | 0.157.1 | fresh (`codex login status`: logged in using ChatGPT) |
+| opencode | 1.18.33 | fresh |
+
+`HARNESS_LIVE=1` PONG: **not run.** It spends subscription quota, and real-model runs belong to Phase A.
+
+### Gates (after merging master `fb31e640`)
+
+```
+npm run typecheck        pass
+npm run typecheck:test   pass
+npm run lint             pass
+npm test                 359 suites passed, 1 skipped; 4798 tests passed, 1 skipped
+npm run build            pass (prod)
+npm run build:dev        pass
+npm run test:debug       454/454
+npm run test:release     77 pass, 2 skipped, 0 fail
+npm run test:replay      defect replay: 25 of 25 killed
+npm run test:plugin      44 pass, 2 skipped (JUDGE_LIVE, HARNESS_LIVE), 0 fail
+npx storybook build -o .sb-static-04h --quiet; serve :6114; npx test-storybook --url http://127.0.0.1:6114 --index-json
+                         46 suites, 309/309 (first run: RoleProfilesGroup needed explicit fn() spies for the new props; fixed)
+```
+
+**Bundle:** `dist/manifest.json` `bundle.bytes` = **1,200,486**. The main checkout's last prod manifest (built 21:05Z, pre-`fb31e640`) read 1,192,515, so this is about +8.0 KB. The pre-plan-07 measurement in this worktree was 1,249,242 against a baseline of 1,242,580 (+6.7 KB). The budget was not raised. The harness transport, fallback, route edits and status probe are lazy chunks.
+
+**Mutants** (`h04_mutants.py`: apply, run the named suite, restore). All 6 killed:
+
+| Mutant | Killed by |
+|---|---|
+| `onFailure` kind filter deleted | harnessRouting: config / refused / malformed / lapsed "never falls back" |
+| breaker keyed on the read route, not the failed route | scheduler.harness: "a background failure on a harness trips that harness, never the read route that did not fail" (added; it survived before) |
+| admin check dropped | plugin: "rules 8-10: header, origin, admin and body bounds…" |
+| prompt passed in argv | plugin: "a routed call runs in an owned home…" (assertion added: the prompt is absent from argv and env) |
+| env allowlist dropped | plugin: "rule 5…", "a routed call runs in an owned home…" |
+| deadline kill dropped | plugin: "rule 6 / P0-3…", "rule 7…" and 2 more |
+
+Live gate: none. Harness routes are an opt-in, real-LLM path, and v2.6 rule 13 batches those. Phase A recipe: `test/measurements/v2.6-04h/phase-a-matrix.json`.
+
+### Deviations
+
+- `extraction.profiles` stays for profile routes, and the harness route lives in `routes[role].route`; `profiles` was not replaced. Profile route keys stay the raw profile id, with no `profile:` prefix.
+- `options.maxInputTokens` was dropped. The per-model context comes from the plugin's `config.json` via `/status` (`harnessContextLimit` − 4096), for bundle bytes.
+- Not built: the H9 role split (so there is no H10 critic arm; Phase A row 4 is n/a), audit↔callId linking, `options.transport: server` (H8), and `harness.preflightTokens`.
+- Priority-2 scene passes stay in the read lane, gated by the read route.
+- Repair shows harness login and quota through the model-role area with the CLI's own detail, not a separate "harness-login" area.
+- The "one real route test through ST's middleware" (PR-05) is not run. The guards are covered by handler-level tests with fake requests.
+
+### Open items
+
+- User: refresh the Claude login (run `claude` once) before any `claude:*` arm.
+- Phase A (lane time, real models, final suite): the recipe above. The P0-7 5/5 re-run on the warmed opencode cache is still owed (B2). Codex owned-home isolation is not run (PHASE0).
+- A call that lands after a chat switch is recorded in the ring of the chat now open. This is telemetry only; the answer stays owned by its caller's `RunOwnership`.
+- Agent bridge option 2 is not built; recommendation above.

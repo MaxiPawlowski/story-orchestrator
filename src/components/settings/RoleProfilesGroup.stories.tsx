@@ -25,7 +25,7 @@ const profiles = [{ id: "memory", name: "Memory RunPod", model: "artemis" }, { i
 const meta: Meta<typeof RoleProfilesGroup> = {
   title: "Settings/RoleProfilesGroup",
   component: RoleProfilesGroup,
-  args: { routes: allFallback, assigned: {}, profiles, testing: null, onAssign: fn(), onTest: fn(), onEffort: fn() },
+  args: { routes: allFallback, assigned: {}, profiles, testing: null, onAssign: fn(), onTest: fn(), onEffort: fn(), onHarness: fn(), onFallback: fn(), onOpen: fn() },
 };
 
 export default meta;
