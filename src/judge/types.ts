@@ -89,7 +89,7 @@ export type JudgeTransport = (request: JudgeRequest, options: { timeoutMs: numbe
  * story or session moved. builds its cost and latency report from these rings, and counting
  * a cancellation as a timeout makes the model look slower and less reliable than it is.
  */
-export type JudgeFallback = "disabled" | "unavailable" | "timeout" | "cancelled" | "error" | "invalid" | "no-roles" | "no-seam" | "busy";
+export type JudgeFallback = "disabled" | "unavailable" | "timeout" | "cancelled" | "error" | "invalid" | "no-roles" | "no-seam" | "busy" | "uncalibrated";
 
 export interface JudgeCallRecord {
   at: string;
@@ -106,6 +106,7 @@ export interface JudgeCallRecord {
   outputTokens?: number;
   cost?: number;
   cached?: boolean;
+  provider?: string;
   /** Metered, never ringed — the call was paid for but belongs to a world that moved. */
   discarded?: JudgeDiscard;
 }

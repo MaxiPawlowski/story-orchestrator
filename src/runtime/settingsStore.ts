@@ -1,5 +1,5 @@
 import { getContext, observeNextSettingsSave, readServerExtensionSettings, settingsAreLoaded } from "@services/STAPI";
-import type { JudgeSettings, JudgeUses } from "@judge/index";
+import type { JudgeProviderId, JudgeProviderRoutes, JudgeSettings, JudgeUses } from "@judge/index";
 import { createSettingsWriteEvidence, recordSettingsWrite } from "./librarySave";
 import { SETTINGS_ROOT_KEY, settingsRoot, writableSettingsRoot } from "./settingsRoot";
 import { sanitizeGlobalSettings, type GlobalSettings } from "./settingsModel";
@@ -69,7 +69,13 @@ export function setGlobalSettings(patch: Partial<{ [K in keyof GlobalSettings]: 
     memory: { ...current.memory, ...(patch.memory ?? {}) },
     talk: { ...current.talk, ...(patch.talk ?? {}) },
     stagecraft: { ...current.stagecraft, ...(patch.stagecraft ?? {}) },
-    judge: { ...current.judge, ...(patch.judge ?? {}), uses: { ...current.judge.uses, ...(patch.judge?.uses ?? {}) }, expansion: { ...current.judge.expansion, ...(patch.judge?.expansion ?? {}) } },
+    judge: {
+      ...current.judge,
+      ...(patch.judge ?? {}),
+      uses: { ...current.judge.uses, ...(patch.judge?.uses ?? {}) },
+      expansion: { ...current.judge.expansion, ...(patch.judge?.expansion ?? {}) },
+      provider: { ...current.judge.provider, ...(patch.judge?.provider ?? {}) },
+    },
     worldInfo: { ...current.worldInfo, ...(patch.worldInfo ?? {}) },
     image: { ...current.image, ...(patch.image ?? {}) },
     sprites: { ...current.sprites, ...(patch.sprites ?? {}) },
@@ -80,12 +86,22 @@ export function setGlobalSettings(patch: Partial<{ [K in keyof GlobalSettings]: 
   return sanitized;
 }
 
-export function setJudgeSettings(patch: { enabled?: boolean; uses?: Partial<JudgeUses>; expansion?: Partial<JudgeSettings["expansion"]> }): GlobalSettings {
+export interface JudgeSettingsWrite {
+  enabled?: boolean;
+  uses?: Partial<JudgeUses>;
+  expansion?: Partial<JudgeSettings["expansion"]>;
+  provider?: Partial<JudgeProviderRoutes>;
+  noticesSeen?: JudgeProviderId[];
+}
+
+export function setJudgeSettings(patch: JudgeSettingsWrite): GlobalSettings {
   const current = getGlobalSettings().judge;
   return setGlobalSettings({ judge: {
     ...(patch.enabled !== undefined ? { enabled: patch.enabled } : {}),
     uses: { ...current.uses, ...(patch.uses ?? {}) },
     expansion: { ...current.expansion, ...(patch.expansion ?? {}) },
+    provider: { ...current.provider, ...(patch.provider ?? {}) },
+    ...(patch.noticesSeen ? { noticesSeen: patch.noticesSeen } : {}),
   } });
 }
 
