@@ -1,8 +1,8 @@
 import { useState } from "react";
 import {
-  AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, judgeReadiness, judgeReadinessConcerns,
-  type JudgeMeterView, type JudgeReadinessKey, type JudgeReadinessRow, type JudgeSettings,
-  type JudgeUseKey, type JudgeUses,
+  AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, JUDGE_PROVIDER_IDS, JUDGE_PROVIDERS, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, judgeReadiness, judgeReadinessConcerns,
+  judgeUseActive, providerLeavesMachine, type JudgeMeterView, type JudgeProviderId, type JudgeProviderRoutes, type JudgeReadinessKey, type JudgeReadinessRow,
+  type JudgeSettings, type JudgeUseKey, type JudgeUses,
 } from "@judge/index";
 import type { JudgeSelfTestReport } from "@judge/selfTest";
 import type { JudgeStatus } from "@services/STAPI";
@@ -13,6 +13,8 @@ export interface JudgeSettingsPatch {
   enabled?: boolean;
   uses?: Partial<JudgeUses>;
   expansion?: Partial<JudgeSettings["expansion"]>;
+  provider?: Partial<JudgeProviderRoutes>;
+  noticesSeen?: JudgeProviderId[];
 }
 
 export interface JudgeSettingsGroupProps {
@@ -36,6 +38,8 @@ const labelOf = (key: JudgeReadinessKey): string => (key === "warden" ? "Continu
 
 const concernText = (row: JudgeReadinessRow): string => {
   if (row.verdict === "blocked" && row.blockedBy) return `on, but "${JUDGE_USE_COPY[row.blockedBy].label}" is off, so it does nothing`;
+  if (row.uncalibratedOn) return `routed to ${JUDGE_PROVIDERS[row.uncalibratedOn].label}, not calibrated there`;
+  if (row.splitFrom?.length) return `shares a call with ${row.splitFrom.map(labelOf).join(", ")} on another provider: none of them runs`;
   if (row.modelMismatch) return `on, but not measured on ${row.modelMismatch.answered ?? row.modelMismatch.configured} (measured on ${row.modelMismatch.measuredOn})`;
   return "on, but nothing has measured it";
 };
@@ -44,6 +48,18 @@ const meterText = (meter: JudgeMeterView): string =>
   `This chat: ${meter.calls} ${meter.calls === 1 ? "call" : "calls"} (${meter.cachedCalls} from cache) · ${meter.inputTokens.toLocaleString("en-US")} input / ` +
     `${meter.outputTokens.toLocaleString("en-US")} output tokens${meter.cost > 0 ? ` · cost ${meter.cost}` : ""}`;
 
+const providersInUse = (settings: JudgeSettings, wardenEnabled: boolean): JudgeProviderId[] => {
+  if (!settings.enabled) return [];
+  const keys: JudgeReadinessKey[] = [...BUILT_JUDGE_USES.filter((use) => judgeUseActive(settings, use)), ...(wardenEnabled ? ["warden" as const] : [])];
+  return JUDGE_PROVIDER_IDS.filter((id) => keys.some((key) => settings.provider[key] === id));
+};
+
+const ProviderSelect = ({ id, label, value, disabled, onPick }: { id: string; label: string; value: JudgeProviderId; disabled: boolean; onPick(value: JudgeProviderId): void }) => (
+  <select id={id} aria-label={`${label}: provider`} className="text_pole w-auto text-xs" value={value} disabled={disabled} onChange={(event) => onPick(event.target.value as JudgeProviderId)}>
+    {JUDGE_PROVIDER_IDS.map((provider) => <option key={provider} value={provider}>{JUDGE_PROVIDERS[provider].label}</option>)}
+  </select>
+);
+
 const statusText =(status: JudgeSettingsGroupProps["status"]): string => {
   if (status === "unchecked") return "Off. Turn it on, or press Recheck, to look for the server plugin.";
   if (status === "checking") return "Checking the judge plugin…";
@@ -51,6 +67,85 @@ const statusText =(status: JudgeSettingsGroupProps["status"]): string => {
   if (!status.configured) return "Plugin found, but no TypeSafe key is set. Paste it below.";
   return `Ready · key from ${status.keySource === "st-secrets" ? "SillyTavern secrets" : status.keySource ?? "the server"} · ${status.model ?? "model unknown"}`;
 };
+
+interface JudgeUseRowsProps {
+  settings: JudgeSettings;
+  builtUses: readonly JudgeUseKey[];
+  authorView: boolean;
+  wardenEnabled: boolean;
+  onChange(patch: JudgeSettingsPatch): void;
+}
+
+const JudgeUseRows = ({ settings, builtUses, authorView, wardenEnabled, onChange }: JudgeUseRowsProps) => (
+  <div className="flex flex-col gap-1 pl-4">
+    {builtUses.filter((use) => authorView || !AUTHOR_JUDGE_USES.includes(use)).map((use) => {
+      const copy = JUDGE_USE_COPY[use];
+      const dependency = JUDGE_USE_DEPENDENCIES[use];
+      const blocked = dependency && !settings.uses[dependency] ? `Needs "${JUDGE_USE_COPY[dependency].label}" first.` : null;
+      return (
+        <div key={use} className="flex flex-wrap items-center gap-2">
+          <label className="flex items-center gap-2 text-sm">
+            <input
+              id={`so-judge-use-${kebab(use)}`}
+              type="checkbox"
+              checked={settings.uses[use]}
+              disabled={!settings.enabled || Boolean(blocked)}
+              onChange={(event) => onChange({ uses: { [use]: event.target.checked } })}
+            />
+            <span>{copy.label} <HelpTooltip title={`${copy.description} Sends: ${copy.sends}.`} />{blocked && <span className="text-xs opacity-60"> {blocked}</span>}</span>
+          </label>
+          <ProviderSelect
+            id={`so-judge-provider-${kebab(use)}`}
+            label={copy.label}
+            value={settings.provider[use]}
+            disabled={!settings.enabled}
+            onPick={(provider) => onChange({ provider: { [use]: provider } })}
+          />
+        </div>
+      );
+    })}
+    {wardenEnabled && (
+      <div className="flex flex-wrap items-center gap-2 text-sm">
+        <span>Continuity warden</span>
+        <ProviderSelect
+          id="so-judge-provider-warden"
+          label="Continuity warden"
+          value={settings.provider.warden}
+          disabled={!settings.enabled}
+          onPick={(provider) => onChange({ provider: { warden: provider } })}
+        />
+      </div>
+    )}
+  </div>
+);
+
+interface JudgeProviderNoticesProps {
+  settings: JudgeSettings;
+  status: JudgeSettingsGroupProps["status"];
+  providers: JudgeProviderId[];
+  onChange(patch: JudgeSettingsPatch): void;
+}
+
+const JudgeProviderNotices = ({ settings, status, providers, onChange }: JudgeProviderNoticesProps) => (
+  <>
+    {providers.map((provider) => {
+      const info = JUDGE_PROVIDERS[provider];
+      const providerStatus = typeof status === "object" && status !== null ? status.providers?.[provider] : undefined;
+      if (!providerLeavesMachine(provider, providerStatus)) {
+        const where = providerStatus?.host ? ` (${providerStatus.host})` : "";
+        return <div key={provider} id={`so-judge-local-${provider}`} className="text-xs opacity-70">{info.label} runs on this machine{where}: nothing it is asked leaves it.</div>;
+      }
+      if (settings.noticesSeen.includes(provider)) return null;
+      return (
+        <div key={provider} id={`so-judge-privacy-${provider}`} className="flex flex-wrap items-center gap-2 text-xs text-yellow-300">
+          <span>{info.notice}{providerStatus?.host && !info.remote ? ` (${providerStatus.host})` : ""}</span>
+          {info.policyUrl && <a className="underline" href={info.policyUrl} target="_blank" rel="noreferrer">Privacy policy</a>}
+          <button id={`so-judge-privacy-ack-${provider}`} className="menu_button" onClick={() => onChange({ noticesSeen: [...settings.noticesSeen, provider] })}>Got it</button>
+        </div>
+      );
+    })}
+  </>
+);
 
 export function JudgeSettingsGroup({
   settings,
@@ -71,6 +166,7 @@ export function JudgeSettingsGroup({
   const readiness = judgeReadiness(settings, JUDGE_USE_DEPENDENCIES, meter?.lastAnsweredModel ?? null, { warden: wardenEnabled });
   const concerns = judgeReadinessConcerns(readiness);
   const enabledMeasured = readiness.filter((row) => row.verdict === "measured");
+  const inUse = providersInUse(settings, wardenEnabled);
 
   const [keyError, setKeyError] = useState<string | null>(null);
 
@@ -108,26 +204,9 @@ export function JudgeSettingsGroup({
         <span>Use the judgment model <HelpTooltip title={"A second, fast model for yes/no and pick-one decisions. Every use below is off until you turn it on, and each says " +
           "what it sends. It never receives character cards, persona text, other chats or the key."} /></span>
       </label>
-      <div className="text-xs opacity-70">When a use is on, the text it lists is sent to TypeSafe. Nothing is sent while this is off.</div>
-      <div className="flex flex-col gap-1 pl-4">
-        {builtUses.filter((use) => authorView || !AUTHOR_JUDGE_USES.includes(use)).map((use) => {
-          const copy = JUDGE_USE_COPY[use];
-          const dependency = JUDGE_USE_DEPENDENCIES[use];
-          const blocked = dependency && !settings.uses[dependency] ? `Needs "${JUDGE_USE_COPY[dependency].label}" first.` : null;
-          return (
-            <label key={use} className="flex items-center gap-2 text-sm">
-              <input
-                id={`so-judge-use-${kebab(use)}`}
-                type="checkbox"
-                checked={settings.uses[use]}
-                disabled={!settings.enabled || Boolean(blocked)}
-                onChange={(event) => onChange({ uses: { [use]: event.target.checked } })}
-              />
-              <span>{copy.label} <HelpTooltip title={`${copy.description} Sends: ${copy.sends}.`} />{blocked && <span className="text-xs opacity-60"> {blocked}</span>}</span>
-            </label>
-          );
-        })}
-      </div>
+      <div className="text-xs opacity-70">When a use is on, the text it lists is sent to the provider it is routed to. Nothing is sent while this is off.</div>
+      <JudgeUseRows settings={settings} builtUses={builtUses} authorView={authorView} wardenEnabled={wardenEnabled} onChange={onChange} />
+      <JudgeProviderNotices settings={settings} status={status} providers={inUse} onChange={onChange} />
       {authorView && <div className="flex flex-wrap items-center gap-2 pl-4 text-sm">
         <span>Expansion variants <HelpTooltip title={"Write this many outlines for each gap in the story and keep the best one, as the judgment model scores them. 1 writes one, " +
           "as today. Each extra outline is another run of the story model."} /></span>

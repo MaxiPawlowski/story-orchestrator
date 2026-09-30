@@ -1,0 +1,47 @@
+[
+  {
+    "use": "director",
+    "timeoutMs": 1500,
+    "body": "{\"state\":{\"scene\":{\"name\":\"Gate\",\"goal\":\"Open it\"},\"player\":\"Max\",\"transcript\":[{\"speaker\":\"Max\",\"text\":\"Mara, abre la puerta.\"}]},\"questions\":{\"who\":{\"type\":\"choice\",\"instructions\":\"Decide which character should speak next, in response to the latest message in `transcript`. Pick the character who was addressed, challenged, or has the strongest reason to react. Pick \\\"nobody\\\" if no character has a reason to respond.\",\"criteria\":{\"Mara\":\"gate captain\",\"Finn\":\"old scholar\",\"nobody\":\"No character should respond right now\"}},\"nobody\":{\"type\":\"noul\",\"instructions\":\"Is the latest message in `transcript` something no character needs to respond to, such as the player quietly acting alone or going to sleep?\"},\"addr:guard\":{\"type\":\"noul\",\"instructions\":\"Is the latest message in `transcript` directed at Mara (gate captain), by name, title, role or context?\"},\"reason:guard\":{\"type\":\"noul\",\"instructions\":\"Does Mara (gate captain) have a strong reason to respond to the latest message in `transcript` right now?\"},\"addr:sage\":{\"type\":\"noul\",\"instructions\":\"Is the latest message in `transcript` directed at Finn (old scholar), by name, title, role or context?\"},\"reason:sage\":{\"type\":\"noul\",\"instructions\":\"Does Finn (old scholar) have a strong reason to respond to the latest message in `transcript` right now?\"}},\"model\":\"jev-1.13.0\"}"
+  },
+  {
+    "use": "memoryPairs",
+    "timeoutMs": 3000,
+    "body": "{\"state\":{\"older_note\":\"Mara carries a silver sword.\",\"newer_note\":\"Mara's sword is now broken.\"},\"questions\":{\"relation\":{\"type\":\"choice\",\"instructions\":\"Compare `older_note` and `newer_note`, two notes from the same story's memory. What is the relationship between them?\",\"criteria\":{\"duplicate\":\"The newer note restates the older one: the same fact about the same person, object or place, possibly reworded or with extra detail. Keeping both is redundant\",\"update\":\"The newer note gives a new value for the very same fact about the very same person, object or place (a price that changed, someone who moved or died), so the older note is now out of date\",\"distinct\":\"Worded alike or about the same character, but the notes concern a different object, a different person or a different fact, so both stay true\",\"unrelated\":\"The notes are about different subjects\"}},\"same_thing\":{\"type\":\"noul\",\"instructions\":\"Are `older_note` and `newer_note` about one and the same person, object or place, and the same property of it?\",\"criteria\":{\"true\":\"Both notes are about one and the same person, object or place, and the same property of it\",\"false\":\"The notes are about different things, even if they share an owner, a place or most of their words: a sword and a dagger, the silver and the frames, one person and another\"}}},\"model\":\"jev-1.13.0\"}"
+  },
+  {
+    "use": "memoryVerify",
+    "timeoutMs": 1500,
+    "body": "{\"state\":{\"story\":{\"title\":\"Gate\",\"cast\":[\"Mara\",\"Finn\"]},\"transcript\":[{\"id\":\"1\",\"speaker\":\"Mara\",\"text\":\"I lost the key.\"}]},\"questions\":{\"line:0\":{\"type\":\"noul\",\"instructions\":\"Is this note supported by `transcript`: \\\"Mara lost the key\\\"? Use `story` only as background for names and places.\",\"criteria\":{\"true\":\"The transcript states or clearly shows everything the note says\",\"false\":\"The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact\"}},\"line:1\":{\"type\":\"noul\",\"instructions\":\"Is this note supported by `transcript`: \\\"Finn has the key\\\"? Use `story` only as background for names and places.\",\"criteria\":{\"true\":\"The transcript states or clearly shows everything the note says\",\"false\":\"The note adds something the transcript does not show: an invented detail, cause or outcome, the wrong person, the opposite of what happened, or a character's false claim stated as fact\"}}},\"model\":\"jev-1.13.0\"}"
+  },
+  {
+    "use": "curatorFilter",
+    "timeoutMs": 1500,
+    "body": "{\"state\":{\"checkpoint\":{\"name\":\"Gate\",\"objective\":\"Open it\"},\"canon\":\"The gate fell.\",\"open_threads\":[\"the key\"],\"entries\":[{\"title\":\"Gate\",\"switched_on\":true,\"content\":\"The gate stands.\"},{\"title\":\"Key\",\"switched_on\":false,\"content\":\"Lost.\"}]},\"questions\":{\"entry:0\":{\"type\":\"noul\",\"instructions\":\"Look at `entries[0]`. Has the story so far (`canon`, `open_threads`, `checkpoint`) made something in it out of date, or, if it is switched off, made it newly needed?\"},\"entry:1\":{\"type\":\"noul\",\"instructions\":\"Look at `entries[1]`. Has the story so far (`canon`, `open_threads`, `checkpoint`) made something in it out of date, or, if it is switched off, made it newly needed?\"}},\"model\":\"jev-1.13.0\"}"
+  },
+  {
+    "use": "memoryPairs",
+    "timeoutMs": 1500,
+    "body": "{\"state\":{\"settled_note\":\"The gate is open.\",\"new_note\":\"La puerta está cerrada.\"},\"questions\":{\"relation\":{\"type\":\"choice\",\"instructions\":\"`settled_note` is a fact the story has settled. `new_note` is a new note from the same story's memory. What does `new_note` do to `settled_note`?\",\"criteria\":{\"agrees\":\"The new note is consistent with the settled fact: it restates it, rewords it, adds detail, or shows the same fact from another side, so both can be kept as true\",\"contradicts\":\"The new note says the settled fact is false, or describes a state of the same person, object or place that cannot be true at the same time as the settled fact\",\"update\":\"The new note reports a change that happened after the settled fact: it was true, and something since has made it no longer so\",\"distinct\":\"The notes concern a different person, object or property, so both can be true whatever each says\"}}},\"model\":\"jev-1.13.0\"}"
+  },
+  {
+    "use": "warden",
+    "timeoutMs": 1500,
+    "body": "{\"state\":{\"established_facts\":{\"fact_0\":\"The gate is locked.\"},\"reply\":{\"speaker\":\"Mara\",\"text\":\"The gate was never locked.\"}},\"questions\":{\"fact:0\":{\"type\":\"noul\",\"instructions\":\"Does `reply` contradict `established_facts.fact_0`?\",\"criteria\":{\"true\":\"The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not\",\"false\":\"Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim\"}}},\"model\":\"jev-1.13.0\"}"
+  },
+  {
+    "use": "stage",
+    "timeoutMs": 1500,
+    "body": "{\"state\":{\"scene\":\"A stone gate at dusk\"},\"questions\":{\"pick\":{\"type\":\"choice\",\"instructions\":\"Which installed background image best fits `scene`? File names describe the picture. Pick \\\"none\\\" if no background fits the setting.\",\"criteria\":{\"forest.jpg\":null,\"castle gate.png\":null,\"none\":\"No installed background fits this setting\"}}},\"model\":\"jev-1.13.0\"}"
+  },
+  {
+    "use": "critic",
+    "timeoutMs": 2500,
+    "body": "{\"state\":{\"beats\":[\"Mara opens the gate\"]},\"questions\":{\"shape\":{\"type\":\"score\",\"instructions\":\"How well does `beats` rise?\",\"criteria\":[\"flat\",\"some\",\"rising\",\"sharp\"]},\"ok\":{\"type\":\"noul\",\"instructions\":\"Is it fine?\"},\"pick\":{\"type\":\"choice\",\"instructions\":\"Which?\",\"criteria\":{\"a\":\"first\",\"b\":null}}},\"model\":\"jev-1.13.0\"}"
+  },
+  {
+    "use": "probe",
+    "timeoutMs": 5000,
+    "body": "{\"state\":{\"text\":\"The gate is shut.\"},\"questions\":{\"q\":{\"type\":\"noul\",\"instructions\":\"Is the gate shut?\"}},\"model\":\"jev-latest\"}"
+  }
+]
