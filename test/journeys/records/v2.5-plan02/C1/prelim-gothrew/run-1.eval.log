@@ -1,5 +1,0 @@
-{
-  "ok": false,
-  "error": "Cannot read properties of undefined (reading 'name')\nError: Cannot read properties of undefined (reading 'name')\n    at SlashCommandClosure.executeStep (http://127.0.0.1:8101/scripts/slash-commands/SlashCommandClosure.js:440:27)\n    at async SlashCommandClosure.executeDirect (http://127.0.0.1:8101/scripts/slash-commands/SlashCommandClosure.js:360:20)\n    at async SlashCommandClosure.execute (http://127.0.0.1:8101/scripts/slash-commands/SlashCommandClosure.js:248:20)\n    at async Object.executeSlashCommandsWithOptions (http://127.0.0.1:8101/scripts/slash-commands.js:7033:24)\n    at async eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:46:14)\n    at async eval (eval at evaluate (:290:30), <anonymous>:11:21)\n    at async <anonymous>:316:30"
-}
-Wrote JSON: C:\dev\so-lanes\1\debug\2026-09-26T05-13-32-723Z_st-eval.json

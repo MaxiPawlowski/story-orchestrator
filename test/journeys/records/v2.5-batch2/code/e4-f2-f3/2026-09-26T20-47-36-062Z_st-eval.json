@@ -1,7 +1,0 @@
-{
-  "ok": true,
-  "value": {
-    "talk": "()=>{}",
-    "fetchWrapped": "(t,n)=>{if(n&&w.has(n))return e(t,n);const r=c({},null!=n?n:{});return w.add(r),M(e,t,r)}"
-  }
-}

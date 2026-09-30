@@ -1,0 +1,12 @@
+{
+  "id": "generated-routes-ascending",
+  "defect": "generated outcome routes were emitted with ascending priority, reversing the author order",
+  "guards": ".claude/rules/architecture.md: \"Every generated outcome is a route\" (v2.3 plan 07 R9)",
+  "fixCommit": "54b6df20 v2.3: plans 01-11 as built, 2026-09-23 audit replan, V21 attestation",
+  "file": "src/generation/merge.ts",
+  "find": "priority: declared - outcomeIndex,",
+  "replace": "priority: declared + outcomeIndex,",
+  "tests": [
+    "src/generation/fork.review.test.ts"
+  ]
+}

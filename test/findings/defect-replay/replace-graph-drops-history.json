@@ -1,0 +1,12 @@
+{
+  "id": "replace-graph-drops-history",
+  "defect": "replaceStory hydrated without the history, clearing the boundary log rollback needs",
+  "guards": ".claude/rules/gotchas.md: \"Swapping the played graph must keep the engine's queue AND its history\" (L4)",
+  "fixCommit": "d2ca1f1b v2.3 L4 + L6 + V20c part 2 live. L4: real-model generated forks walked on both routes (fork-b green x2; fork-a green x2 after one linear-chain model miss); found engine graph swap (replaceStory = loadStory+hydrate) dropping pending writes AND boundary history on every expansion merge/stale rebuild -> engine.replaceGraph; code check/planner/revalidate take gate pins (entry transition + outcome ==); duplicate outcome gates flagged as dead routes; prompt states R9 route rules; 9/9 mutants; jest 2675. L6: live-v4-turn-types-real — group round 3 replies = 3 boundaries, streaming continue + appendFinal 1 each, x2 + live mutation (no continue added text). V20c part 2: F3 closed (J11 imports + dependsOn, blocked under --only when a dependency is unselected), J1.10 real pointer clicks x2 + live mutation, T6 J9.2 split (not yet run live), J12 cadence matches its own guard",
+  "file": "src/engine/engine.ts",
+  "find": "    this.loadStory(normalized);\n    this.hydrate(state, history);",
+  "replace": "    this.loadStory(normalized);\n    this.hydrate(state);",
+  "tests": [
+    "src/engine/replaceGraph.test.ts"
+  ]
+}

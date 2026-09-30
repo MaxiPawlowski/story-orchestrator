@@ -1,7 +1,0 @@
-lane 2 test/scenarios/live-v25-02-c7-note-order.json run 1: code 1 (38 s)
-lane 2 test/scenarios/live-v25-02-c7-note-order.json run 2: code 1 (30 s)
-{
-  "summary": "C:\\dev\\so-lanes\\batch-2026-09-26T05-45-45-609Z.json",
-  "green": 0,
-  "runs": 2
-}

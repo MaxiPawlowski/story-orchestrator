@@ -1,0 +1,12 @@
+{
+  "id": "rollback-keeps-pending-writes",
+  "defect": "a rollback that restored nothing never flushed queued writes whose read window covered the mutation",
+  "guards": ".claude/rules/gotchas.md: \"A rollback that restores nothing must still drop the queued writes that read the mutation\" (v2.4 plan 01 T1)",
+  "fixCommit": "bc186445 v2.4 plan 01 T1 live finding: a rollback that restores nothing left queued writes whose read window reached the mutated message (live /cut: a {0..8} tension write kept for the next boundary). engine.discardPendingFrom(messageId) in rollback quarantine(); +3 tests, mutants M6/M7 killed. Live T1 check: tail deletes run newest-first, so every decoded start must be >= target and the earliest == target. jest 2743, test:debug 192; build 9b082bd53f74",
+  "file": "src/runtime/rollback.ts",
+  "find": "    engine.discardPendingFrom(messageId);\n",
+  "replace": "",
+  "tests": [
+    "src/runtime/rollback.review.test.ts"
+  ]
+}
