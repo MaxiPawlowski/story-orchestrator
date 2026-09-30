@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { TENSION_LEVELS, type ArcBridge, type Checkpoint, type CheckpointEffects, type PrimitiveValue, type TalkControl, type TensionLevel } from "@engine/index";
+import { TENSION_LEVELS, type ArcBridge, type Checkpoint, type CheckpointEffects, type PrimitiveValue, type RosterMember, type TalkControl, type TensionLevel } from "@engine/index";
 import { useDraftStore } from "../draft";
 import { addCheckpoint, clearStartCheckpoint, removeCheckpoint, setArcBridges, setStartCheckpoint, updateCheckpoint } from "../mutations";
 import AgencyEditor from "./AgencyEditor";
@@ -7,6 +7,7 @@ import SnapshotEditor from "./SnapshotEditor";
 import EffectsEditor from "./EffectsEditor";
 import ScopePreview from "./ScopePreview";
 import TalkControlEditor from "./TalkControlEditor";
+import GuidanceEditor from "./GuidanceEditor";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1 text-sm">
@@ -112,7 +113,7 @@ const CheckpointList = ({ checkpoints, selectedId, onAdd, onSelect }: { checkpoi
   </div>
 );
 
-const CheckpointBasics = ({ selected, patch, onStart }: { selected: Checkpoint; patch: Patch; onStart: (checked: boolean) => void }) => (
+const CheckpointBasics = ({ selected, roster, patch, onStart }: { selected: Checkpoint; roster: RosterMember[]; patch: Patch; onStart: (checked: boolean) => void }) => (
   <>
     <Field label="Name">
       <input className="text_pole st-input" value={selected.name} onChange={(event) => patch({ name: event.target.value })} />
@@ -156,9 +157,7 @@ const CheckpointBasics = ({ selected, patch, onStart }: { selected: Checkpoint; 
         <input type="number" className="text_pole st-input" value={selected.convergence_threshold ?? ""} onChange={(event) => patch({ convergence_threshold: optionalFloat(event.target.value) })} />
       </Field>
     </div>
-    <Field label="Guidance">
-      <textarea className="text_pole st-input min-h-[3rem]" value={selected.guidance ?? ""} onChange={(event) => patch({ guidance: event.target.value || undefined })} />
-    </Field>
+    <GuidanceEditor guidance={selected.guidance} roster={roster} onChange={(guidance) => patch({ guidance })} />
   </>
 );
 
@@ -276,7 +275,7 @@ const CheckpointEditor: React.FC<{ backgroundNames?: string[] }> = ({ background
                 <span>ID: {selected.id}</span>
                 {isStub ? <span className="st-pill px-2 py-0.5">stub</span> : null}
               </div>
-              <CheckpointBasics selected={selected} patch={patch} onStart={setStart} />
+              <CheckpointBasics selected={selected} roster={draft.roster} patch={patch} onStart={setStart} />
               <CheckpointBehaviour selected={selected} draft={draft} backgroundNames={backgroundNames} patch={patch} />
               <CheckpointDeleteRow confirming={confirmDeleteId === selected.id} touchingTransitions={touchingTransitions} onDelete={handleDelete} />
             </div>

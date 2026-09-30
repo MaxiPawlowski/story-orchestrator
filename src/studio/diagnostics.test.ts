@@ -59,7 +59,7 @@ const seeded: StoryV2 = {
       agency: { alternate: "nowhere" },
       effects: { author_note: "Hold the line.", world_info: { enable: [{ lorebook: "Ruins", comments: ["Gate"] }] } },
     },
-    { id: "cache", name: "Cache", objective: "", type: "anchor", convergence_threshold: 5 },
+    { id: "cache", name: "Cache", objective: "", type: "anchor", convergence_threshold: 5, guidance: { members: { "ghost-member": "Hide the key." } } },
     { id: "lost", name: "Lost", objective: "", type: "anchor" },
     { id: "stubby", name: "Stubby", objective: "", type: "intermediate", agency: { alternate: "stubby" }, talk_control: { chain: { mode: "scripted" } }, effects: { author_note: null } },
   ],

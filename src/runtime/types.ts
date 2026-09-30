@@ -7,6 +7,7 @@ import type {
   MemoryStoreState, MemoryTier, Provenance, ScoreWeights,
 } from "@memory/index";
 import type { ChapterSettings, ChapterView } from "./chapters";
+import type { OnEnterPost } from "./npcReplyRewind";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
 import type { CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
@@ -113,6 +114,7 @@ export interface StagecraftRuntimeState {
 export interface RuntimeExtras {
   firedNpcReplies: Record<string, number>;
   firedNpcRepliesAt: Record<string, number[]>;
+  onEnterPosts?: OnEnterPost[];
   requirements: RequirementsState;
   lastAppliedCheckpointId: string | null;
   lastSelfInjectionMessageId: number | null;

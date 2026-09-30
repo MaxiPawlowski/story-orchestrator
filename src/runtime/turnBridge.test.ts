@@ -26,6 +26,7 @@ const makeManager = () => ({
   commitBoundary: jest.fn(async () => undefined),
   fireAfterSpeak: jest.fn(async () => undefined),
   rollbackFromMessage: jest.fn(async () => undefined),
+  rollbackOnEnter: jest.fn(async () => false),
   loadSelectedFromChat: jest.fn(async () => undefined),
   reapplyPromptBlocks: jest.fn(),
   reapplyCopilotNudge: jest.fn(),
@@ -194,6 +195,17 @@ describe("TurnBridge boundary commits", () => {
 
     await emit("MESSAGE_RECEIVED", 4, "swipe");
     expect(manager.commitBoundary).toHaveBeenCalledTimes(1);
+  });
+
+  it("hands a mutation the onEnter rollback claims to the manager, and skips the ordinary rollback", async () => {
+    const manager = makeManager();
+    manager.rollbackOnEnter.mockResolvedValueOnce(true);
+    const bridge = new TurnBridge(manager as unknown as RuntimeManager);
+    bridge.start();
+
+    await emit("MESSAGE_SWIPED", 4);
+    expect(manager.rollbackOnEnter).toHaveBeenCalledWith("swipe", 4);
+    expect(manager.rollbackFromMessage).not.toHaveBeenCalled();
   });
 
   it("treats a greeting swipe as an ordinary mutation of message 0 and commits nothing", async () => {

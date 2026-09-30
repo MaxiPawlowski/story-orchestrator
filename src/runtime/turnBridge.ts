@@ -228,6 +228,7 @@ export class TurnBridge {
       if (decoded ? keyed >= from : keyed >= from && keyed <= messageId) this.turnKeys.delete(key);
     }
     const journal = decoded ? describeDecode(decoded, messageId) : from < messageId ? movedJournal(from, messageId) : null;
+    if (await this.manager.rollbackOnEnter(kind, from)) return;
     const replaced = journal ? null : this.seam?.(kind, messageId) ?? null;
     if (replaced) return replaced();
     await (journal ? this.manager.rollbackFromMessage(from, journal) : this.manager.rollbackFromMessage(from));

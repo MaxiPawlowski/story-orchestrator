@@ -1,5 +1,5 @@
 import {
-  authorsOwnNote, gatedWorldInfo, progressQualityForAnchor, ratingLevels, storyWarnings, TENSION_CURRENT_KEY,
+  authorsOwnNote, gatedWorldInfo, guidanceMembers, progressQualityForAnchor, ratingLevels, storyWarnings, TENSION_CURRENT_KEY,
   type GateLeaf, type GateNode, type PrimitiveValue, type Quality, type StoryV2, type ValidationError,
 } from "@engine/index";
 import { directorEnabled } from "@talk/index";
@@ -25,6 +25,7 @@ export const DIAGNOSTIC_CODES = [
   "stub-no-anchor",
   "threshold-unsatisfiable",
   "talk-member-unknown",
+  "guidance-member-unknown",
   "talk-lead-outside-speakers",
   "talk-silence-without-director",
   "talk-chain-member-unknown",
@@ -65,6 +66,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "stub-no-anchor": "This part of the story leads nowhere it can finish.",
   "threshold-unsatisfiable": "Progress can never reach this threshold, so the story cannot converge here.",
   "talk-member-unknown": "The story asks for a speaker nobody can be, so who speaks falls back to SillyTavern.",
+  "guidance-member-unknown": "Nobody hears this private direction, because no character in the cast has that name.",
   "talk-lead-outside-speakers": "This character still gets picked, just not at the weight you set.",
   "talk-silence-without-director": "Silence never happens, because nothing is choosing who speaks.",
   "talk-chain-member-unknown": "This scripted voice nobody can be is skipped, so fewer characters answer than you wrote.",
@@ -291,6 +293,9 @@ const checkTalkAndAgency = (run: DiagnosticRun) => {
         }
       }
     }
+    Object.keys(guidanceMembers(checkpoint.guidance)).forEach((ref) => {
+      if (!resolveRosterRef(ref)) push("guidance-member-unknown", "warning", `checkpoints.${index}.guidance.members.${ref}`, `guidance member '${ref}' is not a roster member`);
+    });
     (checkpoint.effects?.npc_replies ?? []).forEach((reply, replyIndex) => {
       if (reply.after_member && !resolveRosterRef(reply.after_member)) {
         push("talk-member-unknown", "warning", `checkpoints.${index}.effects.npc_replies.${replyIndex}.after_member`, `after_member '${reply.after_member}' is not a roster member`);

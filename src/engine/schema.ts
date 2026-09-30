@@ -185,9 +185,14 @@ export interface Checkpoint {
   effects?: CheckpointEffects;
   talk_control?: TalkControl;
   agency?: Partial<AgencyPolicy>;
-  guidance?: string;
+  guidance?: string | MemberGuidance;
   convergence_threshold?: number;
   chapter?: string;
+}
+
+export interface MemberGuidance {
+  all?: string;
+  members: Record<string, string>;
 }
 
 export const CHAPTER_KINDS = ["chapter", "interlude"] as const;

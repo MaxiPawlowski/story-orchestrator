@@ -146,12 +146,17 @@ export class MemoryInjector {
     else applyEpistemicInjection(this.hosts.prompt, epistemic, EPISTEMIC_INJECTION_DEPTH);
   }
 
+  draftedRosterId(chId: number | [number]): string | null {
+    const story = this.deps.getStory();
+    const numericId = typeof chId === "number" ? chId : Array.isArray(chId) ? chId[0] : undefined;
+    const name = story ? this.hosts.injection.getCharacterNameById(numericId) : undefined;
+    return story && name ? rosterIdForName(story, name) : null;
+  }
+
   onMemberDrafted(chId: number | [number]) {
     const story = this.deps.getStory();
     if (!story || !this.deps.capable()) return;
-    const numericId = typeof chId === "number" ? chId : Array.isArray(chId) ? chId[0] : undefined;
-    const name = this.hosts.injection.getCharacterNameById(numericId);
-    const rosterId = name ? rosterIdForName(story, name) : null;
+    const rosterId = this.draftedRosterId(chId);
     const staged = rosterId ? this.stagedPrivate.get(rosterId) : undefined;
     this.draft = { storyId: storyKey(story), rosterId: staged ? rosterId : null };
     if (!staged) {
