@@ -6,6 +6,7 @@ import {
 import { isRecord } from "@utils/guards";
 import { addError, asString, isOneOf, rejectUnknownKeys } from "./common";
 import { readCheckpointChapter } from "./chapters";
+import { readGuidance } from "../checkpointGuidance";
 
 type Member = StoryV2["roster"][number];
 
@@ -261,7 +262,8 @@ export const readCheckpoint = (value: unknown, path: string, errors: ValidationE
     const agency = readAgency(value.agency, `${path}.agency`, errors);
     if (agency) checkpoint.agency = agency;
   }
-  if (typeof value.guidance === "string") checkpoint.guidance = value.guidance;
+  const guidance = readGuidance(value.guidance, `${path}.guidance`, errors);
+  if (guidance !== undefined) checkpoint.guidance = guidance;
   if (typeof value.convergence_threshold === "number" && Number.isFinite(value.convergence_threshold)) {
     checkpoint.convergence_threshold = value.convergence_threshold;
   }

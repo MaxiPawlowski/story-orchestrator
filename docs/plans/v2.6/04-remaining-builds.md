@@ -11,8 +11,8 @@ built before its measurement where the source plan requires one.
 | L7 | Lore contradiction: runtime + R4–R6 | v2.5 plan 08 | Phase A only | v2.6 02 D7 data | L |
 | J3 | House rules: judge-on arm ×2; J6a player intent (B8 order) | v2.5 plan 06 | on arm failed 4/4 (timeouts); J6a not started | `f972e24d` proven (v2.6 01); B7, B8, B9 | M |
 | C1r | NPC reply residual: a non-streaming reply or late headers land in the switched-to chat | v2.5 plan 02 | **built 2026-09-30**: fixture showed both landing (2/4 red), `watchHostChatMove` stop added (§C1r) | live re-run owed to plan 10 | M |
-| C3/C4 | `requirements.ready` suppresses every effect (C3); `/cp activate` applies only the target's effects, and SP5's C4 pass rule vs shared genre text (C4) | v2.5 plan 14 | **design written** (§Design calls), not built | user review | M |
-| C12/C13 | onEnter replies bury the gating reply (caps SP1/SP2); guidance secrets reach every drafted member | lab findings | **design written** (§Design calls), not built | user review | M |
+| C3/C4 | `requirements.ready` suppresses every effect (C3); `/cp activate` applies only the target's effects, and SP5's C4 pass rule vs shared genre text (C4) | v2.5 plan 14 | **built** 2026-09-30 (user approved (b)/(c)); §Gate record C3/C4/C12/C13 | jest; SP5 C4 rule fixed in the fixture | M |
+| C12/C13 | onEnter replies bury the gating reply (caps SP1/SP2); guidance secrets reach every drafted member | lab findings | **built** 2026-09-30 (user approved (c)/(b)); §Gate record C3/C4/C12/C13 | jest + Storybook | M |
 | A4/A5 | CC `promptManager` buckets; the "which route answered" routed half | v2.5 plan 07 | A4 never run; A5 waits on H4 | H | M |
 | A1 | Per-message inspector: the author-view click-through from a timeline chip (overview W18) | v2.5 plan 07 | **done by plan 08** (evidence §A1) | — | — |
 | S | **Sprite / VN stage**: plan doc, gates, a settings home, capability probe | uncommitted work | **built 2026-09-30** (§S): U1 activation, `sprites` probe, panel view + stories | live owed to plan 10 | M |
@@ -156,7 +156,7 @@ first and reads the old id; the poll is the backstop.
 
 No lane was run for C1r.
 
-## Design calls: C3, C4, C12, C13 (not built; for the user's review)
+## Design calls: C3, C4, C12, C13 (approved 2026-09-30, built; see the last gate record)
 
 ### C3 — `requirements.ready` suppresses every checkpoint effect
 
@@ -251,7 +251,7 @@ B's), plus the witness lab's secrets run with the guidance split (SP9 F1–F5).
 
 ## Unresolved questions
 
-- C3, C4, C12, C13: the four design calls above (§Design calls) await the user's review.
+- C3, C4, C12, C13: approved and built (gate record C3/C4/C12/C13). Open: whether `effects.scenario` (SP5, an extension) should join C3's presentation set; it stays held while requirements are unmet.
 
 ## Gate record — 2026-09-30 (code items S, B17, G, A1, C1r; design C3/C4/C12/C13)
 
@@ -392,3 +392,51 @@ Live gate: none. Harness routes are an opt-in, real-LLM path, and v2.6 rule 13 b
 - Phase A (lane time, real models, final suite): the recipe above. The P0-7 5/5 re-run on the warmed opencode cache is still owed (B2). Codex owned-home isolation is not run (PHASE0).
 - A call that lands after a chat switch is recorded in the ring of the chat now open. This is telemetry only; the answer stays owned by its caller's `RunOwnership`.
 - Agent bridge option 2 is not built; recommendation above.
+
+## Gate record — C3/C4/C12/C13 (2026-09-30, the approved design calls)
+
+Worktree branch `worktree-agent-a6c6bb3c16a6c4bb7`, master merged at `c4a2683f` (fast-forward) and again after plans 01/06/04 H landed
+(`721b0933`; conflicts in `managerDelegates.ts`, `memoryInjector.ts`, `runtimeManager.ts` and `diagnostics.test.ts`, resolved keeping both
+sides: 06's per-member staging and inner beat, C13's guidance draft). No lane, no main ST, no real-LLM run, no ComfyUI.
+
+| Item | As built | Gate |
+|---|---|---|
+| C3 | `EffectsApplier.applyCheckpoint` no longer returns on `!requirements.ready`: the Author's Note, the preset overlay and the background still apply (ledgered as before). World Info, `cast_changes` (and the hydrate cast mirror), every `npc_replies` (the new-chat opening included) and effect extensions (SP5 scenario) stay held, and `lastAppliedCheckpointId` stays unset, so the owed full apply still runs when requirements turn ready (`requirementsRefresh.review.test.ts` unchanged and green). `effects.stage` needed no change: `SpriteStage.direction()` reads the active checkpoint directly and never consulted `ready`. | `effectsStaging.review.test.ts` C3 ×2 (not-ready + ready control) |
+| C4 | `/cp activate` (`RuntimeManager.activateCheckpoint`) calls `EffectsApplier.releaseStaging` while the engine still stands at the source: compare-and-set restore of every applied `an`, `background` and `extension` (scenario) ledger row, then (requirements ready) a World Info release of the story's whole gated set. The target is then applied with `stagedPath(checkpointPath, stateLog)`: the path from the last manual activation on (read from the boundary log's `after.visitedPath`), so World Info and SP5's path replay see the target alone; with no jump in the log it is the full path. Load/hydrate/rollback use the same staged path, so a reopened chat after a jump replays the same state. Cast is not released (not in the approved set). SP5's C4 pass rule in `test/scenarios/live-v25-09-sp5-scenario.json` now counts per distinct card text (`texts`, expected hits = members sharing it); evals syntax-checked, not run. | `effectsStaging.review.test.ts` C4 ×4 (staged path from a real `StoryEngine`; jump restores AN + background to pre-story values and switches the source's gated entry off; control without release inherits; externally changed note left alone, not-ready leaves WI untouched), `jumpRelease.review.test.ts` (manager order: release at the source, apply target with path `far`) |
+| C12 | `fireNpcReplies` returns how many replies spoke. A transition's onEnter replies (`applyCheckpoint(..., gate)`, gate = the boundary's `lastMessageId`, passed only when `commitBoundary` fired a transition) are recorded as `extras.onEnterPosts` `{checkpointId, gate, first: gate+1, last}` (the transition note, if posted, is inside the span). `TurnBridge.onMutation` asks `RuntimeManager.rollbackOnEnter(kind, from)` first: an edit/swipe of the gate while the post is the chat's tail, or a delete inside the post while nothing follows it, rolls back from the gate (the transition) and then `/cut`s what remains of the post (`removeOnEnterPost`: run checked, refused unless the chat's last message is still the post's last). A rollback drops every post whose last id is at or past the point, so the cut's own MESSAGE_DELETED is an ordinary no-op rollback. Optional persisted field, sanitized on hydrate (`sanitizeOnEnterPosts`, cap 20); blob stays v6, `isCurrentRecord` untouched. | `onEnterRollback.review.test.ts` ×9, including the negative cases (player message after the opener: edit of the gate, edit of the player line, delete of the player line, delete of the opener with a player line after it — all `null`), plus `turnBridge.test.ts` "hands a mutation the onEnter rollback claims…" |
+| C13 | Format-2 `guidance` is `string | { all?, members: { <roster id or name>: text } }`, read by `readGuidance` (shape errors: non-text member, unknown key) and normalized after the roster by `resolveGuidanceMembers` (names → roster ids, empties dropped, member-less objects collapse to the string). `PacingCoordinator` composes the shared block plus `Direction for <name> only: …` for the drafted member (`draftGuidance` from `onMemberDrafted`, resolved by `MemoryInjector.draftedRosterId`, independent of the epistemic capability); at rest in a group only the shared part; `withholdGuidance` (quiet/impersonate) holds the member part until `releaseStaleGuidanceHold`/`releaseDraftGuidance`, mirroring the epistemic withhold. A solo chat whose roster has exactly one member hears that member's part (the same rule plan 06 uses for its solo beat). Studio: `GuidanceEditor` (lazy Studio chunk) edits the shared part and one private text per roster member and names unknown ids; diagnostic `guidance-member-unknown` (warning) with its consequence line. Authoring rule written into the spec's Checkpoint block (`docs/plans/v2/story-orchestrator-spec-v2.md`): secrets never in shared guidance, only in epistemic rows or `guidance.members`. | `coordinators/memberGuidance.review.test.ts` ×7 (drafting Haley sends Haley's part + shared, never Forre's; narrator/unknown/rest shared only; solo; withheld), `diagnostics.test.ts` seeded story fires the new code once, Storybook `Studio/GuidanceEditor` ×3 |
+
+Each new test failed once: 13 hand mutants (C3 cast/WI/presentation, C4 staged path/restore/WI release, C12 tail rule/record/bridge/rewind,
+C13 withheld/member-only/draft wiring) all killed; the rewind mutant survived the first test set and got the `runRollback` case.
+
+Census/fault matrix: ownership rows added for `EffectsApplier.fireOnEnter` (checked), `RuntimeManager.rollbackOnEnter` (checked),
+`RuntimeManager.fireSceneBreakReplies` (delegate → fireNpcReplies), `TurnBridge.onMutation` (partial: the spike seam after the new await).
+Fault matrix `effects|delayedSuccess`, `effects|duplicateCompletion`, `effects|worldSwitched` gained `alsoEvidence` citations.
+
+Commands (worktree, after the second master merge):
+
+- `npm run typecheck` 0 · `npm run typecheck:test` 0 · `npm run lint` 0
+- `npm test -- --silent` 0: 368 suites passed, 1 skipped; 4886 tests passed, 1 skipped
+- `npm run build:dev` 0 · `npm run build` 0 (prod, bundle `770dd37a6efb`)
+- `npm run test:debug` 0: 457 pass, 0 fail
+- `npm run test:release` 0: 77 pass, 2 skip, 0 fail
+- `npm run test:replay` 0 (private `TEMP`): 30 of 30 killed
+- `npx storybook build -o .sb-static-04c --quiet` 0; `npx http-server .sb-static-04c -p 6108 -s -c-1`;
+  `npx test-storybook --url http://127.0.0.1:6108 --index-json` 0: 48 suites, 316 tests passed (server stopped, dir deleted)
+
+**Main entry:** `dist/index.js` 1,212,933 B vs master (`git archive master` after the plan 01/06/04 H merge, built the same way)
+1,206,775 B: **+6,158 B**, under the 1,250,000 B budget. `GuidanceEditor` is in the lazy Studio chunk (`999.index.js`), not the main entry.
+
+**Deviations:**
+- C3's no-LLM solo-chat scenario was not written or run: it needs a live ST, and this task ran with no lanes. Owed to plan 10's suite,
+  with SP5's lab F5 case and SP1/SP2's re-count on C12.
+- C3 holds effect extensions (SP5 `effects.scenario`) with World Info: the approved set named background, AN, preset and stage only. The
+  design's original option (b) had scenario in the "always" group; flagged in Unresolved questions.
+- C4 releases only AN, background and extension rows; cast stays as the source left it, per the approved (c).
+- C12: ST's swipe UI still refuses a non-last message, so the gating reply is reached by edit, or by delete-then-swipe (the delete is
+  what rolls back). The cut removes the transition's `/comment` note too when it sits inside the post's span.
+- C13: a solo chat with more than one roster member hears only the shared part (no host field names the solo card's roster id);
+  the member part rides the existing guidance extension prompt (same key and depth), so the next-turn preview shows it under
+  "Checkpoint guidance" while a member is drafted.
+- Test mocks gained `rollbackOnEnter` (five TurnBridge suites), `stateLog: []` (`requirementsRefresh`) and a boundary `context`
+  (`runtimeManager.test.ts` commit probe); none of them changes an assertion.

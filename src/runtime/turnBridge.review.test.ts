@@ -33,6 +33,7 @@ const setup = () => {
     commitBoundary: jest.fn(async () => {}),
     fireAfterSpeak: jest.fn(async () => {}),
     rollbackFromMessage: jest.fn(async () => {}),
+    rollbackOnEnter: jest.fn(async () => false),
     loadSelectedFromChat: jest.fn(async () => {}),
     reapplyPromptBlocks: jest.fn(),
     reapplyCopilotNudge: jest.fn(),

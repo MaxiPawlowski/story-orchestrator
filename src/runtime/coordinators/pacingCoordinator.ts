@@ -1,6 +1,6 @@
 import {
-  TENSION_CURRENT_KEY, agencyForCheckpoint, objectiveLineApplies, type ArcTemplate, type BoundaryLogEntry, type BoundaryResult,
-  type EngineState, type NormalizedStoryV2, type TensionLevel,
+  TENSION_CURRENT_KEY, agencyForCheckpoint, guidanceForMember, objectiveLineApplies, type ArcTemplate, type BoundaryLogEntry, type BoundaryResult,
+  type Checkpoint, type EngineState, type NormalizedStoryV2, type TensionLevel,
 } from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
 import { composeGuidanceBlock, getSteeringHint, updateEma } from "@pacing/index";
@@ -25,6 +25,7 @@ export interface PacingCoordinatorDeps {
   getPacing: () => PacingSettings;
   hosts: { prompt: PromptHost };
   ended?: () => boolean;
+  soloMember?: () => string | null;
 }
 
 // Tension is written twice: optimistically while extractor deltas are queued (so the smoothed
@@ -32,6 +33,8 @@ export interface PacingCoordinatorDeps {
 // the boundary. Everything between those two writes lives here.
 export class PacingCoordinator {
   private pending: TensionRuntimeState | null = null;
+  private drafted: string | null = null;
+  private withheld = false;
 
   constructor(private readonly deps: PacingCoordinatorDeps) {}
 
@@ -108,7 +111,7 @@ export class PacingCoordinator {
     const prompt = this.deps.hosts.prompt;
     if (!story || this.deps.ended?.()) {
       prompt.clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
-      this.withholdGuidance();
+      this.clearGuidance();
       return;
     }
     const activeId = this.deps.getState()?.activeCheckpointId ?? null;
@@ -117,12 +120,42 @@ export class PacingCoordinator {
     if (this.deps.getPacing().hintEnabled && hint) prompt.setStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY, hint.text, PACING_HINT_DEPTH);
     else prompt.clearStoryExtensionPrompt(PACING_HINT_EXTENSION_KEY);
     const active = activeId ? story.checkpointById[activeId] : null;
-    const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active));
+    const guidance = composeGuidanceBlock(active, policy, objectiveLineApplies(story, active), this.memberLine(story, active));
     if (guidance) prompt.setStoryExtensionPrompt(GUIDANCE.key, guidance, GUIDANCE.depth);
-    else this.withholdGuidance();
+    else this.clearGuidance();
+  }
+
+  private memberLine(story: NormalizedStoryV2, active: Checkpoint | null) {
+    const id = this.withheld ? null : this.drafted ?? this.deps.soloMember?.() ?? null;
+    const text = guidanceForMember(active?.guidance, id);
+    if (!id || !text) return null;
+    const member = story.roster.find((entry) => entry.id === id);
+    return { name: member?.name ?? id, text };
+  }
+
+  draftGuidance(rosterId: string | null) {
+    this.drafted = rosterId;
+    this.updateSteering();
+  }
+
+  releaseDraftGuidance() {
+    this.drafted = null;
+    this.withheld = false;
+    this.updateSteering();
+  }
+
+  releaseStaleGuidanceHold() {
+    if (!this.withheld) return;
+    this.withheld = false;
+    this.updateSteering();
   }
 
   withholdGuidance() {
+    this.withheld = true;
+    this.clearGuidance();
+  }
+
+  private clearGuidance() {
     this.deps.hosts.prompt.clearStoryExtensionPrompt(GUIDANCE.key);
   }
 }
