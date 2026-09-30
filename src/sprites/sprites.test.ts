@@ -3,9 +3,8 @@ import { keywordSet, placeSet, readSpriteProfile, readSpriteSets, resolveSprite,
 import {
   buildExpressionRequest, classifyExpressions, expressionGrammar, localLabel, parseExpressionLines, readExpressionAnswers, NARRATION, type ExpressionInput,
 } from "./classify";
-import {
-  defaultSpriteSettings, sanitizeSpriteSettings, spriteActivation, spritesActive, storyDirectsStage, storySpriteChoice, userSpriteChoice,
-} from "./settings";
+import { defaultSpriteSettings, sanitizeSpriteSettings } from "./settings";
+import { spriteActivation, spritesActive, storyDirectsStage, storySpriteChoice, userSpriteChoice } from "./activation";
 import { directionKeys, figureBox, frameSlice, isSpotlit, memberDirection, readStageDirection } from "./direction";
 import type { JudgeAnswer } from "@judge/types";
 

@@ -1,5 +1,5 @@
 import { getContext, observeNextSettingsSave, readServerExtensionSettings } from "@services/STAPI";
-import { bindGroupStory, heldGroupBinding, readGroupStories } from "./groupStoryBinding";
+import { bindGroupStory, heldGroupBinding, readGroupStories } from "./groupStoryBindingEdit";
 import { createSettingsWriteEvidence, recordSettingsWrite, type LibrarySaveEvidence } from "./librarySave";
 import { SETTINGS_ROOT_KEY, settingsRoot, writableSettingsRoot } from "./settingsRoot";
 

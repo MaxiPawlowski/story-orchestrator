@@ -1,4 +1,5 @@
-import { bindGroupStory, boundStoryForEmptyChat, heldGroupBinding, readGroupStories } from "./groupStoryBinding";
+import { boundStoryForEmptyChat } from "./groupStoryBinding";
+import { bindGroupStory, heldGroupBinding, readGroupStories } from "./groupStoryBindingEdit";
 
 describe("bound story for a new group chat", () => {
   const root = { groupStories: { "group-a": "adolion-saga" } };

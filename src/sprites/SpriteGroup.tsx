@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { listConnectionProfiles } from "@services/STAPI";
 import type { RuntimeManager } from "@runtime/runtimeManager";
-import { storySpriteChoice, userSpriteChoice } from "./settings";
+import { storySpriteChoice, userSpriteChoice } from "./activation";
 import { startSprites } from "./start";
 import { SpriteSettingsView } from "./SpriteSettingsView";
 
