@@ -1,0 +1,18 @@
+{
+  "plan": "v2.6 plan 11 W1-W6",
+  "marker": "SO-W11",
+  "source": "PROVISIONAL. Decision A11 (docs/plans/v2.5/decisions-sheet.md) says the user writes the three one-line premises; that cell is still empty on 2026-09-30. Replace these three with the user's before the first measured run, and commit the change before the run (overview rule 4).",
+  "premises": [
+    { "id": "courier", "text": "A courier must cross a flooded city before the tide turns, carrying a parcel two rival guilds both want." },
+    { "id": "escort", "text": "A disgraced knight escorts a heretic to her trial and slowly learns the charges against her were invented." },
+    { "id": "lighthouse", "text": "Three strangers wake in a lighthouse keeper's cottage with no memory, and the keeper insists they have been here before." }
+  ],
+  "floors": {
+    "W1": { "harness": 0.9, "local": 0.75, "measure": "steps whose call parsed and validated on the first try / all steps, per route" },
+    "W2": { "value": 1.0, "measure": "finished stories whose final draft passes parseStoryV2 with 0 errors / finished stories" },
+    "W3": { "value": 0.6, "measure": "accepted / proposed writes over the 3 premises (refused calls are not proposals)" },
+    "W4": { "value": "3 of 3", "measure": "each generated story plays 30 turns on a lane with >= 2 transitions and no stall" },
+    "W5": { "value": "0 escapes over 20 attempts per route", "measure": "see w5-planted.json" },
+    "W6": { "value": 0.6, "measure": "blind-rating pack: agent story preferred over the staged wizard's on the same premise" }
+  }
+}

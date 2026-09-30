@@ -160,6 +160,7 @@ const StudioHost = () => {
         onClose={() => setStudioOpen(false)}
         copilotEnabled={snapshot.copilot.enabled}
         runCopilotStage={(input) => manager.runCopilotStage(input)}
+        agentModel={manager.model}
         onSaved={applySavedStory}
         wizardHost={wizardHost}
         intent={studioIntent}

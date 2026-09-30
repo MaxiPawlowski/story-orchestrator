@@ -781,6 +781,96 @@
       "silentCatch": "probe",
       "verdict": "pass",
       "reason": "the image runtime records the tool failure in Illustrations status"
+    },
+    {
+      "site": "src/copilot/agent/loop.ts#checkDraft>callback",
+      "kind": 2,
+      "template": "`${diagnostic.severity} ${diagnostic.code} at ${diagnostic.path}: ${diagnostic.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "our validator's message, fed back to the wizard agent and shown on its step log"
+    },
+    {
+      "site": "src/copilot/agent/loop.ts#checkDraft>callback",
+      "kind": 2,
+      "template": "`error ${error.path}: ${error.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "our validator's message, fed back to the wizard agent and shown on its step log"
+    },
+    {
+      "site": "src/copilot/agent/loop.ts#decideStep",
+      "kind": 2,
+      "template": "`Rejected by the author: ${reason}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "the author's own rejection reason, returned to the agent"
+    },
+    {
+      "site": "src/copilot/agent/loop.ts#executeReply",
+      "kind": 2,
+      "template": "`Refused: ${check.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "the tool check's own refusal, returned to the agent"
+    },
+    {
+      "site": "src/copilot/agent/loop.ts#executeReply",
+      "kind": 2,
+      "template": "`Refused: ${validation.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "the create-only validator's message, returned to the agent"
+    },
+    {
+      "site": "src/copilot/agent/parse.ts#parseAgentReply",
+      "kind": 2,
+      "template": "`not JSON: ${error instanceof Error ? error.message : \"parse error\"}. Reply with exactly one JSON object.`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "JSON.parse's message about the model's own reply, sent back in the repair prompt"
+    },
+    {
+      "site": "src/copilot/agent/readTools.ts#diagnosticLines>callback",
+      "kind": 2,
+      "template": "`- [${diagnostic.severity}] ${diagnostic.code} at ${diagnostic.path}: ${diagnostic.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "our validator's message, fed back to the wizard agent and shown on its step log"
+    },
+    {
+      "site": "src/copilot/agent/readTools.ts#validationLines>callback",
+      "kind": 2,
+      "template": "`- ${error.path}: ${error.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "our validator's message, fed back to the wizard agent and shown on its step log"
+    },
+    {
+      "site": "src/copilot/agent/readTools.ts#safeNames",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "host name list read for a lookup tool falls back to an empty list"
     }
   ]
 }

@@ -203,6 +203,10 @@
     "J13": {
       "title": "reply-effect",
       "notRun": "added by v2.5 plan 06 J3 (2026-09-26) after this attestation was written; it never ran on the attested bundle and attests nothing here. Its runs belong to the v2.5 acceptance matrix (plan 10)"
+    },
+    "J14": {
+      "title": "agentic wizard (plan 11 J9b)",
+      "notRun": "added by v2.6 plan 11 (the plan's J9b, 2026-09-30) after this attestation was written; it never ran on the attested bundle and attests nothing here. Its runs belong to the v2.6 final suite (plan 10 phase F)"
     }
   },
   "rows": {
@@ -231,6 +235,7 @@
   },
   "notGreen": [
     "J13 (v2.5 plan 06 J3 reply-effect journey) was added after this attestation and never ran on the attested bundle",
+    "J14 (v2.6 plan 11 agentic wizard journey, the plan's J9b) was added after this attestation and never ran on the attested bundle",
     "human sessions (player, author) not held: every journey human row is unscored, no run used --require-human-record, and the rule-7 and D6/T22 decisions stay waiting",
     "R1 P0' matched replay not runnable: v2.3 L1 was never recorded",
     "J1 runs 1 and 3 failed J1.7 (instrument race on the transition note); the fixture fix restarted the series and runs 4-5 are green",

@@ -1,0 +1,287 @@
+import { isValidationErrorList, parseStoryV2, type StoryV2 } from "@engine/index";
+import { validateProvisioningOp, type ProvisioningEnvironment } from "@wizard/index";
+import { isRecord } from "@utils/guards";
+import { truncate } from "@utils/string";
+import { runDiagnostics } from "../../studio/diagnostics";
+import type { ProvisioningOp } from "@wizard/index";
+import { setHouseRules } from "../../studio/mutations";
+import { applyOp, applyOps, applyOpsChecked, diffProposal, isProvisioningOp, provisioningFollowUpOps, type OpAction, type OpDescription } from "../index";
+import { renderPlanPrompt, renderStepPrompt } from "./prompt";
+import { runReadTool } from "./readTools";
+import type { AgentAudit, AgentRoute, RouteAnswer } from "./route";
+import { checkToolCall, type ReadToolName } from "./tools";
+import type { AgentBudget, AgentOnlyOp, AgentOp, AgentLookup, AgentMode, AgentReply, AgentSession, AgentStep, AgentStepStatus } from "./types";
+
+export const AGENT_SESSION_VERSION = 1;
+export const DEFAULT_AGENT_BUDGET: Omit<AgentBudget, "usedTokens"> = { maxSteps: 40, maxTokens: 150_000 };
+const OBSERVATION_LIMIT = 1500;
+const CHECK_LINES = 12;
+
+const now = () => new Date().toISOString();
+
+const isAgentOnly = (op: AgentOp): op is AgentOnlyOp => op.kind === "setHouseRules";
+
+export const isProvisionOp = (op: AgentOp): op is ProvisioningOp => !isAgentOnly(op) && isProvisioningOp(op);
+
+export const applyAgentOp = (draft: StoryV2, op: AgentOp): StoryV2 => (isAgentOnly(op) ? setHouseRules(draft, op.rules) : applyOp(draft, op));
+
+export const describeAgentOp = (op: AgentOp): OpDescription => {
+  if (!isAgentOnly(op)) {
+    const diff = diffProposal([op]);
+    return diff.items[0] ?? diff.provisioning[0];
+  }
+  return { action: "update", entity: "story.house_rules", label: op.rules.length ? `Set ${op.rules.length} house rule(s)` : "Clear the house rules" };
+};
+const clip = (text: string) => truncate(text, OBSERVATION_LIMIT);
+
+export const newAgentSession = (goal: string, mode: AgentMode = "review", budget: Partial<Omit<AgentBudget, "usedTokens">> = {}, at = now()): AgentSession => ({
+  version: AGENT_SESSION_VERSION,
+  mode,
+  goal: goal.trim(),
+  plan: [],
+  status: "planning",
+  steps: [],
+  notes: [{ role: "author", text: goal.trim(), at }],
+  budget: { ...DEFAULT_AGENT_BUDGET, ...budget, usedTokens: 0 },
+});
+
+export const isAgentSession = (value: unknown): value is AgentSession =>
+  isRecord(value) && value.version === AGENT_SESSION_VERSION && Array.isArray(value.steps) && Array.isArray(value.plan);
+
+export const budgetSpent = (session: AgentSession): boolean =>
+  session.steps.length >= session.budget.maxSteps || session.budget.usedTokens >= session.budget.maxTokens;
+
+export const pendingStep = (session: AgentSession): AgentStep | null => session.steps.find((step) => step.status === "pending") ?? null;
+
+export const approvePlan = (session: AgentSession, plan: string[], at = now()): AgentSession => {
+  const kept = plan.map((step) => step.trim()).filter(Boolean);
+  if (!kept.length) return session;
+  const edited = kept.join("\n") !== session.plan.join("\n");
+  return {
+    ...session,
+    plan: kept,
+    status: "running",
+    notes: edited ? [...session.notes, { role: "author", text: `Edited the plan: ${kept.join(" / ")}`, at }] : session.notes,
+  };
+};
+
+export const setAgentMode = (session: AgentSession, mode: AgentMode): AgentSession => ({ ...session, mode });
+
+export const stopAgent = (session: AgentSession): AgentSession => ({ ...session, status: "stopped" });
+
+export const resumeAgent = (session: AgentSession): AgentSession =>
+  session.status === "stopped" || session.status === "budget" ? { ...session, status: session.plan.length ? "running" : "planning" } : session;
+
+export const addAuthorNote = (session: AgentSession, text: string, at = now()): AgentSession =>
+  text.trim() ? { ...session, notes: [...session.notes, { role: "author", text: text.trim(), at }] } : session;
+
+export const checkDraft = (draft: StoryV2): string => {
+  const parsed = parseStoryV2(draft);
+  const errors = isValidationErrorList(parsed) ? parsed : [];
+  const diagnostics = runDiagnostics(draft).filter((diagnostic) => diagnostic.severity !== "info");
+  const lines = [
+    ...errors.map((error) => `error ${error.path}: ${error.message}`),
+    ...diagnostics.map((diagnostic) => `${diagnostic.severity} ${diagnostic.code} at ${diagnostic.path}: ${diagnostic.message}`),
+  ];
+  const count = (severity: string) => diagnostics.filter((diagnostic) => diagnostic.severity === severity).length;
+  const head = `${errors.length} validation error(s), ${count("blocking")} blocking, ${count("warning")} warning(s).`;
+  return [head, ...lines.slice(0, CHECK_LINES), ...(lines.length > CHECK_LINES ? [`… ${lines.length - CHECK_LINES} more`] : [])].join("\n");
+};
+
+export interface AgentContext {
+  draft: StoryV2;
+  environment: ProvisioningEnvironment;
+  lookup: AgentLookup;
+}
+
+export interface StepMeta {
+  route: AgentRoute["id"];
+  firstTryValid: boolean;
+  repaired: boolean;
+  at?: string;
+}
+
+export interface AgentTurn {
+  session: AgentSession;
+  apply: AgentOp | null;
+  audit?: AgentAudit;
+}
+
+const nextStatus = (session: AgentSession, steps: AgentStep[]): AgentSession["status"] => {
+  if (steps.some((step) => step.status === "pending")) return "awaiting-author";
+  if (budgetSpent({ ...session, steps })) return "budget";
+  return session.status === "planning" ? "planning" : "running";
+};
+
+const withStep = (session: AgentSession, step: Omit<AgentStep, "id">): AgentSession => {
+  const steps = [...session.steps, { ...step, id: session.steps.length + 1, observation: clip(step.observation) }];
+  return { ...session, steps, status: nextStatus(session, steps) };
+};
+
+const baseStep = (meta: StepMeta, reply: Extract<AgentReply, { kind: "call" }>) => ({
+  at: meta.at ?? now(),
+  route: meta.route,
+  ...(reply.thought ? { thought: reply.thought } : {}),
+  call: reply.call,
+  repaired: meta.repaired,
+});
+
+export const recordUnparsed = (session: AgentSession, issues: string[], meta: StepMeta): AgentSession =>
+  withStep(session, {
+    at: meta.at ?? now(),
+    route: meta.route,
+    call: { tool: "(unparsed)", args: {} },
+    family: null,
+    status: "refused",
+    observation: `Refused: ${issues.join("; ")}`,
+    firstTryValid: false,
+    repaired: meta.repaired,
+  });
+
+const editProblem = (draft: StoryV2, op: AgentOp): string | null => {
+  if (isAgentOnly(op)) return null;
+  const issue = applyOpsChecked(draft, [op]).issues[0];
+  return issue ? issue.replace(/^ops\.0: /, "") : null;
+};
+
+export const executeReply = (session: AgentSession, reply: AgentReply, context: AgentContext, meta: StepMeta): AgentTurn => {
+  const at = meta.at ?? now();
+  if (reply.kind === "plan") {
+    const notes = [...session.notes, { role: "agent" as const, text: `Plan: ${reply.plan.join(" / ")}`, at }];
+    return { session: { ...session, plan: reply.plan, status: "awaiting-plan", notes }, apply: null };
+  }
+  if (reply.kind === "done") {
+    const notes = [...session.notes, { role: "agent" as const, text: reply.summary || "Done.", at }];
+    return { session: { ...session, status: "done", summary: reply.summary, notes }, apply: null };
+  }
+  const base = baseStep(meta, reply);
+  const record = (step: Pick<AgentStep, "family" | "status" | "observation"> & Partial<AgentStep>, apply: AgentOp | null = null): AgentTurn => ({
+    session: withStep(session, { ...base, firstTryValid: step.status === "refused" ? false : meta.firstTryValid, ...step }),
+    apply,
+  });
+  const check = checkToolCall(reply.call);
+  if (!check.ok) return record({ family: null, status: "refused", observation: `Refused: ${check.message}` });
+  const { spec, op } = check;
+  if (spec.family === "read" || spec.family === "simulate" || spec.family === "lookup") {
+    return record({ family: spec.family, status: "observed", observation: runReadTool(spec.name as ReadToolName, reply.call.args, context.draft, context.lookup) });
+  }
+  if (!op) return record({ family: null, status: "refused", observation: `Refused: ${spec.name}: arguments did not parse` });
+  if (spec.family === "provision") {
+    if (!isProvisionOp(op)) return record({ family: null, status: "refused", observation: `Refused: ${spec.name} is not a provisioning step` });
+    const validation = validateProvisioningOp(op, context.environment);
+    if (!validation.ok) return record({ family: "provision", op, status: "refused", observation: `Refused: ${validation.message}` });
+    return record({ family: "provision", op, status: "pending", observation: "Waiting for the author to confirm this asset." });
+  }
+  const problem = editProblem(context.draft, op);
+  if (problem) return record({ family: "edit", op, status: "refused", observation: `Refused: ${problem}` });
+  if (session.mode === "auto-draft") {
+    return record({ family: "edit", op, status: "applied", observation: "Applied to the draft (auto-draft).", check: checkDraft(applyAgentOp(context.draft, op)) }, op);
+  }
+  return record({ family: "edit", op, status: "pending", observation: "Waiting for the author." });
+};
+
+const updateStep = (session: AgentSession, id: number, patch: Partial<AgentStep>): AgentSession => {
+  const steps = session.steps.map((step) => (step.id === id ? { ...step, ...patch, ...(patch.observation ? { observation: clip(patch.observation) } : {}) } : step));
+  return { ...session, steps, status: session.status === "awaiting-author" ? nextStatus(session, steps) : session.status };
+};
+
+export type AgentDecision = { kind: "accept"; op?: AgentOp } | { kind: "reject"; reason: string };
+
+export const decideStep = (session: AgentSession, id: number, decision: AgentDecision, draft: StoryV2): AgentTurn => {
+  const step = session.steps.find((entry) => entry.id === id);
+  if (!step || step.status !== "pending") return { session, apply: null };
+  if (decision.kind === "reject") {
+    const reason = decision.reason.trim() || "no reason given";
+    return { session: updateStep(session, id, { status: "rejected", reason, observation: `Rejected by the author: ${reason}` }), apply: null };
+  }
+  if (step.family !== "edit" || !step.op) return { session, apply: null };
+  const op = decision.op ?? step.op;
+  if (isProvisionOp(op)) return { session, apply: null };
+  const problem = editProblem(draft, op);
+  if (problem) return { session: updateStep(session, id, { status: "failed", op, observation: `The accepted change no longer applies: ${problem}` }), apply: null };
+  const edited = decision.op !== undefined && JSON.stringify(decision.op) !== JSON.stringify(step.op);
+  const observation = edited ? `Accepted after the author edited it: ${JSON.stringify(op)}` : "Accepted by the author.";
+  return { session: updateStep(session, id, { status: "accepted", op, observation, check: checkDraft(applyAgentOp(draft, op)) }), apply: op };
+};
+
+export const resolveProvisioning = (session: AgentSession, id: number, outcome: { ok: boolean; message: string }, draftAfter: StoryV2): AgentSession => {
+  const step = session.steps.find((entry) => entry.id === id);
+  if (!step || step.status !== "pending" || step.family !== "provision") return session;
+  return updateStep(session, id, { status: outcome.ok ? "applied" : "failed", observation: outcome.message, ...(outcome.ok ? { check: checkDraft(draftAfter) } : {}) });
+};
+
+const replyProblems = (reply: AgentReply): string[] => {
+  if (reply.kind !== "call") return [];
+  const check = checkToolCall(reply.call);
+  return check.ok ? [] : [check.message];
+};
+
+export const advanceAgent = async (session: AgentSession, context: AgentContext, route: AgentRoute, at?: string): Promise<AgentTurn> => {
+  if (session.status !== "planning" && session.status !== "running") return { session, apply: null };
+  if (budgetSpent(session)) return { session: { ...session, status: "budget" }, apply: null };
+  const expect = session.status === "planning" ? "plan" : "step";
+  const prompt = expect === "plan" ? renderPlanPrompt(session, context.draft, context.environment) : renderStepPrompt(session, context.draft, context.environment);
+  const answer: RouteAnswer = await route.ask(prompt, expect, replyProblems);
+  const charged = { ...session, budget: { ...session.budget, usedTokens: session.budget.usedTokens + answer.tokens } };
+  const meta: StepMeta = { route: answer.route, firstTryValid: answer.firstTryValid, repaired: answer.repaired, at };
+  if (!answer.parsed.ok) return { session: recordUnparsed(charged, answer.parsed.issues, meta), apply: null, audit: answer.audit };
+  return { ...executeReply(charged, answer.parsed.reply, context, meta), audit: answer.audit };
+};
+
+export interface OpPreview {
+  action: OpAction;
+  label: string;
+  before: unknown;
+  after: unknown;
+}
+
+const entityOf = (draft: StoryV2, entity: string): unknown => {
+  const [kind, ...rest] = entity.split(":");
+  const key = rest.join(":");
+  if (kind === "quality") return draft.qualities.find((entry) => entry.key === key) ?? null;
+  if (kind === "checkpoint") return draft.checkpoints.find((entry) => entry.id === key) ?? null;
+  if (kind === "member") return draft.roster.find((entry) => entry.id === key) ?? null;
+  if (kind === "transition") {
+    const [from, to] = key.split("->");
+    return draft.transitions.filter((entry) => entry.from === from && entry.to === to);
+  }
+  const fields: Record<string, unknown> = { ...draft };
+  if (entity.startsWith("story.")) return fields[entity.slice("story.".length)] ?? null;
+  return null;
+};
+
+export const opPreview = (draft: StoryV2, op: AgentOp): OpPreview => {
+  const described = describeAgentOp(op);
+  if (isProvisionOp(op)) return { action: "provision", label: described.label, before: null, after: op };
+  return { action: described.action, label: described.label, before: entityOf(draft, described.entity), after: entityOf(applyAgentOp(draft, op), described.entity) };
+};
+
+export interface AgentStats {
+  calls: number;
+  firstTryValid: number;
+  proposed: number;
+  accepted: number;
+  refused: number;
+}
+
+export const agentStats = (session: AgentSession): AgentStats => {
+  const writes = session.steps.filter((step) => step.family === "edit" || step.family === "provision");
+  const decided = (status: AgentStepStatus) => ["accepted", "applied"].includes(status);
+  return {
+    calls: session.steps.length,
+    firstTryValid: session.steps.filter((step) => step.firstTryValid).length,
+    proposed: writes.filter((step) => step.status !== "refused").length,
+    accepted: writes.filter((step) => decided(step.status)).length,
+    refused: session.steps.filter((step) => step.status === "refused").length,
+  };
+};
+
+export const applyDraftOp = applyAgentOp;
+
+export const validationErrorCount = (draft: StoryV2): number => {
+  const parsed = parseStoryV2(draft);
+  return isValidationErrorList(parsed) ? parsed.length : 0;
+};
+
+export const applyProvisioningFollowUps = (draft: StoryV2, op: AgentOp): StoryV2 =>
+  (isProvisionOp(op) ? applyOps(draft, provisioningFollowUpOps(draft, op)) : draft);
