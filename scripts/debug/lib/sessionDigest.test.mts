@@ -115,6 +115,17 @@ test('T1-2/T1-3 digest: a side call made while a member is drafted is not that m
   assert.equal(only({ ...files, payloads: as({ messages: [{ role: 'system', content: 'card' }, { role: 'user', content: 'Belle?' }] }) }).length, 1, 'control: a chat-completion reply carries the transcript');
 });
 
+test('pin bump digest: a session continued at the lane\'s pin says so in the findings, a normal one does not', async () => {
+  const { files, paths } = await loadSessionFiles(fixture('clean'), await loadIndex());
+  const plain = digestSession(files, paths);
+  assert.equal(plain.continuedAtPin, null);
+  assert.doesNotMatch(renderFindings(plain, 'x'), /Continued at the lane/);
+  const pin = { lanePin: '59e8821', indexPin: '884380b', holder: 'T1-1', session: 'test/sessions/T1/T1-1-1', chat: 'chat-1', seedRecord: 'report-1.json' };
+  const continued = digestSession({ ...files, session: { ...files.session, continuedAtPin: pin } }, paths);
+  assert.deepEqual(continued.continuedAtPin, pin);
+  assert.match(renderFindings(continued, 'x'), /## Continued at the lane's pin[\s\S]*seeded from `59e8821`; the story index was `884380b`[\s\S]*seed record `report-1\.json`/);
+});
+
 test('AS-22 digest: a missing capture file makes the session invalid instead of reading as zero anomalies', async () => {
   const { files, paths } = await loadSessionFiles(fixture('clean'), await loadIndex());
   assert.equal(digestSession(files, paths).valid, true);
