@@ -1,3 +1,4 @@
+import { readChapters, type ValidationError } from "@engine/index";
 import { isRecord } from "@utils/guards";
 import { nearestKey } from "@utils/levenshtein";
 import type { ProvisioningOpKind } from "@wizard/index";
@@ -23,6 +24,7 @@ export interface AgentToolSpec {
   doc: string;
   args: Record<string, AgentArgSpec>;
   backedBy?: keyof Mutations;
+  composes?: Array<keyof Mutations>;
 }
 
 export type DraftOpKind = Exclude<ProposalOpKind, ProvisioningOpKind>;
@@ -35,6 +37,7 @@ const REF = req("object", "{from, to, priority?} naming one transition");
 const QUALITY = "{key, type: string|int|float|bool|enum, values?: string[], source: \"extractor\", rubric, latching?: boolean}";
 const CHECKPOINT = "{id, name, objective, type: anchor|intermediate, tension_target?, guidance?, agency?, talk_control?, convergence_threshold?}";
 const GATE = "{q, op: ==|!=|>=|<=|>|<|in, v} | {all: gate[]} | {any: gate[]} | {not: gate}";
+const CHAPTER = "[{id, title, player_title?, kind?: chapter|interlude, final?: boolean, seal?: {open_threads?: carry|close|decide, keep_tail?, fold_messages?, record_style?: prose|chronicle}}]";
 
 type EditSpec = Omit<AgentToolSpec, "name" | "family"> & { backedBy: keyof Mutations };
 
@@ -79,6 +82,15 @@ export const EDIT_TOOLS = {
   setSceneRead: { backedBy: "setSceneRead", doc: "Replace the scene places and times.", args: { sceneRead: req("object", "{locations?, times?, inject?}") } },
   setLoreSelect: { backedBy: "setLoreSelect", doc: "Replace the lore-select books.", args: { loreSelect: req("object", "{lorebooks, top_k?, exclusive?}") } },
   setHouseRules: { backedBy: "setHouseRules", doc: "Replace the house rules (the full list).", args: { rules: req("array", "one rule per string") } },
+  setChapters: {
+    backedBy: "setChapters",
+    composes: ["addChapter", "updateChapter", "removeChapter", "setChapterPolicy", "setCheckpointChapter"],
+    doc: "Replace the chapters (the full list, in play order) and assign checkpoints to them. Once one chapter exists every checkpoint needs one. Optional for any story.",
+    args: {
+      chapters: req("array", CHAPTER),
+      assign: opt("object", "{checkpointId: chapterId}; \"\" clears one"),
+    },
+  },
   setRosterDrive: {
     backedBy: "setRosterDrive",
     doc: "Set a cast member's standing goal, told only to that member. Empty text clears it. Never for the player.",
@@ -160,11 +172,6 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> 
   removeArcBridge: "covered by setArcBridges",
   clearStartCheckpoint: "setStartCheckpoint moves the start; a story without one does not validate",
   setStoryId: "the story's identity is the author's, set in the Story tab",
-  addChapter: "chapters have no proposal op yet; the wizard's setChapters op is open",
-  updateChapter: "chapters have no proposal op yet; the wizard's setChapters op is open",
-  removeChapter: "chapters have no proposal op yet; the wizard's setChapters op is open",
-  setCheckpointChapter: "chapters have no proposal op yet; the wizard's setChapters op is open",
-  setChapterPolicy: "chapters have no proposal op yet; the wizard's setChapters op is open",
 };
 
 export const renderArg = (name: string, spec: AgentArgSpec): string => `${name}${spec.required ? "" : "?"}: ${spec.type}${spec.doc ? ` (${spec.doc})` : ""}`;
@@ -212,6 +219,16 @@ export type ToolCheck =
   | { ok: true; spec: AgentToolSpec; op?: AgentOp }
   | { ok: false; message: string };
 
+const readChaptersCall = (spec: AgentToolSpec, args: Record<string, unknown>): ToolCheck => {
+  const errors: ValidationError[] = [];
+  const chapters = readChapters(args.chapters, errors) ?? [];
+  const assign = isRecord(args.assign) ? args.assign : {};
+  const loose = Object.entries(assign).filter(([, chapter]) => typeof chapter !== "string").map(([checkpoint]) => `setChapters.assign.${checkpoint}: expected a chapter id`);
+  const problems = [...errors.map((error) => `setChapters.${error.path}: ${error.message}`), ...loose];
+  if (problems.length) return { ok: false, message: problems.join("; ") };
+  return { ok: true, spec, op: { kind: "setChapters", chapters, assign: Object.fromEntries(Object.entries(assign).map(([checkpoint, chapter]) => [checkpoint, String(chapter).trim()])) } };
+};
+
 export const checkToolCall = (call: AgentToolCall): ToolCheck => {
   const spec = Object.hasOwn(AGENT_TOOLS, call.tool) ? AGENT_TOOLS[call.tool] : undefined;
   if (!spec) return { ok: false, message: `unknown tool "${call.tool}"${hint(call.tool, AGENT_TOOL_NAMES)}. Only the listed tools exist; there is no other way to change the story or the install.` };
@@ -229,6 +246,7 @@ export const checkToolCall = (call: AgentToolCall): ToolCheck => {
     const rules = (Array.isArray(call.args.rules) ? call.args.rules : []).filter((rule): rule is string => typeof rule === "string" && rule.trim().length > 0);
     return { ok: true, spec, op: { kind: "setHouseRules", rules } };
   }
+  if (call.tool === "setChapters") return readChaptersCall(spec, call.args);
   const text = (key: string) => String(call.args[key]).trim();
   if (call.tool === "setRosterDrive") return { ok: true, spec, op: { kind: "setRosterDrive", id: text("id"), drive: text("drive") } };
   if (call.tool === "setCheckpointMotive") return { ok: true, spec, op: { kind: "setCheckpointMotive", id: text("id"), member: text("member"), motive: text("motive") } };

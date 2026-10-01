@@ -11,6 +11,8 @@ import { addBuiltinTensionQuality, addProgressQualities, readQuality } from "./v
 import { readArcBridges, readStoryOptions } from "./validate/storyOptions";
 import { indexChapters, readChapters, readMemoryOptions } from "./validate/chapters";
 
+export { readChapters };
+
 export const INTERMEDIATE_UNREACHABLE = "intermediate checkpoint has no reachable anchor beyond it";
 
 const readHeader = (json: Record<string, unknown>, errors: ValidationError[]) => {

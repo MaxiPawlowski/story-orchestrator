@@ -25,6 +25,28 @@ describe("toGraphDraft", () => {
   });
 });
 
+describe("chapter lanes (v2.6 plan 07 D13)", () => {
+  const chaptered: StoryV2 = {
+    ...story,
+    chapters: [{ id: "act-1", title: "The \"Road\"" }, { id: "act2", title: "Empty" }],
+    checkpoints: [{ ...story.checkpoints[0], chapter: "act-1" }, { ...story.checkpoints[1], chapter: "gone" }],
+  };
+
+  it("hands the panel each declared chapter and each checkpoint's known chapter", () => {
+    const graph = toGraphDraft(chaptered);
+    expect(graph.chapters).toEqual([{ id: "act-1", label: "The \"Road\"" }, { id: "act2", label: "Empty" }]);
+    expect(graph.checkpoints.map((entry) => entry.chapter)).toEqual(["act-1", undefined]);
+    expect(toGraphDraft(story).chapters).toBeUndefined();
+  });
+
+  it("draws a subgraph per chapter with members, and leaves the rest outside", () => {
+    const mermaid = toMermaid(chaptered);
+    expect(mermaid).toContain('  subgraph chapter_act_1["The \'Road\'"]\n    start["Approach"]\n  end');
+    expect(mermaid).not.toContain("chapter_act2");
+    expect(mermaid).toContain('\n  cache(["The Cache"])');
+  });
+});
+
 describe("toMermaid", () => {
   it("renders a flowchart with anchors and gate labels", () => {
     const mermaid = toMermaid(story);

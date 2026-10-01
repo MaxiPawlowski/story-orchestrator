@@ -11,6 +11,7 @@ import { GroupHeader } from "./GroupHeader";
 
 const InlineControls = lazy(() => import("./InlineControls"));
 const ChapterControls = lazy(() => import("./ChapterControls"));
+const InnerVoiceControls = lazy(() => import("./InnerVoiceControls"));
 
 interface GroupProps {
   snapshot: RuntimeSnapshot;
@@ -114,6 +115,7 @@ export const StagecraftGroup = ({ snapshot, manager }: GroupProps) => (
       <div id="so-curator-unscoped" className="text-xs opacity-70">This story lists no lorebook for the curator, so it stays idle. Add one on the Studio&apos;s Story tab.</div>
     )}
     {snapshot.ui.authorView && <WardenControls snapshot={snapshot} manager={manager} />}
+    {snapshot.ui.authorView && <Suspense fallback={null}><InnerVoiceControls snapshot={snapshot} manager={manager} /></Suspense>}
   </div>
 );
 
