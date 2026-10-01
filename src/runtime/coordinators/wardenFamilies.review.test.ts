@@ -225,10 +225,10 @@ describe("T22/T23 wiring (runtime/continuity.ts)", () => {
   const view = (agency?: { never_narrate_player_action: boolean }) => ({ getStory: () => story(agency), getState: () => engineState });
 
   it("each family is its own default-off key", () => {
-    expect(wardenFamilies(() => judgeWith({}).judge, view())()).toEqual({ agency: false, houseRules: [] });
-    expect(wardenFamilies(() => judgeWith({ agencyCheck: true, houseRules: true }, false).judge, view())()).toEqual({ agency: false, houseRules: [] });
-    expect(wardenFamilies(() => judgeWith({ agencyCheck: true }).judge, view())()).toEqual({ agency: true, houseRules: [] });
-    expect(wardenFamilies(() => judgeWith({ houseRules: true }).judge, view())()).toEqual({ agency: false, houseRules: RULES });
+    expect(wardenFamilies(() => judgeWith({}).judge, view())()).toEqual({ agency: false, houseRules: [], lore: false });
+    expect(wardenFamilies(() => judgeWith({ agencyCheck: true, houseRules: true }, false).judge, view())()).toEqual({ agency: false, houseRules: [], lore: false });
+    expect(wardenFamilies(() => judgeWith({ agencyCheck: true }).judge, view())()).toEqual({ agency: true, houseRules: [], lore: false });
+    expect(wardenFamilies(() => judgeWith({ houseRules: true }).judge, view())()).toEqual({ agency: false, houseRules: RULES, lore: false });
   });
 
   it("the agency check stands down where the checkpoint lets narration write the player", () => {

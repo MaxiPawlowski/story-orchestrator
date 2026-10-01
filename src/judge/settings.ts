@@ -19,6 +19,7 @@ export const JUDGE_USE_KEYS = [
   "expansionLookahead",
   "agencyCheck",
   "houseRules",
+  "wardenLore",
   "loreExclusive",
   "expressions",
 ] as const;
@@ -238,6 +239,12 @@ export const JUDGE_USE_COPY: Record<JudgeUseKey, JudgeUseCopy> = {
     description: "After a character reply, checks it against the story's house rules; a broken rule is named in the next reply's prompt. Uses the continuity warden's review or auto mode.",
     sends: "the character reply and the story's house rules",
   },
+  wardenLore: {
+    label: "Lore check (warden)",
+    description: "After a character reply, checks it against the story's own lore entries that fired for that reply; a contradicted entry is named in the next reply's prompt. " +
+      "Needs the continuity warden on, and uses its review or auto mode.",
+    sends: "the character reply and the title and text of up to 8 story lore entries that fired for it (600 characters each); never memory or other books",
+  },
   loreExclusive: {
     label: "Exclusive lore selection",
     description: "For a story marked exclusive, switches off, for that one reply, the entries of its lore-select books the judge did not pick. Only with per-chat gating; " +
@@ -267,9 +274,10 @@ export const BUILT_JUDGE_USES: readonly JudgeUseKey[] = [
   "curatorFilter",
   "agencyCheck",
   "houseRules",
+  "wardenLore",
   "loreExclusive",
   "expressions",
 ];
 
 // Steering-grade usages, listed only in author view.
-export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead", "agencyCheck", "houseRules", "loreExclusive"];
+export const AUTHOR_JUDGE_USES: readonly JudgeUseKey[] = ["expansionCritic", "expansionLookahead", "agencyCheck", "houseRules", "wardenLore", "loreExclusive"];

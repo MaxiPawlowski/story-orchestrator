@@ -169,6 +169,7 @@ use as unproven.
 | `typedExtraction` | Recommended. Needs authored `read_as` hints to do anything. |
 | `agencyCheck` (warden family) | Author view only; `review` mode recommended. |
 | `houseRules` (warden family) | Author view only; needs authored `house_rules`. Write objective rules, one demand each. |
+| `wardenLore` (warden family) | Author view only; needs the continuity warden on, `review` mode recommended. Checks the reply against the story's own lore entries that fired for it, in its own call. Live latency and over-steer not yet measured. |
 
 The two reply-path uses (`director`, `loreSelect`) fit their 1500 ms budget at the median; a slow judge
 still delays a turn before either falls back. Every other use is off the reply path.

@@ -49,6 +49,7 @@ export const JUDGE_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string>> 
   agencyCheck: "1a69bad097f7",
   houseRules: "39549769df3a",
   loreSelect: "9711db218ed5",
+  wardenLore: "f7e3fb753e56",
 };
 
 const MEASURED_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string>> = {
@@ -67,6 +68,7 @@ const MEASURED_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string>> = {
   agencyCheck: "1a69bad097f7",
   houseRules: "39549769df3a",
   loreSelect: "9711db218ed5",
+  wardenLore: "f7e3fb753e56",
 };
 
 export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
@@ -128,6 +130,14 @@ export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
     measuredOn: MEASURED_ON,
     recommendation: "Known weakness: ranking by a compressed, heavily tied probability, so which entries win is weaker than the rate suggests. Fits its 1500 ms reply-path budget at p50.",
   },
+  wardenLore: {
+    calibration: 1,
+    latencyP50Ms: 233,
+    live: null,
+    measuredOn: MEASURED_ON,
+    recommendation: "Review mode recommended, as for the warden. Its own call, off the reply path, only on the story's own lore that fired for the reply; " +
+      "not yet measured live (latency bar and over-steer).",
+  },
   loreExclusive: {
     calibration: null,
     latencyP50Ms: null,
@@ -156,6 +166,7 @@ export const RING_USE_TO_READINESS: Record<string, JudgeReadinessKey[]> = {
   stall: ["stallCheck"],
   critic: ["expansionCritic"],
   warden: ["warden"],
+  wardenLore: ["wardenLore"],
 };
 
 type ReadinessFacts = Record<JudgeReadinessKey, JudgeReadinessFact>;

@@ -38,6 +38,7 @@ export interface StagecraftCoordinatorDeps {
     check: (input: WardenCheckInput) => Promise<WardenCheckFinding[] | null>;
     facts: () => EstablishedFact[];
     families?: () => Omit<WardenFamiliesActive, "continuity">;
+    lore?: (replyMessageId: number) => NonNullable<WardenCheckInput["lore"]>;
     nudgeActive: () => boolean;
   };
   journal: (summary: string, note?: string) => void;
@@ -329,7 +330,8 @@ export class StagecraftCoordinator {
   // decides which established facts the reply broke; the note itself is composed in code.
   private activeFamilies(): WardenFamiliesActive {
     const extra = this.deps.warden?.families?.() ?? { agency: false, houseRules: [] };
-    return { continuity: this.state.settings.wardenEnabled, agency: extra.agency, houseRules: extra.houseRules };
+    const continuity = this.state.settings.wardenEnabled;
+    return { continuity, agency: extra.agency, houseRules: extra.houseRules, lore: continuity && extra.lore === true };
   }
 
   // A story swap that drops a rule withdraws the unapplied notes that named it.
@@ -361,7 +363,9 @@ export class StagecraftCoordinator {
       const input: WardenCheckInput = { reply, facts: established.map((fact) => fact.text),
           agency: playerLine !== null ? { player: this.deps.hosts.player.getPlayerName(),
           message: playerLine } : null, houseRules: families.houseRules };
-      const asks = input.facts.length > 0 || input.agency !== null || input.houseRules.length > 0;
+      const lore = families.lore ? warden.lore?.(replyMessageId) ?? [] : [];
+      if (lore.length) input.lore = lore;
+      const asks = input.facts.length > 0 || input.agency !== null || input.houseRules.length > 0 || lore.length > 0;
       const findings = asks ? await warden.check(input).catch((error: unknown) => {
         log.warn("continuity warden: the check failed", error);
         return null;

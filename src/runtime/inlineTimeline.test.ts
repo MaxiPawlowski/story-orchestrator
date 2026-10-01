@@ -147,6 +147,18 @@ describe("inline timeline composer (v2.6 plan 08 D3/D4)", () => {
     expect(inlineMessageIds(off)).toEqual([]);
   });
 
+  it("warden-lore: a lore note is an author chip under its reply, and never reaches player copy", () => {
+    const loreNote = {
+      id: "warden-1-3", curator: "warden" as const, at: "", boundary: 1, messageId: 3, checkpointId: SUN.startCheckpointId, reason: "lore", summary: "", mode: "review" as const, dropped: [],
+      ops: [{ op: { kind: "note" as const, family: "lore" as const, text: 'Lore: "Secret Vault" says the vault is sealed — keep the next reply consistent with it.', facts: [], replyMessageId: 3, lore: ["Secret Vault"] }, status: "pending" as const }],
+    };
+    const author = composeInlineTimeline(sources(SUN, { proposals: [loreNote], settings: { ...defaultInlineSettings(), level: 3 } }));
+    expect(visibleInlineItems(author, 3).find((item) => item.id.startsWith("cast:warden"))).toMatchObject({ level: 3, text: expect.stringContaining("Secret Vault") });
+    const player = composeInlineTimeline(sources(SUN, { authorView: false, proposals: [loreNote] }));
+    expect(texts(player, 2).join("\n")).not.toContain("Secret Vault");
+    expect(inlineMessageIds(player).flatMap((messageId) => visibleInlineItems(player, messageId)).some((item) => item.id.startsWith("cast:warden"))).toBe(false);
+  });
+
   it("places the speaker pick under the reply only, never before it", () => {
     const view = composeInlineTimeline(sources(SUN, { talkDecisions: [{ at: "t", messageId: 7, checkpointId: "cp1", chosenRosterId: "arin", chosenName: "Arin", source: "rules", latencyMs: 3 }] }));
     expect(Object.values(view.byMessage).flat().some((item) => item.id.startsWith("cast:talk"))).toBe(false);

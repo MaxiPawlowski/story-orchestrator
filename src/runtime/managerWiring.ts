@@ -10,6 +10,7 @@ import { PacingCoordinator } from "./coordinators/pacingCoordinator";
 import { StagecraftCoordinator } from "./coordinators/stagecraftCoordinator";
 import { createWarden, establishedFacts } from "./continuity";
 import { createCuratorFilter } from "./curatorFilter";
+import { loreEvidence } from "./worldInfoEvidence";
 import type { JudgeRuntime } from "./judge";
 import type { JournalRecordKind } from "./journal";
 import { requestBudgetFor } from "./requestBudget";
@@ -135,6 +136,7 @@ export function wireCoordinators(port: ManagerPort) {
     warden: createWarden(() => port.judge(), view, {
       facts: () => establishedFacts(port.extras().memory.entries, memory.getLedger(), memory.boundProvenance(), port.extras().memory.conflicts),
       nudgeActive: () => copilot.getActiveNudge() !== null,
+      lore: (replyMessageId) => loreEvidence.firedLore(replyMessageId),
     }),
     journal: (summary, note) => port.journal("stagecraft", summary, note),
     spikes: () => getGlobalSettings().spikes,

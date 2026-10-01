@@ -51,6 +51,12 @@ test('the on arm switches the master switch on with exactly the listed uses; the
   assert.deepEqual(off.warden, { wardenEnabled: false, wardenAcceptMode: 'review' });
 });
 
+test('the warden-lore arm switches the continuity warden on with it: the lore family needs the warden', () => {
+  const lore = judgeModeSettings({ ...before, judge: { ...before.judge, uses: { ...before.judge.uses, wardenLore: false } } }, { label: 'on', uses: ['wardenLore'], wardenMode: 'auto' });
+  assert.equal(lore.judge.uses.wardenLore, true);
+  assert.deepEqual(lore.warden, { wardenEnabled: true, wardenAcceptMode: 'auto' });
+});
+
 test('an unknown use is refused, so a typo cannot run the on arm with nothing on', () => {
   assert.throws(() => judgeModeSettings(before, { label: 'on', uses: ['sceneOoc'] }), /unknown judge use\(s\) sceneOoc/);
 });

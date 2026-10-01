@@ -18,6 +18,7 @@ export interface ScanInput {
   disable?: unknown;
   key?: unknown;
   characterFilter?: unknown;
+  content?: unknown;
 }
 
 export interface ScannedEntry {
@@ -186,6 +187,7 @@ export class LoreEvidence {
   private mirror = new Map<string, { eligible: number; fired: number }>();
   private host: LoreEvidenceHost | null = null;
   private settledSlot: LoreSlot | null = null;
+  private texts = new WeakMap<LoreSlot, Map<string, { comment: string; text: string }>>();
 
   attach(host: LoreEvidenceHost | null) {
     this.host = host;
@@ -221,9 +223,23 @@ export class LoreEvidence {
     this.seenThisSlot = new Set();
   }
 
-  scanned(entries: ScanInput[], tag: string, loud: boolean) {
+  scanned(entries: ScanInput[], tag: string, loud: boolean, storyBooks: string[] = []) {
     if (!this.current) return;
     this.current.scans.push({ tag, loud, entries: entries.flatMap((entry) => toScanned(entry) ?? []) });
+    if (!loud) return;
+    const texts = this.texts.get(this.current) ?? new Map<string, { comment: string; text: string }>();
+    for (const entry of entries) {
+      const ref = toScanned(entry);
+      if (!ref || typeof entry.content !== "string" || !entry.content.trim() || !storyBooks.some((book) => sameLorebook(book, ref.world))) continue;
+      texts.set(refKey(ref), { comment: ref.comment, text: entry.content });
+    }
+    if (texts.size) this.texts.set(this.current, texts);
+  }
+
+  firedLore(messageId: number): Array<{ comment: string; text: string }> {
+    const slot = this.live().filter((candidate) => candidate.rendered === true && candidate.lastMessageId === messageId).pop();
+    const texts = slot ? this.texts.get(slot) : undefined;
+    return slot && texts ? firedEntries(slot.scans).flatMap((entry) => texts.get(refKey(entry)) ?? []) : [];
   }
 
   forced(picks: EntryRef[]) {
