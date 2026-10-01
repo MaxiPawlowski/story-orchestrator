@@ -81,7 +81,7 @@ describe("v2.4 plan 03 D5: a DELTA read is tail-fit, never split", () => {
     expect(result.audit.trimmedFrom).toBeUndefined();
     expect(result.audit.window).toEqual({ from: 0, to: 5 });
     expect(sent[0]).toContain("[0] ");
-    expect(result.audit.budget!.inputBudget).toBe(8192 - 1024 - 820);
+    expect(result.audit.budget!.inputBudget).toBe(8192 - 2048 - 820);
   });
 
   it("control: with no budget wired the read is unchanged and records none", async () => {

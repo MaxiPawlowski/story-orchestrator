@@ -21,3 +21,4 @@ export * from "./contract";
 export * from "./sceneDetect";
 export * from "./sceneSummary";
 export * from "./inject";
+export * from "./heldSecrets";

@@ -7,6 +7,7 @@ export const FATE_LABELS: Record<MemoryFate, string> = {
   superseded: "held out: superseded",
   folded: "held out: folded",
   "other-speaker": "held out: another speaker's",
+  private: "held out: kept from the speaking character",
   "near-duplicate": "held out: a newer row says the same",
   "over-budget": "trimmed: over budget",
   "pinned-overflow": "trimmed: pinned, did not fit",

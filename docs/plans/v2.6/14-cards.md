@@ -639,6 +639,7 @@ Pinned Adolion build `884380b627f3a36fd09ab81b0fe8f8c75e03268e`. 36 cards. Start
   - judge memory checks
 - **Known limits:**
   - The private block is per drafted member; a narrator line can still describe what the room saw.
+  - The shared group transcript reaches every member, and so do ST's own Summarize and Vector Storage (chat vectors) blocks, which Story Orchestrator cannot scope; a seal or well detail in a [Summary: ...] or 'Past events' block is that known leak, not ours.
   - Images and sprites are off.
 
 ### T2-3 Contradiction

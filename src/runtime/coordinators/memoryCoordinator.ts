@@ -337,7 +337,7 @@ export class MemoryCoordinator {
   applyEpistemic(signals: ParsedEpistemicSignal[], messageId: number, retireIds: string[] = [], window?: { from: number; to: number }) {
     const inner = innerRender();
     const story = this.deps.getStory();
-    const common = dropCommonKnowledge(signals, enabledCharacterNames(story, this.deps.hosts.roster));
+    const common = dropCommonKnowledge(signals, enabledCharacterNames(story, this.deps.hosts.roster), this.state.epistemic);
     const kept = inner && window
       ? inner.admitIntents(common, inner.intentEvidence(this.deps.hosts.chat.chatWindow(window.from, window.to).messages, story?.requirements?.personas ?? []))
       : common.filter((signal) => signal.tag !== "intends");
