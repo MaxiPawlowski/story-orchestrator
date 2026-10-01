@@ -1,0 +1,26 @@
+{
+ "storyId": "adolion-adventurer",
+ "activeCheckpointId": "at-the-walls",
+ "characters": [
+  {
+   "index": 1,
+   "name": "Adolion Narrator",
+   "avatar": "Adolion Narrator.png"
+  },
+  {
+   "index": 2,
+   "name": "Belle",
+   "avatar": "Belle.png"
+  }
+ ],
+ "epistemic": [
+  {
+   "id": "e1",
+   "subject": "Belle",
+   "tag": "knows",
+   "content": "the fee is doubled",
+   "createdAt": 1790762520000,
+   "provenance": {}
+  }
+ ]
+}

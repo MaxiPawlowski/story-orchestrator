@@ -127,6 +127,20 @@ node scripts/debug/st-payload.mts watch 3 --timeout-ms 60000
 
 Payload capture hooks fetch/XHR in the shared page and records recent generation payloads with group draft member attribution when ST emits it.
 
+### Human sessions (v2.6 plan 14)
+
+```bash
+node scripts/debug/so-session.mts validate                     # charters.json vs the pinned story index
+node scripts/debug/so-session.mts cards --write                # regenerate docs/plans/v2.6/14-cards.md
+node scripts/debug/so-session.mts start T1-2 --lane 4          # seed, settings, open, run header, tails; prints the card
+node scripts/debug/so-session.mts start T3-1 --lane 4 --allow-comfy   # only after confirming the shared ComfyUI is free
+node scripts/debug/so-session.mts stop [test/sessions/T1/T1-2-1] [--stop-lane]
+node scripts/debug/so-session.mts digest [test/sessions/T1/T1-2-1]    # findings.md + findings.json
+node scripts/debug/so-session.mts index                        # rebuild test/sessions/adolion-stories.json after a pin bump
+```
+
+A session dir holds `session.json` (lane, pids, chats, build, `playFrom`), `run-header-start/end.json` + `run-header-diff.txt`, `journal.jsonl`, `payloads.jsonl`, `console.jsonl`, the tails' `*.log`, and after `stop` `journal-<chat>.json|md`, `chat-<chat>.json`, `state-end-<chat>.json` and `rubric.json`. `digest` reports flags with +-3 turns and these anomaly kinds, each with `path:line`: stall (10 boundaries without a transition at a checkpoint with exits), extraction-rejected, empty-private-block, lore-force-lost, lore-constant-missed, judge-fallback (not `disabled`), save-lost, unexpected-jump (not an authored edge, or a manual move), rollback, console-error (extension only), model-call-failure, harness-error. Its draft rows go to `docs/plans/v2.6/14-findings.md` after the review. Fixtures: `scripts/debug/fixtures/session/{clean,planted}`.
+
 ### UI
 
 ```bash

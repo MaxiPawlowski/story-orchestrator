@@ -1,0 +1,2 @@
+{"index": 0, "epoch": "e1", "url": "/api/backends/text-completions/generate", "method": "POST", "draftMember": 2, "capturedAt": "2026-09-30T10:06:00.000Z", "body": "{\"prompt\": \"Your private knowledge (stay in character \\u2014 never narrate what you conceal or do not know):\\n- You know: the fee is doubled\"}"}
+{"index": 1, "epoch": "e1", "url": "/api/backends/text-completions/generate", "method": "POST", "draftMember": null, "capturedAt": "2026-09-30T10:06:30.000Z", "body": "{\"prompt\": \"memory pass\"}"}

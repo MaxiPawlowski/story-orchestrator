@@ -1,0 +1,239 @@
+import type { StoryIndexEntry } from './sessionCharters.mts';
+
+export const ANOMALY_KINDS = [
+  'stall', 'extraction-rejected', 'empty-private-block', 'lore-force-lost', 'lore-constant-missed', 'judge-fallback',
+  'save-lost', 'unexpected-jump', 'rollback', 'console-error', 'model-call-failure', 'harness-error',
+] as const;
+export type AnomalyKind = (typeof ANOMALY_KINDS)[number];
+
+export const STALL_BOUNDARIES = 10;
+export const CONTEXT_TURNS = 3;
+export const PRIVATE_BLOCK_HEADER = 'Your private knowledge (stay in character';
+const PRIVATE_TAGS = ['knows', 'suspects', 'believes', 'unaware', 'hiding', 'intends'];
+const ROLLBACK_NOTE = /stepped back|rolled back|retained history|delete (?:not )?decoded|decoded ambiguously/i;
+const SAVE_NOTE = /^save (?:not confirmed|reported success but the server holds an older state|could not be verified|skipped)/i;
+const EXTENSION_SOURCE = /story-orchestrator|storyOrchestrator|\[SO\]|Story Orchestrator/i;
+const HARNESS_LINE = /^(?:\S+ )?(?:Error:|ERROR:|WARNING:)|Unhandled|Traceback/;
+
+export interface Row<T = any> { line: number; value: T }
+export interface Evidence { path: string; line: number }
+export interface Anomaly { kind: AnomalyKind; at: string | null; chatId: string | null; summary: string; evidence: Evidence; detail?: Record<string, unknown> }
+export interface ChatMessage { id: number; name: string; isUser: boolean; text: string }
+export interface Flag { at: string; chatId: string | null; messageId: number; note: string; evidence: Evidence; context: ChatMessage[] }
+
+export interface SessionFiles {
+  session: { charter: string; tier: string; playFrom?: string | null; story?: { kind: string; id?: string } };
+  journal: Row[];
+  payloads: Row[];
+  console: Row[];
+  logs: Record<string, Row<string>[]>;
+  chats: Record<string, ChatMessage[]>;
+  states: Record<string, { characters?: Array<{ index: number; name: string }>; epistemic?: any[] }>;
+  story: StoryIndexEntry | null;
+}
+
+export interface Digest { charter: string; tier: string; flags: Flag[]; anomalies: Anomaly[]; counts: Record<string, number> }
+
+export const parseJsonl = (text: string): Row[] => text.split(/\r?\n/).flatMap((raw, at) => {
+  if (!raw.trim()) return [];
+  try { return [{ line: at + 1, value: JSON.parse(raw) }]; } catch { return [{ line: at + 1, value: { unparsed: raw } }]; }
+});
+
+export const parseLines = (text: string): Row<string>[] => text.split(/\r?\n/).map((value, at) => ({ line: at + 1, value })).filter((row) => row.value.trim());
+
+const timeOf = (at: unknown) => {
+  const parsed = Date.parse(String(at ?? ''));
+  return Number.isFinite(parsed) ? parsed : null;
+};
+
+const inPlay = (at: unknown, playFrom: number | null) => {
+  if (playFrom === null) return true;
+  const time = timeOf(at);
+  return time === null || time >= playFrom;
+};
+
+const normalize = (name: unknown) => String(name ?? '').trim().toLowerCase();
+
+function contextFor(chat: ChatMessage[] | undefined, messageId: number): ChatMessage[] {
+  if (!chat?.length || messageId < 0) return [];
+  return chat.filter((message) => message.id >= messageId - CONTEXT_TURNS && message.id <= messageId + CONTEXT_TURNS);
+}
+
+export function digestSession(files: SessionFiles, paths: { journal: string; payloads: string; console: string; logs: Record<string, string> } = {
+  journal: 'journal.jsonl', payloads: 'payloads.jsonl', console: 'console.jsonl', logs: {},
+}): Digest {
+  const playFrom = timeOf(files.session.playFrom);
+  const anomalies: Anomaly[] = [];
+  const add = (kind: AnomalyKind, row: Row, path: string, summary: string, detail?: Record<string, unknown>) =>
+    anomalies.push({ kind, at: row.value?.at ?? row.value?.capturedAt ?? null, chatId: row.value?.chatId ?? null, summary, evidence: { path, line: row.line }, ...(detail ? { detail } : {}) });
+  const journal = files.journal.filter((row) => row.value && !row.value.unparsed);
+  const played = journal.filter((row) => inPlay(row.value.at, playFrom));
+  const edges = new Set((files.story?.edges ?? []).map(([from, to]) => `${from}>${to}`));
+  const outgoing = new Set((files.story?.edges ?? []).map(([from]) => from));
+
+  const flags: Flag[] = [];
+  const seenFlags = new Set<string>();
+  for (const row of played.filter((candidate) => candidate.value.kind === 'flag')) {
+    const key = `${row.value.at}|${row.value.summary}`;
+    if (seenFlags.has(key)) continue;
+    seenFlags.add(key);
+    const chatId = row.value.chatId ?? null;
+    flags.push({
+      at: row.value.at, chatId, messageId: Number(row.value.messageId ?? -1), note: String(row.value.detail?.note ?? row.value.summary ?? ''),
+      evidence: { path: paths.journal, line: row.line }, context: contextFor(chatId ? files.chats[chatId] : undefined, Number(row.value.messageId ?? -1)),
+    });
+  }
+
+  const byChat = new Map<string, Row[]>();
+  for (const row of journal) {
+    const chatId = String(row.value.chatId ?? row.value.detail?.chatId ?? '');
+    byChat.set(chatId, [...(byChat.get(chatId) ?? []), row]);
+  }
+  for (const [chatId, rows] of byChat) {
+    let active: string | null = null;
+    let since = 0;
+    let reported = false;
+    let maxBoundary = -1;
+    for (const row of rows) {
+      const event = row.value;
+      if (event.kind === 'session') {
+        active = event.detail?.activeCheckpointId ?? active;
+        maxBoundary = Math.max(maxBoundary, Number(event.detail?.boundary ?? -1));
+        continue;
+      }
+      if (event.kind === 'transition') {
+        const [from, to] = String(event.summary ?? '').split(' → ').map((part) => part.trim());
+        if (to) active = to;
+        since = 0;
+        reported = false;
+        if (inPlay(event.at, playFrom) && files.story && from && to && !edges.has(`${from}>${to}`)) {
+          const authored = files.story.checkpoints.some((checkpoint) => checkpoint.id === to);
+          add('unexpected-jump', row, paths.journal, `${from} → ${to} is not an authored transition${authored ? '' : ' (a generated route?)'}`, { from, to, authored });
+        }
+        continue;
+      }
+      if (event.kind !== 'boundary') continue;
+      const boundary = Number(event.boundary ?? -1);
+      if (!inPlay(event.at, playFrom)) { maxBoundary = Math.max(maxBoundary, boundary); continue; }
+      if (boundary >= 0 && boundary < maxBoundary) {
+        add('rollback', row, paths.journal, `boundary went back from ${maxBoundary} to ${boundary}`, { from: maxBoundary, to: boundary });
+        since = 0;
+        reported = false;
+      }
+      maxBoundary = Math.max(maxBoundary, boundary);
+      if (event.detail?.source === 'manual') add('unexpected-jump', row, paths.journal, `manual checkpoint change at boundary ${boundary} (an author /cp or driver move, not play)`, { source: 'manual' });
+      since += 1;
+      const pending = !files.story || !active || outgoing.has(active);
+      if (since >= STALL_BOUNDARIES && !reported && pending) {
+        reported = true;
+        add('stall', row, paths.journal, `${since} boundaries without a transition at ${active ?? 'an unknown checkpoint'} while its exits were pending`, { checkpoint: active, boundaries: since, chat: chatId || null });
+      }
+    }
+  }
+
+  const audits = played.filter((row) => row.value.kind === 'audit');
+  const reads = audits.length ? audits : played.filter((row) => row.value.kind === 'extraction');
+  for (const row of reads) {
+    const rejected = Array.isArray(row.value.detail?.rejected) ? row.value.detail.rejected : [];
+    if (!rejected.length) continue;
+    const reasons = rejected.map((item: any) => (typeof item === 'string' ? item : `${item?.line ?? ''} (${item?.reason ?? 'rejected'})`.trim()));
+    add('extraction-rejected', row, paths.journal, `${rejected.length} extraction line(s) rejected: ${reasons.slice(0, 3).join('; ')}`, { rejected });
+  }
+
+  for (const row of played.filter((candidate) => candidate.value.kind === 'lore')) {
+    const summary = String(row.value.summary ?? '');
+    if (summary.startsWith('lore-force-lost')) add('lore-force-lost', row, paths.journal, summary, { note: row.value.detail?.note ?? null });
+    if (summary.startsWith('lore-constant-missed')) add('lore-constant-missed', row, paths.journal, summary, { note: row.value.detail?.note ?? null });
+  }
+
+  for (const row of played.filter((candidate) => candidate.value.kind === 'judge')) {
+    const fallback = row.value.detail?.fallback;
+    if (fallback && fallback !== 'disabled') add('judge-fallback', row, paths.journal, `judge ${row.value.detail?.use ?? '?'} fell back (${fallback})`, { use: row.value.detail?.use, fallback });
+  }
+
+  for (const row of played.filter((candidate) => candidate.value.kind === 'story')) {
+    const summary = String(row.value.summary ?? '');
+    if (SAVE_NOTE.test(summary)) add('save-lost', row, paths.journal, summary, { note: row.value.detail?.note ?? null });
+    else if (ROLLBACK_NOTE.test(summary)) add('rollback', row, paths.journal, summary, { note: row.value.detail?.note ?? null });
+  }
+
+  for (const row of played.filter((candidate) => candidate.value.kind === 'model-call')) {
+    const result = row.value.detail?.result;
+    if (result && result !== 'ok' && result !== 'fallback') add('model-call-failure', row, paths.journal, `${row.value.detail?.pass ?? 'call'} via ${row.value.detail?.route ?? '?'}: ${result}`, { result, pass: row.value.detail?.pass });
+  }
+
+  const reportedPrivate = new Set<string>();
+  for (const row of files.payloads) {
+    const entry = row.value;
+    if (!entry || entry.unparsed || entry.draftMember === null || entry.draftMember === undefined) continue;
+    if (!inPlay(entry.capturedAt, playFrom)) continue;
+    const body = typeof entry.body === 'string' ? entry.body : JSON.stringify(entry.body ?? '');
+    if (!/"(?:prompt|messages)"/.test(body) || body.includes(PRIVATE_BLOCK_HEADER)) continue;
+    const captured = timeOf(entry.capturedAt);
+    for (const state of Object.values(files.states)) {
+      const name = (state.characters ?? []).find((character) => String(character.index) === String(entry.draftMember))?.name ?? (typeof entry.draftMember === 'string' ? entry.draftMember : null);
+      if (!name) continue;
+      const held = (state.epistemic ?? []).filter((item) => normalize(item.subject) === normalize(name) && PRIVATE_TAGS.includes(item.tag) && !item.supersededBy
+        && (captured === null || Number(item.createdAt ?? Infinity) < captured));
+      const key = `${entry.epoch ?? ''}|${entry.index ?? row.line}|${name}`;
+      if (!held.length || reportedPrivate.has(key)) continue;
+      reportedPrivate.add(key);
+      add('empty-private-block', row, paths.payloads, `${name} was drafted with no private block while holding ${held.length} private entr${held.length === 1 ? 'y' : 'ies'}`, { member: name, held: held.map((item) => `${item.tag}: ${item.content}`) });
+    }
+  }
+
+  for (const row of files.console) {
+    const entry = row.value;
+    if (!entry || entry.unparsed) continue;
+    if (entry.type !== 'error' && entry.type !== 'pageerror') continue;
+    const text = `${entry.text ?? ''} ${entry.location ?? ''} ${entry.stack ?? ''}`;
+    if (!EXTENSION_SOURCE.test(text)) continue;
+    add('console-error', row, paths.console, String(entry.text ?? '').slice(0, 200), { type: entry.type, location: entry.location ?? null });
+  }
+
+  for (const [name, rows] of Object.entries(files.logs)) {
+    for (const row of rows) if (HARNESS_LINE.test(row.value)) add('harness-error', { line: row.line, value: {} }, paths.logs[name] ?? name, row.value.slice(0, 200));
+  }
+
+  anomalies.sort((left, right) => (timeOf(left.at) ?? 0) - (timeOf(right.at) ?? 0) || ANOMALY_KINDS.indexOf(left.kind) - ANOMALY_KINDS.indexOf(right.kind));
+  const counts = Object.fromEntries(ANOMALY_KINDS.map((kind) => [kind, anomalies.filter((anomaly) => anomaly.kind === kind).length]));
+  return { charter: files.session.charter, tier: files.session.tier, flags, anomalies, counts: { flags: flags.length, ...counts } };
+}
+
+export function registerRows(digest: Digest, sessionDir: string) {
+  const tierNumber = digest.tier.replace(/^T/, '');
+  const rows = [
+    ...digest.flags.map((flag) => ({ source: 'flag', what: flag.note || 'flagged moment', evidence: `${sessionDir}/${flag.evidence.path}:${flag.evidence.line}`, klass: '' })),
+    ...digest.anomalies.map((anomaly) => ({ source: anomaly.kind, what: anomaly.summary, evidence: `${sessionDir}/${anomaly.evidence.path}:${anomaly.evidence.line}`, klass: anomaly.kind === 'harness-error' ? 'harness' : '' })),
+  ];
+  return rows.map((row, at) => ({ id: `T${tierNumber}-?${at + 1}`, tier: digest.tier, severity: '', class: row.klass, what: row.what, source: row.source, evidence: row.evidence, status: 'draft', fixCommit: '', eval: '' }));
+}
+
+const cell = (value: string) => value.replace(/\|/g, '/').replace(/\r?\n/g, ' ');
+
+export function renderFindings(digest: Digest, sessionDir: string): string {
+  const out = [`# Findings draft: ${digest.charter}`, '', `Session \`${sessionDir}\`. Draft rows for \`docs/plans/v2.6/14-findings.md\`; severity and class are decided in the review.`, ''];
+  out.push('## Counts', '', `- flags: ${digest.flags.length}`, ...ANOMALY_KINDS.map((kind) => `- ${kind}: ${digest.counts[kind] ?? 0}`), '');
+  out.push('## Flags', '');
+  if (!digest.flags.length) out.push('None.', '');
+  for (const flag of digest.flags) {
+    out.push(`### ${flag.at} (message ${flag.messageId})`, '', `- note: ${flag.note || '(no note)'}`, `- evidence: \`${flag.evidence.path}:${flag.evidence.line}\``);
+    if (flag.context.length) {
+      out.push('- context:');
+      for (const message of flag.context) out.push(`  - ${message.id === flag.messageId ? '**' : ''}#${message.id} ${message.name}: ${cell(message.text).slice(0, 300)}${message.id === flag.messageId ? '**' : ''}`);
+    }
+    out.push('');
+  }
+  out.push('## Anomalies', '');
+  if (!digest.anomalies.length) out.push('None.', '');
+  for (const kind of ANOMALY_KINDS) {
+    const rows = digest.anomalies.filter((anomaly) => anomaly.kind === kind);
+    if (!rows.length) continue;
+    out.push(`### ${kind} (${rows.length})`, '');
+    for (const anomaly of rows) out.push(`- ${anomaly.at ?? '-'} ${cell(anomaly.summary)} (\`${anomaly.evidence.path}:${anomaly.evidence.line}\`)`);
+    out.push('');
+  }
+  out.push('## Draft register rows', '', '| id | tier | severity | class | evidence | status | fix commit | eval | what |', '|---|---|---|---|---|---|---|---|---|');
+  for (const row of registerRows(digest, sessionDir)) out.push(`| ${row.id} | ${row.tier} | ${row.severity} | ${row.class} | \`${row.evidence}\` | ${row.status} | ${row.fixCommit} | ${row.eval} | ${cell(row.what)} |`);
+  return `${out.join('\n')}\n`;
+}
