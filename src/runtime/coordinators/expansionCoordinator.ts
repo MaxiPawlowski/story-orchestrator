@@ -1,23 +1,20 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
-import {
-  EXPANSION_CONTRACT, collectExpansionGateSources, findStubExpansionCandidate, generateReviewedBeats,
-  insertedCheckpointIds, mergeExpansions, planExpansion, renderGenerationPrompt, revalidateExpansion, type ExpansionCacheEntry,
-  type ExpansionJudge, type ExpansionRuntimeState, type GeneratedBeat, type PlannedExpansionInput,
-  type StubExpansionCandidate,
-} from "@generation/index";
-import {
-  buildChainRequest, CRITIC_TIMEOUT_MS, isSceneStale, judgeVerdict, LOOKAHEAD_PREGEN_P, readChain,
-  type SceneReadRecord,
-} from "@judge/index";
-import { numericToLevel } from "@pacing/index";
+import { EXPANSION_CONTRACT } from "@generation/types";
+import { collectExpansionGateSources, insertedCheckpointIds, mergeExpansions } from "@generation/merge";
+import { findStubExpansionCandidate, planExpansion } from "@generation/planner";
+import { revalidateExpansion } from "@generation/revalidate";
+import type { ExpansionCacheEntry, ExpansionRuntimeState, PlannedExpansionInput, StubExpansionCandidate } from "@generation/types";
+import { isSceneStale, LOOKAHEAD_PREGEN_P, type SceneReadRecord } from "@judge/index";
 import type { PlayerHost } from "../hostPorts";
 import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunGuard, type RunOwnership } from "../runToken";
 import { failureClass } from "@extraction/breaker";
-import { estimateTokens } from "@extraction/callBudget";
 import type { ExtraGateSource, ModelCall, Preflight, PreflightConfirm } from "@extraction/index";
 import { required } from "@utils/guards";
 import { log } from "@utils/log";
+
+type ExpansionUnit = typeof import("../expansionUnit");
+const loadUnit = (): Promise<ExpansionUnit> => import("../expansionUnit");
 
 export const expansionKey = (
   candidate: Pick<StubExpansionCandidate, "sourceCheckpointId" | "stubId" | "targetAnchorId">,
@@ -182,28 +179,8 @@ export class ExpansionCoordinator {
     }
   }
 
-  // The judge as critic and ranker, each its own opt-in. The judge only checks or
-  // ranks what the LLM wrote; code checks stay first and binding.
-  private expansionJudge(story: NormalizedStoryV2, input: PlannedExpansionInput): ExpansionJudge {
-    const judge = this.deps.judge?.() ?? null;
-    const target = story.checkpointById[input.candidate.targetAnchorId];
-    if (!judge || !target) return {};
-    const cast = [...new Set([...story.roster.map((member) => member.name ?? member.id), this.deps.hosts.player.getPlayerName()].filter(Boolean))];
-    const read = async (beats: GeneratedBeat[]) => {
-      const request = buildChainRequest({ facts: input.facts, target: { name: target.name,
-          objective: target.objective }, cast, trajectory: input.tensionTrajectory.map(numericToLevel),
-          beats: beats.map((beat) => ({ objective: beat.objective, guidance: beat.guidance })) });
-      const result = await judge.ask("critic", request, { timeoutMs: CRITIC_TIMEOUT_MS,
-          summarize: (answers) => (answers ? Object.fromEntries(Object.entries(readChain(answers) ?? {}).map(([key,
-          value]) => [key, value ?? "none"])) : {}) });
-      return result.answers ? readChain(result.answers) : null;
-    };
-    const variants = judge.expansionSettings();
-    return {
-      ...(judge.active("expansionCritic") ? { critic: async (beats: GeneratedBeat[]) => { const chain = await read(beats); return chain ? { ...judgeVerdict(chain),
-          raw: "JUDGE", judge: chain } : null; } } : {}),
-      ...(variants && variants.variants > 1 ? { variants: { n: variants.variants, temperature: variants.temperature, pick: variants.pick, read } } : {}),
-    };
+  private judgeFor(unit: ExpansionUnit, story: NormalizedStoryV2, input: PlannedExpansionInput) {
+    return unit.expansionJudge(this.deps.judge?.() ?? null, story, input, () => this.deps.hosts.player.getPlayerName());
   }
 
   // `validated` is a chain the critic passed, waiting for the boundary that makes it
@@ -248,16 +225,17 @@ export class ExpansionCoordinator {
       return false;
     }
     const response = debugResponse ?? this.deps.model.planted?.("generation") ?? null;
-    if (confirm && response === null && !(await confirm(this.preflight(story, state, candidate)))) return false;
+    if (confirm && response === null && !(await confirm(await this.preflight(story, state, candidate)))) return false;
     await this.generate(candidate, response);
     return true;
   }
 
   // What an author's "generate now" is about to send: every variant, plus the critic.
-  private preflight(story: NormalizedStoryV2, state: EngineState, candidate: StubExpansionCandidate): Preflight {
+  private async preflight(story: NormalizedStoryV2, state: EngineState, candidate: StubExpansionCandidate): Promise<Preflight> {
+    const unit = await loadUnit();
     const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
-    const requests = (this.expansionJudge(story, input).variants?.n ?? 1) + 1;
-    return { requests, tokens: requests * estimateTokens(renderGenerationPrompt(story, input)) };
+    const requests = (this.judgeFor(unit, story, input).variants?.n ?? 1) + 1;
+    return { requests, tokens: requests * unit.generationRequestTokens(story, input) };
   }
 
   async generate(candidate: StubExpansionCandidate, debugResponse?: string | null) {
@@ -278,9 +256,9 @@ export class ExpansionCoordinator {
     try {
       const state = required(this.deps.getState(), "engine state");
       const input = planExpansion(story, state.blackboard, candidate, this.deps.getCanon(), this.deps.getFactTexts());
-      const generated = await generateReviewedBeats(story, input, this.deps.model, { role: "authoring",
-          pass: "generation", signal: run.signal, debugResponse: debugResponse ?? null }, this.expansionJudge(story,
-          input));
+      const unit = await loadUnit();
+      const generated = await unit.generateReviewedBeats(story, input, this.deps.model, { role: "authoring",
+          pass: "generation", signal: run.signal, debugResponse: debugResponse ?? null }, this.judgeFor(unit, story, input));
       if (!run.stillOwns()) return;
       if (generated.issues.length || !generated.codeCheck || !generated.codeCheck.ok) {
         this.entries[key] = { ...this.entries[key], status: "failed", beats: generated.beats,

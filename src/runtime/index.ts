@@ -36,6 +36,7 @@ const featureFailed = (feature: string, error: unknown) => {
 };
 
 let started = false;
+let mediaLoaded = false;
 let bridge: TurnBridge | null = null;
 let slashRegistered = false;
 let privateInjectionUnsub: (() => void) | null = null;
@@ -161,6 +162,7 @@ export function startRuntime() {
   // Either way the load happens exactly once, because the gate resolves once.
   void settingsReady().then(() => {
     if (typeof document !== "undefined" && typeof getContext().eventSource?.on === "function") {
+      mediaLoaded = true;
       void import("../image/start").then(({ startImage }) => { if (started) startImage(runtimeManager); }).catch((error: unknown) => featureFailed("Illustrations", error));
       void import("../sprites/start").then(({ startSprites }) => { if (started) startSprites(runtimeManager); }).catch((error: unknown) => featureFailed("Sprites", error));
     }
@@ -175,8 +177,11 @@ export function startRuntime() {
 }
 
 export function stopRuntime() {
-  if (typeof document !== "undefined") void import("../image/start").then(({ stopImage }) => stopImage());
-  if (typeof document !== "undefined") void import("../sprites/start").then(({ stopSprites }) => stopSprites());
+  if (mediaLoaded) {
+    void import("../image/start").then(({ stopImage }) => stopImage());
+    void import("../sprites/start").then(({ stopSprites }) => stopSprites());
+  }
+  mediaLoaded = false;
   bridge?.stop();
   bridge = null;
   runtimeManager.invalidateRuns();

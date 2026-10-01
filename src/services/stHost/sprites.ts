@@ -79,11 +79,6 @@ export function spriteChatLength(): number {
   return getContext().chat.length;
 }
 
-export function spriteStreamingMessageId(): number | null {
-  const processor = getContext().streamingProcessor as { isFinished?: unknown; messageId?: unknown } | null | undefined;
-  return processor && processor.isFinished !== true && typeof processor.messageId === "number" && Number.isInteger(processor.messageId) ? processor.messageId : null;
-}
-
 export async function spriteList(folder: string): Promise<Array<{ label: string; path: string }>> {
   const response = await fetch(`/api/sprites/get?name=${encodeURIComponent(folder)}`, { headers: headers() });
   if (!response.ok) return [];

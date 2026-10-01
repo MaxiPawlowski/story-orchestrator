@@ -37,10 +37,3 @@ export async function releaseGpu(lease: string | null): Promise<WriteResult<{ re
   return response.ok && isRecord(data) && data.released === true ? wrote({ released: true }) : couldNot("The GPU broker did not release the image lease.");
 }
 
-export async function gpuBrokerStatus(): Promise<{ phase: string; activeText: number; waitingText: number; imageLease: boolean } | null> {
-  const response = await fetch(`${URL}/status`, { headers: getContext().getRequestHeaders?.() ?? {} });
-  if (!response.ok) return null;
-  const data: unknown = await response.json();
-  if (!isRecord(data) || typeof data.phase !== "string" || typeof data.activeText !== "number" || typeof data.waitingText !== "number") return null;
-  return { phase: data.phase, activeText: data.activeText, waitingText: data.waitingText, imageLease: data.imageLease === true };
-}

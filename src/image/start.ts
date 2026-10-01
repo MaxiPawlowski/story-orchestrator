@@ -1,6 +1,6 @@
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { StoryImageDirector } from "./runtime";
-import { registerImageSurface } from "@services/STAPI";
+import { registerImageSurface } from "@services/stHost/imageSurface";
 
 let image: StoryImageDirector | null = null;
 let dispose: (() => void) | null = null;

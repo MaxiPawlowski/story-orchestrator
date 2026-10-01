@@ -1,7 +1,9 @@
+import { subscribeToHostEvents, capabilityState, type CapabilityState } from "@services/STAPI";
+import { imageModel } from "@services/stHost/image";
 import {
-  imageModel, spriteBuiltInExpressionsActive, spriteCast, spriteClassifyLocal, spriteDraftedName, spriteList, spriteMessage, spriteChatLength,
-  spriteReducedMotion, spriteVnMode, spriteWriteExpressions, subscribeToHostEvents, capabilityState, type CapabilityState,
-} from "@services/STAPI";
+  spriteBuiltInExpressionsActive, spriteCast, spriteClassifyLocal, spriteDraftedName, spriteList, spriteMessage, spriteChatLength,
+  spriteReducedMotion, spriteVnMode, spriteWriteExpressions,
+} from "@services/stHost/sprites";
 import { judgeUseActive } from "@judge/index";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { withholds } from "@runtime/generationLifecycle";

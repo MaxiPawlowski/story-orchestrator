@@ -1,8 +1,8 @@
 import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
-import { maxTokensForInput } from "@extraction/callBudget";
+import { maxTokensCap, maxTokensForInput } from "@extraction/callBudget";
 import { getCanonLite } from "@extraction/canonLite";
 import { lapseAsEmpty } from "@extraction/modelError";
-import { askText, type ModelCall } from "@extraction/modelRoute";
+import { askReply, type ExtractionReply, type ModelCall } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
 import type { ParsedFact } from "@extraction/types";
 import { buildCanonSummaryPrompt, canonHistory, canonInputHash, openArcTexts, resolvedArcs, selectCanonFacts, type DerivedRecord } from "@memory/index";
@@ -21,6 +21,12 @@ export interface CanonSynthesisDeps {
   enabled: () => boolean;
   firedTransitions: () => NormalizedTransition[];
   facts: () => ParsedFact[];
+  journal?: (summary: string, note: string) => void;
+}
+
+interface CanonReply {
+  text: string;
+  cut: string | null;
 }
 
 export class CanonSynthesis {
@@ -55,6 +61,19 @@ export class CanonSynthesis {
     return selectCanonFacts(memory.entries, 30, { boundary: state?.boundary ?? 0, lastMessageId: state?.lastMessageId, turnText: objective, turnEntities: [], openArcs: openArcTexts(memory.arcs, 8) });
   }
 
+  private async ask(prompt: string, signal: AbortSignal): Promise<CanonReply> {
+    const call = (maxTokens: number): Promise<ExtractionReply> =>
+      askReply(this.deps.model(), prompt, { role: "synthesis", pass: "canon", maxTokens, signal, refuseIncomplete: true }).catch((error: unknown) => ({ text: lapseAsEmpty(error), finish: "stop" }));
+    const cut = (reply: ExtractionReply) => !reply.text && reply.finish === "length";
+    const first = maxTokensForInput("canon", prompt);
+    const reply = await call(first);
+    if (!cut(reply) || signal.aborted) return { text: reply.text, cut: null };
+    const larger = Math.max(first, maxTokensCap("canon"));
+    const retry = await call(larger);
+    if (!cut(retry)) return { text: retry.text, cut: null };
+    return { text: "", cut: `canon reply cut at ${first} tokens, asked again: cut at ${larger} tokens` };
+  }
+
   async regenerateCanon(force = false): Promise<boolean> {
     const story = this.deps.getStory();
     const memory = this.deps.memory();
@@ -73,10 +92,11 @@ export class CanonSynthesis {
     this.inFlight = true;
     try {
       const prompt = buildCanonSummaryPrompt(story.title, arcSummaries, facts, checkpoint);
-      const ask = { role: "synthesis", pass: "canon", maxTokens: maxTokensForInput("canon", prompt), signal: run.signal, refuseIncomplete: true } as const;
-      const text = await askText(this.deps.model(), prompt, ask).catch(lapseAsEmpty);
-      const trimmed = stripChannelNoise(text);
-      if (!trimmed || !run.stillOwns()) return false;
+      const reply = await this.ask(prompt, run.signal);
+      if (!run.stillOwns()) return false;
+      if (reply.cut) this.deps.journal?.("canon not refreshed", `${reply.cut}; the story so far keeps the text from ${memory.canon?.updatedAt ?? "no earlier pass"} until the next pass`);
+      const trimmed = stripChannelNoise(reply.text);
+      if (!trimmed) return false;
       const current = this.deps.memory();
       const arcs = resolvedArcs(current.arcs).filter((arc) => !arc.foldedInto);
       const sourceFacts = this.canonFacts(current);

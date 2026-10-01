@@ -1,4 +1,4 @@
-import { EXPANSION_CONTRACT, type ExpansionRuntimeState } from "@generation/index";
+import { EXPANSION_CONTRACT, type ExpansionRuntimeState } from "@generation/types";
 import {
   BEAT_RING_CAP, CHAPTER_DISPOSITIONS, CHAPTER_RECORD_STATUSES, CONFLICT_LIMIT, createMemoryState, DERIVED_LIMIT, isProvenance, type ChapterRecord, type ChronicleState, type InnerBeat,
 } from "@memory/index";
