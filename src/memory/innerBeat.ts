@@ -3,6 +3,7 @@ import { isMetaCommentary } from "./innerRender";
 export interface InnerBeatPromptInput {
   storyTitle: string;
   memberName: string;
+  memberRole?: string;
   checkpointName: string;
   objective: string;
   agency: string;
@@ -28,6 +29,7 @@ export function renderInnerBeatPrompt(input: InnerBeatPromptInput): string {
     "Rules of play:",
     input.agency,
     "",
+    ...(input.memberRole?.trim() ? [`${input.memberName}'s role in this story: ${input.memberRole.trim()}`] : []),
     `Decide what ${input.memberName} is trying to do in their next reply, from their own point of view.`,
     `Use only what ${input.memberName} wants and knows below. Never decide what the player does, says or feels.`,
     ...(input.privateRows ? ["", `${input.memberName}'s private aims and knowledge:`, input.privateRows] : []),

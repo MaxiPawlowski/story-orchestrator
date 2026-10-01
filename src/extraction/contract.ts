@@ -1,4 +1,4 @@
-import { TENSION_CURRENT_KEY, TENSION_LEVELS, type TensionLevel } from "@engine/index";
+import { TENSION_CURRENT_KEY, TENSION_LEVELS, type NormalizedStoryV2, type TensionLevel } from "@engine/index";
 import { renderMemoryContractAddendum } from "@memory/contract";
 import { fnv1a, stableStringify } from "@runtime/hash";
 import type { SharedReadContract } from "./types";
@@ -35,10 +35,40 @@ const renderTranscript = (contract: SharedReadContract) => {
   return contract.window.messages.map((message) => `[${message.index}] ${message.speaker}${marked && message.isUser ? PLAYER_MARK : ""}: ${message.text}`).join("\n");
 };
 
+export const READ_TASK_HEADER = "[STORY STATE READ — output structured lines only. Do NOT continue the roleplay or write as any character.]";
+export const READ_OUTPUT_RULE = "Write one line per item and nothing else: no prose, no headings, no numbering, no code fences.";
+
+export function readContext(story: Pick<NormalizedStoryV2, "checkpointById" | "roster">, checkpointId: string): Pick<SharedReadContract, "checkpoint" | "cast"> {
+  const active = story.checkpointById[checkpointId];
+  return {
+    ...(active ? { checkpoint: { name: active.name, objective: active.objective } } : {}),
+    cast: story.roster.map((member) => ({ id: member.id, name: member.name ?? member.id, ...(member.role ? { role: member.role } : {}) })),
+  };
+}
+
+const renderCheckpoint = (contract: SharedReadContract) =>
+  contract.checkpoint
+    ? `Active checkpoint: ${contract.checkpoint.name}${contract.checkpoint.objective ? ` — ${contract.checkpoint.objective}` : ""}`
+    : `Active checkpoint: ${contract.activeCheckpointId}`;
+
+const renderCast = (contract: SharedReadContract) =>
+  contract.cast?.length
+    ? [`Cast (roster id = name): ${contract.cast.map((member) => `${member.id} = ${member.name}${member.role ? ` (${member.role})` : ""}`).join("; ")}`]
+    : [];
+
+const renderPlayer = (contract: SharedReadContract) => {
+  const names = [...new Set(contract.window.messages.filter((message) => message.isUser).map((message) => message.speaker))];
+  return names.length ? [`Player character: ${names.join(", ")}.`] : [];
+};
+
 export function renderSharedReadPrompt(contract: SharedReadContract): string {
+  const deltasOnly = contract.deltasOnly === true;
   return [
+    READ_TASK_HEADER,
     `Story: ${contract.storyTitle}`,
-    `Active checkpoint: ${contract.activeCheckpointId}`,
+    renderCheckpoint(contract),
+    ...(deltasOnly ? [] : renderCast(contract)),
+    ...renderPlayer(contract),
     "Canon-lite:",
     contract.canon || "(none)",
     "",
@@ -46,16 +76,19 @@ export function renderSharedReadPrompt(contract: SharedReadContract): string {
     "Closed vocabulary: you may only write listed quality keys and allowed values.",
     "Output zero or more lines in exactly these formats:",
     "DELTA q=<quality_key> value=<json_literal> evidence=\"exact quote from transcript\"",
-    "FACT importance=<1|2|3> text=\"fact text\" evidence=\"exact quote from transcript\"",
+    ...(deltasOnly ? [] : ["FACT importance=<1|2|3> text=\"fact text\" evidence=\"exact quote from transcript\""]),
     "If nothing changed, output NO_DELTA.",
+    "value is a JSON literal: true, 3 or \"a listed value\". evidence is copied word for word from one transcript line, without its [index] Speaker: prefix.",
+    READ_OUTPUT_RULE,
     "",
-    renderMemoryContractAddendum(contract.openArcs ?? [], contract.epistemicLedgerCapable ?? false, contract.entities ?? []),
-    "",
+    ...(deltasOnly ? [] : [renderMemoryContractAddendum(contract.openArcs ?? [], contract.epistemicLedgerCapable ?? false, contract.entities ?? []), ""]),
     "Quality questions:",
     renderType(contract) || "(no in-scope qualities)",
     "",
     "Transcript:",
     renderTranscript(contract) || "(empty)",
+    "",
+    "Output:",
   ].join("\n");
 }
 
@@ -71,5 +104,6 @@ export function hashContract(contract: SharedReadContract): string {
     entities: contract.entities ?? [],
     ...(contract.window.form ? { windowForm: contract.window.form } : {}),
     ...(marksPlayerLines(contract) ? { playerLines: true } : {}),
+    ...(contract.deltasOnly ? { deltasOnly: true } : {}),
   }));
 }

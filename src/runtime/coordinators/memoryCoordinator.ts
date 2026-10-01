@@ -459,6 +459,7 @@ export class MemoryCoordinator {
       scope,
       firedTransitions: this.deps.getFiredTransitions(),
       facts: this.getFacts(),
+      deltasOnly: true,
       model: this.deps.model,
       ask: { role: "read", pass: "supersession" },
     });

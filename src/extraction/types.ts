@@ -51,6 +51,15 @@ export interface SharedReadContract {
   openArcs?: string[];
   epistemicLedgerCapable?: boolean;
   entities?: string[];
+  checkpoint?: { name: string; objective: string };
+  cast?: ReadCastMember[];
+  deltasOnly?: boolean;
+}
+
+export interface ReadCastMember {
+  id: string;
+  name: string;
+  role?: string;
 }
 
 export interface ParsedDelta {

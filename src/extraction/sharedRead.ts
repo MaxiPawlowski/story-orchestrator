@@ -2,7 +2,8 @@ import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engi
 import { fnv1a, stableStringify } from "@runtime/hash";
 import type { ExtractionReply, ModelAsk, ModelCall } from "./modelRoute";
 import { getCanonLite } from "./canonLite";
-import { hashContract, PLAYER_MARK, renderSharedReadPrompt } from "./contract";
+import { hashContract, PLAYER_MARK, readContext, renderSharedReadPrompt } from "./contract";
+import type { ParsedMemoryLine } from "@memory/index";
 import { detectDegenerate } from "./degenerate";
 import { evidenceSources } from "./evidence";
 import { parseSharedReadResponse } from "./parse";
@@ -90,6 +91,7 @@ export interface RunSharedReadOptions {
   epistemicLedgerCapable?: boolean;
   entities?: string[];
   judgeTyped?: TypedJudge | null;
+  deltasOnly?: boolean;
   model: ModelCall;
   ask: ModelAsk;
   readWindow?: ChatWindowReader;
@@ -116,7 +118,21 @@ const readContract = (options: RunSharedReadOptions, window: SharedReadWindow, q
   openArcs: options.openArcs ?? [],
   epistemicLedgerCapable: options.epistemicLedgerCapable ?? false,
   entities: options.entities ?? [],
+  ...readContext(options.story, options.state.activeCheckpointId),
+  ...(options.deltasOnly ? { deltasOnly: true } : {}),
 });
+
+export function rosterCharacterId(roster: NormalizedStoryV2["roster"], raw: string | undefined): string | undefined {
+  const value = raw?.trim().toLowerCase();
+  if (!value) return undefined;
+  return (roster.find((member) => member.id.toLowerCase() === value) ?? roster.find((member) => member.name?.trim().toLowerCase() === value))?.id;
+}
+
+const castMemory = (line: ParsedMemoryLine, roster: NormalizedStoryV2["roster"]): ParsedMemoryLine => {
+  const { characterId, ...rest } = line;
+  const id = rosterCharacterId(roster, characterId);
+  return id ? { ...rest, characterId: id } : rest;
+};
 
 export const sharedReadOverhead = (options: RunSharedReadOptions): string =>
   renderSharedReadPrompt(readContract(options, { from: 0, to: -1, messages: [] }, scopeOf(options)));
@@ -216,7 +232,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   return {
     audit,
     facts: parsed.facts.map((fact) => attributed(fact, window)),
-    memory: parsed.memory.map((line) => attributed(line, window)),
+    memory: parsed.memory.map((line) => attributed(castMemory(line, options.story.roster), window)),
     arcs: parsed.arcs,
     epistemic: parsed.epistemic,
     ledger: parsed.ledger,

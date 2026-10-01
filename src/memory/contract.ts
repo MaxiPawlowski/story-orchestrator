@@ -55,7 +55,8 @@ export function renderMemoryContractAddendum(openArcs: string[] = [], capable = 
     "- development: how a relationship or situation changed.",
     "- detail: a specific fact, name, object, or physical detail mentioned.",
     `Rate importance 1-3 (1=atmospheric/minor, 2=useful context, 3=critical/defining) and classify expiration as one of ${MEMORY_EXPIRATIONS.join("|")}.`,
-    "Optionally tag involved named entities (proper nouns only) as entity=\"Name1,Name2\", and the enabled roster member the memory concerns as character=\"<roster id>\".",
+    "Optionally tag involved named entities (proper nouns only) as entity=\"Name1,Name2\". Add character=\"<roster id from the Cast line>\" only when the memory is private " +
+      "to that one cast member (only they saw, know or feel it); a tagged memory is shown to that member alone, so shared knowledge carries no character tag.",
     "Output additional lines in this exact format:",
     "MEMORY type=<type> importance=<1|2|3> expiration=<scene|session|permanent> [entity=\"Name1,Name2\"] [character=\"<roster id>\"] text=\"memory text\" evidence=\"exact quote from transcript\"",
     "Then report whether a scene break occurred in this window:",
@@ -67,12 +68,17 @@ export function renderMemoryContractAddendum(openArcs: string[] = [], capable = 
   ].join("\n");
 }
 
+export const SUMMARY_TASK = "Write plain TEXT ONLY. Do NOT continue the roleplay or speak as any character.";
+
+const NAMES_RULE = "Use every name exactly as written. Invent nothing.";
+
 export function buildArcSummaryPrompt(arcContent: string, sceneSummaries: string, memories: string): string {
   const sceneSection = sceneSummaries ? `\nSCENE SUMMARIES:\n${sceneSummaries}\n` : "";
   const memSection = memories ? `\nKEY MEMORIES FROM THIS ARC:\n${memories}\n` : "";
   return [
+    SUMMARY_TASK,
     "Write a single paragraph summarising the story arc below from opening to resolution.",
-    "Write in past tense, narrative style. Cover what happened, who was involved, and how it resolved. Be concise — 3-5 sentences.",
+    `Write in past tense, narrative style. Cover what happened, who was involved, and how it resolved. Be concise — 3-5 sentences. ${NAMES_RULE}`,
     "Output only the paragraph, no labels or commentary.",
     "",
     `ARC: ${arcContent}${sceneSection}${memSection}`,
@@ -137,7 +143,7 @@ export interface LedgerPassEntity {
 }
 
 export function buildLedgerPassPrompt(excerpt: string, entityList: LedgerPassEntity[] = []): string {
-  const entityLines = entityList.length ? entityList.map((entity) => `- ${entity.name} (${entity.type})`).join("\n") : "- (infer named entities from the excerpt)";
+  const entityLines = entityList.length ? entityList.map((entity) => `- ${entity.name} (${entity.type})`).join("\n") : "- (no list: use the entities the excerpt names)";
   return [
     "[STATE EXTRACTION TASK — do NOT continue the roleplay. Output structured data only.]",
     "Track the current physical and operational state of known entities.",
@@ -165,8 +171,9 @@ export function buildLedgerPassPrompt(excerpt: string, entityList: LedgerPassEnt
 
 export function buildSceneSummaryPrompt(sceneText: string): string {
   return [
+    SUMMARY_TASK,
     "Write a 2-3 sentence summary of the following scene for use as scene history.",
-    "Write in past tense, narrative style. Capture what happened, where, and the emotional tone. Be concise.",
+    `Write in past tense, narrative style. Capture what happened, where, and the emotional tone. Be concise. ${NAMES_RULE}`,
     "Output only the summary text. No notes, no commentary, no disclaimers.",
     "",
     "SCENE:",
@@ -177,8 +184,9 @@ export function buildSceneSummaryPrompt(sceneText: string): string {
 export function buildSceneReducePrompt(partsText: string): string {
   return [
     "The scene below was too long to summarize at once, so each part was summarized in order.",
+    SUMMARY_TASK,
     "Combine the part summaries into one 2-3 sentence summary of the whole scene for use as scene history.",
-    "Write in past tense, narrative style. Keep what happened, where, and the emotional tone. Be concise.",
+    `Write in past tense, narrative style. Keep what happened, where, and the emotional tone. Be concise. ${NAMES_RULE}`,
     "Output only the summary text. No notes, no commentary, no disclaimers.",
     "",
     "PART SUMMARIES:",
@@ -188,11 +196,12 @@ export function buildSceneReducePrompt(partsText: string): string {
 
 export function buildShortTermSummaryPrompt(previousSummary: string | null, recentText: string): string {
   return [
+    SUMMARY_TASK,
     "Maintain a rolling 3-5 sentence summary of recent play; it complements scene history during long scenes.",
     previousSummary
       ? "Update the existing summary with the new messages: keep what still matters, fold in what changed, drop what the new messages made irrelevant."
       : "Write the summary from the messages below.",
-    "Write in past tense, narrative style. Output only the updated summary text. No notes, no commentary.",
+    `Write in past tense, narrative style. ${NAMES_RULE} Output only the updated summary text. No notes, no commentary.`,
     ...(previousSummary ? ["", "EXISTING SUMMARY:", previousSummary] : []),
     "",
     "NEW MESSAGES:",

@@ -1,7 +1,7 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import {
   applyEpistemicInjection, applyLedgerInjection, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildLedgerView,
-  buildMemoryInjectionBlocks, clearAllMemoryInjection, memoryInjectionView, pinnedOverflowOf, type MemoryInjectionView, clearEpistemicInjection, memoryExtensionKey, openArcTexts,
+  buildMemoryInjectionBlocks, clearAllMemoryInjection, labelMemoryBlock, memoryInjectionView, pinnedOverflowOf, type MemoryInjectionView, clearEpistemicInjection, memoryExtensionKey, openArcTexts,
   renderLedgerBlock, renderPrivateEpistemicBlock, renderSoloEpistemicBlock, type LedgerBinding, type LedgerView, type MemoryTier,
   type ScoreContext, castVoices, hasInnerVoice, innerRender, joinBlocks, loadInnerRender, withoutLapsedIntents,
   type CastVoice, type EpistemicEntry,
@@ -148,7 +148,7 @@ export class MemoryInjector {
     applyEpistemicInjection(this.hosts.prompt, epistemic, EPISTEMIC_INJECTION_DEPTH);
     if (facts === null) return;
     const factsKey = memoryExtensionKey("facts");
-    if (facts) this.hosts.prompt.setStoryExtensionPrompt(factsKey, facts, this.state.settings.injectionDepths.facts);
+    if (facts) this.hosts.prompt.setStoryExtensionPrompt(factsKey, labelMemoryBlock("facts", facts), this.state.settings.injectionDepths.facts);
     else this.hosts.prompt.clearStoryExtensionPrompt(factsKey);
   }
 

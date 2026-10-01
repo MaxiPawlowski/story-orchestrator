@@ -1,5 +1,5 @@
 import { parseStoryV2OrThrow, type BlackboardSnapshot, type NormalizedStoryV2 } from "@engine/index";
-import { renderSharedReadPrompt } from "./contract";
+import { readContext, renderSharedReadPrompt } from "./contract";
 import { deriveScope } from "./scope";
 import { CLEANED_FORM, cleanWindowMessage } from "./windowHygiene";
 import type { ScopedQuality } from "./types";
@@ -54,6 +54,7 @@ export function buildFixtureRun(spec: ExtractionFixtureSpec): FixtureRun {
     ...(spec.openArcs ? { openArcs: spec.openArcs } : {}),
     ...(spec.epistemicLedgerCapable ? { epistemicLedgerCapable: true } : {}),
     ...(spec.entities ? { entities: spec.entities } : {}),
+    ...readContext(story, activeCheckpointId),
   });
   return { story, activeCheckpointId, scope, prompt };
 }
