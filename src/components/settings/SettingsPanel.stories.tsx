@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn, within } from "@storybook/test";
+import { expect, fn, waitFor, within } from "@storybook/test";
 import type { RuntimeManager } from "@runtime/index";
 import { createSaveHealth } from "@runtime/saveHealth";
 import { getGlobalSettings } from "@runtime/settingsStore";
@@ -98,5 +98,14 @@ export const AuthorViewShowsAuthorControls: Story = {
     await expect(canvasElement.querySelector("#so-curator-enabled")).not.toBeNull();
     await expect(canvasElement.querySelector("#so-copilot-enabled")).not.toBeNull();
     await expect(canvasElement.querySelector("[data-so='engine-status']")).toHaveTextContent("Hydrated The Quest for the Sun Ruins");
+  },
+};
+
+export const JudgeGroupArrivesFromItsLazyChunk: Story = {
+  args: { snapshot: snapshot(false), manager: fakeManager(), host: host() },
+  play: async ({ canvasElement }) => {
+    await waitFor(() => expect(canvasElement.querySelector("#so-judge")).not.toBeNull());
+    await expect(canvasElement.querySelector("#so-judge-status")).not.toBeNull();
+    await expect(canvasElement.querySelector("[data-so='lazy-failed']")).toBeNull();
   },
 };

@@ -5,7 +5,6 @@ export * from "./convergence";
 export * from "./engine";
 export * from "./gates";
 export * from "./schema";
-export * from "./storyDiff";
 export * from "./transitions";
 export * from "./validate";
 export * from "./worldInfoEffects";

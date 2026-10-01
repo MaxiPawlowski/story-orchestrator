@@ -8,7 +8,7 @@ import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import CapabilitiesGroup, { type CapabilitiesGroupProps } from "./CapabilitiesGroup";
 import EntryPoints from "./EntryPoints";
-import JudgeSettingsGroup, { type JudgeSettingsGroupProps, type JudgeSettingsPatch } from "./JudgeSettingsGroup";
+import type { JudgeSettingsGroupProps, JudgeSettingsPatch } from "./JudgeSettingsGroup";
 import { StoryGroup } from "./StoryGroup";
 import { authoringSettings, DisplayGroup, LorebooksGroup, PacingGroup, StagecraftGroup, TalkGroup } from "./PlayGroups";
 import { CheckRow } from "./Field";
@@ -17,6 +17,7 @@ import { log } from "@utils/log";
 const ImageGroup = lazyRetry(() => import("../../image/ImageGroup"));
 const SpriteGroup = lazyRetry(() => import("../../sprites/SpriteGroup"));
 const GroupStoryBinding = lazyRetry(() => import("./GroupStoryBinding"));
+const JudgeSettingsGroup = lazyRetry(() => import("./JudgeSettingsGroup"));
 const MemoryModelGroup = lazyRetry(() => import("./MemoryModelGroup").then((module) => ({ default: module.MemoryModelGroup })));
 
 export interface SettingsHost {
@@ -146,8 +147,8 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
               )}
               <LorebooksGroup snapshot={snapshot} manager={manager} />
               <StagecraftGroup snapshot={snapshot} manager={manager} />
-              <JudgeSettingsGroup settings={judge.judge} status={judge.status} selfTest={judge.selfTest} authorView={snapshot.ui.authorView} meter={snapshot.judgeMeter}
-                wardenEnabled={wardenOn} onChange={judge.change} onSaveKey={writeJudgeSecret} onRefresh={judge.recheck} onRunSelfTest={() => void judge.test()} />
+              <Lazy fallback={null}><JudgeSettingsGroup settings={judge.judge} status={judge.status} selfTest={judge.selfTest} authorView={snapshot.ui.authorView} meter={snapshot.judgeMeter}
+                wardenEnabled={wardenOn} onChange={judge.change} onSaveKey={writeJudgeSecret} onRefresh={judge.recheck} onRunSelfTest={() => void judge.test()} /></Lazy>
               <TalkGroup snapshot={snapshot} manager={manager} />
               <PacingGroup snapshot={snapshot} manager={manager} />
             </div>

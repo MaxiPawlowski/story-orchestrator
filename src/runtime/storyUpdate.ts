@@ -1,8 +1,10 @@
-import { diffStories, isValidationErrorList, pruneEngineState, type EngineState, type NormalizedStoryV2, type StoryDiffResult } from "@engine/index";
+import { isValidationErrorList, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import type { StoryDiffResult } from "@engine/storyDiff";
 import { showChoicePopup } from "@services/STAPI";
 import { findStoryRecord, loadStoryRecord } from "./storyLibrary";
 import type { LoadedStory, StoryLibraryRecord } from "./types";
 import { beginRun, type RunOwnership } from "./runToken";
+import { log } from "@utils/log";
 
 export type StoryUpdateChoice = "keep" | "restart" | "cancel";
 
@@ -88,7 +90,21 @@ export const emptyOutcome = (reason: string): StoryUpdateOutcome => ({
 
 // The one automatic path from library to a running chat (spec addendum §Story identity): it exists
 // because the author is editing *from* this chat. Every other chat keeps its pinned copy.
+const loadStoryDiff = async () => {
+  try {
+    return await import("@engine/storyDiff");
+  } catch (error) {
+    log.warn("the story comparison chunk failed to load", error);
+    return null;
+  }
+};
+
 export async function applyStoryUpdate(deps: StoryUpdateDeps, target?: StoryLibraryRecord): Promise<StoryUpdateOutcome> {
+  const loading = beginRun(deps.ownership);
+  const storyDiff = await loadStoryDiff();
+  if (!storyDiff) return emptyOutcome("the story comparison could not load; reload SillyTavern and save again");
+  if (!loading.stillOwns()) return emptyOutcome(`story update discarded: ${loading.lapsedDetail()}`);
+  const { diffStories, pruneEngineState } = storyDiff;
   const loaded = deps.getLoaded();
   if (!loaded) return emptyOutcome("no story is loaded in this chat");
   const record = target ?? findStoryRecord(loaded.record.id);

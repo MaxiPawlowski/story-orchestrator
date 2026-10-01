@@ -97,6 +97,8 @@ const harness = (next: StoryV2, nextVersion = 2) => {
   };
 };
 
+const settle = () => new Promise((resolve) => setTimeout(resolve, 0));
+
 function deferred<T>() {
   let resolve!: (value: T) => void;
   const promise = new Promise<T>((done) => { resolve = done; });
@@ -168,6 +170,7 @@ describe("applyStoryUpdate", () => {
     choice.mockImplementationOnce(() => pending.promise);
 
     const running = applyStoryUpdate(h.deps);
+    await settle();
     expect(choice).toHaveBeenCalledTimes(1);
     pending.resolve("keep");
     const outcome = await running;
@@ -185,6 +188,7 @@ describe("applyStoryUpdate", () => {
     choice.mockImplementationOnce(() => pending.promise);
 
     const running = applyStoryUpdate(h.deps);
+    await settle();
     expect(choice).toHaveBeenCalledTimes(1);
     h.switchWorld();
     pending.resolve("keep");
@@ -197,6 +201,22 @@ describe("applyStoryUpdate", () => {
     expect(h.journalled).toHaveLength(0);
   });
 
+  it("discards the update when the world changes while the story comparison is still loading", async () => {
+    const next = storyV1();
+    next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
+    const h = harness(next);
+
+    const running = applyStoryUpdate(h.deps);
+    h.switchWorld();
+    const outcome = await running;
+
+    expect(outcome).toMatchObject({ applied: false, choice: null, classification: "unavailable" });
+    expect(outcome.reason).toContain("story update discarded: epoch:");
+    expect(choice).not.toHaveBeenCalled();
+    expect(h.swapped).toHaveLength(0);
+    expect(h.journalled).toHaveLength(0);
+  });
+
   it("discards a delayed restart decision after the world changes", async () => {
     const next = storyV1();
     next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
@@ -205,6 +225,7 @@ describe("applyStoryUpdate", () => {
     choice.mockImplementationOnce(() => pending.promise);
 
     const running = applyStoryUpdate(h.deps);
+    await settle();
     expect(choice).toHaveBeenCalledTimes(1);
     h.switchWorld();
     pending.resolve("restart");
