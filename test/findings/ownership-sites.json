@@ -9,6 +9,10 @@
       "status": "local",
       "note": "v2.5 plan 05 F3 spike (2026-09-26): the so-f3-arms probe. Writes only the SceneArmResult it builds and returns (promptChars, passes, signals); it reads no chat, writes no store, chat metadata or host state, so a chat switch mid-run changes nothing it writes."
     },
+    "src/runtime/effectLedger.ts#runRestoreSteps": {
+      "status": "local",
+      "note": "v2.6 T1 merge (2026-10-01): moved out of EffectsApplier.restoreEffects to keep it in the file budget. Writes only the outcome list it builds and returns; the ledger writes stay in the caller (restoreEffects, PARTIAL: compare-and-set guard)."
+    },
     "src/runtime/promptCost.ts#PromptCost.flush": {
       "status": "local",
       "note": "v2.4 plan 08 T19a (2026-09-25): writes only the cache's own in-memory count map (tokens per block hash) and calls notify; nothing is persisted or chat-scoped, and a detach mid-flush stops the write (host identity check). Counts are content-keyed, so a count taken in one chat is equally true in another."

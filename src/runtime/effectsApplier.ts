@@ -25,7 +25,7 @@ import { samplerOverlay } from "./samplerOverlay";
 import type { WriteResult } from "@utils/writeResult";
 import { renderBlackboardMemo } from "./blackboardMemo";
 import { transitionNoteText } from "./narrative";
-import { appendRow, castRestoreBatches, pendingRow, restorePlan, rowsAfter, setStatus, type EffectWrite } from "./effectLedger";
+import { appendRow, pendingRow, restorePlan, rowsAfter, runRestoreSteps, setStatus, type EffectWrite } from "./effectLedger";
 import { effectExtensions, type EffectExtension, type EffectExtensionInput } from "./effectExtensions";
 import type { EffectLedgerRow, EffectTarget, RuntimeExtras, RuntimeSnapshot } from "./types";
 import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
@@ -443,16 +443,10 @@ export class EffectsApplier {
     const { steps, refused } = restorePlan(rows.filter((row) => RESTORABLE.has(row.target.kind)), this.reads());
     for (const row of refused) extras.effects.ledger = setStatus(extras.effects.ledger, row.id, "externally-changed", { found: row.found });
     let reverted = 0;
-    const settle = (row: EffectLedgerRow, restored: boolean) => {
+    for (const { row, restored } of await runRestoreSteps(steps, this.deps.restore, this.deps.restoreCast)) {
       extras.effects.ledger = setStatus(extras.effects.ledger, row.id, restored ? "reverted" : "revert-failed", restored ? {} : { reason: `could not restore ${row.effect}` });
       if (restored) reverted += 1;
-    };
-    const { batches, rest } = castRestoreBatches(steps, Boolean(this.deps.restoreCast));
-    for (const batch of batches) {
-      const restored = await this.deps.restoreCast?.(batch.group, batch.flags).catch(() => false) ?? false;
-      batch.rows.forEach((row) => settle(row, restored));
     }
-    for (const step of rest) settle(step.row, await this.deps.restore(step.row).catch(() => false));
     if (refused.length) this.deps.journal?.(`${refused.length} host change(s) were edited outside this story and left alone`);
     if (reverted) this.deps.journal?.(`restored ${reverted} host change(s)`);
     if (persist) await this.deps.persist?.();

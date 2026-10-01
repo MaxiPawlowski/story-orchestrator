@@ -202,3 +202,17 @@ export function castRestoreBatches(steps: RestoreStep[], batching: boolean): { b
 export function rowsAfter(rows: EffectLedgerRow[], messageId: number): EffectLedgerRow[] {
   return rows.filter((row) => row.status === "applied" && row.messageId >= messageId);
 }
+
+export async function runRestoreSteps(
+  steps: RestoreStep[], restore: (row: EffectLedgerRow) => Promise<boolean>,
+  restoreCast?: (group: string, flags: Array<{ member: string; disabled: boolean }>) => Promise<boolean>,
+): Promise<Array<{ row: EffectLedgerRow; restored: boolean }>> {
+  const { batches, rest } = castRestoreBatches(steps, Boolean(restoreCast));
+  const outcomes: Array<{ row: EffectLedgerRow; restored: boolean }> = [];
+  for (const batch of batches) {
+    const restored = await (restoreCast ? restoreCast(batch.group, batch.flags) : Promise.resolve(false)).catch(() => false);
+    batch.rows.forEach((row) => outcomes.push({ row, restored }));
+  }
+  for (const step of rest) outcomes.push({ row: step.row, restored: await restore(step.row).catch(() => false) });
+  return outcomes;
+}
