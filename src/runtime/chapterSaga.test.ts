@@ -3,6 +3,7 @@ jest.mock("@services/STAPI", () => ({
   showTextPopup: jest.fn(),
   registerHostMacro: jest.fn(),
   unregisterHostMacro: jest.fn(),
+  getContext: () => ({ chat: Array.from({ length: 30 }, () => ({})) }),
 }));
 
 jest.mock("@extraction/index", () => ({
@@ -24,6 +25,7 @@ import { bridgeText, carryBridge, commitBridge, dossiers, fold, inject, returnin
 import type { ChapterHost, ChapterPort } from "./chapterPort";
 import { ChapterSeal, type ChapterSealDeps } from "./chapterSeal";
 import { buildChapterView, chapterSettings, sealTarget, type SealTarget } from "./chapters";
+import { pendingBridge } from "@memory/chapterUnfold";
 import { derivePipelineStatus } from "./pipeline";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./runToken";
 import type { RuntimeManager } from "./runtimeManager";
@@ -82,7 +84,7 @@ const sealHarness = () => {
   const seal = async (target: SealTarget, messageId: number, step: number, path: string[]) => {
     Object.assign(state, { activeCheckpointId: path[path.length - 1], visitedPath: path, boundary: step, lastMessageId: messageId });
     (state.blackboard.values as Record<string, unknown>).step = step;
-    return new ChapterSeal(deps).seal(target, { boundary: step, messageId, pathLength: path.length });
+    return new ChapterSeal(deps).seal(target, { boundary: step, messageId, pathLength: path.length, path: [...path], activeCheckpointId: path[path.length - 1], blackboard: { step } });
   };
   return { seal, memory: () => memory, deps };
 };
@@ -108,11 +110,11 @@ describe("endings (v2.6 plan 07 task 18)", () => {
   it("the final seal writes the epilogue, ends the story, clears the bridge, and nothing seals after it", async () => {
     const run = sealHarness();
     await run.seal({ chapter: chapter("arrival"), part: 1, final: false }, 9, 1, ["gate", "market", "fire"]);
-    expect(run.memory().chapterBridge?.recordId).toBe("arrival#1");
+    expect(pendingBridge(run.memory().chapters ?? [])?.recordId).toBe("arrival#1");
     const final = await run.seal({ chapter: chapter("siege"), part: 1, final: true }, 29, 4, ["gate", "market", "fire", "walls", "dawn"]);
     expect(final).toMatchObject({ id: "siege#1", final: true, epilogue: EPILOGUE });
     const records = run.memory().chapters!;
-    expect(run.memory().chapterBridge).toBeNull();
+    expect(pendingBridge(records)).toBeNull();
     const view = buildChapterView(story, "dawn", records);
     expect(view).toMatchObject({ ended: true, epilogue: EPILOGUE });
     expect(sealTarget(story, "dawn", records, ["gate", "market", "fire", "walls", "dawn"])).toBeNull();
@@ -189,31 +191,33 @@ describe("the story-so-far block (v2.6 plan 07 task 12)", () => {
 
 describe("the chapter bridge (v2.6 plan 07 task 13)", () => {
   const bridge = { recordId: "arrival#1", text: bridgeText(record("arrival#1", { short: "they arrived." }), "The Siege") };
+  const sealed = () => [record("arrival#1", { short: "they arrived.", bridge: { text: bridge.text } })];
 
   it("names the ended chapter and the next one", () => {
     expect(bridge.text).toBe("The chapter Arrival has ended: they arrived. A new chapter begins: The Siege.");
   });
 
   it("rides the next loud generation and is spent only when that generation renders a reply", () => {
-    const { port, prompt, memory, host } = kitPort({ chapterBridge: bridge } as Partial<MemoryRuntimeState>);
+    const { port, prompt, memory, host } = kitPort({ chapters: sealed() } as Partial<MemoryRuntimeState>);
     carryBridge(port, "normal");
     expect(prompt.setStoryExtensionPrompt).toHaveBeenCalledWith(INJECTION_REGISTRY.chapterBridge.key, bridge.text, INJECTION_REGISTRY.chapterBridge.depth);
     commitBridge(port, false);
     expect(prompt.clearStoryExtensionPrompt).toHaveBeenCalledWith(INJECTION_REGISTRY.chapterBridge.key);
-    expect(memory().chapterBridge).toEqual(bridge);
+    expect(pendingBridge(memory().chapters ?? [])).toEqual(bridge);
     carryBridge(port, "normal");
     commitBridge(port, true);
-    expect(memory().chapterBridge).toBeNull();
+    expect(pendingBridge(memory().chapters ?? [])).toBeNull();
+    expect(memory().chapters?.[0].bridge?.committedAt).toBe(29);
     expect(host.save).toHaveBeenCalled();
   });
 
   it("is withheld from quiet and impersonate generations", () => {
-    const { port, prompt, memory } = kitPort({ chapterBridge: bridge } as Partial<MemoryRuntimeState>);
+    const { port, prompt, memory } = kitPort({ chapters: sealed() } as Partial<MemoryRuntimeState>);
     carryBridge(port, "quiet");
     carryBridge(port, "impersonate");
     commitBridge(port, true);
     expect(prompt.setStoryExtensionPrompt).not.toHaveBeenCalled();
-    expect(memory().chapterBridge).toEqual(bridge);
+    expect(pendingBridge(memory().chapters ?? [])).toEqual(bridge);
   });
 });
 

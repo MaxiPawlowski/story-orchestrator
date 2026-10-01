@@ -153,4 +153,20 @@ Same seed (20260930) and sample size (200), `node scripts/suite/mutation-baselin
 
 ### Gates
 
-GATES_RESULT
+`npm run gates` in this worktree, 2026-10-01, after merging master `ec5083e9`:
+
+| Step | Result |
+|---|---|
+| typecheck | ok (15.4 s) |
+| typecheck:test | ok (15.3 s) |
+| lint | ok (17.8 s) |
+| test | ok: 384 suites passed, 1 skipped; 5009 tests passed, 1 skipped (501.9 s) |
+| build | ok (54.7 s) |
+| build:dev | ok (59.1 s) |
+| test:debug | ok: 537 pass, 0 fail (14.5 s) |
+| test:release | ok: 82 pass, 2 skipped, 0 fail (22.8 s) |
+| test:replay | ok: 30 of 30 mutants killed (533.1 s) |
+| test:plugin | ok: 73 pass, 3 skipped, 0 fail (10.3 s) |
+| test-storybook:ci | **NOT green**: the runner reported "No tests found" (exit 1) |
+
+The Storybook step failed before running anything. The test runner resolved its root to the main checkout (`C:\dev\story-orchestrator`, reached through this worktree's node_modules junction), so `<worktree>/src/**/*.stories.*` matched 0 files. This comes from the agent-worktree layout, not from any story. The CR-P changes touch no `.stories.tsx` and no UI component. Even so, Storybook is not green here: it must be run from a checkout with its own node_modules (or on master after merge) before anyone calls this record fully green.

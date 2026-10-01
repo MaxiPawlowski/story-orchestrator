@@ -312,7 +312,8 @@ click-through).
    - I5: cut the memory model twice, the judge once and the GPU broker once (repoint the profile, record the old
      `api-url`, put it back), 40 turns;
    - I6: reload and reopen each of I1–I3 at 3 cut points, then compare against the continuous run;
-   - findings into `09-findings.md`, fixed before step 2 (plan 09 §Gate).
+   - findings into `09-findings.md`, fixed before step 2 (plan 09 §Gate);
+   - the session mechanics (driver, flags, spend meter) are `14-autonomous-runbook.md`'s.
 2. Freeze the candidate.
 3. Run the whole cumulative regression set ×2 (plan 10 phase F, expected green on arrival).
 4. Claude plays one final free session on the frozen build (1 h), recorded for the review.
