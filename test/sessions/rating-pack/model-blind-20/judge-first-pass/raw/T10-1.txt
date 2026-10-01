@@ -1,0 +1,5 @@
+exit 0
+--- text ---
+{"scores":{"A":{"coherence":5,"prose":4,"scene":5,"agency":5,"overall":5},"B":{"coherence":5,"prose":4,"scene":3,"agency":5,"overall":3},"C":{"coherence":5,"prose":4,"scene":3,"agency":2,"overall":2},"D":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4}},"rank":["A","D","B","C"],"why":"A best combines the dawn resolution with the required shouted recognition, although its isolated “Name” reads awkwardly; D offers polished aftermath and recognition but omits the defender shouting a name. B resolves the siege without the recognition beat, while C also misses that direction and explicitly narrates the player's sword attack."}
+--- stderr ---
+

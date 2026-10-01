@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { contextOf, readChatInventory, readHostSwipes, readObservation, readRuntimeBlob, readTranscript, readWizardDrafts } from './sessionPageReads.mts';
+import { contextOf, readChatInventory, readHostSwipes, readLivePresets, readObservation, readRuntimeBlob, readTranscript, readWizardDrafts } from './sessionPageReads.mts';
 import { fakeSt, install, uninstall } from './sessionFakes.mts';
 import { findCard, loadCards, parseLiveArgs, verifySession } from '../so-session.mts';
 
@@ -56,6 +56,17 @@ test('AS-22/23 verify: tracked chats need their full persisted runtime and the c
   const ok = await verifySession(dir, session, doc, card);
   assert.deepEqual(ok.invalid, []);
   assert.equal(ok.inventory.chats, 2);
+});
+
+test('preset overlay: the live instruct and sampler values come from the page context, and a missing holder reads null', async () => {
+  const fake = fakeSt({ chat: [{ name: 'Narrator', mes: 'Hall.' }] });
+  (fake.ctx as any).powerUserSettings = { instruct: { preset: 'Gemma 4', last_output_sequence: 'X', enabled: true } };
+  (fake.ctx as any).textCompletionSettings = { preset: 'Artemis v1.1 RP', samplers: ['min_p', 'temperature'], temp: 1 };
+  install(fake);
+  assert.deepEqual(await readLivePresets(page), { instruct: { preset: 'Gemma 4', last_output_sequence: 'X' }, textgen: { preset: 'Artemis v1.1 RP', samplers: ['min_p', 'temperature'] } });
+  delete (fake.ctx as any).powerUserSettings;
+  (fake.ctx as any).textCompletionSettings = { preset: 'x' };
+  assert.deepEqual(await readLivePresets(page), { instruct: null, textgen: { preset: 'x', samplers: null } });
 });
 
 test('T0-3: the host swipes read comes from ST\'s own checkbox, and a missing one reads null', async () => {
