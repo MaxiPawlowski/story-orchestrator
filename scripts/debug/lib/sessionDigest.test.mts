@@ -158,10 +158,10 @@ test('T1 digest: model defects recorded by the loop guard are counted per sessio
   const index = await loadIndex();
   const { files, paths } = await loadSessionFiles(fixture('planted'), index);
   const digest = digestSession(files, paths);
-  assert.deepEqual(digest.modelDefects, { turns: 1, loop: 1, corrupt: 0, repaired: 1 });
+  assert.deepEqual(digest.modelDefects, { turns: 1, loop: 1, corrupt: 0, repaired: 1, unrepaired: 0 });
   const rows = digest.anomalies.filter((anomaly) => anomaly.kind === 'model-defect');
   assert.deepEqual(rows.map((row) => [row.summary, row.evidence.path, row.evidence.line]), [['model loop in message 7 (Dalan): hard as river stones (x4) (swiped once)', 'turns.jsonl', 2]]);
   assert.match(renderFindings(digest, 'x'), /1 turn\(s\) with a defective reply: loop 1, corrupt 0; swiped once by the loop guard: 1/);
   const clean = await loadSessionFiles(fixture('clean'), index);
-  assert.deepEqual(digestSession(clean.files, clean.paths).modelDefects, { turns: 0, loop: 0, corrupt: 0, repaired: 0 });
+  assert.deepEqual(digestSession(clean.files, clean.paths).modelDefects, { turns: 0, loop: 0, corrupt: 0, repaired: 0, unrepaired: 0 });
 });

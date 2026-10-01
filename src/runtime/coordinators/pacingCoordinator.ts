@@ -3,7 +3,7 @@ import {
   type Checkpoint, type EngineState, type NormalizedStoryV2, type TensionLevel,
 } from "@engine/index";
 import type { ParsedDelta } from "@extraction/index";
-import { composeGuidanceBlock, getSteeringHint, updateEma } from "@pacing/index";
+import { composeGuidanceBlock, getSteeringHint, tensionEvidenceFresh, updateEma } from "@pacing/index";
 import { PACING_HINT_DEPTH, PACING_HINT_EXTENSION_KEY } from "@constants/defaults";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 
@@ -33,6 +33,7 @@ export interface PacingCoordinatorDeps {
 // the boundary. Everything between those two writes lives here.
 export class PacingCoordinator {
   private pending: TensionRuntimeState | null = null;
+  private sampled: { to: number; before: number | null } | null = null;
   private drafted: string | null = null;
   private withheld = false;
 
@@ -42,17 +43,26 @@ export class PacingCoordinator {
     this.pending = null;
   }
 
-  applyExtractorTension(acceptedDeltas: ParsedDelta[]): TensionLevel[] {
+  reset() {
+    this.pending = null;
+    this.sampled = null;
+  }
+
+  applyExtractorTension(acceptedDeltas: ParsedDelta[], windowTo: number): { accepted: ParsedDelta[]; levels: TensionLevel[] } {
     const levels: TensionLevel[] = [];
-    acceptedDeltas.forEach((entry) => {
-      if (entry.delta.q !== TENSION_CURRENT_KEY || !entry.rawLevel) return;
+    const accepted = acceptedDeltas.filter((entry) => {
+      if (entry.delta.q !== TENSION_CURRENT_KEY || !entry.rawLevel) return true;
+      if (!tensionEvidenceFresh(entry.messageId, windowTo) || (this.sampled && windowTo < this.sampled.to)) return false;
       const base = this.pending ?? this.deps.getTension();
-      const smoothed = updateEma(base.smoothed, entry.delta.v as number, this.deps.getPacing().alpha);
+      const before = this.sampled?.to === windowTo ? this.sampled.before : base.smoothed;
+      this.sampled = { to: windowTo, before };
+      const smoothed = updateEma(before, entry.delta.v as number, this.deps.getPacing().alpha);
       this.pending = { ...base, levels: [...base.levels, entry.rawLevel].slice(-TENSION_LEVEL_LIMIT), smoothed };
       levels.push(entry.rawLevel);
       entry.delta.v = smoothed;
+      return true;
     });
-    return levels;
+    return { accepted, levels };
   }
 
   applyCommitted(result: BoundaryResult) {
@@ -95,7 +105,7 @@ export class PacingCoordinator {
       });
     });
     this.deps.setTension(tension);
-    this.pending = null;
+    this.reset();
   }
 
   private effectiveShape(): ArcTemplate | null {

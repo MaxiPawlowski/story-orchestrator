@@ -43,9 +43,8 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
       checkpoints.push({
         id: generatedId(entry, index),
         name: beat.title ?? shortCheckpointName(beat.objective),
-        ...(beat.title ? { player_name: beat.title } : {}),
         objective: beat.objective,
-        ...(stub?.player_name ? { player_name: stub.player_name } : {}),
+        ...(beat.title ? { player_name: beat.title } : stub?.player_name ? { player_name: stub.player_name } : {}),
         type: "intermediate",
         guidance: beat.guidance,
         tension_target: beat.tension_target,

@@ -3,7 +3,7 @@ import type { DriverContext } from "@copilot/index";
 import { castVoices, playerThreadSince, playerThreadTexts, sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks } from "@stagecraft/index";
 import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
-import { buildConvergenceReadout, buildLastTransition, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot } from "./snapshot";
+import { buildConvergenceReadout, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot, playerLastTransition } from "./snapshot";
 import { buildNarrativeStatus, playerLocation, type NarrativeTransition, type RollbackNotice, type RollbackUnavailable } from "./narrative";
 import { agencyRecovery as agencyRecoveryOf, playerTurnIds, REFUSAL_PLAYER_TEXT, type AgencyRecovery } from "./agencyRecovery";
 import { jumpIndex } from "./messageJump";
@@ -39,13 +39,7 @@ const readerFields = (reader: { reader: "judge" | "llm"; confidence?: number } |
   ? { reader: reader.reader, ...(reader.confidence !== undefined ? { confidence: reader.confidence } : {}) }
   : {});
 
-const playerTransition = (story: NormalizedStoryV2 | null, boundaryLog: BoundaryLogEntry[]): NarrativeTransition | null => {
-  const transition = buildLastTransition(story, boundaryLog);
-  if (!transition || !story) return null;
-  const from = story.checkpoints.find((entry) => entry.name === transition.fromName)?.player_name ?? null;
-  const to = story.checkpoints.find((entry) => entry.name === transition.toName)?.player_name ?? null;
-  return to ? { fromName: from, toName: to } : null;
-};
+const playerTransition = (story: NormalizedStoryV2 | null, boundaryLog: BoundaryLogEntry[]): NarrativeTransition | null => playerLastTransition(story, boundaryLog);
 
 const publishedIntro = (story: NormalizedStoryV2 | null): string | null => story?.player_intro || story?.description || null;
 

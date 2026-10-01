@@ -803,7 +803,7 @@
       "id": "J11.23",
       "mode": "auto",
       "findings": [],
-      "goal": "stall check opted in, reads off (cadence 50): a lever pulled six turns ago is written straight from the stall check with no LLM re-read; then a door nobody opens stays a genuine stall with the player's stall signal still showing",
+      "goal": "stall check opted in, reads off (cadence 50): a lever pulled six turns ago is written straight from the stall check with no LLM re-read; then a door nobody opens is a genuine stall the check closes with its note, and no 'catching up' signal stays behind (T1-6)",
       "requires": [
         "judge-runtime",
         "judge-plugin"
@@ -880,7 +880,7 @@
           "slash": "/sendas name=\"DM Narrator\" raw=false \"The wind moves the dust across the flagstones. (7)\""
         },
         {
-          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const genuine = await until(() => rt.getSnapshot().extraction.judgedReads.slice(globalThis.__soJ11Stall.reads).find((read) => read.kind === 'stall'), 30000); if (!genuine) throw new Error('no stall check on the door'); const snap = rt.getSnapshot(); const event = snap.extraction.reconciliationEvents.filter((entry) => entry.checkpointId === 'door').at(-1); if (genuine.note?.startsWith('nothing shown')) { if (event?.resolvedAt) throw new Error('a genuine stall was resolved'); if (snap.extraction.audits.slice(globalThis.__soJ11Stall.audits).some((audit) => audit.reason.startsWith('reconcile:door'))) throw new Error('a genuine stall still spent an LLM re-read'); } return { branch: genuine.note, event };",
+          "eval": "const rt = globalThis.storyOrchestratorRuntime; const ctx = SillyTavern.getContext(); const until = async (probe, ms) => { const end = Date.now() + ms; while (Date.now() < end) { const value = probe(); if (value) return value; await new Promise((resolve) => setTimeout(resolve, 250)); } return null; }; const genuine = await until(() => rt.getSnapshot().extraction.judgedReads.slice(globalThis.__soJ11Stall.reads).find((read) => read.kind === 'stall'), 30000); if (!genuine) throw new Error('no stall check on the door'); const snap = rt.getSnapshot(); const event = snap.extraction.reconciliationEvents.filter((entry) => entry.checkpointId === 'door').at(-1); if (genuine.note?.startsWith('nothing shown')) { if (!event?.resolvedAt) throw new Error('a genuine stall was left open, so the HUD would keep reading catching up'); if (snap.extraction.audits.slice(globalThis.__soJ11Stall.audits).some((audit) => audit.reason.startsWith('reconcile:door'))) throw new Error('a genuine stall still spent an LLM re-read'); } return { branch: genuine.note, event };",
           "log": true
         },
         {

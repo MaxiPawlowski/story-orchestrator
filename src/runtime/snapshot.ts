@@ -62,6 +62,13 @@ export const buildLastTransition = (story: NormalizedStoryV2 | null, boundaryLog
   return null;
 };
 
+export const playerLastTransition = (story: NormalizedStoryV2 | null, boundaryLog: BoundaryLogEntry[]): NarrativeInput["lastTransition"] => {
+  const entry = story ? [...boundaryLog].reverse().find((candidate) => candidate.fired) : undefined;
+  if (!story || !entry) return null;
+  const to = story.checkpointById[entry.after.activeCheckpointId]?.player_name ?? null;
+  return to ? { fromName: story.checkpointById[entry.before.activeCheckpointId]?.player_name ?? null, toName: to } : null;
+};
+
 // The `story_possible_transitions` macro source: where the story could go from here, in names.
 export const buildPossibleTransitions = (story: NormalizedStoryV2 | null, state: EngineState | null): string[] => {
   if (!story || !state) return [];

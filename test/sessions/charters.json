@@ -287,6 +287,7 @@
         "persona": "The leader of a C-rank Guild party following the Heresy out of Aegis City.",
         "chat": "fresh",
         "startAt": "night-the-kelger-falls",
+        "members": { "enabled": ["Kayla", "Erevan"] },
         "settings": {},
         "notes": ["Seeded at The Fog at Kelger Falls so the generated Long Night stretch is close. Kayla and Erevan travel with the party."]
       }

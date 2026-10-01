@@ -182,8 +182,8 @@ export class ExtractionCoordinator {
     await this.save();
   }
 
-  // Direct writes only at STALL_DIRECT_P; nothing shown keeps the stall (the event stays open, so the
-  // player's stall signal stays); anything else is today's LLM reconcile read. Returns "re-read".
+  // Direct writes only at STALL_DIRECT_P; nothing shown closes the re-check with the judge's note (the
+  // story simply has not moved, which is not "catching up"); anything else is today's LLM reconcile read.
   private async runStallPrecheck(plan: ReconciliationPlan): Promise<boolean> {
     const judge = this.deps.judge?.() ?? null;
     if (!judge) return true;
@@ -208,7 +208,7 @@ export class ExtractionCoordinator {
       this.recordJudgedRead({ ...record, deltas: verdict.deltas.map((entry) => ({ q: entry.q, v: entry.v, confidence: entry.p })), note: "direct" });
     } else {
       this.recordJudgedRead({ ...record, deltas: [], note: verdict.kind === "genuine" ? `nothing shown (max p ${verdict.maxP})` : `re-read (max p ${verdict.maxP})` });
-      if (verdict.kind === "genuine") this.markReconciliation(plan.descriptor.targetedKeys, [`judge: nothing shown (max p ${verdict.maxP})`], false);
+      if (verdict.kind === "genuine") this.markReconciliation(plan.descriptor.targetedKeys, [`judge: nothing shown (max p ${verdict.maxP})`], true);
     }
     await this.save();
     return verdict.kind === "reread";

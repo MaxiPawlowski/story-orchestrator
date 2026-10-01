@@ -109,7 +109,10 @@ describe("R9: a generated beat's outcomes are routes", () => {
     const paths = outcomePaths({ key_found: false, approach: "unknown" }, beats);
     expect(paths.length).toBeGreaterThan(0);
     const check = runCodeChecks(story, input(), beats);
-    expect({ ok: check.ok, issues: check.issues }).toEqual({ ok: true, issues: [] });
+    expect(check.issues).toEqual([
+      "beat 2 outcome 'quiet route' gate guard_aware == false already holds when the beat starts, so the beat would pass without being played",
+      "beat 2 outcome 'blocked route' gate approach == \"blocked\" already holds when the beat starts, so the beat would pass without being played",
+    ]);
     // Every route must bridge: a chain where one route cannot reach the anchor is a stall waiting
     // for the player who takes it, and the check names the key rather than passing on route 0.
     // The route that loses `approach: safe` on the last beat is a real break. (This case used to drop

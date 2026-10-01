@@ -141,19 +141,34 @@ describe("judged stall pre-check (v2.2 plan 06)", () => {
     expect(manager.getSnapshot().activeCheckpointId).toBe("vault");
   });
 
-  it("keeps a genuine stall open with the judge's note, and re-reads anything in between", async () => {
+  it("closes a genuine stall with the judge's note, and re-reads anything in between", async () => {
     const genuine = await setup({ stallCheck: true }, leafAnswer(0.02));
     const quiet = jest.fn();
     genuine.manager.recordReconciliation(plan().descriptor);
     genuine.manager.judgedExtraction({ kind: "stall", plan: plan(), reread: quiet });
     await flush();
     expect(quiet).not.toHaveBeenCalled();
-    expect(genuine.manager.getSnapshot().extraction.reconciliationEvents.at(-1)).toMatchObject({ resolvedAt: null, evidence: ["judge: nothing shown (max p 0.02)"] });
+    expect(genuine.manager.getSnapshot().extraction.reconciliationEvents.at(-1)).toMatchObject({ resolvedAt: expect.any(String), evidence: ["judge: nothing shown (max p 0.02)"] });
     const unsure = await setup({ stallCheck: true }, leafAnswer(0.5));
     const reread = jest.fn();
     unsure.manager.judgedExtraction({ kind: "stall", plan: plan(), reread });
     await flush();
     expect(reread).toHaveBeenCalledTimes(1);
+  });
+
+  it("T1-6 / T1-5: re-checks the judge answered 'nothing shown' leave no 'catching up' chip (T1-6 journal.jsonl:1072-1278; T1-5 event 11:night_fog_broken open msgs 15-49)", async () => {
+    const recorded = [{ boundary: 35, p: 0.02 }, { boundary: 38, p: 0.02 }, { boundary: 41, p: 0.08 }, { boundary: 11, p: 0.03 }];
+    for (const { boundary, p } of recorded) {
+      const { manager } = await setup({ stallCheck: true }, leafAnswer(p));
+      const quiet = jest.fn();
+      const recordedPlan = { ...plan(), descriptor: { ...plan().descriptor, boundary } };
+      manager.recordReconciliation(recordedPlan.descriptor);
+      manager.judgedExtraction({ kind: "stall", plan: recordedPlan, reread: quiet });
+      await flush();
+      expect(quiet).not.toHaveBeenCalled();
+      expect(manager.getSnapshot().extraction.reconciliationEvents.filter((event) => event.resolvedAt === null)).toEqual([]);
+      expect(manager.getSnapshot().pipeline.state).not.toBe("stalled-rechecking");
+    }
   });
 
   it("claims nothing was answered when the stall call falls back, and re-reads", async () => {

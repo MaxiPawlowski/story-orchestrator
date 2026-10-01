@@ -651,11 +651,30 @@ export async function runGuardedTurn(page: any, line: string, deps: LiveDeps, op
   const flag = await deps.flag(page, `model defect: ${first.kind}`);
   const target = await replyTarget(page);
   const lastDefective = target.id !== null && !target.isUser && defects.some((defect) => defect.messageId === target.id);
+  const unrepaired = unrepairedDefects(defects, lastDefective ? target.id : null, target.id);
+  const unrepairedFlag = unrepaired.length ? await deps.flag(page, unrepairedNote(unrepaired)) : null;
+  const left = unrepaired.length ? { unrepaired, unrepairedFlag } : {};
   if (!lastDefective) {
-    return { ...record, modelDefect, modelDefects: defects, autoRepair: { flag, swiped: false, skipped: `the defective reply is not the last character reply (last ${target.id ?? 'none'}); ST swipes only the last message` } };
+    return { ...record, modelDefect, modelDefects: defects, autoRepair: { flag, swiped: false, repaired: [], ...left, skipped: `the defective reply is not the last character reply (last ${target.id ?? 'none'}); ST swipes only the last message` } };
   }
   const swipe = await runMutation(page, 'swipe-new', {}, deps, options);
   const after = await replyTarget(page);
   const stillDefective = after.id === target.id ? modelDefects([{ messageId: after.id, text: await messageText(page, after.id) }]) : [];
-  return { ...record, modelDefect, modelDefects: defects, autoRepair: { flag, swiped: swipe.ok === true, swipe, stillDefective } };
+  return { ...record, modelDefect, modelDefects: defects, autoRepair: { flag, swiped: swipe.ok === true, repaired: swipe.ok === true ? [target.id] : [], ...left, swipe, stillDefective } };
 }
+
+export const UNREPAIRED_REASON = 'not the last character reply: ST swipes only the last message, and deleting the replies after it would rewrite the round';
+
+export function unrepairedDefects(defects: ModelDefect[], swipedId: number | null, lastId: number | null) {
+  const byMessage = new Map<number, { messageId: number; speaker: string | null; kinds: ModelDefect['kind'][]; reason: string }>();
+  for (const defect of defects) {
+    if (defect.messageId === null || defect.messageId === swipedId) continue;
+    const entry = byMessage.get(defect.messageId) ?? { messageId: defect.messageId, speaker: defect.speaker, kinds: [], reason: defect.messageId === lastId ? 'the last reply, left in the chat' : UNREPAIRED_REASON };
+    if (!entry.kinds.includes(defect.kind)) entry.kinds.push(defect.kind);
+    byMessage.set(defect.messageId, entry);
+  }
+  return [...byMessage.values()].sort((left, right) => left.messageId - right.messageId);
+}
+
+export const unrepairedNote = (unrepaired: Array<{ messageId: number; kinds: string[] }>) =>
+  `model defect left in the chat: ${unrepaired.map((entry) => `message ${entry.messageId} (${entry.kinds.join('+')})`).join(', ')}`;

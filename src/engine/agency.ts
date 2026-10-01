@@ -33,6 +33,8 @@ export const objectiveClause = (kind: ObjectiveKind): string =>
     ? `This objective needs ${PLAYER_REF}'s own act: present the situation and the choice, then stop — do not resolve it for them. ${NO_CLOSING_QUESTION_CLAUSE}`
     : `This objective is world pressure: the world presses, answers and escalates on its own, without requiring ${PLAYER_REF} to comply.`;
 
+export const NO_SKIP_CLAUSE = `Stay in the present moment and place: never skip ahead in time or move ${PLAYER_REF} and their party somewhere new unless ${PLAYER_REF} chose to go.`;
+
 export const PLAYER_ATTEMPTS_CLAUSE = `${PLAYER_REF}'s message states an attempt; decide its outcome from the world — it may fail.`;
 
 export const agencyClauses = (policy: AgencyPolicy): string[] => [

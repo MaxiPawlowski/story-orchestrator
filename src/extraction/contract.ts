@@ -1,4 +1,4 @@
-import { TENSION_CURRENT_KEY, TENSION_LEVELS, type NormalizedStoryV2, type TensionLevel } from "@engine/index";
+import { TENSION_CURRENT_KEY, TENSION_FRESH_MESSAGES, TENSION_LEVELS, type NormalizedStoryV2, type TensionLevel } from "@engine/index";
 import { renderMemoryContractAddendum } from "@memory/contract";
 import { fnv1a, stableStringify } from "@runtime/hash";
 import type { SharedReadContract } from "./types";
@@ -18,8 +18,9 @@ const renderType = (contract: SharedReadContract) => contract.qualities.map(({ q
   const hintText = hints.length ? ` Hints: ${hints.join(" | ")}` : "";
   if (quality.key === TENSION_CURRENT_KEY) {
     return [
-      `- ${TENSION_CURRENT_KEY}: type=level; Rate the current tension — pick the highest level whose description is met, not the average mood; write value as one quoted level, ` +
-        `cite the strongest signal.${hintText}`,
+      `- ${TENSION_CURRENT_KEY}: type=level; Rate the tension as it stands in the newest ${TENSION_FRESH_MESSAGES} messages — pick the highest level whose description ` +
+        `they meet, not the average mood; a threat earlier in the window that has since been answered, defused or left behind no longer counts. Write value as one ` +
+        `quoted level and cite the strongest signal from those newest messages.${hintText}`,
       ...TENSION_LEVELS.map((level) => `  ${level}: ${TENSION_SCALE[level]}`),
     ].join("\n");
   }

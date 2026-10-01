@@ -385,6 +385,7 @@ Pinned Adolion build `6ebe71ae83feaa39200cf196591ffa891c5ee12b`. 36 cards. Start
   - Story: `adolion-night` (Adolion: Night Courts); fresh chat; player mode.
   - Persona: The leader of a C-rank Guild party following the Heresy out of Aegis City.
   - Starts at The Fog at Kelger Falls `night-the-kelger-falls`, seeded by `so-session start`.
+  - Enabled in the group at start (a start past the story's start runs only its own cast changes): Kayla, Erevan.
   - Settings: images off; sprites off.
   - Seeded at The Fog at Kelger Falls so the generated Long Night stretch is close. Kayla and Erevan travel with the party.
 - **Drive:**

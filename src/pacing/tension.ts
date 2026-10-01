@@ -1,4 +1,4 @@
-import { TENSION_LEVELS, type TensionLevel } from "@engine/index";
+import { TENSION_FRESH_MESSAGES, TENSION_LEVELS, type TensionLevel } from "@engine/index";
 
 export const TENSION_NUMERIC: Record<TensionLevel, number> = {
   calm: 0,
@@ -17,6 +17,9 @@ export const numericToLevel = (value: number): TensionLevel =>
   TENSION_LEVELS.reduce((closest, level) =>
     Math.abs(TENSION_NUMERIC[level] - value) < Math.abs(TENSION_NUMERIC[closest] - value) ? level : closest,
   TENSION_LEVELS[0]);
+
+export const tensionEvidenceFresh = (sourceMessageId: number | undefined, windowTo: number): boolean =>
+  sourceMessageId === undefined || sourceMessageId > windowTo - TENSION_FRESH_MESSAGES;
 
 export const updateEma = (prevSmoothed: number | null, sample: number, alpha: number): number => {
   if (prevSmoothed === null) return sample;

@@ -1,6 +1,7 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { backdateSession, blackboardDiff, flagMoment, groupNeedle, newJournalEvents, runGuardedTurn, runMutation, runTurn, type LiveDeps } from './sessionLive.mts';
+import { backdateSession, blackboardDiff, flagMoment, groupNeedle, newJournalEvents, runGuardedTurn, runMutation, runTurn, UNREPAIRED_REASON, type LiveDeps } from './sessionLive.mts';
+import { defectCounts } from './modelDefects.mts';
 import { clearPage, EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './sessionFakes.mts';
 
 afterEach(() => { uninstall(); delete (globalThis as any).document; });
@@ -559,9 +560,32 @@ test('T1 loop guard: a corrupt reply that is not the last one is flagged, and th
   let swiped = false;
   const record = await runGuardedTurn(fakePage(), 'Report.', baseDeps({ send: guardedSend(fake, [[1, 'Her face was pale pale under the lantern.'], [2, 'Dalan nods.']]), flag: async (_page, note) => { flags.push(note); return { ok: true }; }, clickSwipeRight: async () => { swiped = true; } }));
   assert.equal(record.modelDefect?.kind, 'corrupt');
-  assert.deepEqual(flags, ['model defect: corrupt']);
+  assert.deepEqual(flags, ['model defect: corrupt', 'model defect left in the chat: message 4 (corrupt)']);
   assert.equal(swiped, false);
   assert.match(String((record.autoRepair as any).skipped), /not the last character reply/);
+  assert.deepEqual((record.autoRepair as any).unrepaired, [{ messageId: 4, speaker: fake.ctx.characters[1].name, kinds: ['corrupt'], reason: UNREPAIRED_REASON }]);
+});
+
+test('T1-6 turn 24: two looping replies in one round, the last is swiped and the earlier one is recorded and flagged as left in the chat', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const flags: string[] = [];
+  const looping = 'And then she is.\nShe smiles.\nAnd then she is.\nShe waits.\nAnd then she is.\nAnd then she is.';
+  const record = await runGuardedTurn(fakePage(), 'We go back to our rooms.', baseDeps({ send: guardedSend(fake, [[1, looping], [2, looping]]), flag: async (_page, note) => { flags.push(note); return { kind: 'flag', note, ok: true }; }, clickSwipeRight: swipeOn(fake, false) }));
+  assert.deepEqual(record.modelDefects.map((defect) => defect.messageId), [4, 5]);
+  const repair = record.autoRepair as any;
+  assert.equal(repair.swiped, true);
+  assert.deepEqual(repair.repaired, [5]);
+  assert.deepEqual(repair.unrepaired.map((entry: any) => [entry.messageId, entry.kinds, entry.reason]), [[4, ['loop'], UNREPAIRED_REASON]]);
+  assert.deepEqual(flags, ['model defect: loop', 'model defect left in the chat: message 4 (loop)']);
+  assert.equal(fake.ctx.chat[4].swipes.length, 1, 'the earlier reply is left as it was');
+  assert.equal(fake.ctx.chat.length, 6, 'nothing is deleted');
+});
+
+test('T1-6 turn 24 digest: only the swiped message reads as swiped; the one left in the chat says so and is counted', () => {
+  const defect = (messageId: number) => ({ kind: 'loop', messageId, speaker: 'x', sample: 's', rule: 'r' });
+  const counts = defectCounts([{ modelDefects: [defect(56), defect(57)] as any, autoRepair: { swiped: true, repaired: [57], unrepaired: [{ messageId: 56 }] } as any }]);
+  assert.deepEqual(counts, { turns: 1, loop: 2, corrupt: 0, repaired: 1, unrepaired: 1 });
 });
 
 test('T1 loop guard: control, a clean round is neither flagged nor swiped', async () => {

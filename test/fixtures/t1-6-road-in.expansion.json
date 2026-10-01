@@ -1,0 +1,286 @@
+{
+  "source": "test/sessions/T1/T1-6-1 runtime extras.expansion + pinnedStory adolion-esha; journal.jsonl:753,795,798",
+  "story": {
+    "format": 2,
+    "id": "t1-6-road-in",
+    "version": 1,
+    "title": "T1-6 Road In",
+    "description": "",
+    "qualities": [
+      {
+        "key": "party_injuries",
+        "type": "int",
+        "source": "extractor",
+        "ledger_binding": {
+          "entity": "The Party",
+          "field": "injuries"
+        },
+        "read_as": "rating",
+        "criteria": {
+          "levels": [
+            {
+              "value": 0,
+              "label": "unhurt"
+            },
+            {
+              "value": 1,
+              "label": "bruised: scrapes and aches"
+            },
+            {
+              "value": 2,
+              "label": "wounded: real wounds, still fighting fit"
+            },
+            {
+              "value": 3,
+              "label": "badly hurt: someone needs a healer soon"
+            },
+            {
+              "value": 4,
+              "label": "near death: someone may not survive"
+            }
+          ]
+        },
+        "rubric": "How hurt is the worst-off member of the party right now, as the story has shown it?"
+      },
+      {
+        "key": "esha_at_border",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "evidence_from": "world",
+        "scope_hint": {
+          "from": "esha-the-last-chapel"
+        },
+        "rubric": "Has the party left Ashliel's chapel and walked north to the line of mossy shrine stones where Alks Forest ends and the elves' wood begins? Talking about going north, or looking at the stones from the chapel, does not count."
+      },
+      {
+        "key": "esha_led_in",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "evidence_from": "any",
+        "scope_hint": {
+          "from": "esha-the-guardians"
+        },
+        "rubric": "Has the party agreed to go with the elven scouts and started walking into Eshalanore under their escort, on its own feet and armed? Hearing the invitation, or bargaining over it, does not count."
+      },
+      {
+        "key": "esha_welcome_refused",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "evidence_from": "any",
+        "scope_hint": {
+          "from": "esha-the-guardians"
+        },
+        "rubric": "Has the party refused the scouts' escort to court, by saying no, turning back south, or drawing on them? A question, a hesitation or a demand for terms does not count."
+      },
+      {
+        "key": "esha_city_reached",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "evidence_from": "world",
+        "scope_hint": {
+          "from": "esha-the-guardians"
+        },
+        "rubric": "Has the party arrived in Eshalanore's stone city, on its paved streets among the stone houses below the castle? Seeing lights through the trees does not count."
+      },
+      {
+        "key": "esha_out_of_the_trees",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "evidence_from": "world",
+        "scope_hint": {
+          "from": "esha-the-lady"
+        },
+        "rubric": "After the Mothergrove, has the party come out of the elves' wood at its southern edge, where the old trees stop and the black pines of Alks Forest begin? Still being under the old trees does not count."
+      },
+      {
+        "key": "location",
+        "type": "enum",
+        "values": [
+          "esha_alks_chapel",
+          "esha_border",
+          "esha_road_in",
+          "esha_castle_hall",
+          "esha_castle",
+          "esha_thornway",
+          "esha_mothergrove",
+          "esha_deep_wood",
+          "esha_weeping_run",
+          "esha_treeline"
+        ],
+        "player_labels": {
+          "esha_alks_chapel": "the ruined chapel",
+          "esha_border": "the shrine stones",
+          "esha_road_in": "the forest road",
+          "esha_castle_hall": "the castle's great hall",
+          "esha_castle": "the castle guest wing",
+          "esha_thornway": "the Thornway",
+          "esha_mothergrove": "the great tree's clearing",
+          "esha_deep_wood": "the deep forest",
+          "esha_weeping_run": "the stream under the roots",
+          "esha_treeline": "the treeline"
+        },
+        "source": "extractor",
+        "evidence_from": "world",
+        "rubric": "Where is the party right now? esha_alks_chapel: Ashliel's ruined chapel near the northern end of Alks Forest; esha_border: the shrine stones and the elves' wood just past them; esha_road_in: the forest road from the border to the city; esha_castle_hall: the main hall of Eshalanore Castle; esha_castle: the castle's guest wing and the stone city around it; esha_thornway: the avenue of black thorn arches into the deep forest; esha_mothergrove: the clearing round the great tree; esha_deep_wood: the deep forest south of the grove; esha_weeping_run: the stream channel under the roots; esha_treeline: where the elves' wood ends and Alks Forest begins."
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "esha-the-guardians",
+        "name": "The Shrine Stones",
+        "objective": "Cross the shrine stones into Eshalanore and get past what guards them.",
+        "type": "anchor",
+        "tension_target": "tense",
+        "state_snapshot": {
+          "location": "esha_border"
+        },
+        "start": true
+      },
+      {
+        "id": "esha-the-road-in",
+        "name": "The Road In",
+        "objective": "Walk under escort from the shrine stones to the elves' stone city: whatever the forest shows.",
+        "type": "intermediate"
+      },
+      {
+        "id": "esha-the-court",
+        "name": "The Welcome of Eshalanore",
+        "objective": "Accept Eshalanore's welcome and find out what became of the Holts.",
+        "type": "anchor",
+        "tension_target": "stirring",
+        "state_snapshot": {
+          "location": "esha_castle_hall"
+        }
+      }
+    ],
+    "transitions": [
+      {
+        "from": "esha-the-guardians",
+        "to": "esha-the-court",
+        "priority": 3,
+        "gate": {
+          "q": "esha_city_reached",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "esha-the-guardians",
+        "to": "esha-the-road-in",
+        "priority": 2,
+        "gate": {
+          "q": "esha_led_in",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "esha-the-road-in",
+        "to": "esha-the-court",
+        "priority": 2,
+        "gate": {
+          "q": "progress_toward_esha-the-court",
+          "op": ">=",
+          "v": 1
+        }
+      },
+      {
+        "from": "esha-the-road-in",
+        "to": "esha-the-court",
+        "priority": 1,
+        "gate": {
+          "q": "esha_city_reached",
+          "op": "==",
+          "v": true
+        }
+      }
+    ],
+    "roster": []
+  },
+  "basis": {
+    "esha_her_gaze": true,
+    "esha_at_border": true,
+    "location": "esha_border",
+    "tension_current": 0.28061274999999997,
+    "party_injuries": 0
+  },
+  "latched": {
+    "esha_at_border": true
+  },
+  "codeCheck": {
+    "ok": true,
+    "issues": [],
+    "progressTotal": 1
+  },
+  "beats": [
+    {
+      "title": "The Shrine Stones",
+      "objective": "Cross the shrine-stones into Eshalanore and get past what guards them.",
+      "guidance": "The stones stand at the treeline, warm to the touch and humming faintly. The incense Dalan smelled is thick here, coming from no censer anyone can see. Something waits on the far side — a shape in the green, a voice that knows the party's names before they give them. Ashliel crosses with them, silent and unforgiving. Sali's place is still unsettled. Play out the crossing: what the guardian is, what it asks or demands, and whether the party gets through by wit, warmth, force, or something else. Do not resolve the crossing for {{user}}; end on the guardian's move or the moment the last stone is behind them.",
+      "tension_target": "tense",
+      "outcomes": [
+        {
+          "label": "success",
+          "gate": {
+            "q": "esha_at_border",
+            "op": "==",
+            "v": true
+          },
+          "deltas": [
+            {
+              "q": "esha_at_border",
+              "v": true
+            },
+            {
+              "q": "esha_led_in",
+              "v": true
+            },
+            {
+              "q": "esha_out_of_the_trees",
+              "v": true
+            },
+            {
+              "q": "location",
+              "v": "esha_road_in"
+            }
+          ],
+          "progress": {
+            "anchor": "esha-the-court",
+            "amount": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "The Road In",
+      "objective": "Accept Eshalanore's welcome and find out what became of the Holts.",
+      "guidance": "Past the stones the wood opens onto a white road, and riders in green and gold come to meet the party — not hostile, but expecting them. They speak of the princess, of a guest long awaited, and of the Holts as honored visitors who chose to stay. The road leads to the castle hall. Play the welcome: who greets them, what is offered, what is asked in return, and what the party can learn about the Holts before the hall doors open. Do not decide for {{user}} whether to accept the welcome; end on the moment the party stands at the threshold of the hall, with the welcome still hanging in the air.",
+      "tension_target": "stirring",
+      "outcomes": [
+        {
+          "label": "success",
+          "gate": {
+            "q": "esha_led_in",
+            "op": "==",
+            "v": true
+          },
+          "deltas": [
+            {
+              "q": "esha_city_reached",
+              "v": true
+            },
+            {
+              "q": "location",
+              "v": "esha_castle_hall"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

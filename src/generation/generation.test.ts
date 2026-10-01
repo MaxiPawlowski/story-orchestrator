@@ -29,7 +29,7 @@ const candidate = () => {
 };
 
 const parsedBeats = () => {
-  const parsed = parseGeneratedBeats(readText("test/goldens/background-generator1.response.txt"), story);
+  const parsed = parseGeneratedBeats(readText("test/goldens/background-generator-played.response.txt"), story);
   expect(parsed.issues).toEqual([]);
   return parsed.beats;
 };
@@ -179,9 +179,11 @@ describe("background generation", () => {
     const input = planExpansion(story, { values: { key_found: false, approach: "unknown" } }, candidate(), "", []);
     const results = [1, 2, 3, 4, 5].map((index) => {
       const parsed = parseGeneratedBeats(readText(`test/goldens/background-generator${index}.response.txt`), story);
-      return !parsed.issues.length && runCodeChecks(story, input, parsed.beats).ok;
+      expect(parsed.issues).toEqual([]);
+      return runCodeChecks(story, input, parsed.beats).issues;
     });
-    const passRate = results.filter(Boolean).length / results.length;
-    expect(passRate).toBe(1);
+    expect(results).toEqual(results.map(() => [expect.stringMatching(/^beat 1 outcome '.+' gate key_found == true already holds when the beat starts/)]));
+    const played = parseGeneratedBeats(readText("test/goldens/background-generator-played.response.txt"), story);
+    expect(runCodeChecks(story, input, played.beats).ok).toBe(true);
   });
 });

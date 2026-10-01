@@ -59,8 +59,8 @@ export function modelDefects(replies: Array<{ messageId?: number | null; speaker
   });
 }
 
-export function defectCounts(records: Array<{ modelDefects?: ModelDefect[]; autoRepair?: { swiped?: boolean } | null }>) {
-  const counts = { turns: 0, loop: 0, corrupt: 0, repaired: 0 };
+export function defectCounts(records: Array<{ modelDefects?: ModelDefect[]; autoRepair?: { swiped?: boolean; unrepaired?: unknown[] } | null }>) {
+  const counts = { turns: 0, loop: 0, corrupt: 0, repaired: 0, unrepaired: 0 };
   for (const record of records) {
     const defects = Array.isArray(record?.modelDefects) ? record.modelDefects : [];
     if (!defects.length) continue;
@@ -68,6 +68,7 @@ export function defectCounts(records: Array<{ modelDefects?: ModelDefect[]; auto
     counts.loop += defects.filter((defect) => defect.kind === 'loop').length;
     counts.corrupt += defects.filter((defect) => defect.kind === 'corrupt').length;
     if (record.autoRepair?.swiped) counts.repaired += 1;
+    counts.unrepaired += Array.isArray(record.autoRepair?.unrepaired) ? record.autoRepair.unrepaired.length : 0;
   }
   return counts;
 }

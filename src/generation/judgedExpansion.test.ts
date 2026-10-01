@@ -16,7 +16,7 @@ const mockSend = jest.fn();
 const send = mockSend;
 const root = join(__dirname, "..", "..");
 const story = parseStoryV2OrThrow(JSON.parse(readFileSync(join(root, "test/fixtures/background-generation.story.json"), "utf-8")));
-const good = readFileSync(join(root, "test/goldens/background-generator1.response.txt"), "utf-8");
+const good = readFileSync(join(root, "test/goldens/background-generator-played.response.txt"), "utf-8");
 const input = () => planExpansion(story, { values: { key_found: false, approach: "unknown" } }, findStubExpansionCandidate(story, "start")!, "", []);
 const model = routedModel(profileRoute("p1"));
 const ask: ModelAsk = { role: "authoring", pass: "generation" };

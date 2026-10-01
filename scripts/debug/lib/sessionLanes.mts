@@ -230,6 +230,7 @@ export const JUDGE_ACCOUNT_RATE_ENV = 'SO_JUDGE_ACCOUNT_RATE_PER_MIN';
 export const JUDGE_LANE_RATE_ENV = 'SO_JUDGE_RATE_PER_MIN';
 export const JUDGE_LANE_RATE_MIN = 10;
 export const JUDGE_LANE_RATE_MAX = 60;
+export const JUDGE_LANE_OVERCOMMIT = 2;
 
 export interface JudgeRate { perMinute: number; lanes: number; running: number[]; account: number; source: 'arg' | 'derived' }
 
@@ -239,7 +240,7 @@ const positiveInt = (value: unknown) => {
 };
 
 export const laneJudgeRate = (lanes: number, account = JUDGE_ACCOUNT_RATE_PER_MIN) =>
-  Math.max(JUDGE_LANE_RATE_MIN, Math.min(JUDGE_LANE_RATE_MAX, Math.floor(account / Math.max(1, Math.floor(lanes)))));
+  Math.max(JUDGE_LANE_RATE_MIN, Math.min(JUDGE_LANE_RATE_MAX, Math.floor((account * JUDGE_LANE_OVERCOMMIT) / Math.max(1, Math.floor(lanes)))));
 
 export function judgeRatePlan(lane: number, running: number[], { requested = null, env = {} }: { requested?: unknown; env?: Record<string, string | undefined> } = {}): JudgeRate {
   const lanes = [...new Set([...running, lane])].sort((a, b) => a - b);

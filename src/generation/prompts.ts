@@ -1,4 +1,5 @@
 import { agencyClauses, agencyForCheckpoint, renderAgencyPolicy, thresholdFor, type NormalizedStoryV2 } from "@engine/index";
+import { gatePins } from "./paths";
 import type { GeneratedBeat, PlannedExpansionInput } from "./types";
 
 const PREMISE_CHARS = 600;
@@ -37,6 +38,9 @@ export function renderGenerationPrompt(story: NormalizedStoryV2, input: PlannedE
       `says what happens there. The objective says what the beat is for.`,
     `Beat count: ${input.beats}`,
     `State delta: ${JSON.stringify(input.deltas)}`,
+    `Already true when the chain starts: ${JSON.stringify({ ...input.latched, ...gatePins(input.candidate.transition.gate) })}. A beat is passed as soon as one of its ` +
+      `outcome gates holds, so gate each outcome on what that beat's own play changes: never on a value listed here, and never on a value an earlier beat's ` +
+      `outcome already gates on or writes.`,
     `Tension trajectory: ${JSON.stringify(input.tensionTrajectory)}`,
     `Generation bias: ${JSON.stringify(input.generationBias)}`,
     `Qualities:\n${qualities}`,
