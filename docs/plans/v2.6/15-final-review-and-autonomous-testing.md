@@ -88,3 +88,17 @@ The user is away until their quota returns. Their instructions, verbatim in subs
 - **Hand-off for 2026-10-01:** a single `docs/plans/v2.6/14-review-pack.md` with the tiers, findings by severity, open questions for the user and links to the evidence.
 
 **Amended by the user 2026-09-30:** a test or charter that proves not informative enough may be improved and re-run; keep the original run and record why it changed.
+
+**Model decisions (user, 2026-09-30):** the main RP model for the autonomous tests is **Artemis on RunPod** (profile `Artemis RunPod RP`); the orchestrator passes (read, synthesis, authoring, director, curator, inner) **stay on DeepSeek flash** as installed (paid per token, outside the RunPod budget; record the DeepSeek spend too). The audit found these to check or fix:
+- the stale `Artemis RunPod` profile (instruct `Gemma 4 Thinking`, preset `Artemis v1.1`);
+- a dead `Story Orchestrator Memory Local` (:1235, no preset);
+- the memory and image profiles carrying the roleplay system prompt `Sphiratrioth - Roleplay - 3rd person`;
+- `max_context` 98304 against the pod ctx.
+
+**Resume state 2026-09-30 ~19:50:** the agents hit the spend limit (it resets at 22:20).
+- UI leftovers: done, `04f38b30`, not merged.
+- so-session: `a4735d58` committed; cards to the richer spec are unverified.
+- Agent bridge: was writing its gate record; uncommitted work in its worktree.
+- Spanish cleanup: mid-edit, uncommitted.
+
+Resume each from its worktree.
