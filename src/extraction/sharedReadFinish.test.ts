@@ -62,7 +62,8 @@ describe("runSharedRead reads the finish reason (v2.4 plan 03 D6)", () => {
     const result = await read({ text: GOOD, finish: "length" }, { text: GOOD, finish: "stop" });
     expect(result.audit.acceptedDeltas.map((entry) => entry.delta.q)).toEqual(["crossed"]);
     expect(result.facts).toHaveLength(1);
-    expect(callExtractionReply).toHaveBeenNthCalledWith(2, expect.any(String), expect.anything(), expect.objectContaining({ maxTokens: 1024 }));
+    expect(callExtractionReply).toHaveBeenNthCalledWith(2, expect.any(String), expect.anything(), expect.objectContaining({ maxTokens: 2048 }));
+    expect(callExtractionReply).toHaveBeenNthCalledWith(1, expect.any(String), expect.anything(), expect.objectContaining({ maxTokens: 1024 }));
   });
 
   it("control: a reply that stopped on its own is read, however long it is", async () => {

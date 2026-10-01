@@ -15,9 +15,9 @@ describe("callBudget: one declared table for every memory-model call (v2.4 plan 
     expect(callTimeoutMs(512, 67720)).toBeGreaterThan(55600 + 75641);
   });
 
-  it("keeps the shared read fixed at 512 whatever the input, because MAX_DELTAS_PER_READ bounds its answer", () => {
-    expect(maxTokensFor("sharedRead", 0)).toBe(512);
-    expect(maxTokensFor("sharedRead", 40000)).toBe(512);
+  it("keeps the shared read fixed at 1024 whatever the input, because MAX_DELTAS_PER_READ bounds its answer", () => {
+    expect(maxTokensFor("sharedRead", 0)).toBe(1024);
+    expect(maxTokensFor("sharedRead", 40000)).toBe(1024);
   });
 
   it("scales a summary with its input between the floor and the cap", () => {

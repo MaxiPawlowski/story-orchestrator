@@ -11,7 +11,7 @@ const PRESETS: Record<string, Record<string, Record<string, unknown>>> = {
 
 const host = (profiles: Array<Record<string, unknown>>, overrides: Record<string, unknown> = {}) => ({
   extensionSettings: { disabledExtensions: [], connectionManager: { profiles } },
-  CONNECT_API_MAP: { llamacpp: { selected: "textgenerationwebui", type: "llamacpp" }, openai: { selected: "openai", source: "openai" }, kobold: { selected: "kobold" } },
+  CONNECT_API_MAP: { llamacpp: { selected: "textgenerationwebui", type: "llamacpp" }, openai: { selected: "openai", source: "openai" }, deepseek: { selected: "openai", source: "deepseek" }, kobold: { selected: "kobold" } },
   getPresetManager: (api: string) => (PRESETS[api] ? { getCompletionPresetByName: (name: string) => PRESETS[api][name] } : null),
   ...overrides,
 });
@@ -25,6 +25,16 @@ describe("v2.4 plan 03 H12: the extraction profile's context limit", () => {
   it("reads a CC profile's openai_max_context from its preset", () => {
     mockHost.context = host([{ id: "p2", api: "openai", preset: "Orchestrator-Gemma4-v1.0" }]);
     expect(readProfileContextLimit("p2")).toEqual({ value: 32768, source: "preset" });
+  });
+
+  it("a DeepSeek CC profile with no preset is budgeted at its provider's known context, not the 8192 default", () => {
+    mockHost.context = host([{ id: "ds", api: "deepseek", model: "deepseek-flash" }]);
+    expect(readProfileContextLimit("ds")).toEqual({ value: 131072, source: "source", reason: expect.stringContaining("deepseek") });
+  });
+
+  it("a CC profile with no preset and an unlisted source keeps the default", () => {
+    mockHost.context = host([{ id: "oa", api: "openai" }]);
+    expect(readProfileContextLimit("oa")).toEqual({ value: 8192, source: "default", reason: expect.stringContaining("no settings preset") });
   });
 
   it("unreadable preset → default 8192, reported", () => {
