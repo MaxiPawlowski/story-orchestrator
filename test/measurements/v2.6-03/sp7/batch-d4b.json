@@ -1,0 +1,36 @@
+{
+  "lanes": [
+    2
+  ],
+  "items": [
+    "test/measurements/v2.6-03/_run/sp7/live-adolion-sp7-d4b.json"
+  ],
+  "repeat": 2,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/measurements/v2.6-03/_run/sp7/live-adolion-sp7-d4b.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-10-01T11-22-54-031Z-live-adolion-sp7-d4b-run1.log",
+      "ms": 71771,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/measurements/v2.6-03/_run/sp7/live-adolion-sp7-d4b.json",
+      "lane": 2,
+      "run": 2,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-10-01T11-22-54-031Z-live-adolion-sp7-d4b-run2.log",
+      "ms": 79768,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

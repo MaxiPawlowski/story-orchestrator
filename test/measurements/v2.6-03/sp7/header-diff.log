@@ -1,0 +1,39 @@
+2026-10-01T11:25:36.638Z DIFF build.head  "90212624662dfed022901b459b8b9c17c2dcf741" -> "1c4038abf910e6b5f0a104140efed3773ef31520"
+2026-10-01T11:25:36.641Z WARNING: dist/manifest.json names no bundle: what the page is running cannot be compared to a build
+2026-10-01T11:25:36.641Z DIFF chat.chatId  null -> "2026-10-01@08h04m03s398ms"
+2026-10-01T11:25:36.641Z ok   chat.chatLength  2 -> 1  (allowed by progress)
+2026-10-01T11:25:36.641Z DIFF chat.groupId  null -> "1790852643626"
+2026-10-01T11:25:36.641Z DIFF group.disabledMembers  +Akito.png +Daigo.png +Ebisu.png +Eunie.png +Fumio.png +Hanabi.png +Hanzo.png +Himari.png +Kanai.png +Kanami.png +Koharu.png +Megumi.png +Miyabi.png +Rikako.png +Rinne.png +Shiba.png +Shinen.png +Sota.png +Tanabe.png +Tanya.png +Watara.png +Yurine.png
+2026-10-01T11:25:36.642Z DIFF group.members  +Adolion Narrator.png +Akito.png +Belle.png +Daigo.png +Dalan.png +Ebisu.png +Eunie.png +Fumio.png +Hanabi.png +Hanzo.png +Himari.png +Honami.png +Kanai.png +Kanami.png +Koharu.png +Megumi.png +Miyabi.png +Rikako.png +Rinne.png +Shiba.png +Shinen.png +Sota.png +Tanabe.png +Tanya.png +Watara.png +Yurine.png
+2026-10-01T11:25:36.642Z DIFF group.name  null -> "Adolion - The Eastern Road"
+2026-10-01T11:25:36.642Z ok   story.activeCheckpointId  null -> "east-landfall"  (allowed by progress)
+2026-10-01T11:25:36.643Z ok   story.boundary  null -> 1  (allowed by progress)
+2026-10-01T11:25:36.643Z DIFF story.contentHash  null -> "v2-ad97ac3a"
+2026-10-01T11:25:36.643Z DIFF story.id  null -> "adolion-east"
+2026-10-01T11:25:36.643Z DIFF story.playedVersion  null -> 7
+2026-10-01T11:25:36.643Z DIFF story.title  null -> "Adolion: The Eastern Road"
+2026-10-01T11:25:36.643Z {
+2026-10-01T11:25:36.643Z   "baseline": "test/measurements/v2.6-03/sp7/header-start.json",
+2026-10-01T11:25:36.643Z   "label": "diff-end",
+2026-10-01T11:25:36.643Z   "allow": [],
+2026-10-01T11:25:36.643Z   "differences": 13,
+2026-10-01T11:25:36.643Z   "progress": 3,
+2026-10-01T11:25:36.643Z   "blocking": 10,
+2026-10-01T11:25:36.643Z   "blockingPaths": [
+2026-10-01T11:25:36.643Z     "build.head",
+2026-10-01T11:25:36.643Z     "chat.chatId",
+2026-10-01T11:25:36.643Z     "chat.groupId",
+2026-10-01T11:25:36.643Z     "group.disabledMembers",
+2026-10-01T11:25:36.643Z     "group.members",
+2026-10-01T11:25:36.643Z     "group.name",
+2026-10-01T11:25:36.643Z     "story.contentHash",
+2026-10-01T11:25:36.643Z     "story.id",
+2026-10-01T11:25:36.644Z     "story.playedVersion",
+2026-10-01T11:25:36.644Z     "story.title"
+2026-10-01T11:25:36.644Z   ],
+2026-10-01T11:25:36.644Z   "warnings": [
+2026-10-01T11:25:36.644Z     "dist/manifest.json names no bundle: what the page is running cannot be compared to a build"
+2026-10-01T11:25:36.644Z   ],
+2026-10-01T11:25:36.644Z   "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+2026-10-01T11:25:36.644Z   "ok": false
+2026-10-01T11:25:36.644Z }

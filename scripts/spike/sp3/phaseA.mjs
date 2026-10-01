@@ -164,7 +164,12 @@ export function sourceFiles(all) {
 if (process.argv[1]?.endsWith("phaseA.mjs")) {
   const all = process.argv.includes("--all");
   const extra = process.argv.filter((arg) => arg.startsWith("--add=")).map((arg) => arg.slice(6));
-  const files = [...sourceFiles(all), ...extra.flatMap((dir) => [...walk(join(ROOT, dir))])];
+  for (const arg of process.argv.filter((entry) => entry.startsWith("--story="))) {
+    const [id, file] = arg.slice(8).split("=");
+    STORY_FILES[id] = file;
+  }
+  const archive = process.argv.includes("--no-archive") ? [] : sourceFiles(all);
+  const files = [...archive, ...extra.flatMap((dir) => [...walk(join(ROOT, dir))])];
   const result = measure(files, { groupCast: process.argv.includes("--group-cast") });
   if (!process.argv.includes("--distinct")) delete result.distinct;
   process.stdout.write(`${JSON.stringify(result, null, 2)}\n`);

@@ -1,0 +1,5 @@
+      SP7 D1 replay: [{"seed":11,"mismatches":0},{"seed":23,"mismatches":0},{"seed":37,"mismatches":0},{"seed":51,"mismatches":0}]
+      SP7 D2 gate rolls: [{"roll":"d20<=12","expected":60,"observed":59.87,"deltaPp":-0.13},{"roll":"d6<=1","expected":16.666666666666668,"observed":16.61,"deltaPp":-0.06},{"roll":"d100<=35","expected":35,"observed":34.93,"deltaPp":-0.07},{"roll":"d2<=1","expected":50,"observed":50.04,"deltaPp":0.04}]
+      SP7 D2 npc rolls: [{"probability":0.25,"observed":25.49,"deltaPp":0.49},{"probability":0.5,"observed":50.34,"deltaPp":0.34},{"probability":0.9,"observed":89.87,"deltaPp":-0.13}]
+      SP7 D2 talk pick: {"expected":75,"observed":75.35}
+Tests:       32 passed, 32 total

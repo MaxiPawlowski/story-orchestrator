@@ -1,0 +1,39 @@
+{
+  "spike": "SP7",
+  "restated": "docs/plans/v2.6/03-sp7-restated.md (committed 90212624 before any run)",
+  "lane": 2,
+  "bundle": { "flavor": "dev", "sha256_12": "6f56533e8608", "commit": "747561fd" },
+  "campaign": "adolion-campaign@e1c91fb (check_lab: 0 of 9 labs failing)",
+  "judge": "judge.enabled off on lane 2 for the run (D4b refuses a judge use); restored after the SP2-SP9 batch",
+  "route": "RP replies Artemis RunPod RP; extraction pinned SCENE_NONE (no pass role, rule 5 n/a)",
+  "toy": { "D1": "PASS (jest)", "D2": "PASS (jest)", "D3": "PASS (architecture + chance tests)", "file": "toy-jest.txt", "tests": "32 passed" },
+  "D2_adolion_offline": "node lab/chance/chance-draws.mjs --d2: 70 rows x 10000 seeds, worst |delta| 1.15 pp, known answers 15 ok: PASS",
+  "D4": {
+    "bar": "a rolled-back and re-entered checkpoint draws the same outcome, x2 live",
+    "fixture": "lab/chance/live-adolion-sp7-d4.json (adolion-deep, deep-the-tunnels)",
+    "runs": [
+      { "chatId": "2026-10-01@08h20m20s858ms", "key": "deep-the-tunnels:afterSpeak:Adolion Narrator:0", "boundary": 4, "unitPass1": 0.3866335223428905, "unitPass2": 0.3866335223428905, "fired": [false, false], "deep_swarm": [true, true], "routed": "deep-the-swarm", "offlineUnit": 0.386634 },
+      { "chatId": "2026-10-01@08h21m24s965ms", "key": "deep-the-tunnels:afterSpeak:Adolion Narrator:0", "boundary": 4, "unitPass1": 0.4018087633885443, "unitPass2": 0.4018087633885443, "fired": [false, false], "deep_swarm": [true, true], "routed": "deep-the-swarm", "offlineUnit": 0.401809 }
+    ],
+    "green": "2 of 2 (batch-d4.json)",
+    "result": "PASS"
+  },
+  "D4b": {
+    "bar": "a rolled-back and re-entered boundary picks the same speaker via options.random seeded from hash(chatId, storyId, boundary, 'talk'), x2 live",
+    "fixture": "lab/chance/live-adolion-sp7-d4b.json (adolion-east, east-the-rounds, director-off table)",
+    "runs": [
+      { "chatId": "2026-10-01@08h22m55s387ms", "boundary": 5, "unit": 0.7986556545365602, "chosen": ["Dalan", "Dalan"], "source": "rules", "walkAgrees": true, "east_upset": [true, true] },
+      { "chatId": "2026-10-01@08h24m06s920ms", "boundary": 5, "unit": 0.09658022946678102, "chosen": ["Honami", "Honami"], "source": "rules", "walkAgrees": true, "east_upset": [false, false] }
+    ],
+    "green": "2 of 2 (batch-d4b.json)",
+    "result": "PASS"
+  },
+  "D5": {
+    "bar": ">= 1 shipped example story uses a chance gate and the user accepts it",
+    "read": "7 of 7 Adolion rolls (wall_breached, aegis_examiner_watching, deep_swarm, east_upset, night_moon, esha_her_gaze, war_turn) present in the built saga at e1c91fb as source:code + roll qualities, each drawn once at a non-re-enterable checkpoint, each needing a player-driven co-condition, no dead fallback, branch rejoins (lab inventory recomputed from build/ by check.py). Live: deep_swarm routed by the committed draw in both D4 runs (true -> deep-the-swarm).",
+    "finding": "With sp7Chance off (every prod build today) the 7 roll branches are unreachable: 7 of 157 saga checkpoints never play.",
+    "result": "pending: user acceptance (the read supports deep_swarm as the shipped example)"
+  },
+  "headerDiff": "header-diff.log: 10 blocking paths, all page location (chat/group/story of the chat ST opened after cleanup; start capture had no chat open) plus build.head (this branch's docs commit). spikes all false at both ends; inventory, judge, extraction unchanged.",
+  "cost": { "pod_minutes_approx": 5, "deepseek_calls": 0, "typesafe_calls": 0 }
+}

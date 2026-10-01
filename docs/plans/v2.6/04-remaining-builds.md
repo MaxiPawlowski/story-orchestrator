@@ -21,7 +21,7 @@ measurement where the source plan requires one.
 | B17 | `loreExclusive` author-only; wizard keeps `exclusive` | v2.5 plan 08 | **fixed 2026-09-30** (§B17) | — | S |
 | G | Group→story binding UI | plan 17 | **built 2026-09-30** (§G) | live owed to plan 10 | S |
 | T4 | React 19 types, eslint 9, `npm audit` | v2.5 plan 03 | blocked on shared `node_modules` | A6 | M |
-| SP7.b | Chance gates into prod, first of the `.b` builds (overview W17) | v2.6 03 | — | SP7 D4/D4b | S |
+| SP7.b | Chance gates into prod, first of the `.b` builds (overview W17). (1) the seed seam: seeded NPC `probability` and talk pick (`engine/chance.ts`, `sp7Chance.ts` out of the dev chunk, flag removed); (2) the `roll` gate schema + validator + Studio field | v2.6 03 | **include** (v2.6 03 2026-10-01: D4/D4b PASS ×2 on Adolion, `v2.5/09-sp7-spike-report.md` §Worth review (v2.6)); ~1.8 kB min | (1) none; (2) D5: user accepts `deep_swarm` as the shipped example | S |
 | SP*.b | Every other spike whose Adolion worth review says include | v2.6 03 | — | v2.6 03 | per spike |
 | TL | Inline timeline | v2.6 08 | own plan | — | — |
 

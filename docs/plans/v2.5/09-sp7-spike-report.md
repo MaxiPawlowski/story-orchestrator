@@ -55,3 +55,31 @@ Not done here: it changes a shipped story before the verdict.
 
 Waits for the D4/D4b live legs (no deterministic condition failed). Cost so far: prod +1 126 B on the main entry (flag sanitizer only; 1 175 536 B of
 1 250 000); manager +2 lines; no new host seam.
+
+## v2.6 Adolion re-run (plan 03, 2026-10-01)
+
+Restated conditions: `docs/plans/v2.6/03-sp7-restated.md` (committed `90212624` before any run; bars unchanged). Lane 2,
+adolion-fresh at `adolion-campaign@e1c91fb` (`check_lab.py`: 0 of 9 labs failing), dev bundle `6f56533e8608` (commit
+`747561fd`), RP on `Artemis RunPod RP`, extraction pinned `SCENE_NONE` (no pass role), `judge.enabled` off on the lane copy.
+Records: `test/measurements/v2.6-03/sp7/` (`summary.json`, batch logs, run header start/end and diff).
+
+| # | Measured | Result |
+|---|---|---|
+| D1–D3 | toy jest legs re-run: 32 tests pass (`toy-jest.txt`) | PASS (toy, history) |
+| D2 (Adolion, offline) | `lab/chance/chance-draws.mjs --d2`: 70 rows × 10 000 seeds (7 rolls, 27 replies, the `east-the-rounds` walk; two chat-id forms), worst \|Δ\| 1.15 pp; 15 known answers reproduced | PASS |
+| D4 | `live-adolion-sp7-d4.json` ×2 (`deep-the-tunnels`, p 0.3 Narrator reply, `deep_swarm` d6≤2): run 1 unit 0.386634 both passes, run 2 unit 0.401809 both passes, same boundary (4), same fire/skip (skip, both), `deep_swarm` committed true in both passes and routed to `deep-the-swarm` once `deep_terrorborn_met`. The offline port recomputes each live unit exactly. Rollback applied from the player line both times | **PASS ×2** |
+| D4b | `live-adolion-sp7-d4b.json` ×2 (`east-the-rounds`, director-off table, rules pick after the gong): run 1 unit 0.798656 → Dalan both passes, run 2 unit 0.096580 → Honami both passes; both picks `source: rules`, both agree with the offline walk; `east_upset` true/true (run 1) and false/false (run 2) | **PASS ×2** |
+| D5 | Read on all 7 Adolion rolls: all present as `source: code` + `roll` qualities, drawn once at a non-re-enterable checkpoint, each gated by a player-driven co-condition, no dead fallback, each branch rejoins (lab inventory recomputed from `build/` by `check.py`). Live: `deep_swarm` routed by the committed draw in both D4 runs | **pending: user acceptance** (the read supports `deep_swarm`, Act IV, as the shipped example) |
+
+Finding (campaign/product, not a condition): with `sp7Chance` off, which is every prod build today, the 7 roll branches are
+unreachable, so **7 of 157 saga checkpoints never play** and the 27 probability replies roll on unseeded `Math.random`.
+
+## Worth review (v2.6)
+
+| | |
+|---|---|
+| Value | D1–D4b all PASS; D4/D4b ×2 live on Adolion, non-vacuous (different chats drew different units, speakers and roll values; each run identical across its rollback). Without the seam in prod, Adolion's 7 roll branches never play and its 27 probability replies and the `east-the-rounds` pick are not replayable after a rollback. |
+| Cost | Bundle: `engine/chance.ts` + `runtime/spikes/sp7Chance.ts` = 1 846 B minified (938 B gzip) on top of the 1 126 B seam already in prod; prod main entry today 1 241 915 B of 1 250 000 (headroom 8 085 B, so 6.2 kB after). Lines: 53 (pure engine) + 75 (runtime); 0 coordinator lines (deps on `EffectsApplier` and `TalkController`, `EngineHost.derive`); manager unchanged. Prompt tokens 0. Latency: no model call; a hash per draw (µs). |
+| Surface | No player control. Author: a `roll: {sides, target}` on a `source: code` quality (schema + validator + Studio field), which waits on D5. Player sees only outcomes. |
+| Risk to invariants | Engine purity kept (the engine never draws; `derive` is a clock-like seam, D3). Rollback ≡ replay holds (D1, D4, D4b). |
+| Call | **include → `SP7.b`**, in two halves: (1) the seam (seeded NPC `probability` and talk pick, D1–D4b) unconditionally; (2) the `roll` gate schema only after the user accepts D5 (v2.5 §SP7: "the gate schema only with D5"). |
