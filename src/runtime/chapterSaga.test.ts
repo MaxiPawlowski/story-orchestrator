@@ -65,7 +65,7 @@ const sealHarness = () => {
   const context: RunContext = { chatId: "chat-a", storyId: "chapters-mini", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   let memory = {
-    entries: [scene("s1", 2), scene("s2", 12), scene("s3", 22), scene("s4", 32)], arcs: [] as ArcEntry[], ledger: [], chapters: [] as ChapterRecord[],
+    entries: [scene("s1", 2), scene("s2", 12), scene("s3", 22), scene("s4", 32)], arcs: [] as ArcEntry[], ledger: [], epistemic: [], chapters: [] as ChapterRecord[],
     chronicle: { eras: [] }, chapterBridge: null, settings: { enabled: true, chapters: { seal: true } }, storyStart: 0, shortTermSummaryEnd: -1, derived: [] as DerivedRecord[],
   } as unknown as MemoryRuntimeState;
   const state = { activeCheckpointId: "market", visitedPath: ["gate", "market"], blackboard: { values: { step: 0 } }, boundary: 0, lastMessageId: 0 } as unknown as EngineState;

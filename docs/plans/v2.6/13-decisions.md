@@ -16,7 +16,7 @@ Rules applied:
 | LLM scenario | demote | 34 |
 | LLM scenario | keep | 32 |
 | LLM scenario | merge | 6 |
-| harness | keep | 102 |
+| harness | keep | 100 |
 | jest | keep | 391 |
 | journey check | keep | 144 |
 | live suite | keep | 43 |
@@ -127,7 +127,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 76.3% kille
 | jest | `src/memory/arcs.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/memory/budget.test.ts` | keep | guards a named defect |
 | jest | `src/memory/canon.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 1 fix commit(s)); name it on next touch (budget rule 1) |
-| jest | `src/memory/chapters.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 1 fix commit(s)); name it on next touch (budget rule 1) |
+| jest | `src/memory/chapters.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 2 fix commit(s)); name it on next touch (budget rule 1) |
 | jest | `src/memory/consolidate.test.ts` | keep | guards a named defect |
 | jest | `src/memory/contradictions.fixture.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/memory/derived.test.ts` | keep | defect-replay killer: derived-shared-hash-lifted (killed) |
@@ -539,8 +539,6 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 76.3% kille
 | harness | `scripts/debug/so-r4-spike.test.mts` | keep | harness guard (contract) |
 | harness | `scripts/debug/so-responsive.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/so-role-calibration.test.mts` | keep | harness guard (nothing named) |
-| harness | `scripts/debug/so-run-header.test.mts` | keep | harness guard (defect) |
-| harness | `scripts/debug/so-run-header.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/so-run-header.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/so-save-recorder.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/so-scenario.runSteps.test.mts` | keep | harness guard (defect) |

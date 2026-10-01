@@ -709,3 +709,11 @@ Commands (after the last edit): `npm run typecheck` 0 · `typecheck:test` 0 · `
 Found on the way: the first Storybook run failed every Story tab story with React #185, because the editor selected `draft.chapters ?? []` from zustand (a new array per render). Fixed; jest could not see it.
 
 Still open from this plan: judge `memoryVerify`, epistemic fold, D10, D11, map-reduce, seal fault-matrix rows, corpus transcript/needles/`so-saga-recall.mts`, Adolion, the staged wizard's Turning points `setChapters` proposal op (only the agent has the tool), a chapter column inside the checkpoint editor (the assignment lives in the Chapters editor), and every live J13 row.
+
+### 2026-10-01 — retained scope + Q-M driver (plan 15 AS-13, AS-14)
+
+- Built, all off by default, blob v6: D10 archive recall (`memory/archiveRecall.ts`, `chapterKit.recall`), D11 era seals (`chapters.eraTarget`, `era-<n>`), D3 epistemic folding (`chapterFold.foldEpistemic`), judge `memoryVerify` inside the seal (every fallback = code-only), map-reduce for oversize seal input (`memory/chapterReduce.ts`, replaces the trimming `fitInput`; `SEAL_CALL_BUDGET = 6`).
+- Census +3 rows; fault-matrix package `chapterSeal` (10 cells, 2 todo: title card before host write, seal does not read save evidence); `rollback ≡ replay` extended (hide op, epistemic folds, era ids). 23 of 23 mutants killed.
+- Q-M corpus and driver: `saga-mini.transcript.json` (360 messages), `needles.json` (40), chapterless 600-message variant, generator `scripts/debug/lib/sagaCorpus.mts`, driver `scripts/debug/so-saga-recall.mts` (A0 baseline prepared and frozen on its own; treatment arms refused against an A0 from another manifest). `recipe.json` names the commands.
+- Deviations: the Q-M7 bound counts the seal unit's own calls only; era records are not listed in the player Overview; no panel controls for the new switches. Q-M1..Q-M8 runs: owed to Part B.
+- Gates and the full table: `15-review.md` §Review fixes AS (measurement).

@@ -276,7 +276,7 @@
           "config": "authoring routed per recommended-config.md; Studio opened once so the dev handle exists",
           "artifacts": [
             "journey record under test/journeys/records/v2.6-acceptance/J14/",
-            "engine-history-<check>.json (H-k)",
+            "engine-history-<journeyId>.json (H-k)",
             "run header before + `so-run-header.mts diff` after"
           ],
           "originTier": "T5-1",
@@ -561,7 +561,7 @@
           "config": "judge master switch on, every judge.uses.* off (the journey runner's off arm, globalThis.__soJudgeMode)",
           "artifacts": [
             "journey records per check",
-            "engine-history-<check>.json (H-k)",
+            "engine-history-<journeyId>.json (H-k)",
             "run header before + `so-run-header.mts diff` after"
           ],
           "originTier": "T6-4",

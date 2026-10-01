@@ -63,7 +63,7 @@ export const GENERATED = {
     command: `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group <id> ${id}`,
     when: 'always',
     config: 'the journey file\'s own setup; scan mode where plan 10 says so',
-    artifacts: [`journey record per run under test/journeys/records/v2.6-acceptance/${id}/`, 'engine-history-<check>.json per check (H-k)', HEADER_PAIR],
+    artifacts: [`journey record per run under test/journeys/records/v2.6-acceptance/${id}/`, 'engine-history-<journeyId>.json covering every owned chat (H-k)', HEADER_PAIR],
     tier: 'T7',
   }),
   scenario: (asset) => ({

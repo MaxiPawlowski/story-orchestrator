@@ -282,3 +282,10 @@ Worktree `agent-a1cfad589a9bc715f`, master `bd61f23f` merged, built together wit
 - **Wizard prompt**: the agent's rules ask for a drive per cast member (`setRosterDrive`) and per-beat motives (`setCheckpointMotive`), told only to that character; the staged wizard's grammar shows `drive` on roster ops and `motives` on checkpoints, and the EFFECTS/CAST stage asks for them. Gate: `loop.test.ts` "both wizards ask for each character's drive…".
 - **Fault matrix**: `inner|aborted` is `covered` — a held inner call under a real `RunOwner` is aborted by a chat switch, rejects, and writes neither beat nor save; control: the same held call unaborted lands (`innerCoordinator.test.ts`). The inner row now has 0 `todo` cells.
 - Still open: K from the D1 corpus, the live C/B/A-D legs, the `intents` tier scorer.
+
+### 2026-10-01 — `intents` tier, fixtures and K tooling (plan 15 AS-13)
+
+- `intents` tier in `scripts/debug/lib/liveSuiteScore.mts` (precision ≥ 0.80, recall ≥ 0.50, playerAttributed = 0, from `b-intents.json`); 14 fixtures `extractor-intents01..14`; the suite is 43 fixtures and every `--expect-count` is 43. Negative controls in `liveSuiteIntents.test.mts`.
+- **K stays provisional at 24.** `MEDIAN_BOUNDARIES_PER_SCENE = 8` is the single constant (`src/memory/innerVoice.ts`), `INTENT_LAPSE_K_PROVISIONAL = true`; D1 sets it with `node scripts/debug/so-intent-k.mts measure --corpus <D1 id> <files> --write`, which rewrites the constant, flips the flag and records the measurement in `test/measurements/v2.6-06/k-intent-lapse.json`. Jest keeps constant, flag and recipe in agreement.
+- The live B leg (the tier at its floors) is owed to Part B.
+- Gates and the full table: `15-review.md` §Review fixes AS (measurement).

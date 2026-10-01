@@ -63,4 +63,11 @@ describe("plan-11 fault matrix census", () => {
     // The file says what it is, because the next reader's first question is who owns a cell.
     expect(matrix.$comment ?? "").toContain("plan 11");
   });
+
+  test("the file's own description states the package and shape counts it holds", () => {
+    const words = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen", "sixteen", "seventeen", "eighteen", "nineteen", "twenty"];
+    const comment = (matrix.$comment ?? "").toLowerCase();
+    expect(comment).toContain(`${words[FAULT_PACKAGES.length]} stateful packages`);
+    expect(comment).toContain(`${words[FAULT_SHAPES.length]} fault shapes`);
+  });
 });

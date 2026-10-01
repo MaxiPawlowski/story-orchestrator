@@ -287,3 +287,10 @@ key landed or `applied: false`, a forced small budget reproducing `reasoning-exh
 R3 (recipe + matrix above; OpenRouter model to be written into the matrix before the first call) and R4 (needs its spike
 build first).
 
+### 2026-10-01 — R4 spike code + arm runner built (plan 15 AS-13); not run
+
+- `effects.reasoning` (schema + validation), `runtime/spikes/reasoningEffect(+Host).ts` behind `spikes.reasoningEffect` (dev only, default off): loud requests only, only keys the request carries, CC via `reasoningPayload`, custom via the request's own `custom_include_body` (F4). Deviation: a key the request carries as `undefined` counts as carried (ST always builds the slot; the preset overlay treats it as absent).
+- `so-r4-spike.mts freeze|check|run|pack|score`, inputs `test/measurements/v2.6-05/r4-turns.json` (20 turns, placeholders until filled and frozen) and `r4-spike.json` (floor, commands, artifacts, refusals). The pack is paired, seeded-shuffled, balanced and unlabelled; the key is sealed apart; `score` refuses changed turns or pack.
+- Arm vs control is the spike flag on/off on a checkpoint that declares `high`; each turn's chat is opened by the operator and the runner refuses a mismatch.
+- 40 of 41 mutants killed (survivor equivalent). Live R4 run and the human rating: owed to Part B.
+- Gates and the full table: `15-review.md` §Review fixes AS (measurement).

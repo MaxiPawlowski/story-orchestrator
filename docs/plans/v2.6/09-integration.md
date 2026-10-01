@@ -60,3 +60,13 @@ Findings go to `v2.6/09-findings.md` with a repro, and are fixed before plan 10.
 ## Gate
 
 I1–I6 green ×1 in both columns, with every finding fixed or signed. Then the candidate is frozen for plan 10.
+
+## Gate record
+
+### 2026-10-01 — I1–I6 made runnable (plan 15 AS-15); not run
+
+- `test/measurements/v2.6-09/runs.json`: tier T7, campaign pin + route blob sha256, columns `on` (everything on; images/sprites off, ComfyUI never contacted) and `defaults`, per-run route/turns, I4 mutation schedule, I5 outages, I6 cut points, required artifacts.
+- `node scripts/debug/so-integration.mts validate | plan <I#> --column on|defaults --lane <n> | play <I#> --column … --out <dir> | verify <dir> <I#>`; `plan` prints the exact sequence (adolion-fresh seed, lane start, settings + read-back, run header, tails, play, header diff, verify).
+- I5 cuts the memory model by profile (DeepSeek Chat Completion source + model vs the Artemis llama-server `api_server`, user decision 2026-09-30) and never the main reply; a lane where both share one endpoint is refused.
+- Evidence over 1 MB is written as a gitignored `evidence-<chat>.full.json`; the committed file keeps a hash summary.
+- Gates and the full table: `15-review.md` §Review fixes AS (measurement).

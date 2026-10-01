@@ -90,3 +90,16 @@ ACCEPTED needs all of the following:
 - `test:release` green after the attestation.
 
 Anything short of that is PARTIAL, with the reason.
+
+## Gate record (Phase 0)
+
+### 2026-10-01 — H-a, H-g, H-j, H-k built with negative controls (plan 15 AS-15); not run live
+
+| Item | Where | Negative control |
+|---|---|---|
+| H-a | `scripts/debug/lib/generationQuiesce.mts` (both runners' cleanup), `so-run-header diff --owned` | generating page switched before stop + idle fails; foreign chat growth is blocking |
+| H-g | `scripts/release/attestationRules.mjs` series (`change` opens a series; ×2 = first two runs) | pass-fail-pass-pass not ×2; fail, change, pass, pass is ×2; two builds, `--only`, failed cleanup, unscored human row, path outside the root |
+| H-j | `scripts/debug/lib/soakProbe.mts`, `so-soak-probe.mts` | planted heap growth, long task, slow event, DOM growth each fail |
+| H-k | `scripts/debug/lib/engineHistoryDump.mts`: `engine-history-<journeyId>.json` before cleanup; attestation fails on a missing cited dump | missing dump fails cleanup and attestation |
+
+Deviation: H-k writes one dump per journey (its one sandbox), not one per check. Soak budgets are un-calibrated until the first soak. Gates and the full table: `15-review.md` §Review fixes AS (measurement).
