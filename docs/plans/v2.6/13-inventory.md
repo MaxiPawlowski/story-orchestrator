@@ -13,9 +13,9 @@ Column heuristics (all read from the asset text; `scripts/lib/suiteInventory.mjs
 
 | Tier | Assets | Tests / checks | Needs LLM | Guards nothing named | Vacuous | Runtime |
 |---|---|---|---|---|---|---|
-| jest: pure unit | 125 | 2433 | 0 | 31 | 0 | 57.9 s |
-| jest: unit (host faked) | 240 | 2365 | 0 | 33 | 0 | 291.8 s |
-| Storybook | 47 | 313 stories, 309 plays | 0 | — | 0 files without a play | build + run, minutes |
+| jest: pure unit | 125 | 2438 | 0 | 31 | 0 | 57.9 s |
+| jest: unit (host faked) | 246 | 2403 | 0 | 32 | 0 | 291.8 s |
+| Storybook | 50 | 327 stories, 323 plays | 0 | — | 0 files without a play | build + run, minutes |
 | harness (node --test) | 74 | 587 | 0 | 33 | 0 | seconds |
 | debug tools (not tests) | 44 | — | — | — | 25 without a harness test | — |
 | no-LLM scenario | 103 | 1301 steps | 0 | 33 | 0 | ~52 min est. |
@@ -28,16 +28,17 @@ Column heuristics (all read from the asset text; `scripts/lib/suiteInventory.mjs
 | story fixtures in test/scenarios | 20 | — | — | — | — | — |
 | archived run records | 2027 files in 36 dirs | 1997 cited | — | — | — | 24.62 MB (24.18 MB cited) |
 
-jest total: 365 files, 4798 tests, 349.7 s summed per-file runtime.
+jest total: 371 files, 4841 tests, 349.7 s summed per-file runtime.
 
 ## jest files
 
 | File | Tier | Tests | Runtime s | Guards | Replay kills | Fix commits | Dup titles | Vacuous |
 |---|---|---|---|---|---|---|---|---|
+| `src/components/studio/graphPanelUtils.test.ts` | unit (host faked) | 2 | ? | contract |  | 0 |  |  |
 | `src/constants/injectionRegistry.test.ts` | pure unit | 5 | 0.1 | defect |  | 0 |  |  |
-| `src/copilot/agent/loop.test.ts` | pure unit | 12 | ? | contract |  | 0 |  |  |
+| `src/copilot/agent/loop.test.ts` | pure unit | 15 | ? | contract |  | 0 |  |  |
 | `src/copilot/agent/safety.review.test.ts` | pure unit | 3 | ? | defect |  | 0 |  |  |
-| `src/copilot/agent/tools.test.ts` | pure unit | 8 | ? | contract |  | 0 |  |  |
+| `src/copilot/agent/tools.test.ts` | pure unit | 10 | ? | contract |  | 0 |  |  |
 | `src/copilot/authoring.test.ts` | pure unit | 12 | 0.2 | nothing named |  | 3 |  |  |
 | `src/copilot/authoringA16.review.test.ts` | pure unit | 5 | 0.2 | defect |  | 1 |  |  |
 | `src/copilot/parse.test.ts` | pure unit | 22 | 0.2 | contract | lore-select-drops-exclusive | 2 |  |  |
@@ -158,7 +159,8 @@ jest total: 365 files, 4798 tests, 349.7 s summed per-file runtime.
 | `src/runtime/branchContinue.review.test.ts` | unit (host faked) | 19 | 6.5 | defect |  | 1 |  |  |
 | `src/runtime/breakerWatch.test.ts` | unit (host faked) | 5 | 0.4 | contract |  | 0 |  |  |
 | `src/runtime/c1Surfaces.review.test.ts` | unit (host faked) | 6 | 0.4 | defect |  | 0 |  |  |
-| `src/runtime/chapters.test.ts` | unit (host faked) | 12 | ? | nothing named |  | 0 |  |  |
+| `src/runtime/chapterJump.test.ts` | unit (host faked) | 8 | ? | contract |  | 0 |  |  |
+| `src/runtime/chapters.test.ts` | unit (host faked) | 15 | ? | nothing named |  | 0 |  |  |
 | `src/runtime/chatIdentity.review.test.ts` | unit (host faked) | 14 | 4.8 | defect |  | 1 |  |  |
 | `src/runtime/chatSave.test.ts` | unit (host faked) | 20 | 0.4 | defect | save-binds-late-empty-save | 2 |  |  |
 | `src/runtime/chatWrites.test.ts` | unit (host faked) | 4 | 0.3 | nothing named |  | 0 |  |  |
@@ -179,8 +181,9 @@ jest total: 365 files, 4798 tests, 349.7 s summed per-file runtime.
 | `src/runtime/coordinators/extractionOwnership.review.test.ts` | unit (host faked) | 16 | 0.5 | defect |  | 0 |  |  |
 | `src/runtime/coordinators/extractionReadOwnership.review.test.ts` | unit (host faked) | 2 | 0.3 | defect |  | 0 |  |  |
 | `src/runtime/coordinators/factAttribution.review.test.ts` | unit (host faked) | 7 | 0.6 | defect |  | 0 |  |  |
-| `src/runtime/coordinators/innerCoordinator.test.ts` | unit (host faked) | 12 | ? | contract |  | 0 |  |  |
+| `src/runtime/coordinators/innerCoordinator.test.ts` | unit (host faked) | 14 | ? | contract |  | 0 |  |  |
 | `src/runtime/coordinators/innerVoiceInjection.review.test.ts` | unit (host faked) | 14 | ? | defect |  | 0 |  |  |
+| `src/runtime/coordinators/memberGuidance.review.test.ts` | unit (host faked) | 7 | ? | defect |  | 0 |  |  |
 | `src/runtime/coordinators/memoryInjectionRefresh.review.test.ts` | unit (host faked) | 3 | 0.6 | defect | empty-private-block-epistemic, empty-private-block-ledger | 1 |  |  |
 | `src/runtime/coordinators/memoryOwnership.review.test.ts` | unit (host faked) | 26 | 0.6 | defect | patch-spread-erases-derived | 1 |  |  |
 | `src/runtime/coordinators/modelSurface.review.test.ts` | unit (host faked) | 2 | 0.4 | defect |  | 0 |  |  |
@@ -202,6 +205,7 @@ jest total: 365 files, 4798 tests, 349.7 s summed per-file runtime.
 | `src/runtime/effectRestore.review.test.ts` | unit (host faked) | 11 | 0.5 | defect |  | 1 |  |  |
 | `src/runtime/effectsApplier.test.ts` | unit (host faked) | 34 | 1.0 | defect | scan-mode-file-writes-before-gating, write-ahead-unverified | 0 |  |  |
 | `src/runtime/effectsOwnership.review.test.ts` | unit (host faked) | 14 | 0.4 | defect | background-write-unowned | 1 |  |  |
+| `src/runtime/effectsStaging.review.test.ts` | unit (host faked) | 6 | ? | defect |  | 0 |  |  |
 | `src/runtime/epochAbort.review.test.ts` | unit (host faked) | 6 | 0.1 | defect |  | 0 |  |  |
 | `src/runtime/errorCopy.guard.test.ts` | unit (host faked) | 5 | 1.7 | invariant |  | 0 |  |  |
 | `src/runtime/exampleStory.review.test.ts` | unit (host faked) | 1 | 0.1 | defect |  | 0 |  |  |
@@ -228,6 +232,7 @@ jest total: 365 files, 4798 tests, 349.7 s summed per-file runtime.
 | `src/runtime/judgeOwnership.review.test.ts` | unit (host faked) | 7 | 0.4 | defect |  | 1 |  |  |
 | `src/runtime/judgeProviderRouting.test.ts` | unit (host faked) | 7 | 7.6 | contract |  | 0 |  |  |
 | `src/runtime/judgeSeam.golden.test.ts` | unit (host faked) | 1 | 0.4 | contract |  | 0 |  |  |
+| `src/runtime/jumpRelease.review.test.ts` | unit (host faked) | 1 | ? | defect |  | 0 |  |  |
 | `src/runtime/legacyFree.guard.test.ts` | unit (host faked) | 10 | 0.4 | invariant |  | 0 |  |  |
 | `src/runtime/librarySave.test.ts` | unit (host faked) | 14 | 0.6 | defect |  | 0 |  |  |
 | `src/runtime/lifecycleDispose.review.test.ts` | unit (host faked) | 9 | 0.5 | defect |  | 1 |  |  |
@@ -260,6 +265,7 @@ jest total: 365 files, 4798 tests, 349.7 s summed per-file runtime.
 | `src/runtime/npcReplyRoll.test.ts` | unit (host faked) | 7 | 0.5 | defect |  | 0 |  |  |
 | `src/runtime/npcStreamLanding.review.test.ts` | unit (host faked) | 5 | 0.6 | defect | npc-stream-lands-in-next-chat | 0 |  |  |
 | `src/runtime/npcTriggerStop.review.test.ts` | unit (host faked) | 6 | 0.5 | defect |  | 0 |  |  |
+| `src/runtime/onEnterRollback.review.test.ts` | unit (host faked) | 9 | ? | defect |  | 0 |  |  |
 | `src/runtime/ownership.guard.test.ts` | unit (host faked) | 11 | 1.1 | invariant |  | 1 |  |  |
 | `src/runtime/passProfiles.test.ts` | unit (host faked) | 22 | 0.2 | defect |  | 0 |  |  |
 | `src/runtime/persistenceRetention.test.ts` | unit (host faked) | 6 | 0.4 | defect |  | 0 |  |  |
@@ -384,7 +390,7 @@ jest total: 365 files, 4798 tests, 349.7 s summed per-file runtime.
 | `src/studio/gateReplay.property.test.ts` | unit (host faked) | 1 | 0.6 | contract |  | 0 |  |  |
 | `src/studio/gateReplay.records.test.ts` | unit (host faked) | 1 | 0.0 | contract |  | 1 |  |  |
 | `src/studio/gateReplay.test.ts` | unit (host faked) | 13 | 0.2 | contract |  | 1 |  |  |
-| `src/studio/graphAdapter.test.ts` | unit (host faked) | 2 | 0.2 | nothing named |  | 0 |  |  |
+| `src/studio/graphAdapter.test.ts` | unit (host faked) | 2 | 0.2 | contract |  | 0 |  |  |
 | `src/studio/innerVoiceAuthoring.test.ts` | unit (host faked) | 7 | ? | contract |  | 0 |  |  |
 | `src/studio/io.test.ts` | unit (host faked) | 3 | 0.1 | nothing named |  | 0 |  |  |
 | `src/studio/lazyGlobals.guard.test.ts` | unit (host faked) | 1 | ? | invariant | studio-chunk-global-outlives-stop | 1 |  |  |
@@ -413,7 +419,7 @@ jest total: 365 files, 4798 tests, 349.7 s summed per-file runtime.
 | `src/components/drawer/InnerVoicePanel.stories.tsx` | 2 | 2 | 0 |
 | `src/components/drawer/MessageInspector.stories.tsx` | 2 | 2 | 0 |
 | `src/components/drawer/ModelCallsPanel.stories.tsx` | 3 | 3 | 0 |
-| `src/components/drawer/NextTurnPanel.stories.tsx` | 10 | 10 | 0 |
+| `src/components/drawer/NextTurnPanel.stories.tsx` | 12 | 12 | 0 |
 | `src/components/drawer/PlayerChapters.stories.tsx` | 3 | 3 | 0 |
 | `src/components/drawer/PlayerOverview.stories.tsx` | 11 | 11 | 0 |
 | `src/components/drawer/StagecraftPanel.stories.tsx` | 16 | 16 | 0 |
@@ -423,6 +429,7 @@ jest total: 365 files, 4798 tests, 349.7 s summed per-file runtime.
 | `src/components/settings/ChapterControls.stories.tsx` | 2 | 2 | 0 |
 | `src/components/settings/EntryPoints.stories.tsx` | 6 | 6 | 0 |
 | `src/components/settings/GroupStoryBindingView.stories.tsx` | 4 | 4 | 0 |
+| `src/components/settings/InnerVoiceControls.stories.tsx` | 4 | 4 | 0 |
 | `src/components/settings/JudgeSettingsGroup.stories.tsx` | 19 | 19 | 1 |
 | `src/components/settings/RoleProfilesGroup.stories.tsx` | 5 | 5 | 1 |
 | `src/components/settings/WorldInfoGatingGroup.stories.tsx` | 8 | 8 | 0 |
@@ -435,10 +442,12 @@ jest total: 365 files, 4798 tests, 349.7 s summed per-file runtime.
 | `src/studio/StudioModal.stories.tsx` | 9 | 9 | 0 |
 | `src/studio/components/AgencyEditor.stories.tsx` | 5 | 5 | 0 |
 | `src/studio/components/AgentWizard.stories.tsx` | 5 | 5 | 0 |
+| `src/studio/components/ChaptersEditor.stories.tsx` | 4 | 4 | 0 |
 | `src/studio/components/CheckpointEditor.stories.tsx` | 9 | 9 | 0 |
 | `src/studio/components/DiagnosticsPanel.stories.tsx` | 3 | 3 | 0 |
 | `src/studio/components/GateBuilder.stories.tsx` | 4 | 4 | 0 |
 | `src/studio/components/GateReplayPanel.stories.tsx` | 6 | 6 | 0 |
+| `src/studio/components/GuidanceEditor.stories.tsx` | 3 | 3 | 0 |
 | `src/studio/components/ProposalReview.stories.tsx` | 6 | 6 | 0 |
 | `src/studio/components/ProvisioningCard.stories.tsx` | 6 | 6 | 0 |
 | `src/studio/components/QualityEditor.stories.tsx` | 7 | 7 | 0 |
@@ -446,7 +455,7 @@ jest total: 365 files, 4798 tests, 349.7 s summed per-file runtime.
 | `src/studio/components/ScopePreview.stories.tsx` | 2 | 2 | 0 |
 | `src/studio/components/StoryEditor.stories.tsx` | 12 | 12 | 1 |
 | `src/studio/components/StudioCopilot.stories.tsx` | 9 | 9 | 0 |
-| `src/studio/components/StudioGraph.stories.tsx` | 1 | 1 | 0 |
+| `src/studio/components/StudioGraph.stories.tsx` | 2 | 2 | 0 |
 | `src/studio/components/StudioToolbar.stories.tsx` | 4 | 4 | 0 |
 | `src/studio/components/TalkControlEditor.stories.tsx` | 4 | 4 | 0 |
 | `src/studio/components/TransitionEditor.stories.tsx` | 5 | 5 | 0 |
@@ -633,7 +642,7 @@ jest total: 365 files, 4798 tests, 349.7 s summed per-file runtime.
 | `test/scenarios/live-v25-09-sp2-r4.json` | LLM scenario | 18 | 3 | 176 | contract | 4 | 0 | yes |  |
 | `test/scenarios/live-v25-09-sp4-t3-append.json` | LLM scenario | 188 | 60 | 3081 | defect | 3 | 0 | yes |  |
 | `test/scenarios/live-v25-09-sp4-t3-rolling.json` | LLM scenario | 188 | 60 | 3081 | defect | 3 | 0 | yes |  |
-| `test/scenarios/live-v25-09-sp5-scenario.json` | no-LLM scenario | 45 | 0 | 95 | defect | 3 | 0 | yes |  |
+| `test/scenarios/live-v25-09-sp5-scenario.json` | no-LLM scenario | 45 | 0 | 95 | defect | 4 | 0 | yes |  |
 | `test/scenarios/live-v25-09-sp6-k2.json` | LLM scenario | 17 | 2 | 129 | contract | 3 | 0 | yes |  |
 | `test/scenarios/live-v25-09-sp7-d4.json` | LLM scenario | 18 | 3 | 176 | contract | 6 | 0 | yes |  |
 | `test/scenarios/live-v25-09-sp7-d4b.json` | LLM scenario | 12 | 2 | 119 | contract | 3 | 0 | yes |  |
