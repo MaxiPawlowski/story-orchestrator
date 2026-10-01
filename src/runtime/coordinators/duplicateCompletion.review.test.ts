@@ -57,9 +57,9 @@ function harness() {
     enqueueExtractorDeltas: (deltas: unknown[], _window: unknown, origin: string) => { enqueued.push({ origin, deltas }); },
     commitBoundary: async () => {}, fireSceneBreakReplies: async () => {}, emitSceneBreak: () => {}, emitArcsResolved: () => {}, setStatus: () => {},
     judge: () => null, persist: async () => {}, notify: () => {}, ownership } as never);
-  const deliver = async (raw: string) => {
+  const deliver = async (raw: string, id = "read-3") => {
     const parsed = parseSharedReadResponse(raw, story as never);
-    const audit = { id: "read-3", createdAt: "t", priority: 0, reason: "cadence", contractHash: "h", scope: [], window: { from: 3, to: 3 }, prompt: "p", rawResponse: raw, acceptedDeltas: [{ q: "step", v: 2 }], rejected: [] };
+    const audit = { id, createdAt: "t", priority: 0, reason: "cadence", contractHash: "h", scope: [], window: { from: 3, to: 3 }, prompt: "p", rawResponse: raw, acceptedDeltas: [{ q: "step", v: 2 }], rejected: [] };
     await coordinator.applyAudit(audit as never, parsed.facts, parsed.memory);
   };
   return { deliver, memory: () => memory, extraction, enqueued };
@@ -76,6 +76,20 @@ describe("extraction|duplicateCompletion: one read's completion delivered twice 
     expect(env.memory().entries.map((entry) => ({ text: entry.text, live: isLive(entry) }))).toEqual(once);
     expect(once).toEqual([{ text: "Arin carries two curved daggers.", live: true }]);
     expect(env.enqueued.map((entry) => entry.origin)).toEqual(["read-3", "read-3"]);
+  });
+
+  it("the audit ring keeps one row for a re-delivered read", async () => {
+    const env = harness();
+    await env.deliver(READ);
+    await env.deliver(READ);
+    expect(env.extraction.audits.map((audit) => audit.id)).toEqual(["read-3"]);
+  });
+
+  it("control: two distinct reads of the same window are two audit rows", async () => {
+    const env = harness();
+    await env.deliver(READ, "read-3a");
+    await env.deliver(READ, "read-3b");
+    expect(env.extraction.audits.map((audit) => audit.id)).toEqual(["read-3a", "read-3b"]);
   });
 
   it("the engine applies the twice-enqueued deltas once: the newer write covering the same window supersedes the older", () => {
