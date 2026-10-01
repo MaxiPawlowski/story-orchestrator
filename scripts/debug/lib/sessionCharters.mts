@@ -12,6 +12,15 @@ export const JUDGE_USES = [
 export const SETTING_KEYS = ['judge', 'inlineLevel', 'images', 'sprites', 'innerHarvest', 'innerBeat', 'chapters', 'curator', 'announceTransitions', 'viewport', 'raw'] as const;
 export const USER_REVIEW = 'recorded for the user\'s review';
 export const CHAPTER_KEYS = ['seal', 'storySoFar', 'fold', 'recap'] as const;
+export const FEATURE_KEYS = ['chapters', 'chapterAssignments', 'drives', 'motives', 'memberGuidance', 'omniscient'] as const;
+export type FeatureKey = (typeof FEATURE_KEYS)[number];
+export const ARTIFACT_KEYS = ['turns', 'flags', 'shots', 'chats', 'chapterRecords', 'foldedTurns', 'harvestedReasoning', 'ratingCandidates', 'wizardDrafts'] as const;
+export type ArtifactKey = (typeof ARTIFACT_KEYS)[number];
+export const MEDIA_KINDS = ['images', 'sprites'] as const;
+export type MediaKind = (typeof MEDIA_KINDS)[number];
+export const BLIND_GATES = ['C3', 'R4', 'Q-M', 'W6'] as const;
+export type BlindGate = (typeof BLIND_GATES)[number];
+export const UNEXERCISED = 'unexercised: the no-media variant ran (never counted green)';
 
 export interface StoryIndexEntry {
   title: string;
@@ -21,6 +30,7 @@ export interface StoryIndexEntry {
   edges: Array<[string, string]>;
   qualities: string[];
   roster: string[];
+  features?: Record<FeatureKey, number>;
 }
 
 export interface StoryIndex {
@@ -45,7 +55,8 @@ export interface CardSettings {
 
 export interface DriveBeat { title: string; aim: string[]; why?: string; lines: string[] }
 export interface LookFor { what: string; where: string }
-export interface RubricRow { feature: string; ask?: string; reviewer?: 'user' }
+export interface RubricRow { feature: string; ask?: string; reviewer?: 'user'; media?: MediaKind; gate?: BlindGate }
+export interface CardRequires { features?: FeatureKey[]; artifacts?: Partial<Record<ArtifactKey, number>> }
 
 export interface Card {
   id: string;
@@ -76,6 +87,7 @@ export interface Card {
   loggedAutomatically: string[];
   knownLimits: string[];
   waits?: string;
+  requires?: CardRequires;
 }
 
 export interface CardDoc { version: number; pin: string; cards: Card[] }
@@ -132,6 +144,25 @@ function settingsProblems(where: string, settings: unknown, mode: string): strin
 }
 
 export interface Premise { id: string; text: string }
+
+function requiresProblems(where: string, requires: unknown): string[] {
+  if (requires === undefined) return [];
+  if (!isRecord(requires)) return [`${where}: requires must be an object`];
+  const problems: string[] = [];
+  for (const key of Object.keys(requires)) if (!['features', 'artifacts'].includes(key)) problems.push(`${where}: unknown requires key "${key}"`);
+  if (requires.features !== undefined) {
+    if (!Array.isArray(requires.features)) problems.push(`${where}: requires.features must be a list`);
+    else for (const feature of requires.features) if (!(FEATURE_KEYS as readonly string[]).includes(feature)) problems.push(`${where}: unknown feature "${String(feature)}" (known: ${FEATURE_KEYS.join(', ')})`);
+  }
+  if (requires.artifacts !== undefined) {
+    if (!isRecord(requires.artifacts)) problems.push(`${where}: requires.artifacts must be an object`);
+    else for (const [key, count] of Object.entries(requires.artifacts)) {
+      if (!(ARTIFACT_KEYS as readonly string[]).includes(key)) problems.push(`${where}: unknown artifact "${key}" (known: ${ARTIFACT_KEYS.join(', ')})`);
+      if (!Number.isInteger(count) || (count as number) < 1) problems.push(`${where}: requires.artifacts.${key} must be a positive integer`);
+    }
+  }
+  return problems;
+}
 
 export function validateCardDoc(doc: unknown, index: StoryIndex, premises: Premise[] | null = null): string[] {
   if (!isRecord(doc)) return ['the charter file is not an object'];
@@ -204,8 +235,15 @@ export function validateCardDoc(doc: unknown, index: StoryIndex, premises: Premi
     if (!Array.isArray(card.rubric) || !card.rubric.length) problems.push(`${where}: rubric needs at least one row`);
     else card.rubric.forEach((row, at) => {
       if (!isRecord(row) || !nonEmptyString(row.feature)) problems.push(`${where} rubric[${at}]: feature is required`);
-      else if (row.reviewer !== undefined && row.reviewer !== 'user') problems.push(`${where} rubric[${at}]: reviewer may only be "user"`);
+      else {
+        if (row.reviewer !== undefined && row.reviewer !== 'user') problems.push(`${where} rubric[${at}]: reviewer may only be "user"`);
+        if (row.media !== undefined && !(MEDIA_KINDS as readonly string[]).includes(row.media)) problems.push(`${where} rubric[${at}]: media must be ${MEDIA_KINDS.join('|')}`);
+        else if (row.media !== undefined && !card.setup?.settings?.[row.media]) problems.push(`${where} rubric[${at}]: a ${row.media} row needs the card to ask for ${row.media}`);
+        if (row.gate !== undefined && !(BLIND_GATES as readonly string[]).includes(row.gate)) problems.push(`${where} rubric[${at}]: gate must be ${BLIND_GATES.join('|')}`);
+        else if (row.gate !== undefined && row.reviewer !== 'user') problems.push(`${where} rubric[${at}]: blind gate ${row.gate} is the user's verdict, so the row needs reviewer "user"`);
+      }
     });
+    problems.push(...requiresProblems(where, card.requires));
     seen.set(card.id, card);
   }
   return problems;
@@ -224,7 +262,7 @@ export function coverageProblems(doc: CardDoc, index: StoryIndex, tierCounts: Pa
 
 export const needsComfy = (card: Card) => Boolean(card.setup.settings?.images || card.setup.settings?.sprites);
 
-export const comfyRefusal = (card: Card, allowComfy: boolean): string | null => (needsComfy(card) && !allowComfy
+export const comfyRefusal = (card: Card, allowComfy: boolean, media: 'on' | 'off' = 'on'): string | null => (media === 'on' && needsComfy(card) && !allowComfy
   ? `${card.id} switches on ${[card.setup.settings?.images ? 'images' : null, card.setup.settings?.sprites ? 'sprites' : null].filter(Boolean).join(' and ')}, which render on the shared ComfyUI at 127.0.0.1:8188. `
     + 'Confirm nobody else is rendering there (another session\'s sprite or image run), then start again with --allow-comfy. Nothing was seeded or started.'
   : null);
@@ -257,7 +295,7 @@ export function settingsPatch(settings: CardSettings = {}): Record<string, any> 
 
 export const mergeSettings = (current: unknown, patch: Record<string, any>) => deepMerge(isRecord(current) ? current : {}, patch);
 
-export function rubricTemplate(card: Card, session: Record<string, unknown> = {}) {
+export function rubricTemplate(card: Card, session: Record<string, unknown> = {}, unexercised: readonly MediaKind[] = []) {
   return {
     charter: card.id,
     title: card.title,
@@ -266,7 +304,10 @@ export function rubricTemplate(card: Card, session: Record<string, unknown> = {}
     rows: card.rubric.map((row) => ({
       feature: row.feature,
       ...(row.ask ? { ask: row.ask } : {}),
+      ...(row.gate ? { gate: row.gate } : {}),
+      ...(row.media ? { media: row.media } : {}),
       ...(row.reviewer ? { reviewer: row.reviewer, status: USER_REVIEW } : {}),
+      ...(row.media && unexercised.includes(row.media) ? { status: UNEXERCISED } : {}),
       score: null as string | null,
       note: '',
       evidence: [] as string[],
@@ -281,6 +322,7 @@ export function rubricProblems(rubric: unknown): string[] {
   return rubric.rows.flatMap((row: any, at: number) => {
     const label = `row ${at} (${row.feature})`;
     const evidence = Array.isArray(row.evidence) ? row.evidence : [];
+    if (row.status === UNEXERCISED) return row.score !== null && row.score !== undefined ? [`${label} is ${UNEXERCISED}: it may carry no score`] : [];
     if (row.reviewer === 'user') {
       if (row.score !== null && row.score !== undefined) return [`${label} is ${USER_REVIEW}: it carries no score from ${row.scoredBy ?? 'anyone'}`];
       if (!nonEmptyString(row.note) || !evidence.length) return [`${label} is ${USER_REVIEW} but nothing was recorded (note and evidence)`];
@@ -294,6 +336,22 @@ export function rubricProblems(rubric: unknown): string[] {
     if (!nonEmptyString(row.scoredBy)) problems.push(`${label} does not say who scored it`);
     return problems;
   });
+}
+
+export function rubricSummary(rubric: unknown) {
+  const rows: any[] = isRecord(rubric) && Array.isArray(rubric.rows) ? rubric.rows : [];
+  const live = rows.filter((row) => row.status !== UNEXERCISED);
+  const scored = (score: string) => live.filter((row) => row.reviewer !== 'user' && row.score === score).length;
+  return {
+    rows: rows.length,
+    green: scored('works'),
+    annoying: scored('annoying'),
+    broken: scored('broken'),
+    notNoticed: scored('not-noticed'),
+    unexercised: rows.length - live.length,
+    userReview: live.filter((row) => row.reviewer === 'user').length,
+    open: rubricProblems(rubric).length,
+  };
 }
 
 const checkpointLabel = (entry: StoryIndexEntry | null, id: string) => {
@@ -349,7 +407,9 @@ export function renderCard(card: Card, index: StoryIndex): string {
   lines.push('- **Provocations:**', ...(card.provocations.length ? card.provocations.map((item) => `  - ${item}`) : ['  - none for this session']));
   lines.push('- **Flag when:**', ...card.flagWhen.map((item) => `  - ${item}`));
   lines.push(`- **Stop when:** ${card.stopWhen}`);
-  lines.push('- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):', ...card.rubric.map((row) => `  - ${row.feature}${row.ask ? `: ${row.ask}` : ''}${row.reviewer === 'user' ? ` (${USER_REVIEW}, not decided by Claude)` : ''}`));
+  lines.push('- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):', ...card.rubric.map((row) => `  - ${row.feature}${row.ask ? `: ${row.ask}` : ''}${row.gate ? ` [blind gate ${row.gate}: paired, shuffled, unlabelled artifacts go to test/sessions/rating-pack/; the gate stays pending until the user rates them]` : ''}${row.reviewer === 'user' ? ` (${USER_REVIEW}, not decided by Claude)` : ''}${row.media ? ` (${row.media}: unexercised in the no-media variant, never counted green)` : ''}`));
+  if (card.requires?.features?.length) lines.push(`- **Story data required:** ${card.requires.features.join(', ')} (preflight refuses the start when the pinned build lacks it).`);
+  if (card.requires?.artifacts && Object.keys(card.requires.artifacts).length) lines.push(`- **Artifacts required at stop:** ${Object.entries(card.requires.artifacts).map(([key, count]) => `${key} >= ${count}`).join(', ')}.`);
   lines.push('- **Logged automatically:**', ...card.loggedAutomatically.map((item) => `  - ${item}`));
   lines.push('- **Known limits:**', ...card.knownLimits.map((item) => `  - ${item}`));
   return lines.join('\n');

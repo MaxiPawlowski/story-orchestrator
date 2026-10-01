@@ -14,7 +14,9 @@ const USAGE = `Usage: node scripts/debug/adolion-fresh.mts <command> [...]
 v2.6 overview rule 14: a clean Adolion install on a freshly seeded lane, checked against the pinned
 campaign build. Lanes 1+ only; lane 0 is the user's.
 
-  seed <lane> [--commit <sha>] [--headed] [--stop]
+  seed <lane> [--commit <sha>] [--headed] [--stop] [--for <charterId>] [--break-lease]
+      refused while the lane's lease.json (written by so-session stop) names a chat a later charter
+      still continues, unless that charter is the one --for names or --break-lease is given;
       stop the lane, re-seed it (st-lanes seed --fresh), strip the campaign's assets from the copy,
       start it, run the campaign installer at the pinned commit (adolion-fresh.pin.json), create the
       groups, select exactly the lorebooks the stories require, import the nine stories, take a
@@ -416,7 +418,15 @@ async function main() {
     return;
   }
   let report: { problems: string[] } & Record<string, unknown>;
-  if (command === 'seed') report = await seed(laneArg(rest[0]), argValue(rest, '--commit'), rest.includes('--headed'), rest.includes('--stop'));
+  if (command === 'seed') {
+    const n = laneArg(rest[0]);
+    if (!rest.includes('--break-lease')) {
+      const { leaseRefusal, readLease, sessionsUnder } = await import('./lib/sessionLanes.mts');
+      const refused = leaseRefusal(await readLease(lane(n).root), await sessionsUnder(resolve(REPO_ROOT, 'test', 'sessions')), argValue(rest, '--for'));
+      if (refused) throw new Error(`refusing to re-seed: ${refused}`);
+    }
+    report = await seed(n, argValue(rest, '--commit'), rest.includes('--headed'), rest.includes('--stop'));
+  }
   else if (command === 'check') report = await check(laneArg(rest[0]), argValue(rest, '--drop-book'));
   else if (command === 'diff') {
     const drift = diffInventories(await readJson(resolve(rest[0])), await readJson(resolve(rest[1])));

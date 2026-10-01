@@ -44,7 +44,7 @@ export const CARD_STEPS: Record<string, CardSteps> = {
   'T5-1': { beats: { 2: { after: ['$S adopt $D'] } } },
 };
 
-export const START_FLAGS: Record<string, string> = { 'T0-2': ' --age 24', 'T2-4': ' --age 24' };
+export const START_FLAGS: Record<string, string> = { 'T0-2': ' --age 24', 'T2-4': ' --age 24', 'T5-1': ' --arm agent' };
 
 const UI_LINE = /^\((no chat line|read first|type|your own lines)/i;
 const EDIT_LINE = /^\(edit to:\)\s*/i;
@@ -73,12 +73,14 @@ export function cardCommands(card: Card, lane: number | null, seq = 1): string[]
     out.push(...(override?.after ?? []).map(fill));
   });
   out.push(...(steps.after ?? []).map(fill));
+  for (const gate of new Set(card.rubric.map((row) => row.gate).filter(Boolean))) out.push(`# blind gate ${gate}: tag each paired reply with --arm (card notes); stop rebuilds test/sessions/rating-pack/${gate}/, verdicts stay the user's`);
   if (card.provocations.length) out.push(...card.provocations.map((item) => `# provocation: ${item}`));
   out.push(`# flag at once on any of ${card.mustNotHappen.length} must-not-happen item(s), and when: ${card.flagWhen.join(' / ')}`);
   out.push(`${S} flag ${dir} "<what you saw>"`);
   out.push(`${S} stop ${dir}`);
   out.push(`${S} digest ${dir}`);
   for (const [at, row] of card.rubric.entries()) {
+    if (row.media) { out.push(`# rubric ${at} (${row.feature}): unexercised in the no-media variant, so it takes no score and never counts green`); continue; }
     out.push(row.reviewer === 'user'
       ? `${S} score ${dir} ${at} --record "<${row.feature}: what was kept for the user>" --evidence <path:line>`
       : `${S} score ${dir} ${at} <works|annoying|broken|not-noticed> "<${row.feature}: what was seen>" --evidence <path:line|shots/x.png>`);
@@ -104,9 +106,10 @@ export function renderRunbook(doc: CardDoc, plan: LanePlan | null): string {
     '```',
     '',
     '- The served bundle must be the dev flavour (`dist/manifest.json` `flavor: "dev"`); staging it is the lead\'s step, not the runbook\'s.',
-    '- `start` fails before opening anything when the main profile does not answer a tiny probe, a role is not on DeepSeek, or the judge state or key is wrong (`page-pin.json`).',
-    '- Never touch ComfyUI at 127.0.0.1:8188: images and sprites stay off, and no card here needs `--allow-comfy`.',
-    '- Lanes run in parallel; at most two LLM-heavy lanes at once (llama-server `LLM_PARALLEL`). A lane that holds a chat a later card continues is never re-seeded (`start` refuses).',
+    '- `start` fails closed (exit 2, `start-failed.json`, no session) on any blocking discrepancy: a card whose pinned story lacks the data it exercises, a lane seeded from another build, a setting the runtime does not read back as the baseline plus the card\'s overrides (`test/sessions/baseline-settings.json`), a failed routing pin (`page-pin.json`), a page problem, a recap that did not fire, a failed run header, or a tail that never acknowledged it is capturing.',
+    '- `stop` exports every visited or created chat, asks each tail to drain and waits for it before stopping it, and exits 1 on an invalid session (failed header diff, missing capture, lost drain, missing required artifact, a ComfyUI call). An invalid session is re-run, never scored.',
+    '- Never touch ComfyUI at 127.0.0.1:8188: every card runs with `--media off` (the default), the recorded no-media variant; image and sprite rubric rows are unexercised, and no card here needs `--allow-comfy`.',
+    '- Lanes run in parallel, tier by tier; at most two LLM-heavy lanes at once (llama-server `LLM_PARALLEL`). A lane whose chat a later card continues is leased (`lease.json`): `start` and `adolion-fresh seed` refuse to re-seed it until the continuation ran; `so-session lane archive <n>` keeps it if the lane is needed sooner.',
     '- `turn` sends one real line, waits for every reply of the round (a group send can be several generations) and for the scheduler, and appends the record to `turns.jsonl`. Mutations (`swipe-new`, `regen`, `edit`, `delete`, `switch-chat-mid-gen`, `reload-mid-gen`) record what they did and the rollback the product performed.',
     '- Beats are signposts: when the story moves elsewhere, play what the story offers and keep the card\'s look-for and must-not-happen in view.',
     '- A score is a claim the user will check: every `score` needs a note and evidence inside the session dir. Rows marked `--record` are recorded for the user\'s review, never scored.',

@@ -132,7 +132,8 @@ export async function readFollowFrame(page, wantAudits) {
 // duplicate row is right here: losing a delta that really happened is the worse failure.
 const eventKey = (event) => `${event.at}|${event.kind}|${event.boundary}|${event.messageId}|${event.summary}|${JSON.stringify(event.detail ?? null)}`;
 
-export async function followSessionJournal(page, { out = null, intervalMs = 1000, kinds = null, audits = true, onLine = null, shouldStop = null } = {}) {
+export async function followSessionJournal(page, { out = null, intervalMs = 1000, kinds = null, audits = true, onLine = null, shouldStop = null, onReady = null } = {}) {
+  let announced = false;
   const seenEvents = new Set();
   const seenAudits = new Set();
   let session = null;
@@ -224,6 +225,10 @@ export async function followSessionJournal(page, { out = null, intervalMs = 1000
       });
     }
 
+    if (!announced && onReady) {
+      announced = true;
+      await onReady({ chatId: frame.chatId, storyId: frame.storyId, boundary: frame.boundary });
+    }
     if (shouldStop?.()) break;
     await new Promise((resolveWait) => setTimeout(resolveWait, intervalMs));
   }
@@ -247,9 +252,16 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     const intervalIndex = args.indexOf('--interval-ms');
     const out = outIndex >= 0 && args[outIndex + 1] ? resolve(process.cwd(), args[outIndex + 1]) : null;
     const intervalMs = intervalIndex >= 0 ? Number(args[intervalIndex + 1]) || 1000 : 1000;
+    const ack = args.includes('--ack') && out ? await import('./lib/sessionTails.mts') : null;
+    if (ack && out) await ack.clearAcks(out);
     runCli(async (page) => {
       console.log(`Following the session journal${out ? ` → ${out}` : ''} every ${intervalMs} ms. Ctrl-C to stop.`);
-      const result = await followSessionJournal(page, { out, intervalMs, kinds, audits: !args.includes('--no-audits') });
+      const result = await followSessionJournal(page, {
+        out, intervalMs, kinds, audits: !args.includes('--no-audits'),
+        onReady: ack && out ? (where) => ack.writeAck(ack.ackPaths(out).ready, { tail: 'journal', ...where }) : null,
+        shouldStop: ack && out ? ack.drainGate(ack.drainRequested(out)) : null,
+      });
+      if (ack && out) await ack.writeAck(ack.ackPaths(out).drained, { tail: 'journal', ok: true, ...result });
       console.log(`\nStopped after ${result.events} events and ${result.audits} audits.`);
     }, { keepOpen: true });
   } else runCli(async (page) => {
