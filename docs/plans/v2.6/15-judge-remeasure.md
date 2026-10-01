@@ -241,3 +241,8 @@ recommendation and README row rewritten. Floors not retuned. The generic objecti
 to its recorded below-floor score (`test/goldens/judge/adolion-house-rules.json`,
 `adolion-house-rules.calibration.json`). For the campaign: rules 3 and 6 are not checkable from the reply
 alone at the floor; an objective-only rule set would need its own measurement before turning the use back on.
+
+Gates: `npm run gates -- --no-storybook` all green on the branch rebased onto master `4d50a607` (typecheck, typecheck:test,
+lint, test 5426 passed / 1 skipped, build, build:dev, test:debug, debug:typecheck, test:release, test:replay 30 of 30
+killed, test:plugin); Storybook not run (`--no-storybook`). A first run went RED at test:replay on a full C: drive (0 bytes
+free, not this change); re-run after space returned. No lane, no ST page, no pod.
