@@ -138,8 +138,20 @@ node scripts/debug/so-session.mts start T1-2 --lane 4          # seed, settings,
 node scripts/debug/so-session.mts start T3-1 --lane 4 --allow-comfy   # only after confirming the shared ComfyUI is free
 node scripts/debug/so-session.mts stop [test/sessions/T1/T1-2-1] [--stop-lane]
 node scripts/debug/so-session.mts digest [test/sessions/T1/T1-2-1]    # findings.md + findings.json
-node scripts/debug/so-session.mts index                        # rebuild test/sessions/adolion-stories.json after a pin bump
+node scripts/debug/so-session.mts index                        # rebuild test/sessions/adolion-stories.json + 14-cards.md after a pin bump
+node scripts/debug/so-session.mts lane lease|archive <n>       # lane restore <n> <archiveDir>: keep a leased lane's chats across reseeds
+node scripts/debug/so-session.mts rating-pack [C3|R4|Q-M|W6]   # rebuild the blind pack under test/sessions/rating-pack/<gate>/
 ```
+
+Fail closed (plan 15 AS-21..29, `docs/plans/v2.6/15-review.md` "Review fixes AS (session tooling)"):
+
+- **Start** refuses (exit 2, `start-failed.json`) on any blocking discrepancy: lane build, settings read-back, routing pin, page, away recap, run header, or a tail that never wrote its `<out>.ready` ack. It also refuses a card whose pinned story lacks the features it declares (`requires.features`, e.g. `memberGuidance`, chapters; `validate` lists them) and a leased lane it would reseed.
+- **Settings** come from `test/sessions/baseline-settings.json` (versioned; judge on, images/sprites off, spikes off) with the root→card overrides merged over it, applied over the lane's settings keeping only install-owned paths, then read back and asserted; recorded in `session.json`. `src/runtime/sessionBaseline.test.ts` fails when `defaultGlobalSettings` gains a leaf the baseline does not state.
+- **Media**: `--media off` is the default (no-media variant): ComfyUI calls in the lane log fail the session and the card's image/sprite rubric rows are `unexercised` (a score there is refused). `--media on` needs `--allow-comfy`.
+- **Stop** order: end export → run-header diff (`--owned <session chats>`: growth in a chat the session does not own blocks) → ask each tail to drain → wait for `<out>.drained` → kill → verify. A failed diff, missing ack, missing JSONL or missing required artifact marks the session INVALID (exit 1); `digest` exits 1 on an invalid session.
+- **Required evidence** per charter (`requiredArtifacts`): every chat seen or created since `chatsBefore` (`chat-full-*`, `runtime-<chat>.json` = the whole `chat_metadata.story_orchestrator`), `transcripts.jsonl` with swipes, `wizard-drafts.json`, flag context at event time, plus chapter records, folded payloads and harvested reasoning whenever the effective settings enable them.
+- **Blind rating packs** (C3/T3-1, R4/T6-1, Q-M/T2-1, W6/T5-1): live verbs take `--arm <label> [--gate <g>]`; stop rebuilds paired, shuffled, unlabelled packs with the arm key in a separate file. `gateStatus` stays `pending`; only the user's verdicts can move a gate.
+- **Lanes**: `plan` schedules from the continuation graph; a lane holding a chat a later card continues is leased (`<lanes>/<n>/lease.json`). `adolion-fresh seed` refuses a leased lane unless `--for <dependent>` or `--break-lease`; `lane archive|restore` moves `data`, `adolion-fresh` and the lease aside and back.
 
 Autonomous driver (plan 15 Part B, Claude plays the card; full per-card sequence in `docs/plans/v2.6/14-autonomous-runbook.md`):
 

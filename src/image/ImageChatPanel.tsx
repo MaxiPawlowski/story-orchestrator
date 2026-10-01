@@ -24,7 +24,7 @@ export default function ImageChatPanel({ manager, snapshot }: { manager: Runtime
   const cues = [snapshot.imageStory?.checkpoints && "each new turn in the story", snapshot.imageStory?.scenes && "confirmed scene changes"].filter(Boolean);
   const automation = imageAutomationText(settings.automation.mode, cues.filter((cue): cue is string => typeof cue === "string"), settings.automation.everyN);
   return <section id="so-image-chat" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2 text-sm">
-    <div className="font-medium">Illustrations <span className="opacity-60 font-normal">— this chat</span></div>
+    <div className="font-medium">Illustrations <span className="opacity-70 font-normal">— this chat</span></div>
     <div className="text-xs opacity-80">{settings.enabled ? automation : PLAYER_COPY.imageInstallOff} Manual images are still available.</div>
     <div className="flex items-center gap-2">
       <label className="flex items-center gap-2">

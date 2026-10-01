@@ -33,7 +33,7 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
   const entry = settings.purposes[selectedPurpose];
   return (
     <details id="so-image-settings" className="rounded border border-[var(--SmartThemeBorderColor)] p-2 text-sm">
-      <summary className="cursor-pointer font-semibold">Image service <span className="opacity-60 font-normal">— this install</span></summary>
+      <summary className="cursor-pointer font-semibold">Image service <span className="opacity-70 font-normal">— this install</span></summary>
       <div className="flex flex-col gap-2 py-2">
         <p>This install provides the model and ComfyUI. Story authors choose the scenes and style; players can pause images for their chat.
           Renders wait for text and queue it while ComfyUI uses the GPU.</p>
@@ -85,7 +85,7 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
         </div>
         <label className="flex items-center gap-2"><input type="checkbox" checked={settings.safeMode} onChange={(event) => change({ safeMode: event.target.checked })} />Avoid explicit imagery</label>
         <details>
-          <summary>Default image routes <span className="opacity-60">— advanced</span></summary>
+          <summary>Default image routes <span className="opacity-70">— advanced</span></summary>
           <p className="text-xs opacity-80">These are install defaults. A story supplies visual intent; the selected route picks model, size and placement for each image type.</p>
           <label className="flex flex-col gap-1">Edit route
             <select className="text_pole" value={selectedPurpose} onChange={(event) => setSelectedPurpose(event.target.value as Purpose)}>
@@ -131,7 +131,7 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
           </fieldset>
         </details>
         <details>
-          <summary>Fallback card appearance <span className="opacity-60">— this install</span></summary>
+          <summary>Fallback card appearance <span className="opacity-70">— this install</span></summary>
           <p className="text-xs opacity-80">Used when the story has not authored an appearance for this cast member.</p>
           {people.map((person) => {
             const selected = settings.characters[person.key];

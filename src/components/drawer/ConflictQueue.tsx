@@ -45,7 +45,7 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
   return (
     <div data-so="reconciliation" className="border-t border-solid border-white/10 mt-1 pt-1">
       <div className="font-medium opacity-100">Needs your decision ({conflicts.length})</div>
-      <div className="opacity-60">Nothing here steers a reply until you decide. Keep a side, lock a fact as canon, re-read the window, or dismiss and let both stand.</div>
+      <div className="opacity-70">Nothing here steers a reply until you decide. Keep a side, lock a fact as canon, re-read the window, or dismiss and let both stand.</div>
       {refused && (
         <div data-so="decision-refused" data-so-outcome={refused.externallyChanged.length ? "externally-changed" : "put-back"} className="opacity-90">
           Nothing changed: the decision was not written to this chat. Try again.
@@ -59,10 +59,10 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
             <div key={side.id} className="flex items-start gap-2">
               <div className="flex-1">
                 <div>{side.store === "memory" ? "Fact" : side.store === "scene" ? "Scene" : "Ledger"}: {side.label}</div>
-                {side.standing && <div data-so="conflict-standing" className="opacity-60">Established: still steers replies while you decide.</div>}
+                {side.standing && <div data-so="conflict-standing" className="opacity-70">Established: still steers replies while you decide.</div>}
                 <div
                   data-so="conflict-origin"
-                  className="opacity-60"
+                  className="opacity-70"
                   title={side.provenance ? describeProvenance(side) : "this row came from before envelopes were recorded"}
                 >{originText(side.provenance, side.messageId, side.confidence)}</div>
               </div>
@@ -98,8 +98,8 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
       ))}
       {quarantined.map((entry) => (
         <div key={entry.id} data-so="quarantined" className="mt-1">
-          <span className="opacity-60">{entry.provenance?.validity === "conflicted" ? "Conflicted" : "Source removed"}: {entry.text}</span>
-          <div className="opacity-50" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
+          <span className="opacity-70">{entry.provenance?.validity === "conflicted" ? "Conflicted" : "Source removed"}: {entry.text}</span>
+          <div className="opacity-70" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
           <div className="flex gap-2">
             <button className="menu_button" data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</button>
             <button className="menu_button" data-so="discard-quarantined" onClick={() => void act(entry.id, () => manager.memoryActions.discardQuarantined(entry.id))}>Discard</button>
@@ -111,11 +111,11 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
           rolled-back `[hiding]` fact unrecoverable and the promise in `activeEpistemic` a comment. */}
       {quarantinedEpistemic.map((entry) => (
         <div key={entry.id} data-so="quarantined" data-so-kind="epistemic" className="mt-1">
-          <span className="opacity-60">
+          <span className="opacity-70">
             {entry.provenance?.validity === "conflicted" ? "Conflicted" : "Source removed"}: {entry.subject}{" "}
             {entry.hiddenFrom ? `hides from ${entry.hiddenFrom}` : entry.tag === "knows" ? "knows" : entry.tag} {entry.content}
           </span>
-          <div className="opacity-50" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
+          <div className="opacity-70" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
           <div className="flex gap-2">
             <button className="menu_button" data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</button>
             <button className="menu_button" data-so="discard-quarantined" onClick={() => void act(entry.id, () => manager.memoryActions.discardQuarantined(entry.id))}>Discard</button>
@@ -124,8 +124,8 @@ const ConflictQueue = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; manag
       ))}
       {quarantinedLedger.map((entry) => (
         <div key={entry.id} data-so="quarantined" data-so-kind="ledger" className="mt-1">
-          <span className="opacity-60">{entry.provenance?.validity === "conflicted" ? "Conflicted" : "Source removed"}: {entry.entity} {entry.field} = {entry.value}</span>
-          <div className="opacity-50" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
+          <span className="opacity-70">{entry.provenance?.validity === "conflicted" ? "Conflicted" : "Source removed"}: {entry.entity} {entry.field} = {entry.value}</span>
+          <div className="opacity-70" title={describeProvenance(entry)}>{originText(entry.provenance, entry.provenance?.messageId === -1 ? undefined : entry.provenance?.messageId, undefined)}</div>
           <div className="flex gap-2">
             <button className="menu_button" data-so="reconfirm" onClick={() => void act(entry.id, () => manager.memoryActions.reconfirmMemoryEntry(entry.id))}>Reconfirm — keep it as mine</button>
             <button className="menu_button" data-so="discard-quarantined" onClick={() => void act(entry.id, () => manager.memoryActions.discardQuarantined(entry.id))}>Discard</button>

@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { stopSequence, type StopDeps } from './sessionStop.mts';
+import { headerDiffArgs, HEADER_DIFF_ALLOW, stopSequence, type StopDeps } from './sessionStop.mts';
+import { diffHeaders } from '../so-run-header.mts';
 
 const drained = { ready: { at: 'r' }, drained: { at: 'd', ok: true } };
 
@@ -37,4 +38,15 @@ test('AS-22 stop: a tail that never acknowledged its drain, or a failed verifica
   const endless = await stopSequence(deps({ endPhase: async () => ({ ok: false, problems: ['could not reopen c1'] }) }));
   assert.equal(endless.valid, false);
   assert.deepEqual(endless.problems, ['could not reopen c1']);
+});
+
+test('review leftovers: the stop diff passes --owned with the session chats and never allows the whole chat block', () => {
+  const args = headerDiffArgs('start.json', 'end.json', [{ chatId: 'chat-a' }, { chatId: 'chat-b' }, { chatId: 'chat-a' }, {}]);
+  assert.deepEqual(args.slice(args.indexOf('--owned'), args.indexOf('--owned') + 2), ['--owned', 'chat-a,chat-b']);
+  assert.ok(!HEADER_DIFF_ALLOW.split(',').includes('chat'));
+  assert.ok(!headerDiffArgs('s', 'e', []).includes('--owned'));
+  const header = (chatId: string, chatLength: number) => ({ chat: { chatId, chatLength, groupId: 'g', authorView: false } });
+  const allow = HEADER_DIFF_ALLOW.split(',');
+  assert.equal(diffHeaders(header('chat-x', 3), header('chat-x', 5), allow, { ownedChats: ['chat-a'] })[0].allowed, false);
+  assert.equal(diffHeaders(header('chat-a', 3), header('chat-a', 5), allow, { ownedChats: ['chat-a'] })[0].allowed, true);
 });

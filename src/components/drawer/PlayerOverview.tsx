@@ -93,7 +93,7 @@ export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, 
         </div>
       )}
       <MissingRequirements snapshot={snapshot} />
-      <div id="so-pipeline-status" className={`text-xs flex items-center gap-2 flex-wrap ${pipeline.state === "idle" ? "opacity-60" : "opacity-90"}`}>
+      <div id="so-pipeline-status" className={`text-xs flex items-center gap-2 flex-wrap ${pipeline.state === "idle" ? "opacity-70" : "opacity-90"}`}>
         {ATTENTION_STATES.has(pipeline.state)
           ? <span id="so-stall-signal">{pipeline.text}</span>
           : <span>{pipeline.text}</span>}

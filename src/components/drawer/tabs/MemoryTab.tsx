@@ -31,7 +31,7 @@ const MemoryControls = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; mana
           {backfill?.running && backfill.preparing ? "Preparing…" : "Memorize chat"}
         </button>
         {backfill?.running && <button type="button" id="so-memorize-stop" className="menu_button" onClick={() => manager.cancelMemorizeBacklog()}>Stop</button>}
-        <span className="opacity-60">Read the whole chat history into memory.</span>
+        <span className="opacity-70">Read the whole chat history into memory.</span>
       </div>
       {backfill?.running && !backfill.preparing && <div>{memorizeProgressText(backfill.processed, backfill.total)}</div>}
       {backfill?.stoppedNote && <div id="so-memorize-note" className="opacity-80">{backfill.stoppedNote}</div>}
@@ -66,10 +66,10 @@ const MemoryRow = ({ entry, snapshot, manager, authorView, editing, draftText, o
       </div>
     ) : (
       <>
-        <div className={entry.supersededBy || entry.foldedInto ? "opacity-40 line-through" : ""}>
+        <div className={entry.supersededBy || entry.foldedInto ? "opacity-70 line-through" : ""}>
           {entry.text}{entry.pinned ? " 📌" : ""}{entry.characterId ? ` (${characterName(snapshot, entry.characterId)})` : ""}
         </div>
-        <div className="flex gap-2 opacity-80 flex-wrap">
+        <div className="flex gap-2 flex-wrap">
           {entry.provenance?.override && <span data-so="kept-by-you">{PLAYER_COPY.keptByYou}</span>}
           {entry.provenance && entry.provenance.validity !== "live" && <span data-so="quarantine-badge" className="so-warning-text">{PLAYER_COPY.sourceChanged}</span>}
           {authorView && <Lazy fallback={null}><AuthorMemoryRowExtras entry={entry} snapshot={snapshot} manager={manager} /></Lazy>}
@@ -165,11 +165,11 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
                 data-so="memory-tier-filter"
                 data-tier={tier}
                 aria-pressed={!hiddenTiers.includes(tier)}
-                className={`st-pill px-1 text-[10px] ${hiddenTiers.includes(tier) ? "opacity-50" : ""}`}
+                className={`st-pill px-1 text-[10px] ${hiddenTiers.includes(tier) ? "opacity-70" : ""}`}
                 onClick={() => toggleTier(tier)}
               >{MEMORY_TIER_LABELS[tier]}</button>
             ))}
-            <span id="so-memory-count" className="opacity-60">{`Showing ${shown.length} of ${visible.length}`}</span>
+            <span id="so-memory-count" className="opacity-70">{`Showing ${shown.length} of ${visible.length}`}</span>
           </div>
         </div>
       )}

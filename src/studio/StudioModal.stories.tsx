@@ -167,7 +167,7 @@ const KeyboardHost = () => {
   const [open, setOpen] = useState(false);
   return (
     <div>
-      <button type="button" onClick={() => setOpen(true)}>Open studio</button>
+      <button type="button" className="menu_button" onClick={() => setOpen(true)}>Open studio</button>
       {open && <StudioModal onClose={() => setOpen(false)} />}
     </div>
   );

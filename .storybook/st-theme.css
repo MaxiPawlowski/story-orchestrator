@@ -1,5 +1,6 @@
 /**
- * SillyTavern global CSS — synced from ST's style.css :root.
+ * SillyTavern global CSS — synced from ST's style.css: :root (the default theme) and the element/class rules
+ * our UI inherits in the host (.menu_button, .text_pole, select, textarea, a), so axe measures ST's real contrast.
  * Fonts loaded via preview-head.html from /st-public (staticDirs).
  */
 
@@ -116,12 +117,96 @@ body {
   color: var(--SmartThemeBodyColor);
 }
 
-button,
 input,
 select,
+button {
+  font-family: var(--mainFontFamily), sans-serif;
+  font-size: var(--mainFontSize);
+  color: var(--SmartThemeBodyColor);
+}
+
 textarea {
-  color: inherit;
-  border-color: var(--SmartThemeBodyColor);
+  width: 100%;
+  resize: vertical;
+  display: block;
+  background-color: var(--black30a);
+  outline: none;
+  border: 1px solid var(--SmartThemeBorderColor);
+  border-radius: 5px;
+  color: var(--SmartThemeBodyColor);
+  font-size: var(--mainFontSize);
+  font-family: var(--mainFontFamily);
+  padding: 5px 10px;
+}
+
+select {
+  appearance: none;
+  padding: 3px 5px;
+  background-color: var(--black30a);
+  border: 1px solid var(--SmartThemeBorderColor);
+  border-radius: 5px;
+  margin-bottom: 5px;
+  height: min-content;
+}
+
+select option {
+  background-color: var(--white50a);
+  color: var(--black70a);
+}
+
+select option:not(:checked) {
+  background-color: var(--black70a);
+  color: var(--white70a);
+}
+
+select option[disabled]:not(:checked) {
+  color: var(--white30a);
+}
+
+.text_pole {
+  background-color: var(--black30a);
+  color: var(--SmartThemeBodyColor);
+  border: 1px solid var(--SmartThemeBorderColor);
+  border-radius: 5px;
+  font-family: var(--mainFontFamily);
+  padding: 3px 5px;
+  width: 100%;
+  margin: 5px 0;
+  height: fit-content;
+}
+
+.menu_button {
+  color: var(--SmartThemeBodyColor);
+  filter: grayscale(0.5);
+  background-color: var(--SmartThemeBlurTintColor);
+  border: 1px solid var(--SmartThemeBorderColor);
+  border-radius: 5px;
+  padding: 3px 5px;
+  width: min-content;
+  cursor: pointer;
+  margin: 5px 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+
+.menu_button:not(.disabled):not([disabled]):hover,
+.menu_button:not(.disabled):not([disabled]).active {
+  background-color: var(--white30a);
+}
+
+.menu_button[disabled],
+.menu_button.disabled {
+  filter: brightness(75%) grayscale(1);
+  opacity: 0.5;
+  cursor: inherit;
+  pointer-events: none;
+}
+
+a {
+  color: var(--SmartThemeQuoteColor);
+  text-decoration: none;
 }
 
 ::-webkit-scrollbar {

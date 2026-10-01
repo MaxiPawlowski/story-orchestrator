@@ -127,9 +127,12 @@ its next reload. The slot was left on `f8eaa0675102` (master `25b32284` + this b
   (27-32 completions in lane 3's `server.log` across the two seeds; plan 02's seeds did the same).
 - Fixed seed (`saga-cast/lane3-seed-fixed.log`, `run2-*`, bundle `c001f0fa8526`): `problems: []`, Saga 0 disabled, the
   open group (Fire and War) holds its 13, 9/9 ready. Exit 1 only for the drift from the defect run (`disabled: 17 vs 0`).
-- Open (not fixed, recorded): the ledger's live rows are now unbounded by design. A long saga played in one chat keeps
-  every applied cast row until it is left or rolled back; per-target compaction is the follow-up. The duplicate
-  activate + hydrate apply of one checkpoint on import is its own finding (not fixed).
+- Recorded here as open, since fixed (plan 15 AS-10, `15-review.md` "Review fixes AS (product)"): the ledger's live
+  rows were unbounded by design (a long saga kept every applied cast row until left or rolled back), and one checkpoint
+  was applied twice on import (activate + hydrate). Now `compactLedger` (inside `trimLedger`) drops no-op rows and merges
+  chained rows on one target at one message, and `EffectsApplier.applyCheckpoint` is a door: a hydrate of the same
+  checkpoint in the same chat awaits the running apply. Tests: `effectLedgerCompaction.review.test.ts`,
+  `effectsDuplicateApply.review.test.ts`.
 
 ### Rows run now (no model)
 

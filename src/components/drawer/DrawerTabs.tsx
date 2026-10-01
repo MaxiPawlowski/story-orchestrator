@@ -73,7 +73,7 @@ const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
 
   if (!open) return <button
     id="so-flag-moment"
-    className="menu_button opacity-60"
+    className="menu_button opacity-70"
     title="Flag this moment — it lands in the session journal for review"
     aria-label="Flag this moment"
     onClick={() => setOpen(true)}
@@ -90,7 +90,7 @@ const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
         onKeyDown={(event) => { if (event.key === "Enter") void submit(); if (event.key === "Escape") setOpen(false); }}
       />
       <button id="so-flag-submit" className="menu_button" onClick={() => void submit()}>Flag</button>
-      <button className="menu_button opacity-60" aria-label="Cancel flag" onClick={() => { setNote(""); setOpen(false); }}>✕</button>
+      <button className="menu_button opacity-70" aria-label="Cancel flag" onClick={() => { setNote(""); setOpen(false); }}>✕</button>
     </div>
   );
 };
@@ -173,7 +173,7 @@ export const DrawerTabs = ({
               key={tab.id}
               role="tab"
               aria-selected={activeTab === tab.id}
-              className={`menu_button ${activeTab === tab.id ? "" : "opacity-60"}`}
+              className={`menu_button ${activeTab === tab.id ? "" : "opacity-70"}`}
               onClick={() => setActive(tab.id)}
             >
               {tab.label}
@@ -196,7 +196,7 @@ export const DrawerTabs = ({
         />}
         {activeTab === "overview" && <div className="so-chat-tools flex flex-col gap-3">
         <section id="so-chat-preferences" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2 text-sm">
-          <div className="font-medium">Chat preferences <span className="opacity-60 font-normal">— this chat only</span></div>
+          <div className="font-medium">Chat preferences <span className="opacity-70 font-normal">— this chat only</span></div>
           <label className="flex items-center gap-2">
             <input type="checkbox" checked={snapshot.talk.enabled} onChange={(event) => manager.setTalkDirectionEnabled(event.target.checked)} />
             Speaker direction in group chats

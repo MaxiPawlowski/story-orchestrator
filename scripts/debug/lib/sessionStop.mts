@@ -1,5 +1,12 @@
 import { tailProblems, type TailAcks, type TailName } from './sessionTails.mts';
 
+export const HEADER_DIFF_ALLOW = 'chatId,groupId,authorView,story,group,inventory.journal';
+
+export function headerDiffArgs(baseline: string, out: string, chats: Array<{ chatId?: unknown }>): string[] {
+  const owned = [...new Set(chats.map((chat) => chat.chatId).filter((id): id is string => typeof id === 'string' && id.length > 0))];
+  return ['scripts/debug/so-run-header.mts', 'diff', baseline, '--allow', HEADER_DIFF_ALLOW, ...(owned.length ? ['--owned', owned.join(',')] : []), '--allow-warnings', '--out', out];
+}
+
 export interface StopDeps {
   endPhase: () => Promise<{ ok: boolean; problems: string[] }>;
   headerDiff: () => Promise<{ code: number; output: string }>;

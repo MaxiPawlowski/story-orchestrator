@@ -12,7 +12,7 @@ export const ModelCallsPanel = ({ calls }: { calls: readonly ModelCallRow[] }) =
       calls.map((row, index) => (
         <div key={rowKey(row, index)} data-so="model-call" data-kind={row.kind} className="border-t border-solid border-white/10 mt-1 pt-1">
           <div className="opacity-100">
-            {row.role} · <span data-so="model-call-route" className={row.route ? "" : "opacity-60"}>{row.route ?? ROUTE_NOT_RECORDED}</span> · <span data-so="model-call-result">{row.result}</span>
+            {row.role} · <span data-so="model-call-route" className={row.route ? "" : "opacity-70"}>{row.route ?? ROUTE_NOT_RECORDED}</span> · <span data-so="model-call-result">{row.result}</span>
           </div>
           <div>
             {row.messageId !== null ? <><MessageCitation messageId={row.messageId} prefix="msg" /> · </> : null}

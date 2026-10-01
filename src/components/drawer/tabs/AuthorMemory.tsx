@@ -16,7 +16,7 @@ export const AuthorMemoryControls = ({ snapshot, manager }: { snapshot: RuntimeS
         <input type="checkbox" checked={snapshot.memory.settings.epistemicLedgerCapable} onChange={(event) => manager.setEpistemicLedgerCapable(event.target.checked)} />
         <span>Epistemic/ledger extraction (model-capable)</span>
       </label>
-      <div className="opacity-60">Turn off only if your memory model over-infers who knows what or invents entity state — small local models tend to. Never disable purely to save calls.</div>
+      <div className="opacity-70">Turn off only if your memory model over-infers who knows what or invents entity state — small local models tend to. Never disable purely to save calls.</div>
       <div>Scene count {snapshot.memory.sceneCount}</div>
       {snapshot.memory.backfill?.lastError && <div data-so="memorize-error-detail" className="so-error-text">{snapshot.memory.backfill.lastError}</div>}
       {(snapshot.memory.pinnedOverflow ?? 0) > 0 && <div data-so="pinned-overflow-budget" className="opacity-70">Or raise this tier&apos;s budget.</div>}
@@ -29,8 +29,8 @@ export const AuthorMemoryRowExtras = ({ entry, snapshot, manager }: { entry: Mem
   const fate = snapshot.memoryInjection?.fates[entry.id];
   return (
     <>
-      {entry.provenance && <span data-so="memory-provenance" className="opacity-70" title={describeProvenance(entry)}>{entry.provenance.validity}</span>}
-      {entry.evidence && <span data-so="memory-evidence" className="opacity-60" title={entry.evidence}>evidence</span>}
+      {entry.provenance && <span data-so="memory-provenance" title={describeProvenance(entry)}>{entry.provenance.validity}</span>}
+      {entry.evidence && <span data-so="memory-evidence" title={entry.evidence}>evidence</span>}
       {entry.locked && <span data-so="locked" title="No extraction or consolidation may retire this row">🔒 locked</span>}
       <span>importance {entry.importance} · {entry.expiration}</span>
       {entry.supersededBy && <span title={`superseded by ${entry.supersededBy}`}>⤳ superseded</span>}
