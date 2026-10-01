@@ -116,7 +116,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     setStatus: (status) => { this.status = status; }, unsaved: () => !this.chatSave.landed(), commitBoundary: () => this.commitBoundary(),
     firedTransitions: () => this.getFiredTransitions(), gateSources: () => this.getExpansionGateSources(), replaceStory: (story) => this.replaceStory(story),
     enqueueExtractorDeltas: (accepted, window, origin) => this.enqueueExtractorDeltas(accepted, window, origin),
-    fireSceneBreakReplies: async (occurrence) => { await this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", occurrence); },
+    fireSceneBreakReplies: async (breakAt) => { await this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", breakAt); },
     sceneBreakListeners: this.sceneBreakListeners, arcResolvedListeners: this.arcResolvedListeners,
     journal: (kind, summary, note) => { this.journal.record(kind, summary, this.journalContext(), note); this.extras.journal = this.journal.getRecords(); },
     announce: (text) => this.effects.announceText(text, this.extras, this.owner.ownsOpenChat()),

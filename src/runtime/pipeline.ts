@@ -47,6 +47,8 @@ export const hudChipLabel = (state: PipelineState, steppedBack: boolean): string
 
 export const hudTensionText = (level: string): string => `tension ${level}`;
 
+export const playerPendingCount = (pending: ReadonlyArray<{ opening?: boolean }>): number => pending.filter((entry) => !entry.opening).length;
+
 export const hudPendingText = (count: number): string => `${count} update${count === 1 ? "" : "s"} next turn`;
 
 export const REPAIR_PLAYER_COPY = {

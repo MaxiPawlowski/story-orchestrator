@@ -17,11 +17,15 @@ export const buildStoryIdentity = (loaded: StoryLibraryRecord | null, libraryRec
   drifted: Boolean(loaded && libraryRecord && libraryRecord.hash !== loaded.hash),
 });
 
-export const buildPendingDeltas = (pendingWrites: ApplyQueueEntry[], state: EngineState | null): PendingDeltaReadout[] => {
+const readsOpeningOnly = (entry: ApplyQueueEntry, firstPlayerTurn: number | undefined): boolean =>
+  entry.turnRange !== undefined && (firstPlayerTurn === undefined || entry.turnRange.to < firstPlayerTurn);
+
+export const buildPendingDeltas = (pendingWrites: ApplyQueueEntry[], state: EngineState | null, playerTurns: readonly number[] = []): PendingDeltaReadout[] => {
   if (!state) return [];
   const seen = new Map<string, PendingDeltaReadout>();
   for (const entry of pendingWrites) {
-    for (const delta of entry.deltas) seen.set(delta.q, { quality: delta.q, value: delta.v, source: entry.source });
+    const opening = readsOpeningOnly(entry, playerTurns[0]);
+    for (const delta of entry.deltas) seen.set(delta.q, { quality: delta.q, value: delta.v, source: entry.source, ...(opening ? { opening: true } : {}) });
   }
   return [...seen.values()].filter((pending) => state.blackboard.values[pending.quality] !== pending.value);
 };

@@ -492,9 +492,10 @@ export class EffectsApplier {
   }
 
   async fireNpcReplies(
-    checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger, occurrence?: number, speakerAliases: string[] = [], allow?: (reply: NpcReplyEffect) => boolean,
+    checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger, breakAt?: number, speakerAliases: string[] = [], allow?: (reply: NpcReplyEffect) => boolean,
   ): Promise<number> {
     if (trigger === "afterSpeak" && (this.speaking > 0 || extras.lastSelfInjectionMessageId === lastMessageId())) return 0;
+    if (trigger === "sceneBreak" && (this.speaking > 0 || (breakAt !== undefined && extras.lastSelfInjectionMessageId === breakAt))) return 0;
     const aliases = speakerAliases.map((alias) => alias.trim().toLowerCase());
     const replies = readNpcReplies(checkpoint.effects).filter((reply) => reply.trigger === trigger && (!allow || allow(reply)));
     // This is the only effect that SPEAKS: `fireReply` posts a message into whatever
@@ -509,7 +510,7 @@ export class EffectsApplier {
       if (reply.enabled === false) continue;
       if (reply.new_chat_only && (trigger !== "onEnter" || !Array.isArray(getContext().chat) || getContext().chat.length !== 0)) continue;
       if (trigger === "afterSpeak" && reply.after_member && !aliases.includes(reply.after_member.trim().toLowerCase())) continue;
-      const key = `${checkpoint.id}:${trigger}:${reply.member}:${index}${occurrence === undefined ? "" : `:${occurrence}`}`;
+      const key = `${checkpoint.id}:${trigger}:${reply.member}:${index}`;
       const count = extras.firedNpcReplies[key] ?? 0;
       const max = Math.max(1, reply.maxTriggers ?? 1);
       if (count >= max) continue;

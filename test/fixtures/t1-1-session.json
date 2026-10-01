@@ -1,0 +1,462 @@
+{
+ "source": "test/sessions/T1/T1-1-1 (runtime + payloads, 2026-10-01): arcs at msg 77; last canon request (payload index 229)",
+ "engine": {
+  "activeCheckpointId": "into-needlehaven",
+  "boundary": 50,
+  "checkpointStartedBoundary": 49,
+  "lastMessageId": 77
+ },
+ "transitions": [
+  {
+   "to": "what-wendhope-knows",
+   "boundary": 31
+  },
+  {
+   "to": "into-needlehaven",
+   "boundary": 49
+  }
+ ],
+ "canonRequest": {
+  "promptChars": 16728,
+  "maxTokens": 1046,
+  "outputTokens": 1046
+ },
+ "arcs": [
+  {
+   "id": "c8bc49a4-93b6-4978-875e-62bf5f705737",
+   "text": "The party must take a posting and form a party before the Guild will send them out.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 1,
+   "openedMessageId": 0
+  },
+  {
+   "id": "367151fb-3982-4979-a0de-a6619926e012",
+   "text": "The Wendhope posting: a silent mining village offering suspiciously high coin.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 1,
+   "openedMessageId": 0
+  },
+  {
+   "id": "98e078d8-4080-4b24-9017-91008c38aa3c",
+   "text": "Belle and Dalan are both seeking a party and may join the player's.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 1,
+   "openedMessageId": 0
+  },
+  {
+   "id": "d53d7d8e-f221-4a02-80c1-c9ca795ffbdc",
+   "text": "Tobias keeps drawing attention to the Wendhope notice, pressing the party toward that posting.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 1,
+   "openedMessageId": 0
+  },
+  {
+   "id": "d70e8faa-51d4-4adf-b5e1-93205be215b5",
+   "text": "Ellie is quietly matchmaking the player with Belle and Dalan to form a new party.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 1,
+   "openedMessageId": 0
+  },
+  {
+   "id": "172d533b-9e64-4444-85f6-012f31fa8965",
+   "text": "Belle has thrown down a challenge to Max to prove her axe is more than decoration, and the exchange is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 2,
+   "openedMessageId": 2
+  },
+  {
+   "id": "37bc1883-d027-4867-b600-47b403f65a3c",
+   "text": "Dalan has asked Max directly whether he is looking for a party, and Max has not yet answered.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 3,
+   "openedMessageId": 4
+  },
+  {
+   "id": "266d593e-ede2-4813-bfa5-b4ac1f519c23",
+   "text": "Tobias has not yet written the party's name in the ledger for the Wendhope job, leaving the commitment unconfirmed.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 4,
+   "openedMessageId": 6,
+   "resolvedAt": 6,
+   "resolvedMessageId": 10
+  },
+  {
+   "id": "2cc963bf-2ec1-4a3c-84ab-479a691b2d32",
+   "text": "The party must decide whether to accept an A-rank problem disguised as a D-rank posting.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 4,
+   "openedMessageId": 6
+  },
+  {
+   "id": "8cfdcb02-acf7-4d24-9638-ca14e16770e6",
+   "text": "The Grey Pennants must survive an A-rank threat disguised as a D-rank posting in Wendhope.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 6,
+   "openedMessageId": 10
+  },
+  {
+   "id": "ad303d92-8ca1-471a-866b-cf02e8398650",
+   "text": "Belle's challenge to Max about her axe being more than decoration remains unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 6,
+   "openedMessageId": 10
+  },
+  {
+   "id": "da09af29-ffcb-4812-9422-8f4f7e04905f",
+   "text": "The Grey Pennants must gather gear and depart Aegis City at first light for Wendhope.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 6,
+   "openedMessageId": 10,
+   "resolvedAt": 8,
+   "resolvedMessageId": 13
+  },
+  {
+   "id": "e2f5ea92-1ab3-4b9e-b91e-fa60e8bf5722",
+   "text": "Belle's warning that she is not a decoration leaves an unresolved tension with Max over how he treats her.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 6,
+   "openedMessageId": 10
+  },
+  {
+   "id": "7ee9a34c-452c-4a5d-a6e8-39344e51f080",
+   "text": "The Grey Pennants still need to agree on a plan for Wendhope before departing at first light.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 7,
+   "openedMessageId": 11,
+   "resolvedAt": 8,
+   "resolvedMessageId": 13
+  },
+  {
+   "id": "525b69dd-7c85-4ca8-93d5-22020a0ef8d0",
+   "text": "The Grey Pennants have reached silent, walled Wendhope and must discover why the village stopped talking.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 8,
+   "openedMessageId": 13
+  },
+  {
+   "id": "d384f144-fb29-429a-be4c-f67d8077040e",
+   "text": "The party must confront whatever left the trail of dead, eyeless bodies along the north road.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 8,
+   "openedMessageId": 13
+  },
+  {
+   "id": "fbcd7a36-7034-4ce9-bd6e-c3b27df22e19",
+   "text": "The Grey Pennants must discover what killed the eyeless bodies along the north road and why Wendhope has gone silent.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 8,
+   "openedMessageId": 13
+  },
+  {
+   "id": "bd9c06df-138f-45b7-a3c2-454ee8e680a4",
+   "text": "The Grey Pennants must find a way into walled, silent Wendhope after receiving no answer at the gate.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 9,
+   "openedMessageId": 15
+  },
+  {
+   "id": "33eb1f0c-017b-47b9-b5e8-eae0140ea5eb",
+   "text": "The party must identify the source of the faint scraping sound coming from inside Wendhope's walls.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 9,
+   "openedMessageId": 15
+  },
+  {
+   "id": "b2829431-57a4-4ee1-85ed-c085851bcad1",
+   "text": "The Grey Pennants must convince the terrified, starving villagers of Wendhope to open the gate and let them in.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 12,
+   "openedMessageId": 19,
+   "resolvedAt": 18,
+   "resolvedMessageId": 30
+  },
+  {
+   "id": "0bf1bc89-55e4-4fbd-a9fc-c25304ee7b2a",
+   "text": "The Grey Pennants must learn why Wendhope's runners never returned and what is scraping on stone inside the walls.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 12,
+   "openedMessageId": 19
+  },
+  {
+   "id": "6558c9c0-9c7e-4470-ae1d-6c0fca115224",
+   "text": "The Grey Pennants must get past Wendhope's refusal and the archers on the wall to enter the village before sundown.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 16,
+   "openedMessageId": 26,
+   "resolvedAt": 18,
+   "resolvedMessageId": 30
+  },
+  {
+   "id": "456a040f-c17d-482e-baee-9020e18e9090",
+   "text": "The Grey Pennants must reach the west postern gate and get inside Wendhope before the sun sets.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 18,
+   "openedMessageId": 30,
+   "resolvedAt": 21,
+   "resolvedMessageId": 35
+  },
+  {
+   "id": "e15ab80e-082a-4c0d-93b8-c68a8ee5c59e",
+   "text": "The Grey Pennants must learn why Wendhope's wall screams at night.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 18,
+   "openedMessageId": 30,
+   "resolvedAt": 30,
+   "resolvedMessageId": 49
+  },
+  {
+   "id": "67d0428c-4483-49a4-a7f5-bef84aeceda1",
+   "text": "The Grey Pennants must learn what happened to the Sheridans and the missing runners.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 20,
+   "openedMessageId": 34
+  },
+  {
+   "id": "b0079b47-3ed7-4400-93e9-003750e7119a",
+   "text": "The Grey Pennants must hold the crumbling south wall near the old quarry through the night.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 21,
+   "openedMessageId": 35,
+   "resolvedAt": 30,
+   "resolvedMessageId": 49
+  },
+  {
+   "id": "f3b4bfcb-eb6d-4ab6-94aa-2d81900a94c8",
+   "text": "The Grey Pennants must survive the first wave of Screechers now striking the south wall.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 23,
+   "openedMessageId": 38,
+   "resolvedAt": 30,
+   "resolvedMessageId": 49
+  },
+  {
+   "id": "99d07ef1-19ec-4310-8f9e-c27aeef0f60a",
+   "text": "The Grey Pennants must find a way to kill Screechers that do not fall when struck.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 24,
+   "openedMessageId": 39
+  },
+  {
+   "id": "dad3881b-6ab3-46e6-b32a-0f3a1e809e0a",
+   "text": "The Grey Pennants must stop the Screechers from carrying wood and scaling the south wall with ladders.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 26,
+   "openedMessageId": 42
+  },
+  {
+   "id": "97350f94-77c8-432c-bbc0-10541f8918e8",
+   "text": "The Grey Pennants must stop the Screechers breaching the east wall.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 27,
+   "openedMessageId": 43,
+   "resolvedAt": 30,
+   "resolvedMessageId": 49
+  },
+  {
+   "id": "da9a7d66-9281-4510-ab8d-b75743f315a6",
+   "text": "The Grey Pennants must learn what the white flowers left by dead Screechers signify.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 30,
+   "openedMessageId": 49
+  },
+  {
+   "id": "49b5d819-cd2b-4631-b9df-1e05e703b0ca",
+   "text": "The Grey Pennants must discover what became of the defenders and villagers of Wendhope now that the night is over.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 30,
+   "openedMessageId": 49
+  },
+  {
+   "id": "b9c76719-18d4-4706-ac07-f476bcfe3efd",
+   "text": "The Grey Pennants must deal with the breach on the east wall before the next nightfall.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 30,
+   "openedMessageId": 49
+  },
+  {
+   "id": "fb06f472-2737-4733-9391-64b9422b362d",
+   "text": "The Grey Pennants must learn who now leads Wendhope with Sheridan gone quiet.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 31,
+   "openedMessageId": 51
+  },
+  {
+   "id": "4dcc13e6-041a-47fa-8351-aac4f88590dc",
+   "text": "The Grey Pennants must prepare for the fog's return and the next night's assault.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 31,
+   "openedMessageId": 51,
+   "resolvedAt": 32,
+   "resolvedMessageId": 53
+  },
+  {
+   "id": "b81f4b48-7322-437e-a217-7842be5b7383",
+   "text": "The Grey Pennants must find Mayor Duggy at the town hall and learn what he knows about the forest.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 32,
+   "openedMessageId": 53
+  },
+  {
+   "id": "a0d34145-7ddf-45b8-8303-ef595c75943b",
+   "text": "The Grey Pennants must find out who now runs the mine with the foreman dead.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 33,
+   "openedMessageId": 54
+  },
+  {
+   "id": "0bacf408-f26c-43da-909a-3e39d63c3e71",
+   "text": "The Grey Pennants must see the tunnel the miners opened and learn what Duggy is hiding about the quartz lode.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 36,
+   "openedMessageId": 59
+  },
+  {
+   "id": "6b2bc420-cfbb-4f76-8104-af62039d2bdc",
+   "text": "The party must follow Duggy into the mine tunnel and confront whatever the miners uncovered among the glowing roots.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 40,
+   "openedMessageId": 65
+  },
+  {
+   "id": "8310ab0d-a331-458e-8be1-12b0bf3ae745",
+   "text": "The party has followed Duggy into the mine tunnel against his orders and must face whatever is scraping on the stone ahead.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 41,
+   "openedMessageId": 66
+  },
+  {
+   "id": "5e371cd5-e17d-4f41-a4b4-a2512c484d2d",
+   "text": "The party must decide how to handle Duggy, who wanted to go down alone and may be hiding what he knows about the roots.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 41,
+   "openedMessageId": 66
+  },
+  {
+   "id": "69780059-285f-40f7-b4d8-3c445455e422",
+   "text": "The party must decide how to answer Duggy for disobeying his order to stay above ground.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 42,
+   "openedMessageId": 67,
+   "resolvedAt": 49,
+   "resolvedMessageId": 76
+  },
+  {
+   "id": "75cf5304-0074-4f3c-86fa-9fba7fdd4f6e",
+   "text": "The party must face whatever is scraping on the stone ahead in the root-filled tunnel.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 42,
+   "openedMessageId": 67
+  },
+  {
+   "id": "7b805d92-9a9f-4a55-bf5a-bb15e5bf10f4",
+   "text": "Wendhope's wall is short on arrows while Halena counts them, leaving the defenders under-supplied.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 42,
+   "openedMessageId": 67
+  },
+  {
+   "id": "58429f48-185a-4090-b6fa-7027010713d5",
+   "text": "The party intends to enter Needlehaven to find where the pale roots begin.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 44,
+   "openedMessageId": 70
+  },
+  {
+   "id": "2ec80a83-f625-4580-9a0d-9039f5c8a761",
+   "text": "The party must decide whether to heed Duggy's plea to stay back or push forward to him.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 46,
+   "openedMessageId": 72,
+   "resolvedAt": 48,
+   "resolvedMessageId": 75
+  },
+  {
+   "id": "26f9dc04-58c1-40f9-a0f8-dbaa61a3415b",
+   "text": "The party has disobeyed Duggy and entered the root-filled tunnel, and must face the scraping thing and the strange echoing voice ahead.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 46,
+   "openedMessageId": 72
+  },
+  {
+   "id": "7fccec41-c06c-436e-b007-30922fd95a0b",
+   "text": "The party must decide how to answer Duggy, who begged them not to come closer.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 46,
+   "openedMessageId": 72,
+   "resolvedAt": 48,
+   "resolvedMessageId": 75
+  },
+  {
+   "id": "4f1f5dbc-ec78-4e5e-835e-ae9bedb85827",
+   "text": "The party now faces the Screecher assault in Needlehaven forest at dusk, standing their ground among the roots.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 48,
+   "openedMessageId": 75
+  },
+  {
+   "id": "40af3d58-93c7-461a-afa6-e52f64cf97e6",
+   "text": "The party is now inside Needlehaven forest at dusk, facing the first wave of Screechers among the roots.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 48,
+   "openedMessageId": 75
+  },
+  {
+   "id": "9175c0c8-a0f3-481b-84a6-0892955e3199",
+   "text": "The strange echoing voice in the tunnel and what Duggy was waiting to see remain unexplained.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 49,
+   "openedMessageId": 76
+  }
+ ]
+}

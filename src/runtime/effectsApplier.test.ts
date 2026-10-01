@@ -2,6 +2,7 @@ import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
 import { parseStoryV2OrThrow } from "@engine/validate";
 import { applyBackground, applyCharacterAN, clearCharacterAN, disableWIEntry, enableWIEntry, executeSlashCommands, setGroupMembersDisabled } from "@services/STAPI";
 import { EffectsApplier, PENDING_NOT_SAVED } from "./effectsApplier";
+import { rewindNpcReplies } from "./npcReplyRewind";
 import { readGatingModeWith, setScanGatingActive, setScanGatingSettled } from "./worldInfoMode";
 import type { RuntimeExtras, RuntimeSnapshot } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
@@ -151,6 +152,52 @@ describe("fireNpcReplies v1 parity", () => {
     await twice.fireNpcReplies(repeated, allowed, "onEnter");
     await twice.fireNpcReplies(repeated, allowed, "onEnter");
     expect(executeSlashCommands).toHaveBeenCalledTimes(2);
+  });
+});
+
+describe("sceneBreak replies (T1-1 runaway)", () => {
+  const dusk = { trigger: "sceneBreak", member: "Adolion Narrator", kind: "scripted", text: "The light is going.", maxTriggers: 2 };
+  const postsOnSend = () => (executeSlashCommands as jest.Mock).mockImplementation(async () => { mockContext.chat = [...mockContext.chat, { mes: "The light is going." }]; });
+  const chatUpTo = (last: number) => { mockContext.chat = Array.from({ length: last + 1 }, (_, index) => ({ mes: `m${index}` })); };
+
+  beforeEach(() => {
+    (executeSlashCommands as jest.Mock).mockReset();
+    postsOnSend();
+  });
+
+  afterAll(() => (executeSlashCommands as jest.Mock).mockImplementation(async () => undefined));
+
+  it("caps a sceneBreak reply at maxTriggers across the checkpoint's breaks, and a break on its own post never fires it", async () => {
+    const applier = new EffectsApplier(testOwnership());
+    const extras = { ...makeExtras(), firedNpcRepliesAt: {} } as RuntimeExtras;
+    const checkpoint = checkpointWith([dusk]);
+    const breakAt = async (at: number) => { if (mockContext.chat.length - 1 < at) chatUpTo(at); await applier.fireNpcReplies(checkpoint, extras, "sceneBreak", at); };
+
+    await breakAt(53);
+    await breakAt(54);
+    await breakAt(61);
+    await breakAt(62);
+    await breakAt(65);
+    await breakAt(66);
+    await breakAt(70);
+    expect(executeSlashCommands).toHaveBeenCalledTimes(2);
+    expect(extras.firedNpcReplies).toEqual({ "cp:sceneBreak:Adolion Narrator:0": 2 });
+  });
+
+  it("re-arms the reply a rollback took back, and caps it again on the replay", async () => {
+    const applier = new EffectsApplier(testOwnership());
+    const extras = { ...makeExtras(), firedNpcRepliesAt: {} } as RuntimeExtras;
+    const checkpoint = checkpointWith([dusk]);
+    const breakAt = async (at: number) => { chatUpTo(at); await applier.fireNpcReplies(checkpoint, extras, "sceneBreak", at); };
+
+    await breakAt(10);
+    await breakAt(20);
+    expect(executeSlashCommands).toHaveBeenCalledTimes(2);
+    rewindNpcReplies(extras.firedNpcReplies, extras.firedNpcRepliesAt, 15);
+    expect(extras.firedNpcReplies).toEqual({ "cp:sceneBreak:Adolion Narrator:0": 1 });
+    await breakAt(16);
+    await breakAt(25);
+    expect(executeSlashCommands).toHaveBeenCalledTimes(3);
   });
 });
 

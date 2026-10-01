@@ -68,6 +68,26 @@ export const PendingDelta: Story = {
   },
 };
 
+export const OpeningReadingsNotCounted: Story = {
+  args: { snapshot: baseSnapshot({ pendingDeltas: [
+    { quality: "location", value: "aegis_guild_hall", source: "extractor", opening: true },
+    { quality: "party_injuries", value: 0, source: "extractor", opening: true },
+    { quality: "party_name", value: "Grey Pennants", source: "extractor" },
+  ] }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("1 update next turn")).toBeInTheDocument();
+  },
+};
+
+export const NoPendingChipBeforeTheFirstTurn: Story = {
+  args: { snapshot: baseSnapshot({ pendingDeltas: [{ quality: "location", value: "aegis_guild_hall", source: "extractor", opening: true }] }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.queryByText(/next turn/)).toBeNull();
+  },
+};
+
 export const HiddenWhenDisabled: Story = {
   args: { snapshot: baseSnapshot({ ui: { authorView: false, announceTransitions: true, hudEnabled: false } }) },
   play: async ({ canvasElement }) => {

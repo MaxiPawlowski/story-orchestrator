@@ -29,7 +29,7 @@ export const MAX_TOKENS_TABLE: Record<PassFamily, ResponseBudget> = {
   sceneSummary: { ratio: 0.25, floor: 256, cap: 1024 },
   shortTerm: { ratio: 0.25, floor: 256, cap: 1024 },
   arcSummary: { ratio: 0.25, floor: 256, cap: 1024 },
-  canon: { ratio: 0.25, floor: 768, cap: 1536 },
+  canon: { ratio: 0.5, floor: 1536, cap: 3072 },
   chapterSeal: { ratio: 0.25, floor: 1024, cap: 1536 },
   epistemic: { ratio: 0.25, floor: 768, cap: 1024 },
   ledger: { ratio: 0.25, floor: 768, cap: 1024 },

@@ -54,7 +54,7 @@ export interface ExtractionCoordinatorDeps {
   getExpansionGateSources: () => ExtraGateSource[];
   enqueueExtractorDeltas: (accepted: ParsedDelta[], window: { from: number; to: number }, origin: string) => void;
   commitBoundary: () => Promise<unknown>;
-  fireSceneBreakReplies: (occurrence: number) => Promise<void>;
+  fireSceneBreakReplies: (breakAt: number) => Promise<void>;
   emitSceneBreak: (audit: SharedReadAudit, collect?: SchedulerJob[]) => void;
   emitArcsResolved: (arcs: ArcEntry[]) => void;
   setStatus: (status: string) => void;
@@ -375,7 +375,7 @@ export class ExtractionCoordinator {
     const sceneOccurrence = await memory.addSceneSummary(entry, range);
     if (sceneOccurrence === null) return;
     memory.updateInjection();
-    await this.deps.fireSceneBreakReplies(sceneOccurrence);
+    await this.deps.fireSceneBreakReplies(range.to);
     await this.save();
     await memory.syncWorldInfo();
   }
