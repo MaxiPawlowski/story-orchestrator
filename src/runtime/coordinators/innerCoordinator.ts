@@ -74,6 +74,7 @@ export class InnerCoordinator {
     const prompt = renderInnerBeatPrompt({
       storyTitle: story.title,
       memberName: member?.name ?? rosterId,
+      ...(member?.role ? { memberRole: member.role } : {}),
       checkpointName: checkpoint?.name ?? state.activeCheckpointId,
       objective: checkpoint?.objective ?? "",
       agency: renderAgencyPolicy(agencyForCheckpoint(story, state.activeCheckpointId)),

@@ -24,6 +24,7 @@ export const appendShortTerm: ShortTermPlacement = (entries, entry, readLimits) 
 
 export function buildShortTermWindowPrompt(recentText: string): string {
   return [
+    "Write plain TEXT ONLY. Do NOT continue the roleplay or speak as any character.",
     "Summarise the messages below in 1-2 sentences for use as recent-play memory.",
     "Keep names, places, numbers, promises and anything a character hid or revealed. Do not describe earlier play.",
     "Write in past tense, narrative style. Output only the summary text. No notes, no commentary.",

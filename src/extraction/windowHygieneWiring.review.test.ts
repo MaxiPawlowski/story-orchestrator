@@ -2,7 +2,7 @@ import { readWith } from "../../test/support/modelCall";
 import { StoryEngine, parseStoryV2OrThrow } from "@engine/index";
 import { getChatWindow, getLastMessageText } from "./chatWindow";
 import { buildFixtureRun } from "./fixtureRun";
-import { renderSharedReadPrompt } from "./contract";
+import { readContext, renderSharedReadPrompt } from "./contract";
 import { runSharedRead } from "./sharedRead";
 import { createTokenMeter } from "./tokenMeter";
 import { CLEANED_FORM } from "./windowHygiene";
@@ -114,6 +114,6 @@ describe("v2.4 plan 04 T7: every window reader takes the cleaned text", () => {
     expect(run.prompt).not.toContain(TRACKER);
     expect(run.prompt).toContain("[0] Mara: The door stays shut.");
     const unchanged = buildFixtureRun({ story: story(), transcript: [{ index: 3, speaker: "Mara", text: "The door stays shut." }] });
-    expect(unchanged.prompt).toBe(renderSharedReadPrompt({ storyTitle: "Hygiene", activeCheckpointId: "hall", qualities: unchanged.scope, window: { from: 3, to: 3, messages: [{ index: 3, messageId: 3, speaker: "Mara", text: "The door stays shut.", isUser: false }] }, canon: "Anchor hall: Open the door" }));
+    expect(unchanged.prompt).toBe(renderSharedReadPrompt({ storyTitle: "Hygiene", activeCheckpointId: "hall", qualities: unchanged.scope, window: { from: 3, to: 3, messages: [{ index: 3, messageId: 3, speaker: "Mara", text: "The door stays shut.", isUser: false }] }, canon: "Anchor hall: Open the door", ...readContext(story(), "hall") }));
   });
 });

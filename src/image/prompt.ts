@@ -69,7 +69,7 @@ export const imageMessages = (request: ImageRequest, scene: ImageScene, route: R
   const user = [
     `PURPOSE: ${request.purpose}; scene image is the target reply, background contains no people.`,
     request.text ? `INSTRUCTION: ${request.text}` : "",
-    scene.checkpoint ? `STORY CHECKPOINT: ${scene.checkpoint}` : "",
+    scene.checkpoint ? `STORY BEAT (not an image model): ${scene.checkpoint}` : "",
     scene.location ? `CURRENT LOCATION: ${scene.location}` : "",
     scene.visualStyle ? `STORY VISUAL DIRECTION: ${scene.visualStyle}` : "",
     `AVAILABLE IMAGE MODELS:\n${menu}`,
