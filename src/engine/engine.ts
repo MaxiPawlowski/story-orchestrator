@@ -413,6 +413,10 @@ export class StoryEngine {
     return [...this.boundaryLog];
   }
 
+  get currentBoundary(): number {
+    return this.boundary;
+  }
+
   get pendingWrites(): ApplyQueueEntry[] {
     return this.queue.peek();
   }

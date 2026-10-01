@@ -68,6 +68,21 @@ export const AuthorsARole: Story = {
   },
 };
 
+export const AuthorsAliases: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const field = canvas.getByLabelText("Member 1 aliases");
+    await userEvent.type(field, "the Guide of Ruins,  old Corin , ");
+    await expect(useDraftStore.getState().draft.roster[0].aliases).toBeUndefined();
+    await userEvent.tab();
+    await expect(useDraftStore.getState().draft.roster[0].aliases).toEqual(["the Guide of Ruins", "old Corin"]);
+    await expect(canvas.getByLabelText("Member 1 aliases")).toHaveValue("the Guide of Ruins, old Corin");
+    await userEvent.clear(canvas.getByLabelText("Member 1 aliases"));
+    await userEvent.tab();
+    await expect(useDraftStore.getState().draft.roster[0].aliases).toBeUndefined();
+  },
+};
+
 export const RolesHintOnlyForDirectedStories: Story = {
   beforeEach: () => {
     const story = sampleStory();

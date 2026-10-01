@@ -60,7 +60,7 @@ import { stagedPath } from "./worldInfoGates";
 import type { MutationKind } from "./turnBridge";
 import { CoordinatorDelegates } from "./managerDelegates";
 import { required } from "@utils/guards";
-import { spikeSeams } from "./spikeSeams";
+import { createChanceSeams } from "./chance";
 import { recordLoreFired, type LoreFiredRecord } from "./loreFired";
 import type { InlineSettings } from "./settingsModel";
 
@@ -70,7 +70,12 @@ const boundStoryForOpenChat = () => {
 };
 
 export class RuntimeManager extends CoordinatorDelegates {
-  private engine = new StoryEngine({ now: () => Date.now(), derive: (view) => spikeSeams.derive?.(view) ?? [] });
+  readonly chance = createChanceSeams(() => {
+    const story = this.loaded?.story;
+    const storyId = story?.id ?? this.loaded?.record.id;
+    return story && storyId && this.loadedChatId ? { chatId: this.loadedChatId, storyId, boundary: this.engine.currentBoundary, qualities: story.qualities } : null;
+  });
+  private engine = new StoryEngine({ now: () => Date.now(), derive: (view) => this.chance.derive(view) });
   private loaded: LoadedStory | null = null;
   private loadedChatId: string | null = null;
   private extras: RuntimeExtras = createExtras(getGlobalSettings);
@@ -150,7 +155,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.effects = new EffectsApplier(this.owner.ownership, { reads: { read: readEffectTarget },
         restore: restoreEffectTarget, persist: () => this.persist(),
         unsaved: () => hasUnsavedChanges(this.extras.saveHealth), journal: (summary, note) => this.noteRecap(summary,
-        note ?? ""), roll: (key) => spikeSeams.npcRoll?.(key) ?? null });
+        note ?? ""), roll: (key) => this.chance.npcRoll(key) });
   }
 
   subscribe(listener: () => void) { this.listeners.add(listener); return () => { this.listeners.delete(listener); }; }

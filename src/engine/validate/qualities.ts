@@ -1,9 +1,10 @@
 import {
-  QUALITY_SOURCES, EVIDENCE_FROM, QUALITY_TYPES, TENSION_CURRENT_KEY, type Checkpoint, type Quality,
+  QUALITY_SOURCES, EVIDENCE_FROM, QUALITY_TYPES, ROLL_TYPES, TENSION_CURRENT_KEY, type Checkpoint, type Quality,
   type QualityCriterion, type QualityRatingLevel, type ValidationError,
 } from "../schema";
 import { QUALITY_READ_AS, ratingLevels, READ_AS_TYPES } from "../qualityRead";
 import { progressQualityForAnchor } from "../convergence";
+import { readChanceRoll } from "../chance";
 import { isRecord } from "@utils/guards";
 import { log } from "@utils/log";
 import { addError, asString, isOneOf } from "./common";
@@ -36,7 +37,25 @@ const readCommitEvidence = (value: Record<string, unknown>, source: Quality["sou
   return { commit_evidence: pattern };
 };
 
-const readPlayerLabels = (value: Record<string, unknown>, values: string[] | undefined, path: string, errors: ValidationError[]): Pick<Quality, "player_labels"> => {
+const readRoll = (value: Record<string, unknown>, type: Quality["type"], source: Quality["source"], path: string, errors: ValidationError[]): Pick<Quality, "roll"> => {
+  if (value.roll === undefined) return {};
+  const roll = readChanceRoll(value.roll);
+  if (!roll) {
+    addError(errors, `${path}.roll`, "a roll is { sides, target }: whole numbers, at least 2 sides, a target from 1 to sides");
+    return {};
+  }
+  if (source !== "code") {
+    addError(errors, `${path}.roll`, "only code qualities are rolled");
+    return {};
+  }
+  if (!isOneOf(type, ROLL_TYPES)) {
+    addError(errors, `${path}.roll`, "a roll sets a bool (face at or under the target) or an int (the face)");
+    return {};
+  }
+  return { roll };
+};
+
+const readPlayerLabels =(value: Record<string, unknown>, values: string[] | undefined, path: string, errors: ValidationError[]): Pick<Quality, "player_labels"> => {
   if (value.player_labels === undefined) return {};
   if (!values || !isRecord(value.player_labels)) {
     addError(errors, `${path}.player_labels`, "player_labels map enum values to the words a player reads");
@@ -174,6 +193,7 @@ export const readQuality = (value: unknown, path: string, errors: ValidationErro
     ...readQualityRead(value, type, source, rubric, values, path, errors),
     ...readEvidenceFrom(value, source, path, errors),
     ...readCommitEvidence(value, source, path, errors),
+    ...readRoll(value, type, source, path, errors),
   };
 };
 

@@ -114,3 +114,14 @@ Evidence: `test/sessions/T1/` (T1-1-1, T1-2-1, T1-3-1, `SUMMARY.md`), seed repor
 Not changed: the plugin version stays 1.4.0 (the `/status` fields are additive); restage the plugin before the next lanes start so `refusals` and the upstream log exist there. The cast restore race on leaving the Saga group (finding 1's cause) is a product question for the effect ledger, not fixed here.
 
 Gates (2026-10-01, worktree): `npm run typecheck`, `npm run typecheck:test`, `npm run lint`, `npm test` (409 suites, 5343 passed, 1 skipped), `npm run build`, `npm run test:debug` (785/785), `npm run debug:typecheck`, `npm run test:plugin` (76 passed, 0 failed) all green. Runbook and cards regenerated (`so-session runbook --write`, `cards --write`). No live lane or pod run: the fixes are tested against fakes and recorded evidence.
+
+## SP7.b chance rolls: review items (recorded 2026-10-01, before any session)
+
+The lead accepted D5 (`v2.5/09-sp7-spike-report.md` §D5, all 7 Adolion rolls) with `deep_swarm` (Act IV) as the shipped
+example, and SP7.b put the seeded rolls in prod. Two caveats ride with that acceptance; each goes to the review like a
+session finding, and a card that reaches the branch is the evidence.
+
+| what | class (proposed) | evidence | card |
+|---|---|---|---|
+| `east_upset` (d6 <= 2 at `east-the-rounds`, after `east_round_fought`) can overturn a bout the party won: the judges uphold an onmyoji's bad call. The guidance asks the narrator to play it as visibly unjust ("half the stands saw was wrong"); if the narration reads as the player's loss rather than an injustice, the roll took a player-earned outcome. | expectation | `adolion-east.story.json` at the pin (`east-the-upset` guidance); SP7 report §D5 row `east_upset` | a T-tier card through Act V's rounds |
+| `night_moon` (d6 <= 2 at `night-the-siege`, after `night_pack_met`) closes the talk option at the siege ("no talk works tonight"). It fires only once the party has met Lobo and the branch states the cost; if a player who chose talk reads it as a refusal of their choice, the roll overrode agency. | expectation | `adolion-night.story.json` at the pin (`night-the-full-moon` guidance); SP7 report §D5 row `night_moon` | a T-tier card through the night act's siege |

@@ -58,9 +58,6 @@ const registerSlashCommandsWhenReady = (attempt = 0) => {
 
 const spikePort = () => ({
   flags: () => getGlobalSettings().spikes,
-  chatId: () => getContext().chatId ?? null,
-  storyId: () => runtimeManager.getStory()?.id ?? null,
-  boundary: () => runtimeManager.getEngineState()?.boundary ?? null,
   raw: () => runtimeManager.getPlayedStoryRaw(),
   story: () => runtimeManager.getStory(),
   log: () => runtimeManager.getBoundaryLog(),

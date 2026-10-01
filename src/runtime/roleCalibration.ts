@@ -17,7 +17,7 @@ export interface DirectorCalibrationCase {
     storyTitle: string;
     checkpointName: string;
     objective: string;
-    candidates: Array<{ rosterId: string; name: string; role?: string }>;
+    candidates: Array<{ rosterId: string; name: string; role?: string; aliases?: string[] }>;
     allowSilence: boolean;
     lead?: string;
     instruction?: string;

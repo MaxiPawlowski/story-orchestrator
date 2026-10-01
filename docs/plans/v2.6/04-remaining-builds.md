@@ -21,8 +21,8 @@ measurement where the source plan requires one.
 | B17 | `loreExclusive` author-only; wizard keeps `exclusive` | v2.5 plan 08 | **fixed 2026-09-30** (§B17) | — | S |
 | G | Group→story binding UI | plan 17 | **built 2026-09-30** (§G) | live owed to plan 10 | S |
 | T4 | React 19 types, eslint 9, `npm audit` | v2.5 plan 03 | blocked on shared `node_modules` | A6 | M |
-| SP7.b | Chance gates into prod, first of the `.b` builds (overview W17). (1) the seed seam: seeded NPC `probability` and talk pick (`engine/chance.ts`, `sp7Chance.ts` out of the dev chunk, flag removed); (2) the `roll` gate schema + validator + Studio field | v2.6 03 | **include** (v2.6 03 2026-10-01: D4/D4b PASS ×2 on Adolion, `v2.5/09-sp7-spike-report.md` §Worth review (v2.6)); ~1.8 kB min | (1) none; (2) D5: user accepts `deep_swarm` as the shipped example | S |
-| SP3.b | Roster aliases, **director scope only** (v2.5 SP3 Phase B): `roster[].aliases` (schema + validator + Studio roster field; the lab's 312 `ship[]` aliases for Adolion), aliases beside each candidate in the director prompt, one resolver for `SPEAKER:` answers; ambiguous aliases never resolve by guess | v2.6 03 | **include** (v2.6 03 2026-10-01: A2 6.61 / 5.75 wrong-or-null per 50 on 174 Adolion windows ×2, DeepSeek; A1 0.78 % so memory/epistemic/ledger keys are out; `v2.5/09-sp3-spike-report.md` §Worth review (v2.6)) | its own Phase B condition: A2 re-measured on the same 174 windows ×2, each ≤ half the Phase A rate (≤ 3.30 and ≤ 2.87 per 50); miss → drop | M |
+| SP7.b | Chance gates into prod, first of the `.b` builds (overview W17). (1) the seed seam: seeded NPC `probability` and talk pick (`engine/chance.ts`, `sp7Chance.ts` out of the dev chunk, flag removed); (2) the `roll` gate schema + validator + Studio field | v2.6 03 | **built 2026-10-01** (both halves; D5 accepted by the lead with `deep_swarm` as the shipped example; §Gate record SP7.b / SP3.b) | live: the T-tier cards that reach a roll branch (plan 15 Part B) | S |
+| SP3.b | Roster aliases, **director scope only** (v2.5 SP3 Phase B): `roster[].aliases` (schema + validator + Studio roster field; the lab's 312 `ship[]` aliases for Adolion), aliases beside each candidate in the director prompt, one resolver for `SPEAKER:` answers; ambiguous aliases never resolve by guess | v2.6 03 | **built 2026-10-01, NOT accepted** (director only; §Gate record SP7.b / SP3.b); kept only if its Phase B bar passes | Phase B bar (live, DeepSeek, owed to plan 15 Part B): A2 re-measured on the same 174 windows ×2, each ≤ half the Phase A rate (≤ 3.30 and ≤ 2.87 per 50); miss → drop (removal commit) | M |
 | SP*.b | Every other spike whose Adolion worth review says include | v2.6 03 | — | v2.6 03 | per spike |
 | TL | Inline timeline | v2.6 08 | own plan | — | — |
 
@@ -536,3 +536,86 @@ Wizard role routed to `harness:opencode:<model>`.
 Source: v2.5 plan 08 L7. Phase A met every predeclared floor on the English re-measure (60/60; `15-judge-remeasure.md`), so the runtime is built: `judge.uses.wardenLore` (on by default, author-only, needs the continuity warden), the story-book entries that fired for the reply (text kept in memory only, never mirror or foreign books) asked in their own judge call, a `lore` note on the warden's one-turn path. Record, tests, bundle and gates: `15-review.md` §Build: warden-lore.
 
 Still owed live (plan 15 Part B): R4 latency with the use on (`so-judge timeouts` counts `wardenLore` calls apart), R6 over-steer, G-L7 J8 on/off. The combined-request arm (lore inside the warden's call) is not built; it needs R5 first.
+
+## Gate record — SP7.b / SP3.b (2026-10-01)
+
+Branch `v26-sp7b-sp3b` (off master `36f2cb84`, not merged). No live lanes or pod calls in this build (rule 13): every live row below is owed.
+
+### SP7.b — seeded chance in prod (both halves)
+
+The lead accepted D5 (`v2.5/09-sp7-spike-report.md` §D5: the per-roll read of all 7 Adolion rolls) with `deep_swarm` as the
+shipped example; the two caveats (`east_upset` can overturn a won bout, `night_moon` closes the talk option at the siege) are
+review items in `14-findings.md` §SP7.b.
+
+Built:
+- **Schema half:** `Quality.roll?: {sides, target}` (`engine/schema.ts`, `ROLL_TYPES`); the validator keeps it only on a
+  `source: code` bool/int quality with whole numbers, `sides >= 2`, `1 <= target <= sides`, and refuses anything else at
+  `qualities.N.roll` (`engine/validate/qualities.ts` via `engine/chance.ts` `readChanceRoll`). Rolls are read from the
+  normalized story, no longer from the raw record. Side effect fixed: a Studio round-trip used to drop `roll` (the
+  normalized quality never carried it).
+- **Seed half:** `runtime/chance.ts` (was `runtime/spikes/sp7Chance.ts`, deleted) and `engine/chance.ts` leave the dev-only
+  list; `spikes.sp7Chance` is gone from `SPIKE_FLAGS`, the session baseline and the two v2.5 toy scenarios. The manager owns
+  `readonly chance` (context: loaded chat id, story id, `engine.currentBoundary`, normalized qualities); `EngineHost.derive`,
+  `EffectsApplier.roll` and the talk host's `random` read it. `spikeSeams` keeps only `generation` (SP6). The dev chunk
+  still publishes `storyOrchestratorSpikes.draws` through `onChanceDraw`.
+- **Studio field:** Quality editor "Seeded chance roll" (die d2–d100 + target selects) for code bool/int; switching to
+  extractor or a non-rollable type drops the roll (`[data-so="quality-roll"]`, story `Studio/QualityEditor/ChanceRoll`).
+
+Ownership / fault matrix: the seam is synchronous (no await, no write after one), so no census row and no fault-matrix
+cell is added; the existing `fireNpcReplies` row covers the roll read inside its owned loop.
+
+Tests (failing first):
+- `src/runtime/chanceGate.test.ts` (manager, prod wiring, no flag): draw routes true/false, rollback + replay, reopened chat,
+  NPC `probability` on the seed (no `Math.random`), seeded talk stream. 6/6 red with the seam answering null (the build
+  before SP7.b), 6/6 green after.
+- `src/engine/validate/qualityRoll.test.ts`: roll kept / refused ×8 (9 of 10 red before).
+- `src/runtime/chanceAdolion.test.ts` (the 9 stories at the adolion-fresh pin via `git show`; skipped without the campaign
+  checkout): the 7 saga rolls survive validation; each, driven in the engine at its drawing checkpoint with its co-conditions
+  set over 300 chats, branches exactly when the committed draw says so and at its odds (±10 pp); control: without the seed
+  none ever branches. Red before (rolls dropped by the validator).
+- `src/runtime/chance.test.ts` (moved from the spike, toy legs kept: D1 4 seeds × 200 cuts 0 mismatches, D2, D3) gains
+  **reopen ≡ replay** (serialize, hydrate a fresh engine, replay: 4 seeds × 50 cuts, 0 mismatches) with its unseeded control.
+- `devOnly.guard.test.ts`: the spike control no longer lists sp7; new case: `engine/chance.ts` + `runtime/chance.ts` are in
+  the prod entry graph and the spike file is gone.
+
+Owed live (plan 15 Part B): a card reaching `deep-the-swarm` and the two caveat branches. Campaign side (not this repo):
+`lab/chance/live-adolion-sp7-d4*.json` switch `spikes.sp7Chance` and throw "the sp7Chance flag did not take"; on this build
+that step must drop the flag write (the repo's toy `live-v25-09-sp7-d4*.json` were updated the same way).
+
+### SP3.b — roster aliases, director scope only
+
+Built: `RosterMember.aliases?: string[]` (validator: a list of names, trimmed, case-deduplicated, own name dropped; anything
+else refused at `roster.N.aliases`); `buildCandidates` carries them; `talk/aliases.ts` (`distinctAliases`, `aliasOwner`):
+an alias two candidates share, or that is another candidate's name, is never shown and never resolved; the director prompt
+lists `- Name (also called: …)`; `parseDirectorResponse` resolves name → head name → alias → head alias (article-insensitive).
+Mention narrowing, extraction, memory, epistemic and ledger keys are untouched (A1 FAIL). Studio roster "Also called" field
+(commit on blur, `[data-so="roster-aliases"]`, story `Studio/RosterEditor/AuthorsAliases`). `roleCalibration` rows may carry
+`aliases`; `scripts/spike/sp3/phaseB-rows.mjs` attaches the lab's `ship[]` to the 174 director rows (+ node test).
+
+Tests (failing first): `src/talk/aliases.test.ts` 12 of 20 red before (the 8 green are negatives/controls), 20/20 after.
+Offline information arm (not the bar): the lab's authored `SPEAKER:` answers at the pin, exact matching 13 right / 0 wrong /
+161 miss of 174, with `ship[]` aliases **147 right / 0 wrong / 27 miss**.
+
+**Phase B bar — owed, not run** (live DeepSeek, lane): attach the aliases, swap the fixture, run ×2:
+`node scripts/spike/sp3/phaseB-rows.mjs <campaign>/lab/aliases/director.json <campaign>/lab/aliases/aliases.json test/fixtures/judge/director.json`
+(after backing the fixture up), dev build served, then `so-role-calibration.mts run --role director --arm adolion-sp3b-r1
+--expect-count 174 --profile "deepseek 4.1 flash"` and `-r2`. Pass: each run ≤ 3.30 and ≤ 2.87 wrong-or-null per 50. Miss →
+drop (removal commit with a planted-import control). The Adolion stories also need `roster[].aliases` from the lab's
+`ship[]` in the campaign build before any session sees the change.
+
+### Bundle and gates
+
+**Bundle (prod main entry, `dist/index.js`):** 1,214,046 B on master `36f2cb84` built in this worktree before the change →
+**1,217,878 B** after (+3,832 B: `engine/chance.ts` + `runtime/chance.ts` leave the dev chunk, the roll validator, `talk/aliases.ts`;
+the Studio fields ride the lazy Studio chunk). Budget 1,250,000 not raised.
+
+`npm run gates -- --no-storybook`: **all green** — typecheck, typecheck:test, lint, test (407 suites passed, 1 skipped; 5332
+tests passed, 1 skipped), build, build:dev, test:debug (770/770), debug:typecheck, test:release (90 pass, 2 skipped),
+test:replay (30 of 30 killed), test:plugin (75 pass, 3 skipped). Storybook skipped there, run apart:
+`npm run storybook:build`, `npx http-server .sb-static -p 6148 -s -c-1`, `node node_modules/@storybook/test-runner/dist/test-storybook.js
+--url http://127.0.0.1:6148 --maxWorkers 1 --index-json` → **63 suites, 377/377** (server stopped, dir deleted; `--index-json`
+because the junctioned `node_modules` puts the runner's rootDir in the main checkout). Also `node --test
+scripts/spike/sp3/phaseB-rows.test.mjs scripts/spike/sp3/phaseA.test.mjs` 7/7.
+
+Live gate: none run (no lanes or pod calls, rule 13). NOT green live: SP7.b's roll branches on a real session and SP3.b's
+Phase B bar are owed to plan 15 Part B.

@@ -1,7 +1,7 @@
 import type { ArcTemplate, BoundaryLogEntry, NormalizedStoryV2 } from "@engine/index";
 import { installSpikeSeams } from "../spikeSeams";
 import type { SpikeSettings } from "../settingsModel";
-import { createChanceSeams, type ChanceContext, type ChanceDraw } from "./sp7Chance";
+import { onChanceDraw, type ChanceDraw } from "../chance";
 import {
   composeComplication, createComplicationSeam, deriveReleases, logDirections, pendingRelease, readComplicationPools,
   type ComplicationEvent, type ComplicationRelease, type PromptPort, type ReleaseInput,
@@ -9,9 +9,6 @@ import {
 
 export interface SpikePort {
   flags(): SpikeSettings;
-  chatId(): string | null;
-  storyId(): string | null;
-  boundary(): number | null;
   raw(): unknown;
   story?(): NormalizedStoryV2 | null;
   log?(): readonly BoundaryLogEntry[];
@@ -34,15 +31,6 @@ export interface SpikeDebug {
 }
 
 export const SPIKE_DRAW_RING = 200;
-
-export const chanceContext = (port: SpikePort): ChanceContext | null => {
-  if (!port.flags().sp7Chance) return null;
-  const chatId = port.chatId();
-  const storyId = port.storyId();
-  const boundary = port.boundary();
-  if (!chatId || !storyId || boundary === null) return null;
-  return { chatId, storyId, boundary, raw: port.raw() };
-};
 
 export const releaseInput = (port: SpikePort): ReleaseInput | null => {
   const story = port.story?.() ?? null;
@@ -74,10 +62,12 @@ export const installSpikes = (port: SpikePort, publish: (debug: SpikeDebug | und
   const generation = port.prompt
     ? createComplicationSeam(() => (port.flags().sp6Complications ? releaseInput(port) : null), port.prompt, (event) => ring(debug.events, event), spent)
     : undefined;
-  const release = installSpikeSeams({ ...createChanceSeams(() => chanceContext(port), (draw) => ring(debug.draws, draw)), ...(generation ? { generation } : {}) });
+  const release = installSpikeSeams(generation ? { generation } : {});
+  const unlisten = onChanceDraw((draw) => ring(debug.draws, draw));
   publish(debug);
   return () => {
     release();
+    unlisten();
     generation?.({ kind: "closed", reason: "ended" });
     publish(undefined);
   };

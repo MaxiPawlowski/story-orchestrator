@@ -227,9 +227,6 @@ describe("SP6 K2 machinery: the block rides the next loud generation only", () =
     const writes: string[] = [];
     const port = (sp6Complications: boolean): SpikePort => ({
       flags: () => ({ ...defaultSpikeSettings(), sp6Complications }),
-      chatId: () => "chat-a",
-      storyId: () => "sp6-complications",
-      boundary: () => engine.serialize().boundary,
       raw: () => raw,
       story: () => story,
       log: () => engine.stateLog,
