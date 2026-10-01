@@ -13,7 +13,8 @@ DeepSeek (orchestrator passes) and TypeSafe judge spend per session, written by 
 | `test/sessions/T1/T1-1-1` | 1 | 2026-10-01T14:54:46.243Z | 187 | 407052 / 86671 | 181 / 6 | n/a | 168 (0) | 893434 / 89665 | n/a | 46 |
 | `test/sessions/T1/T1-2-1` | 3 | 2026-10-01T14:48:39.994Z | 41 | 118982 / 25149 | 41 / 0 | n/a | 210 (1) | 1233998 / 125163 | n/a | 23 |
 | `test/sessions/T1/T1-3-1` | 4 | 2026-10-01T14:57:10.801Z | 63 | 239327 / 37297 | 63 / 0 | n/a | 183 (4) | 1156015 / 106563 | n/a | 40 |
-| **Total** | | | 480 | 1228135 / 244799 | | n/a | 1041 | 5662510 / 552457 | n/a | 167 |
+| `test/sessions/T1/T1-4-1` | 4 | 2026-10-01T17:24:18.034Z | 113 | 278772 / 56226 | 111 / 2 | n/a | 245 (11) | 1348428 / 135004 | n/a | 30 |
+| **Total** | | | 593 | 1506907 / 301025 | | n/a | 1286 | 7010938 / 687461 | n/a | 197 |
 <!-- sessions:end -->
 
 ## RunPod pod hours (the lead adds these by hand)
@@ -25,4 +26,4 @@ Reused resource: network volume `x9gi6f1rig` (comfy-pod, EU-RO-1, 50 GB, holds t
 | Date | Pod | GPU | $/h | Hours | Cost | Note |
 |---|---|---|---|---|---|---|
 | 2026-10-01 | 5mmoei8glfi1gu llm-pod-4500-so26 (created this work, started 11:01:27Z) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | running | | Artemis 31B Q4_K_M, ctx 196608, parallel 4, kv-unified; IDLE_MINUTES 90 |
-| 2026-10-01 | jlur25ufnngbia llm-pod-a100-so26-flags (created this work, started 15:18:15Z) | A100 SXM 80GB, EU-RO-1 | 1.59 | running | | server-flag A/B for Artemis loops/word-dropping (no RTX PRO 4500 free); IDLE_MINUTES 45, MAX_UPTIME 6 |
+| 2026-10-01 | jlur25ufnngbia llm-pod-a100-so26-flags (created this work, started 15:18:15Z) | A100 SXM 80GB, EU-RO-1 | 1.59 | stopped (EXITED) after 129 min | ~$3.42 | server-flag A/B for Artemis loops/word-dropping (no RTX PRO 4500 free); IDLE_MINUTES 45, MAX_UPTIME 6 |

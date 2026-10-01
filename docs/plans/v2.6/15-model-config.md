@@ -236,3 +236,151 @@ What to do instead, in order:
 4. **Not pursued:** the msg 25 request was sent twice, 0.2 s apart (#39 and #40, same Dalan prompt), into the 4-slot `--kv-unified` server. No replay came close to msg 25's damage. Whether the concurrent duplicate on shared slots made it worse is untested.
 
 Calls to the pod: 40 in total (`/health`, `/props`, then 38 `/completion` with `n_predict` ≤ 400), all sequential.
+
+## 2026-10-01 (evening): Server-flag A/B (A100)
+
+Dedicated pod `jlur25ufnngbia` (A100 SXM 80 GB, EU-RO-1, $1.59/h), 15:18–17:27Z, **129 pod minutes (~$3.40)**, then stopped. The production pod `5mmoei8glfi1gu` was only read (`get-pod`, to get its GPU). Re-runnable kit, raw rows, logs and testsets: `C:\dev\so-lanes\artemis-flags\` (README there). Research input: `15-model-research.md`.
+
+### Setup, and what it cannot show
+
+- **The production binary does not run on an A100.** `/workspace/llama/bin/llama-server` (b11046) is built for CUDA archs `89;120` and exited at load. The test binary is the **same tag b11046** (commit `60081bb2`) built for sm_80, plus the latest tag **b11321** (`b0aca3c6`) for one arm. CUDA 12.8 (not 13.2), driver 13.0. Blackwell (sm_120) kernels were not testable here. Since both symptoms reproduced on the A100 (below), neither one is Blackwell-specific.
+- The models were copied to `/dev/shm` (RAM, not the volume). Every GGUF sha256 matches the Hugging Face LFS oid. The production Q4_K_M is bartowski's file (`0637f894…`).
+- The same bodies were used as in the morning A/B, all with the recorded sampler params (temperature 1, min_p 0.05, DRY 0.8/1.75/2/4096 with breakers `\n : " *`), `n_predict` 400 and `n_probs` 1:
+  - **W** = #39 Dalan;
+  - **T** = #37 Talis;
+  - **B** = #42 Belle, whose context holds the broken msg 25;
+  - **L** = #90 + 4 live loop lines;
+  - **L0** = #90 bare;
+  - **S** = first turn.
+- Two llama-server instances shared the GPU (ports 8080/8081). Screening tok/s is therefore halved; the solo numbers are in the capacity table.
+- Metrics:
+  - `corrupt` = word damage in W/T, **hand-read** (detector hits that were false positives are excluded);
+  - `B drop` = article-dropping in B (the detector's `noart`/`dbl`/`detfunc` hits, spot-read);
+  - `forced` = chosen tokens below 0.05 × the raw top probability, i.e. picks a penalty forced;
+  - `loop` = an identical line ≥3× or an identical sentence ≥4×.
+
+### Reproduction (production flags: ctx 196608, `-np 4`, `--kv-unified`, q8_0 KV, b11046)
+
+- **Loop: reproduced.** L looped 4/4 sequentially and 8/8 with 4 concurrent requests.
+- **Word damage: reproduced at a low rate.**
+  - W/T: 1 of 40 replies over the three production runs (sequential, 4-concurrent, 8 extra seeds). The hit was card text bleeding in mid-sentence: "…a magic-hunger that isTalis Dacaryn is a young elven wiza…".
+  - Across all the production-sampler server arms: 7/125.
+  - Every damaged site that was read sits on a forced pick. The model wants "He looks at the player", DRY pushes "player" down, and the junk passes min_p. That produced "He looks at the and his cheeks", "looks up at the the player", "with the a bare whisper", "theis direction" and "heL eyes … hisL eyes".
+  - **B damage reproduces readily: 31/88 across all non-template arms.** Examples: "Belle's on feet", "hammers into palm", "Ashs". These picks are **not** forced (forced = 0). The model imitates the broken msg 25 in its context.
+- So the A/B is valid on this hardware.
+
+### Arms (Artemis v1.1 Q4_K_M unless noted)
+
+| Arm | Change vs production | W/T corrupt | B drop | L loop | L0 loop | forced/100 tok | VRAM (MiB) |
+|---|---|---|---|---|---|---|---|
+| A0 prod (seq + conc4 + 8 more seeds) | none | 1/40 | 5/20 | 12/12 | 1/8 | 0.6–0.9 | 31 052 |
+| A1 KV f16 (seq + conc4) | `-ctk/-ctv f16` | 1/16 | 2/8 | 4/4 | – | 0.8 | 38 512 |
+| A12 f16, np2, ctx 98304, no unified | f16 + 2 slots | 2/8 | 2/4 | 4/4 | – | 0.85 | 29 466 |
+| A2 np1, ctx 65536, no unified | 1 slot | 0/8 | 2/4 | 4/4 | – | 1.3 | 23 180 |
+| A10 np4 unified, ctx 65536 | ctx only | 0/8 | 3/4 | 4/4 | – | 0.6 | 24 460 |
+| A3 b11321 (latest) | binary | 1/8 | 1/4 | 4/4 | – | 0.6 | 31 052 |
+| A6b `--swa-full`, f16, np1, ctx 20480 | SWA full | 1/8 | 2/4 | 4/4 | – | 0.6 | 36 976 (at 20k ctx) |
+| A8b FA off, f16, np1, ctx 20480 | `--flash-attn off` | 0/8 | 1/4 | 4/4 | – | 1.1 | 24 198 |
+| M3 Q8_0 weights | weight quant | 1/8 | 2/4 | 4/4 | – | 0.8 | 43 486 |
+| S8 `cache_prompt:false` | no prefix reuse | 0/13 | 3/4 | – | – | 0.7–0.9 | – |
+| S1 `min_p` first in sampler order | sampler | 1/8 (dialogue "there's a and there's") | 2/4 | 4/4 | – | **0** | – |
+| S2 DRY off | sampler | 2/8 ("and and", "is is") | 1/4 | 4/4 | – | 0 | – |
+| S3 top-nσ 1.5 | sampler | 0/8 | 1/4 | 4/4 | – | 0.6 | – |
+| S4 XTC 0.5/0.1 | sampler | 2/8 | 2/4 | 2/4 | – | **4.1** | – |
+| S5 temperature 0.8 | sampler | 1/8 | 1/4 | 4/4 | – | 0.7 | – |
+| S6 DRY last_n 1024, mult 0.6 | sampler | 1/8 ("heL eyes") | 1/4 | 4/4 | – | 1.1 | – |
+| **T1/T1b empty thought channel, last turn** | template | **0/24** | **0/12** | 3/4 | **0/8** | 0.2–0.3 | same |
+| T2 empty thought channel, every model turn | template | 0/8 | 0/4 | 3/4 | 0/4 | 0.6 | same |
+| **C1 thought channel + `min_p` first** | template + sampler | **0/8** | **0/4** | 4/4 | 0/4 | **0** | same |
+| M1 Artemis **v1.2** Q4_K_M | model | 1/8 ("and and there's a narrator's") | 0/4 | 2/4 | – | 0.7 | 30 976 |
+| M1-tc v1.2 + thought channel | model + template | 0/8 | 0/4 | 3/4 | – | 0.2 | 30 976 |
+| M2 **Cydonia-24B v4.3** Q5_K_M (Mistral V7-Tekken) | model | 0/8 | 0/4 | 3/4 | 0/4 | 0.4 | 33 336 |
+
+Notes on the table:
+- 4 samples per body unless noted.
+- The S arms and template arms ran on the production server. Their VRAM is the production row.
+- "L loop" counts any reply with a line repeated ≥3 times. Several "3/4" escapes are short replies that still repeat "The valley is quiet." three times and then stop.
+
+### Reading
+
+1. **No server flag changes either symptom.**
+   - KV f16 (q8_0 KLD was the research's lead suspect), one slot without `--kv-unified`, a smaller context, `--swa-full`, flash-attention off, the latest build, no prefix reuse and Q8_0 weights all sit inside the production noise: W/T 0–2/8, B 1–3/4, L 4/4.
+   - The cause is not KV quantisation, slot sharing, SWA cache or weight quantisation.
+   - `--swa-full` is also unusable on this card: 37 GB at a 20k context, and 50 GB of KV alone at 64k (OOM).
+2. **The empty thought channel is the one change that moves both symptoms' precursors.**
+   - The change: `<|channel>thought\n<channel|>` after the final `<|turn>model\n`, which Gemma-4-31B was trained to emit when thinking is off.
+   - **Word damage: 0 in 54 W/T replies** (T1, T1b, T2, C1, M1-tc, F1/F2), against 7/125 without it (one-sided Fisher p ≈ 0.08 on W/T alone).
+   - **B drop: 0/24**, against 31/88 without it (p < 0.001). The B replies are full, varied prose even with msg 25 in context.
+   - Forced picks drop 2–3×. With the thought channel the prose is less formulaic, so DRY collides with it less.
+   - **Loop onset (L0):**
+     - Without it, most of the 8 replies (6 or 7, by reading) are terse atmosphere lines ("The valley is quiet. / A beat, and…"), the register the loop grows from. 1 of 8 ran to the cap.
+     - With it, 0/16 loop and every reply is a paragraph of concrete narration.
+   - **It does not rescue a loop already in the reply** (L: 3/4).
+   - Wrapping every past model turn (T2) is no better than the last turn only (T1).
+3. **`min_p` before DRY removes the forced-pick class by construction** (forced = 0 in S1, C1 and the blind pack). It does not touch B imitation or loops. On top of the thought channel it adds nothing measurable here (both are 0/8). It is kept as a cheap guard against the "theis the" mechanism found this afternoon. There is no sign of a downside (S clean, loop rate unchanged).
+4. **No sampler arm fixes the loop.**
+   - XTC breaks 2/4, but forced picks rise to 4.1/100.
+   - DRY off brings back doubled words.
+   - The loop guard in the harness (swipe a reply with a line ≥3×) stays necessary.
+5. **Models.**
+   - Artemis v1.2 is at least as clean as v1.1. It was the only model without the thought channel that resisted B imitation (0/4).
+   - Cydonia 24B is clean, 44% faster (46.7 vs 32.4 tok/s solo), and loop-prone once a loop is in context (3/4).
+6. **Determinism.** Greedy runs (temperature 0) of the same arm were not always identical:
+   - production W identical, T diverged at token 34;
+   - np1 without unified KV diverged at tokens 68 and 4;
+   - f16 diverged at tokens 92 and 88;
+   - b11321 and Q8 weights were identical.
+   - So the run-to-run nondeterminism is not specific to `--kv-unified` or parallel slots. It follows the prompt-cache path (the first call evaluates the full prompt, the second reuses the cache and re-evaluates only the last token). It is harmless: different but valid continuations.
+
+### Blind pack raw material (20 real turns × 4 configs, seed 1001, `n_predict` 600)
+
+`C:\dev\so-lanes\artemis-flags\testset\blind-20\` (manifest: session, payload, speaker, phase, known symptom; 5 of the 20 turns are known loop or word-drop turns) and `results\blind-20\` (`replies.jsonl`, `configs.json`, `checklist.jsonl`, `checklist-summary.json`). The two stories captured so far are adventurer and war, so there is no academy or saga turn.
+
+| Config | Loop | Corrupt | Forced picks | Acts or speaks for player | Narrator voices a member | Mean words |
+|---|---|---|---|---|---|---|
+| BL0 v1.1 production as-is | 2/20 | 1 by hand ("claspshed" in b13, which also loops "Please!") | 17 | 1 (false positive: a recap) | 1 | 153 |
+| BL1 v1.1 + thought channel + `min_p` first | 0/20 | 0 | 0 | 0 | 1 | 122 |
+| BL2 v1.2 + thought channel + `min_p` first | 0/20 | 0 | 0 | 0 | 0 | 179 |
+| BL3 Cydonia 24B Q5_K_M (Mistral) + `min_p` first | 1/20 | 0 | 0 | 0 | 1 | 154 |
+
+- On b20 (the loop-polluted context), BL0 and BL3 run to the 600 cap on "A beat, and…" chains. BL1 and BL2 write a normal reply.
+- "Guidance leak" hits are all b02/b03, recap turns that are asked to restate earlier scenes.
+- The "addressed member answered" check is constant across configs (it measures the recorded director's pick, not the model), so it is reported in `checklist.jsonl` but not scored.
+
+### Capacity (solo, A100; the RTX PRO 4500 Blackwell has 32 GB)
+
+| Server config | VRAM | tok/s 1 stream | tok/s per stream at 4 concurrent | Lanes |
+|---|---|---|---|---|
+| Production: ctx 196608, np4, unified, q8_0 | 31.1 GB | 32.4 | 14.0 (≈56 aggregate) | 4 (≈49k tokens each, shared) |
+| Artemis v1.2, same flags | 31.0 GB | 32.7 | 14.6 | 4 |
+| f16 KV, ctx 98304, np2 | 29.5 GB | 37.9 | – | 2 |
+| f16 KV, ctx 196608, np4 | 38.5 GB | – | – | does not fit 32 GB |
+| Cydonia Q5_K_M, ctx 98304, np2, q8_0 | 24.7 GB | 46.7 | – | 2 (or 4 sharing 98k) |
+| Cydonia Q5_K_M, ctx 196608, np4, q8_0 | 33.3 GB | – | – | does not fit 32 GB |
+
+### Recommendation
+
+**Server: no change.**
+
+```
+LLM_CTX=196608
+LLM_PARALLEL=4
+LLM_KV_TYPE=q8_0
+LLM_EXTRA_ARGS=--kv-unified
+```
+
+Capacity is unchanged: 4 lanes share it, as today. No server flag measured better, and the only plausible quality flag (f16 KV) halves the lanes (`LLM_CTX=98304 LLM_PARALLEL=2 LLM_KV_TYPE=f16 LLM_EXTRA_ARGS=`) for no measured gain. Do not use `--swa-full`.
+
+**The fixes are on the ST side (high confidence for the thought channel, medium for the sampler order):**
+1. **Instruct template for the RP profile.** Set `last_output_sequence` to `<|turn>model\n<|channel>thought\n<channel|>` (today it is empty, so `output_sequence` `<|turn>model\n` is used). Past turns stay as they are. This is what every winning arm sent: the speaker prefix ("Dalan:") follows the empty thought block.
+2. **Preset `Artemis v1.1 RP`.** Move `"min_p"` to the front of `samplers`:
+
+   ```
+   ["min_p","penalties","dry","top_n_sigma","top_k","typ_p","tfs_z","typical_p","xtc","top_p","adaptive_p","temperature"]
+   ```
+
+   Keep every other value. The lanes copy `TextGen Settings` and the instruct presets from the real install at seed, so both changes must land in the install (or in an `adolion-fresh` seed patch) before the next sessions.
+3. **Keep the harness loop guard** (swipe or regen a reply with a line repeated ≥3 times). Nothing here escapes a loop that is already in the context.
+4. **Model.** Artemis v1.2 is a safe drop-in: same template, flags, VRAM and speed, and at least as clean. Decide after the blind pack. Cydonia 24B is a credible alternative only with `LLM_CTX=98304`. It needs the Mistral V7-Tekken template and still loops once a loop is in context.
+
+**Not tested:** Blackwell sm_120 kernels; the live ST path end to end (the bodies were hand-edited the way the template change would render them, and should be verified with one `st-payload` capture after the preset edit); more than 8 seeds per body on W/T. The W/T result rests on the low base rate, and B is the strong evidence.
