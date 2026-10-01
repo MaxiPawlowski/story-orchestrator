@@ -58,10 +58,7 @@ async function cpCommand(manager: RuntimeManager, value: string | string[]) {
   if (command === "activate") {
     const id = parts[1];
     if (!id) return show("Usage: /cp activate <id>");
-    const kit = await loadChapterKit();
-    const jump = await kit.confirmChapterJump(manager.chapters, id);
-    if (jump === "cancel") return show("Jump cancelled.");
-    if (await manager.activateCheckpoint(id) && jump === "skip") kit.markSealSkip(manager.chapters);
+    await manager.activateCheckpoint(id);
     return show(manager.getSnapshot().status);
   }
   if (command === "set") {

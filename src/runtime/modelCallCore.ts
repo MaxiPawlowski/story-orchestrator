@@ -33,6 +33,7 @@ export interface ModelCallDeps {
   planted?: boolean;
   observe?: (role: PassRole, call: RoleCallObservation) => void;
   record?: (record: ModelCallRecord) => void;
+  stamp?: () => { chatId: string | null; messageId: number };
 }
 
 type Effort = NonNullable<ModelRoute["effort"]>;
@@ -60,23 +61,24 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
     const options = {
       maxTokens: ask.maxTokens, temperature: ask.temperature, signal: ask.signal, timeoutScale: ask.timeoutScale, budgetKind: ask.budgetKind, reasoningBudget: settings.reasoningBudget, role: ask.role,
     };
-    const note: NoteCall = (used, startedAt, result, answer, fallbackFrom) => deps.record && deps.record({
+    const stamp = deps.stamp?.();
+    const recordCall: NoteCall = (used, startedAt, result, answer, fallbackFrom) => deps.record && deps.record({
       at: new Date(startedAt).toISOString(), role: ask.role, pass: ask.pass, route: routeKey(used), result, ms: Date.now() - startedAt,
-      samplers: used.kind === "profile" ? "applied" : "not-applied", usage: answer && answer.usage, spawnMs: answer && answer.spawnMs, fallbackFrom,
+      samplers: used.kind === "profile" ? "applied" : "not-applied", usage: answer && answer.usage, spawnMs: answer && answer.spawnMs, fallbackFrom, ...stamp,
     });
     const startedAt = Date.now();
     try {
       const answer = await reply(prompt, route, options);
-      if (route) note(route, startedAt, "ok", answer);
+      if (route) recordCall(route, startedAt, "ok", answer);
       if (observe) observe(Object.assign({ outcome: "answered" as const, meter: answer.meter ?? null }, seen));
       return answer;
     } catch (error) {
       const kind = error instanceof ModelCallError ? error.kind : null;
       if (!route || !kind) throw error;
-      note(route, startedAt, kind);
+      recordCall(route, startedAt, kind);
       if (observe && OBSERVED.includes(kind)) observe(Object.assign({ outcome: kind as "auth", detail: (error as Error).message }, seen));
       if (route.kind === "profile" || !FALLBACK_KINDS.includes(kind)) throw error;
-      return (await import("./harnessFallback")).answerFallback({ error, route, settings, role: ask.role, exists: deps.exists, run: (used) => reply(prompt, used, options), note });
+      return (await import("./harnessFallback")).answerFallback({ error, route, settings, role: ask.role, exists: deps.exists, run: (used) => reply(prompt, used, options), note: recordCall });
     }
   };
   call.planted = planted;

@@ -1,8 +1,9 @@
+import type { EngineState } from "@engine/index";
 import type { ChapterRecord } from "@memory/types";
 import type { DerivedRecord } from "@memory/derived";
 import type { PromptHost } from "./hostPorts";
 import type { MemoryCoordinator, MemoryCoordinatorDeps } from "./coordinators/memoryCoordinator";
-import type { ChapterSeal, SealAt } from "./chapterSeal";
+import type { ChapterSeal } from "./chapterSeal";
 import type { SealTarget } from "./chapters";
 import type { MemoryRuntimeState } from "./types";
 
@@ -24,6 +25,20 @@ export const chapterKit = (): ChapterKit | null => kit;
 export const loadChapterKit = async (): Promise<ChapterKit> => (kit ??= await import("./chapterKit"));
 
 export const storyEnded = (records: readonly ChapterRecord[] = []): boolean => records.some((record) => record.final);
+
+export interface SealAt {
+  boundary: number;
+  messageId: number;
+  pathLength: number;
+  path: string[];
+  activeCheckpointId: string;
+  blackboard: Record<string, unknown>;
+}
+
+export const sealAtState = (state: EngineState, override: Partial<SealAt> = {}): SealAt => ({
+  boundary: state.boundary, messageId: state.lastMessageId, pathLength: state.visitedPath.length, path: [...state.visitedPath],
+  activeCheckpointId: state.activeCheckpointId, blackboard: { ...state.blackboard.values }, ...override,
+});
 
 // The main entry holds only this door: the trigger, the story-so-far block, the fold, the bridge note
 // and the dossiers live in the chapter kit (loaded at startup), the seal pass in its own chunk.

@@ -1,6 +1,6 @@
 import { appendJudgeCall, type JudgeCallRecord, type SceneReadRecord } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
-import { appendModelCall, type ModelCallRecord } from "./modelCallLog";
+import { acceptModelCall, type ModelCallRecord } from "./modelCallLog";
 import {
   StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryLogEntry, type BoundaryResult, type EngineState,
   type NormalizedStoryV2, type NormalizedTransition, type TalkControl, type ValidationError,
@@ -14,6 +14,7 @@ import {
   getContext, profileExists, readExtensionPromptBlocks, readInjectedPromptBlocks, showTextPopup,
 } from "@services/STAPI";
 import { createModelCall } from "./modelCall";
+import { loadChapterKit } from "./chapterPort";
 import { AwayRecapController, type AwayRecap } from "./awayRecap";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
 import { coordinatorHosts } from "./coordinatorHosts";
@@ -104,7 +105,9 @@ export class RuntimeManager extends CoordinatorDelegates {
     rollback: (messageId, journal) => this.rollbackFromMessage(messageId, journal),
   });
   private readonly view = { getStory: () => this.loaded?.story ?? null, getState: () => (this.loaded ? this.engine.serialize() : null), hosts: coordinatorHosts };
-  readonly model = createModelCall({ settings: () => this.getExtractionSettings(), exists: profileExists });
+  readonly model = createModelCall({
+    settings: () => this.getExtractionSettings(), exists: profileExists, stamp: () => ({ chatId: this.loadedChatId, messageId: this.getBoundaryContext().lastMessageId }),
+  });
   private readonly lifecycle = { persist: () => this.persist(), notify: () => this.notify(), ownership: this.owner.ownership, model: this.model };
   protected readonly co = wireCoordinators({
     view: this.view, lifecycle: this.lifecycle, engine: this.engine, loaded: () => this.loaded, extras: () => this.extras, judge: () => this.judge,
@@ -271,11 +274,16 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   async activateCheckpoint(id: string) {
     if (!this.loaded) return false;
+    const kit = await loadChapterKit();
+    const jump = await kit.confirmChapterJump(this.memory.chapters, id);
+    if (jump === "cancel" || !this.loaded) { this.status = "Jump cancelled."; return false; }
     const run = beginRun(this.owner.ownership);
     this.refreshRequirements();
     await this.effects.releaseStaging(this.loaded.story, this.extras, run);
     if (!run.stillOwns()) return false;
-    this.engine.activateCheckpoint(id, this.getBoundaryContext());
+    const context = this.getBoundaryContext();
+    if (jump === "skip") kit.markSealSkip(this.memory.chapters, { pathLength: this.engine.checkpointPath.length + 1, messageId: context.lastMessageId });
+    this.engine.activateCheckpoint(id, context);
     await this.applyActive("activate");
     if (!run.stillOwns()) return false;
     this.pacing.updateSteering();
@@ -384,7 +392,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   recordLoreFired(record: LoreFiredRecord) { if (!this.loaded) return; this.extras.lore = recordLoreFired(this.extras.lore, record); void this.persist(); this.notify(); }
   setInlineSettings(patch: Partial<InlineSettings>) { this.setUiSettings({ inline: { ...this.extras.ui.inline, ...patch } }); }
   recordJudgeCall(record: JudgeCallRecord) { this.extras.judge = appendJudgeCall(this.extras.judge, record); this.touch(); }
-  recordModelCall(record: ModelCallRecord) { this.extras.modelCalls = appendModelCall(this.extras.modelCalls, record); this.touch(); }
+  recordModelCall(record: ModelCallRecord) { this.extras.modelCalls = acceptModelCall(this.extras.modelCalls, record, this.loadedChatId); this.touch(); }
   getSceneRead(): SceneReadRecord | null { return this.extras.judge.scene; }
   recordSceneRead(read: SceneReadRecord | null) { this.extras.judge = { ...this.extras.judge, scene: read }; this.notify(); }
 
@@ -497,7 +505,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     const saved = mode === "hydrate" ? persisted?.engineState ?? null : null;
     if (saved) this.engine.hydrate(saved, persisted?.engineHistory ?? null); else this.memory.markStoryStart();
     await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), saved ? "hydrate" : "activate",
-      stagedPath(this.engine.checkpointPath, this.engine.stateLog));
+      stagedPath(this.engine.checkpointPath, this.engine.serialize().stagedFrom));
     // A superseded load stops here: its tail used to retitle the newer load, release ITS gated lore and
     // select the old id, and only the current load may queue a recap.
     await releaseGatedWorldInfo(this.effects, previous, loaded.story, run);
@@ -578,7 +586,7 @@ export class RuntimeManager extends CoordinatorDelegates {
       chat.length - 1); return { lastMessageId: last, chatLength: last + 1 }; }
 
   private applyActive(mode: "activate" | "hydrate", gate?: number) { return this.effects.applyCheckpoint(required(this.loaded, "loaded story").story,
-      this.engine.activeCheckpoint, this.extras, this.getSnapshot(), mode, stagedPath(this.engine.checkpointPath, this.engine.stateLog), gate); }
+      this.engine.activeCheckpoint, this.extras, this.getSnapshot(), mode, stagedPath(this.engine.checkpointPath, this.engine.serialize().stagedFrom), gate); }
   private refreshRequirements() {
     this.extras.requirements = evaluateRequirements(this.loaded?.story ?? null, requirementsOptions(this.extras.memory.wiBook));
     this.extras.updatedAt = new Date().toISOString();
