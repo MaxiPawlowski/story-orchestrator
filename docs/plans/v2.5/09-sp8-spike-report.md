@@ -1,6 +1,6 @@
 # v2.5 plan 09 — SP8 curator write tiers, protected spans, category digest — spike report
 
-**Verdict: pending (W3, W4 b live).** W1, W2 and W4 (a) PASS deterministically; W3 and W4 (b) have not run. The conditions and
+**Verdict (v2.6, Adolion): tiers + spans include (W1–W3 PASS), digest drop (W4 b FAIL); see the v2.6 section at the end.** Earlier: pending (W3, W4 b live). W1, W2 and W4 (a) PASS deterministically; W3 and W4 (b) have not run. The conditions and
 procedures below were committed in `7776f867`, before any SP8 code existed (rule 1). The conditions are the plan's table
 (`09-research-spikes.md` §SP8) and are **never retuned**. This section only fixes how each one is measured.
 
@@ -116,3 +116,25 @@ node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts diff 
 
 Pass iff the verdict is `recommended` (every floor met in both runs). Each report carries `digestRatio` (the real book's ratio).
 Records under `test/journeys/records/v2.5-plan09/sp8/live-<bundle12>/`.
+
+## v2.6 Adolion re-run (plan 03, 2026-10-01) — tiers + spans **include**, digest **drop**
+
+Restated: `docs/plans/v2.6/03-sp8-restated.md` (+ addenda 1–2, each committed before its run). Lane 2 (adolion-fresh at
+`59e8821`), served bundle `6566f7f8e418` (shared slot dev; C8 "plan-time refusals reach DECLINED" and C9 "digest index
+line" built). Route: `curator` → `deepseek 4.1 flash`; W3's turns on `Artemis RunPod RP`. Record
+`test/measurements/v2.6-03/sp8/summary.json` (logs in `w3/raw/`, `w4b/raw/`; goldens
+`test/goldens/live/role-calibration/curator-digest-6566f7f8e418-r{1,2}.json`).
+
+| # | Measured | Result |
+|---|---|---|
+| W3 | The real `Adolion Chronicle` (13 entries, 5 protected, 3 auto), 24 real act lines. Run 1: **23** proposals, **3** refused (all plan time), **20** applied, **0** violations, refused share **0.130**. Run 2: **32** proposals, **2** refused, **30** applied, **0** violations, share **0.0625**. Two earlier runs not measured (host disk full; a 300 s generation timeout on the shared pod), addenda 1–2 | **PASS ×2** (v2.5 on the synthetic book: 0.95 / 0.99) |
+| W4 (b) | 12 English cases padded with the lane's `Adolion World` (264 entries), ×2: validity 11/12, 12/12 (ok); **opShape 13/16 = 0.81, 13/17 = 0.76** (floor 0.85, **below**); decision 10/12 both (ok). Real ratio max 0.122. Misses: `enable` of entries already on (c04, c05) despite C9, and c08 disabling the first four index entries alphabetically (`1001 Ways to Mate`, `Adolion`, `Adventurer`, `Adventurer Rank`) | **FAIL** (opShape in both runs) |
+
+## Worth review (v2.6)
+
+| | Tiers + protected spans (W1–W3) | Category digest (W4) |
+|---|---|---|
+| Measured value | 0 span violations over 55 real applied ops on the campaign's own book; the author's invariant canon (house founders, past losses, who woke) survives an `auto` curator; refusal share 6–13 % (v2.5's synthetic book 95–99 %, which the C8 DECLINED fix and purposeful spans both cut) | Prompt 12 % of the full list, but a model shown an index proposes no-op enables and alphabetical disables: opShape below floor twice |
+| Cost | Prod +1 697 B already measured for the flag reads + writer guard; `.b` moves the 3 346 B tiers chunk into the main entry (≈ +3–5 KB of 1 250 000). `stagecraftCoordinator.ts` +22 lines. Prompt tokens 0 (ST strips `{{// …}}` before the prompt). Latency: none (plan-time check is pure; one re-read at the write edge already exists). | n/a |
+| Surface | Authors: `{{// so:auto}}`, `{{// so:protect}}…{{// so:end}}` in ST's own WI editor (Studio help text owed). Players: none. The campaign's Chronicle already carries the markers. | — |
+| Call | **include → `SP8.b`** | **drop** (removal commit + planted-import control). For Adolion the curator's real scope is the 13-entry Chronicle, below the 40-entry threshold anyway (lab README). |

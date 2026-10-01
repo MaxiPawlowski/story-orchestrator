@@ -1,0 +1,1002 @@
+{
+  "role": "curator",
+  "arm": "digest-6566f7f8e418-r2",
+  "profile": {
+    "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "name": "deepseek 4.1 flash",
+    "fallback": true
+  },
+  "routeDuringRun": {
+    "role": "curator",
+    "label": "World Info curator",
+    "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "state": "fallback",
+    "detail": "Same as memory model",
+    "effort": "default",
+    "reasoning": {
+      "effort": "default",
+      "applied": false,
+      "supported": true,
+      "sent": null,
+      "observed": false,
+      "collapsed": false,
+      "unsupported": null,
+      "budget": 0,
+      "chars": 0,
+      "tokens": null
+    }
+  },
+  "effort": "unpinned",
+  "reasoning": {
+    "effort": "default",
+    "state": "fallback",
+    "reasoning": {
+      "effort": "default",
+      "applied": false,
+      "supported": true,
+      "sent": null,
+      "observed": false,
+      "collapsed": false,
+      "unsupported": null,
+      "budget": 0,
+      "chars": 0,
+      "tokens": null
+    },
+    "detail": "Same as memory model"
+  },
+  "effortsRestored": null,
+  "roleMapRestored": {
+    "profiles": {
+      "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+    },
+    "routes": {}
+  },
+  "fixtureFrozenAt": "2026-09-25",
+  "bundle": "0d2a3ab1f323",
+  "runAt": "2026-10-01T18:45:31.661Z",
+  "cases": 12,
+  "summary": {
+    "role": "curator",
+    "overall": {
+      "cases": 12,
+      "metrics": {
+        "validity": {
+          "passed": 12,
+          "total": 12,
+          "rate": 1,
+          "floor": 0.9,
+          "ok": true
+        },
+        "opShape": {
+          "passed": 13,
+          "total": 17,
+          "rate": 0.7647058823529411,
+          "floor": 0.85,
+          "ok": false
+        },
+        "decision": {
+          "passed": 10,
+          "total": 12,
+          "rate": 0.8333333333333334,
+          "floor": 0.7,
+          "ok": true
+        }
+      }
+    },
+    "meetsFloors": false
+  },
+  "incomplete": [],
+  "notGreen": [],
+  "records": [
+    {
+      "role": "curator",
+      "id": "c01",
+      "lang": "en",
+      "responses": [
+        "[enable] The Old Tunnel\n[why] The party has entered the collapsed mining tunnel, so its lore entry now matters to play."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 707,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "enable:The Old Tunnel"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 3,
+        "titleOnly": 263,
+        "promptChars": 13712,
+        "fullPromptChars": 119942,
+        "ratio": 0.11432192226242684
+      },
+      "case": {
+        "id": "c01",
+        "lang": "en",
+        "label": "change",
+        "why": "enable: the party entered the place the entry describes",
+        "scope": {
+          "storyTitle": "Under the Hills",
+          "checkpointName": "The Tunnel",
+          "objective": "Find the way through the old mine.",
+          "canon": "The party left the river camp at dawn. Bel lit the brass lantern and led them into the collapsed mining tunnel under the hills. The camp is far behind them now.",
+          "openArcs": [
+            "Where does the tunnel come out?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Hills Lore",
+              "comment": "The Old Tunnel",
+              "keys": [
+                "tunnel",
+                "mine"
+              ],
+              "content": "A collapsed mining tunnel under the hills. Damp, narrow, lit only by what the party carries.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Hills Lore",
+              "comment": "Bel",
+              "keys": [
+                "Bel"
+              ],
+              "content": "Bel is the party's guide, a former miner who knows the hills.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "The Old Tunnel",
+            "kinds": [
+              "enable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "Bel"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c02",
+      "lang": "en",
+      "responses": [
+        "[rewrite] Siege of Varn || The siege of Varn has been lifted. After nine weeks the besieging army broke camp and marched north, and the city gates were thrown open three days ago. Traders are already coming back through the gates as the city recovers.\n[why] The siege has ended and the gates are open, so the entry describing Varn as under siege with shut gates is now false."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1296,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "rewrite:Siege of Varn"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 4,
+        "titleOnly": 262,
+        "promptChars": 14625,
+        "fullPromptChars": 119915,
+        "ratio": 0.12196138931743318
+      },
+      "case": {
+        "id": "c02",
+        "lang": "en",
+        "label": "change",
+        "why": "the siege the entry describes is over",
+        "scope": {
+          "storyTitle": "The Gates of Varn",
+          "checkpointName": "Aftermath",
+          "objective": "Help the city recover.",
+          "canon": "After nine weeks the besieging army broke camp and marched north. Three days ago the siege of Varn was lifted and the city gates were thrown open. Traders are already coming back through them.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Varn Lore",
+              "comment": "Siege of Varn",
+              "keys": [
+                "siege",
+                "gates"
+              ],
+              "content": "The city of Varn is under siege. Its gates are shut and nobody goes in or out.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Varn Lore",
+              "comment": "Varn Market",
+              "keys": [
+                "market"
+              ],
+              "content": "The market square sits at the heart of Varn, ringed by stalls and a stone fountain.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "Siege of Varn",
+            "kinds": [
+              "disable",
+              "patch",
+              "rewrite"
+            ]
+          }
+        ],
+        "forbidden": [
+          "Varn Market"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c03",
+      "lang": "en",
+      "responses": [
+        "[rewrite] Captain Hale || Captain Hale commanded the harbor watch until he was killed in the ambush at the fish market. He was stern but fair, and he answered to the governor.\n[enable] Sergeant Brin\n[why] Hale is dead and Brin has taken command, so Hale's entry must shift to past tense and the new commander needs to be tracked."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1329,
+      "score": {
+        "valid": true,
+        "opLines": 2,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "rewrite:Captain Hale"
+        ],
+        "dropped": [
+          "enable: \"Sergeant Brin\" is not an entry this story owns"
+        ]
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 3,
+        "titleOnly": 263,
+        "promptChars": 13825,
+        "fullPromptChars": 119939,
+        "ratio": 0.11526692735473866
+      },
+      "case": {
+        "id": "c03",
+        "lang": "en",
+        "label": "change",
+        "why": "the person the entry names as commander is dead",
+        "scope": {
+          "storyTitle": "Harbor Watch",
+          "checkpointName": "New Orders",
+          "objective": "Report to the new commander.",
+          "canon": "Captain Hale was killed in the ambush at the fish market. Sergeant Brin took command of the harbor watch the same night and has already doubled the patrols.",
+          "openArcs": [
+            "Who set up the ambush?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Harbor Lore",
+              "comment": "Captain Hale",
+              "keys": [
+                "Hale",
+                "captain"
+              ],
+              "content": "Captain Hale commands the harbor watch. He is stern but fair, and he answers to the governor.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Harbor Lore",
+              "comment": "The Harbor",
+              "keys": [
+                "harbor",
+                "docks"
+              ],
+              "content": "A crowded harbor of fishing boats and merchant ships, busy from dawn to dusk.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "Captain Hale",
+            "kinds": [
+              "patch",
+              "rewrite",
+              "disable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "The Harbor"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c04",
+      "lang": "en",
+      "responses": [
+        "[enable] #246 \"Water Nymph\"\n[why] The story has moved into the delta's reeds and channels, where a water nymph could plausibly appear, and Oskar's trustworthiness is an open thread that a local supernatural figure might complicate."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 852,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 0,
+        "decision": true,
+        "kept": [],
+        "dropped": [
+          "enable: \"Water Nymph\" is already on"
+        ]
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 2,
+        "titleOnly": 264,
+        "promptChars": 13260,
+        "fullPromptChars": 119882,
+        "ratio": 0.11060876528586443
+      },
+      "case": {
+        "id": "c04",
+        "lang": "en",
+        "label": "none",
+        "why": "every entry agrees with what has happened",
+        "scope": {
+          "storyTitle": "The Salt Road",
+          "checkpointName": "Crossing the Delta",
+          "objective": "Reach the far bank.",
+          "canon": "Mira and Tolan reached the delta at dusk and hired the ferryman Oskar to take them across the reeds.",
+          "openArcs": [
+            "Can Oskar be trusted?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Salt Road Lore",
+              "comment": "The Delta",
+              "keys": [
+                "delta",
+                "reeds"
+              ],
+              "content": "A drowned plain of reeds and channels between the salt flats and the sea. Only a ferry crosses it safely.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Salt Road Lore",
+              "comment": "Oskar",
+              "keys": [
+                "Oskar",
+                "ferryman"
+              ],
+              "content": "Oskar is an old ferryman who charges one silver coin per crossing.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Delta",
+          "Oskar"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c05",
+      "lang": "en",
+      "responses": [
+        "[enable] #240 \"Velniran Mountains\"\n[why] The travellers are climbing a mountain road toward the summit monastery, so the mountain range entry is now relevant."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1093,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 0,
+        "decision": true,
+        "kept": [],
+        "dropped": [
+          "enable: \"Velniran Mountains\" is already on"
+        ]
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 2,
+        "titleOnly": 264,
+        "promptChars": 13281,
+        "fullPromptChars": 119903,
+        "ratio": 0.1107645346655213
+      },
+      "case": {
+        "id": "c05",
+        "lang": "en",
+        "label": "none",
+        "why": "stable geography; nothing the story did touches it",
+        "scope": {
+          "storyTitle": "Winter Pass",
+          "checkpointName": "The Climb",
+          "objective": "Reach the monastery before the snow.",
+          "canon": "The travellers left the valley village and began the long climb up the switchback road. The wind is picking up but the road is still clear.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Pass Lore",
+              "comment": "The Switchback Road",
+              "keys": [
+                "road",
+                "switchback"
+              ],
+              "content": "A narrow road that zigzags up the mountain to the monastery. It closes when heavy snow falls.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Pass Lore",
+              "comment": "The Monastery",
+              "keys": [
+                "monastery",
+                "monks"
+              ],
+              "content": "A stone monastery near the summit where monks shelter travellers for the night.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Switchback Road",
+          "The Monastery"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c06",
+      "lang": "en",
+      "responses": [
+        "[enable] The Drowned Bell\n[why] The party has just heard the drowned bell ringing beneath Lake Morrow at midnight, making the legend entry directly relevant to the current scene."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 898,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "enable:The Drowned Bell"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 2,
+        "titleOnly": 264,
+        "promptChars": 13388,
+        "fullPromptChars": 120010,
+        "ratio": 0.11155737021914841
+      },
+      "case": {
+        "id": "c06",
+        "lang": "en",
+        "label": "change",
+        "why": "enable: a legend the party has now witnessed",
+        "scope": {
+          "storyTitle": "Lake Morrow",
+          "checkpointName": "The Shore at Night",
+          "objective": "Find out what rings beneath the lake.",
+          "canon": "At midnight the party heard a bell ringing from under the black water of Lake Morrow, exactly as the villagers' old story says. Nobody has rung a bell there in a hundred years.",
+          "openArcs": [
+            "What rings the drowned bell?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Morrow Lore",
+              "comment": "The Drowned Bell",
+              "keys": [
+                "bell",
+                "drowned"
+              ],
+              "content": "Village legend: the chapel bell sank with the old village when the valley flooded, and it rings before a death.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Morrow Lore",
+              "comment": "Lake Morrow",
+              "keys": [
+                "lake",
+                "Morrow"
+              ],
+              "content": "A deep, cold lake that flooded the old valley village a century ago.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "The Drowned Bell",
+            "kinds": [
+              "enable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "Lake Morrow"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c07",
+      "lang": "en",
+      "responses": [
+        "[rewrite] Orin's Shop || Orin's shop on Candle Lane sold lamp oil and rope, open daily from dawn. It was gutted by fire last night; nothing remains but a blackened shell. Orin is staying with his sister across town.\n[why] The fire destroyed Orin's shop, so the entry's present-tense description of a working shop is no longer accurate."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1273,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "rewrite:Orin's Shop"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 3,
+        "titleOnly": 263,
+        "promptChars": 13783,
+        "fullPromptChars": 119897,
+        "ratio": 0.11495700476242107
+      },
+      "case": {
+        "id": "c07",
+        "lang": "en",
+        "label": "change",
+        "why": "the shop the entry describes burned down",
+        "scope": {
+          "storyTitle": "Ashgate",
+          "checkpointName": "Morning After",
+          "objective": "Find out who started the fire.",
+          "canon": "Last night a fire gutted Orin's shop on Candle Lane. Nothing is left but a blackened shell, and Orin is staying with his sister across town.",
+          "openArcs": [
+            "Who started the fire?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Ashgate Lore",
+              "comment": "Orin's Shop",
+              "keys": [
+                "Orin",
+                "shop"
+              ],
+              "content": "Orin's shop on Candle Lane sells lamp oil and rope. It is open every day from dawn.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Ashgate Lore",
+              "comment": "Candle Lane",
+              "keys": [
+                "Candle Lane"
+              ],
+              "content": "A narrow lane of tradesmen's shops in the old quarter of Ashgate.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "Orin's Shop",
+            "kinds": [
+              "patch",
+              "rewrite",
+              "disable"
+            ]
+          }
+        ],
+        "forbidden": [
+          "Candle Lane"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c08",
+      "lang": "en",
+      "responses": [
+        "[disable] #1 \"1001 Ways to Mate\"\n[disable] #2 \"Adolion\"\n[disable] #3 \"Adventurer\"\n[disable] #4 \"Adventurer Rank\"\n[why] The story has moved to the Southport Docks to find a ship heading east, so the \"Southport Docks\" entry should be enabled and the unrelated Aegis City adventuring entries disabled."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1146,
+      "score": {
+        "valid": true,
+        "opLines": 4,
+        "survived": 4,
+        "decision": false,
+        "kept": [
+          "disable:1001 Ways to Mate",
+          "disable:Adolion",
+          "disable:Adventurer",
+          "disable:Adventurer Rank"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 1,
+        "titleOnly": 265,
+        "promptChars": 13125,
+        "fullPromptChars": 119852,
+        "ratio": 0.10951006241030604
+      },
+      "case": {
+        "id": "c08",
+        "lang": "en",
+        "label": "none",
+        "why": "an off entry about a place the story is nowhere near",
+        "scope": {
+          "storyTitle": "Southport",
+          "checkpointName": "The Docks",
+          "objective": "Find a ship heading east.",
+          "canon": "The crew arrived in the southern port city and spent the day asking captains along the docks about passage east.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Southport Lore",
+              "comment": "The Northern Wastes",
+              "keys": [
+                "wastes",
+                "north"
+              ],
+              "content": "A frozen desert far to the north where nothing grows.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Southport Lore",
+              "comment": "Southport Docks",
+              "keys": [
+                "docks",
+                "ships"
+              ],
+              "content": "The busy docks of Southport, where ships from every coast take on cargo and passengers.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Northern Wastes",
+          "Southport Docks"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c09",
+      "lang": "en",
+      "responses": [
+        "[rewrite] Festival of Lanterns || The Festival of Lanterns ended four days ago. The streets are empty again, the paper lanterns have been taken down, and the city has returned to its quiet routines.\n[why] The festival is over and the streets are empty, so the entry describing it as happening tonight is now false."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1173,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": true,
+        "kept": [
+          "rewrite:Festival of Lanterns"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 2,
+        "titleOnly": 264,
+        "promptChars": 13322,
+        "fullPromptChars": 119944,
+        "ratio": 0.11106849863269526
+      },
+      "case": {
+        "id": "c09",
+        "lang": "en",
+        "label": "change",
+        "why": "a festival the entry says is happening tonight is over",
+        "scope": {
+          "storyTitle": "Lantern City",
+          "checkpointName": "Quiet Streets",
+          "objective": "Track the thief through the empty city.",
+          "canon": "The Festival of Lanterns ended four days ago. The streets are empty again, the paper lanterns have been taken down, and the thief has gone to ground.",
+          "openArcs": [
+            "Where is the thief hiding?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Lantern Lore",
+              "comment": "Festival of Lanterns",
+              "keys": [
+                "festival",
+                "lanterns"
+              ],
+              "content": "The Festival of Lanterns fills the streets tonight: crowds, music and thousands of paper lanterns.",
+              "disabled": false
+            },
+            {
+              "lorebook": "Lantern Lore",
+              "comment": "The Thief",
+              "keys": [
+                "thief"
+              ],
+              "content": "A masked thief who steals only from the city's moneylenders.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "Festival of Lanterns",
+            "kinds": [
+              "disable",
+              "patch",
+              "rewrite"
+            ]
+          }
+        ],
+        "forbidden": [
+          "The Thief"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c10",
+      "lang": "en",
+      "responses": [
+        "[patch] The Grey Mare || Roadside inn. Stables. Cheap beds. || Cheap beds. || Roadside inn. Stables. Cheap beds. Currently lodging the riders and their horses for the night.\n[why] The riders have stopped at the Grey Mare for the night, so the entry now reflects their current stay."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 811,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 1,
+        "decision": false,
+        "kept": [
+          "patch:The Grey Mare"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 265,
+        "full": 1,
+        "titleOnly": 264,
+        "promptChars": 12993,
+        "fullPromptChars": 119615,
+        "ratio": 0.10862350039710739
+      },
+      "case": {
+        "id": "c10",
+        "lang": "en",
+        "label": "none",
+        "why": "style bait: terse but accurate text is not a change",
+        "scope": {
+          "storyTitle": "The Long Road",
+          "checkpointName": "The Inn",
+          "objective": "Rest before the ride.",
+          "canon": "The riders stopped at the Grey Mare inn for the night and stabled their horses.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Road Lore",
+              "comment": "The Grey Mare",
+              "keys": [
+                "Grey Mare",
+                "inn"
+              ],
+              "content": "Roadside inn. Stables. Cheap beds.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Grey Mare"
+        ]
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c11",
+      "lang": "en",
+      "responses": [
+        "[enable] The Vault\n[disable] Guard Rotation\n[why] The crew is now at the vault door, so the vault's own details matter, while the hourly guard patrol no longer applies since the guards are drugged and the rotation won't resume until morning."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 1048,
+      "score": {
+        "valid": true,
+        "opLines": 2,
+        "survived": 2,
+        "decision": true,
+        "kept": [
+          "enable:The Vault",
+          "disable:Guard Rotation"
+        ],
+        "dropped": []
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 266,
+        "full": 2,
+        "titleOnly": 264,
+        "promptChars": 13286,
+        "fullPromptChars": 119908,
+        "ratio": 0.11080161457117123
+      },
+      "case": {
+        "id": "c11",
+        "lang": "en",
+        "label": "change",
+        "why": "two changes: the vault is now in play, and the guards the rotation describes are gone",
+        "scope": {
+          "storyTitle": "The Vault Job",
+          "checkpointName": "Inside",
+          "objective": "Open the inner vault.",
+          "canon": "The crew slipped past the drugged guards, who are asleep in the guardroom, and reached the vault door. The guard rotation will not resume until the morning shift.",
+          "openArcs": [
+            "Can Vex crack the inner lock?"
+          ],
+          "entries": [
+            {
+              "lorebook": "Vault Lore",
+              "comment": "The Vault",
+              "keys": [
+                "vault"
+              ],
+              "content": "A steel vault with a dial lock and an inner door that needs two keys.",
+              "disabled": true
+            },
+            {
+              "lorebook": "Vault Lore",
+              "comment": "Guard Rotation",
+              "keys": [
+                "guards",
+                "patrol"
+              ],
+              "content": "Guards patrol the vault corridor every hour, day and night.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [
+          {
+            "comment": "The Vault",
+            "kinds": [
+              "enable"
+            ]
+          },
+          {
+            "comment": "Guard Rotation",
+            "kinds": [
+              "patch",
+              "rewrite",
+              "disable"
+            ]
+          }
+        ],
+        "forbidden": []
+      }
+    },
+    {
+      "role": "curator",
+      "id": "c12",
+      "lang": "en",
+      "responses": [
+        "[enable] #20 \"Arcane University\"\n[why] The scholars' university seal is now relevant to the reading room scene, so the Arcane University entry should be active."
+      ],
+      "finishes": [
+        "stop"
+      ],
+      "latencyMs": 820,
+      "score": {
+        "valid": true,
+        "opLines": 1,
+        "survived": 0,
+        "decision": true,
+        "kept": [],
+        "dropped": [
+          "enable: \"Arcane University\" is already on"
+        ]
+      },
+      "digest": {
+        "padBook": "Adolion World",
+        "entries": 265,
+        "full": 1,
+        "titleOnly": 264,
+        "promptChars": 13454,
+        "fullPromptChars": 120076,
+        "ratio": 0.11204570438722143
+      },
+      "case": {
+        "id": "c12",
+        "lang": "en",
+        "label": "none",
+        "why": "a long entry shown in part, still accurate: no rewrite",
+        "scope": {
+          "storyTitle": "The Archive",
+          "checkpointName": "Reading Room",
+          "objective": "Find the old charter.",
+          "canon": "The scholars entered the Great Archive and asked the archivist for the charter records. She sent them to the reading room to wait.",
+          "openArcs": [],
+          "entries": [
+            {
+              "lorebook": "Archive Lore",
+              "comment": "The Great Archive",
+              "keys": [
+                "archive",
+                "archivist"
+              ],
+              "content": "The Great Archive holds every charter, deed and ledger the city has issued in four hundred years. Its reading room is open to scholars with a seal from the university, and the archivist decides which records may be brought out. Records older than two centuries are kept in the lower vaults, where no lamp may be lit and a clerk must carry each volume up by hand. The archive has burned twice, and both times the lower vaults survived intact, which is why the city keeps its founding charter there. The archivist, a patient woman named Sela, has held the post for thirty years and knows where almost everything is kept, though she rarely admits it.",
+              "disabled": false
+            }
+          ]
+        },
+        "required": [],
+        "forbidden": [
+          "The Great Archive"
+        ]
+      }
+    }
+  ],
+  "digestPad": "Adolion World",
+  "digestRatio": {
+    "max": 0.12196138931743318,
+    "mean": 0.11262394118883795
+  }
+}

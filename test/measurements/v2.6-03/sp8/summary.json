@@ -1,0 +1,323 @@
+{
+ "spike": "SP8",
+ "W3": {
+  "bundle": "6566f7f8e418 (shared slot dev, restaged before attempt 2)",
+  "route": {
+   "curator": "deepseek 4.1 flash",
+   "main": "Artemis RunPod RP"
+  },
+  "run1": {
+   "records": 24,
+   "proposals": 23,
+   "refused": 3,
+   "planRefused": 3,
+   "edgeRefused": 0,
+   "refusedShare": 0.13043478260869565,
+   "applied": 20,
+   "violations": 0,
+   "opViolations": [],
+   "bookViolations": [],
+   "pending": 0,
+   "byStatus": {
+    "applied": 20
+   },
+   "pass": true,
+   "source": "attempt 2 run 2, 16:49Z series"
+  },
+  "run2": {
+   "records": 24,
+   "proposals": 32,
+   "refused": 2,
+   "planRefused": 2,
+   "edgeRefused": 0,
+   "refusedShare": 0.0625,
+   "applied": 30,
+   "violations": 0,
+   "opViolations": [],
+   "bookViolations": [],
+   "pending": 0,
+   "byStatus": {
+    "applied": 30
+   },
+   "pass": true,
+   "source": "attempt 3, 18:05Z"
+  },
+  "notMeasured": [
+   "attempt 1 run 1: host disk full (ENOSPC), lane server exited at round 17",
+   "attempt 2 run 1: 300 s send_generate timeout in round 14 (shared pod slow)"
+  ],
+  "pass": true
+ },
+ "W4b": {
+  "r1": {
+   "metrics": {
+    "validity": {
+     "passed": 11,
+     "total": 12,
+     "rate": 0.9166666666666666,
+     "floor": 0.9,
+     "ok": true
+    },
+    "opShape": {
+     "passed": 13,
+     "total": 16,
+     "rate": 0.8125,
+     "floor": 0.85,
+     "ok": false
+    },
+    "decision": {
+     "passed": 10,
+     "total": 12,
+     "rate": 0.8333333333333334,
+     "floor": 0.7,
+     "ok": true
+    }
+   },
+   "meetsFloors": false,
+   "digestRatio": {
+    "max": 0.12196138931743318,
+    "mean": 0.11262394118883795
+   },
+   "keptDropped": {
+    "c01": {
+     "kept": [
+      "enable:The Old Tunnel"
+     ],
+     "dropped": [],
+     "decision": true,
+     "valid": true
+    },
+    "c02": {
+     "kept": [
+      "rewrite:Siege of Varn"
+     ],
+     "dropped": [],
+     "decision": true,
+     "valid": true
+    },
+    "c03": {
+     "kept": [
+      "rewrite:Captain Hale"
+     ],
+     "dropped": [
+      "enable: \"Sergeant Brin\" is not an entry this story owns"
+     ],
+     "decision": true,
+     "valid": true
+    },
+    "c04": {
+     "kept": [],
+     "dropped": [
+      "enable: \"Water Nymph\" is already on"
+     ],
+     "decision": true,
+     "valid": true
+    },
+    "c05": {
+     "kept": [],
+     "dropped": [
+      "enable: \"Velniran Mountains\" is already on"
+     ],
+     "decision": true,
+     "valid": true
+    },
+    "c06": {
+     "kept": [
+      "enable:The Drowned Bell"
+     ],
+     "dropped": [],
+     "decision": true,
+     "valid": true
+    },
+    "c07": {
+     "kept": [
+      "rewrite:Orin's Shop"
+     ],
+     "dropped": [],
+     "decision": true,
+     "valid": true
+    },
+    "c08": {
+     "kept": [
+      "disable:1001 Ways to Mate",
+      "disable:Adolion",
+      "disable:Adventurer",
+      "disable:Adventurer Rank"
+     ],
+     "dropped": [],
+     "decision": false,
+     "valid": true
+    },
+    "c09": {
+     "kept": [
+      "rewrite:Festival of Lanterns"
+     ],
+     "dropped": [],
+     "decision": true,
+     "valid": true
+    },
+    "c10": {
+     "kept": [],
+     "dropped": [],
+     "decision": true,
+     "valid": false
+    },
+    "c11": {
+     "kept": [
+      "enable:The Vault",
+      "disable:Guard Rotation"
+     ],
+     "dropped": [],
+     "decision": true,
+     "valid": true
+    },
+    "c12": {
+     "kept": [
+      "patch:The Great Archive"
+     ],
+     "dropped": [],
+     "decision": false,
+     "valid": true
+    }
+   }
+  },
+  "r2": {
+   "metrics": {
+    "validity": {
+     "passed": 12,
+     "total": 12,
+     "rate": 1,
+     "floor": 0.9,
+     "ok": true
+    },
+    "opShape": {
+     "passed": 13,
+     "total": 17,
+     "rate": 0.7647058823529411,
+     "floor": 0.85,
+     "ok": false
+    },
+    "decision": {
+     "passed": 10,
+     "total": 12,
+     "rate": 0.8333333333333334,
+     "floor": 0.7,
+     "ok": true
+    }
+   },
+   "meetsFloors": false,
+   "digestRatio": {
+    "max": 0.12196138931743318,
+    "mean": 0.11262394118883795
+   },
+   "keptDropped": {
+    "c01": {
+     "kept": [
+      "enable:The Old Tunnel"
+     ],
+     "dropped": [],
+     "decision": true,
+     "valid": true
+    },
+    "c02": {
+     "kept": [
+      "rewrite:Siege of Varn"
+     ],
+     "dropped": [],
+     "decision": true,
+     "valid": true
+    },
+    "c03": {
+     "kept": [
+      "rewrite:Captain Hale"
+     ],
+     "dropped": [
+      "enable: \"Sergeant Brin\" is not an entry this story owns"
+     ],
+     "decision": true,
+     "valid": true
+    },
+    "c04": {
+     "kept": [],
+     "dropped": [
+      "enable: \"Water Nymph\" is already on"
+     ],
+     "decision": true,
+     "valid": true
+    },
+    "c05": {
+     "kept": [],
+     "dropped": [
+      "enable: \"Velniran Mountains\" is already on"
+     ],
+     "decision": true,
+     "valid": true
+    },
+    "c06": {
+     "kept": [
+      "enable:The Drowned Bell"
+     ],
+     "dropped": [],
+     "decision": true,
+     "valid": true
+    },
+    "c07": {
+     "kept": [
+      "rewrite:Orin's Shop"
+     ],
+     "dropped": [],
+     "decision": true,
+     "valid": true
+    },
+    "c08": {
+     "kept": [
+      "disable:1001 Ways to Mate",
+      "disable:Adolion",
+      "disable:Adventurer",
+      "disable:Adventurer Rank"
+     ],
+     "dropped": [],
+     "decision": false,
+     "valid": true
+    },
+    "c09": {
+     "kept": [
+      "rewrite:Festival of Lanterns"
+     ],
+     "dropped": [],
+     "decision": true,
+     "valid": true
+    },
+    "c10": {
+     "kept": [
+      "patch:The Grey Mare"
+     ],
+     "dropped": [],
+     "decision": false,
+     "valid": true
+    },
+    "c11": {
+     "kept": [
+      "enable:The Vault",
+      "disable:Guard Rotation"
+     ],
+     "dropped": [],
+     "decision": true,
+     "valid": true
+    },
+    "c12": {
+     "kept": [],
+     "dropped": [
+      "enable: \"Arcane University\" is already on"
+     ],
+     "decision": true,
+     "valid": true
+    }
+   }
+  },
+  "verdict": "not recommended (opShape below 0.85 in both runs)",
+  "route": "curator -> deepseek 4.1 flash (shared route, fallback)"
+ },
+ "date": "2026-10-01",
+ "lane": 2
+}

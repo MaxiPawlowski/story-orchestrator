@@ -1,0 +1,10 @@
+{
+  "role": "curator",
+  "bundle": "0d2a3ab1f323",
+  "holdout": [
+    null,
+    null
+  ],
+  "verdict": "not recommended",
+  "reason": "run 1 and 2 below a floor"
+}
