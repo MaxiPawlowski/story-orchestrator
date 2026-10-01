@@ -403,3 +403,62 @@ Expected live effect on the audit's turn: 19 reads over 2 boundaries → 3 (one 
 Not done, noted: a windowless `scene:*` read and a cue read at the same boundary are still two reads of the same window; merging them would change the `scene:location` / `scene:judge` audit reasons J11 matches exactly.
 
 Gates: `npm run gates -- --no-storybook`: all green. typecheck, typecheck:test, lint ok; test 5212 passed, 1 skipped; build ok, main entry 1,242,767 B (budget 1,250,000); build:dev ok; test:debug 738/0; test:release 90/0; test:replay all killed; test:plugin 73/0. Storybook skipped (it cannot find stories from a worktree).
+
+## Bundle headroom (2026-10-01)
+
+Goal: at least 30 KB of main-entry headroom under the unchanged 1,250,000 B budget (`webpack.config.js` `performance`, `scripts/release/buildChecks.mjs`), no behaviour change.
+
+**Main entry `dist/index.js`: 1,242,214 B → 1,200,869 B (−41,345 B; headroom 7,786 → 49,131 B).** Measured on master `0df7347b` with `webpack --mode production`; after = `dist/manifest.json` `bundle.bytes` from the gates build.
+
+Measurement: a prod build with `--devtool source-map`, minified bytes attributed per source through the map (the devtool build inflates `styles.css` with its inline CSS map, so the totals above are from the plain build). Top 30 of the main entry before:
+
+| # | module | min. bytes |
+|---|---|---|
+| 1 | webpack/terser glue with no source mapping | 175,138 |
+| 2 | `react-dom/cjs/react-dom-client.production.js` | 167,897 |
+| 3 | `src/styles.css` (as a JS string) | 80,398 |
+| 4 | `src/runtime/runtimeManager.ts` | 23,878 |
+| 5 | `src/runtime/coordinators/extractionCoordinator.ts` | 14,829 |
+| 6 | `src/runtime/effectsApplier.ts` | 13,931 |
+| 7 | `src/runtime/coordinators/memoryCoordinator.ts` | 13,875 |
+| 8 | `src/extraction/scheduler.ts` | 12,415 |
+| 9 | `src/engine/engine.ts` | 11,199 |
+| 10 | `src/runtime/extras.ts` | 11,088 |
+| 11 | `src/runtime/coordinators/stagecraftCoordinator.ts` | 11,000 |
+| 12 | `src/engine/storyDiff.ts` | 10,827 |
+| 13 | `src/components/settings/JudgeSettingsGroup.tsx` | 10,393 |
+| 14 | `src/index.tsx` | 9,950 |
+| 15 | `src/runtime/snapshotBuilder.ts` | 9,739 |
+| 16 | `src/memory/contract.ts` | 9,696 |
+| 17 | `src/runtime/talkControl.ts` | 9,326 |
+| 18 | `src/judge/readiness.ts` | 8,206 |
+| 19 | `src/runtime/memoryQueue.ts` | 8,205 |
+| 20 | `src/engine/validate/checkpoints.ts` | 8,167 |
+| 21 | `src/runtime/coordinators/expansionCoordinator.ts` | 7,696 |
+| 22 | `src/judge/settings.ts` | 7,660 |
+| 23 | `src/services/stHost/worldInfo.ts` | 7,588 |
+| 24 | `react/cjs/react.production.js` | 7,395 |
+| 25 | `src/runtime/worldInfoGating.ts` | 7,056 |
+| 26 | `src/runtime/coordinators/copilotCoordinator.ts` | 6,980 |
+| 27 | `src/components/settings/PlayGroups.tsx` | 6,971 |
+| 28 | `src/components/drawer/tabs/MemoryTab.tsx` | 6,942 |
+| 29 | `src/components/drawer/DrawerTabs.tsx` | 6,724 |
+| 30 | `src/services/stHost/image.ts` | 6,619 |
+
+What moved:
+
+- **CSS, ~20 KB.** `postcss.config.js` turns off postcss-preset-env's `is-pseudo-class` (like `cascade-layers`), so the nested mount-root scope stays one `:is(#drawer-manager, …, #so-studio-modal) .x` selector instead of five expanded copies per utility, and a small `so-compact-whitespace` plugin drops indentation, newlines and non-`/*!` comments. Compiled CSS 68,999 → 51,075 B. Equivalence checked by parsing both outputs, expanding every `:is()` and comparing (context, selector, declarations) multisets: identical (1,323 entries each). Specificity is unchanged (`:is()` takes its most specific argument, one id here; `:is(.grid, .flex)` and `:is(input, select, textarea)` match their expanded forms). `:is()` needs Chrome 88 / Firefox 78 / Safari 14. Lightning CSS minify (tailwind `optimize`) was not used: it drops the unprefixed `backdrop-filter`.
+- **`JudgeSettingsGroup` → lazy chunk (10.6 KB)**, `lazyRetry` + `<Lazy fallback={null}>` like `MemoryModelGroup`/`ImageGroup` in the same panel.
+- **`engine/storyDiff` → lazy chunk (12 KB).** Dropped from the `@engine/index` barrel; `applyStoryUpdate` (the author's save / "Update to vN" path only) imports it first. A `RunOwnership` token is minted before the import and checked after it, so a chat switch during the load discards the update instead of applying it to the next chat; a failed load returns an `unavailable` outcome with a fixed reason (error copy guard) and logs the error.
+
+New chunk files are picked up by `scripts/release/manifest.mjs` (`files` = every emitted file, hashed) and so by `stage.mjs` (`stageList` reads the manifest; dev copies `dist-dev`). Lazy chunk files 47 → 49.
+
+Tests: `src/runtime/bundleHeadroom.review.test.ts` — player-mode first render (`DrawerTabs`, `PlayerOverview`, `HudStrip`) calls no `lazyRetry` factory and does not suspend; control: the author inspector does (so the counter can fail); guards that the barrel does not re-export `storyDiff`, the panel lazy-loads the judge group and postcss keeps `:is()`. `storyUpdate.test.ts` waits for the chunk before asserting the popup and adds "world changes while the comparison is still loading". Storybook `Settings/SettingsPanel/JudgeGroupArrivesFromItsLazyChunk` (loaded state, no `lazy-failed`); loading/retry of the boundary itself is `Drawer/LazyFailure`.
+
+Not moved: the settings panel's other groups render on mount inside closed `<details>`, so lazy-loading them only defers a load already triggered at boot; render-on-open would change the DOM the live harness reads.
+
+### Gates
+
+- `npm run gates -- --no-storybook`: all green. typecheck, typecheck:test, lint ok; test 5220 passed, 1 skipped; build ok, main entry 1,200,869 B (budget 1,250,000); build:dev ok; test:debug 761/0; test:release 90/0; test:replay 30 of 30 killed; test:plugin 73/0.
+- Storybook (separately, from the worktree): `node node_modules/storybook/bin/index.cjs build --output-dir <scratch>/sb`, `npx http-server <scratch>/sb -p 6147 -s -c-1`, `node node_modules/@storybook/test-runner/dist/test-storybook.js --url http://127.0.0.1:6147 --index-json --maxWorkers 1`: 63 suites, 368/368 passed.
+- No live gate run (no lanes, per the task); the CSS change is the one ST-facing risk and was checked by AST equivalence only.
