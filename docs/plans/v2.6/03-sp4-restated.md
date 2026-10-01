@@ -34,3 +34,11 @@ A PASS needs T1–T4; T1, T2, T4 (jest) already passed.
   here first. Records: summaries under `test/measurements/v2.6-03/sp4/`, raw logs under its `raw/` (gitignored).
 - **Decision:** T3 PASS (k = 1 and 2) → `SP4.b` candidate (worth review decides). FAIL → dropped: removal commit with
   the planted-import control (D3 list).
+
+## Addendum 1 2026-10-01 19:05Z — first series superseded (bars unchanged)
+
+The series started 18:46Z on bundle `6566f7f8e418` was stopped by the lead during its first run (en-rolling, ~turn 25)
+so the shared dev bundle could be restaged for T2. That partial run is **superseded, not scored** (log kept as
+`sp4/raw/superseded-rolling-run1.log`). The full series (all 8 runs) re-runs on the new restaged bundle after lane 2 is
+re-seeded from `adolion-fresh` at the new campaign pin; the procedure above is otherwise unchanged, and the run header
+records the new bundle and pin.
