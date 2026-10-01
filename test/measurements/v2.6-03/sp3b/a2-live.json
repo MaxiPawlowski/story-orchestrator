@@ -1,0 +1,396 @@
+{
+ "adolion-sp3b-r1": {
+  "cases": 174,
+  "incomplete": 0,
+  "profile": {
+   "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+   "name": "deepseek 4.1 flash"
+  },
+  "route": {
+   "role": "director",
+   "label": "Speaker direction",
+   "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+   "state": "untested",
+   "detail": "Speaker direction: not tested yet",
+   "effort": "default"
+  },
+  "all": {
+   "n": 174,
+   "correct": 167,
+   "null": 0,
+   "wrong": 7,
+   "nullPer50": 0.0,
+   "missPer50": 2.01,
+   "nullIds": [],
+   "wrongIds": [
+    [
+     "AD038",
+     "Shiya",
+     [
+      "Eriana"
+     ]
+    ],
+    [
+     "AD062",
+     "Lirael",
+     [
+      "Celedir"
+     ]
+    ],
+    [
+     "AD063",
+     "Celedir",
+     [
+      "Lirael"
+     ]
+    ],
+    [
+     "AD096",
+     "Adolion Narrator",
+     [
+      "Yuna"
+     ]
+    ],
+    [
+     "AD102",
+     "Adolion Narrator",
+     [
+      "Rikako"
+     ]
+    ],
+    [
+     "AD132",
+     "Alice",
+     [
+      "Gabriel"
+     ]
+    ],
+    [
+     "AD142",
+     "Adolion Narrator",
+     [
+      "The Lady of the Forest"
+     ]
+    ]
+   ]
+  },
+  "aliasRows": {
+   "n": 162,
+   "correct": 155,
+   "null": 0,
+   "wrong": 7,
+   "nullPer50": 0.0,
+   "missPer50": 2.16,
+   "nullIds": [],
+   "wrongIds": [
+    [
+     "AD038",
+     "Shiya",
+     [
+      "Eriana"
+     ]
+    ],
+    [
+     "AD062",
+     "Lirael",
+     [
+      "Celedir"
+     ]
+    ],
+    [
+     "AD063",
+     "Celedir",
+     [
+      "Lirael"
+     ]
+    ],
+    [
+     "AD096",
+     "Adolion Narrator",
+     [
+      "Yuna"
+     ]
+    ],
+    [
+     "AD102",
+     "Adolion Narrator",
+     [
+      "Rikako"
+     ]
+    ],
+    [
+     "AD132",
+     "Alice",
+     [
+      "Gabriel"
+     ]
+    ],
+    [
+     "AD142",
+     "Adolion Narrator",
+     [
+      "The Lady of the Forest"
+     ]
+    ]
+   ]
+  },
+  "controls": {
+   "n": 12,
+   "correct": 12,
+   "null": 0,
+   "wrong": 0,
+   "nullPer50": 0.0,
+   "missPer50": 0.0,
+   "nullIds": [],
+   "wrongIds": []
+  },
+  "latencyMs": 1411,
+  "summary": {
+   "role": "director",
+   "overall": {
+    "cases": 0,
+    "metrics": {
+     "correct": {
+      "passed": 0,
+      "total": 0,
+      "rate": null,
+      "floor": 0.88,
+      "ok": false
+     },
+     "answerCorrect": {
+      "passed": 0,
+      "total": 0,
+      "rate": null,
+      "floor": null,
+      "ok": null
+     }
+    }
+   },
+   "meetsFloors": false
+  }
+ },
+ "adolion-sp3b-r2": {
+  "cases": 174,
+  "incomplete": 0,
+  "profile": {
+   "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+   "name": "deepseek 4.1 flash"
+  },
+  "route": {
+   "role": "director",
+   "label": "Speaker direction",
+   "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+   "state": "untested",
+   "detail": "Speaker direction: not tested yet",
+   "effort": "default",
+   "reasoning": {
+    "effort": "default",
+    "applied": false,
+    "supported": true,
+    "sent": null,
+    "observed": false,
+    "collapsed": false,
+    "unsupported": null,
+    "budget": 0,
+    "chars": 0,
+    "tokens": null
+   }
+  },
+  "all": {
+   "n": 174,
+   "correct": 164,
+   "null": 0,
+   "wrong": 10,
+   "nullPer50": 0.0,
+   "missPer50": 2.87,
+   "nullIds": [],
+   "wrongIds": [
+    [
+     "AD032",
+     "Adolion Narrator",
+     [
+      "Welden"
+     ]
+    ],
+    [
+     "AD038",
+     "Shiya",
+     [
+      "Eriana"
+     ]
+    ],
+    [
+     "AD056",
+     "Adolion Narrator",
+     [
+      "Grant"
+     ]
+    ],
+    [
+     "AD062",
+     "Lirael",
+     [
+      "Celedir"
+     ]
+    ],
+    [
+     "AD063",
+     "Celedir",
+     [
+      "Lirael"
+     ]
+    ],
+    [
+     "AD096",
+     "Adolion Narrator",
+     [
+      "Yuna"
+     ]
+    ],
+    [
+     "AD097",
+     "Vallie",
+     [
+      "Unira"
+     ]
+    ],
+    [
+     "AD102",
+     "Adolion Narrator",
+     [
+      "Rikako"
+     ]
+    ],
+    [
+     "AD132",
+     "Alice",
+     [
+      "Gabriel"
+     ]
+    ],
+    [
+     "AD142",
+     "Adolion Narrator",
+     [
+      "The Lady of the Forest"
+     ]
+    ]
+   ]
+  },
+  "aliasRows": {
+   "n": 162,
+   "correct": 152,
+   "null": 0,
+   "wrong": 10,
+   "nullPer50": 0.0,
+   "missPer50": 3.09,
+   "nullIds": [],
+   "wrongIds": [
+    [
+     "AD032",
+     "Adolion Narrator",
+     [
+      "Welden"
+     ]
+    ],
+    [
+     "AD038",
+     "Shiya",
+     [
+      "Eriana"
+     ]
+    ],
+    [
+     "AD056",
+     "Adolion Narrator",
+     [
+      "Grant"
+     ]
+    ],
+    [
+     "AD062",
+     "Lirael",
+     [
+      "Celedir"
+     ]
+    ],
+    [
+     "AD063",
+     "Celedir",
+     [
+      "Lirael"
+     ]
+    ],
+    [
+     "AD096",
+     "Adolion Narrator",
+     [
+      "Yuna"
+     ]
+    ],
+    [
+     "AD097",
+     "Vallie",
+     [
+      "Unira"
+     ]
+    ],
+    [
+     "AD102",
+     "Adolion Narrator",
+     [
+      "Rikako"
+     ]
+    ],
+    [
+     "AD132",
+     "Alice",
+     [
+      "Gabriel"
+     ]
+    ],
+    [
+     "AD142",
+     "Adolion Narrator",
+     [
+      "The Lady of the Forest"
+     ]
+    ]
+   ]
+  },
+  "controls": {
+   "n": 12,
+   "correct": 12,
+   "null": 0,
+   "wrong": 0,
+   "nullPer50": 0.0,
+   "missPer50": 0.0,
+   "nullIds": [],
+   "wrongIds": []
+  },
+  "latencyMs": 579,
+  "summary": {
+   "role": "director",
+   "overall": {
+    "cases": 0,
+    "metrics": {
+     "correct": {
+      "passed": 0,
+      "total": 0,
+      "rate": null,
+      "floor": 0.88,
+      "ok": false
+     },
+     "answerCorrect": {
+      "passed": 0,
+      "total": 0,
+      "rate": null,
+      "floor": null,
+      "ok": null
+     }
+    }
+   },
+   "meetsFloors": false
+  }
+ }
+}

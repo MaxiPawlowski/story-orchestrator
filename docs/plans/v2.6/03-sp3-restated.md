@@ -62,3 +62,14 @@ run 1 ≤ **3.30**, run 2 ≤ **2.87** wrong-or-null per 50. Miss → SP3.b drop
   "deepseek 4.1 flash"`, back to back on lane 2. Scored exactly as Phase A (`test/measurements/v2.6-03/sp3/a2-live.json`):
   a miss is a null pick or a pick outside the row's `acceptable`; the bar reads their sum. Null-only reported beside.
 - Records under `test/measurements/v2.6-03/sp3b/`.
+
+### SP3.b addendum 1 2026-10-01 19:40Z — before the run (bar unchanged)
+
+- **Build:** the lead merged SP3.b to master and restaged the shared slot: master `948e0d13`, dev bundle
+  `8319f7535e1e`, served to lane 2 as is (no lane-only route). Lane 2 re-seeded from `adolion-fresh` at pin `884380b`
+  (the seed now also applies the preset overlay: Gemma 4 empty thought channel + min_p first; it touches the Artemis
+  profiles, not the `deepseek 4.1 flash` route this measurement uses). Lane server started with
+  `SO_JUDGE_RATE_PER_MIN=15`.
+- **Rows:** pin `884380b` edits the `instruction` text of 8 tavern rows in `lab/aliases/director.json` (commit 6ac51ff,
+  T1 round 3). The bar says **the same 174 windows**, so the rows are taken from pin `59e8821` (byte-identical to Phase
+  A's `e1c91fb`); `aliases.json` is unchanged between the pins.

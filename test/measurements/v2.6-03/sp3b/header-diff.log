@@ -1,0 +1,16 @@
+2026-10-01T21:36:49.678Z WARNING: the page is running a bundle that is not the built one: served 8319f7535e1eb265 vs dist 62fd0def87b715ad
+2026-10-01T21:36:49.680Z {
+2026-10-01T21:36:49.680Z   "baseline": "test/measurements/v2.6-03/sp3b/header-start.json",
+2026-10-01T21:36:49.680Z   "label": "diff-end",
+2026-10-01T21:36:49.680Z   "allow": [],
+2026-10-01T21:36:49.680Z   "differences": 0,
+2026-10-01T21:36:49.680Z   "progress": 0,
+2026-10-01T21:36:49.680Z   "blocking": 0,
+2026-10-01T21:36:49.680Z   "blockingPaths": [],
+2026-10-01T21:36:49.680Z   "servedIdentity": [],
+2026-10-01T21:36:49.680Z   "warnings": [
+2026-10-01T21:36:49.680Z     "the page is running a bundle that is not the built one: served 8319f7535e1eb265 vs dist 62fd0def87b715ad"
+2026-10-01T21:36:49.680Z   ],
+2026-10-01T21:36:49.680Z   "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+2026-10-01T21:36:49.680Z   "ok": false
+2026-10-01T21:36:49.680Z }
