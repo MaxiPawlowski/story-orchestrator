@@ -1,6 +1,7 @@
 export const EVENT_TYPES = {
   GENERATION_STARTED: 'generation_started', GENERATION_ENDED: 'generation_ended', GROUP_MEMBER_DRAFTED: 'group_member_drafted', MESSAGE_RECEIVED: 'message_received',
   MESSAGE_SWIPED: 'message_swiped', MESSAGE_EDITED: 'message_edited', MESSAGE_DELETED: 'message_deleted', CHAT_CHANGED: 'chat_changed',
+  GROUP_WRAPPER_STARTED: 'group_wrapper_started', GROUP_WRAPPER_FINISHED: 'group_wrapper_finished',
 };
 
 export function emitter() {
@@ -79,4 +80,6 @@ export function fakePage(extra: Record<string, unknown> = {}) {
 export const clearPage = {
   closeOverlays: async () => undefined,
   hitTest: async (_page: unknown, selector: string) => ({ selector, found: true, clickable: true }),
+  revealMessage: async () => ({ found: true, scrolledToBottom: true, inView: true }),
+  flag: async (_page: unknown, note: string) => ({ kind: 'flag', note, ok: true }),
 };

@@ -224,3 +224,43 @@ export function reseedRefusal(doc: CardDoc, lane: number, sessions: SessionOnLan
 export function laneFor(plan: LanePlan | null, cardId: string): number | null {
   return plan?.assignments.find((row) => row.card === cardId)?.lane ?? null;
 }
+
+export const JUDGE_ACCOUNT_RATE_PER_MIN = 90;
+export const JUDGE_ACCOUNT_RATE_ENV = 'SO_JUDGE_ACCOUNT_RATE_PER_MIN';
+export const JUDGE_LANE_RATE_ENV = 'SO_JUDGE_RATE_PER_MIN';
+export const JUDGE_LANE_RATE_MIN = 10;
+export const JUDGE_LANE_RATE_MAX = 60;
+
+export interface JudgeRate { perMinute: number; lanes: number; running: number[]; account: number; source: 'arg' | 'derived' }
+
+const positiveInt = (value: unknown) => {
+  const n = Number(value);
+  return Number.isInteger(n) && n > 0 ? n : null;
+};
+
+export const laneJudgeRate = (lanes: number, account = JUDGE_ACCOUNT_RATE_PER_MIN) =>
+  Math.max(JUDGE_LANE_RATE_MIN, Math.min(JUDGE_LANE_RATE_MAX, Math.floor(account / Math.max(1, Math.floor(lanes)))));
+
+export function judgeRatePlan(lane: number, running: number[], { requested = null, env = {} }: { requested?: unknown; env?: Record<string, string | undefined> } = {}): JudgeRate {
+  const lanes = [...new Set([...running, lane])].sort((a, b) => a - b);
+  const account = positiveInt(env[JUDGE_ACCOUNT_RATE_ENV]) ?? JUDGE_ACCOUNT_RATE_PER_MIN;
+  const asked = positiveInt(requested);
+  return { perMinute: asked ?? laneJudgeRate(lanes.length, account), lanes: lanes.length, running: lanes, account, source: asked ? 'arg' : 'derived' };
+}
+
+export function loadedJudgeRate(log: string): number | null {
+  const found = [...log.matchAll(/\[story-orchestrator-judge\] loaded;[^\n]*per user (\d+)\/min/g)];
+  return found.length ? Number(found[found.length - 1][1]) : null;
+}
+
+const pidAlive = (pid: number) => { try { process.kill(pid, 0); return true; } catch { return false; } };
+
+export async function runningLanes(lanesRoot: string, alive: (pid: number) => boolean = pidAlive): Promise<number[]> {
+  if (!existsSync(lanesRoot)) return [];
+  const lanes: number[] = [];
+  for (const name of (await readdir(lanesRoot)).filter((entry) => /^\d+$/.test(entry))) {
+    const pid = Number((await readFile(join(lanesRoot, name, 'server.pid'), 'utf-8').catch(() => '')).trim());
+    if (Number(name) > 0 && Number.isInteger(pid) && pid > 0 && alive(pid)) lanes.push(Number(name));
+  }
+  return lanes.sort((a, b) => a - b);
+}

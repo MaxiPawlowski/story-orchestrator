@@ -1,4 +1,5 @@
 import { evaluateInST } from './evaluate.mts';
+import { modelDefects, type ModelDefect } from './modelDefects.mts';
 
 export interface LiveMessage { id: number; name: string; isUser: boolean; isSystem: boolean; text: string; swipeId: number | null; swipes: number }
 export interface LiveJournalEvent { at: string; boundary: number; messageId: number; kind: string; summary: string; detail?: Record<string, unknown> }
@@ -82,6 +83,8 @@ export async function armTurnRecorder(page: any): Promise<{ cursor: number; alre
     on('GENERATION_STARTED', (type: unknown, _options: unknown, dryRun: unknown) => push({ event: 'generation_started', type: type ?? null, dryRun: dryRun === true }));
     on('GENERATION_ENDED', () => push({ event: 'generation_ended' }));
     on('GROUP_MEMBER_DRAFTED', (chid: unknown) => push({ event: 'drafted', chid: Number(chid), name: nameOf(chid) }));
+    on('GROUP_WRAPPER_STARTED', () => push({ event: 'group_wrapper_started' }));
+    on('GROUP_WRAPPER_FINISHED', () => push({ event: 'group_wrapper_finished' }));
     on('MESSAGE_RECEIVED', (messageId: unknown, type: unknown) => push({ event: 'message_received', messageId: Number(messageId), type: type ?? null }));
     on('MESSAGE_SWIPED', (messageId: unknown) => push({ event: 'message_swiped', messageId: Number(messageId) }));
     on('MESSAGE_EDITED', (messageId: unknown) => push({ event: 'message_edited', messageId: Number(messageId) }));
@@ -167,6 +170,7 @@ export function composeTurn({ line, before, after, recorder, send, timing, sched
     ...(expectReply && !replied ? ['no reply: the send produced no non-empty character message (backend down, or silence under talk control)'] : []),
     ...(after.chatId !== before.chatId ? [`the open chat changed during the turn (${before.chatId} -> ${after.chatId})`] : []),
     ...(schedulerError ? [`scheduler did not settle: ${schedulerError}`] : []),
+    ...(send?.round?.settled === false ? [`the round did not settle: a group round or generation was still open after ${send.round.waitedMs} ms`] : []),
   ];
   return {
     kind: 'turn' as const,
@@ -243,6 +247,8 @@ export interface LiveDeps {
   clickSwipeRight: (page: any, selector: string) => Promise<unknown>;
   closeOverlays: (page: any) => Promise<unknown>;
   hitTest: (page: any, selector: string) => Promise<HitTest>;
+  revealMessage: (page: any, selector: string) => Promise<Reveal>;
+  flag: (page: any, note: string) => Promise<Record<string, unknown> & { ok?: boolean }>;
   openChat: (page: any, target: ChatTarget) => Promise<unknown>;
   reload: (page: any) => Promise<unknown>;
   now: () => number;
@@ -250,7 +256,9 @@ export interface LiveDeps {
 
 export interface HitTest { selector: string; found: boolean; clickable: boolean; blocked?: string; reason?: string; topmost?: string }
 
-export interface LiveOptions { timeoutMs?: number; quietMs?: number; expectReply?: boolean }
+export interface Reveal { found: boolean; scrolledToBottom: boolean; inView: boolean }
+
+export interface LiveOptions { timeoutMs?: number; quietMs?: number; roundQuietMs?: number; expectReply?: boolean; loopGuard?: boolean }
 
 async function settle(page: any, deps: LiveDeps, options: LiveOptions) {
   try {
@@ -261,11 +269,46 @@ async function settle(page: any, deps: LiveDeps, options: LiveOptions) {
   }
 }
 
+export const ROUND_QUIET_MS = 4000;
+const ROUND_ACTIVITY = new Set(['generation_started', 'drafted', 'message_received', 'group_wrapper_started', 'group_wrapper_finished']);
+
+export function roundOpen(events: RecorderEvent[]) {
+  const started = events.filter((event) => event.event === 'group_wrapper_started').length;
+  const finished = events.filter((event) => event.event === 'group_wrapper_finished').length;
+  return started > finished;
+}
+
+const pageGenerating = (page: any) => evaluateInST(page, () => {
+  const doc = (globalThis as any).document;
+  return Boolean(doc?.body?.dataset?.generating);
+});
+
+export async function waitRoundSettled(page: any, deps: Pick<LiveDeps, 'waitIdle' | 'now'>, cursor: number, { quietMs = ROUND_QUIET_MS, timeoutMs = 600000 }: { quietMs?: number; timeoutMs?: number } = {}) {
+  const startedAt = deps.now();
+  let seen = -1;
+  let lastActivity = startedAt;
+  let polls = 0;
+  while (deps.now() - startedAt < timeoutMs) {
+    const events = (await readRecorder(page, cursor)).events;
+    const activity = events.filter((event) => ROUND_ACTIVITY.has(event.event)).length;
+    if (activity !== seen) { seen = activity; lastActivity = deps.now(); }
+    const open = roundOpen(events) || await pageGenerating(page);
+    if (open) lastActivity = deps.now();
+    else if (deps.now() - lastActivity >= quietMs) return { settled: true, polls, open: false, waitedMs: deps.now() - startedAt };
+    polls += 1;
+    await page.waitForTimeout(250);
+    if (open) await deps.waitIdle(page, timeoutMs);
+  }
+  return { settled: false, polls, open: true, waitedMs: deps.now() - startedAt };
+}
+
 export async function runTurn(page: any, line: string, deps: LiveDeps, options: LiveOptions = {}) {
   const startedAt = deps.now();
   const { cursor } = await armTurnRecorder(page);
   const before = await readLive(page);
-  const send = await deps.send(page, line, { idleTimeoutMs: options.timeoutMs ?? 600000, expectReply: options.expectReply !== false });
+  const sent = await deps.send(page, line, { idleTimeoutMs: options.timeoutMs ?? 600000, expectReply: options.expectReply !== false });
+  const round = await waitRoundSettled(page, deps, cursor, { quietMs: options.roundQuietMs ?? ROUND_QUIET_MS, timeoutMs: options.timeoutMs ?? 600000 });
+  const send = { ...sent, round };
   const actedAt = deps.now();
   const schedulerError = await settle(page, deps, options);
   const settledAt = deps.now();
@@ -298,6 +341,8 @@ const replyTarget = (page: any): Promise<ReplyTarget> => evaluateInST(page, () =
   if (!message) return { id: null, isUser: false, swipeId: 0, swipes: 0, name: '', length: chat.length, notesAfter };
   return { id, isUser: Boolean(message.is_user), swipeId: Number(message.swipe_id ?? 0), swipes: Array.isArray(message.swipes) ? message.swipes.length : 1, name: String(message.name ?? ''), length: chat.length, notesAfter };
 });
+
+const messageText = (page: any, id: number | null) => evaluateInST(page, (at: number | null) => String(((globalThis as any).SillyTavern.getContext().chat ?? [])[at ?? -1]?.mes ?? ''), id);
 
 const messageAt = (page: any, id: number) => evaluateInST(page, (at: number) => {
   const chat = (globalThis as any).SillyTavern.getContext().chat ?? [];
@@ -362,8 +407,13 @@ async function swipeNew(page: any, deps: LiveDeps, options: LiveOptions) {
     }, { id: target.id, last: target.swipes - 1 });
   }
   const selector = swipeArrow(target.id);
-  const hit = await waitHittable(page, deps, selector);
-  const base = { messageId: target.id, speaker: target.name, target: targetRecord(target, notesRemoved), overlays, hit, swipesBefore: target.swipes, swipeIdBefore: target.swipeId };
+  const revealed = await deps.revealMessage(page, selector);
+  let hit = await waitHittable(page, deps, selector);
+  if (!hit.clickable) {
+    await deps.revealMessage(page, selector);
+    hit = await waitHittable(page, deps, selector);
+  }
+  const base = { messageId: target.id, speaker: target.name, target: targetRecord(target, notesRemoved), overlays, revealed, hit, swipesBefore: target.swipes, swipeIdBefore: target.swipeId };
   if (!hit.clickable) return { did: { ...base, swipesAfter: target.swipes, swipeIdAfter: null, generated: false, clicked: false }, problems: [...overlayProblems(overlays), `the swipe arrow on message ${target.id} is not hit-testable (${hit.blocked ?? 'blocked'}: ${hit.reason ?? 'unknown'}); nothing was clicked`] };
   await deps.clickSwipeRight(page, selector);
   await deps.waitIdle(page, options.timeoutMs ?? 600000);
@@ -587,4 +637,23 @@ export async function backdateSession(page: any, hours: number, deps: Pick<LiveD
     read = await readRecap(page, String(written.writtenAt), reopen.chatId);
   }
   return { ...written, hours, recap: read.shown, decision: read.decision, popup: read.popup, fired: Boolean(read.shown), reopened: reopen };
+}
+
+export async function runGuardedTurn(page: any, line: string, deps: LiveDeps, options: LiveOptions = {}) {
+  const record = await runTurn(page, line, deps, options);
+  const defects: ModelDefect[] = modelDefects(record.replies.map((reply) => ({ messageId: reply.messageId, speaker: reply.speaker, text: reply.text })));
+  if (!defects.length) return { ...record, modelDefect: null, modelDefects: [], autoRepair: null };
+  const first = defects.find((defect) => defect.kind === 'loop') ?? defects[0];
+  const modelDefect = { kind: first.kind, messageId: first.messageId, sample: first.sample };
+  if (options.loopGuard === false) return { ...record, modelDefect, modelDefects: defects, autoRepair: { skipped: 'loop guard off', swiped: false } };
+  const flag = await deps.flag(page, `model defect: ${first.kind}`);
+  const target = await replyTarget(page);
+  const lastDefective = target.id !== null && !target.isUser && defects.some((defect) => defect.messageId === target.id);
+  if (!lastDefective) {
+    return { ...record, modelDefect, modelDefects: defects, autoRepair: { flag, swiped: false, skipped: `the defective reply is not the last character reply (last ${target.id ?? 'none'}); ST swipes only the last message` } };
+  }
+  const swipe = await runMutation(page, 'swipe-new', {}, deps, options);
+  const after = await replyTarget(page);
+  const stillDefective = after.id === target.id ? modelDefects([{ messageId: after.id, text: await messageText(page, after.id) }]) : [];
+  return { ...record, modelDefect, modelDefects: defects, autoRepair: { flag, swiped: swipe.ok === true, swipe, stillDefective } };
 }

@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { REPO_ROOT } from '../../lib/stRoot.mjs';
-import { ANOMALY_KINDS, digestSession, registerRows, renderFindings } from './sessionDigest.mts';
+import { ANOMALY_KINDS, digestSession, registerRows, renderFindings, judgeHealth, renderJudgeHealth } from './sessionDigest.mts';
 import { loadIndex, loadSessionFiles } from '../so-session.mts';
 
 const fixture = (name: string) => resolve(REPO_ROOT, 'scripts', 'debug', 'fixtures', 'session', name);
@@ -130,4 +130,25 @@ test('AS-23 digest: a flag keeps the transcript it was pressed on, not the edite
   assert.equal(flag.contextFrom, 'event-time');
   assert.ok(flag.context.some((message) => message.text === 'what the flag saw'));
   assert.equal(digestSession(files, paths).flags[0].contextFrom, 'end-of-session');
+});
+
+test('T1 digest: busy judge fallbacks are counted per session as a quality signal', () => {
+  const row = (fallback: string | undefined, use = 'scene') => ({ line: 1, value: { kind: 'judge', detail: { use, ...(fallback ? { fallback } : {}) } } });
+  const health = judgeHealth([row(undefined), row(undefined), row('busy', 'memoryPairs'), row('busy', 'memoryPairs'), row('busy', 'wardenLore'), row('timeout'), row('error'), row('disabled')]);
+  assert.deepEqual(health, { calls: 7, answered: 2, busy: 3, timeout: 1, otherFallbacks: 1, busyRate: 0.429, busyByUse: { memoryPairs: 2, wardenLore: 1 } });
+  assert.deepEqual(renderJudgeHealth(health).slice(0, 2), ['- calls: 7 (answered 2, busy 3, timeout 1, other fallbacks 1)', '- busy rate: 42.9% (by use: memoryPairs 2, wardenLore 1)']);
+  assert.deepEqual(judgeHealth([]), { calls: 0, answered: 0, busy: 0, timeout: 0, otherFallbacks: 0, busyRate: null, busyByUse: {} });
+  assert.deepEqual(renderJudgeHealth(judgeHealth([])), ['No judge calls in play.']);
+});
+
+test('T1 digest: model defects recorded by the loop guard are counted per session, pre-play rows excluded', async () => {
+  const index = await loadIndex();
+  const { files, paths } = await loadSessionFiles(fixture('planted'), index);
+  const digest = digestSession(files, paths);
+  assert.deepEqual(digest.modelDefects, { turns: 1, loop: 1, corrupt: 0, repaired: 1 });
+  const rows = digest.anomalies.filter((anomaly) => anomaly.kind === 'model-defect');
+  assert.deepEqual(rows.map((row) => [row.summary, row.evidence.path, row.evidence.line]), [['model loop in message 7 (Dalan): hard as river stones (x4) (swiped once)', 'turns.jsonl', 2]]);
+  assert.match(renderFindings(digest, 'x'), /1 turn\(s\) with a defective reply: loop 1, corrupt 0; swiped once by the loop guard: 1/);
+  const clean = await loadSessionFiles(fixture('clean'), index);
+  assert.deepEqual(digestSession(clean.files, clean.paths).modelDefects, { turns: 0, loop: 0, corrupt: 0, repaired: 0 });
 });
