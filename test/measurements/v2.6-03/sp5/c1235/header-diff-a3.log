@@ -1,0 +1,38 @@
+2026-10-01T16:19:21.973Z DIFF chat.chatId  "Belle - 2026-10-01@12h56m29s380ms" -> "2026-10-01@12h09m55s322ms"
+2026-10-01T16:19:21.975Z WARNING: the page is running a bundle that is not the built one: served cc7c9153e48afb7b vs dist 0d2a3ab1f323bc53
+2026-10-01T16:19:21.975Z ok   chat.chatLength  0 -> 1  (allowed by progress)
+2026-10-01T16:19:21.975Z DIFF chat.groupId  null -> "1790867395404"
+2026-10-01T16:19:21.975Z DIFF group.disabledMembers  +Akari.png +Akito.png +Alarise.png +Alder.png +Alida.png +Amthir.png +Anax.png +Arryn.png +Ashleigh.png +Caelia.png +Caetus.png +Calithra.png +Ced.png +Celedir.png +Celeste.png +Dahlia.png +Daigo.png +Diosanea.png +Dixton.png +Domas.png +Ebisu.png +Erevan.png +Eriana.png +Eunie.png +Fael.png +Fiana.png +Forre.png +Fumio.png +Giada.png +Grant.png +Gustall.png +Haley.png +Hana.png +Hanabi.png +Hanzo.png +Himari.png +Honami.png +Idira.png +Jasira.png +Javon.png +Kaian.png +Kanai.png +Kanami.png +Kane.png +Karia.png +Karos.png +Karrus.png +Kashina.png +Kass.png +Kayla.png +Kela.png +Koharu.png +Konako.png +Kuromu.png +Leila.png +Liora.png +Lirael.png +Manako.png +Megumi.png +Merryn.png +Mina.png +Miyabi.png +Naomi.png +Natalia.png +Nendira.png +Nyl.png +Oswyn.png +Panne.png +Rikako.png +Rinne.png +Riyo.png +Ronan.png +Rosea.png +Runo.png +Rydel.png +Ryenne.png +Safie.png +Sana.png +Shadur.png +Shelur.png +Shiba.png +Shinen.png +Shiya.png +Sophie.png +Sota.png +Tahlia.png +Talis.png +Tanabe.png +Tanya.png +Tatiana.png +Thorne.png +Unira.png +Watara.png +Welden.png +Yrelra.png +Yuna.png +Yurine.png
+2026-10-01T16:19:21.975Z DIFF group.members  +Adolion Narrator.png +Akari.png +Akito.png +Alarise.png +Alder.png +Alexander.png +Alice.png +Alida.png +Amthir.png +Anax.png +Arryn.png +Ashleigh.png +Ashliel.png +Belle.png +Caelia.png +Caetus.png +Calithra.png +Camilla.png +Cassius.png +Ced.png +Celedir.png +Celeste.png +Dahlia.png +Daigo.png +Dalan.png +Diosanea.png +Dixton.png +Domas.png +Ebisu.png +Ellie.png +Elowyn.png +Erevan.png +Eriana.png +Eunie.png +Fael.png +Felthorn.png +Fiana.png +Forre.png +Fumio.png +Gabriel.png +Giada.png +Grant.png +Gustall.png +Haley.png +Hana.png +Hanabi.png +Hanzo.png +Himari.png +Honami.png +Idira.png +Jasira.png +Javon.png +Kaian.png +Kanai.png +Kanami.png +Kane.png +Kanna.png +Karia.png +Karos.png +Karrus.png +Kashina.png +Kass.png +Kayla.png +Keder.png +Kela.png +Koharu.png +Konako.png +Kuromu.png +Leila.png +Liora.png +Lirael.png +Lobo.png +Malach.png +Manako.png +Megumi.png +Melisande.png +Merryn.png +Mina.png +Miyabi.png +Morrigan.png +Nalea.png +Naomi.png +Natalia.png +Nendira.png +Nyl.png +Oswyn.png +Panne.png +Ren.png +Rikako.png +Rinne.png +Riyo.png +Ronan.png +Rosea.png +Runo.png +Rydel.png +Ryenne.png +Safie.png +Sali.png +Sana.png +Selena.png +Shadur.png +Shelara.png +Shelur.png +Shiba.png +Shinen.png +Shiya.png +Sophie.png +Sota.png +Tahlia.png +Talis.png +Tanabe.png +Tanya.png +Tatiana.png +The Lady of the Forest.png +Thorne.png +Tobias.png +Unira.png +Vallie.png +Vivie.png +Watara.png +Welden.png +Yrelra.png +Yuna.png +Yurine.png +Zariah.png
+2026-10-01T16:19:21.975Z DIFF group.name  null -> "Adolion - The Saga"
+2026-10-01T16:19:21.975Z ok   story.activeCheckpointId  "start" -> "guild-hall"  (allowed by progress)
+2026-10-01T16:19:21.975Z ok   story.boundary  0 -> 1  (allowed by progress)
+2026-10-01T16:19:21.975Z DIFF story.contentHash  "v2-a745e2f8" -> "v2-b9d534ed"
+2026-10-01T16:19:21.975Z DIFF story.id  "so-v25-sp5-none" -> "adolion-saga"
+2026-10-01T16:19:21.975Z DIFF story.playedVersion  1 -> 12
+2026-10-01T16:19:21.975Z DIFF story.title  "SO-SP5 No Scenario" -> "Adolion: The Saga"
+2026-10-01T16:19:21.975Z {
+2026-10-01T16:19:21.975Z   "baseline": "test/measurements/v2.6-03/sp5/c1235/header-before-a3.json",
+2026-10-01T16:19:21.975Z   "label": "diff-end",
+2026-10-01T16:19:21.975Z   "allow": [],
+2026-10-01T16:19:21.975Z   "differences": 12,
+2026-10-01T16:19:21.975Z   "progress": 3,
+2026-10-01T16:19:21.975Z   "blocking": 9,
+2026-10-01T16:19:21.975Z   "blockingPaths": [
+2026-10-01T16:19:21.975Z     "chat.chatId",
+2026-10-01T16:19:21.975Z     "chat.groupId",
+2026-10-01T16:19:21.975Z     "group.disabledMembers",
+2026-10-01T16:19:21.975Z     "group.members",
+2026-10-01T16:19:21.975Z     "group.name",
+2026-10-01T16:19:21.975Z     "story.contentHash",
+2026-10-01T16:19:21.975Z     "story.id",
+2026-10-01T16:19:21.975Z     "story.playedVersion",
+2026-10-01T16:19:21.975Z     "story.title"
+2026-10-01T16:19:21.975Z   ],
+2026-10-01T16:19:21.975Z   "servedIdentity": [],
+2026-10-01T16:19:21.975Z   "warnings": [
+2026-10-01T16:19:21.975Z     "the page is running a bundle that is not the built one: served cc7c9153e48afb7b vs dist 0d2a3ab1f323bc53"
+2026-10-01T16:19:21.976Z   ],
+2026-10-01T16:19:21.976Z   "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+2026-10-01T16:19:21.976Z   "ok": false
+2026-10-01T16:19:21.976Z }

@@ -1,0 +1,205 @@
+{
+ "spike": "SP5",
+ "run": "C1/C2/C3/C5 (+C4 again) \u00d71, attempt 3 2026-10-01 15:57\u201316:18Z",
+ "lane": 2,
+ "bundle": "cc7c9153e48a (shared slot dev)",
+ "campaignPin": "59e8821",
+ "fixture": "lab/scenario/live-v25-09-sp5-adolion-scenario.json + addenda 1-7 (run copy v5, gitignored)",
+ "verdict": {
+  "C1": true,
+  "C2": true,
+  "C3": true,
+  "C4": true,
+  "C5": true
+ },
+ "C4": {
+  "A": {
+   "label": "A-saga",
+   "group": "Adolion - The Saga",
+   "members": 8,
+   "cardScenarios": 7,
+   "distinct": 4,
+   "planted": 0,
+   "withOverride": {
+    "scenario": 1,
+    "cards": {
+     "[Genre: Fantasy, Adventuring, Action]": 0,
+     "[Genre: Fantasy, Romance, Drama]": 0,
+     "[Genre: Fantasy, Slice of Life, Romance]": 0,
+     "[Genre: Fantasy, Slice of Life]": 0
+    }
+   },
+   "control": {
+    "scenario": 0,
+    "cards": {
+     "[Genre: Fantasy, Adventuring, Action]": 2,
+     "[Genre: Fantasy, Romance, Drama]": 1,
+     "[Genre: Fantasy, Slice of Life, Romance]": 3,
+     "[Genre: Fantasy, Slice of Life]": 1
+    }
+   },
+   "expectHits": {
+    "[Genre: Fantasy, Adventuring, Action]": 2,
+    "[Genre: Fantasy, Romance, Drama]": 1,
+    "[Genre: Fantasy, Slice of Life, Romance]": 3,
+    "[Genre: Fantasy, Slice of Life]": 1
+   },
+   "fresh": false,
+   "matchesOffline": true,
+   "pass": true
+  },
+  "B": {
+   "label": "B-academy",
+   "group": "Adolion - House Nightriver",
+   "members": 6,
+   "cardScenarios": 5,
+   "distinct": 2,
+   "planted": 0,
+   "withOverride": {
+    "scenario": 1,
+    "cards": {
+     "[Genre: Fantasy, Political Intrigue, Romance, Adventure]": 0,
+     "[Genre: Fantasy, Romance, Adventure, Political Intrigue]": 0
+    }
+   },
+   "control": {
+    "scenario": 0,
+    "cards": {
+     "[Genre: Fantasy, Political Intrigue, Romance, Adventure]": 3,
+     "[Genre: Fantasy, Romance, Adventure, Political Intrigue]": 2
+    }
+   },
+   "expectHits": {
+    "[Genre: Fantasy, Political Intrigue, Romance, Adventure]": 3,
+    "[Genre: Fantasy, Romance, Adventure, Political Intrigue]": 2
+   },
+   "fresh": true,
+   "matchesOffline": true,
+   "pass": true
+  }
+ },
+ "C1": {
+  "captures": 10,
+  "failed": 0,
+  "wants": [
+   "A1:story",
+   "B1:story",
+   "C1:none",
+   "A2:story",
+   "B2:story",
+   "C2:none",
+   "A3:story",
+   "B3:story",
+   "C3:none",
+   "A-final:story"
+  ]
+ },
+ "C2": {
+  "order1": {
+   "first": {
+    "held": "SO-SP5 user override B: the heir spends the recess snowed in at the estate.",
+    "newest": {
+     "status": "externally-changed",
+     "found": {
+      "text": "SO-SP5 user override B: the heir spends the recess snowed in at the estate."
+     }
+    },
+    "storyIsNightriver": true,
+    "userInRequest": 1,
+    "storyInRequest": 0
+   },
+   "back": {
+    "held": "SO-SP5 user override B: the heir spends the recess snowed in at the estate.",
+    "refusedRows": 1
+   },
+   "pass": true
+  },
+  "order2": {
+   "ownWasTiunhime": true,
+   "afterLeave": true,
+   "afterRestart": true,
+   "statuses": [
+    "externally-changed"
+   ],
+   "userInRequest": 1,
+   "guildHallInRequest": 0,
+   "pass": true
+  }
+ },
+ "C5": {
+  "group": [
+   [
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Javon",
+    "Welden",
+    "Leila"
+   ]
+  ],
+  "solo": [
+   [
+    "Belle"
+   ]
+  ],
+  "liveGroup": [
+   "Natalia",
+   "Shiya",
+   "Ronan",
+   "Javon",
+   "Welden",
+   "Leila"
+  ],
+  "matches": {
+   "fresh": false,
+   "afterC2": true
+  },
+  "pass": true
+ },
+ "C5playerClean": {
+  "playerDrawerMentionsIt": false
+ },
+ "C3": {
+  "start": [
+   "guild-hall"
+  ],
+  "before": {
+   "path": [
+    "guild-hall",
+    "east-landfall",
+    "east-the-road-inland",
+    "east-harvest-festival"
+   ],
+   "statuses": [
+    "externally-changed",
+    "reverted",
+    "applied"
+   ]
+  },
+  "after": {
+   "path": [
+    "guild-hall",
+    "east-landfall",
+    "east-the-road-inland"
+   ],
+   "held": "(empty, C4 c)",
+   "statuses": [
+    "externally-changed",
+    "reverted",
+    "reverted"
+   ],
+   "harvestRow": "reverted",
+   "landfallInRequest": 0,
+   "harvestInRequest": 0,
+   "rolledBack": true
+  },
+  "pass": true
+ },
+ "attempts": {
+  "1 (15:17Z)": "C1, C2 pass; C5 group note named 7 (Tahlia mid-hydrate) -> addendum 6",
+  "2 (15:36Z)": "C1, C2, C5 group pass; C5 solo [] (fixture journal slice) -> addendum 7",
+  "3 (15:57Z)": "all five pass; teardown step's goto to chat C expected no story (C now plays the none-story); teardown done by hand, header diff: only the open chat's view fields"
+ },
+ "modelCalls": "0 (dry-run prompt captures; C3's read uses debugResponse)",
+ "podMinutes": 0
+}
