@@ -270,3 +270,12 @@ Plan-local mutants (scratchpad `p06_mutants.py`, each against its named test): a
 - The wizard prompt text does not mention drive or motives. The plan 11 agent has the tools, but its prompt was not updated (W19 is plan 11's).
 - Fault matrix: all 10 `inner|*` cells are declared, and `inner|aborted` stays `todo`.
 - The intent wire format is the pipe form `[intends] Name | …`, matching the other epistemic tags.
+
+### Addendum 2026-09-30: settings, wizard prompt, `inner|aborted`
+
+Worktree `agent-a1cfad589a9bc715f`, master `bd61f23f` merged, built together with plan 07's UI addendum (same commands and results, recorded there). No lanes, no real-LLM call.
+
+- **Settings controls**: `components/settings/InnerVoiceControls.tsx`, lazy, in the Stagecraft group, **author view only** (like the warden's rows): `#so-inner-harvest` (B2 harvest), `#so-inner-beat` (C inner beat), `#so-inner-fanout` (lead / top2, disabled while the beat is off), `#so-inner-harvest-idle` when harvest is on without knowledge tracking. Both switches stay off by default. Added to `PLAYER_FORBIDDEN_SELECTORS` and the spoiler checklist. Gate: `InnerVoiceControls.stories.tsx` (4 stories, interaction + axe).
+- **Wizard prompt**: the agent's rules ask for a drive per cast member (`setRosterDrive`) and per-beat motives (`setCheckpointMotive`), told only to that character; the staged wizard's grammar shows `drive` on roster ops and `motives` on checkpoints, and the EFFECTS/CAST stage asks for them. Gate: `loop.test.ts` "both wizards ask for each character's drive…".
+- **Fault matrix**: `inner|aborted` is `covered` — a held inner call under a real `RunOwner` is aborted by a chat switch, rejects, and writes neither beat nor save; control: the same held call unaborted lands (`innerCoordinator.test.ts`). The inner row now has 0 `todo` cells.
+- Still open: K from the D1 corpus, the live C/B/A-D legs, the `intents` tier scorer.

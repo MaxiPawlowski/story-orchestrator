@@ -1574,7 +1574,7 @@ async function boundaryHarness() {
   const manager = new RuntimeManager();
   await manager.importStory(JSON.stringify(story));
   const probe = manager as unknown as AsyncBoundaryProbe;
-  const result = { fired: true, activeCheckpointId: "start", effects: {} };
+  const result = { fired: true, activeCheckpointId: "start", effects: {}, context: { lastMessageId: 0, chatLength: 1 } };
   probe.effects.applyCheckpoint = jest.fn(async () => undefined);
   probe.effects.announceTransition = jest.fn(async () => undefined);
   probe.effects.fireNpcReplies = jest.fn(async () => undefined);

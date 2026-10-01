@@ -823,6 +823,16 @@
       "reason": "our validator's message, fed back to the wizard agent and shown on its step log"
     },
     {
+      "site": "src/copilot/agent/tools.ts#readChaptersCall>callback",
+      "kind": 2,
+      "template": "`setChapters.${error.path}: ${error.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "the story validator's chapter message, returned to the wizard agent as the tool's refusal"
+    },
+    {
       "site": "src/copilot/agent/loop.ts#decideStep",
       "kind": 2,
       "template": "`Rejected by the author: ${reason}`",

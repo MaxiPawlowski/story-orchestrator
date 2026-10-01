@@ -412,7 +412,8 @@
     "effects|delayedSuccess": {
       "status": "covered",
       "evidence": "src/runtime/effectsOwnership.review.test.ts#a checkpoint applied in its own chat stages everything and marks itself applied",
-      "note": "Every staged step lands and the applied marker is set."
+      "alsoEvidence": ["src/runtime/effectsStaging.review.test.ts#applies background, Author's Note and the preset overlay, and holds cast, replies and World Info"],
+      "note": "Every staged step lands and the applied marker is set. v2.6 plan 04 C3: with requirements unmet only the presentation lands, and the marker stays unset so the full apply still runs once they are met."
     },
     "effects|delayedError": {
       "status": "partial",
@@ -427,7 +428,8 @@
     "effects|duplicateCompletion": {
       "status": "covered",
       "evidence": "src/runtime/effectsApplier.test.ts#fires a one-shot reply once when the same checkpoint is applied twice, and twice when it is asked to",
-      "note": "The same checkpoint applied twice fires the one-shot reply once; the counter key names the checkpoint, trigger, member and reply index."
+      "alsoEvidence": ["src/runtime/onEnterRollback.review.test.ts#drops a post the rollback reaches, so the cut's own delete cannot claim it a second time, and keeps an older one"],
+      "note": "The same checkpoint applied twice fires the one-shot reply once; the counter key names the checkpoint, trigger, member and reply index. v2.6 plan 04 C12: the delete the opener's cut raises finds no post left, so the transition is not stepped back twice."
     },
     "effects|backendUnavailable": {
       "status": "covered",
@@ -452,7 +454,8 @@
     "effects|worldSwitched": {
       "status": "covered",
       "evidence": "src/runtime/effectsOwnership.review.test.ts#a chat switch stops the sequence before the cast change reaches the shared group",
-      "note": "The sequence stops before the write that outlives the chat."
+      "alsoEvidence": ["src/runtime/onEnterRollback.review.test.ts#the cut runs only while the opener is still the tail and the run still owns the chat"],
+      "note": "The sequence stops before the write that outlives the chat. v2.6 plan 04 C12: the opener's cut is refused once the run lapsed or the chat moved on."
     },
     "effects|aborted": {
       "status": "partial",
@@ -658,8 +661,10 @@
       "note": "The token is minted over the reply the beat reads and checked after each call, before the ring write and the persist."
     },
     "inner|aborted": {
-      "status": "todo",
-      "note": "No test aborts a held inner call. The run signal is passed to the model call, so an abort rejects like a backend failure, but that path is not exercised."
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#inner|aborted: a held inner call aborted by a chat switch cancels its request and writes nothing",
+      "alsoEvidence": ["src/runtime/coordinators/innerCoordinator.test.ts#control: the same held call nobody aborts lands"],
+      "note": "v2.6 plan 06 C: the pass hands the run's signal to the model call; a chat switch (RunOwner bump) aborts the held request, the pass rejects like a backend failure (boundary work catches it), and neither the beat ring nor a save is written. Control: the same held call under an unmoved owner is written."
     },
     "harnessTransport|delayedSuccess": {"status": "partial", "evidence": "src/runtime/harnessRouting.test.ts#a harness route goes to the harness transport, with the role, the bound and a spawn-padded deadline", "note": "v2.6 plan 04 H: covered: a late harness answer is returned to its caller like a profile answer, keyed on its route. Not covered here: the caller's RunOwnership decides whether it is written (the census row for createModelCallVia.call says the call record itself lands in the chat open at the time)."},
     "harnessTransport|delayedError": {"status": "covered", "evidence": "src/runtime/harnessRouting.test.ts#with no fallback chosen the role pauses: the failure is thrown, never answered from the memory profile", "note": "A harness failure is thrown as a ModelCallError keyed on the route; with no author fallback nothing answers in its place."},

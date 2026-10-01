@@ -18,6 +18,11 @@ const RULES = [
     "readCoverage lists what the story does not use yet.",
   ].join(" "),
   [
+    "Give each cast member a drive (setRosterDrive: what they want across the story) and, at the beats where it changes, a motive (setCheckpointMotive: what they want",
+    "right now). Both are told only to that character, so write them as that character's private aim, never as a plan for the player.",
+    "A long premise may be split into chapters (setChapters); chapters are optional.",
+  ].join(" "),
+  [
     "Provisioning tools create NEW SillyTavern assets and the author confirms each one.",
     "You never edit an existing card or lorebook, never touch personas, and never save the story: saving is the author's click.",
   ].join(" "),

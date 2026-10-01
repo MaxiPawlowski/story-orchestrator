@@ -25,6 +25,8 @@ type Props = {
 
 type ContainerRef = React.MutableRefObject<HTMLDivElement | null>;
 
+const CHECKPOINT_NODES = "node[type != 'chapter']";
+
 const useCytoscape = (containerRef: ContainerRef, onSelect: (id: string) => void) => {
   const [cyReady, setCyReady] = useState(false);
   const cyRef = useRef<Core | null>(null);
@@ -74,7 +76,7 @@ const useCytoscape = (containerRef: ContainerRef, onSelect: (id: string) => void
       const handleEdgeOut = () => {
         if (container) container.title = "";
       };
-      cy.on("tap", "node", handleTap);
+      cy.on("tap", CHECKPOINT_NODES, handleTap);
       cy.on("mouseover", "edge", handleEdgeOver);
       cy.on("mouseout", "edge", handleEdgeOut);
       cyRef.current = cy;
@@ -82,7 +84,7 @@ const useCytoscape = (containerRef: ContainerRef, onSelect: (id: string) => void
 
       cleanup = () => {
         try {
-          cy?.off("tap", "node", handleTap);
+          cy?.off("tap", CHECKPOINT_NODES, handleTap);
           cy?.off("mouseover", "edge", handleEdgeOver);
           cy?.off("mouseout", "edge", handleEdgeOut);
         } catch (err) {

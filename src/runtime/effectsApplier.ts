@@ -31,7 +31,7 @@ import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoG
 import { worldInfoFilesHeld } from "./worldInfoMode";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { generationWatch } from "./generationWatch";
-import { recordNpcReplyFire } from "./npcReplyRewind";
+import { recordNpcReplyFire, recordOnEnterPost } from "./npcReplyRewind";
 import { isRecord } from "@utils/guards";
 
 // What a host effect changed, read back from the host as it is NOW. Every reader is a
@@ -58,6 +58,7 @@ export const rollbackCastMirror = (mirror: Array<{ member: string; disabled: boo
 const RESTORABLE = new Set<EffectTarget["kind"]>(["cast", "an", "background", "extension"]);
 const CHAT_SCOPED = new Set<EffectTarget["kind"]>(["an", "extension"]);
 const NOTHING_TO_RESTORE = new Set<EffectTarget["kind"]>(["preset"]);
+const JUMP_RELEASED = new Set<EffectTarget["kind"]>(["an", "background", "extension"]);
 
 export const OVERLAY_UNSUPPORTED_REASON = "a checkpoint preset applies on Text Completion and Chat Completion connections only; this connection uses another API";
 
@@ -236,8 +237,10 @@ export class EffectsApplier {
 
   // `path` is every checkpoint the chat entered, ending at `checkpoint`: world_info is rebuilt from it
   // each time, so a flag another chat left in a shared lorebook never survives into this one.
-  async applyCheckpoint(story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[]) {
-    if (!extras.requirements.ready) return;
+  async applyCheckpoint(
+    story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], gate?: number,
+  ) {
+    const ready = extras.requirements.ready;
     // This is the write edge with the widest blast radius in the extension: unlike
     // a memory pass, almost nothing here is per-chat. World Info flags live in shared lorebook
     // FILES, the Author's Note and preset are install state, and `cast_changes` mutates the
@@ -254,10 +257,10 @@ export class EffectsApplier {
     // writes ~100 group members one await at a time, so an opening fired at the end of the sequence
     // left a brand-new chat blank for the better part of a minute — and an interrupted apply lost it
     // entirely. Every other onEnter beat stays below, after the cast it needs is enabled.
-    if (mode === "activate" || mode === "hydrate") await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only === true);
+    if (ready) await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only === true);
     if (!run.stillOwns()) return;
     const scope = { checkpointId: checkpoint.id, boundary: 0, messageId: lastMessageId() };
-    const worldInfoRefused = worldInfoFilesHeld() ? [] : await applyWorldInfo(worldInfoPlan(story, path), run);
+    const worldInfoRefused = !ready || worldInfoFilesHeld() ? [] : await applyWorldInfo(worldInfoPlan(story, path), run);
     if (worldInfoRefused.length) this.deps.journal?.("world_info effect could not be applied", worldInfoRefused.join("; "));
     const effects: CheckpointEffects = checkpoint.effects ?? {};
     if (!run.stillOwns()) return;
@@ -281,9 +284,9 @@ export class EffectsApplier {
       );
     }
     if (!run.stillOwns()) return;
-    if (mode === "hydrate") await this.applyCastMirror(extras, scope, run);
+    if (ready && mode === "hydrate") await this.applyCastMirror(extras, scope, run);
     if (!run.stillOwns()) return;
-    if (effects.cast_changes !== undefined) await this.applyCastChanges(effects.cast_changes, extras, scope, run);
+    if (ready && effects.cast_changes !== undefined) await this.applyCastChanges(effects.cast_changes, extras, scope, run);
     // Deterministic stagecraft: idempotent, so hydrating a chat and rolling back into this
     // checkpoint both restore its background without re-triggering anything.
     // `applyCastChanges` awaits once per member, so this needs its own check: without it the
@@ -297,14 +300,15 @@ export class EffectsApplier {
         () => applyBackground(name),
       );
     }
-    for (const extension of effectExtensions()) {
+    for (const extension of ready ? effectExtensions() : []) {
       if (!run.stillOwns()) return;
       await this.applyExtension(extension, { story, checkpoint, path, ledger: extras.effects.ledger, mode }, extras, scope);
     }
     if (!run.stillOwns()) return;
-    if (mode === "activate") await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only !== true);
-    if (!run.stillOwns()) return;
     this.appliedChat = openChatId();
+    if (!ready) return;
+    if (mode === "activate") await this.fireOnEnter(checkpoint, extras, gate);
+    if (!run.stillOwns()) return;
     extras.lastAppliedCheckpointId = checkpoint.id;
     extras.updatedAt = new Date().toISOString();
   }
@@ -333,6 +337,13 @@ export class EffectsApplier {
     samplerOverlay.set({ chatId: openChatId(), checkpointId, name: preset.name, api, values, unknown });
     if (unknown.length) this.deps.journal?.(`${unknown.length} setting(s) of "${preset.name}" are not per-request samplers and are not sent`, unknown.slice(0, 12).join(", "));
     return wrote({ name: preset.name });
+  }
+
+  async releaseStaging(story: NormalizedStoryV2, extras: RuntimeExtras, run: RunGuard) {
+    const staged = extras.effects.ledger.filter((row) => row.status === "applied" && JUMP_RELEASED.has(row.target.kind));
+    if (staged.length) await this.restoreEffects(extras, staged);
+    if (!run.stillOwns() || !extras.requirements.ready) return;
+    await this.releaseWorldInfo([story], null, run);
   }
 
   // Spike: under scan-time gating a chat's world info is a per-scan view, so neither
@@ -449,8 +460,23 @@ export class EffectsApplier {
     }
   }
 
-  async fireNpcReplies(checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger, occurrence?: number, speakerAliases: string[] = [], allow?: (reply: NpcReplyEffect) => boolean) {
-    if (trigger === "afterSpeak" && (this.speaking > 0 || extras.lastSelfInjectionMessageId === lastMessageId())) return;
+  private async fireOnEnter(checkpoint: Checkpoint, extras: RuntimeExtras, gate?: number) {
+    const run = beginRun(this.ownership);
+    const spoken = await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only !== true);
+    const last = lastMessageId();
+    if (gate === undefined || !spoken || last <= gate || !run.stillOwns()) return;
+    extras.onEnterPosts = recordOnEnterPost(extras.onEnterPosts ?? [], { checkpointId: checkpoint.id, gate, first: gate + 1, last });
+  }
+
+  async removeOnEnterPost(post: { first: number; last: number }, run: RunGuard) {
+    if (post.last < post.first || lastMessageId() !== post.last || !run.stillOwns()) return;
+    if (!(await executeSlashCommands(`/cut ${post.first}-${post.last}`, { silent: true }))) this.deps.journal?.("the scene opener was not removed", "the /cut that removes it was refused");
+  }
+
+  async fireNpcReplies(
+    checkpoint: Checkpoint, extras: RuntimeExtras, trigger: NpcReplyTrigger, occurrence?: number, speakerAliases: string[] = [], allow?: (reply: NpcReplyEffect) => boolean,
+  ): Promise<number> {
+    if (trigger === "afterSpeak" && (this.speaking > 0 || extras.lastSelfInjectionMessageId === lastMessageId())) return 0;
     const aliases = speakerAliases.map((alias) => alias.trim().toLowerCase());
     const replies = readNpcReplies(checkpoint.effects).filter((reply) => reply.trigger === trigger && (!allow || allow(reply)));
     // This is the only effect that SPEAKS: `fireReply` posts a message into whatever
@@ -458,8 +484,9 @@ export class EffectsApplier {
     // the rest of this story's characters into somebody else's conversation, visibly, in the
     // transcript. The check is inside the loop because each reply is its own write.
     const run = beginRun(this.ownership);
+    let spoken = 0;
     for (let index = 0; index < replies.length; index += 1) {
-      if (!run.stillOwns()) return;
+      if (!run.stillOwns()) return spoken;
       const reply = replies[index];
       if (reply.enabled === false) continue;
       if (reply.new_chat_only && (trigger !== "onEnter" || !Array.isArray(getContext().chat) || getContext().chat.length !== 0)) continue;
@@ -479,8 +506,10 @@ export class EffectsApplier {
       this.speaking += 1;
       try { await this.speak(reply); }
       finally { this.speaking -= 1; }
-      if (!run.stillOwns()) return;
+      spoken += 1;
+      if (!run.stillOwns()) return spoken;
       extras.lastSelfInjectionMessageId = lastMessageId();
     }
+    return spoken;
   }
 }

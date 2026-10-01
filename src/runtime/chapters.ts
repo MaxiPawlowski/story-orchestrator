@@ -24,7 +24,9 @@ export const storyEnded = (records: readonly ChapterRecord[]): boolean => record
 // Read from the path, not from the boundary that fired: a seal that never landed (a reload mid-seal,
 // a chat switch) is still due at the next boundary, and an interlude is skipped back over so its
 // messages join the next chapter's range.
-export function sealTarget(story: NormalizedStoryV2 | null, activeCheckpointId: string, records: readonly ChapterRecord[], visitedPath: readonly string[]): SealTarget | null {
+export function sealTarget(
+  story: NormalizedStoryV2 | null, activeCheckpointId: string, records: readonly ChapterRecord[], visitedPath: readonly string[], skipAt: number | null = null,
+): SealTarget | null {
   if (!story?.chapters?.length || storyEnded(records)) return null;
   const path = visitedPath.length ? visitedPath : [activeCheckpointId];
   const current = chapterOf(story, path[path.length - 1]);
@@ -32,9 +34,29 @@ export function sealTarget(story: NormalizedStoryV2 | null, activeCheckpointId: 
   while (last >= 0 && chapterOf(story, path[last])?.id === current?.id) last -= 1;
   while (last >= 0 && chapterOf(story, path[last])?.kind === "interlude") last -= 1;
   const left = last >= 0 ? chapterOf(story, path[last]) : null;
-  if (left && left.id !== current?.id && !records.some((record) => record.sealedAt.pathLength - 1 > last)) return { chapter: left, part: nextPart(records, left.id), final: false };
+  const passed = (pathLength: number) => pathLength - 1 > last;
+  const settled = records.some((record) => passed(record.sealedAt.pathLength)) || (skipAt !== null && passed(skipAt));
+  if (left && left.id !== current?.id && !settled) return { chapter: left, part: nextPart(records, left.id), final: false };
   return current && endsStory(story, activeCheckpointId) ? { chapter: current, part: nextPart(records, current.id), final: true } : null;
 }
+
+export interface JumpState {
+  activeCheckpointId: string;
+  visitedPath: readonly string[];
+}
+
+export const jumpSeal = (story: NormalizedStoryV2 | null, state: JumpState, records: readonly ChapterRecord[], targetId: string, skipAt: number | null = null): SealTarget | null => {
+  if (!story?.checkpointById[targetId] || targetId === state.activeCheckpointId) return null;
+  const target = sealTarget(story, targetId, records, [...state.visitedPath, targetId], skipAt);
+  return target && !target.final ? target : null;
+};
+
+export interface SealSkip {
+  pathLength: number;
+  messageId: number;
+}
+
+export const liveSkip = (skip: SealSkip | null | undefined, pathLength: number): number | null => (skip && skip.pathLength <= pathLength ? skip.pathLength : null);
 
 export const sealRange = (records: readonly ChapterRecord[], storyStart: number, to: number) => {
   const previous = records[records.length - 1];

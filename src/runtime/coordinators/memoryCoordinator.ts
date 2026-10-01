@@ -369,6 +369,7 @@ export class MemoryCoordinator {
   releaseStaleHold() { if (this.injector.releaseWithhold()) this.injector.update(); }
   withholdPrivateKnowledge() { this.injector.withholdPrivateKnowledge(); }
   onMemberDrafted(chId: number | [number]) { this.injector.onMemberDrafted(chId); }
+  draftedRosterId(chId: number | [number]): string | null { return this.injector.draftedRosterId(chId); }
   getInjectionBlocks(): Record<MemoryTier, string> { return this.injector.blocks(); }
 
   // --- consolidation -----------------------------------------------------

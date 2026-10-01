@@ -10,6 +10,7 @@ import { createLore, sanitizeLore } from "./loreFired";
 import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { trimLedger } from "./effectLedger";
 import { createSaveHealth } from "./saveHealth";
+import { sanitizeOnEnterPosts } from "./npcReplyRewind";
 import type {
   CopilotRuntimeSettings, EffectLedgerRow, EffectsRuntimeState, ExtractionRuntimeState, MemoryMirrorBook,
   MemoryRuntimeState, PacingSettings, RuntimeExtras, SaveHealth, StagecraftRuntimeState, TalkRuntimeState,
@@ -74,6 +75,11 @@ const sanitizeChronicle = (value: unknown): ChronicleState => {
   return { eras: Array.isArray(eras) ? eras.filter(valid) : [] };
 };
 
+const sanitizeSealSkip = (value: unknown) => {
+  const skip = value as { pathLength?: unknown; messageId?: unknown } | null;
+  return Number.isInteger(skip?.pathLength) && Number.isInteger(skip?.messageId) ? { pathLength: skip?.pathLength as number, messageId: skip?.messageId as number } : null;
+};
+
 const sanitizeBridge = (value: unknown) => {
   const bridge = value as { recordId?: unknown; text?: unknown } | null;
   return typeof bridge?.recordId === "string" && typeof bridge.text === "string" ? { recordId: bridge.recordId, text: bridge.text } : null;
@@ -133,6 +139,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       chronicle: sanitizeChronicle(existing.chronicle),
       chapterBridge: sanitizeBridge(existing.chapterBridge),
       chapterRecapSeen: typeof existing.chapterRecapSeen === "string" ? existing.chapterRecapSeen : null,
+      chapterSealSkip: sanitizeSealSkip(existing.chapterSealSkip),
       updatedAt: existing.updatedAt ?? new Date().toISOString(),
     };
   }
@@ -346,5 +353,6 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;
   extras.firedNpcReplies = extras.firedNpcReplies && typeof extras.firedNpcReplies === "object" ? extras.firedNpcReplies : {};
   extras.firedNpcRepliesAt = extras.firedNpcRepliesAt && typeof extras.firedNpcRepliesAt === "object" ? extras.firedNpcRepliesAt : {};
+  if (extras.onEnterPosts !== undefined) extras.onEnterPosts = sanitizeOnEnterPosts(extras.onEnterPosts);
   return applyGlobalSettings(extras, read(), overrides);
 };

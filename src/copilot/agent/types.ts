@@ -1,8 +1,9 @@
-import type { RosterView } from "@engine/index";
+import type { Chapter, RosterView } from "@engine/index";
 import type { ProposalOp } from "../types";
 
 export type AgentOnlyOp =
   | { kind: "setHouseRules"; rules: string[] }
+  | { kind: "setChapters"; chapters: Chapter[]; assign: Record<string, string> }
   | { kind: "setRosterDrive"; id: string; drive: string }
   | { kind: "setRosterView"; id: string; view: RosterView }
   | { kind: "setCheckpointMotive"; id: string; member: string; motive: string };
