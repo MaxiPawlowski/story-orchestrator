@@ -45,3 +45,6 @@ notes/
 /test/sessions/**/payloads*.jsonl
 /test/sessions/**/shots/
 /test/sessions/**/chat-full-*.json
+# v2.6 plan 03: spike run dirs keep summaries; raw captures and lab fixture copies stay local
+/test/measurements/v2.6-03/**/raw/
+/test/measurements/v2.6-03/_run/
