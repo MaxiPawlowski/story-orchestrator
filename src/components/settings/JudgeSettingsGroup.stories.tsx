@@ -175,7 +175,6 @@ export const ReadinessNamesWhatIsNotWorking: Story = {
     settings: settings({ enabled: true }, { stallCheck: true, expansionLookahead: true }),
     status: ready,
     authorView: true,
-    fixtureRevisions: { stallCheck: "edited00000" },
   },
   play: async ({ canvasElement }) => {
     const readiness = canvasElement.querySelector("#so-judge-readiness");
