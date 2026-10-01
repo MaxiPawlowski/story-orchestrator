@@ -81,12 +81,12 @@ describe("cleanTextCompletionReply mirrors the TC clean-up extractData:false ski
 
 const NO_METER = { effort: "default", applied: false, collapsed: false, unsupported: null, budget: 0, chars: 0, tokens: null };
 
-const fakeHost = (api: string, reply: unknown = { choices: [{ text: "NO_DELTA", finish_reason: "stop" }] }) => {
+const fakeHost = (api: string, reply: unknown = { choices: [{ text: "NO_DELTA", finish_reason: "stop" }] }, preset: string | undefined = "Default") => {
   const calls: Array<{ custom: Record<string, unknown>; override: Record<string, unknown> }> = [];
   const host: ModelRequestHost = {
     sendRequest: async (_profileId, _prompt, _maxTokens, custom, override) => { calls.push({ custom: { ...custom }, override }); return reply; },
     profileExists: (id) => id === "p1",
-    profile: () => ({ api, instruct: undefined }),
+    profile: () => ({ api, instruct: undefined, preset }),
     apiSelected: (value) => (value === "openai" || value === "claude" ? "openai" : "textgenerationwebui"),
     extractMessage: (json, type) => (type === "openai" ? "cc text" : ((json as { choices: Array<{ text: string }> }).choices[0].text)),
     instructSequences: () => null,
@@ -100,6 +100,12 @@ describe("requestModelReply: the typed seam (v2.4 plan 03 D1)", () => {
     const reply = await requestModelReply(host, "p1", "prompt", 512, { samplers: { temperature: 0.1, top_p: 0.9 } });
     expect(reply).toEqual({ ok: true, text: "cc text", finish: "stop", meter: NO_METER });
     expect(calls[0].override).toEqual({ stream: false });
+  });
+
+  it("CC profile WITHOUT a preset carries our samplers, or the provider's default temperature decides (v2.6 plan 15 A5, DeepSeek)", async () => {
+    const { host, calls } = fakeHost("openai", { choices: [{ message: { content: "x" } }] }, "");
+    await requestModelReply(host, "p1", "prompt", 512, { samplers: { temperature: 0.1, top_p: 0.9 } });
+    expect(calls[0].override).toEqual({ stream: false, temperature: 0.1, top_p: 0.9 });
   });
 
   it("control: a TC profile keeps today's sampler override", async () => {

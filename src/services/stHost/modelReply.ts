@@ -49,7 +49,7 @@ export interface InstructSequences {
 export interface ModelRequestHost {
   sendRequest: (profileId: string, prompt: Array<{ role: string; content: string }>, maxTokens: number, custom: HostModelRequestCustom, overridePayload: Record<string, unknown>) => Promise<unknown>;
   profileExists: (profileId: string) => boolean;
-  profile: (profileId: string) => { api?: string; instruct?: string } | null;
+  profile: (profileId: string) => { api?: string; instruct?: string; preset?: string } | null;
   apiSelected: (api: string | undefined) => string | null;
   extractMessage: (json: unknown, type: string) => string;
   instructSequences: (name: string | undefined) => InstructSequences | null;
@@ -138,9 +138,9 @@ export const TEXT_COMPLETION_BUDGET_KEYS = ["max_tokens", "max_new_tokens", "n_p
 
 const textCompletionBudget = (maxTokens: number): Record<string, number> => Object.fromEntries(TEXT_COMPLETION_BUDGET_KEYS.map((key) => [key, maxTokens]));
 
-export const samplerPayload = (apiSelected: string | null, samplers: ModelSamplers | undefined, maxTokens: number): Record<string, unknown> => ({
+export const samplerPayload = (apiSelected: string | null, samplers: ModelSamplers | undefined, maxTokens: number, hasPreset = true): Record<string, unknown> => ({
   stream: false,
-  ...(apiSelected === TEXT_COMPLETION_API ? { ...samplers, ...textCompletionBudget(maxTokens) } : {}),
+  ...(apiSelected === TEXT_COMPLETION_API ? { ...samplers, ...textCompletionBudget(maxTokens) } : apiSelected === CHAT_COMPLETION_API && !hasPreset ? { ...samplers } : {}),
 });
 
 export async function requestModelReply(host: ModelRequestHost, profileId: string, prompt: string, maxTokens: number, options: ModelRequestOptions = {}): Promise<ModelReply> {
@@ -159,7 +159,7 @@ export async function requestModelReply(host: ModelRequestHost, profileId: strin
       [{ role: "user", content: prompt }],
       total,
       { extractData: false, includePreset: true, includeInstruct: true, stream: false, ...(signal ? { signal } : {}) },
-      { ...samplerPayload(selected, options.samplers, total), ...plan.payload },
+      { ...samplerPayload(selected, options.samplers, total, Boolean(profile?.preset)), ...plan.payload },
     );
     const type = selected === CHAT_COMPLETION_API ? CHAT_COMPLETION_API : TEXT_COMPLETION_API;
     const extracted = host.extractMessage(json, type);
