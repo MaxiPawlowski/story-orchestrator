@@ -7,6 +7,35 @@ import { MEMORY_TIERS, type MemoryEntry, type MemoryTier } from "./types";
 
 export const INJECTION_DIVERSITY_FLOOR = 1;
 
+export const NEAR_DUPLICATE_SIMILARITY = 0.5;
+export const SESSION_DETAILS_ROW_CAP = 12;
+
+const DEDUPED_TIERS: ReadonlySet<MemoryTier> = new Set<MemoryTier>(["session_details"]);
+const ROW_CAPS: Partial<Record<MemoryTier, number>> = { session_details: SESSION_DETAILS_ROW_CAP };
+const STOP_WORDS: ReadonlySet<string> = new Set("a an the and or of to in on at is was his her their its as by with for he she they it that this be are has have had".split(" "));
+
+const contentWords = (text: string): Set<string> =>
+  new Set(text.toLowerCase().replace(/[^a-z0-9' ]+/g, " ").split(/\s+/).filter((word) => word !== "" && !STOP_WORDS.has(word)));
+
+const wordSimilarity = (a: Set<string>, b: Set<string>): number => {
+  if (a.size === 0 || b.size === 0) return 0;
+  const shared = [...a].filter((word) => b.has(word)).length;
+  return shared / (a.size + b.size - shared);
+};
+
+const newestFirst = (a: MemoryEntry, b: MemoryEntry): number => (b.messageId ?? -1) - (a.messageId ?? -1) || b.createdAt - a.createdAt;
+
+export function nearDuplicateIds(entries: MemoryEntry[]): Set<string> {
+  const seen: Set<string>[] = [];
+  const duplicates = new Set<string>();
+  for (const entry of [...entries].sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) || newestFirst(a, b))) {
+    const words = contentWords(entry.text);
+    if (!entry.pinned && seen.some((other) => wordSimilarity(other, words) >= NEAR_DUPLICATE_SIMILARITY)) duplicates.add(entry.id);
+    else seen.push(words);
+  }
+  return duplicates;
+}
+
 export interface PromptSink {
   setStoryExtensionPrompt: (key: string, text: string, depth: number) => unknown;
   clearStoryExtensionPrompt: (key: string) => unknown;
@@ -21,7 +50,7 @@ export function memoryExtensionKey(tier: MemoryTier): string {
   return `${MEMORY_INJECTION_KEY_PREFIX}${tier}`;
 }
 
-export type MemoryFate = "injected" | "quarantined" | "superseded" | "folded" | "other-speaker" | "over-budget" | "pinned-overflow";
+export type MemoryFate = "injected" | "quarantined" | "superseded" | "folded" | "other-speaker" | "near-duplicate" | "over-budget" | "pinned-overflow";
 
 export interface TierTrim {
   candidates: number;
@@ -50,13 +79,24 @@ function selectTierEntries(
   fates: Record<string, MemoryFate>,
 ): { entries: MemoryEntry[]; pinnedOverflow: number; trim: TierTrim } {
   const inTier = entries.filter((entry) => entry.tier === tier);
-  const candidates = inTier.filter((entry) => {
+  const live = inTier.filter((entry) => {
     const fate = filteredFate(entry, tier, activeSpeakerId);
     if (fate) fates[entry.id] = fate;
     return fate === null;
   });
+  const duplicates = DEDUPED_TIERS.has(tier) ? nearDuplicateIds(live) : new Set<string>();
+  duplicates.forEach((id) => { fates[id] = "near-duplicate"; });
+  const candidates = live.filter((entry) => !duplicates.has(entry.id));
   const budget = options.tokenBudgets[tier];
-  const { kept, dropped, pinnedOverflow } = selectWithinBudget(candidates, budget, (entry) => scoreEntry(entry, options.scoreContext), INJECTION_DIVERSITY_FLOOR);
+  const score = (entry: MemoryEntry) => scoreEntry(entry, options.scoreContext);
+  const selection = selectWithinBudget(candidates, budget, score, INJECTION_DIVERSITY_FLOOR);
+  const { kept } = selection;
+  const cap = ROW_CAPS[tier];
+  const overCap = cap === undefined ? [] : candidates.filter((entry) => kept.has(entry.id))
+    .sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) || score(b) - score(a) || newestFirst(a, b)).slice(cap);
+  overCap.forEach((entry) => kept.delete(entry.id));
+  const dropped = [...selection.dropped, ...overCap];
+  const pinnedOverflow = selection.pinnedOverflow + overCap.filter((entry) => entry.pinned).length;
   const injected = candidates.filter((entry) => kept.has(entry.id));
   injected.forEach((entry) => { fates[entry.id] = "injected"; });
   dropped.forEach((entry) => { fates[entry.id] = entry.pinned ? "pinned-overflow" : "over-budget"; });

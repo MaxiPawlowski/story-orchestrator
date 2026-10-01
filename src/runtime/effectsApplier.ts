@@ -43,7 +43,7 @@ export interface EffectHostReads {
   read: (target: EffectTarget) => Record<string, unknown> | null;
 }
 
-export const rollbackCastMirror = (mirror: Array<{ member: string; disabled: boolean }>, reverted: EffectLedgerRow[]) => {
+export const rollbackCastMirror = (mirror: { member: string; disabled: boolean }[], reverted: EffectLedgerRow[]) => {
   let next = [...mirror];
   for (const row of [...reverted].reverse()) {
     if (row.target.kind !== "cast") continue;

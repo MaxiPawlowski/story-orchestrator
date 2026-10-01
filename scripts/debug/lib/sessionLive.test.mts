@@ -106,6 +106,64 @@ test('T1 turn: control, a group round that never closes is reported after the bu
   assert.ok(record.problems.some((problem) => problem.startsWith('the round did not settle')), record.problems.join('; '));
 });
 
+test('T1 follow-up: a chained voice whose speaker is still being decided after the round closes is waited for (T1-3 Alexander m26 / msg 27)', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const { ctx, events } = fake;
+  let pending = false;
+  (globalThis as any).storyOrchestratorTalk = { chainPending: () => pending };
+  const reply = async (chid: number, text: string) => {
+    await events.emit(EVENT_TYPES.GROUP_WRAPPER_STARTED);
+    await events.emit(EVENT_TYPES.GENERATION_STARTED, 'normal', {}, false);
+    await events.emit(EVENT_TYPES.GROUP_MEMBER_DRAFTED, chid);
+    ctx.chat.push({ name: ctx.characters[chid].name, mes: text });
+    await events.emit(EVENT_TYPES.MESSAGE_RECEIVED, ctx.chat.length - 1, 'normal');
+    await events.emit(EVENT_TYPES.GENERATION_ENDED);
+    await events.emit(EVENT_TYPES.GROUP_WRAPPER_FINISHED);
+  };
+  let ticks = 0;
+  const page = fakePage({
+    waitForTimeout: async () => {
+      ticks += 1;
+      if (ticks === 40) { await reply(2, 'Dalan, chained, answers the King.'); pending = false; }
+    },
+  });
+  const send = async (_page: unknown, line: string) => {
+    ctx.chat.push({ name: 'You', is_user: true, mes: line });
+    await reply(1, 'Belle answers first.');
+    pending = true;
+    return { replied: true, lastSpeaker: 'Belle' };
+  };
+  try {
+    const record = await runTurn(page, 'Your Majesty, the front.', baseDeps({ send }));
+    assert.equal(record.ok, true, record.problems.join('; '));
+    assert.deepEqual(record.speakers, ['Belle', 'Dalan']);
+    assert.equal((record.send as any).round.settled, true);
+    assert.ok(ticks >= 40, 'the wait outlasted the chain decision');
+  } finally {
+    delete (globalThis as any).storyOrchestratorTalk;
+  }
+});
+
+test('T1 follow-up: control, a chain that never stops reporting pending is reported after the budget', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const { ctx } = fake;
+  (globalThis as any).storyOrchestratorTalk = { chainPending: () => true };
+  const send = async (_page: unknown, line: string) => {
+    ctx.chat.push({ name: 'You', is_user: true, mes: line });
+    ctx.chat.push({ name: 'Belle', mes: 'Done.' });
+    return { replied: true };
+  };
+  try {
+    const record = await runTurn(fakePage(), 'Hello?', baseDeps({ send }), { timeoutMs: 12000 });
+    assert.equal(record.ok, false);
+    assert.ok(record.problems.some((problem) => problem.startsWith('the round did not settle')), record.problems.join('; '));
+  } finally {
+    delete (globalThis as any).storyOrchestratorTalk;
+  }
+});
+
 test('turn: a send that nothing answers is recorded as not ok, and a scheduler that never drains is named', async () => {
   install(fakeSt({ chat: greeting() }));
   const fake = (globalThis as any).SillyTavern.getContext();

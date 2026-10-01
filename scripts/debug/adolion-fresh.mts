@@ -1,13 +1,14 @@
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
-import { join, resolve } from 'node:path';
+import { lstat, mkdir, readdir, readFile, rm, statfs, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
 import {
   buildInventory, buildManifest, castResetPlan, checkInventory, diffInventories, expectedStartDisabled, lastGoodSeed, seedDrift, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
   type AdolionManifest, type Inventory, type LaneDisk, type RuntimeReadiness, type SpriteFolder, type SpritePackSource,
 } from './lib/adolionFresh.mts';
+import { findReclaimable, gib, lastSeededLaneBytes, removeStaleSpriteWorktrees, seedSpaceNeed, seedSpaceRefusal, type SpaceFs } from './lib/seedSpace.mts';
 
 const USAGE = `Usage: node scripts/debug/adolion-fresh.mts <command> [...]
 
@@ -17,6 +18,9 @@ campaign build. Lanes 1+ only; lane 0 is the user's.
   seed <lane> [--commit <sha>] [--headed] [--stop] [--for <charterId>] [--break-lease]
       refused while the lane's lease.json (written by so-session stop) names a chat a later charter
       still continues, unless that charter is the one --for names or --break-lease is given;
+      refused below max(5 GB, 2.5 x the last seeded lane) free on the lanes drive, naming old-pin sprite
+      worktrees in other lanes and archived lanes; this lane's own old-pin sprite worktrees are removed first
+      (worktree remove, never a plain delete);
       stop the lane, re-seed it (st-lanes seed --fresh), strip the campaign's assets from the copy,
       start it, run the campaign installer at the pinned commit (adolion-fresh.pin.json), upload the
       sprite packs from an LFS checkout of that commit (a git worktree, uploads only), create the groups, select exactly the lorebooks the stories require, import the nine stories, take a
@@ -78,6 +82,41 @@ async function exportCampaign(repo: string, commit: string, target: string) {
 const readJson = async (path: string) => JSON.parse(await readFile(path, 'utf-8'));
 
 const spriteCheckoutDir = (work: string, commit: string) => join(work, `sprites-${commit.slice(0, 12)}`);
+
+async function dirBytes(dir: string): Promise<number> {
+  const entries = await readdir(dir, { withFileTypes: true }).catch(() => []);
+  let total = 0;
+  for (const entry of entries) {
+    const path = join(dir, entry.name);
+    if (entry.isSymbolicLink()) continue;
+    if (entry.isDirectory()) total += await dirBytes(path);
+    else if (entry.isFile()) total += (await lstat(path)).size;
+  }
+  return total;
+}
+
+const spaceFs: SpaceFs = { list: (dir) => readdir(dir), bytes: dirBytes, readJson: (file) => readJson(file) };
+
+async function freeBytes(path: string) {
+  const stats = await statfs(existsSync(path) ? path : dirname(path));
+  return Number(stats.bavail) * Number(stats.bsize);
+}
+
+async function spacePreflight(n: number, repo: string, commit: string) {
+  const { root, work } = lane(n);
+  const cleaned = await removeStaleSpriteWorktrees(repo, work, commit, spaceFs, (args) => run('git', args));
+  for (const path of cleaned.removed) console.log(`      removed stale sprite worktree ${path}`);
+  for (const { path, reason } of cleaned.failed) console.log(`      stale sprite worktree left in place (git worktree remove failed): ${path}: ${reason}`);
+  const lastLaneBytes = (await lastSeededLaneBytes(LANES_ROOT, spaceFs)) ?? (existsSync(root) ? await dirBytes(root) : null);
+  const free = await freeBytes(LANES_ROOT);
+  const need = seedSpaceNeed(lastLaneBytes);
+  if (free < need) {
+    const refusal = seedSpaceRefusal({ root: LANES_ROOT, freeBytes: free, lastLaneBytes, reclaimable: await findReclaimable(LANES_ROOT, n, commit, spaceFs) });
+    if (refusal) throw new Error(refusal);
+  }
+  console.log(`      ${gib(free)} free on the lanes drive, ${gib(need)} needed`);
+  return { freeBytes: free, needBytes: need, lastLaneBytes, removedSpriteWorktrees: cleaned.removed, staleSpriteWorktreesLeft: cleaned.failed };
+}
 
 async function prepareSpriteCheckout(repo: string, commit: string, target: string) {
   const head = existsSync(join(target, '.git')) ? (await run('git', ['-C', target, 'rev-parse', 'HEAD'])).output.trim() : '';
@@ -214,6 +253,8 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
   if (refused) throw new Error(`adolion-fresh needs the dev bundle: ${refused}`);
   const pin = await readPin(commitArg);
   const paths = lane(n);
+  console.log(`[0/7] disk space on ${LANES_ROOT}`);
+  const space = await spacePreflight(n, pin.repo, pin.commit);
   const exportDir = join(paths.work, `campaign-${pin.commit.slice(0, 12)}`);
   console.log(`[1/7] export campaign ${pin.commit} from ${pin.repo}, and its sprite packs (LFS worktree)`);
   await exportCampaign(pin.repo, pin.commit, exportDir);
@@ -253,6 +294,7 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
   const report = await writeRecord(n, inventory, problems, {
     commit: pin.commit, pinned: pin.pinned, stripped, baseline: join(paths.debug, 'adolion-fresh-asset-baseline.json'), baselineTrusted: page.baseline?.trusted ?? false,
     extraction: page.extraction, groups: page.groups, imports: page.imports, castResets: page.castResets ?? [], notes: page.notes ?? [], summary: summary(inventory),
+    space, laneBytes: await dirBytes(paths.root),
   });
   if (stopAfter) { console.log('[7/7] stop lane'); await lanes('stop', String(n)); } else console.log(`[7/7] lane ${n} left running at ${paths.url}`);
   return report;
