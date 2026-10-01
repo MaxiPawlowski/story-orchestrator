@@ -83,13 +83,14 @@ export class MemoryCoordinator {
     model: () => this.deps.model, ownership: () => this.deps.ownership, enabled: () => this.enabled,
     firedTransitions: () => this.deps.getFiredTransitions(), facts: () => this.getFacts(),
   });
-  readonly chapters: ChapterPort = new ChapterPort({
-    coordinator: this, deps: this.deps, memory: () => this.state, patch: (next) => this.patch(next), record: (input) => this.record(input), save: () => this.save(),
-  });
+  readonly chapters: ChapterPort;
   private consolidationInFlight = false;
   readonly queue: MemoryQueue;
 
   constructor(private readonly deps: MemoryCoordinatorDeps) {
+    this.chapters = new ChapterPort({
+      coordinator: this, deps, memory: () => this.state, patch: (next) => this.patch(next), record: (input) => this.record(input), save: () => this.save(),
+    });
     const board = () => this.deps.getState()?.blackboard;
     this.queue = new MemoryQueue({
       getMemory: () => this.state, patch: (next, touch) => this.patch(next, touch), boundaryStamp: () => this.boundaryStamp(),
