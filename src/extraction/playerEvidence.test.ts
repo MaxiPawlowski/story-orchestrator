@@ -162,7 +162,7 @@ describe("v2.4 plan 04 T15: the prompt says what the check enforces", () => {
       const expected = JSON.parse(readFileSync(join(dir, `${name}.expected.json`), "utf8")) as { spec?: Record<string, unknown> };
       const run = buildFixtureRun({ story: storyRaw, transcript, ...(expected.spec ?? {}) });
       const lines = run.prompt.split("\n");
-      const transcriptLines = lines.slice(lines.indexOf("Transcript:") + 1);
+      const transcriptLines = lines.slice(lines.indexOf("Transcript:") + 1, lines.lastIndexOf("Output:") - 1);
       expect(transcriptLines).toEqual(transcript.length ? transcript.map((entry) => `[${entry.index}] ${entry.speaker}: ${entry.text}`) : ["(empty)"]);
       expect(run.prompt).not.toContain(WORLD_EVIDENCE_RULE);
     });

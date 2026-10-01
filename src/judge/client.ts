@@ -1,5 +1,5 @@
 import { validateJudgeRequest } from "./questions";
-import { isJudgeBusy, type JudgeGate } from "./gate";
+import { isJudgeBusy, pluginFallback, type JudgeGate } from "./gate";
 import { JUDGE_BUSY_RETRIES } from "./policy";
 import type { JudgeFallback, JudgeRequest, JudgeResponse, JudgeResult, JudgeTransport, JudgeUsage } from "./types";
 
@@ -93,7 +93,7 @@ export async function askJudge(transport: JudgeTransport, request: JudgeRequest,
     // because judgeTransport wires both the timeout and the epoch signal to one controller, so
     // they are indistinguishable by the error alone.
     const cancelled = options.signal?.aborted === true;
-    const fallback: JudgeFallback = cancelled ? "cancelled" : isJudgeBusy(error) ? "busy" : isTimeout(error) ? "timeout" : "error";
+    const fallback: JudgeFallback = cancelled ? "cancelled" : isJudgeBusy(error) ? "busy" : pluginFallback(error) ?? (isTimeout(error) ? "timeout" : "error");
     return { ...base, answers: null, model: null, latencyMs: now() - startedAt, fallback, cached: false };
   }
 }

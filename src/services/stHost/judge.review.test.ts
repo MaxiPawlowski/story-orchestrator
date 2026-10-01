@@ -55,3 +55,10 @@ test("v2.5 plan 12 PS-J 2/6: the transport posts text/plain with the plugin head
   expect(headers["X-CSRF-Token"]).toBe("t");
   expect(JSON.parse(String(seen[0].body))).toEqual(request);
 });
+
+test("CR-J12: a plugin error status reaches the client as a typed error, so the fallback can name it", async () => {
+  for (const status of [504, 409, 401]) {
+    globalThis.fetch = jest.fn(async () => new Response(JSON.stringify({ error: "x" }), { status })) as typeof fetch;
+    await expect(judgeTransport(request, { timeoutMs: 5000 })).rejects.toMatchObject({ name: "JudgePluginError", status });
+  }
+});

@@ -1,6 +1,7 @@
 import { getContext } from "./context";
 import { isRecord } from "@utils/guards";
 import { HARNESS_IDS, type HarnessId } from "@utils/harness";
+import { pluginVersionIssue } from "@utils/pluginVersions";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
 import type { ModelFailureKind, ModelFinish, ModelReply, ModelUsage } from "./modelReply";
 
@@ -20,6 +21,7 @@ export interface HarnessRow {
   loggedIn: boolean | null;
   fresh: boolean;
   loginProblem: string | null;
+  blocked: string | null;
   offered: boolean;
   isolation: string;
   models: HarnessModel[];
@@ -45,7 +47,7 @@ export interface HarnessRequest {
   signal?: AbortSignal;
 }
 
-const KINDS: ReadonlySet<string> = new Set(["lapsed", "timeout", "transport", "config", "auth", "quota", "malformed", "refused"]);
+const KINDS: ReadonlySet<string> = new Set(["lapsed", "timeout", "transport", "config", "auth", "quota", "malformed", "refused", "busy"]);
 const FINISHES: ReadonlySet<string> = new Set(["stop", "length", "unknown"]);
 const BUSY_RETRY_MS = 1000;
 const MAX_TIMEOUT_MS = 900_000;
@@ -61,6 +63,7 @@ const readRow = (row: Record<string, unknown>): HarnessRow => ({
   loggedIn: typeof row.loggedIn === "boolean" ? row.loggedIn : null,
   fresh: row.fresh === true,
   loginProblem: text(row.loginProblem),
+  blocked: text(row.blocked),
   offered: row.offered === true,
   isolation: text(row.isolation) ?? "",
   models: Array.isArray(row.models) ? row.models.filter(isRecord).flatMap((model) => (typeof model.id === "string" ? [{ id: model.id, context: num(model.context) ?? 0 }] : [])) : [],
@@ -73,7 +76,9 @@ const readRow = (row: Record<string, unknown>): HarnessRow => ({
 export async function harnessCapability(): Promise<{ state: "present" | "absent"; detail: string }> {
   const status = await (await import("./harnessCache")).refreshHarnessStatus();
   const offered = Object.entries(status?.harnesses ?? {}).filter(([, row]) => row?.installed && row.offered).map(([id, row]) => `${id} ${row?.version ?? "?"}${row?.fresh ? "" : " (log in)"}`);
-  return offered.length ? { state: "present", detail: offered.join(", ") } : { state: "absent", detail: `${status ? "no harness is offered" : "no harness plugin"}; every task stays on a profile` };
+  const issue = pluginVersionIssue("harness", status?.pluginVersion);
+  if (offered.length) return { state: "present", detail: `${offered.join(", ")}${issue ? `; ${issue}` : ""}` };
+  return { state: "absent", detail: `${status ? "no harness is offered" : "no harness plugin"}; every task stays on a profile` };
 }
 
 export async function fetchHarnessStatus(refresh = false): Promise<HarnessStatus | null> {
@@ -120,6 +125,24 @@ const sleep = (ms: number, signal?: AbortSignal) => new Promise<void>((resolve) 
   signal?.addEventListener("abort", () => { clearTimeout(timer); resolve(); }, { once: true });
 });
 
+export const STALE_PAGE_REFUSAL = "SillyTavern refused the request (403 without the plugin's answer: the page's session or CSRF token is stale); reload the page";
+
+export const pluginRefusal = async (response: { json: () => Promise<unknown> }): Promise<string | null> => {
+  try {
+    const data = await response.json();
+    return isRecord(data) && typeof data.error === "string" && data.error ? data.error : null;
+  } catch {
+    return null;
+  }
+};
+
+const forbidden = async (response: Response): Promise<ModelReply> => {
+  const refusal = await pluginRefusal(response);
+  return refusal
+    ? { ok: false, kind: "config", message: `the harness plugin refused this user: ${refusal}` }
+    : { ok: false, kind: "transport", message: STALE_PAGE_REFUSAL };
+};
+
 const requestIdOf = (): string => `so-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 10)}`;
 
 export async function sendHarnessRequest(request: HarnessRequest): Promise<ModelReply> {
@@ -155,7 +178,7 @@ export async function sendHarnessRequest(request: HarnessRequest): Promise<Model
         continue;
       }
       if (response.status === 404) return { ok: false, kind: "config", message: "the harness plugin is not installed on the SillyTavern server" };
-      if (response.status === 403) return { ok: false, kind: "config", message: "the harness plugin refused this user (harness routes are admin-only unless the host allows them)" };
+      if (response.status === 403) return await forbidden(response);
       if (!response.ok && response.status !== 429) return { ok: false, kind: "transport", message: `the harness plugin answered ${String(response.status)}` };
       return readHarnessAnswer(await response.json() as unknown, effort);
     }

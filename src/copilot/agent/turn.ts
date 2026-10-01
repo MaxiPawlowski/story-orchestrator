@@ -48,22 +48,20 @@ export interface AgentRunnerInput {
 }
 
 export const createAgentRunner = (input: AgentRunnerInput): AgentRunner => {
-  let chosen: Promise<AgentRoute> | null = null;
-  const route = (): Promise<AgentRoute> => {
-    chosen ??= (async () => {
-      const transport = input.harness ? await input.harness() : null;
-      return transport ? harnessRoute(transport, agentToolSchemas()) : localRoute(input.model, { role: "authoring", pass: "copilot", debugResponse: input.debugResponse ?? null });
-    })();
-    return chosen;
+  let chosen: AgentRoute | null = null;
+  const route = async (): Promise<AgentRoute> => {
+    if (chosen) return chosen;
+    const transport = input.harness ? await input.harness() : null;
+    const next = transport ? harnessRoute(transport, agentToolSchemas()) : localRoute(input.model, { role: "authoring", pass: "copilot", debugResponse: input.debugResponse ?? null });
+    if (!transport?.refusal) chosen = next;
+    return next;
   };
   const runner: AgentRunner = async (session, draft) => advanceAgent(session, contextFor(draft, input.environment(draft), input.backgrounds), await route());
   runner.settle = async (turn) => {
-    const current = chosen ? await chosen : null;
-    if (current?.settle) await current.settle(turn);
+    if (chosen?.settle) await chosen.settle(turn);
   };
   runner.close = async () => {
-    const current = chosen ? await chosen : null;
-    if (current?.close) await current.close();
+    if (chosen?.close) await chosen.close();
   };
   return runner;
 };

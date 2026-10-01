@@ -17,7 +17,10 @@ const cleanValue = (value: string) => value.trim().replace(/^["'*_`]+|["'*_.!`]+
 const matchCandidate = (value: string, candidates: TalkCandidate[]): TalkCandidate | null => {
   const search = normalize(value);
   if (!search) return null;
-  return candidates.find((candidate) => normalize(candidate.name) === search) ?? null;
+  const exact = candidates.find((candidate) => normalize(candidate.name) === search);
+  if (exact) return exact;
+  const head = normalize(value.split(/\s+\(|:\s|\s[—–-]\s/)[0] ?? "");
+  return head && head !== search ? candidates.find((candidate) => normalize(candidate.name) === head) ?? null : null;
 };
 
 const HAND_BACK = /^(player|the player|you)$/i;

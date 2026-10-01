@@ -120,10 +120,10 @@ describe("v2.6 plan 04 C4: a jump releases the source's staging, then applies th
   it("the staged path is the jump target on, and the whole path without a jump", () => {
     const engine = new StoryEngine({ now: () => 0 });
     engine.loadStory(story);
-    expect(stagedPath(engine.checkpointPath, engine.stateLog)).toEqual(["hall"]);
+    expect(stagedPath(engine.checkpointPath, engine.serialize().stagedFrom)).toEqual(["hall"]);
     engine.activateCheckpoint("far", { lastMessageId: 3, chatLength: 4 });
     expect(engine.checkpointPath).toEqual(["hall", "far"]);
-    expect(stagedPath(engine.checkpointPath, engine.stateLog)).toEqual(["far"]);
+    expect(stagedPath(engine.checkpointPath, engine.serialize().stagedFrom)).toEqual(["far"]);
   });
 
   it("a jump from a staged checkpoint to one with no note or background restores both, and switches the source's gated lore off", async () => {

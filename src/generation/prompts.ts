@@ -1,6 +1,22 @@
 import { agencyClauses, agencyForCheckpoint, renderAgencyPolicy, thresholdFor, type NormalizedStoryV2 } from "@engine/index";
 import type { GeneratedBeat, PlannedExpansionInput } from "./types";
 
+const PREMISE_CHARS = 600;
+
+const checkpointLine = (story: NormalizedStoryV2, id: string): string => {
+  const checkpoint = story.checkpointById[id];
+  return checkpoint ? `${id} "${checkpoint.name}" — ${checkpoint.objective}` : id;
+};
+
+const storyContext = (story: NormalizedStoryV2): string[] => {
+  const premise = story.description.trim();
+  const cast = story.roster.map((member) => `${member.name ?? member.id}${member.role ? ` (${member.role})` : ""}`);
+  return [
+    ...(premise ? [`Premise: ${premise.length > PREMISE_CHARS ? `${premise.slice(0, PREMISE_CHARS)}…` : premise}`] : []),
+    ...(cast.length ? [`Cast: ${cast.join("; ")}`] : []),
+  ];
+};
+
 export function renderGenerationPrompt(story: NormalizedStoryV2, input: PlannedExpansionInput): string {
   const target = story.checkpointById[input.candidate.targetAnchorId];
   const threshold = target ? thresholdFor(target) : 1;
@@ -10,10 +26,13 @@ export function renderGenerationPrompt(story: NormalizedStoryV2, input: PlannedE
   }).join("\n");
   return [
     `Story: ${story.title}`,
+    ...storyContext(story),
     `Generate scaffolding only. Do not write prose scenes.`,
-    `Source checkpoint: ${input.candidate.sourceCheckpointId}`,
+    `Source checkpoint: ${checkpointLine(story, input.candidate.sourceCheckpointId)}`,
     `Stub: ${input.candidate.stubId}`,
-    `Target anchor: ${input.candidate.targetAnchorId}`,
+    `Target anchor: ${checkpointLine(story, input.candidate.targetAnchorId)}`,
+    `Write beats that carry the story from the source checkpoint to the target anchor's situation. Each beat's objective and guidance set up a situation ` +
+      `for the cast to play; name only the cast above or people the facts already establish.`,
     `Beat count: ${input.beats}`,
     `State delta: ${JSON.stringify(input.deltas)}`,
     `Tension trajectory: ${JSON.stringify(input.tensionTrajectory)}`,
@@ -44,8 +63,9 @@ export function renderGenerationPrompt(story: NormalizedStoryV2, input: PlannedE
 export function renderCriticPrompt(story: NormalizedStoryV2, input: PlannedExpansionInput, beats: GeneratedBeat[], issues: string[]): string {
   return [
     `Story: ${story.title}`,
+    ...storyContext(story),
     `Review generated scaffolding only.`,
-    `Target anchor: ${input.candidate.targetAnchorId}`,
+    `Target anchor: ${checkpointLine(story, input.candidate.targetAnchorId)}`,
     `Required state delta: ${JSON.stringify(input.deltas)}`,
     `Code issues: ${issues.join(" | ") || "none"}`,
     `Canon-lite:\n${input.canon || "(none)"}`,

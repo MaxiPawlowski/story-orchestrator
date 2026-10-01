@@ -74,7 +74,8 @@ test('plan 14 cards: docs/plans/v2.6/14-cards.md is in sync with charters.json',
 
 test('plan 14 start: a card that needs images or sprites is refused without --allow-comfy, before any lane is touched', async () => {
   const [doc, index] = await Promise.all([loadCards(), loadIndex()]);
-  const card = findCard(doc, 'T3-1');
+  const card = clone(doc).cards.find((candidate) => candidate.id === 'T3-1')!;
+  card.setup.settings = { ...card.setup.settings, images: true, sprites: true };
   const refused = planStart(doc, index, card, { lane: 4, allowComfy: false, seed: true }, null);
   assert.ok(refused.refused && /127\.0\.0\.1:8188/.test(refused.refused) && /--allow-comfy/.test(refused.refused));
   const allowed = planStart(doc, index, card, { lane: 4, allowComfy: true, seed: true }, null);
@@ -93,12 +94,12 @@ test('plan 14 start: every card that does not ask for media switches images and 
 });
 
 test('plan 14 start: settings map onto the global settings the runtime reads', () => {
-  const patch = settingsPatch({ judge: 'off', inlineLevel: 2, innerVoice: true, chapters: { seal: true }, curator: { enabled: true, acceptMode: 'review' } });
+  const patch = settingsPatch({ judge: 'off', inlineLevel: 2, innerHarvest: true, innerBeat: true, chapters: { seal: true }, curator: { enabled: true, acceptMode: 'review' } });
   assert.equal(patch.judge.enabled, false);
   assert.ok(Object.values(patch.judge.uses).every((on) => on === false));
   assert.equal(Object.keys(patch.judge.uses).length, JUDGE_USES.length);
   assert.deepEqual(patch.display, { inline: { level: 2 } });
-  assert.deepEqual(patch.memory, { innerBeat: true, chapters: { seal: true } });
+  assert.deepEqual(patch.memory, { harvestReasoning: true, innerBeat: true, chapters: { seal: true } });
   assert.deepEqual(patch.stagecraft, { curatorEnabled: true, acceptMode: 'review' });
 });
 
@@ -128,6 +129,8 @@ test('plan 14 stop: the rubric template has one unscored row per card rubric row
   assert.deepEqual(rubric.scores, ['works', 'annoying', 'broken', 'not-noticed']);
   assert.equal(rubricProblems(rubric).length, card.rubric.length);
   rubric.rows.forEach((row) => { row.score = 'works'; });
+  assert.equal(rubricProblems(rubric).length, card.rubric.length * 3, 'a score without a note, evidence and a scorer is not a score');
+  rubric.rows.forEach((row) => { row.note = 'seen'; row.evidence = ['turns.jsonl:1']; row.scoredBy = 'claude'; });
   assert.deepEqual(rubricProblems(rubric), []);
 });
 

@@ -687,6 +687,7 @@ Main entry `dist/index.js` **1,192,542 B** (budget 1,250,000; master before this
 - Dossiers are derived, not persisted, so the D12 "dossiers revert" rollback case holds by construction.
 - The unit fixture is `test/fixtures/chapters-mini.story.json`; the plan's `saga-mini` name is the Q-M corpus story under `test/measurements/v2.6-07/`.
 - The `chapter_seal` derived record lists folded rows as inputs, so a later rollback that removes one of them drops the seal; the property test found no divergence from replay with that rule.
+  **Corrected 2026-10-01 (plan 15 CR-E9):** that test compared chapter record ids only, its generator made no arcs, no decide/close dispositions, eras, bridge, recap or seal skip, and its beat check was one-sided, so "no divergence" covered far less than it read. The extended generator found two defects (a committed bridge or seen recap, and an overwritten seal skip, could not be restored by a rollback), fixed in `docs/plans/v2.6/15-review.md` §Review fixes CR-E.
 
 ### Addendum 2026-09-30: task 16/17 UI and authoring items (no model)
 

@@ -1,6 +1,7 @@
 import type { Chapter, NormalizedStoryV2 } from "@engine/index";
 import type { ChapterRecord } from "@memory/types";
 import { DEFAULT_CHRONICLE_TOKENS } from "@memory/chronicle";
+import { storyEnded } from "./chapterPort";
 
 export interface SealTarget {
   chapter: Chapter;
@@ -18,8 +19,6 @@ export const nextPart = (records: readonly ChapterRecord[], chapterId: string): 
 
 export const endsStory = (story: NormalizedStoryV2, checkpointId: string): boolean =>
   Boolean(chapterOf(story, checkpointId)?.final) && !(story.outgoingByCheckpoint[checkpointId]?.length);
-
-export const storyEnded = (records: readonly ChapterRecord[]): boolean => records.some((record) => record.final);
 
 // Read from the path, not from the boundary that fired: a seal that never landed (a reload mid-seal,
 // a chat switch) is still due at the next boundary, and an interlude is skipped back over so its

@@ -26,7 +26,9 @@ function argValue(name, fallback) {
 export async function armPayloadCapture(page) {
   return evaluateInST(page, () => {
     const key = '__soDebugPayloads';
-    const state = globalThis[key] ||= { armed: false, entries: [], currentDraftMember: null, nextIndex: 0, epoch: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}` };
+    const state = globalThis[key] ||= { armed: false, entries: [], responses: [], currentDraftMember: null, nextIndex: 0, nextResponseIndex: 0, epoch: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}` };
+    state.responses ||= [];
+    state.nextResponseIndex ||= 0;
     if (state.armed) return { armed: true, alreadyArmed: true, count: state.entries.length, epoch: state.epoch, nextIndex: state.nextIndex };
     const ctx = SillyTavern.getContext();
     const push = (entry) => {
@@ -34,23 +36,39 @@ export async function armPayloadCapture(page) {
       // keeps the last 100, so deriving the index from `entries.length` made every capture past the
       // 100th collide on index 100 — `watch` then stopped printing and a persisted record would
       // silently lose every later turn. Verified on 2026-09-20 (v2.3 plan 01 §A0).
+      const index = state.nextIndex++;
       state.entries.push({
         ...entry,
-        index: state.nextIndex++,
+        index,
         epoch: state.epoch,
         draftMember: state.currentDraftMember,
         capturedAt: new Date().toISOString(),
       });
       state.entries = state.entries.slice(-100);
+      return index;
+    };
+    const RESPONSE_CHARS = 200000;
+    const pushResponse = (requestIndex, response) => {
+      const contentType = response?.headers?.get?.('content-type') ?? null;
+      const row = { requestIndex, responseIndex: state.nextResponseIndex++, epoch: state.epoch, status: response?.status ?? null, contentType, streamed: /event-stream/i.test(String(contentType ?? '')), text: null, truncated: false, capturedAt: null };
+      const clone = typeof response?.clone === 'function' ? response.clone() : null;
+      const done = (text) => {
+        const body = typeof text === 'string' ? text : null;
+        state.responses.push({ ...row, text: body === null ? null : body.slice(0, RESPONSE_CHARS), truncated: Boolean(body && body.length > RESPONSE_CHARS), capturedAt: new Date().toISOString() });
+        state.responses = state.responses.slice(-100);
+      };
+      if (!clone || typeof clone.text !== 'function') { done(null); return; }
+      clone.text().then(done, () => done(null));
     };
     const shouldCapture = (url) => String(url).includes('/api/backends/') || String(url).includes('/api/chat/') || String(url).includes('/api/textgeneration/');
     const originalFetch = globalThis.fetch;
     globalThis.fetch = async function soDebugFetch(input: any, init: any = {}) {
       const url = typeof input === 'string' ? input : input?.url;
-      if (shouldCapture(url)) {
-        push({ transport: 'fetch', url: String(url), method: init?.method || 'GET', body: init?.body ?? null });
-      }
-      return originalFetch.apply(this, arguments as any);
+      if (!shouldCapture(url)) return originalFetch.apply(this, arguments as any);
+      const requestIndex = push({ transport: 'fetch', url: String(url), method: init?.method || 'GET', body: init?.body ?? null });
+      const pending = originalFetch.apply(this, arguments as any);
+      Promise.resolve(pending).then((response) => pushResponse(requestIndex, response), () => undefined);
+      return pending;
     };
     const OriginalXHR = globalThis.XMLHttpRequest;
     (globalThis as any).XMLHttpRequest = function SoDebugXHR() {
@@ -109,6 +127,22 @@ export async function drainPayloads(page, sinceIndex = 0) {
   }, sinceIndex);
 }
 
+export async function drainResponses(page, sinceIndex = 0) {
+  return evaluateInST(page, (since) => {
+    const state = globalThis.__soDebugPayloads;
+    if (!state?.armed) return { armed: false, epoch: null, entries: [], nextIndex: 0, dropped: 0 };
+    const rows = state.responses ?? [];
+    const oldest = rows.length ? rows[0].responseIndex : since;
+    return {
+      armed: true,
+      epoch: state.epoch,
+      nextIndex: state.nextResponseIndex ?? 0,
+      dropped: Math.max(0, oldest - since),
+      entries: rows.filter((row) => row.responseIndex >= since).map((row) => ({ kind: 'response', ...row })),
+    };
+  }, sinceIndex);
+}
+
 export async function getPayloads(page, count = 1, member = null) {
   return evaluateInST(page, ({ count: wanted, member: who }: { count: number; member: string | null }) => {
     const state = globalThis.__soDebugPayloads;
@@ -139,6 +173,8 @@ export async function getPayloads(page, count = 1, member = null) {
 export async function persistPayloads(page, { out, intervalMs = 1000, onEntry = null, shouldStop = null } = {} as any) {
   let epoch: string | null = null;
   let since = 0;
+  let responseSince = 0;
+  let responses = 0;
   let written = 0;
   let dropped = 0;
   let rearmed = 0;
@@ -170,6 +206,7 @@ export async function persistPayloads(page, { out, intervalMs = 1000, onEntry = 
       await armPayloadCapture(page);
       frame = await drainPayloads(page, 0);
       since = 0;
+      responseSince = 0;
     }
     epoch = frame.epoch;
     dropped += frame.dropped ?? 0;
@@ -194,6 +231,23 @@ export async function persistPayloads(page, { out, intervalMs = 1000, onEntry = 
       since = entry.index + 1;
     }
     since = Math.max(since, frame.nextIndex ?? since);
+    const answered = await drainResponses(page, responseSince);
+    if (answered.armed && answered.epoch === epoch) {
+      dropped += answered.dropped ?? 0;
+      for (const entry of answered.entries) {
+        if (out) {
+          try {
+            await appendFile(out, `${JSON.stringify(entry)}\n`, 'utf-8');
+          } catch (err) {
+            writeErrors += 1;
+            throw err;
+          }
+        }
+        responses += 1;
+        responseSince = entry.responseIndex + 1;
+      }
+      responseSince = Math.max(responseSince, answered.nextIndex ?? responseSince);
+    }
   };
 
   while (!stopped) {
@@ -215,7 +269,7 @@ export async function persistPayloads(page, { out, intervalMs = 1000, onEntry = 
   process.off('SIGINT', stop);
   process.off('SIGTERM', stop);
   const ok = writeErrors === 0 && dropped === 0 && unknownGaps === 0;
-  return { written, dropped, rearmed, unknownGaps, writeErrors, epoch, ok };
+  return { written, responses, dropped, rearmed, unknownGaps, writeErrors, epoch, ok };
 }
 
 export async function watchPayloads(page, limit, timeoutMs = 60000) {

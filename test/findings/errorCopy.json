@@ -483,16 +483,6 @@
       "reason": "best-effort close; the plugin's session deadline tears the session down anyway"
     },
     {
-      "site": "src/studio/agentHost.ts#resolveAgentHarness",
-      "kind": 3,
-      "template": ".catch(() => null)",
-      "surface": "console",
-      "rawError": false,
-      "silentCatch": "probe",
-      "verdict": "pass",
-      "reason": "no readable plugin status means no tool bridge: the agent keeps its text route, which reports its own failures"
-    },
-    {
       "site": "src/copilot/agent/bridge.ts#ask",
       "kind": 2,
       "template": "`${opened.kind}: ${opened.message}`",
@@ -971,6 +961,36 @@
       "silentCatch": null,
       "verdict": "pass",
       "reason": "v2.6 plan 04 G: the reason is LibrarySaveEvidence's own sentence (observedReason / heldGroupBinding), never an exception message"
+    },
+    {
+      "site": "src/studio/agentHost.ts#agentHarnessRefusal",
+      "kind": 2,
+      "template": "`The wizard is routed to ${harness} (${model}) under Models per task, but ${reason}. `",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "CR-J7: the reason is one of the host's own sentences (no status, no bridge, a hold, an unlisted model), shown in the author's wizard; no raw error text"
+    },
+    {
+      "site": "src/services/stHost/harness.ts#pluginRefusal",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "CR-J13: a 403 body that is not the plugin's JSON {error} is SillyTavern's own refusal; the caller names it as a stale page"
+    },
+    {
+      "site": "src/runtime/pluginVersionCheck.ts#checkPluginVersions",
+      "kind": 3,
+      "template": ".catch(() => null)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "CR-J5: an unreadable plugin status is not a version mismatch; the capability probe reports the absent plugin"
     }
   ]
 }

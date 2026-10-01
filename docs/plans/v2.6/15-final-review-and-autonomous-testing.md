@@ -102,3 +102,26 @@ The user is away until their quota returns. Their instructions, verbatim in subs
 - Spanish cleanup: mid-edit, uncommitted.
 
 Resume each from its worktree.
+
+**User decisions 2026-10-01:**
+- CR-J3: remote judge calls wait for the privacy notice to be acknowledged. The fallback is `unacknowledged`; defaults stay on; the tests acknowledge on each lane.
+- Judge floors after W25: re-measure in English. Add English cases to restore the fixture sizes, re-run those calibrations live, and switch off by default any use still below its floor.
+
+**Resume state 2026-10-01 ~03:00:** the agents hit the spend limit (it resets 03:40).
+
+Done, not merged:
+- CR-J fixes `90f18ec6` (worktree-agent-a3b1aaf70b19da31e)
+- CR-E fixes `2b29adac` (worktree-agent-a81ceb8cb64fe9382)
+- autonomous driver `28f6611b` (worktree-agent-a671434510713dec8)
+
+Stopped mid-work, resume from the worktree:
+- UI fixes CR-U (worktree-agent-a0dd5baa53414f025)
+- plans/infra CR-P (worktree-agent-a323ec591f8ac9052)
+- campaign readiness (lab cleanup done, uncommitted in the campaign repo; seed lane 4 from `C:/dev/so-sprites-wt`)
+
+Astra report: `C:/dev/so-lanes/reviews/astra-v26-report.md`, still to be triaged and fixed.
+
+Still to do:
+- implement CR-J3 gating and the English re-measure;
+- install plugins (`npm run plugins:install`, then an ST restart);
+- pod, SP7, Part B.

@@ -162,6 +162,7 @@ export function createAgentBridge({ config, env, helpers, host, spawnImpl, killT
         if (session.closing) return session.closing;
         const terminal = event ?? endedEvent(reason);
         session.closed = true;
+        session.release();
         clearTimeout(session.deadlineTimer);
         clearTimeout(session.graceTimer);
         sessions.delete(session.id);
@@ -267,6 +268,15 @@ export function createAgentBridge({ config, env, helpers, host, spawnImpl, killT
 
     const finishRun = (session, run) => {
         if (session.closed) return;
+        const events = run.stdout.split(/\r?\n/).map((line) => line.trim()).filter((line) => line.startsWith('{')).flatMap((line) => {
+            try { return [JSON.parse(line)]; } catch { return []; }
+        });
+        const foreign = events.filter((event) => isToolEvent(event) && !isShimTool(toolNameOf(event))).length;
+        if (foreign) {
+            session.foreign += foreign;
+            void teardown(session, 'refused');
+            return;
+        }
         session.finished = true;
         const kept = run.stdout.split(/\r?\n/).filter((line) => {
             const trimmed = line.trim();
@@ -287,30 +297,45 @@ export function createAgentBridge({ config, env, helpers, host, spawnImpl, killT
         wake(session);
     };
 
-    const countFor = (harness) => [...sessions.values()].filter((session) => session.harness === harness && !session.closed).length;
+    const busy = (harness) => ({ ok: false, kind: 'busy', message: `${harness} already runs ${config.harnesses[harness].concurrency} call(s) or agent session(s); retry shortly` });
+
+    const abandon = (owned, release) => {
+        if (owned) host.noteClosed(owned.harness, helpers.closeOwnedHome(owned, fsImpl));
+        release();
+    };
 
     const open = async (request, { user = 'default-user' } = {}) => {
-        const blocked = await host.ready(request.harness);
-        if (blocked) return { ok: false, ...blocked };
         const ownerKey = `${user}|${request.role}`;
         const previous = owners.get(ownerKey);
-        if (previous && sessions.has(previous)) await teardown(sessions.get(previous), 'replaced');
-        if (countFor(request.harness) >= config.harnesses[request.harness].concurrency) return { ok: false, kind: 'busy', message: `${request.harness} already runs ${config.harnesses[request.harness].concurrency} agent session(s); retry shortly` };
+        const replacing = previous && sessions.has(previous) ? teardown(sessions.get(previous), 'replaced') : null;
+        const release = host.reserve(request.harness);
+        if (!release) {
+            await replacing;
+            return busy(request.harness);
+        }
+        let owned = null;
+        try {
+            const blocked = await host.ready(request.harness, request.model);
+            if (blocked) {
+                release();
+                return { ok: false, ...blocked };
+            }
+            await replacing;
+            owned = helpers.openOwnedHome(request.harness, { tmpRoot: config.tmpRoot, loginFile: host.loginFile(request.harness), model: request.model, cacheDir: host.cacheDir, fsImpl });
+            owned.harness = request.harness;
+            owned.systemFile = path.join(owned.tmp, 'system.txt');
+            fsImpl.writeFileSync(owned.systemFile, request.system, 'utf-8');
+            fsImpl.writeFileSync(path.join(owned.tmp, 'tools.json'), JSON.stringify(request.tools), 'utf-8');
+        } catch (error) {
+            abandon(owned, release);
+            return { ok: false, kind: 'config', message: `the bridge could not prepare its owned home: ${error?.code ?? error?.message ?? 'error'}` };
+        }
+        const toolsFile = path.join(owned.tmp, 'tools.json');
         const id = crypto.randomBytes(16).toString('hex');
         const secret = crypto.randomBytes(32).toString('hex');
-        let owned;
-        try {
-            owned = helpers.openOwnedHome(request.harness, { tmpRoot: config.tmpRoot, loginFile: host.loginFile(request.harness), cacheDir: host.cacheDir, fsImpl });
-        } catch (error) {
-            return { ok: false, kind: 'config', message: `the bridge could not prepare its owned home: ${error.code ?? error.message}` };
-        }
-        owned.systemFile = path.join(owned.tmp, 'system.txt');
-        const toolsFile = path.join(owned.tmp, 'tools.json');
-        fsImpl.writeFileSync(owned.systemFile, request.system, 'utf-8');
-        fsImpl.writeFileSync(toolsFile, JSON.stringify(request.tools), 'utf-8');
         const pipe = pipeFor(id, owned);
         const session = {
-            id, user, ownerKey, role: request.role, harness: request.harness, model: request.model, owned, secret, pipe,
+            id, user, ownerKey, role: request.role, harness: request.harness, model: request.model, owned, secret, pipe, release,
             tools: new Set(request.tools.map((tool) => tool.name)), toolsFile,
             sockets: new Set(), parked: new Map(), events: [], waiters: [], nextCall: 1, foreign: 0,
             callTimeoutMs: request.callTimeoutMs, maxOutputChars: request.maxOutputChars,
@@ -323,7 +348,7 @@ export function createAgentBridge({ config, env, helpers, host, spawnImpl, killT
                 session.server.listen(pipe, () => { session.server.off('error', reject); resolve(); });
             });
         } catch (error) {
-            helpers.closeOwnedHome(owned, fsImpl);
+            abandon(owned, release);
             return { ok: false, kind: 'config', message: `the bridge could not open its local channel: ${error.code ?? error.message}` };
         }
         sessions.set(id, session);

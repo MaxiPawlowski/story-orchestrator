@@ -7,6 +7,7 @@ import type {
   MemoryStoreState, MemoryTier, Provenance, ScoreWeights,
 } from "@memory/index";
 import type { ChapterSettings, ChapterView } from "./chapters";
+import type { SealSkip } from "@memory/reverse";
 import type { OnEnterPost } from "./npcReplyRewind";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
@@ -303,9 +304,7 @@ export interface MemoryRuntimeState extends MemoryStoreState {
   innerBeats?: InnerBeat[];
   chapters?: ChapterRecord[];
   chronicle?: ChronicleState;
-  chapterBridge?: { recordId: string; text: string } | null;
-  chapterRecapSeen?: string | null;
-  chapterSealSkip?: { pathLength: number; messageId: number } | null;
+  chapterSealSkip?: SealSkip | null;
   updatedAt: string;
 }
 

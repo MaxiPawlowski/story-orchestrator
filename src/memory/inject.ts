@@ -117,11 +117,20 @@ export function buildMemoryInjectionBlocks(entries: MemoryEntry[], activeSpeaker
   return buildMemoryInjection(entries, activeSpeakerId, options).blocks;
 }
 
+export const MEMORY_BLOCK_LABELS: Record<MemoryTier, string> = {
+  facts: "[Established facts — true in this story; stay consistent with them]",
+  session_details: "[Details from this session]",
+  short_term: "[Recent events]",
+  scene_history: "[Earlier scenes]",
+};
+
+export const labelMemoryBlock = (tier: MemoryTier, text: string): string => (text ? `${MEMORY_BLOCK_LABELS[tier]}\n${text}` : "");
+
 export function applyMemoryInjection(prompt: PromptSink, entries: MemoryEntry[], activeSpeakerId: string | null, depths: Record<MemoryTier, number>, options: InjectionOptions): TierInjection {
   const injection = buildMemoryInjection(entries, activeSpeakerId, options);
   const { blocks } = injection;
   MEMORY_TIERS.forEach((tier) => {
-    const text = blocks[tier];
+    const text = labelMemoryBlock(tier, blocks[tier]);
     const key = memoryExtensionKey(tier);
     if (text) prompt.setStoryExtensionPrompt(key, text, depths[tier]);
     else prompt.clearStoryExtensionPrompt(key);

@@ -2,15 +2,15 @@ import type { NormalizedStoryV2 } from "@engine/index";
 import { estimateTokens } from "@memory/budget";
 import { renderChronicle } from "@memory/chronicle";
 import type { ArcEntry, ChapterRecord, EraLine } from "@memory/types";
-import { buildChapterView, chapterOf, chapterSettings, jumpSeal, liveSkip, playerTitleOf, sealTarget, type ChapterSettings } from "./chapters";
-import type { ChapterHost, ChapterPort } from "./chapterPort";
+import { buildChapterView, chapterNumber, chapterOf, chapterSettings, jumpSeal, liveSkip, playerTitleOf, sealTarget, type ChapterSettings, type SealSkip } from "./chapters";
+import { sealAtState, type ChapterHost, type ChapterPort } from "./chapterPort";
 import { withholds } from "./generationLifecycle";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { PromptHost } from "./hostPorts";
-import { unfoldAt } from "@memory/chapterUnfold";
+import { commitRecordBridge, markRecapSeen, pendingBridge, pushSealSkip, unfoldAt } from "@memory/chapterUnfold";
 
 import { chronicleMarkdown } from "@memory/chronicle";
-import { registerHostMacro, showChoicePopup, showTextPopup, unregisterHostMacro } from "@services/STAPI";
+import { getContext, registerHostMacro, showChoicePopup, showTextPopup, unregisterHostMacro } from "@services/STAPI";
 import { exportState } from "./stateExport";
 import { previouslyText } from "./narrative";
 import { beginRun } from "./runToken";
@@ -34,10 +34,12 @@ export async function chapterSlash(manager: RuntimeManager, command: string, arg
   if (command === "cp-unseal") return show((await manager.chapters.unseal(arg ?? "")) ? `Unsealed ${arg}` : "Usage: /cp unseal <recordId> — only the newest record can be unsealed");
   if (command === "chapters") return dump(chapterListText(manager.getStory(), records, snapshot.activeCheckpointId ?? undefined));
   if (command === "chapter") {
-    const record = records[Number(arg) - 1];
-    return dump(record ? `${record.playerTitle}\n\n${record.summary}${record.epilogue ? `\n\n${record.epilogue}` : ""}` : "Usage: /story chapter <n> — /story chapters lists them");
+    const parts = recordsForChapter(manager.getStory(), records, Number(arg));
+    const text = parts.map((record) => `${record.playerTitle}\n\n${record.summary}${record.epilogue ? `\n\n${record.epilogue}` : ""}`).join("\n\n");
+    return dump(text || "Usage: /story chapter <n> — /story chapters lists them");
   }
-  const text = chronicleMarkdown(snapshot.storyTitle ?? "Story", records, { author: snapshot.ui.authorView });
+  const story = manager.getStory();
+  const text = chronicleMarkdown(snapshot.storyTitle ?? "Story", records, { author: snapshot.ui.authorView, number: (record) => chapterNumber(story, record.chapterId) });
   const copied = { ok: "The chronicle is on your clipboard", fallback: "Could not reach the clipboard; the chronicle is in the console" };
   await exportState({ writeClipboard: (value) => navigator.clipboard.writeText(value), toast: window.toastr ?? {}, log: (value) => log.info(value) }, text, copied);
   return text;
@@ -46,8 +48,8 @@ export async function chapterSlash(manager: RuntimeManager, command: string, arg
 export function showPreviously(port: ChapterPort): boolean {
   const memory = port.host.memory();
   const record = (memory.chapters ?? []).at(-1);
-  if (!record || !chapterSettings(memory.settings.chapters).recap || memory.chapterRecapSeen === record.id) return false;
-  port.host.patch({ chapterRecapSeen: record.id });
+  if (!record || !chapterSettings(memory.settings.chapters).recap || record.recapSeenAt !== undefined) return false;
+  port.host.patch({ chapters: markRecapSeen(memory.chapters ?? [], record.id, chatLastMessageId()) });
   void port.host.save();
   showTextPopup(previouslyText(record.playerTitle, record.summary), { okButton: "Continue" });
   return true;
@@ -63,6 +65,11 @@ export function registerChapterMacros(manager: RuntimeManager): () => void {
   macros.forEach(([key, read, what]) => registerHostMacro(key, read, `Story Orchestrator: ${what}`));
   return () => macros.forEach(([key]) => unregisterHostMacro(key));
 }
+
+const chatLastMessageId = (): number => {
+  const chat = getContext()?.chat;
+  return Array.isArray(chat) ? chat.length - 1 : -1;
+};
 
 const settingsOf = (host: ChapterHost) => chapterSettings(host.memory().settings.chapters);
 const recordsOf = (host: ChapterHost) => host.memory().chapters ?? [];
@@ -89,14 +96,12 @@ export async function confirmChapterJump(port: ChapterPort, targetId: string): P
   const run = beginRun(port.host.deps.ownership);
   const choice = await showChoicePopup(text, { okButton: { id: "seal" as const, label: "Seal it, then jump" }, choices: [{ id: "skip" as const, label: "Jump without sealing" }] });
   if (!choice || !run.stillOwns()) return "cancel";
-  if (choice === "seal") await port.seal(target, { boundary: state.boundary, messageId: state.lastMessageId, pathLength: state.visitedPath.length + 1 });
+  if (choice === "seal") await port.seal(target, sealAtState(state, { pathLength: state.visitedPath.length + 1, path: [...state.visitedPath, targetId], activeCheckpointId: targetId }));
   return choice;
 }
 
-export function markSealSkip(port: ChapterPort) {
-  const state = port.host.deps.getState();
-  if (!state) return;
-  port.host.patch({ chapterSealSkip: { pathLength: state.visitedPath.length, messageId: state.lastMessageId } });
+export function markSealSkip(port: ChapterPort, skip: SealSkip) {
+  port.host.patch({ chapterSealSkip: pushSealSkip(port.host.memory().chapterSealSkip, skip) });
   void port.host.save();
 }
 
@@ -124,7 +129,7 @@ export function inject(port: ChapterPort, prompt: PromptHost, on: boolean): Map<
 
 export function carryBridge(port: ChapterPort, type: unknown) {
   const memory = port.host.memory();
-  const bridge = !withholds(type) && memory.settings.enabled ? memory.chapterBridge ?? null : null;
+  const bridge = !withholds(type) && memory.settings.enabled ? pendingBridge(memory.chapters ?? []) : null;
   port.carried = bridge?.recordId ?? null;
   if (bridge) port.host.deps.hosts.prompt.setStoryExtensionPrompt(INJECTION_REGISTRY.chapterBridge.key, bridge.text, INJECTION_REGISTRY.chapterBridge.depth);
 }
@@ -133,8 +138,8 @@ export function commitBridge(port: ChapterPort, rendered: boolean) {
   const carried = port.carried;
   port.carried = null;
   port.host.deps.hosts.prompt.clearStoryExtensionPrompt(INJECTION_REGISTRY.chapterBridge.key);
-  if (!rendered || !carried || port.host.memory().chapterBridge?.recordId !== carried) return;
-  port.host.patch({ chapterBridge: null });
+  if (!rendered || !carried || pendingBridge(recordsOf(port.host))?.recordId !== carried) return;
+  port.host.patch({ chapters: commitRecordBridge(recordsOf(port.host), carried, chatLastMessageId()) });
   void port.host.save();
 }
 
@@ -288,7 +293,10 @@ export function returningLines(story: NormalizedStoryV2 | null, records: readonl
 export function chapterListText(story: NormalizedStoryV2 | null, records: readonly ChapterRecord[], activeCheckpointId: string | undefined): string {
   if (!records.length) return "No chapter has ended yet.";
   const current = chapterOf(story, activeCheckpointId);
-  const lines = records.map((record, index) => `${index + 1}. ${record.playerTitle} — ${record.short}`);
-  if (current && !records.some((record) => record.final)) lines.push(`Now: ${playerTitleOf(current)}`);
+  const lines = records.map((record) => `${chapterNumber(story, record.chapterId)}. ${record.playerTitle} — ${record.short}`);
+  if (current && !records.some((record) => record.final)) lines.push(`Now: ${current.kind === "interlude" ? "" : `${chapterNumber(story, current.id)}. `}${playerTitleOf(current)}`);
   return lines.join("\n");
 }
+
+export const recordsForChapter = (story: NormalizedStoryV2 | null, records: readonly ChapterRecord[], number: number): ChapterRecord[] =>
+  records.filter((record) => chapterNumber(story, record.chapterId) === number);

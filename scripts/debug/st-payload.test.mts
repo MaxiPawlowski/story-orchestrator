@@ -15,7 +15,7 @@ import assert from 'node:assert/strict';
 import { readFile, rm, mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { armPayloadCapture, persistPayloads, drainPayloads, watchPayloads } from './st-payload.mts';
+import { armPayloadCapture, persistPayloads, drainPayloads, drainResponses, watchPayloads } from './st-payload.mts';
 
 const RING = 100;
 
@@ -34,7 +34,7 @@ function freshPage() {
 
 // One captured generation request, through whatever fetch the arm installed.
 const generate = (tag: string) => globalThis.fetch('/api/backends/text-completions/generate', { method: 'POST', body: JSON.stringify({ tag }) } as any);
-const tags = (rows: any[]) => rows.map((row) => row.parsedBody?.tag ?? JSON.parse(row.body).tag);
+const tags = (rows: any[]) => rows.filter((row) => row.kind !== 'response').map((row) => row.parsedBody?.tag ?? JSON.parse(row.body).tag);
 
 beforeEach(async () => {
   freshPage();
@@ -283,4 +283,68 @@ test('watch prints the number of rows asked for, not index arithmetic', async ()
   }
   assert.equal(printed.length, 2, 'watch 2 must print exactly two rows');
   assert.deepEqual(printed.map((line) => JSON.parse(line).parsedBody.tag), ['new-1', 'new-2'], 'and only captures made after arming');
+});
+
+test('responses: a profile route answer is captured with its request index, body and status', async () => {
+  globalThis.fetch = (async () => ({
+    status: 200, ok: true, headers: { get: () => 'application/json' },
+    clone: () => ({ text: async () => JSON.stringify({ usage: { prompt_tokens: 12, completion_tokens: 3 }, choices: [{ message: { content: 'DELTA x' } }] }) }),
+  })) as any;
+  delete (globalThis as any).__soDebugPayloads;
+  await armPayloadCapture(fakePage);
+  await generate('deepseek-read');
+  await new Promise((done) => setTimeout(done, 0));
+  const frame = await drainResponses(fakePage, 0);
+  assert.equal(frame.entries.length, 1);
+  const [row] = frame.entries;
+  assert.equal(row.kind, 'response');
+  assert.equal(row.requestIndex, 0);
+  assert.equal(row.status, 200);
+  assert.equal(row.streamed, false);
+  assert.equal(JSON.parse(row.text).usage.completion_tokens, 3);
+});
+
+test('responses: a streamed answer is kept as text and marked streamed; an unreadable body is null, not dropped', async () => {
+  let call = 0;
+  globalThis.fetch = (async () => {
+    call += 1;
+    return call === 1
+      ? { status: 200, ok: true, headers: { get: () => 'text/event-stream' }, clone: () => ({ text: async () => 'data: {"token":"Hi"}' }) }
+      : { status: 500, ok: false, headers: { get: () => 'application/json' }, clone: () => ({ text: async () => { throw new Error('locked'); } }) };
+  }) as any;
+  delete (globalThis as any).__soDebugPayloads;
+  await armPayloadCapture(fakePage);
+  await generate('stream');
+  await generate('broken');
+  await new Promise((done) => setTimeout(done, 0));
+  const rows = (await drainResponses(fakePage, 0)).entries;
+  assert.deepEqual(rows.map((row: any) => [row.requestIndex, row.streamed, row.text, row.status]), [[0, true, 'data: {"token":"Hi"}', 200], [1, false, null, 500]]);
+});
+
+test('persist writes response rows beside their requests, once each', async () => {
+  globalThis.fetch = (async () => ({ status: 200, ok: true, headers: { get: () => 'application/json' }, clone: () => ({ text: async () => '{"choices":[]}' }) })) as any;
+  delete (globalThis as any).__soDebugPayloads;
+  await armPayloadCapture(fakePage);
+  const dir = await mkdtemp(join(tmpdir(), 'so-payload-'));
+  const out = join(dir, 'session.jsonl');
+  await generate('a');
+  let poll = 0;
+  try {
+    const result = await persistPayloads(fakePage, {
+      out,
+      intervalMs: 0,
+      shouldStop: () => {
+        poll += 1;
+        if (poll === 1) void generate('b');
+        return poll >= 3;
+      },
+    });
+    const rows = (await readFile(out, 'utf-8')).trim().split('\n').map((line) => JSON.parse(line));
+    assert.deepEqual(tags(rows), ['a', 'b']);
+    assert.deepEqual(rows.filter((row) => row.kind === 'response').map((row) => row.requestIndex), [0, 1]);
+    assert.equal(result.written, 2);
+    assert.equal(result.responses, 2);
+  } finally {
+    await rm(dir, { recursive: true, force: true });
+  }
 });

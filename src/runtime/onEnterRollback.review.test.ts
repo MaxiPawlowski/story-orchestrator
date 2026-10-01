@@ -104,6 +104,14 @@ describe("v2.6 plan 04 C12: the onEnter reply a transition posted belongs to tha
     expect(quiet.onEnterPosts).toBeUndefined();
   });
 
+  it("CR-E6: another member's reply at gate+1 is not part of the opener; the post starts where the opener was sent", async () => {
+    const applier = new EffectsApplier(testOwnership());
+    host.chat = rows(7);
+    const extras = extrasFor();
+    await applier.applyCheckpoint(story, story.checkpointById.hall, extras, {} as never, "activate", ["road", "hall"], 5);
+    expect(extras.onEnterPosts).toEqual([{ checkpointId: "hall", gate: 5, first: 7, last: 7 }]);
+  });
+
   it("the cut runs only while the opener is still the tail and the run still owns the chat", async () => {
     const applier = new EffectsApplier(testOwnership());
     host.chat = rows(8);

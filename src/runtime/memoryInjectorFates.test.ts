@@ -1,4 +1,4 @@
-import type { MemoryEntry } from "@memory/index";
+import { labelMemoryBlock, type MemoryEntry } from "@memory/index";
 import { MemoryInjector } from "./memoryInjector";
 import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
@@ -45,7 +45,7 @@ describe("memory fates ride the injection that wrote the blocks (v2.4 plan 08 T1
     expect(injector.readModels().memoryInjection).toBeNull();
     injector.update();
     expect(injector.readModels().memoryInjection?.fates).toEqual({ a: "injected", q: "quarantined" });
-    expect(setStoryExtensionPrompt).toHaveBeenCalledWith(expect.stringContaining("facts"), "The sun-key opens the sanctum.", 4);
+    expect(setStoryExtensionPrompt).toHaveBeenCalledWith(expect.stringContaining("facts"), labelMemoryBlock("facts", "The sun-key opens the sanctum."), 4);
   });
 
   it("refreshes the fates on the next update, never lagging the block", () => {

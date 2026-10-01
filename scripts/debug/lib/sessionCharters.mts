@@ -9,7 +9,8 @@ export const JUDGE_USES = [
   'director', 'memoryVerify', 'memoryPairs', 'sceneTrigger', 'sceneTracker', 'lookahead', 'loreSelect', 'curatorFilter', 'typedExtraction',
   'stallCheck', 'expansionCritic', 'expansionLookahead', 'agencyCheck', 'houseRules', 'loreExclusive', 'expressions',
 ] as const;
-export const SETTING_KEYS = ['judge', 'inlineLevel', 'images', 'sprites', 'innerVoice', 'chapters', 'curator', 'announceTransitions', 'viewport', 'raw'] as const;
+export const SETTING_KEYS = ['judge', 'inlineLevel', 'images', 'sprites', 'innerHarvest', 'innerBeat', 'chapters', 'curator', 'announceTransitions', 'viewport', 'raw'] as const;
+export const USER_REVIEW = 'recorded for the user\'s review';
 export const CHAPTER_KEYS = ['seal', 'storySoFar', 'fold', 'recap'] as const;
 
 export interface StoryIndexEntry {
@@ -33,7 +34,8 @@ export interface CardSettings {
   inlineLevel?: number;
   images?: boolean;
   sprites?: boolean;
-  innerVoice?: boolean;
+  innerHarvest?: boolean;
+  innerBeat?: boolean;
   chapters?: Partial<Record<(typeof CHAPTER_KEYS)[number], boolean>>;
   curator?: { enabled?: boolean; acceptMode?: 'review' | 'auto' | 'off' };
   announceTransitions?: boolean;
@@ -43,14 +45,14 @@ export interface CardSettings {
 
 export interface DriveBeat { title: string; aim: string[]; why?: string; lines: string[] }
 export interface LookFor { what: string; where: string }
-export interface RubricRow { feature: string; ask?: string }
+export interface RubricRow { feature: string; ask?: string; reviewer?: 'user' }
 
 export interface Card {
   id: string;
   tier: Tier;
   title: string;
   question: string;
-  story: { kind: (typeof STORY_KINDS)[number]; id?: string; premise?: string };
+  story: { kind: (typeof STORY_KINDS)[number]; id?: string; premise?: string; premiseId?: string };
   setup: {
     mode: 'player' | 'author';
     persona: string;
@@ -73,6 +75,7 @@ export interface Card {
   rubric: RubricRow[];
   loggedAutomatically: string[];
   knownLimits: string[];
+  waits?: string;
 }
 
 export interface CardDoc { version: number; pin: string; cards: Card[] }
@@ -109,7 +112,7 @@ function settingsProblems(where: string, settings: unknown, mode: string): strin
     if (![0, 1, 2, 3, 4].includes(settings.inlineLevel)) problems.push(`${where}: inlineLevel must be 0..4`);
     else if (settings.inlineLevel > 2 && mode !== 'author') problems.push(`${where}: inlineLevel ${settings.inlineLevel} needs author mode (player view caps at 2)`);
   }
-  for (const key of ['images', 'sprites', 'innerVoice', 'announceTransitions']) {
+  for (const key of ['images', 'sprites', 'innerHarvest', 'innerBeat', 'announceTransitions']) {
     if (settings[key] !== undefined && typeof settings[key] !== 'boolean') problems.push(`${where}: ${key} must be boolean`);
   }
   if (settings.chapters !== undefined) {
@@ -128,7 +131,9 @@ function settingsProblems(where: string, settings: unknown, mode: string): strin
   return problems;
 }
 
-export function validateCardDoc(doc: unknown, index: StoryIndex): string[] {
+export interface Premise { id: string; text: string }
+
+export function validateCardDoc(doc: unknown, index: StoryIndex, premises: Premise[] | null = null): string[] {
   if (!isRecord(doc)) return ['the charter file is not an object'];
   const problems: string[] = [];
   if (doc.version !== CARD_FORMAT) problems.push(`version must be ${CARD_FORMAT}`);
@@ -152,6 +157,12 @@ export function validateCardDoc(doc: unknown, index: StoryIndex): string[] {
     const entry = storyEntry(card, index);
     if (card.story.kind !== 'wizard' && !entry) problems.push(`${where}: story "${String(card.story.id)}" is not in the pinned ${card.story.kind === 'adolion' ? 'Adolion build' : 'examples'}`);
     if (card.story.kind === 'wizard' && card.story.id !== undefined) problems.push(`${where}: a wizard story has no id until the wizard makes it`);
+    if (card.story.premiseId !== undefined && premises) {
+      const premise = premises.find((candidate) => candidate.id === card.story.premiseId);
+      if (!premise) problems.push(`${where}: premise "${card.story.premiseId}" is not in test/measurements/11/premises.json`);
+      else if (card.story.premise !== premise.text) problems.push(`${where}: story.premise must be the text of premise "${premise.id}" verbatim`);
+    }
+    if (card.waits !== undefined && !nonEmptyString(card.waits)) problems.push(`${where}: waits must say what the card waits on`);
     const setup = card.setup;
     if (!isRecord(setup)) problems.push(`${where}: setup is required`);
     else {
@@ -191,7 +202,10 @@ export function validateCardDoc(doc: unknown, index: StoryIndex): string[] {
       else if (!(WHERE as readonly string[]).includes(item.where)) problems.push(`${where} lookFor[${at}]: where must be one of ${WHERE.join(', ')}`);
     });
     if (!Array.isArray(card.rubric) || !card.rubric.length) problems.push(`${where}: rubric needs at least one row`);
-    else card.rubric.forEach((row, at) => { if (!isRecord(row) || !nonEmptyString(row.feature)) problems.push(`${where} rubric[${at}]: feature is required`); });
+    else card.rubric.forEach((row, at) => {
+      if (!isRecord(row) || !nonEmptyString(row.feature)) problems.push(`${where} rubric[${at}]: feature is required`);
+      else if (row.reviewer !== undefined && row.reviewer !== 'user') problems.push(`${where} rubric[${at}]: reviewer may only be "user"`);
+    });
     seen.set(card.id, card);
   }
   return problems;
@@ -231,7 +245,8 @@ export function settingsPatch(settings: CardSettings = {}): Record<string, any> 
   else if (isRecord(settings.judge)) patch.judge = { uses: { ...settings.judge } };
   if (settings.inlineLevel !== undefined) patch.display = { ...(patch.display ?? {}), inline: { level: settings.inlineLevel } };
   if (settings.announceTransitions !== undefined) patch.display = { ...(patch.display ?? {}), announceTransitions: settings.announceTransitions };
-  if (settings.innerVoice !== undefined) patch.memory = { ...(patch.memory ?? {}), innerBeat: settings.innerVoice };
+  if (settings.innerHarvest !== undefined) patch.memory = { ...(patch.memory ?? {}), harvestReasoning: settings.innerHarvest };
+  if (settings.innerBeat !== undefined) patch.memory = { ...(patch.memory ?? {}), innerBeat: settings.innerBeat };
   if (settings.chapters) patch.memory = { ...(patch.memory ?? {}), chapters: { ...settings.chapters } };
   if (settings.curator) patch.stagecraft = {
     ...(settings.curator.enabled !== undefined ? { curatorEnabled: settings.curator.enabled } : {}),
@@ -248,15 +263,36 @@ export function rubricTemplate(card: Card, session: Record<string, unknown> = {}
     title: card.title,
     session,
     scores: [...RUBRIC_SCORES],
-    rows: card.rubric.map((row) => ({ feature: row.feature, ...(row.ask ? { ask: row.ask } : {}), score: null as string | null, note: '' })),
+    rows: card.rubric.map((row) => ({
+      feature: row.feature,
+      ...(row.ask ? { ask: row.ask } : {}),
+      ...(row.reviewer ? { reviewer: row.reviewer, status: USER_REVIEW } : {}),
+      score: null as string | null,
+      note: '',
+      evidence: [] as string[],
+      scoredBy: null as string | null,
+    })),
+    playerClean: null as unknown,
   };
 }
 
 export function rubricProblems(rubric: unknown): string[] {
   if (!isRecord(rubric) || !Array.isArray(rubric.rows)) return ['rubric has no rows'];
   return rubric.rows.flatMap((row: any, at: number) => {
-    if (row.score === null) return [`row ${at} (${row.feature}) is unscored`];
-    return (RUBRIC_SCORES as readonly string[]).includes(row.score) ? [] : [`row ${at} (${row.feature}) has score "${row.score}"`];
+    const label = `row ${at} (${row.feature})`;
+    const evidence = Array.isArray(row.evidence) ? row.evidence : [];
+    if (row.reviewer === 'user') {
+      if (row.score !== null && row.score !== undefined) return [`${label} is ${USER_REVIEW}: it carries no score from ${row.scoredBy ?? 'anyone'}`];
+      if (!nonEmptyString(row.note) || !evidence.length) return [`${label} is ${USER_REVIEW} but nothing was recorded (note and evidence)`];
+      return [];
+    }
+    if (row.score === null || row.score === undefined) return [`${label} is unscored`];
+    if (!(RUBRIC_SCORES as readonly string[]).includes(row.score)) return [`${label} has score "${row.score}"`];
+    const problems: string[] = [];
+    if (!nonEmptyString(row.note)) problems.push(`${label} has no note`);
+    if (!evidence.length) problems.push(`${label} cites no evidence`);
+    if (!nonEmptyString(row.scoredBy)) problems.push(`${label} does not say who scored it`);
+    return problems;
   });
 }
 
@@ -272,7 +308,8 @@ const settingsText = (settings: CardSettings = {}) => {
   else if (isRecord(settings.judge)) parts.push(`judge: ${Object.entries(settings.judge).map(([use, on]) => `${use} ${on ? 'on' : 'off'}`).join(', ')}`);
   if (settings.inlineLevel !== undefined) parts.push(`timeline level ${settings.inlineLevel}`);
   parts.push(`images ${settings.images ? 'ON' : 'off'}`, `sprites ${settings.sprites ? 'ON' : 'off'}`);
-  if (settings.innerVoice !== undefined) parts.push(`inner voice ${settings.innerVoice ? 'on' : 'off'}`);
+  if (settings.innerHarvest !== undefined) parts.push(`inner voice harvest (#so-inner-harvest) ${settings.innerHarvest ? 'on' : 'off'}`);
+  if (settings.innerBeat !== undefined) parts.push(`inner voice beat (#so-inner-beat) ${settings.innerBeat ? 'on' : 'off'}`);
   if (settings.chapters) parts.push(`chapters: ${Object.entries(settings.chapters).map(([key, on]) => `${key} ${on ? 'on' : 'off'}`).join(', ')}`);
   if (settings.curator) parts.push(`curator ${settings.curator.enabled === false ? 'off' : 'on'}${settings.curator.acceptMode ? ` (${settings.curator.acceptMode})` : ''}`);
   if (settings.announceTransitions !== undefined) parts.push(`chat note on transitions ${settings.announceTransitions ? 'on' : 'off'}`);
@@ -282,7 +319,7 @@ const settingsText = (settings: CardSettings = {}) => {
 };
 
 const storyText = (card: Card, index: StoryIndex) => {
-  if (card.story.kind === 'wizard') return `a new story from the wizard${card.story.premise ? `: "${card.story.premise}"` : ''}`;
+  if (card.story.kind === 'wizard') return `a new story from the wizard${card.story.premise ? `: "${card.story.premise}"` : ''}${card.story.premiseId ? ` (premise \`${card.story.premiseId}\`)` : ''}`;
   const entry = storyEntry(card, index);
   return `\`${card.story.id}\`${entry ? ` (${entry.title})` : ''}`;
 };
@@ -290,7 +327,9 @@ const storyText = (card: Card, index: StoryIndex) => {
 export function renderCard(card: Card, index: StoryIndex): string {
   const entry = storyEntry(card, index);
   const setup = card.setup;
-  const lines: string[] = [`### ${card.id} ${card.title}`, '', `- **Question:** ${card.question}`, '- **Setup:**'];
+  const lines: string[] = [`### ${card.id} ${card.title}`, ''];
+  if (card.waits) lines.push(`> **Waits:** ${card.waits}`, '');
+  lines.push(`- **Question:** ${card.question}`, '- **Setup:**');
   lines.push(`  - Story: ${storyText(card, index)}; ${setup.chat === 'continue' ? `continues the ${setup.continues} chat` : `fresh chat${setup.chats === 2 ? ' (two of them)' : ''}`}; ${setup.mode} mode.`);
   if (setup.also) lines.push(`  - Also open: a fresh \`${setup.also}\` chat (${index.stories[setup.also]?.title ?? ''}).`);
   lines.push(`  - Persona: ${setup.persona}`);
@@ -310,7 +349,7 @@ export function renderCard(card: Card, index: StoryIndex): string {
   lines.push('- **Provocations:**', ...(card.provocations.length ? card.provocations.map((item) => `  - ${item}`) : ['  - none for this session']));
   lines.push('- **Flag when:**', ...card.flagWhen.map((item) => `  - ${item}`));
   lines.push(`- **Stop when:** ${card.stopWhen}`);
-  lines.push('- **Rubric** (score each works / annoying / broken / not noticed, with a note):', ...card.rubric.map((row) => `  - ${row.feature}${row.ask ? `: ${row.ask}` : ''}`));
+  lines.push('- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):', ...card.rubric.map((row) => `  - ${row.feature}${row.ask ? `: ${row.ask}` : ''}${row.reviewer === 'user' ? ` (${USER_REVIEW}, not decided by Claude)` : ''}`));
   lines.push('- **Logged automatically:**', ...card.loggedAutomatically.map((item) => `  - ${item}`));
   lines.push('- **Known limits:**', ...card.knownLimits.map((item) => `  - ${item}`));
   return lines.join('\n');

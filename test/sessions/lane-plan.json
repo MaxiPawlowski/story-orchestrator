@@ -1,0 +1,421 @@
+{
+  "lanes": [
+    1,
+    2,
+    3,
+    4
+  ],
+  "assignments": [
+    {
+      "card": "T0-1",
+      "tier": "T0",
+      "lane": 1,
+      "order": 0,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T0-2",
+      "tier": "T0",
+      "lane": 1,
+      "order": 1,
+      "seed": false,
+      "reason": "continues T0-1 on its lane",
+      "waits": null
+    },
+    {
+      "card": "T0-3",
+      "tier": "T0",
+      "lane": 2,
+      "order": 2,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T1-1",
+      "tier": "T1",
+      "lane": 3,
+      "order": 3,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T1-2",
+      "tier": "T1",
+      "lane": 4,
+      "order": 4,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T1-3",
+      "tier": "T1",
+      "lane": 2,
+      "order": 5,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T1-4",
+      "tier": "T1",
+      "lane": 4,
+      "order": 6,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T1-5",
+      "tier": "T1",
+      "lane": 1,
+      "order": 7,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T1-6",
+      "tier": "T1",
+      "lane": 2,
+      "order": 8,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T1-7",
+      "tier": "T1",
+      "lane": 4,
+      "order": 9,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T2-1",
+      "tier": "T2",
+      "lane": 1,
+      "order": 10,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T2-2",
+      "tier": "T2",
+      "lane": 2,
+      "order": 11,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T2-3",
+      "tier": "T2",
+      "lane": 1,
+      "order": 12,
+      "seed": false,
+      "reason": "continues T2-1 on its lane",
+      "waits": null
+    },
+    {
+      "card": "T2-4",
+      "tier": "T2",
+      "lane": 3,
+      "order": 13,
+      "seed": false,
+      "reason": "continues T1-1 on its lane",
+      "waits": null
+    },
+    {
+      "card": "T2-5",
+      "tier": "T2",
+      "lane": 1,
+      "order": 14,
+      "seed": false,
+      "reason": "continues T2-1 on its lane",
+      "waits": null
+    },
+    {
+      "card": "T2-6",
+      "tier": "T2",
+      "lane": 3,
+      "order": 15,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T3-1",
+      "tier": "T3",
+      "lane": 3,
+      "order": 16,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T3-2",
+      "tier": "T3",
+      "lane": 3,
+      "order": 17,
+      "seed": false,
+      "reason": "continues T3-1 on its lane",
+      "waits": null
+    },
+    {
+      "card": "T3-3",
+      "tier": "T3",
+      "lane": 4,
+      "order": 18,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T3-4",
+      "tier": "T3",
+      "lane": 2,
+      "order": 19,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T3-5",
+      "tier": "T3",
+      "lane": 4,
+      "order": 20,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T3-6",
+      "tier": "T3",
+      "lane": 2,
+      "order": 21,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T4-1",
+      "tier": "T4",
+      "lane": 3,
+      "order": 22,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T4-2",
+      "tier": "T4",
+      "lane": 4,
+      "order": 23,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T4-3",
+      "tier": "T4",
+      "lane": 1,
+      "order": 24,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T4-4",
+      "tier": "T4",
+      "lane": 2,
+      "order": 25,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T5-1",
+      "tier": "T5",
+      "lane": 3,
+      "order": 26,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T5-2",
+      "tier": "T5",
+      "lane": 4,
+      "order": 27,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T5-3",
+      "tier": "T5",
+      "lane": 3,
+      "order": 28,
+      "seed": false,
+      "reason": "continues T5-1 on its lane",
+      "waits": null
+    },
+    {
+      "card": "T5-4",
+      "tier": "T5",
+      "lane": 3,
+      "order": 29,
+      "seed": false,
+      "reason": "continues T5-1 on its lane",
+      "waits": null
+    },
+    {
+      "card": "T5-5",
+      "tier": "T5",
+      "lane": 1,
+      "order": 30,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T6-1",
+      "tier": "T6",
+      "lane": 2,
+      "order": 31,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": "plan 05 R3: docs/plans/v2.6/recommended-reasoning.md (the recommended reasoning table) does not exist yet."
+    },
+    {
+      "card": "T6-2",
+      "tier": "T6",
+      "lane": 4,
+      "order": 32,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": "plan 12: docs/plans/v2.6/12-provider-matrix.md (the recommended provider per use) does not exist yet."
+    },
+    {
+      "card": "T6-3",
+      "tier": "T6",
+      "lane": 1,
+      "order": 33,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T6-4",
+      "tier": "T6",
+      "lane": 2,
+      "order": 34,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    },
+    {
+      "card": "T7",
+      "tier": "T7",
+      "lane": 4,
+      "order": 35,
+      "seed": true,
+      "reason": "fresh: seeds its lane with adolion-fresh",
+      "waits": null
+    }
+  ],
+  "queues": {
+    "1": [
+      "T0-1",
+      "T0-2",
+      "T1-5",
+      "T2-1",
+      "T2-3",
+      "T2-5",
+      "T4-3",
+      "T5-5",
+      "T6-3"
+    ],
+    "2": [
+      "T0-3",
+      "T1-3",
+      "T1-6",
+      "T2-2",
+      "T3-4",
+      "T3-6",
+      "T4-4",
+      "T6-1",
+      "T6-4"
+    ],
+    "3": [
+      "T1-1",
+      "T2-4",
+      "T2-6",
+      "T3-1",
+      "T3-2",
+      "T4-1",
+      "T5-1",
+      "T5-3",
+      "T5-4"
+    ],
+    "4": [
+      "T1-2",
+      "T1-4",
+      "T1-7",
+      "T3-3",
+      "T3-5",
+      "T4-2",
+      "T5-2",
+      "T6-2",
+      "T7"
+    ]
+  },
+  "reservations": [
+    {
+      "lane": 1,
+      "holder": "T0-1",
+      "until": [
+        "T0-2"
+      ]
+    },
+    {
+      "lane": 3,
+      "holder": "T1-1",
+      "until": [
+        "T2-4"
+      ]
+    },
+    {
+      "lane": 1,
+      "holder": "T2-1",
+      "until": [
+        "T2-3",
+        "T2-5"
+      ]
+    },
+    {
+      "lane": 3,
+      "holder": "T3-1",
+      "until": [
+        "T3-2"
+      ]
+    },
+    {
+      "lane": 3,
+      "holder": "T5-1",
+      "until": [
+        "T5-3",
+        "T5-4"
+      ]
+    }
+  ],
+  "problems": [],
+  "writtenAt": "2026-10-01T02:43:16.431Z"
+}

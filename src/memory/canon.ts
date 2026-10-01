@@ -28,7 +28,7 @@ export function buildCanonSummaryPrompt(storyTitle: string, arcSummaries: string
   return [
     "Write plain TEXT ONLY. Do NOT continue the roleplay or speak as any character. You are writing a document.",
     "Write a canon summary for the story below: a stable narrative document capturing the essential truth of what has happened and where things stand.",
-    "Base everything strictly on the source material above — do not invent facts. Write in past tense, narrative style.",
+    "Base everything strictly on the source material below — do not invent facts. Write in past tense, narrative style.",
     "Structure the output as three labelled paragraphs:",
     "WHAT HAS HAPPENED:",
     "[the key events and resolved arcs so far]",
