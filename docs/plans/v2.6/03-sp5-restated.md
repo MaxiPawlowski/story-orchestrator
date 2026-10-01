@@ -88,3 +88,17 @@ check changes.
 - Harness ordering: `solo_chat` opens only from the sandbox group, so the v5 fixture returns to chat A (and settles) before opening chat C (14:10Z, after the second v5 attempt stopped there; C4 A and B had passed).
 - Chat C's no-story check read the snapshot 10 ms after the solo chat opened (still the previous chat's story); it now waits up to 30 s for the runtime to follow the chat change (14:17Z).
 - Chat B: the same wait for the import's scenario row now follows the academy import too (its check ran before the apply finished, 14:20Z; it passed at 14:13Z).
+
+## Addendum 5 2026-10-01 15:15Z — the C1/C2/C3/C5 run (bars unchanged)
+
+- **Bundle:** the shared ST slot's dev build `cc7c9153e48a` (master with the hydrate fix `32527192`), served to lane 2
+  unchanged; lane 2 re-seeded from `adolion-fresh` at campaign pin `59e8821` (saga v12, academy rebuilt), lane server
+  started with `SO_JUDGE_RATE_PER_MIN=15`. No branch route on the lane browser.
+- **C4 option (c)** as in addendum 4; the two adapted expectations are unchanged.
+- **Harness, group switching:** the attempt of 14:20Z stopped in the lab helper's `goto` to chat B, while chat A's
+  125-member saga cast writes were still landing: `openGroupById`/`openGroupChat` returned and the page stayed on A.
+  The helper (run-dir copy of `test/fixtures/interop/v25-09-sp5.js`) now (1) waits for the effect ledger to settle
+  (no growth for 8 s, no `pending` row, ≤ 300 s; the same rule as addendum 2) before any switch, then (2) opens the
+  group, waits for ST's save to settle, opens the chat only once the group lists it, and repeats until the page is on
+  the target or the step's timeout. The chat-B creation step keeps `adoptsNewChat: "other-group"`. No C1–C5 check or
+  pass rule changes. Run ×1 (as C4), stories and helper from the pin.
