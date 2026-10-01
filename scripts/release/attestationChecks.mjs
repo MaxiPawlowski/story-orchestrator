@@ -41,5 +41,5 @@ export function catalogProblems(attested, catalog) {
 export const citedRecords = (attestation) =>
   attestedJourneyIds(attestation).flatMap((id) => [
     ...(attestation.journeys[id].records ?? []),
-    ...(attestation.journeys[id].runs ?? []).flatMap((run) => [run?.record, run?.header].filter((path) => typeof path === "string")),
+    ...(attestation.journeys[id].runs ?? []).flatMap((run) => [run?.record, run?.header, run?.engineHistory].filter((path) => typeof path === "string")),
   ]);

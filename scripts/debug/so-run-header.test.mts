@@ -9,7 +9,7 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { diffHeaders, parseAllow, readBuild, readCampaign, bundleWarning, profileInventory, samplerState, thirdPartyState } from './so-run-header.mts';
+import { diffHeaders, foreignChatGrowth, parseAllow, readBuild, readCampaign, bundleWarning, profileInventory, samplerState, thirdPartyState } from './so-run-header.mts';
 
 const header = (overrides: Record<string, any> = {}) => ({
   label: 'a',
@@ -163,11 +163,41 @@ test('normal play progress does not fail a start/end diff, but is reported', () 
   after.story.activeCheckpointId = 'road-to-wendhope';
   after.story.boundary = 19;
   after.chat.chatLength = 40;
-  const differences = diffHeaders(header(), after);
+  const differences = diffHeaders(header(), after, [], { ownedChats: ['chat-a'] });
   assert.ok(differences.length >= 1);
   assert.ok(differences.every((difference) => difference.allowed && difference.progress), 'a played session must not fail its own header diff');
-  const strict = diffHeaders(header(), after, [], { strictProgress: true });
+  const strict = diffHeaders(header(), after, [], { strictProgress: true, ownedChats: ['chat-a'] });
   assert.ok(strict.every((difference) => !difference.allowed), '--strict-progress pins a replay');
+});
+
+test('H-a: a chat the run does not own that grew between the two captures is blocking, not progress', () => {
+  const after = header();
+  after.chat.chatLength = 5;
+  const [difference] = diffHeaders(header(), after);
+  assert.equal(difference.path, 'chat.chatLength');
+  assert.equal(difference.allowed, false, 'a reply that landed in a chat the run left behind is residue');
+  assert.equal(difference.foreignChat, 'chat-a');
+  assert.equal(difference.progress, undefined);
+  const shrunk = header();
+  shrunk.chat.chatLength = 2;
+  assert.equal(diffHeaders(header(), shrunk)[0].allowed, false, 'a foreign chat that lost messages is damage');
+  assert.equal(diffHeaders(header(), after, [], { ownedChats: ['chat-b'] })[0].allowed, false, 'owning another chat does not cover this one');
+});
+
+test('H-a control: growth on the run\'s own chat is progress, and a chat switch is not read as growth', () => {
+  const after = header();
+  after.chat.chatLength = 9;
+  const [owned] = diffHeaders(header(), after, [], { ownedChats: ['chat-a'] });
+  assert.deepEqual([owned.allowed, owned.progress, owned.foreignChat], [true, true, undefined]);
+  const switched = header();
+  switched.chat.chatId = 'chat-b';
+  switched.chat.chatLength = 9;
+  const lengths = diffHeaders(header(), switched, ['chatId']).find((difference) => difference.path === 'chat.chatLength');
+  assert.equal(lengths?.allowed, true, 'two different chats have no growth to compare');
+  assert.equal(foreignChatGrowth(header(), switched), null);
+  assert.equal(foreignChatGrowth(header({ chat: { chatId: null, chatLength: 1 } }), header({ chat: { chatId: null, chatLength: 3 } })), null);
+  const declared = diffHeaders(header(), after, ['chat.chatLength'])[0];
+  assert.equal(declared.allowed, true, 'an explicit --allow still covers it, as for every other path');
 });
 
 test('the playbook shorthands resolve to real paths', () => {

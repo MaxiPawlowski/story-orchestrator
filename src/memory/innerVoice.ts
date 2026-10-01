@@ -10,8 +10,9 @@ export const innerRender = (): InnerRender | null => loadedRender;
 export const loadInnerRender = (): Promise<InnerRender> => (pendingRender ??= import("./innerRender").then((module) => (loadedRender = module)));
 
 export const INTENT_LAPSE_SCENES = 3;
-export const PROVISIONAL_MEDIAN_BOUNDARIES_PER_SCENE = 8;
-export const INTENT_LAPSE_BOUNDARIES = 3 * PROVISIONAL_MEDIAN_BOUNDARIES_PER_SCENE;
+export const MEDIAN_BOUNDARIES_PER_SCENE = 8;
+export const INTENT_LAPSE_K_PROVISIONAL = true;
+export const INTENT_LAPSE_BOUNDARIES = 3 * MEDIAN_BOUNDARIES_PER_SCENE;
 export const BEAT_RING_CAP = 6;
 
 export interface IntentClock {

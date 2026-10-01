@@ -25,7 +25,7 @@ import { reverseMemoryState, type MemoryRollbackState, type SealSkip } from "./r
 import { addMemoryEntries, createMemoryState, excludeEntry, hashMemoryText, rollingShortTerm, type ShortTermPlacement } from "./stores";
 import { appendShortTerm } from "./shortTermAppend";
 import type { ArcEntry, ChapterDisposition, ChapterRecord, ChronicleState, EpistemicEntry, InnerBeat, LedgerEntry, MemoryEntry } from "./types";
-import { foldChapter } from "./chapterFold";
+import { foldChapter, foldEpistemic } from "./chapterFold";
 import { commitRecordBridge, markRecapSeen, pendingBridge, pushSealSkip, unfoldAt } from "./chapterUnfold";
 import { eraCandidates, eraMessageId, fallbackEraText } from "./chronicle";
 
@@ -46,14 +46,14 @@ const FIELDS = ["condition", "location"];
 const TAGS = ["knows", "believes", "suspects", "intends"] as const;
 
 interface Op {
-  kind: "read" | "ledger" | "epistemic" | "intend" | "beat" | "consolidate" | "exclude" | "compact" | "seal" | "arc" | "resolve" | "bridge" | "skip" | "recap";
+  kind: "read" | "ledger" | "epistemic" | "intend" | "beat" | "consolidate" | "exclude" | "compact" | "seal" | "arc" | "resolve" | "bridge" | "skip" | "recap" | "hide";
   messageId: number;
   index: number;
 }
 
 const KINDS: Op["kind"][] = ["read", "read", "ledger", "epistemic", "consolidate", "exclude", "compact", "seal"];
 const INNER_KINDS: Op["kind"][] = [
-  "read", "read", "ledger", "epistemic", "intend", "beat", "consolidate", "exclude", "compact", "seal", "seal", "arc", "arc", "resolve", "bridge", "skip", "recap",
+  "read", "read", "ledger", "epistemic", "intend", "beat", "consolidate", "exclude", "compact", "seal", "seal", "arc", "arc", "resolve", "bridge", "skip", "recap", "hide", "hide",
 ];
 
 const memory = (index: number, messageId: number) => ({
@@ -116,7 +116,7 @@ const seal = (world: World, op: Op): World => {
   const decided = open.map((arc, index) => ({ arcId: arc.id, text: arc.text, disposition: DECIDED[(op.index + index + 1) % DECIDED.length] }));
   const record = {
     id: `ch${op.index}`,
-    chapterId: `c${op.index % 3}`,
+    chapterId: op.index % 4 === 0 ? `era-${op.index}` : `c${op.index % 3}`,
     playerTitle: `Chapter ${op.index}`,
     short: `short ${op.index}.`,
     summary: `summary ${op.index}.`,
@@ -127,12 +127,14 @@ const seal = (world: World, op: Op): World => {
   } as Partial<ChapterRecord> as ChapterRecord;
   const disposition = (arc: ArcEntry): ChapterDisposition => (policy === "carry" ? "carry" : policy === "close" ? "closed-offscreen" : decided.find((item) => item.arcId === arc.id)?.disposition ?? "carry");
   const folded = foldChapter(world, record, disposition);
+  const leaving = new Set(SUBJECTS.filter((_subject, index) => (op.index + index) % 3 !== 0).map((subject) => subject.toLowerCase()));
+  const knowledge = foldEpistemic(world.epistemic, record.id, leaving, SUBJECTS);
   const moved = folded.shortTermSummaryEnd > world.shortTermSummaryEnd;
   const derived = recordDerived(world.derived, {
-    kind: "chapter_seal", inputs: [...folded.folded, ...folded.resolved], outputId: record.id, boundary: op.messageId, messageId: op.messageId,
+    kind: "chapter_seal", inputs: [...folded.folded, ...folded.resolved, ...knowledge.folded], outputId: record.id, boundary: op.messageId, messageId: op.messageId,
     ...(moved ? { range: { from: world.shortTermSummaryEnd + 1, to: folded.shortTermSummaryEnd } } : {}),
   });
-  const sealed = { ...world, entries: folded.entries, arcs: folded.arcs, shortTermSummaryEnd: folded.shortTermSummaryEnd, chapters: [...world.chapters, record], derived };
+  const sealed = { ...world, entries: folded.entries, arcs: folded.arcs, epistemic: knowledge.epistemic, shortTermSummaryEnd: folded.shortTermSummaryEnd, chapters: [...world.chapters, record], derived };
   return world.chapters.length >= 2 ? mergeEra(sealed, op) : sealed;
 };
 
@@ -177,6 +179,12 @@ const stepWith = (shape: ShortTermPlacement) => (world: World, op: Op): World =>
     const retire = world.epistemic.filter((entry) => !entry.supersededBy && entry.subject === subject).map((entry) => entry.id);
     const result = applyEpistemicSignals(world.epistemic, [{ subject, tag, content: `claim ${op.index}` }], { boundary: op.messageId, messageId: op.messageId }, retire);
     return { ...world, epistemic: result.entries };
+  }
+  if (op.kind === "hide") {
+    const subject = SUBJECTS[op.index % SUBJECTS.length];
+    const other = SUBJECTS[(op.index + 1) % SUBJECTS.length];
+    const signal = op.index % 2 ? { subject, tag: "hiding" as const, content: `secret ${op.index}`, hiddenFrom: other } : { subject, tag: "suspects" as const, content: `${other} hides secret ${op.index}` };
+    return { ...world, epistemic: applyEpistemicSignals(world.epistemic, [signal], { boundary: op.messageId, messageId: op.messageId }).entries };
   }
   if (op.kind === "intend") {
     const subject = SUBJECTS[op.index % SUBJECTS.length];
@@ -226,9 +234,13 @@ const rollbackTo = (world: World, messageId: number, boundary: number): World =>
 /** The ledger read model, which is what a player and the prompt actually see. */
 const ledgerView = (ledger: LedgerEntry[]) => buildLedgerView(ledger, [], {}, {}).map((row) => `${row.entity}|${row.field}=${row.value}`);
 const entryView = (entries: MemoryEntry[]) => entries.map((entry) => `${entry.id}${entry.supersededBy ? `->${entry.supersededBy}` : ""}${entry.foldedInto ? `@${entry.foldedInto}` : ""}|recall=${entry.recallCount}|confirmed=${(entry.confirmedAt ?? []).map((at) => at.messageId).join(",")}`).sort();
-const beliefView = (entries: EpistemicEntry[]) => entries.map((entry) => `${entry.subject}|${entry.tag}|${entry.content}${entry.supersededBy ? "|retired" : ""}|${entry.affirmedAt?.at(-1)?.messageId ?? ""}`).sort();
+const beliefView = (entries: EpistemicEntry[]) => entries.map((entry) => `${entry.subject}|${entry.tag}|${entry.content}${entry.supersededBy ? "|retired" : ""}|${entry.affirmedAt?.at(-1)?.messageId ?? ""}${entry.foldedInto ? `@${entry.foldedInto}` : ""}`).sort();
 const beatView = (beats: InnerBeat[] | undefined) => (beats ?? []).map((beat) => `${beat.memberId}@${beat.basedOnMessageId}`);
-const derivedView = (records: DerivedRecord[]) => records.map((record) => `${record.kind}|${record.messageId}|${record.outputId ?? ""}|${(record.inputs ?? []).join(",")}|${(record.removed ?? []).map((entry) => entry.id).join(",")}|${record.hash ?? ""}`).sort();
+const beliefKey = (beliefs: EpistemicEntry[], id: string) => {
+  const found = beliefs.find((entry) => entry.id === id);
+  return found ? `belief:${found.subject}|${found.tag}|${found.content}` : id;
+};
+const derivedView = (records: DerivedRecord[], beliefs: EpistemicEntry[] = []) => records.map((record) => `${record.kind}|${record.messageId}|${record.outputId ?? ""}|${(record.inputs ?? []).map((id) => beliefKey(beliefs, id)).join(",")}|${(record.removed ?? []).map((entry) => entry.id).join(",")}|${record.hash ?? ""}`).sort();
 const arcView = (arcs: ArcEntry[]) => arcs.map((arc) => JSON.stringify(Object.fromEntries(Object.entries(arc).sort(([left], [right]) => left.localeCompare(right))))).sort();
 
 // Beats are compared both ways. The one difference allowed: the ring is capped (BEAT_RING_CAP), so a
@@ -239,7 +251,7 @@ const expectWorldsEqual = (where: string, rolled: World, replayed: World, full: 
   expect({ where, ledger: ledgerView(rolled.ledger) }).toEqual({ where, ledger: ledgerView(replayed.ledger) });
   expect({ where, beliefs: beliefView(rolled.epistemic) }).toEqual({ where, beliefs: beliefView(replayed.epistemic) });
   expect({ where, excluded: [...rolled.excluded].sort() }).toEqual({ where, excluded: [...replayed.excluded].sort() });
-  expect({ where, derived: derivedView(rolled.derived) }).toEqual({ where, derived: derivedView(replayed.derived) });
+  expect({ where, derived: derivedView(rolled.derived, rolled.epistemic) }).toEqual({ where, derived: derivedView(replayed.derived, replayed.epistemic) });
   expect({ where, watermark: rolled.shortTermSummaryEnd }).toEqual({ where, watermark: replayed.shortTermSummaryEnd });
   const rolledBeats = beatView(rolled.innerBeats);
   const replayedBeats = beatView(replayed.innerBeats);
@@ -363,5 +375,7 @@ describe("v2.6 plan 07: rollback is replay across chapter seals", () => {
     expect(all((world) => world.chapters).some((record) => record.bridge?.committedAt !== undefined)).toBe(true);
     expect(all((world) => world.chapters).some((record) => record.recapSeenAt !== undefined)).toBe(true);
     expect(worlds.some((world) => world.chapterSealSkip)).toBe(true);
+    expect(all((world) => world.epistemic).some((entry) => entry.foldedInto)).toBe(true);
+    expect(all((world) => world.chapters).some((record) => record.chapterId.startsWith("era-"))).toBe(true);
   });
 });

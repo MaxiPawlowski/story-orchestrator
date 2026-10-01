@@ -25,9 +25,12 @@ const USAGE = `Usage: node scripts/debug/so-run-header.mts <capture|diff|show> [
       Record every pinned variable of a live run. Writes .debug/run-header-<label>.json
       (or --out) and prints the header.
 
-  diff <baseline.json> [--allow <paths>] [--label <name>]
+  diff <baseline.json> [--allow <paths>] [--owned <chatIds>] [--label <name>]
       Capture now and compare against <baseline.json>. Exits 1 on any difference that
-      --allow does not cover. --allow takes a comma-separated list of:
+      --allow does not cover. chat.chatLength is play progress only on a chat the run
+      owns (--owned, comma-separated): a length change on the same chat at both ends
+      that is not owned is blocking (H-a: a reply landed in a chat after the run left it).
+      --allow takes a comma-separated list of:
         chatId                     any change at that path (or any path ending in it)
         inventory.v2Stories        any change at or under that path
         inventory.v2Stories:+SO-J12   only the addition of that item
@@ -453,6 +456,16 @@ export interface HeaderDifference {
   allowed: boolean;
   allowedBy?: string;
   progress?: boolean;
+  foreignChat?: string;
+}
+
+export function foreignChatGrowth(before: unknown, after: unknown, ownedChats: string[] = []): string | null {
+  const chatOf = (header: unknown) => (header && typeof header === 'object' ? (header as { chat?: { chatId?: unknown; chatLength?: unknown } }).chat ?? null : null);
+  const a = chatOf(before);
+  const b = chatOf(after);
+  if (!a || !b || typeof a.chatId !== 'string' || !a.chatId || a.chatId !== b.chatId) return null;
+  if (typeof a.chatLength !== 'number' || typeof b.chatLength !== 'number' || a.chatLength === b.chatLength) return null;
+  return ownedChats.includes(a.chatId) ? null : a.chatId;
 }
 
 // Exact path, or a path prefix at a dot boundary. Last-segment matching is deliberately gone:
@@ -467,8 +480,9 @@ export function diffHeaders(
   before: unknown,
   after: unknown,
   allow: string[] | AllowEntry[] = [],
-  { strictProgress = false }: { strictProgress?: boolean } = {},
+  { strictProgress = false, ownedChats = [] }: { strictProgress?: boolean; ownedChats?: string[] } = {},
 ): HeaderDifference[] {
+  const foreign = foreignChatGrowth(before, after, ownedChats);
   const parsed: AllowEntry[] = allow.length && typeof allow[0] === 'string'
     ? parseAllow(allow as string[]).allow
     : (allow as AllowEntry[]);
@@ -483,8 +497,9 @@ export function diffHeaders(
     const b = flatAfter[path];
     if (JSON.stringify(a) === JSON.stringify(b)) continue;
 
-    const isProgress = PROGRESS.has(path);
-    const difference: HeaderDifference = { path, before: a, after: b, allowed: isProgress && !strictProgress, ...(isProgress ? { progress: true } : {}) };
+    const isForeign = path === 'chat.chatLength' && foreign !== null;
+    const isProgress = PROGRESS.has(path) && !isForeign;
+    const difference: HeaderDifference = { path, before: a, after: b, allowed: isProgress && !strictProgress, ...(isProgress ? { progress: true } : {}), ...(isForeign ? { foreignChat: foreign } : {}) };
     if (difference.allowed) difference.allowedBy = 'progress';
     if (Array.isArray(a) || Array.isArray(b)) {
       const listA = (Array.isArray(a) ? a : []).map(String);
@@ -528,7 +543,8 @@ function describe(difference: HeaderDifference): string {
     ].filter(Boolean).join(' ');
     return `${mark} ${difference.path}  ${parts}${difference.allowedBy ? `  (allowed by ${difference.allowedBy})` : ''}`;
   }
-  return `${mark} ${difference.path}  ${JSON.stringify(difference.before)} -> ${JSON.stringify(difference.after)}${difference.allowedBy ? `  (allowed by ${difference.allowedBy})` : ''}`;
+  const foreign = difference.foreignChat ? `  (length changed on ${difference.foreignChat}, a chat this run does not own; pass --owned ${difference.foreignChat} if it does)` : '';
+  return `${mark} ${difference.path}  ${JSON.stringify(difference.before)} -> ${JSON.stringify(difference.after)}${difference.allowedBy ? `  (allowed by ${difference.allowedBy})` : ''}${foreign}`;
 }
 
 export async function writeHeader(header: unknown, label: string, out: string | null): Promise<string> {
@@ -577,7 +593,8 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       return { ok: false };
     }
     const previous = JSON.parse(await readFile(resolve(PROJECT_ROOT, baseline as string), 'utf-8'));
-    const differences = diffHeaders(previous, header, parsedAllow, { strictProgress: args.includes('--strict-progress') });
+    const ownedChats = (argValue(args, '--owned') ?? '').split(',').map((entry) => entry.trim()).filter(Boolean);
+    const differences = diffHeaders(previous, header, parsedAllow, { strictProgress: args.includes('--strict-progress'), ownedChats });
     const blocking = differences.filter((difference) => !difference.allowed);
     for (const difference of differences) console.log(describe(difference));
     for (const warning of header.warnings ?? []) console.error(`WARNING: ${warning}`);

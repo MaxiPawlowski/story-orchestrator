@@ -1,0 +1,49 @@
+{
+  "format": 2,
+  "title": "Mountain Pass",
+  "description": "v2.6 plan 06 B intents fixture: a character states (or does not state) an aim of its own.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "pass_entered",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the party entered the mountain pass?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Enter the pass.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Carry on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "pass_entered",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": []
+}

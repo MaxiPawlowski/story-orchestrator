@@ -1,0 +1,212 @@
+{
+  "plan": "docs/plans/v2.6/05-reasoning-control.md",
+  "step": "R4",
+  "declaredAt": "2026-10-01",
+  "rule": "Inputs are frozen before any scoring: fill every placeholder, run `node scripts/debug/so-r4-spike.mts freeze`, commit, then run. `pack` and `score` refuse when this file no longer hashes to frozenSha256 or to the turnsSha256 the sealed key recorded.",
+  "arm": "high",
+  "control": "the same checkpoint and chat with spikes.reasoningEffect off (the request carries no effects.reasoning value)",
+  "source": "adolion-fresh lane, 2 stories x 10 climax turns (overview rule 14)",
+  "frozenSha256": null,
+  "turns": [
+    {
+      "id": "a01",
+      "story": "<Adolion story A title>",
+      "storyId": "<Adolion story A id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for a01, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "a02",
+      "story": "<Adolion story A title>",
+      "storyId": "<Adolion story A id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for a02, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "a03",
+      "story": "<Adolion story A title>",
+      "storyId": "<Adolion story A id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for a03, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "a04",
+      "story": "<Adolion story A title>",
+      "storyId": "<Adolion story A id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for a04, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "a05",
+      "story": "<Adolion story A title>",
+      "storyId": "<Adolion story A id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for a05, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "a06",
+      "story": "<Adolion story A title>",
+      "storyId": "<Adolion story A id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for a06, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "a07",
+      "story": "<Adolion story A title>",
+      "storyId": "<Adolion story A id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for a07, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "a08",
+      "story": "<Adolion story A title>",
+      "storyId": "<Adolion story A id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for a08, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "a09",
+      "story": "<Adolion story A title>",
+      "storyId": "<Adolion story A id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for a09, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "a10",
+      "story": "<Adolion story A title>",
+      "storyId": "<Adolion story A id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for a10, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "b01",
+      "story": "<Adolion story B title>",
+      "storyId": "<Adolion story B id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for b01, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "b02",
+      "story": "<Adolion story B title>",
+      "storyId": "<Adolion story B id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for b02, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "b03",
+      "story": "<Adolion story B title>",
+      "storyId": "<Adolion story B id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for b03, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "b04",
+      "story": "<Adolion story B title>",
+      "storyId": "<Adolion story B id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for b04, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "b05",
+      "story": "<Adolion story B title>",
+      "storyId": "<Adolion story B id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for b05, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "b06",
+      "story": "<Adolion story B title>",
+      "storyId": "<Adolion story B id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for b06, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "b07",
+      "story": "<Adolion story B title>",
+      "storyId": "<Adolion story B id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for b07, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "b08",
+      "story": "<Adolion story B title>",
+      "storyId": "<Adolion story B id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for b08, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "b09",
+      "story": "<Adolion story B title>",
+      "storyId": "<Adolion story B id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for b09, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    },
+    {
+      "id": "b10",
+      "story": "<Adolion story B title>",
+      "storyId": "<Adolion story B id>",
+      "checkpoint": "<climax checkpoint id, declares effects.reasoning \"high\">",
+      "chatId": "<prepared chat id for b10, last message = the player line before the climax reply>",
+      "member": "<group member who answers, or null in a solo chat>",
+      "contextMessages": 8,
+      "note": "<what makes this a climax turn>"
+    }
+  ]
+}

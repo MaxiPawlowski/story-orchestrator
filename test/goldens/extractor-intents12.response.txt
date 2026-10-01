@@ -1,0 +1,3 @@
+DELTA q=harbor_reached value=true evidence="reaches the harbor wall"
+SCENE_NONE
+[intends] Orrin | reach his daughter at the harbor before her ship sails

@@ -150,11 +150,18 @@ test('replayed on the v2.3 record, the rejected tier reads 14 of 15 and meets it
 const liveFixtures = () => fs.readdirSync(path.join(process.cwd(), 'test/fixtures')).filter((file) => /^extractor.*\.story\.json$/.test(file)).map((file) => file.replace('.story.json', '')).sort();
 const expectedOf = (name: string) => JSON.parse(fs.readFileSync(path.join(process.cwd(), 'test/fixtures', `${name}.expected.json`), 'utf8'));
 
-test('v2.5 plan 05 F2: the live suite runs 29 fixtures, and --expect-count 29 refuses 28', () => {
-  const names = liveFixtures();
-  assert.equal(names.length, 29);
-  assert.equal(suiteVerdict({ plotAccuracy: 1, min: 0.9, totals: {}, ran: 29, expectCount: 29 }).ok, true);
-  assert.equal(suiteVerdict({ plotAccuracy: 1, min: 0.9, totals: {}, ran: 28, expectCount: 29 }).ok, false);
+const numbered = () => liveFixtures().filter((name) => /^extractor\d*$/.test(name));
+const intentFixtures = () => liveFixtures().filter((name) => /^extractor-intents\d+$/.test(name));
+
+test('v2.5 plan 05 F2 + v2.6 plan 06 B: the live suite runs 29 numbered + 14 intents fixtures = 43, and --expect-count 43 refuses 42', () => {
+  assert.equal(numbered().length, 29);
+  assert.equal(intentFixtures().length, 14);
+  assert.equal(liveFixtures().length, 43);
+  assert.equal(suiteVerdict({ plotAccuracy: 1, min: 0.9, totals: {}, ran: 43, expectCount: 43 }).ok, true);
+  assert.equal(suiteVerdict({ plotAccuracy: 1, min: 0.9, totals: {}, ran: 42, expectCount: 43 }).ok, false);
+  const pinned = JSON.parse(fs.readFileSync(path.join(process.cwd(), 'test/measurements/v2.6-06/b-intents.json'), 'utf8'));
+  assert.equal(pinned.intentsTier.expectCount, liveFixtures().length);
+  assert.match(pinned.intentsTier.command, new RegExp(`--expect-count ${liveFixtures().length} `));
 });
 
 test('v2.5 plan 05 F2: epistemic x3, ledger x2 and arcs x2 are stated, and no needle this plan wrote or replaced is vacuous', () => {
@@ -188,7 +195,7 @@ test('v2.6 plan 01: no extractor fixture carries a vacuous expectation in any ti
   const tiers = ['facts', 'memory', 'epistemic', 'ledger', 'arcs'] as const;
   const vacuous = liveFixtures().flatMap((name) => tiers.flatMap((tier) => (scoreContains(tier, expectedOf(name)[tier], []).vacuous ?? []).map((entry) => `${name}.${tier}: ${entry}`)));
   assert.deepEqual(vacuous, []);
-  const declaredNone = liveFixtures().filter((name) => typeof expectedOf(name).facts?.none === 'string');
+  const declaredNone = numbered().filter((name) => typeof expectedOf(name).facts?.none === 'string');
   assert.deepEqual(declaredNone, ['extractor10', 'extractor11', 'extractor14', 'extractor16', 'extractor20', 'extractor6', 'extractor7', 'extractor8', 'extractor9']);
   const liveScoped = liveFixtures().filter((name) => expectedOf(name).facts?.scope === 'live');
   assert.deepEqual(liveScoped, ['extractor12', 'extractor17', 'extractor18', 'extractor19']);

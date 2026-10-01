@@ -1,0 +1,4 @@
+DELTA q=pass_entered value=true evidence="they step into the pass"
+SCENE_NONE
+[intends] Mira | find her brother before the snows close the road
+[intends] Doran | collect the bounty on the bandits in the pass

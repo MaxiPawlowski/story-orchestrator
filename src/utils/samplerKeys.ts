@@ -63,6 +63,23 @@ export const SAMPLER_OVERLAY_NEVER: ReadonlySet<string> = new Set([
   "api_server",
 ]);
 
+export const REASONING_OVERLAY_KEYS: ReadonlySet<string> = new Set(["reasoning_effort", "include_reasoning", "custom_include_body"]);
+
+export function applyReasoningOverlay(payload: Record<string, unknown>, values: Record<string, unknown>): { applied: string[]; skipped: string[] } {
+  const applied: string[] = [];
+  const skipped: string[] = [];
+  for (const [key, value] of Object.entries(values)) {
+    if (!REASONING_OVERLAY_KEYS.has(key) || SAMPLER_OVERLAY_NEVER.has(key)) continue;
+    if (!Object.prototype.hasOwnProperty.call(payload, key)) {
+      skipped.push(key);
+      continue;
+    }
+    payload[key] = value;
+    applied.push(key);
+  }
+  return { applied, skipped };
+}
+
 export function resolveSamplerOverlay(settings: Record<string, unknown>, api: SamplerApi): { values: SamplerValues; unknown: string[] } {
   const table = api === "textgen" ? TEXTGEN_KEYS : CHAT_KEYS;
   const values: SamplerValues = {};

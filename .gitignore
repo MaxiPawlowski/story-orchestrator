@@ -38,3 +38,10 @@ notes/
 .hybrid-framework/
 # v2.6 step 0: the SillyTavern root this checkout serves into (never derived)
 /.st-root
+# v2.6 plan 15 AS (measurement): raw bulky live evidence stays local; summaries, verify output, findings, rubrics, run headers and engine-history dumps are committed
+/test/measurements/v2.6-09/out/**/payloads*.jsonl
+/test/measurements/v2.6-09/out/**/shots/
+/test/measurements/v2.6-09/out/**/*.full.json
+/test/sessions/**/payloads*.jsonl
+/test/sessions/**/shots/
+/test/sessions/**/chat-full-*.json

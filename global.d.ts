@@ -66,6 +66,7 @@ declare global {
     refresh?: () => Promise<import("./src/runtime/settingsModel").SpikeSettings>;
     recommitEdit?: { stats: () => import("./src/runtime/spikes/recommitEdit").RecommitStats };
     swipeBackCache?: { stats: () => import("./src/runtime/spikes/swipeBack").SwipeBackStats };
+    reasoningEffect?: import("./src/runtime/spikes/reasoningEffectHost").ReasoningEffectDebug;
   } & Partial<import("./src/runtime/spikes/install").SpikeDebug>) | undefined;
   var storyOrchestratorScheduler: { nextReadWindow: () => import("./src/extraction/scheduler").NextReadWindow | null } | undefined;
   var storyOrchestratorLoreEvidence: import("./src/runtime/worldInfoEvidence").LoreEvidence | undefined;

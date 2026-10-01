@@ -1,0 +1,3 @@
+DELTA q=library_entered value=true evidence="slips through the library doors"
+SCENE_NONE
+[intends] Ilse | find the lost map in the library

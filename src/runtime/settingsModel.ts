@@ -69,7 +69,10 @@ export interface GlobalSettings {
   spikes: SpikeSettings;
 }
 
-export const SPIKE_FLAGS = ["recommitEdit", "swipeBackCache", "witnessFilter", "sp5Scenario", "sp7Chance", "sp6Complications", "sp4AppendShortTerm", "sp8CuratorTiers", "sp8CuratorDigest"] as const;
+export const SPIKE_FLAGS = [
+  "recommitEdit", "swipeBackCache", "witnessFilter", "sp5Scenario", "sp7Chance", "sp6Complications", "sp4AppendShortTerm", "sp8CuratorTiers", "sp8CuratorDigest",
+  "reasoningEffect",
+] as const;
 
 export type SpikeFlag = (typeof SPIKE_FLAGS)[number];
 

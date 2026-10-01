@@ -1,12 +1,14 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import { estimateTokens } from "@memory/budget";
 import { renderChronicle } from "@memory/chronicle";
-import type { ArcEntry, ChapterRecord, EraLine } from "@memory/types";
-import { buildChapterView, chapterNumber, chapterOf, chapterSettings, jumpSeal, liveSkip, playerTitleOf, sealTarget, type ChapterSettings, type SealSkip } from "./chapters";
+import type { ArcEntry, ChapterRecord, EraLine, MemoryEntry } from "@memory/types";
+import { recallCandidates, recallMentions, renderRecall, selectRecall } from "@memory/archiveRecall";
+import { ARC_OPEN_INJECT_LIMIT, DEFAULT_DEDUP_THRESHOLDS, labelMemoryBlock, memoryExtensionKey, openArcTexts, type ScoreContext } from "@memory/index";
+import { buildChapterView, chapterNumber, chapterOf, chapterSettings, eraTarget, isEraId, jumpSeal, liveSkip, playerTitleOf, sealTarget, type ChapterSettings, type SealSkip } from "./chapters";
 import { sealAtState, type ChapterHost, type ChapterPort } from "./chapterPort";
 import { withholds } from "./generationLifecycle";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
-import type { PromptHost } from "./hostPorts";
+import type { PromptHost, VectorHost } from "./hostPorts";
 import { commitRecordBridge, markRecapSeen, pendingBridge, pushSealSkip, unfoldAt } from "@memory/chapterUnfold";
 
 import { chronicleMarkdown } from "@memory/chronicle";
@@ -79,7 +81,71 @@ const skipOf = (host: ChapterHost, pathLength: number) => liveSkip(host.memory()
 
 export function due(host: ChapterHost) {
   const state = host.deps.getState();
-  return state && settingsOf(host).seal ? sealTarget(host.deps.getStory(), state.activeCheckpointId, recordsOf(host), state.visitedPath, skipOf(host, state.visitedPath.length)) : null;
+  const story = host.deps.getStory();
+  const settings = settingsOf(host);
+  if (!state) return null;
+  if (story && !story.chapters?.length) return eraTarget(story, recordsOf(host), host.memory(), state.lastMessageId, state.visitedPath, settings);
+  return settings.seal ? sealTarget(story, state.activeCheckpointId, recordsOf(host), state.visitedPath, skipOf(host, state.visitedPath.length)) : null;
+}
+
+export const recallText = (chat: readonly unknown[], objective: string): string => {
+  const turn = [...chat].reverse().find((row): row is { mes: string } => Boolean(row) && (row as { is_user?: unknown }).is_user === true && typeof (row as { mes?: unknown }).mes === "string");
+  return [turn?.mes ?? "", objective].filter((part) => part.trim()).join("\n");
+};
+
+export async function recallBand(host: VectorHost, query: string, candidates: readonly MemoryEntry[]): Promise<Set<string> | null> {
+  if (!candidates.length || (await host.capabilityState("vectors")) === "absent") return null;
+  const collectionId = `so_recall_${Date.now()}_${Math.floor(Math.random() * 1e6)}`;
+  try {
+    await host.vectorInsert(collectionId, candidates.map((entry, index) => ({ hash: index, text: entry.text, index })), host.source);
+    const matches = await host.vectorQuery(collectionId, query, candidates.length, DEFAULT_DEDUP_THRESHOLDS.cosineSameTopic, host.source);
+    return new Set(matches.flatMap((match) => (candidates[match.index] ? [candidates[match.index].id] : [])));
+  } catch (error) {
+    log.warn("chapters: archive recall vectors unavailable, using keyword overlap", error);
+    return null;
+  } finally {
+    try {
+      await host.vectorPurge(collectionId);
+    } catch (error) {
+      log.warn("chapters: the temporary recall collection could not be purged", error);
+    }
+  }
+}
+
+export function releaseRecall(port: ChapterPort) {
+  if (!port.recalled) return;
+  port.recalled = false;
+  port.host.coordinator.updateInjection();
+}
+
+export async function recall(port: ChapterPort, chat: readonly unknown[], type: unknown): Promise<number> {
+  releaseRecall(port);
+  const { host } = port;
+  const memory = host.memory();
+  const story = host.deps.getStory();
+  const state = host.deps.getState();
+  const settings = settingsOf(host);
+  if (!story || !state || !settings.archiveRecall || !memory.settings.enabled || withholds(type) || !recordsOf(host).length) return 0;
+  const text = recallText(chat, story.checkpointById[state.activeCheckpointId]?.objective ?? "");
+  const candidates = recallCandidates(memory.entries, text);
+  if (!candidates.length) return 0;
+  const run = beginRun(host.deps.ownership);
+  const semantic = await recallBand(host.deps.hosts.vectors, text, candidates);
+  if (!run.stillOwns()) return 0;
+  const live = host.memory();
+  const context: ScoreContext = {
+    boundary: state.boundary, lastMessageId: state.lastMessageId, turnText: text, turnEntities: recallMentions(live.entries, text),
+    openArcs: openArcTexts(live.arcs, ARC_OPEN_INJECT_LIMIT), weights: live.settings.scoreWeights,
+  };
+  const lines = selectRecall(recallCandidates(live.entries, text), recordsOf(host), context, { tokens: settings.recallTokens, semantic });
+  if (!lines.length) return 0;
+  const key = memoryExtensionKey("scene_history");
+  const current = host.deps.hosts.injection.readInjectedPromptBlocks().find((block) => block.key === key)?.value ?? "";
+  const recalled = renderRecall(lines);
+  host.deps.hosts.prompt.setStoryExtensionPrompt(key, current ? `${current}\n${recalled}` : labelMemoryBlock("scene_history", recalled), live.settings.injectionDepths.scene_history);
+  port.recalled = true;
+  host.deps.chapterHost?.journal(`recalled ${lines.length} archived ${lines.length === 1 ? "memory" : "memories"}`, lines.map((line) => `${line.recordId}:${line.entryId}`).join(", "));
+  return lines.length;
 }
 
 export type JumpDecision = "none" | "seal" | "skip" | "cancel";
@@ -134,6 +200,7 @@ export function carryBridge(port: ChapterPort, type: unknown) {
 }
 
 export function commitBridge(port: ChapterPort, rendered: boolean) {
+  releaseRecall(port);
   const carried = port.carried;
   port.carried = null;
   port.host.deps.hosts.prompt.clearStoryExtensionPrompt(INJECTION_REGISTRY.chapterBridge.key);
@@ -151,7 +218,7 @@ export function foldPreview(memory: MemoryRuntimeState, story: NormalizedStoryV2
   const records = memory.chapters ?? [];
   if (!records.length || !chapterSettings(memory.settings.chapters).fold) return 0;
   const block = blocks.find((entry) => entry.key === INJECTION_REGISTRY.storySoFar.key)?.value ?? "";
-  return foldRange(coveredBy(records, memory.chronicle?.eras ?? [], block), story)
+  return foldRange(coveredBy(records, memory.chronicle?.eras ?? [], block), story, chapterSettings(memory.settings.chapters).foldEras)
     .reduce((sum, range) => sum + Math.max(0, Math.min(range.to, chatLength - 1) - range.from + 1), 0);
 }
 
@@ -166,7 +233,7 @@ export function fold(host: ChapterHost, rows: FoldRow[], type: unknown, live: re
     const extra = (message as { extra?: unknown } | null)?.extra;
     if (extra && typeof extra === "object") ids.set(extra, index);
   });
-  return foldRows(rows, (row) => ids.get(row.extra) ?? null, foldRange(covered, host.deps.getStory()));
+  return foldRows(rows, (row) => ids.get(row.extra) ?? null, foldRange(covered, host.deps.getStory(), settingsOf(host).foldEras));
 }
 
 const IGNORE = Symbol.for("ignore");
@@ -223,8 +290,8 @@ export interface FoldOutcome {
   missing: number;
 }
 
-export function foldRange(records: readonly ChapterRecord[], story: NormalizedStoryV2 | null): Array<{ from: number; to: number }> {
-  return records.filter((record) => story?.chapterById?.[record.chapterId]?.seal?.fold_messages !== false).map((record) => {
+export function foldRange(records: readonly ChapterRecord[], story: NormalizedStoryV2 | null, foldEras = false): Array<{ from: number; to: number }> {
+  return records.filter((record) => (isEraId(story, record.chapterId) ? foldEras : story?.chapterById?.[record.chapterId]?.seal?.fold_messages !== false)).map((record) => {
     const tail = story?.chapterById?.[record.chapterId]?.seal?.keep_tail ?? 6;
     return { from: record.range.from, to: record.range.to - tail };
   }).filter((range) => range.to >= range.from);

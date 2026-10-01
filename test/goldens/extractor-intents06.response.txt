@@ -1,0 +1,3 @@
+DELTA q=feast_begun value=true evidence="The victory feast begins in the great hall"
+SCENE_NONE
+[intends] Vesk | open the north gate to his army when the bells ring

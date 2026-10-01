@@ -38,6 +38,7 @@ async function rotateDir(dir: string): Promise<void> {
         || entry.startsWith('journey-')
         || entry.startsWith('journal-')
         || entry.startsWith('run-header-')
+        || entry.startsWith('engine-history-')
         || entry.endsWith('.jsonl');
       if (info.isFile() && !protectedArtifact) files.push({ path, mtime: info.mtimeMs });
     } catch {}

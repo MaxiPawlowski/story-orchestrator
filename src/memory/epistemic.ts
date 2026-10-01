@@ -42,7 +42,7 @@ export interface ApplyEpistemicSignalsResult {
 }
 
 function isDuplicate(existing: EpistemicEntry, signal: ParsedEpistemicSignal): boolean {
-  if (existing.supersededBy) return false;
+  if (existing.supersededBy || existing.foldedInto) return false;
   if (existing.tag !== signal.tag) return false;
   if (normalize(existing.subject) !== normalize(signal.subject)) return false;
   if (signal.tag === "hiding" && normalize(existing.hiddenFrom ?? "") !== normalize(signal.hiddenFrom ?? "")) return false;
@@ -97,7 +97,7 @@ export function applyEpistemicSignals(
 // is unresolved) is not knowledge any more. It stays in the store so the author can see and
 // reconfirm it, and it reaches no prompt until then.
 export function activeEpistemic(entries: EpistemicEntry[]): EpistemicEntry[] {
-  return entries.filter((entry) => !entry.supersededBy && isLive(entry));
+  return entries.filter((entry) => !entry.supersededBy && !entry.foldedInto && isLive(entry));
 }
 
 export function epistemicForSubject(entries: EpistemicEntry[], names: string[]): EpistemicEntry[] {

@@ -1,8 +1,9 @@
 // v2.4 plan 09 §Matrix, as predicates over what a journey run record carries (so-journey.mts
 // `runJourney`: strict, partial, only, runnerError, tallies.{automated,human,cleanup,firstAttempt},
-// humanRecord, results, ranAt). "×2" is two CONSECUTIVE green runs on an unchanged build and fixture;
-// green is --strict (blocked, not-runnable and skipped fail), a clean cleanup with or without --strict,
-// never a partial (--only) run. The old test counted ANY two runs with fail === blocked === 0.
+// humanRecord, results, ranAt). "×2" is v2.5 plan 10's definition: a series is the runs between two
+// named changes (a run citing `change` opens one), and green ×2 is the FIRST TWO runs of the latest
+// series on the attested build passing, on one known build and fixture; a series that failed and later
+// passed with no named change is flaky and red. Green is --strict, a clean cleanup, never --only.
 //
 // An attestation run cites its evidence instead of restating it:
 //   { record: "J1/run2/record.json", header?: "J1/run2/header-start.json", fixture?: "<sha256 of the journey file>" }
@@ -73,6 +74,9 @@ export function runProblems(record, { accepted = false, humanScores = null } = {
   }
   if (isRecord(record.cleanup) && record.cleanup.error) problems.push(`cleanup threw — ${String(record.cleanup.error).slice(0, 200)}`);
 
+  const declaredUnscored = count(record.tallies.human?.unscored);
+  if (!accepted && record.humanRecord && declaredUnscored !== null && declaredUnscored > 0) problems.push(`${declaredUnscored} human row(s) unscored against the record it was run with`);
+
   if (accepted) {
     const human = isRecord(record.tallies.human) ? record.tallies.human : {};
     if (!record.humanRecord) problems.push("run without --require-human-record, so its human rows were never checked");
@@ -86,6 +90,37 @@ export function runProblems(record, { accepted = false, humanScores = null } = {
 
 export const retriedCount = (record) => count(record?.tallies?.firstAttempt?.retried) ?? 0;
 
+export const namedChange = (run) => (isRecord(run) && typeof run.change === "string" && run.change.trim() ? run.change.trim() : null);
+
+export function seriesOf(runs) {
+  const series = [];
+  runs.forEach((run, index) => {
+    if (!series.length || namedChange(run)) series.push({ change: namedChange(run), indexes: [] });
+    series[series.length - 1].indexes.push(index);
+  });
+  return series;
+}
+
+const span = (indexes) => (indexes.length > 1 ? `runs ${indexes[0] + 1}–${indexes[indexes.length - 1] + 1}` : `run ${indexes[0] + 1}`);
+
+function judgeSeries(entry, runs, green, attestedBuild) {
+  const members = entry.indexes.map((index) => runs[index]);
+  const first = members[0];
+  const known = members.every((run) => run.build && run.fixture);
+  const unchanged = known && members.every((run) => run.build === first.build && run.fixture === first.fixture);
+  const greens = entry.indexes.filter((index) => green[index]).length;
+  const failedThenPassed = entry.indexes.some((index, at) => !green[index] && entry.indexes.slice(at + 1).some((later) => green[later]));
+  const firstTwo = entry.indexes.length >= 2 && green[entry.indexes[0]] && green[entry.indexes[1]];
+  const onAttested = !attestedBuild || first.build === attestedBuild;
+  const problems = [];
+  if (!known) problems.push(`series ${span(entry.indexes)} has a run on an unknown build or fixture`);
+  else if (!unchanged) problems.push(`series ${span(entry.indexes)} spans more than one build or fixture with no named change between them`);
+  if (failedThenPassed) problems.push(`series ${span(entry.indexes)} is flaky ${greens}/${entry.indexes.length}: it failed and later passed with no named change`);
+  const twice = firstTwo && unchanged && !failedThenPassed && onAttested;
+  const label = twice ? "×2" : failedThenPassed ? `flaky ${greens}/${entry.indexes.length}` : entry.indexes.length < 2 && green[entry.indexes[0]] ? "open" : "red";
+  return { runs: entry.indexes.map((index) => index + 1), change: entry.change, build: first.build ?? null, onAttested, twice, label, problems };
+}
+
 export function seriesVerdict(runs, { attestedBuild = null } = {}) {
   const problems = [];
   const times = runs.map((run) => Date.parse(run.ranAt ?? ""));
@@ -93,42 +128,70 @@ export function seriesVerdict(runs, { attestedBuild = null } = {}) {
     problems.push("runs are not listed in the order they ran, so consecutive cannot be read from the list");
   }
   const green = runs.map((run) => Array.isArray(run.problems) && run.problems.length === 0);
-  let pair = null;
-  for (let index = 1; index < runs.length && !pair && !problems.length; index += 1) {
-    const [left, right] = [runs[index - 1], runs[index]];
-    if (!green[index - 1] || !green[index]) continue;
-    if (!left.build || left.build !== right.build) continue;
-    if (!left.fixture || left.fixture !== right.fixture) continue;
-    if (attestedBuild && left.build !== attestedBuild) continue;
-    pair = [index - 1, index];
+  const series = seriesOf(runs).map((entry) => judgeSeries(entry, runs, green, attestedBuild));
+  const decisive = [...series].reverse().find((entry) => entry.onAttested) ?? null;
+  const twice = !problems.length && Boolean(decisive?.twice);
+  if (decisive) problems.push(...decisive.problems);
+  if (!twice && decisive && !decisive.problems.length && decisive.label !== "×2") {
+    problems.push(`the last series (${span(decisive.runs.map((run) => run - 1))}${decisive.change ? `, after "${decisive.change}"` : ""}) does not open with two green runs`);
   }
-  if (!pair && !problems.length && green.some((value, index) => value && green[index + 1])) {
-    problems.push("two adjacent green runs exist, but not on a known, unchanged build and fixture");
-  }
-  return { twice: Boolean(pair), pair, green: green.filter(Boolean).length, total: runs.length, problems };
+  if (!decisive && runs.length) problems.push("no series ran on the attested build");
+  const history = series.filter((entry) => entry !== decisive).flatMap((entry) => entry.problems);
+  const pair = twice ? [decisive.runs[0] - 1, decisive.runs[1] - 1] : null;
+  const decisiveRuns = decisive ? decisive.runs.map((run) => run - 1) : runs.map((_, index) => index);
+  return { twice, pair, green: green.filter(Boolean).length, total: runs.length, series, decisiveRuns, history, problems };
 }
 
-export function journeyVerdicts(attestation, load, { attestedBuild = null, humanScores = null } = {}) {
+export const engineHistoryBeside = (recordPath, file) => posix.join(posix.dirname(normalizeCited(recordPath)), posix.basename(normalizeCited(file)));
+
+export function engineHistoryCitation(run, record) {
+  if (isRecord(run) && typeof run.engineHistory === "string") return run.engineHistory;
+  const file = isRecord(record?.engineHistory) ? record.engineHistory.file : null;
+  return typeof file === "string" && file.trim() && isRecord(run) && typeof run.record === "string" ? engineHistoryBeside(run.record, file) : null;
+}
+
+export function engineHistoryProblems(run, record, load, { accepted = false } = {}) {
+  const problems = [];
+  const named = isRecord(record?.engineHistory) ? record.engineHistory : null;
+  if (named?.error) problems.push(`engine history was not dumped: ${String(named.error).slice(0, 200)}`);
+  const cited = engineHistoryCitation(run, record);
+  if (!cited) {
+    if (accepted) problems.push("the record names no engine-history dump, so the run cannot be replayed");
+    return problems;
+  }
+  const pathProblem = citedPathProblem(cited);
+  if (pathProblem) return [...problems, pathProblem];
+  const dump = load(cited);
+  if (!dump) problems.push(`engine history ${cited} is not on disk`);
+  else if (!isRecord(dump) || !Array.isArray(dump.chats)) problems.push(`engine history ${cited} is not an engine-history dump (no chats)`);
+  return problems;
+}
+
+export function journeyVerdicts(attestation, load,{ attestedBuild = null, humanScores = null } = {}) {
   const accepted = attestation?.status === "ACCEPTED";
   return Object.fromEntries(
     Object.entries(attestation?.journeys ?? {})
       .filter(([id, journey]) => /^J\d+$/.test(id) && typeof journey.notRun !== "string")
       .map(([id, journey]) => {
         const runs = (journey.runs ?? []).map((run) => {
-          if (!isRecord(run) || typeof run.record !== "string") return { problems: ["cites no record: a run summary typed into the attestation is not evidence"], build: null, fixture: null, ranAt: null, retried: 0 };
-          const pathProblem = citedPathProblem(run.record) ?? (run.header === undefined ? null : citedPathProblem(run.header));
-          if (pathProblem) return { problems: [pathProblem], build: null, fixture: null, ranAt: null, retried: 0 };
+          const change = namedChange(run);
+          const bare = (problems) => ({ problems, build: null, fixture: null, ranAt: null, retried: 0, change });
+          if (!isRecord(run) || typeof run.record !== "string") return bare(["cites no record: a run summary typed into the attestation is not evidence"]);
+          const pathProblem = citedPathProblem(run.record) ?? (run.header === undefined ? null : citedPathProblem(run.header)) ?? (run.engineHistory === undefined ? null : citedPathProblem(run.engineHistory));
+          if (pathProblem) return bare([pathProblem]);
           const record = load(run.record);
-          if (!record) return { problems: [`record ${run.record} is not on disk`], build: null, fixture: null, ranAt: null, retried: 0 };
+          if (!record) return bare([`record ${run.record} is not on disk`]);
           const header = load(run.header ?? headerBeside(run.record));
           const problems = runProblems(record, { accepted, humanScores });
           if (record.id !== id) problems.push(`record ${run.record} is ${record.id}, not ${id}`);
+          problems.push(...engineHistoryProblems(run, record, load, { accepted }));
           return {
             problems,
             build: header?.bundle?.served?.sha256 ?? null,
             fixture: run.fixture ?? record.fileSha256 ?? null,
             ranAt: record.ranAt ?? null,
             retried: retriedCount(record),
+            change,
           };
         });
         return [id, { runs, ...seriesVerdict(runs, { attestedBuild }) }];
@@ -143,9 +206,11 @@ export function statusProblems(attestation, verdicts, { attestedBuild = null } =
   const accepted = attestation?.status === "ACCEPTED";
   for (const [id, verdict] of Object.entries(verdicts)) {
     const named = names(attestation.notGreen, id);
-    const failing = verdict.runs.map((run, index) => (run.problems.length ? index + 1 : null)).filter(Boolean);
-    const offBuild = attestedBuild ? verdict.runs.map((run, index) => (run.build !== attestedBuild ? index + 1 : null)).filter(Boolean) : [];
-    const retried = verdict.runs.map((run, index) => (run.retried > 0 ? index + 1 : null)).filter(Boolean);
+    const current = new Set(verdict.decisiveRuns ?? verdict.runs.map((_, index) => index));
+    const pick = (test) => verdict.runs.map((run, index) => (current.has(index) && test(run) ? index + 1 : null)).filter(Boolean);
+    const failing = pick((run) => run.problems.length > 0);
+    const offBuild = attestedBuild ? pick((run) => run.build !== attestedBuild) : [];
+    const retried = pick((run) => run.retried > 0);
     const issues = [
       ...(verdict.twice ? [] : [`${id} is not green twice (${verdict.green}/${verdict.total} green)`]),
       ...(failing.length ? [`${id} run(s) ${failing.join(", ")} not green`] : []),
@@ -170,9 +235,12 @@ export function runLines(attestation, verdicts) {
       const journey = attestation.journeys[id];
       if (typeof journey.notRun === "string") return [`${id}: not run — ${journey.notRun}`];
       const verdict = verdicts[id];
+      const series = (verdict.series ?? []).length > 1 || (verdict.series ?? []).some((entry) => entry.label.startsWith("flaky"))
+        ? ` [series: ${verdict.series.map((entry) => `runs ${entry.runs.join(",")} ${entry.label}`).join("; ")}]`
+        : "";
       return [
-        ...verdict.runs.map((run, index) => `${id} run ${index + 1}: ${run.problems.length ? `NOT green — ${run.problems.join("; ")}` : "green"}${run.retried ? `, retried ${run.retried}` : ""}`),
-        `${id}: ${verdict.green}/${verdict.total} green, ${verdict.twice ? `×2 (runs ${verdict.pair[0] + 1}–${verdict.pair[1] + 1})` : "NOT ×2"}`,
+        ...verdict.runs.map((run, index) => `${id} run ${index + 1}: ${run.change ? `(new series after: ${run.change}) ` : ""}${run.problems.length ? `NOT green — ${run.problems.join("; ")}` : "green"}${run.retried ? `, retried ${run.retried}` : ""}`),
+        `${id}: ${verdict.green}/${verdict.total} green, ${verdict.twice ? `×2 (runs ${verdict.pair[0] + 1}–${verdict.pair[1] + 1})` : "NOT ×2"}${series}`,
       ];
     });
 }

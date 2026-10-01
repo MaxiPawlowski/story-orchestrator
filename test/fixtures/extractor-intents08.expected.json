@@ -1,0 +1,27 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "lesson_started",
+      "v": true,
+      "evidence": "the lesson begins"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "intents fixture: it states the delta and the intents tier only"
+  },
+  "intents": {
+    "expect": [
+      {
+        "subject": "Tamsin",
+        "anyOf": [
+          "teach",
+          "read"
+        ]
+      }
+    ]
+  }
+}

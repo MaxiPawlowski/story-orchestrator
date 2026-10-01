@@ -1,9 +1,9 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { decideAsset, journeyMinutes, suiteBudget } from './suiteDecisions.mjs';
+import { decideAsset, GENERATED, journeyMinutes, suiteBudget, suiteRowProblems } from './suiteDecisions.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const config = JSON.parse(readFileSync(join(ROOT, 'test', 'findings', 'suite-decisions.json'), 'utf-8'));
@@ -37,4 +37,30 @@ test('journey minutes prefer a measured median, and the budget compares x2 with 
   assert.equal(budget.capacityHours, 40);
   assert.equal(budget.fitsCapped, true);
   assert.equal(suiteBudget([{ name: 'a', llm: true, rows: [{ minutes: 1500 }] }], { nightHours: 10, lanes: 2 }).gapHours, 10);
+});
+
+const onDisk = (path) => existsSync(join(ROOT, path));
+
+test('every hand row of the final suite is runnable: command, condition, artifacts, tier, and the files it names exist', () => {
+  const problems = config.handRows.flatMap((section) => section.rows.flatMap((row) => suiteRowProblems(row, onDisk)));
+  assert.deepEqual(problems, []);
+  assert.equal('placeholders' in config, false);
+});
+
+test('generated journey and scenario rows carry a runnable command and the engine-history artifact', () => {
+  assert.deepEqual(suiteRowProblems({ id: 'J3', what: 'x', ...GENERATED.journey('J3') }, onDisk), []);
+  assert.match(GENERATED.journey('J3').artifacts.join(' '), /engine-history/);
+  assert.deepEqual(suiteRowProblems({ id: 's', what: 'kept', ...GENERATED.scenario('test/scenarios/live-v24-01-t1.json') }, onDisk), []);
+});
+
+test('negative controls: a placeholder, a missing command, tier, artifact or condition, and a missing file are each refused', () => {
+  const good = { id: 'ok', what: 'x', command: 'node scripts/debug/so-journey.mts run J3', when: 'always', artifacts: ['record'], tier: 'T7' };
+  assert.deepEqual(suiteRowProblems(good, onDisk), []);
+  assert.match(suiteRowProblems({ ...good, note: 'placeholder: plan 99 not built' }, onDisk).join(), /placeholder/);
+  assert.match(suiteRowProblems({ ...good, command: 'run it somehow' }, onDisk).join(), /no runnable command/);
+  assert.match(suiteRowProblems({ ...good, tier: 'T9' }, onDisk).join(), /tier/);
+  assert.match(suiteRowProblems({ ...good, artifacts: [] }, onDisk).join(), /artifact/);
+  assert.match(suiteRowProblems({ ...good, when: '' }, onDisk).join(), /run condition/);
+  assert.match(suiteRowProblems({ ...good, command: 'node scripts/debug/so-not-a-script.mts run' }, onDisk).join(), /does not exist/);
+  assert.deepEqual(suiteRowProblems({ ...good, command: 'node scripts/debug/st-lanes.mts batch <campaign>/lab/x.json test/scenarios/<file>.json' }, onDisk), []);
 });

@@ -21,6 +21,7 @@ const record = (over = {}) => ({
     { id: "J1.8", mode: "human", outcome: "skipped" },
   ],
   cleanup: { extraction: { ok: true } },
+  engineHistory: { file: "engine-history-J1.json", chats: 1 },
   ...over,
   tallies: {
     automated: { pass: 2, fail: 0, blocked: 0, notRunnable: 0, skipped: 0 },
@@ -74,34 +75,60 @@ test("a runner error, a hand-edited tally, a count the record never carried and 
 
 test("ACCEPTED needs every human row scored, against the one human-score file", () => {
   const unscored = record({ tallies: { human: { scored: 0, unscored: 2 } } });
-  assert.deepEqual(runProblems(unscored), []);
+  assert.deepEqual(runProblems(unscored), ["2 human row(s) unscored against the record it was run with"]);
+  assert.deepEqual(runProblems(record({ humanRecord: null, tallies: { human: { scored: 0, unscored: 2 } } })), []);
   assert.deepEqual(runProblems(unscored, { accepted: true, humanScores: SCORES }), ["2 human row(s) unscored"]);
   assert.deepEqual(runProblems(record({ humanRecord: null }), { accepted: true, humanScores: SCORES }), ["run without --require-human-record, so its human rows were never checked"]);
   assert.deepEqual(runProblems(record({ humanRecord: "J/human-scores.json" }), { accepted: true, humanScores: SCORES }), [`human rows scored against J/human-scores.json, not ${SCORES}`]);
   assert.deepEqual(runProblems(record({ humanRecord: `C:\\dev\\so\\${SCORES.replace(/\//g, "\\")}` }), { accepted: true, humanScores: SCORES }), []);
 });
 
-test("×2 is two CONSECUTIVE green runs: pass-fail-pass is not twice, fail-pass-pass is", () => {
-  const pfp = seriesVerdict([run(true), run(false), run(true)]);
-  assert.equal(pfp.twice, false);
-  assert.equal(pfp.green, 2);
-  const fpp = seriesVerdict([run(false), run(true), run(true)]);
-  assert.equal(fpp.twice, true);
-  assert.deepEqual(fpp.pair, [1, 2]);
-  const ppf = seriesVerdict([run(true), run(true), run(false)]);
-  assert.deepEqual([ppf.twice, ppf.green, ppf.total], [true, 2, 3]);
+test("H-g: pass-fail-pass-pass with no named change is NOT ×2 and is reported flaky 3/4", () => {
+  const verdict = seriesVerdict([run(true), run(false), run(true), run(true)]);
+  assert.equal(verdict.twice, false);
+  assert.equal(verdict.pair, null);
+  assert.deepEqual(verdict.series.map((entry) => entry.label), ["flaky 3/4"]);
+  assert.ok(verdict.problems.some((line) => line.includes("flaky 3/4")), verdict.problems.join(" | "));
+  assert.equal(seriesVerdict([run(false), run(true), run(true)]).twice, false, "fail-pass-pass with no change is luck, not ×2");
+  assert.equal(seriesVerdict([run(true), run(false), run(true)]).twice, false);
+});
+
+test("H-g: fail, named change, pass, pass is ×2 on the new series", () => {
+  const verdict = seriesVerdict([run(false), run(true, { change: "fixture: J3.7 window widened (register F12)" }), run(true)]);
+  assert.equal(verdict.twice, true);
+  assert.deepEqual(verdict.pair, [1, 2]);
+  assert.deepEqual(verdict.series.map((entry) => [entry.runs, entry.label]), [[[1], "red"], [[2, 3], "×2"]]);
+  assert.deepEqual(verdict.problems, []);
+  assert.equal(seriesVerdict([run(false), run(true, { change: "   " }), run(true)]).twice, false, "a blank change is not a named change");
+});
+
+test("H-g: green ×2 is the FIRST two runs of the series; pass-pass-fail stays ×2 and the failure is reported", () => {
+  const verdict = seriesVerdict([run(true), run(true), run(false)]);
+  assert.deepEqual([verdict.twice, verdict.green, verdict.total, verdict.pair], [true, 2, 3, [0, 1]]);
+  assert.equal(seriesVerdict([run(true), run(true), run(false), run(true)]).twice, false, "a later fail-then-pass makes the series flaky");
   assert.equal(seriesVerdict([run(true)]).twice, false);
   assert.equal(seriesVerdict([]).twice, false);
 });
 
-test("×2 needs an unchanged, known build and fixture, on the attested build when one is given", () => {
-  assert.equal(seriesVerdict([run(true), run(true, { build: OTHER })]).twice, false);
+test("H-g: a pair across two builds or fixtures is not ×2, named change or not", () => {
+  const acrossBuilds = seriesVerdict([run(true), run(true, { build: OTHER })]);
+  assert.equal(acrossBuilds.twice, false);
+  assert.ok(acrossBuilds.problems.some((line) => line.includes("more than one build or fixture")), acrossBuilds.problems.join(" | "));
   assert.equal(seriesVerdict([run(true), run(true, { fixture: OTHER })]).twice, false);
+  assert.equal(seriesVerdict([run(true), run(true, { build: OTHER, change: "product: re-freeze" })]).twice, false, "one run on the new build is not a pair");
+  assert.equal(seriesVerdict([run(true), run(true, { build: OTHER, change: "product: re-freeze" }), run(true, { build: OTHER })]).twice, true);
   const unknown = seriesVerdict([run(true, { fixture: null }), run(true, { fixture: null })]);
   assert.equal(unknown.twice, false);
-  assert.deepEqual(unknown.problems, ["two adjacent green runs exist, but not on a known, unchanged build and fixture"]);
+  assert.ok(unknown.problems.some((line) => line.includes("unknown build or fixture")), unknown.problems.join(" | "));
+});
+
+test("H-g: the decisive series is the latest on the attested build", () => {
   assert.equal(seriesVerdict([run(true), run(true)], { attestedBuild: OTHER }).twice, false);
   assert.equal(seriesVerdict([run(true), run(true)], { attestedBuild: BUILD }).twice, true);
+  const refrozen = [run(true), run(true), run(false, { build: OTHER, change: "product: fix A35" })];
+  assert.equal(seriesVerdict(refrozen, { attestedBuild: BUILD }).twice, true);
+  assert.equal(seriesVerdict(refrozen, { attestedBuild: OTHER }).twice, false);
+  assert.equal(seriesVerdict(refrozen).twice, false, "without an attested build the latest series decides");
 });
 
 test("a list whose order is not the order the runs ran cannot show two consecutive runs", () => {
@@ -129,7 +156,14 @@ const twoGreen = {
   "J1/run1/header-start.json": header(BUILD),
   "J1/run2/record.json": record({ ranAt: "2026-09-25T11:00:00Z" }),
   "J1/run2/header-start.json": header(BUILD),
+  "J1/run1/engine-history-J1.json": { chats: [] },
+  "J1/run2/engine-history-J1.json": { chats: [] },
 };
+const runAt = (n, over = {}) => ({
+  [`J1/run${n}/record.json`]: record({ ranAt: `2026-09-25T1${n}:00:00Z`, ...over }),
+  [`J1/run${n}/header-start.json`]: header(BUILD),
+  [`J1/run${n}/engine-history-J1.json`]: { chats: [] },
+});
 const cite = (n) => ({ record: `J1/run${n}/record.json`, fixture: FIXTURE });
 const check = (doc, entries) => {
   const verdicts = journeyVerdicts(doc, files(entries), { attestedBuild: BUILD, humanScores: SCORES });
@@ -151,7 +185,7 @@ test("ACCEPTED is refused when a human row is unscored, and PARTIAL must name it
 });
 
 test("a failing run is allowed only in a PARTIAL attestation whose notGreen names the journey", () => {
-  const entries = { ...twoGreen, "J1/run3/record.json": record({ ranAt: "2026-09-25T12:00:00Z", strict: false }), "J1/run3/header-start.json": header(BUILD) };
+  const entries = { ...twoGreen, ...runAt(3, { strict: false }) };
   const runs = [cite(1), cite(2), cite(3)];
   assert.ok(check(attestation("ACCEPTED", runs), entries).problems.some((line) => line.startsWith("ACCEPTED, but J1 run(s) 3 not green")));
   assert.ok(check(attestation("ACCEPTED", runs, ["J1 run 3 was not --strict"]), entries).problems.some((line) => line.startsWith("ACCEPTED, but J1 run(s) 3 not green")), "naming a failing run does not make an ACCEPTED attestation true");
@@ -178,4 +212,61 @@ test("a retried run must be named: a pass that needed a retry is weaker than a f
   const entries = { ...twoGreen, "J1/run2/record.json": record({ ranAt: "2026-09-25T11:00:00Z", tallies: { firstAttempt: { pass: 1, retried: 1, retriedIds: ["J1.2"] } } }) };
   assert.ok(check(attestation("ACCEPTED", [cite(1), cite(2)]), entries).problems.some((line) => line.includes("needed a retry")));
   assert.deepEqual(check(attestation("PARTIAL", [cite(1), cite(2)], ["J1.2 needed a retry in run 2"]), entries).problems, []);
+});
+
+const series = (...rows) => Object.assign({}, ...rows.map(([n, over]) => runAt(n, over)));
+
+test("H-g over cited records: pass-fail-pass-pass with no named change is refused as ACCEPTED and must be named in PARTIAL", () => {
+  const entries = series([1], [2, { strict: false }], [3], [4]);
+  const runs = [cite(1), cite(2), cite(3), cite(4)];
+  const accepted = check(attestation("ACCEPTED", runs), entries);
+  assert.equal(accepted.verdicts.J1.twice, false);
+  assert.ok(accepted.problems.some((line) => line.includes("J1 is not green twice")), accepted.problems.join("\n"));
+  assert.ok(accepted.problems.some((line) => line.includes("flaky 3/4")), accepted.problems.join("\n"));
+  assert.ok(check(attestation("PARTIAL", runs, ["J7 red"]), entries).problems.some((line) => line.endsWith("notGreen does not name J1")));
+  assert.match(runLines(attestation("PARTIAL", runs), accepted.verdicts).at(-1), /NOT ×2 \[series: runs 1,2,3,4 flaky 3\/4\]/);
+});
+
+test("H-g over cited records: fail, named change, pass, pass is ACCEPTED; the failure before the change is history", () => {
+  const entries = series([1, { strict: false }], [2], [3]);
+  const runs = [cite(1), { ...cite(2), change: "harness: settle the save before the switch (register H3)" }, cite(3)];
+  const { verdicts, problems } = check(attestation("ACCEPTED", runs), entries);
+  assert.equal(verdicts.J1.twice, true);
+  assert.deepEqual(problems, []);
+  const unnamed = check(attestation("ACCEPTED", [cite(1), cite(2), cite(3)]), entries);
+  assert.equal(unnamed.verdicts.J1.twice, false, "the same three runs without the named change are flaky");
+});
+
+test("H-g over cited records: a partial run, a failed cleanup or an unscored human row breaks the pair it sits in", () => {
+  const cases = [
+    [{ partial: true, only: ["J1.2"] }, "partial run"],
+    [{ tallies: { cleanup: { ok: false, failed: ["chat.error: page closed"], leaked: [] } } }, "cleanup failed"],
+    [{ tallies: { human: { scored: 0, unscored: 1 } } }, "human row(s) unscored"],
+  ];
+  for (const [over, needle] of cases) {
+    for (const status of ["ACCEPTED", "PARTIAL"]) {
+      const { verdicts } = check(attestation(status, [cite(1), cite(2)]), series([1], [2, over]));
+      assert.equal(verdicts.J1.twice, false, `${status}: ${needle}`);
+      assert.ok(verdicts.J1.runs[1].problems.some((line) => line.includes(needle)), `${status}: ${verdicts.J1.runs[1].problems.join(" | ")}`);
+    }
+  }
+});
+
+test("H-k: a record that names an engine-history dump missing from disk is not green, and ACCEPTED needs one", () => {
+  const missing = { ...twoGreen };
+  delete missing["J1/run2/engine-history-J1.json"];
+  const { verdicts } = check(attestation("PARTIAL", [cite(1), cite(2)]), missing);
+  assert.equal(verdicts.J1.twice, false);
+  assert.ok(verdicts.J1.runs[1].problems.includes("engine history J1/run2/engine-history-J1.json is not on disk"), verdicts.J1.runs[1].problems.join(" | "));
+  const unnamed = { ...twoGreen, "J1/run2/record.json": record({ ranAt: "2026-09-25T11:00:00Z", engineHistory: undefined }) };
+  assert.equal(check(attestation("PARTIAL", [cite(1), cite(2)]), unnamed).verdicts.J1.twice, true, "an older record without a dump is not refused outside ACCEPTED");
+  assert.ok(check(attestation("ACCEPTED", [cite(1), cite(2)]), unnamed).verdicts.J1.runs[1].problems.some((line) => line.includes("names no engine-history dump")));
+  const failedDump = { ...twoGreen, "J1/run2/record.json": record({ ranAt: "2026-09-25T11:00:00Z", engineHistory: { error: "the sandbox chat carries no story state" } }) };
+  assert.ok(check(attestation("PARTIAL", [cite(1), cite(2)]), failedDump).verdicts.J1.runs[1].problems.some((line) => line.startsWith("engine history was not dumped")));
+  const cited = check(attestation("PARTIAL", [cite(1), { ...cite(2), engineHistory: "J1/run2/elsewhere.json" }]), twoGreen);
+  assert.ok(cited.verdicts.J1.runs[1].problems.includes("engine history J1/run2/elsewhere.json is not on disk"));
+  const escaping = check(attestation("PARTIAL", [cite(1), { ...cite(2), engineHistory: "../x/engine-history-J1.json" }]), twoGreen);
+  assert.ok(escaping.verdicts.J1.runs[1].problems.some((line) => line.includes("escapes the records root")));
+  const notADump = { ...twoGreen, "J1/run2/engine-history-J1.json": { stories: {} } };
+  assert.ok(check(attestation("PARTIAL", [cite(1), cite(2)]), notADump).verdicts.J1.runs[1].problems.some((line) => line.includes("is not an engine-history dump")));
 });

@@ -187,3 +187,7 @@ goldens visible; jest asserts they hold on those archived answers. The facts col
 | `npm run test:replay` | baseline 459 tests green; 30 of 30 killed (5 new: scan-mode-file-writes-before-gating, npc-stream-lands-in-next-chat, lore-select-drops-exclusive, effect-ledger-evicts-owed-restore, studio-chunk-global-outlives-stop) |
 
 Lane 3 stopped after the batch (its copy lacks its API keys until the next `adolion-fresh seed 3`).
+
+### 2026-10-01 — C2 attempt script rebuilt (plan 15 AS-15)
+
+`scripts/debug/so-c2-save-race.mts` (+ `lib/c2SaveRace.mts`) seeds its own sandbox (pinned group, `/newchat`, its own story and solo chat), alternates guard and control, cleans up, and refuses any chat it did not create, including the old lane-1 ids. Command: `node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-c2-save-race.mts run --group <id> --attempts 2 --out test/journeys/records/<gate>/C2/run-1.json`. Not run live: C2 is not live-green. Gates and the full table: `15-review.md` §Review fixes AS (measurement).

@@ -1,0 +1,2 @@
+DELTA q=watch_posted value=true evidence="posts Max on the east wall"
+SCENE_NONE

@@ -5,10 +5,12 @@
   "rule": "An intent lapses at whichever comes first: 3 scene breaks after its last affirmation (INTENT_LAPSE_SCENES) or K boundaries (INTENT_LAPSE_BOUNDARIES). K = 3 x the median boundaries per scene in the D1 corpus (v2.6 plan 02).",
   "constants": {
     "file": "src/memory/innerVoice.ts",
-    "PROVISIONAL_MEDIAN_BOUNDARIES_PER_SCENE": 8,
-    "INTENT_LAPSE_BOUNDARIES": "3 * PROVISIONAL_MEDIAN_BOUNDARIES_PER_SCENE = 24"
+    "MEDIAN_BOUNDARIES_PER_SCENE": 8,
+    "INTENT_LAPSE_BOUNDARIES": 24
   },
   "provisional": true,
-  "why": "The D1 corpus did not exist when plan 06 was built. 8 is a placeholder, not a measurement.",
-  "toFix": "From the D1 corpus: for each chat, boundaries between consecutive scene_summary derived records; take the median over all scenes; set PROVISIONAL_MEDIAN_BOUNDARIES_PER_SCENE to it (rename it MEDIAN_BOUNDARIES_PER_SCENE) and record the corpus id and the number here. The jest case 'K is three times the provisional median boundaries per scene' keeps the rule."
+  "why": "The D1 corpus did not exist when plan 06 was built. 8 is a placeholder, not a measurement. D1 sets it.",
+  "minScenes": 20,
+  "command": "node scripts/debug/so-intent-k.mts measure --corpus <D1 corpus id> <persisted runtime or chat_metadata JSON files...> [--write]",
+  "toFix": "Run the command over the D1 corpus. Without --write it prints the median and K. With --write it rewrites MEDIAN_BOUNDARIES_PER_SCENE in src/memory/innerVoice.ts, sets INTENT_LAPSE_K_PROVISIONAL = false, and records corpus, scenes, chats and median here under measured. The jest case 'K and its recipe agree' fails if the constant and this file disagree."
 }

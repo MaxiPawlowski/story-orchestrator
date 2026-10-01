@@ -1,0 +1,236 @@
+{
+  "format": 2,
+  "id": "saga-mini-chapterless",
+  "version": 1,
+  "title": "Saga Mini (chapterless)",
+  "description": "The Q-M8 corpus story: the saga-mini checkpoints with no chapters declared, for the era-seal arm. Generated from saga-mini.story.json by scripts/debug/lib/sagaCorpus.mts.",
+  "qualities": [
+    {
+      "key": "leg",
+      "type": "int",
+      "source": "extractor",
+      "monotonic": true,
+      "rubric": "How many legs of the journey are done? One per checkpoint passed."
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "c1",
+      "name": "The Caravan",
+      "objective": "Join the salt caravan.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "c2",
+      "name": "The Dunes",
+      "objective": "Cross the dunes.",
+      "type": "intermediate"
+    },
+    {
+      "id": "c3",
+      "name": "The Well",
+      "objective": "Reach the last well.",
+      "type": "anchor"
+    },
+    {
+      "id": "c4",
+      "name": "The Gate",
+      "objective": "Talk past the gate watch.",
+      "type": "intermediate"
+    },
+    {
+      "id": "c5",
+      "name": "The Market",
+      "objective": "Find the quartermaster.",
+      "type": "intermediate"
+    },
+    {
+      "id": "c6",
+      "name": "The Magistrate",
+      "objective": "Answer the magistrate.",
+      "type": "anchor"
+    },
+    {
+      "id": "c7",
+      "name": "The Ferry",
+      "objective": "Cross the river at night.",
+      "type": "anchor"
+    },
+    {
+      "id": "c8",
+      "name": "The Stair",
+      "objective": "Descend into the archive.",
+      "type": "intermediate"
+    },
+    {
+      "id": "c9",
+      "name": "The Flooded Hall",
+      "objective": "Cross the flooded hall.",
+      "type": "intermediate"
+    },
+    {
+      "id": "c10",
+      "name": "The Keeper",
+      "objective": "Bargain with the keeper.",
+      "type": "anchor"
+    },
+    {
+      "id": "c11",
+      "name": "The Shore",
+      "objective": "Return to the shore.",
+      "type": "intermediate"
+    },
+    {
+      "id": "c12",
+      "name": "The Boats",
+      "objective": "Ready the boats.",
+      "type": "intermediate"
+    },
+    {
+      "id": "c13",
+      "name": "The Tide",
+      "objective": "Ride out the tide.",
+      "type": "intermediate"
+    },
+    {
+      "id": "c14",
+      "name": "Landfall",
+      "objective": "Make landfall.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "c1",
+      "to": "c2",
+      "priority": 1,
+      "gate": {
+        "q": "leg",
+        "op": ">=",
+        "v": 1
+      }
+    },
+    {
+      "from": "c2",
+      "to": "c3",
+      "priority": 1,
+      "gate": {
+        "q": "leg",
+        "op": ">=",
+        "v": 2
+      }
+    },
+    {
+      "from": "c3",
+      "to": "c4",
+      "priority": 1,
+      "gate": {
+        "q": "leg",
+        "op": ">=",
+        "v": 3
+      }
+    },
+    {
+      "from": "c4",
+      "to": "c5",
+      "priority": 1,
+      "gate": {
+        "q": "leg",
+        "op": ">=",
+        "v": 4
+      }
+    },
+    {
+      "from": "c5",
+      "to": "c6",
+      "priority": 1,
+      "gate": {
+        "q": "leg",
+        "op": ">=",
+        "v": 5
+      }
+    },
+    {
+      "from": "c6",
+      "to": "c7",
+      "priority": 1,
+      "gate": {
+        "q": "leg",
+        "op": ">=",
+        "v": 6
+      }
+    },
+    {
+      "from": "c7",
+      "to": "c8",
+      "priority": 1,
+      "gate": {
+        "q": "leg",
+        "op": ">=",
+        "v": 7
+      }
+    },
+    {
+      "from": "c8",
+      "to": "c9",
+      "priority": 1,
+      "gate": {
+        "q": "leg",
+        "op": ">=",
+        "v": 8
+      }
+    },
+    {
+      "from": "c9",
+      "to": "c10",
+      "priority": 1,
+      "gate": {
+        "q": "leg",
+        "op": ">=",
+        "v": 9
+      }
+    },
+    {
+      "from": "c10",
+      "to": "c11",
+      "priority": 1,
+      "gate": {
+        "q": "leg",
+        "op": ">=",
+        "v": 10
+      }
+    },
+    {
+      "from": "c11",
+      "to": "c12",
+      "priority": 1,
+      "gate": {
+        "q": "leg",
+        "op": ">=",
+        "v": 11
+      }
+    },
+    {
+      "from": "c12",
+      "to": "c13",
+      "priority": 1,
+      "gate": {
+        "q": "leg",
+        "op": ">=",
+        "v": 12
+      }
+    },
+    {
+      "from": "c13",
+      "to": "c14",
+      "priority": 1,
+      "gate": {
+        "q": "leg",
+        "op": ">=",
+        "v": 13
+      }
+    }
+  ],
+  "roster": []
+}

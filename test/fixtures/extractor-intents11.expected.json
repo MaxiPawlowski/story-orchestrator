@@ -1,0 +1,27 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "library_entered",
+      "v": true,
+      "evidence": "slips through the library doors"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "intents fixture: it states the delta and the intents tier only"
+  },
+  "intents": {
+    "expect": [
+      {
+        "subject": "Ilse",
+        "anyOf": [
+          "map",
+          "library"
+        ]
+      }
+    ]
+  }
+}

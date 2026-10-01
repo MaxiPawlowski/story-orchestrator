@@ -1,0 +1,28 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "granary_reached",
+      "v": true,
+      "evidence": "press themselves against the granary door"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "intents fixture: it states the delta and the intents tier only"
+  },
+  "intents": {
+    "expect": [
+      {
+        "subject": "Kael",
+        "anyOf": [
+          "burn",
+          "grain",
+          "fire"
+        ]
+      }
+    ]
+  }
+}

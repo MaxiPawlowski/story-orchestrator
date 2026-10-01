@@ -2,6 +2,7 @@ import { forceActivateEntries, getContext, getScannableEntries, settingsReady, w
 import { LoreSelector } from "../loreSelect";
 import type { JudgeRuntime } from "../judge";
 import { runtimeManager } from "../runtimeManager";
+import { getGlobalSettings } from "../settingsStore";
 import { isQuietType, withholds, type GenerationLifecycle } from "../generationLifecycle";
 import { loreEvidence } from "../worldInfoEvidence";
 import { startLoreEvidence } from "../worldInfoEvidenceHost";
@@ -38,6 +39,24 @@ const startGating = (disposers: Disposers, exclusive: Parameters<typeof startSca
   return { reassert: () => scanGating?.reassert() };
 };
 
+const startReasoningSpike = (disposers: Disposers, generation: GenerationLifecycle) => {
+  let stop: (() => void) | null = null;
+  let disposed = false;
+  disposers.push(() => { disposed = true; stop?.(); stop = null; });
+  if (__SO_DEV__) void import("../spikes/reasoningEffectHost").then(({ startReasoningEffect }) => {
+    if (disposed) return;
+    stop = startReasoningEffect({
+      enabled: () => getGlobalSettings().spikes.reasoningEffect,
+      storyChat: () => runtimeManager.getRunContext().chatId,
+      openChat: chatId,
+      checkpointId: () => runtimeManager.getActiveCheckpointInfo()?.id ?? null,
+      story: () => runtimeManager.getStory(),
+      generation: () => generation.snapshot(),
+      journal: (summary, note) => runtimeManager.noteRecap(summary, note),
+    });
+  });
+};
+
 export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, generation: GenerationLifecycle, { chatLastId, recentWindow }: WindowAccess) => {
   const lore = new LoreSelector({
     judge: () => judgeRuntime,
@@ -65,6 +84,7 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
   });
   disposers.push(() => loreWatch.dispose());
   disposers.push(startSamplerOverlay({ chatId, generation: () => generation.snapshot(), journal: (summary, note) => runtimeManager.noteRecap(summary, note) }));
+  if (__SO_DEV__) startReasoningSpike(disposers, generation);
   if (__SO_DEV__) globalThis.storyOrchestratorLoreEvidence = loreEvidence;
   const scanGating = startGating(disposers, {
     useActive: () => judgeRuntime.active("loreExclusive"),

@@ -1,0 +1,13 @@
+[
+  {
+    "index": 20,
+    "speaker": "Max",
+    "text": "I watch the innkeeper Hobb carefully. I am certain Hobb plans to poison the soup and rob us in our sleep.",
+    "is_user": true
+  },
+  {
+    "index": 21,
+    "speaker": "Hobb",
+    "text": "Hobb sets two steaming bowls on the table. \"Eat while it's warm,\" he says, and goes back to wiping the bar."
+  }
+]

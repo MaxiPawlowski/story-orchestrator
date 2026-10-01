@@ -118,13 +118,15 @@ export function collect({ jestJson = null, replayPath = null } = {}) {
   });
   const storyFixtures = files.filter((path) => /^test\/scenarios\/.*\.story\.json$/.test(path)).length;
 
-  const liveSuite = files.filter((path) => /^test\/fixtures\/extractor\d*\.expected\.json$/.test(path)).map((path) => {
+  const liveSuite = files.filter((path) => /^test\/fixtures\/extractor[^./]*\.expected\.json$/.test(path)).map((path) => {
     const expected = JSON.parse(read(path));
     const vacuous = ['facts', 'memory', 'epistemic', 'ledger', 'arcs'].flatMap((tier) => isVacuousNeedleSpec(expected[tier]).map((entry) => `${tier}.${entry}`));
-    return { path, name: path.split('/').pop().replace(/\.expected\.json$/, ''), tiers: Object.keys(expected).filter((key) => ['deltas', 'facts', 'rejected', 'memory', 'epistemic', 'ledger', 'arcs'].includes(key)), vacuous };
+    const intents = expected.intents;
+    if (intents && typeof intents.none !== 'string' && !Array.isArray(intents.expect)) vacuous.push('intents.no assertion');
+    return { path, name: path.split('/').pop().replace(/\.expected\.json$/, ''), tiers: Object.keys(expected).filter((key) => ['deltas', 'facts', 'rejected', 'memory', 'epistemic', 'ledger', 'arcs', 'intents'].includes(key)), vacuous };
   });
 
-  const supportFiles = files.filter((path) => /^test\/(fixtures|goldens|measurements)\//.test(path) && !/^test\/fixtures\/extractor\d*\./.test(path) && !/^test\/goldens\/extractor\d*\./.test(path));
+  const supportFiles = files.filter((path) => /^test\/(fixtures|goldens|measurements)\//.test(path) && !/^test\/fixtures\/extractor[^./]*\./.test(path) && !/^test\/goldens\/extractor[^./]*\./.test(path));
   const searchable = files.filter((path) => /^(src|scripts|test\/scenarios|test\/journeys\/[^/]+\.json|server-plugin)/.test(path) && /\.(ts|tsx|mts|mjs|json|cjs)$/.test(path) && !path.startsWith(RECORDS)).map((path) => read(path)).join('\n');
   const support = supportFiles.map((path) => {
     const base = path.split('/').pop();

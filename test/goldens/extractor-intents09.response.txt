@@ -1,0 +1,2 @@
+DELTA q=soup_served value=true evidence="sets two steaming bowls on the table"
+SCENE_NONE

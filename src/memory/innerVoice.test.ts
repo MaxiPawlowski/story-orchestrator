@@ -1,7 +1,8 @@
 import { applyEpistemicSignals, rollbackEpistemic } from "./epistemic";
 import {
-  BEAT_RING_CAP, castVoices, INTENT_LAPSE_BOUNDARIES, intentLapsed, rollbackBeats, PROVISIONAL_MEDIAN_BOUNDARIES_PER_SCENE,
+  BEAT_RING_CAP, castVoices, INTENT_LAPSE_BOUNDARIES, INTENT_LAPSE_K_PROVISIONAL, intentLapsed, rollbackBeats, MEDIAN_BOUNDARIES_PER_SCENE,
 } from "./innerVoice";
+import * as kRecipe from "../../test/measurements/v2.6-06/k-intent-lapse.json";
 import {
   admitIntents, capIntents, intentEvidence, isMetaCommentary, beatAnchorId, freshBeat, harvestReasoning, HARVEST_HEADER, NARRATOR_HEADER, NARRATOR_SUBJECT_CAP, pushBeat, renderCastAims, renderNarratorBlock, renderOwnAims,
 } from "./innerRender";
@@ -62,8 +63,16 @@ describe("intends: evidence rule (v2.6 plan 06 B, overview rule 10)", () => {
 });
 
 describe("intends: lifecycle", () => {
-  it("K is three times the provisional median boundaries per scene", () => {
-    expect(INTENT_LAPSE_BOUNDARIES).toBe(3 * PROVISIONAL_MEDIAN_BOUNDARIES_PER_SCENE);
+  it("K is three times the median boundaries per scene", () => {
+    expect(INTENT_LAPSE_BOUNDARIES).toBe(3 * MEDIAN_BOUNDARIES_PER_SCENE);
+  });
+
+  it("K and its recipe agree: the value, and whether D1 has set it yet", () => {
+    expect(kRecipe.constants.MEDIAN_BOUNDARIES_PER_SCENE).toBe(MEDIAN_BOUNDARIES_PER_SCENE);
+    expect(kRecipe.constants.INTENT_LAPSE_BOUNDARIES).toBe(INTENT_LAPSE_BOUNDARIES);
+    expect(kRecipe.provisional).toBe(INTENT_LAPSE_K_PROVISIONAL);
+    if (INTENT_LAPSE_K_PROVISIONAL) expect(INTENT_LAPSE_BOUNDARIES).toBe(24);
+    else expect(kRecipe).toHaveProperty("measured.corpus");
   });
 
   it("lapses on three scene breaks after the last affirmation, or K boundaries, whichever comes first; never pinned", () => {

@@ -1,0 +1,28 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "bridge_crossed",
+      "v": true,
+      "evidence": "reaches the far bank"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "intents fixture: it states the delta and the intents tier only"
+  },
+  "intents": {
+    "expect": [
+      {
+        "subject": "Nell",
+        "anyOf": [
+          "village",
+          "medicine",
+          "plague"
+        ]
+      }
+    ]
+  }
+}

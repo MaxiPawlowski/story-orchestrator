@@ -1,0 +1,28 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "tourney_entered",
+      "v": true,
+      "evidence": "signing the roll with a flourish"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "intents fixture: it states the delta and the intents tier only"
+  },
+  "intents": {
+    "expect": [
+      {
+        "subject": "Bryn",
+        "anyOf": [
+          "tourney",
+          "spear",
+          "win"
+        ]
+      }
+    ]
+  }
+}

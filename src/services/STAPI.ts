@@ -1,4 +1,4 @@
-export { getContext, getPlayerName, registerHostMacro, unregisterHostMacro } from "@services/stHost/context";
+export { getContext, getPlayerName, parseHostYaml, registerHostMacro, unregisterHostMacro } from "@services/stHost/context";
 export type { HostArgMacro } from "@services/stHost/macroEngine";
 export { showTextPopup, showConfirmPopup, showChoicePopup } from "@services/stHost/popup";
 export { bindNavbarDrawerToggle, toggleNavbarDrawer } from "@services/stHost/drawers";

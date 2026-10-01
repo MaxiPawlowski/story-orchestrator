@@ -3,41 +3,193 @@
   "status": "declared, not run. Floors are fixed before the first arm and are not retuned after it.",
   "story": "test/measurements/v2.6-07/saga-mini.story.json",
   "corpus": {
-    "transcript": "test/measurements/v2.6-07/saga-mini.transcript.json (to author: 360 scripted messages over c1..c10, chapters ch1..ch3 plus the ferry interlude)",
-    "needles": "test/measurements/v2.6-07/needles.json (to author: 40 facts stated once in ch1..ch3, each {id, chapter, messageId, statement, question, accept: regex}; shape of adolion lab/needles corpus.json)",
+    "transcript": "test/measurements/v2.6-07/saga-mini.transcript.json",
+    "needles": "test/measurements/v2.6-07/needles.json",
+    "chapterless": {
+      "story": "test/measurements/v2.6-07/saga-mini-chapterless.story.json",
+      "transcript": "test/measurements/v2.6-07/saga-mini-chapterless.transcript.json",
+      "needles": "test/measurements/v2.6-07/saga-mini-chapterless.needles.json",
+      "messages": 600
+    },
+    "generator": "scripts/debug/lib/sagaCorpus.mts (seed 607); regenerate or check with node scripts/debug/so-saga-recall.mts corpus [--check]; scripts/debug/sagaCorpus.test.mts fails when a file differs from the generator or a check fails",
+    "messages": 360,
+    "layout": "36 messages per checkpoint c1..c10 (60 in the chapterless variant), narrator on even slots, player on odd; each checkpoint opens on a narrator message so the /sendas boundary carries the transition; an arrival narrator message carries the story into c11",
     "goldens": "test/goldens/saga/ (recorded seal, era and saga replies, so jest replays the pipeline without a model)",
     "askAt": "the first player turn at c11 (chapter ch4)",
-    "questions": 30
+    "questions": 30,
+    "needlesTotal": 40,
+    "heldBack": "N05 N09 N12 N14 N18 N23 N26 N31 N35 N39 (asked: false)"
   },
   "settings": {
     "seal": "memory.settings.chapters.seal",
     "chronicle": "memory.settings.chapters.storySoFar",
     "fold": "memory.settings.chapters.fold",
-    "chronicleTokens": "memory.settings.chapters.chronicleTokens"
+    "chronicleTokens": "memory.settings.chapters.chronicleTokens",
+    "recall": "memory.settings.chapters.recall (D10, NOT BUILT: the read-back refuses the arm until it exists)",
+    "eraSeals": "memory.settings.chapters.eraSeals (D11, NOT BUILT: the read-back refuses the arm until it exists)"
   },
   "arms": [
-    { "id": "A0", "seal": false, "chronicle": false, "fold": false },
-    { "id": "A1", "seal": true, "chronicle": true, "fold": false },
-    { "id": "A2", "seal": true, "chronicle": true, "fold": true }
+    {
+      "id": "A0",
+      "seal": false,
+      "chronicle": false,
+      "fold": false
+    },
+    {
+      "id": "A1",
+      "seal": true,
+      "chronicle": true,
+      "fold": false
+    },
+    {
+      "id": "A2",
+      "seal": true,
+      "chronicle": true,
+      "fold": true
+    },
+    {
+      "id": "A2R",
+      "seal": true,
+      "chronicle": true,
+      "fold": true,
+      "recall": true
+    },
+    {
+      "id": "E0",
+      "variant": "chapterless",
+      "seal": false,
+      "chronicle": false,
+      "fold": false,
+      "eraSeals": false
+    },
+    {
+      "id": "E1",
+      "variant": "chapterless",
+      "seal": true,
+      "chronicle": true,
+      "fold": false,
+      "eraSeals": true
+    }
   ],
-  "chronicleBudgetArms": { "values": [400, 700, 1000], "default": 700, "rule": "A1 is run at each value; the floor picks the value that ships; 700 ships if more than one passes" },
+  "chronicleBudgetArms": {
+    "values": [
+      400,
+      700,
+      1000
+    ],
+    "default": 700,
+    "rule": "A1 is run at each value; the floor picks the value that ships; 700 ships if more than one passes"
+  },
   "floors": [
-    { "id": "Q-M1", "metric": "needle recall at ch4, questions about ch1", "floor": "A1 >= 0.80 and A1 - A0 >= +0.25", "decides": "seal + story-so-far default on" },
-    { "id": "Q-M2", "metric": "CONSEQUENCES bullets supported by their cited sources (judge-scored, human spot-check of 20)", "floor": ">= 0.95; unsupported proper nouns <= 2%", "decides": "the record prompt ships; below, degraded-only mode stays" },
-    { "id": "Q-M3", "metric": "prompt tokens of a ch4 generation", "floor": "A2 <= 0.6 x A0", "decides": "fold default on" },
-    { "id": "Q-M4", "metric": "needle recall, ch3 questions (the most recent sealed)", "floor": "A2 >= A1 - 0.05", "decides": "fold must not cost recent memory" },
-    { "id": "Q-M5", "metric": "needle recall with archive recall on vs off, questions whose entity is folded", "floor": "+0.10, no increase in wrong-answer rate", "decides": "archive recall default on (not built)" },
-    { "id": "Q-M6", "metric": "chronicle drift: ch1 SUMMARY after 3 later seals", "floor": "byte-identical unless author-edited", "decides": "jest invariant: src/memory/chapters.test.ts" },
-    { "id": "Q-M7", "metric": "seal pass cost", "floor": "<= 6 model calls and p95 <= 90 s per chapter on the lane backend; never on the reply path", "decides": "acceptable to ship at all" },
-    { "id": "Q-M8", "metric": "era seal on a chapterless 600-message fixture", "floor": "recall >= A0 + 0.15", "decides": "eraSeals default on (not built)" }
+    {
+      "id": "Q-M1",
+      "metric": "needle recall at ch4, questions about ch1",
+      "floor": "A1 >= 0.80 and A1 - A0 >= +0.25",
+      "decides": "seal + story-so-far default on",
+      "check": {
+        "arm": "A1",
+        "chapter": "ch1",
+        "min": 0.8,
+        "vs": {
+          "arm": "A0",
+          "minDelta": 0.25
+        }
+      }
+    },
+    {
+      "id": "Q-M2",
+      "metric": "CONSEQUENCES bullets supported by their cited sources (judge-scored, human spot-check of 20)",
+      "floor": ">= 0.95; unsupported proper nouns <= 2%",
+      "decides": "the record prompt ships; below, degraded-only mode stays"
+    },
+    {
+      "id": "Q-M3",
+      "metric": "prompt tokens of a ch4 generation",
+      "floor": "A2 <= 0.6 x A0",
+      "decides": "fold default on"
+    },
+    {
+      "id": "Q-M4",
+      "metric": "needle recall, ch3 questions (the most recent sealed)",
+      "floor": "A2 >= A1 - 0.05",
+      "decides": "fold must not cost recent memory",
+      "check": {
+        "arm": "A2",
+        "chapter": "ch3",
+        "vs": {
+          "arm": "A1",
+          "minDelta": -0.05
+        }
+      }
+    },
+    {
+      "id": "Q-M5",
+      "metric": "needle recall with archive recall on vs off, questions whose entity is folded",
+      "floor": "+0.10, no increase in wrong-answer rate",
+      "decides": "archive recall default on (not built)",
+      "check": {
+        "arm": "A2R",
+        "chapter": null,
+        "vs": {
+          "arm": "A2",
+          "minDelta": 0.1
+        },
+        "wrongRateNoIncrease": true
+      }
+    },
+    {
+      "id": "Q-M6",
+      "metric": "chronicle drift: ch1 SUMMARY after 3 later seals",
+      "floor": "byte-identical unless author-edited",
+      "decides": "jest invariant: src/memory/chapters.test.ts"
+    },
+    {
+      "id": "Q-M7",
+      "metric": "seal pass cost",
+      "floor": "<= 6 model calls and p95 <= 90 s per chapter on the lane backend; never on the reply path",
+      "decides": "acceptable to ship at all"
+    },
+    {
+      "id": "Q-M8",
+      "metric": "era seal on a chapterless 600-message fixture",
+      "floor": "recall >= A0 + 0.15",
+      "decides": "eraSeals default on (not built)",
+      "check": {
+        "arm": "E1",
+        "chapter": null,
+        "vs": {
+          "arm": "E0",
+          "minDelta": 0.15
+        }
+      }
+    }
   ],
   "procedure": [
     "adolion-fresh is not needed: this corpus has no cast or lore. Seed a lane (never lane 0), image and sprites off.",
-    "Import saga-mini.story.json into a fresh group chat; set the arm's three switches and chronicleTokens.",
-    "Replay the transcript with /sendas + the boundary per message (so-scenario seed_metadata is not enough: seals run at boundaries).",
-    "Wait for schedulerIdle after c10 -> c11 so the ch3 seal lands; record chapter records, token counts and model-call counts (Q-M2, Q-M7).",
-    "Capture the ch4 generation payload (st-payload arm --persist) for Q-M3.",
-    "Ask the 30 questions as the player at c11, one fresh swipe each, score with the accept regexes (Q-M1, Q-M4).",
+    "Per run: a fresh group chat holding one narrator member (open-group <id>, then new-chat); the driver refuses a chat with more than 2 messages, or none open.",
+    "A0 first and independently: so-saga-recall.mts baseline (freezes runs/A0/manifest.json, imports saga-mini.story.json, forces seal/chronicle/fold off and reads them back, replays, asks). E0 the same with --variant chapterless.",
+    "Treatment arms: prepare --arm <A1|A2|A2R|E1> [--tokens n] (freeze), then replay, then ask, each in the same fresh chat; replay and ask refuse when any frozen file changed (sha256).",
+    "Replay posts every transcript message (/sendas for the narrator, /send for the player), sets leg with /cp set before the first message of each checkpoint, waits for the boundary per narrator message and for schedulerIdle at each transition, and records drift when the engine is not on the expected checkpoint.",
+    "Wait for schedulerIdle after c10 -> c11 so the ch3 seal lands (the arrival message); record chapter records (Q-M2, Q-M7 read the chapter records and the call ring; not scored here).",
+    "Capture the ch4 generation payload (st-payload arm --persist) for Q-M3 (not scored by this driver).",
+    "ask: the 30 asked questions as the player at c11, each posted, answered by /trigger of the narrator, recorded, then removed with /del 2 so every question sees the same chat.",
+    "score per arm against its baseline; floors over the arm set; floors are read from this frozen recipe and never retuned.",
     "Run each arm twice consecutively on one lane; archive under test/measurements/v2.6-07/runs/<arm>/."
-  ]
+  ],
+  "armsNote": "A0 and E0 are the baselines: produced only by the baseline command, from their own frozen manifest in runs/A0 or runs/E0, every switch forced off and read back before replay and before asking. A treatment arm is compared only against a baseline frozen from the same corpus digest (story, transcript, needles, recipe sha256).",
+  "ask": {
+    "template": "(Out of character: answer from what happened earlier in this story, in one short sentence. If you do not remember, say you do not remember.) {question}",
+    "abstain": "\\b(don'?t|do not|can'?t|cannot) (remember|recall)\\b|\\bnot sure\\b|\\bno idea\\b|\\bunknown\\b",
+    "shotgunLimit": 1,
+    "scoring": "correct = the needle's accept regex matches and at most shotgunLimit other needles' accepts match; own + more others = shotgun (wrong); another needle's accept only = cross (wrong); abstain pattern or empty = abstain; anything else = wrong. recall = correct / asked; wrongRate = (wrong + cross + shotgun) / asked"
+  },
+  "commands": {
+    "corpus": "node scripts/debug/so-saga-recall.mts corpus --check",
+    "baseline": "node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-saga-recall.mts baseline [--variant chapterless] [--narrator <member>]",
+    "prepare": "node scripts/debug/so-saga-recall.mts prepare --arm A1 [--tokens 400|700|1000]",
+    "replay": "node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-saga-recall.mts replay --run test/measurements/v2.6-07/runs/A1-t700 [--narrator <member>]",
+    "ask": "node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-saga-recall.mts ask --run test/measurements/v2.6-07/runs/A1-t700 [--narrator <member>]",
+    "score": "node scripts/debug/so-saga-recall.mts score --run test/measurements/v2.6-07/runs/A1-t700 --baseline test/measurements/v2.6-07/runs/A0",
+    "floors": "node scripts/debug/so-saga-recall.mts floors --runs A0=test/measurements/v2.6-07/runs/A0,A1=test/measurements/v2.6-07/runs/A1-t700,A2=test/measurements/v2.6-07/runs/A2-t700"
+  }
 }

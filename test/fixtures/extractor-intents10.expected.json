@@ -1,0 +1,22 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "watch_posted",
+      "v": true,
+      "evidence": "posts Max on the east wall"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "intents fixture: it states the delta and the intents tier only"
+  },
+  "intents": {
+    "expect": [],
+    "players": [
+      "Max"
+    ]
+  }
+}

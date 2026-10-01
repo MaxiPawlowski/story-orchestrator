@@ -129,6 +129,12 @@ const enveloped = <T extends { provenance: unknown }>(rows: unknown, store: stri
   return kept;
 };
 
+const withFoldMark = <T extends { foldedInto?: unknown }>(row: T): T => {
+  if (row.foldedInto === undefined || (typeof row.foldedInto === "string" && row.foldedInto)) return row;
+  const { foldedInto: _foldedInto, ...rest } = row;
+  return rest as T;
+};
+
 const sanitizeMirrorBook = (value: unknown): MemoryMirrorBook | null => {
   const book = value as Partial<MemoryMirrorBook> | null | undefined;
   return typeof book?.name === "string" && typeof book.chatId === "string" && book.name && book.chatId ? { name: book.name, chatId: book.chatId } : null;
@@ -144,7 +150,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
   if (existing && Array.isArray(existing.entries)) {
     const dropped: string[] = [];
     const entries = enveloped<MemoryRuntimeState["entries"][number]>(existing.entries, "memory", dropped);
-    const epistemic = enveloped<MemoryRuntimeState["epistemic"][number]>(existing.epistemic, "epistemic", dropped);
+    const epistemic = enveloped<MemoryRuntimeState["epistemic"][number]>(existing.epistemic, "epistemic", dropped).map(withFoldMark);
     const ledger = enveloped<MemoryRuntimeState["ledger"][number]>(existing.ledger, "ledger", dropped);
     if (dropped.length) log.warn(`dropped stored rows without a provenance envelope: ${dropped.join(", ")}`);
     return {

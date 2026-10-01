@@ -4,7 +4,7 @@ import { rollbackBeats } from "./innerVoice";
 import { rollbackLedger } from "./ledger";
 import { dropByMessageId, hashMemoryText, stripLinksAfter } from "./stores";
 import { rollbackArcs } from "./arcs";
-import type { ArcEntry, ChapterRecord, ChronicleState, InnerBeat, MemoryEntry, MemoryStoreState } from "./types";
+import type { ArcEntry, ChapterRecord, ChronicleState, EpistemicEntry, InnerBeat, MemoryEntry, MemoryStoreState } from "./types";
 
 // Everything a rollback means for memory, in one pure function: the rows a mutation
 // invalidated, the derived artifacts built from them, and the three stores that keep their own
@@ -40,6 +40,7 @@ export interface ChapterStoresIn {
   arcs: ArcEntry[];
   chapters: ChapterRecord[];
   chronicle: ChronicleState;
+  epistemic?: EpistemicEntry[];
 }
 
 export type ChapterReversal = (stores: ChapterStoresIn, messageId: number, dropped: readonly string[]) => ChapterStoresIn;
@@ -59,8 +60,9 @@ export function reverseMemoryState<S extends MemoryRollbackState>(state: S, mess
   reversal.restored.forEach((entry) => {
     if (!excluded.includes(hashMemoryText(entry.text))) byId.set(entry.id, stripLinksAfter(entry, messageId));
   });
+  const epistemic = rollbackEpistemic(state.epistemic, messageId);
   const unfolded = state.chapters?.length && unfold
-    ? unfold({ entries: [...byId.values()], arcs: state.arcs, chapters: state.chapters, chronicle: state.chronicle ?? { eras: [] } }, messageId, reversal.outputIds)
+    ? unfold({ entries: [...byId.values()], arcs: state.arcs, chapters: state.chapters, chronicle: state.chronicle ?? { eras: [] }, epistemic }, messageId, reversal.outputIds)
     : null;
   const entries = unfolded?.entries ?? [...byId.values()];
   let arcs = rollbackArcs(unfolded?.arcs ?? state.arcs, messageId, boundary);
@@ -77,7 +79,7 @@ export function reverseMemoryState<S extends MemoryRollbackState>(state: S, mess
     excluded,
     writeLog: dropped.writeLog,
     arcs,
-    epistemic: rollbackEpistemic(state.epistemic, messageId),
+    epistemic: unfolded?.epistemic ?? epistemic,
     ledger: rollbackLedger(state.ledger, messageId),
     derived: reversal.records,
     verifyDrops: state.verifyDrops.filter((drop) => (drop.entry.messageId ?? -1) < messageId),

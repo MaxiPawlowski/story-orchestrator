@@ -120,6 +120,7 @@ export interface EpistemicEntry {
    *  only; this is what a rollback keys on. */
   retiredAt?: { messageId: number; boundary?: number };
   affirmedAt?: Array<{ messageId: number; boundary: number }>;
+  foldedInto?: string;
 }
 
 export interface InnerBeat {

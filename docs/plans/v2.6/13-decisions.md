@@ -6,7 +6,7 @@ Decisions: **keep** (guards something named, or is the cheap deterministic tier)
 
 Rules applied:
 - Nothing that guards a named invariant or defect is retired; a retire needs the defect replay to stay 30/30 killed (report 2026-10-01, 30 specs on disk).
-- jest and Storybook are kept whole: 386 jest files cost 289 s summed, and retiring one file needs its own mutation run to prove nothing is lost, which the sampled baseline cannot give per file. A jest file that names no guard is kept and flagged `unnamed` — budget rule 1 applies on its next touch.
+- jest and Storybook are kept whole: 391 jest files cost 289 s summed, and retiring one file needs its own mutation run to prove nothing is lost, which the sampled baseline cannot give per file. A jest file that names no guard is kept and flagged `unnamed` — budget rule 1 applies on its next touch.
 - An LLM scenario that is a spike leg or a calibration arm is demoted to measurement; the rest are kept or named as merge candidates.
 
 ## Summary
@@ -16,10 +16,10 @@ Rules applied:
 | LLM scenario | demote | 34 |
 | LLM scenario | keep | 32 |
 | LLM scenario | merge | 6 |
-| harness | keep | 87 |
-| jest | keep | 386 |
+| harness | keep | 100 |
+| jest | keep | 391 |
 | journey check | keep | 144 |
-| live suite | keep | 29 |
+| live suite | keep | 43 |
 | no-LLM scenario | keep | 103 |
 | retired | retire (merged) | 1 |
 | storybook | keep | 50 |
@@ -43,6 +43,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 76.3% kille
 | jest | `src/copilot/proposal.test.ts` | keep | guards a named contract |
 | jest | `src/copilot/validate.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 2 fix commit(s)); name it on next touch (budget rule 1) |
 | jest | `src/engine/agency.test.ts` | keep | guards a named defect |
+| jest | `src/engine/checkpointReasoning.test.ts` | keep | guards a named contract |
 | jest | `src/engine/clampToChat.test.ts` | keep | guards a named defect |
 | jest | `src/engine/convergence.property.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 1 fix commit(s)); name it on next touch (budget rule 1) |
 | jest | `src/engine/discardPendingFrom.test.ts` | keep | guards a named contract |
@@ -140,6 +141,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 76.3% kille
 | jest | `src/memory/provenance.test.ts` | keep | guards a named defect |
 | jest | `src/memory/reversal.review.test.ts` | keep | guards a named defect |
 | jest | `src/memory/rollbackReplay.property.test.ts` | keep | guards a named defect |
+| jest | `src/memory/sagaRetained.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/memory/sceneDetect.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/memory/sceneSummary.test.ts` | keep | guards a named contract |
 | jest | `src/memory/score.test.ts` | keep | unnamed: names no invariant, defect or contract (touched by 1 fix commit(s)); name it on next touch (budget rule 1) |
@@ -160,6 +162,7 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 76.3% kille
 | jest | `src/runtime/breakerWatch.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/c1Surfaces.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/chapterJump.test.ts` | keep | guards a named contract |
+| jest | `src/runtime/chapterRetained.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/chapterSaga.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/chapterSeal.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/chapters.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
@@ -322,6 +325,8 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 76.3% kille
 | jest | `src/runtime/slashCommands.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/snapshotCache.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/runtime/spikeFlags.test.ts` | keep | guards a named contract |
+| jest | `src/runtime/spikes/reasoningEffect.test.ts` | keep | guards a named defect |
+| jest | `src/runtime/spikes/reasoningEffectHost.test.ts` | keep | guards a named contract |
 | jest | `src/runtime/spikes/recommitEdit.review.test.ts` | keep | guards a named defect |
 | jest | `src/runtime/spikes/sp5Scenario.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
 | jest | `src/runtime/spikes/sp5ScenarioHost.test.ts` | keep | unnamed: names no invariant, defect or contract; name it on next touch (budget rule 1) |
@@ -473,12 +478,16 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 76.3% kille
 | harness | `scripts/debug/lib/adolionFresh.test.mts` | keep | harness guard (contract) |
 | harness | `scripts/debug/lib/assetScope.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/lib/bundleFlavour.test.mts` | keep | harness guard (nothing named) |
+| harness | `scripts/debug/lib/c2SaveRace.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/lib/calibrationVerdict.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/lib/configRestore.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/lib/connection.test.mts` | keep | harness guard (contract) |
 | harness | `scripts/debug/lib/contradictionRelease.test.mts` | keep | harness guard (nothing named) |
+| harness | `scripts/debug/lib/engineHistoryDump.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/lib/focusWalk.test.mts` | keep | harness guard (nothing named) |
+| harness | `scripts/debug/lib/generationQuiesce.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/lib/identityVerbs.test.mts` | keep | harness guard (defect) |
+| harness | `scripts/debug/lib/integrationRuns.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/lib/interopVerbs.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/lib/journeyArchive.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/lib/judgeHarness.test.mts` | keep | harness guard (defect) |
@@ -489,6 +498,8 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 76.3% kille
 | harness | `scripts/debug/lib/lorebookDelete.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/overSteer.test.mts` | keep | harness guard (contract) |
 | harness | `scripts/debug/lib/payloadAssert.test.mts` | keep | harness guard (contract) |
+| harness | `scripts/debug/lib/r4Live.test.mts` | keep | harness guard (nothing named) |
+| harness | `scripts/debug/lib/r4Pack.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/lib/replyEffect.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/roleEffort.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/roleVerdict.test.mts` | keep | harness guard (nothing named) |
@@ -504,21 +515,28 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 76.3% kille
 | harness | `scripts/debug/lib/sessionRunbook.test.mts` | keep | harness guard (contract) |
 | harness | `scripts/debug/lib/sessionSpend.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/settingsSave.test.mts` | keep | harness guard (defect) |
+| harness | `scripts/debug/lib/soakProbe.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/lib/soloSandbox.test.mts` | keep | harness guard (contract) |
 | harness | `scripts/debug/lib/st-ready.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/timeoutArm.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/wiGatingHarness.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/lib/wizardAgentScore.test.mts` | keep | harness guard (nothing named) |
+| harness | `scripts/debug/liveSuiteIntents.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/liveSuiteScore.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/m6Contention.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/memoryFatesProbe.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/p0-replay.test.mts` | keep | harness guard (nothing named) |
+| harness | `scripts/debug/sagaCorpus.test.mts` | keep | harness guard (defect) |
+| harness | `scripts/debug/sagaRecall.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/scenarioSchema.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/sceneArmsScore.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/servedDebugDir.test.mts` | keep | harness guard (contract) |
 | harness | `scripts/debug/so-contradiction-cosine.test.mts` | keep | harness guard (nothing named) |
+| harness | `scripts/debug/so-integration.test.mts` | keep | harness guard (nothing named) |
+| harness | `scripts/debug/so-intent-k.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/so-journal.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/debug/so-legacy-books.test.mts` | keep | harness guard (nothing named) |
+| harness | `scripts/debug/so-r4-spike.test.mts` | keep | harness guard (contract) |
 | harness | `scripts/debug/so-responsive.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/so-role-calibration.test.mts` | keep | harness guard (nothing named) |
 | harness | `scripts/debug/so-run-header.test.mts` | keep | harness guard (defect) |
@@ -530,12 +548,12 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 76.3% kille
 | harness | `scripts/debug/st-payload.test.mts` | keep | harness guard (defect) |
 | harness | `scripts/lib/pluginInstall.test.mjs` | keep | harness guard (nothing named) |
 | harness | `scripts/lib/stRoot.test.mjs` | keep | harness guard (nothing named) |
-| harness | `scripts/lib/suiteDecisions.test.mjs` | keep | harness guard (contract) |
+| harness | `scripts/lib/suiteDecisions.test.mjs` | keep | harness guard (defect) |
 | harness | `scripts/lib/suiteInventory.test.mjs` | keep | harness guard (defect) |
 | harness | `scripts/lib/suiteMutants.test.mjs` | keep | harness guard (defect) |
 | harness | `scripts/release/artifact.test.mjs` | keep | harness guard (contract) |
 | harness | `scripts/release/attestation.test.mjs` | keep | harness guard (defect) |
-| harness | `scripts/release/attestationRules.test.mjs` | keep | harness guard (nothing named) |
+| harness | `scripts/release/attestationRules.test.mjs` | keep | harness guard (defect) |
 | harness | `scripts/release/buildFlavours.test.mjs` | keep | harness guard (nothing named) |
 | harness | `scripts/release/bundleBudget.test.mjs` | keep | harness guard (defect) |
 | harness | `scripts/release/ci.test.mjs` | keep | harness guard (nothing named) |
@@ -872,6 +890,20 @@ Mutation baseline (R2, `docs/plans/v2.6/13-mutation-baseline.json`): 76.3% kille
 | journey check | `J0.4` | keep | human rubric row, scored in plan 10 sessions |
 | journey check | `J0.5` | keep | no-LLM journey check (T3) |
 | journey check | `J0.6` | keep | no-LLM journey check (R12) |
+| live suite | `extractor-intents01` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
+| live suite | `extractor-intents02` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
+| live suite | `extractor-intents03` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
+| live suite | `extractor-intents04` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
+| live suite | `extractor-intents05` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
+| live suite | `extractor-intents06` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
+| live suite | `extractor-intents07` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
+| live suite | `extractor-intents08` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
+| live suite | `extractor-intents09` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
+| live suite | `extractor-intents10` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
+| live suite | `extractor-intents11` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
+| live suite | `extractor-intents12` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
+| live suite | `extractor-intents13` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
+| live suite | `extractor-intents14` | keep | live-suite fixture (deltas, rejected, facts, intents); its golden replays in jest |
 | live suite | `extractor` | keep | live-suite fixture (deltas, facts); its golden replays in jest |
 | live suite | `extractor10` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |
 | live suite | `extractor11` | keep | live-suite fixture (deltas, rejected, facts); its golden replays in jest |

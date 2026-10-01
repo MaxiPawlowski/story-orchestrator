@@ -5,15 +5,27 @@
   "rule": "Floors are predeclared; a tier below its floor is reported, never retuned.",
   "intentsTier": {
     "source": "the live suite's epistemic tier filtered to tag 'intends' (liveReadTiers already carries tag/subject/content; the scorer needs an 'intents' tier that scores exactly those rows)",
-    "fixtures": "at least 12 extractor fixtures with an 'expected.intents' list. Candidates: the 6 existing epistemic fixtures plus 6 new ones where a character states an aim in dialogue, 2 where only the player's narration implies one (must yield none), and 2 with meta-commentary in the reply",
-    "command": "node scripts/debug/so-live-suite.mts run --expect-count <pinned> --min-tier intents=0.8",
-    "floors": { "precision": 0.8, "recall": 0.5, "playerAttributed": 0, "expectCount": "pinned to the fixture count when the fixtures land" },
-    "deterministicHalf": "src/memory/innerVoice.test.ts (evidence rule: player-attributed and meta-commentary dropped) and src/runtime/coordinators/innerVoiceInjection.review.test.ts"
+    "fixtures": "14 fixtures test/fixtures/extractor-intents01..14 (+ goldens test/goldens/extractor-intents*.response.txt): 9 where a character states or shows an aim in its own dialogue/action (01-08 and 14; 02 has two speakers, 04 and 14 have a player line stating the player's own aim beside an NPC aim, 05 has a silent character), 2 where only the player's narration implies an NPC aim (09, 10: expect none), 2 with meta-commentary in the reply (11 OOC, 12 [Note: as an AI]: only the in-character aim counts), 1 third-party report (13: Greta says Wulf plans to leave; expect none). extractor23-25 (epistemic) are NOT given intents: their expected.json files are hash-frozen by liveSuiteScore.test (v2.5 plan 05 F2).",
+    "command": "node scripts/debug/so-live-suite.mts run --expect-count 43 --min-tier intents=0.8",
+    "floors": {
+      "precision": 0.8,
+      "recall": 0.5,
+      "playerAttributed": 0,
+      "expectCount": 43
+    },
+    "deterministicHalf": "src/memory/innerVoice.test.ts (evidence rule: player-attributed and meta-commentary dropped) and src/runtime/coordinators/innerVoiceInjection.review.test.ts",
+    "claimShape": "expected.intents = {expect: [{subject, anyOf: [needle...]}], players?: [...]}; a live epistemic row with tag intends matches the first open claim with the same subject whose content contains any needle (case-insensitive, one row per claim). expect: [] claims none. none/scope as the other tiers.",
+    "scoring": "precision = matched / (matched + spurious) over every live intends row (a player-attributed row is spurious too); recall = matched / expected; playerAttributed = rows whose subject is a listed player or an is_user transcript speaker. Scored on the RAW parsed read (before admitIntents), so it measures the model, not the guard. scripts/debug/lib/liveSuiteScore.mts scoreIntents/intentsTotals.",
+    "expectCount": 43,
+    "negativeControls": "scripts/debug/liveSuiteIntents.test.mts"
   },
   "b2Harvest": {
     "switch": "settings.memory.harvestReasoning = true (default absent = off, Resolved table)",
     "what": "message.extra.reasoning of each character reply in the P2 window is fed to the epistemic pass as that character's own evidence for its [intends] lines (meta-commentary sentences removed first)",
-    "floors": { "harvestedIntentPrecision": 0.8, "metaCommentaryRejected": 0.95 },
+    "floors": {
+      "harvestedIntentPrecision": 0.8,
+      "metaCommentaryRejected": 0.95
+    },
     "procedure": "on a Chat Completion profile that returns reasoning (plan 05 F7), replay the intents fixtures with extra.reasoning attached; score precision of intents whose only evidence is the reasoning, and the share of meta sentences ('I should write...', 'the user wants...') that never reach a row",
     "ifBelowFloor": "recorded not built: the switch stays off and its settings key is removed"
   },

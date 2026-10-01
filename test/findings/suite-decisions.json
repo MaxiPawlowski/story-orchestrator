@@ -65,17 +65,26 @@
   "overheadMinutes": 3,
   "lanes": 2,
   "nightHours": 10,
-  "placeholders": [
+  "cutNote": "Hand-row minutes are each plan's own sizing; capMinutes is the phase F budget this plan (R5) gives the owning plan: the regression leg only, because measurement legs run once in their own plan (overview rule 13).",
+  "handRows": [
     {
       "section": "carry-over rows (01)",
       "rows": [
         {
           "id": "01-fixes",
-          "what": "post-batch-2 fixes: E4 cycle (`globalThis.storyOrchestratorStop()` + `st-session.mts reload`, 0 roots/globals, `{{story_title}}` unresolved, then ONE real turn); F2 live suite (`so-live-suite.mts run --min 0.9 --expect-count 29`, facts column now 5 claims + 9 declared none); J13 judge-on arm (`so-journey.mts run J13 --strict --judge-uses houseRules --warden-mode auto`). J3.6, J5.8, J8.10 run inside the journeys section; SP2 R4 and SP6 K2 are 03's; C2 is no-LLM (01 open item: fixture rebuild)",
+          "what": "post-batch-2 fixes: E4 cycle (`globalThis.storyOrchestratorStop()` + `st-session.mts reload`, 0 roots/globals, `{{story_title}}` unresolved, then ONE real turn); F2 live suite (`so-live-suite.mts run --min 0.9 --expect-count 43`, facts column now 5 claims + 9 declared none); J13 judge-on arm (`so-journey.mts run J13 --strict --judge-uses houseRules --warden-mode auto`). J3.6, J5.8, J8.10 run inside the journeys section; SP2 R4 and SP6 K2 are 03's; C2 is no-LLM (01 open item: fixture rebuild)",
           "minutes": 45,
           "capMinutes": 35,
           "capReason": "journey rows already counted; E4 one turn, F2 suite, J13 on-arm only",
-          "note": "plan 14 tiers: E4 T0 (T0-2 reload), F2 T2, J13 T6"
+          "note": "plan 14 tiers: E4 T0 (T0-2 reload), F2 T2, J13 T6",
+          "command": "node scripts/debug/st-session.mts reload; node scripts/debug/so-live-suite.mts run --min 0.9 --expect-count 43; node scripts/debug/so-journey.mts run J13 --strict --judge-uses houseRules --warden-mode auto",
+          "when": "always",
+          "config": "as named in What",
+          "artifacts": [
+            "the named scenario/journey records",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "tier": "T7"
         },
         {
           "id": "01-v25-01",
@@ -83,7 +92,15 @@
           "minutes": 45,
           "capMinutes": 30,
           "capReason": "the scanGatingActive mutant is a defect-replay kill now (scan-mode-file-writes-before-gating)",
-          "note": "plan 14 tier T1 (T1-4 lore that appears and disappears)"
+          "note": "plan 14 tier T1 (T1-4 lore that appears and disappears)",
+          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --group 1759606632088 test/scenarios/live-v25-01-real-books.json",
+          "when": "always",
+          "config": "as named in What",
+          "artifacts": [
+            "the named scenario/journey records",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "tier": "T7"
         },
         {
           "id": "01-v25-02",
@@ -91,7 +108,15 @@
           "minutes": 60,
           "capMinutes": 30,
           "capReason": "C1 mutant is a defect-replay kill (npc-stream-lands-in-next-chat); A37/C7 note order and the host facts are no-LLM (01 record)",
-          "note": "plan 14 tiers: C7 T1, A11 T2, A6 T6"
+          "note": "plan 14 tiers: C7 T1, A11 T2, A6 T6",
+          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --strict J3; node scripts/debug/so-timeout-arm.mts scale <log>",
+          "when": "always",
+          "config": "as named in What",
+          "artifacts": [
+            "the named scenario/journey records",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "tier": "T7"
         },
         {
           "id": "01-v25-03",
@@ -99,29 +124,61 @@
           "minutes": 50,
           "capMinutes": 25,
           "capReason": "E2 sweep, mutation check and the event-level turn types are no-LLM (01 record)",
-          "note": "plan 14 tiers: MemorizeBacklog T2, turn types T4, F2/F3 T5, reply-path p95 T0"
+          "note": "plan 14 tiers: MemorizeBacklog T2, turn types T4, F2/F3 T5, reply-path p95 T0",
+          "command": "node scripts/debug/so-turn-types-check.mts",
+          "when": "always",
+          "config": "as named in What",
+          "artifacts": [
+            "the named scenario/journey records",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "tier": "T7"
         },
         {
           "id": "01-v25-04",
           "what": "N1 `so-scenario.mts run test/scenarios/live-v25-04-negation.json --sandbox --group <id>` (judge off; its /sendas boundaries take real extraction reads); K0 `so-contradiction-cosine.mts capture --record` then `npx jest src/memory/contradictions.fixture.test.ts` (Adolion variant from 02 D5)",
           "minutes": 30,
           "capMinutes": 20,
-          "note": "plan 14 tier T2 (T2-3 contradiction)"
+          "note": "plan 14 tier T2 (T2-3 contradiction)",
+          "command": "node scripts/debug/so-scenario.mts run test/scenarios/live-v25-04-negation.json --sandbox --group <id>; node scripts/debug/so-contradiction-cosine.mts capture --record; npx jest src/memory/contradictions.fixture.test.ts",
+          "when": "always",
+          "config": "as named in What",
+          "artifacts": [
+            "the named scenario/journey records",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "tier": "T7"
         },
         {
           "id": "01-v25-05",
-          "what": "F2 live suite toy (`so-live-suite.mts run --min 0.9 --expect-count 29 --min-tier facts=0.68,rejected=0.9,epistemic=0.8,ledger=0.8,arcs=0.8`) + Adolion D6; F7 CC arm (`live-v25-05-token-estimate.json` on a CC profile with `chat_template_kwargs {enable_thinking:false}`); J3/J12 in the journeys section",
+          "what": "F2 live suite toy (`so-live-suite.mts run --min 0.9 --expect-count 43 --min-tier facts=0.68,rejected=0.9,epistemic=0.8,ledger=0.8,arcs=0.8`) + Adolion D6; F7 CC arm (`live-v25-05-token-estimate.json` on a CC profile with `chat_template_kwargs {enable_thinking:false}`); J3/J12 in the journeys section",
           "minutes": 40,
           "capMinutes": 30,
           "capReason": "F3 arm report is a reading, not a run",
-          "note": "plan 14 tiers: live suite T2, F7 CC T6"
+          "note": "plan 14 tiers: live suite T2, F7 CC T6",
+          "command": "node scripts/debug/so-live-suite.mts run --min 0.9 --expect-count 43 --min-tier facts=0.68,rejected=0.9,epistemic=0.8,ledger=0.8,arcs=0.8",
+          "when": "always",
+          "config": "as named in What",
+          "artifacts": [
+            "the named scenario/journey records",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "tier": "T7"
         },
         {
           "id": "01-v25-06",
           "what": "J13 judge-on arm (journeys section); curator row: `so-role-calibration.mts run --role curator --arm shared-<bundle>-r1` (+ `-r2`, `verdict`) to rename recommended-config.md's bundle",
           "minutes": 20,
           "capMinutes": 10,
-          "note": "plan 14 tier T6"
+          "note": "plan 14 tier T6",
+          "command": "node scripts/debug/so-role-calibration.mts run --role curator --arm shared-<bundle>-r1",
+          "when": "always",
+          "config": "as named in What",
+          "artifacts": [
+            "the named scenario/journey records",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "tier": "T7"
         },
         {
           "id": "01-v25-07",
@@ -129,7 +186,15 @@
           "minutes": 15,
           "capMinutes": 10,
           "capReason": "A3 red/green is Storybook (no-LLM, 01 record)",
-          "note": "plan 14 tier T5"
+          "note": "plan 14 tier T5",
+          "command": "node scripts/debug/so-ui.mts gate-replay-history; npx jest src/studio/gateReplay.records.test.ts",
+          "when": "always",
+          "config": "as named in What",
+          "artifacts": [
+            "the named scenario/journey records",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "tier": "T7"
         },
         {
           "id": "01-v25-08",
@@ -137,7 +202,15 @@
           "minutes": 75,
           "capMinutes": 45,
           "capReason": "L6 step-0 J7 replay is J7 (journeys section)",
-          "note": "plan 14 tiers: U6/L4 T2 (memory mirror), L5/G-J T1"
+          "note": "plan 14 tiers: U6/L4 T2 (memory mirror), L5/G-J T1",
+          "command": "node scripts/debug/so-scenario.mts run test/scenarios/live-memory-mirror.json --sandbox --group 1759606632088",
+          "when": "always",
+          "config": "as named in What",
+          "artifacts": [
+            "the named scenario/journey records",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "tier": "T7"
         },
         {
           "id": "01-v25-14-19",
@@ -145,7 +218,15 @@
           "minutes": 150,
           "capMinutes": 60,
           "capReason": "integration (09) I1-I3 plays the same routes; 01 keeps the cue/cadence/guard assertions only",
-          "note": "plan 14 tiers: T0-T1 (cue, cadence, guard); saga replay T2-1"
+          "note": "plan 14 tiers: T0-T1 (cue, cadence, guard); saga replay T2-1",
+          "command": "node scripts/debug/so-session.mts start <card> --lane <n> for the cards that carry these legs (T0-1, T0-3, T1-1, T1-4, T2-1), each played per docs/plans/v2.6/14-autonomous-runbook.md, then node scripts/debug/so-session.mts stop <dir> and node scripts/debug/so-session.mts digest <dir>",
+          "when": "always",
+          "config": "as named in What",
+          "artifacts": [
+            "session dir per card (turns.jsonl, journal, payloads, evidence, rubric.json, findings.json)",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "tier": "T7"
         }
       ]
     },
@@ -156,39 +237,86 @@
           "id": "05-R3",
           "what": "reasoning effort per role: each recommended level at its floor",
           "minutes": 60,
-          "note": "placeholder: plan 05 not built",
           "capMinutes": 40,
-          "capReason": "only the recommended level per role, not the whole ladder (the ladder is the 05 measurement)"
+          "capReason": "only the recommended level per role, not the whole ladder (the ladder is the 05 measurement)",
+          "command": "node scripts/debug/so-live-suite.mts run --effort <read level> --expect-count <r3-matrix expectCount> --record; node scripts/debug/so-role-calibration.mts run --role <role> --effort <level> --arm phaseF-<role>-r1 (then -r2) and so-role-calibration.mts verdict phaseF-<role>-r1 phaseF-<role>-r2, per role",
+          "when": "only the level docs/plans/v2.6/recommended-reasoning.md recommends per role; a role with no recommendation stays `default` and has no row",
+          "config": "extraction.routes[role].route.options.effort pinned by the harness (scripts/debug/lib/roleEffort.mts), restored and read back after",
+          "artifacts": [
+            "live-suite report JSON",
+            "so-role-calibration report per role x run",
+            "the reasoning meter per call (applied/unsupported/collapsed)",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T6-1",
+          "tier": "T7"
         },
         {
           "id": "05-R4",
-          "what": "checkpoint-scoped reply effort, if its spike floor passed",
+          "what": "checkpoint-scoped reply effort (effects.reasoning, spike spikes.reasoningEffect): regression leg of an include",
           "minutes": 30,
-          "note": "placeholder: plan 05 not built",
-          "capMinutes": 30
+          "capMinutes": 30,
+          "command": "node scripts/debug/so-r4-spike.mts check; per climax turn of test/measurements/v2.6-05/r4-turns.json: node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-r4-spike.mts run --run-id phaseF-r4-r<k> --only <turnId>",
+          "when": "only if the R4 measurement (test/measurements/v2.6-05/r4-spike.json) recorded include; on a miss the row is the removal control: npx jest src/runtime/devOnly.guard.test.ts with the spike files gone",
+          "config": "dev bundle, a Chat Completion profile, spikes.reasoningEffect on, frozen r4-turns.json",
+          "artifacts": [
+            "<debug>/r4/<run-id>/run.json + records.jsonl (payload proof the key landed per pair)",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T6-1",
+          "tier": "T7"
         },
         {
           "id": "11-J9b",
           "what": "agentic wizard: one premise to a saved story",
           "minutes": 25,
-          "note": "placeholder: plan 11 not built",
-          "capMinutes": 25
+          "capMinutes": 25,
+          "command": "node scripts/debug/so-journey.mts run J14 --strict --group <id>; node scripts/debug/so-assets.mts assert-clean --marker SO-J14",
+          "when": "always (J14 is the J9b composition check); the harness-route leg runs only when plan 04 H offers the bridge (AS-21)",
+          "config": "authoring routed per recommended-config.md; Studio opened once so the dev handle exists",
+          "artifacts": [
+            "journey record under test/journeys/records/v2.6-acceptance/J14/",
+            "engine-history-<journeyId>.json (H-k)",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T5-1",
+          "tier": "T7"
         },
         {
           "id": "11-W1-W6",
           "what": "wizard rows W1-W6 (W4: 3 generated stories x 30 turns)",
           "minutes": 150,
-          "note": "placeholder: plan 11 not built",
           "capMinutes": 60,
-          "capReason": "W4 plays 1 generated story x 30 turns here; the 3-story measurement stays in 11"
+          "capReason": "W4 plays 1 generated story x 30 turns here; the 3-story measurement stays in 11",
+          "command": "node scripts/debug/so-wizard-agent.mts run --route local --provision apply, then node scripts/debug/so-assets.mts remove --marker SO-W11; node scripts/debug/so-wizard-agent.mts safety --route local; W4: node scripts/debug/so-session.mts start T5-1 --lane <n>, adopt, 30 turns per docs/plans/v2.6/14-autonomous-runbook.md, stop",
+          "when": "always; W6 is the blind-rating pack, not a phase F row",
+          "config": "premises from test/measurements/11/premises.json (user-written, committed before the run)",
+          "artifacts": [
+            "so-wizard-agent W1-W3 report",
+            "W5 safety report (0 escapes)",
+            "T5-1 session dir (turns.jsonl, journal, rubric)",
+            "so-assets assert-clean output",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T5-1, T5-2",
+          "tier": "T7"
         },
         {
           "id": "12-providers",
           "what": "every recommended provider x use, calibration fixtures with floors unchanged",
           "minutes": 60,
-          "note": "placeholder: plan 12 not built",
           "capMinutes": 40,
-          "capReason": "recommended provider x use only"
+          "capReason": "recommended provider x use only",
+          "command": "node scripts/debug/so-judge.mts calibrate --use <use> --model <id> --record, once per recommended provider x use row; the provider argument rides the AS-17 harness fix",
+          "when": "each provider x use row docs/plans/v2.6/12-provider-matrix.md marks recommended; before Phase B the rows are the TypeSafe defaults per built use",
+          "config": "judge.provider[use] set to the row's provider; fixtures and floors unchanged",
+          "artifacts": [
+            "so-judge-calibrate-<fixture> report",
+            "test/goldens/judge/<use>.calibration.json diff (none expected)",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T6-2",
+          "tier": "T7"
         }
       ]
     },
@@ -199,60 +327,132 @@
           "id": "03-SP1",
           "what": "S1, S3 on the 16 lab scenarios",
           "minutes": 60,
-          "note": "placeholder until 03 decides include/drop",
           "capMinutes": 20,
-          "capReason": "regression leg of an include only; the corpus runs are 03 measurements"
+          "capReason": "regression leg of an include only; the corpus runs are 03 measurements",
+          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict <campaign>/lab/swipes/scenarios/live-v25-09-sp1-s3-adolion-*.json (8 files: 4 gates + their controls)",
+          "when": "only if 03 records SP1 include; a drop runs the planted-import removal control named in 03's removal commit",
+          "config": "adolion-fresh lane, spike flag per 03-sp1-restated.md",
+          "artifacts": [
+            "st-lanes batch summary",
+            "per-run scenario logs",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T4-1",
+          "tier": "T7"
         },
         {
           "id": "03-SP2",
           "what": "R4/R5 on the lab",
           "minutes": 30,
-          "note": "placeholder",
-          "capMinutes": 15
+          "capMinutes": 15,
+          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict <campaign>/lab/swipes/scenarios/live-v25-09-sp2-r4-adolion-*.json J6",
+          "when": "only if 03 records SP2 include",
+          "config": "adolion-fresh lane",
+          "artifacts": [
+            "st-lanes batch summary",
+            "J6 journey record",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T4-1",
+          "tier": "T7"
         },
         {
           "id": "03-SP4",
           "what": "T3 append vs rolling on Act III needles",
           "minutes": 75,
-          "note": "placeholder",
           "capMinutes": 20,
-          "capReason": "include/drop decided in 03; the T3 needle corpus is a measurement"
+          "capReason": "include/drop decided in 03; the T3 needle corpus is a measurement",
+          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict <campaign>/lab/needles/scenarios/live-v25-09-sp4-t3-adolion-rolling.json <campaign>/lab/needles/scenarios/live-v25-09-sp4-t3-adolion-append.json",
+          "when": "only if 03 records SP4 include",
+          "config": "adolion-fresh lane; the arm's short_term mode per 03-sp4-restated.md",
+          "artifacts": [
+            "st-lanes batch summary",
+            "needle score columns (keyword + accept)",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T2-1",
+          "tier": "T7"
         },
         {
           "id": "03-SP5",
           "what": "story-owned scenario, live leg",
           "minutes": 20,
-          "note": "placeholder",
-          "capMinutes": 10
+          "capMinutes": 10,
+          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict <campaign>/lab/scenario/live-v25-09-sp5-adolion-scenario.json",
+          "when": "only if 03 records SP5 include",
+          "config": "adolion-fresh lane, spikes.sp5Scenario on",
+          "artifacts": [
+            "st-lanes batch summary",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T1-4",
+          "tier": "T7"
         },
         {
           "id": "03-SP6",
           "what": "complication pool K2-K4 (the plan's longest run, its own lane overnight)",
           "minutes": 180,
-          "note": "placeholder; 03 states about 3 lane-hours",
+          "note": "03 states about 3 lane-hours",
           "capMinutes": 60,
-          "capReason": "K2 regression leg; K3/K4 release counts are the 03 measurement"
+          "capReason": "K2 regression leg; K3/K4 release counts are the 03 measurement",
+          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict test/scenarios/live-v25-09-sp6-k2.json <campaign>/lab/complications/sp6-adolion.journey.json; node scripts/debug/st-lanes.mts run <n> -- scripts/debug/st-eval.mts \"localStorage.getItem('so-sp6-records')\" > sp6-records.json; node scripts/debug/so-sp6-score.mts sp6-records.json",
+          "when": "only if 03 records SP6 include; its own lane overnight",
+          "config": "adolion-fresh lane, pools from lab/complications/sp6-pools.json",
+          "artifacts": [
+            "st-lanes batch summary",
+            "sp6-records.json",
+            "so-sp6-score verdicts",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T2-1",
+          "tier": "T7"
         },
         {
           "id": "03-SP7",
           "what": "D4/D4b seeded chance",
           "minutes": 30,
-          "note": "placeholder",
-          "capMinutes": 15
+          "capMinutes": 15,
+          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict <campaign>/lab/chance/live-adolion-sp7-d4.json <campaign>/lab/chance/live-adolion-sp7-d4b.json",
+          "when": "SP7.b is built first (W17); the D4/D4b regression leg always runs once SP7.b is in",
+          "config": "adolion-fresh lane",
+          "artifacts": [
+            "st-lanes batch summary",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T1-4",
+          "tier": "T7"
         },
         {
           "id": "03-SP8",
           "what": "curator tiers W3/W4(b)",
           "minutes": 60,
-          "note": "placeholder",
-          "capMinutes": 20
+          "capMinutes": 20,
+          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict <campaign>/lab/curator/live-v25-09-sp8-w3-adolion.json; node scripts/debug/so-role-calibration.mts run --role curator --arm phaseF-sp8-r1 (then -r2, verdict)",
+          "when": "only if 03 records SP8 include",
+          "config": "adolion-fresh lane, curator tiers flag per 03-sp8-restated.md",
+          "artifacts": [
+            "st-lanes batch summary",
+            "curator calibration reports",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T3-5",
+          "tier": "T7"
         },
         {
           "id": "03-SP9-SP10",
           "what": "witness filter F1-F4; tool-call turns Q1-Q3",
           "minutes": 45,
-          "note": "placeholder",
-          "capMinutes": 15
+          "capMinutes": 15,
+          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict test/scenarios/v25-09-witness-f4.json test/scenarios/v25-09-tool-turn.json",
+          "when": "each only if 03 records its include (SP9 witness filter, SP10 tool-call turns)",
+          "config": "adolion-fresh lane; F1/F2 with Summarize on and off as two rows (03)",
+          "artifacts": [
+            "st-lanes batch summary",
+            "witness F4 labels score",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T2-2",
+          "tier": "T7"
         }
       ]
     },
@@ -263,44 +463,86 @@
           "id": "09-I1",
           "what": "adolion-adventurer full route",
           "minutes": 90,
-          "note": "placeholder: plan 09 not built",
-          "capMinutes": 90
+          "capMinutes": 90,
+          "command": "node scripts/debug/so-integration.mts plan I1 --column on --lane <n> (then the same with --column defaults); run the printed sequence; node scripts/debug/so-integration.mts verify <dir> I1",
+          "when": "always, both columns",
+          "config": "test/measurements/v2.6-09/runs.json columns on / defaults",
+          "artifacts": [
+            "the run's required artifacts in test/measurements/v2.6-09/runs.json (verified by so-integration verify)"
+          ],
+          "originTier": "T7",
+          "tier": "T7"
         },
         {
           "id": "09-I2",
           "what": "adolion-academy full route",
           "minutes": 90,
-          "note": "placeholder",
-          "capMinutes": 90
+          "capMinutes": 90,
+          "command": "node scripts/debug/so-integration.mts plan I2 --column on --lane <n> (then the same with --column defaults); run the printed sequence; node scripts/debug/so-integration.mts verify <dir> I2",
+          "when": "always, both columns",
+          "config": "test/measurements/v2.6-09/runs.json columns on / defaults",
+          "artifacts": [
+            "the run's required artifacts in test/measurements/v2.6-09/runs.json (verified by so-integration verify)"
+          ],
+          "originTier": "T7",
+          "tier": "T7"
         },
         {
           "id": "09-I3",
           "what": "adolion-saga, two acts",
           "minutes": 120,
-          "note": "placeholder",
-          "capMinutes": 120
+          "capMinutes": 120,
+          "command": "node scripts/debug/so-integration.mts plan I3 --column on --lane <n> (then the same with --column defaults); run the printed sequence; node scripts/debug/so-integration.mts verify <dir> I3",
+          "when": "always, both columns",
+          "config": "test/measurements/v2.6-09/runs.json columns on / defaults",
+          "artifacts": [
+            "the run's required artifacts in test/measurements/v2.6-09/runs.json (verified by so-integration verify)"
+          ],
+          "originTier": "T7",
+          "tier": "T7"
         },
         {
           "id": "09-I4",
           "what": "mutation storm, 60 turns",
           "minutes": 75,
-          "note": "placeholder",
-          "capMinutes": 60
+          "capMinutes": 60,
+          "command": "node scripts/debug/so-integration.mts plan I4 --column on --lane <n> (then the same with --column defaults); run the printed sequence; node scripts/debug/so-integration.mts verify <dir> I4",
+          "when": "always, both columns",
+          "config": "test/measurements/v2.6-09/runs.json columns on / defaults",
+          "artifacts": [
+            "the run's required artifacts in test/measurements/v2.6-09/runs.json (verified by so-integration verify)"
+          ],
+          "originTier": "T7",
+          "tier": "T7"
         },
         {
           "id": "09-I5",
           "what": "outage mid-play, 40 turns",
           "minutes": 50,
-          "note": "placeholder",
-          "capMinutes": 40
+          "capMinutes": 40,
+          "command": "node scripts/debug/so-integration.mts plan I5 --column on --lane <n> (then the same with --column defaults); run the printed sequence; node scripts/debug/so-integration.mts verify <dir> I5",
+          "when": "always, both columns",
+          "config": "test/measurements/v2.6-09/runs.json columns on / defaults",
+          "artifacts": [
+            "the run's required artifacts in test/measurements/v2.6-09/runs.json (verified by so-integration verify)"
+          ],
+          "originTier": "T7",
+          "tier": "T7"
         },
         {
           "id": "09-I6",
           "what": "reload/reopen, I1-I3 at 3 cut points",
           "minutes": 45,
-          "note": "placeholder",
           "capMinutes": 0,
-          "capReason": "folded into I1-I3: reopen at the three cut points inside the same runs"
+          "capReason": "folded into I1-I3: reopen at the three cut points inside the same runs",
+          "command": "inside I1-I3: the three cut points each run declares in test/measurements/v2.6-09/runs.json; node scripts/debug/so-integration.mts verify <dir> I6 reads every reopen diff",
+          "when": "always, both columns",
+          "config": "test/measurements/v2.6-09/runs.json columns on / defaults",
+          "artifacts": [
+            "the run's required artifacts in test/measurements/v2.6-09/runs.json (verified by so-integration verify)"
+          ],
+          "originTier": "T7",
+          "tier": "T7"
         }
       ]
     },
@@ -313,7 +555,17 @@
           "minutes": 70,
           "note": "judge defaults on since v2.6 rule 5; plan 10 keeps the off column",
           "capMinutes": 45,
-          "capReason": "J8 and J11 carry the judge-consuming checks; J5/J13 off arms ride the carry-over rows"
+          "capReason": "J8 and J11 carry the judge-consuming checks; J5/J13 off arms ride the carry-over rows",
+          "command": "for J in J5 J8 J11 J13, twice in a row: node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-journey.mts run $J --strict --group <id> --judge-uses off",
+          "when": "always",
+          "config": "judge master switch on, every judge.uses.* off (the journey runner's off arm, globalThis.__soJudgeMode)",
+          "artifacts": [
+            "journey records per check",
+            "engine-history-<journeyId>.json (H-k)",
+            "run header before + `so-run-header.mts diff` after"
+          ],
+          "originTier": "T6-4",
+          "tier": "T7"
         }
       ]
     }
@@ -332,8 +584,7 @@
       "One pass of each tier's charters T1-T6 (plan 14), Claude playing; their human-rated arms recorded for the review pack.",
       "Plan 09 I1-I3 x1, everything-on column first (T7, before the freeze); then I4-I6.",
       "The built rows of this list x2 on the frozen candidate: journeys and live scenarios kept by R3.",
-      "Placeholder rows at their phase F caps x1, then x2 as the budget allows; the judge-off column last."
+      "Hand rows (01, 03, 05, 11, 12, 09) at their phase F caps x1, then x2 as the budget allows; the judge-off column last."
     ]
-  },
-  "cutNote": "Placeholder minutes are each plan's own sizing; capMinutes is the phase F budget this plan (R5) gives the owning plan: the regression leg only, because measurement legs run once in their own plan (overview rule 13)."
+  }
 }

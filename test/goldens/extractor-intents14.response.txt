@@ -1,0 +1,3 @@
+DELTA q=climb_started value=true evidence="the climb begins"
+SCENE_NONE
+[intends] Petra | get paid before the climb starts

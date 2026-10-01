@@ -1,0 +1,3 @@
+DELTA q=bridge_crossed value=true evidence="reaches the far bank"
+SCENE_NONE
+[intends] Nell | reach the plague village with the medicine
