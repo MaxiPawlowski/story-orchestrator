@@ -40,3 +40,12 @@
 ## Records
 
 `test/measurements/v2.6-03/sp9/` (batch logs, `so-sp9-f1f2f5` and `so-sp9-f4` records, F4 scores, header diff, summary).
+
+## Addendum 2026-10-01 13:22Z — diagnostic row after the declared rows (bars unchanged)
+
+Declared rows ran first: Summarize on (not measured: generation 11 sent no request after Summarize's own quiet pass at
+10 messages) and Summarize off (F2 failed: 41 unwitnessed markers visible). The lane as seeded also has ST **Vector Storage
+chat vectorization on** (`vectors.enabled_chats: true`, insert 3, protect 5), which re-inserts retrieved older messages
+by similarity through its own path. **Diagnostic row (never decides F1/F2):** Summarize off **and** Vector Storage chats off,
+×1, same fixture, restored afterwards. It only attributes the leak; the verdict stays on the declared rows. F3 (J5 + J6)
+is not run: F2 and F4 already fail as declared, so F3 cannot change the verdict.
