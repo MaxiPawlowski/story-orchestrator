@@ -1,0 +1,1498 @@
+{
+  "storyId": "adolion-aegis",
+  "activeCheckpointId": "aegis-market-street",
+  "boundary": 17,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Aegis Checkpoints": "global",
+      "Adolion Chronicle": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "aegis_examiner_watching": false,
+    "location": "aegis_market",
+    "tension_current": 0.4918124267356274,
+    "progress_toward_aegis-the-board": 1,
+    "aegis_exam_entered": true,
+    "aegis_out_in_city": true
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "fb03907e-279a-48d4-82dc-40f962f9493b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Tobias knows more about Wendhope than he is saying",
+      "createdAt": 6,
+      "messageId": 9,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 9,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "f824aa15-bc8e-4541-a11b-5a39014dae87",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Max Nightriver asked about Wendhope, a village that stopped sending ore",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "2acc7a30-a8a9-4f5d-a0ab-b0fe2bde6e44",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Wendhope has been silent for weeks and its last runner was spotted three months ago",
+      "createdAt": 6,
+      "messageId": 9,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "eac8b1fe-5c62-4537-b316-03d74bb4a0e1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Wendhope is a frontier mining village of fifty people",
+      "createdAt": 6,
+      "messageId": 9,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "12e7cf3e-142f-450f-8cb5-338c38546628",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "suspects",
+      "content": "Max Nightriver's question about Wendhope is strange and carries darker meaning",
+      "createdAt": 6,
+      "messageId": 9,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "4e3f44e2-3cfa-4394-a910-4cf37408b6d7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "the deeper concern behind his reaction to Wendhope",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 6,
+      "messageId": 9,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "83fd04df-5a0f-45b5-80b6-a82f9db0312e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "the deeper concern behind his reaction to Wendhope",
+      "hiddenFrom": "The Party",
+      "createdAt": 6,
+      "messageId": 9,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "10744520-a996-4a3e-a847-8e193eef7370",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "the party will return in a week for their interview and quest",
+      "createdAt": 6,
+      "messageId": 9,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "ff3aa965-989a-4080-b26a-e2bb17ad4a77",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "believes",
+      "content": "Max Nightriver is the Nightriver heir",
+      "createdAt": 6,
+      "messageId": 9,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "bf8af56e-e177-4af4-b889-9e61129a5e50",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 8,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "hiding",
+      "content": "her flustered reaction and lingering attention toward the party and the Nightriver heir",
+      "hiddenFrom": "The Party",
+      "createdAt": 8,
+      "messageId": 11,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "d9bd65a5-32a4-4579-a6cd-2a10652f3e67",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Tobias and Vallie know more about Wendhope than they are saying",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "6710f1f7-a3d2-402f-b1aa-04ce401ac9e6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "his deeper unease about the name Wendhope",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "cf090600-7d6d-4574-be2d-a3010c9f8cf4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Vallie",
+      "tag": "hiding",
+      "content": "her deeper unease about the name Wendhope",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "da41717c-fa91-4452-a90c-48f2ffdf6a56",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Wendhope is a frontier mining village of fifty people",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "be2cf773-7467-4a7e-bca5-23f6d33d90dd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Wendhope has been silent for weeks and its last runner was spotted three months ago",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "eeec5c4d-3e49-4716-abb6-1fdee35da531",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "suspects",
+      "content": "Max Nightriver's question about Wendhope is strange and carries darker meaning",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "c49b1d18-b985-4044-9415-e7cacca01451",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "the deeper concern behind his reaction to Wendhope",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "a295d6f9-feb5-46da-85c7-8407605f6887",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "the deeper concern behind his reaction to Wendhope",
+      "hiddenFrom": "The Party",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "4b7ff11b-970c-41fb-b5da-72eb0e027de3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "knows",
+      "content": "She sat the C-rank exam last month as part of a party of four and failed",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "4e54031a-6ccb-4243-9c48-f2f9a71d1151",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "knows",
+      "content": "Her party's gear could not handle the first real fight of the C-rank quest",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "78ccc5ea-3771-423f-bcfa-ab52f18c43be",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "knows",
+      "content": "The observer gave her party a 'fail'",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "6a97e863-1167-4e69-ba87-ee7f27312d0b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "knows",
+      "content": "The Guild puts examinees through an actual C-rank quest",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "d74b4fb2-f53f-4655-b1c4-9f5915bfd0d6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "intends",
+      "content": "to warn the party that gear, not courage, is what fails the C-rank exam",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "876d4fb5-122f-4efc-85f9-399437e4d834",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "believes",
+      "content": "Max Nightriver is the Nightriver heir",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "2f3cdd59-1cd4-4706-bf7d-285db4556b02",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "hiding",
+      "content": "her flustered reaction and lingering attention toward the party and the Nightriver heir",
+      "hiddenFrom": "The Party",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "cf8af06d-95c7-4a27-89ed-dd69ce65a26a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "the party will return in a week for their interview and quest",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "a05b2e6c-c977-4ef5-9538-ec01727200af",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "intends",
+      "content": "To have everything prepared for the party's exam interview and quest in a week",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "065af341-9406-46c7-b864-c75ee19d4e76",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "knows",
+      "content": "The C-rank exam's hardest part is the first moment you realize your gear isn't enough",
+      "createdAt": 10,
+      "messageId": 15
+    },
+    {
+      "id": "3a9bc7a7-6dfa-42e0-af9b-9a500d5c2411",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "knows",
+      "content": "Her party's fighter's shield shattered on the first hit from the C-rank monster",
+      "createdAt": 10,
+      "messageId": 15
+    },
+    {
+      "id": "fafe3945-10ac-4287-a962-cc459281dc6c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "knows",
+      "content": "The observer watched without flinching as her party's gear fell apart",
+      "createdAt": 10,
+      "messageId": 15
+    },
+    {
+      "id": "9d7ac2eb-2595-48eb-bb84-51df98756a4a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "knows",
+      "content": "The C-rank quest involves a real C-rank monster, not a forest clearing like D-rank",
+      "createdAt": 10,
+      "messageId": 15
+    },
+    {
+      "id": "ef804701-8c90-46a9-a9dc-31e1856682ee",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Kaian",
+      "tag": "intends",
+      "content": "To learn what the Guild is thinking",
+      "createdAt": 10,
+      "messageId": 15,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 17,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "9ba9100b-f5dd-4027-9eee-277ad5075857",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Kaian",
+      "tag": "believes",
+      "content": "The party's exam details will reveal what the Guild is thinking",
+      "createdAt": 10,
+      "messageId": 15,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 17,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "b13a2d31-bd8a-4621-9640-8031fabdda92",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kaian",
+      "tag": "knows",
+      "content": "The party is sitting the C-rank exam and Max carries the Nightriver name.",
+      "createdAt": 11,
+      "messageId": 17
+    },
+    {
+      "id": "2a5180ce-c796-4bdf-8f52-19883ccc4d31",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Kaian's interest in the Nightriver name goes beyond simple curiosity.",
+      "createdAt": 11,
+      "messageId": 17
+    },
+    {
+      "id": "aa352583-f01c-4732-b5ee-b3075db218e2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "knows",
+      "content": "The party has one week to prepare for the C-rank exam",
+      "createdAt": 11,
+      "messageId": 17
+    },
+    {
+      "id": "22ce7cd2-8fd4-4ecd-81df-ca30bf9e665f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kaian",
+      "tag": "knows",
+      "content": "The party has one week to prepare for the C-rank exam",
+      "createdAt": 11,
+      "messageId": 17
+    },
+    {
+      "id": "9fdaa8e2-d827-4edb-8523-1ecafcc3e770",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kaian",
+      "tag": "knows",
+      "content": "The party plans to head to the Market District tomorrow morning to prepare",
+      "createdAt": 11,
+      "messageId": 17
+    },
+    {
+      "id": "b604b2b1-f607-442d-8773-1510a7610e7b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "knows",
+      "content": "The party plans to head to the Market District tomorrow morning to prepare",
+      "createdAt": 11,
+      "messageId": 17
+    },
+    {
+      "id": "f6f0c00b-bd65-4ec1-ab0e-cde327d45c6d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kaian",
+      "tag": "knows",
+      "content": "The party is turning in early tonight",
+      "createdAt": 11,
+      "messageId": 17
+    },
+    {
+      "id": "822a165e-d017-4d54-beab-574c57092bd0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "knows",
+      "content": "The party is turning in early tonight",
+      "createdAt": 11,
+      "messageId": 17
+    },
+    {
+      "id": "e86e8861-1fed-4374-9377-ad7d954d10b8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Kaian",
+      "tag": "intends",
+      "content": "To hear the details of the party's exam attempt",
+      "createdAt": 11,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "ff15bd96-84d5-4218-bf1e-2334cd7257c3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Kaian",
+      "tag": "intends",
+      "content": "To learn what the Guild is thinking",
+      "createdAt": 11,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "1b9992a3-23d4-4175-91d5-ad3ddac7c588",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Kaian",
+      "tag": "suspects",
+      "content": "The Nightriver name and the party's exam attempt are worth his personal attention",
+      "createdAt": 11,
+      "messageId": 17
+    },
+    {
+      "id": "5378a7b0-3887-4aa5-8149-87b5edbe9945",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Kaian",
+      "tag": "believes",
+      "content": "The party's exam details will reveal what the Guild is thinking",
+      "createdAt": 11,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "5e015d62-e59c-48ef-a1dd-7387ccd9b626",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kaian",
+      "tag": "knows",
+      "content": "The party is a fresh group seeking C-rank and bears the Nightriver name.",
+      "createdAt": 12,
+      "messageId": 19
+    },
+    {
+      "id": "b8f3b764-0c0f-42f1-947a-2305688427fb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Kaian",
+      "tag": "intends",
+      "content": "To hear the details of the party's C-rank exam and what the Guild is thinking.",
+      "createdAt": 12,
+      "messageId": 19,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "2a31ace0-7281-4a7a-b821-8380def2a46c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Konako",
+      "tag": "knows",
+      "content": "Alarise Starflower's identity and location in the Market District alley",
+      "createdAt": 13,
+      "messageId": 21,
+      "supersededBy": "retired@13",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 13
+      }
+    },
+    {
+      "id": "6fe0a718-91de-424c-9da1-e42516e93199",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Konako",
+      "tag": "knows",
+      "content": "Alarise Starflower's identity and location in the Market District alley",
+      "createdAt": 13,
+      "messageId": 21
+    },
+    {
+      "id": "1caf7319-e419-4e32-9485-67d554aa0773",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Konako",
+      "tag": "hiding",
+      "content": "her true intentions toward Alarise Starflower",
+      "hiddenFrom": "The Party",
+      "createdAt": 13,
+      "messageId": 21,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "f8e62ebe-1da8-45aa-928a-f3c0ff5c9e57",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Alarise",
+      "tag": "suspects",
+      "content": "that the party may be able to help her",
+      "createdAt": 13,
+      "messageId": 21,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "9d2e0e0b-bf73-4d00-9248-115c306054c8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Alarise",
+      "tag": "knows",
+      "content": "The party has intervened to protect her from Konako and the hidden figure",
+      "createdAt": 14,
+      "messageId": 23,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "7250beef-1e93-4258-b08c-2af498deeada",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Alarise",
+      "tag": "knows",
+      "content": "The party has intervened to protect her from Konako and the hidden figure",
+      "createdAt": 14,
+      "messageId": 23
+    },
+    {
+      "id": "04ac26d6-f53b-45b3-ad52-ed7c392e7c7e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Alarise",
+      "tag": "knows",
+      "content": "Konako Shynea has been looking for her",
+      "createdAt": 14,
+      "messageId": 23
+    },
+    {
+      "id": "4a5abd94-6b29-4fc0-b3eb-76d3c1a097fb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Alarise",
+      "tag": "suspects",
+      "content": "that the party may be able to help her",
+      "createdAt": 14,
+      "messageId": 23
+    },
+    {
+      "id": "ded9427d-ced1-4e95-92a4-6d63562eb06f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Alarise",
+      "tag": "hiding",
+      "content": "her alarm and fear at being grabbed by the hidden figure",
+      "hiddenFrom": "The Party",
+      "createdAt": 14,
+      "messageId": 23
+    },
+    {
+      "id": "3de735a1-76d2-404d-86d2-d1c2ea1d65cb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Alarise",
+      "tag": "hiding",
+      "content": "that she was shopping at the boutique across the street, which she hides from the Church",
+      "hiddenFrom": "The Party",
+      "createdAt": 14,
+      "messageId": 23
+    },
+    {
+      "id": "28989f1d-62d7-4b50-ae50-3ce07e761a42",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Konako",
+      "tag": "hiding",
+      "content": "her true intentions toward Alarise Starflower",
+      "hiddenFrom": "The Party",
+      "createdAt": 14,
+      "messageId": 23
+    },
+    {
+      "id": "764e69f2-ce5c-4a2a-b25d-0da6b897bc72",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "that the figure in the grey cloak is not what she seems",
+      "createdAt": 14,
+      "messageId": 23,
+      "supersededBy": "retired@17",
+      "retiredAt": {
+        "messageId": 24,
+        "boundary": 17
+      }
+    },
+    {
+      "id": "4780e2e4-bfd2-4f4e-8a50-ef6eed6b3266",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "believes",
+      "content": "that keeping her axe on her back would scare off shopkeepers",
+      "createdAt": 14,
+      "messageId": 23
+    },
+    {
+      "id": "19a034fc-9e63-4b53-9956-41093aef5c25",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "to find a smith and a potion-seller in the Market District",
+      "createdAt": 14,
+      "messageId": 23
+    },
+    {
+      "id": "7aedd7d1-6014-4a2b-933e-1b0bd9fbe16a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 14,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "to protect Alarise by fighting Konako",
+      "createdAt": 14,
+      "messageId": 23,
+      "affirmedAt": [
+        {
+          "messageId": 24,
+          "boundary": 16
+        }
+      ],
+      "supersededBy": "retired@17",
+      "retiredAt": {
+        "messageId": 24,
+        "boundary": 17
+      }
+    },
+    {
+      "id": "1930dfdd-f1ca-4f6a-ad4e-f0dbb122aea1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Alarise Starflower",
+      "tag": "knows",
+      "content": "Konako Shynea and a hooded figure have been hunting her and cornered her in the alley",
+      "createdAt": 16,
+      "messageId": 24
+    },
+    {
+      "id": "8cafe9d9-009d-4891-909c-b1d27389fc29",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 16,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "to force the hooded figure to release Alarise without killing them",
+      "createdAt": 16,
+      "messageId": 24
+    },
+    {
+      "id": "65ef27d6-8274-4877-b440-56b46629e7ec",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Alarise Starflower is a priestess of Boher",
+      "createdAt": 17,
+      "messageId": 24
+    },
+    {
+      "id": "2c1e9593-cb7b-4653-a7a9-601f6734e4e4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Alarise Starflower is a priestess of Boher",
+      "createdAt": 17,
+      "messageId": 24
+    },
+    {
+      "id": "5cea117a-c72c-4a68-a7cd-d1d380959e9d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Konako Shynea is the woman who grabbed Alarise",
+      "createdAt": 17,
+      "messageId": 24
+    },
+    {
+      "id": "41b0ca8c-96e7-4b57-b245-131eba24d8ba",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Konako Shynea is the woman who grabbed Alarise",
+      "createdAt": 17,
+      "messageId": 24
+    },
+    {
+      "id": "48e21ba8-916d-4815-8f75-114e02d5ba7a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "a hidden figure in the shadows grabbed Alarise's shoulder",
+      "createdAt": 17,
+      "messageId": 24
+    },
+    {
+      "id": "8c0b3ef4-b012-4f26-95d9-cd5bae02bbfa",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "a hidden figure in the shadows grabbed Alarise's shoulder",
+      "createdAt": 17,
+      "messageId": 24
+    },
+    {
+      "id": "b1a9fbd2-a934-4265-b6ad-f3e4f8c6aa5f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Alarise",
+      "tag": "knows",
+      "content": "the party has drawn weapons against Konako and the hidden figure on her behalf",
+      "createdAt": 17,
+      "messageId": 24
+    },
+    {
+      "id": "e8784fd3-1898-4024-a168-c068aec6ee57",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 17,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "Konako fights with skill that suggests she is more than a common thug",
+      "createdAt": 17,
+      "messageId": 24
+    },
+    {
+      "id": "ae48b777-5a9e-4d9d-b211-af5a4d9281ed",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 17,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "to defeat Konako in direct combat",
+      "createdAt": 17,
+      "messageId": 24
+    },
+    {
+      "id": "cfcdeb46-7e57-4363-a8b0-fbcf0339deca",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 17,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "to shoot the hooded figure's arm or shoulder if they do not release Alarise",
+      "createdAt": 17,
+      "messageId": 24
+    },
+    {
+      "id": "a67e23a5-e544-4f15-b5eb-1143c9aea22f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 17,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Alarise",
+      "tag": "hiding",
+      "content": "that she recognized the hidden figure's grip as familiar",
+      "hiddenFrom": "Belle",
+      "createdAt": 17,
+      "messageId": 24
+    },
+    {
+      "id": "4ca6209c-2271-4c84-bf6b-8680ba00dbf9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 17,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Alarise",
+      "tag": "hiding",
+      "content": "that she recognized the hidden figure's grip as familiar",
+      "hiddenFrom": "Dalan",
+      "createdAt": 17,
+      "messageId": 24
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 4,
+      "name": "Akari",
+      "avatar": "Akari.png"
+    },
+    {
+      "index": 6,
+      "name": "Alarise",
+      "avatar": "Alarise.png"
+    },
+    {
+      "index": 14,
+      "name": "Arryn",
+      "avatar": "Arryn.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 24,
+      "name": "Calithra",
+      "avatar": "Calithra.png"
+    },
+    {
+      "index": 30,
+      "name": "Celedir",
+      "avatar": "Celedir.png"
+    },
+    {
+      "index": 31,
+      "name": "Celeste",
+      "avatar": "Celeste.png"
+    },
+    {
+      "index": 33,
+      "name": "Dahlia",
+      "avatar": "Dahlia.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 40,
+      "name": "Diosanea",
+      "avatar": "Diosanea.png"
+    },
+    {
+      "index": 41,
+      "name": "Dixton",
+      "avatar": "Dixton.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 58,
+      "name": "Grant",
+      "avatar": "Grant.png"
+    },
+    {
+      "index": 68,
+      "name": "Jasira",
+      "avatar": "Jasira.png"
+    },
+    {
+      "index": 72,
+      "name": "Kaian",
+      "avatar": "Kaian.png"
+    },
+    {
+      "index": 77,
+      "name": "Karia",
+      "avatar": "Karia.png"
+    },
+    {
+      "index": 78,
+      "name": "Karos",
+      "avatar": "Karos.png"
+    },
+    {
+      "index": 79,
+      "name": "Karrus",
+      "avatar": "Karrus.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 81,
+      "name": "Kass",
+      "avatar": "Kass.png"
+    },
+    {
+      "index": 86,
+      "name": "Konako",
+      "avatar": "Konako.png"
+    },
+    {
+      "index": 89,
+      "name": "Liora",
+      "avatar": "Liora.png"
+    },
+    {
+      "index": 90,
+      "name": "Lirael",
+      "avatar": "Lirael.png"
+    },
+    {
+      "index": 95,
+      "name": "Manako",
+      "avatar": "Manako.png"
+    },
+    {
+      "index": 99,
+      "name": "Mina",
+      "avatar": "Mina.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 111,
+      "name": "Oswyn",
+      "avatar": "Oswyn.png"
+    },
+    {
+      "index": 112,
+      "name": "Panne",
+      "avatar": "Panne.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 122,
+      "name": "Rosea",
+      "avatar": "Rosea.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 125,
+      "name": "Ryenne",
+      "avatar": "Ryenne.png"
+    },
+    {
+      "index": 137,
+      "name": "Sophie",
+      "avatar": "Sophie.png"
+    },
+    {
+      "index": 150,
+      "name": "Thorne",
+      "avatar": "Thorne.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    },
+    {
+      "index": 159,
+      "name": "Yrelra",
+      "avatar": "Yrelra.png"
+    }
+  ],
+  "payloadEpoch": "1790876005112-rg8fah"
+}

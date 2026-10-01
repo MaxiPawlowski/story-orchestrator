@@ -1,0 +1,43 @@
+ok   build.head  "fd157461da784f2047784c2efd1a4705ca963878" -> "711207345164c2627132d02b9ddbaf8e4aa5fa46"  (allowed by served-bundle 6566f7f8e418a513)
+ok   build.manifest.builtAt  "2026-10-01T16:29:14.183Z" -> "2026-10-01T17:10:47.276Z"  (allowed by served-bundle 6566f7f8e418a513)
+ok   build.manifest.bundleBytes  1233682 -> 1235515  (allowed by served-bundle 6566f7f8e418a513)
+ok   build.manifest.bundleSha256  "ea7a3534532898467e1387b483be4313ddf34e3cf4b5672dca38445f05882fee" -> "c8bddeb949e5d668f12c3d7ca63006b41dcb8d83642e8dc0bc8e4e1b3be57ce6"  (allowed by served-bundle 6566f7f8e418a513)
+ok   build.manifest.fileSha256  "53a676d59e505d8a" -> "5a177d6e5e0fffe2"  (allowed by served-bundle 6566f7f8e418a513)
+ok   build.manifest.sourceSha256  "47e3cb780b0c431c21ee96b6e52519dca1fbca2cb3d6be07954ff17f15c5a4cd" -> "a7e041e8705730db0179d6a0683f6aa9e5e7ac8c86f0dd6dba03d3f2e467ddd4"  (allowed by served-bundle 6566f7f8e418a513)
+ok   chat.chatLength  1 -> 47  (allowed by progress)
+ok   group.disabledMembers  -Hanzo.png -Megumi.png -Rikako.png -Tanya.png  (allowed by group)
+ok   story.activeCheckpointId  "east-landfall" -> "east-the-final"  (allowed by progress)
+ok   story.boundary  1 -> 29  (allowed by progress)
+ok   warnings  +the page is running a bundle that is not the built one: served 6566f7f8e418a513 vs dist c8bddeb949e5d668 -the page is running a bundle that is not the built one: served 6566f7f8e418a513 vs dist ea7a353453289846  (allowed by served-bundle 6566f7f8e418a513)
+WARNING: the page is running a bundle that is not the built one: served 6566f7f8e418a513 vs dist c8bddeb949e5d668
+{
+  "baseline": "C:\\dev\\story-orchestrator\\test\\sessions\\T1\\T1-4-1\\run-header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "chatId",
+    "groupId",
+    "authorView",
+    "story",
+    "group",
+    "inventory.journal"
+  ],
+  "differences": 11,
+  "progress": 3,
+  "blocking": 0,
+  "blockingPaths": [],
+  "servedIdentity": [
+    "build.head",
+    "build.manifest.builtAt",
+    "build.manifest.bundleBytes",
+    "build.manifest.bundleSha256",
+    "build.manifest.fileSha256",
+    "build.manifest.sourceSha256",
+    "warnings"
+  ],
+  "warnings": [
+    "the page is running a bundle that is not the built one: served 6566f7f8e418a513 vs dist ea7a353453289846",
+    "the page is running a bundle that is not the built one: served 6566f7f8e418a513 vs dist c8bddeb949e5d668"
+  ],
+  "wrote": "C:\\dev\\story-orchestrator\\test\\sessions\\T1\\T1-4-1\\run-header-end.json",
+  "ok": true
+}

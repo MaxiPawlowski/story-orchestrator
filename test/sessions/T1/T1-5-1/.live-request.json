@@ -1,0 +1,14 @@
+{
+  "verb": "shot",
+  "dir": "C:\\dev\\story-orchestrator\\test\\sessions\\T1\\T1-5-1",
+  "chat": {
+    "chatId": "2026-10-01@13h56m53s812ms",
+    "group": "Adolion - Night Courts",
+    "groupId": "1790873419701"
+  },
+  "args": {
+    "label": "castle-dracul-overview",
+    "seq": 35
+  },
+  "options": {}
+}

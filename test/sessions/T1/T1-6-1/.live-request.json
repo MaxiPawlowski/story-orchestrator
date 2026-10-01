@@ -1,0 +1,14 @@
+{
+  "verb": "shot",
+  "dir": "C:\\dev\\story-orchestrator\\test\\sessions\\T1\\T1-6-1",
+  "chat": {
+    "chatId": "2026-10-01@13h48m59s000ms",
+    "group": "Adolion - Eshalanore",
+    "groupId": "1790872933287"
+  },
+  "args": {
+    "label": "court-end",
+    "seq": 26
+  },
+  "options": {}
+}

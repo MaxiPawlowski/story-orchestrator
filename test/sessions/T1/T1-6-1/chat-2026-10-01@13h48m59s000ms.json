@@ -1,0 +1,362 @@
+[
+ {
+  "id": 0,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The road north ends at a roofless chapel beneath the black pines. A sun of bound sticks rests on the altar; beyond it, mossy shrine stones mark the edge of the elven wood. Ashliel offers shelter for the night and, just as gently, asks you to turn back in the morning. Something small moves between the trees nearby, then goes still."
+ },
+ {
+  "id": 1,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I sit on the nearest pew and let the quiet settle. Ashliel, why do you want us to turn back?"
+ },
+ {
+  "id": 2,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "\"The forest is unkind to those who trespass,\" she says softly. \"There are things here that do not wish for us to pass.\" Her eyes flicker toward the north, toward the line of shrine stones. \"I have seen many come this way. Many who do not return.\"\nShe lowers her gaze and her voice grows thin, almost a whisper. \"You have shelter tonight. You have warmth. At dawn, please... turn back. Go home.\""
+ },
+ {
+  "id": 3,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Past the broken wall of the chapel, something pale green peeks round a pine trunk, sees it has been noticed, and melts flat against the bark."
+ },
+ {
+  "id": 4,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "\"We are not alone,\" she murmurs, barely turning her head toward the tree where the green shape vanished. Her eyes go to the forest, then back to you with an expression that is not quite fear, but something heavier. \"Another traveler, perhaps. One who has been watching.\"\nShe pauses, then looks back toward the altar. \"Tonight, you will sleep. Tomorrow, you will decide.\""
+ },
+ {
+  "id": 5,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I look toward the pine where the green thing hid and speak gently. Sali, isn't it? What are you? Come sit with us, there's bread and a fire."
+ },
+ {
+  "id": 6,
+  "name": "Sali",
+  "isUser": false,
+  "text": "\"Sali?\" A high, bright voice comes from the trees. \"You know Sali? How do you know Sali?\"\nThe pale green shape drops from the tree like melted wax, then forms itself back up into the shape of a woman—long pale green hair, glossy blue-green skin, and a form-fitting purple dress that looks like it's made of the same glossy slime as her. She bounces toward the chapel, her form wobbling slightly with every movement, and forms a little exclamation mark above her head out of her own slime.\n\"Is there bread? Really? I love bread! And fire! Fire is so pretty and warm!\" She bounces closer, and her arm melts round yours in an affectionate, physically affectionate squeeze that doesn't seem to be mindful of any personal space. \"And you're an adventurer! I saw the Guild mark on your belt! I've been following you for a day and you didn't even notice!\" She releases you and hops back, her eyes wide and full of excitement. \"Wait, am I in trouble? Do slimes get in trouble for following people? I'll be good! I promise! I'll follow you quietly!\"\nShe tilts her head, and a question mark forms above her head. \"And you asked what I am? I'm a slime! See?\" She reaches out and touches her cheek, and her finger sinks into the glossy, translucent flesh before pulling away with a wet, sucking sound. \"I'm made of slime! But I can be anyone I want! Watch!\" Her face shimmers, and for a moment, she takes on the shape of you, then shifts back to her elven form. \"Pretty cool, right?\""
+ },
+ {
+  "id": 7,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "Ashliel's expression doesn't change, but her hands tighten slightly. \"You have the heart of a child, slime-girl. But you must listen to what I say: you are not welcome north of the chapel. The forest beyond the shrine-stones is not for you. It is not for anyone who would seek to cross into it.\"\nShe looks at Sali with a concern that borders on despair. \"The Lady of the Forest does not permit outsiders to pass, and she will not be kind if you trespass.\"\nAshliel folds her hands before her and speaks softly, like a prayer. \"Sit. Eat. Rest. But at dawn, you must leave with the travelers, or you will be lost to the forest.\""
+ },
+ {
+  "id": 8,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I break the bread and pass a piece to Sali, then one to Ashliel. Who built this chapel? It's older than the road."
+ },
+ {
+  "id": 9,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "\"It was built for the light,\" she says simply. Her hands brush the crumb-laden wood of the pew as she takes a piece of bread. She holds it for a moment before bringing it to her lips, eating slowly. \"Long ago, when the church was still strong. It was meant to be a shelter for all who would come seeking Boher's warmth.\"\nShe looks around at the roofless ruin, and her expression goes thin and distant. \"Now it is only a shelter for those who do not wish to die. It still serves a purpose, I suppose.\" She turns her eyes to you. \"Even a ruin can offer mercy.\""
+ },
+ {
+  "id": 10,
+  "name": "Sali",
+  "isUser": false,
+  "text": "Sali takes her piece of bread with both hands, and her glossy eyes widen as she looks at it. \"Oh! Thank you! Thank you so much!\" She brings the piece of bread to her cheeks, pressing it against her glossy slime-skin. \"Bread! Real bread! I haven't had real bread in so long!\"\nShe takes a big, enthusiastic bite, chewing happily, her cheeks puffing out as she bubbles with delight. \"Mmm! Mmm! So good! So good!\" A little slime exclamation mark pops up above her head as she eats, and then she takes another bite, chewing faster. \"This is the best bread I've ever had!\"\nShe finishes her piece in a little while, and her eyes go wide and full of delight. \"Oh! More bread! More bread! More bread!\" She asks, her voice bright and eager. \"Please! Please! Can I have more? Just a tiny piece?\" She points to the way the bread is being held, her-elven-woman-face-looking-at-you, and bounces a little. \"Please, please, please?\""
+ },
+ {
+  "id": 11,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Enough. Belle, Dalan, up. We're not waiting for dawn, we go now."
+ },
+ {
+  "id": 12,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle's eyes snap open. She looks at Max for a heartbeat, and then a slow, dark grin spreads across her face. \"Finally. A decision that doesn't suck.\" She's up and moving, grabbing Cleaver from the floor where she'd left it. The greataxe catches the firelight, the stone blade dark and heavy as she slings it over her shoulder. \"And don't tell me you're afraid of the dark. That's a whole different thing.\"\nShe looks over at Ashliel with a challenge, then at Dalan, and then back at Max. \"Well, come on. I'm not sitting here waiting for the sun to rise like a bunch of fuckin' hens.\"\nShe's already moving toward the edge of the chapel, toward the door that isn't there. \"The Lady of the Forest doesn't want us to cross the shrine-stones? Fine. We'll show her we're not some scared little shits who turn tail at the first hint of danger.\"\nShe's ready to swing her axe, and her jaw is set tight. \"Let's go. I'm sure whatever's out there is gonna have a lot to say.\""
+ },
+ {
+  "id": 13,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "Dalan is up, and his movements are quiet and swift, his shortbow slung across his back and his hand already resting on the hilt of a curved shortsword. He doesn't speak, but his nose wrinkles as he catches the wind. \"Incense,\" he says, his voice low and thin. \"It's getting stronger.\"\nHe looks toward the shrine-stones, and his eyes are narrow. \"The smell doesn't match anything elven. Not a single thing I recognise.\"\nHis voice is quiet and calm, but there is a tension in his shoulders that betrays his nervousness. \"But we're going. I'm with you.\"\nHe looks at you, and there is something like gratitude in his gaze, and something like a promise. \"Let's get the trappers back.\""
+ },
+ {
+  "id": 14,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I hold up a hand. No, wait. Sit back down. Ashliel's right about the dark. We go at dawn. Ashliel, how long have you kept this place?"
+ },
+ {
+  "id": 15,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "\"The night is not kind to the living,\" she says softly, and her voice has a trace of something like relief. \"It is not for those who walk alone.\"\nShe looks at the garden, then back at you, her eyes dull and heavy. \"I have kept this place for many winters. Too many to count.\"\nHer voice goes thin and distant, almost a whisper. \"And for many winters, I have waited for forgiveness that never comes.\""
+ },
+ {
+  "id": 16,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Belle's grin fades and she settles back into the pew, her shoulders stiff. \"Fine,\" she says, her voice low. \"At dawn. I guess we'll see who has the guts to actually go.\"\nSali's exclamation mark dissolves into a puddle of slime on the floor, and she flops down beside you, her glossy skin reflecting the firelight. \"Dawn is good. Dawn is safe. Ashliel says dawn is safe.\"\nDalan doesn't say anything, but his hand has relaxed from his sword hilt. He looks toward the shrine-stones again, his eyes narrowed as he studies the line of stones in the distance. \"I'll try and remember that smell,\" he says quietly. \"The incense.\""
+ },
+ {
+  "id": 17,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "At dawn we thank Ashliel and walk north. We cross the shrine stones slowly, weapons down, hands where they can be seen."
+ },
+ {
+  "id": 18,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "Ashliel rises from the pew as the first light of dawn touches the forest canopy. She watches you with a sorrowful expression, her hands clasped before her. \"You thank me for my hospitality, but I cannot forgive you for this.\"\nShe follows the party toward the shrine-stones as you walk north, her footsteps silent on the forest floor. \"The Lady of the Forest will not be pleased.\"\nShe stops just before the line of stones, her gaze fixed on the forest beyond. \"If you must pass, then I will follow. But I cannot tell you that you will return.\"\nHer voice is thin and hollow. \"I will walk with you. If you must cross, then you will not cross alone.\""
+ },
+ {
+  "id": 19,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We step past the last stone into the forest and stop, listening."
+ },
+ {
+  "id": 20,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The incense grows heavy in the air, thick as syrup and warm against the skin. Beyond the shrine stones, the forest changes: the pines thin and give way to ancient oaks with bark like wrinkled flesh and leaves that shimmer silver in the dawn light. The ground is soft, moss-covered and silent.\nA low chime rings out from deeper in the woods—a clear, crystalline sound that repeats once, twice, then fades into the distance.\nThen something answers from the underbrush, a sound like bone scraping against wood."
+ },
+ {
+  "id": 21,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Ten steps past the shrine stones every bird stops singing. Between two trunks stands a stag, perfectly still, and when it opens its mouth there is a second pair of eyes inside, looking out."
+ },
+ {
+  "id": 22,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I keep very still and speak to the stag, low and even. We mean no harm. We're from the Guild, looking for two trappers, the Holt siblings. We'll go where you allow."
+ },
+ {
+  "id": 23,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The stag does not blink. Its second eyes swivel in its throat to watch Max Nightriver, then settle on the rest of the party.\nThe sound of bone-on-bone scraping comes again, closer. From behind a thicket of silver oaks, another Guardian steps into the light: a bear with hide of bark and moss, sap glowing gold in the cracks of its flanks.\nThe creatures do not move toward them. They simply stand and watch.\n\"They're not going to let us pass,\" Dalan whispers, his hand white-knuckled on the hilt of his shortsword. \"I know that look. That's a 'you're-about-to-die' look.\""
+ },
+ {
+  "id": 24,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "Dalan's voice is barely a whisper. \"Don't move. Don't pull steel. They won't attack unless we do.\"\nHe glances at the stag and the bear, then at the party. \"They're watching. Waiting. I've seen this before, back in my tribe. If we show fear or aggression, they'll close in.\"\nHe takes a half-step back, his breath coming in shallow gasps. \"But we can't stay here. This is their domain. We have to show them we're not a threat.\""
+ },
+ {
+  "id": 25,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I lower myself to one knee and set my sword on the moss in front of me. We wait for whoever speaks for this forest."
+ },
+ {
+  "id": 26,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The stag and bear do not move. The chime sounds once more, and this time the bone-on-bone scrape comes from directly behind the party.\nAnother Guardian, a wolf with a third leg twisted from its flank, steps into the light. Its eyes are gold-green and narrow, and it lets out a breath that smells like old leaves and wet stone.\n\"There is no one who speaks for the forest,\" a voice says from somewhere above. \"There is only the Lady. And she does not speak to intruders.\""
+ },
+ {
+  "id": 27,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "Dalan's breath hitches, and he looks up toward the voice, his hand still white-knuckled on his sword hilt. \"The Lady...\"\nHe swallows hard. \"I've heard stories about her.\" He looks back down at you on one knee, then at the wolf, then back up. \"She doesn't like it when people cross the shrine-stones.\"\nHe takes another shallow breath and looks toward the forest ahead. \"We're not exactly making a good first impression.\""
+ },
+ {
+  "id": 28,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I look up toward the voice. Then we ask the Lady's leave, not her words. Two trappers came this way. If they live, we'd only take them home."
+ },
+ {
+  "id": 29,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The voice above is silent for a moment. Then it speaks again, the same sound as the wind in the trees. \"The trappers who came this way are guests of the Princess. They will not leave until she allows it.\"\nThe Guardians step closer, their movements slow and deliberate. The wolf's third leg scrapes against the forest floor, and its gold-green eyes narrow. \"You will leave as you came. You will leave now. Or you will not leave at all.\""
+ },
+ {
+  "id": 30,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle shifts her weight, and her eyes narrow as she looks at the Guardians. \"The fuck-a-doozy says we leave.\" She spits on the ground, then looks at you. \"Max. You want to talk, or do you want me to start breaking things?\"\nShe doesn't wait for an answer. She steps forward, and her hand closes around the handle of her greataxe. \"I'm not leaving without those trappers. I don't care who they're guests of. I don't care if they're the goddamned King's guests. We're not leaving.\"\nShe's ready to swing, her jaw tight. \"And if these things think they can stop us, they're wrong.\""
+ },
+ {
+  "id": 31,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Belle. Hands off the axe. I stand slowly. Then take us to the Princess as guests. We'll follow wherever you lead, and we'll keep our steel sheathed."
+ },
+ {
+  "id": 32,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle's jaw clenches as she takes her hand off the handle of Cleaver. \"Fuck,\" she says, the low sound a curse and a promise. \"Fine. But if anyone tries something, I'm not waiting for an order.\"\nShe settles her hands by her sides, her eyes locked on the wolf. \"And I'm not sheathing it. Just keeping it still.\"\nShe looks at you, then back at the Guardians, then at the forest around them. \"You're doing a lot of trusting for one person. Hope it doesn't blow up in our faces.\""
+ },
+ {
+  "id": 33,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I nod to Belle, then turn back to the guardians and wait, palms open."
+ },
+ {
+  "id": 34,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The Guardians do not move. The forest is silent. Then the bear turns and begins to walk. Its golden sap glows in the mossy shadows, and it makes no sound as it moves.\nThe wolf follows, its twisted third leg dragging slightly on the forest floor.\nThe stag does not move. It stays where it is, watching the party as they pass. Its second pair of eyes does not blink.\nThen from behind the silver oaks, three figures step out. They wear grey-green leather that blends into the trees, and they carry bows. They are not as tall as humans, but as tall as Dalan. Their hair is dark and their eyes are sharp, and they smile.\n\"The Princess is expecting you,\" the lead scout says. \"Please, come this way.\"\nThe scout does not wait for a response. He turns and begins to walk, and the others follow.\nThe Guardians do not follow. They simply stand and watch, as the party begins to move into the forest."
+ },
+ {
+  "id": 35,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle doesn't move at first. She looks at the scouts, then at you. \"You're joking.\" She spits on the moss, and her hands twitch near her greataxe's handle. \"You want to follow these bastards into the woods?\"\nShe shakes her head, then looks at you and the scouts and back again. \"Fine. I'm following you. But if this is a trick, I'm going to start hacking.\"\nShe's already moving, and her eyes are locked on the scouts' backs as they walk. \"And I'm keeping my axe ready.\""
+ },
+ {
+  "id": 36,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We follow the scouts. I fall into step beside the lead scout. How far is it to your city? And how did the trappers come to be the Princess's guests?"
+ },
+ {
+  "id": 37,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "Ashliel walks silently behind the group, her hands clasped before her. She says nothing, but her gaze is fixed on the forest ahead.\nThe scent of incense grows stronger as they walk, thick enough to taste.\nAnd from the shadows, there is a sound: the brush of a wing.\nAshliel's eyes flick toward the sound, and she stills for a moment.\nThen she moves forward again, and her voice is barely a whisper. \"The forest knows we are here.\"\nShe says it as if it is a warning, but it is not quite a warning.\nIt is a prayer.\nAnd a prayer for the living.\nAnd a plea for the dead.\nAnd a request for the gods to have mercy.\nAnd a curse on the world.\nAnd a promise to the dead to never leave them.\nAnd a truth that is not quite a truth.\nAnd a lie that is not quite a lie.\nAnd a truth that is a lie.\nAnd a lie that is a truth.\nAnd a truth and a lie that are the same thing.\nAnd a truth that is not a truth.\nAnd a lie that is not a lie.\nAnd a truth that is neither.\nAnd a lie that is neither.\nAnd a truth that is both.\nAnd a lie that is both.\nAnd a truth that is more.\nAnd a lie that is more.\nAnd a truth that is less.\nAnd a lie that is less.\nAnd a truth that is no truth.\nAnd a lie that is no lie.\nAnd a truth that is... a truth.\nAnd a lie that is... a lie.\nAnd a truth that is a truth and a lie that is a lie, and they are the same.\nAnd a lie that is a lie and a truth that is a truth, and they are the same.\nAnd a lie that is truth and truth that is lie, and they are not the same.\nAnd a lie that is lie and truth that is truth, and they are not the same, but they are the same, and they are not.\nAnd a truth that is true and a lie that is false, and they are true and false, and they are the truth and the lie.\nAnd a lie that is true and a truth that is false.\nAnd a lie that is false and a truth that is true.\nAnd a lie that is neither true nor false.\nAnd a truth that is neither true nor false, but just is.\nAnd a truth that is just is.\nAnd a lie that just is.\nAnd a truth and a lie together, and they just are.\nAnd a truth and a lie apart, and they just are not.\nAnd a lie and a truth together, and they just not.\nAnd a truth and a lie alone, and they"
+ },
+ {
+  "id": 38,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle keeps her eyes locked on the back of the lead scout, and her hands are still near her axe. \"You're making a lot of questions, Max.\" She says it low, but there's a hint of something in her voice—something that isn't just irritation. \"This is our chance to get the answers we came for. Don't fuck it up by asking too many.\"\nShe shifts her weight, her eyes flicking to the forest around them. \"And keep your eyes open. These people aren't exactly our friends.\"\nShe's ready to swing her axe at the first sign of trouble, and she's not planning on waiting for Max's order to do so."
+ },
+ {
+  "id": 39,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The forest changes as they move deeper into the elves' wood: the silver-leaved oaks give way to trees with leaves that shimmer with a faint green light, and the forest floor becomes carpeted in soft, bioluminescent fungi that glow softly in the shadows.\nThe smell of incense continues to thicken, and there is a constant hum in the air, like the sound of a thousand bees.\nThe lead scout does not turn, but his voice comes from somewhere behind him, low and calm. \"It is not far. A few hours' walk, if the forest allows us to pass.\"\nHe pauses, and his voice becomes softer. \"And the trappers were found by our patrol. They had crossed the shrine-stones without permission, and were taken to the Princess's court as her guests.\"\nHe says it as if there is no question, and asliel walks behind the and Belle and Dalan.\nAnd the forest hums, and the incense is thick, and the trees are silver-and-green and bioluminescent and the path is soft and silent.\nAnd the path goes on, and the party follows the scouts deeper into the forest, toward the Princess's court."
+ },
+ {
+  "id": 40,
+  "name": "Elowyn",
+  "isUser": false,
+  "text": "\"I've been waiting for you.\"\nPrincess Elowyn stands by the window in the castle's main hall, the moonlight streaming through the glass and bathing her golden hair in silver. Her dress is a deep green, with a gold brooch pinning a window of cleavage at the bodice. She turns as the party enters, her emerald eyes locking onto Max Nightriver with an intensity that is almost unsettling.\n\"You're even lovelier than I imagined,\" she says, her voice light and musical, like a harp played in the moonlight. She steps toward them, her movements graceful and fluid, and a smile spreads across her face—a smile that is sweet and warm, and yet somehow dangerous.\n\"Please, come in. You're my guests, and I would have you feel welcome.\"\nShe stops just in front of Max Nightriver, her gaze never wavering, and she tilts her head slightly. \"You must be the one. The one I've been waiting for.\""
+ },
+ {
+  "id": 41,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "At the court I bow to the elven king. King Teranora, thank you for your welcome. Where are the Holt siblings? We were sent to bring them home."
+ },
+ {
+  "id": 42,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The King nods, his expression distant. \"The siblings are safe in our care.\" He speaks as if this were an answer, and then his eyes move to his daughter, and they are soft and full of a strange, quiet understanding. \"The Princess is their hostess, and she is a gracious one.\"\nThen the King turns and looks away, and his face is empty. He speaks no more, and he gives no more answers.\nAnd then there is a pause, and the silence is heavy. And then a harp begins to play, and the sound is sweet and thin, and it fills the room with a light, empty beauty.\nThe courtiers smile, their mouths moving in the same way, and their eyes are empty. The servers move, and their wives watch them. And the wine is poured, and the food is served, and the feast begins.\nAnd then a voice speaks, and it is soft and low, and it comes from beside you.\n\"Do not be afraid,\" Elowyn says, and her hand rests lightly on your shoulder. \"We have so much to talk about.\""
+ },
+ {
+  "id": 43,
+  "name": "Elowyn",
+  "isUser": false,
+  "text": "Elowyn smiles at you, and her eyes are bright and full of light. \"We have so much to discuss, darling. The fate of the trappers is not something we can rush.\"\nShe reaches for the wine-glass being offered, and she drinks, and then she puts it back, and her hand is still resting on your shoulder. \"We will find the answer, I promise. But not tonight.\"\nShe tilts her head, and her voice is soft and low. \"Tonight is for celebrating.\"\nShe looks at you, and then at the rest of the party, and her smile is sweet and warm. \"And I am so glad you have come.\"\nAnd then she turns and looks back at you, and her smile is softer. \"I am so glad you have found me.\""
+ },
+ {
+  "id": 44,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I say nothing and sip the wine."
+ },
+ {
+  "id": 45,
+  "name": "Elowyn",
+  "isUser": false,
+  "text": "Elowyn watches you sip the wine, and her smile is thin and soft. \"Is it not divine?\" She says it like a question, but there is no doubt in her voice. \"I had the servers bring it from our cellars. Only the finest for my guests.\"\nShe looks back at you, her hand still resting on your shoulder, and her gaze is unwavering. \"Do you like it, darling? Do you like Eshalanore?\"\nShe waits for your answer, and her emerald eyes are full of light and expectation.\nAnd then she turns her gaze toward Belle, and her smile widens slightly. \"And what of you? I hope you enjoy the evening as well.\"\nBelle's eyes flick to you, and then to Elowyn, and her expression is hard and guarded.\n\"It's fine,\" Belle says, her voice low and flat. \"The wine is fine.\"\nAnd then she looks back at the table, and her jaw is tight."
+ },
+ {
+  "id": 46,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle's jaw tightens as she watches Elowyn's hand on Max's shoulder. \"It's not fine,\" she says, her voice a low snarl. \"It's all fine. Everything is too fine. I don't like it.\"\nShe pushes her wine-glass away, her fingers white-knuckled on the table. \"And I'm not drinking any more of it. Something about this whole thing stinks.\"\nShe glances at you, her eyes sharp and wary. \"Max. I'm telling you, something about this whole thing stinks. And I don't think it's the wine.\"\nShe's ready to fight, and her hands are still near her axe, and she's not planning on waiting for an order to start swinging."
+ },
+ {
+  "id": 47,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Down the table a human server drops a cup. His elven wife rises, takes him by the wrist and leads him out of the hall without a word, and the harps do not miss a note."
+ },
+ {
+  "id": 48,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I keep quiet and watch the hall."
+ },
+ {
+  "id": 49,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The feast proceeds for an hour, then winds down. Elowyn rises from her seat and the party does so with her. She gestures for a server to lead them away, her gaze lingering on Max Nightriver. \"We will talk more tomorrow,\" she says. \"I will not have you leave yet.\"\nThe server leads them to a guest wing in a separate part of the castle. Belle refuses to be separated from Max's room, and so the servants allocate a pair of adjoining rooms for her and Max, and Dalan is given another room across the hall, while Ashliel is given one at the end.\nAt dawn, a knock comes on the door. A servant woman, her elven features soft and pale in the early morning light, stands at the door. She bows deeply and says, \"The Princess wishes you to come to her.\""
+ },
+ {
+  "id": 50,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Before I follow the servant I knock on Belle's adjoining door. Belle? Up. The Princess wants us."
+ },
+ {
+  "id": 51,
+  "name": "Belle",
+  "isUser": false,
+  "text": "\"The fuck\" Belle says from inside the room. There is the sound of movement, and then the door opens, and Belle stands in the doorway. Her hair is a mess and her eyes are tired, and her expression is a scowl. \"Already? It's not even fully light.\"\nShe rubs her eyes, and then her gaze flicks to the servant woman at the door, then back to you. \"Fine. Let's go. But if this is another trick, I'm going to start hacking.\"\nShe steps out of her room and into the hall, her hand already on the handle of her greataxe. \"And I'm keeping my axe ready.\""
+ },
+ {
+  "id": 52,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We follow the servant to the Princess. Princess Elowyn, good morning. Today we'd like to see the Holt siblings, please."
+ },
+ {
+  "id": 53,
+  "name": "Elowyn",
+  "isUser": false,
+  "text": "Elowyn looks up from her desk, her expression bright and cheerful. \"Good morning, darling.\" She smiles, her emerald eyes full of light. \"I'm so glad you're here.\"\nShe sets down her quill, and her hand rests on the edge of the desk, and her smile is sweet and warm. \"You must be eager to see them. I understand. But I'm afraid they are not in a condition to be seen just yet.\"\nShe looks at you, and her voice is soft and low. \"They need rest. And I am not quite ready to let them go.\"\nShe tilts her head slightly, and her smile doesn't waver. \"But perhaps we could talk about something else. Perhaps about us.\"\nAnd then she turns and looks at Belle, her smile widening slightly. \"And perhaps about how you feel.\""
+ },
+ {
+  "id": 54,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle's expression is flat as she looks at Elowyn. \"I feel like I've had enough talking. I'm feeling like I want to see those trappers.\"\nShe shifts her weight, and her hands are still near her greataxe's handle. \"And I'm not going anywhere without them.\"\nShe looks at Max, and then at Elowyn, and her jaw is set tight. \"We're not playing games here. We came for those kids. Now you're gonna tell us where they are, and we're leaving.\"\nShe's ready to swing her axe, and her gaze is hard and unwavering. \"And if you don't, I'm gonna start breaking things.\""
+ },
+ {
+  "id": 55,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Belle, easy. I nod to Elowyn. One more day, then. We'll rest tonight and see them tomorrow. We go back to our rooms."
+ },
+ {
+  "id": 56,
+  "name": "Elowyn",
+  "isUser": false,
+  "text": "Elowyn smiles, and her emerald eyes are full of light and relief. \"Thank you, darling. I knew you would understand.\"\nShe looks at Belle, and her smile widens slightly. \"And thank you for your patience. I promise, tomorrow you will see them.\"\nShe reaches out and touches your hand, her touch soft and warm. \"Now, please, go and rest. You've had quite a long journey.\"\nShe tilts her head, and her voice is low and sweet. \"And I will be waiting for you tomorrow.\"\nAnd then she looks at you, and then she looks away, and she smiles.\nAnd then she looks back at you, and she smiles again.\nAnd then she looks away.\nAnd then she looks back.\nAnd then she smiles.\nAnd then she turns back to her desk.\nAnd then she is still.\nAnd then she is waiting.\nAnd then she is smiling.\nAnd then she is waiting and smiling.\nAnd then she is just smiling.\nAnd then she is just waiting.\nAnd then she is just.\nAnd then she is.\nAnd then she is.\nAnd then she is not.\nAnd then she is.\nAnd then she is again.\nAnd then she is... a smile.\nAnd then she is a smile that is waiting.\nAnd then she is a waiting smile.\nAnd then she is a smiling wait.\nAnd then she is a wait that is smiling.\nAnd then she is a wait and a smile, and they are the same thing.\nAnd then they are.\nAnd then they just are.\nAnd then they are just.\nAnd then they are not.\nAnd then they are again.\nAnd then they just are not.\nAnd then they are.\nAnd then they are not again.\nAnd then they just aren't.\nAnd then they just aren't again.\nAnd then they just... aren't.\nAnd then they aren't at all.\nAnd then they are not at all.\nAnd then they aren't anything at all.\nAnd then they aren't even a thought.\nAnd then they aren't a thought at all.\nAnd then they aren't.\nAnd then they.\nAnd then they...\nAnd then they don't exist.\nAnd then they don't.\nAnd then they not.\nAnd then they...\nAnd then they just.\nAnd then they are gone.\nAnd then they're not.\nAnd then they just.\nAnd then they gone.\nAnd then they.\nAnd then they're gone.\nAnd then they.\nAnd then they.\nAnd then they.\nAnd then they.\nAnd then they.\nAnd then they.\nAnd then they.\nAnd then they."
+ },
+ {
+  "id": 57,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle doesn't move. She stands in the doorway, her hand still white-knuckled on the handle of Cleaver. \"We'll see them tomorrow,\" she says, her voice flat and hard. \"And if we don't see them, I'm going to start breaking things.\"\nShe looks at the Princess, then at you. \"And I'm not waiting for another dawn. I'm going to be up before the servants are.\"\nShe's already turning, her jaw tight. \"Let's go. Before I change my mind about not breaking something.\"\nShe doesn't wait for you, and she steps out into the hall, her boots heavy on the stone floor.\n\"And we're not resting. We're thinking. And thinking is going to get us out of here.\"\nShe doesn't look back.\nAnd then she's gone.\nAnd then she's just a sound in the distance, the sound of her boots on the stone.\nAnd then she's not.\nAnd then she's.\nAnd then she's.\nAnd then she's again.\nAnd then she's... just.\nAnd then she's back.\nAnd then she's in the room.\nAnd then she's by the door.\nAnd then she's looking at the Princess.\nAnd then she's looking away.\nAnd then she's still.\nAnd then she's moving.\nAnd then she's turning.\nAnd then she's walking away.\nAnd then she's out in the hall.\nAnd then she's there.\nAnd then she's waiting.\nAnd then she's listening.\nAnd then she's ready.\nAnd then she's sharp.\nAnd then she's keen.\nAnd then she's hot.\nAnd then she's fire.\nAnd then she's flame.\nAnd then she's burning.\nAnd then she's blaze.\nAnd then she's inferno.\nAnd then she's roar.\nAnd then she's fury.\nAnd then she's rage.\nAnd then she's anger.\nAnd then she's wrath.\nAnd then she's vengeance.\nAnd then she's retribution.\nAnd then she's justice.\nAnd then she's blood.\nAnd then she's steel.\nAnd then she's death.\nAnd then she's end.\nAnd then she's stop.\nAnd then she's cease.\nAnd then she's void.\nAnd then she's nil.\nAnd then she's nothing.\nAnd then she's all.\nAnd then she's one.\nAnd then she's whole."
+ },
+ {
+  "id": 58,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "That night I sleep with my sword by the bed. In the morning I knock on Belle's door again."
+ },
+ {
+  "id": 59,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle doesn't answer for a moment, then the door swings open. She looks at you with her eyes, and her expression is tired and wary. \"What is it?\" she says, her voice low. \"If you're coming to tell me the Princess wants us, I've already heard it.\"\nShe looks past you, her eyes scanning the hall. \"And I'm keeping my axe ready. In case someone tries something.\"\nShe's ready to fight, and her jaw is set tight. \"So what is it? Are we going back to see the Princess? Or are we doing something else?\"\nShe's not planning on waiting for an answer. \"Because I'm not in the mood for another feast, and I'm not in the mood to be told we have to wait. I'm in the mood to find those trappers, and I'm in the mood for a fight.\"\nShe's ready to swing, and she's not planning to wait for a order. \"So what's it gonna be, Max?\""
+ }
+]

@@ -1,0 +1,1431 @@
+{
+  "storyId": "adolion-night",
+  "activeCheckpointId": "night-the-castle-dracul",
+  "boundary": 50,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Night Checkpoints": "global",
+      "Adolion Chronicle": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "night_moon": true,
+    "location": "night_road",
+    "tension_current": 0.21977525410725512,
+    "night_fog_broken": true,
+    "progress_toward_night-dawn": 8,
+    "progress_toward_night-the-castle-dracul": 1,
+    "night_castle_sighted": true,
+    "party_injuries": 0
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "23d4f8e3-9581-4c4a-91dc-5d43cc25945b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 0,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Party",
+      "tag": "knows",
+      "content": "Nine people have gone missing from the Aegis slums since the first frost.",
+      "createdAt": 3,
+      "messageId": 0
+    },
+    {
+      "id": "5734ab9a-571e-4528-b84c-26d88a585199",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 0,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Party",
+      "tag": "knows",
+      "content": "A slum shop window displays unsettling paintings signed 'Butcher'.",
+      "createdAt": 3,
+      "messageId": 0
+    },
+    {
+      "id": "6727cae8-7c95-4296-a642-8567adb513a3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Party",
+      "tag": "knows",
+      "content": "Zariah caused the fog by reading a book and cannot control it.",
+      "createdAt": 12,
+      "messageId": 17
+    },
+    {
+      "id": "46a2ef66-67db-40c5-b7c2-20cd7a44c235",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Party",
+      "tag": "knows",
+      "content": "The fog is tied to Zariah and cannot be left behind.",
+      "createdAt": 12,
+      "messageId": 17
+    },
+    {
+      "id": "3284b4b8-f2e8-4c1d-86e4-ed26c5f98785",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 28,
+        "boundary": 18,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Zariah's spell cannot be undone by releasing the cat, but a book may hold the words to unmake it.",
+      "createdAt": 18,
+      "messageId": 28,
+      "supersededBy": "retired@32",
+      "retiredAt": {
+        "messageId": 49,
+        "boundary": 32
+      }
+    },
+    {
+      "id": "fb3021b8-cc7e-4ac5-8568-b85feae29998",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 32,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Zariah's book is hidden in her house in the town of Kelger Falls.",
+      "createdAt": 21,
+      "messageId": 32,
+      "supersededBy": "retired@32",
+      "retiredAt": {
+        "messageId": 49,
+        "boundary": 32
+      }
+    },
+    {
+      "id": "3c3af5ca-93a2-4832-8889-84409d0a82fa",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The book contains words after the raising spell that Zariah never read",
+      "createdAt": 24,
+      "messageId": 37,
+      "supersededBy": "retired@32",
+      "retiredAt": {
+        "messageId": 49,
+        "boundary": 32
+      }
+    },
+    {
+      "id": "5e0ee677-fe28-439d-adf6-9a2bc52dd199",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 41,
+        "boundary": 27,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The dead have turned toward Zariah's house and a bone-crowned figure has risen.",
+      "createdAt": 27,
+      "messageId": 41,
+      "supersededBy": "retired@32",
+      "retiredAt": {
+        "messageId": 49,
+        "boundary": 32
+      }
+    },
+    {
+      "id": "65616602-edb6-4638-9665-67ebddaae58c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 49,
+        "boundary": 32,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The spell cannot be undone by reversing the words; the book's unmaking words are needed",
+      "createdAt": 32,
+      "messageId": 49,
+      "supersededBy": "retired@32",
+      "retiredAt": {
+        "messageId": 49,
+        "boundary": 32
+      }
+    },
+    {
+      "id": "c006d6a1-863f-4478-8269-0b7f8557894b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 49,
+        "boundary": 32,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Zariah cannot swim.",
+      "createdAt": 32,
+      "messageId": 49
+    },
+    {
+      "id": "bb5ae794-798c-41a6-8149-6208b5e7e550",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 49,
+        "boundary": 32,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The book is in Zariah's house in the town.",
+      "createdAt": 32,
+      "messageId": 49
+    },
+    {
+      "id": "783a8933-5cd9-49a5-ae1c-64ccedb9e1f2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 49,
+        "boundary": 32,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The spell does not work backwards.",
+      "createdAt": 32,
+      "messageId": 49
+    },
+    {
+      "id": "863c3f5c-e537-4e44-9056-2a2cdc1aac6b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 49,
+        "boundary": 32,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The words after the raising spell are dark and twisted.",
+      "createdAt": 32,
+      "messageId": 49
+    },
+    {
+      "id": "9a50d73a-52d5-4128-b59f-40b7d57986d8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 49,
+        "boundary": 32,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The bone-crowned skeleton shrugged off his arrow.",
+      "createdAt": 32,
+      "messageId": 49
+    },
+    {
+      "id": "57d32d9b-561e-4c69-a57f-24e42c538802",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 49,
+        "boundary": 32,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The bone-crowned skeleton shrieks in a way that ripples through the air.",
+      "createdAt": 32,
+      "messageId": 49
+    },
+    {
+      "id": "9160c6ac-8e1e-4b63-b2ae-6f7f3cdd0393",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 49,
+        "boundary": 32,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The bone-crowned skeleton can grab at the air.",
+      "createdAt": 32,
+      "messageId": 49
+    },
+    {
+      "id": "a63d58aa-890d-4f7a-9832-4851c916f8ec",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 51,
+        "boundary": 33,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Closing the book on the bone-crowned thing laid the dead to rest and lifted the fog.",
+      "createdAt": 33,
+      "messageId": 51
+    },
+    {
+      "id": "f61b618e-38d4-47f0-8ff8-bb6883385403",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 51,
+        "boundary": 33,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The fog poured into the shattered bone crown and vanished.",
+      "createdAt": 33,
+      "messageId": 51
+    },
+    {
+      "id": "2db8992e-a961-4877-9c1d-4ffd5a1c057e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 58,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Party",
+      "tag": "knows",
+      "content": "Zariah is coming with them and her book must stay shut.",
+      "createdAt": 37,
+      "messageId": 58
+    },
+    {
+      "id": "4a16f8ea-5530-4e77-9598-3743e637bf9b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 58,
+        "boundary": 37,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Nyl",
+      "tag": "intends",
+      "content": "To travel by the river rather than the road.",
+      "createdAt": 37,
+      "messageId": 58,
+      "supersededBy": "retired@39",
+      "retiredAt": {
+        "messageId": 60,
+        "boundary": 39
+      }
+    },
+    {
+      "id": "2daa43fa-ba13-4fd8-8630-71d65b43b5e2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 60,
+        "boundary": 39,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Fael",
+      "tag": "suspects",
+      "content": "The river is probably the only way to get there.",
+      "createdAt": 39,
+      "messageId": 60,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 69,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "ef7ac03c-ce53-4290-a861-eb71acb61f8a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 39,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fael",
+      "tag": "knows",
+      "content": "The castle is probably where the road leads.",
+      "createdAt": 39,
+      "messageId": 61,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 69,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "42102595-0a5d-447f-bac2-3aa30669ad39",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 39,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fael",
+      "tag": "knows",
+      "content": "The river is probably the only way to get there without something unstated.",
+      "createdAt": 39,
+      "messageId": 61,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 69,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "a53b9624-a7f0-4b14-82e4-6384ebbc6e8a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 43,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Zariah",
+      "tag": "suspects",
+      "content": "The road may not let the party leave Kelger Falls.",
+      "createdAt": 43,
+      "messageId": 65,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 69,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "39c58bc1-4cdf-4ca8-8baa-06efdd30f02f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 43,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Zariah",
+      "tag": "knows",
+      "content": "The party has decided to turn back toward Aegis City rather than approach the castle.",
+      "createdAt": 43,
+      "messageId": 66,
+      "supersededBy": "retired@43",
+      "retiredAt": {
+        "messageId": 65,
+        "boundary": 43
+      }
+    },
+    {
+      "id": "f8072134-82fb-4124-9b96-714356cdf110",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 43,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Zariah",
+      "tag": "intends",
+      "content": "She wanted to continue toward the castle but chose not to argue.",
+      "createdAt": 43,
+      "messageId": 66,
+      "supersededBy": "retired@43",
+      "retiredAt": {
+        "messageId": 65,
+        "boundary": 43
+      }
+    },
+    {
+      "id": "992b3dfb-46a8-4a6f-8205-d7135aff1b9a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 43,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fael",
+      "tag": "knows",
+      "content": "Max Nightriver asked about a black castle north-east of the stone houses.",
+      "createdAt": 43,
+      "messageId": 65,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 69,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "a004b766-8225-4651-8abb-8a1bb5ccfca3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 43,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "hiding",
+      "content": "That she heard Max Nightriver ask about a black castle.",
+      "hiddenFrom": "the party",
+      "createdAt": 43,
+      "messageId": 65,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 69,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "972f3bc2-ef20-46ed-b1ab-643e10176d41",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 43,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "The silence around the stone houses is wrong.",
+      "createdAt": 43,
+      "messageId": 65,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 69,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "ccf7b978-5cfa-462f-857e-592963eb8626",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 43,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To keep watch and protect the party while they rest.",
+      "createdAt": 43,
+      "messageId": 65,
+      "affirmedAt": [
+        {
+          "messageId": 66,
+          "boundary": 43
+        }
+      ],
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 69,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "a2388673-6c22-401a-86ba-1a98ed8b6c9c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 43,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Zariah",
+      "tag": "intends",
+      "content": "She wanted to continue toward the castle but chose not to argue.",
+      "createdAt": 43,
+      "messageId": 65,
+      "supersededBy": "retired@43",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 43
+      }
+    },
+    {
+      "id": "2210f82f-8249-45c3-ba27-d202c4a0f873",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 43,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Zariah",
+      "tag": "believes",
+      "content": "The road will let the party leave Kelger Falls.",
+      "createdAt": 43,
+      "messageId": 65,
+      "supersededBy": "retired@43",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 43
+      }
+    },
+    {
+      "id": "c1e3e527-516d-4cd8-8166-bcf0b37a685f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 43,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Zariah",
+      "tag": "knows",
+      "content": "Max Nightriver said they were going to the castle before turning back toward Aegis City.",
+      "createdAt": 43,
+      "messageId": 66,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 69,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "1d643688-c22a-416e-8b8f-161dfdf2e53f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 43,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Zariah",
+      "tag": "knows",
+      "content": "Max Nightriver has decided to camp and not go near the castle until they have eaten and slept.",
+      "createdAt": 43,
+      "messageId": 66
+    },
+    {
+      "id": "9cc1653d-6ffd-45f8-9ddf-617015c7a31a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 43,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Zariah",
+      "tag": "hiding",
+      "content": "That she wanted to continue toward the castle and is upset by turning back.",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 43,
+      "messageId": 66
+    },
+    {
+      "id": "56c49625-ef0a-4578-bd99-bf0c19575fce",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 43,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Nyl",
+      "tag": "knows",
+      "content": "The night is quiet and calm and the air is peaceful.",
+      "createdAt": 43,
+      "messageId": 66
+    },
+    {
+      "id": "a872ac98-aaa0-481c-914b-c0aacddd3772",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 43,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Nyl",
+      "tag": "intends",
+      "content": "To rest by the fire.",
+      "createdAt": 43,
+      "messageId": 66,
+      "affirmedAt": [
+        {
+          "messageId": 69,
+          "boundary": 46
+        }
+      ]
+    },
+    {
+      "id": "d276d7ad-87d5-40e6-900b-e4e9bbc135ec",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Nyl",
+      "tag": "knows",
+      "content": "the castle silhouette is visible on the horizon and the river leads toward it",
+      "createdAt": 46,
+      "messageId": 69,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 70,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "6eef22f9-9d4b-4f59-80cf-65748f16ef08",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Zariah",
+      "tag": "knows",
+      "content": "the castle silhouette frightens her and she does not want to go near it",
+      "createdAt": 46,
+      "messageId": 69
+    },
+    {
+      "id": "c3f977e9-b240-4676-b14c-11da9dea89ac",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Nyl",
+      "tag": "intends",
+      "content": "to convince the party to head for the castle instead of turning back",
+      "createdAt": 46,
+      "messageId": 69,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 70,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "7f41a32f-e699-43a1-b1b6-a43ad45b280d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 71,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Castle Dracul is real and its steward has been expecting the party",
+      "createdAt": 46,
+      "messageId": 71
+    },
+    {
+      "id": "32ca8365-4fe7-484d-88b9-3e2079113f30",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 71,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Nyl",
+      "tag": "knows",
+      "content": "The river leads to Castle Dracul and the party can reach it without turning back",
+      "createdAt": 46,
+      "messageId": 71,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 70,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "02ec2ff0-f385-48da-a965-36b605d592c8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 71,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Castle Dracul is real and something is inside it that frightens him",
+      "createdAt": 46,
+      "messageId": 71
+    },
+    {
+      "id": "5587e07b-5cba-46fa-8a39-566b4f12dab9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 71,
+        "boundary": 46,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "suspects",
+      "content": "Something is wrong inside Castle Dracul",
+      "createdAt": 46,
+      "messageId": 71
+    },
+    {
+      "id": "53ab3b8f-9c37-49ec-9804-a2018df3315b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 71,
+        "boundary": 46,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Nyl",
+      "tag": "intends",
+      "content": "To convince the party to go to Castle Dracul rather than turn back",
+      "createdAt": 46,
+      "messageId": 71,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 70,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "d4654d5c-1c24-4190-8f7d-2bf736375880",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Nyl",
+      "tag": "knows",
+      "content": "Castle Dracul is visible as a dark silhouette on the horizon, with the river leading toward it",
+      "createdAt": 46,
+      "messageId": 69,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 70,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "cbe38eec-c3da-413f-a9b4-69add830cd69",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Zariah",
+      "tag": "suspects",
+      "content": "The road may not let the party leave, and turning back may be impossible",
+      "createdAt": 46,
+      "messageId": 69
+    },
+    {
+      "id": "f09566ff-44ed-4802-94db-32a2434991f2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Castle Dracul is visible and something is inside it.",
+      "createdAt": 46,
+      "messageId": 70,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 70,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "b90181af-2618-4d14-b371-755319b5e691",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fael",
+      "tag": "knows",
+      "content": "Castle Dracul is visible on the horizon.",
+      "createdAt": 46,
+      "messageId": 70,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 70,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "8890b1b6-158f-4407-aa94-f02e7818c1bb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 46,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "to turn back and go home rather than enter the castle",
+      "createdAt": 46,
+      "messageId": 70,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 70,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "537a909c-0836-4dd3-913b-d63593a04dcd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Max Nightriver asked about a black castle north-east of the stone houses.",
+      "createdAt": 46,
+      "messageId": 69
+    },
+    {
+      "id": "f3864037-09b2-42f1-8c24-158faa0e42a4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fael",
+      "tag": "knows",
+      "content": "Max Nightriver asked about a black castle north-east of the stone houses.",
+      "createdAt": 46,
+      "messageId": 69
+    },
+    {
+      "id": "3ef5d198-f615-407c-b50c-62f00ef9fcf5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Max Nightriver assigned her first watch.",
+      "createdAt": 46,
+      "messageId": 69
+    },
+    {
+      "id": "dbd90be8-41c4-48dc-a07f-869e1b860254",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "believes",
+      "content": "Nobody said anything about a castle.",
+      "createdAt": 46,
+      "messageId": 69
+    },
+    {
+      "id": "4838967e-31d7-4e14-985c-c155e2a80a35",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "hiding",
+      "content": "That she heard him ask about a black castle.",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 46,
+      "messageId": 69
+    },
+    {
+      "id": "8249abe5-7fbc-49b7-b2de-09372fdd2520",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "hiding",
+      "content": "That she heard Max Nightriver ask about a black castle.",
+      "hiddenFrom": "the party",
+      "createdAt": 46,
+      "messageId": 69
+    },
+    {
+      "id": "adf4e5f8-2036-4a3e-a6f2-efd73895be57",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "The silence around the stone houses is wrong.",
+      "createdAt": 46,
+      "messageId": 69
+    },
+    {
+      "id": "fe52fc8f-9991-4393-8170-8859039e4982",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To keep watch and protect the party while they rest.",
+      "createdAt": 46,
+      "messageId": 69
+    },
+    {
+      "id": "98cc907a-6779-4ac9-a612-e998b89c5dfd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Zariah",
+      "tag": "knows",
+      "content": "Max Nightriver said they were going to the castle before turning back toward Aegis City.",
+      "createdAt": 46,
+      "messageId": 69
+    },
+    {
+      "id": "bf99c9c6-e6af-40be-90fb-a574f66e09a5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Fael",
+      "tag": "suspects",
+      "content": "The castle is probably where the road leads.",
+      "createdAt": 46,
+      "messageId": 69,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 70,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "a46d5a74-8a1c-4f9d-ae96-8e41a3afea14",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Fael",
+      "tag": "suspects",
+      "content": "The river is probably the only way to get there.",
+      "createdAt": 46,
+      "messageId": 69,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 70,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "e441b90e-066a-48f4-83e0-e4e1f744a56a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fael",
+      "tag": "knows",
+      "content": "The castle is probably where the road leads.",
+      "createdAt": 46,
+      "messageId": 69,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 70,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "c81a9f20-0a8e-4e6a-bd04-a25bb9a8d47e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fael",
+      "tag": "knows",
+      "content": "The river is probably the only way to get there without something unstated.",
+      "createdAt": 46,
+      "messageId": 69,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 70,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "f2a002a5-0f4f-4389-bc89-8015df0f000d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party will turn back toward A",
+      "createdAt": 46,
+      "messageId": 69
+    },
+    {
+      "id": "1e33e68c-9bf4-4166-827f-e18754f48021",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 46,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Zariah",
+      "tag": "suspects",
+      "content": "The road may not let the party leave Kelger Falls.",
+      "createdAt": 46,
+      "messageId": 69
+    },
+    {
+      "id": "9176d8ea-c151-4b0e-be76-96848e70a202",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fael",
+      "tag": "knows",
+      "content": "The fire keeps the dark at bay and the cold is pressing in on the party.",
+      "createdAt": 46,
+      "messageId": 70
+    },
+    {
+      "id": "c857e3c0-859c-4675-a7a9-6c3d788d6376",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fael",
+      "tag": "knows",
+      "content": "The party is together and will be all right.",
+      "createdAt": 46,
+      "messageId": 70
+    },
+    {
+      "id": "4ef6829b-8795-445c-a941-1d12506c7c0f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Nyl",
+      "tag": "knows",
+      "content": "The castle silhouette is on the horizon and the river leads to it.",
+      "createdAt": 46,
+      "messageId": 70
+    },
+    {
+      "id": "2fb2d19b-df1e-48bf-a828-db65b187e3f6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 46,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Nyl",
+      "tag": "intends",
+      "content": "To convince the party to go to the castle instead of turning back.",
+      "createdAt": 46,
+      "messageId": 70
+    },
+    {
+      "id": "4ee74632-730a-44b6-936a-f6361ecc7e40",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "There is something in the castle and it looks like a nightmare.",
+      "createdAt": 46,
+      "messageId": 70
+    },
+    {
+      "id": "47b9c082-3d69-4434-b519-698e0a65f929",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 46,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To turn around and go home rather than enter the castle.",
+      "createdAt": 46,
+      "messageId": 70
+    },
+    {
+      "id": "d699ce73-3ad7-486c-8c7c-ec0330684548",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 46,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "suspects",
+      "content": "The castle is something the party should not enter.",
+      "createdAt": 46,
+      "messageId": 70
+    },
+    {
+      "id": "5175841e-bf3a-483d-a066-a3635630f18b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "He cannot turn back.",
+      "createdAt": 46,
+      "messageId": 70
+    },
+    {
+      "id": "07e262ca-5ba7-4a36-8495-cb7bbef693ec",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 73,
+        "boundary": 50,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "to refuse to enter Castle Dracul and force the steward to explain why he expected them and why the dead are drawn there.",
+      "createdAt": 50,
+      "messageId": 73
+    },
+    {
+      "id": "3a670010-b4f0-4703-8fce-347f240280d7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 73,
+        "boundary": 50,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "to turn the party back from Castle Dracul and go home.",
+      "createdAt": 50,
+      "messageId": 73
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 9,
+      "name": "Alice",
+      "avatar": "Alice.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 25,
+      "name": "Camilla",
+      "avatar": "Camilla.png"
+    },
+    {
+      "index": 26,
+      "name": "Cassius",
+      "avatar": "Cassius.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 48,
+      "name": "Erevan",
+      "avatar": "Erevan.png"
+    },
+    {
+      "index": 51,
+      "name": "Fael",
+      "avatar": "Fael.png"
+    },
+    {
+      "index": 52,
+      "name": "Felthorn",
+      "avatar": "Felthorn.png"
+    },
+    {
+      "index": 56,
+      "name": "Gabriel",
+      "avatar": "Gabriel.png"
+    },
+    {
+      "index": 82,
+      "name": "Kayla",
+      "avatar": "Kayla.png"
+    },
+    {
+      "index": 87,
+      "name": "Kuromu",
+      "avatar": "Kuromu.png"
+    },
+    {
+      "index": 91,
+      "name": "Lobo",
+      "avatar": "Lobo.png"
+    },
+    {
+      "index": 103,
+      "name": "Morrigan",
+      "avatar": "Morrigan.png"
+    },
+    {
+      "index": 105,
+      "name": "Nalea",
+      "avatar": "Nalea.png"
+    },
+    {
+      "index": 110,
+      "name": "Nyl",
+      "avatar": "Nyl.png"
+    },
+    {
+      "index": 116,
+      "name": "Ren",
+      "avatar": "Ren.png"
+    },
+    {
+      "index": 129,
+      "name": "Selena",
+      "avatar": "Selena.png"
+    },
+    {
+      "index": 155,
+      "name": "Vivie",
+      "avatar": "Vivie.png"
+    },
+    {
+      "index": 162,
+      "name": "Zariah",
+      "avatar": "Zariah.png"
+    }
+  ],
+  "payloadEpoch": "1790873825917-au4zpp"
+}
