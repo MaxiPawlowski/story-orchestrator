@@ -139,6 +139,23 @@ node scripts/debug/so-session.mts digest [test/sessions/T1/T1-2-1]    # findings
 node scripts/debug/so-session.mts index                        # rebuild test/sessions/adolion-stories.json after a pin bump
 ```
 
+Autonomous driver (plan 15 Part B, Claude plays the card; full per-card sequence in `docs/plans/v2.6/14-autonomous-runbook.md`):
+
+```bash
+node scripts/debug/so-session.mts plan --write                 # lanes 1-4, continuations pinned to their predecessor's lane
+node scripts/debug/so-session.mts start T0-2 --age 24          # lane from lane-plan.json; --profile, --orchestrator <regex>
+node scripts/debug/so-session.mts turn <dir> "<line>"          # real send + every reply of the round + scheduler idle -> turns.jsonl
+node scripts/debug/so-session.mts swipe-new|regen <dir>        # also: edit <dir> <mesid|last> "<text>", delete <dir> <mesid|last>
+node scripts/debug/so-session.mts switch-chat-mid-gen <dir> "<line>" --to <chatId>   # and reload-mid-gen <dir> "<line>"
+node scripts/debug/so-session.mts flag <dir> "<note>"          # drawer flag with forced clicks, /story flag fallback
+node scripts/debug/so-session.mts shot <dir> <label>           # shots/NNN-<label>.png
+node scripts/debug/so-session.mts adopt <dir>                  # wizard cards: record the open chat for T5-3/T5-4
+node scripts/debug/so-session.mts score <dir> <row> <score> "<note>" --evidence turns.jsonl:12
+node scripts/debug/so-session.mts budget | runbook --write
+```
+
+`start` pins the routing before opening anything (`page-pin.json`): it selects the main profile, probes it with a tiny call (a dead backend fails the start), and checks every orchestrator role routes to a DeepSeek profile, the judge state and key, and each role's reasoning effort. `stop` now captures the live end state BEFORE killing the tails (`chat-full-<chat>.json` with swipes, swipe ids, send dates and `extra.reasoning`; `evidence-<chat>.json` with memory, chapters, canon, memory queue, epistemic, ledger, model and judge call rings, stagecraft, talk decisions, inline timeline, journal, away recap; `snapshot-<chat>.json`), runs `assert-player-clean` for player cards into `rubric.json`, meters DeepSeek and judge spend into `session.json` and `test/sessions/BUDGET.md`. `st-payload arm --persist` also writes `kind: "response"` rows (status, content type, body up to 200k chars, `requestIndex`), which is where DeepSeek `usage` comes from.
+
 A session dir holds `session.json` (lane, pids, chats, build, `playFrom`), `run-header-start/end.json` + `run-header-diff.txt`, `journal.jsonl`, `payloads.jsonl`, `console.jsonl`, the tails' `*.log`, and after `stop` `journal-<chat>.json|md`, `chat-<chat>.json`, `state-end-<chat>.json` and `rubric.json`. `digest` reports flags with +-3 turns and these anomaly kinds, each with `path:line`: stall (10 boundaries without a transition at a checkpoint with exits), extraction-rejected, empty-private-block, lore-force-lost, lore-constant-missed, judge-fallback (not `disabled`), save-lost, unexpected-jump (not an authored edge, or a manual move), rollback, console-error (extension only), model-call-failure, harness-error. Its draft rows go to `docs/plans/v2.6/14-findings.md` after the review. Fixtures: `scripts/debug/fixtures/session/{clean,planted}`.
 
 ### UI

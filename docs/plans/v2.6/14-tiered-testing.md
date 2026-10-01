@@ -340,3 +340,33 @@ None.
 - The register keeps plan 14's columns; the digest's draft rows add a `what` column for the review.
 
 **Re-run after merging master `eba02fc8`:** typecheck 0, typecheck:test 0, lint 0, `npm test` 4909 passed / 1 skipped, build 0, build:dev 0, test:debug 477/477, test:release 77 pass / 0 fail, test:replay 30/30 killed. `MemoryCoordinator.chapters` is still a field initialised with `deps: this.deps` on master, so the seed blocker above stands.
+
+### 2026-10-01: autonomous driver (plan 15 Part B)
+
+**Built** (`scripts/debug/so-session.mts` + `lib/session{Live,Driver,Evidence,Pin,Lanes,Spend,Rubric,Runbook}.mts`).
+- `turn <dir> "<line>"`: real send with `expectReply`, waits for every reply of the round and for the scheduler; records replies and speakers, loud generations and drafted members (a group send is several), checkpoint id + player name before/after, blackboard diff, new journal events, rollback, pipeline, timing. Every live verb appends to `<dir>/turns.jsonl` with a sequence number.
+- Mutations `swipe-new` (the last reply's swipe arrow, forced click), `regen` (`/regenerate await=true`), `edit`, `delete` (ST's own `deleteMessage`), `switch-chat-mid-gen --to`, `reload-mid-gen`: each records what it did, the host events it caused and the rollback the product performed (notice, boundary/checkpoint from→to, rollback journal rows).
+- `flag` (drawer ⚑ with forced clicks, `/story flag` fallback, waits for the journal flag), `shot`, `age <hours>` / `start --age` (backdates the selected story's `lastSessionAt`, saves, reloads, reports whether the away recap fired), `adopt` (wizard cards record the chat T5-3/T5-4 continue).
+- `start` pins the routing before opening anything (`page-pin.json`): main profile selected and probed with a tiny call, every orchestrator role on a profile matching `--orchestrator` (default DeepSeek), judge state and key, per-role reasoning effort. Refuses `waits` cards without `--force-waiting` and refuses to seed a lane that holds a chat a later card continues.
+- `stop` captures the live end state before killing the tails: `chat-full-<chat>.json` (swipes, swipe ids, swipe info, send dates, `extra.reasoning`), `evidence-<chat>.json` (memory, chapters, canon, memory queue, epistemic, ledger, model and judge call rings, stagecraft, talk decisions, inline, journal, away recap), `snapshot-<chat>.json`, `assert-player-clean` for player cards into `rubric.json`; then run-header diff, tails, spend meter.
+- `st-payload arm --persist` writes `kind: "response"` rows (status, content type, body up to 200k chars, `requestIndex`); DeepSeek usage is measured from them, else estimated (4 chars/token). `test/sessions/BUDGET.md` is regenerated from every stopped session; the pod-hours table is the lead's.
+- `score <dir> <row> <score> "<note>" --evidence <path:line|png>` validates the evidence inside the session dir and stamps `scoredBy: "claude"`; rows `reviewer: "user"` (07 Q-M, 06 C3, C5/C6, A1, 05 R4) take `--record` only.
+- `plan [--write]` → `test/sessions/lane-plan.json` (continuations pinned: T0-1→T0-2 lane 1, T2-1→T2-3/T2-5 lane 1, T1-1→T2-4 lane 3, T3-1→T3-2 lane 3, T5-1→T5-3/T5-4 lane 3). `runbook --write` → `docs/plans/v2.6/14-autonomous-runbook.md` (drift-tested).
+- Cards fixed per the feasibility check (T0-1, T0-2/T2-4 `--age 24`, T1-2, T2-3/T2-5 author mode, T3-1 images off, T3-1/T3-3/T4-1 `innerHarvest`+`innerBeat`, T3-2, T3-5, T4-1, T4-3, T5-1..T5-4, T6-1/T6-2 `waits`, T6-3 opencode only, wizard premises from `test/measurements/11/premises.json`, user-review rows). Two pre-session findings recorded in `14-findings.md`.
+
+**Gates (worktree, on `e76eff73` + this work).**
+
+| Command | Result |
+|---|---|
+| `npm run typecheck` | 0 |
+| `npm run typecheck:test` | 0 |
+| `npm run lint` | 0 |
+| `npm run debug:typecheck` | 0 |
+| `npm test` | 374 suites passed, 1 skipped; 4935 tests passed, 1 skipped |
+| `npm run build` | 0 |
+| `npm run build:dev` | 0 |
+| `npm run test:debug` | 530/530 (a first run before `npm run build` failed `so-run-header.test.mts` on the missing `dist/manifest.json`, green after the build) |
+| `npm run test:release` | 79 tests, 77 pass, 0 fail, 2 skipped |
+| `npm run test:replay` | 30 of 30 killed |
+
+**Not run:** no real lane, pod or model was touched; the live driver has no live gate yet. The first real `start` (T0-1) is its live proof.

@@ -5,23 +5,49 @@ import { relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { configuredStRoot, lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
 import {
-  comfyRefusal, nextSessionNumber, renderCard, renderCardsDocument, rubricTemplate, settingsPatch, storyEntry, validateCardDoc,
-  type Card, type CardDoc, type StoryIndex, type StoryIndexEntry,
+  comfyRefusal, nextSessionNumber, renderCard, renderCardsDocument, rubricProblems, rubricTemplate, settingsPatch, storyEntry, validateCardDoc,
+  type Card, type CardDoc, type Premise, type StoryIndex, type StoryIndexEntry,
 } from './lib/sessionCharters.mts';
 import { digestSession, parseJsonl, parseLines, registerRows, renderFindings, type ChatMessage } from './lib/sessionDigest.mts';
+import { DEFAULT_LANES, laneFor, planLanes, reseedRefusal, type LanePlan, type SessionOnLane } from './lib/sessionLanes.mts';
+import { LIVE_VERBS, type LiveChat, type LiveRequest, type LiveVerb } from './lib/sessionDriver.mts';
+import { DEFAULT_MAIN_PROFILE, DEFAULT_ORCHESTRATOR, judgeExpectation, pinVerdict } from './lib/sessionPin.mts';
+import { scoreRow } from './lib/sessionRubric.mts';
+import { meterSession, updateBudgetDocument, type BudgetRow } from './lib/sessionSpend.mts';
+import { renderRunbook } from './lib/sessionRunbook.mts';
 
 const USAGE = `Usage: node scripts/debug/so-session.mts <command> [...]
 
 v2.6 plan 14: one human play session per charter card, on its own adolion-fresh lane, headed.
 
-  start <charterId> [--lane n] [--allow-comfy] [--no-seed]
-      seed the lane with adolion-fresh (images and sprites off unless the card asks), apply the
-      card's settings, open its story in a fresh chat (or the chat it continues), capture a run
-      header, start the journal, payload and console tails detached, write
-      test/sessions/<tier>/<charterId>-<n>/session.json and print the card
-  stop [<dir>] [--stop-lane]   stop the tails, diff the run header, export each chat's journal,
-                               chat and end state, write rubric.json
+  start <charterId> [--lane n] [--profile <name>] [--orchestrator <regex>] [--age <hours>]
+        [--allow-comfy] [--no-seed] [--force-waiting]
+      seed the lane with adolion-fresh (images and sprites off unless the card asks; refused when
+      the lane holds a chat a later card continues), apply the card's settings, pin the routing
+      (main profile selected and probed, every orchestrator role on DeepSeek, judge state and key,
+      reasoning), open its story in a fresh chat (or the chat it continues; --age backdates it so
+      the away recap fires), capture a run header, start the journal, payload and console tails,
+      write test/sessions/<tier>/<charterId>-<n>/session.json and print the card. Without --lane
+      a fresh card takes its lane from test/sessions/lane-plan.json (see plan).
+  turn <dir> "<line>" [--chat id] [--timeout-ms n] [--no-expect-reply]
+      one real turn: send, wait for the reply(ies) and the scheduler, append to turns.jsonl
+  swipe-new <dir> | regen <dir> | edit <dir> <mesid|last> "<text>" | delete <dir> <mesid|last>
+  switch-chat-mid-gen <dir> "<line>" --to <chatId> | reload-mid-gen <dir> "<line>"
+      mutations: each records what it did and the rollback the product performed in turns.jsonl
+  flag <dir> "<note>" [--via drawer|slash]   press the drawer flag (or /story flag)
+  shot <dir> <label>                         screenshot into <dir>/shots/
+  age <dir> <hours>                          backdate the open chat's last session and reload it
+  adopt <dir>                                record the open chat as the session's chat (wizard cards)
+  score <dir> <row|n> <works|annoying|broken|not-noticed> "<note>" --evidence <path:line|png> ...
+  score <dir> <row|n> --record "<note>" --evidence ...   (rows recorded for the user's review)
+  stop [<dir>] [--stop-lane]   capture the end state (full chat, memory, chapters, canon, queue,
+                               model and judge calls, stagecraft, talk, inline, snapshot), check
+                               the player surface, diff the run header, stop the tails, meter the
+                               spend into session.json and test/sessions/BUDGET.md, write rubric.json
   digest [<dir>]               write findings.md + findings.json (flags with context, anomalies)
+  plan [--lanes 1,2,3,4] [--only T0-1,...] [--write]   assign charters to lanes, continuations pinned
+  budget                       rebuild test/sessions/BUDGET.md from every stopped session
+  runbook [--write|--check]    render docs/plans/v2.6/14-autonomous-runbook.md from the cards and the lane plan
   cards [--write|--check]      render every card to docs/plans/v2.6/14-cards.md
   validate                     check test/sessions/charters.json against the story index
   index                        rebuild test/sessions/adolion-stories.json from the pinned campaign`;
@@ -30,12 +56,18 @@ export const SESSIONS_ROOT = resolve(REPO_ROOT, 'test', 'sessions');
 export const CHARTERS_PATH = resolve(SESSIONS_ROOT, 'charters.json');
 export const INDEX_PATH = resolve(SESSIONS_ROOT, 'adolion-stories.json');
 export const CARDS_DOC_PATH = resolve(REPO_ROOT, 'docs', 'plans', 'v2.6', '14-cards.md');
+export const RUNBOOK_PATH = resolve(REPO_ROOT, 'docs', 'plans', 'v2.6', '14-autonomous-runbook.md');
 const PIN_FILE = resolve(REPO_ROOT, 'scripts', 'debug', 'adolion-fresh.pin.json');
+export const LANE_PLAN_PATH = resolve(SESSIONS_ROOT, 'lane-plan.json');
+export const BUDGET_PATH = resolve(SESSIONS_ROOT, 'BUDGET.md');
+export const PREMISES_PATH = resolve(REPO_ROOT, 'test', 'measurements', '11', 'premises.json');
+export const TURNS_FILE = 'turns.jsonl';
 const TAILS = ['journal', 'payloads', 'console'] as const;
 
 const readJson = async (path: string) => JSON.parse(await readFile(path, 'utf-8'));
 export const loadIndex = async (): Promise<StoryIndex> => readJson(INDEX_PATH);
 export const loadCards = async (): Promise<CardDoc> => readJson(CHARTERS_PATH);
+export const loadPremises = async (): Promise<Premise[]> => (await readJson(PREMISES_PATH)).premises ?? [];
 const rel = (path: string) => relative(REPO_ROOT, path).replace(/\\/g, '/');
 
 const laneInfo = (n: number) => {
@@ -105,34 +137,47 @@ async function latestSession(card: Card) {
   return null;
 }
 
-export interface StartOptions { lane: number | null; allowComfy: boolean; seed: boolean }
+export interface StartOptions {
+  lane: number | null; allowComfy: boolean; seed: boolean; planned?: number | null; forceWaiting?: boolean;
+  profile?: string; orchestrator?: string; age?: number | null;
+}
 
-export function planStart(doc: CardDoc, index: StoryIndex, card: Card, options: StartOptions, previous: { session: any } | null) {
+export function planStart(doc: CardDoc, index: StoryIndex, card: Card, options: StartOptions, previous: { session: any } | null, sessions: SessionOnLane[] = []) {
   const refusal = comfyRefusal(card, options.allowComfy);
   if (refusal) return { refused: refusal } as const;
+  if (card.waits && !options.forceWaiting) return { refused: `${card.id} waits: ${card.waits} Start it with --force-waiting only once that exists.` } as const;
   const continuing = card.setup.chat === 'continue';
   if (continuing && !previous) return { refused: `${card.id} continues ${card.setup.continues}, and no ${card.setup.continues} session exists yet: play that one first.` } as const;
-  const lane = options.lane ?? (continuing ? Number(previous!.session.lane) : 1);
+  if (options.age !== null && options.age !== undefined && !continuing) return { refused: `--age backdates the chat a card continues; ${card.id} plays a fresh chat.` } as const;
+  const lane = options.lane ?? (continuing ? Number(previous!.session.lane) : options.planned ?? 1);
   if (!Number.isInteger(lane) || lane < 1 || lane > 50) return { refused: `lane must be 1..50 (lane 0 is the user's), got ${String(options.lane)}` } as const;
   if (continuing && previous && Number(previous.session.lane) !== lane) return { refused: `${card.id} continues the ${card.setup.continues} chat on lane ${previous.session.lane}; start it there (or drop --lane).` } as const;
+  const seed = options.seed && !continuing;
+  const reseed = seed ? reseedRefusal(doc, lane, sessions, card.id) : null;
+  if (reseed) return { refused: reseed } as const;
   const entry = storyEntry(card, index);
   const also = card.setup.also ? index.stories[card.setup.also] : null;
+  const carried = continuing ? sessionChat(previous!.session, null) : null;
+  if (continuing && !carried) return { refused: `${card.setup.continues} recorded no chat to continue${card.story.kind === 'wizard' ? ': run so-session adopt on its session once the wizard story\'s chat is open' : ''}.` } as const;
   return {
     refused: null,
     lane,
-    seed: options.seed && !continuing,
+    seed,
+    pin: { profile: options.profile ?? DEFAULT_MAIN_PROFILE, orchestrator: options.orchestrator ?? DEFAULT_ORCHESTRATOR.source, judge: judgeExpectation(card.setup.settings?.judge ?? 'defaults') },
+    age: continuing ? options.age ?? null : null,
     open: {
       kind: card.story.kind,
       storyId: card.story.id ?? null,
-      group: entry?.group ?? null,
+      group: carried?.group ?? entry?.group ?? null,
       start: entry?.start ?? null,
       select: card.setup.select ?? 'auto',
-      continueChat: continuing ? previous!.session.chats?.[previous!.session.chats.length - 1]?.chatId ?? null : null,
+      continueChat: carried?.chatId ?? null,
       startAt: continuing ? null : card.setup.startAt ?? null,
       seed: continuing ? {} : card.setup.seed ?? {},
       chats: card.setup.chats ?? 1,
       also: also ? { storyId: card.setup.also!, group: also.group } : null,
       authorView: card.setup.mode === 'author',
+      premise: card.story.kind === 'wizard' ? { id: card.story.premiseId ?? null, text: card.story.premise ?? null } : null,
     },
     patch: settingsPatch(card.setup.settings),
     viewport: card.setup.settings?.viewport ?? null,
@@ -140,24 +185,26 @@ export function planStart(doc: CardDoc, index: StoryIndex, card: Card, options: 
 }
 
 async function start(id: string, options: StartOptions) {
-  const [doc, index] = await Promise.all([loadCards(), loadIndex()]);
-  const problems = validateCardDoc(doc, index);
+  const [doc, index, premises] = await Promise.all([loadCards(), loadIndex(), loadPremises()]);
+  const problems = validateCardDoc(doc, index, premises);
   if (problems.length) throw new Error(`charters.json is invalid:\n- ${problems.join('\n- ')}`);
   const card = findCard(doc, id);
   const previous = card.setup.chat === 'continue' ? await latestSession(findCard(doc, card.setup.continues!)) : null;
-  const plan = planStart(doc, index, card, options, previous);
+  const lanePlan: LanePlan | null = existsSync(LANE_PLAN_PATH) ? await readJson(LANE_PLAN_PATH) : null;
+  const sessions = (await allSessions()).map(({ session }) => session as SessionOnLane);
+  const plan = planStart(doc, index, card, { ...options, planned: laneFor(lanePlan, card.id) }, previous, sessions);
   if (plan.refused) { console.error(plan.refused); process.exitCode = 2; return null; }
   const number = nextSessionNumber(await sessionDirsOf(card.tier, card.id), card.id);
   const dir = resolve(SESSIONS_ROOT, card.tier, `${card.id}-${number}`);
   const lane = laneInfo(plan.lane);
   const viewportEnv: Record<string, string> = plan.viewport ? { ST_DEBUG_VIEWPORT: plan.viewport } : {};
   const sessionProblems: string[] = [];
-  console.log(`[1/6] ${card.id} ${card.title} -> ${rel(dir)} on lane ${plan.lane}`);
+  console.log(`[1/7] ${card.id} ${card.title} -> ${rel(dir)} on lane ${plan.lane}`);
   if (plan.seed) {
-    console.log('[2/6] adolion-fresh seed (headed); images and sprites stay off until the card settings');
+    console.log('[2/7] adolion-fresh seed (headed); images and sprites stay off until the card settings');
     await must('adolion-fresh seed', ['scripts/debug/adolion-fresh.mts', 'seed', String(plan.lane), '--headed'], {}, true);
   } else {
-    console.log('[2/6] no seed: bring the lane up headed');
+    console.log('[2/7] no seed: bring the lane up headed');
     const status = existsSync(resolve(lane.debug, 'session.json')) ? await readJson(resolve(lane.debug, 'session.json')).catch(() => null) : null;
     if (status && status.headed !== true) await inLane(plan.lane, ['scripts/debug/st-session.mts', 'stop']);
     await must('st-lanes start', ['scripts/debug/st-lanes.mts', 'start', String(plan.lane), '--headed']);
@@ -165,7 +212,7 @@ async function start(id: string, options: StartOptions) {
   const inventory = resolve(lane.root, 'adolion-fresh', 'inventory-latest.json');
   const laneCommit = existsSync(inventory) ? (await readJson(inventory)).commit ?? null : null;
   if (laneCommit !== index.commit) sessionProblems.push(`lane ${plan.lane} was seeded from ${laneCommit ?? 'an unknown build'}, the story index is ${index.commit}`);
-  console.log('[3/6] card settings, reload, open the story');
+  console.log('[3/7] card settings, reload, pin the routing');
   await mkdir(dir, { recursive: true });
   const planPath = resolve(dir, 'start-plan.json');
   await writeFile(planPath, JSON.stringify({ card: card.id, ...plan }, null, 2), 'utf-8');
@@ -173,15 +220,31 @@ async function start(id: string, options: StartOptions) {
   if (settings.code !== 0) throw new Error(`settings phase failed: ${settings.output.slice(-1200)}`);
   const reload = await inLane(plan.lane, ['scripts/debug/st-session.mts', 'reload'], viewportEnv);
   if (reload.code !== 0) throw new Error(`reload failed: ${reload.output.slice(-800)}`);
+  const pinned = await inLane(plan.lane, ['scripts/debug/so-session.mts', '_page', 'pin', planPath, resolve(dir, 'page-pin.json')], viewportEnv, true);
+  const pin = existsSync(resolve(dir, 'page-pin.json')) ? await readJson(resolve(dir, 'page-pin.json')) : null;
+  if (pinned.code !== 0 || !pin?.verdict?.ok) {
+    console.error(`routing pin failed, nothing was opened (see ${rel(resolve(dir, 'page-pin.json'))}):\n- ${(pin?.verdict?.problems ?? [pinned.output.slice(-800)]).join('\n- ')}`);
+    process.exitCode = 2;
+    return null;
+  }
+  console.log('[4/7] open the story');
   const opened = await inLane(plan.lane, ['scripts/debug/so-session.mts', '_page', 'open', planPath, resolve(dir, 'page-open.json')], viewportEnv, true);
   if (opened.code !== 0) throw new Error(`open phase failed: ${opened.output.slice(-1200)}`);
   const page = await readJson(resolve(dir, 'page-open.json'));
   sessionProblems.push(...(page.problems ?? []));
+  let age: unknown = null;
+  if (plan.age) {
+    const primary = (page.chats ?? []).filter((chat: any) => chat.primary).pop();
+    const aged = await liveInLane(plan.lane, viewportEnv, { verb: 'age', dir, chat: primary ? { chatId: primary.chatId, group: primary.group ?? null } : null, args: { hours: plan.age } });
+    age = aged;
+    await appendTurn(dir, aged);
+    if (!aged?.fired) sessionProblems.push(`--age ${plan.age}: the away recap did not fire (${aged?.reason ?? aged?.error ?? 'no recap after the reload'})`);
+  }
   const playFrom = new Date().toISOString();
-  console.log('[4/6] run header');
+  console.log('[5/7] run header');
   const header = await inLane(plan.lane, ['scripts/debug/so-run-header.mts', 'capture', '--label', `${card.id}-${number}-start`, '--out', resolve(dir, 'run-header-start.json')], viewportEnv);
   if (header.code !== 0) sessionProblems.push(`run header capture failed: ${header.output.slice(-300)}`);
-  console.log('[5/6] tails');
+  console.log('[6/7] tails');
   const pids = {
     journal: spawnTail(plan.lane, ['scripts/debug/so-journal.mts', 'follow', '--out', resolve(dir, 'journal.jsonl')], resolve(dir, 'journal.log'), viewportEnv),
     payloads: spawnTail(plan.lane, ['scripts/debug/st-payload.mts', 'arm', '--persist', '--out', resolve(dir, 'payloads.jsonl')], resolve(dir, 'payloads.log'), viewportEnv),
@@ -191,21 +254,18 @@ async function start(id: string, options: StartOptions) {
     charter: card.id, tier: card.tier, title: card.title, number, dir: rel(dir), lane: plan.lane, laneUrl: lane.url,
     story: card.story, mode: card.setup.mode, startedAt: new Date().toISOString(), playFrom, stoppedAt: null,
     build: { ...servedBuild(), laneCampaign: laneCommit, indexCommit: index.commit }, pids, viewport: plan.viewport, settingsPatch: plan.patch,
+    pin: { profile: plan.pin.profile, orchestrator: plan.pin.orchestrator, judge: plan.pin.judge, verdict: pin.verdict, probe: pin.probe, routing: pin.routing },
+    age, premise: plan.open.premise,
     chats: page.chats ?? [], continues: card.setup.continues ?? null, problems: sessionProblems,
   };
   await writeFile(resolve(dir, 'session.json'), JSON.stringify(session, null, 2), 'utf-8');
-  console.log(`[6/6] ${rel(resolve(dir, 'session.json'))}${sessionProblems.length ? `\nWARNINGS:\n- ${sessionProblems.join('\n- ')}` : ''}`);
-  console.log(`\nPlay in the lane ${plan.lane} browser window (${lane.url}). Press the flag in the drawer for anything on the card. When done: node scripts/debug/so-session.mts stop ${rel(dir)}\n`);
+  console.log(`[7/7] ${rel(resolve(dir, 'session.json'))}${sessionProblems.length ? `\nWARNINGS:\n- ${sessionProblems.join('\n- ')}` : ''}`);
+  console.log(`\nDrive it: node scripts/debug/so-session.mts turn ${rel(dir)} "<line>" (lane ${plan.lane}, ${lane.url}). Flag with: flag ${rel(dir)} "<note>". When done: node scripts/debug/so-session.mts stop ${rel(dir)}\n`);
   console.log(renderCard(card, index));
   return session;
 }
 
-async function openSessionDir(arg: string | undefined, wantStopped: boolean | null) {
-  if (arg) {
-    const dir = resolve(REPO_ROOT, arg);
-    if (!existsSync(resolve(dir, 'session.json'))) throw new Error(`${arg} has no session.json`);
-    return { dir, session: await readJson(resolve(dir, 'session.json')) };
-  }
+async function allSessions() {
   const found: Array<{ dir: string; session: any }> = [];
   if (existsSync(SESSIONS_ROOT)) for (const tier of await readdir(SESSIONS_ROOT)) {
     const tierDir = resolve(SESSIONS_ROOT, tier);
@@ -215,6 +275,16 @@ async function openSessionDir(arg: string | undefined, wantStopped: boolean | nu
       if (existsSync(path)) found.push({ dir: resolve(tierDir, name), session: await readJson(path) });
     }
   }
+  return found;
+}
+
+async function openSessionDir(arg: string | undefined, wantStopped: boolean | null) {
+  if (arg) {
+    const dir = resolve(REPO_ROOT, arg);
+    if (!existsSync(resolve(dir, 'session.json'))) throw new Error(`${arg} has no session.json`);
+    return { dir, session: await readJson(resolve(dir, 'session.json')) };
+  }
+  const found = await allSessions();
   const eligible = found.filter((entry) => wantStopped === null || Boolean(entry.session.stoppedAt) === wantStopped)
     .sort((a, b) => String(a.session.startedAt).localeCompare(String(b.session.startedAt)));
   const latest = eligible.pop();
@@ -222,26 +292,168 @@ async function openSessionDir(arg: string | undefined, wantStopped: boolean | nu
   return latest;
 }
 
+export async function readEvidenceFiles(dir: string) {
+  const names = existsSync(dir) ? await readdir(dir) : [];
+  const out: Record<string, any> = {};
+  for (const name of names) {
+    const match = /^evidence-(.+)\.json$/.exec(name);
+    if (match) out[match[1]] = await readJson(resolve(dir, name));
+  }
+  return out;
+}
+
+export async function meterDir(dir: string, session: any) {
+  const evidence = await readEvidenceFiles(dir);
+  const payloads = existsSync(resolve(dir, 'payloads.jsonl')) ? parseJsonl(await readFile(resolve(dir, 'payloads.jsonl'), 'utf-8')) : [];
+  const modelCalls = Object.values(evidence).flatMap((entry: any) => entry?.slices?.modelCalls ?? []);
+  const judgeCalls = Object.values(evidence).flatMap((entry: any) => entry?.slices?.judgeCalls ?? []);
+  const orchestratorRoutes = (session.pin?.routing?.roles ?? []).map((role: any) => role.profileId).filter(Boolean);
+  const pattern = session.pin?.orchestrator ? new RegExp(session.pin.orchestrator, 'i') : DEFAULT_ORCHESTRATOR;
+  return meterSession({ payloads, modelCalls, judgeCalls, playFrom: session.playFrom ?? null, pattern, orchestratorRoutes });
+}
+
+export async function writeBudget(budgetPath = BUDGET_PATH) {
+  const rows: BudgetRow[] = (await allSessions()).filter(({ session }) => session.spend).map(({ session }) => ({ session: String(session.dir), lane: Number(session.lane), stoppedAt: session.stoppedAt ?? null, spend: session.spend }));
+  const current = existsSync(budgetPath) ? await readFile(budgetPath, 'utf-8') : null;
+  await writeFile(budgetPath, updateBudgetDocument(current, rows), 'utf-8');
+  return rows.length;
+}
+
 async function stop(arg: string | undefined, stopLane: boolean) {
   const { dir, session } = await openSessionDir(arg, arg ? null : false);
   const card = findCard(await loadCards(), session.charter);
   const viewportEnv: Record<string, string> = session.viewport ? { ST_DEBUG_VIEWPORT: session.viewport } : {};
+  const problems: string[] = [];
+  const end = await inLane(session.lane, ['scripts/debug/so-session.mts', '_page', 'end', resolve(dir, 'session.json'), resolve(dir, 'page-end.json')], viewportEnv, true);
+  if (end.code !== 0) problems.push(`end phase failed: ${end.output.slice(-600)}`);
+  const pageEnd = existsSync(resolve(dir, 'page-end.json')) ? await readJson(resolve(dir, 'page-end.json')) : {};
+  problems.push(...(pageEnd.problems ?? []));
+  const diff = await inLane(session.lane, ['scripts/debug/so-run-header.mts', 'diff', resolve(dir, 'run-header-start.json'), '--allow', 'chatId,chat,story,group,inventory.journal', '--allow-warnings', '--out', resolve(dir, 'run-header-end.json')], viewportEnv);
+  await writeFile(resolve(dir, 'run-header-diff.txt'), diff.output, 'utf-8');
   for (const name of TAILS) {
     const pid = Number(session.pids?.[name]);
     if (Number.isInteger(pid) && pid > 0 && isAlive(pid)) await killTree(pid);
   }
-  const problems: string[] = [];
-  const diff = await inLane(session.lane, ['scripts/debug/so-run-header.mts', 'diff', resolve(dir, 'run-header-start.json'), '--allow', 'chatId,chat,story,group,inventory.journal', '--allow-warnings', '--out', resolve(dir, 'run-header-end.json')], viewportEnv);
-  await writeFile(resolve(dir, 'run-header-diff.txt'), diff.output, 'utf-8');
-  const end = await inLane(session.lane, ['scripts/debug/so-session.mts', '_page', 'end', resolve(dir, 'session.json'), resolve(dir, 'page-end.json')], viewportEnv, true);
-  if (end.code !== 0) problems.push(`end phase failed: ${end.output.slice(-600)}`);
+  const spend = await meterDir(dir, session);
   const rubricPath = resolve(dir, 'rubric.json');
-  if (!existsSync(rubricPath)) await writeFile(rubricPath, JSON.stringify(rubricTemplate(card, { dir: session.dir, lane: session.lane, startedAt: session.startedAt }), null, 2), 'utf-8');
-  const stopped = { ...session, stoppedAt: new Date().toISOString(), runHeaderDiff: { exit: diff.code, ok: diff.code === 0 }, problems: [...(session.problems ?? []), ...problems] };
+  const rubric = existsSync(rubricPath) ? await readJson(rubricPath) : rubricTemplate(card, { dir: session.dir, lane: session.lane, startedAt: session.startedAt });
+  rubric.playerClean = pageEnd.playerClean ?? (session.mode === 'player' ? { ok: false, error: 'the player surface was not checked' } : { skipped: 'author-mode card' });
+  await writeFile(rubricPath, JSON.stringify(rubric, null, 2), 'utf-8');
+  const stopped = {
+    ...session, stoppedAt: new Date().toISOString(), runHeaderDiff: { exit: diff.code, ok: diff.code === 0 },
+    evidence: { files: pageEnd.files ?? [], problems: pageEnd.evidenceProblems ?? {} }, playerClean: rubric.playerClean, spend,
+    problems: [...(session.problems ?? []), ...problems],
+  };
   await writeFile(resolve(dir, 'session.json'), JSON.stringify(stopped, null, 2), 'utf-8');
+  await writeBudget();
   if (stopLane) await run(['scripts/debug/st-lanes.mts', 'stop', String(session.lane)]);
-  console.log(JSON.stringify({ dir: session.dir, stoppedAt: stopped.stoppedAt, runHeaderDiff: stopped.runHeaderDiff, rubric: rel(rubricPath), problems: stopped.problems, laneStopped: stopLane }, null, 2));
+  console.log(JSON.stringify({ dir: session.dir, stoppedAt: stopped.stoppedAt, runHeaderDiff: stopped.runHeaderDiff, evidence: stopped.evidence, playerClean: rubric.playerClean?.ok ?? rubric.playerClean, spend, rubric: rel(rubricPath), rubricOpen: rubricProblems(rubric).length, problems: stopped.problems, laneStopped: stopLane }, null, 2));
   return stopped;
+}
+
+export async function appendTurn(dir: string, record: Record<string, unknown>) {
+  const path = resolve(dir, TURNS_FILE);
+  const existing = existsSync(path) ? (await readFile(path, 'utf-8')).split(/\r?\n/).filter((line) => line.trim()).length : 0;
+  const row = { seq: existing + 1, ...record };
+  await appendFile(path, `${JSON.stringify(row)}\n`, 'utf-8');
+  return row;
+}
+
+export const nextSeq = async (dir: string) => (existsSync(resolve(dir, TURNS_FILE)) ? (await readFile(resolve(dir, TURNS_FILE), 'utf-8')).split(/\r?\n/).filter((line) => line.trim()).length + 1 : 1);
+
+export function sessionChat(session: any, wanted: string | null): LiveChat | null {
+  const chats = (session.chats ?? []) as Array<{ chatId: string; group?: string | null; primary?: boolean }>;
+  if (wanted) {
+    const found = chats.find((chat) => chat.chatId === wanted);
+    if (!found) throw new Error(`chat ${wanted} is not one of this session's chats (${chats.map((chat) => chat.chatId).join(', ') || 'none'})`);
+    return { chatId: found.chatId, group: found.group ?? null };
+  }
+  const primary = chats.filter((chat) => chat.primary).pop() ?? chats[chats.length - 1];
+  return primary ? { chatId: primary.chatId, group: primary.group ?? null } : null;
+}
+
+async function liveInLane(lane: number, viewportEnv: Record<string, string>, request: LiveRequest): Promise<any> {
+  const io = resolve(request.dir, '.live-request.json');
+  const out = resolve(request.dir, '.live-result.json');
+  await writeFile(io, JSON.stringify(request, null, 2), 'utf-8');
+  if (existsSync(out)) await writeFile(out, '', 'utf-8');
+  const result = await inLane(lane, ['scripts/debug/so-session.mts', '_live', io, out], viewportEnv);
+  const text = existsSync(out) ? (await readFile(out, 'utf-8')).trim() : '';
+  if (text) return JSON.parse(text);
+  return { kind: request.verb, at: new Date().toISOString(), ok: false, error: result.output.slice(-1500) || `exit ${result.code}` };
+}
+
+export interface LiveCli { verb: LiveVerb; dir: string | undefined; args: LiveRequest['args']; chat: string | null; options: LiveRequest['options'] }
+
+export function parseLiveArgs(verb: LiveVerb, rest: string[]): LiveCli {
+  const flags = new Set(['--chat', '--timeout-ms', '--to', '--via', '--quiet-ms']);
+  const positional: string[] = [];
+  for (let at = 0; at < rest.length; at += 1) {
+    if (flags.has(rest[at])) { at += 1; continue; }
+    if (rest[at].startsWith('--')) continue;
+    positional.push(rest[at]);
+  }
+  const [dir, ...more] = positional;
+  const timeout = argValue(rest, '--timeout-ms');
+  const quiet = argValue(rest, '--quiet-ms');
+  const options = { ...(timeout ? { timeoutMs: Number(timeout) } : {}), ...(quiet ? { quietMs: Number(quiet) } : {}), ...(rest.includes('--no-expect-reply') ? { expectReply: false } : {}) };
+  const messageId = (value: string | undefined) => (value === undefined || value === 'last' ? 'last' as const : Number(value));
+  const args: LiveRequest['args'] = {};
+  if (verb === 'turn' || verb === 'switch-chat-mid-gen' || verb === 'reload-mid-gen') args.line = more[0];
+  if (verb === 'switch-chat-mid-gen') args.to = argValue(rest, '--to');
+  if (verb === 'edit') { args.messageId = messageId(more[0]); args.text = more[1]; }
+  if (verb === 'delete') args.messageId = messageId(more[0]);
+  if (verb === 'flag') { args.note = more[0]; args.via = argValue(rest, '--via') === 'slash' ? 'slash' : 'drawer'; }
+  if (verb === 'shot') args.label = more[0];
+  if (verb === 'age') args.hours = Number(more[0]);
+  const missing = (verb === 'turn' || verb === 'switch-chat-mid-gen' || verb === 'reload-mid-gen') && !args.line ? 'a player line'
+    : verb === 'edit' && !args.text ? 'the message id and the new text'
+      : verb === 'flag' && !args.note ? 'a note'
+        : verb === 'shot' && !args.label ? 'a label'
+          : verb === 'age' && !(Number(args.hours) > 0) ? 'a number of hours'
+            : verb === 'switch-chat-mid-gen' && !args.to ? '--to <chatId>'
+              : !dir ? 'the session dir' : null;
+  if (missing) throw new Error(`${verb} needs ${missing}`);
+  return { verb, dir, args, chat: argValue(rest, '--chat'), options };
+}
+
+async function live(cli: LiveCli) {
+  const { dir, session } = await openSessionDir(cli.dir, null);
+  if (session.stoppedAt) throw new Error(`${session.dir} is stopped; start a new session to play more`);
+  const viewportEnv: Record<string, string> = session.viewport ? { ST_DEBUG_VIEWPORT: session.viewport } : {};
+  const chat = cli.verb === 'adopt' ? null : sessionChat(session, cli.chat);
+  const args = cli.verb === 'shot' ? { ...cli.args, seq: await nextSeq(dir) } : cli.args;
+  const record = await liveInLane(session.lane, viewportEnv, { verb: cli.verb, dir, chat, args, options: cli.options });
+  const row = await appendTurn(dir, record);
+  if (cli.verb === 'adopt' && record.ok && record.chat?.chatId) {
+    const adopted = { chatId: record.chat.chatId, groupId: record.chat.groupId, group: record.chat.group, storyId: record.chat.storyId, activeCheckpointId: record.chat.activeCheckpointId, primary: true, adopted: true };
+    const chats = [...(session.chats ?? []).map((existing: any) => ({ ...existing, primary: false })).filter((existing: any) => existing.chatId !== adopted.chatId), adopted];
+    await writeFile(resolve(dir, 'session.json'), JSON.stringify({ ...session, chats }, null, 2), 'utf-8');
+  }
+  console.log(JSON.stringify(row, null, 2));
+  if (record.ok === false) process.exitCode = 1;
+  return row;
+}
+
+export async function scoreCommand(dirArg: string, rest: string[], at = new Date().toISOString()) {
+  const dir = resolve(REPO_ROOT, dirArg);
+  const rubricPath = resolve(dir, 'rubric.json');
+  if (!existsSync(rubricPath)) throw new Error(`${dirArg} has no rubric.json yet: stop the session first`);
+  const record = rest.includes('--record');
+  const evidence: string[] = [];
+  const positional: string[] = [];
+  for (let index = 0; index < rest.length; index += 1) {
+    if (rest[index] === '--evidence') { if (rest[index + 1]) evidence.push(rest[index + 1]); index += 1; continue; }
+    if (rest[index] === '--record') continue;
+    positional.push(rest[index]);
+  }
+  const [row, ...tail] = positional;
+  const score = record ? null : tail[0] ?? null;
+  const note = (record ? tail[0] : tail[1]) ?? '';
+  if (!row) throw new Error('score needs a row (number or feature name)');
+  const scored = scoreRow(await readJson(rubricPath), dir, { row, score, note, evidence, record, at });
+  await writeFile(rubricPath, JSON.stringify(scored.rubric, null, 2), 'utf-8');
+  return { row: scored.index, feature: scored.row.feature, score: scored.row.score, open: rubricProblems(scored.rubric) };
 }
 
 export async function loadSessionFiles(dir: string, index: StoryIndex) {
@@ -251,7 +463,7 @@ export async function loadSessionFiles(dir: string, index: StoryIndex) {
   const chats: Record<string, ChatMessage[]> = {};
   const states: Record<string, any> = {};
   for (const name of names) {
-    const chat = /^chat-(.+)\.json$/.exec(name);
+    const chat = /^chat-(?!full-)(.+)\.json$/.exec(name);
     if (chat) chats[chat[1]] = await readJson(resolve(dir, name));
     const state = /^state-end-(.+)\.json$/.exec(name);
     if (state) states[state[1]] = await readJson(resolve(dir, name));
@@ -287,9 +499,19 @@ async function cards(mode: 'print' | 'write' | 'check') {
   if (current !== rendered) { console.error(`${rel(CARDS_DOC_PATH)} is out of date: run so-session.mts cards --write`); process.exitCode = 1; }
 }
 
+async function runbook(mode: 'print' | 'write' | 'check') {
+  const doc = await loadCards();
+  const plan: LanePlan | null = existsSync(LANE_PLAN_PATH) ? await readJson(LANE_PLAN_PATH) : null;
+  const rendered = renderRunbook(doc, plan);
+  if (mode === 'print') { process.stdout.write(rendered); return; }
+  if (mode === 'write') { await writeFile(RUNBOOK_PATH, rendered, 'utf-8'); console.log(`Wrote ${rel(RUNBOOK_PATH)}`); return; }
+  const current = existsSync(RUNBOOK_PATH) ? (await readFile(RUNBOOK_PATH, 'utf-8')).replace(/\r\n/g, '\n') : '';
+  if (current !== rendered) { console.error(`${rel(RUNBOOK_PATH)} is out of date: run so-session.mts runbook --write`); process.exitCode = 1; }
+}
+
 async function validate() {
-  const [doc, index] = await Promise.all([loadCards(), loadIndex()]);
-  const problems = validateCardDoc(doc, index);
+  const [doc, index, premises] = await Promise.all([loadCards(), loadIndex(), loadPremises()]);
+  const problems = validateCardDoc(doc, index, premises);
   console.log(JSON.stringify({ cards: doc.cards.length, problems }, null, 2));
   if (problems.length) process.exitCode = 1;
 }
@@ -333,9 +555,36 @@ async function buildIndex() {
   console.log(`Wrote ${rel(INDEX_PATH)}: ${Object.keys(stories).length} stories at ${pin.commit}, ${Object.keys(examples).length} example(s)`);
 }
 
-async function pagePhase(phase: 'settings' | 'open' | 'end', input: string, output: string) {
-  const [{ runCli }, { evaluateInST }, navigation, { saveSettingsNow }, { renderMarkdown }] = await Promise.all([
+async function planCommand(rest: string[]) {
+  const doc = await loadCards();
+  const lanes = (argValue(rest, '--lanes') ?? DEFAULT_LANES.join(',')).split(',').map(Number).filter((lane) => Number.isInteger(lane) && lane > 0);
+  const only = argValue(rest, '--only')?.split(',').map((id) => id.trim()).filter(Boolean) ?? null;
+  const plan = planLanes(doc, lanes, only);
+  if (rest.includes('--write')) await writeFile(LANE_PLAN_PATH, `${JSON.stringify({ ...plan, writtenAt: new Date().toISOString() }, null, 2)}\n`, 'utf-8');
+  console.log(JSON.stringify({ queues: plan.queues, reservations: plan.reservations, problems: plan.problems, wrote: rest.includes('--write') ? rel(LANE_PLAN_PATH) : null }, null, 2));
+  if (plan.problems.length) process.exitCode = 1;
+  return plan;
+}
+
+async function liveChild(input: string, output: string) {
+  const [{ runCli }, { defaultLiveDeps, runLive }] = await Promise.all([import('./lib/cli.mts'), import('./lib/sessionDriver.mts')]);
+  const request: LiveRequest = await readJson(input);
+  await runCli(async (page) => {
+    try {
+      const record = await runLive(page, request, await defaultLiveDeps());
+      await writeFile(output, JSON.stringify(record), 'utf-8');
+      return { ok: true };
+    } catch (error) {
+      await writeFile(output, JSON.stringify({ kind: request.verb, at: new Date().toISOString(), ok: false, error: error instanceof Error ? error.message : String(error) }), 'utf-8');
+      return { ok: false };
+    }
+  });
+}
+
+async function pagePhase(phase: 'settings' | 'pin' | 'open' | 'end', input: string, output: string) {
+  const [{ runCli }, { evaluateInST }, navigation, { saveSettingsNow }, { renderMarkdown }, evidenceLib, pinLib] = await Promise.all([
     import('./lib/cli.mts'), import('./lib/evaluate.mts'), import('./st-navigation.mts'), import('./lib/settingsSave.mts'), import('./so-journal.mts'),
+    import('./lib/sessionEvidence.mts'), import('./lib/sessionPin.mts'),
   ]);
   const plan = await readJson(input);
   await runCli(async (page) => {
@@ -374,6 +623,17 @@ async function pagePhase(phase: 'settings' | 'open' | 'end', input: string, outp
         return { image: root.settings.image?.enabled ?? null, sprites: root.settings.sprites?.enabled ?? null, judge: root.settings.judge?.enabled ?? null };
       }, plan.patch);
       await saveSettingsNow(page);
+    }
+
+    if (phase === 'pin') {
+      const selected = await pinLib.selectMainProfile(page, plan.pin.profile);
+      if (!selected.ok) problems.push(String(selected.reason));
+      const probe = await pinLib.probeProfile(page, plan.pin.profile);
+      const routing = await pinLib.readRouting(page);
+      const verdict = pinLib.pinVerdict(routing, probe, { mainProfile: plan.pin.profile, orchestrator: new RegExp(plan.pin.orchestrator, 'i'), judge: plan.pin.judge });
+      out.verdict = { ok: verdict.ok && selected.ok, problems: [...problems, ...verdict.problems] };
+      out.probe = probe;
+      out.routing = routing;
     }
 
     if (phase === 'open') {
@@ -436,8 +696,8 @@ async function pagePhase(phase: 'settings' | 'open' | 'end', input: string, outp
         chats.push({ ...done, group, primary });
         return done;
       };
-      if (open.kind === 'wizard') {
-        out.note = 'wizard charter: no story is opened; start from the settings panel (Start -> New story (wizard))';
+      if (open.kind === 'wizard' && !open.continueChat) {
+        out.note = `wizard charter: no story is opened; start from the settings panel (Start -> New story (wizard))${open.premise?.id ? `, premise ${open.premise.id}` : ''}, then run so-session adopt once its chat is open`;
       } else {
         if (open.also) await freshChat(open.also.group, open.also.storyId, false);
         if (open.continueChat) {
@@ -460,6 +720,8 @@ async function pagePhase(phase: 'settings' | 'open' | 'end', input: string, outp
     if (phase === 'end') {
       const session = plan;
       const ends: Array<Record<string, unknown>> = [];
+      const files: string[] = [];
+      const evidenceProblems: Record<string, string[]> = {};
       const dir = resolve(input, '..');
       const ordered = [...(session.chats ?? [])].sort((a: any, b: any) => Number(Boolean(a.primary)) - Number(Boolean(b.primary)));
       for (const chat of ordered as Array<{ chatId: string; group: string }>) {
@@ -472,6 +734,7 @@ async function pagePhase(phase: 'settings' | 'open' | 'end', input: string, outp
           problems.push(`could not reopen ${chat.chatId}: ${error instanceof Error ? error.message : String(error)}`);
           continue;
         }
+        const evidence = await evidenceLib.captureEvidence(page);
         const read = await evaluateInST(page, () => {
           const ctx = SillyTavern.getContext();
           const rt = (globalThis as any).storyOrchestratorRuntime;
@@ -495,9 +758,25 @@ async function pagePhase(phase: 'settings' | 'open' | 'end', input: string, outp
         await writeFile(resolve(dir, `journal-${read.chatId}.md`), renderMarkdown(read.journal), 'utf-8');
         await writeFile(resolve(dir, `chat-${read.chatId}.json`), JSON.stringify(read.chat, null, 1), 'utf-8');
         await writeFile(resolve(dir, `state-end-${read.chatId}.json`), JSON.stringify(read.state, null, 2), 'utf-8');
-        ends.push({ chatId: read.chatId, events: read.journal.events.length, messages: read.chat.length });
+        const split = evidenceLib.splitEvidence(evidence);
+        await writeFile(resolve(dir, `chat-full-${read.chatId}.json`), JSON.stringify(split.chatFull, null, 1), 'utf-8');
+        await writeFile(resolve(dir, `snapshot-${read.chatId}.json`), JSON.stringify(split.snapshot, null, 1), 'utf-8');
+        await writeFile(resolve(dir, `evidence-${read.chatId}.json`), JSON.stringify({ capturedAt: evidence.capturedAt, chatId: evidence.chatId, groupId: evidence.groupId, unread: evidence.unread, slices: split.slices }, null, 1), 'utf-8');
+        files.push(...['journal', 'chat', 'chat-full', 'state-end', 'snapshot', 'evidence'].map((kind) => `${kind}-${read.chatId}.json`), `journal-${read.chatId}.md`);
+        evidenceProblems[read.chatId] = evidenceLib.evidenceProblems(evidence);
+        ends.push({ chatId: read.chatId, events: read.journal.events.length, messages: read.chat.length, swipes: split.chatFull.reduce((total, message) => total + message.swipes.length, 0), reasoning: split.chatFull.filter((message) => message.reasoning).length });
       }
       out.ends = ends;
+      out.files = files;
+      out.evidenceProblems = evidenceProblems;
+      if (session.mode === 'player' && ends.length) {
+        try {
+          const { assertPlayerClean } = await import('./so-ui.mts');
+          out.playerClean = { at: new Date().toISOString(), ...(await assertPlayerClean(page)) };
+        } catch (error) {
+          out.playerClean = { at: new Date().toISOString(), ok: false, error: error instanceof Error ? error.message : String(error) };
+        }
+      }
     }
     await writeFile(output, JSON.stringify(out, null, 2), 'utf-8');
     return { ok: true };
@@ -528,13 +807,25 @@ const argValue = (args: string[], name: string) => {
 async function main() {
   const [command, ...rest] = process.argv.slice(2);
   if (!command || command === '--help') { console.log(USAGE); return; }
-  if (command === '_page') { await pagePhase(rest[0] as 'settings' | 'open' | 'end', rest[1], rest[2]); return; }
+  if (command === '_page') { await pagePhase(rest[0] as 'settings' | 'pin' | 'open' | 'end', rest[1], rest[2]); return; }
+  if (command === '_live') { await liveChild(rest[0], rest[1]); return; }
   if (command === '_console') { await consoleTail(rest[0]); return; }
   if (command === 'start') {
     if (!rest[0] || rest[0].startsWith('--')) { console.log(USAGE); process.exitCode = 2; return; }
     const lane = argValue(rest, '--lane');
-    await start(rest[0], { lane: lane === null ? null : Number(lane), allowComfy: rest.includes('--allow-comfy'), seed: !rest.includes('--no-seed') });
-  } else if (command === 'stop') await stop(rest.find((arg) => !arg.startsWith('--')), rest.includes('--stop-lane'));
+    const age = argValue(rest, '--age');
+    await start(rest[0], {
+      lane: lane === null ? null : Number(lane), allowComfy: rest.includes('--allow-comfy'), seed: !rest.includes('--no-seed'), forceWaiting: rest.includes('--force-waiting'),
+      profile: argValue(rest, '--profile') ?? DEFAULT_MAIN_PROFILE, orchestrator: argValue(rest, '--orchestrator') ?? DEFAULT_ORCHESTRATOR.source, age: age === null ? null : Number(age),
+    });
+  } else if ((LIVE_VERBS as readonly string[]).includes(command)) await live(parseLiveArgs(command as LiveVerb, rest));
+  else if (command === 'score') {
+    if (!rest[0]) { console.log(USAGE); process.exitCode = 2; return; }
+    console.log(JSON.stringify(await scoreCommand(rest[0], rest.slice(1)), null, 2));
+  } else if (command === 'plan') await planCommand(rest);
+  else if (command === 'runbook') await runbook(rest.includes('--write') ? 'write' : rest.includes('--check') ? 'check' : 'print');
+  else if (command === 'budget') console.log(`Wrote ${rel(BUDGET_PATH)} (${await writeBudget()} session(s))`);
+  else if (command === 'stop') await stop(rest.find((arg) => !arg.startsWith('--')), rest.includes('--stop-lane'));
   else if (command === 'digest') await digest(rest.find((arg) => !arg.startsWith('--')));
   else if (command === 'cards') await cards(rest.includes('--write') ? 'write' : rest.includes('--check') ? 'check' : 'print');
   else if (command === 'validate') await validate();
