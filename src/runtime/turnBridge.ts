@@ -246,7 +246,7 @@ export class TurnBridge {
     if (!(await this.manager.rollbackOnEnter(kind, from))) {
       const replaced = journal ? null : this.seam?.(kind, messageId) ?? null;
       if (replaced) return replaced();
-      await (journal ? this.manager.rollbackFromMessage(from, journal) : this.manager.rollbackFromMessage(from));
+      await this.manager.rollbackFromMessage(from, journal ?? undefined, kind === "update" ? "edit" : kind);
     }
     if (!recommit || !run.stillOwns()) return;
     this.turnKeys.add(String(messageId));

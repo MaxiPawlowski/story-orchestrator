@@ -1,4 +1,4 @@
-import { qualityAccepts, TENSION_CURRENT_KEY, type NormalizedStoryV2, type PrimitiveValue } from "@engine/index";
+import { qualityAccepts, TENSION_CURRENT_KEY, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
 import { parseArcLine, parseEpistemicLine, parseLedgerLine, parseMemoryLine, parseSceneBreakLine } from "@memory/parse";
 import { isTensionLevel, levelToNumeric } from "@pacing/index";
 import type { ParsedSharedRead } from "./types";
@@ -88,6 +88,16 @@ const parseJsonLiteral = (raw: string): PrimitiveValue | undefined => {
   return undefined;
 };
 
+const STATED_NAME_WORDS = 8;
+
+const trimStatedName = (quality: Quality, value: PrimitiveValue | undefined): PrimitiveValue | undefined => {
+  if (quality.type !== "string" || typeof value !== "string") return value;
+  const trimmed = value.trim();
+  const body = trimmed.replace(/[.,;:]$/, "");
+  if (body === trimmed || /[.!?…;:]/.test(body) || body.split(/\s+/).length > STATED_NAME_WORDS) return value;
+  return body;
+};
+
 export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStoryV2, "qualityByKey">): ParsedSharedRead {
   const result: ParsedSharedRead = { deltas: [], facts: [], memory: [], arcs: [], epistemic: [], ledger: [], rejected: [] };
   const lines = raw.split(/\r?\n/).map((line) => stripChannelTokens(line)).filter(Boolean);
@@ -114,7 +124,7 @@ export function parseSharedReadResponse(raw: string, story: Pick<NormalizedStory
         continue;
       }
       const rawValue = delta[2].trim();
-      const value = parseJsonLiteral(rawValue) ?? parseBareWord(rawValue);
+      const value = trimStatedName(quality, parseJsonLiteral(rawValue) ?? parseBareWord(rawValue));
       if (q === TENSION_CURRENT_KEY) {
         if (!isTensionLevel(value)) {
           result.rejected.push({ line, reason: "invalid value" });

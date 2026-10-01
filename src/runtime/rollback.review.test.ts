@@ -196,3 +196,30 @@ describe("v2.4 plan 02 §10: every runRollback leaves its outcome on the notices
     expect(h.deps.notices.lastOutcome).not.toHaveProperty("reason");
   });
 });
+
+describe("T0 finding 5: the step-back notice is about a step back, and names its cause", () => {
+  const applied = (before: string, after: string) => {
+    const h = harness();
+    const engine = h.deps.engine as unknown as Record<string, unknown>;
+    let active = { id: before, name: before, player_name: `The ${before}` };
+    Object.assign(engine, {
+      shouldRollbackFromMessage: () => true,
+      rollbackTo: () => { active = { id: after, name: after, player_name: `The ${after}` }; return { ok: true, result: "applied" }; },
+      serialize: () => ({ boundary: 7, checkpointStartedMessageId: 0 }),
+    });
+    Object.defineProperty(engine, "activeCheckpoint", { get: () => active });
+    return h;
+  };
+
+  it("records the mutation kind on the notice", async () => {
+    const h = applied("road", "hall");
+    await runRollback(h.deps, 3, undefined, "swipe");
+    expect(h.deps.notices.lastRollback).toMatchObject({ playerName: "The hall", kind: "swipe" });
+  });
+
+  it("raises no notice when the rollback left the checkpoint where it was", async () => {
+    const h = applied("hall", "hall");
+    await runRollback(h.deps, 3, undefined, "delete");
+    expect(h.deps.notices.lastRollback).toBeNull();
+  });
+});

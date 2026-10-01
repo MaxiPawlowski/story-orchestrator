@@ -4,7 +4,7 @@ import { rollbackModelCalls } from "./modelCallLog";
 import type { RollbackOutcome, StoryEngine } from "@engine/index";
 import type { SharedReadWindow } from "@extraction/index";
 import { getChatWindow } from "@extraction/index";
-import type { RollbackNotice, RollbackUnavailable } from "./narrative";
+import type { RollbackKind, RollbackNotice, RollbackUnavailable } from "./narrative";
 import type { JournalContext, SessionJournal } from "./journal";
 import type { DecodeJournal } from "./messageIdentity";
 
@@ -55,13 +55,13 @@ export const rollbackRecord = (previous: RollbackRecord | null | undefined, mess
 const historyNote = (messageId: number, oldest: { boundary: number }): string =>
   `message ${messageId} is older than what this chat can reconstruct (oldest boundary ${oldest.boundary}); the messages the edit invalidated were dropped and the story was not stepped back`;
 
-export async function runRollback(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal): Promise<RollbackOutcome> {
-  const outcome = await rollbackOnce(deps, messageId, decoded);
+export async function runRollback(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal, kind?: RollbackKind): Promise<RollbackOutcome> {
+  const outcome = await rollbackOnce(deps, messageId, decoded, kind);
   deps.notices.lastOutcome = rollbackRecord(deps.notices.lastOutcome, messageId, outcome, new Date().toISOString());
   return outcome;
 }
 
-async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal): Promise<RollbackOutcome> {
+async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal, kind?: RollbackKind): Promise<RollbackOutcome> {
   if (!Number.isFinite(messageId)) return { ok: true, result: "noop" };
   const { engine } = deps;
   if (deps.extras().memory?.chapters?.length && !chapterKit()) {
@@ -122,6 +122,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     deps.notify();
     return { ok: true, result: "noop" };
   }
+  const before = engine.activeCheckpoint?.id ?? null;
   const outcome = engine.rollbackTo(boundary);
   if (!outcome.ok) return unavailable(outcome.oldest);
   if (outcome.result !== "applied") return outcome;
@@ -138,8 +139,10 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   deps.memory.updateInjection();
   await deps.persist();
   const checkpointName = engine.activeCheckpoint?.name ?? "an earlier point";
-  deps.notices.lastRollback = { checkpointName, playerName: engine.activeCheckpoint?.player_name ?? null, at: new Date().toISOString() };
-  deps.setStatus(`Stepped back to ${checkpointName}`);
+  if ((engine.activeCheckpoint?.id ?? null) !== before) {
+    deps.notices.lastRollback = { checkpointName, playerName: engine.activeCheckpoint?.player_name ?? null, at: new Date().toISOString(), ...(kind ? { kind } : {}) };
+    deps.setStatus(`Stepped back to ${checkpointName}`);
+  }
   deps.onApplied(messageId, window);
   deps.notify();
   return { ok: true, result: "applied" };

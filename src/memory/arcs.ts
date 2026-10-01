@@ -120,6 +120,35 @@ export function openArcTexts(arcs: ArcEntry[], limit?: number): string[] {
   return open.filter((arc) => pinnedIds.has(arc.id) || recentIds.has(arc.id)).map((arc) => arc.text);
 }
 
+export const PLAYER_THREAD_LIMIT = 5;
+export const PLAYER_THREAD_OVERLAP = 0.4;
+
+const THREAD_FILLER = new Set([
+  "that", "this", "with", "from", "what", "whether", "their", "there", "they", "them", "have", "been", "will",
+  "when", "where", "which", "while", "still", "into", "about", "remains", "remain", "unknown", "party's", "party",
+]);
+
+const threadWords = (text: string) => new Set((text.toLowerCase().match(/[a-z']+/g) ?? []).filter((word) => word.length >= 4 && !THREAD_FILLER.has(word)));
+
+const sameThread = (left: Set<string>, right: Set<string>) => {
+  const smaller = Math.min(left.size, right.size);
+  return smaller > 0 && [...left].filter((word) => right.has(word)).length / smaller >= PLAYER_THREAD_OVERLAP;
+};
+
+export function playerThreadTexts(arcs: ArcEntry[], sinceBoundary: number, limit = PLAYER_THREAD_LIMIT): string[] {
+  const kept: Array<{ arc: ArcEntry; words: Set<string> }> = [];
+  for (const arc of [...openArcs(arcs)].reverse()) {
+    if (!arc.pinned && arc.openedAt < sinceBoundary) continue;
+    const words = threadWords(arc.text);
+    if (kept.some((entry) => sameThread(entry.words, words))) continue;
+    kept.push({ arc, words });
+  }
+  const pinned = kept.filter((entry) => entry.arc.pinned);
+  const recent = kept.filter((entry) => !entry.arc.pinned).slice(0, Math.max(0, limit - pinned.length));
+  const shown = new Set([...pinned, ...recent].map((entry) => entry.arc.id));
+  return openArcs(arcs).filter((arc) => shown.has(arc.id)).map((arc) => arc.text);
+}
+
 export interface ArcBridgeLike {
   arcMatch: string;
   anchor: string;

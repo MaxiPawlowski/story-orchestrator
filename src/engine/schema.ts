@@ -55,6 +55,7 @@ export interface Quality {
   key: string;
   type: QualityType;
   values?: string[];
+  player_labels?: Record<string, string>;
   source: QualitySource;
   latching?: boolean;
   monotonic?: boolean;

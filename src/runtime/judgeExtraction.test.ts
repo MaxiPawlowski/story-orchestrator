@@ -171,3 +171,22 @@ describe("judged stall pre-check (v2.2 plan 06)", () => {
     expect(transport).not.toHaveBeenCalled();
   });
 });
+
+describe("T0 finding 4: one read answers every open stall it was asked about", () => {
+  const plan = (boundary: number): ReconciliationPlan => ({
+    descriptor: { checkpointId: "hall", boundary, targetedKeys: ["has_key"] },
+    reason: "reconcile:has_key",
+    window: { from: 0, to: 2, messages: mockContext.chat.map((message, index) => ({ index, messageId: index, speaker: message.name ?? "", text: message.mes })) as SharedReadWindow["messages"] },
+    leaves: [{ q: "has_key", rubric: story.qualities[0].rubric, type: "bool", op: "==", v: true }],
+  });
+
+  it("resolves a duplicate stall the coalesced queue never re-read for (T0-1 boundaries 19 and 22)", async () => {
+    const { manager } = await setup({ stallCheck: true }, (request) => ({ model: "jev-1.13.0", answers: Object.fromEntries(Object.keys(request.questions).map((id) => [id, { type: "noul" as const, noul: 0.97 }])) }));
+    manager.recordReconciliation(plan(19).descriptor);
+    manager.recordReconciliation(plan(22).descriptor);
+    manager.judgedExtraction({ kind: "stall", plan: plan(19), reread: jest.fn() });
+    await flush();
+    expect(manager.getSnapshot().extraction.reconciliationEvents.map((event) => event.resolvedAt)).toEqual([expect.any(String), expect.any(String)]);
+    expect(manager.getSnapshot().pipeline.state).not.toBe("stalled-rechecking");
+  });
+});

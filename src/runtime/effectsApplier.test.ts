@@ -461,6 +461,6 @@ describe("transition announcement leaves a trace when it is not posted (L2 J1.7)
     await new EffectsApplier(testOwnership(), {}).announceTransition(generated, announcing());
     const posted = String((executeSlashCommands as jest.Mock).mock.calls[0][0]);
     expect(posted.split("Travel the north road toward Wendhope")).toHaveLength(2);
-    expect(posted).toContain("let the party notice what the road is missing.");
+    expect(posted).not.toContain("let the party notice what the road is missing.");
   });
 });

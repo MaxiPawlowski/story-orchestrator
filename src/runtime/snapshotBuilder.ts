@@ -1,10 +1,10 @@
 import { agencyFor, gateKeys, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
-import { castVoices, sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
+import { castVoices, playerThreadTexts, sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks } from "@stagecraft/index";
 import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
 import { buildConvergenceReadout, buildLastTransition, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot } from "./snapshot";
-import { buildNarrativeStatus, type NarrativeTransition, type RollbackNotice, type RollbackUnavailable } from "./narrative";
+import { buildNarrativeStatus, playerLocation, type NarrativeTransition, type RollbackNotice, type RollbackUnavailable } from "./narrative";
 import { agencyRecovery as agencyRecoveryOf, playerTurnIds, REFUSAL_PLAYER_TEXT, type AgencyRecovery } from "./agencyRecovery";
 import { jumpIndex } from "./messageJump";
 import type { MessageFingerprints } from "./fingerprints";
@@ -173,7 +173,8 @@ const chapterParts = (sources: SnapshotSources, story: NormalizedStoryV2 | null,
   const records = memory.chapters ?? [];
   const chapters = chapterKit()?.buildChapterView(story, state?.activeCheckpointId, records) ?? { declared: false, current: null, records: [], ended: storyEnded(records), epilogue: null };
   const origins = new Map(records.map((record) => [record.id, record.playerTitle]));
-  const openThreads = sources.openThreads.map((text) => {
+  const playerThreads = sources.openThreads.length ? playerThreadTexts(memory.arcs, state?.checkpointStartedBoundary ?? 0) : [];
+  const openThreads = playerThreads.map((text) => {
     const origin = memory.arcs.find((arc) => arc.status === "open" && arc.text === text)?.originChapter;
     return origin && origins.has(origin) ? `${text} (since ${origins.get(origin)})` : text;
   });
@@ -215,7 +216,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const agencyRecovery: AgencyRecovery | null = agencyRecoveryOf(story, state, sources.boundaryLog, extras.extraction.audits, playerTurnIds(sources.chat));
   const extractionHealth = sources.extractionHealth ?? null;
   const { chapters, openThreads, chapterLines, fold } = chapterParts(sources, story, state);
-  const pipeline = derivePipelineStatus(extras.extraction, { generating: expansionInFlight(extras.expansion) }, extractionHealth, chapters.ended);
+  const pipeline = derivePipelineStatus(extras.extraction, { generating: expansionInFlight(extras.expansion) }, extractionHealth, chapters.ended, active);
   // What the next reply will carry, in ST's own assembly order. The private block is
   // attributed to the member the last talk decision drafted — in a group that is who ST will swap it
   // for — and the scene block reports the tracker's own staleness and last fallback.
@@ -245,7 +246,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     tensionLevel: tension.level,
     pendingCount: pendingDeltas.length,
     pipeline,
-    sceneLocation: confirmedSceneFacts(extras.judge.scene, sceneFieldsInConflict(extras.memory.conflicts))?.location ?? null,
+    sceneLocation: playerLocation(story, confirmedSceneFacts(extras.judge.scene, sceneFieldsInConflict(extras.memory.conflicts))?.location ?? null),
     // Only when a place WAS known: a tracker that has never answered has nothing to be unsure of.
     sceneUnconfirmed: isSceneStale(extras.judge.scene) && Boolean(extras.judge.scene?.facts.location),
     // A write this chat believes it made and the server has not confirmed. Player

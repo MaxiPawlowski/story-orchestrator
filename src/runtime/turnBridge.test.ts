@@ -190,7 +190,7 @@ describe("TurnBridge boundary commits", () => {
     bridge.start();
 
     await emit("MESSAGE_SWIPED", 4);
-    expect(manager.rollbackFromMessage).toHaveBeenCalledWith(4);
+    expect(manager.rollbackFromMessage).toHaveBeenCalledWith(4, undefined, "swipe");
     expect(manager.commitBoundary).not.toHaveBeenCalled();
 
     await emit("MESSAGE_RECEIVED", 4, "swipe");
@@ -215,7 +215,7 @@ describe("TurnBridge boundary commits", () => {
 
     await emit("MESSAGE_SWIPED", 0);
 
-    expect(manager.rollbackFromMessage).toHaveBeenCalledWith(0);
+    expect(manager.rollbackFromMessage).toHaveBeenCalledWith(0, undefined, "swipe");
     expect(manager.commitBoundary).not.toHaveBeenCalled();
   });
 

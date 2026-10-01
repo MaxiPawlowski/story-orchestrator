@@ -156,7 +156,7 @@ export const defaultStagecraftSettings = (): StagecraftSettings => ({ curatorEna
 export const defaultGlobalSettings = (): GlobalSettings => ({
   extraction: defaultExtractionSettings(),
   pacing: { alpha: DEFAULT_TENSION_EMA_ALPHA, hintEnabled: true },
-  display: { announceTransitions: true, hudEnabled: true, inline: defaultInlineSettings() },
+  display: { announceTransitions: false, hudEnabled: true, inline: defaultInlineSettings() },
   copilot: { enabled: true },
   memory: defaultMemorySettings(),
   talk: { enabled: true, chain: { enabled: true, max: TALK_CHAIN_MAX_DEFAULT, stopOnTransition: true, holdExtraction: false } },
@@ -221,7 +221,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       ...(reasoningBudget ? { reasoningBudget } : {}),
     },
     pacing: { alpha: clampAlpha(pacing.alpha), hintEnabled: pacing.hintEnabled !== false },
-    display: { announceTransitions: display.announceTransitions !== false, hudEnabled: display.hudEnabled !== false, inline: sanitizeInlineSettings(display.inline) },
+    display: { announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, inline: sanitizeInlineSettings(display.inline) },
     copilot: { enabled: isRecord(value.copilot) ? value.copilot.enabled !== false : true },
     memory: sanitizeInnerVoice({
       ...defaults.memory, ...memory, injectionDepths: { ...defaults.memory.injectionDepths, ...(isRecord(memory.injectionDepths) ? memory.injectionDepths : {}) },

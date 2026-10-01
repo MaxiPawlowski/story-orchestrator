@@ -956,6 +956,24 @@ export function attributeFindings(values: Array<{ tab: string; surface: string; 
   ]);
 }
 
+const RAW_SNAKE_TOKEN = /\b[a-z0-9]+(?:_[a-z0-9]+)+\b/g;
+const escapeRegExp = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+export function rawValueTokens(story: { checkpoints?: Array<{ id: string }>; qualities?: Array<{ type: string; values?: string[]; player_labels?: Record<string, string> }> } | null) {
+  if (!story) return [];
+  const ids = (story.checkpoints ?? []).map((checkpoint) => checkpoint.id).filter((id) => /[-_]/.test(id));
+  const values = (story.qualities ?? []).flatMap((quality) => (quality.type === 'enum' ? (quality.values ?? []).filter((value) => /[-_]/.test(value) || quality.player_labels?.[value]) : []));
+  return [...new Set([...ids, ...values])];
+}
+
+export function rawValueFindings(texts: Array<{ tab: string; surface: string; text: string }>, tokens: string[]) {
+  return texts.flatMap(({ tab, surface, text }) => {
+    const snake = text.match(RAW_SNAKE_TOKEN) ?? [];
+    const named = tokens.filter((token) => new RegExp(`(^|[^\\w-])${escapeRegExp(token)}($|[^\\w-])`).test(text));
+    return [...new Set([...snake, ...named])].map((token) => ({ tab, needle: `${surface} shows a raw story value "${token}"` }));
+  });
+}
+
 // v2.6 plan 08: the inline timeline's author half. Player levels (1-2) render chips, counts and player
 // copy only; details, actions, the inspector button and any level-3/4 row are author view.
 export const INLINE_PLAYER_FORBIDDEN_SELECTORS = [
@@ -1013,11 +1031,12 @@ export async function setInlineLevel(page, level: number) {
   }, level);
 }
 
-async function inlinePlayerSweep(page) {
+async function inlinePlayerSweep(page, tokens: string[] = []) {
   const state = await getInlineState(page);
   const texts = state.strips.map((strip) => ({ mesid: String(strip.mesid), text: strip.chips.flatMap((chip) => chip.items.map((item) => item.text)).join('\n') }));
   const hits = await evaluateInST(page, (selectors) => selectors.flatMap((selector) => Array.from(document.querySelectorAll(`#chat ${selector}`)).map(() => selector)), INLINE_PLAYER_FORBIDDEN_SELECTORS);
-  return [...inlineTextFindings(texts), ...(hits ?? []).map((selector) => ({ tab: 'inline', needle: `${selector} reachable under a message` }))];
+  const raw = rawValueFindings(texts.map(({ mesid, text }) => ({ tab: `inline ${mesid}`, surface: 'inline', text })), tokens);
+  return [...inlineTextFindings(texts), ...raw, ...(hits ?? []).map((selector) => ({ tab: 'inline', needle: `${selector} reachable under a message` }))];
 }
 
 // v2.4 plan 03 X17: recovery controls ARE player-visible (pipeline "Try again", backlog "Stop"), so the
@@ -1104,7 +1123,12 @@ export async function assertPlayerClean(page) {
   findings.push(...surfaceTextFindings(errorTexts.filter((entry) => entry.surface !== '#drawer-manager')));
   findings.push(...recoveryControlFindings(recoveryControls));
   findings.push(...errorStateFindings(errorTexts));
-  findings.push(...await inlinePlayerSweep(page));
+  const tokens = rawValueTokens(await evaluateInST(page, () => {
+    const story = globalThis.storyOrchestratorRuntime?.getStory?.();
+    return story ? { checkpoints: story.checkpoints.map((checkpoint) => ({ id: checkpoint.id })), qualities: story.qualities.map((quality) => ({ type: quality.type, values: quality.values, player_labels: quality.player_labels })) } : null;
+  }));
+  findings.push(...rawValueFindings(errorTexts.filter((entry) => entry.surface !== '#story-orchestrator-settings'), tokens));
+  findings.push(...await inlinePlayerSweep(page, tokens));
   // Leave the drawer where a player would: on the narrative view, not on the last tab we walked.
   if (tabs.includes('Overview')) await switchDrawerTab(page, 'Overview');
   return { ok: findings.length === 0, tabs, surfaces: PLAYER_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep, recoveryControls };

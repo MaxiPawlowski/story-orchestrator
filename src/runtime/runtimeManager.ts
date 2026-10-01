@@ -17,7 +17,7 @@ import {
 import { createModelCall } from "./modelCall";
 import { loadChapterKit } from "./chapterPort";
 import { AwayRecapController, type AwayRecap } from "./awayRecap";
-import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
+import type { NarrativeStatus, RollbackKind, RollbackNotice, RollbackUnavailable } from "./narrative";
 import { coordinatorHosts } from "./coordinatorHosts";
 import { wireCoordinators } from "./managerWiring";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
@@ -323,12 +323,12 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.notify();
   }
 
-  async rollbackFromMessage(messageId: number, decoded?: DecodeJournal): Promise<RollbackOutcome> {
+  async rollbackFromMessage(messageId: number, decoded?: DecodeJournal, kind?: RollbackKind): Promise<RollbackOutcome> {
     // A mutation's POSITION is recorded: an in-flight read whose window reaches it is invalidated,
     // a reply merely appended later is not. See `tokenMatches`.
     this.owner.noteMutation(messageId); this.chatSave.fingerprints.forgetFrom(messageId);
     if (!this.loaded) return { ok: true, result: "noop" };
-    const run = runRollback(this.co.rollbackDeps, messageId, decoded);
+    const run = runRollback(this.co.rollbackDeps, messageId, decoded, kind);
     this.rollbackRun = Promise.allSettled([this.rollbackRun, run]);
     return run;
   }

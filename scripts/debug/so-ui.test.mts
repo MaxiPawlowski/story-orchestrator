@@ -222,3 +222,20 @@ test('CR-U: text needles run on the HUD and the settings panel too', () => {
   const findings = surfaceTextFindings([{ tab: 'Overview', surface: '#story-orchestrator-settings', text: 'World Info curator' }, { tab: 'Overview', surface: '#so-hud', text: 'The Gate' }]);
   assert.deepEqual(findings.map((finding) => finding.needle), ['#story-orchestrator-settings: World Info curator']);
 });
+
+test('T0 finding 1: player-clean fails on a raw location value or checkpoint id in the Overview', async () => {
+  const { rawValueFindings, rawValueTokens } = await import('./so-ui.mts');
+  const story = {
+    checkpoints: [{ id: 'guild-hall' }, { id: 'driftmere' }],
+    qualities: [{ type: 'enum', values: ['aegis_guild_hall', 'wendhope', 'calm'], player_labels: { wendhope: 'Wendhope village' } }, { type: 'bool' }],
+  };
+  const tokens = rawValueTokens(story);
+  assert.deepEqual(tokens.sort(), ['aegis_guild_hall', 'guild-hall', 'wendhope']);
+  const overview = (text: string) => rawValueFindings([{ tab: 'Overview', surface: '#drawer-manager', text }], tokens);
+  assert.equal(overview('Where you are\nThe Adventurer\'s Guild, Aegis City\nAt aegis_guild_hall.').length, 1);
+  assert.equal(overview('At north_road.').length, 1);
+  assert.equal(overview('Back at guild-hall again').length, 1);
+  assert.equal(overview('Rumours from wendhope').length, 1);
+  assert.deepEqual(overview('Where you are\nThe Guild Hall\nAt Wendhope village. A well-known road; calm skies over Driftmere.'), []);
+  assert.deepEqual(rawValueTokens(null), []);
+});

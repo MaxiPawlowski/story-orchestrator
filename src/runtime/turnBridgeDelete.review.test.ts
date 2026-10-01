@@ -39,7 +39,7 @@ function harness() {
   const manager = {
     commitBoundary: jest.fn(async (_at?: number) => undefined),
     fireAfterSpeak: jest.fn(async () => undefined),
-    rollbackFromMessage: jest.fn(async (_id: number, _journal?: unknown) => undefined),
+    rollbackFromMessage: jest.fn(async (_id: number, _journal?: unknown, _kind?: string) => undefined),
     rollbackOnEnter: jest.fn(async () => false),
     loadSelectedFromChat: jest.fn(async () => undefined),
     reapplyPromptBlocks: jest.fn(),
@@ -67,7 +67,7 @@ describe("v2.4 T1: a middle delete rolls back from the message it removed", () =
     const manager = harness();
     await emit("CHAT_CHANGED");
     await hostDelete(1);
-    expect(manager.rollbackFromMessage.mock.calls).toEqual([[1]]);
+    expect(manager.rollbackFromMessage.mock.calls).toEqual([[1, undefined, "delete"]]);
   });
 
   it("decodes before the first await: a /cut range reports each removed message while the rollback is still running", async () => {
@@ -83,7 +83,7 @@ describe("v2.4 T1: a middle delete rolls back from the message it removed", () =
     await Promise.all([first, second]);
     await settle();
     expect(manager.rollbackFromMessage.mock.calls.map(([start]) => start)).toEqual([1, 1]);
-    expect(manager.rollbackFromMessage.mock.calls.every((call) => call.length === 1)).toBe(true);
+    expect(manager.rollbackFromMessage.mock.calls.every((call) => call[1] === undefined && call[2] === "delete")).toBe(true);
   });
 
   it("purges the turn keys from the decoded start, so a reply rendered at a shifted index is a new turn", async () => {
@@ -112,13 +112,13 @@ describe("v2.4 T1: a middle delete rolls back from the message it removed", () =
     host.chat.push(row(4), row(5));
     await emit("MESSAGE_SENT", 5);
     await hostDelete(4);
-    expect(manager.rollbackFromMessage.mock.calls).toEqual([[4]]);
+    expect(manager.rollbackFromMessage.mock.calls).toEqual([[4, undefined, "delete"]]);
   });
 
   it("control: a tail delete decodes to the same value ST sends", async () => {
     const manager = harness();
     await emit("CHAT_CHANGED");
     await hostDelete(3);
-    expect(manager.rollbackFromMessage.mock.calls).toEqual([[3]]);
+    expect(manager.rollbackFromMessage.mock.calls).toEqual([[3, undefined, "delete"]]);
   });
 });

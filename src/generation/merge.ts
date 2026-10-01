@@ -33,7 +33,8 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
     if (!sourceTransition) return;
     const target = raw.checkpoints.find((checkpoint) => checkpoint.id === entry.targetAnchorId);
     if (!target) return;
-    const chapter = raw.checkpoints.find((checkpoint) => checkpoint.id === entry.stubId)?.chapter;
+    const stub = raw.checkpoints.find((checkpoint) => checkpoint.id === entry.stubId);
+    const chapter = stub?.chapter;
     const exits = stubExits(raw.transitions, entry);
     for (let index = transitions.length - 1; index >= 0; index -= 1) {
       if (transitions[index].from === entry.sourceCheckpointId && transitions[index].to === entry.stubId) transitions.splice(index, 1);
@@ -44,6 +45,7 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
         name: beat.title ?? shortCheckpointName(beat.objective),
         ...(beat.title ? { player_name: beat.title } : {}),
         objective: beat.objective,
+        ...(stub?.player_name ? { player_name: stub.player_name } : {}),
         type: "intermediate",
         guidance: beat.guidance,
         tension_target: beat.tension_target,

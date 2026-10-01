@@ -1,4 +1,4 @@
-import type { ObjectiveKind, TensionLevel } from "@engine/index";
+import type { Checkpoint, NormalizedStoryV2, ObjectiveKind, TensionLevel } from "@engine/index";
 import type { PipelineStatus } from "./pipeline";
 
 // The one "where am I" composition (finding). The player Overview renders it, the away-recap
@@ -19,16 +19,38 @@ export interface NarrativeTransition {
 
 // A mutation (edit/delete/swipe) rolled the story back: the player is told once, in their own
 // terms, and the notice clears at the next committed boundary.
+export type RollbackKind = "edit" | "delete" | "swipe";
+
 export interface RollbackNotice {
   checkpointName: string;
   playerName: string | null;
   at: string;
+  kind?: RollbackKind;
 }
 
 export const playerPlaceText = (playerName: string | null | undefined): string => playerName || "an earlier scene";
 
-export const rollbackNoticeText = (notice: Pick<RollbackNotice, "playerName">): string =>
-  `The story stepped back to ${playerPlaceText(notice.playerName)} to match your edit.`;
+const ROLLBACK_CAUSE: Record<RollbackKind, string> = {
+  edit: "to match your edit",
+  delete: "to match the deleted message",
+  swipe: "to match the swiped reply",
+};
+
+export const rollbackNoticeText = (notice: Pick<RollbackNotice, "playerName" | "kind">): string =>
+  `The story stepped back to ${playerPlaceText(notice.playerName)} ${notice.kind ? ROLLBACK_CAUSE[notice.kind] : "to match the change in the chat"}.`;
+
+export const transitionNoteText = (checkpoint: Pick<Checkpoint, "name" | "objective" | "player_name" | "player_text">): string => {
+  const title = (checkpoint.player_name ?? checkpoint.name).trim();
+  const text = checkpoint.player_text?.trim();
+  return text && text !== title ? `◈ ${title} — ${text}` : `◈ ${title}`;
+};
+
+const IDENTIFIER_LIKE = /^[^A-Z\s]+$/;
+
+export const playerLocation = (story: Pick<NormalizedStoryV2, "qualityByKey"> | null, value: string | null): string | null => {
+  if (!story || !value) return null;
+  return story.qualityByKey.location?.player_labels?.[value] ?? (IDENTIFIER_LIKE.test(value) ? null : value);
+};
 
 export const steppedBackText = (playerName: string | null | undefined): string => `Stepped back to ${playerPlaceText(playerName)}`;
 
@@ -104,8 +126,14 @@ const TENSION_COPY: Record<TensionLevel, string> = {
   peak: "Everything is at breaking point.",
 };
 
-export const excerpt = (value: string, max = CANON_EXCERPT_CHARS): string =>
-  (value.length <= max ? value : `${value.slice(0, max).trimEnd()}…`);
+export const excerpt = (value: string, max = CANON_EXCERPT_CHARS): string => {
+  if (value.length <= max) return value;
+  const head = value.slice(0, max);
+  const sentence = head.match(/^[\s\S]*[.!?…]["'”’)]?(?=\s)/)?.[0];
+  if (sentence && sentence.length >= max / 3) return sentence.trimEnd();
+  const word = head.replace(/\s+\S*$/, "");
+  return `${(word || head).trimEnd()}…`;
+};
 
 export function buildNarrativeStatus(input: NarrativeInput): NarrativeStatus {
   const sections: NarrativeSection[] = [];

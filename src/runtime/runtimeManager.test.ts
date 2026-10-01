@@ -1375,6 +1375,7 @@ describe("RuntimeManager transition announcements and pending deltas", () => {
   it("posts a compact comment to chat when a transition fires", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(gatedStory));
+    manager.setUiSettings({ announceTransitions: true });
     (executeSlashCommands as jest.Mock).mockClear();
     await manager.setQuality("has_key", "true");
     const commentCalls = (executeSlashCommands as jest.Mock).mock.calls.filter(([command]) => typeof command === "string" && command.startsWith("/comment"));
@@ -1387,6 +1388,7 @@ describe("RuntimeManager transition announcements and pending deltas", () => {
     const manager = new RuntimeManager();
     const replying = { ...gatedStory, checkpoints: gatedStory.checkpoints.map((checkpoint) => checkpoint.id === "end" ? { ...checkpoint, effects: { npc_replies: [{ trigger: "onEnter", member: "Corin", kind: "llm" }] } } : checkpoint) };
     await manager.importStory(JSON.stringify(replying));
+    manager.setUiSettings({ announceTransitions: true });
     (executeSlashCommands as jest.Mock).mockClear();
     await manager.setQuality("has_key", "true");
     const order = (executeSlashCommands as jest.Mock).mock.calls.map(([command]) => String(command)).filter((command) => command.startsWith("/comment") || command.startsWith("/trigger")).map((command) => command.split(" ")[0]);
@@ -1428,7 +1430,7 @@ describe("RuntimeManager transition announcements and pending deltas", () => {
   it("defaults ui settings on hydrate and persists overrides", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(gatedStory));
-    expect(manager.getSnapshot().ui).toEqual({ authorView: false, announceTransitions: true, hudEnabled: true, inline: defaultInlineSettings() });
+    expect(manager.getSnapshot().ui).toEqual({ authorView: false, announceTransitions: false, hudEnabled: true, inline: defaultInlineSettings() });
     manager.setUiSettings({ authorView: true });
     const metadata = mockContext.chatMetadata.story_orchestrator as { stories: Record<string, { extras: { ui?: { authorView?: boolean } } }> };
     const storyId = Object.keys(metadata.stories)[0];

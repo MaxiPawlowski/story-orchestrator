@@ -1,4 +1,4 @@
-import { stripChannelNoise, stripReasoningBlocks } from "./parse";
+import { parseSharedReadResponse, stripChannelNoise, stripReasoningBlocks } from "./parse";
 
 describe("stripChannelNoise", () => {
   it("extracts the final harmony channel and drops the analysis reasoning", () => {
@@ -93,5 +93,26 @@ describe("stripReasoningBlocks", () => {
     const once = stripReasoningBlocks("<think>a </think> b</think>\nAnswer");
     expect(stripReasoningBlocks(once)).toBe(once);
     expect(once).toBe("Answer");
+  });
+});
+
+describe("T0 finding 7: a stated name loses the sentence's full stop, a sentence keeps its own", () => {
+  const story = { qualityByKey: {
+    party_name: { key: "party_name", type: "string", source: "extractor", rubric: "Party name?" },
+    last_words: { key: "last_words", type: "string", source: "extractor", rubric: "What did he say?" },
+    mood: { key: "mood", type: "enum", values: ["calm.", "calm"], source: "extractor", rubric: "Mood?" },
+  } } as unknown as Parameters<typeof parseSharedReadResponse>[1];
+  const value = (line: string) => parseSharedReadResponse(line, story).deltas[0]?.delta.v;
+
+  it("trims a trailing period from a short stated name", () => {
+    expect(value('DELTA party_name value="Ash Lanterns." evidence="Write us down as the Ash Lanterns."')).toBe("Ash Lanterns");
+    expect(value('DELTA party_name value="Ash Lanterns" evidence="x"')).toBe("Ash Lanterns");
+  });
+
+  it("leaves a value with its own sentences, an ellipsis, a question and an enum alone", () => {
+    expect(value('DELTA last_words value="Run. Now." evidence="x"')).toBe("Run. Now.");
+    expect(value('DELTA last_words value="Wait..." evidence="x"')).toBe("Wait...");
+    expect(value('DELTA last_words value="Who goes there?" evidence="x"')).toBe("Who goes there?");
+    expect(value('DELTA mood value="calm." evidence="x"')).toBe("calm.");
   });
 });
