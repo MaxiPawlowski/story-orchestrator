@@ -53,6 +53,9 @@ import type {
   StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings,
 } from "./types";
 import { withholds } from "./generationLifecycle";
+import { onEnterRollbackPlan } from "./npcReplyRewind";
+import { stagedPath } from "./worldInfoGates";
+import type { MutationKind } from "./turnBridge";
 import { CoordinatorDelegates } from "./managerDelegates";
 import { required } from "@utils/guards";
 import { spikeSeams } from "./spikeSeams";
@@ -108,7 +111,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     setStatus: (status) => { this.status = status; }, unsaved: () => !this.chatSave.landed(), commitBoundary: () => this.commitBoundary(),
     firedTransitions: () => this.getFiredTransitions(), gateSources: () => this.getExpansionGateSources(), replaceStory: (story) => this.replaceStory(story),
     enqueueExtractorDeltas: (accepted, window, origin) => this.enqueueExtractorDeltas(accepted, window, origin),
-    fireSceneBreakReplies: (occurrence) => this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", occurrence),
+    fireSceneBreakReplies: async (occurrence) => { await this.effects.fireNpcReplies(this.engine.activeCheckpoint, this.extras, "sceneBreak", occurrence); },
     sceneBreakListeners: this.sceneBreakListeners, arcResolvedListeners: this.arcResolvedListeners,
     journal: (kind, summary, note) => { this.journal.record(kind, summary, this.journalContext(), note); this.extras.journal = this.journal.getRecords(); },
     announce: (text) => this.effects.announceText(text, this.extras, this.owner.ownsOpenChat()),
@@ -235,7 +238,7 @@ export class RuntimeManager extends CoordinatorDelegates {
       await this.effects.announceTransition(this.engine.activeCheckpoint, this.extras, this.owner.ownsOpenChat());
       if (!run.stillOwns()) return null;
     }
-    if (result.effects) await this.applyActive("activate");
+    if (result.effects) await this.applyActive("activate", result.fired ? result.context.lastMessageId : undefined);
     else if (this.extras.requirements.ready && this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id) await this.applyActive("hydrate");
     if (!run.stillOwns()) return null;
     await this.stagecraft.applyAccepted();
@@ -270,6 +273,8 @@ export class RuntimeManager extends CoordinatorDelegates {
     if (!this.loaded) return false;
     const run = beginRun(this.owner.ownership);
     this.refreshRequirements();
+    await this.effects.releaseStaging(this.loaded.story, this.extras, run);
+    if (!run.stillOwns()) return false;
     this.engine.activateCheckpoint(id, this.getBoundaryContext());
     await this.applyActive("activate");
     if (!run.stillOwns()) return false;
@@ -316,6 +321,14 @@ export class RuntimeManager extends CoordinatorDelegates {
     const run = runRollback(this.co.rollbackDeps, messageId, decoded);
     this.rollbackRun = Promise.allSettled([this.rollbackRun, run]);
     return run;
+  }
+  async rollbackOnEnter(kind: MutationKind, messageId: number): Promise<boolean> {
+    const plan = this.loaded ? onEnterRollbackPlan(this.extras.onEnterPosts, kind, messageId, this.getBoundaryContext().chatLength) : null;
+    if (!plan) return false;
+    const run = beginRun(this.owner.ownership);
+    await this.rollbackFromMessage(plan.from, { summary: plan.summary, note: plan.note });
+    if (run.stillOwns()) await this.effects.removeOnEnterPost(plan.remove, run);
+    return true;
   }
   private rollbackRun: Promise<unknown> = Promise.resolve();
   rollbackSettled(): Promise<unknown> { return this.rollbackRun; }
@@ -462,6 +475,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   }
 
   getPayloadCaptures(): PayloadCapture[] { return this.journal.getCaptures(); }
+  noteFolded(folded: number) { if (this.journal.noteFolded(folded)) this.notify(); }
 
   private async loadStory(loaded: LoadedStory, mode: "activate" | "hydrate", knownPersisted: PersistedStoryRuntime | null = null) {
     const previous = this.loaded?.story ?? null;
@@ -482,7 +496,8 @@ export class RuntimeManager extends CoordinatorDelegates {
     // The history travels WITH the state: `hydrate` clears the log before restoring what it is handed.
     const saved = mode === "hydrate" ? persisted?.engineState ?? null : null;
     if (saved) this.engine.hydrate(saved, persisted?.engineHistory ?? null); else this.memory.markStoryStart();
-    await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), saved ? "hydrate" : "activate", this.engine.checkpointPath);
+    await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), saved ? "hydrate" : "activate",
+      stagedPath(this.engine.checkpointPath, this.engine.stateLog));
     // A superseded load stops here: its tail used to retitle the newer load, release ITS gated lore and
     // select the old id, and only the current load may queue a recap.
     await releaseGatedWorldInfo(this.effects, previous, loaded.story, run);
@@ -544,12 +559,12 @@ export class RuntimeManager extends CoordinatorDelegates {
   rosterIdForName(name: string): string | null { return rosterIdForName(this.loaded?.story ?? null, name); }
 
   onGenerationStarted(type: unknown, dryRun?: unknown) {
-    if (withholds(type)) this.withholdTurnBlocks(); else { this.memory.releaseStaleHold(); this.memory.injector.onSoloGeneration(); }
+    if (withholds(type)) this.withholdTurnBlocks(); else { this.memory.releaseStaleHold(); this.pacing.releaseStaleGuidanceHold(); this.memory.injector.onSoloGeneration(); }
     this.memory.chapters.carryBridge(type);
     this.stagecraft.onGenerationStarted(type, dryRun);
   }
 
-  clearPrivateInjection() { if (!this.loaded) return; this.memory.releasePrivateInjection(); this.pacing.updateSteering(); }
+  clearPrivateInjection() { if (!this.loaded) return; this.memory.releasePrivateInjection(); this.pacing.releaseDraftGuidance(); }
 
   setEpistemicLedgerCapable(capable: boolean) { this.setMemorySettings({ epistemicLedgerCapable: capable }); }
 
@@ -562,8 +577,8 @@ export class RuntimeManager extends CoordinatorDelegates {
   private getBoundaryContext(at?: number): BoundaryContext { const chat = Array.isArray(getContext().chat) ? getContext().chat : []; const last = at === undefined ? chat.length - 1 : Math.min(at,
       chat.length - 1); return { lastMessageId: last, chatLength: last + 1 }; }
 
-  private applyActive(mode: "activate" | "hydrate") { return this.effects.applyCheckpoint(required(this.loaded, "loaded story").story,
-      this.engine.activeCheckpoint, this.extras, this.getSnapshot(), mode, this.engine.checkpointPath); }
+  private applyActive(mode: "activate" | "hydrate", gate?: number) { return this.effects.applyCheckpoint(required(this.loaded, "loaded story").story,
+      this.engine.activeCheckpoint, this.extras, this.getSnapshot(), mode, stagedPath(this.engine.checkpointPath, this.engine.stateLog), gate); }
   private refreshRequirements() {
     this.extras.requirements = evaluateRequirements(this.loaded?.story ?? null, requirementsOptions(this.extras.memory.wiBook));
     this.extras.updatedAt = new Date().toISOString();

@@ -166,6 +166,7 @@ architecture rule is already updated.
 | W22 | U2, the rest of the v2.5 decisions sheet | **Every recommendation accepted** (user) |
 | W23 | Hosted source for 05 R3 | **OpenRouter** (user) |
 | W24 | Testing strategy | LLM regression at the end; fresh Adolion import; a gate per task; the overall gates closing every plan; the suite reviewed and pruned first (user; rules 13–17, plan 13) |
+| W25 | Language scope | **English only** (user, 2026-09-30): Spanish test data, fixtures, goldens, lab slices and Spanish floors are removed; gap D4 is dropped; human sessions are English |
 
 ## Questions for the user
 

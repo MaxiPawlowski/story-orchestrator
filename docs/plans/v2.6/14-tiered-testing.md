@@ -110,6 +110,67 @@ Every charter also names a story from outside Adolion when it needs one:
 - what to watch;
 - a rubric with one row per feature it touches, each scored works, annoying, broken or not noticed, with a note.
 
+## Charter cards
+
+Every charter becomes a card in `test/sessions/charters.json`, and `so-session start` prints it. The cards are written from the pinned story files (checkpoint names, gates, roster, guidance), so each "drive" step points at a transition that really exists. A card has these fields:
+
+| Field | What it holds |
+|---|---|
+| **Question** | The one question this session answers, in one line. |
+| **Setup** | Lane, story, persona, mode (player or author), settings that differ from default, and any seeded state (for example "start at `at-the-walls`"). |
+| **Drive** | An ordered list of beats: where to steer and why, each naming the checkpoint it aims at. Each beat has 1–2 **sample lines** you can use or ignore. Beats are signposts, not a script; wandering off them is fine and often useful. |
+| **Look for** | Expected behaviour at each beat, and **where** to see it: chat, HUD, Overview, timeline chip, Memory tab, author panel. |
+| **Must not happen** | Red flags. Press ⚑ immediately with a word or two. Examples: the narrator decides your action; a checkpoint name or id appears in player mode; a character knows something they were never told; the story advances with nothing having happened; a reply arrives in the wrong chat. |
+| **Provocations** | Optional deliberate stress moves for this session's feature: say something ambiguous, contradict yourself, go silent, swipe right after a transition. |
+| **Flag when** | When to press ⚑ even if unsure: "felt wrong", "slow", "repeated itself", "I don't understand what the UI is telling me". A flag with no note is still useful, because the log has the context. |
+| **Stop when** | The end condition or time box, plus what "done" looks like. |
+| **Rubric** | One row per feature the session touches. You score each works, annoying, broken or not noticed, with a note, after the session. |
+| **Logged automatically** | What the session records without your help (extraction, judge calls, saves, prompts sent), so you never need to take notes on it. |
+| **Known limits** | What not to report: features switched off for this session, known deferred items, things another tier covers. |
+
+### Example card: T1-2 Refuse the hook
+
+- **Question:** When the player says no to the story's offer, does the story answer the refusal without forcing or narrating compliance?
+- **Setup:**
+  - `adolion-adventurer`, fresh chat, player mode, defaults.
+  - Starts at `guild-hall` (The Guild Hall).
+- **Drive:**
+  1. **Look around the hall** (`guild-hall`). Let Tobias pitch the Wendhope posting.
+     - Sample line: "What's the job on the board with the red seal?"
+  2. **Refuse it clearly.**
+     - Sample line: "A collapsed mine shaft for that pay? No. We'll find something else."
+     - Aim: the story answers with `the-sheridan-steward` (a steward comes back with double the fee and the missing detail).
+  3. **Refuse again, differently.** Stall, bargain, or walk out to the tavern.
+     - Sample line: "Tell the Sheridans to hire soldiers."
+     - Aim: `adv-guild-tavern` or another path, never a forced departure.
+  4. **Accept on your own terms, and name the party.**
+     - Sample line: "Fine. Triple the fee, and we ride as the Ash Lanterns."
+     - Aim: `road-to-wendhope`; that transition needs the path set to Wendhope and a party name.
+- **Look for:**
+  - Each refusal gets exactly one neutral, in-world answer.
+  - The steward's new detail (the lost caravan and riders) appears only after the refusal.
+  - The HUD checkpoint changes only at beats 2 and 4.
+  - The timeline chip under the transition reply says a new scene started, with no internals.
+  - Belle and Dalan voice their own opinions about the money (group direction).
+- **Must not happen:**
+  - The narrator writes your character agreeing, packing or leaving town.
+  - The story jumps to `road-to-wendhope` without a party name.
+  - The steward's secret suspicion shows up in anyone's mouth unprompted. It sits in the guidance's "Who knows what" line; that leak is C13.
+  - Ids like `the-sheridan-steward` or `adv_looking_for_hands` are visible anywhere in player mode.
+- **Provocations:**
+  - Swipe the steward's arrival once.
+  - Answer with an ambiguous "maybe".
+  - Say nothing meaningful for two turns.
+- **Flag when:** a refusal is ignored, or answered twice; the pressure feels heavy-handed; the party name you gave is wrong later.
+- **Stop when:** you are on the road with a named party, or after 45 minutes.
+- **Rubric:** agency (refusal handling), transition timing, speaker direction, the timeline at level 1, HUD.
+- **Logged automatically:**
+  - every extraction read (did it see "no"?);
+  - blackboard `path` / `party_name` writes;
+  - talk decisions;
+  - the prompts sent.
+- **Known limits:** images and sprites are off; the inner voice is off by default.
+
 ## Tiers
 
 The charters list what to try, not steps to follow.

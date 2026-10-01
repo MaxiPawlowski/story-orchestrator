@@ -256,6 +256,13 @@ export class SessionJournal {
     return true;
   }
 
+  noteFolded(folded: number): boolean {
+    const [latest, ...rest] = this.captures;
+    if (!latest || latest.folded === folded) return false;
+    this.captures = [{ ...latest, folded }, ...rest];
+    return true;
+  }
+
   build(sources: Omit<JournalSources, "records" | "payloadCaptures">): JournalEvent[] {
     return buildSessionJournal({ ...sources, records: this.records, payloadCaptures: this.captures });
   }

@@ -1,6 +1,8 @@
 import type { ModelCall } from "@extraction/index";
 import type { InnerBeat } from "@memory/index";
+import { ModelCallError } from "@extraction/modelError";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
+import { RunOwner } from "../runOwner";
 import { createInnerBeatHost } from "../innerBeatHost";
 import { INNER_CALLS_PER_TURN, InnerCoordinator, type InnerCoordinatorDeps } from "./innerCoordinator";
 
@@ -134,6 +136,45 @@ describe("the inner beat pass (v2.6 plan 06 C)", () => {
     release("BEAT: Stall them.");
     await running;
     expect(beats()?.[0].beat).toBe("Stall them.");
+  });
+
+  it("inner|aborted: a held inner call aborted by a chat switch cancels its request and writes nothing", async () => {
+    const { deps, beats, persist } = harness();
+    const world = { chat: "chat-a" };
+    const owner = new RunOwner({ openChatId: () => world.chat, storyId: () => "vault", playedVersion: () => 1 });
+    owner.bump();
+    const signals: AbortSignal[] = [];
+    const model = ((_prompt: string, ask: { signal?: AbortSignal }) => new Promise((_resolve, reject) => {
+      if (ask.signal) signals.push(ask.signal);
+      ask.signal?.addEventListener("abort", () => reject(new ModelCallError("lapsed", "the request was cancelled")));
+    })) as unknown as ModelCall;
+    const running = new InnerCoordinator({ ...deps, model, ownership: owner.ownership, chatId: () => world.chat }).run();
+    await Promise.resolve();
+    world.chat = "chat-b";
+    owner.bump();
+    await expect(running).rejects.toThrow("the request was cancelled");
+    expect(signals).toHaveLength(1);
+    expect(signals[0].aborted).toBe(true);
+    expect(beats()).toBeUndefined();
+    expect(persist).not.toHaveBeenCalled();
+  });
+
+  it("control: the same held call nobody aborts lands", async () => {
+    const { deps, beats } = harness();
+    const owner = new RunOwner({ openChatId: () => "chat-a", storyId: () => "vault", playedVersion: () => 1 });
+    owner.bump();
+    let release: (value: { text: string; finish: string }) => void = () => {};
+    const signals: AbortSignal[] = [];
+    const model = ((_prompt: string, ask: { signal?: AbortSignal }) => new Promise((resolve) => {
+      if (ask.signal) signals.push(ask.signal);
+      release = resolve;
+    })) as unknown as ModelCall;
+    const running = new InnerCoordinator({ ...deps, model, ownership: owner.ownership }).run();
+    await Promise.resolve();
+    release({ text: "BEAT: Hold the door.", finish: "stop" });
+    await running;
+    expect(signals[0]?.aborted).toBe(false);
+    expect(beats()?.[0].beat).toBe("Hold the door.");
   });
 
   it("a backend failure rejects the pass and writes nothing (the boundary work catches it)", async () => {

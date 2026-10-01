@@ -40,6 +40,7 @@ function harness() {
     commitBoundary: jest.fn(async (_at?: number) => undefined),
     fireAfterSpeak: jest.fn(async () => undefined),
     rollbackFromMessage: jest.fn(async (_id: number, _journal?: unknown) => undefined),
+    rollbackOnEnter: jest.fn(async () => false),
     loadSelectedFromChat: jest.fn(async () => undefined),
     reapplyPromptBlocks: jest.fn(),
     reapplyCopilotNudge: jest.fn(),

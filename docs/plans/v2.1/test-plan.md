@@ -395,6 +395,7 @@ that adds a player-visible element adds a row here.
 | Continuity warden cards (flagged facts, editable note, lapsed / withdrawn) and the warden settings rows (v2.2) | author | drawer Scheduler tab (`[data-curator="warden"]`, `[data-so="warden-fact"]`), settings panel in author view (`#so-warden-enabled`, `#so-warden-accept-mode`) |
 | World Info curator review ring — proposals, editable replacement text, accept / decline, dropped lines | author | drawer Scheduler tab (`#so-stagecraft`, `[data-so="curator-proposal"]`, `[data-so="curator-op"]`) |
 | Inner voice (v2.6 plan 06): drives, current motives, open intents, the latest beat and its status | author | drawer Scheduler tab (`#so-inner-voice`, `[data-so="inner-voice-row"]`, `[data-so="inner-voice-beat"]`) |
+| Inner voice switches (v2.6 plan 06): reasoning harvest, inner beat, beat fan-out | author | settings panel in author view (`#so-inner-voice-settings`, `#so-inner-harvest`, `#so-inner-beat`, `#so-inner-fanout`) |
 | Curator settings (on/off, accept mode) and the "no lorebook listed" notice | author | settings panel (`#so-curator-enabled`, `#so-curator-accept-mode`, `#so-curator-unscoped`) |
 | The curator's write scope (`stagecraft.lorebooks`) and a checkpoint's `background` file | author | Studio Story tab (`[data-so="stagecraft"]`) and Checkpoints → Effects |
 | The background switch itself — the player sees the scene change, never the filename or the effect | player | ST background |

@@ -222,7 +222,16 @@ Checkpoint:
                     npc_replies (§Talk Control)
   talk_control?     speakers / lead / no_repeat / allow_silence / director
                     (§Talk Control — speaker direction)
-  guidance?         steering text while active (authored or generated)
+  guidance?         steering text while active (authored or generated): a string, or
+                    { all?, members: { <roster id or name>: text } } (v2.6 plan 04 C13).
+                    `all` goes to every generation; a member's text is staged only
+                    while ST drafts that member (like the private epistemic block),
+                    never at rest, never for the narrator, quiet or impersonate runs.
+                    Member keys resolve to roster ids at parse; an unknown one is the
+                    Studio warning `guidance-member-unknown`.
+                    AUTHORING RULE: a secret (who knows what) never goes in shared
+                    guidance, which every drafted member reads. Put it in an authored
+                    epistemic row or in that member's `guidance.members` entry.
 
 Transition:
   from, to, gate, priority

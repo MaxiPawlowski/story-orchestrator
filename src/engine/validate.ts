@@ -6,9 +6,12 @@ import { isRecord } from "@utils/guards";
 import { addError, asString } from "./validate/common";
 import { buildReachability, readTransition, validateGate, validateLiteral } from "./validate/gates";
 import { readCheckpoint, readRoster } from "./validate/checkpoints";
+import { resolveGuidanceMembers } from "./checkpointGuidance";
 import { addBuiltinTensionQuality, addProgressQualities, readQuality } from "./validate/qualities";
 import { readArcBridges, readStoryOptions } from "./validate/storyOptions";
 import { indexChapters, readChapters, readMemoryOptions } from "./validate/chapters";
+
+export { readChapters };
 
 export const INTERMEDIATE_UNREACHABLE = "intermediate checkpoint has no reachable anchor beyond it";
 
@@ -102,6 +105,7 @@ export const parseStoryV2 = (json: unknown): NormalizedStoryV2 | ValidationError
   const qualities = addBuiltinTensionQuality(addProgressQualities(baseQualities, checkpoints, errors), errors);
   const options = readStoryOptions(json, errors);
   const roster = readRoster(json.roster as StoryV2["roster"], errors);
+  resolveGuidanceMembers(checkpoints, roster);
   const arcBridges = readArcBridges(json.arc_bridges, errors);
   const chapters = readChapters(json.chapters, errors);
   const memoryOptions = readMemoryOptions(json.memory, errors);

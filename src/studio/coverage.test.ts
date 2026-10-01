@@ -13,6 +13,7 @@ const covered = (): StoryDraft => ({
   scene_read: { locations: ["harbour"] },
   lore_select: { lorebooks: ["Courier Lore"] },
   house_rules: ["No magic."],
+  chapters: [{ id: "act1", title: "The Harbour" }],
   qualities: [{ key: "delivered", type: "bool", source: "extractor", rubric: "Handed over?" }],
   checkpoints: [{
     id: "start", name: "Start", objective: "Take it.", type: "anchor", start: true, tension_target: "calm", guidance: "slow", agency: { protect_player_choice: true },

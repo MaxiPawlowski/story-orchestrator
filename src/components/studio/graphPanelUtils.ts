@@ -14,13 +14,22 @@ export interface StoryGraphCheckpointDraft {
   id: string;
   name?: string;
   type?: "anchor" | "intermediate" | "stub";
+  chapter?: string;
   transitions?: StoryGraphTransitionDraft[];
+}
+
+export interface StoryGraphChapter {
+  id: string;
+  label: string;
 }
 
 export interface StoryGraphDraft {
   start?: string;
+  chapters?: StoryGraphChapter[];
   checkpoints: StoryGraphCheckpointDraft[];
 }
+
+export const CHAPTER_LANE_PREFIX = "chapter:";
 
 export type GraphThemeColors = {
   bgActive: string;
@@ -65,11 +74,19 @@ export const resolveGraphThemeColors = (): GraphThemeColors => {
 };
 
 export const buildGraphElements = (draft: StoryGraphDraft, selectedId: string | null): ElementDefinition[] => {
-  const nodes: ElementDefinition[] = draft.checkpoints
-    .filter((cp) => cp.id && cp.id.trim())
+  const checkpoints = draft.checkpoints.filter((cp) => cp.id && cp.id.trim());
+  const lanes = new Set((draft.chapters ?? []).map((chapter) => chapter.id));
+  const lanesUsed = new Set(checkpoints.map((cp) => cp.chapter).filter((id): id is string => Boolean(id && lanes.has(id))));
+  const laneNodes: ElementDefinition[] = (draft.chapters ?? [])
+    .filter((chapter) => lanesUsed.has(chapter.id))
+    .map((chapter) => ({ group: "nodes", data: { id: `${CHAPTER_LANE_PREFIX}${chapter.id}`, label: chapter.label, type: "chapter" }, selectable: false }));
+  const nodes: ElementDefinition[] = checkpoints
     .map((cp) => ({
       group: "nodes",
-      data: { id: cp.id, label: cp.name || cp.id, type: cp.type ?? "checkpoint" },
+      data: {
+        id: cp.id, label: cp.name || cp.id, type: cp.type ?? "checkpoint",
+        ...(cp.chapter && lanesUsed.has(cp.chapter) ? { parent: `${CHAPTER_LANE_PREFIX}${cp.chapter}` } : {}),
+      },
       classes: [selectedId === cp.id ? "selected" : "", draft.start === cp.id ? "start" : ""].filter(Boolean).join(" ") || undefined,
     }));
   const nodeIds = new Set(nodes.map((node) => node.data.id));
@@ -85,7 +102,7 @@ export const buildGraphElements = (draft: StoryGraphDraft, selectedId: string | 
       };
     });
 
-  return [...nodes, ...edges];
+  return [...laneNodes, ...nodes, ...edges];
 };
 
 export const createGraphStyles = (themeColors: GraphThemeColors) => ([
@@ -106,6 +123,21 @@ export const createGraphStyles = (themeColors: GraphThemeColors) => ([
   { selector: "node[type = 'anchor']", style: { "background-color": themeColors.info, shape: "ellipse" } },
   { selector: "node[type = 'intermediate']", style: { shape: "round-rectangle" } },
   { selector: "node[type = 'stub']", style: { "background-color": themeColors.warning, shape: "diamond" } },
+  {
+    selector: "node[type = 'chapter']",
+    style: {
+      "background-color": themeColors.bgTint,
+      "background-opacity": "0.35",
+      "border-style": "dashed",
+      "border-color": themeColors.border,
+      "text-valign": "top",
+      "text-halign": "center",
+      "font-weight": "bold",
+      "font-size": "12px",
+      padding: "18px",
+      shape: "round-rectangle",
+    },
+  },
   { selector: "node.start", style: { "border-width": "3px", "border-style": "double", "border-color": themeColors.info } },
   { selector: "node.selected", style: { "border-width": "3px", "border-color": themeColors.warning } },
   {
@@ -175,7 +207,8 @@ export const syncGraphElements = (
   cy.add(elements);
 
   let restoredCount = 0;
-  cy.nodes().forEach((node) => {
+  const placeable = cy.nodes().filter((node) => !node.isParent());
+  placeable.forEach((node) => {
     const savedPos = positions.get(node.id());
     if (savedPos) {
       node.position(savedPos);
@@ -183,7 +216,7 @@ export const syncGraphElements = (
     }
   });
 
-  if ((!hadNodes || cy.nodes().length > restoredCount) && elements.length > 0) {
+  if ((!hadNodes || placeable.length > restoredCount) && elements.length > 0) {
     runGraphLayout(cy, layout, dagreReady);
   }
 };

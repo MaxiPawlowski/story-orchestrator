@@ -44,6 +44,7 @@ export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: W
     await live.talk?.intercept((immediate) => { aborted = true; abort(immediate); }, type);
     await onLoreIntercept(type, aborted);
     if (!aborted && Array.isArray(chat)) spikeHooks.witness?.(chat, type);
-    if (!aborted && Array.isArray(chat)) runtimeManager.chapters.fold(chat, type, getContext().chat ?? []);
+    const folded = !aborted && Array.isArray(chat) ? runtimeManager.chapters.fold(chat, type, getContext().chat ?? []) : null;
+    if (folded) runtimeManager.noteFolded(folded.folded);
   };
 };

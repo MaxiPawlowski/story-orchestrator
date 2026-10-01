@@ -2,7 +2,7 @@ import type { NormalizedStoryV2 } from "@engine/index";
 import { estimateTokens } from "@memory/budget";
 import { renderChronicle } from "@memory/chronicle";
 import type { ArcEntry, ChapterRecord, EraLine } from "@memory/types";
-import { buildChapterView, chapterOf, chapterSettings, playerTitleOf, sealTarget, type ChapterSettings } from "./chapters";
+import { buildChapterView, chapterOf, chapterSettings, jumpSeal, liveSkip, playerTitleOf, sealTarget, type ChapterSettings } from "./chapters";
 import type { ChapterHost, ChapterPort } from "./chapterPort";
 import { withholds } from "./generationLifecycle";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
@@ -10,10 +10,12 @@ import type { PromptHost } from "./hostPorts";
 import { unfoldAt } from "@memory/chapterUnfold";
 
 import { chronicleMarkdown } from "@memory/chronicle";
-import { registerHostMacro, showTextPopup, unregisterHostMacro } from "@services/STAPI";
+import { registerHostMacro, showChoicePopup, showTextPopup, unregisterHostMacro } from "@services/STAPI";
 import { exportState } from "./stateExport";
+import { beginRun } from "./runToken";
 import { log } from "@utils/log";
 import type { RuntimeManager } from "./runtimeManager";
+import type { MemoryRuntimeState } from "./types";
 
 export { chronicleMarkdown };
 export { buildChapterView };
@@ -66,9 +68,35 @@ const recordsOf = (host: ChapterHost) => host.memory().chapters ?? [];
 
 export const injects = (host: ChapterHost): boolean => settingsOf(host).storySoFar && (host.deps.getStory()?.memory?.story_so_far ?? "block") === "block";
 
+const skipOf = (host: ChapterHost, pathLength: number) => liveSkip(host.memory().chapterSealSkip, pathLength);
+
 export function due(host: ChapterHost) {
   const state = host.deps.getState();
-  return state && settingsOf(host).seal ? sealTarget(host.deps.getStory(), state.activeCheckpointId, recordsOf(host), state.visitedPath) : null;
+  return state && settingsOf(host).seal ? sealTarget(host.deps.getStory(), state.activeCheckpointId, recordsOf(host), state.visitedPath, skipOf(host, state.visitedPath.length)) : null;
+}
+
+export type JumpDecision = "none" | "seal" | "skip" | "cancel";
+
+export async function confirmChapterJump(port: ChapterPort, targetId: string): Promise<JumpDecision> {
+  const state = port.host.deps.getState();
+  const story = port.host.deps.getStory();
+  const target = state && settingsOf(port.host).seal ? jumpSeal(story, state, recordsOf(port.host), targetId, skipOf(port.host, state.visitedPath.length)) : null;
+  if (!state || !target) return "none";
+  const into = chapterOf(story, targetId);
+  const text = `Jumping to ${story?.checkpointById[targetId]?.name ?? targetId}${into ? ` (${into.title})` : ""} leaves the chapter ${target.chapter.title}. `
+    + "A jump is not proof the chapter was played, so it is sealed into a record only if you say so.";
+  const run = beginRun(port.host.deps.ownership);
+  const choice = await showChoicePopup(text, { okButton: { id: "seal" as const, label: "Seal it, then jump" }, choices: [{ id: "skip" as const, label: "Jump without sealing" }] });
+  if (!choice || !run.stillOwns()) return "cancel";
+  if (choice === "seal") await port.seal(target, { boundary: state.boundary, messageId: state.lastMessageId, pathLength: state.visitedPath.length + 1 });
+  return choice;
+}
+
+export function markSealSkip(port: ChapterPort) {
+  const state = port.host.deps.getState();
+  if (!state) return;
+  port.host.patch({ chapterSealSkip: { pathLength: state.visitedPath.length, messageId: state.lastMessageId } });
+  void port.host.save();
 }
 
 export function returning(host: ChapterHost): Map<string, string> {
@@ -111,12 +139,22 @@ export function commitBridge(port: ChapterPort, rendered: boolean) {
 
 export { unfoldAt };
 
+const coveredBy = (records: readonly ChapterRecord[], eras: readonly { recordIds: string[]; text: string }[], block: string): ChapterRecord[] =>
+  (block ? records.filter((record) => block.includes(record.short) || block.includes(record.summary) || eras.some((era) => era.recordIds.includes(record.id) && block.includes(era.text))) : []);
+
+export function foldPreview(memory: MemoryRuntimeState, story: NormalizedStoryV2 | null, blocks: ReadonlyArray<{ key: string; value: string }>, chatLength: number): number {
+  const records = memory.chapters ?? [];
+  if (!records.length || !chapterSettings(memory.settings.chapters).fold) return 0;
+  const block = blocks.find((entry) => entry.key === INJECTION_REGISTRY.storySoFar.key)?.value ?? "";
+  return foldRange(coveredBy(records, memory.chronicle?.eras ?? [], block), story)
+    .reduce((sum, range) => sum + Math.max(0, Math.min(range.to, chatLength - 1) - range.from + 1), 0);
+}
+
 export function fold(host: ChapterHost, rows: FoldRow[], type: unknown, live: readonly unknown[]): FoldOutcome | null {
   const records = recordsOf(host);
   if (!records.length || !settingsOf(host).fold || withholds(type)) return null;
   const block = host.deps.hosts.injection.readInjectedPromptBlocks().find((entry) => entry.key === INJECTION_REGISTRY.storySoFar.key)?.value ?? "";
-  const eras = host.memory().chronicle?.eras ?? [];
-  const covered = records.filter((record) => block.includes(record.short) || block.includes(record.summary) || eras.some((era) => era.recordIds.includes(record.id) && block.includes(era.text)));
+  const covered = coveredBy(records, host.memory().chronicle?.eras ?? [], block);
   if (!covered.length) return null;
   const ids = new Map<unknown, number>();
   live.forEach((message, index) => {

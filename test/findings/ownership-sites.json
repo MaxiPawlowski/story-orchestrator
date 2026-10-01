@@ -505,6 +505,22 @@
       "status": "checked",
       "note": "v2.3 plan 03: captures ownership at event acceptance, queues its own pending entry (V4: no longer replaces a shared slot), and refuses a late afterSpeak continuation after its world lapses by removing its entry. The flush retains the same captured guard rather than minting in the landing world."
     },
+    "src/runtime/effectsApplier.ts#EffectsApplier.fireOnEnter": {
+      "status": "checked",
+      "note": "v2.6 plan 04 C12: fires the non-opening onEnter replies of a transition (fireNpcReplies checks before and after each reply) and then records the messages they posted as the transition's own (`extras.onEnterPosts`), only while the run minted at entry still owns the world, so a reply that outlived its chat never files a post into another chat's extras (onEnterRollback.review.test.ts)."
+    },
+    "src/runtime/runtimeManager.ts#RuntimeManager.fireSceneBreakReplies": {
+      "status": "delegate",
+      "note": "v2.6 plan 04 C12: the scene-break hook became an async arrow because fireNpcReplies now returns how many replies it spoke; it awaits EffectsApplier.fireNpcReplies, which owns the check, and writes nothing itself."
+    },
+    "src/runtime/runtimeManager.ts#RuntimeManager.rollbackOnEnter": {
+      "status": "checked",
+      "note": "v2.6 plan 04 C12: a mutation of a transition's gating reply, or a delete of the onEnter reply it posted, steps the transition back through rollbackFromMessage and then cuts the reply the transition posted. The run is minted before the rollback and checked before the cut (and again inside removeOnEnterPost, which also refuses when the chat's last message is no longer the post's last), so a chat left during the rollback never loses messages (onEnterRollback.review.test.ts)."
+    },
+    "src/runtime/turnBridge.ts#TurnBridge.onMutation": {
+      "status": "partial",
+      "note": "v2.6 plan 04 C12: the mutation now asks RuntimeManager.rollbackOnEnter first, so the spike seam's `replaced()` (swipeBack / recommitEdit, each with its own row) runs after an await. COVERED: the seam is consulted only when no onEnter plan claimed the mutation, and each seam checks its own run before it writes. NOT COVERED: the bridge mints no token of its own; the mutation is its own consequence, as in runRollback."
+    },
     "src/runtime/turnBridge.ts#TurnBridge.onChatChanged": {
       "status": "local",
       "note": "v2.4 plan 02 §3/§5 (2026-09-24). The same-chat path keeps the run (no reset, no bump) and awaits ChatSave.reconcile, which checks the run before it steps back; after it only notify() runs, a UI refresh that holds no state. The full path's writes after loadSelectedFromChat are the bridge's own record of the chat it loaded (read from the host at that instant, so always true of the open chat), the reload-diverged journal line, which is written only while the diverged chat is both the one open and the one the current epoch claims, so a newer CHAT_CHANGED that overtook this load never receives it, and the §5 unbind of an unadopted branch's inherited mirror binding: unbindBranchMirror re-reads the open chat's own metadata and checks the run it is handed immediately before the host write (mutation B3). `reset` precedes every await on its own path; the census sees it after the same-chat branch's await in source order."

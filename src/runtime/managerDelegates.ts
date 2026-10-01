@@ -78,7 +78,7 @@ export abstract class CoordinatorDelegates {
   async regenerateCanon(force = false): Promise<boolean> { return this.co.memory.canon.regenerateCanon(force); }
   scheduleExpansionForActive(schedule: (reason: string, run: () => Promise<void>) => void) { return this.co.expansion.scheduleForActive(schedule); }
   async runExpansionNow(debugResponse?: string, confirm = false) { return this.co.expansion.runNow(debugResponse, confirm ? (preflight) => confirmPreflight(preflight, "authoring") : undefined); }
-  onMemberDrafted(chId: number | [number]) { this.co.memory.onMemberDrafted(chId); }
+  onMemberDrafted(chId: number | [number]) { this.co.memory.onMemberDrafted(chId); this.co.pacing.draftGuidance(this.co.memory.draftedRosterId(chId)); }
   innerBeatDue(): boolean { return this.co.inner.due(); }
   runInnerBeat(): Promise<number> { return this.co.inner.run(); }
   commitContinuityNote(rendered: boolean) { this.co.stagecraft.commitNote(rendered); this.co.memory.chapters.commitBridge(rendered); }

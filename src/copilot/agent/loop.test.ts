@@ -2,6 +2,7 @@ import type { StoryV2 } from "@engine/index";
 import { advanceAgent, agentStats, applyAgentOp, approvePlan, decideStep, newAgentSession, opPreview, pendingStep, resolveProvisioning, stopAgent } from "./loop";
 import { harnessRoute } from "./bridge";
 import { AgentRouteUnavailable } from "./route";
+import { renderStagePrompt } from "../prompts";
 import { agentContext, scriptedRoute } from "./testing";
 import type { AgentSession } from "./types";
 
@@ -85,6 +86,34 @@ describe("agent loop (v2.6 plan 11 A2)", () => {
     const step = await advanceAgent(running(), agentContext(story()), route, AT);
     expect(step.session.steps[0]).toMatchObject({ family: "simulate", status: "observed" });
     expect(step.session.steps[0].observation).toBe("1: stays at start\n2: start → end on delivered == true\nends at end");
+  });
+
+  it("both wizards ask for each character's drive and per-beat motives, told only to that character (v2.6 plan 06 A)", async () => {
+    const { route, prompts } = scriptedRoute([{ plan: ["cast"] }]);
+    await advanceAgent(newAgentSession("courier", "review", {}, AT), agentContext(story()), route, AT);
+    expect(prompts[0]).toContain("setRosterDrive: what they want across the story");
+    expect(prompts[0]).toContain("setCheckpointMotive: what they want");
+    expect(prompts[0]).toContain("setChapters");
+    const staged = renderStagePrompt("effects", story(), "", []);
+    expect(staged).toContain("a one-line drive: what they privately want across it");
+    expect(staged).toContain('"drive"?: string');
+    expect(staged).toContain("motives?{ roster_id:");
+  });
+
+  it("setChapters: applies the chapters and the assignment, previewed as the chapter list", async () => {
+    const call = { tool: "setChapters", args: { chapters: [{ id: "act1", title: "Arrival" }, { id: "act2", title: "Delivery", final: true }], assign: { start: "act1", end: "act2" } } };
+    const { route } = scriptedRoute([call]);
+    const step = await advanceAgent(running("auto-draft"), agentContext(story()), route, AT);
+    expect(step.session.steps[0]).toMatchObject({ status: "applied", family: "edit" });
+    const next = applyAgentOp(story(), step.apply!);
+    expect(next.checkpoints.map((checkpoint) => checkpoint.chapter)).toEqual(["act1", "act2"]);
+    expect(opPreview(story(), step.apply!)).toMatchObject({ label: "Chapters: Arrival / Delivery (2 checkpoint(s) assigned)", before: null, after: next.chapters });
+  });
+
+  it("setChapters: refuses an assignment to a checkpoint or chapter that is not there", async () => {
+    const { route } = scriptedRoute([{ tool: "setChapters", args: { chapters: [{ id: "act1", title: "Arrival" }], assign: { nowhere: "act1", start: "act9" } } }]);
+    const step = await advanceAgent(running(), agentContext(story()), route, AT);
+    expect(step.session.steps[0]).toMatchObject({ status: "refused", observation: "Refused: 'nowhere' is not a checkpoint; 'act9' is not one of the chapters sent" });
   });
 
   it("refuses an edit on a target the draft does not have", async () => {
