@@ -83,13 +83,24 @@ describe("R4 spike: mapping per source x level", () => {
   });
 
   it.each(LEVELS)("makersuite %s", (level) => {
-    const payload = ccPayload("makersuite");
+    const payload = ccPayload("makersuite", { model: "gemini-2.5-flash" });
     armed(level).apply(payload, loud(), yaml);
     expect(payload.reasoning_effort).toBe(level === "off" ? "min" : level);
   });
 
+  it("AS-5: a model SillyTavern strips the effort from is refused and the request is left alone", () => {
+    for (const [source, model] of [["openai", "gpt-4o"], ["makersuite", "gemini-2.0-flash"], ["claude", "claude-3-5-sonnet"]]) {
+      const payload = ccPayload(source, { model });
+      const before = { ...payload };
+      const shot = armed("high").apply(payload, loud(), yaml);
+      expect(shot).toMatchObject({ source, applied: [] });
+      expect(shot?.unsupported).toContain("SillyTavern strips it");
+      expect(payload).toEqual(before);
+    }
+  });
+
   it.each(LEVELS)("openai %s: levels apply, off is refused and writes nothing", (level) => {
-    const payload = ccPayload("openai");
+    const payload = ccPayload("openai", { model: "o3" });
     const before = { ...payload };
     const shot = armed(level).apply(payload, loud(), yaml);
     if (level === "off") {

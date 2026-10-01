@@ -149,7 +149,7 @@ describe("AS-6: a re-seal owns unseal -> seal with one token, and never seals in
     const context: RunContext = { chatId: "chat-a", storyId: "chapters-mini", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
     const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
     const fresh = () => ({
-      entries: [shortTerm("st1", 4)], arcs: [], ledger: [], derived: [] as DerivedRecord[], chapters: [] as ChapterRecord[], chronicle: { eras: [] },
+      entries: [shortTerm("st1", 4)], arcs: [], ledger: [], epistemic: [], derived: [] as DerivedRecord[], chapters: [] as ChapterRecord[], chronicle: { eras: [] },
       shortTermSummaryEnd: -1, storyStart: 0, settings: { enabled: true, chapters: { seal: true, chronicleTokens: 700 } },
     }) as unknown as MemoryRuntimeState;
     const stores: Record<string, MemoryRuntimeState> = { "chat-a": fresh(), "chat-b": fresh() };

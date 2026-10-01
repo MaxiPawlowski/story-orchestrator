@@ -69,7 +69,12 @@
         "chapterTokens": 500,
         "threadTokens": 150,
         "recap": true,
-        "dossierWindow": 12
+        "dossierWindow": 12,
+        "archiveRecall": false,
+        "recallTokens": 200,
+        "eraSeals": false,
+        "foldEras": false,
+        "eraMessages": 300
       }
     },
     "talk": {
@@ -172,7 +177,8 @@
       "sp6Complications": false,
       "sp4AppendShortTerm": false,
       "sp8CuratorTiers": false,
-      "sp8CuratorDigest": false
+      "sp8CuratorDigest": false,
+      "reasoningEffect": false
     }
   }
 }
