@@ -52,3 +52,13 @@ background, the scenario extension, the stage and onEnter never apply. The toy s
 Change for the measured run: after `import_story` of the saga, reopen chat A (`reload {reopenChat}`), re-inject the two
 helper scripts, and wait (≤ 300 s) until the ledger holds the scenario extension row, i.e. the hydrate's own complete
 apply. Every later step, check and pass rule is unchanged. A run that still finds no row is **not measured**.
+
+## Addendum 2 2026-10-01 13:10Z — before the second measured attempt (bars unchanged)
+
+Attempt 1 with addendum 1 (13:06Z): the reopen worked (the hydrate wrote the scenario row after 56 s, 122 ledger rows),
+then step 12 found 1 scenario write where 2 were due, 36 s after `/cp activate east-landfall`: on the 125-member saga
+group each checkpoint apply writes ~100 cast members one at a time, and the extension (scenario) effect runs after the
+cast, so the fixture's checks ran before the apply finished. Change: after every `/cp activate` and after every chat
+switch back to A, wait (≤ 300 s) until the effect ledger has stopped growing for 8 s and holds no `pending` row. No check
+or pass rule changes. This is a fixture timing change; the slowness itself is a finding for the worth review (C1's
+per-chat cost on a large group).
