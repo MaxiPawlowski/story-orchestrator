@@ -128,7 +128,7 @@ describe("prompt cost stays off the reply path (architecture)", () => {
   });
 
   it("the interceptor only records the budget it is handed", () => {
-    const interceptor = talk.slice(talk.indexOf("globalThis.talkControlInterceptor = async"));
+    const interceptor = talk.slice(talk.indexOf("globalThis.talkControlInterceptor ="));
     expect(interceptor).toMatch(/promptCost\.noteGenerationBudget\(/);
     expect(interceptor).not.toMatch(/promptCost\.(request|attach|countOf)/);
   });

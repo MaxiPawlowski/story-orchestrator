@@ -23,6 +23,7 @@ export interface DirectorPromptInput {
   handBack?: boolean;
   playerName?: string;
   lead?: string;
+  sceneWork?: boolean;
   instruction?: string;
   window: DirectorWindowMessage[];
 }

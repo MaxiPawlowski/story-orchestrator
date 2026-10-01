@@ -446,6 +446,19 @@ describe("chained multi-speaker turns", () => {
     expect(calls.decisions.at(-1)).toMatchObject({ chosenRosterId: null, chosenName: null, source: "judge" });
   });
 
+  it("T1: tells the judge there is no scene work for the lead after a character spoke, and that there is after the player", async () => {
+    let window = [{ speaker: "User", text: "We hold the ridge." }];
+    const judge = jest.fn(async (input: { sceneWork?: boolean; candidates: Array<{ rosterId: string; name: string }> }) => ({ kind: "member" as const, rosterId: input.candidates[0].rosterId, name: input.candidates[0].name, confidence: 0.9, via: "choice" as const }));
+    const { host } = makeChainHost([], { judgeDirector: judge, getPlayerName: () => "User", getWindow: () => window, getActiveTalkControl: () => ({ director: true, lead: "Finn" }) });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    expect(judge.mock.calls[0][0].sceneWork).toBeUndefined();
+    window = [...window, { speaker: "Mara", text: "Then we hold it." }];
+    await controller.onWrapperFinished();
+    expect(judge.mock.calls[1][0].sceneWork).toBe(false);
+  });
+
   it("does not ask a speaker to answer their own reply or repeat within a chain", async () => {
     let last = "guard";
     const judge = jest.fn(async (input: { candidates: Array<{ rosterId: string }> }) => ({

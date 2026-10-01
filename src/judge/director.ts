@@ -21,6 +21,7 @@ export interface JudgeDirectorInput {
   allowSilence: boolean;
   /** Offer "the player acts next" as an answer (chained turns). */
   allowHandBack?: boolean;
+  sceneWork?: boolean;
   window: Array<{ speaker: string; text: string }>;
 }
 
@@ -40,11 +41,17 @@ export function directorJudgeEligible(candidates: JudgeDirectorCandidate[], allo
 
 const describe = (candidate: JudgeDirectorCandidate) => `${candidate.name} (${candidate.role?.trim() ?? candidate.name})`;
 
+const SCENE_WORK = "an arrival, a move, time passing, or an action no character answers";
+
+const leadLine = (lead: string, sceneWork: boolean) => sceneWork
+  ? `If nobody in particular is addressed, prefer ${lead}, the scene lead.`
+  : `${lead}, the scene lead, speaks only for scene work: ${SCENE_WORK}. A character has just spoken and nothing new needs narrating, so do not pick ${lead} to fill the pause.`;
+
 export function buildDirectorRequest(input: JudgeDirectorInput): JudgeRequest {
   const lines = [
     "Decide which character should speak next, in response to the latest message in `transcript`.",
     "Pick the character who was addressed, challenged, or has the strongest reason to react.",
-    ...(input.lead ? [`If nobody in particular is addressed, prefer ${input.lead}, the scene lead.`] : []),
+    ...(input.lead ? [leadLine(input.lead, input.sceneWork !== false)] : []),
     ...(input.instruction ? [`Author guidance: ${input.instruction}`] : []),
     ...(input.allowSilence ? [`Pick "${DIRECTOR_NOBODY}" if no character has a reason to respond.`] : []),
     ...(input.allowHandBack ? [`Pick "${DIRECTOR_PLAYER}" if the scene has said what it needs and ${input.player || "the player"} should act next.`] : []),
@@ -93,7 +100,7 @@ export function decideDirector(answers: Record<string, JudgeAnswer>, input: Judg
     const handBack = noulAnswer(answers, "handback");
     if (handBack !== null && handBack > DIRECTOR_HANDBACK && maxAddressed < DIRECTOR_SILENCE.maxAddressed) return { kind: "player", confidence: handBack, via: "composite" };
   }
-  const leadName = input.lead ? normalize(input.lead) : null;
+  const leadName = input.lead && input.sceneWork !== false ? normalize(input.lead) : null;
   const ranked = scores
     .map((entry) => ({ ...entry, total: DIRECTOR_ADDRESSED_WEIGHT * (entry.addr ?? 0) + (entry.reason ?? 0) + (leadName && normalize(entry.candidate.name) === leadName ? DIRECTOR_LEAD_BONUS : 0) }))
     .sort((left, right) => right.total - left.total);

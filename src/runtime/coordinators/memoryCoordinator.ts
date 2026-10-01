@@ -64,6 +64,14 @@ export interface MemoryCoordinatorDeps {
 // Owns everything that reads or writes extras.memory: tiers, arcs, canon, epistemic, ledger,
 // consolidation, World Info mirroring and prompt injection. The manager keeps the persist
 // boundary — this class only mutates the slice and asks for a save.
+const lastPlayerName = (rows: unknown[]): string => {
+  for (let index = rows.length - 1; index >= 0; index -= 1) {
+    const row = rows[index] as { is_user?: unknown; name?: unknown } | null;
+    if (row?.is_user === true && typeof row.name === "string" && row.name.trim()) return row.name.trim();
+  }
+  return "";
+};
+
 export class MemoryCoordinator {
   readonly injector: MemoryInjector = new MemoryInjector({
     getStory: () => this.deps.getStory(),
@@ -76,6 +84,7 @@ export class MemoryCoordinator {
     hosts: () => this.deps.hosts,
     beatFor: (rosterId) => this.deps.beatFor?.(rosterId) ?? "",
     chapters: () => this.chapters,
+    ledgerFocus: () => this.ledgerFocus(),
   });
   readonly canon = new CanonSynthesis({
     getStory: () => this.deps.getStory(), getState: () => this.deps.getState(), memory: () => this.state,
@@ -348,6 +357,19 @@ export class MemoryCoordinator {
 
   getEpistemic(): EpistemicEntry[] {
     return this.state.epistemic;
+  }
+
+  private ledgerFocus(): string[] {
+    const scene = this.deps.getScene?.() ?? null;
+    const story = this.deps.getStory();
+    const checkpoint = story?.checkpointById[this.deps.getState()?.activeCheckpointId ?? ""];
+    const player = lastPlayerName(this.deps.hosts.chat.chatRows());
+    return [
+      ...(scene?.present ?? []).map((member) => member.name),
+      ...(scene?.location?.value ? [scene.location.value] : []),
+      ...(player ? [player] : []),
+      ...(checkpoint ? [checkpoint.name, checkpoint.objective ?? ""] : []),
+    ].filter(Boolean);
   }
 
   getLedger(): LedgerView[] { return this.injector.ledgerView(); }

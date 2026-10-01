@@ -1,5 +1,7 @@
 import { askText } from "@extraction/index";
 import { executeSlashCommands, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName } from "@services/STAPI";
+import { log } from "@utils/log";
+import { gatedInterceptor } from "../loudGenerationGate";
 import { quoteSlashArg } from "@utils/string";
 import type { JudgeRuntime } from "../judge";
 import { routedProfileId } from "../requestBudget";
@@ -36,7 +38,7 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
 
 export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: WindowAccess, onLoreIntercept: (type: string, aborted: boolean) => Promise<void>) => {
   live.talk = new TalkController(talkHost(live, judgeRuntime, window));
-  globalThis.talkControlInterceptor = async (chat, contextSize, abort, type) => {
+  globalThis.talkControlInterceptor = gatedInterceptor(live.loudGate, () => Boolean(getActiveGroup()), async (chat, contextSize, abort, type) => {
     promptCost.noteGenerationBudget(contextSize);
     let aborted = false;
     await live.talk?.intercept((immediate) => { aborted = true; abort(immediate); }, type);
@@ -44,5 +46,5 @@ export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: W
     if (!aborted && Array.isArray(chat)) await runtimeManager.chapters.recall(chat, type);
     const folded = !aborted && Array.isArray(chat) ? runtimeManager.chapters.fold(chat, type, getContext().chat ?? []) : null;
     if (folded) runtimeManager.noteFolded(folded.folded);
-  };
+  }, () => log.warn("speaker direction: a second reply started while one was already being written; it was stopped so the model is asked once"));
 };

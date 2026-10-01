@@ -357,8 +357,17 @@ export class TalkController {
     return this.chooseFallback(control, pool, "rules");
   }
 
+  private sceneWork(window: DirectorWindowMessage[]): boolean {
+    const last = window.at(-1);
+    const player = this.host.getPlayerName?.()?.trim().toLowerCase() ?? "";
+    if (!last || !player || last.speaker.trim().toLowerCase() === player) return true;
+    return Boolean(this.chain && (this.host.getCheckpointInfo()?.id ?? "") !== this.chain.checkpointId);
+  }
+
   private chooseFallback(control: TalkControl, pool: TalkCandidate[], source: TalkDecisionSource): Decision {
-    const chosen = chooseByRules(control, pool, { lastSpeakerRosterId: this.host.getLastSpeakerRosterId(), random: this.host.random?.() ?? undefined });
+    const chosen = chooseByRules(control, pool, {
+      lastSpeakerRosterId: this.host.getLastSpeakerRosterId(), leadEligible: this.sceneWork(this.host.getWindow()), random: this.host.random?.() ?? undefined,
+    });
     return chosen ? { kind: "member", rosterId: chosen.rosterId, name: chosen.name, source } : { kind: "pass" };
   }
 
@@ -377,6 +386,7 @@ export class TalkController {
         ...(lead ? { lead } : {}),
         allowSilence: control.allow_silence === true,
         ...(handBack ? { allowHandBack: true } : {}),
+        ...(this.sceneWork(window) ? {} : { sceneWork: false }),
         window,
       });
       if (!verdict) return null;
@@ -404,6 +414,7 @@ export class TalkController {
       ...(handBack ? { handBack: true } : {}),
       playerName: this.host.getPlayerName?.() ?? undefined,
       lead: findCandidate(pool, control.lead)?.name,
+      ...(this.sceneWork(window) ? {} : { sceneWork: false }),
       instruction: directorInstruction(control),
       window,
     });

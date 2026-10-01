@@ -18,7 +18,10 @@ export function renderDirectorPrompt(input: DirectorPromptInput): string {
     "You are the scene director. Read the transcript and decide which character should speak next.",
     listed ? `Candidates:\n${input.candidates.map((candidate) => candidateLine(candidate, aliases.get(candidate.rosterId) ?? [])).join("\n")}` : `Candidates: ${names.join(", ")}`,
     player === "the player" ? "The player is not a candidate." : `${player} is the player, not a candidate.`,
-    ...(input.lead ? [`Scene lead: ${input.lead} (prefer them when no one else is clearly addressed).`] : []),
+    ...(input.lead ? [input.sceneWork === false
+      ? `Scene lead: ${input.lead}, only for scene work (an arrival, a move, time passing, an action no one answers). `
+        + `A character has just spoken and nothing new needs narrating: do not pick ${input.lead} to fill the pause.`
+      : `Scene lead: ${input.lead} (prefer them when no one else is clearly addressed).`] : []),
     ...(input.instruction ? [`Author guidance: ${input.instruction}`] : []),
     "Pick the character who was addressed, challenged, or has the strongest reason to react.",
     ...(input.handBack ? [

@@ -43,7 +43,11 @@ export function applyLedgerSignals(
     // A change is a NEW version, never an overwrite. An in-place edit destroys the value a
     // rollback has to restore, which is the whole reason `rollbackLedger` could only keep or drop.
     const previous = next.filter((entry) => ledgerKey(entry.entity, entry.field) === key).at(-1);
-    if (previous && isLive(previous) && previous.value === value) continue;
+    if (previous && isLive(previous) && previous.value === value) {
+      previous.confirmedAt = ctx.boundary;
+      if (typeof ctx.messageId === "number") previous.confirmedMessageId = ctx.messageId;
+      continue;
+    }
     next.push({
       id: generateMemoryId(),
       provenance: provenanceOf({
@@ -81,8 +85,14 @@ export function removeLedger(entries: LedgerEntry[], id: string): LedgerEntry[] 
   return entries.filter((entry) => ledgerKey(entry.entity, entry.field) !== key);
 }
 
+const withoutConfirmationFrom = (entry: LedgerEntry, messageId: number): LedgerEntry => {
+  if (typeof entry.confirmedMessageId !== "number" || entry.confirmedMessageId < messageId) return entry;
+  const { confirmedAt: _at, confirmedMessageId: _id, ...rest } = entry;
+  return rest;
+};
+
 export function rollbackLedger(entries: LedgerEntry[], messageId: number): LedgerEntry[] {
-  return entries.flatMap((entry) => keepPinnedFrom(entry, messageId));
+  return entries.flatMap((entry) => keepPinnedFrom(withoutConfirmationFrom(entry, messageId), messageId));
 }
 
 /** Below the engine's history floor a rollback only ever restores a key's
@@ -145,9 +155,63 @@ export function buildLedgerView(
     if (!held || (entry.messageId ?? -1) >= (held.messageId ?? -1)) newest.set(key, entry);
   }
   for (const entry of newest.values()) {
-    rows.push({ entity: entry.entity, field: entry.field, value: entry.value, bound: false, turn: entry.createdAt });
+    rows.push({ entity: entry.entity, field: entry.field, value: entry.value, bound: false, turn: Math.max(entry.createdAt, entry.confirmedAt ?? entry.createdAt) });
   }
   return rows;
+}
+
+export const LEDGER_RECENT_BOUNDARIES = 3;
+export const LEDGER_FOCUS_BOUNDARIES = 8;
+export const LEDGER_INJECT_ROW_CAP = 24;
+export const LEDGER_INJECT_CHAR_CAP = 1200;
+
+export interface LedgerFocus {
+  boundary: number;
+  names: string[];
+}
+
+const words = (value: string): string[] => value.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? [];
+
+const STOP_WORDS: ReadonlySet<string> = new Set(["the", "a", "an", "of", "and"]);
+
+const focusMatcher = (names: string[]) => {
+  const phrases = names.map((name) => words(name).filter((word) => !STOP_WORDS.has(word))).filter((list) => list.length);
+  return (entity: string): boolean => {
+    const own = words(entity).filter((word) => !STOP_WORDS.has(word));
+    if (!own.length) return false;
+    const ownSet = new Set(own);
+    return phrases.some((phrase) => phrase.every((word) => ownSet.has(word)) || own.every((word) => phrase.includes(word)));
+  };
+};
+
+const rowLength = (row: LedgerView): number => row.field.length + row.value.length + 4;
+
+export function selectLedgerRows(
+  view: LedgerView[],
+  focus: LedgerFocus,
+  rowCap: number = LEDGER_INJECT_ROW_CAP,
+  charCap: number = LEDGER_INJECT_CHAR_CAP,
+): LedgerView[] {
+  const focused = focusMatcher(focus.names);
+  const ranked = view
+    .map((row, index) => {
+      const age = Math.max(0, focus.boundary - row.turn);
+      const inFocus = focused(row.entity);
+      const keep = row.bound || age <= LEDGER_RECENT_BOUNDARIES || (inFocus && age <= LEDGER_FOCUS_BOUNDARIES);
+      return { row, index, age, rank: row.bound ? 0 : inFocus ? 1 : 2, keep };
+    })
+    .filter((entry) => entry.keep)
+    .sort((left, right) => left.rank - right.rank || left.age - right.age || left.index - right.index);
+  const chosen: typeof ranked = [];
+  let chars = 0;
+  for (const entry of ranked) {
+    if (chosen.length >= rowCap) break;
+    const length = rowLength(entry.row) + (chosen.some((held) => held.row.entity === entry.row.entity) ? 0 : entry.row.entity.length + 2);
+    if (chars + length > charCap && !entry.row.bound) continue;
+    chosen.push(entry);
+    chars += length;
+  }
+  return chosen.sort((left, right) => left.index - right.index).map((entry) => entry.row);
 }
 
 export function renderLedgerBlock(view: LedgerView[]): string {

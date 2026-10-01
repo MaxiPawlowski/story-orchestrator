@@ -92,6 +92,14 @@ describe("chooseByRules", () => {
     expect(chooseByRules({ lead: "Elder Finn" }, candidates, { lastSpeakerRosterId: null })).toEqual(candidate("sage", "Elder Finn", 3));
   });
 
+  it("T1: skips the lead when there is no scene work for it", () => {
+    expect(chooseByRules({ lead: "Elder Finn" }, candidates, { lastSpeakerRosterId: null, leadEligible: false, random: () => 0.99 })).toEqual(candidate("guard", "Captain Mara"));
+    expect(chooseByRules({ lead: "Elder Finn" }, [candidate("sage", "Elder Finn", 3)], { lastSpeakerRosterId: null, leadEligible: false })).toEqual(candidate("sage", "Elder Finn", 3));
+    const prompt = renderDirectorPrompt({ storyTitle: "S", checkpointName: "C", objective: "O", candidates, allowSilence: false, lead: "Elder Finn", sceneWork: false, window: [] });
+    expect(prompt).toContain("do not pick Elder Finn to fill the pause");
+    expect(prompt).not.toContain("prefer them");
+  });
+
   it("excludes the previous speaker by default", () => {
     expect(chooseByRules({ lead: "sage" }, candidates, { lastSpeakerRosterId: "sage" })).toEqual(candidate("guard", "Captain Mara"));
   });

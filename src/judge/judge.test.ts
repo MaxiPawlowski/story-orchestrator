@@ -181,6 +181,16 @@ describe("decideDirector", () => {
     expect(decideDirector(answers, input({ lead: "Arin" }))).toMatchObject({ kind: "member", rosterId: "arin", via: "composite" });
   });
 
+  it("T1: gives the lead no bonus when a character just spoke and there is no scene work", () => {
+    const answers = { who: { type: "choice", choice: "Ponticius", confidence: 0.4, probabilities: {} } as JudgeAnswer, ...composite(0.5, 0.5, 0.6, 0.5) };
+    expect(decideDirector(answers, input({ lead: "Arin" }))).toMatchObject({ kind: "member", rosterId: "arin", via: "composite" });
+    expect(decideDirector(answers, input({ lead: "Arin", sceneWork: false }))).toMatchObject({ kind: "member", rosterId: "ponticius", via: "composite" });
+    const who = buildDirectorRequest(input({ lead: "Arin", sceneWork: false })).questions.who;
+    expect(who.instructions).not.toContain("prefer Arin");
+    expect(who.instructions).toContain("do not pick Arin to fill the pause");
+    expect(buildDirectorRequest(input({ lead: "Arin" }))).toEqual(buildDirectorRequest(input({ lead: "Arin", sceneWork: true })));
+  });
+
   it("chooses silence only when allowed, from either path", () => {
     const nobodyChoice = { who: { type: "choice", choice: DIRECTOR_NOBODY, confidence: 0.9, probabilities: {} } as JudgeAnswer };
     expect(decideDirector({ ...nobodyChoice, ...composite(0.1, 0.1) }, input({ allowSilence: true }))).toMatchObject({ kind: "silence", via: "choice" });
