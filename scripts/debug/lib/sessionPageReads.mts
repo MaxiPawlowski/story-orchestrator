@@ -96,7 +96,10 @@ export async function readLivePresets(page: any) {
     const instruct = ctx.powerUserSettings?.instruct;
     const textgen = ctx.textCompletionSettings;
     return {
-      instruct: instruct ? { preset: instruct.preset ?? null, last_output_sequence: instruct.last_output_sequence ?? null } : null,
+      instruct: instruct ? {
+        preset: instruct.preset ?? null, last_output_sequence: instruct.last_output_sequence ?? null,
+        sequences_as_stop_strings: instruct.sequences_as_stop_strings ?? null,
+      } : null,
       textgen: textgen ? { preset: textgen.preset ?? null, samplers: Array.isArray(textgen.samplers) ? [...textgen.samplers] : null } : null,
     };
   });

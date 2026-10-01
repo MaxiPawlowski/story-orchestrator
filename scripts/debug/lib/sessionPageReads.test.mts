@@ -63,7 +63,7 @@ test('preset overlay: the live instruct and sampler values come from the page co
   (fake.ctx as any).powerUserSettings = { instruct: { preset: 'Gemma 4', last_output_sequence: 'X', enabled: true } };
   (fake.ctx as any).textCompletionSettings = { preset: 'Artemis v1.1 RP', samplers: ['min_p', 'temperature'], temp: 1 };
   install(fake);
-  assert.deepEqual(await readLivePresets(page), { instruct: { preset: 'Gemma 4', last_output_sequence: 'X' }, textgen: { preset: 'Artemis v1.1 RP', samplers: ['min_p', 'temperature'] } });
+  assert.deepEqual(await readLivePresets(page), { instruct: { preset: 'Gemma 4', last_output_sequence: 'X', sequences_as_stop_strings: null }, textgen: { preset: 'Artemis v1.1 RP', samplers: ['min_p', 'temperature'] } });
   delete (fake.ctx as any).powerUserSettings;
   (fake.ctx as any).textCompletionSettings = { preset: 'x' };
   assert.deepEqual(await readLivePresets(page), { instruct: null, textgen: { preset: 'x', samplers: null } });
