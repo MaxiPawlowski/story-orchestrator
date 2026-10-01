@@ -159,6 +159,7 @@ export const PacingGroup = ({ snapshot, manager }: GroupProps) => (
         <FieldLabel htmlFor="so-pacing-alpha" label="Smoothing α" help="How quickly the measured tension follows the latest scene. Higher = jumpier, lower = smoother." />
         <input
           id="so-pacing-alpha"
+          className="text_pole"
           type="number"
           min={0}
           max={1}

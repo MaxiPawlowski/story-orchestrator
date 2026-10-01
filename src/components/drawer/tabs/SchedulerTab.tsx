@@ -26,7 +26,7 @@ const TalkDecisionsPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
           <div key={`${decision.checkpointId}-${decision.messageId}-${decision.at}`} className="border-t border-solid border-white/10 mt-1 pt-1">
             <div className="opacity-100">
               {decision.chosenName ?? (decision.chainStep !== undefined ? "back to the player" : "silence")}{" "}
-              <span className="opacity-60">
+              <span className="opacity-70">
                 via {TALK_SOURCE_LABELS[decision.source] ?? decision.source}
                 {decision.chainStep !== undefined ? ` · voice ${decision.chainStep + 1}` : ""}
               </span>

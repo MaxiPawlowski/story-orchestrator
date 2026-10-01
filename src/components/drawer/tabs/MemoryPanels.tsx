@@ -33,9 +33,9 @@ export const EffectLedgerPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) =
       <summary className="opacity-100 cursor-pointer">Host changes this chat made ({rows.length})</summary>
       {rows.map((row) => (
         <div key={row.id} data-so="effect-row" data-status={row.status} className="opacity-80 mt-1">
-          <div>{describeEffectTarget(row.target)} <span className="opacity-60">· {row.effect} · {EFFECT_STATUS_COPY[row.status] ?? row.status}</span></div>
+          <div>{describeEffectTarget(row.target)} <span className="opacity-70">· {row.effect} · {EFFECT_STATUS_COPY[row.status] ?? row.status}</span></div>
           {row.reason && <div className="so-warning-text">{row.reason}</div>}
-          <div className="opacity-50">boundary {row.boundary} · <MessageCitation messageId={row.messageId} /></div>
+          <div className="opacity-70">boundary {row.boundary} · <MessageCitation messageId={row.messageId} /></div>
         </div>
       ))}
     </details>
@@ -53,7 +53,7 @@ export const NotStoredPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapsho
       {drops.map((drop) => (
         <div key={drop.entry.id} className="flex gap-2 opacity-80 flex-wrap mt-1">
           <span title={drop.entry.evidence}>{drop.entry.text}</span>
-          <span className="opacity-60">support {drop.p.toFixed(2)}{drop.model ? ` · ${drop.model}` : ""}</span>
+          <span>support {drop.p.toFixed(2)}{drop.model ? ` · ${drop.model}` : ""}</span>
           <button className="menu_button" data-so="memory-store-anyway" onClick={() => void manager.storeDroppedMemory(drop.entry.id)}>Store anyway</button>
         </div>
       ))}
@@ -102,7 +102,7 @@ export const LedgerPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot; 
             return (
               <div key={`${entity}-${row.field}`} className="flex gap-2 opacity-80 flex-wrap">
                 <span>{row.field}={row.value}{row.bound ? " 🔒" : ""}</span>
-                {row.bound && <span className="opacity-60" title="mirrored read-only from a blackboard quality">blackboard</span>}
+                {row.bound && <span title="mirrored read-only from a blackboard quality">blackboard</span>}
                 {id && <button className="menu_button" onClick={() => void manager.removeLedgerEntry(id)}>Remove</button>}
               </div>
             );
@@ -124,7 +124,7 @@ export const ArcCanonPanel = ({ snapshot, manager }: { snapshot: RuntimeSnapshot
       <div className="opacity-100">Arcs (open {openArcs.length} · resolved {resolvedArcs.length})</div>
       {arcs.map((arc) => (
         <div key={arc.id} className="mt-1">
-          <div className={arc.status === "resolved" ? "opacity-60" : ""}>{arc.status === "resolved" ? "✓ " : "◦ "}{arc.text}{arc.pinned ? " 📌" : ""}</div>
+          <div className={arc.status === "resolved" ? "opacity-70" : ""}>{arc.status === "resolved" ? "✓ " : "◦ "}{arc.text}{arc.pinned ? " 📌" : ""}</div>
           {arc.summary && <div className="opacity-70 italic">{arc.summary}</div>}
           <div className="flex gap-2 opacity-80 flex-wrap">
             <button className="menu_button" onClick={() => void manager.setArcPinned(arc.id, !arc.pinned)}>{arc.pinned ? "Unpin" : "Pin"}</button>

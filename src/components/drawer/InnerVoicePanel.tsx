@@ -43,12 +43,12 @@ const InnerVoicePanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
         <div className="opacity-70">No cast. Drives, motives and intents appear here per character.</div>
       ) : rows.map(({ voice, intents, beat, label }) => (
         <div key={voice.id} data-so="inner-voice-row" className="border-t border-solid border-white/10 mt-1 pt-1">
-          <div className="opacity-100">{voice.name}{voice.omniscient ? <span className="opacity-60"> · narrator view</span> : null}</div>
-          <div>Drive: {voice.drive ?? <span className="opacity-60">none</span>}</div>
-          <div>Right now: {voice.motive ?? <span className="opacity-60">none</span>}</div>
-          <div>Intends: {intents.length ? intents.map((entry) => entry.content).join("; ") : <span className="opacity-60">nothing open</span>}</div>
+          <div className="opacity-100">{voice.name}{voice.omniscient ? <span className="opacity-70"> · narrator view</span> : null}</div>
+          <div>Drive: {voice.drive ?? <span className="opacity-70">none</span>}</div>
+          <div>Right now: {voice.motive ?? <span className="opacity-70">none</span>}</div>
+          <div>Intends: {intents.length ? intents.map((entry) => entry.content).join("; ") : <span className="opacity-70">nothing open</span>}</div>
           <div data-so="inner-voice-beat">
-            Beat: {beat ? <>{beat.beat}{beat.tone ? ` (${beat.tone})` : ""} <span className="opacity-60">· {label} · msg {beat.basedOnMessageId}</span></> : <span className="opacity-60">none</span>}
+            Beat: {beat ? <>{beat.beat}{beat.tone ? ` (${beat.tone})` : ""} <span className="opacity-70">· {label} · msg {beat.basedOnMessageId}</span></> : <span className="opacity-70">none</span>}
           </div>
         </div>
       ))}

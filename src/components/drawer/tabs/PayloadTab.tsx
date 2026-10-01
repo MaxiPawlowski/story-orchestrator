@@ -14,10 +14,10 @@ const LoreForced = ({ record }: { record: RuntimeSnapshot["loreForced"] | undefi
       <div className="opacity-70"><MessageCitation
         messageId={record.messageId}
       /> · {String(record.p?.trigger ?? "")} · {record.fallback ? `fell back (${record.fallback})` : `${record.latencyMs} ms`}</div>
-      {picks.length === 0 ? <div className="opacity-60">Nothing over the floor; ST's keyword scan ran as usual.</div> : picks.map(([
+      {picks.length === 0 ? <div className="opacity-70">Nothing over the floor; ST's keyword scan ran as usual.</div> : picks.map(([
         title,
         p,
-      ]) => <div key={title}>{title} <span className="opacity-60">{typeof p === "number" ? `${Math.round(p * 100)}%` : p}</span></div>)}
+      ]) => <div key={title}>{title} <span className="opacity-70">{typeof p === "number" ? `${Math.round(p * 100)}%` : p}</span></div>)}
     </div>
   );
 };
@@ -31,18 +31,18 @@ const LoreFired = ({ evidence }: { evidence: RuntimeSnapshot["loreEvidence"] }) 
     <div id="so-lore-fired" data-so="lore-fired">
       <div className="font-medium opacity-100">Lore that fired last turn</div>
       {!last ? (
-        <div className="opacity-60">No reply has been generated since this chat opened.</div>
+        <div className="opacity-70">No reply has been generated since this chat opened.</div>
       ) : (
         <>
           <div
             className="opacity-70"
           >{last.rendered ? "reply rendered" : "no reply"} · {last.scanCount} scan{last.scanCount === 1 ? "" : "s"}{last.nestedScans ? ` (${last.nestedScans} inside a quiet run)` : ""}</div>
           {last.fired.length === 0 ? (
-            <div className="opacity-60">Nothing fired. ST reports nothing for a scan that activates nothing.</div>
+            <div className="opacity-70">Nothing fired. ST reports nothing for a scan that activates nothing.</div>
           ) : last.fired.map((entry) => (
             <div key={`${entry.world}.${entry.uid}`} data-so="lore-fired-row" data-origin={entry.origin} className="flex flex-wrap items-center gap-2">
               <span>{entry.comment || `${entry.world} #${entry.uid}`}</span>
-              <span className="opacity-60">{entry.world}{entry.constant ? " · constant" : ""}</span>
+              <span className="opacity-70">{entry.world}{entry.constant ? " · constant" : ""}</span>
               {entry.origin !== "other" && <span className="st-pill px-1 text-[10px]">{entry.origin}</span>}
             </div>
           ))}
@@ -73,11 +73,11 @@ const ScanGateTable = ({ view, evidence }: { view: RuntimeSnapshot["scanGate"]; 
     <div id="so-scan-gate" data-so="scan-gate">
       <div className="font-medium opacity-100">Per-chat lorebook gating: {view.owner === "story" ? "this chat's path" : "no story"}</div>
       {view.rows.length === 0 ? (
-        <div className="opacity-60">No gated entry was in the last scan.</div>
+        <div className="opacity-70">No gated entry was in the last scan.</div>
       ) : view.rows.map((row) => (
         <div key={`${row.lorebook}.${row.uid}`} data-so="scan-gate-row" data-effective={flagText(row.effectiveDisabled)} className="flex flex-wrap items-center gap-2">
           <span>{row.comment}</span>
-          <span className="opacity-60">{row.lorebook}{row.gatedBy?.length ? ` · gated by ${row.gatedBy.join(", ")}` : ""} · file {flagText(row.fileDisabled)} · this
+          <span className="opacity-70">{row.lorebook}{row.gatedBy?.length ? ` · gated by ${row.gatedBy.join(", ")}` : ""} · file {flagText(row.fileDisabled)} · this
             chat {flagText(row.effectiveDisabled)}{firedRow(
             row.lorebook,
             row.uid,
@@ -94,9 +94,9 @@ const SamplerOverlayRow = ({ overlay }: { overlay: RuntimeSnapshot["samplerOverl
   return (
     <div data-so="next-turn-overlay" className="flex flex-col gap-0.5">
       <div className="opacity-100">Sampler overlay “{overlay.name}”: {values}</div>
-      <div className="opacity-60">This checkpoint's replies only; the selected preset is untouched. {overlay.applied ? `Applied to ${overlay.applied} request(s).` : "Not applied yet."}</div>
+      <div className="opacity-70">This checkpoint's replies only; the selected preset is untouched. {overlay.applied ? `Applied to ${overlay.applied} request(s).` : "Not applied yet."}</div>
       {overlay.lastSkipped.length > 0 && <div className="so-warning-text">Not in the last request: {overlay.lastSkipped.join(", ")}</div>}
-      {overlay.unknown.length > 0 && <div className="opacity-60">Not sent (not a per-request sampler): {overlay.unknown.join(", ")}</div>}
+      {overlay.unknown.length > 0 && <div className="opacity-70">Not sent (not a per-request sampler): {overlay.unknown.join(", ")}</div>}
     </div>
   );
 };
@@ -121,11 +121,11 @@ export const PayloadTab = ({ snapshot, manager, onOpenOwner }: { snapshot: Runti
               {capture.folded ? <span data-so="payload-folded"> · {capture.folded} messages folded</span> : null}
             </div>
             {capture.blocks.length === 0 ? (
-              <div className="opacity-60">No story blocks injected for this generation.</div>
+              <div className="opacity-70">No story blocks injected for this generation.</div>
             ) : (
               capture.blocks.map((block) => (
                 <div key={block.key} className="mt-1">
-                  <div className="opacity-100">{block.key} <span className="opacity-60">@depth {block.depth}</span></div>
+                  <div className="opacity-100">{block.key} <span className="opacity-70">@depth {block.depth}</span></div>
                   <div className="whitespace-pre-wrap opacity-80">{block.value}</div>
                 </div>
               ))

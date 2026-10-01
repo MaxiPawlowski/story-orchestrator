@@ -74,7 +74,7 @@ const RecordCard = ({ record, newest, busy, act, confirm, manager }: CardProps) 
           {record.epilogue && <div data-so="chapter-epilogue" className="whitespace-pre-wrap opacity-90">{record.epilogue}</div>}
           {record.consequences.length > 0 && (
             <ul className="m-0 pl-4">
-              {record.consequences.map((item) => <li key={item.text}>{item.text} <span className="opacity-60">[{item.sources.join(", ")}]</span></li>)}
+              {record.consequences.map((item) => <li key={item.text}>{item.text} <span className="opacity-70">[{item.sources.join(", ")}]</span></li>)}
             </ul>
           )}
           {record.people.map((person) => <div key={person.rosterId} className="opacity-80">{person.name}: {person.text}</div>)}

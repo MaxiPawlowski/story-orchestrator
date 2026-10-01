@@ -356,3 +356,35 @@ Not mine, noticed: the judge master switch tooltip (`JudgeSettingsGroup.tsx:205`
 | test-storybook:ci | **NOT green**: `EADDRINUSE 0.0.0.0:6006`, another agent's Storybook held the port; no story ran. No `.tsx` changed here; run it once the port is free |
 
 No live gate (no lanes, no model calls, by instruction).
+
+## Review leftovers, 2026-10-01
+
+Leftovers named by the merged review-fix batches. No lanes, no model calls, no ComfyUI.
+
+| Item | Change | Test |
+|---|---|---|
+| `so-session stop` diffed with `--allow chat` | `headerDiffArgs` (`lib/sessionStop.mts`): allow `chatId,groupId,authorView,story,group,inventory.journal` and pass `--owned <every session chat>`; `chat.chatLength` is no longer allowed wholesale, so growth in a chat the session does not own blocks | `sessionStop.test.mts` "review leftovers" (flag pinned, `chat` not allowed, foreign growth blocks, owned growth passes through `diffHeaders`) |
+| Judge master-switch tooltip | Already fixed on master by CR-U ("Each use below is on by default…"); nothing pinned the old copy | — |
+| Stale open items | `01-carry-over-proof.md` (ledger growth + duplicate apply → AS-10) and `13-test-suite-review.md` (non-throwing expansion path → AS-18) now say fixed and cite the tests | docs |
+| Session tooling docs | Debug skill "Human sessions" and `debug-scripts.md` session bullet: fail-closed start/stop, `--owned` stop diff, required evidence, `baseline-settings.json`, `--media off`, blind rating packs, lane leases / `lane archive\|restore\|lease`, feature-checked cards | docs |
+| CR-U 7 colour-contrast | `.storybook/st-theme.css` now carries ST's own element/class rules our UI inherits in the host (`.menu_button`, `.text_pole`, `select`/`option`, `textarea`, `a`, disabled buttons; copied from ST `style.css`), so unstyled browser-white controls no longer stand in for ST's. Rule re-enabled (the `color-contrast: false` override in `preview.ts` removed). Remaining failures were real component contrast: muted text at `opacity-40/50/60`, mostly nested inside `opacity-80` panels (effective 0.45–0.48 under ST's global text-shadow, 3.1–4.1:1). Fixed: every `opacity-40/50/60` → `opacity-70` (18 files), three-level nesting removed (memory row meta, warden fact origin, curator diff, effects row spans), `.so-inline-more` drops its 0.7 on top of ST's Em colour, the judge "recommended config" link loses its opacity, `#so-pacing-alpha` gets `text_pole`, ReviewGrid Redo gets `menu_button` (both were browser-default white controls in the real host too), the StudioModal story opener gets `menu_button`. ST's default theme defines no error/warning/success colours, so ours fall back to `SmartThemeQuoteColor`; that passes once not stacked under opacity. Nothing left that is ST's own palette | Storybook run below |
+
+Also fixed, red on master after the merges (not caused here): `chapterSeal.review.test.ts` AS-6 fixture lacked `epistemic: []` (AS-14's `foldEpistemic` reads it); `spikes/reasoningEffect.test.ts` used model `m`, which AS product's per-model capability now refuses (openai → `gpt-5`, makersuite → `gemini-2.5-pro`); `test/sessions/baseline-settings.json` lacked AS-14's `memory.chapters.{archiveRecall,recallTokens,eraSeals,foldEras,eraMessages}` and `spikes.reasoningEffect` (all at their defaults).
+
+### Gates
+
+Storybook (from the worktree, `test-storybook:ci` finds no tests through the junction): `node node_modules/storybook/bin/index.cjs build --output-dir <scratch>/sb`, `http-server <scratch>/sb -p 6144 -s -c-1`, `node node_modules/@storybook/test-runner/dist/test-storybook.js --url http://127.0.0.1:6144 --index-json --maxWorkers 1` with `color-contrast` ON → **367 passed, 367 total** (63 suites). Before: an axe `color-contrast`-only sweep of every story found 191 failing stories / 1632 nodes; after the theme rules 103 / 293; after the component fixes 0. The first full run also caught a stale play assertion unrelated to contrast (`JudgeSettingsGroup` privacy story expected "sent to TypeSafe"; CR-J3 copy says "sends the chat excerpts it lists to TypeSafe"), fixed.
+
+`npm run gates -- --no-storybook`, 2026-10-01, on master `e27d276f` + this work:
+
+| Step | Result |
+|---|---|
+| typecheck, typecheck:test, lint | ok |
+| test | ok: 5204 passed, 1 skipped |
+| build | ok, bundle `aee62bf1bf6f` |
+| build:dev | ok, bundle `1577d272aec5` |
+| test:debug | **RED, 3 fail / 734 pass, not from this branch**: `integrationRuns.test.mts` ×2 and `so-integration.test.mts` "loadFrozen refuses…" — the story index is now built from the campaign-readiness pin `e1c91fb` while the frozen integration runs pin `5e2974b`. Needs the runs re-frozen at the new pin (or the index rebuilt at the old one), a decision for the integration owner |
+| test:release | ok: 90 pass, 2 skipped (run separately, after gates stopped at test:debug) |
+| test:replay | ok: 30 of 30 killed (separately) |
+| test:plugin | ok: 73 pass, 3 skipped (separately) |
+

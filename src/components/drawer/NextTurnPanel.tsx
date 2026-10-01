@@ -29,7 +29,7 @@ const ForeignGroup = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
         <div key={row.key} data-so="next-turn-foreign-row" data-key={row.key} className="pt-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="opacity-100">{row.label}</span>
-            <span className="opacity-60">{row.positionLabel} · depth {row.depth} · role {row.role} · {tokenText(row.tokens, row.tokenSource, row.share)}</span>
+            <span className="opacity-70">{row.positionLabel} · depth {row.depth} · role {row.role} · {tokenText(row.tokens, row.tokenSource, row.share)}</span>
             {row.conditional && <span className="st-pill px-1 text-[10px]" title="ST asks this block's own filter at assembly and may skip it">conditional</span>}
           </div>
           <div className="whitespace-pre-wrap opacity-70">{row.firstLine}</div>
@@ -42,7 +42,7 @@ const ForeignGroup = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
 const PromptBucketsLine = ({ state }: { state: PromptBucketState | undefined }) => {
   if (!state || ("unavailable" in state && state.quiet)) return null;
   if ("unavailable" in state) {
-    return <div data-so="next-turn-buckets" data-state="unavailable" className="opacity-60">Prompt buckets unavailable: {state.unavailable}</div>;
+    return <div data-so="next-turn-buckets" data-state="unavailable" className="opacity-70">Prompt buckets unavailable: {state.unavailable}</div>;
   }
   return (
     <div data-so="next-turn-buckets" data-state={state.matches ? "matches" : "mismatch"} className="opacity-80">
@@ -59,7 +59,7 @@ const PromptBucketsLine = ({ state }: { state: PromptBucketState | undefined }) 
 const TrimNote = ({ injection, rowKey }: { injection: RuntimeSnapshot["memoryInjection"]; rowKey: string }) => {
   const tier = tierOfKey(rowKey);
   const text = tier ? trimText(injection, tier) : null;
-  return text ? <div data-so="next-turn-trim" className="opacity-60">{text}</div> : null;
+  return text ? <div data-so="next-turn-trim" className="opacity-70">{text}</div> : null;
 };
 
 export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: RuntimeSnapshot; actions: NextTurnActions; onOpenOwner: (tab: NextTurnOwnerTab) => void }) => {
@@ -84,13 +84,13 @@ export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: Ru
         <div key={row.key} data-so="next-turn-row" data-key={row.key} className="border-t border-solid border-white/10 pt-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="opacity-100">{row.label}</span>
-            <span data-so="next-turn-tokens" className="opacity-60">depth {row.depth} · {row.characters} chars · {tokenText(row.tokens, row.tokenSource, row.share)}</span>
+            <span data-so="next-turn-tokens" className="opacity-70">depth {row.depth} · {row.characters} chars · {tokenText(row.tokens, row.tokenSource, row.share)}</span>
             {row.target && <span className="st-pill px-1 text-[10px]" title="Injected only for the member ST drafts">private → {row.target}</span>}
             {row.oneShot && <span className="st-pill px-1 text-[10px]">one turn</span>}
             {row.freshness !== "live" && <span className="so-warning-text">{row.freshness}</span>}
             {row.fallback && <span className="so-warning-text">fell back ({row.fallback})</span>}
           </div>
-          <div className="opacity-60">{row.owner}</div>
+          <div className="opacity-70">{row.owner}</div>
           <div className="whitespace-pre-wrap opacity-80">{row.preview}</div>
           <TrimNote injection={snapshot.memoryInjection} rowKey={row.key} />
           <div className="flex flex-wrap items-center gap-2 pt-1">
@@ -101,14 +101,14 @@ export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: Ru
               <button data-so="next-turn-reread-scene" className="menu_button text-xs" onClick={() => void actions.rerunScene()}>Re-read the scene</button>
             )}
             {row.ownerTab === "payload" ? (
-              <span className="opacity-60">edited here, in the driver</span>
+              <span className="opacity-70">edited here, in the driver</span>
             ) : (
               <button data-so="next-turn-open-owner" data-owner-tab={row.ownerTab} className="menu_button text-xs" onClick={() => onOpenOwner(row.ownerTab)}>{OWNER_LABELS[row.ownerTab]}</button>
             )}
           </div>
         </div>
       ))}
-      {snapshot.memoryInjection && <div className="opacity-60">Epistemic and ledger blocks keep their own caps; their rows have no fate here.</div>}
+      {snapshot.memoryInjection && <div className="opacity-70">Epistemic and ledger blocks keep their own caps; their rows have no fate here.</div>}
       <ForeignGroup snapshot={snapshot} />
     </div>
   );

@@ -19,7 +19,7 @@ const Grid = ({ plan, initial, rerender, choose }: { plan: ImagePlan; initial: I
              </button>
             <figcaption>
               seed {candidate.seed}
-              <button type="button" aria-label={`Redo image ${index + 1}`} disabled={busy} onClick={() => {
+              <button type="button" className="menu_button" aria-label={`Redo image ${index + 1}`} disabled={busy} onClick={() => {
                 setBusy(true);
                 void rerender(index).then((fresh) => setCandidates((items) => items.map((item, at) => at === index ? fresh : item))).finally(() => setBusy(false));
               }}>Redo</button>

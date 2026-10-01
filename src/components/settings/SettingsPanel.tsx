@@ -120,7 +120,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             onFixWithWizard={host.openWizardForRequirements}
           />
           <details id="so-current-chat" className="so-settings-section" open>
-            <summary>This chat <span className="opacity-60">— select and continue a story</span></summary>
+            <summary>This chat <span className="opacity-70">— select and continue a story</span></summary>
             <div className="flex flex-col gap-3 pt-2">
               <StoryGroup snapshot={snapshot} manager={manager} busy={busy} setBusy={setBusy} importOpen={importOpen} />
               <Lazy fallback={null}><GroupStoryBinding snapshot={snapshot} busy={busy} /></Lazy>
@@ -128,7 +128,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             </div>
           </details>
           <details id="so-general-setup" className="so-settings-section">
-            <summary>General setup <span className="opacity-60">— shared by every chat</span></summary>
+            <summary>General setup <span className="opacity-70">— shared by every chat</span></summary>
             <div className="flex flex-col gap-3 pt-2">
               <p className="text-xs opacity-80">Connection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.</p>
               <Lazy fallback={null}><MemoryModelGroup snapshot={snapshot} manager={manager} /></Lazy>
@@ -138,7 +138,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             </div>
           </details>
           <details id="so-author-services" className="so-settings-section">
-            <summary>Author services <span className="opacity-60">— optional, shared by every chat</span></summary>
+            <summary>Author services <span className="opacity-70">— optional, shared by every chat</span></summary>
             <div className="flex flex-col gap-3 pt-2">
               {authoringSettings(snapshot) && (
                 <CheckRow id="so-copilot-enabled" checked={snapshot.copilot.enabled} onChange={(on) => manager.setCopilotSettings({ enabled: on })}
@@ -153,7 +153,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             </div>
           </details>
           <details id="so-diagnostics" className="so-settings-section">
-            <summary>Diagnostics <span className="opacity-60">— ST capabilities and version</span></summary>
+            <summary>Diagnostics <span className="opacity-70">— ST capabilities and version</span></summary>
             <CapabilitiesGroup reports={hostProbe.capabilities} facts={hostProbe.facts} extensionVersion={host.extensionVersion}
               memoryModel={host.memoryModelLimit(snapshot.extraction.settings.profileId)} onRefresh={() => { host.recheckMemoryModel(); hostProbe.probe(true); }} />
             {snapshot.ui.authorView && <div data-so="engine-status" className="text-xs opacity-80">{snapshot.status}</div>}

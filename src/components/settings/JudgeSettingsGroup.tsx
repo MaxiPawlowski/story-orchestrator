@@ -97,7 +97,7 @@ const JudgeUseRows = ({ settings, builtUses, authorView, wardenEnabled, onChange
             <span>{copy.label}</span>
           </label>
           <HelpTooltip title={`${copy.description} Sends: ${copy.sends}.`} />
-          {blocked && <span className="text-xs opacity-60">{blocked}</span>}
+          {blocked && <span className="text-xs opacity-70">{blocked}</span>}
           <ProviderSelect
             id={`so-judge-provider-${kebab(use)}`}
             label={copy.label}
@@ -195,7 +195,7 @@ export function JudgeSettingsGroup({
 
   return (
     <div id="so-judge" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
-      <div className="font-medium text-sm">Judge <span className="opacity-60 font-normal">— install-wide, optional</span></div>
+      <div className="font-medium text-sm">Judge <span className="opacity-70 font-normal">— install-wide, optional</span></div>
       <div id="so-judge-status" className="text-xs opacity-80">{statusText(status)}</div>
       <div className="flex flex-col gap-1 text-sm">
         <div className="flex items-center gap-1">
@@ -272,7 +272,7 @@ export function JudgeSettingsGroup({
         <button id="so-judge-refresh" type="button" className="menu_button" onClick={onRefresh}>Recheck</button>
         <a
           id="so-judge-recommended-config"
-          className="text-xs opacity-70 underline"
+          className="text-xs underline"
           href="scripts/extensions/third-party/story-orchestrator/README.md#judge-recommended-configuration"
           target="_blank"
           rel="noreferrer"

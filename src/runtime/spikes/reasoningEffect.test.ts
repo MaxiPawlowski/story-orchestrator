@@ -83,13 +83,13 @@ describe("R4 spike: mapping per source x level", () => {
   });
 
   it.each(LEVELS)("makersuite %s", (level) => {
-    const payload = ccPayload("makersuite");
+    const payload = ccPayload("makersuite", { model: "gemini-2.5-pro" });
     armed(level).apply(payload, loud(), yaml);
     expect(payload.reasoning_effort).toBe(level === "off" ? "min" : level);
   });
 
   it.each(LEVELS)("openai %s: levels apply, off is refused and writes nothing", (level) => {
-    const payload = ccPayload("openai");
+    const payload = ccPayload("openai", { model: "gpt-5" });
     const before = { ...payload };
     const shot = armed(level).apply(payload, loud(), yaml);
     if (level === "off") {

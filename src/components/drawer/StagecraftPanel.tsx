@@ -66,7 +66,7 @@ const proposedContent = (entry: CuratorOpRecord, op: CuratorOp): string | null =
 };
 
 const DiffView = ({ before, after }: { before: string; after: string }) => (
-  <div data-so="curator-diff" className="whitespace-pre-wrap opacity-90">
+  <div data-so="curator-diff" className="whitespace-pre-wrap">
     {wordDiff(before, after).map((part, index) => (part.kind === "del"
       ? <del key={index} className="so-error-text">{part.text}</del>
       : part.kind === "ins" ? <ins key={index} className="text-green-300">{part.text}</ins> : <span key={index}>{part.text}</span>))}
@@ -106,14 +106,14 @@ const OpCard = ({ record, index, entry, manager, onOpenFact }: {
   const shown = proposedContent(entry, decidable && text !== null ? withText(exact, draft) : exact);
   return (
     <div data-so="curator-op" className="border-t border-solid border-white/10 mt-1 pt-1">
-      <div className="opacity-100">{describe(entry.op)} <span className="opacity-60">· {statusLabel(entry)}</span></div>
+      <div className="opacity-100">{describe(entry.op)} <span className="opacity-70">· {statusLabel(entry)}</span></div>
       {entry.fuzzy && <div data-so="curator-fuzzy" className="opacity-80">near match, {Math.round(entry.fuzzy.score * 100)}%: “{entry.fuzzy.span}”</div>}
       {shown !== null && entry.before && <DiffView before={entry.before.content} after={shown} />}
       {isNoteOp(entry.op) && (entry.op.sources?.length
         ? entry.op.sources.map((source) => (
           <div key={source.id} data-so="warden-fact" data-fact={source.id} className="opacity-80">
             <div>established: {source.text}</div>
-            <div data-so="warden-fact-origin" className="opacity-60">
+            <div data-so="warden-fact-origin">
               {originText(source.provenance, source.conflictingValue)}
             </div>
             {/* v2.3 plan 05: the card cites the message a truth was read from, so it has to be able to
@@ -172,7 +172,7 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
       )}
       {lastError && <div className="so-error-text">{lastError}</div>}
       {lastPass && (
-        <div data-so="curator-last-pass" title={lastPass.rawResponse || "(empty response)"} className="opacity-60">
+        <div data-so="curator-last-pass" title={lastPass.rawResponse || "(empty response)"} className="opacity-70">
           Last read {lastPass.reason}: {lastPass.proposed ? `${lastPass.proposed} change(s)` : "nothing to change"}
           {lastPass.dropped.length ? ` · ${lastPass.dropped.length} discarded` : ""}
           {lastPass.focus ? ` · focused on ${lastPass.focus.shown} of ${lastPass.focus.total} entries` : ""}
@@ -186,7 +186,7 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
             <div className="opacity-100">{record.curator === "warden" ? (record.reason === "continuity" ? "Continuity warden: " : "Warden: ") : ""}{record.summary}</div>
             <div>{record.checkpointId} · {record.reason} · boundary {record.boundary}{record.appliedAt ? " · applied" : ""}</div>
             {record.ops.map((entry, index) => <OpCard key={`${record.id}-${index}`} record={record} index={index} entry={entry} manager={manager} onOpenFact={onOpenFact} />)}
-            {record.dropped.map((line) => <div key={line} className="opacity-50">dropped — {line}</div>)}
+            {record.dropped.map((line) => <div key={line} className="opacity-70">dropped — {line}</div>)}
           </div>
         ))
       )}
