@@ -19,7 +19,12 @@ export function renderArcContractSection(openArcs: string[] = []): string {
 export const EPISTEMIC_MAX_ENTRIES = 20;
 export const EPISTEMIC_MAX_RETIRES = 12;
 
-const INTENDS_LINE = "[intends] Character | what they are trying to achieve — only when that character says or shows it in their own words or actions; never the player's";
+export const PRIVATE_TELLING_RULE = "When a character tells another something in private (out of others' earshot, or asks them to keep it), also write " +
+  "[hiding] Teller from <whoever must not hear it, or everyone> | that thing.";
+export const CLAIM_RULE = "A character's claim that something happened which the transcript does not show (\"she told me ...\") is not evidence " +
+  "that it happened: record only that they said it (\"Ana says Ben told her ...\"), never the claimed event as known or as a fact.";
+
+const INTENDS_LINE ="[intends] Character | what they are trying to achieve — only when that character says or shows it in their own words or actions; never the player's";
 
 export function renderEpistemicContractSection(): string {
   return [
@@ -31,6 +36,8 @@ export function renderEpistemicContractSection(): string {
     "[hiding] Concealer from Target | what they are actively concealing",
     INTENDS_LINE,
     "Use each name exactly as it appears in the transcript. Emit these only when the transcript establishes the knowledge — never infer.",
+    PRIVATE_TELLING_RULE,
+    CLAIM_RULE,
   ].join("\n");
 }
 
@@ -60,6 +67,7 @@ export function renderMemoryContractAddendum(openArcs: string[] = [], capable = 
     `Rate importance 1-3 (1=atmospheric/minor, 2=useful context, 3=critical/defining) and classify expiration as one of ${MEMORY_EXPIRATIONS.join("|")}.`,
     "Optionally tag involved named entities (proper nouns only) as entity=\"Name1,Name2\". Add character=\"<roster id from the Cast line>\" only when the memory is private " +
       "to that one cast member (only they saw, know or feel it); a tagged memory is shown to that member alone, so shared knowledge carries no character tag.",
+    CLAIM_RULE,
     "Output additional lines in this exact format:",
     "MEMORY type=<type> importance=<1|2|3> expiration=<scene|session|permanent> [entity=\"Name1,Name2\"] [character=\"<roster id>\"] text=\"memory text\" evidence=\"exact quote from transcript\"",
     "Then report whether a scene break occurred in this window:",
@@ -128,6 +136,8 @@ export function buildEpistemicPassPrompt(sceneText: string, participants: string
     "- DECEPTION: when a character makes a false statement, write [hiding] for the liar; if a listener accepts it unchallenged, also write [believes] for them with the false content.",
     "- KNOWS vs SUSPECTS: a character explicitly told a fact [knows] it; reserve [suspects] for a feeling without direct information.",
     "- BELIEVES is ONLY for demonstrably false beliefs — never for correct conclusions or mere feelings.",
+    `- PRIVATE: ${PRIVATE_TELLING_RULE}`,
+    `- CLAIMS: ${CLAIM_RULE}`,
     `- LENGTH: output at most ${EPISTEMIC_MAX_ENTRIES} entries, the most important asymmetries first, one short sentence each. Then stop.`,
     "If nothing is established, output NONE.",
     "",

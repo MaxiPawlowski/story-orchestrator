@@ -2,6 +2,7 @@ import { jaccardSimilarity } from "./similarity";
 import { isLive, keepPinnedFrom, provenance as provenanceOf, type ProvenanceSource } from "./provenance";
 import { EPISTEMIC_TAGS, generateMemoryId, type EpistemicEntry, type EpistemicTag, type ParsedEpistemicSignal } from "./types";
 import { lastAffirmed } from "./innerVoice";
+import { contentWords, restatesWords } from "./words";
 
 export const EPISTEMIC_MIN_LENGTH = 3;
 export const EPISTEMIC_DEDUP_THRESHOLD = 0.6;
@@ -195,36 +196,49 @@ export function rollbackEpistemic(entries: EpistemicEntry[], messageId: number):
 // (or the whole store) with scene detail; pinned entries never count against either cap.
 const knowledgeKey = (content: string) => content.toLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 
+const SECRET_TAGS: ReadonlySet<EpistemicTag> = new Set<EpistemicTag>(["unaware", "hiding"]);
+
+const contests = (claim: Set<string>, other: Set<string>): boolean => restatesWords(other, claim) || restatesWords(claim, other);
+
 // Models ignore "asymmetry only" and hand every character present the same [knows] line about the
 // scene. Such a fact is the scene itself, not private knowledge: dropped when three or more
 // characters, or every character present, get it in one batch, unless another line in the batch
-// marks someone as unaware of it, suspecting, believing or hiding it.
-export function dropCommonKnowledge(signals: ParsedEpistemicSignal[], present: string[]): ParsedEpistemicSignal[] {
+// (or an [unaware]/[hiding] row already stored) says the same thing as someone's secret.
+
+export function dropCommonKnowledge(signals: ParsedEpistemicSignal[], present: string[], stored: EpistemicEntry[] = []): ParsedEpistemicSignal[] {
   const everyone = new Set(present.map(normalize));
   const knowers = new Map<string, Set<string>>();
   const contested = new Set<string>();
+  const contesting = activeEpistemic(stored).filter((entry) => SECRET_TAGS.has(entry.tag)).map((entry) => contentWords(entry.content));
   for (const signal of signals) {
     const key = knowledgeKey(signal.content);
-    if (signal.tag !== "knows") { contested.add(key); continue; }
+    if (signal.tag !== "knows") { contested.add(key); contesting.push(contentWords(signal.content)); continue; }
     const subjects = knowers.get(key) ?? new Set<string>();
     subjects.add(normalize(signal.subject));
     knowers.set(key, subjects);
   }
+  const isContested = (key: string) => contested.has(key) || contesting.some((words) => contests(contentWords(key), words));
   const common = new Set([...knowers].filter(([key, subjects]) =>
-    !contested.has(key) && (subjects.size >= 3 || (everyone.size >= 2 && [...everyone].every((name) => subjects.has(name))))).map(([key]) => key));
+    !isContested(key) && (subjects.size >= 3 || (everyone.size >= 2 && [...everyone].every((name) => subjects.has(name))))).map(([key]) => key));
   return signals.filter((signal) => signal.tag !== "knows" || !common.has(knowledgeKey(signal.content)));
 }
 
+const isRetired = (entry: EpistemicEntry): boolean => Boolean(entry.supersededBy || entry.foldedInto);
+
 export function capEpistemic(entries: EpistemicEntry[], cap: number = EPISTEMIC_CAP, subjectCap: number = EPISTEMIC_SUBJECT_CAP): EpistemicEntry[] {
-  const perSubject = new Map<string, number>();
   const keep = new Set<string>();
-  for (const entry of [...entries].reverse()) {
-    if (entry.pinned) continue;
-    const subject = normalize(entry.subject);
-    const count = perSubject.get(subject) ?? 0;
-    if (count >= subjectCap || keep.size >= cap) continue;
-    perSubject.set(subject, count + 1);
-    keep.add(entry.id);
+  for (const retiredPass of [false, true]) {
+    const perSubject = new Map<string, number>();
+    let total = 0;
+    for (const entry of [...entries].reverse()) {
+      if (entry.pinned || isRetired(entry) !== retiredPass) continue;
+      const subject = normalize(entry.subject);
+      const count = perSubject.get(subject) ?? 0;
+      if (count >= subjectCap || total >= cap) continue;
+      perSubject.set(subject, count + 1);
+      total += 1;
+      keep.add(entry.id);
+    }
   }
   return entries.filter((entry) => entry.pinned || keep.has(entry.id));
 }

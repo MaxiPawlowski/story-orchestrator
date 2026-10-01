@@ -1,37 +1,38 @@
 import { EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_KEY, MEMORY_INJECTION_KEY_PREFIX } from "@constants/defaults";
 import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import { blockTokens, selectWithinBudget } from "./budget";
+import { isEstablished } from "./conflicts";
 import { isLive } from "./provenance";
 import { scoreEntry, type ScoreContext } from "./score";
 import { MEMORY_TIERS, type MemoryEntry, type MemoryTier } from "./types";
+import { contentWords, wordOverlap, wordSimilarity } from "./words";
 
 export const INJECTION_DIVERSITY_FLOOR = 1;
 
 export const NEAR_DUPLICATE_SIMILARITY = 0.5;
+export const PARAPHRASE_SIMILARITY = 0.4;
+export const PARAPHRASE_OVERLAP = 0.7;
 export const SESSION_DETAILS_ROW_CAP = 12;
 
-const DEDUPED_TIERS: ReadonlySet<MemoryTier> = new Set<MemoryTier>(["session_details"]);
+const DEDUPED_TIERS: ReadonlySet<MemoryTier> = new Set<MemoryTier>(["facts", "session_details"]);
 const ROW_CAPS: Partial<Record<MemoryTier, number>> = { session_details: SESSION_DETAILS_ROW_CAP };
-const STOP_WORDS: ReadonlySet<string> = new Set("a an the and or of to in on at is was his her their its as by with for he she they it that this be are has have had".split(" "));
-
-const contentWords = (text: string): Set<string> =>
-  new Set(text.toLowerCase().replace(/[^a-z0-9' ]+/g, " ").split(/\s+/).filter((word) => word !== "" && !STOP_WORDS.has(word)));
-
-const wordSimilarity = (a: Set<string>, b: Set<string>): number => {
-  if (a.size === 0 || b.size === 0) return 0;
-  const shared = [...a].filter((word) => b.has(word)).length;
-  return shared / (a.size + b.size - shared);
-};
 
 const newestFirst = (a: MemoryEntry, b: MemoryEntry): number => (b.messageId ?? -1) - (a.messageId ?? -1) || b.createdAt - a.createdAt;
+
+const kept = (entry: MemoryEntry): boolean => Boolean(entry.pinned) || isEstablished(entry);
+
+const sameSaying = (a: Set<string>, b: Set<string>): boolean => {
+  const similarity = wordSimilarity(a, b);
+  return similarity >= NEAR_DUPLICATE_SIMILARITY || (similarity >= PARAPHRASE_SIMILARITY && wordOverlap(a, b) >= PARAPHRASE_OVERLAP);
+};
 
 export function nearDuplicateIds(entries: MemoryEntry[]): Set<string> {
   const seen: Set<string>[] = [];
   const duplicates = new Set<string>();
-  for (const entry of [...entries].sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) || newestFirst(a, b))) {
+  for (const entry of [...entries].sort((a, b) => Number(kept(b)) - Number(kept(a)) || newestFirst(a, b))) {
     const words = contentWords(entry.text);
-    if (!entry.pinned && seen.some((other) => wordSimilarity(other, words) >= NEAR_DUPLICATE_SIMILARITY)) duplicates.add(entry.id);
-    else seen.push(words);
+    if (!kept(entry) && seen.some((other) => sameSaying(other, words))) duplicates.add(entry.id);
+    seen.push(words);
   }
   return duplicates;
 }
@@ -44,13 +45,15 @@ export interface PromptSink {
 export interface InjectionOptions {
   tokenBudgets: Record<MemoryTier, number>;
   scoreContext: ScoreContext;
+  withheld?: ReadonlySet<string>;
 }
 
 export function memoryExtensionKey(tier: MemoryTier): string {
   return `${MEMORY_INJECTION_KEY_PREFIX}${tier}`;
 }
 
-export type MemoryFate = "injected" | "quarantined" | "superseded" | "folded" | "other-speaker" | "near-duplicate" | "over-budget" | "pinned-overflow";
+export type MemoryFate =
+  | "injected" | "quarantined" | "superseded" | "folded" | "other-speaker" | "private" | "near-duplicate" | "over-budget" | "pinned-overflow";
 
 export interface TierTrim {
   candidates: number;
@@ -62,12 +65,12 @@ export interface TierTrim {
   filtered: number;
 }
 
-const filteredFate = (entry: MemoryEntry, tier: MemoryTier, activeSpeakerId: string | null): MemoryFate | null => {
-  // A quarantined row is EXCLUDED, not ranked lower.
+const filteredFate = (entry: MemoryEntry, tier: MemoryTier, activeSpeakerId: string | null, withheld?: ReadonlySet<string>): MemoryFate | null => {
   if (!isLive(entry)) return "quarantined";
   if (entry.supersededBy) return "superseded";
   if (entry.foldedInto) return "folded";
   if (tier === "facts" && entry.characterId && entry.characterId !== activeSpeakerId) return "other-speaker";
+  if (withheld?.has(entry.id)) return "private";
   return null;
 };
 
@@ -80,7 +83,7 @@ function selectTierEntries(
 ): { entries: MemoryEntry[]; pinnedOverflow: number; trim: TierTrim } {
   const inTier = entries.filter((entry) => entry.tier === tier);
   const live = inTier.filter((entry) => {
-    const fate = filteredFate(entry, tier, activeSpeakerId);
+    const fate = filteredFate(entry, tier, activeSpeakerId, options.withheld);
     if (fate) fates[entry.id] = fate;
     return fate === null;
   });
@@ -90,14 +93,14 @@ function selectTierEntries(
   const budget = options.tokenBudgets[tier];
   const score = (entry: MemoryEntry) => scoreEntry(entry, options.scoreContext);
   const selection = selectWithinBudget(candidates, budget, score, INJECTION_DIVERSITY_FLOOR);
-  const { kept } = selection;
+  const { kept: chosen } = selection;
   const cap = ROW_CAPS[tier];
-  const overCap = cap === undefined ? [] : candidates.filter((entry) => kept.has(entry.id))
+  const overCap = cap === undefined ? [] : candidates.filter((entry) => chosen.has(entry.id))
     .sort((a, b) => Number(Boolean(b.pinned)) - Number(Boolean(a.pinned)) || score(b) - score(a) || newestFirst(a, b)).slice(cap);
-  overCap.forEach((entry) => kept.delete(entry.id));
+  overCap.forEach((entry) => chosen.delete(entry.id));
   const dropped = [...selection.dropped, ...overCap];
   const pinnedOverflow = selection.pinnedOverflow + overCap.filter((entry) => entry.pinned).length;
-  const injected = candidates.filter((entry) => kept.has(entry.id));
+  const injected = candidates.filter((entry) => chosen.has(entry.id));
   injected.forEach((entry) => { fates[entry.id] = "injected"; });
   dropped.forEach((entry) => { fates[entry.id] = entry.pinned ? "pinned-overflow" : "over-budget"; });
   const trim: TierTrim = {
@@ -166,15 +169,18 @@ export const MEMORY_BLOCK_LABELS: Record<MemoryTier, string> = {
 
 export const labelMemoryBlock = (tier: MemoryTier, text: string): string => (text ? `${MEMORY_BLOCK_LABELS[tier]}\n${text}` : "");
 
-export function applyMemoryInjection(prompt: PromptSink, entries: MemoryEntry[], activeSpeakerId: string | null, depths: Record<MemoryTier, number>, options: InjectionOptions): TierInjection {
-  const injection = buildMemoryInjection(entries, activeSpeakerId, options);
-  const { blocks } = injection;
+export function writeMemoryBlocks(prompt: PromptSink, blocks: Record<MemoryTier, string>, depths: Record<MemoryTier, number>) {
   MEMORY_TIERS.forEach((tier) => {
     const text = labelMemoryBlock(tier, blocks[tier]);
     const key = memoryExtensionKey(tier);
     if (text) prompt.setStoryExtensionPrompt(key, text, depths[tier]);
     else prompt.clearStoryExtensionPrompt(key);
   });
+}
+
+export function applyMemoryInjection(prompt: PromptSink, entries: MemoryEntry[], activeSpeakerId: string | null, depths: Record<MemoryTier, number>, options: InjectionOptions): TierInjection {
+  const injection = buildMemoryInjection(entries, activeSpeakerId, options);
+  writeMemoryBlocks(prompt, injection.blocks, depths);
   return injection;
 }
 

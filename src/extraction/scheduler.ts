@@ -83,6 +83,7 @@ export interface SchedulerHost {
   epoch?: () => number;
   /** True while a multi-voice turn is running and its checkpoint asked extraction to wait for it. */
   holdCadence?(): boolean;
+  readCursorSeed?(): number | null;
 }
 
 // Cadence counts BOUNDARIES, and the window used to count
@@ -379,6 +380,7 @@ export class ExtractionScheduler {
     const profileId = failedProfile(error) ?? this.readProfile();
     const failure = failureClass(error);
     const message = errorText(error, heavy ? "Background generation failed" : "Extraction failed");
+    if (failure !== "transport" || !profileId) this.rewindCursor(job, startedEpoch);
     if (failure === "lapsed") {
       if (this.sameWorld(startedEpoch)) this.noteLapse(job, error);
       if (read) this.rereadIfMutated(read, startedEpoch);
@@ -395,6 +397,15 @@ export class ExtractionScheduler {
       else this.lastError = message;
       this.host.noteHealth?.(`${heavy ? "background job" : "extraction"} failed: ${job.reason}`, message);
     }
+  }
+
+  private cursor(): number | null {
+    return this.cadenceTo ?? this.host.readCursorSeed?.() ?? null;
+  }
+
+  private rewindCursor(job: SchedulerJob, startedEpoch: number) {
+    if (job.run || !job.window || !this.sameWorld(startedEpoch) || this.cadenceTo === null) return;
+    this.cadenceTo = Math.min(this.cadenceTo, job.window.from - 1);
   }
 
   // This boundary already queued a cadence read, which carries the judged step itself.
@@ -416,7 +427,7 @@ export class ExtractionScheduler {
       const stableTo = lastMessageId - Math.max(0, settings.stabilityLag ?? 1);
       if (stableTo >= 0) {
         this.cadenceBoundary = boundary;
-        this.schedule({ priority: 1, reason: "cadence", window: getChatWindow(cadenceWindowFrom(this.cadenceTo, stableTo), stableTo) });
+        this.schedule({ priority: 1, reason: "cadence", window: getChatWindow(cadenceWindowFrom(this.cursor(), stableTo), stableTo) });
         this.cadenceTo = stableTo;
       }
     }
@@ -428,7 +439,7 @@ export class ExtractionScheduler {
     if (queued?.window) return { source: "queued", reason: queued.reason, window: queued.window };
     const stableTo = lastMessageId - Math.max(0, this.host.getExtractionSettings().stabilityLag ?? 1);
     if (stableTo < 0) return null;
-    return { source: "cadence", reason: "cadence", window: getChatWindow(cadenceWindowFrom(this.cadenceTo, stableTo), stableTo) };
+    return { source: "cadence", reason: "cadence", window: getChatWindow(cadenceWindowFrom(this.cursor(), stableTo), stableTo) };
   }
 
   getSnapshot() {

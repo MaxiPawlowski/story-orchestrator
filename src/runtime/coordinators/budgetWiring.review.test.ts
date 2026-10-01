@@ -49,7 +49,7 @@ const story = parseStoryV2OrThrow({
 const engine = new StoryEngine();
 engine.loadStory(story);
 
-const LIMIT = 3000;
+const LIMIT = 4140;
 const words = (index: number) => `m${index}: ${"the river runs past the old mill and the ferry waits ".repeat(8)}`;
 const seedChat = (length: number) => { host.chat = Array.from({ length }, (_, index) => ({ name: index % 2 ? "Mira" : "Max", mes: words(index), is_user: index % 2 === 0 })); };
 const settle = async () => { for (let i = 0; i < 20; i += 1) await Promise.resolve(); };
@@ -269,7 +269,7 @@ describe("short-term compaction is tail-fit", () => {
     expect(prompt).toContain("Earlier, they met at the mill.");
     expect(prompt).toContain(": m59:");
     expect(prompt).not.toContain(": m0:");
-    expect(estimateTokens(prompt)).toBeLessThanOrEqual(inputBudget({ value: LIMIT, source: "preset" }, 1024).input);
+    expect(estimateTokens(prompt)).toBeLessThanOrEqual(inputBudget({ value: LIMIT, source: "preset" }, maxTokensCap("shortTerm")).input);
     expect(h.shortTerms).toHaveLength(1);
     expect(h.shortTerms[0].window.to).toBe(59);
     expect(h.shortTerms[0].window.from).toBeGreaterThan(0);

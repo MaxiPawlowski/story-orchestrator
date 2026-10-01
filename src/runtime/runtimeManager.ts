@@ -10,6 +10,7 @@ import {
 } from "@extraction/index";
 import { applyCommitEvidence } from "@extraction/commitGuard";
 import { applyRatingGrounding } from "@extraction/ratingGuard";
+import { readCursorSeed } from "@extraction/readCursor";
 import { clearAllMemoryInjection } from "@memory/index";
 import {
   getContext, profileExists, readExtensionPromptBlocks, readInjectedPromptBlocks, showTextPopup,
@@ -354,6 +355,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   // What this chat is actually playing, authored form — the Studio edits this, not the library's copy.
   getPlayedStoryRaw(): unknown { return this.loaded?.record.raw ?? null; }
   getEngineState(): EngineState | null { return this.loaded ? this.engine.serialize() : null; }
+  getReadCursorSeed(): number | null { return this.loaded ? readCursorSeed(this.engine.serializeHistory()) : null; }
   getMirrorBook(): MemoryMirrorBook | null { return this.extras.memory.wiBook; }
   getExtractionSettings(): ExtractionRuntimeSettings { return this.extras.extraction.settings; }
 
