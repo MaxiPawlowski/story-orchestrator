@@ -1,8 +1,30 @@
-import React from "react";
+import React, { useState } from "react";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { useDraftStore } from "../draft";
 import { addRosterMember, nextId, removeRosterMember, updateRosterMember } from "../mutations";
 import { setRosterDrive, setRosterView } from "../innerVoiceMutations";
+
+const splitAliases = (text: string) => text.split(",").map((alias) => alias.trim()).filter(Boolean);
+
+const AliasesField = ({ index, aliases, onCommit }: { index: number; aliases: string[]; onCommit: (aliases: string[]) => void }) => {
+  const [text, setText] = useState(aliases.join(", "));
+  return (
+    <label className="flex basis-full flex-col gap-1 text-sm">
+      <span className="text-xs st-muted">Also called <HelpTooltip title={"Other names the story uses for this character, comma separated: a surname, a title, a nickname " +
+        "('Dalan Evergreen, little brother'). Speaker direction shows them beside the name and accepts them as an answer. A name two " +
+        "characters share is never used to pick either."} /></span>
+      <input
+        className="text_pole st-input"
+        aria-label={`Member ${index + 1} aliases`}
+        data-so="roster-aliases"
+        placeholder="optional — e.g. the Guildmaster, Val"
+        value={text}
+        onChange={(event) => setText(event.target.value)}
+        onBlur={() => onCommit(splitAliases(text))}
+      />
+    </label>
+  );
+};
 
 // The roster is what every cast-facing picker offers: talk_control speakers and lead, npc_replies
 // members, cast_changes. Studio-born stories used to render those pickers empty (finding).
@@ -66,6 +88,12 @@ const RosterEditor: React.FC<{ memberNames?: string[] }> = ({ memberNames = [] }
                   onChange={(event) => mutate((current) => updateRosterMember(current, member.id, { role: event.target.value || undefined }))}
                 />
               </label>
+              <AliasesField
+                key={`${member.id}:${(member.aliases ?? []).join("|")}`}
+                index={index}
+                aliases={member.aliases ?? []}
+                onCommit={(aliases) => mutate((current) => updateRosterMember(current, member.id, { aliases: aliases.length ? aliases : undefined }))}
+              />
               <label className="flex basis-full flex-col gap-1 text-sm">
                 <span className="text-xs st-muted">Drive <HelpTooltip title={"What this character wants across the whole story, e.g. 'clear his brother's name'. Only this " +
                   "character is told it, privately, before they speak."} /></span>

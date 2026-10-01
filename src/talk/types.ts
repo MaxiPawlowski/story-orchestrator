@@ -3,6 +3,7 @@ export interface TalkCandidate {
   name: string;
   weight: number;
   role?: string;
+  aliases?: string[];
 }
 
 export type TalkDecisionSource = "judge" | "mention" | "director" | "rules" | "fallback";

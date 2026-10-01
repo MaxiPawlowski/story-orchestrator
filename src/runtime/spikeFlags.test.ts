@@ -3,7 +3,6 @@ import { defaultGlobalSettings, sanitizeGlobalSettings } from "./settingsModel";
 const ALL_OFF = {
   swipeBackCache: false,
   sp5Scenario: false,
-  sp7Chance: false,
   sp6Complications: false,
   sp4AppendShortTerm: false,
   sp8CuratorTiers: false,

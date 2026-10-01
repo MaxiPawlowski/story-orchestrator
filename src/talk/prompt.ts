@@ -1,17 +1,22 @@
-import type { DirectorPromptInput } from "./types";
+import { distinctAliases } from "./aliases";
+import type { DirectorPromptInput, TalkCandidate } from "./types";
+
+const candidateLine = (candidate: TalkCandidate, aliases: string[]) =>
+  `- ${candidate.name}${aliases.length ? ` (also called: ${aliases.join(", ")})` : ""}${candidate.role?.trim() ? `: ${candidate.role.trim()}` : ""}`;
 
 export function renderDirectorPrompt(input: DirectorPromptInput): string {
   const names = input.candidates.map((candidate) => candidate.name);
   const answers = [...names, ...(input.handBack ? ["PLAYER"] : []), ...(input.allowSilence ? ["NONE"] : [])];
   const player = input.playerName?.trim() || "the player";
-  const roles = input.candidates.some((candidate) => candidate.role?.trim());
+  const aliases = distinctAliases(input.candidates);
+  const listed = input.candidates.some((candidate) => candidate.role?.trim() || aliases.get(candidate.rosterId)?.length);
   return [
     "[SPEAKER CHOICE TASK — answer with one line only. Do NOT continue the roleplay.]",
     `Story: ${input.storyTitle}`,
     `Scene: ${input.checkpointName} — ${input.objective}`,
     "",
     "You are the scene director. Read the transcript and decide which character should speak next.",
-    roles ? `Candidates:\n${input.candidates.map((candidate) => `- ${candidate.name}${candidate.role?.trim() ? `: ${candidate.role.trim()}` : ""}`).join("\n")}` : `Candidates: ${names.join(", ")}`,
+    listed ? `Candidates:\n${input.candidates.map((candidate) => candidateLine(candidate, aliases.get(candidate.rosterId) ?? [])).join("\n")}` : `Candidates: ${names.join(", ")}`,
     player === "the player" ? "The player is not a candidate." : `${player} is the player, not a candidate.`,
     ...(input.lead ? [`Scene lead: ${input.lead} (prefer them when no one else is clearly addressed).`] : []),
     ...(input.instruction ? [`Author guidance: ${input.instruction}`] : []),

@@ -94,3 +94,14 @@ Evidence: `test/sessions/T0/` (T0-1-1, T0-2-2, T0-3-1). Each fix has a failing-f
 Not fixed here (other T0 findings): commit-evidence holds (T0-3 HIGH), `[Scene direction: …]` echo (T0-2 HIGH), swipe-to-existing re-commit, stale note on step-back (moot with the note off by default), harness items.
 
 Gates (2026-10-01): `npm run gates -- --no-storybook` all green (typecheck, typecheck:test, lint, test, build, build:dev, test:debug, test:release, test:replay, test:plugin); Storybook built and run on port 6146 (`test-storybook --url http://127.0.0.1:6146 --index-json --maxWorkers 1`): 63 suites, 370 tests passed. Main bundle 1,246,014 B (budget 1,250,000). No live lane or pod run: the live check of these surfaces belongs to the next T0 re-run.
+
+## SP7.b chance rolls: review items (recorded 2026-10-01, before any session)
+
+The lead accepted D5 (`v2.5/09-sp7-spike-report.md` §D5, all 7 Adolion rolls) with `deep_swarm` (Act IV) as the shipped
+example, and SP7.b put the seeded rolls in prod. Two caveats ride with that acceptance; each goes to the review like a
+session finding, and a card that reaches the branch is the evidence.
+
+| what | class (proposed) | evidence | card |
+|---|---|---|---|
+| `east_upset` (d6 <= 2 at `east-the-rounds`, after `east_round_fought`) can overturn a bout the party won: the judges uphold an onmyoji's bad call. The guidance asks the narrator to play it as visibly unjust ("half the stands saw was wrong"); if the narration reads as the player's loss rather than an injustice, the roll took a player-earned outcome. | expectation | `adolion-east.story.json` at the pin (`east-the-upset` guidance); SP7 report §D5 row `east_upset` | a T-tier card through Act V's rounds |
+| `night_moon` (d6 <= 2 at `night-the-siege`, after `night_pack_met`) closes the talk option at the siege ("no talk works tonight"). It fires only once the party has met Lobo and the branch states the cost; if a player who chose talk reads it as a refusal of their choice, the roll overrode agency. | expectation | `adolion-night.story.json` at the pin (`night-the-full-moon` guidance); SP7 report §D5 row `night_moon` | a T-tier card through the night act's siege |

@@ -51,6 +51,13 @@ export interface QualityRatingLevel {
 
 export type QualityCriteria = Record<string, string | QualityCriterion> | { levels: QualityRatingLevel[] };
 
+export const ROLL_TYPES = ["bool", "int"] as const;
+
+export interface QualityRoll {
+  sides: number;
+  target: number;
+}
+
 export interface Quality {
   key: string;
   type: QualityType;
@@ -72,6 +79,7 @@ export interface Quality {
    * Absent means any evidence is accepted, as before.
    */
   commit_evidence?: string;
+  roll?: QualityRoll;
 }
 
 export type EvidenceFrom = typeof EVIDENCE_FROM[number];
@@ -258,6 +266,7 @@ export interface RosterMember {
   role?: string;
   drive?: string;
   view?: RosterView;
+  aliases?: string[];
 }
 
 export interface ScaffoldingBeat {

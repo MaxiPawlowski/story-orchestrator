@@ -6,7 +6,6 @@ import { routedProfileId } from "../requestBudget";
 import { runtimeManager } from "../runtimeManager";
 import { DIRECTOR_MAX_TOKENS, TalkController, type TalkControlHost } from "../talkControl";
 import { promptCost } from "../promptCost";
-import { spikeSeams } from "../spikeSeams";
 import type { LiveParts, WindowAccess } from "./types";
 
 const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, recentWindow }: WindowAccess): TalkControlHost => ({
@@ -29,7 +28,7 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
   recordDecision: (audit) => runtimeManager.recordTalkDecision(audit),
   judgeDirector: (input) => judgeRuntime.director(input),
   getPlayerName,
-  random: () => spikeSeams.talkRandom?.() ?? null,
+  random: () => runtimeManager.chance.talkRandom(),
   getChainConfig: () => runtimeManager.getTalkChainConfig(),
   setExtractionHold: (hold) => runtimeManager.setExtractionHold(hold),
   ownership: runtimeManager.getOwnership(),

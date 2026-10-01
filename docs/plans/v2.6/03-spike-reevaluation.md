@@ -85,3 +85,10 @@ these runs; none of them used it. Records: `test/measurements/v2.6-03/<spN>/summ
 
 D3: `DROPPED_SPIKES` (`recommitEdit.ts`, `witnessFilter.ts`, `witnessFilterHost.ts`, `wiring/spikes.ts`) with a
 planted-import control in `src/runtime/devOnly.guard.test.ts`. Gates: see the branch's last commit message.
+
+### Addendum 2026-10-01: SP7.b and SP3.b built
+
+`04-remaining-builds.md` §Gate record SP7.b / SP3.b. SP7.b: both halves in prod (D5 accepted by the lead with `deep_swarm`;
+caveats in `14-findings.md`), `spikes.sp7Chance` removed, `engine/chance.ts` + `runtime/chance.ts` off the D3 dev-only list
+(guard case added). SP3.b: built director-only; its Phase B bar (A2 ×2, ≤ 3.30 / ≤ 2.87 per 50) is owed live and decides keep
+or drop.
