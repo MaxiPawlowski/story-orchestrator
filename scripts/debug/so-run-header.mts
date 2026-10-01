@@ -39,7 +39,9 @@ const USAGE = `Usage: node scripts/debug/so-run-header.mts <capture|diff|show> [
   show
       Capture and print without writing a file.
 
-Fields: build.head/manifest (dist), bundle.served (the hash of what the page is running),
+Fields: build.head/manifest (dist), campaign.pinCommit/pinBranch (adolion-fresh pin) and
+campaign.installed.commit/sha256 (this lane's adolion-fresh inventory, null off an adolion-fresh lane),
+bundle.served (the hash of what the page is running),
 host.stVersion/mainApi/onlineStatus, profiles.selected/extraction,
 judge.plugin/model/enabled/uses, stagecraft.*, extraction.*, spikes.* (v2.5 plan 09 flags), chat.groupId/chatId/authorView,
 story.id/playedVersion/contentHash, group.disabledMembers, inventory.v2Stories/wizardSessions/
@@ -93,6 +95,40 @@ export function readBuild() {
     dirty: git('status', '--porcelain') ? true : false,
     manifest,
   };
+}
+
+export const CAMPAIGN_PIN_FILE = resolve(PROJECT_ROOT, 'scripts', 'debug', 'adolion-fresh.pin.json');
+
+export interface CampaignState {
+  pinCommit: string | null;
+  pinBranch: string | null;
+  installed: { commit: string | null; sha256: string } | { error: string } | null;
+}
+
+export function readCampaign(pinFile = CAMPAIGN_PIN_FILE, laneWork = resolve(DEBUG_DIR, '..', 'adolion-fresh')): { campaign: CampaignState; warnings: string[] } {
+  const warnings: string[] = [];
+  const parse = (path: string) => {
+    try {
+      return JSON.parse(readFileSync(path, 'utf-8'));
+    } catch {
+      return undefined;
+    }
+  };
+  const pin = existsSync(pinFile) ? parse(pinFile) : null;
+  if (pin === null) warnings.push(`the adolion-fresh pin (${pinFile}) is missing: the campaign commit is not recorded`);
+  if (pin === undefined) warnings.push(`the adolion-fresh pin (${pinFile}) is unreadable: the campaign commit is not recorded`);
+  const inventoryPath = resolve(laneWork, 'inventory-latest.json');
+  let installed: CampaignState['installed'] = null;
+  if (existsSync(inventoryPath)) {
+    const inventory = parse(inventoryPath);
+    if (inventory && typeof inventory === 'object') {
+      installed = { commit: typeof inventory.commit === 'string' ? inventory.commit : null, sha256: createHash('sha256').update(JSON.stringify(inventory)).digest('hex').slice(0, 16) };
+    } else {
+      installed = { error: 'unreadable' };
+      warnings.push(`the lane's adolion-fresh inventory (${inventoryPath}) is unreadable: the installed campaign is unknown`);
+    }
+  }
+  return { campaign: { pinCommit: typeof pin?.commit === 'string' ? pin.commit : null, pinBranch: typeof pin?.branch === 'string' ? pin.branch : null, installed }, warnings };
 }
 
 export async function capturePage(page) {
@@ -319,7 +355,9 @@ export async function captureHeader(page, label: string) {
   if (!sampler.preset) page_.warnings = [...page_.warnings, `the active sampler preset was not read (main API ${sampler.api ?? 'unknown'}): a preset left behind by a run cannot be diffed`];
   const thirdParty = thirdPartyState(await captureThirdParty(page).catch(() => undefined));
   if (thirdParty.installed === null) page_.warnings = [...page_.warnings, 'the installed extension list was not read (/api/extensions/discover): an extension installed or removed by a run cannot be diffed'];
-  return { label, capturedAt: new Date().toISOString(), build, ...page_, profiles: { ...page_.profiles, urls: profileInventory(rawProfiles) }, sampler, thirdParty };
+  const { campaign, warnings: campaignWarnings } = readCampaign();
+  page_.warnings = [...page_.warnings, ...campaignWarnings];
+  return { label, capturedAt: new Date().toISOString(), build, campaign, ...page_, profiles: { ...page_.profiles, urls: profileInventory(rawProfiles) }, sampler, thirdParty };
 }
 
 // Flatten to dot-paths so a diff names the exact field. Arrays stay whole at their leaf, because

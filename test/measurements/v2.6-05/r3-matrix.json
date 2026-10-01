@@ -12,7 +12,7 @@
   ],
   "roles": {
     "read": {
-      "command": "node scripts/debug/so-live-suite.mts run --effort <level> --expect-count 29",
+      "command": "node scripts/debug/so-live-suite.mts run --effort <level> --expect-count 43",
       "floor": "plotDeltaAccuracy >= 0.9 and the default per-tier floors (facts=0.85,rejected=0.9,epistemic=0.8,ledger=0.8,arcs=0.8)",
       "latency": "p95 <= the read interval at cadence 3 on the reference hardware (measure the interval on the arm's own default run first and write it here)"
     },

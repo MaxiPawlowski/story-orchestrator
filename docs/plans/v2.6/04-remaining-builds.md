@@ -1,13 +1,15 @@
 # Plan 04 — Remaining builds
 
-**Status: DRAFT 2026-09-30, awaiting user approval.** Each item keeps its source plan's conditions, and nothing is
-built before its measurement where the source plan requires one.
+**Status: IN BUILD 2026-09-30.** Built and on master: H (H1–H4 + the opencode agent bridge), S, B17, G, A1, C1r,
+C3/C4/C12/C13. Waiting on a measurement or a spike verdict: L7, J3, A4/A5, SP7.b and the other `.b` builds; T4 is
+blocked on the shared `node_modules`. Each item keeps its source plan's conditions, and nothing is built before its
+measurement where the source plan requires one.
 
 ## Items
 
 | # | Item | Source | State | Blocked on | Effort |
 |---|---|---|---|---|---|
-| H | **Harness routing: build H1–H4 + Phase A** | v2.5 plan 13 | Phase 0 only (opencode PASS P0-2/P0-3/H-N1; P0-7 FAIL on hosts; P0-4/P0-5 unresolved; Claude/Codex NOT RUN) | user: `claude`/`codex` login refresh; B1–B5 (Q8/Q9/Q1–Q3) | L |
+| H | **Harness routing: build H1–H4 + Phase A** | v2.5 plan 13 | **built 2026-09-30** (H1–H4 + the agent tool bridge, §Gate record H and §Gate record agent bridge); **opencode only, no CLI logins** (W 2026-09-30): the Claude Code and Codex arms are dropped, not pending | Phase A (real models) runs in plan 15 Part B | L |
 | L7 | Lore contradiction: runtime + R4–R6 | v2.5 plan 08 | Phase A only | v2.6 02 D7 data | L |
 | J3 | House rules: judge-on arm ×2; J6a player intent (B8 order) | v2.5 plan 06 | on arm failed 4/4 (timeouts); J6a not started | `f972e24d` proven (v2.6 01); B7, B8, B9 | M |
 | C1r | NPC reply residual: a non-streaming reply or late headers land in the switched-to chat | v2.5 plan 02 | **built 2026-09-30**: fixture showed both landing (2/4 red), `watchHostChatMove` stop added (§C1r) | live re-run owed to plan 10 | M |
@@ -27,13 +29,14 @@ built before its measurement where the source plan requires one.
 
 1. S, B17 and G: small, and needed before v2.6 09 exercises them.
 2. J3 and C1r, once v2.6 01 has proven their prerequisite fixes.
-3. H in parallel as soon as the logins are refreshed. Phase A is long lane time, so batch it with v2.6 01's batch B.
+3. H in parallel (built; opencode only, no logins, W 2026-09-30). Phase A is long lane time and runs in plan 15 Part B.
 4. L7 after v2.6 02's data; A1 after 08's composer.
 5. The `.b` builds as v2.6 03 emits them.
 
 ## Gate
 
-Each item gets its source plan's code gate, plus ×1 live here. Its ×2 is in plan 10.
+Each item gets its source plan's code gate. **No per-plan ×1 live run** (overview rule 13): the live rows run in the
+plan 14 tiers (plan 15 Part B), and ×2 at the T7 freeze.
 
 ## Resolved 2026-09-30 (review)
 
@@ -265,7 +268,7 @@ ST, no real-LLM run (rule 13); nothing under `C:\dev\so-lanes` touched, ComfyUI 
 | G | built | `groupStoryBinding.test.ts` ×2 new, Storybook `Settings/GroupStoryBindingView` ×4, `errorCopy.json` row for the panel's reason line |
 | A1 | done (plan 08) | `inlineTimeline.test.ts` inspector case extended (gate, talk, delta, audit); mutant "inspector drops L4 items" fails it |
 | C1r | fixture red 2/4 on the unchanged applier, then built | `npcLateLanding.review.test.ts` 4/4, `streamGuard.test.ts` watcher ×2; fault matrix `effects\|aborted` partial + 2 citations; census `EffectsApplier.speak` note |
-| C3/C4/C12/C13 | design written, not built | §Design calls |
+| C3/C4/C12/C13 | design written here; built later the same day after the user's approval | §Design calls, §Gate record C3/C4/C12/C13 |
 
 Commands (worktree, after the second master merge):
 
@@ -339,7 +342,7 @@ Read-only checks: `loginFreshness` and `--version`. No login, no config change, 
 
 | CLI | Version | State |
 |---|---|---|
-| Claude Code | 2.1.282 | stale: access token expired. **Login refresh needed (user).** |
+| Claude Code | 2.1.282 | stale: access token expired. Not refreshed: opencode only, no logins (W 2026-09-30) |
 | Codex | 0.157.1 | fresh (`codex login status`: logged in using ChatGPT) |
 | opencode | 1.18.33 | fresh |
 
@@ -388,7 +391,7 @@ Live gate: none. Harness routes are an opt-in, real-LLM path, and v2.6 rule 13 b
 
 ### Open items
 
-- User: refresh the Claude login (run `claude` once) before any `claude:*` arm.
+- ~~User: refresh the Claude login~~ Dropped: opencode only, no CLI logins (W 2026-09-30). No `claude:*` or `codex:*` arm runs.
 - Phase A (lane time, real models, final suite): the recipe above. The P0-7 5/5 re-run on the warmed opencode cache is still owed (B2). Codex owned-home isolation is not run (PHASE0).
 - A call that lands after a chat switch is recorded in the ring of the chat now open. This is telemetry only; the answer stays owned by its caller's `RunOwnership`.
 - Agent bridge option 2: built 2026-09-30, see "Gate record — agent bridge" below.

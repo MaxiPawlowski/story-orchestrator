@@ -1,5 +1,30 @@
-import { judgeReadiness, judgeReadinessConcerns, JUDGE_READINESS } from "./readiness";
+import { createHash } from "node:crypto";
+import { readFileSync } from "node:fs";
+import { join } from "node:path";
+import { fixtureStale, judgeReadiness, judgeReadinessConcerns, JUDGE_FIXTURE_REVISION, JUDGE_READINESS, JUDGE_READINESS_BY_PROVIDER, type JudgeReadinessKey } from "./readiness";
 import { AUTHOR_JUDGE_USES, BUILT_JUDGE_USES, defaultJudgeSettings, JUDGE_USE_COPY, JUDGE_USE_DEPENDENCIES, JUDGE_USE_KEYS, type JudgeSettings } from "./settings";
+
+const REMEASURED = { fixtureRevisions: Object.fromEntries(Object.entries(JUDGE_READINESS_BY_PROVIDER.typesafe).flatMap(([key, fact]) => (fact?.fixtureRevision ? [[key, fact.fixtureRevision]] : []))) };
+const remeasured: typeof judgeReadiness = (settings, dependencies = {}, answered = null, extra = {}) => judgeReadiness(settings, dependencies, answered, { ...extra, ...REMEASURED });
+
+const FIXTURE_OF: Partial<Record<JudgeReadinessKey, string>> = {
+  stallCheck: "stall",
+  memoryVerify: "memory-verify",
+  warden: "continuity",
+  expansionCritic: "critic",
+  expansionLookahead: "variants",
+  lookahead: "variants",
+  curatorFilter: "curator-filter",
+  typedExtraction: "typed",
+  memoryPairs: "memory-pairs",
+  sceneTrigger: "scene",
+  sceneTracker: "scene",
+  director: "director",
+  agencyCheck: "agency",
+  houseRules: "house-rules",
+  loreSelect: "lore",
+};
+const revisionOf = (fixture: string) => createHash("sha256").update(JSON.stringify(JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/judge", `${fixture}.json`), "utf8")))).digest("hex").slice(0, 12);
 
 const settings = (uses: Partial<Record<string, boolean>> = {}, patch: Partial<JudgeSettings> = {}): JudgeSettings => ({
   ...defaultJudgeSettings(),
@@ -38,7 +63,7 @@ describe("judge readiness (v2.3 plan 09)", () => {
   // v2.4 plan 07 (X22): sceneOoc and memoryRerank are removed, so every declared use is built,
   // listed in the panel, and carries its evidence.
   it("lists every use in the panel order and none is missing its evidence", () => {
-    const rows = judgeReadiness(settings({ stallCheck: true }));
+    const rows = remeasured(settings({ stallCheck: true }));
     expect(rows.find((row) => row.key === "stallCheck")).toMatchObject({ enabled: true, verdict: "measured", calibration: 1, live: "J11.23" });
     expect([...BUILT_JUDGE_USES].sort()).toEqual([...JUDGE_USE_KEYS].sort());
     expect(JUDGE_USE_KEYS.filter((key) => JUDGE_READINESS[key].calibration === null || JUDGE_READINESS[key].measuredOn === null)).toEqual(["loreExclusive", "expressions"]);
@@ -51,8 +76,8 @@ describe("judge readiness (v2.3 plan 09)", () => {
     expect(JUDGE_READINESS.agencyCheck).toMatchObject({ calibration: 1, latencyP50Ms: 1441, measuredOn: "jev-1.13.0" });
     expect(JUDGE_READINESS.houseRules).toMatchObject({ calibration: 0.9896, latencyP50Ms: 499, measuredOn: "jev-1.13.0" });
     expect((["agencyCheck", "houseRules"] as const).every((key) => AUTHOR_JUDGE_USES.includes(key) && defaultJudgeSettings().uses[key] === true)).toBe(true);
-    expect(judgeReadiness(settings({ agencyCheck: true, houseRules: true })).filter((row) => ["agencyCheck", "houseRules"].includes(row.key)).map((row) => row.verdict)).toEqual(["measured", "measured"]);
-    expect(judgeReadiness(settings({ agencyCheck: true }, { model: "jev-2.0.0" })).find((row) => row.key === "agencyCheck")?.verdict).toBe("unproven");
+    expect(remeasured(settings({ agencyCheck: true, houseRules: true })).filter((row) => ["agencyCheck", "houseRules"].includes(row.key)).map((row) => row.verdict)).toEqual(["measured", "measured"]);
+    expect(remeasured(settings({ agencyCheck: true }, { model: "jev-2.0.0" })).find((row) => row.key === "agencyCheck")?.verdict).toBe("unproven");
   });
 
   it("L5: exclusive lore selection is author-only, off, blocked without lore selection and unproven with it until X1/X2 run", () => {
@@ -66,9 +91,31 @@ describe("judge readiness (v2.3 plan 09)", () => {
     expect(rows.find((row) => row.key === "expansionLookahead")).toMatchObject({ enabled: true, verdict: "blocked", blockedBy: "lookahead" });
     expect(judgeReadinessConcerns(rows).map((row) => row.key)).toContain("expansionLookahead");
 
-    const both = judgeReadiness(settings({ expansionLookahead: true, lookahead: true }), JUDGE_USE_DEPENDENCIES);
+    const both = remeasured(settings({ expansionLookahead: true, lookahead: true }), JUDGE_USE_DEPENDENCIES);
     expect(both.find((row) => row.key === "expansionLookahead")?.verdict).toBe("measured");
     expect(judgeReadinessConcerns(both).map((row) => row.key)).toEqual(["loreExclusive", "expressions"]);
+  });
+
+  it("AS-16: every measured use names the fixture revision it was measured on, and the current revision is the fixture file's", () => {
+    const measured = JUDGE_USE_KEYS.filter((key) => JUDGE_READINESS[key].calibration !== null);
+    expect(Object.keys(JUDGE_FIXTURE_REVISION).sort()).toEqual([...measured, "warden"].sort());
+    expect(Object.keys(FIXTURE_OF).sort()).toEqual(Object.keys(JUDGE_FIXTURE_REVISION).sort());
+    for (const [key, fixture] of Object.entries(FIXTURE_OF)) expect([key, JUDGE_FIXTURE_REVISION[key as JudgeReadinessKey]]).toEqual([key, revisionOf(fixture as string)]);
+    for (const key of Object.keys(JUDGE_FIXTURE_REVISION) as JudgeReadinessKey[]) expect(typeof JUDGE_READINESS_BY_PROVIDER.typesafe[key]?.fixtureRevision).toBe("string");
+  });
+
+  it("AS-16: a rate measured on an older fixture revision reads needs re-measure (unproven), never measured", () => {
+    const fact = { ...JUDGE_READINESS.stallCheck, fixtureRevision: "000000000000" };
+    expect(fixtureStale("stallCheck", fact)).toEqual({ measured: "000000000000", current: JUDGE_FIXTURE_REVISION.stallCheck });
+    expect(fixtureStale("stallCheck", { ...fact, fixtureRevision: undefined })).toEqual({ measured: null, current: JUDGE_FIXTURE_REVISION.stallCheck });
+    expect(fixtureStale("stallCheck", { ...fact, fixtureRevision: JUDGE_FIXTURE_REVISION.stallCheck })).toBeUndefined();
+    expect(fixtureStale("loreExclusive", JUDGE_READINESS.loreExclusive)).toBeUndefined();
+    const rows = judgeReadiness(settings({ stallCheck: true }));
+    expect(rows.find((row) => row.key === "stallCheck")).toMatchObject({ verdict: "unproven", calibration: 1, fixtureStale: { current: JUDGE_FIXTURE_REVISION.stallCheck } });
+    expect(rows.filter((row) => row.verdict === "measured")).toEqual([]);
+    expect(judgeReadinessConcerns(rows).map((row) => row.key)).toEqual(expect.arrayContaining(["stallCheck", "memoryVerify", "sceneTracker", "director"]));
+    expect(remeasured(settings({ stallCheck: true })).find((row) => row.key === "stallCheck")).toMatchObject({ verdict: "measured" });
+    expect(remeasured(settings({ stallCheck: true })).find((row) => row.key === "stallCheck")?.fixtureStale).toBeUndefined();
   });
 
   it("does not claim a use is working when the judge itself is off", () => {
