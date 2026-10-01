@@ -86,3 +86,4 @@ check changes.
   check is the lab's.
 - Harness: the lab's chat B lives in another group, which the sandbox guard refused ("sandbox escaped" at step 22 of the first v5 attempt, 14:03Z). `so-scenario` gains `adoptsNewChat: "other-group"` (adopt only a chat created during the step in another group; cleanup deletes it, a leak fails the run; `scripts/debug/foreignChat.test.mts`). The v5 fixture marks its chat-B step with it. Re-run, same checks.
 - Harness ordering: `solo_chat` opens only from the sandbox group, so the v5 fixture returns to chat A (and settles) before opening chat C (14:10Z, after the second v5 attempt stopped there; C4 A and B had passed).
+- Chat C's no-story check read the snapshot 10 ms after the solo chat opened (still the previous chat's story); it now waits up to 30 s for the runtime to follow the chat change (14:17Z).
