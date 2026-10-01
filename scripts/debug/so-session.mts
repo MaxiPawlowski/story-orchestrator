@@ -10,7 +10,7 @@ import {
 } from './lib/sessionCharters.mts';
 import { digestSession, parseJsonl, parseLines, registerRows, renderFindings, REQUIRED_CAPTURES, type ChatMessage } from './lib/sessionDigest.mts';
 import {
-  archiveLane, DEFAULT_LANES, dependencyRefusal, JUDGE_LANE_RATE_ENV, judgeRatePlan, lanePinVerdict, laneFor, leaseFor, leaseRefusal, loadedJudgeRate, outstandingDependents, planDrift, planLanes, readLease, readSeedRecords, reseedRefusal, restoreLane, rootOf, runningLanes, seedRecordOf, sessionsUnder, writeLease,
+  archiveLane, DEFAULT_LANES, dependencyRefusal, JUDGE_LANE_RATE_ENV, judgeRateAction, judgeRatePlan, lanePinVerdict, laneFor, leaseFor, leaseRefusal, loadedJudgeRate, outstandingDependents, planDrift, planLanes, readLease, readSeedRecords, reseedRefusal, restoreLane, rootOf, runningLanes, seedRecordOf, sessionsUnder, writeLease,
   type LanePlan, type SessionOnLane,
 } from './lib/sessionLanes.mts';
 import { applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, hostSwipesProblems, loadBaseline, mediaPlan, overrideChain } from './lib/sessionBaseline.mts';
@@ -36,7 +36,8 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
         [--no-preset-overlay]
       the lane's judge plugin limit (SO_JUDGE_RATE_PER_MIN) is the account rate (SO_JUDGE_ACCOUNT_RATE_PER_MIN,
       default 90/min) x2 split over the running lanes plus this one, 10..60/min (lanes burst at different
-      times: T1-4..7 combined used at most 56/min of 90); --judge-rate overrides it
+      times: T1-4..7 combined used at most 56/min of 90); --judge-rate overrides it. A lane already up at another
+      limit is restarted when no session runs on it; while one does, start refuses
       preflight the card (structure, the story data it exercises, the session it continues, the
       lane lease), seed the lane with adolion-fresh, write test/sessions/baseline-settings.json
       plus the card's overrides over the lane's settings (install-owned paths kept), reload and
@@ -303,8 +304,18 @@ async function start(id: string, options: StartOptions) {
     if (status && status.headed !== true) await inLane(plan.lane, ['scripts/debug/st-session.mts', 'stop']);
     await must('st-lanes start', ['scripts/debug/st-lanes.mts', 'start', String(plan.lane), '--headed'], rateEnv);
   }
-  const loadedRate = loadedJudgeRate(existsSync(lane.log) ? await readFile(lane.log, 'utf-8') : '');
-  if (loadedRate !== judgeRate.perMinute) warnings.push(`the lane's judge plugin runs at ${loadedRate ?? 'an unlogged'}/min, not the planned ${judgeRate.perMinute}/min: the server was already up (st-lanes stop ${plan.lane}, then start again to apply it)`);
+  const readRate = async () => loadedJudgeRate(existsSync(lane.log) ? await readFile(lane.log, 'utf-8') : '');
+  let loadedRate = await readRate();
+  const rateAction = judgeRateAction(plan.lane, loadedRate, judgeRate.perMinute, sessions);
+  if (rateAction.action === 'refuse') return fail('judge-rate', [rateAction.reason]);
+  if (rateAction.action === 'restart') {
+    console.log(`      ${rateAction.reason}`);
+    await must('st-lanes stop', ['scripts/debug/st-lanes.mts', 'stop', String(plan.lane)], rateEnv);
+    await must('st-lanes start', ['scripts/debug/st-lanes.mts', 'start', String(plan.lane), '--headed'], rateEnv);
+    loadedRate = await readRate();
+    if (loadedRate !== judgeRate.perMinute) return fail('judge-rate', [`lane ${plan.lane} restarted and its judge plugin still runs at ${loadedRate ?? 'an unlogged'}/min, not ${judgeRate.perMinute}/min`]);
+    warnings.push(`lane ${plan.lane} was restarted to bring its judge plugin to ${judgeRate.perMinute}/min`);
+  }
   const inventoryPath = resolve(lane.root, 'adolion-fresh', 'inventory-latest.json');
   const inventory = existsSync(inventoryPath) ? await readJson(inventoryPath) : null;
   const laneCommit = inventory?.commit ?? null;
@@ -587,6 +598,11 @@ export function sessionChat(session: any, wanted: string | null): LiveChat | nul
   return primary ? { chatId: primary.chatId, group: primary.group ?? null, groupId: primary.groupId ?? null } : null;
 }
 
+export function liveTarget(session: any, verb: LiveVerb, wanted: string | null): LiveChat | null {
+  if (verb === 'adopt' || (verb === 'flag' && !wanted)) return null;
+  return sessionChat(session, wanted);
+}
+
 async function liveInLane(lane: number, viewportEnv: Record<string, string>, request: LiveRequest): Promise<any> {
   const io = resolve(request.dir, '.live-request.json');
   const out = resolve(request.dir, '.live-result.json');
@@ -642,7 +658,7 @@ async function live(cli: LiveCli) {
   const { dir, session } = await openSessionDir(cli.dir, null);
   if (session.stoppedAt) throw new Error(`${session.dir} is stopped; start a new session to play more`);
   const viewportEnv: Record<string, string> = session.viewport ? { ST_DEBUG_VIEWPORT: session.viewport } : {};
-  const chat = cli.verb === 'adopt' ? null : sessionChat(session, cli.chat);
+  const chat = liveTarget(session, cli.verb, cli.chat);
   const switchTarget = cli.verb === 'switch-chat-mid-gen' ? (session.chats ?? []).find((known: any) => known.chatId === cli.args.to) : null;
   const args = cli.verb === 'shot' ? { ...cli.args, seq: await nextSeq(dir) } : switchTarget ? { ...cli.args, toGroup: switchTarget.group ?? null, toGroupId: switchTarget.groupId ?? null } : cli.args;
   const gates = findCard(await loadCards(), session.charter).rubric.map((row) => row.gate).filter(Boolean);

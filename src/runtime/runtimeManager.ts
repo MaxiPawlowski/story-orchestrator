@@ -225,7 +225,11 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   loadSelectedFromChat(): Promise<void> { return chatSettle.track(this.loadSelected()); }
   private async loadSelected() {
-    if (await loadSelectedStory(this.selectionDeps)) { void this.showAwayRecap().then((shown) => !shown && this.memory.chapters.showPreviously()); return; }
+    if (await loadSelectedStory(this.selectionDeps)) {
+      void this.awayRecap.showAfter(() => this.memory.canon.regenerateCanon(), () => this.getSnapshot().narrative)
+        .then((shown) => !shown && this.memory.chapters.showPreviously());
+      return;
+    }
     if (getSelectedStoryId()) return;
     const run = beginRun(this.owner.ownership);
     const id = boundStoryForOpenChat();
@@ -513,8 +517,8 @@ export class RuntimeManager extends CoordinatorDelegates {
     const priorSessionAt = persisted?.extras?.lastSessionAt ?? null;
     this.invalidateRuns();
     this.extras = hydrateExtras(persisted?.extras, getGlobalSettings); this.chatSave.fingerprints.load(persisted?.fingerprints);
-    this.journal.hydrate(this.extras.journal);
-    this.reconcileEffectLedger();
+    this.status = `Opening ${loaded.story.title}`;
+    this.journal.hydrate(this.extras.journal, this.status);
     this.loaded = { record: loaded.record, story: this.expansion.mergedStoryOrBase(loaded.record.raw, loaded.story) };
     this.loadedChatId = this.owner.claimedChat();
     // Minted *after* the load names its world: a token taken before it describes the world being replaced.
@@ -524,6 +528,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     // The history travels WITH the state: `hydrate` clears the log before restoring what it is handed.
     const saved = mode === "hydrate" ? persisted?.engineState ?? null : null;
     if (saved) this.engine.hydrate(saved, persisted?.engineHistory ?? null); else this.memory.markStoryStart();
+    this.reconcileEffectLedger();
     await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), saved ? "hydrate" : "activate",
       stagedPath(this.engine.checkpointPath, this.engine.serialize().stagedFrom));
     // A superseded load stops here: its tail used to retitle the newer load, release ITS gated lore and

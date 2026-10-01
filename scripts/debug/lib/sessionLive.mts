@@ -507,7 +507,8 @@ async function switchMidGen(page: any, args: MutationArgs, deps: LiveDeps, optio
   await deps.startSend(page, args.line);
   const observedGenerating = await deps.waitGenerating(page, 60000);
   const otherGroup = Boolean(args.toGroup && args.toGroup !== args.group) || Boolean(args.toGroupId && args.toGroupId !== args.groupId);
-  if (otherGroup) await deps.waitIdle(page, options.timeoutMs ?? 600000);
+  await deps.waitIdle(page, options.timeoutMs ?? 600000);
+  const switchedAtMs = deps.now();
   await deps.openChat(page, { chatId: args.to, group: args.toGroup ?? args.group ?? null, groupId: args.toGroupId ?? (args.toGroup ? null : args.groupId ?? null) });
   await deps.waitIdle(page, options.timeoutMs ?? 600000);
   const target = await chatProbe(page);
@@ -519,8 +520,7 @@ async function switchMidGen(page: any, args: MutationArgs, deps: LiveDeps, optio
     ...(back.chatId !== origin.chatId ? [`could not return to ${origin.chatId} (open: ${back.chatId})`] : []),
     ...(target.last?.isUser && target.last.text.trim() === args.line.trim() ? ['the player line reached the chat switched to'] : []),
   ];
-  const switchedAt = otherGroup ? 'after-reply' : 'mid-generation';
-  return { did: { line: args.line, from: origin.chatId, to: args.to, observedGenerating, switchedAt, target, back }, problems };
+  return { did: { line: args.line, from: origin.chatId, to: args.to, observedGenerating, switchedAt: 'after-reply', switchedAtMs, otherGroup, target, back }, problems };
 }
 
 async function reloadMidGen(page: any, args: MutationArgs, deps: LiveDeps, options: LiveOptions) {

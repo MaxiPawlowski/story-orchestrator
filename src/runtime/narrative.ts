@@ -1,5 +1,6 @@
 import type { Checkpoint, NormalizedStoryV2, ObjectiveKind, TensionLevel } from "@engine/index";
 import type { PipelineStatus } from "./pipeline";
+import type { LatestScene } from "./recapCurrent";
 
 // The one "where am I" composition (finding). The player Overview renders it, the away-recap
 // popup renders the same thing modally, and /story recap prints its text — three surfaces, one
@@ -79,6 +80,7 @@ export interface NarrativeInput {
   checkpointName: string | null;
   objective: string | null;
   lastTransition: NarrativeTransition | null;
+  latestScene?: LatestScene | null;
   openThreads: string[];
   canon: string;
   tensionLevel: TensionLevel | null;
@@ -145,18 +147,18 @@ export function buildNarrativeStatus(input: NarrativeInput): NarrativeStatus {
   // can no longer stand behind it. Player-facing, so it says what is true without naming the
   // machinery — no "tracker", no "judge", no failure count.
   else if (input.sceneUnconfirmed) now.push("Somewhere the story has not settled yet.");
-  if (input.objective) {
-    now.push(input.objective);
-    if (input.objectiveKind === "player_action") now.push("What happens next is yours to decide.");
-  }
+  if (input.objective && !input.latestScene?.sinceEntry) now.push(input.objective);
+  if (input.objective && input.objectiveKind === "player_action") now.push("What happens next is yours to decide.");
   if (input.tensionLevel) now.push(TENSION_COPY[input.tensionLevel]);
   if (now.length) sections.push({ id: "now", label: "Where you are", lines: now });
   if (input.publicIntro?.trim()) sections.push({ id: "about", label: "About this story", lines: [input.publicIntro.trim()] });
 
   const moved = input.lastTransition;
-  if (moved) {
-    sections.push({ id: "recently", label: "Recently", lines: [moved.fromName ? `You left ${moved.fromName} behind and moved into ${moved.toName}.` : `You moved into ${moved.toName}.`] });
-  }
+  const recently = [
+    ...(moved ? [moved.fromName ? `You left ${moved.fromName} behind and moved into ${moved.toName}.` : `You moved into ${moved.toName}.`] : []),
+    ...(input.latestScene ? [input.latestScene.text] : []),
+  ];
+  if (recently.length) sections.push({ id: "recently", label: "Recently", lines: recently });
 
   if (input.openThreads.length) {
     sections.push({ id: "threads", label: "Open threads", lines: input.openThreads });

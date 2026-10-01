@@ -27,6 +27,7 @@ export interface PlannedExpansionInput {
   canon: string;
   facts: string[];
   latched?: Record<string, PrimitiveValue>;
+  entry?: Record<string, PrimitiveValue>;
 }
 
 export interface GeneratedBeat extends ScaffoldingBeat {

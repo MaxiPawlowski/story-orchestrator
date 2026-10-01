@@ -1,6 +1,7 @@
 import { awayRecapTitle, renderNarrativeNode, type NarrativeStatus } from "./narrative";
 
 export const AWAY_RECAP_MIN_MS = 8 * 60 * 60 * 1000;
+export const RECAP_PREPARE_MS = 20_000;
 
 export interface AwayRecap {
   title: string;
@@ -39,6 +40,7 @@ export interface RecapPopupHandle {
 interface ScopedRecap {
   recap: AwayRecap;
   chatId: string;
+  gapMs: number;
 }
 
 // Detected when a story is loaded, shown once when the chat is actually on screen — the runtime
@@ -54,7 +56,8 @@ export class AwayRecapController {
 
   detect(priorSessionAt: string | null, narrative: NarrativeStatus, chatId: string, now = Date.now()) {
     const show = shouldShowAwayRecap(priorSessionAt, now);
-    this.pending = show ? { recap: buildAwayRecap(narrative, now - Date.parse(priorSessionAt as string)), chatId } : null;
+    const gapMs = now - Date.parse(priorSessionAt as string);
+    this.pending = show ? { recap: buildAwayRecap(narrative, gapMs), chatId, gapMs } : null;
     // The journal records the decision, not just the outcome: "no recap" and "a recap nobody saw"
     // are different answers, and only the machine can tell them apart.
     this.note(
@@ -64,6 +67,18 @@ export class AwayRecapController {
   }
 
   get(): AwayRecap | null { return this.pending?.recap ?? null; }
+
+  async showAfter(prepare: () => Promise<unknown>, narrative: () => NarrativeStatus, capMs = RECAP_PREPARE_MS): Promise<boolean> {
+    const pending = this.pending;
+    if (!pending) return false;
+    let timer: ReturnType<typeof setTimeout> | undefined;
+    const cap = new Promise<void>((resolve) => { timer = setTimeout(resolve, capMs); });
+    await Promise.race([Promise.allSettled([prepare()]), cap]);
+    clearTimeout(timer);
+    if (this.pending !== pending) return false;
+    this.pending = { ...pending, recap: buildAwayRecap(narrative(), pending.gapMs) };
+    return this.show();
+  }
 
   show(): boolean {
     const pending = this.pending;

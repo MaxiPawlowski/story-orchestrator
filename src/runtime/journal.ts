@@ -209,9 +209,9 @@ export class SessionJournal {
   private captures: PayloadCapture[] = [];
   private lastStatus: string | null = null;
 
-  hydrate(records: unknown) {
+  hydrate(records: unknown, status: string | null = null) {
     this.records = sanitizeJournalRecords(records);
-    this.lastStatus = null;
+    this.lastStatus = status;
     this.captures = [];
   }
 

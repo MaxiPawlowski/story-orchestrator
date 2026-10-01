@@ -284,6 +284,20 @@ export function judgeRatePlan(lane: number, running: number[], { requested = nul
   return { perMinute: asked ?? laneJudgeRate(lanes.length, account), lanes: lanes.length, running: lanes, account, source: asked ? 'arg' : 'derived' };
 }
 
+export type JudgeRateAction = { action: 'ok' } | { action: 'restart'; reason: string } | { action: 'refuse'; reason: string };
+
+export function judgeRateAction(lane: number, loaded: number | null, planned: number, sessions: SessionOnLane[]): JudgeRateAction {
+  if (loaded === planned) return { action: 'ok' };
+  const differs = `lane ${lane}'s judge plugin runs at ${loaded ?? 'an unlogged'}/min, not the planned ${planned}/min (the server was already up)`;
+  const running = sessions.filter((session) => Number(session.lane) === lane && !session.stoppedAt);
+  if (!running.length) return { action: 'restart', reason: `${differs}: restarting the lane server, which keeps its data` };
+  return {
+    action: 'refuse',
+    reason: `${differs}, and ${running.map((session) => session.charter).join(', ')} still ${running.length === 1 ? 'runs' : 'run'} on it, so it is not restarted: `
+      + `stop ${running.length === 1 ? 'that session' : 'those sessions'} (so-session stop <dir>) and start again, or pass --judge-rate ${loaded ?? '<n>'} to play at the rate it runs`,
+  };
+}
+
 export function loadedJudgeRate(log: string): number | null {
   const found = [...log.matchAll(/\[story-orchestrator-judge\] loaded;[^\n]*per user (\d+)\/min/g)];
   return found.length ? Number(found[found.length - 1][1]) : null;
