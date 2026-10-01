@@ -1,6 +1,6 @@
 import { useState } from "react";
 import ReactDOM from "react-dom/client";
-import { imageReview } from "@services/STAPI";
+import { imageReview } from "@services/stHost/image";
 import type { ImageCandidate, ImagePlan, ImageReviewer } from "./runtime";
 import "./styles.css";
 

@@ -98,6 +98,18 @@ describe("bundle headroom: author-only code stays out of the main entry", () => 
     expect(panel).not.toMatch(/^import JudgeSettingsGroup\b/m);
   });
 
+  it("the host barrel does not re-export the image and sprite wrappers, which only their lazy chunks import", () => {
+    const barrel = read("src/services/STAPI.ts");
+    expect(barrel).not.toMatch(/stHost\/(image|imageSurface|sprites|gpuBroker)"/);
+  });
+
+  it("the expansion coordinator loads generation, its critic and its prompts only when it generates", () => {
+    const coordinator = read("src/runtime/coordinators/expansionCoordinator.ts");
+    expect(coordinator).toMatch(/import\("\.\.\/expansionUnit"\)/);
+    expect(coordinator).not.toMatch(/^import [^;]*"@generation\/(index|generate|prompts|critic|parse)"/m);
+    expect(read("src/runtime/extras.ts")).not.toMatch(/"@generation\/index"/);
+  });
+
   it("postcss keeps the mount-root :is() list instead of expanding every utility five times", () => {
     expect(read("postcss.config.js")).toMatch(/"is-pseudo-class": false/);
   });

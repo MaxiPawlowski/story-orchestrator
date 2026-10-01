@@ -42,6 +42,7 @@ const walk = (dir: string): string[] => readdirSync(dir, { withFileTypes: true }
 });
 
 const CALL_SITE_ROLES: Record<string, string[]> = {
+  "copilot/agent/route.ts": [],
   "copilot/authoring.ts": [],
   "extraction/modelRoute.ts": [],
   "extraction/scheduler.ts": ["read"],
@@ -69,7 +70,7 @@ const CALL_SITE_ROLES: Record<string, string[]> = {
 describe("every model call names its role (census)", () => {
   const callers = walk(SRC)
     .filter((path) => !path.endsWith(join("extraction", "client.ts")))
-    .filter((path) => /\b(askText|modelOf\(options\)|callExtractionReply|runSharedRead|runAuthoringStage|runDriverSuggest|runDriverReport|generateReviewedBeats|generateBeats|runCritic)\(/.test(readFileSync(path, "utf8")))
+    .filter((path) => /\b(askText|askReply|modelOf\(options\)|callExtractionReply|runSharedRead|runAuthoringStage|runDriverSuggest|runDriverReport|generateReviewedBeats|generateBeats|runCritic)\(/.test(readFileSync(path, "utf8")))
     .map((path) => path.slice(SRC.length + 1).replace(/\\/g, "/"))
     .sort();
 

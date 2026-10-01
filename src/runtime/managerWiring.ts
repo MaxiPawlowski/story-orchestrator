@@ -65,6 +65,7 @@ export function wireCoordinators(port: ManagerPort) {
     rereadWindow: (window, reason) => extraction.runNow(undefined, reason, window),
     unsaved: () => port.unsaved(),
     beatFor: (rosterId) => inner.beatFor(rosterId),
+    journal: (summary, note) => port.journal("story", summary, note),
     chapterHost: {
       closeScene: (to) => extraction.closeSceneAt(to), announce: (text) => port.announce(text),
       journal: (summary, note) => port.journal("chapter", summary, note), playerName: () => getPlayerName(),

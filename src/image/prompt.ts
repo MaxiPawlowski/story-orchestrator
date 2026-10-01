@@ -1,5 +1,5 @@
 import { ASPECTS, CHECKPOINTS, SHOTS, type Aspect, type Shot } from "./catalog";
-import type { ImageChat } from "@services/STAPI";
+import type { ImageChat } from "@services/stHost/image";
 import type { Route } from "./routing";
 
 export interface ImageRequest {

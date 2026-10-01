@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
-import { imageChat, listConnectionProfiles } from "@services/STAPI";
+import { listConnectionProfiles } from "@services/STAPI";
+import { imageChat } from "@services/stHost/image";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { ASPECTS, CHECKPOINTS, SHOTS, type Aspect, type Placement, type Purpose, type Quality, type Shot } from "./catalog";
 import { type ImageBinding, type ImageRoute, type ImageSettings } from "./settings";

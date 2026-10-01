@@ -1,9 +1,8 @@
+import { isHostGenerating, listConnectionProfiles, getScannableEntries } from "@services/STAPI";
 import {
-  imageChat, imageModel, imageRender, imageSave, imageDelete, imagePlace, imageChatSettings, imageWriteChatSettings, imageComfyUrl,
-  reserveGpu, releaseGpu, isHostGenerating, listConnectionProfiles,
-  getScannableEntries,
-  type ImageMedia,
-} from "@services/STAPI";
+  imageChat, imageModel, imageRender, imageSave, imageDelete, imagePlace, imageChatSettings, imageWriteChatSettings, imageComfyUrl, type ImageMedia,
+} from "@services/stHost/image";
+import { reserveGpu, releaseGpu } from "@services/stHost/gpuBroker";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { imageSize, type Aspect } from "./catalog";
 import { buildGraph } from "./graph";

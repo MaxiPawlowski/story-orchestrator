@@ -58,6 +58,7 @@ export interface MemoryCoordinatorDeps {
   rereadWindow?: (window: { from: number; to: number }, reason: string) => Promise<unknown>;
   hosts: MemoryHosts;
   beatFor?: (rosterId: string) => string;
+  journal?: (summary: string, note: string) => void;
   chapterHost?: { closeScene: (to: number) => Promise<void>; announce: (text: string) => Promise<void>; journal: (summary: string, detail?: string) => void; playerName: () => string };
 }
 
@@ -91,6 +92,7 @@ export class MemoryCoordinator {
     patch: (next) => this.patch(next), record: (input) => this.record(input), save: () => this.save(),
     model: () => this.deps.model, ownership: () => this.deps.ownership, enabled: () => this.enabled,
     firedTransitions: () => this.deps.getFiredTransitions(), facts: () => this.getFacts(),
+    journal: (summary, note) => this.deps.journal?.(summary, note),
   });
   readonly chapters: ChapterPort;
   private consolidationInFlight = false;
