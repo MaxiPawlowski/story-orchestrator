@@ -8,13 +8,14 @@ const fixture = JSON.parse(readFileSync(join(ROOT, "test/fixtures/curator-create
 const byId = (id: string) => fixture.cases.find((entry) => entry.id === id) as CreateCase;
 
 describe("F5 Phase A fixture (labels frozen before any model answer)", () => {
-  it("has 13 cases (7 propose, 6 none; the 9 Spanish ones went with v2.6 W25), the declared floors and unique ids", () => {
+  it("has >= 22 English cases, >= 10 of each label (restored after v2.6 W25), the declared floors and unique ids", () => {
     const { cases } = fixture;
     expect(fixture.frozenAt).toBe("2026-09-25");
     expect(fixture.floors).toEqual({ propose: 0.9, none: 1 });
-    expect(cases).toHaveLength(13);
-    expect(cases.filter((entry) => entry.label === "propose")).toHaveLength(7);
-    expect(cases.filter((entry) => entry.label === "none")).toHaveLength(6);
+    expect(cases.length).toBeGreaterThanOrEqual(22);
+    expect(cases.every((entry) => entry.lang === "en")).toBe(true);
+    expect(cases.filter((entry) => entry.label === "propose").length).toBeGreaterThanOrEqual(10);
+    expect(cases.filter((entry) => entry.label === "none").length).toBeGreaterThanOrEqual(10);
     expect(new Set(cases.map((entry) => entry.id)).size).toBe(cases.length);
   });
 

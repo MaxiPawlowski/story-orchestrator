@@ -1,10 +1,13 @@
 import { askJudge } from "./client";
 import { canonicalModel, JUDGE_MODEL_IDS, modelVerdict } from "./policy";
 import { choice } from "./questions";
-import { judgeReadiness, judgeReadinessConcerns, JUDGE_READINESS, RING_USE_TO_READINESS } from "./readiness";
+import { judgeReadiness, judgeReadinessConcerns, JUDGE_READINESS, JUDGE_READINESS_BY_PROVIDER, RING_USE_TO_READINESS } from "./readiness";
 import { runContinuityRescore } from "./curatorCalibration";
 import { appendJudgeCall, createJudgeRuntime, defaultJudgeSettings, dropJudgeCallsAfter, judgeMeterView, JUDGE_USE_KEYS, sanitizeJudgeRuntime, sanitizeJudgeSettings, type JudgeRuntimeState, type JudgeSettings } from "./settings";
 import type { JudgeCallRecord, JudgeResponse } from "./types";
+
+const REMEASURED = { fixtureRevisions: Object.fromEntries(Object.entries(JUDGE_READINESS_BY_PROVIDER.typesafe).flatMap(([key, fact]) => (fact?.fixtureRevision ? [[key, fact.fixtureRevision]] : []))) };
+const remeasured: typeof judgeReadiness = (settings, dependencies = {}, answered = null, extra = {}) => judgeReadiness(settings, dependencies, answered, { ...extra, ...REMEASURED });
 
 const request = { state: { scene: "the hall" }, questions: { where: choice("Where is the party?", { hall: "in the hall", road: "on the road" }) } };
 const answer: JudgeResponse = { model: "jev-1.13.0", answers: { where: { type: "choice", choice: "hall", confidence: 0.9, probabilities: { hall: 0.9, road: 0.1 } } }, usage: { input_tokens: 296, output_tokens: 20 } };
@@ -123,32 +126,32 @@ describe("T24 readiness by model (v2.4 plan 07)", () => {
   });
 
   it("stays measured on the default install before any answer", () => {
-    const rows = judgeReadiness(settings({}, { stallCheck: true }));
+    const rows = remeasured(settings({}, { stallCheck: true }));
     expect(rows.find((row) => row.key === "stallCheck")).toMatchObject({ verdict: "measured" });
     expect(rows.find((row) => row.key === "stallCheck")?.modelMismatch).toBeUndefined();
   });
 
   it("reads unproven, never re-floored, when the configured model is not the one measured", () => {
-    const rows = judgeReadiness(settings({ model: "jev-1.14.0" }, { stallCheck: true }));
+    const rows = remeasured(settings({ model: "jev-1.14.0" }, { stallCheck: true }));
     expect(rows.find((row) => row.key === "stallCheck")).toMatchObject({ verdict: "unproven", calibration: 1, modelMismatch: { configured: "jev-1.14.0", answered: null, measuredOn: "jev-1.13.0" } });
     expect(judgeReadinessConcerns(rows).map((row) => row.key)).toContain("stallCheck");
   });
 
   it("reads unproven when the model that answered is not the one measured, whatever was asked", () => {
-    const rows = judgeReadiness(settings({}, { memoryVerify: true }), {}, "jev-1.14.0");
+    const rows = remeasured(settings({}, { memoryVerify: true }), {}, "jev-1.14.0");
     expect(rows.find((row) => row.key === "memoryVerify")).toMatchObject({ verdict: "unproven", modelMismatch: { configured: "jev-1.13.0", answered: "jev-1.14.0", measuredOn: "jev-1.13.0" } });
   });
 
   it("a floating alias counts as measured once it answered with the measured version, and unproven before", () => {
-    expect(judgeReadiness(settings({ model: "jev-latest" }, { memoryVerify: true }), {}, "jev-1.13.0").find((row) => row.key === "memoryVerify")?.verdict).toBe("measured");
-    expect(judgeReadiness(settings({ model: "jev-latest" }, { memoryVerify: true })).find((row) => row.key === "memoryVerify")).toMatchObject({ verdict: "unproven", modelMismatch: { configured: "jev-latest", answered: null } });
+    expect(remeasured(settings({ model: "jev-latest" }, { memoryVerify: true }), {}, "jev-1.13.0").find((row) => row.key === "memoryVerify")?.verdict).toBe("measured");
+    expect(remeasured(settings({ model: "jev-latest" }, { memoryVerify: true })).find((row) => row.key === "memoryVerify")).toMatchObject({ verdict: "unproven", modelMismatch: { configured: "jev-latest", answered: null } });
   });
 
   it("lists the warden only when its own switch is on, under the judge's master switch", () => {
-    expect(judgeReadiness(settings()).some((row) => row.key === "warden")).toBe(false);
-    expect(judgeReadiness(settings(), {}, null, { warden: true }).find((row) => row.key === "warden")).toMatchObject({ enabled: true, verdict: "measured", calibration: 0.9765 });
-    expect(judgeReadiness(settings({ enabled: false }), {}, null, { warden: true }).find((row) => row.key === "warden")?.verdict).toBe("off");
-    expect(judgeReadiness(settings({ model: "jev-1.14.0" }), {}, null, { warden: true }).find((row) => row.key === "warden")?.verdict).toBe("unproven");
+    expect(remeasured(settings()).some((row) => row.key === "warden")).toBe(false);
+    expect(remeasured(settings(), {}, null, { warden: true }).find((row) => row.key === "warden")).toMatchObject({ enabled: true, verdict: "measured", calibration: 0.9765 });
+    expect(remeasured(settings({ enabled: false }), {}, null, { warden: true }).find((row) => row.key === "warden")?.verdict).toBe("off");
+    expect(remeasured(settings({ model: "jev-1.14.0" }), {}, null, { warden: true }).find((row) => row.key === "warden")?.verdict).toBe("unproven");
   });
 });
 
