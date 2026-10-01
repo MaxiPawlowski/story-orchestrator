@@ -93,7 +93,7 @@ const CheckpointAssignment = () => {
       {draft.checkpoints.map((checkpoint) => (
         <label key={checkpoint.id} className="flex items-center gap-2 text-sm">
           <span className="flex-1 truncate">{checkpoint.name || checkpoint.id}</span>
-          <select className="text_pole st-input" aria-label={`Chapter of ${checkpoint.id}`} value={checkpoint.chapter ?? ""}
+          <select className="text_pole st-input" aria-label={`Chapter of ${checkpoint.name || checkpoint.id}`} value={checkpoint.chapter ?? ""}
             onChange={(event) => mutate((current) => setCheckpointChapter(current, checkpoint.id, event.target.value))}>
             <option value="">— none —</option>
             {chapters.map((chapter) => <option key={chapter.id} value={chapter.id}>{chapter.title || chapter.id}</option>)}

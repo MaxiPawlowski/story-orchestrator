@@ -144,7 +144,7 @@ const CheckpointBasics = ({ selected, roster, patch, onStart }: { selected: Chec
         Start checkpoint
       </label>
     </div>
-    <div className="grid grid-cols-3 gap-3">
+    <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
       <Field label="Tension target">
         <select className="text_pole st-input" value={selected.tension_target ?? ""} onChange={(event) => patch({ tension_target: (event.target.value || undefined) as TensionLevel | undefined })}>
           <option value="">— none —</option>

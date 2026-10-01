@@ -54,9 +54,12 @@ const AdvancedExtraction = ({ settings, manager }: { settings: Settings; manager
   </details>
 );
 
-const SelfTestResult = ({ report, onApply }: { report: SelfTestReport; onApply: () => void }) => (
+export const SELF_TEST_FAILED_TEXT = "The test could not finish. Check the memory model profile, then try again.";
+
+const SelfTestResult = ({ report, onApply, authorView }: { report: SelfTestReport; onApply: () => void; authorView: boolean }) => (
   <div id="so-self-test-result" className="text-xs flex flex-col gap-1">
-    {report.error && <div className="so-warning-text">{report.error}</div>}
+    {report.error && <div data-so="self-test-error" className="so-warning-text">{SELF_TEST_FAILED_TEXT}</div>}
+    {report.error && authorView && <div data-so="self-test-error-detail" className="opacity-70">{report.error}</div>}
     {report.results.map((result) => (
       <div key={result.tier} className="flex items-start gap-2">
         <span className={result.status === "pass" ? "so-success-text" : "so-error-text"}>{result.status === "pass" ? "PASS" : "FAIL"}</span>
@@ -165,7 +168,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         <button id="so-self-test" type="button" className="menu_button" disabled={!settings.profileId} onClick={() => void runSelfTest()}>{selfTestRunning ? "Cancel test" : "Test memory model"}</button>
         <span className="min-w-0 text-xs opacity-70">Runs fixed scenes through the real pipeline and reports what this model can actually do.</span>
       </div>
-      {selfTest && <SelfTestResult report={selfTest} onApply={applySelfTestSuggestion} />}
+      {selfTest && <SelfTestResult report={selfTest} onApply={applySelfTestSuggestion} authorView={snapshot.ui.authorView} />}
       <RoleProfilesGroup
         routes={snapshot.roleRoutes ?? []}
         assigned={settings.profiles ?? {}}

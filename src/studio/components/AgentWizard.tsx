@@ -1,3 +1,4 @@
+import { studioFailure } from "../errorCopy";
 import React, { useEffect, useRef, useState } from "react";
 
 import {
@@ -17,7 +18,7 @@ type Props = {
   runTurn?: AgentTurnRunner;
   host?: WizardHost;
   initial?: AgentSession | null;
-  onPersist?: (session: AgentSession) => void;
+  onPersist?: (session: AgentSession | null) => void;
 };
 
 const MODE_LABELS: Record<AgentMode, string> = {
@@ -235,7 +236,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
       });
       if (outcome.lapsed) setError(lapsedCopy(outcome.lapsed));
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "The agent call failed");
+      setError(studioFailure("The agent call failed", caught));
     } finally {
       setBusy(false);
     }
@@ -266,7 +267,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
       }
       void drive(outcome.session);
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Provisioning failed");
+      setError(studioFailure("Creating that asset failed", caught));
       setBusy(false);
     }
   };
@@ -275,21 +276,22 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
     useDraftStore.getState().endRuns();
     void runTurn?.close?.();
     setSession(null);
+    onPersist?.(null);
   };
 
   if (!runTurn) {
-    return <div className="st-subpanel rounded p-3 text-sm st-muted" aria-label="Agent unavailable">The agent needs the authoring model. Pick a Connection Manager profile in the settings panel.</div>;
+    return <div className="st-subpanel rounded p-3 text-sm st-muted" role="status" aria-label="Agent unavailable">The agent needs the authoring model. Pick a Connection Manager profile in the settings panel.</div>;
   }
 
   const pending = session ? pendingStep(session) : null;
   const stats = session ? agentStats(session) : null;
 
   return (
-    <div id="so-agent" className="flex flex-col gap-3" aria-label="Story agent">
+    <div id="so-agent" className="flex flex-col gap-3" role="region" aria-label="Story agent">
       {!session ? <Start busy={busy} onStart={(goal, mode) => void drive(newAgentSession(goal, mode))} /> : (
         <>
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span id="so-agent-status" className="st-pill px-2 py-0.5" data-status={session.status}>{busy ? "Working…" : STATUS_TEXT[session.status]}</span>
+            <span id="so-agent-status" role="status" className="st-pill px-2 py-0.5" data-status={session.status}>{busy ? "Working…" : STATUS_TEXT[session.status]}</span>
             <select aria-label="Agent mode" className="text_pole st-input" value={session.mode} disabled={busy} onChange={(event) => commit(setAgentMode(session, event.target.value as AgentMode))}>
               {AGENT_MODES.map((entry) => <option key={entry} value={entry}>{MODE_LABELS[entry]}</option>)}
             </select>
@@ -299,7 +301,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
             {!busy && (session.status === "stopped" || session.status === "budget") ? (
               <button id="so-agent-continue" type="button" className="st-button secondary" onClick={() => void drive(resumeAgent(session))}>Continue</button>
             ) : null}
-            {!busy && session.status !== "awaiting-author" ? <button type="button" className="st-button secondary" onClick={newGoal}>New goal</button> : null}
+            {!busy && session.status !== "awaiting-author" ? <button id="so-agent-new-goal" type="button" className="st-button secondary" onClick={newGoal}>New goal</button> : null}
           </div>
           {session.status === "awaiting-plan" ? <PlanEditor session={session} busy={busy} onGo={(plan) => void drive(approvePlan(session, plan))} /> : null}
           {session.plan.length && session.status !== "awaiting-plan" ? (

@@ -7,11 +7,12 @@ type Props = {
   value: string[];
   onChange: (next: string[]) => void;
   placeholder?: string;
+  label?: string;
   className?: string;
   listHeight?: number;
 };
 
-const MultiSelect: React.FC<Props> = ({ options, value, onChange, placeholder = "Search…", className = "", listHeight = 180 }) => {
+const MultiSelect: React.FC<Props> = ({ options, value, onChange, placeholder = "Search…", label, className = "", listHeight = 180 }) => {
   const [query, setQuery] = useState("");
 
   const normalizedSelected = useMemo(() => new Set(value ?? []), [value]);
@@ -46,7 +47,7 @@ const MultiSelect: React.FC<Props> = ({ options, value, onChange, placeholder = 
           type="text"
           className="text_pole st-input w-full"
           placeholder={placeholder}
-          aria-label={placeholder}
+          aria-label={label ? `Filter ${label}` : "Filter options"}
           value={query}
           onChange={(e) => setQuery(e.target.value)}
         />
@@ -79,16 +80,16 @@ const MultiSelect: React.FC<Props> = ({ options, value, onChange, placeholder = 
             {filtered.map((opt) => {
               const checked = normalizedSelected.has(opt.value);
               return (
-                <li key={opt.value} className="px-3 py-1.5 text-sm flex items-center gap-2 cursor-pointer hover:st-bg-hover" onClick={() => toggle(opt.value)}>
-                  <input
-                    type="checkbox"
-                    className="h-3.5 w-3.5 rounded st-border st-bg-active st-text-active"
-                    aria-label={opt.label}
-                    checked={checked}
-                    onChange={() => toggle(opt.value)}
-                    onClick={(e) => e.stopPropagation()}
-                  />
-                  <span className="truncate">{opt.label}</span>
+                <li key={opt.value} className="px-3 py-1.5 text-sm hover:st-bg-hover">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      className="h-3.5 w-3.5 rounded st-border st-bg-active st-text-active"
+                      checked={checked}
+                      onChange={() => toggle(opt.value)}
+                    />
+                    <span className="truncate">{opt.label}</span>
+                  </label>
                 </li>
               );
             })}

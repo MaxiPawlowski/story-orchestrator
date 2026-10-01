@@ -37,6 +37,13 @@ describe("error copy inventory (v2.5 plan 03 E2)", () => {
     ]);
   });
 
+  it("CR-U 27: an `instanceof Error ? x.message` display outside a template is a row too", () => {
+    const planted = plantedRead({ "src/q.tsx": "export function show(caught: unknown) {\n  setError(caught instanceof Error ? caught.message : \"failed\");\n}" });
+    expect(judgeErrorCopy(planted.files, planted.read, { closed: false, rows: [] }).unexpected).toEqual([
+      "src/q.tsx#show | 2 | caught instanceof Error ? caught.message : \"failed\": 1, listed 0",
+    ]);
+  });
+
   it("control: a player row carrying a raw error cannot be marked pass", () => {
     const row: ErrorCopyRow = { site: "src/p.ts#run", kind: 2, template: "`${error.message}`", surface: "player", rawError: true, silentCatch: null, verdict: "pass", reason: "planted" };
     const planted = plantedRead({ "src/p.ts": "export function run(error: Error) {\n  return `${error.message}`;\n}" });

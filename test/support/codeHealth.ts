@@ -616,6 +616,17 @@ export const errorCopySites = (path: string, text = readFileSync(path, "utf8")):
     if (ts.isBinaryExpression(expression)) return isErrorSpan(expression.left) || isErrorSpan(expression.right);
     return false;
   };
+  const isErrorInstanceCheck = (expression: ts.Expression): boolean => {
+    const inner = ts.isParenthesizedExpression(expression) ? expression.expression : expression;
+    return ts.isBinaryExpression(inner) && inner.operatorToken.kind === ts.SyntaxKind.InstanceOfKeyword && ts.isIdentifier(inner.right) && inner.right.text === "Error";
+  };
+  const insideErrorTemplate = (node: ts.Node): boolean => {
+    for (let current = node.parent; current; current = current.parent) {
+      if (ts.isTemplateExpression(current)) return current.templateSpans.some((span) => isErrorSpan(span.expression));
+      if (ts.isStatement(current)) return false;
+    }
+    return false;
+  };
   const visit = (node: ts.Node) => {
     if (ts.isCallExpression(node)) {
       const name = calleeName(node.expression);
@@ -629,6 +640,7 @@ export const errorCopySites = (path: string, text = readFileSync(path, "utf8")):
       }
     }
     if (ts.isTemplateExpression(node) && node.templateSpans.some((span) => isErrorSpan(span.expression))) add(node, 2, templateText(node, sf));
+    if (ts.isConditionalExpression(node) && isErrorInstanceCheck(node.condition) && isErrorSpan(node.whenTrue) && !insideErrorTemplate(node)) add(node, 2, templateText(node, sf));
     if (ts.isCatchClause(node) && !node.variableDeclaration) {
       const site = `${rel(path)}#${enclosingName(node, sf)}`;
       const ordinal = (catchOrdinals.get(site) ?? 0) + 1;

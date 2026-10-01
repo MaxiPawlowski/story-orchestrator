@@ -13,16 +13,6 @@
       "reason": "constant toast"
     },
     {
-      "site": "src/components/drawer/DrawerTabs.tsx#submit",
-      "kind": 1,
-      "template": "\"Moment flagged in the session journal.\"",
-      "surface": "player",
-      "rawError": false,
-      "silentCatch": null,
-      "verdict": "pass",
-      "reason": "constant toast"
-    },
-    {
       "site": "src/components/settings/CapabilitiesGroup.tsx#copy",
       "kind": 3,
       "template": "catch {} #1",
@@ -943,16 +933,6 @@
       "reason": "host name list read for a lookup tool falls back to an empty list"
     },
     {
-      "site": "src/runtime/chapterKit.ts#showPreviously",
-      "kind": 1,
-      "template": "`Previously — ${record.playerTitle}\\n\\n${record.summary}`",
-      "surface": "player",
-      "rawError": false,
-      "silentCatch": null,
-      "verdict": "pass",
-      "reason": "the last chapter's player title and summary, no error text"
-    },
-    {
       "site": "src/components/settings/GroupStoryBindingView.tsx#GroupStoryBindingView",
       "kind": 2,
       "template": "` Not confirmed: ${reason ?? \"the settings save could not be verified\"}.`",
@@ -991,6 +971,306 @@
       "silentCatch": "probe",
       "verdict": "pass",
       "reason": "CR-J5: an unreadable plugin status is not a version mismatch; the capability probe reports the absent plugin"
+    },
+    {
+      "site": "src/components/drawer/DriverPanel.tsx#run",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"Action failed\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/components/settings/StoryGroup.tsx#whileBusy",
+      "kind": 1,
+      "template": "\"That did not finish. Try again, or reload SillyTavern.\"",
+      "surface": "player",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "constant toast"
+    },
+    {
+      "site": "src/copilot/parse.ts#parseProposal",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"Invalid JSON\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/extraction/scheduler.ts#ExtractionScheduler.noteLapse",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/extraction/scheduler.ts#errorText",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : fallback",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/extraction/sharedRead.ts#runSharedRead>callback",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/generation/parse.ts#parseGeneratedBeats",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"Invalid JSON\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/image/queue.ts#ImageQueue.enqueue>callback",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/image/runtime.ts#StoryImageDirector.cue",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "lastError kept for diagnosis; ImageChatPanel shows PLAYER_COPY.imageError"
+    },
+    {
+      "site": "src/image/runtime.ts#StoryImageDirector.direct",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "lastError kept for diagnosis; ImageChatPanel shows PLAYER_COPY.imageError"
+    },
+    {
+      "site": "src/runtime/coordinators/copilotCoordinator.ts#CopilotCoordinator.applyProvisioning",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"Provisioning failed\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/runtime/coordinators/expansionCoordinator.ts#ExpansionCoordinator.generate",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"Generation failed\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/runtime/coordinators/stagecraftCoordinator.ts#StagecraftCoordinator.runCuratorPass",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"Curator pass failed\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/runtime/curatorWriter.ts#CuratorWriter.writeOp",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"write failed\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/runtime/effectsApplier.ts#EffectsApplier.withLedger",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"the host refused the write\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/runtime/memorizeBacklog.ts#MemorizeBacklog.runMemorizeBacklog",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"Memorize backlog failed\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "lastError renders in AuthorMemoryControls only; players get PLAYER_COPY.memorizeError"
+    },
+    {
+      "site": "src/runtime/roleSelfTest.ts#errorText",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "route.detail renders only in author view (CR-U M3)"
+    },
+    {
+      "site": "src/runtime/selfTest.ts#runModelSelfTest",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : `Self-test pass \"${pass.label}\" failed`",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "report.error renders only in author view; players get SELF_TEST_FAILED_TEXT"
+    },
+    {
+      "site": "src/runtime/storySelection.ts#importStoryJson",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"Invalid JSON\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/runtime/worldInfoGating.ts#WiGatingRuntime.sync>callback",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/services/stHost/capabilities.ts#probeCapability",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"the probe failed\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/services/stHost/contextBudget.ts#promptBudgetFrom",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"reading the context size failed\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/services/stHost/generation.ts#stopHostGeneration",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"ST could not stop the generation\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/services/stHost/harness.ts#sendHarnessRequest",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"the harness plugin could not be reached\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/services/stHost/harnessBridge.ts#nextCall",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"the harness plugin could not be reached\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/services/stHost/harnessBridge.ts#open",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"the harness plugin could not be reached\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/services/stHost/modelReply.ts#messageOf",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : typeof error === \"string\" ? error : \"\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/services/stHost/worldInfoScan.ts#probeScanGating",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"the probe scan failed\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/studio/components/AgentWizard.tsx#acceptEdited",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : \"Not JSON\"",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/studio/components/StudioToolbar.tsx#handleSave>callback",
+      "kind": 2,
+      "template": "error instanceof Error ? error.message : String(error)",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "author or console surface: raw error kept for diagnosis"
     }
   ]
 }

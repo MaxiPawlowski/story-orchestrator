@@ -74,7 +74,7 @@ const TransitionEditor: React.FC = () => {
           <div className="st-subpanel p-4 text-sm st-muted">Select or add a transition.</div>
         ) : (
           <div className="st-subpanel flex flex-col gap-3 p-3">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
               <Field label="From">
                 <select className="text_pole st-input" value={selected.from} onChange={(event) => patch({ from: event.target.value })}>
                   {checkpoints.map((checkpoint) => <option key={checkpoint.id} value={checkpoint.id}>{checkpoint.name}</option>)}
