@@ -107,13 +107,12 @@ describe("fold and unfold", () => {
     expect(folded.folded).toEqual(["scene", "done"]);
     expect(folded.resolved).toEqual(["gone"]);
     expect(folded.shortTermSummaryEnd).toBe(9);
-    const stores = { entries: folded.entries, arcs: folded.arcs, chapters: [sealed], chronicle: { eras: [{ id: "e", recordIds: ["c1"], text: "t", messageId: 9 }] }, chapterBridge: { recordId: "c1", text: "b" } };
+    const stores = { entries: folded.entries, arcs: folded.arcs, chapters: [sealed], chronicle: { eras: [{ id: "e", recordIds: ["c1"], text: "t", messageId: 9 }] } };
     const back = unfoldAt(stores, 9, []);
     expect(back.entries).toEqual(state.entries);
     expect(back.arcs).toEqual(state.arcs);
     expect(back.chapters).toEqual([]);
     expect(back.chronicle.eras).toEqual([]);
-    expect(back.chapterBridge).toBeNull();
   });
 
   it("leaves a seal before the cut alone, unless the derived record for it was dropped", () => {

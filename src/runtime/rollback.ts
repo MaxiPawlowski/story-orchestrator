@@ -1,4 +1,6 @@
 import { chapterKit, loadChapterKit } from "./chapterPort";
+import { beginRun, type RunOwnership } from "./runToken";
+import { rollbackModelCalls } from "./modelCallLog";
 import type { RollbackOutcome, StoryEngine } from "@engine/index";
 import type { SharedReadWindow } from "@extraction/index";
 import { getChatWindow } from "@extraction/index";
@@ -19,6 +21,7 @@ import type { RuntimeExtras } from "./types";
 export interface RollbackDeps {
   engine: StoryEngine;
   journal: SessionJournal;
+  ownership: RunOwnership;
   context: () => { lastMessageId: number; chatLength: number; journal: JournalContext };
   memory: { rollbackFromMessage: (messageId: number, boundary: number) => unknown; updateInjection: () => unknown };
   stagecraft: { revertAppliedSince: (messageId: number) => Promise<unknown> };
@@ -61,8 +64,12 @@ export async function runRollback(deps: RollbackDeps, messageId: number, decoded
 async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal): Promise<RollbackOutcome> {
   if (!Number.isFinite(messageId)) return { ok: true, result: "noop" };
   const { engine } = deps;
+  if (deps.extras().memory?.chapters?.length && !chapterKit()) {
+    const run = beginRun(deps.ownership);
+    await loadChapterKit();
+    if (!run.stillOwns()) return { ok: true, result: "noop" };
+  }
   const extras = deps.extras();
-  if (extras.memory?.chapters?.length && !chapterKit()) await loadChapterKit();
   if (decoded) {
     deps.journal.record("story", decoded.summary, deps.context().journal, decoded.note);
     extras.journal = deps.journal.getRecords();
@@ -72,6 +79,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   const quarantine = () => {
     deps.memory.rollbackFromMessage(messageId, engine.serialize().boundary);
     extras.judge = dropJudgeCallsAfter(extras.judge, messageId);
+    if (extras.modelCalls) extras.modelCalls = rollbackModelCalls(extras.modelCalls, messageId);
     extras.firedNpcRepliesAt = extras.firedNpcRepliesAt ?? {};
     rewindNpcReplies(extras.firedNpcReplies, extras.firedNpcRepliesAt, messageId);
     if (extras.onEnterPosts) extras.onEnterPosts = rewindOnEnterPosts(extras.onEnterPosts, messageId);

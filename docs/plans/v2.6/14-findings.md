@@ -14,3 +14,12 @@ and class are decided in the review, never by the digest.
 
 | id | tier | severity | class | evidence | status | fix commit | eval |
 |---|---|---|---|---|---|---|---|
+
+## Recorded before the sessions (card feasibility check, 2026-09-30)
+
+Found while fixing the cards for the autonomous run; each goes to the review like a session finding. Evidence is source, not a session line, until a card reproduces it.
+
+| what | class (proposed) | evidence | card |
+|---|---|---|---|
+| A disabled group member still counts as present: the members requirement reads `group.members` and ignores `disabled_members`, so disabling a required member breaks nothing Repair can see. | product | `src/services/stHost/selectors.ts:108` (`listGroupMembers`) via `src/runtime/requirements.ts:11` | T5-4 (removal used instead; the disabled case is recorded there) |
+| The mirror-lorebook delete prompt names the deleted chat by its raw chat id, not in player words. | expectation | `src/runtime/mirrorReaperHost.ts:17` | T4-3 |

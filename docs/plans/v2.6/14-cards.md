@@ -15,9 +15,9 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Starts at The Guild Hall `guild-hall`.
   - Settings: images off; sprites off.
   - Do not open the drawer's Author view in this session.
-  - adolion-fresh binds every Adolion group to its story, so the fresh chat already plays it: open the Extensions panel and read Start / Continue / Repair as a new player would before the first turn.
+  - adolion-fresh binds every Adolion group to its story, so the fresh chat already plays it: open the Extensions panel and read the entry points as a new player would before the first turn. Picking a story lives under Continue (it reveals the library select); Start is for making a new one (wizard or import).
 - **Drive:**
-  1. **Read the entry points**, aims at The Guild Hall `guild-hall`. In the settings panel, check that Continue names The Adventurer's Road, the requirements read ready and Repair has nothing to say; open Start to see how you would pick another story.
+  1. **Read the entry points**, aims at The Guild Hall `guild-hall`. In the settings panel, open Continue: it names The Adventurer's Road and reveals the library select where a story is picked. Repair has nothing to say. Start makes a new story (wizard or import), it does not pick one. Then open the story drawer: the requirements read ready there, not in the settings panel.
      - Sample line: "(no chat line: this beat is the settings panel)"
   2. **Look around the hall**, aims at The Guild Hall `guild-hall`. Talk to Tobias at the counter and let Belle and Dalan react.
      - Sample line: "What's on the board that pays and won't get us killed?"
@@ -29,10 +29,11 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
      - Sample line: "We keep moving north. Anyone else notice there's no traffic on this road?"
      - Sample line: "We make camp by the carriages and keep a watch."
 - **Look for:**
-  - The entry points tell you, without any docs, which story this chat plays and that it is ready. *(settings panel)*
+  - The entry points tell you, without any docs, which story this chat plays (Continue) and how you would pick another (Continue's library select). *(settings panel)*
+  - The requirements read ready in the drawer. *(drawer)*
   - The HUD shows The Guild Hall, then The Road North after you take the job and give a name. *(HUD)*
   - The Overview's 'where you are' uses checkpoint names and plain language, no ids. *(Overview)*
-  - A small chip under the transition reply says a new scene started. *(timeline)*
+  - An icon chip titled "Progress" sits under the transition reply; hovering or opening it says a new scene started. *(timeline)*
   - Tobias drops out of the scene once you leave the hall (cast change). *(chat)*
 - **Must not happen** (press the flag at once):
   - The narrator decides for you that the party takes the job, packs or leaves town.
@@ -49,13 +50,13 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - A reply felt slow or repeated itself.
   - Anything looked broken or unfinished.
 - **Stop when:** 20 player turns, or you reach Hold, Wendhope Is Closed; about 40 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - entry points: could you start without help?
-  - requirements readout
+  - requirements readout: in the drawer
   - HUD
   - Overview
   - transition timing
-  - timeline at level 1
+  - timeline at level 1: the Progress chip
 - **Logged automatically:**
   - every extraction read with its prompt, raw reply and rejected lines (journal.jsonl)
   - every boundary and transition with the gate that fired
@@ -73,7 +74,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Story: `adolion-adventurer` (Adolion: The Adventurer's Road); continues the T0-1 chat; player mode.
   - Persona: The same persona you used in T0-1.
   - Settings: images off; sprites off.
-  - Best started the day after T0-1, so the away recap has a real gap to cover.
+  - Start with --age 24 (so-session start T0-2 --age 24): it backdates the chat's last session a day and reloads it, so the away recap has a real gap to cover.
   - so-session start reopens the T0-1 chat on the same lane without re-seeding.
 - **Drive:**
   1. **Read the welcome back**, aims at Hold, Wendhope Is Closed `at-the-walls` or The Road North `road-to-wendhope`. Before typing, read the away recap and the Overview.
@@ -100,7 +101,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - The recap got something wrong or felt too long.
   - Anything reset, even a small thing like tension.
 - **Stop when:** 10 turns after the second reload, or you are inside Wendhope; about 30 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - away recap
   - state restored after reload
   - Repair (should stay silent)
@@ -110,7 +111,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - save outcomes and read-backs
   - the run header at start and stop
 - **Known limits:**
-  - The recap only appears after a real gap; a same-day session may not show it (then flag 'no recap').
+  - The recap only appears after a real gap; --age 24 makes one. If it still does not show, flag 'no recap'.
   - Images and sprites are off.
 
 ### T0-3 First slips
@@ -147,7 +148,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Anything moved that you did not touch.
   - The step-back notice was confusing or missing.
 - **Stop when:** All four slips tried at least once; about 30 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - rollback on swipe
   - rollback on edit
   - rollback on delete
@@ -202,7 +203,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - The story stalled with nothing for you to do.
   - A character knew something they should not.
 - **Stop when:** You are in Into Needlehaven, or after 60 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - transition timing
   - agency (never narrates you)
   - speaker direction
@@ -225,13 +226,13 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Persona: An adventurer who does not want the Wendhope job.
   - Starts at The Guild Hall `guild-hall`.
   - Settings: images off; sprites off.
-  - The steward (the-sheridan-steward) is The Guild Hall's authored alternate: in this build it is reached only when an author takes it from the Driver panel, not by a gate. Expect a neutral answer in player mode; switch Author view on only in beat 3 if the story holds.
+  - The steward (the-sheridan-steward) is The Guild Hall's authored alternate, with no gated edge in this build. There is no 'take alternate' button: an author reaches it only with the Driver panel's 'Advance to…' (pick the steward, confirm), or from Scheduler > Refused route once the snapshot carries agencyRecovery (two refused gate boundaries at the hall). Expect a neutral answer in player mode; switch Author view on only in beat 3 if the story holds.
 - **Drive:**
   1. **Look around the hall**, aims at The Guild Hall `guild-hall`. Let Tobias pitch the Wendhope posting.
      - Sample line: "What's the job on the board with the red seal?"
   2. **Refuse it clearly**, aims at The Guild Hall `guild-hall`. The refusal should get one neutral, in-world answer and no forced departure.
      - Sample line: "A collapsed mine shaft for that pay? No. We'll find something else."
-  3. **Refuse again, differently**, aims at Who Is Looking for a Party `adv-guild-tavern` or The Sheridan Steward `the-sheridan-steward`. Stall, bargain, or walk out to the tavern (adv_looking_for_hands). If the story just holds, turn Author view on and take the alternate from the Driver panel.
+  3. **Refuse again, differently**, aims at Who Is Looking for a Party `adv-guild-tavern` or The Sheridan Steward `the-sheridan-steward`. Stall, bargain, or walk out to the tavern (adv_looking_for_hands). If the story just holds, turn Author view on: use Scheduler > Refused route if it shows, else the Driver panel's Advance to… the steward.
      - Sample line: "Tell the Sheridans to hire soldiers."
      - Sample line: "We'll be in the tavern if anyone has a real job."
   4. **Accept on your own terms, and name the party**, aims at The Road North `road-to-wendhope`. path = wendhope and a party name.
@@ -257,7 +258,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - The pressure felt heavy-handed.
   - The party name you gave is wrong later.
 - **Stop when:** You are on the road with a named party, or after 45 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - agency (refusal handling)
   - transition timing
   - speaker direction
@@ -311,7 +312,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - The speaker choice felt wrong, even once.
   - Silence when someone should have answered.
 - **Stop when:** 10 addressed turns at the council plus 5 at the front, or 45 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - speaker direction (named)
   - speaker direction (open questions)
   - cast changes
@@ -361,7 +362,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - An effect lagged by more than one reply.
   - Someone who left came back.
 - **Stop when:** You reach The Final Before the Emperor, or 60 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - backgrounds
   - cast joins and leaves
   - checkpoint lore
@@ -413,7 +414,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - A generated scene contradicted an earlier one.
   - The story felt lost or looping.
 - **Stop when:** You arrive at Castle Dracul, or 60 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - generated routes
   - detour handling
   - agency
@@ -462,7 +463,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Tension felt wrong for what was happening.
   - A slow stretch was cut short by the story.
 - **Stop when:** You reach The Green Knight, or 50 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - tension follows play
   - pacing hint (does the story wait?)
   - HUD tension readout
@@ -511,7 +512,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Anything from the other chat showed up.
   - Switching chats felt slow or lost state.
 - **Stop when:** You reach Aegis Delights and Curios, or 40 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - story isolation
   - chat switching
   - Memory tab
@@ -571,12 +572,13 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - A chapter title or recap was wrong.
   - Replies got slow as the chat grew.
 - **Stop when:** 80 turns and past Father's Summons, or 2 hours; split across days by stopping and continuing in T2-3.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - long-run memory
   - chapter seal
   - story so far / Previously
   - Memory tab
   - act change
+  - 07 Q-M legs: the chapter texts and their sources, for blind rating (recorded for the user's review, not decided by Claude)
 - **Logged automatically:**
   - every memory write, consolidation and chapter seal (journal)
   - extraction reads and canon passes
@@ -584,7 +586,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Known limits:**
   - Chapter features are switched on for this session only; their defaults wait on the Q-M floors (plan 07).
   - Images and sprites are off.
-  - The 07 Q-M legs are rated here.
+  - The 07 Q-M legs are recorded for the user's review, not decided by Claude: the chapter record, story so far and Previously text are kept as evidence for the user's blind rating.
 
 ### T2-2 Secrets
 
@@ -622,7 +624,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Someone knew something they were never told.
   - Someone forgot what you told them.
 - **Stop when:** You are in Whispers in the Halls with two conversations tested, or 60 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - private knowledge (epistemic)
   - secrets kept
   - Memory tab
@@ -639,24 +641,28 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 
 - **Question:** When the player asserts something that contradicts an established fact, is it held for review instead of overwriting the fact?
 - **Setup:**
-  - Story: `adolion-saga` (Adolion: The Saga); continues the T2-1 chat; player mode.
-  - Persona: The same Saga persona as T2-1.
+  - Story: `adolion-saga` (Adolion: The Saga); continues the T2-1 chat; author mode.
+  - Persona: The same Saga persona as T2-1, played with Author view on.
   - Settings: images off; sprites off.
+  - Author mode: the memory queue (held and conflicted rows, Lock as canon) and the warden's note approval are author-only. The warden runs in its default review mode, so its note waits in the author Scheduler until you approve it.
 - **Drive:**
   1. **Contradict the seal**, aims at Home to Nightriver `nightriver-house` or Father's Summons `fathers-summons`. Say the opposite of how the Devourer ended.
      - Sample line: "We never went past the seal, remember? Driftmere's mine is fine."
   2. **Contradict a companion fact**, aims at Home to Nightriver `nightriver-house` or Father's Summons `fathers-summons` or Whispers in the Halls `whispers`. Say something wrong about Riyo or Naomi.
      - Sample line: "Riyo's always had two ordinary arms."
-  3. **Look at the memory queue**, aims at Home to Nightriver `nightriver-house` or Father's Summons `fathers-summons` or Whispers in the Halls `whispers`. Open the Memory tab and find what is held.
-     - Sample line: "(no chat line: open the drawer's Memory tab)"
+  3. **Look at the memory queue**, aims at Home to Nightriver `nightriver-house` or Father's Summons `fathers-summons` or Whispers in the Halls `whispers`. Open the author memory queue and find what is held.
+     - Sample line: "(no chat line: open the drawer's memory queue)"
+  4. **Approve the warden**, aims at Home to Nightriver `nightriver-house` or Father's Summons `fathers-summons` or Whispers in the Halls `whispers`. In the author Scheduler, approve the warden's pending continuity note, then play one turn and see whether it lands.
+     - Sample line: "So, what do we tell Father about Driftmere?"
 - **Look for:**
-  - Your contradicting claim appears as held or conflicted, and the established fact still steers. *(Memory tab)*
+  - Your contradicting claim appears as held or conflicted, and the established fact still steers. *(author panel)*
   - The next replies still follow the established fact. *(chat)*
-  - A continuity note (the warden) nudges the next reply toward the established fact. *(chat)*
+  - A continuity note (the warden) waits for approval in the Scheduler, then nudges the next reply toward the established fact. *(author panel)*
 - **Must not happen** (press the flag at once):
   - The contradicting claim replaces the established fact silently.
   - A character agrees with the contradiction as if it were true.
-  - The held item shows internal ids or quality names in player mode.
+  - The held item cannot be read without knowing internal ids (no plain words for what is held and why).
+  - The warden's note is applied without your approval in review mode.
 - **Provocations:**
   - Contradict yourself twice in a row.
   - Contradict something only the narrator said.
@@ -664,7 +670,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - The held item was confusing.
   - The story picked up the wrong version.
 - **Stop when:** Three contradictions tried and the queue read, or 30 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - contradiction handling
   - memory queue
   - continuity warden
@@ -675,6 +681,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Known limits:**
   - Only established facts (locked, authored or decided) hold a claim; a merely pinned fact does not.
   - A contradiction worded far from the fact may not be detected.
+  - Author mode: the player-mode surfaces of this chat were checked at the end of T2-1.
 
 ### T2-4 Away and back
 
@@ -683,7 +690,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Story: `adolion-adventurer` (Adolion: The Adventurer's Road); continues the T1-1 chat; player mode.
   - Persona: The same persona as T1-1.
   - Settings: images off; sprites off.
-  - Needs the T1-1 chat at 40+ turns and a real gap of at least a day.
+  - Needs the T1-1 chat at 40+ turns. Start with --age 24 so the gap is a day.
 - **Drive:**
   1. **Read cold**, aims at Into Needlehaven `into-needlehaven` or What Wendhope Knows `what-wendhope-knows`. Read the recap and the Overview before typing anything.
      - Sample line: "(read first)"
@@ -702,38 +709,39 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - The recap was wrong, too long, or unhelpful.
 - **Stop when:** 10 turns after the recap, or 20 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - away recap
   - Overview threads
 - **Logged automatically:**
   - the recap shown (journal)
   - the state at reopen
 - **Known limits:**
-  - The recap needs a gap; an early start reads as 'no recap'.
+  - The recap needs a gap; --age 24 makes one. Without it an early start reads as 'no recap'.
 
 ### T2-5 Memory tab
 
 - **Question:** Can the player curate memory (pin, edit, exclude, lock as canon) and do the next turns obey?
 - **Setup:**
-  - Story: `adolion-saga` (Adolion: The Saga); continues the T2-1 chat; player mode.
-  - Persona: The same Saga persona as T2-1.
+  - Story: `adolion-saga` (Adolion: The Saga); continues the T2-1 chat; author mode.
+  - Persona: The same Saga persona as T2-1, played with Author view on.
   - Settings: images off; sprites off.
+  - Author mode: Lock as canon and the memory queue are author-only. Pin, edit and exclude are tried in the Memory tab as a player would see them; turn Author view on for the lock beat.
 - **Drive:**
   1. **Pin and edit**, aims at Father's Summons `fathers-summons` or Whispers in the Halls `whispers`. Pin one fact about Riyo; edit one fact about Naomi.
      - Sample line: "(no chat line: the Memory tab)"
   2. **Exclude one**, aims at Father's Summons `fathers-summons` or Whispers in the Halls `whispers`. Exclude a fact you dislike, then ask about it in chat.
      - Sample line: "Remember what happened with Naomi's duel?"
-  3. **Lock one as canon**, aims at Whispers in the Halls `whispers` or Trial by Combat `the-duel`. Lock the Devourer outcome as canon, then contradict it in chat.
+  3. **Lock one as canon**, aims at Whispers in the Halls `whispers` or Trial by Combat `the-duel`. Author view: lock the Devourer outcome as canon, then contradict it in chat.
      - Sample line: "We left the Devourer alive, didn't we?"
 - **Look for:**
   - Find and the tier filter make the fact easy to reach. *(Memory tab)*
   - An edited fact is what the next reply uses. *(chat)*
   - An excluded fact is no longer used. *(chat)*
-  - A locked fact wins against your contradiction. *(Memory tab)*
+  - A locked fact wins against your contradiction. *(author panel)*
 - **Must not happen** (press the flag at once):
   - An excluded fact comes back into a reply.
   - An edit is lost after a reload.
-  - The Memory tab shows superseded or internal rows in player mode.
+  - With Author view off, the Memory tab shows superseded or internal rows.
   - A click in the tab does nothing without saying why.
 - **Provocations:**
   - Reload right after an edit.
@@ -742,7 +750,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - A control was hard to find or did nothing.
   - The next turn ignored your curation.
 - **Stop when:** All four actions tried and checked, or 30 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - pin
   - edit
   - exclude
@@ -786,7 +794,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Anything crossed.
   - A switch was slow or showed the wrong story for a moment.
 - **Stop when:** 20 alternating turns, or 45 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - chat isolation
   - memory isolation
   - lore follows the chat
@@ -802,13 +810,14 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 
 ### T3-1 Everything on
 
-- **Question:** With images, sprites, inner voice and the timeline all on, what helps the story and what distracts?
+- **Question:** With the inner voice and the timeline on (images and sprites stay off in the autonomous run), what helps the story and what distracts?
 - **Setup:**
   - Story: `adolion-deep` (Adolion: Crimsonwing & Ebonwing); fresh chat; player mode.
   - Persona: The Nightriver heir leading a C-rank party at the Guild counter.
   - Starts at Two Wings at One Counter `deep-joint-posting`.
-  - Settings: timeline level 1; images ON; sprites ON; inner voice on.
-  - Needs the shared ComfyUI: start only with --allow-comfy after confirming nobody else is rendering.
+  - Settings: timeline level 1; images off; sprites off; inner voice harvest (#so-inner-harvest) on; inner voice beat (#so-inner-beat) on.
+  - Images and sprites stay OFF in the autonomous run: the shared ComfyUI at 127.0.0.1:8188 is forbidden (plan 15). The image and sprite beats are a known limit, not a finding.
+  - Both inner voice toggles are author-only, so so-session start sets them: #so-inner-harvest (harvestReasoning, read characters' reasoning for intent) and #so-inner-beat (innerBeat, a private beat for the next speaker).
   - This chat is continued by T3-2.
 - **Drive:**
   1. **Choose a partner party**, aims at Crimsonwing at the North Gate `deep-with-crimsonwing` or Ebonwing at the North Gate `deep-with-ebonwing` or Kela and Ced `deep-kela-and-ced`. deep_partner crimsonwing or ebonwing (or refuse).
@@ -821,36 +830,33 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   4. **Go in**, aims at The Altar in the Great Hall `deep-the-altar`. deep_hall_breached.
      - Sample line: "Over the wall at the change of watch."
 - **Look for:**
-  - Scene images arrive at the right moments and match the scene. *(chat)*
-  - Sprites show who is speaking and do not lag behind replies. *(chat)*
   - The inner voice adds something at decisions and stays out of the way otherwise. *(chat)*
   - Timeline chips stay readable with everything on. *(timeline)*
 - **Must not happen** (press the flag at once):
-  - An image or sprite shows a character not in the scene.
   - Ced or Kela mentions their Darklands split at the counter ('Who knows what').
   - Kela's witness mark on the Wind Ballad death report comes up before the reckoning.
   - Runo blurts out whose heir you are ('Who knows what': too flustered to say it).
-  - A reply waits on an image.
+  - The inner voice text itself is visible in chat.
 - **Provocations:**
-  - Swipe a reply that carried an image.
-  - Reload while an image is rendering.
+  - Swipe a reply right after an inner beat was prepared.
+  - Reload while the memory model is still preparing a beat.
 - **Flag when:**
   - Something distracted you.
-  - An image or sprite was wrong or late.
+  - A character acted on a motive that came from nowhere.
 - **Stop when:** You are inside the keep, or 60 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
-  - scene images
-  - sprites
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - inner voice
   - timeline at level 1
   - overall presentation
+  - 06 C3 inner voice leg: the beats and the replies they fed, for blind rating (recorded for the user's review, not decided by Claude)
+  - C5/C6 surface decisions: what helped and what distracted, as evidence (recorded for the user's review, not decided by Claude)
 - **Logged automatically:**
-  - image and sprite cues and results
   - inner-voice beats (used, stale, missing)
   - prompts sent
 - **Known limits:**
-  - Image quality depends on the ComfyUI workflow, not this extension.
-  - The inner voice is the 06 C3 leg: rate it here.
+  - Images and sprites are off: ComfyUI is forbidden in the autonomous run (plan 15). Scene images and sprites are not rated.
+  - Harvest needs replies that carry reasoning and the knowledge tracking profile; if it shows Idle, record that.
+  - The 06 C3 leg and the C5/C6 decisions are recorded for the user's review, not decided by Claude.
 
 ### T3-2 Timeline levels
 
@@ -861,11 +867,11 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Settings: timeline level 0; images off; sprites off.
   - Images and sprites are switched back off for this session.
 - **Drive:**
-  1. **Levels 0, 1, 2 in player mode**, aims at The Altar in the Great Hall `deep-the-altar` or The Cells of Nahalbuk `deep-nahalbuk-cells`. Play 3 turns at each level (settings panel, timeline level).
+  1. **Levels 0, 1, 2 in player mode**, aims at The Altar in the Great Hall `deep-the-altar` or The Cells of Nahalbuk `deep-nahalbuk-cells`. Play 3 turns at each level (settings panel, 'Notes under messages').
      - Sample line: "We cut the captive loose and get out of the hall!"
-  2. **Author view, levels 3 and 4**, aims at The Cells of Nahalbuk `deep-nahalbuk-cells` or What Unira Says `deep-what-unira-says`. Turn Author view on, then level 3, then 4.
+  2. **Author view, levels 3 and 4**, aims at The Cells of Nahalbuk `deep-nahalbuk-cells` or What Unira Says `deep-what-unira-says`. Turn Author view on, then 'Notes under messages' to 3, then 4.
      - Sample line: "Unira, who left you down here?"
-  3. **Open the message inspector**, aims at What Unira Says `deep-what-unira-says`. Click an author chip under a transition reply.
+  3. **Open the message inspector**, aims at What Unira Says `deep-what-unira-says`. At level 3 or more, click the magnifier chip titled 'Inspect message' under a transition reply.
      - Sample line: "(no chat line: the inspector)"
 - **Look for:**
   - Level 0 shows nothing, 1 story beats, 2 behind-the-scenes in player words. *(timeline)*
@@ -882,16 +888,18 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - A level was noisy or confusing.
   - The inspector did not open or was empty.
 - **Stop when:** All five levels and the inspector tried, or 30 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - timeline level 0-2
   - timeline level 3-4
   - message inspector
-  - A1 inspector decision input
+  - A1 inspector decision input (recorded for the user's review, not decided by Claude)
+  - C5/C6 surface decisions: the levels as seen, as evidence (recorded for the user's review, not decided by Claude)
 - **Logged automatically:**
   - the inline timeline items per message
   - lore fired per reply
 - **Known limits:**
-  - The C5/C6 surface decisions are made from this and T3-1.
+  - The C5/C6 surface decisions and the A1 inspector decision are recorded for the user's review, not decided by Claude (from this and T3-1).
+  - Images and sprites are off.
 
 ### T3-3 Inner voice
 
@@ -900,7 +908,8 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Story: `adolion-night` (Adolion: Night Courts); fresh chat; player mode.
   - Persona: The leader of a C-rank Guild party at Glasnoa.
   - Starts at The Accused `night-the-accused`, seeded by `so-session start`.
-  - Settings: images off; sprites off; inner voice on.
+  - Settings: images off; sprites off; inner voice harvest (#so-inner-harvest) on; inner voice beat (#so-inner-beat) on.
+  - Both inner voice toggles are author-only, so so-session start sets them: #so-inner-harvest (harvestReasoning) and #so-inner-beat (innerBeat).
 - **Drive:**
   1. **The trial**, aims at The Accused `night-the-accused`. Selena chained, Ren raising the stake, Erevan behind his mask.
      - Sample line: "Erevan, do you believe the book was hers?"
@@ -925,7 +934,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - A character felt flat or repeated itself.
   - Someone suddenly knew too much.
 - **Stop when:** You reach The Witch of Thornwood, or 40 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - inner voice (adds vs repeats)
   - secrets kept
   - agency at the decision
@@ -933,8 +942,8 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - inner-voice beats used, stale or missing
   - each drafted member's prompt
 - **Known limits:**
-  - The inner voice is off by default; this session switches it on.
-  - 06 C3 is rated with T3-1.
+  - The inner voice is off by default; this session switches both toggles on.
+  - 06 C3 is recorded for the user's review, not decided by Claude (with T3-1).
 
 ### T3-4 Spoiler hunt
 
@@ -967,7 +976,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - Anything looked like an internal name, even if unsure.
 - **Stop when:** Every surface read at least twice, or 40 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - HUD
   - Overview
   - Memory tab
@@ -991,7 +1000,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Drive:**
   1. **Play to the Academy**, aims at Jiansho Academy `east-jiansho-academy`. Give the curator material: names, places, new facts.
      - Sample line: "Honami, tell us about Megumi."
-  2. **Review proposals**, aims at Jiansho Academy `east-jiansho-academy` or The Opening Rounds `east-the-rounds`. Accept some, reject some, edit one.
+  2. **Review proposals**, aims at Jiansho Academy `east-jiansho-academy` or The Opening Rounds `east-the-rounds`. Accept some, Decline some, edit one before accepting.
      - Sample line: "(no chat line: the Scheduler tab)"
   3. **Check the effect**, aims at The Opening Rounds `east-the-rounds` or The Upset `east-the-upset` or The Hattaxi Shadow `east-the-hattaxi-shadow`. Accepted entries apply at the next boundary; see them fire.
      - Sample line: "Hanzo, you're no steward. Who are you?"
@@ -1006,12 +1015,12 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Megumi's brother as target reaches a proposal before the Hattaxi reveal ('Who knows what').
 - **Provocations:**
   - Swipe the reply after accepting a proposal (it should revert).
-  - Accept then reject the same op.
+  - Decline an op you were about to accept (there is no accept-then-decline: a decided op stays decided).
 - **Flag when:**
   - A proposal was useless or wrong.
   - The review UI was confusing.
 - **Stop when:** At least 5 proposals decided, or 45 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - curator proposal quality
   - review UI
   - apply timing
@@ -1052,7 +1061,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - Anything felt cramped or needed zooming.
 - **Stop when:** Every surface visited, or 30 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - drawer (narrow)
   - HUD (narrow)
   - timeline (narrow)
@@ -1072,7 +1081,8 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Story: `adolion-academy` (Adolion: House Nightriver); fresh chat; player mode.
   - Persona: A Nightriver heir who keeps changing their mind.
   - Starts at Home to Nightriver `nightriver-house`.
-  - Settings: images off; sprites off; inner voice on; chapters: seal on, storySoFar on; curator on (review).
+  - Settings: images off; sprites off; inner voice harvest (#so-inner-harvest) on; inner voice beat (#so-inner-beat) on; chapters: seal on, storySoFar on; curator on (review).
+  - The inner voice toggles (#so-inner-harvest, #so-inner-beat) are author-only; so-session start sets both.
 - **Drive:**
   1. **Swipe a transition**, aims at Father's Summons `fathers-summons`. path = witch_king; swipe the reply that moved it.
      - Sample line: "I go to Father's study at once."
@@ -1083,7 +1093,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   4. **Swipe at the duel**, aims at Trial by Combat `the-duel` or The Night of Knives `night-of-knives`. duel_outcome; swipe the outcome reply twice.
      - Sample line: "I show the court the venom on his lance."
 - **Look for:**
-  - After each mutation, the HUD, Memory tab and timeline agree with the chat. *(Overview)*
+  - After each mutation, the HUD, Memory tab and timeline agree with the chat; the Overview says 'the current scene' in plain words rather than naming internals. *(Overview)*
   - The step-back notice names the checkpoint you returned to. *(Overview)*
   - A pending curator proposal from a deleted reply is withdrawn. *(chat)*
 - **Must not happen** (press the flag at once):
@@ -1097,7 +1107,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - Anything disagreed after a mutation.
 - **Stop when:** Every mutation tried at two different moments, or 45 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - rollback: story
   - rollback: memory
   - rollback: timeline
@@ -1140,7 +1150,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - Anything felt off after a switch, even briefly.
 - **Stop when:** Each move tried twice, or 30 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - switch mid-generation
   - branching
   - reload mid-generation
@@ -1169,7 +1179,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   3. **Delete chat two: delete the book**, aims at Homecoming `aegis-homecoming` or The Guild Tavern `aegis-the-tavern`. Answer with delete.
      - Sample line: "(no chat line: delete the chat)"
 - **Look for:**
-  - The prompt names the chat and the book in plain words. *(popup)*
+  - The prompt names the chat and the book in plain words (expected finding: it shows a raw chat id). *(popup)*
   - Keep leaves the book; delete removes it; no Repair row after either. *(settings panel)*
 - **Must not happen** (press the flag at once):
   - The prompt appears for a chat you did not delete.
@@ -1181,7 +1191,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - The prompt wording was unclear.
 - **Stop when:** Both deletes done and checked, or 20 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - mirror-book prompt
   - keep
   - delete
@@ -1191,6 +1201,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - lorebook list before and after (run header diff)
 - **Known limits:**
   - The run header diff will show the chats and books you deleted; that is expected here.
+  - The prompt names the deleted chat by its raw chat id. Record that as a finding (expectation: plain words), not as a mistake in the card.
 
 ### T4-4 Restart and update
 
@@ -1222,7 +1233,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - The save / apply wording confused you.
 - **Stop when:** Restart, a hot-swap and an invalidating keep all done, or 40 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - Restart
   - hot-swap
   - invalidating choice
@@ -1239,15 +1250,16 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 
 - **Question:** Can the author make a playable story from the first premise with the wizard in review mode, and play 20 turns of it?
 - **Setup:**
-  - Story: a new story from the wizard: "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."; fresh chat; author mode.
+  - Story: a new story from the wizard: "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen." (premise `cartographer`); fresh chat; author mode.
   - Persona: An author; later, the apprentice cartographer.
   - Settings: images off; sprites off.
-  - Start from the settings panel: New story (wizard). Review mode: every change waits for you.
-  - This story is continued by T5-3 and T5-4.
+  - Start from the settings panel: New story (wizard).
+  - Use the wizard's Agent entry with Agent mode 'review': every change waits for you and each change card has Reject. The Step by step entry has no per-item reject.
+  - Once the story is saved and its group's chat is open, run so-session adopt <dir>: T5-3 and T5-4 continue that chat.
 - **Drive:**
   1. **Premise and interview**. Paste the premise; answer the wizard's questions, use 'You decide' once.
      - Sample line: "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
-  2. **Turning points and characters**. Review each proposed change; reject one.
+  2. **Turning points and characters**. Review each proposed change card; Reject one with a reason (Agent mode only).
      - Sample line: "Make the third house quieter and more dangerous."
   3. **Setup: provisioning**. Apply the character cards, lorebook and group one card at a time.
      - Sample line: "(no chat line: provisioning cards)"
@@ -1268,8 +1280,8 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - You had to touch JSON.
   - A step was unclear.
-- **Stop when:** The story is saved and 20 turns are played, or 90 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Stop when:** The story is saved, adopted and 20 turns are played, or 90 minutes.
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - wizard interview
   - review mode
   - provisioning
@@ -1280,18 +1292,19 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - the first 20 turns' journal
 - **Known limits:**
   - The wizard route is the local model; the harness route is T6-3.
+  - Per-item reject exists only in Agent mode.
 
 ### T5-2 Wizard, premises 2 and 3
 
 - **Question:** In auto-draft mode, does the wizard produce two stories whose provisioning still waits for the author?
 - **Setup:**
-  - Story: a new story from the wizard: "In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood."; fresh chat; author mode.
+  - Story: a new story from the wizard: "In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood." (premise `memory-pawn`); fresh chat; author mode.
   - Persona: An author.
   - Settings: images off; sprites off.
-  - Second premise: A dragon too old to fly hires a crew of thieves to steal its own hoard back from the knights who claim to have slain it.
-  - Switch the wizard to auto-draft for both.
+  - Second premise (old-dragon): A dragon too old to fly hires a crew of thieves to steal its own hoard back from the knights who claim to have slain it.
+  - Auto-draft is the Agent mode 'Write to the draft, review before saving': open the wizard's Agent entry and pick it in Agent mode for both premises.
 - **Drive:**
-  1. **Premise 2 in auto-draft**. Edits land in the draft directly; provisioning still waits.
+  1. **Premise 2 in auto-draft**. Agent mode 'Write to the draft, review before saving': edits land in the draft directly; provisioning still waits.
      - Sample line: "In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood."
   2. **Premise 3 in auto-draft**. Same, second story.
      - Sample line: "A dragon too old to fly hires a crew of thieves to steal its own hoard back from the knights who claim to have slain it."
@@ -1309,7 +1322,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - Auto-draft did something surprising.
 - **Stop when:** Both stories saved, or 90 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - auto-draft
   - provisioning waits
   - diagnostics
@@ -1326,7 +1339,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Story: a new story from the wizard; continues the T5-1 chat; author mode.
   - Persona: The author of the T5-1 story.
   - Settings: images off; sprites off.
-  - Open the T5-1 story's chat yourself; so-session start does not know its group.
+  - so-session start reopens the chat T5-1 adopted (so-session adopt), on the T5-1 lane.
 - **Drive:**
   1. **Edit guidance**. Compatible: hot-swap.
      - Sample line: "(no chat line: Studio)"
@@ -1346,7 +1359,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - An editor was confusing.
 - **Stop when:** Three edits taken, or 45 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - checkpoint editor
   - gate editor
   - effects editor
@@ -1356,7 +1369,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - story update records
   - library in the run header diff
 - **Known limits:**
-  - so-session cannot seed the wizard story's chat; the lane is the T5-1 lane.
+  - The chat is the one T5-1 adopted; without an adopt the card cannot start. The lane is the T5-1 lane.
 
 ### T5-4 Repair
 
@@ -1365,8 +1378,10 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Story: a new story from the wizard; continues the T5-1 chat; author mode.
   - Persona: The author of the T5-1 story.
   - Settings: images off; sprites off.
+  - Break the cast by REMOVING a required member from the group: a disabled member still counts as present (product finding, see 14-findings.md), so disabling breaks nothing Repair can see.
+  - so-session start reopens the chat T5-1 adopted.
 - **Drive:**
-  1. **Disable a member**. Disable a required member in the group; read Repair.
+  1. **Remove a member**. Remove a required member from the group; read Repair. Then disable another one and record that Repair stays silent (the known product finding).
      - Sample line: "(no chat line: group panel)"
   2. **Drop a book**. Deselect the story's lorebook; read Repair.
      - Sample line: "(no chat line: World Info panel)"
@@ -1384,14 +1399,16 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - The Repair text was unclear.
 - **Stop when:** Both breaks repaired, or 30 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - Repair
   - Fix with wizard
+  - disabled member (known finding)
 - **Logged automatically:**
   - requirement readings
   - wizard provisioning
 - **Known limits:**
   - Personas are never provisioned.
+  - A disabled member still counts as present (listGroupMembers ignores disabled_members): that is a recorded product finding, not a card error.
 
 ### T5-5 Author view
 
@@ -1421,7 +1438,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - A panel was unreadable or misleading.
 - **Stop when:** Each panel read and each control used once, or 45 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - blackboard
   - scheduler
   - payload / next-turn preview
@@ -1436,6 +1453,8 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 ## T6
 
 ### T6-1 Reasoning
+
+> **Waits:** plan 05 R3: docs/plans/v2.6/recommended-reasoning.md (the recommended reasoning table) does not exist yet.
 
 - **Question:** Does each recommended reasoning setting play at least as well as the default on the T1-1 route?
 - **Setup:**
@@ -1461,18 +1480,20 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - Anything slower or worse than T1-1.
 - **Stop when:** The walls reached, per setting; about 30 minutes each.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - reasoning setting (name it)
   - latency
   - extraction quality
+  - 05 R4 leg: replies per setting, for blind rating (recorded for the user's review, not decided by Claude)
 - **Logged automatically:**
   - reasoning exhausted / empty reply events
   - model-call latency per pass
 - **Known limits:**
-  - 05 R4 is rated here.
-  - If the recommended table does not exist yet, this charter waits.
+  - 05 R4 is recorded for the user's review, not decided by Claude.
 
 ### T6-2 Judge providers
+
+> **Waits:** plan 12: docs/plans/v2.6/12-provider-matrix.md (the recommended provider per use) does not exist yet.
 
 - **Question:** Does each recommended judge provider per use keep speaker direction and memory at least as good as the default?
 - **Setup:**
@@ -1497,7 +1518,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - Anything worse than T1-3.
 - **Stop when:** Both beats per provider row, about 20 minutes each.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - provider (name it)
   - speaker direction
   - fallbacks
@@ -1510,11 +1531,10 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 
 - **Question:** Does the wizard work through the CLI harness route as well as through the local route?
 - **Setup:**
-  - Story: a new story from the wizard: "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."; fresh chat; author mode.
+  - Story: a new story from the wizard: "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen." (premise `cartographer`); fresh chat; author mode.
   - Persona: An author.
   - Settings: images off; sprites off.
-  - opencode only, no CLI login (W 2026-09-30): the harness plugin runs opencode in its owned home; no claude or codex arm.
-  - Route the wizard role to the harness in the settings panel.
+  - opencode only: route the authoring role to the opencode harness in the settings panel. No claude or codex CLI, and no CLI login is performed by the run (W 2026-09-30).
 - **Drive:**
   1. **Replay T5-1 through the harness**. Same premise, review mode.
      - Sample line: "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
@@ -1529,14 +1549,14 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - The route fell back without saying so.
 - **Stop when:** The story is saved, or 60 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - harness route
   - fallback visibility
 - **Logged automatically:**
   - model calls with route and result
   - wizard transcript
 - **Known limits:**
-  - Harness scope is opencode only.
+  - Harness scope is opencode only; claude -p and codex exec routes are not exercised.
 
 ### T6-4 Judge off
 
@@ -1563,7 +1583,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - Anything noticeably worse than T2-2.
 - **Stop when:** You are in Whispers in the Halls, or 40 minutes.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - silent fallback
   - speaker direction without judge
   - memory without judge
@@ -1600,7 +1620,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Flag when:**
   - Anything at all that you would not ship.
 - **Stop when:** One hour.
-- **Rubric** (score each works / annoying / broken / not noticed, with a note):
+- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - overall
   - would you ship it?
 - **Logged automatically:**

@@ -1,4 +1,4 @@
-import { addGatedEntry, checkpointWorldInfo, gatedWorldInfo, type BoundaryLogEntry, type GatedWorldInfo, type NormalizedStoryV2 } from "@engine/index";
+import { addGatedEntry, checkpointWorldInfo, gatedWorldInfo, validStagedFrom, type GatedWorldInfo, type NormalizedStoryV2 } from "@engine/index";
 import { bookKey } from "./worldInfoMatch";
 
 export interface WorldInfoBookPlan {
@@ -35,9 +35,7 @@ export function releasePlan(owners: unknown[], keep: unknown | null): WorldInfoB
     .filter((plan) => plan.disable.length > 0);
 }
 
-export function stagedPath(path: string[], log: BoundaryLogEntry[]): string[] {
-  const jump = [...log].reverse().find((entry) => entry.source === "manual");
-  if (!jump) return path;
-  const at = jump.after.visitedPath.length - 1;
-  return at > 0 && path[at] === jump.after.activeCheckpointId ? path.slice(at) : path;
+export function stagedPath(path: string[], stagedFrom: number | undefined): string[] {
+  const from = validStagedFrom(stagedFrom, path.length);
+  return from === undefined ? path : path.slice(from);
 }

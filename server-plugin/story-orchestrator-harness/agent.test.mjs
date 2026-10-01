@@ -39,13 +39,13 @@ const until = async (check, ms = 15000) => {
     return false;
 };
 
-function setup({ offer = true, warm = true } = {}) {
+function setup({ offer = true, warm = true, concurrency, fsImpl, child } = {}) {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'so-bridge-test-'));
     const loginFile = path.join(root, 'auth.json');
     fs.writeFileSync(loginFile, JSON.stringify({ openai: { type: 'oauth', access: 'at', refresh: 'rt', expires: Date.now() + 5 * HOUR } }));
     const bin = path.join(root, 'opencode.exe');
     fs.writeFileSync(bin, '');
-    const config = plugin.sanitizeConfig({ tmpRoot: path.join(root, 'tmp'), harnesses: { opencode: { binary: bin, loginFile, offer } } });
+    const config = plugin.sanitizeConfig({ tmpRoot: path.join(root, 'tmp'), harnesses: { opencode: { binary: bin, loginFile, offer, ...(concurrency ? { concurrency } : {}) } } });
     if (warm) {
         fs.mkdirSync(path.join(config.tmpRoot, 'opencode-cache'), { recursive: true });
         fs.writeFileSync(path.join(config.tmpRoot, 'opencode-cache', '.so-warm'), 'x');
@@ -61,15 +61,16 @@ function setup({ offer = true, warm = true } = {}) {
             child.stdin = { on() {}, end() { setImmediate(() => { child.stdout.emit('data', Buffer.from('1.18.33')); child.emit('close', 0); }); } };
             return child;
         }
-        const child = spawn(process.execPath, [FAKE, ...argv], options);
-        spawned.push({ file, argv, options, pid: child.pid });
-        return child;
+        const run = child ? child(argv, options) : spawn(process.execPath, [FAKE, ...argv], options);
+        spawned.push({ file, argv, options, pid: run.pid });
+        return run;
     };
     const service = plugin.createHarnessService({
         config,
         env: { PATH: process.env.PATH ?? process.env.Path ?? '', SystemRoot: process.env.SystemRoot ?? '', OPENAI_API_KEY: 'sk-canary', SO_SECRET_CANARY: 'x' },
         home: root,
         spawnImpl,
+        ...(fsImpl ? { fsImpl } : {}),
         log: (line) => lines.push(line),
     });
     return { root, config, service, spawned, lines, calls: () => (fs.existsSync(path.join(config.tmpRoot, 'calls')) ? fs.readdirSync(path.join(config.tmpRoot, 'calls')) : []) };
@@ -209,7 +210,7 @@ test('one session per user and role: a second open replaces the first; close lea
     assert.equal(replaced.event.errorKind, 'lapsed');
     assert.deepEqual(await service.agent.close(second.sessionId), { value: { closed: true } });
     assert.equal(service.agent.counts().sessions, 0);
-    assert.equal(calls().length, 0);
+    assert.ok(await until(() => calls().length === 0), 'the owned homes are gone');
 });
 
 test('the parked queue is bounded: calls past the bound are refused at once', async () => {
@@ -328,7 +329,7 @@ test('shutdown tears every session down', async () => {
     assert.equal(service.agent.counts().sessions, 2);
     await service.shutdown();
     assert.equal(service.agent.counts().sessions, 0);
-    assert.equal(calls().length, 0);
+    assert.ok(await until(() => calls().length === 0), 'the owned homes are gone');
     assert.ok(await until(() => spawned.every((run) => !alive(run.pid))));
 });
 
@@ -358,4 +359,57 @@ test('HARNESS_LIVE=1: one real opencode bridge session through the shim', { skip
     } finally {
         await service.agent.close(opened.sessionId);
     }
+});
+
+const scripted = (stdout) => () => {
+    const child = new EventEmitter();
+    child.pid = 999_999;
+    child.stdout = new EventEmitter();
+    child.stderr = new EventEmitter();
+    child.stdin = { on() {}, end() { setImmediate(() => { child.stdout.emit('data', Buffer.from(stdout)); child.emit('close', 0); }); } };
+    setImmediate(() => child.emit('spawn'));
+    return child;
+};
+
+test('CR-J1: a failing owned-home write answers config, removes the home and frees the slot', async () => {
+    const fsImpl = { ...fs, writeFileSync: (file, ...rest) => { if (String(file).endsWith('tools.json')) throw Object.assign(new Error('disk full'), { code: 'ENOSPC' }); return fs.writeFileSync(file, ...rest); } };
+    const { service, calls, spawned } = setup({ fsImpl });
+    const opened = await service.agent.open(openRequest([{ hang: true }]));
+    assert.deepEqual([opened.ok, opened.kind], [false, 'config']);
+    assert.match(opened.message, /ENOSPC/);
+    assert.equal(spawned.length, 0);
+    assert.deepEqual(calls(), []);
+    assert.equal(service.gate.counts('opencode').running, 0);
+    assert.equal(service.agent.counts().sessions, 0);
+});
+
+test('CR-J16: a foreign tool event on the last stdout line, with no newline after it, still ends the session as refused', async () => {
+    const stdout = [
+        JSON.stringify({ type: 'text', part: { type: 'text', text: 'done' } }),
+        JSON.stringify({ type: 'step_finish', part: { reason: 'stop', tokens: { input: 1, output: 1 } } }),
+        JSON.stringify({ type: 'tool_use', part: { type: 'tool', tool: 'bash' } }),
+    ].join('\n');
+    const { service } = setup({ child: scripted(stdout) });
+    const opened = await service.agent.open(openRequest([{ hang: true }]));
+    assert.equal(opened.ok, true, JSON.stringify(opened));
+    const ended = await nextEvent(service, opened.sessionId);
+    assert.deepEqual([ended.kind, ended.errorKind], ['ended', 'refused']);
+    const clean = setup({ child: scripted(stdout.split('\n').slice(0, 2).join('\n')) });
+    const control = await clean.service.agent.open(openRequest([{ hang: true }]));
+    assert.equal((await nextEvent(clean.service, control.sessionId)).kind, 'done', 'control: the same run without the foreign event answers');
+});
+
+test('CR-J18: agent sessions count against the harness concurrency, and the slot is reserved before the first await', async () => {
+    const { service, spawned } = setup({ concurrency: 1 });
+    const results = await Promise.all([
+        service.agent.open(openRequest([{ hang: true }])),
+        service.agent.open(openRequest([{ hang: true }], { role: 'curator' })),
+    ]);
+    assert.deepEqual(results.map((result) => (result.ok ? 'ok' : result.kind)).sort(), ['busy', 'ok']);
+    assert.equal(service.gate.counts('opencode').running, 1, 'the session holds the harness slot a text call would need');
+    assert.equal(service.gate.tryAcquire('opencode'), null);
+    const opened = results.find((result) => result.ok);
+    await service.agent.close(opened.sessionId);
+    assert.equal(service.gate.counts('opencode').running, 0);
+    assert.ok(await until(() => spawned.every((run) => !alive(run.pid))));
 });

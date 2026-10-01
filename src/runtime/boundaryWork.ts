@@ -1,7 +1,7 @@
 import type { BoundaryResult } from "@engine/index";
 import { getChatWindow, planReconciliation, scheduleForcedCues, type ExtractionScheduler } from "@extraction/index";
 import type { SceneCoordinator } from "./coordinators/sceneCoordinator";
-import { storyEnded } from "./chapterPort";
+import { sealAtState, storyEnded } from "./chapterPort";
 import type { RuntimeManager } from "./runtimeManager";
 import { log } from "@utils/log";
 
@@ -91,8 +91,9 @@ const WORK_ITEMS: BoundaryWorkItem[] = [
     order: 44,
     run: ({ result, manager, scheduler }) => {
       const target = manager.chapters.due();
-      if (!target) return;
-      const at = { boundary: result.boundary, messageId: result.context.lastMessageId };
+      const state = manager.getEngineState();
+      if (!target || !state) return;
+      const at = sealAtState(state, { boundary: result.boundary, messageId: result.context.lastMessageId, activeCheckpointId: result.activeCheckpointId });
       scheduler.schedule({ priority: 1, reason: `chapter-seal:${target.chapter.id}`, run: async () => { await manager.chapters.seal(target, at); } });
     },
   },

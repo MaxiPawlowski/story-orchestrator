@@ -1,5 +1,8 @@
 import { EXPANSION_CONTRACT, type ExpansionRuntimeState } from "@generation/index";
-import { BEAT_RING_CAP, CONFLICT_LIMIT, createMemoryState, DERIVED_LIMIT, isProvenance, type ChapterRecord, type ChronicleState, type InnerBeat } from "@memory/index";
+import {
+  BEAT_RING_CAP, CHAPTER_DISPOSITIONS, CHAPTER_RECORD_STATUSES, CONFLICT_LIMIT, createMemoryState, DERIVED_LIMIT, isProvenance, type ChapterRecord, type ChronicleState, type InnerBeat,
+} from "@memory/index";
+import type { SealSkip } from "@memory/reverse";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
 import { capProposalRing } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
@@ -59,14 +62,48 @@ export const createMemory = (): MemoryRuntimeState => ({
   canon: null,
   chapters: [],
   chronicle: { eras: [] },
-  chapterBridge: null,
-  chapterRecapSeen: null,
   updatedAt: new Date().toISOString(),
 });
 
-const sanitizeChapters = (value: unknown): ChapterRecord[] => (Array.isArray(value) ? value.filter((record: Partial<ChapterRecord> | null) => Boolean(record)
-  && typeof record?.id === "string" && typeof record.chapterId === "string" && typeof record.summary === "string" && typeof record.short === "string"
-  && typeof record.range?.from === "number" && typeof record.range.to === "number" && typeof record.sealedAt?.messageId === "number" && isProvenance(record.provenance)) as ChapterRecord[] : []);
+const isObject = (value: unknown): value is Record<string, unknown> => Boolean(value) && typeof value === "object" && !Array.isArray(value);
+const isFiniteNumber = (value: unknown): value is number => typeof value === "number" && Number.isFinite(value);
+const isSpan = (value: unknown): value is { from: number; to: number } => isObject(value) && isFiniteNumber(value.from) && isFiniteNumber(value.to);
+const rowsOf = <T>(value: unknown, valid: (row: Record<string, unknown>) => boolean): T[] | null =>
+  (value === undefined ? [] : Array.isArray(value) && value.every((row) => isObject(row) && valid(row)) ? value as T[] : null);
+
+const sanitizeChapterRecord = (value: unknown): ChapterRecord | null => {
+  if (!isObject(value)) return null;
+  const { id, chapterId, summary, short, range, boundaries, sealedAt, provenance } = value;
+  if (typeof id !== "string" || typeof chapterId !== "string" || typeof summary !== "string" || typeof short !== "string" || !isProvenance(provenance)) return null;
+  if (!isSpan(range) || !isSpan(boundaries) || !isObject(sealedAt) || !["boundary", "messageId", "pathLength"].every((key) => isFiniteNumber(sealedAt[key]))) return null;
+  const people = rowsOf<ChapterRecord["people"][number]>(value.people, (row) => ["rosterId", "name", "text"].every((key) => typeof row[key] === "string"));
+  const open = rowsOf<ChapterRecord["open"][number]>(value.open, (row) => typeof row.arcId === "string" && typeof row.text === "string"
+    && CHAPTER_DISPOSITIONS.includes(row.disposition as ChapterRecord["open"][number]["disposition"]));
+  const consequences = rowsOf<ChapterRecord["consequences"][number]>(value.consequences, (row) => typeof row.text === "string" && Array.isArray(row.sources));
+  if (!people || !open || !consequences || (value.playerTitle !== undefined && typeof value.playerTitle !== "string")) return null;
+  const title = typeof value.title === "string" ? value.title : chapterId;
+  const bridge = isObject(value.bridge) && typeof value.bridge.text === "string"
+    ? { text: value.bridge.text, ...(Number.isInteger(value.bridge.committedAt) ? { committedAt: value.bridge.committedAt as number } : {}) } : null;
+  const counted = isObject(value.tokens) ? value.tokens : {};
+  const tokens = isFiniteNumber(counted.summary) && isFiniteNumber(counted.short) ? { summary: counted.summary, short: counted.short } : { summary: 0, short: 0 };
+  return {
+    id, chapterId, part: Number.isInteger(value.part) ? value.part as number : 1, title, playerTitle: typeof value.playerTitle === "string" ? value.playerTitle : title,
+    range: { from: range.from, to: range.to }, boundaries: { from: boundaries.from, to: boundaries.to },
+    checkpoints: Array.isArray(value.checkpoints) ? value.checkpoints.filter((entry): entry is string => typeof entry === "string") : [],
+    summary, short, consequences, people, open,
+    blackboardDelta: isObject(value.blackboardDelta) ? value.blackboardDelta as ChapterRecord["blackboardDelta"] : {},
+    blackboardAt: isObject(value.blackboardAt) ? value.blackboardAt : {},
+    status: CHAPTER_RECORD_STATUSES.includes(value.status as ChapterRecord["status"]) ? value.status as ChapterRecord["status"] : "sealed",
+    provenance: provenance as ChapterRecord["provenance"], tokens,
+    sealedAt: { boundary: sealedAt.boundary as number, messageId: sealedAt.messageId as number, at: isFiniteNumber(sealedAt.at) ? sealedAt.at : 0, pathLength: sealedAt.pathLength as number },
+    ...(value.final === true ? { final: true } : {}),
+    ...(typeof value.epilogue === "string" ? { epilogue: value.epilogue } : {}),
+    ...(bridge ? { bridge } : {}),
+    ...(Number.isInteger(value.recapSeenAt) ? { recapSeenAt: value.recapSeenAt as number } : {}),
+  };
+};
+
+const sanitizeChapters = (value: unknown): ChapterRecord[] => (Array.isArray(value) ? value.map(sanitizeChapterRecord).filter((record): record is ChapterRecord => record !== null) : []);
 
 const sanitizeChronicle = (value: unknown): ChronicleState => {
   const eras = (value as Partial<ChronicleState> | null)?.eras;
@@ -75,15 +112,13 @@ const sanitizeChronicle = (value: unknown): ChronicleState => {
   return { eras: Array.isArray(eras) ? eras.filter(valid) : [] };
 };
 
-const sanitizeSealSkip = (value: unknown) => {
-  const skip = value as { pathLength?: unknown; messageId?: unknown } | null;
-  return Number.isInteger(skip?.pathLength) && Number.isInteger(skip?.messageId) ? { pathLength: skip?.pathLength as number, messageId: skip?.messageId as number } : null;
+const sanitizeSealSkip = (value: unknown, depth = 8): SealSkip | null => {
+  if (!isObject(value) || depth <= 0 || !Number.isInteger(value.pathLength) || !Number.isInteger(value.messageId)) return null;
+  return { pathLength: value.pathLength as number, messageId: value.messageId as number, previous: sanitizeSealSkip(value.previous, depth - 1) };
 };
 
-const sanitizeBridge = (value: unknown) => {
-  const bridge = value as { recordId?: unknown; text?: unknown } | null;
-  return typeof bridge?.recordId === "string" && typeof bridge.text === "string" ? { recordId: bridge.recordId, text: bridge.text } : null;
-};
+const isBeat = (value: unknown): value is InnerBeat => isObject(value) && ["chatId", "memberId", "checkpointId", "beat", "at"].every((key) => typeof value[key] === "string")
+  && isFiniteNumber(value.basedOnMessageId) && (value.tone === undefined || typeof value.tone === "string") && (value.used === undefined || typeof value.used === "boolean");
 
 // A stored row without a valid envelope is dropped, never dressed with a default one;
 // the count goes to the console so a dropped row is never silent.
@@ -99,8 +134,10 @@ const sanitizeMirrorBook = (value: unknown): MemoryMirrorBook | null => {
   return typeof book?.name === "string" && typeof book.chatId === "string" && book.name && book.chatId ? { name: book.name, chatId: book.chatId } : null;
 };
 
-const sanitizeInnerBeats = (value: unknown): { innerBeats?: InnerBeat[] } =>
-  (Array.isArray(value) && value.length ? { innerBeats: (value as InnerBeat[]).slice(-BEAT_RING_CAP) } : {});
+const sanitizeInnerBeats = (value: unknown): { innerBeats?: InnerBeat[] } => {
+  const beats = Array.isArray(value) ? value.filter(isBeat).slice(-BEAT_RING_CAP) : [];
+  return beats.length ? { innerBeats: beats } : {};
+};
 
 export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeState => {
   const existing = value?.memory;
@@ -137,8 +174,6 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
       ...sanitizeInnerBeats(existing.innerBeats),
       chapters: sanitizeChapters(existing.chapters),
       chronicle: sanitizeChronicle(existing.chronicle),
-      chapterBridge: sanitizeBridge(existing.chapterBridge),
-      chapterRecapSeen: typeof existing.chapterRecapSeen === "string" ? existing.chapterRecapSeen : null,
       chapterSealSkip: sanitizeSealSkip(existing.chapterSealSkip),
       updatedAt: existing.updatedAt ?? new Date().toISOString(),
     };

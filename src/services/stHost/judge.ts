@@ -1,4 +1,4 @@
-import { JUDGE_PROVIDER_IDS, JudgeBusyError, type JudgeProviderId, type JudgeProviderStatus, type JudgeRequest, type JudgeResponse, type JudgeTransport } from "@judge/index";
+import { JUDGE_PROVIDER_IDS, JudgeBusyError, JudgePluginError, type JudgeProviderId, type JudgeProviderStatus, type JudgeRequest, type JudgeResponse, type JudgeTransport } from "@judge/index";
 import type { LlamaComplete } from "@judge/llamaLogprob";
 import { getContext } from "./context";
 import { importSTModule } from "./modules";
@@ -61,7 +61,7 @@ async function postToPlugin(path: string, body: unknown, signal?: AbortSignal): 
     signal,
   });
   if (BUSY_STATUSES.has(response.status)) throw new JudgeBusyError(response.status);
-  if (!response.ok) throw new Error(`judge plugin ${response.status}`);
+  if (!response.ok) throw new JudgePluginError(response.status);
   return await response.json() as unknown;
 }
 

@@ -39,10 +39,23 @@ describe("the agent bridge host seam (v2.6 plan 04 H, option 2)", () => {
   });
 
   it("names refusals: a missing route, a refused user, a busy harness, the plugin's own verdict", async () => {
-    for (const [answer, kind] of [[json(404, {}), "config"], [json(403, {}), "config"], [json(429, { ok: false, kind: "busy" }), "busy"], [json(200, { ok: false, kind: "auth", message: "log in" }), "auth"]] as const) {
+    const refused = json(403, { error: "harness routes are admin-only on this install" });
+    for (const [answer, kind] of [[json(404, {}), "config"], [refused, "config"], [json(429, { ok: false, kind: "busy" }), "busy"], [json(200, { ok: false, kind: "auth", message: "log in" }), "auth"]] as const) {
       const { fetchImpl } = scripted([answer]);
       await expect(createHarnessBridgeClient(fetchImpl, () => ({})).open(OPEN)).resolves.toMatchObject({ ok: false, kind });
     }
+  });
+
+  it("CR-J13: a 403 without the plugin's JSON refusal is SillyTavern's CSRF check, never admin-only", async () => {
+    const csrf = () => ({ ok: false, status: 403, json: async () => { throw new SyntaxError("Unexpected token F"); } }) as unknown as Response;
+    const open = scripted([csrf()]);
+    const opened = await createHarnessBridgeClient(open.fetchImpl, () => ({})).open(OPEN);
+    expect(opened).toMatchObject({ ok: false, kind: "transport", message: expect.stringContaining("CSRF") });
+    expect(opened.ok === false && opened.message).not.toContain("admin-only");
+    const poll = scripted([csrf()]);
+    await expect(createHarnessBridgeClient(poll.fetchImpl, () => ({})).nextCall("s", Date.now() + 1000)).resolves.toMatchObject({ kind: "ended", errorKind: "transport" });
+    const plugin = scripted([json(403, { error: "harness routes are admin-only on this install" })]);
+    await expect(createHarnessBridgeClient(plugin.fetchImpl, () => ({})).open(OPEN)).resolves.toMatchObject({ kind: "config", message: expect.stringContaining("admin-only") });
   });
 
   it("a gone session, a failed poll and a spent deadline each end the session", async () => {

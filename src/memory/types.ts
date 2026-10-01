@@ -77,6 +77,8 @@ export interface ChapterRecord {
   sealedAt: { boundary: number; messageId: number; at: number; pathLength: number };
   final?: boolean;
   epilogue?: string;
+  bridge?: { text: string; committedAt?: number };
+  recapSeenAt?: number;
 }
 
 export interface EraLine {

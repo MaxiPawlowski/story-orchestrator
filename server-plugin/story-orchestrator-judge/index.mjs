@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-export const PLUGIN_VERSION = '1.2.0';
+export const PLUGIN_VERSION = '1.3.0';
 export const SECRET_KEY = 'typesafe_api_key';
 export const LLAMA_SECRET_KEY = 'so_judge_llama_key';
 export const PROVIDERS = Object.freeze({
@@ -77,13 +77,24 @@ async function loadUtil() {
     return utilModule;
 }
 
-export async function userAccountsEnabled() {
-    const util = await loadUtil();
-    if (typeof util?.getConfigValue !== 'function') return false;
+let accountsWarned = false;
+const warnAccounts = (line) => {
+    if (accountsWarned) return;
+    accountsWarned = true;
+    console.warn(`[story-orchestrator-judge] ${line}`);
+};
+
+export async function userAccountsEnabled({ load = loadUtil, log = warnAccounts } = {}) {
+    const util = await load();
+    if (typeof util?.getConfigValue !== 'function') {
+        log('could not read enableUserAccounts from SillyTavern (src/util.js); treating user accounts as on, so keys come only from each user\'s own ST secrets');
+        return true;
+    }
     try {
         return util.getConfigValue('enableUserAccounts', false, 'boolean') === true;
-    } catch {
-        return false;
+    } catch (error) {
+        log(`enableUserAccounts could not be read (${error?.message ?? 'error'}); treating user accounts as on, so keys come only from each user's own ST secrets`);
+        return true;
     }
 }
 
@@ -236,10 +247,14 @@ export async function readTextBody(request, limit = MAX_BODY_BYTES) {
     if (!/^text\/plain\b/i.test(header(request, 'content-type') ?? '')) return refusal(415, 'send the request as text/plain');
     const chunks = [];
     let size = 0;
-    for await (const chunk of request) {
-        size += chunk.length;
-        if (size > limit) return refusal(413, `request body is over ${limit} bytes`);
-        chunks.push(chunk);
+    try {
+        for await (const chunk of request) {
+            size += chunk.length;
+            if (size > limit) return refusal(413, `request body is over ${limit} bytes`);
+            chunks.push(chunk);
+        }
+    } catch {
+        return refusal(400, 'the request body could not be read');
     }
     try {
         return { body: JSON.parse(Buffer.concat(chunks).toString('utf8')) };
@@ -323,11 +338,31 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
     return handlers;
 }
 
+export function guardRoute(handler, log = (line) => console.error(`[story-orchestrator-judge] ${line}`)) {
+    return (request, response) => {
+        let pending;
+        try {
+            pending = Promise.resolve(handler(request, response));
+        } catch (error) {
+            pending = Promise.reject(error);
+        }
+        return pending.catch((error) => {
+            log(`a route failed: ${error?.message ?? String(error)}`);
+            if (response.headersSent) return;
+            try {
+                response.status(500).json({ error: 'the judge plugin failed on this request' });
+            } catch {
+                return;
+            }
+        });
+    };
+}
+
 export async function init(router) {
     const handlers = createHandlers();
-    router.get('/status', (request, response) => { void handlers.status(request, response); });
-    router.post('/systemone', (request, response) => { void handlers.receive(request, response); });
-    router.post('/providers/llama-logprob/completion', (request, response) => { void handlers.receiveLlama(request, response); });
+    router.get('/status', guardRoute(handlers.status));
+    router.post('/systemone', guardRoute(handlers.receive));
+    router.post('/providers/llama-logprob/completion', guardRoute(handlers.receiveLlama));
     const resolved = await resolveKey(null);
     console.log(`[story-orchestrator-judge] loaded; key from ${resolved?.source ?? 'ST secrets (per user) or not configured'}`);
 }

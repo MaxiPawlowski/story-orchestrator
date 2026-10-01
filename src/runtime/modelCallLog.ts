@@ -16,6 +16,8 @@ export interface ModelCallRecord {
   usage?: CallUsage;
   fallbackFrom?: string;
   samplers: "applied" | "not-applied";
+  chatId?: string | null;
+  messageId?: number;
 }
 
 const REQUIRED = ["at", "role", "pass", "route", "result"] as const;
@@ -25,6 +27,12 @@ export const sanitizeModelCalls = (value: unknown): ModelCallRecord[] => (Array.
   : []);
 
 export const appendModelCall = (ring: readonly ModelCallRecord[], record: ModelCallRecord): ModelCallRecord[] => [...ring, record].slice(-MODEL_CALL_LIMIT);
+
+export const acceptModelCall = (ring: ModelCallRecord[], record: ModelCallRecord, chatId: string | null): ModelCallRecord[] =>
+  (record.chatId !== undefined && record.chatId !== chatId ? ring : appendModelCall(ring, record));
+
+export const rollbackModelCalls = (ring: ModelCallRecord[], messageId: number): ModelCallRecord[] =>
+  ring.filter((record) => typeof record.messageId !== "number" || record.messageId < messageId);
 
 let sink: ((record: ModelCallRecord) => void) | null = null;
 

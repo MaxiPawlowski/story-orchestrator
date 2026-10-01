@@ -462,10 +462,11 @@ export class EffectsApplier {
 
   private async fireOnEnter(checkpoint: Checkpoint, extras: RuntimeExtras, gate?: number) {
     const run = beginRun(this.ownership);
+    const first = Math.max(gate ?? 0, lastMessageId()) + 1;
     const spoken = await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only !== true);
     const last = lastMessageId();
-    if (gate === undefined || !spoken || last <= gate || !run.stillOwns()) return;
-    extras.onEnterPosts = recordOnEnterPost(extras.onEnterPosts ?? [], { checkpointId: checkpoint.id, gate, first: gate + 1, last });
+    if (gate === undefined || !spoken || last < first || !run.stillOwns()) return;
+    extras.onEnterPosts = recordOnEnterPost(extras.onEnterPosts ?? [], { checkpointId: checkpoint.id, gate, first, last });
   }
 
   async removeOnEnterPost(post: { first: number; last: number }, run: RunGuard) {

@@ -1,4 +1,4 @@
-import type { EngineState } from "./engine";
+import { keptStagedFrom, type EngineState } from "./engine";
 import type { NormalizedStoryV2, PrimitiveValue, Transition } from "./schema";
 import { qualityAccepts } from "./blackboard";
 import { gateLeaves } from "./gates";
@@ -336,6 +336,7 @@ export function pruneEngineState(state: EngineState, next: NormalizedStoryV2, di
   const visitedPath = state.visitedPath.filter((id) => next.checkpointById[id]);
   return {
     ...state,
+    ...keptStagedFrom(state, (ids) => ids.filter((id) => next.checkpointById[id])),
     activeCheckpointId,
     // Re-anchoring starts a new leg: the old checkpoint's turn counters would make the new one
     // look overstayed and trigger a stall re-read on arrival.

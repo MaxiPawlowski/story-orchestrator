@@ -14,19 +14,20 @@
         "chat": "fresh",
         "startAt": "guild-hall",
         "settings": {},
-        "notes": ["Do not open the drawer's Author view in this session.", "adolion-fresh binds every Adolion group to its story, so the fresh chat already plays it: open the Extensions panel and read Start / Continue / Repair as a new player would before the first turn."]
+        "notes": ["Do not open the drawer's Author view in this session.", "adolion-fresh binds every Adolion group to its story, so the fresh chat already plays it: open the Extensions panel and read the entry points as a new player would before the first turn. Picking a story lives under Continue (it reveals the library select); Start is for making a new one (wizard or import)."]
       },
       "drive": [
-        { "title": "Read the entry points", "aim": ["guild-hall"], "why": "In the settings panel, check that Continue names The Adventurer's Road, the requirements read ready and Repair has nothing to say; open Start to see how you would pick another story.", "lines": ["(no chat line: this beat is the settings panel)"] },
+        { "title": "Read the entry points", "aim": ["guild-hall"], "why": "In the settings panel, open Continue: it names The Adventurer's Road and reveals the library select where a story is picked. Repair has nothing to say. Start makes a new story (wizard or import), it does not pick one. Then open the story drawer: the requirements read ready there, not in the settings panel.", "lines": ["(no chat line: this beat is the settings panel)"] },
         { "title": "Look around the hall", "aim": ["guild-hall"], "why": "Talk to Tobias at the counter and let Belle and Dalan react.", "lines": ["What's on the board that pays and won't get us killed?", "Tobias, what's the catch with the Wendhope posting?"] },
         { "title": "Take Wendhope and name the party", "aim": ["road-to-wendhope"], "why": "The gate needs path = wendhope and a party name in Ellie's book.", "lines": ["We'll take the Wendhope job.", "Put us down as the Ash Lanterns."] },
         { "title": "Travel north", "aim": ["on-the-road", "at-the-walls"], "why": "Two days of empty road, then Wendhope's closed gate.", "lines": ["We keep moving north. Anyone else notice there's no traffic on this road?", "We make camp by the carriages and keep a watch."] }
       ],
       "lookFor": [
-        { "what": "The entry points tell you, without any docs, which story this chat plays and that it is ready.", "where": "settings panel" },
+        { "what": "The entry points tell you, without any docs, which story this chat plays (Continue) and how you would pick another (Continue's library select).", "where": "settings panel" },
+        { "what": "The requirements read ready in the drawer.", "where": "drawer" },
         { "what": "The HUD shows The Guild Hall, then The Road North after you take the job and give a name.", "where": "HUD" },
         { "what": "The Overview's 'where you are' uses checkpoint names and plain language, no ids.", "where": "Overview" },
-        { "what": "A small chip under the transition reply says a new scene started.", "where": "timeline" },
+        { "what": "An icon chip titled \"Progress\" sits under the transition reply; hovering or opening it says a new scene started.", "where": "timeline" },
         { "what": "Tobias drops out of the scene once you leave the hall (cast change).", "where": "chat" }
       ],
       "mustNotHappen": [
@@ -42,11 +43,11 @@
       "stopWhen": "20 player turns, or you reach Hold, Wendhope Is Closed; about 40 minutes.",
       "rubric": [
         { "feature": "entry points", "ask": "could you start without help?" },
-        { "feature": "requirements readout" },
+        { "feature": "requirements readout", "ask": "in the drawer" },
         { "feature": "HUD" },
         { "feature": "Overview" },
         { "feature": "transition timing" },
-        { "feature": "timeline at level 1" }
+        { "feature": "timeline at level 1", "ask": "the Progress chip" }
       ],
       "loggedAutomatically": [
         "every extraction read with its prompt, raw reply and rejected lines (journal.jsonl)",
@@ -68,7 +69,7 @@
         "chat": "continue",
         "continues": "T0-1",
         "settings": {},
-        "notes": ["Best started the day after T0-1, so the away recap has a real gap to cover.", "so-session start reopens the T0-1 chat on the same lane without re-seeding."]
+        "notes": ["Start with --age 24 (so-session start T0-2 --age 24): it backdates the chat's last session a day and reloads it, so the away recap has a real gap to cover.", "so-session start reopens the T0-1 chat on the same lane without re-seeding."]
       },
       "drive": [
         { "title": "Read the welcome back", "aim": ["at-the-walls", "road-to-wendhope"], "why": "Before typing, read the away recap and the Overview.", "lines": ["(read first, then:) So where were we?"] },
@@ -98,7 +99,7 @@
         { "feature": "transition timing" }
       ],
       "loggedAutomatically": ["the journal across both reloads (the tail re-attaches by itself)", "save outcomes and read-backs", "the run header at start and stop"],
-      "knownLimits": ["The recap only appears after a real gap; a same-day session may not show it (then flag 'no recap').", "Images and sprites are off."]
+      "knownLimits": ["The recap only appears after a real gap; --age 24 makes one. If it still does not show, flag 'no recap'.", "Images and sprites are off."]
     },
     {
       "id": "T0-3",
@@ -178,12 +179,12 @@
         "chat": "fresh",
         "startAt": "guild-hall",
         "settings": {},
-        "notes": ["The steward (the-sheridan-steward) is The Guild Hall's authored alternate: in this build it is reached only when an author takes it from the Driver panel, not by a gate. Expect a neutral answer in player mode; switch Author view on only in beat 3 if the story holds."]
+        "notes": ["The steward (the-sheridan-steward) is The Guild Hall's authored alternate, with no gated edge in this build. There is no 'take alternate' button: an author reaches it only with the Driver panel's 'Advance to…' (pick the steward, confirm), or from Scheduler > Refused route once the snapshot carries agencyRecovery (two refused gate boundaries at the hall). Expect a neutral answer in player mode; switch Author view on only in beat 3 if the story holds."]
       },
       "drive": [
         { "title": "Look around the hall", "aim": ["guild-hall"], "why": "Let Tobias pitch the Wendhope posting.", "lines": ["What's the job on the board with the red seal?"] },
         { "title": "Refuse it clearly", "aim": ["guild-hall"], "why": "The refusal should get one neutral, in-world answer and no forced departure.", "lines": ["A collapsed mine shaft for that pay? No. We'll find something else."] },
-        { "title": "Refuse again, differently", "aim": ["adv-guild-tavern", "the-sheridan-steward"], "why": "Stall, bargain, or walk out to the tavern (adv_looking_for_hands). If the story just holds, turn Author view on and take the alternate from the Driver panel.", "lines": ["Tell the Sheridans to hire soldiers.", "We'll be in the tavern if anyone has a real job."] },
+        { "title": "Refuse again, differently", "aim": ["adv-guild-tavern", "the-sheridan-steward"], "why": "Stall, bargain, or walk out to the tavern (adv_looking_for_hands). If the story just holds, turn Author view on: use Scheduler > Refused route if it shows, else the Driver panel's Advance to… the steward.", "lines": ["Tell the Sheridans to hire soldiers.", "We'll be in the tavern if anyone has a real job."] },
         { "title": "Accept on your own terms, and name the party", "aim": ["road-to-wendhope"], "why": "path = wendhope and a party name.", "lines": ["Fine. Triple the fee, and we ride as the Ash Lanterns."] }
       ],
       "lookFor": [
@@ -425,9 +426,9 @@
       "provocations": ["Ask a companion about something from 40 turns ago.", "Leave the chat idle for 20 minutes mid-session, then continue."],
       "flagWhen": ["A companion forgot something important.", "A chapter title or recap was wrong.", "Replies got slow as the chat grew."],
       "stopWhen": "80 turns and past Father's Summons, or 2 hours; split across days by stopping and continuing in T2-3.",
-      "rubric": [{ "feature": "long-run memory" }, { "feature": "chapter seal" }, { "feature": "story so far / Previously" }, { "feature": "Memory tab" }, { "feature": "act change" }],
+      "rubric": [{ "feature": "long-run memory" }, { "feature": "chapter seal" }, { "feature": "story so far / Previously" }, { "feature": "Memory tab" }, { "feature": "act change" }, { "feature": "07 Q-M legs", "ask": "the chapter texts and their sources, for blind rating", "reviewer": "user" }],
       "loggedAutomatically": ["every memory write, consolidation and chapter seal (journal)", "extraction reads and canon passes", "prompt size per generation (payloads.jsonl)"],
-      "knownLimits": ["Chapter features are switched on for this session only; their defaults wait on the Q-M floors (plan 07).", "Images and sprites are off.", "The 07 Q-M legs are rated here."]
+      "knownLimits": ["Chapter features are switched on for this session only; their defaults wait on the Q-M floors (plan 07).", "Images and sprites are off.", "The 07 Q-M legs are recorded for the user's review, not decided by Claude: the chapter record, story so far and Previously text are kept as evidence for the user's blind rating."]
     },
     {
       "id": "T2-2",
@@ -467,28 +468,30 @@
       "title": "Contradiction",
       "question": "When the player asserts something that contradicts an established fact, is it held for review instead of overwriting the fact?",
       "story": { "kind": "adolion", "id": "adolion-saga" },
-      "setup": { "mode": "player", "persona": "The same Saga persona as T2-1.", "chat": "continue", "continues": "T2-1", "settings": {} },
+      "setup": { "mode": "author", "persona": "The same Saga persona as T2-1, played with Author view on.", "chat": "continue", "continues": "T2-1", "settings": {}, "notes": ["Author mode: the memory queue (held and conflicted rows, Lock as canon) and the warden's note approval are author-only. The warden runs in its default review mode, so its note waits in the author Scheduler until you approve it."] },
       "drive": [
         { "title": "Contradict the seal", "aim": ["nightriver-house", "fathers-summons"], "why": "Say the opposite of how the Devourer ended.", "lines": ["We never went past the seal, remember? Driftmere's mine is fine."] },
         { "title": "Contradict a companion fact", "aim": ["nightriver-house", "fathers-summons", "whispers"], "why": "Say something wrong about Riyo or Naomi.", "lines": ["Riyo's always had two ordinary arms."] },
-        { "title": "Look at the memory queue", "aim": ["nightriver-house", "fathers-summons", "whispers"], "why": "Open the Memory tab and find what is held.", "lines": ["(no chat line: open the drawer's Memory tab)"] }
+        { "title": "Look at the memory queue", "aim": ["nightriver-house", "fathers-summons", "whispers"], "why": "Open the author memory queue and find what is held.", "lines": ["(no chat line: open the drawer's memory queue)"] },
+        { "title": "Approve the warden", "aim": ["nightriver-house", "fathers-summons", "whispers"], "why": "In the author Scheduler, approve the warden's pending continuity note, then play one turn and see whether it lands.", "lines": ["So, what do we tell Father about Driftmere?"] }
       ],
       "lookFor": [
-        { "what": "Your contradicting claim appears as held or conflicted, and the established fact still steers.", "where": "Memory tab" },
+        { "what": "Your contradicting claim appears as held or conflicted, and the established fact still steers.", "where": "author panel" },
         { "what": "The next replies still follow the established fact.", "where": "chat" },
-        { "what": "A continuity note (the warden) nudges the next reply toward the established fact.", "where": "chat" }
+        { "what": "A continuity note (the warden) waits for approval in the Scheduler, then nudges the next reply toward the established fact.", "where": "author panel" }
       ],
       "mustNotHappen": [
         "The contradicting claim replaces the established fact silently.",
         "A character agrees with the contradiction as if it were true.",
-        "The held item shows internal ids or quality names in player mode."
+        "The held item cannot be read without knowing internal ids (no plain words for what is held and why).",
+        "The warden's note is applied without your approval in review mode."
       ],
       "provocations": ["Contradict yourself twice in a row.", "Contradict something only the narrator said."],
       "flagWhen": ["The held item was confusing.", "The story picked up the wrong version."],
       "stopWhen": "Three contradictions tried and the queue read, or 30 minutes.",
       "rubric": [{ "feature": "contradiction handling" }, { "feature": "memory queue" }, { "feature": "continuity warden" }],
       "loggedAutomatically": ["held / conflicted memory rows", "warden notes and judge memory checks", "extraction reads of your contradicting lines"],
-      "knownLimits": ["Only established facts (locked, authored or decided) hold a claim; a merely pinned fact does not.", "A contradiction worded far from the fact may not be detected."]
+      "knownLimits": ["Only established facts (locked, authored or decided) hold a claim; a merely pinned fact does not.", "A contradiction worded far from the fact may not be detected.", "Author mode: the player-mode surfaces of this chat were checked at the end of T2-1."]
     },
     {
       "id": "T2-4",
@@ -496,7 +499,7 @@
       "title": "Away and back",
       "question": "After a day away from a long chat, does the recap let the player continue cold?",
       "story": { "kind": "adolion", "id": "adolion-adventurer" },
-      "setup": { "mode": "player", "persona": "The same persona as T1-1.", "chat": "continue", "continues": "T1-1", "settings": {}, "notes": ["Needs the T1-1 chat at 40+ turns and a real gap of at least a day."] },
+      "setup": { "mode": "player", "persona": "The same persona as T1-1.", "chat": "continue", "continues": "T1-1", "settings": {}, "notes": ["Needs the T1-1 chat at 40+ turns. Start with --age 24 so the gap is a day."] },
       "drive": [
         { "title": "Read cold", "aim": ["into-needlehaven", "what-wendhope-knows"], "why": "Read the recap and the Overview before typing anything.", "lines": ["(read first)"] },
         { "title": "Continue from the recap alone", "aim": ["into-needlehaven", "the-lord-spirit"], "why": "evidence >= 3 and knows_spirit.", "lines": ["We follow the white flowers deeper, while the sun is up."] }
@@ -516,7 +519,7 @@
       "stopWhen": "10 turns after the recap, or 20 minutes.",
       "rubric": [{ "feature": "away recap" }, { "feature": "Overview threads" }],
       "loggedAutomatically": ["the recap shown (journal)", "the state at reopen"],
-      "knownLimits": ["The recap needs a gap; an early start reads as 'no recap'."]
+      "knownLimits": ["The recap needs a gap; --age 24 makes one. Without it an early start reads as 'no recap'."]
     },
     {
       "id": "T2-5",
@@ -524,22 +527,22 @@
       "title": "Memory tab",
       "question": "Can the player curate memory (pin, edit, exclude, lock as canon) and do the next turns obey?",
       "story": { "kind": "adolion", "id": "adolion-saga" },
-      "setup": { "mode": "player", "persona": "The same Saga persona as T2-1.", "chat": "continue", "continues": "T2-1", "settings": {} },
+      "setup": { "mode": "author", "persona": "The same Saga persona as T2-1, played with Author view on.", "chat": "continue", "continues": "T2-1", "settings": {}, "notes": ["Author mode: Lock as canon and the memory queue are author-only. Pin, edit and exclude are tried in the Memory tab as a player would see them; turn Author view on for the lock beat."] },
       "drive": [
         { "title": "Pin and edit", "aim": ["fathers-summons", "whispers"], "why": "Pin one fact about Riyo; edit one fact about Naomi.", "lines": ["(no chat line: the Memory tab)"] },
         { "title": "Exclude one", "aim": ["fathers-summons", "whispers"], "why": "Exclude a fact you dislike, then ask about it in chat.", "lines": ["Remember what happened with Naomi's duel?"] },
-        { "title": "Lock one as canon", "aim": ["whispers", "the-duel"], "why": "Lock the Devourer outcome as canon, then contradict it in chat.", "lines": ["We left the Devourer alive, didn't we?"] }
+        { "title": "Lock one as canon", "aim": ["whispers", "the-duel"], "why": "Author view: lock the Devourer outcome as canon, then contradict it in chat.", "lines": ["We left the Devourer alive, didn't we?"] }
       ],
       "lookFor": [
         { "what": "Find and the tier filter make the fact easy to reach.", "where": "Memory tab" },
         { "what": "An edited fact is what the next reply uses.", "where": "chat" },
         { "what": "An excluded fact is no longer used.", "where": "chat" },
-        { "what": "A locked fact wins against your contradiction.", "where": "Memory tab" }
+        { "what": "A locked fact wins against your contradiction.", "where": "author panel" }
       ],
       "mustNotHappen": [
         "An excluded fact comes back into a reply.",
         "An edit is lost after a reload.",
-        "The Memory tab shows superseded or internal rows in player mode.",
+        "With Author view off, the Memory tab shows superseded or internal rows.",
         "A click in the tab does nothing without saying why."
       ],
       "provocations": ["Reload right after an edit.", "Swipe the reply right after pinning."],
@@ -583,15 +586,15 @@
       "id": "T3-1",
       "tier": "T3",
       "title": "Everything on",
-      "question": "With images, sprites, inner voice and the timeline all on, what helps the story and what distracts?",
+      "question": "With the inner voice and the timeline on (images and sprites stay off in the autonomous run), what helps the story and what distracts?",
       "story": { "kind": "adolion", "id": "adolion-deep" },
       "setup": {
         "mode": "player",
         "persona": "The Nightriver heir leading a C-rank party at the Guild counter.",
         "chat": "fresh",
         "startAt": "deep-joint-posting",
-        "settings": { "images": true, "sprites": true, "innerVoice": true, "inlineLevel": 1 },
-        "notes": ["Needs the shared ComfyUI: start only with --allow-comfy after confirming nobody else is rendering.", "This chat is continued by T3-2."]
+        "settings": { "innerHarvest": true, "innerBeat": true, "inlineLevel": 1 },
+        "notes": ["Images and sprites stay OFF in the autonomous run: the shared ComfyUI at 127.0.0.1:8188 is forbidden (plan 15). The image and sprite beats are a known limit, not a finding.", "Both inner voice toggles are author-only, so so-session start sets them: #so-inner-harvest (harvestReasoning, read characters' reasoning for intent) and #so-inner-beat (innerBeat, a private beat for the next speaker).", "This chat is continued by T3-2."]
       },
       "drive": [
         { "title": "Choose a partner party", "aim": ["deep-with-crimsonwing", "deep-with-ebonwing", "deep-kela-and-ced"], "why": "deep_partner crimsonwing or ebonwing (or refuse).", "lines": ["We'll go with Crimsonwing.", "Ced, Kela, why should we pick either of you?"] },
@@ -600,24 +603,21 @@
         { "title": "Go in", "aim": ["deep-the-altar"], "why": "deep_hall_breached.", "lines": ["Over the wall at the change of watch."] }
       ],
       "lookFor": [
-        { "what": "Scene images arrive at the right moments and match the scene.", "where": "chat" },
-        { "what": "Sprites show who is speaking and do not lag behind replies.", "where": "chat" },
         { "what": "The inner voice adds something at decisions and stays out of the way otherwise.", "where": "chat" },
         { "what": "Timeline chips stay readable with everything on.", "where": "timeline" }
       ],
       "mustNotHappen": [
-        "An image or sprite shows a character not in the scene.",
         "Ced or Kela mentions their Darklands split at the counter ('Who knows what').",
         "Kela's witness mark on the Wind Ballad death report comes up before the reckoning.",
         "Runo blurts out whose heir you are ('Who knows what': too flustered to say it).",
-        "A reply waits on an image."
+        "The inner voice text itself is visible in chat."
       ],
-      "provocations": ["Swipe a reply that carried an image.", "Reload while an image is rendering."],
-      "flagWhen": ["Something distracted you.", "An image or sprite was wrong or late."],
+      "provocations": ["Swipe a reply right after an inner beat was prepared.", "Reload while the memory model is still preparing a beat."],
+      "flagWhen": ["Something distracted you.", "A character acted on a motive that came from nowhere."],
       "stopWhen": "You are inside the keep, or 60 minutes.",
-      "rubric": [{ "feature": "scene images" }, { "feature": "sprites" }, { "feature": "inner voice" }, { "feature": "timeline at level 1" }, { "feature": "overall presentation" }],
-      "loggedAutomatically": ["image and sprite cues and results", "inner-voice beats (used, stale, missing)", "prompts sent"],
-      "knownLimits": ["Image quality depends on the ComfyUI workflow, not this extension.", "The inner voice is the 06 C3 leg: rate it here."]
+      "rubric": [{ "feature": "inner voice" }, { "feature": "timeline at level 1" }, { "feature": "overall presentation" }, { "feature": "06 C3 inner voice leg", "ask": "the beats and the replies they fed, for blind rating", "reviewer": "user" }, { "feature": "C5/C6 surface decisions", "ask": "what helped and what distracted, as evidence", "reviewer": "user" }],
+      "loggedAutomatically": ["inner-voice beats (used, stale, missing)", "prompts sent"],
+      "knownLimits": ["Images and sprites are off: ComfyUI is forbidden in the autonomous run (plan 15). Scene images and sprites are not rated.", "Harvest needs replies that carry reasoning and the knowledge tracking profile; if it shows Idle, record that.", "The 06 C3 leg and the C5/C6 decisions are recorded for the user's review, not decided by Claude."]
     },
     {
       "id": "T3-2",
@@ -627,9 +627,9 @@
       "story": { "kind": "adolion", "id": "adolion-deep" },
       "setup": { "mode": "player", "persona": "The same persona as T3-1.", "chat": "continue", "continues": "T3-1", "settings": { "inlineLevel": 0 }, "notes": ["Images and sprites are switched back off for this session."] },
       "drive": [
-        { "title": "Levels 0, 1, 2 in player mode", "aim": ["deep-the-altar", "deep-nahalbuk-cells"], "why": "Play 3 turns at each level (settings panel, timeline level).", "lines": ["We cut the captive loose and get out of the hall!"] },
-        { "title": "Author view, levels 3 and 4", "aim": ["deep-nahalbuk-cells", "deep-what-unira-says"], "why": "Turn Author view on, then level 3, then 4.", "lines": ["Unira, who left you down here?"] },
-        { "title": "Open the message inspector", "aim": ["deep-what-unira-says"], "why": "Click an author chip under a transition reply.", "lines": ["(no chat line: the inspector)"] }
+        { "title": "Levels 0, 1, 2 in player mode", "aim": ["deep-the-altar", "deep-nahalbuk-cells"], "why": "Play 3 turns at each level (settings panel, 'Notes under messages').", "lines": ["We cut the captive loose and get out of the hall!"] },
+        { "title": "Author view, levels 3 and 4", "aim": ["deep-nahalbuk-cells", "deep-what-unira-says"], "why": "Turn Author view on, then 'Notes under messages' to 3, then 4.", "lines": ["Unira, who left you down here?"] },
+        { "title": "Open the message inspector", "aim": ["deep-what-unira-says"], "why": "At level 3 or more, click the magnifier chip titled 'Inspect message' under a transition reply.", "lines": ["(no chat line: the inspector)"] }
       ],
       "lookFor": [
         { "what": "Level 0 shows nothing, 1 story beats, 2 behind-the-scenes in player words.", "where": "timeline" },
@@ -644,9 +644,9 @@
       "provocations": ["Swipe a reply and watch its chips.", "Switch level while a reply is generating."],
       "flagWhen": ["A level was noisy or confusing.", "The inspector did not open or was empty."],
       "stopWhen": "All five levels and the inspector tried, or 30 minutes.",
-      "rubric": [{ "feature": "timeline level 0-2" }, { "feature": "timeline level 3-4" }, { "feature": "message inspector" }, { "feature": "A1 inspector decision input" }],
+      "rubric": [{ "feature": "timeline level 0-2" }, { "feature": "timeline level 3-4" }, { "feature": "message inspector" }, { "feature": "A1 inspector decision input", "reviewer": "user" }, { "feature": "C5/C6 surface decisions", "ask": "the levels as seen, as evidence", "reviewer": "user" }],
       "loggedAutomatically": ["the inline timeline items per message", "lore fired per reply"],
-      "knownLimits": ["The C5/C6 surface decisions are made from this and T3-1."]
+      "knownLimits": ["The C5/C6 surface decisions and the A1 inspector decision are recorded for the user's review, not decided by Claude (from this and T3-1).", "Images and sprites are off."]
     },
     {
       "id": "T3-3",
@@ -654,7 +654,7 @@
       "title": "Inner voice",
       "question": "At decision moments, does the inner voice add real motive to the characters, or does it repeat what is already on the page?",
       "story": { "kind": "adolion", "id": "adolion-night" },
-      "setup": { "mode": "player", "persona": "The leader of a C-rank Guild party at Glasnoa.", "chat": "fresh", "startAt": "night-the-accused", "settings": { "innerVoice": true } },
+      "setup": { "mode": "player", "persona": "The leader of a C-rank Guild party at Glasnoa.", "chat": "fresh", "startAt": "night-the-accused", "settings": { "innerHarvest": true, "innerBeat": true }, "notes": ["Both inner voice toggles are author-only, so so-session start sets them: #so-inner-harvest (harvestReasoning) and #so-inner-beat (innerBeat)."] },
       "drive": [
         { "title": "The trial", "aim": ["night-the-accused"], "why": "Selena chained, Ren raising the stake, Erevan behind his mask.", "lines": ["Erevan, do you believe the book was hers?", "Selena, tell me what happened in your room."] },
         { "title": "Decide Selena's fate", "aim": ["night-the-thornwood", "night-erevan-insists"], "why": "night_selena freed or handed_over (and night_in_thornwood), or night_stood_aside.", "lines": ["She goes free. The book was planted.", "This isn't our business. We're leaving."] },
@@ -675,7 +675,7 @@
       "stopWhen": "You reach The Witch of Thornwood, or 40 minutes.",
       "rubric": [{ "feature": "inner voice (adds vs repeats)" }, { "feature": "secrets kept" }, { "feature": "agency at the decision" }],
       "loggedAutomatically": ["inner-voice beats used, stale or missing", "each drafted member's prompt"],
-      "knownLimits": ["The inner voice is off by default; this session switches it on.", "06 C3 is rated with T3-1."]
+      "knownLimits": ["The inner voice is off by default; this session switches both toggles on.", "06 C3 is recorded for the user's review, not decided by Claude (with T3-1)."]
     },
     {
       "id": "T3-4",
@@ -716,7 +716,7 @@
       "setup": { "mode": "author", "persona": "The leader of a C-rank party in Hianxo, played as an author checking the curator.", "chat": "fresh", "startAt": "east-landfall", "settings": { "curator": { "enabled": true, "acceptMode": "review" } }, "notes": ["Author view is on: the curator ring is in the drawer's Scheduler tab."] },
       "drive": [
         { "title": "Play to the Academy", "aim": ["east-jiansho-academy"], "why": "Give the curator material: names, places, new facts.", "lines": ["Honami, tell us about Megumi."] },
-        { "title": "Review proposals", "aim": ["east-jiansho-academy", "east-the-rounds"], "why": "Accept some, reject some, edit one.", "lines": ["(no chat line: the Scheduler tab)"] },
+        { "title": "Review proposals", "aim": ["east-jiansho-academy", "east-the-rounds"], "why": "Accept some, Decline some, edit one before accepting.", "lines": ["(no chat line: the Scheduler tab)"] },
         { "title": "Check the effect", "aim": ["east-the-rounds", "east-the-upset", "east-the-hattaxi-shadow"], "why": "Accepted entries apply at the next boundary; see them fire.", "lines": ["Hanzo, you're no steward. Who are you?"] }
       ],
       "lookFor": [
@@ -730,7 +730,7 @@
         "A rejected proposal is applied anyway.",
         "Megumi's brother as target reaches a proposal before the Hattaxi reveal ('Who knows what')."
       ],
-      "provocations": ["Swipe the reply after accepting a proposal (it should revert).", "Accept then reject the same op."],
+      "provocations": ["Swipe the reply after accepting a proposal (it should revert).", "Decline an op you were about to accept (there is no accept-then-decline: a decided op stays decided)."],
       "flagWhen": ["A proposal was useless or wrong.", "The review UI was confusing."],
       "stopWhen": "At least 5 proposals decided, or 45 minutes.",
       "rubric": [{ "feature": "curator proposal quality" }, { "feature": "review UI" }, { "feature": "apply timing" }, { "feature": "rollback of applied ops" }],
@@ -773,7 +773,7 @@
       "title": "Abuse",
       "question": "When the player swipes, edits and deletes at every feature's moment, do story, memory, timeline and saves still agree?",
       "story": { "kind": "adolion", "id": "adolion-academy" },
-      "setup": { "mode": "player", "persona": "A Nightriver heir who keeps changing their mind.", "chat": "fresh", "startAt": "nightriver-house", "settings": { "innerVoice": true, "chapters": { "seal": true, "storySoFar": true }, "curator": { "enabled": true, "acceptMode": "review" } } },
+      "setup": { "mode": "player", "persona": "A Nightriver heir who keeps changing their mind.", "chat": "fresh", "startAt": "nightriver-house", "settings": { "innerHarvest": true, "innerBeat": true, "chapters": { "seal": true, "storySoFar": true }, "curator": { "enabled": true, "acceptMode": "review" } }, "notes": ["The inner voice toggles (#so-inner-harvest, #so-inner-beat) are author-only; so-session start sets both."] },
       "drive": [
         { "title": "Swipe a transition", "aim": ["fathers-summons"], "why": "path = witch_king; swipe the reply that moved it.", "lines": ["I go to Father's study at once."] },
         { "title": "Edit a memory moment", "aim": ["fathers-summons", "whispers"], "why": "Say something memorable, then edit it away.", "lines": ["I swear on Mother's grave I'll never duel for this house."] },
@@ -781,7 +781,7 @@
         { "title": "Swipe at the duel", "aim": ["the-duel", "night-of-knives"], "why": "duel_outcome; swipe the outcome reply twice.", "lines": ["I show the court the venom on his lance."] }
       ],
       "lookFor": [
-        { "what": "After each mutation, the HUD, Memory tab and timeline agree with the chat.", "where": "Overview" },
+        { "what": "After each mutation, the HUD, Memory tab and timeline agree with the chat; the Overview says 'the current scene' in plain words rather than naming internals.", "where": "Overview" },
         { "what": "The step-back notice names the checkpoint you returned to.", "where": "Overview" },
         { "what": "A pending curator proposal from a deleted reply is withdrawn.", "where": "chat" }
       ],
@@ -841,7 +841,7 @@
         { "title": "Delete chat two: delete the book", "aim": ["aegis-homecoming", "aegis-the-tavern"], "why": "Answer with delete.", "lines": ["(no chat line: delete the chat)"] }
       ],
       "lookFor": [
-        { "what": "The prompt names the chat and the book in plain words.", "where": "popup" },
+        { "what": "The prompt names the chat and the book in plain words (expected finding: it shows a raw chat id).", "where": "popup" },
         { "what": "Keep leaves the book; delete removes it; no Repair row after either.", "where": "settings panel" }
       ],
       "mustNotHappen": [
@@ -855,7 +855,7 @@
       "stopWhen": "Both deletes done and checked, or 20 minutes.",
       "rubric": [{ "feature": "mirror-book prompt" }, { "feature": "keep" }, { "feature": "delete" }, { "feature": "Repair after delete" }],
       "loggedAutomatically": ["the reaper's decision (journal)", "lorebook list before and after (run header diff)"],
-      "knownLimits": ["The run header diff will show the chats and books you deleted; that is expected here."]
+      "knownLimits": ["The run header diff will show the chats and books you deleted; that is expected here.", "The prompt names the deleted chat by its raw chat id. Record that as a finding (expectation: plain words), not as a mistake in the card."]
     },
     {
       "id": "T4-4",
@@ -893,11 +893,11 @@
       "tier": "T5",
       "title": "Wizard, premise 1",
       "question": "Can the author make a playable story from the first premise with the wizard in review mode, and play 20 turns of it?",
-      "story": { "kind": "wizard", "premise": "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen." },
-      "setup": { "mode": "author", "persona": "An author; later, the apprentice cartographer.", "chat": "fresh", "settings": {}, "notes": ["Start from the settings panel: New story (wizard). Review mode: every change waits for you.", "This story is continued by T5-3 and T5-4."] },
+      "story": { "kind": "wizard", "premiseId": "cartographer", "premise": "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen." },
+      "setup": { "mode": "author", "persona": "An author; later, the apprentice cartographer.", "chat": "fresh", "settings": {}, "notes": ["Start from the settings panel: New story (wizard).", "Use the wizard's Agent entry with Agent mode 'review': every change waits for you and each change card has Reject. The Step by step entry has no per-item reject.", "Once the story is saved and its group's chat is open, run so-session adopt <dir>: T5-3 and T5-4 continue that chat."] },
       "drive": [
         { "title": "Premise and interview", "aim": [], "why": "Paste the premise; answer the wizard's questions, use 'You decide' once.", "lines": ["A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."] },
-        { "title": "Turning points and characters", "aim": [], "why": "Review each proposed change; reject one.", "lines": ["Make the third house quieter and more dangerous."] },
+        { "title": "Turning points and characters", "aim": [], "why": "Review each proposed change card; Reject one with a reason (Agent mode only).", "lines": ["Make the third house quieter and more dangerous."] },
         { "title": "Setup: provisioning", "aim": [], "why": "Apply the character cards, lorebook and group one card at a time.", "lines": ["(no chat line: provisioning cards)"] },
         { "title": "Play 20 turns", "aim": [], "why": "Open the new group's chat and play.", "lines": ["I finish inking the northern border and watch the ink move."] }
       ],
@@ -915,20 +915,20 @@
       ],
       "provocations": ["Ask the wizard to do something outside a story (write a lorebook for another story)."],
       "flagWhen": ["You had to touch JSON.", "A step was unclear."],
-      "stopWhen": "The story is saved and 20 turns are played, or 90 minutes.",
+      "stopWhen": "The story is saved, adopted and 20 turns are played, or 90 minutes.",
       "rubric": [{ "feature": "wizard interview" }, { "feature": "review mode" }, { "feature": "provisioning" }, { "feature": "playability of the result" }],
       "loggedAutomatically": ["the wizard transcript and every tool call", "created assets (the wizard ledger)", "the first 20 turns' journal"],
-      "knownLimits": ["The wizard route is the local model; the harness route is T6-3."]
+      "knownLimits": ["The wizard route is the local model; the harness route is T6-3.", "Per-item reject exists only in Agent mode."]
     },
     {
       "id": "T5-2",
       "tier": "T5",
       "title": "Wizard, premises 2 and 3",
       "question": "In auto-draft mode, does the wizard produce two stories whose provisioning still waits for the author?",
-      "story": { "kind": "wizard", "premise": "In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood." },
-      "setup": { "mode": "author", "persona": "An author.", "chat": "fresh", "settings": {}, "notes": ["Second premise: A dragon too old to fly hires a crew of thieves to steal its own hoard back from the knights who claim to have slain it.", "Switch the wizard to auto-draft for both."] },
+      "story": { "kind": "wizard", "premiseId": "memory-pawn", "premise": "In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood." },
+      "setup": { "mode": "author", "persona": "An author.", "chat": "fresh", "settings": {}, "notes": ["Second premise (old-dragon): A dragon too old to fly hires a crew of thieves to steal its own hoard back from the knights who claim to have slain it.", "Auto-draft is the Agent mode 'Write to the draft, review before saving': open the wizard's Agent entry and pick it in Agent mode for both premises."] },
       "drive": [
-        { "title": "Premise 2 in auto-draft", "aim": [], "why": "Edits land in the draft directly; provisioning still waits.", "lines": ["In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood."] },
+        { "title": "Premise 2 in auto-draft", "aim": [], "why": "Agent mode 'Write to the draft, review before saving': edits land in the draft directly; provisioning still waits.", "lines": ["In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood."] },
         { "title": "Premise 3 in auto-draft", "aim": [], "why": "Same, second story.", "lines": ["A dragon too old to fly hires a crew of thieves to steal its own hoard back from the knights who claim to have slain it."] },
         { "title": "Apply provisioning cards", "aim": [], "why": "Characters, lorebook, group, one by one.", "lines": ["(no chat line: provisioning cards)"] }
       ],
@@ -954,7 +954,7 @@
       "title": "Studio edit",
       "question": "Can the author change a checkpoint, a gate and an effect in the Studio and have the running chat take it correctly?",
       "story": { "kind": "wizard" },
-      "setup": { "mode": "author", "persona": "The author of the T5-1 story.", "chat": "continue", "continues": "T5-1", "settings": {}, "notes": ["Open the T5-1 story's chat yourself; so-session start does not know its group."] },
+      "setup": { "mode": "author", "persona": "The author of the T5-1 story.", "chat": "continue", "continues": "T5-1", "settings": {}, "notes": ["so-session start reopens the chat T5-1 adopted (so-session adopt), on the T5-1 lane."] },
       "drive": [
         { "title": "Edit guidance", "aim": [], "why": "Compatible: hot-swap.", "lines": ["(no chat line: Studio)"] },
         { "title": "Edit a gate", "aim": [], "why": "Change a threshold; save; play until it fires.", "lines": ["I show the House of Ash the redrawn map."] },
@@ -970,7 +970,7 @@
       "stopWhen": "Three edits taken, or 45 minutes.",
       "rubric": [{ "feature": "checkpoint editor" }, { "feature": "gate editor" }, { "feature": "effects editor" }, { "feature": "diagnostics" }, { "feature": "hot-swap / invalidating choice" }],
       "loggedAutomatically": ["story update records", "library in the run header diff"],
-      "knownLimits": ["so-session cannot seed the wizard story's chat; the lane is the T5-1 lane."]
+      "knownLimits": ["The chat is the one T5-1 adopted; without an adopt the card cannot start. The lane is the T5-1 lane."]
     },
     {
       "id": "T5-4",
@@ -978,9 +978,9 @@
       "title": "Repair",
       "question": "When a requirement breaks, does Repair name the one missing step and does Fix with wizard fix it?",
       "story": { "kind": "wizard" },
-      "setup": { "mode": "author", "persona": "The author of the T5-1 story.", "chat": "continue", "continues": "T5-1", "settings": {} },
+      "setup": { "mode": "author", "persona": "The author of the T5-1 story.", "chat": "continue", "continues": "T5-1", "settings": {}, "notes": ["Break the cast by REMOVING a required member from the group: a disabled member still counts as present (product finding, see 14-findings.md), so disabling breaks nothing Repair can see.", "so-session start reopens the chat T5-1 adopted."] },
       "drive": [
-        { "title": "Disable a member", "aim": [], "why": "Disable a required member in the group; read Repair.", "lines": ["(no chat line: group panel)"] },
+        { "title": "Remove a member", "aim": [], "why": "Remove a required member from the group; read Repair. Then disable another one and record that Repair stays silent (the known product finding).", "lines": ["(no chat line: group panel)"] },
         { "title": "Drop a book", "aim": [], "why": "Deselect the story's lorebook; read Repair.", "lines": ["(no chat line: World Info panel)"] },
         { "title": "Fix with wizard", "aim": [], "why": "Use Fix with wizard from the author panel.", "lines": ["(no chat line)"] }
       ],
@@ -992,9 +992,9 @@
       "provocations": ["Break two things at once."],
       "flagWhen": ["The Repair text was unclear."],
       "stopWhen": "Both breaks repaired, or 30 minutes.",
-      "rubric": [{ "feature": "Repair" }, { "feature": "Fix with wizard" }],
+      "rubric": [{ "feature": "Repair" }, { "feature": "Fix with wizard" }, { "feature": "disabled member (known finding)" }],
       "loggedAutomatically": ["requirement readings", "wizard provisioning"],
-      "knownLimits": ["Personas are never provisioned."]
+      "knownLimits": ["Personas are never provisioned.", "A disabled member still counts as present (listGroupMembers ignores disabled_members): that is a recorded product finding, not a card error."]
     },
     {
       "id": "T5-5",
@@ -1040,9 +1040,10 @@
       "provocations": [],
       "flagWhen": ["Anything slower or worse than T1-1."],
       "stopWhen": "The walls reached, per setting; about 30 minutes each.",
-      "rubric": [{ "feature": "reasoning setting (name it)" }, { "feature": "latency" }, { "feature": "extraction quality" }],
+      "rubric": [{ "feature": "reasoning setting (name it)" }, { "feature": "latency" }, { "feature": "extraction quality" }, { "feature": "05 R4 leg", "ask": "replies per setting, for blind rating", "reviewer": "user" }],
       "loggedAutomatically": ["reasoning exhausted / empty reply events", "model-call latency per pass"],
-      "knownLimits": ["05 R4 is rated here.", "If the recommended table does not exist yet, this charter waits."]
+      "knownLimits": ["05 R4 is recorded for the user's review, not decided by Claude."],
+      "waits": "plan 05 R3: docs/plans/v2.6/recommended-reasoning.md (the recommended reasoning table) does not exist yet."
     },
     {
       "id": "T6-2",
@@ -1062,15 +1063,16 @@
       "stopWhen": "Both beats per provider row, about 20 minutes each.",
       "rubric": [{ "feature": "provider (name it)" }, { "feature": "speaker direction" }, { "feature": "fallbacks" }],
       "loggedAutomatically": ["judge calls with provider route, latency and fallback"],
-      "knownLimits": ["An uncalibrated route falls back on purpose (logged)."]
+      "knownLimits": ["An uncalibrated route falls back on purpose (logged)."],
+      "waits": "plan 12: docs/plans/v2.6/12-provider-matrix.md (the recommended provider per use) does not exist yet."
     },
     {
       "id": "T6-3",
       "tier": "T6",
       "title": "Harness routing",
       "question": "Does the wizard work through the CLI harness route as well as through the local route?",
-      "story": { "kind": "wizard", "premise": "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen." },
-      "setup": { "mode": "author", "persona": "An author.", "chat": "fresh", "settings": {}, "notes": ["opencode only, no CLI login (W 2026-09-30): the harness plugin runs opencode in its owned home; no claude or codex arm.", "Route the wizard role to the harness in the settings panel."] },
+      "story": { "kind": "wizard", "premiseId": "cartographer", "premise": "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen." },
+      "setup": { "mode": "author", "persona": "An author.", "chat": "fresh", "settings": {}, "notes": ["opencode only: route the authoring role to the opencode harness in the settings panel. No claude or codex CLI, and no CLI login is performed by the run (W 2026-09-30)."] },
       "drive": [
         { "title": "Replay T5-1 through the harness", "aim": [], "why": "Same premise, review mode.", "lines": ["A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."] }
       ],
@@ -1081,7 +1083,7 @@
       "stopWhen": "The story is saved, or 60 minutes.",
       "rubric": [{ "feature": "harness route" }, { "feature": "fallback visibility" }],
       "loggedAutomatically": ["model calls with route and result", "wizard transcript"],
-      "knownLimits": ["Harness scope is opencode only."]
+      "knownLimits": ["Harness scope is opencode only; claude -p and codex exec routes are not exercised."]
     },
     {
       "id": "T6-4",

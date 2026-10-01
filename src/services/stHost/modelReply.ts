@@ -5,7 +5,7 @@ import { isReasoningExhausted, reasoningExhaustedMessage, type ReasoningEffort }
 import { readReasoning, reasoningPayload, type ReasoningRoute } from "./reasoningPayload";
 
 export type ModelFinish = "stop" | "length" | "unknown";
-export type ModelFailureKind = "lapsed" | "timeout" | "transport" | "config" | "reasoning-exhausted" | "auth" | "quota" | "malformed" | "refused";
+export type ModelFailureKind = "lapsed" | "timeout" | "transport" | "config" | "reasoning-exhausted" | "auth" | "quota" | "malformed" | "refused" | "busy";
 
 export interface ReasoningMeter {
   effort: ReasoningEffort;

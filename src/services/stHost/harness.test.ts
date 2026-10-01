@@ -1,6 +1,6 @@
 jest.mock("./context", () => ({ getContext: () => ({ getRequestHeaders: () => ({ "X-CSRF-Token": "t" }) }) }));
 
-import { fetchHarnessStatus, HARNESS_SYSTEM, readHarnessAnswer, sendHarnessRequest } from "./harness";
+import { fetchHarnessStatus, HARNESS_SYSTEM, readHarnessAnswer, sendHarnessRequest, STALE_PAGE_REFUSAL } from "./harness";
 
 const json = (status: number, body: unknown) => ({ ok: status >= 200 && status < 300, status, json: async () => body });
 const request = { harness: "claude" as const, model: "haiku", role: "read", prompt: "PROMPT", maxOutputChars: 600, timeoutMs: 20_000 };
@@ -38,10 +38,30 @@ describe("H3: the host seam to the harness plugin", () => {
   it("names a missing plugin and a refused user as config, never as a model failure", async () => {
     globalThis.fetch = jest.fn(async () => json(404, {})) as unknown as typeof fetch;
     await expect(sendHarnessRequest(request)).resolves.toMatchObject({ ok: false, kind: "config", message: expect.stringContaining("not installed") });
-    globalThis.fetch = jest.fn(async () => json(403, {})) as unknown as typeof fetch;
+    globalThis.fetch = jest.fn(async () => json(403, { error: "harness routes are admin-only on this install" })) as unknown as typeof fetch;
     await expect(sendHarnessRequest(request)).resolves.toMatchObject({ ok: false, kind: "config", message: expect.stringContaining("admin-only") });
     globalThis.fetch = jest.fn(async () => json(404, {})) as unknown as typeof fetch;
     await expect(fetchHarnessStatus()).resolves.toBeNull();
+  });
+
+  it("CR-J13: only the plugin's own JSON refusal is admin-only; SillyTavern's CSRF 403 is a stale page, named as such", async () => {
+    globalThis.fetch = jest.fn(async () => ({ ok: false, status: 403, json: async () => { throw new SyntaxError("Unexpected token F"); } })) as unknown as typeof fetch;
+    const csrf = await sendHarnessRequest(request);
+    expect(csrf).toMatchObject({ ok: false, kind: "transport", message: STALE_PAGE_REFUSAL });
+    expect(csrf.ok === false && csrf.message).not.toContain("admin-only");
+    globalThis.fetch = jest.fn(async () => json(403, {})) as unknown as typeof fetch;
+    await expect(sendHarnessRequest(request)).resolves.toMatchObject({ kind: "transport", message: STALE_PAGE_REFUSAL });
+  });
+
+  it("CR-J8: a plugin that stays busy past the deadline answers busy, never transport", async () => {
+    expect(readHarnessAnswer({ ok: false, kind: "busy", message: "queued" }, "default")).toEqual({ ok: false, kind: "busy", message: "queued" });
+    globalThis.fetch = jest.fn(async () => json(429, { ok: false, kind: "busy", message: "claude has 8 calls queued; retry shortly" })) as unknown as typeof fetch;
+    await expect(sendHarnessRequest({ ...request, timeoutMs: 500 })).resolves.toMatchObject({ ok: false, kind: "busy" });
+  });
+
+  it("CR-J6: the status row carries the plugin's hold", async () => {
+    globalThis.fetch = jest.fn(async () => json(200, { pluginVersion: "1.1.0", harnesses: { opencode: { installed: true, offered: true, fresh: true, blocked: "opencode's real login file changed during a call", models: [] } } })) as unknown as typeof fetch;
+    expect((await fetchHarnessStatus())?.harnesses.opencode?.blocked).toBe("opencode's real login file changed during a call");
   });
 
   it("reads the status rows it knows and drops the rest", async () => {
