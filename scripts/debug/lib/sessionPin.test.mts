@@ -58,6 +58,15 @@ test('pin: the probe answers, and a dead backend fails it', async () => {
   assert.equal(dead.error, 'API request failed');
 });
 
+test('pin: an empty instruct-formatted probe is retried raw (a prefill-only last_output_sequence adds its own lines as stop strings)', async () => {
+  pinnedPage({ sendRequest: async (_id: string, _messages: unknown, _max: number, custom: any) => (custom.includeInstruct ? '' : 'PONG') });
+  assert.deepEqual({ ...(await probeProfile(fakePage(), 'Artemis RunPod RP')), ms: 0 }, { profile: 'Artemis RunPod RP', ok: true, ms: 0, text: 'PONG', error: null, fallback: 'no-instruct' });
+  pinnedPage({ sendRequest: async () => '' });
+  const silent = await probeProfile(fakePage(), 'Artemis RunPod RP');
+  assert.equal(silent.ok, false);
+  assert.equal(silent.error, 'empty reply');
+});
+
 const routing = (patch: Partial<Routing> = {}): Routing => ({
   main: { selectedProfileId: 'art', selectedProfileName: 'Artemis RunPod RP', mainApi: 'textgenerationwebui', onlineStatus: 'artemis' },
   profiles: [],

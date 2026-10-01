@@ -14,7 +14,7 @@ export interface Routing {
   judge: { enabled: boolean | null; uses: Record<string, boolean> | null; provider: unknown; pluginHttp: number | null; keyPresent: boolean | null };
   reasoning: { budget: unknown; powerUser: Record<string, unknown> };
 }
-export interface Probe { profile: string; ok: boolean; ms: number; text: string | null; error: string | null }
+export interface Probe { profile: string; ok: boolean; ms: number; text: string | null; error: string | null; fallback?: 'no-instruct' }
 
 export async function selectMainProfile(page: any, name: string) {
   return evaluateInST(page, async (wanted: string) => {
@@ -80,14 +80,19 @@ export async function probeProfile(page: any, name: string, timeoutMs = 120000):
     if (!profile) return { profile: wanted, ok: false, ms: 0, text: null, error: 'no such profile' };
     const service = ctx.ConnectionManagerRequestService;
     if (!service?.sendRequest) return { profile: wanted, ok: false, ms: 0, text: null, error: 'ConnectionManagerRequestService is not on the context' };
-    let timer: ReturnType<typeof setTimeout> | undefined;
-    try {
+    const ask = async (includeInstruct: boolean) => {
+      let timer: ReturnType<typeof setTimeout> | undefined;
       const reply: any = await Promise.race([
-        service.sendRequest(profile.id, [{ role: 'user', content: 'Reply with exactly: PONG' }], 16, { extractData: true, includePreset: true, includeInstruct: true, stream: false }, {}),
+        service.sendRequest(profile.id, [{ role: 'user', content: 'Reply with exactly: PONG' }], 16, { extractData: true, includePreset: true, includeInstruct, stream: false }, {}),
         new Promise((_, fail) => { timer = setTimeout(() => fail(new Error(`no answer within ${timeoutMs} ms`)), timeoutMs); }),
       ]).finally(() => clearTimeout(timer));
-      const text = typeof reply === 'string' ? reply : String(reply?.content ?? reply?.text ?? '');
-      return { profile: wanted, ok: text.trim().length > 0, ms: Math.round(performance.now() - started), text: text.slice(0, 200), error: text.trim() ? null : 'empty reply' };
+      return typeof reply === 'string' ? reply : String(reply?.content ?? reply?.text ?? '');
+    };
+    try {
+      const formatted = await ask(true);
+      const text = formatted.trim() ? formatted : await ask(false);
+      const fallback = !formatted.trim() && text.trim() ? { fallback: 'no-instruct' as const } : {};
+      return { profile: wanted, ok: text.trim().length > 0, ms: Math.round(performance.now() - started), text: text.slice(0, 200), error: text.trim() ? null : 'empty reply', ...fallback };
     } catch (error: any) {
       return { profile: wanted, ok: false, ms: Math.round(performance.now() - started), text: null, error: error?.message ?? String(error) };
     }
