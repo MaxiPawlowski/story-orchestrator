@@ -90,6 +90,18 @@ export async function readHostSwipes(page: any): Promise<{ swipes: boolean | nul
   });
 }
 
+export async function readLivePresets(page: any) {
+  return evaluateInST(page, () => {
+    const ctx = (globalThis as any).SillyTavern.getContext();
+    const instruct = ctx.powerUserSettings?.instruct;
+    const textgen = ctx.textCompletionSettings;
+    return {
+      instruct: instruct ? { preset: instruct.preset ?? null, last_output_sequence: instruct.last_output_sequence ?? null } : null,
+      textgen: textgen ? { preset: textgen.preset ?? null, samplers: Array.isArray(textgen.samplers) ? [...textgen.samplers] : null } : null,
+    };
+  });
+}
+
 export async function readEffectiveSettings(page: any) {
   return evaluateInST(page, () => {
     const rt = (globalThis as any).storyOrchestratorRuntime;

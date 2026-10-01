@@ -1,0 +1,192 @@
+{
+  "format": 1,
+  "seed": "89ebabe725f77aa0",
+  "configs": [
+    "BL0-v11-prod-asis",
+    "BL1-v11-tc-minpfirst",
+    "BL2-v12-tc-minpfirst",
+    "BL3-cydonia-q5-mistral-minpfirst"
+  ],
+  "turns": {
+    "T01": {
+      "source": "b01",
+      "letters": {
+        "A": "BL1-v11-tc-minpfirst",
+        "B": "BL0-v11-prod-asis",
+        "C": "BL2-v12-tc-minpfirst",
+        "D": "BL3-cydonia-q5-mistral-minpfirst"
+      }
+    },
+    "T02": {
+      "source": "b02",
+      "letters": {
+        "A": "BL2-v12-tc-minpfirst",
+        "B": "BL3-cydonia-q5-mistral-minpfirst",
+        "C": "BL0-v11-prod-asis",
+        "D": "BL1-v11-tc-minpfirst"
+      }
+    },
+    "T03": {
+      "source": "b03",
+      "letters": {
+        "A": "BL0-v11-prod-asis",
+        "B": "BL3-cydonia-q5-mistral-minpfirst",
+        "C": "BL1-v11-tc-minpfirst",
+        "D": "BL2-v12-tc-minpfirst"
+      }
+    },
+    "T04": {
+      "source": "b04",
+      "letters": {
+        "A": "BL3-cydonia-q5-mistral-minpfirst",
+        "B": "BL1-v11-tc-minpfirst",
+        "C": "BL0-v11-prod-asis",
+        "D": "BL2-v12-tc-minpfirst"
+      }
+    },
+    "T05": {
+      "source": "b05",
+      "letters": {
+        "A": "BL0-v11-prod-asis",
+        "B": "BL1-v11-tc-minpfirst",
+        "C": "BL3-cydonia-q5-mistral-minpfirst",
+        "D": "BL2-v12-tc-minpfirst"
+      }
+    },
+    "T06": {
+      "source": "b06",
+      "letters": {
+        "A": "BL2-v12-tc-minpfirst",
+        "B": "BL1-v11-tc-minpfirst",
+        "C": "BL3-cydonia-q5-mistral-minpfirst",
+        "D": "BL0-v11-prod-asis"
+      }
+    },
+    "T07": {
+      "source": "b07",
+      "letters": {
+        "A": "BL0-v11-prod-asis",
+        "B": "BL2-v12-tc-minpfirst",
+        "C": "BL1-v11-tc-minpfirst",
+        "D": "BL3-cydonia-q5-mistral-minpfirst"
+      }
+    },
+    "T08": {
+      "source": "b08",
+      "letters": {
+        "A": "BL3-cydonia-q5-mistral-minpfirst",
+        "B": "BL0-v11-prod-asis",
+        "C": "BL2-v12-tc-minpfirst",
+        "D": "BL1-v11-tc-minpfirst"
+      }
+    },
+    "T09": {
+      "source": "b09",
+      "letters": {
+        "A": "BL3-cydonia-q5-mistral-minpfirst",
+        "B": "BL2-v12-tc-minpfirst",
+        "C": "BL0-v11-prod-asis",
+        "D": "BL1-v11-tc-minpfirst"
+      }
+    },
+    "T10": {
+      "source": "b10",
+      "letters": {
+        "A": "BL2-v12-tc-minpfirst",
+        "B": "BL3-cydonia-q5-mistral-minpfirst",
+        "C": "BL0-v11-prod-asis",
+        "D": "BL1-v11-tc-minpfirst"
+      }
+    },
+    "T11": {
+      "source": "b11",
+      "letters": {
+        "A": "BL3-cydonia-q5-mistral-minpfirst",
+        "B": "BL2-v12-tc-minpfirst",
+        "C": "BL1-v11-tc-minpfirst",
+        "D": "BL0-v11-prod-asis"
+      }
+    },
+    "T12": {
+      "source": "b12",
+      "letters": {
+        "A": "BL2-v12-tc-minpfirst",
+        "B": "BL1-v11-tc-minpfirst",
+        "C": "BL0-v11-prod-asis",
+        "D": "BL3-cydonia-q5-mistral-minpfirst"
+      }
+    },
+    "T13": {
+      "source": "b13",
+      "letters": {
+        "A": "BL3-cydonia-q5-mistral-minpfirst",
+        "B": "BL1-v11-tc-minpfirst",
+        "C": "BL0-v11-prod-asis",
+        "D": "BL2-v12-tc-minpfirst"
+      }
+    },
+    "T14": {
+      "source": "b14",
+      "letters": {
+        "A": "BL3-cydonia-q5-mistral-minpfirst",
+        "B": "BL1-v11-tc-minpfirst",
+        "C": "BL0-v11-prod-asis",
+        "D": "BL2-v12-tc-minpfirst"
+      }
+    },
+    "T15": {
+      "source": "b15",
+      "letters": {
+        "A": "BL2-v12-tc-minpfirst",
+        "B": "BL1-v11-tc-minpfirst",
+        "C": "BL3-cydonia-q5-mistral-minpfirst",
+        "D": "BL0-v11-prod-asis"
+      }
+    },
+    "T16": {
+      "source": "b16",
+      "letters": {
+        "A": "BL1-v11-tc-minpfirst",
+        "B": "BL3-cydonia-q5-mistral-minpfirst",
+        "C": "BL0-v11-prod-asis",
+        "D": "BL2-v12-tc-minpfirst"
+      }
+    },
+    "T17": {
+      "source": "b17",
+      "letters": {
+        "A": "BL1-v11-tc-minpfirst",
+        "B": "BL0-v11-prod-asis",
+        "C": "BL2-v12-tc-minpfirst",
+        "D": "BL3-cydonia-q5-mistral-minpfirst"
+      }
+    },
+    "T18": {
+      "source": "b18",
+      "letters": {
+        "A": "BL0-v11-prod-asis",
+        "B": "BL3-cydonia-q5-mistral-minpfirst",
+        "C": "BL2-v12-tc-minpfirst",
+        "D": "BL1-v11-tc-minpfirst"
+      }
+    },
+    "T19": {
+      "source": "b19",
+      "letters": {
+        "A": "BL2-v12-tc-minpfirst",
+        "B": "BL3-cydonia-q5-mistral-minpfirst",
+        "C": "BL1-v11-tc-minpfirst",
+        "D": "BL0-v11-prod-asis"
+      }
+    },
+    "T20": {
+      "source": "b20",
+      "letters": {
+        "A": "BL1-v11-tc-minpfirst",
+        "B": "BL0-v11-prod-asis",
+        "C": "BL3-cydonia-q5-mistral-minpfirst",
+        "D": "BL2-v12-tc-minpfirst"
+      }
+    }
+  }
+}

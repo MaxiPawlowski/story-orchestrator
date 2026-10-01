@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "about": "v2.6 plan 15 A100 server-flag A/B (docs/plans/v2.6/15-model-config.md, 2026-10-01 evening): Artemis loops and dropped articles are fixed mostly by two preset changes, not server flags. adolion-fresh seed applies these edits to the LANE's copied preset files (and to the settings.json copy of the preset when it is the active one) before the lane server starts. The real install is never touched; --no-preset-overlay reproduces the old condition.",
+  "edits": [
+    {
+      "kind": "instruct",
+      "preset": "Gemma 4",
+      "key": "last_output_sequence",
+      "op": "set",
+      "value": "<|turn>model\n<|channel>thought\n<channel|>"
+    },
+    {
+      "kind": "textgen",
+      "preset": "Artemis v1.1 RP",
+      "key": "samplers",
+      "op": "moveToFront",
+      "item": "min_p"
+    }
+  ]
+}

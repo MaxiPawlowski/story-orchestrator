@@ -1,0 +1,5 @@
+exit 0
+--- text ---
+{"scores":{"A":{"coherence":5,"prose":5,"scene":3,"agency":4,"overall":3},"B":{"coherence":5,"prose":5,"scene":2,"agency":4,"overall":2},"C":{"coherence":5,"prose":5,"scene":3,"agency":4,"overall":4},"D":{"coherence":5,"prose":5,"scene":3,"agency":3,"overall":3}},"rank":["C","A","D","B"],"why":"All four are readable summaries, but all invent history or details absent from the supplied chat; C is the quickest and least embellished, followed by A. D additionally assigns the player a motive for keeping the horse, while B invents prior dialogue about road signs and presents hidden nighttime danger as established knowledge."}
+--- stderr ---
+
