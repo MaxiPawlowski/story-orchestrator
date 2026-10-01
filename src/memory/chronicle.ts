@@ -63,7 +63,9 @@ export function buildEraMergePrompt(records: readonly ChapterRecord[]): string {
   ].join("\n");
 }
 
-export const fallbackEraText = (records: readonly ChapterRecord[]): string => records.map((record) => record.short).join(" ");
+export const eraMessageId = (records: readonly ChapterRecord[]): number => Math.max(-1, ...records.map((record) => record.sealedAt.messageId));
+
+export const fallbackEraText =(records: readonly ChapterRecord[]): string => records.map((record) => record.short).join(" ");
 
 export function parseEraLine(text: string): string | null {
   const line = text.split(/\n+/).map((part) => part.trim()).find(Boolean) ?? "";
@@ -71,10 +73,10 @@ export function parseEraLine(text: string): string | null {
   return clean.split(/\s+/).length <= 90 && clean.length > 0 ? clean : null;
 }
 
-export function chronicleMarkdown(title: string, records: readonly ChapterRecord[], options: { author: boolean }): string {
+export function chronicleMarkdown(title: string, records: readonly ChapterRecord[], options: { author: boolean; number?: (record: ChapterRecord) => number }): string {
   const parts = [`# ${title}`, ""];
   records.forEach((record, index) => {
-    parts.push(`## ${index + 1}. ${record.playerTitle}`, "", record.summary, "");
+    parts.push(`## ${options.number?.(record) ?? index + 1}. ${record.playerTitle}`, "", record.summary, "");
     if (record.epilogue) parts.push("### Epilogue", "", record.epilogue, "");
     if (options.author && record.consequences.length) {
       parts.push("### Consequences", "", ...record.consequences.map((item) => `- ${item.text}${item.sources.length ? ` [${item.sources.join(", ")}]` : ""}`), "");

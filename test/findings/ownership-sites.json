@@ -269,6 +269,18 @@
       "status": "checked",
       "note": "v2.6 plan 07 D13: an author action. The unfold patch happens before the only await (the save); the journal line after it is checked against a run minted at the top."
     },
+    "src/runtime/chapterSeal.ts#ChapterSeal.reseal": {
+      "status": "local",
+      "note": "CR-E8 (2026-09-30): the only write after its await is the finally that clears its own inFlight flag (in-memory bookkeeping, the ChapterSeal.seal rule). The swap itself is the view unit's ChapterSeal.run, which is checked; nothing is patched before that run commits, so a lapsed re-seal leaves the old record in place."
+    },
+    "src/runtime/modelCallCore.ts#createModelCallVia.call": {
+      "status": "partial",
+      "note": "CR-E14 (2026-09-30): the call log row written after the model answers. COVERED: the row is stamped at CALL START with the chat the manager has loaded and the newest message (deps.stamp), and RuntimeManager.recordModelCall keeps it only when that chat is still the loaded one (acceptModelCall); a rollback drops rows asked at or after the edited message (rollbackModelCalls in rollbackOnce). NOT a token check: the row is a log line, and an unstamped caller (the live suite) is kept. Cases: modelCallChat.review.test.ts, rollbackKit.review.test.ts."
+    },
+    "src/runtime/chapterKit.ts#chapterSlash": {
+      "status": "local",
+      "note": "CR-E13 (2026-09-30): a slash handler. After its awaits it only builds the reply text it returns (recordsForChapter, chronicleMarkdown); the seal/unseal it awaits are censused where they write."
+    },
     "src/runtime/chapterSeal.ts#ChapterSeal.editSummary": {
       "status": "checked",
       "note": "v2.6 plan 07 D13: an author action. The record patch happens before the only await (the save); the journal line after it is checked against a run minted at the top."
@@ -351,7 +363,7 @@
     },
     "src/runtime/rollback.ts#rollbackOnce": {
       "status": "partial",
-      "note": "v2.3 plan 04. The rollback composition, extracted from the manager for its line budget. Partial, not checked: it verifies no token of its own, because it does not start any work — it is the mutation's own consequence. `rollbackFromMessage` records the mutation position on the owner before calling it, the run it composes belongs to the chat the runtime is loaded for, and every host write it triggers (world-info re-apply, stagecraft revert) is one this census already covers at its own edge. Making it `checked` means minting a token inside work that the mutation just invalidated, which would refuse the rollback it exists to perform."
+      "note": "v2.3 plan 04. The rollback composition, extracted from the manager for its line budget. Partial, not checked: it verifies no token of its own, because it does not start any work — it is the mutation's own consequence. `rollbackFromMessage` records the mutation position on the owner before calling it, the run it composes belongs to the chat the runtime is loaded for, and every host write it triggers (world-info re-apply, stagecraft revert) is one this census already covers at its own edge. Making it `checked` means minting a token inside work that the mutation just invalidated, which would refuse the rollback it exists to perform. CR-E7 (2026-09-30): the one await before its first write, the chapter kit's dynamic import, is now bracketed by a RunToken minted just before it (after the mutation was recorded, so it does not refuse its own rollback); a chat that changed during the load makes the rollback a noop, and extras are read only after the check (rollbackKit.review.test.ts)."
     },
     "src/runtime/rollback.ts#rollbackOnce.unavailable": {
       "status": "partial",

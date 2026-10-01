@@ -35,6 +35,7 @@ export interface ModelCallDeps {
   observe?: (role: PassRole, call: RoleCallObservation) => void;
   record?: (record: ModelCallRecord) => void;
   ownership?: RunOwnership;
+  stamp?: () => { chatId: string | null; messageId: number };
 }
 
 type Effort = NonNullable<ModelRoute["effort"]>;
@@ -63,11 +64,12 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
       maxTokens: ask.maxTokens, temperature: ask.temperature, signal: ask.signal, timeoutScale: ask.timeoutScale, budgetKind: ask.budgetKind, reasoningBudget: settings.reasoningBudget, role: ask.role,
     };
     const token = deps.ownership ? deps.ownership.mint() : null;
+    const stamp = deps.stamp?.();
     const recordCall: NoteCall = (used, startedAt, result, answer, fallbackFrom) => {
       if (!deps.record || (token && deps.ownership && !deps.ownership.check(token).ok)) return;
       deps.record({
         at: new Date(startedAt).toISOString(), role: ask.role, pass: ask.pass, route: routeKey(used), result, ms: Date.now() - startedAt,
-        samplers: used.kind === "profile" ? "applied" : "not-applied", usage: answer && answer.usage, spawnMs: answer && answer.spawnMs, fallbackFrom,
+        samplers: used.kind === "profile" ? "applied" : "not-applied", usage: answer && answer.usage, spawnMs: answer && answer.spawnMs, fallbackFrom, ...stamp,
       });
     };
     const startedAt = Date.now();

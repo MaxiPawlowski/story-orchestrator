@@ -23,19 +23,26 @@ export interface MemoryRollbackState extends MemoryStoreState {
   innerBeats?: InnerBeat[];
   chapters?: ChapterRecord[];
   chronicle?: ChronicleState;
-  chapterBridge?: { recordId: string; text: string } | null;
-  chapterSealSkip?: { pathLength: number; messageId: number } | null;
+  chapterSealSkip?: SealSkip | null;
 }
+
+export interface SealSkip {
+  pathLength: number;
+  messageId: number;
+  previous?: SealSkip | null;
+}
+
+const rewindSkip = (skip: SealSkip | null | undefined, messageId: number): SealSkip | null =>
+  (!skip ? null : skip.messageId < messageId ? skip : rewindSkip(skip.previous, messageId));
 
 export interface ChapterStoresIn {
   entries: MemoryEntry[];
   arcs: ArcEntry[];
   chapters: ChapterRecord[];
   chronicle: ChronicleState;
-  chapterBridge?: { recordId: string; text: string } | null;
 }
 
-export type ChapterReversal = (stores: ChapterStoresIn, messageId: number, dropped: readonly string[]) => Omit<ChapterStoresIn, "chapterBridge"> & { chapterBridge?: null };
+export type ChapterReversal = (stores: ChapterStoresIn, messageId: number, dropped: readonly string[]) => ChapterStoresIn;
 
 export function reverseMemoryState<S extends MemoryRollbackState>(state: S, messageId: number, boundary: number, unfold?: ChapterReversal): Partial<S> {
   const dropped = dropByMessageId(state, messageId, boundary);
@@ -53,7 +60,7 @@ export function reverseMemoryState<S extends MemoryRollbackState>(state: S, mess
     if (!excluded.includes(hashMemoryText(entry.text))) byId.set(entry.id, stripLinksAfter(entry, messageId));
   });
   const unfolded = state.chapters?.length && unfold
-    ? unfold({ entries: [...byId.values()], arcs: state.arcs, chapters: state.chapters, chronicle: state.chronicle ?? { eras: [] }, chapterBridge: state.chapterBridge }, messageId, reversal.outputIds)
+    ? unfold({ entries: [...byId.values()], arcs: state.arcs, chapters: state.chapters, chronicle: state.chronicle ?? { eras: [] } }, messageId, reversal.outputIds)
     : null;
   const entries = unfolded?.entries ?? [...byId.values()];
   let arcs = rollbackArcs(unfolded?.arcs ?? state.arcs, messageId, boundary);
@@ -76,9 +83,9 @@ export function reverseMemoryState<S extends MemoryRollbackState>(state: S, mess
     verifyDrops: state.verifyDrops.filter((drop) => (drop.entry.messageId ?? -1) < messageId),
     shortTermSummaryEnd: reversal.watermark === null ? state.shortTermSummaryEnd : Math.min(state.shortTermSummaryEnd, reversal.watermark),
     ...(canonStale ? { canon: null } : {}),
-    ...(unfolded ? { chapters: unfolded.chapters, chronicle: unfolded.chronicle, ...(unfolded.chapterBridge === null ? { chapterBridge: null } : {}) } : {}),
+    ...(unfolded ? { chapters: unfolded.chapters, chronicle: unfolded.chronicle } : {}),
     ...(state.storyStart > messageId ? { storyStart: messageId } : {}),
     ...(state.innerBeats ? { innerBeats: rollbackBeats(state.innerBeats, messageId) } : {}),
-    ...(state.chapterSealSkip && state.chapterSealSkip.messageId >= messageId ? { chapterSealSkip: null } : {}),
+    ...(state.chapterSealSkip && state.chapterSealSkip.messageId >= messageId ? { chapterSealSkip: rewindSkip(state.chapterSealSkip, messageId) } : {}),
   } as Partial<S>;
 }

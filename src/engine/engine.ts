@@ -32,6 +32,7 @@ export interface EngineState {
   checkpointStartedMessageId: number;
   lastMessageId: number;
   chatLength: number;
+  stagedFrom?: number;
 }
 
 export interface BoundaryResult {
@@ -80,6 +81,15 @@ export const ROLLBACK_HORIZON = 200;
 
 const DEFAULT_HOST: EngineHost = { now: () => Date.now() };
 
+export const validStagedFrom = (value: unknown, pathLength: number): number | undefined =>
+  (Number.isInteger(value) && (value as number) > 0 && (value as number) < pathLength ? value as number : undefined);
+
+export const keptStagedFrom = (state: EngineState, keep: (ids: string[]) => string[]): { stagedFrom?: number } => {
+  const from = validStagedFrom(state.stagedFrom, state.visitedPath.length);
+  const kept = from === undefined ? undefined : validStagedFrom(keep(state.visitedPath.slice(0, from)).length, keep(state.visitedPath).length);
+  return { stagedFrom: kept };
+};
+
 // A story edit can take away the checkpoint a chat was parked at (a generated chain that no longer
 // merges). The chat resumes at the newest checkpoint of its trail that the graph still has.
 export function repairActiveCheckpoint(state: EngineState, story: NormalizedStoryV2): { state: EngineState; detail: string | null } {
@@ -88,7 +98,7 @@ export function repairActiveCheckpoint(state: EngineState, story: NormalizedStor
   const fallback = trail.find((id) => story.checkpointById[id]) ?? story.startCheckpointId;
   const keep = (ids: string[]) => ids.filter((id) => story.checkpointById[id]);
   return {
-    state: { ...state, activeCheckpointId: fallback, visitedAnchors: keep(state.visitedAnchors), visitedPath: keep(state.visitedPath) },
+    state: { ...state, activeCheckpointId: fallback, visitedAnchors: keep(state.visitedAnchors), visitedPath: keep(state.visitedPath), ...keptStagedFrom(state, keep) },
     detail: `the saved checkpoint ${state.activeCheckpointId} is not in this story's graph; resumed at ${fallback}`,
   };
 }
@@ -100,6 +110,7 @@ export class StoryEngine {
   private activeCheckpointId = "";
   private visitedAnchors: string[] = [];
   private visitedPath: string[] = [];
+  private stagedFrom: number | undefined = undefined;
   private boundary = 0;
   private checkpointStartedBoundary = 0;
   private checkpointStartedAt = 0;
@@ -122,6 +133,7 @@ export class StoryEngine {
     this.activeCheckpointId = normalized.startCheckpointId;
     this.visitedAnchors = normalized.checkpointById[this.activeCheckpointId]?.type === "anchor" ? [this.activeCheckpointId] : [];
     this.visitedPath = [this.activeCheckpointId];
+    this.stagedFrom = undefined;
     this.boundary = 0;
     this.checkpointStartedBoundary = 0;
     this.checkpointStartedAt = this.host.now();
@@ -199,6 +211,7 @@ export class StoryEngine {
       activeCheckpointId: this.activeCheckpointId,
       visitedAnchors: [...this.visitedAnchors],
       visitedPath: [...this.visitedPath],
+      ...(this.stagedFrom === undefined ? {} : { stagedFrom: this.stagedFrom }),
       boundary: this.boundary,
       checkpointStartedBoundary: this.checkpointStartedBoundary,
       checkpointStartedAt: this.checkpointStartedAt,
@@ -285,6 +298,7 @@ export class StoryEngine {
     this.checkpointStartedMessageId = normalizedContext.lastMessageId;
     if (checkpoint.type === "anchor") this.visitedAnchors.push(id);
     this.visitedPath.push(id);
+    this.stagedFrom = this.visitedPath.length - 1;
     this.boundary += 1;
     const after = this.serialize();
     this.boundaryLog.push({ at: this.host.now(), boundary: this.boundary, before, after, fired: null, source: "manual", context: normalizedContext, queue, evaluated: null });
@@ -367,6 +381,7 @@ export class StoryEngine {
     this.activeCheckpointId = before.activeCheckpointId;
     this.visitedAnchors = [...before.visitedAnchors];
     this.visitedPath = [...before.visitedPath];
+    this.stagedFrom = validStagedFrom(before.stagedFrom, before.visitedPath.length);
     this.checkpointStartedBoundary = before.checkpointStartedBoundary;
     this.checkpointStartedAt = before.checkpointStartedAt;
     this.checkpointStartedMessageId = before.checkpointStartedMessageId;
@@ -439,6 +454,7 @@ export class StoryEngine {
     this.activeCheckpointId = state.activeCheckpointId;
     this.visitedAnchors = [...state.visitedAnchors];
     this.visitedPath = [...state.visitedPath];
+    this.stagedFrom = validStagedFrom(state.stagedFrom, state.visitedPath.length);
     this.boundary = state.boundary;
     this.checkpointStartedBoundary = state.checkpointStartedBoundary;
     this.checkpointStartedAt = state.checkpointStartedAt;

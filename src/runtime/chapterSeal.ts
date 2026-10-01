@@ -10,7 +10,7 @@ import {
   buildChapterRecordPrompt, buildSagaPrompt, degradedChapterRecord, parseChapterRecord, verifyChapterRecord, verifySaga, type ParsedChapterRecord,
 } from "@memory/chapterRecord";
 import { unfoldChapters } from "@memory/chapterUnfold";
-import { buildEraMergePrompt, CHRONICLE_RECORD_CAP, eraCandidates, fallbackEraText, parseEraLine, renderChronicle } from "@memory/chronicle";
+import { buildEraMergePrompt, CHRONICLE_RECORD_CAP, eraCandidates, eraMessageId, fallbackEraText, parseEraLine, renderChronicle } from "@memory/chronicle";
 import type { DerivedRecord } from "@memory/derived";
 import { provenance, withOverride } from "@memory/provenance";
 import { generateMemoryId, type ArcEntry, type ChapterDisposition, type ChapterRecord } from "@memory/types";
@@ -18,8 +18,10 @@ import { bridgeText } from "./chapterKit";
 import { chapterNumber, chapterOf, chapterSettings, endsStory, nextPart, playerTitleOf, sealRange, type SealTarget } from "./chapters";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import type { MemoryRuntimeState } from "./types";
-import type { ChapterHost } from "./chapterPort";
+import { sealAtState, type ChapterHost, type SealAt } from "./chapterPort";
 import { rosterMemberName } from "./roster";
+
+export type { SealAt };
 
 export const CHAPTER_INPUT_TOKENS = 6000;
 const QUIET_KEYS = new Set(["tension"]);
@@ -56,12 +58,6 @@ export const sealDeps = (host: ChapterHost): ChapterSealDeps => {
   };
 };
 
-export interface SealAt {
-  boundary: number;
-  messageId: number;
-  pathLength?: number;
-}
-
 const inRange = (messageId: number | undefined, range: { from: number; to: number }) => typeof messageId === "number" && messageId >= range.from && messageId <= range.to;
 
 const fitInput = (input: ChapterInput, render: (input: ChapterInput) => string): ChapterInput => {
@@ -75,6 +71,16 @@ const fitInput = (input: ChapterInput, render: (input: ChapterInput) => string):
   return { ...input, items };
 };
 
+export function unsealedView(memory: MemoryRuntimeState, recordId: string): Partial<MemoryRuntimeState> {
+  const unfolded = unfoldChapters({ entries: memory.entries, arcs: memory.arcs, chapters: memory.chapters ?? [], chronicle: memory.chronicle ?? { eras: [] } }, new Set([recordId]));
+  const seal = memory.derived.find((record) => record.kind === "chapter_seal" && record.outputId === recordId);
+  return {
+    ...unfolded,
+    derived: memory.derived.filter((record) => record.outputId !== recordId && !(record.kind === "era_merge" && record.inputs.includes(recordId))),
+    shortTermSummaryEnd: seal?.range ? Math.min(memory.shortTermSummaryEnd, seal.range.from - 1) : memory.shortTermSummaryEnd,
+  };
+}
+
 // The seal pass as one delegated unit (the canonSynthesis pattern). Everything it
 // writes is checked against the run it started, and nothing it writes deletes a row: folding marks
 // `foldedInto`, and the `chapter_seal` derived record is what a rollback undoes.
@@ -85,19 +91,18 @@ export class ChapterSeal {
 
   async seal(target: SealTarget, at: SealAt): Promise<ChapterRecord | null> {
     const story = this.deps.getStory();
-    const state = this.deps.getState();
-    if (!story || !state || this.inFlight) return null;
+    if (!story || this.inFlight) return null;
     const existing = this.deps.memory().chapters ?? [];
     if (existing.some((record) => record.chapterId === target.chapter.id && record.part === target.part)) return null;
     this.inFlight = true;
     try {
-      return await this.run(story, state, target, at);
+      return await this.run(story, target, at);
     } finally {
       this.inFlight = false;
     }
   }
 
-  private async run(story: NormalizedStoryV2, state: EngineState, target: SealTarget, at: SealAt): Promise<ChapterRecord | null> {
+  private async run(story: NormalizedStoryV2, target: SealTarget, at: SealAt): Promise<ChapterRecord | null> {
     const records = this.deps.memory().chapters ?? [];
     const range = sealRange(records, this.deps.memory().storyStart, at.messageId);
     const run = beginRun(this.deps.ownership(), range);
@@ -108,9 +113,9 @@ export class ChapterSeal {
     if (unsummarized.length) await this.deps.summarizeArcs(unsummarized);
     if (!run.stillOwns()) return null;
     const previous = records[records.length - 1] ?? null;
-    const pathLength = at.pathLength ?? state.visitedPath.length;
-    const visited = state.visitedPath.slice(previous?.sealedAt.pathLength ? previous.sealedAt.pathLength - 1 : 0, target.final ? pathLength : Math.max(0, pathLength - 1));
-    const blackboardAt = Object.fromEntries(Object.entries(state.blackboard.values).filter(([key]) => !QUIET_KEYS.has(key)));
+    const pathLength = at.pathLength;
+    const visited = at.path.slice(previous?.sealedAt.pathLength ? previous.sealedAt.pathLength - 1 : 0, target.final ? pathLength : Math.max(0, pathLength - 1));
+    const blackboardAt = Object.fromEntries(Object.entries(at.blackboard).filter(([key]) => !QUIET_KEYS.has(key)));
     const memory = this.deps.memory();
     const raw = assembleChapterInput({
       range, entries: memory.entries, arcs: memory.arcs, ledger: memory.ledger,
@@ -124,18 +129,20 @@ export class ChapterSeal {
     const known = [story.title, this.deps.playerName(), ...titles, ...story.checkpoints.map((checkpoint) => checkpoint.player_name ?? "")];
     const written = await this.write(story, target, input, style, known, run);
     if (!written) return null;
-    const sealedRecord = this.buildRecord(story, target, at, range, visited, pathLength, written, input, blackboardAt);
+    const sealedRecord = this.buildRecord(target, at, range, visited, written, input, blackboardAt);
     const epilogue = target.final ? await this.saga(story, [...records, sealedRecord], blackboardAt, run) : null;
     if (!run.stillOwns()) return null;
-    const record = epilogue ? { ...sealedRecord, epilogue } : sealedRecord;
-    this.commitSeal(story, record, target, written.record.open);
+    const next = chapterOf(story, at.activeCheckpointId);
+    const finished = epilogue ? { ...sealedRecord, epilogue } : sealedRecord;
+    const record = finished.final ? finished : { ...finished, bridge: { text: bridgeText(finished, next ? playerTitleOf(next) : null) } };
+    this.commitSeal(record, target, written.record.open);
     await this.mergeEras(run);
     if (!run.stillOwns()) return null;
     this.deps.updateInjection();
     await this.deps.save();
     if (!run.stillOwns()) return record;
     this.deps.journal(`chapter sealed: ${record.playerTitle}${record.status === "degraded" ? " (without a written summary)" : ""}`, `${record.id} · messages ${range.from}-${range.to}`);
-    const entered = chapterOf(story, state.activeCheckpointId);
+    const entered = chapterOf(story, at.activeCheckpointId);
     if (!record.final && entered && entered.kind !== "interlude") await this.deps.announce(`◆ Chapter ${chapterNumber(story, entered.id)} — ${playerTitleOf(entered)}`);
     return record;
   }
@@ -157,7 +164,7 @@ export class ChapterSeal {
     return { record: degradedChapterRecord(input), status: "degraded" as const, failures };
   }
 
-  private buildRecord(_story: NormalizedStoryV2, target: SealTarget, at: SealAt, range: { from: number; to: number }, visited: string[], pathLength: number,
+  private buildRecord(target: SealTarget, at: SealAt, range: { from: number; to: number }, visited: string[],
     written: { record: ParsedChapterRecord; status: "sealed" | "degraded" }, input: ChapterInput, blackboardAt: Record<string, unknown>): ChapterRecord {
     const records = this.deps.memory().chapters ?? [];
     const previous = records[records.length - 1];
@@ -180,12 +187,12 @@ export class ChapterSeal {
       status: written.status,
       provenance: provenance({ source: "code", messageId: at.messageId, boundary: at.boundary, pass: "chapterSeal", inputs: input.items.map((item) => ({ store: "memory" as const, id: item.id })) }),
       tokens: { summary: estimateTokens(written.record.summary), short: estimateTokens(written.record.short) },
-      sealedAt: { boundary: at.boundary, messageId: at.messageId, at: Date.now(), pathLength },
+      sealedAt: { boundary: at.boundary, messageId: at.messageId, at: Date.now(), pathLength: at.pathLength },
       ...(target.final ? { final: true } : {}),
     };
   }
 
-  private commitSeal(story: NormalizedStoryV2, record: ChapterRecord, target: SealTarget, decided: ChapterRecord["open"]) {
+  private commitSeal(record: ChapterRecord, target: SealTarget, decided: ChapterRecord["open"]) {
     const memory = this.deps.memory();
     const policy = target.chapter.seal?.open_threads ?? "decide";
     const disposition = (arc: ArcEntry): ChapterDisposition => {
@@ -194,13 +201,13 @@ export class ChapterSeal {
       return decided.find((item) => item.arcId === arc.id)?.disposition ?? "carry";
     };
     const folded = foldChapter({ entries: memory.entries, arcs: memory.arcs, shortTermSummaryEnd: memory.shortTermSummaryEnd }, record, disposition);
-    const next = chapterOf(story, this.deps.getState()?.activeCheckpointId);
     this.deps.patch({
       entries: folded.entries,
       arcs: folded.arcs,
       shortTermSummaryEnd: folded.shortTermSummaryEnd,
+      derived: memory.derived,
+      chronicle: memory.chronicle ?? { eras: [] },
       chapters: [...(memory.chapters ?? []), record].slice(-CHRONICLE_RECORD_CAP),
-      chapterBridge: record.final ? null : { recordId: record.id, text: bridgeText(record, next ? playerTitleOf(next) : null) },
     });
     const moved = folded.shortTermSummaryEnd > memory.shortTermSummaryEnd;
     const range = moved ? { range: { from: memory.shortTermSummaryEnd + 1, to: folded.shortTermSummaryEnd } } : {};
@@ -231,7 +238,7 @@ export class ChapterSeal {
       const reply = await this.ask(buildEraMergePrompt(merge), run, 256);
       if (!run.stillOwns()) return;
       const text = parseEraLine(stripChannelNoise(reply)) ?? fallbackEraText(merge);
-      const era = { id: generateMemoryId(), recordIds: merge.map((record) => record.id), text, messageId: this.deps.getState()?.lastMessageId ?? -1 };
+      const era = { id: generateMemoryId(), recordIds: merge.map((record) => record.id), text, messageId: eraMessageId(records) };
       const current = this.deps.memory();
       this.deps.patch({ chronicle: { eras: [...(current.chronicle?.eras ?? []), era] } });
       this.deps.record({ kind: "era_merge", inputs: era.recordIds, outputId: era.id, messageId: era.messageId });
@@ -245,7 +252,7 @@ export class ChapterSeal {
     if (!story || !state || !chapter) return null;
     const records = this.deps.memory().chapters ?? [];
     const target = { chapter, part: nextPart(records, chapter.id), final: endsStory(story, state.activeCheckpointId) };
-    return this.seal(target, { boundary: state.boundary, messageId: state.lastMessageId, pathLength: state.visitedPath.length + 1 });
+    return this.seal(target, sealAtState(state, { pathLength: state.visitedPath.length + 1 }));
   }
 
   async unseal(recordId: string): Promise<boolean> {
@@ -253,9 +260,7 @@ export class ChapterSeal {
     const records = memory.chapters ?? [];
     if (records[records.length - 1]?.id !== recordId) return false;
     const run = beginRun(this.deps.ownership());
-    const unfolded = unfoldChapters({ entries: memory.entries, arcs: memory.arcs, chapters: records, chronicle: memory.chronicle ?? { eras: [] } }, new Set([recordId]));
-    const derived = memory.derived.filter((record) => record.outputId !== recordId && !(record.kind === "era_merge" && record.inputs.includes(recordId)));
-    this.deps.patch({ ...unfolded, derived, ...(memory.chapterBridge?.recordId === recordId ? { chapterBridge: null } : {}) });
+    this.deps.patch(unsealedView(memory, recordId));
     this.deps.updateInjection();
     await this.deps.save();
     if (run.stillOwns()) this.deps.journal(`chapter unsealed: ${records[records.length - 1].playerTitle}`, recordId);
@@ -264,10 +269,20 @@ export class ChapterSeal {
 
   async reseal(recordId: string): Promise<ChapterRecord | null> {
     const story = this.deps.getStory();
-    const record = (this.deps.memory().chapters ?? []).find((candidate) => candidate.id === recordId);
+    const state = this.deps.getState();
+    const records = this.deps.memory().chapters ?? [];
+    const record = records[records.length - 1];
     const chapter = story?.chapterById?.[record?.chapterId ?? ""];
-    if (!record || !chapter || !(await this.unseal(recordId))) return null;
-    return this.seal({ chapter, part: record.part, final: Boolean(record.final) }, record.sealedAt);
+    if (!state || !record || record.id !== recordId || !chapter || this.inFlight) return null;
+    const live = () => this.deps.memory();
+    const view = new ChapterSeal({ ...this.deps, memory: () => ((live().chapters ?? []).includes(record) ? { ...live(), ...unsealedView(live(), recordId) } : live()) });
+    const at = sealAtState(state, { boundary: record.sealedAt.boundary, messageId: record.sealedAt.messageId, pathLength: record.sealedAt.pathLength, blackboard: record.blackboardAt });
+    this.inFlight = true;
+    try {
+      return await view.seal({ chapter, part: record.part, final: Boolean(record.final) }, at);
+    } finally {
+      this.inFlight = false;
+    }
   }
 
   async editSummary(recordId: string, summary: string, short?: string): Promise<boolean> {

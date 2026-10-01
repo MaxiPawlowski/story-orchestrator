@@ -26,7 +26,7 @@ const harness = (seal = true) => {
   const current: RunContext = { chatId: "chat-a", storyId: "chapters-mini", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token) => tokenMatches(current, token) };
   let memory = { chapters: [] as ChapterRecord[], settings: { chapters: { seal } } } as unknown as MemoryRuntimeState;
-  const state = { activeCheckpointId: "market", visitedPath: ["gate", "market"], boundary: 4, lastMessageId: 9 };
+  const state = { activeCheckpointId: "market", visitedPath: ["gate", "market"], boundary: 4, lastMessageId: 9, blackboard: { values: { step: 1 }, versions: {}, latched: {} } };
   const port = {
     host: {
       deps: { getState: () => state, getStory: () => story, ownership },
@@ -49,7 +49,9 @@ describe("/cp activate seal confirm (v2.6 plan 07 D2)", () => {
     const { port, asPort } = harness();
     expect(await confirmChapterJump(asPort, "walls")).toBe("seal");
     expect(choice.asked[0]).toContain("leaves the chapter Arrival");
-    expect(port.seal).toHaveBeenCalledWith(expect.objectContaining({ chapter: expect.objectContaining({ id: "arrival" }), final: false }), { boundary: 4, messageId: 9, pathLength: 3 });
+    expect(port.seal).toHaveBeenCalledWith(expect.objectContaining({ chapter: expect.objectContaining({ id: "arrival" }), final: false }), {
+      boundary: 4, messageId: 9, pathLength: 3, path: ["gate", "market", "walls"], activeCheckpointId: "walls", blackboard: { step: 1 },
+    });
   });
 
   it("does not ask inside a chapter, with sealing off, or for an unknown checkpoint", async () => {
@@ -72,16 +74,16 @@ describe("/cp activate seal confirm (v2.6 plan 07 D2)", () => {
     expect(moved.port.seal).not.toHaveBeenCalled();
   });
 
-  it("jump without sealing: the marker is written after the activation, and a second jump still asks about the next chapter", async () => {
+  it("jump without sealing: the marker names the path position the jump takes, and a second jump still asks about the next chapter", async () => {
     choice.next = "skip";
     const { port, asPort, state, memory } = harness();
     expect(await confirmChapterJump(asPort, "walls")).toBe("skip");
     expect(port.seal).not.toHaveBeenCalled();
+    markSealSkip(asPort, { pathLength: 3, messageId: 11 });
     state.visitedPath = ["gate", "market", "walls"];
     state.activeCheckpointId = "walls";
     state.lastMessageId = 11;
-    markSealSkip(asPort);
-    expect(memory().chapterSealSkip).toEqual({ pathLength: 3, messageId: 11 });
+    expect(memory().chapterSealSkip).toEqual({ pathLength: 3, messageId: 11, previous: null });
     expect(port.host.save).toHaveBeenCalled();
     expect(await confirmChapterJump(asPort, "walls")).toBe("none");
   });
@@ -90,6 +92,8 @@ describe("/cp activate seal confirm (v2.6 plan 07 D2)", () => {
     const state = { chapterSealSkip: { pathLength: 3, messageId: 11 }, entries: [], excluded: [], writeLog: [], arcs: [], epistemic: [], ledger: [], canon: null, verifyDrops: [], derived: [],
       storyStart: 0, shortTermSummaryEnd: -1 } as unknown as MemoryRollbackState;
     expect(reverseMemoryState(state, 11, 5).chapterSealSkip).toBeNull();
+    const chained = { ...state, chapterSealSkip: { pathLength: 5, messageId: 20, previous: { pathLength: 3, messageId: 11, previous: null } } } as MemoryRollbackState;
+    expect(reverseMemoryState(chained, 15, 7).chapterSealSkip).toEqual({ pathLength: 3, messageId: 11, previous: null });
     expect(reverseMemoryState(state, 12, 5)).not.toHaveProperty("chapterSealSkip");
   });
 });
