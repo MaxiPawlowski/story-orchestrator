@@ -141,7 +141,9 @@ export async function applyPresetOverlay(user: string, fs: OverlayFs, options: {
   return { overlay: overlayPath, sha256, applied: true, reason: null, at, edits: plan.edits, problems: [] };
 }
 
-export interface LivePresets { instruct: { preset: string | null; last_output_sequence: unknown } | null; textgen: { preset: string | null; samplers: unknown } | null }
+export interface LivePresets {
+  instruct: { preset: string | null; last_output_sequence: unknown; sequences_as_stop_strings?: unknown } | null;
+  textgen: { preset: string | null; samplers: unknown } | null }
 
 export interface SessionOverlay { sha256: string | null; applied: boolean; reason: string | null; seededAt: string | null; edits: Array<{ kind: OverlayKind; preset: string; key: string; after: unknown; mirrored: boolean }>; live: LivePresets | null }
 

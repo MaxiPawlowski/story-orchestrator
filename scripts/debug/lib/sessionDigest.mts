@@ -1,4 +1,5 @@
 import type { StoryIndexEntry } from './sessionCharters.mts';
+import type { ContinuedAtPin } from './sessionLanes.mts';
 import { defectCounts } from './modelDefects.mts';
 
 const repairNote = (repair: { swiped?: boolean; repaired?: unknown[]; unrepaired?: Array<{ messageId?: number }> } | null | undefined, messageId: number | null | undefined) => {
@@ -34,7 +35,7 @@ export interface Flag { at: string; chatId: string | null; messageId: number; no
 export interface EndState { characters?: Array<{ index: number; name: string }>; epistemic?: any[]; payloadEpoch?: string | null }
 
 export interface SessionFiles {
-  session: { charter: string; tier: string; playFrom?: string | null; story?: { kind: string; id?: string } };
+  session: { charter: string; tier: string; playFrom?: string | null; story?: { kind: string; id?: string }; continuedAtPin?: ContinuedAtPin | null };
   journal: Row[];
   payloads: Row[];
   console: Row[];
@@ -50,7 +51,7 @@ export interface SessionFiles {
 export interface JudgeHealth { calls: number; answered: number; busy: number; timeout: number; otherFallbacks: number; busyRate: number | null; busyByUse: Record<string, number> }
 
 export interface Digest {
-  charter: string; tier: string; flags: Flag[]; anomalies: Anomaly[]; counts: Record<string, number>; countsByChat: Record<string, Record<string, number>>;
+  charter: string; tier: string; continuedAtPin: ContinuedAtPin | null; flags: Flag[]; anomalies: Anomaly[]; counts: Record<string, number>; countsByChat: Record<string, Record<string, number>>;
   valid: boolean; invalid: string[]; unverifiable: { privateBlock: number }; judge: JudgeHealth; modelDefects: ReturnType<typeof defectCounts>;
 }
 
@@ -314,7 +315,7 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
   }
   const invalid = (files.missing ?? []).map((name) => `${name} is missing: zero anomalies from it would mean no evidence, not a clean run`);
   return {
-    charter: files.session.charter, tier: files.session.tier, flags, anomalies, counts: { flags: flags.length, ...counts }, countsByChat,
+    charter: files.session.charter, tier: files.session.tier, continuedAtPin: files.session.continuedAtPin ?? null, flags, anomalies, counts: { flags: flags.length, ...counts }, countsByChat,
     valid: invalid.length === 0, invalid, unverifiable: { privateBlock: unverifiablePrivate },
     judge: judgeHealth(played.filter((row) => row.value.kind === 'judge')),
     modelDefects: defectCounts(playedTurns.map((row) => row.value)),
@@ -346,6 +347,7 @@ export function renderJudgeHealth(health: JudgeHealth): string[] {
 export function renderFindings(digest: Digest, sessionDir: string): string {
   const out = [`# Findings draft: ${digest.charter}`, '', `Session \`${sessionDir}\`. Draft rows for \`docs/plans/v2.6/14-findings.md\`; severity and class are decided in the review.`, ''];
   if (!digest.valid) out.push('## INVALID SESSION', '', ...digest.invalid.map((line) => `- ${line}`), '', 'The counts below cover only what was captured.', '');
+  if (digest.continuedAtPin) out.push('## Continued at the lane\'s pin', '', `- ${digest.charter} continued ${digest.continuedAtPin.holder}\'s chat \`${digest.continuedAtPin.chat}\` on a lane seeded from \`${digest.continuedAtPin.lanePin}\`; the story index was \`${digest.continuedAtPin.indexPin}\`. The lane inventory matched its seed record \`${digest.continuedAtPin.seedRecord}\`, so the story data played is the lane\'s pin, not the index.`, '');
   if (digest.unverifiable.privateBlock) out.push(`Private-block checks that could not be reconstructed (capture without chat, boundary or member identity): ${digest.unverifiable.privateBlock}.`, '');
   out.push('## Counts', '', `- flags: ${digest.flags.length}`, ...ANOMALY_KINDS.map((kind) => `- ${kind}: ${digest.counts[kind] ?? 0}`), '');
   const chats = Object.entries(digest.countsByChat ?? {});

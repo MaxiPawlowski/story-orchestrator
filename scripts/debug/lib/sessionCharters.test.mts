@@ -124,9 +124,9 @@ test('AS-27 start: without --media the card runs as the recorded no-media varian
 });
 
 test('AS-22 start: lane, settings, pin, page, recap, header and tail discrepancies are all blocking', () => {
-  const clean = { laneCommit: 'abc', indexCommit: 'abc', effective: [], pin: { ok: true, problems: [] }, page: [], age: null, ageAsked: false, header: { code: 0, output: '' }, tails: [] };
+  const clean = { lane: [] as string[], effective: [], pin: { ok: true, problems: [] }, page: [], age: null, ageAsked: false, header: { code: 0, output: '' }, tails: [] };
   assert.deepEqual(startProblems(clean), []);
-  assert.equal(startProblems({ ...clean, laneCommit: 'old' }).length, 1);
+  assert.equal(startProblems({ ...clean, lane: ['lane was seeded from old, the story index is abc'] }).length, 1);
   assert.equal(startProblems({ ...clean, pin: { ok: false, problems: ['main profile is "none"'] } }).length, 1);
   assert.equal(startProblems({ ...clean, page: ['story adolion-saga did not load'] }).length, 1);
   assert.equal(startProblems({ ...clean, ageAsked: true, age: { fired: false } }).length, 1);

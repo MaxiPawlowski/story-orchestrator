@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "about": "v2.6 plan 15 A100 server-flag A/B (docs/plans/v2.6/15-model-config.md, 2026-10-01 evening): Artemis loops and dropped articles are fixed mostly by two preset changes, not server flags. adolion-fresh seed applies these edits to the LANE's copied preset files (and to the settings.json copy of the preset when it is the active one) before the lane server starts. The real install is never touched; --no-preset-overlay reproduces the old condition.",
+  "about": "v2.6 plan 15 A100 server-flag A/B (docs/plans/v2.6/15-model-config.md, 2026-10-01 evening): Artemis loops and dropped articles are fixed mostly by two preset changes, not server flags. adolion-fresh seed applies these edits to the LANE's copied preset files (and to the settings.json copy of the preset when it is the active one) before the lane server starts. sequences_as_stop_strings goes off with it: ST splits every sequence into stop strings on newlines, so the thought-channel sequence would stop any reply that opens with <|channel>thought (a Connection Manager call ends on the plain output sequence) and any stray <channel|>; stop_sequence <turn|> and the model's end-of-turn token still end a reply. The real install is never touched; --no-preset-overlay reproduces the old condition.",
   "edits": [
     {
       "kind": "instruct",
@@ -8,6 +8,13 @@
       "key": "last_output_sequence",
       "op": "set",
       "value": "<|turn>model\n<|channel>thought\n<channel|>"
+    },
+    {
+      "kind": "instruct",
+      "preset": "Gemma 4",
+      "key": "sequences_as_stop_strings",
+      "op": "set",
+      "value": false
     },
     {
       "kind": "textgen",

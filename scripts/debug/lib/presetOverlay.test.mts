@@ -114,11 +114,12 @@ test('overlay sha is line-ending independent; the shape check names bad edits', 
   assert.deepEqual(overlayProblems({ version: 1, edits: [] }), ['the preset overlay lists no edits']);
 });
 
-test('the checked-in overlay is valid and names exactly the two A100 edits', async () => {
+test('the checked-in overlay is valid and names exactly the A100 edits plus the stop-string switch', async () => {
   const overlay = JSON.parse(await readFile(PRESET_OVERLAY_PATH, 'utf-8'));
   assert.deepEqual(overlayProblems(overlay), []);
   assert.deepEqual(overlay.edits.map((edit: any) => [edit.kind, edit.preset, edit.key, edit.op, edit.value ?? edit.item]), [
     ['instruct', 'Gemma 4', 'last_output_sequence', 'set', THOUGHT],
+    ['instruct', 'Gemma 4', 'sequences_as_stop_strings', 'set', false],
     ['textgen', 'Artemis v1.1 RP', 'samplers', 'moveToFront', 'min_p'],
   ]);
 });
@@ -140,4 +141,17 @@ test('session overlay: a lane without a record is the pre-overlay condition (war
   const off = sessionOverlay(await applyPresetOverlay(USER, fakeFs(lane()), { overlayPath: OVERLAY, disabled: true, now: at }), { ...live, instruct: { preset: 'Gemma 4', last_output_sequence: '' } });
   assert.deepEqual(off.problems, []);
   assert.match(off.warnings[0], /overlay off/);
+});
+
+test('preset overlay: the shipped overlay turns sequences_as_stop_strings off with the thought channel, and a page still splitting sequences into stops is refused', async () => {
+  const shipped = JSON.parse(await (await import('node:fs/promises')).readFile(new URL('../adolion-fresh.presets.json', import.meta.url), 'utf8'));
+  const stops = shipped.edits.find((edit: { key: string }) => edit.key === 'sequences_as_stop_strings');
+  assert.deepEqual(stops, { kind: 'instruct', preset: 'Gemma 4', key: 'sequences_as_stop_strings', op: 'set', value: false });
+  const record = {
+    overlay: 'x', sha256: 'abc', applied: true, reason: null, at: 't', problems: [],
+    edits: [{ kind: 'instruct' as const, preset: 'Gemma 4', key: 'sequences_as_stop_strings', op: 'set' as const, file: 'f', before: true, after: false, changed: true, mirror: null }],
+  };
+  const live = (value: unknown) => ({ instruct: { preset: 'Gemma 4', last_output_sequence: '', sequences_as_stop_strings: value }, textgen: null });
+  assert.deepEqual(sessionOverlay(record, live(false)).problems, []);
+  assert.match(sessionOverlay(record, live(true)).problems.join(), /sequences_as_stop_strings = true/);
 });

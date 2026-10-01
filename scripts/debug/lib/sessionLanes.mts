@@ -1,6 +1,7 @@
 import { existsSync } from 'node:fs';
 import { cp, mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { join, relative, resolve } from 'node:path';
+import { diffInventories } from './adolionFresh.mts';
 import { TIERS, type Card, type CardDoc } from './sessionCharters.mts';
 
 export const DEFAULT_LANES = [1, 2, 3, 4];
@@ -219,6 +220,40 @@ export function reseedRefusal(doc: CardDoc, lane: number, sessions: SessionOnLan
     if (waiting.length) return `lane ${lane} holds the ${session.charter} chat that ${waiting.map((next) => next.id).join(' and ')} continue${waiting.length === 1 ? 's' : ''}; seeding it for ${cardId} would destroy that chat. Play ${waiting.map((next) => next.id).join(', ')} first, or pick another lane.`;
   }
   return null;
+}
+
+export interface SeedRecord { name: string; report: { commit?: unknown; file?: unknown; problems?: unknown; pinned?: unknown } }
+export interface ContinuedAtPin { lanePin: string; indexPin: string; holder: string; session: string; chat: string; seedRecord: string }
+
+export const seedRecordOf = (records: SeedRecord[], commit: string | null): SeedRecord | null =>
+  commit === null ? null : [...records]
+    .filter((entry) => /^report-.+\.json$/.test(entry.name) && entry.report.commit === commit && Array.isArray(entry.report.problems) && entry.report.problems.length === 0 && entry.report.pinned !== false && typeof entry.report.file === 'string')
+    .sort((a, b) => b.name.localeCompare(a.name))[0] ?? null;
+
+export async function readSeedRecords(workDir: string): Promise<SeedRecord[]> {
+  if (!existsSync(workDir)) return [];
+  const names = (await readdir(workDir)).filter((name) => /^report-.+\.json$/.test(name));
+  return Promise.all(names.map(async (name) => ({ name, report: await readFile(join(workDir, name), 'utf-8').then((text) => JSON.parse(text)).catch(() => ({})) })));
+}
+
+export function lanePinVerdict(input: {
+  card: Card; lane: number; continueChat: string | null; lease: Lease | null; laneCommit: string | null; indexCommit: string;
+  seed: SeedRecord | null; seedInventory: unknown; laneInventory: unknown;
+}): { problems: string[]; continuedAtPin: ContinuedAtPin | null } {
+  const { card, lane, lease, laneCommit, indexCommit, continueChat, seed } = input;
+  if (laneCommit === indexCommit) return { problems: [], continuedAtPin: null };
+  const mismatch = `lane was seeded from ${laneCommit ?? 'an unknown build'}, the story index is ${indexCommit}`;
+  if (card.setup.chat !== 'continue' || laneCommit === null) return { problems: [mismatch], continuedAtPin: null };
+  const leaseGap = !lease ? `lane ${lane} holds no lease`
+    : Number(lease.lane) !== lane ? `the lease on lane ${lane} names lane ${lease.lane}`
+    : !lease.dependents.includes(card.id) ? `the lane's lease (${lease.holder}) does not list ${card.id} as a dependent`
+    : !continueChat || !lease.chats.includes(continueChat) ? `the lane's lease (${lease.holder}) does not hold the chat ${card.id} continues (${continueChat ?? 'none recorded'})`
+    : null;
+  if (leaseGap) return { problems: [`${mismatch}; ${card.id} continues a chat, but ${leaseGap}, so the lane's own pin cannot stand in for the index`], continuedAtPin: null };
+  if (!seed || !input.seedInventory) return { problems: [`${mismatch}; no clean seed record of ${laneCommit} on the lane to check its inventory against`], continuedAtPin: null };
+  const drift = diffInventories(input.seedInventory, input.laneInventory);
+  if (drift.length) return { problems: [`${mismatch}; the lane inventory drifted from its seed record ${seed.name}: ${drift.slice(0, 5).join('; ')}${drift.length > 5 ? ` (+${drift.length - 5} more)` : ''}`], continuedAtPin: null };
+  return { problems: [], continuedAtPin: { lanePin: laneCommit, indexPin: indexCommit, holder: lease!.holder, session: lease!.session, chat: continueChat!, seedRecord: seed.name } };
 }
 
 export function laneFor(plan: LanePlan | null, cardId: string): number | null {
