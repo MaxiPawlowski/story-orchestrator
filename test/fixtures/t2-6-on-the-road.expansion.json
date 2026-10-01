@@ -1,0 +1,663 @@
+{
+  "source": "test/sessions/T2/T2-6-1: runtime-2026-10-01@16h48m27s720ms.json extras.expansion.entries['road-to-wendhope->on-the-road->at-the-walls'] (journal.jsonl:793, :901); pinned story cut to the three checkpoints the chain spans",
+  "story": {
+    "format": 2,
+    "id": "t2-6-on-the-road",
+    "version": 28,
+    "title": "T2-6 On the Road",
+    "description": "A new adventuring party out of Aegis City takes the Wendhope posting, finds a frontier village under nightly siege by something out of the forest, and - once it has earned the rank - goes down the Driftmere Mines after whatever silenced a god.",
+    "player_intro": "You have just signed on at the Adventurer's Guild in Aegis City, with no party yet. Belle, a headstrong barbarian, and Dalan, a shy elf ranger, are looking for one too. The postings on the board are small, the pay is modest, and every rank has to be earned. Expect frontier fantasy with a dark edge: real danger, mysteries that open one clue at a time, and choices that cost something. Bring any adventurer you like; the Guild takes all kinds.",
+    "arc_template": {
+      "points": [
+        {
+          "at": 0,
+          "tension": 0.1
+        },
+        {
+          "at": 0.14,
+          "tension": 0.3
+        },
+        {
+          "at": 0.21,
+          "tension": 0.5
+        },
+        {
+          "at": 0.29,
+          "tension": 0.75
+        },
+        {
+          "at": 0.36,
+          "tension": 0.3
+        },
+        {
+          "at": 0.43,
+          "tension": 0.5
+        },
+        {
+          "at": 0.5,
+          "tension": 1
+        },
+        {
+          "at": 0.57,
+          "tension": 0.1
+        },
+        {
+          "at": 0.64,
+          "tension": 0.3
+        },
+        {
+          "at": 0.71,
+          "tension": 0.5
+        },
+        {
+          "at": 0.79,
+          "tension": 0.75
+        },
+        {
+          "at": 0.86,
+          "tension": 0.75
+        },
+        {
+          "at": 0.93,
+          "tension": 1
+        },
+        {
+          "at": 1,
+          "tension": 0.1
+        }
+      ]
+    },
+    "roster": [
+      {
+        "id": "dm",
+        "name": "Adolion Narrator",
+        "role": "narrator and game master: voices the world and every character outside the group",
+        "view": "omniscient",
+        "aliases": [
+          "Adolion Storyteller",
+          "Narrator"
+        ]
+      },
+      {
+        "id": "guild_rep",
+        "name": "Tobias",
+        "role": "guild receptionist at the Aegis City quest counter: hands out postings and pays rewards",
+        "drive": "match adventurers into parties that hold together and send them out ready, so no party of his is lost like his own was",
+        "aliases": [
+          "Eldergreen",
+          "Tobias Eldergreen"
+        ]
+      },
+      {
+        "id": "companion_a",
+        "name": "Belle",
+        "role": "companion: headstrong barbarian who charges in first and says what she thinks",
+        "drive": "fight worthy opponents, keep getting stronger, reach top rank, and build a clan of her own out of people she trusts",
+        "aliases": [
+          "Belle the Barbarian",
+          "the barbarian"
+        ]
+      },
+      {
+        "id": "companion_b",
+        "name": "Dalan",
+        "role": "companion: shy elf ranger, the party's scout, archer and reader of the forest",
+        "drive": "prove his strength to himself and his tribe, kill something truly dangerous, and find a party that lasts long enough to call home",
+        "aliases": [
+          "Dalan Evergreen",
+          "the ranger",
+          "the scout"
+        ]
+      },
+      {
+        "id": "guild_girl",
+        "name": "Ellie",
+        "role": "Guild receptionist beside Tobias: handles forms and ranks, and matchmakes adventurers in secret",
+        "drive": "keep order at the Guild counter, help good adventurers rise, and see the pairs in her secret ledger fall in love",
+        "aliases": [
+          "Ellie Sunleaf",
+          "Sunleaf",
+          "the Guild Girl"
+        ]
+      },
+      {
+        "id": "guildmaster",
+        "name": "Vallie",
+        "role": "Guildmaster of the Aegis City Guild: one-eyed minotaur, retired A-rank, loves stoking a rivalry",
+        "drive": "protect the Guild and Aegis City, keep the bureaucrats from ruining it, and stop the Crown spending adventurers like coin",
+        "aliases": [
+          "Deathaxe",
+          "Goredust",
+          "Guildmaster Vallie",
+          "Vallie Goredust"
+        ]
+      },
+      {
+        "id": "vice_guildmaster",
+        "name": "Domas",
+        "role": "Vice Guildmaster: elven gravity mage who keeps the Guild's paperwork and signs its promotions",
+        "drive": "protect the Adventurers Guild and Aegis City, keep its verdicts fair, and stop Vallie from smashing anything else in the hall",
+        "aliases": [
+          "Domas Syllandri",
+          "Syllandri",
+          "Vice Guildmaster"
+        ]
+      },
+      {
+        "id": "bartender",
+        "name": "Rydel",
+        "role": "Guild tavern bartender, Fiana's dog-beastfolk brother and Tobias's best friend",
+        "drive": "keep the Guild tavern running for his family and save enough gold to see and paint the Mountains of Shadow himself",
+        "aliases": [
+          "Rydel Deulana",
+          "the bartender"
+        ]
+      },
+      {
+        "id": "barmaid",
+        "name": "Fiana",
+        "role": "Guild tavern barmaid: flirts with everyone, touches no one, hears every rumour in the hall",
+        "drive": "keep the Guild tavern running so her parents can retire, and save enough gold to travel and paint the mountains",
+        "aliases": [
+          "Fiana Deulana",
+          "the barmaid"
+        ]
+      },
+      {
+        "id": "wizard_talis",
+        "name": "Talis",
+        "role": "elven wizard prodigy with a huge mana pool, not let out on quests until she finds a partner",
+        "drive": "reach B-rank by year's end so she is never sent home to her books, and claim her own wizard's tower",
+        "aliases": [
+          "Dacaryn",
+          "Talis Dacaryn"
+        ]
+      },
+      {
+        "id": "gunslinger_alida",
+        "name": "Alida",
+        "role": "halfling gunslinger riding her hound Rover, wants a party with a use for demolition",
+        "drive": "prove halflings can be more than rogues by rising high in the Guild with a steady party that loves her demolitions",
+        "aliases": [
+          "Alida Chetting",
+          "Chetting"
+        ]
+      },
+      {
+        "id": "ranger_tatiana",
+        "name": "Tatiana",
+        "role": "catfolk ranger from the edge of Duskwallow Forest, easygoing and looking for a party",
+        "drive": "fund her parents' retirement in Aegis City, go on a legendary hunt, and learn whether the one she loves feels the same",
+        "aliases": [
+          "Peyriel",
+          "Tati",
+          "Tatiana Peyriel"
+        ]
+      },
+      {
+        "id": "brawler",
+        "name": "Kashina",
+        "role": "lizardkin brawler and lightweight, solo since her old party broke up, hunting for a new one",
+        "drive": "reach A-rank, buy a house in Aegis City, and find a party without drama, though she cannot stop matchmaking her companions",
+        "aliases": [
+          "Grystle",
+          "Kashina Grystle",
+          "the brawler"
+        ]
+      },
+      {
+        "id": "paladin_alder",
+        "name": "Alder",
+        "role": "paladin of Boher with a clockwork arm and a life debt to the Church, wants in on a party",
+        "drive": "pay off his life debt to the Church of Boher for raising Karrus, keep his friends alive, and one day become an Inquisitor",
+        "aliases": [
+          "Alder Snowdown",
+          "Snowdown"
+        ]
+      },
+      {
+        "id": "gunslinger_gustall",
+        "name": "Gustall",
+        "role": "halfling gunslinger riding his hound Ollie, wants a party that lets him blow things up",
+        "drive": "prove halflings can be more than rogues by rising high in the Guild with a steady party that loves his explosives",
+        "aliases": [
+          "Gustall Lothain",
+          "Lothain"
+        ]
+      },
+      {
+        "id": "blademaster",
+        "name": "Naomi",
+        "role": "catfolk swordswoman of the Moonlight Blade style, just down from the Mountains of Shadow, who cannot refuse a duel",
+        "drive": "prove the Moonlight Blade style can beat anyone in Adolion, find it a worthy apprentice, and finally land Farslash",
+        "aliases": [
+          "Naomi Moonlight"
+        ]
+      },
+      {
+        "id": "icesong",
+        "name": "Giada",
+        "role": "Giada Icesong, last of the Icesong elves: the ice witch of Eltaronal the mountain dwarves fear",
+        "drive": "keep demons out of Eltaronel, break the wards guarding her parents' final gift, and make a real friend after centuries alone",
+        "aliases": [
+          "Giada Icesong",
+          "Icesong",
+          "Princess of Icesong",
+          "the ice witch",
+          "the Icesong witch",
+          "the Witch of Eltaronal"
+        ]
+      },
+      {
+        "id": "survivor",
+        "name": "Riyo",
+        "role": "small white-haired swordswoman who hides her left arm and attaches herself to the party",
+        "drive": "keep the heir, the person she lost as a child or close enough, from ever leaving her again, and find her family",
+        "aliases": [
+          "Riyo Tallaboros",
+          "The Survivor"
+        ]
+      }
+    ],
+    "qualities": [
+      {
+        "key": "first_camp",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "scope_hint": {
+          "from": "road-to-wendhope"
+        },
+        "evidence_from": "world",
+        "rubric": "Has the party made camp for its first night on the road north to Wendhope?"
+      },
+      {
+        "key": "reached_walls",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "scope_hint": {
+          "from": "road-to-wendhope"
+        },
+        "evidence_from": "world",
+        "rubric": "Has the party come within sight of Wendhope's walls and been challenged by its archers?"
+      },
+      {
+        "key": "location",
+        "type": "enum",
+        "values": [
+          "aegis_guild_hall",
+          "north_road",
+          "wendhope_gate",
+          "wendhope_wall",
+          "wendhope",
+          "needlehaven",
+          "needlehaven_heart",
+          "driftmere",
+          "upper_mines",
+          "deep_mines",
+          "the_seals",
+          "behind_the_seals",
+          "eltaronal"
+        ],
+        "player_labels": {
+          "aegis_guild_hall": "the Guild hall in Aegis City",
+          "north_road": "the road north",
+          "wendhope_gate": "Wendhope's gate",
+          "wendhope_wall": "Wendhope's wall",
+          "wendhope": "Wendhope village",
+          "needlehaven": "Needlehaven Forest",
+          "needlehaven_heart": "the heart of the forest",
+          "driftmere": "Driftmere",
+          "upper_mines": "the upper mines",
+          "deep_mines": "the deep mines",
+          "the_seals": "the sealed wall",
+          "behind_the_seals": "beyond the seals",
+          "eltaronal": "Eltaronal"
+        },
+        "source": "extractor",
+        "evidence_from": "world",
+        "rubric": "Where is the party right now? aegis_guild_hall: the Adventurer's Guild in Aegis City; north_road: the road north to Wendhope; wendhope_gate: outside Wendhope's eastern gate; wendhope_wall: on or at Wendhope's wall during an assault; wendhope: inside the village; needlehaven: the forest; needlehaven_heart: where the mine cut into the Spirit's roots; driftmere: Driftmere town; upper_mines: the top floors of the Driftmere Mines; deep_mines: the deep floors; the_seals: in front of Filwern's seals on the bottom floor; behind_the_seals: past them, where the Devourer is; eltaronal: the ruins of Eltaronal in the Mountains of Shadow, or the passes up to them."
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "road-to-wendhope",
+        "name": "The Road North",
+        "objective": "Travel to Wendhope and notice what the road is missing.",
+        "type": "anchor",
+        "player_name": "The Journey North",
+        "player_text": "Wendhope lies two days north along the frontier road, and the talk on the way is the party's own.",
+        "tension_target": "stirring",
+        "target_turn_length": 4,
+        "guidance": "Two days of road. Let {{story_role_companion_a}} and {{story_role_companion_b}} take initiative beside {{story_player_name}}: Dalan checks tracks and the treeline to prove he can keep this party safe; Belle sizes up their chances and asks whether this team will stand by one another. Their own goals invite questions, not decisions on {{user}}'s behalf. The wrongness is an absence, not a threat: abandoned carriages with cargo still strapped on, no bandits, no traffic at all. Do not show fog or Screechers yet.",
+        "state_snapshot": {
+          "location": "north_road"
+        },
+        "talk_control": {
+          "lead": "Adolion Narrator",
+          "speakers": [
+            {
+              "member": "Adolion Narrator",
+              "weight": 2
+            },
+            {
+              "member": "Belle",
+              "weight": 2
+            },
+            {
+              "member": "Dalan",
+              "weight": 2
+            }
+          ],
+          "no_repeat": true,
+          "allow_silence": false,
+          "director": {
+            "instruction": "A quiet scene: let the group talk. Pick Belle or Dalan when the player addresses them or one of them has not spoken for a while or they have a reason to pursue their own goals: Belle tests whether this party will stand together; Dalan scouts and builds trust in the first party he hopes will last. Riyo, when she is there, only when the player turns to her. Pick Adolion Narrator when the player acts, moves, or the world must respond; hand back instead of repeating a scene. Here the only speakers are Adolion Narrator, Belle and Dalan."
+          },
+          "chain": {
+            "max": 2
+          }
+        },
+        "effects": {
+          "world_info": {
+            "disable": [
+              {
+                "lorebook": "Adolion Adventurer Checkpoints",
+                "comments": [
+                  "CP guild-hall - Scene",
+                  "CP adv-guild-tavern - Scene",
+                  "CP the-sheridan-steward - Scene"
+                ]
+              }
+            ],
+            "enable": [
+              {
+                "lorebook": "Adolion Adventurer Checkpoints",
+                "comments": [
+                  "CP road-to-wendhope - Scene"
+                ]
+              }
+            ]
+          },
+          "background": "landscape mountain lake.jpg",
+          "cast_changes": {
+            "disable": [
+              "Tobias",
+              "Ellie",
+              "Vallie",
+              "Rydel",
+              "Talis",
+              "Alida",
+              "Tatiana"
+            ]
+          },
+          "npc_replies": [
+            {
+              "trigger": "sceneBreak",
+              "member": "Adolion Narrator",
+              "kind": "scripted",
+              "probability": 0.5,
+              "text": "A riderless horse in Sheridan blue comes down the road at a walk, still saddled."
+            }
+          ],
+          "stage": {
+            "spotlight": "Dalan",
+            "cast": {
+              "Dalan": {
+                "face": "thinking"
+              },
+              "Belle": {
+                "face": "neutral"
+              }
+            }
+          }
+        },
+        "motives": {
+          "companion_a": "test on the road whether these new allies will stand by one another when it counts",
+          "companion_b": "read every track and treeline north and prove he can keep this party safe"
+        },
+        "chapter": "wendhope",
+        "start": true
+      },
+      {
+        "id": "on-the-road",
+        "name": "On the Road",
+        "objective": "Two days north to Wendhope: whatever the road holds.",
+        "type": "intermediate",
+        "player_name": "First Night on the Road",
+        "player_text": "Dusk on the first day out: a fire beside the road, the horses picketed, and Wendhope still a day's walk north.",
+        "chapter": "wendhope"
+      },
+      {
+        "id": "at-the-walls",
+        "name": "Hold, Wendhope Is Closed",
+        "objective": "Get inside Wendhope before sundown.",
+        "type": "anchor",
+        "player_name": "Turned Away at the Gate",
+        "player_text": "Stone walls, a shut gate, and three bows raised on the parapet, with the sun already past midday.",
+        "tension_target": "tense",
+        "target_turn_length": 5,
+        "guidance": {
+          "all": "Grod and two wounded archers refuse the gate with arrows nocked. They are exhausted and afraid, not hostile, and they mention signs the party never passed. Sundown is the clock: say so, and mean it. The Guild seal, the Sheridan contract, offered supplies, healing for the wounded or simply refusing to leave will all work. Halena arrives if it drags. If the sun goes down with the party still outside, it goes down.",
+          "members": {
+            "dm": "The archers know the attackers come with a red fog at night and keep it from strangers, because said out loud it sounds mad. Grod suspects the party are the Sheridans' answer and resents how late it is."
+          }
+        },
+        "state_snapshot": {
+          "location": "wendhope_gate"
+        },
+        "talk_control": {
+          "lead": "Adolion Narrator",
+          "speakers": [
+            {
+              "member": "Adolion Narrator",
+              "weight": 3
+            },
+            {
+              "member": "Belle",
+              "weight": 1
+            },
+            {
+              "member": "Dalan",
+              "weight": 1
+            }
+          ],
+          "no_repeat": false,
+          "allow_silence": false,
+          "director": {
+            "instruction": "This is an investigation. Pick Adolion Narrator whenever the player asks, searches, or talks to anyone outside the group. Pick Naomi, when she is in the scene, when a fight, a challenge or the Mountains of Shadow comes up, or when addressed. Pick Belle or Dalan when addressed, or when one of them has not spoken for several turns and has something to add. Here the only speakers are Adolion Narrator, Belle and Dalan."
+          }
+        },
+        "effects": {
+          "world_info": {
+            "disable": [
+              {
+                "lorebook": "Adolion Adventurer Checkpoints",
+                "comments": [
+                  "CP road-to-wendhope - Scene"
+                ]
+              }
+            ],
+            "enable": [
+              {
+                "lorebook": "Adolion Adventurer Checkpoints",
+                "comments": [
+                  "CP at-the-walls - Scene",
+                  "Wendhope - Defenders"
+                ]
+              }
+            ]
+          },
+          "background": "cityscape medieval market.jpg",
+          "npc_replies": [
+            {
+              "trigger": "onEnter",
+              "member": "Adolion Narrator",
+              "kind": "scripted",
+              "text": "Three bows come up on the parapet at once. \"That's far enough!\" The archer in the middle has a scar over his left eye and has not slept in days. \"Wendhope's not taking visitors. Turn round now and you'll make the crossroads by sundown.\""
+            }
+          ],
+          "stage": {
+            "spotlight": "Belle",
+            "cast": {
+              "Belle": {
+                "face": "determined"
+              },
+              "Dalan": {
+                "face": "worried"
+              }
+            }
+          }
+        },
+        "motives": {
+          "companion_a": "get through that gate before sundown without starting a fight with frightened archers",
+          "companion_b": "spot the wounds and the warning signs on the wall and help talk the archers down"
+        },
+        "agency": {
+          "alternate": "outside-at-sundown"
+        },
+        "chapter": "wendhope"
+      }
+    ],
+    "transitions": [
+      {
+        "from": "road-to-wendhope",
+        "to": "at-the-walls",
+        "priority": 2,
+        "gate": {
+          "q": "reached_walls",
+          "op": "==",
+          "v": true
+        },
+        "extractor_trigger": "\\b(wall|walls|gate|parapet|archers?)\\b|\\bwendhope\\b",
+        "extraction_hint": "Set reached_walls true once Wendhope's walls are in sight and the archers challenge the party."
+      },
+      {
+        "from": "road-to-wendhope",
+        "to": "on-the-road",
+        "priority": 1,
+        "gate": {
+          "q": "first_camp",
+          "op": "==",
+          "v": true
+        },
+        "extractor_trigger": "\\b(camps?|camped|camping|campfire|bedrolls?|bed down|nightfall|(?:first|keep|take the|night) watch|sleep)\\b",
+        "extraction_hint": "Set first_camp true once the party makes camp for the first night on the road."
+      },
+      {
+        "from": "on-the-road",
+        "to": "at-the-walls",
+        "priority": 2,
+        "gate": {
+          "q": "progress_toward_at-the-walls",
+          "op": ">=",
+          "v": 1
+        },
+        "extractor_trigger": "\\b(wall|walls|gate|wendhope)\\b",
+        "extraction_hint": "Generated beats move progress toward at-the-walls."
+      },
+      {
+        "from": "on-the-road",
+        "to": "at-the-walls",
+        "priority": 1,
+        "gate": {
+          "q": "reached_walls",
+          "op": "==",
+          "v": true
+        },
+        "extractor_trigger": "\\b(wall|walls|gate|parapet|archers?)\\b|\\bwendhope\\b",
+        "extraction_hint": "Set reached_walls true once Wendhope's walls are in sight and the archers challenge the party."
+      }
+    ],
+    "chapters": [
+      {
+        "id": "wendhope",
+        "title": "Act I: Wendhope",
+        "player_title": "The Silent Village"
+      },
+      {
+        "id": "driftmere",
+        "title": "Act II: Driftmere",
+        "player_title": "The Mining Town",
+        "final": true
+      }
+    ]
+  },
+  "basis": {
+    "wall_breached": false,
+    "path": "wendhope",
+    "adv_looking_for_hands": false,
+    "guild_reputation": 1,
+    "location": "north_road",
+    "party_injuries": 0,
+    "party_name": "Red Hands"
+  },
+  "latched": {
+    "path": true,
+    "party_name": true
+  },
+  "beats": [
+    {
+      "id": "0",
+      "title": "The Empty Mile",
+      "objective": "Let the party notice what the north road is missing and decide what to do about it before nightfall.",
+      "guidance": "The trade road to the mines should be busy — ore carts, merchant wagons, guards, stray animals. It is not. Play the absence as pressure: a cold cookfire ringed by bootprints that stop mid-stride, a wagon abandoned with its axle unbroken, a dog's collar snagged on a milepost. Dalan can read how long the road has been this way; Belle can want to push on or search. Let the party choose whether to investigate, mark the road, or hurry. Do not decide for them. If they linger, the light starts to go.",
+      "tension_target": "stirring",
+      "outcomes": [
+        {
+          "id": "0:0",
+          "label": "success",
+          "gate": {
+            "q": "location",
+            "op": "==",
+            "v": "north_road"
+          },
+          "deltas": [
+            {
+              "q": "location",
+              "v": "north_road"
+            }
+          ],
+          "progress": {
+            "anchor": "at-the-walls",
+            "amount": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "1",
+      "title": "Lights Behind the Palisade",
+      "objective": "Bring the party to Wendhope's gate as sundown closes in, with the village refusing entry.",
+      "guidance": "Wendhope rises out of the dark: a palisade of raw timber, torches burning along the wall, and a gate barred from the inside. Figures move on the walkway but do not answer hails. The party has the dead Sheridan rider's badge to show, and the headman's name if they learned it. Play the gate as a wall with people behind it — frightened, suspicious, and under orders. Let the party argue, show proof, or force the issue; the gate does not open on its own. Sundown is minutes away.",
+      "tension_target": "tense",
+      "outcomes": [
+        {
+          "id": "1:0",
+          "label": "success",
+          "gate": {
+            "q": "location",
+            "op": "==",
+            "v": "wendhope_gate"
+          },
+          "deltas": [
+            {
+              "q": "location",
+              "v": "wendhope_gate"
+            },
+            {
+              "q": "reached_walls",
+              "v": true
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "codeCheck": {
+    "ok": true,
+    "issues": [],
+    "progressTotal": 1
+  }
+}

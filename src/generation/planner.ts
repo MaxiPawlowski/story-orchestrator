@@ -66,5 +66,6 @@ export function planExpansion(
     canon,
     facts,
     latched,
+    entry: { ...blackboard.values, ...gatePins(candidate.transition.gate) },
   };
 }

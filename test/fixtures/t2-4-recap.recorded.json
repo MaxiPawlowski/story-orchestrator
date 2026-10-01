@@ -1,0 +1,724 @@
+{
+  "source": "test/sessions/T2/T2-4-1: runtime-2026-10-01@11h05m47s358ms.json cut back to the recap (turns.jsonl:1, boundary 50, message 77); recap-popup.json",
+  "state": {
+    "boundary": 50,
+    "lastMessageId": 77,
+    "checkpointStartedBoundary": 49
+  },
+  "checkpoint": {
+    "id": "into-needlehaven",
+    "player_name": "Into Needlehaven",
+    "player_text": "Pines crowd in thirty feet from the western wall, a mine road and a tangle of hunting trails lead into them, and daylight is the only cover."
+  },
+  "lastTransition": {
+    "fromName": "What Wendhope Knows",
+    "toName": "Into Needlehaven"
+  },
+  "popup": "Welcome back — Adolion: The Adventurer's Road (away 1d)\nWhere you are\nInto Needlehaven\nPines crowd in thirty feet from the western wall, a mine road and a tangle of hunting trails lead into them, and daylight is the only cover.\nThings are close to breaking.\nRecently\nYou left What Wendhope Knows behind and moved into Into Needlehaven.\nOpen threads\nThe party must face whatever is scraping on the stone ahead in the root-filled tunnel.\nWendhope's wall is short on arrows while Halena counts them, leaving the defenders under-supplied.\nThe party intends to enter Needlehaven to find where the pale roots begin.\nThe party is now inside Needlehaven forest at dusk, facing the first wave of Screechers among the roots.\nThe strange echoing voice in the tunnel and what Duggy was waiting to see remain unexplained.\nThe story so far\nMax registered a new party at the Guild in Aegis City under the name the Grey Pennants, alongside Belle, a barbarian out of the Mountains of Shadow, and Dalan, a quiet elf archer who had drifted between parties for a year. Both had been looking for a party, and the Guild sends no one out alone. Ellie recorded the party's name in the Guild's great book and slid the quest slip to Max. Max committed the three of them to the Investigate Wendhope posting, though Tobias had not yet written the party's name in the ledger, leaving the commitment unconfirmed.\nStatus\nFollowing along.",
+  "arcs": [
+    {
+      "id": "266d593e-ede2-4813-bfa5-b4ac1f519c23",
+      "text": "Tobias has not yet written the party's name in the ledger for the Wendhope job, leaving the commitment unconfirmed.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 4,
+      "openedMessageId": 6,
+      "resolvedAt": 6,
+      "resolvedMessageId": 10,
+      "bridgeApplied": true
+    },
+    {
+      "id": "da09af29-ffcb-4812-9422-8f4f7e04905f",
+      "text": "The Grey Pennants must gather gear and depart Aegis City at first light for Wendhope.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 6,
+      "openedMessageId": 10,
+      "resolvedAt": 8,
+      "resolvedMessageId": 13,
+      "bridgeApplied": true
+    },
+    {
+      "id": "7ee9a34c-452c-4a5d-a6e8-39344e51f080",
+      "text": "The Grey Pennants still need to agree on a plan for Wendhope before departing at first light.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 7,
+      "openedMessageId": 11,
+      "resolvedAt": 8,
+      "resolvedMessageId": 13,
+      "bridgeApplied": true
+    },
+    {
+      "id": "525b69dd-7c85-4ca8-93d5-22020a0ef8d0",
+      "text": "The Grey Pennants have reached silent, walled Wendhope and must discover why the village stopped talking.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 8,
+      "openedMessageId": 13
+    },
+    {
+      "id": "d384f144-fb29-429a-be4c-f67d8077040e",
+      "text": "The party must confront whatever left the trail of dead, eyeless bodies along the north road.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 8,
+      "openedMessageId": 13
+    },
+    {
+      "id": "fbcd7a36-7034-4ce9-bd6e-c3b27df22e19",
+      "text": "The Grey Pennants must discover what killed the eyeless bodies along the north road and why Wendhope has gone silent.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 8,
+      "openedMessageId": 13
+    },
+    {
+      "id": "bd9c06df-138f-45b7-a3c2-454ee8e680a4",
+      "text": "The Grey Pennants must find a way into walled, silent Wendhope after receiving no answer at the gate.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 9,
+      "openedMessageId": 15
+    },
+    {
+      "id": "33eb1f0c-017b-47b9-b5e8-eae0140ea5eb",
+      "text": "The party must identify the source of the faint scraping sound coming from inside Wendhope's walls.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 9,
+      "openedMessageId": 15
+    },
+    {
+      "id": "b2829431-57a4-4ee1-85ed-c085851bcad1",
+      "text": "The Grey Pennants must convince the terrified, starving villagers of Wendhope to open the gate and let them in.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 12,
+      "openedMessageId": 19,
+      "resolvedAt": 18,
+      "resolvedMessageId": 30,
+      "bridgeApplied": true
+    },
+    {
+      "id": "0bf1bc89-55e4-4fbd-a9fc-c25304ee7b2a",
+      "text": "The Grey Pennants must learn why Wendhope's runners never returned and what is scraping on stone inside the walls.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 12,
+      "openedMessageId": 19
+    },
+    {
+      "id": "6558c9c0-9c7e-4470-ae1d-6c0fca115224",
+      "text": "The Grey Pennants must get past Wendhope's refusal and the archers on the wall to enter the village before sundown.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 16,
+      "openedMessageId": 26,
+      "resolvedAt": 18,
+      "resolvedMessageId": 30,
+      "bridgeApplied": true
+    },
+    {
+      "id": "456a040f-c17d-482e-baee-9020e18e9090",
+      "text": "The Grey Pennants must reach the west postern gate and get inside Wendhope before the sun sets.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 18,
+      "openedMessageId": 30,
+      "resolvedAt": 21,
+      "resolvedMessageId": 35,
+      "bridgeApplied": true
+    },
+    {
+      "id": "e15ab80e-082a-4c0d-93b8-c68a8ee5c59e",
+      "text": "The Grey Pennants must learn why Wendhope's wall screams at night.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 18,
+      "openedMessageId": 30,
+      "resolvedAt": 30,
+      "resolvedMessageId": 49,
+      "bridgeApplied": true
+    },
+    {
+      "id": "67d0428c-4483-49a4-a7f5-bef84aeceda1",
+      "text": "The Grey Pennants must learn what happened to the Sheridans and the missing runners.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 20,
+      "openedMessageId": 34
+    },
+    {
+      "id": "b0079b47-3ed7-4400-93e9-003750e7119a",
+      "text": "The Grey Pennants must hold the crumbling south wall near the old quarry through the night.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 21,
+      "openedMessageId": 35,
+      "resolvedAt": 30,
+      "resolvedMessageId": 49
+    },
+    {
+      "id": "f3b4bfcb-eb6d-4ab6-94aa-2d81900a94c8",
+      "text": "The Grey Pennants must survive the first wave of Screechers now striking the south wall.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 23,
+      "openedMessageId": 38,
+      "resolvedAt": 30,
+      "resolvedMessageId": 49,
+      "bridgeApplied": true
+    },
+    {
+      "id": "99d07ef1-19ec-4310-8f9e-c27aeef0f60a",
+      "text": "The Grey Pennants must find a way to kill Screechers that do not fall when struck.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 24,
+      "openedMessageId": 39
+    },
+    {
+      "id": "dad3881b-6ab3-46e6-b32a-0f3a1e809e0a",
+      "text": "The Grey Pennants must stop the Screechers from carrying wood and scaling the south wall with ladders.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 26,
+      "openedMessageId": 42
+    },
+    {
+      "id": "97350f94-77c8-432c-bbc0-10541f8918e8",
+      "text": "The Grey Pennants must stop the Screechers breaching the east wall.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 27,
+      "openedMessageId": 43,
+      "resolvedAt": 30,
+      "resolvedMessageId": 49,
+      "bridgeApplied": true
+    },
+    {
+      "id": "da9a7d66-9281-4510-ab8d-b75743f315a6",
+      "text": "The Grey Pennants must learn what the white flowers left by dead Screechers signify.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 30,
+      "openedMessageId": 49
+    },
+    {
+      "id": "49b5d819-cd2b-4631-b9df-1e05e703b0ca",
+      "text": "The Grey Pennants must discover what became of the defenders and villagers of Wendhope now that the night is over.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 30,
+      "openedMessageId": 49
+    },
+    {
+      "id": "b9c76719-18d4-4706-ac07-f476bcfe3efd",
+      "text": "The Grey Pennants must deal with the breach on the east wall before the next nightfall.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 30,
+      "openedMessageId": 49
+    },
+    {
+      "id": "fb06f472-2737-4733-9391-64b9422b362d",
+      "text": "The Grey Pennants must learn who now leads Wendhope with Sheridan gone quiet.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 31,
+      "openedMessageId": 51
+    },
+    {
+      "id": "4dcc13e6-041a-47fa-8351-aac4f88590dc",
+      "text": "The Grey Pennants must prepare for the fog's return and the next night's assault.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 31,
+      "openedMessageId": 51,
+      "resolvedAt": 32,
+      "resolvedMessageId": 53
+    },
+    {
+      "id": "b81f4b48-7322-437e-a217-7842be5b7383",
+      "text": "The Grey Pennants must find Mayor Duggy at the town hall and learn what he knows about the forest.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 32,
+      "openedMessageId": 53
+    },
+    {
+      "id": "a0d34145-7ddf-45b8-8303-ef595c75943b",
+      "text": "The Grey Pennants must find out who now runs the mine with the foreman dead.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 33,
+      "openedMessageId": 54
+    },
+    {
+      "id": "0bacf408-f26c-43da-909a-3e39d63c3e71",
+      "text": "The Grey Pennants must see the tunnel the miners opened and learn what Duggy is hiding about the quartz lode.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 36,
+      "openedMessageId": 59
+    },
+    {
+      "id": "6b2bc420-cfbb-4f76-8104-af62039d2bdc",
+      "text": "The party must follow Duggy into the mine tunnel and confront whatever the miners uncovered among the glowing roots.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 40,
+      "openedMessageId": 65
+    },
+    {
+      "id": "8310ab0d-a331-458e-8be1-12b0bf3ae745",
+      "text": "The party has followed Duggy into the mine tunnel against his orders and must face whatever is scraping on the stone ahead.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 41,
+      "openedMessageId": 66
+    },
+    {
+      "id": "5e371cd5-e17d-4f41-a4b4-a2512c484d2d",
+      "text": "The party must decide how to handle Duggy, who wanted to go down alone and may be hiding what he knows about the roots.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 41,
+      "openedMessageId": 66
+    },
+    {
+      "id": "69780059-285f-40f7-b4d8-3c445455e422",
+      "text": "The party must decide how to answer Duggy for disobeying his order to stay above ground.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 42,
+      "openedMessageId": 67,
+      "resolvedAt": 49,
+      "resolvedMessageId": 76
+    },
+    {
+      "id": "75cf5304-0074-4f3c-86fa-9fba7fdd4f6e",
+      "text": "The party must face whatever is scraping on the stone ahead in the root-filled tunnel.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 42,
+      "openedMessageId": 67
+    },
+    {
+      "id": "7b805d92-9a9f-4a55-bf5a-bb15e5bf10f4",
+      "text": "Wendhope's wall is short on arrows while Halena counts them, leaving the defenders under-supplied.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 42,
+      "openedMessageId": 67
+    },
+    {
+      "id": "58429f48-185a-4090-b6fa-7027010713d5",
+      "text": "The party intends to enter Needlehaven to find where the pale roots begin.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 44,
+      "openedMessageId": 70
+    },
+    {
+      "id": "2ec80a83-f625-4580-9a0d-9039f5c8a761",
+      "text": "The party must decide whether to heed Duggy's plea to stay back or push forward to him.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 46,
+      "openedMessageId": 72,
+      "resolvedAt": 48,
+      "resolvedMessageId": 75
+    },
+    {
+      "id": "26f9dc04-58c1-40f9-a0f8-dbaa61a3415b",
+      "text": "The party has disobeyed Duggy and entered the root-filled tunnel, and must face the scraping thing and the strange echoing voice ahead.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 46,
+      "openedMessageId": 72
+    },
+    {
+      "id": "7fccec41-c06c-436e-b007-30922fd95a0b",
+      "text": "The party must decide how to answer Duggy, who begged them not to come closer.",
+      "status": "resolved",
+      "entities": [],
+      "openedAt": 46,
+      "openedMessageId": 72,
+      "resolvedAt": 48,
+      "resolvedMessageId": 75
+    },
+    {
+      "id": "4f1f5dbc-ec78-4e5e-835e-ae9bedb85827",
+      "text": "The party now faces the Screecher assault in Needlehaven forest at dusk, standing their ground among the roots.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 48,
+      "openedMessageId": 75
+    },
+    {
+      "id": "40af3d58-93c7-461a-afa6-e52f64cf97e6",
+      "text": "The party is now inside Needlehaven forest at dusk, facing the first wave of Screechers among the roots.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 48,
+      "openedMessageId": 75
+    },
+    {
+      "id": "9175c0c8-a0f3-481b-84a6-0892955e3199",
+      "text": "The strange echoing voice in the tunnel and what Duggy was waiting to see remain unexplained.",
+      "status": "open",
+      "entities": [],
+      "openedAt": 49,
+      "openedMessageId": 76
+    }
+  ],
+  "scenes": [
+    {
+      "id": "9d6de25e-ff08-44ae-bc9c-e9c4a4a9eab6",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 12,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "scene-summary",
+        "validity": "conflicted"
+      },
+      "tier": "scene_history",
+      "text": "Max Nightriver, Belle, and Dalan formed the Grey Pennants at the Adventurers' Guild in Aegis City and took the Wendhope contract despite Tobias's warning that it was a downgraded A-rank risk. They traveled north past signs of slaughter and reached the silent, walled village of Wendhope, where a strained voice finally answered them from atop the wall. The tone was tense and grim, with the party on edge and the village desperate.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 19,
+      "tokens": 92
+    },
+    {
+      "id": "c5b017d3-4169-48da-8ed0-78ddf0bf57dd",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 20,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 34,
+        "boundary": 20,
+        "pass": "scene-summary",
+        "validity": "conflicted"
+      },
+      "tier": "scene_history",
+      "text": "Max Nightriver and his companions, Belle and Dalan, negotiated entry into Wendhope by offering Guild supplies to its wary defenders, who eventually agreed to open the postern gate on the west side. Once inside, the scarred archer directed them to the crumbling south wall near the old quarry, warning them not to let the village down. The tone was tense and distrustful, with relief and resentment mingling among the desperate defenders.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 34,
+      "tokens": 86
+    },
+    {
+      "id": "ba903c96-2682-4cc5-977a-29a352bec088",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 23,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 23,
+        "pass": "scene-summary",
+        "validity": "live"
+      },
+      "tier": "scene_history",
+      "text": "Dalan, Belle, and Max Nightriver took positions on the south wall at dusk, with Dalan readying his bow and Belle preparing Cleaver while Max lit a lantern and watched the treeline. As the sun set, alabaster-skinned creatures with forest debris fused into their bodies emerged from the trees, screeching and advancing in waves. The party braced for battle as the first wave struck the wall.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 38,
+      "tokens": 83,
+      "contradicted": false
+    },
+    {
+      "id": "61cc0808-5bba-4e8e-b59d-8d2ccfa1c16c",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 24,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 24,
+        "pass": "scene-summary",
+        "validity": "live"
+      },
+      "tier": "scene_history",
+      "text": "Dalan fired arrows at the approaching Screechers, hitting one in the neck and chest, but the creature did not fall. He shouted in fear that more were coming and that they would not stop.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 39,
+      "tokens": 41
+    },
+    {
+      "id": "d1565340-b4c9-420d-bdbc-1f8011c52b45",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 25,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 41,
+        "boundary": 25,
+        "pass": "scene-summary",
+        "validity": "live"
+      },
+      "tier": "scene_history",
+      "text": "Max Nightriver kicked a ladder-climber off the stones and ordered Belle to destroy the ladder while Dalan kept shooting into the fog. Belle shattered the ladder with Cleaver, sending a Screecher falling, then cleaved another mid-jump as she defiantly vowed to hold the wall.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 41,
+      "tokens": 59
+    },
+    {
+      "id": "3ea10e29-a118-4ccb-bb57-84b241437058",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 28,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 28,
+        "pass": "scene-summary",
+        "validity": "conflicted"
+      },
+      "tier": "scene_history",
+      "text": "Dalan and Belle fought desperately atop the wall as waves of Screechers pressed the attack, with Dalan's arrows felling creatures that dissolved into white flowers and Belle's axe cleaving through the enemy while she shouted defiance into the fog. Max Nightriver battled at Belle's side through the long hours, and amid the chaos a shout from the tower warned that Screechers were breaking through on the east wall. The scene carried a tone of frantic, unyielding defiance as the defenders refused to let the creatures past.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 45,
+      "tokens": 108
+    },
+    {
+      "id": "1ba18a61-2d94-437e-be53-db66a0627986",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 30,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 49,
+        "boundary": 30,
+        "pass": "scene-summary",
+        "validity": "conflicted"
+      },
+      "tier": "scene_history",
+      "text": "Max Nightriver directed Belle and Dalan to cover him as he ran to the east wall, where Dalan fired arrows at the Screechers and urged Max to go. Max held a burning brand in the breached stones and fought off pale attackers until the screeching faded at dawn. As light spilled over the ridge, the red fog retreated into Needlehaven, silence fell, white flowers drifted down, and a voice from the tower declared it was over.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 49,
+      "tokens": 92,
+      "contradicted": false
+    },
+    {
+      "id": "3fbe7e14-14b1-4b59-877f-045b0e1a37c8",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 32,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 53,
+        "boundary": 32,
+        "pass": "scene-summary",
+        "validity": "live"
+      },
+      "tier": "scene_history",
+      "text": "Max Nightriver regrouped with Dalan and Belle on the parapet after the fight, where a shaken Dalan questioned what the forest was and what would happen when the fog returned. Max then went down into the village and asked a villager for the mine foreman, learning that the foreman was dead and that Mayor Duggy could be found at the town hall.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 53,
+      "tokens": 73
+    },
+    {
+      "id": "5fe2cff3-5fdc-4d79-8ff5-e3f43b244dca",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 37,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 37,
+        "pass": "scene-summary",
+        "validity": "live"
+      },
+      "tier": "scene_history",
+      "text": "Max Nightriver confronted Mayor Duggy at the town hall, demanding to know what the miners found before the fog, and grew suspicious when Duggy claimed it was only quartz despite his trembling hand. Duggy reluctantly agreed to lead Max, Belle, and Dalan to the mine-head, where he ordered them to stay behind and warned them not to follow or come looking for him before disappearing into the tunnel alone. The scene carried an anxious, foreboding tone as the light faded and Halena Vivinallo counted arrows on the parapet.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 61,
+      "tokens": 110,
+      "supersededBy": "96d56b90-f6f7-41bb-bbb3-01ce1834ac47",
+      "supersededAt": {
+        "boundary": 50,
+        "messageId": 77
+      }
+    },
+    {
+      "id": "8b315060-c121-430f-b16f-bb4d8eef9cb0",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 38,
+      "recallCount": 1,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 62,
+        "boundary": 38,
+        "pass": "scene-summary",
+        "validity": "conflicted"
+      },
+      "tier": "scene_history",
+      "text": "Halena Vivinallo walked the parapet counting arrows aloud as the light faded, and no one within earshot liked the number. The scene carried a grim, anxious tone as the defenders faced the dwindling supply.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 62,
+      "tokens": 43,
+      "contradicted": true,
+      "confirmedAt": [
+        {
+          "boundary": 50,
+          "messageId": 77
+        }
+      ]
+    },
+    {
+      "id": "96d56b90-f6f7-41bb-bbb3-01ce1834ac47",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 40,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 40,
+        "pass": "scene-summary",
+        "validity": "live"
+      },
+      "tier": "scene_history",
+      "text": "Halena Vivinallo counted arrows on the parapet as the light faded. Max Nightriver lit a lantern and descended into the tunnel after Duggy with Belle and Dalan, where pale glowing roots filled the passage and a scraping sound came from the dark ahead.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 65,
+      "tokens": 53,
+      "contradicted": true
+    },
+    {
+      "id": "b936212d-cc06-41af-973c-2199c5bcc650",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 42,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 42,
+        "pass": "scene-summary",
+        "validity": "live"
+      },
+      "tier": "scene_history",
+      "text": "Halena Vivinallo walked the parapet counting arrows aloud as the light faded, and no one within earshot liked the number. The scene carried a quiet, grim tension.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 67,
+      "tokens": 36
+    },
+    {
+      "id": "18a517bd-48e1-4d84-988b-7924aa0e8fed",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 44,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 44,
+        "pass": "scene-summary",
+        "validity": "conflicted"
+      },
+      "tier": "scene_history",
+      "text": "As the light faded, Halena Vivinallo counted arrows on the parapet while Max Nightriver discovered pale roots in the tunnel and called for Duggy, declaring they would enter Needlehaven to find their source. Belle warned that the roots were the forest itself, moving in to get inside, and dismissed Needlehaven as the answer. The mood was tense and grim as Belle stood coiled and ready, certain something hostile waited in the dark.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 70,
+      "tokens": 90
+    },
+    {
+      "id": "34e99b72-7aee-4024-b45c-39b63713b40c",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 46,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "scene-summary",
+        "validity": "live"
+      },
+      "tier": "scene_history",
+      "text": "As darkness fell along the parapet, Halena Vivinallo counted arrows aloud while an unseen thing scraped and dragged itself across the stone, trailing a smell of living decay. Duggy's trembling voice warned someone not to come closer, and a strange, echoing, human-like voice from the dark twice asked, \"Who's there?\" The scene carried a tone of mounting dread and eerie suspense.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 72,
+      "tokens": 82
+    },
+    {
+      "id": "66de01ed-39f4-46dc-84ca-dda9b12b6172",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 49,
+      "recallCount": 0,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "scene-summary",
+        "validity": "conflicted"
+      },
+      "tier": "scene_history",
+      "text": "Max Nightriver dragged Duggy from the tunnel and led the group out the west postern into Needlehaven forest as darkness fell and red fog rose. The party stood their ground against the first wave of Screechers, with Belle swinging her axe Cleaver and roaring defiance as the creatures dissolved into white petals. The scene carried a tense, desperate resolve amid the eerie, decaying forest.",
+      "type": "scene",
+      "importance": 2,
+      "expiration": "permanent",
+      "entities": [],
+      "messageId": 76,
+      "tokens": 78
+    }
+  ]
+}

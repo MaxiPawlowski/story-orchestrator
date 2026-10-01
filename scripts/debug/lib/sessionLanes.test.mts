@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { archiveLane, continuationsOf, dependencyRefusal, dependentsOf, executionOrder, lanePinVerdict, leaseFor, leaseRefusal, outstandingDependents, planDrift, planLanes, readLease, readSeedRecords, reseedRefusal, restoreLane, seedRecordOf, writeLease, judgeRatePlan, laneJudgeRate, loadedJudgeRate, runningLanes, JUDGE_ACCOUNT_RATE_PER_MIN } from './sessionLanes.mts';
+import { archiveLane, continuationsOf, dependencyRefusal, dependentsOf, executionOrder, lanePinVerdict, leaseFor, leaseRefusal, outstandingDependents, planDrift, planLanes, readLease, readSeedRecords, reseedRefusal, restoreLane, seedRecordOf, writeLease, judgeRateAction, judgeRatePlan, laneJudgeRate, loadedJudgeRate, runningLanes, JUDGE_ACCOUNT_RATE_PER_MIN } from './sessionLanes.mts';
 import { findCard, LANE_PLAN_PATH, loadCards } from '../so-session.mts';
 
 test('AS-29 schedule: cards run tier by tier, and a cross-tier continuation keeps its lane reserved until its tier', async () => {
@@ -197,4 +197,17 @@ test('T1 judge rate: the account rate is split over the running lanes plus this 
     await writeFile(join(root, lane, 'server.pid'), pid, 'utf-8');
   }
   assert.deepEqual(await runningLanes(root, (pid) => pid !== 13), [1], 'lane 0 is the user\'s, a dead pid or a non-number is not running');
+});
+
+test('T2-4 judge rate: a lane already up at another limit is restarted when nothing runs on it, refused while a session does', () => {
+  assert.deepEqual(judgeRateAction(1, 36, 36, []), { action: 'ok' });
+  const leasedButStopped = [{ charter: 'T1-1', lane: 1, stoppedAt: '2026-10-01T15:00:00Z' }, { charter: 'T2-1', lane: 2 }];
+  const restart = judgeRateAction(1, 60, 36, leasedButStopped);
+  assert.equal(restart.action, 'restart');
+  assert.match((restart as any).reason, /runs at 60\/min, not the planned 36\/min/);
+  const refused = judgeRateAction(1, 60, 36, [...leasedButStopped, { charter: 'T2-3', lane: 1 }]);
+  assert.equal(refused.action, 'refuse');
+  assert.match((refused as any).reason, /T2-3 still runs on it/);
+  assert.match((refused as any).reason, /--judge-rate 60/);
+  assert.equal(judgeRateAction(1, null, 36, []).action, 'restart', 'an unlogged limit is not the planned one');
 });

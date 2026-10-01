@@ -255,7 +255,7 @@ test('switch-chat-mid-gen: a chat in another group is opened through its own gro
   assert.deepEqual(opened.map((target) => [target.chatId, target.groupId ?? target.group]), [['chat-b', 'g-adv'], ['chat-a', 'g-aegis']]);
 });
 
-test('switch-chat-mid-gen: ST refuses to leave a generating group, so a switch to another group waits for the reply and goes at once', async () => {
+test('switch-chat-mid-gen: ST switches no chat while a reply generates (another group or the same one), so the switch waits for the reply and goes at once', async () => {
   const fake = fakeSt({ chat: greeting() });
   install(fake);
   const chats: Record<string, any[]> = { 'chat-a': fake.ctx.chat, 'chat-b': [{ name: 'Narrator', mes: 'Aegis.' }] };
@@ -270,8 +270,10 @@ test('switch-chat-mid-gen: ST refuses to leave a generating group, so a switch t
   fake.ctx.chatId = 'chat-a';
   fake.ctx.chat = chats['chat-a'];
   const within = await runMutation(fakePage(), 'switch-chat-mid-gen', { line: 'We ride.', to: 'chat-b', chatId: 'chat-a', group: 'Adolion - Between the Roads', groupId: 'g-aegis' }, baseDeps({ openChat, startSend, waitIdle }));
-  assert.equal((within.did as any).switchedAt, 'mid-generation');
-  assert.equal(order[0], 'open chat-b');
+  assert.equal((within.did as any).switchedAt, 'after-reply');
+  assert.equal((within.did as any).otherGroup, false);
+  assert.equal(typeof (within.did as any).switchedAtMs, 'number');
+  assert.deepEqual(order.slice(0, 2), ['idle', 'open chat-b']);
 });
 
 test('switch-chat-mid-gen: a player line that lands in the other chat is a problem', async () => {

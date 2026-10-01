@@ -51,7 +51,9 @@ describe("T1-6: a generated beat gated on a value that already holds is passed u
   });
 
   it("tells the generator which values already hold when the chain starts", () => {
-    expect(renderGenerationPrompt(story, input())).toContain('Already true when the chain starts: {"esha_at_border":true,"esha_led_in":true}');
+    const line = renderGenerationPrompt(story, input()).split("\n").find((entry) => entry.startsWith("Already true when the chain starts:")) ?? "";
+    expect(line).toContain('"esha_at_border":true');
+    expect(line).toContain('"esha_led_in":true');
   });
 
   it("a beat gated on something its own play changes passes", () => {

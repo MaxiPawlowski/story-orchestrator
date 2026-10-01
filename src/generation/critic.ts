@@ -85,7 +85,7 @@ export function runCodeChecks(story: NormalizedStoryV2, input: PlannedExpansionI
     });
   });
 
-  issues.push(...gatesHeldOnEntry({ ...latched, ...gatePins(input.candidate.transition.gate) }, beats));
+  issues.push(...gatesHeldOnEntry({ ...input.entry, ...latched, ...gatePins(input.candidate.transition.gate) }, beats));
 
   return { ok: issues.length === 0, issues, progressTotal };
 }

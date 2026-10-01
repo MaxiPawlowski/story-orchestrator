@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { ensureChat, LIVE_VERBS, runLive, shotName } from './sessionDriver.mts';
 import type { LiveDeps } from './sessionLive.mts';
 import { clearPage, EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './sessionFakes.mts';
-import { appendTurn, findCard, loadCards, loadIndex, nextSeq, parseLiveArgs, planStart, sessionChat } from '../so-session.mts';
+import { appendTurn, findCard, loadCards, loadIndex, liveTarget, nextSeq, parseLiveArgs, planStart, sessionChat } from '../so-session.mts';
 
 afterEach(uninstall);
 
@@ -104,6 +104,20 @@ test('session chat: the primary chat is the default, an explicit chat must belon
   assert.deepEqual(sessionChat(session, 'esha'), { chatId: 'esha', group: 'Adolion - Esha', groupId: null });
   assert.throws(() => sessionChat(session, 'nope'), /not one of this session's chats/);
   assert.equal(sessionChat({ chats: [] }, null), null);
+});
+
+test('flag files against the chat that is open, and brings no chat to the front (T2-6)', async () => {
+  const session = { chats: [{ chatId: 'adv', group: 'Adolion - Adventurer', groupId: 'g-adv', primary: true }, { chatId: 'esha', group: 'Adolion - Esha' }] };
+  assert.equal(liveTarget(session, 'flag', null), null);
+  assert.deepEqual(liveTarget(session, 'flag', 'esha'), { chatId: 'esha', group: 'Adolion - Esha', groupId: null });
+  assert.deepEqual(liveTarget(session, 'turn', null), { chatId: 'adv', group: 'Adolion - Adventurer', groupId: 'g-adv' });
+  assert.equal(liveTarget(session, 'adopt', 'esha'), null);
+  const fake = fakeSt({ chat: chat() });
+  fake.ctx.chatId = 'esha';
+  install(fake);
+  let opened = 0;
+  assert.deepEqual(await ensureChat(fakePage(), liveTarget(session, 'flag', null), { openChat: async () => { opened += 1; } }), { chatId: 'esha', reopened: false });
+  assert.equal(opened, 0);
 });
 
 test('start: a waiting card, an aged fresh card and a re-seed over a held chat are refused before any lane is touched', async () => {
