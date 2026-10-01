@@ -175,6 +175,7 @@ export const ReadinessNamesWhatIsNotWorking: Story = {
     settings: settings({ enabled: true }, { stallCheck: true, expansionLookahead: true }),
     status: ready,
     authorView: true,
+    fixtureRevisions: { stallCheck: "edited00000" },
   },
   play: async ({ canvasElement }) => {
     const readiness = canvasElement.querySelector("#so-judge-readiness");
@@ -218,7 +219,7 @@ export const PlayerSeesNoSpendLine: Story = {
 };
 
 export const ReadinessSaysARateNeedsReMeasure: Story = {
-  args: { settings: settings({ enabled: true }, { stallCheck: true, memoryVerify: true }), status: ready },
+  args: { settings: settings({ enabled: true }, { stallCheck: true, memoryVerify: true }), status: ready, fixtureRevisions: { stallCheck: "edited00000", memoryVerify: "edited00000" } },
   play: async ({ canvasElement }) => {
     const readiness = canvasElement.querySelector("#so-judge-readiness");
     await expect(readiness?.textContent).toContain("Check memory before storing: on, but its rate was measured on an older fixture revision");

@@ -27,6 +27,7 @@ export interface JudgeSettingsGroupProps {
   /** This chat's judge spend and the model that last answered. */
   meter?: JudgeMeterView | null;
   wardenEnabled?: boolean;
+  fixtureRevisions?: Partial<Record<JudgeReadinessKey, string>>;
   onChange(patch: JudgeSettingsPatch): void;
   onSaveKey(value: string): Promise<WriteResult>;
   onRefresh(): void;
@@ -159,6 +160,7 @@ export function JudgeSettingsGroup({
   authorView = false,
   meter = null,
   wardenEnabled = false,
+  fixtureRevisions,
   onChange,
   onSaveKey,
   onRefresh,
@@ -167,7 +169,7 @@ export function JudgeSettingsGroup({
   const [key, setKey] = useState("");
   const [saved, setSaved] = useState<"idle" | "saved" | "failed">("idle");
   const ready = typeof status === "object" && status !== null && status.configured;
-  const readiness = judgeReadiness(settings, JUDGE_USE_DEPENDENCIES, meter?.lastAnsweredModel ?? null, { warden: wardenEnabled })
+  const readiness = judgeReadiness(settings, JUDGE_USE_DEPENDENCIES, meter?.lastAnsweredModel ?? null, { warden: wardenEnabled, fixtureRevisions })
     .filter((row) => authorView || row.key === "warden" || !AUTHOR_JUDGE_USES.includes(row.key));
   const concerns = judgeReadinessConcerns(readiness);
   const enabledMeasured = readiness.filter((row) => row.verdict === "measured");
