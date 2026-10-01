@@ -416,6 +416,22 @@ that adds a player-visible element adds a row here.
 | Inline timeline L3/L4 rows (gate + blackboard before→after, deltas `q=v` + evidence, rejected lines, lore entries book · comment, curator/warden ops with Accept/Decline, judge calls, stall re-checks, effect-ledger failures; L4 prompts, raw replies, evaluated values, payload keys), item detail, inline actions and the inspector button — effective level is capped at 2 without Author view (v2.6 plan 08) | author | `[data-so="inline-item"][data-level="3"\|"4"]`, `[data-so="inline-item-detail"]`, `[data-so="inline-action"]`, `[data-so="inline-inspect"]` |
 | Message inspector: one message's rows by category, opened from an inline chip (v2.6 plan 08, W18) | author | drawer `#so-inspector`, `[data-so="inspector-section"]` |
 | Inline timeline level, categories and window (`#so-inline-level`, `[data-so="inline-category"]`, `#so-inline-window`) and "Also post a chat note when the checkpoint changes" (`#so-announce-transitions`) (v2.6 plan 08) | both | settings panel Display group |
+| "Your story": each ended chapter's **player title** + SHORT line, opening to its SUMMARY (and the epilogue once the story ended), "Now: <player title>", ⚑ flag a summary for the author — never a chapter id (`arrival#1`), status, range, boundary, consequence sources or OPEN dispositions (v2.6 plan 07) | player | drawer Overview (`#so-player-chapters`, `[data-so="player-chapter"]`, `[data-so="player-chapter-current"]`, `[data-so="player-chapter-flag"]`) |
+| Chapter title card `◆ Chapter N — <player title>` (a chat note at the boundary after a seal; never for an interlude or the final seal) and the "Previously — <player title>" popup on reopen (v2.6 plan 07) | player | chat note, ST popup (`.popup-content`) |
+| `/story chapters`, `/story chapter <n>`, `/story chronicle` (player titles, SHORT/SUMMARY, epilogue; consequences only in the author export) and the macros `story_chapter`, `story_chapter_number`, `story_so_far`, `story_previously` (v2.6 plan 07) | player | slash commands, macros |
+| Pipeline `complete` line "The story has ended. You can keep playing on in the epilogue." (v2.6 plan 07) | player | `#so-pipeline-status`, HUD |
+| Chapter settings: seal, story so far, fold, "Previously…" recap, story-so-far budget (v2.6 plan 07) | both | settings panel Display group (`#so-chapter-settings`, `#so-chapter-seal`, `#so-chapter-story-so-far`, `#so-chapter-fold`, `#so-chapter-recap`, `#so-chapter-budget`) |
+| Chapters panel: record ids, status (`sealed`/`degraded`/`author-edited`), message range, summary edit, re-seal, unseal, "Seal now" (v2.6 plan 07) | author | drawer Scheduler tab (`#so-chapters`, `[data-so="chapter-record"]`, `[data-so="chapter-status"]`, `[data-so="chapter-summary-input"]`, `[data-so="chapter-short-input"]`, `[data-so="chapter-save"]`, `[data-so="chapter-edit"]`, `[data-so="chapter-reseal"]`, `[data-so="chapter-unseal"]`, `[data-so="chapter-seal-now"]`) |
+| The Studio Chapters editor (chapter rows, seal policy, checkpoint assignment) and the graph's chapter lanes (v2.6 plan 07) | author | Studio (`[data-so="chapters"]`, `[data-so="chapter-row"]`, `[data-so="chapter-policy"]`, `[data-so="chapter-assignment"]`) |
+| The story-so-far block, the chapter bridge note, the returning-cast "Returning: …" lines and the fold count (prompt content, never rendered to the player) | author | next-turn preview / Payload tab only |
+| `/cp chapters`, `/cp seal`, `/cp unseal`, and the seal-on-jump confirm raised by `/cp activate` (v2.6 plan 07) | author | slash commands |
+
+**Player-clean sweep, chapters (v2.6 plan 07, CR-P6).** `assert-player-clean` must, in player mode, (a) find none of
+the author-only chapter selectors above (`#so-chapters` and every `[data-so="chapter-*"]` except
+`player-chapter*`), and (b) scan the player rows' text (`#so-player-chapters`, the title card, the "Previously"
+popup) for chapter record ids (`<chapterId>#<part>`), the words `degraded` / `author-edited`, `[src:` citations, and
+OPEN dispositions (`carry`, `closed-offscreen`, `abandoned`). The `so-ui` selectors for this sweep are added with the
+`PLAYER_FORBIDDEN_SELECTORS` list (separate change).
 
 Turning **Author view** on asks for confirmation first: it is a one-way look behind the curtain
 for that chat.

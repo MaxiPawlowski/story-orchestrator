@@ -1,7 +1,8 @@
 # Plan 13 — Test suite review: fewer tests that each earn their place
 
-**Status: DRAFT 2026-09-30, awaiting user approval.** This plan runs right after step 0 and before any new test is
-written in v2.6, because its output is the budget every other plan's tests follow (overview rule 17).
+**Status: wave 1 + W25 BUILT 2026-09-30 and on master; defect replay 30/30 (re-run 2026-10-01 after the CR-P fixes,
+see `15-review.md`). The final LLM suite runs inside plan 15 Part B.** This plan runs right after step 0 and before
+any new test is written in v2.6, because its output is the budget every other plan's tests follow (overview rule 17).
 
 User request (2026-09-30): "we need to review the amount and quality of our already developed evals and test cases, i
 feel that we have too many".
@@ -282,3 +283,7 @@ Gates (worktree, after the merge): `npm run typecheck` 0; `npm run typecheck:tes
 `npm run test:release` 0 from Git Bash (77 pass; from PowerShell `UP: clean-host.sh keeps a pre-release suffix` fails
 because `bash` resolves to another shell there, not this change); `npm run test:replay` 0 (30 of 30 killed).
 Inventory and decisions regenerated (`scripts/suite/inventory.mjs`, `decisions.mjs`). No model calls, no lanes.
+
+## Addendum — review fixes CR-P (2026-10-01)
+
+See `15-review.md` §Review fixes CR-P. In this plan's scope: the replay report re-run and committed (30 of 30, `scope: "named"`); `decisions.mjs` derives its replay and jest lines from data and `pendingDecision` is gone; `test:replay -- --full` runs the whole suite per mutant (default unchanged); the mutation baseline re-ran after W25 (76.3 %, 142 of 186 scored, new population 5142; was 71.9 %) and replaces `13-mutation-baseline.json`; the PowerShell `test:release` failure noted above is fixed (`scripts/release/gitBash.mjs`); `13-final-suite.md` now states that the suite runs in plan 15 Part B with the EUR 20 RunPod + DeepSeek budget and its priority order. Inventory and decisions regenerated after the merge.

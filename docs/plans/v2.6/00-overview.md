@@ -1,8 +1,10 @@
 # Implementation Overview — Story Orchestrator v2.6: re-baseline on Adolion, finish v2.5, add inner life and saga memory, then play
 
-**Status: DRAFT 2026-09-30, awaiting user approval. Nothing new is built.** This overview merges two drafts written the
-same day: the v2.5 close-out, and the inner-life slice (reasoning control and inner voice). Plans were renumbered on
-2026-09-30. Before that date, v2.6 plans were cited by file name.
+**Status: APPROVED 2026-09-30 (every question answered, W1–W30); IN BUILD.** Development closes with plan 15 Part A
+(final review, every finding fixed); testing is plan 14, executed by Claude in plan 15 Part B and reviewed with the user
+on 2026-10-01. Per-plan state is in §Status at the end. This overview merges two drafts written the same day: the v2.5
+close-out, and the inner-life slice (reasoning control and inner voice). Plans were renumbered on 2026-09-30. Before
+that date, v2.6 plans were cited by file name.
 
 ## Why v2.6 absorbs v2.5
 
@@ -49,8 +51,12 @@ v2.5 rules 1–14 and every invariant in `.claude/rules/architecture.md` are inh
    - Each use stays its own switch.
    - Keys are per user when accounts are on (W12). Plan 12 makes the provider pluggable (W13).
    - Plan 10 keeps a judge-off column.
-6. **The user plays last.** Human sessions start after plans 01–09 have green gate records, and run on the frozen
-   candidate. Before that, the user is asked only for decisions, the two CLI logins, and the blind-rating pack (rule 11).
+6. **Claude plays, the user reviews** (amended 2026-09-30 by W26; was "the user plays last"). Plan 14's sessions run
+   after development is done, played by Claude on the lanes (plan 15 Part B), with everything recorded. The user and
+   Claude review it all together on 2026-10-01. The user's own sessions are optional and later: v2.6 development is
+   done without them. Anything that needs a human or a blind rating is **recorded for the user's review**, never scored
+   green in their place. The user is asked only for decisions and the blind-rating pack (rule 11); no CLI login is
+   needed (opencode only, W27).
 7. **Every live run is archived outside `.debug`** (`test/journeys/records/v2.6-<plan>/`), in the same commit that
    cites it.
 8. **Nothing new on the reply path by default.** Any on-path model call is opt-in, capped by a timeout, and falls back
@@ -61,11 +67,12 @@ v2.5 rules 1–14 and every invariant in `.claude/rules/architecture.md` are inh
     and never about the player persona. A line that decides or narrates the player's action is dropped at parse.
 11. **A claim that generated prose improved is decided by a predeclared blind A/B, never by an impression.**
     - The corpus, pair count, raters and floor are fixed before the first arm runs.
-    - Human-rated pairs from every plan are batched into **one blind-rating pack**. The user rates it after development
-      and before the play sessions (plan 10). This covers 05 R4, 06 C3, 07 Q-M and 03's rater legs.
+    - Human-rated pairs from every plan are batched into **one blind-rating pack**, built from the arms Claude records in
+      plan 14's tiers. It goes to the joint review (2026-10-01), where the user rates it; until then each such floor is
+      "recorded, not rated". This covers 05 R4, 06 C3, 07 Q-M, 11 W6 and 03's rater legs.
 **Testing strategy (user, 2026-09-30):**
 
-13. **Real-LLM regression runs happen after development, tier by tier** (amended 2026-09-30 by plan 14: playable first, then feature groups, human sessions first in each tier, fixes inside the tier; the cumulative set runs ×2 at freeze).
+13. **Real-LLM regression runs happen after development, tier by tier** (amended 2026-09-30 by plan 14: playable first, then feature groups, sessions first in each tier (played by Claude, W26), fixes inside the tier; the cumulative set runs ×2 at freeze).
     - Two kinds of LLM run are kept apart:
       - **Measurements** (spike legs, calibrations, the D1 corpus, any floor that decides a build) run when their plan
         needs them, because the build decision waits on them.
@@ -84,12 +91,16 @@ v2.5 rules 1–14 and every invariant in `.claude/rules/architecture.md` are inh
       reused.
 15. **Every task has its own gate.** Each plan's task list names the check that proves each task: a jest case, a
     Storybook interaction, a no-LLM scenario, or a measurement. A task without one is not done.
-16. **Every plan ends with the overall gates**, run from the main checkout before merge:
+16. **Every plan ends with the overall gates**, run from the main checkout before merge, as one command:
+    **`npm run gates`** (`scripts/release/gates.mjs`; stops at the first red step and prints the step it failed on).
+    It runs, in order:
     - `typecheck`, `typecheck:test`, `lint`, `test` (which includes the architecture, ownership and fault-matrix
-      guards), `test:debug`, `build`, `test:release` and `test-storybook:ci`;
-    - plus `test:replay` (plan 13's defect-replay set; every mutant must be killed).
+      guards);
+    - `build`, `build:dev`, `test:debug`, `test:release`;
+    - `test:replay` (plan 13's defect-replay set; every mutant must be killed) and `test:plugin`;
+    - `test-storybook:ci` (`npm run gates -- --no-storybook` skips it, and the gate record must then say so).
 
-    Passing them is the "done" line of every gate record.
+    Passing them is the "done" line of every gate record. CI (`.github/workflows/ci.yml`) runs the same steps.
 17. **The suite is reviewed before it grows** (plan 13). New tests follow its budget rules: name what they guard, justify
     the LLM tier, and fail once before they count.
 18. **One blob bump for the release.** Plans 07 and 08 both change the persisted shape. They share **one bump, 5→6**,
@@ -109,19 +120,21 @@ v2.5 rules 1–14 and every invariant in `.claude/rules/architecture.md` are inh
 | 07 | Chapters and saga memory: seal, chronicle, fold | 02 D1 corpus for Q-M | `07-chapters-and-saga-memory.md` |
 | 08 | Inline timeline | 00 | `08-inline-timeline.md` |
 | 09 | Integration pass: every feature on, long Adolion play, machine-driven | 01–08, 11, 12 | `09-integration.md` |
-| 10 | Acceptance: ×2 matrix, the rating pack, then the user's sessions | all | `10-acceptance.md` |
+| 10 | Acceptance: ×2 matrix, the rating pack (recorded for the user's review), the sessions (Claude's, W26) | all | `10-acceptance.md` |
 | 11 | Agentic wizard: typed Studio tools, one reviewed step at a time, local or harness route | 04 H for the harness route | `11-agentic-wizard.md` |
 | 12 | Open judge: provider seam, public survey, provider calibration, every candidate use spiked | Phase C12: 04 H | `12-open-judge.md` |
 | 13 | Test suite review: inventory, mutation score, defect replay, prune, the final LLM suite list | step 0; runs **before** any plan adds tests | `13-test-suite-review.md` |
-| 14 | Tiered testing: T0 playable → T1 engine → T2 memory → T3 player surface → T4 mutations → T5 author → T6 model/judge → T7 freeze; sessions first, fix as we go | all development done; `so-session.mts` built first | `14-tiered-testing.md` |
+| 14 | Tiered testing: T0 playable → T1 engine → T2 memory → T3 player surface → T4 mutations → T5 author → T6 model/judge → T7 integration + freeze; sessions first, fix as we go | all development done; `so-session.mts` built first | `14-tiered-testing.md` |
+| 15 | Final development review (Part A: two reviews, every finding fixed, model and prompt audits), then Claude runs plan 14 autonomously (Part B, €20 RunPod), joint review with the user 2026-10-01 | 01–14 development | `15-final-review-and-autonomous-testing.md`, `15-review.md` |
 
 **Parallelism:**
 - Plan 13 runs first, right after step 0: its budget rules and suite list shape every later plan's tests.
 - Plans 01 and 02 start together. 02's audit runs first, because 03's SP10/SP4 and several rows in 01 batch B need its
   data.
-- 05 R0 and 06 A need no lane and start at once. 04's harness work starts as soon as the logins are refreshed.
+- 05 R0 and 06 A need no lane and start at once. 04's harness work needs no login (opencode only, W27).
 - 07 and 08 are independent builds. 07's quality runs wait for the D1 corpus.
-- Lanes are shared: batch per v2.5 rule 14, ×1 per plan and ×2 in plan 10.
+- Lanes are shared. There is **no per-plan ×1 live run** (rule 13): measurements run when a build waits on them, and
+  regression rows run in plan 14's tiers, ×2 at the T7 freeze.
 
 ## Step 0: commit what is on disk (before any lane run)
 
@@ -167,6 +180,11 @@ architecture rule is already updated.
 | W23 | Hosted source for 05 R3 | **OpenRouter** (user) |
 | W24 | Testing strategy | LLM regression at the end; fresh Adolion import; a gate per task; the overall gates closing every plan; the suite reviewed and pruned first (user; rules 13–17, plan 13) |
 | W25 | Language scope | **English only** (user, 2026-09-30): Spanish test data, fixtures, goldens, lab slices and Spanish floors are removed; gap D4 is dropped; human sessions are English |
+| W26 | Who plays plan 14 (plan 15) | **Claude, autonomously** (user, 2026-09-30, plan 15 Part B). The user and Claude review it all together on 2026-10-01. The user's own sessions are optional and later, and v2.6 development is done without them. Rule 6 is amended; plans 10 and 14 point here. Anything needing a human or a blind rating is recorded for the user's review |
+| W27 | Harness scope | **opencode only, no CLI logins** (user, 2026-09-30). The Claude Code and Codex arms are dropped, not pending |
+| W28 | Models for the autonomous run | **Artemis on RunPod is the main model** (profile `Artemis RunPod RP`); **DeepSeek runs the orchestrator passes** (read, synthesis, authoring, director, curator, inner). Budget: €20 RunPod plus the DeepSeek per-token spend, both recorded (user, 2026-09-30) |
+| W29 | Review findings | **Every review finding is fixed immediately** (user, 2026-09-30, plan 15 Part A): no fix-in-testing or defer bucket |
+| W30 | A11 wizard premises | **Chosen**, delegated to Claude (user, 2026-09-30): `test/measurements/11/premises.json` |
 
 ## Questions for the user
 
@@ -251,7 +269,7 @@ None of these is built until it meets its predeclared floor. The question is whi
 
 | Idea | What it does | Cost / caveat | Rec |
 |---|---|---|---|
-| **J6a player intent** | Before the reply, classify your line as attempt, question, dialogue or meta. It picks the steering text (an attempt gets the "don't narrate the player" clause); a meta line skips forced lore and the warden that turn | cheapest; needs 40 labelled lines, and `lab/judge/player-intent.json` already has 76 (26 Spanish) | **measure** |
+| **J6a player intent** | Before the reply, classify your line as attempt, question, dialogue or meta. It picks the steering text (an attempt gets the "don't narrate the player" clause); a meta line skips forced lore and the warden that turn | cheapest; needs 40 labelled lines, and `lab/judge/player-intent.json` already has 50 English lines (W25 removed the rest) | **measure** |
 | **J6b bundle** | merge one boundary's judge calls into one request | only helps if they share context; its Phase 0 checks that first | **Phase 0 only** |
 | **J6c tension read** | the judge scores tension instead of the extractor | waits on the extractor's tension fix being proven live; a Reddit report says numeric tension grading "still wasn't good" | **after the tension fix** |
 | **J6d shadow record** | the extractor also answers what the judge answered, and the differences are logged author-only | measurement only | v2.7 |
@@ -371,8 +389,8 @@ flip it. Steering, internals and Studio edits all live behind it already.
 ### U2 — The rest of the v2.5 decisions sheet
 
 `docs/plans/v2.5/decisions-sheet.md`. Rows not covered by Q1–Q5 or by W11 are A1, A6–A17, B1–B5, B7, B9, B11–B15, B17,
-C1–C3, C5, C7 and D1–D5. Each has a recommendation and a reason there. B1–B5 (harness) also need the `claude`/`codex`
-login refresh from you.
+C1–C3, C5, C7 and D1–D5. Each has a recommendation and a reason there. B1–B5 (harness) needed a `claude`/`codex`
+login refresh when this was asked; W27 since made the harness opencode only, with no login.
 
 **Your answer** ("rec", or "rec except …"): rec
 
@@ -448,4 +466,19 @@ From the two user requests of 2026-09-30: a reasoning effort toggle, and "grab t
 
 | Plan | Status |
 |---|---|
-| 00–13 | DRAFT 2026-09-30, awaiting user approval; every question answered (W11–W24) |
+| 00 | APPROVED 2026-09-30, W1–W30 answered; step 0 done |
+| 01 | no-LLM half built and on master (`e7af4081`); the LLM rows run in plan 14 (plan 15 Part B) |
+| 02 | steps 0–1 on master (`adolion-fresh`, `02-audit.md`); D1 corpus is a measurement, run when 07's Q-M needs it |
+| 03 | approved, nothing run; SP7 first; the spike legs run in plan 15 Part B |
+| 04 | H (+ opencode agent bridge), S, B17, G, A1, C1r, C3/C4/C12/C13 built and on master; L7, J3, A4/A5, `.b` builds wait on measurements; T4 blocked |
+| 05 | R0–R2 built and on master; R3/R4 are measurements (R4's ratings recorded for the user's review) |
+| 06 | A–D built and on master, off by default; C3 is a measurement (ratings recorded for the user's review) |
+| 07 | code built and on master (UI leftovers `eba02fc8`), features off until the Q-M floors; Q-M runs in T2 |
+| 08 | built and on master; live rows in plan 14 |
+| 09 | approved, not run; I1–I6 in plan 14 T7 before the freeze |
+| 10 | approved; reordered by plan 14, executed via plan 15 Part B (W26) |
+| 11 | built (tasks 1–4, local and harness routes); W1–W6 in plan 15 Part B, W6 recorded for the user's review |
+| 12 | Phase 0 + A built and on master; Phases B/C not started |
+| 13 | wave 1 + W25 on master; defect replay 30/30; the final suite runs inside plan 15 Part B |
+| 14 | approved; session tooling + 36 cards on master; executed by Claude in plan 15 Part B (W26) |
+| 15 | Part A in progress (reviews, model/prompt audits, review fixes); Part B after Part A closes |

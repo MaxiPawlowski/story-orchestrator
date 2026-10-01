@@ -1,6 +1,7 @@
 # Plan 01 — Carry-over live proof: every open v2.5 row, on the new baseline
 
-**Status: DRAFT 2026-09-30, awaiting user approval.**
+**Status: no-LLM half BUILT 2026-09-30 and on master (`e7af4081`, see Gate record). The LLM rows are regression rows
+(overview rule 13): they run in plan 14's tiers, played in plan 15 Part B, ×2 at the T7 freeze.**
 
 No v2.5 plan from 01 to 08 is signed off. Batch 2 (`test/journeys/records/v2.5-batch2/`, 2026-09-26) closed some rows
 ×1, but it never reached the plan docs, and seven fixes after it were never run live. Plans 14–19 owe their own live

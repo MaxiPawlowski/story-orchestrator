@@ -31,8 +31,6 @@ export function decideAsset(kind, row, config = {}) {
     return { decision: 'keep', reason: `${row.shape?.needsLlm ? 'LLM' : 'no-LLM'} journey check${row.findings?.length ? ` (${row.findings.join(', ')})` : ', no finding id'}` };
   }
   if (kind === 'live') {
-    const pending = matches(config.pendingDecision, row.name);
-    if (row.vacuous?.length && pending) return { decision: 'fix (pending decision)', reason: pending.reason };
     if (row.vacuous?.length) return { decision: 'fix', reason: `vacuous needle: ${row.vacuous.join(', ')}` };
     return { decision: 'keep', reason: `live-suite fixture (${row.tiers.join(', ')}); its golden replays in jest` };
   }

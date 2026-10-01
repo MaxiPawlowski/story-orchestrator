@@ -193,7 +193,9 @@ latency ≤ 2× control; a miss is recorded as not built.
 
 - **Pure:** `npm run typecheck && npm run typecheck:test && npm run lint && npm test`. Mapping cases for every route × level;
   `reasoning-exhausted` from recorded CC/TC reply shapes.
-- **Runtime:** the above + `npm run build:dev && npm run serve:dev`, `st-session reload`, then live on a lane:
+- **Runtime:** the above + `npm run build:dev && npm run stage -- --flavor dev`, `st-session reload`, then live on a lane
+  (no per-plan ×1 run, overview rule 13: these calls run with R3 in plan 15 Part B, and the regression rows in plan 14
+  T6, ×2 at the T7 freeze):
   - one real call per role at each level on the Artemis TC and CC profiles;
   - payload captured at the server hop, asserting the key landed or `effortApplied: false`;
   - a forced small budget to reproduce `reasoning-exhausted` for real;

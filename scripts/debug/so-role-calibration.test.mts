@@ -22,9 +22,29 @@ test('authoring cases resolve their draft by name and carry the environment only
   assert.deepEqual(cases.find((entry) => entry.id === 'a12').environment.storyLorebooks, ['Vault Job Lore']);
 });
 
-test('no role has a hold-out until an English authoring hold-out is labelled (W25 removed the Spanish one)', async () => {
-  assert.equal(await loadHoldout('authoring'), null);
+test('the English authoring hold-out has five rows, resolves its own drafts and shares no id or draft with the fixture', async () => {
+  const holdout = await loadHoldout('authoring');
+  const { cases } = await loadCases('authoring');
+  assert.equal(holdout.cases.length, 5);
+  assert.ok(holdout.cases.every((entry) => entry.lang === 'en' && entry.draft?.format === 2));
+  assert.equal(holdout.cases.find((entry) => entry.id === 'h07').draft.title, 'The Drifting Ship');
+  assert.equal(holdout.cases.filter((entry) => cases.some((row) => row.id === entry.id)).length, 0);
+  assert.equal(holdout.cases.filter((entry) => cases.some((row) => row.draft.id === entry.draft.id)).length, 0);
+  assert.equal(holdout.labelledAt, '2026-10-01');
+});
+
+test('a missing authoring hold-out refuses instead of reading as no hold-out', async () => {
+  await assert.rejects(() => loadHoldout('authoring', 'test/fixtures/role-calibration/no-such-holdout.json'), /authoring gate is blocked/);
+});
+
+test('no other role has a hold-out', async () => {
   assert.equal(await loadHoldout('curator'), null);
+});
+
+test('an authoring verdict without hold-out scores is incomplete, whatever the floors say', () => {
+  const bare = { role: 'authoring', bundle: 'b1', summary: { meetsFloors: true } };
+  assert.equal(verdictFromReports([bare, bare]).verdict, 'incomplete');
+  assert.equal(verdictFromReports([{ ...bare, role: 'curator' }, { ...bare, role: 'curator' }]).verdict, 'recommended');
 });
 
 test('verdictFromReports reads two recorded reports and names the hold-out miss', () => {

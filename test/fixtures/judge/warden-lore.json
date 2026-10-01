@@ -6,7 +6,7 @@
     "untouched": 0.966
   },
   "labelledAt": "2026-09-26",
-  "source": "v2.5 plan 08 L7 Phase A. One case = one reply against the story-book lore entries that fired on its generation, as the warden would ask them (one Noul per entry, state = the reply and the entries only). Labels written before any answer was read: contradicts = the reply states or shows what the entry says is not so; consistent = the reply touches the entry and agrees with it; untouched = every other entry of the case. Negation pairs share a `pair`; L16/L17/L24 never touch their lore. Three replies are real Artemis replies from the v2.4 plan 07 J8.5 records (reused from house-rules.json H01-H03, source names each). Floors predeclared (plan 08 R1/R2): contradicts recall >= 0.85; consistent and untouched specificity >= 0.966 each (the warden's bar); flag at WARDEN_LORE_P 0.7, never retuned.",
+  "source": "v2.5 plan 08 L7 Phase A. One case = one reply against the story-book lore entries that fired on its generation, as the warden would ask them (one Noul per entry, state = the reply and the entries only). Labels written before any answer was read: contradicts = the reply states or shows what the entry says is not so; consistent = the reply touches the entry and agrees with it; untouched = every other entry of the case. Negation pairs share a `pair`; L16/L17/L24 never touch their lore. Three replies are real Artemis replies from the v2.4 plan 07 J8.5 records (reused from house-rules.json H01-H03, source names each). Floors predeclared (plan 08 R1/R2): contradicts recall >= 0.85; consistent and untouched specificity >= 0.966 each (the warden's bar); flag at WARDEN_LORE_P 0.7, never retuned. v2.6 W25 removed the eight Spanish rows (L19-L26). L27-L34 are English rows added 2026-10-01 (v2.6 plan 15, AS-16), labelled before any answer was read, to restore >= 24 cases and >= 3 untouched replies; L27/L28 are a new negation pair, L31/L32 never touch their lore. Their ids are new so no earlier record can be read as theirs.",
   "rows": [
     {
       "id": "L01",
@@ -448,6 +448,203 @@
       ],
       "consistent": [],
       "source": "authored"
+    },
+    {
+      "id": "L27",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Arryn",
+          "text": "Arryn is an elf knight who fights with a lance and wears plate armour; she has never used a bow."
+        },
+        {
+          "comment": "Adventurer ranks",
+          "text": "The Adventurer's Guild ranks adventurers from F, the lowest, up to S, the highest."
+        }
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Arryn nocks an arrow, draws the longbow back to her cheek and drops the goblin scout at forty paces."
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [],
+      "pair": "arryn",
+      "source": "authored (v2.6 plan 15 AS-16, 2026-10-01)"
+    },
+    {
+      "id": "L28",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Arryn",
+          "text": "Arryn is an elf knight who fights with a lance and wears plate armour; she has never used a bow."
+        },
+        {
+          "comment": "Adventurer ranks",
+          "text": "The Adventurer's Guild ranks adventurers from F, the lowest, up to S, the highest."
+        }
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Arryn lowers her lance and charges, plate armour ringing on every stride, and skewers the goblin scout before it can shout."
+      },
+      "contradicts": [],
+      "consistent": [
+        0
+      ],
+      "pair": "arryn",
+      "source": "authored (v2.6 plan 15 AS-16, 2026-10-01)"
+    },
+    {
+      "id": "L29",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Elder Vampires",
+          "text": "Elder Vampires are immune to sunlight, though it makes them uncomfortable."
+        },
+        {
+          "comment": "Castle Bathorya",
+          "text": "Castle Bathorya stands near the Fallen City of Gragow."
+        }
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Gabriel, the Elder Vampire, steps out onto the balcony at noon. The sunlight catches him and he bursts into flame, screaming as he crumbles to ash."
+      },
+      "contradicts": [
+        0
+      ],
+      "consistent": [],
+      "source": "authored (v2.6 plan 15 AS-16, 2026-10-01)"
+    },
+    {
+      "id": "L30",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Elder Vampires",
+          "text": "Elder Vampires are immune to sunlight, though it makes them uncomfortable."
+        },
+        {
+          "comment": "Holy relics",
+          "text": "Elder Vampires are immune to holy relics; a blessed icon cannot hurt them."
+        },
+        {
+          "comment": "Castle Bathorya",
+          "text": "Castle Bathorya stands near the Fallen City of Gragow."
+        }
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Gabriel, the Elder Vampire, winces at the noon light falling through the chapel window and draws the curtain, irritated rather than hurt. When the priest thrusts a blessed icon at him, he plucks it from her hand and sets it on the altar."
+      },
+      "contradicts": [],
+      "consistent": [
+        0,
+        1
+      ],
+      "source": "authored (v2.6 plan 15 AS-16, 2026-10-01)"
+    },
+    {
+      "id": "L31",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Kazzym",
+          "text": "Kazzym is an elder green dragon who rules the Forbidden Forest."
+        },
+        {
+          "comment": "Dwarves",
+          "text": "Dwarves stand about four feet tall and live in the mountains."
+        },
+        {
+          "comment": "Market District",
+          "text": "The Market District is the largest district of Aegis City."
+        }
+      ],
+      "reply": {
+        "speaker": "Fiana",
+        "text": "Fiana slides a mug of ale across the bar. \"Two coppers, love. And wipe your boots next time, the floor was clean an hour ago.\""
+      },
+      "contradicts": [],
+      "consistent": [],
+      "source": "authored (v2.6 plan 15 AS-16, 2026-10-01)"
+    },
+    {
+      "id": "L32",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "The Darklands",
+          "text": "The Darklands is a vast cavern region beneath Sebela where the drow live."
+        },
+        {
+          "comment": "Drow",
+          "text": "Drow are blinded by direct sunlight."
+        }
+      ],
+      "reply": {
+        "speaker": "Dalan",
+        "text": "\"We camp here tonight,\" Dalan says, restringing his bow by the fire. \"Tomorrow we follow the river down to Pinemere and sell the pelts.\""
+      },
+      "contradicts": [],
+      "consistent": [],
+      "source": "authored (v2.6 plan 15 AS-16, 2026-10-01)"
+    },
+    {
+      "id": "L33",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Ellie",
+          "text": "Ellie is the receptionist at the Adventurer's Guild front desk; she hands out and stamps quests."
+        },
+        {
+          "comment": "Fiana",
+          "text": "Fiana is the barmaid of the Adventurer's Guild; she runs the bar and the kitchen."
+        }
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Behind the guild's front desk Fiana stamps your quest slip and files it away, while Ellie, the guild's barmaid, pours ale for the rowdy table by the hearth."
+      },
+      "contradicts": [
+        0,
+        1
+      ],
+      "consistent": [],
+      "source": "authored (v2.6 plan 15 AS-16, 2026-10-01)"
+    },
+    {
+      "id": "L34",
+      "lang": "en",
+      "lore": [
+        {
+          "comment": "Bloody Hand Tribe",
+          "text": "The Bloody Hand Tribe is the largest orc tribe on Sebela and lives in the Vile Jungle."
+        },
+        {
+          "comment": "Darran Kingdom",
+          "text": "The Darran Kingdom, ruled by King Davolan, has a non-aggression pact with the Bloody Hand Tribe."
+        },
+        {
+          "comment": "Minotaurs",
+          "text": "Minotaurs are bull-headed giants who prefer greataxes."
+        }
+      ],
+      "reply": {
+        "speaker": "Herald",
+        "text": "\"By order of King Davolan, the Darran Kingdom keeps its pact with the Bloody Hand: no soldier of the crown sets foot in their jungle!\" the herald cries. Behind him a captain mutters that the orcs of the Vile Jungle outnumber every other tribe on the continent."
+      },
+      "contradicts": [],
+      "consistent": [
+        0,
+        1
+      ],
+      "source": "authored (v2.6 plan 15 AS-16, 2026-10-01)"
     }
   ]
 }

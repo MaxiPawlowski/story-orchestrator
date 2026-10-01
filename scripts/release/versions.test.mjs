@@ -6,6 +6,7 @@ import { dirname, join, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { changelogTopVersion, releaseMode, tagIssues, versionIssues } from "./buildChecks.mjs";
+import { gitBashCandidates, resolveGitBash } from "./gitBash.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const readJson = (path) => JSON.parse(readFileSync(join(root, path), "utf8"));
@@ -50,7 +51,7 @@ test("R4 release-mode controls: --release on an untagged HEAD fails, a pre-relea
 });
 
 const cleanHost = (name) => readFileSync(join(root, "scripts", "release", name), "utf8");
-const bash = spawnSync("bash", ["-c", "true"]).status === 0;
+const bash = resolveGitBash();
 
 test("UP: clean-host.sh keeps a pre-release suffix in the version it files its record under", { skip: !bash && "no bash" }, () => {
   const line = cleanHost("clean-host.sh").split(/\r?\n/).find((text) => text.startsWith("VERSION="));
@@ -58,7 +59,7 @@ test("UP: clean-host.sh keeps a pre-release suffix in the version it files its r
   try {
     const parse = (version) => {
       writeFileSync(join(dir, "package.json"), `{\n  "name": "x",\n  "version": "${version}",\n  "private": true\n}\n`);
-      return spawnSync("bash", ["-c", `${line}\nprintf %s "$VERSION"`], { env: { ...process.env, EXT_DIR: dir.replace(/\\/g, "/") }, encoding: "utf8" }).stdout;
+      return spawnSync(bash, ["-c", `${line}\nprintf %s "$VERSION"`], { env: { ...process.env, EXT_DIR: dir.replace(/\\/g, "/") }, encoding: "utf8" }).stdout;
     };
     assert.equal(parse("2.5.0-rc.1"), "2.5.0-rc.1");
     assert.equal(parse("2.5.0"), "2.5.0");
@@ -78,4 +79,13 @@ test("Q2t: both clean-host scripts run every machine gate by default", () => {
     assert.match(cleanHost("clean-host.sh"), new RegExp(`\\*,${gate},\\*\\) run_gate`), `clean-host.sh selects ${gate} but never runs it`);
     assert.match(cleanHost("clean-host.ps1"), new RegExp(`-contains "${gate}"`), `clean-host.ps1 selects ${gate} but never runs it`);
   }
+});
+
+test("UP: on Windows the clean-host check runs Git Bash by path, never the WSL bash that PowerShell finds first", () => {
+  const candidates = gitBashCandidates({ ProgramFiles: "C:\\Program Files", GIT_BASH: "D:\\tools\\bash.exe" }, "win32");
+  assert.equal(candidates[0], "D:\\tools\\bash.exe");
+  assert.ok(candidates.includes(join("C:\\Program Files", "Git", "bin", "bash.exe")));
+  assert.ok(!candidates.includes("bash"), "a bare `bash` resolves to C:\\Windows\\System32\\bash.exe (WSL) from PowerShell");
+  assert.deepEqual(gitBashCandidates({}, "linux"), ["bash"]);
+  if (process.platform === "win32") assert.ok(!bash || !/System32/i.test(bash), `resolved ${bash}`);
 });

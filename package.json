@@ -42,7 +42,8 @@
     "test:replay": "node scripts/suite/defect-replay.mjs",
     "suite:inventory": "node scripts/suite/inventory.mjs",
     "suite:mutation": "node scripts/suite/mutation-baseline.mjs",
-    "test:release": "node --test \"scripts/release/*.test.mjs\""
+    "test:release": "node --test \"scripts/release/*.test.mjs\"",
+    "gates": "node scripts/release/gates.mjs"
   },
   "eslintConfig": {
     "extends": [

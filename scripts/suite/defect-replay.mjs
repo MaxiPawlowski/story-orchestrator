@@ -3,7 +3,7 @@
 // the suite to fail on each. This is the gate that makes pruning safe: a retired test is safe only
 // while every replayed defect is still killed.
 //
-//   node scripts/suite/defect-replay.mjs [--only id,id] [--out report.json] [--list]
+//   node scripts/suite/defect-replay.mjs [--only id,id] [--out report.json] [--list] [--full]
 //
 // Exit 0 only when the unmutated baseline passes and every mutant is killed by a failed assertion.
 import { readdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -14,6 +14,8 @@ import { failingTitles, runJest, stageCopy, withMutated } from '../lib/suiteStag
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const SPECS = join(ROOT, 'test', 'findings', 'defect-replay');
+
+export const replayScope = (spec, full) => (full ? [] : ['--runTestsByPath', ...spec.tests]);
 
 export const loadSpecs = (dir = SPECS) => readdirSync(dir).filter((name) => name.endsWith('.json')).sort().map((name) => ({ source: name, ...JSON.parse(readFileSync(join(dir, name), 'utf-8')) }));
 
@@ -36,9 +38,10 @@ function main() {
   }
   const dir = stageCopy(ROOT, 'defect-replay');
   if (process.argv.includes('--discover')) return discover(dir, specs);
+  const full = process.argv.includes('--full');
   const union = [...new Set(specs.flatMap((spec) => spec.tests))].sort();
-  console.log(`staged ${dir}; baseline over ${union.length} test file(s)`);
-  const baseline = runJest(dir, ['--runTestsByPath', ...union]);
+  console.log(`staged ${dir}; baseline over ${full ? 'the whole jest suite (--full)' : `${union.length} test file(s)`}`);
+  const baseline = runJest(dir, full ? [] : ['--runTestsByPath', ...union]);
   if (classifyJest(baseline.result) !== 'survived') {
     console.error(`baseline is not green (${classifyJest(baseline.result)}): a kill could not be attributed to a mutant`);
     console.error(failingTitles(baseline.result).join('\n') || baseline.stderr.slice(-4000));
@@ -54,14 +57,14 @@ function main() {
       console.log(`${spec.id}: DID NOT APPLY (${applied.reason})`);
       continue;
     }
-    const run = withMutated(dir, spec.file, applied.mutated, () => runJest(dir, ['--runTestsByPath', ...spec.tests]));
+    const run = withMutated(dir, spec.file, applied.mutated, () => runJest(dir, replayScope(spec, full)));
     const verdict = run.timedOut ? 'timeout' : classifyJest(run.result);
     const killers = failingTitles(run.result);
     rows.push({ id: spec.id, verdict, ms: run.ms, killedBy: killers.slice(0, 10), killedCount: killers.length });
     console.log(`${spec.id}: ${verdict.toUpperCase()} (${killers.length} failing, ${(run.ms / 1000).toFixed(1)}s)${verdict === 'killed' ? `  e.g. ${killers[0]}` : ''}`);
   }
   const bad = rows.filter((row) => row.verdict !== 'killed');
-  const report = { at: new Date().toISOString(), baseline: { tests: baseline.result.numPassedTests, ms: baseline.ms }, mutants: rows.length, killed: rows.length - bad.length, rows };
+  const report = { at: new Date().toISOString(), scope: full ? 'full' : 'named', baseline: { tests: baseline.result.numPassedTests, ms: baseline.ms }, mutants: rows.length, killed: rows.length - bad.length, rows };
   const out = arg('--out');
   if (out) writeFileSync(out, `${JSON.stringify(report, null, 2)}\n`, 'utf-8');
   console.log(`\ndefect replay: ${report.killed} of ${report.mutants} killed${bad.length ? `; NOT killed: ${bad.map((row) => `${row.id} (${row.verdict})`).join(', ')}` : ''}`);
