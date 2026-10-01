@@ -15,7 +15,7 @@ const extensionRoot = path.resolve(here, '..');
 const PLUGINS = {
     'story-orchestrator-judge': ['package.json', 'index.mjs'],
     'story-orchestrator-gpu': ['package.json', 'index.mjs', 'gate.mjs'],
-    'story-orchestrator-harness': ['package.json', 'index.mjs'],
+    'story-orchestrator-harness': ['package.json', 'index.mjs', 'agentBridge.mjs', 'mcpShim.mjs'],
 };
 
 const args = process.argv.slice(2);

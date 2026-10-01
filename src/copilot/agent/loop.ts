@@ -252,7 +252,7 @@ export const advanceAgent = async (session: AgentSession, context: AgentContext,
   if (session.status !== "planning" && session.status !== "running") return { session, apply: null };
   if (budgetSpent(session)) return { session: { ...session, status: "budget" }, apply: null };
   const expect = session.status === "planning" ? "plan" : "step";
-  const prompt = expect === "plan" ? renderPlanPrompt(session, context.draft, context.environment) : renderStepPrompt(session, context.draft, context.environment);
+  const prompt = expect === "plan" ? renderPlanPrompt(session, context.draft, context.environment, route.native) : renderStepPrompt(session, context.draft, context.environment, route.native);
   const answer: RouteAnswer = await route.ask(prompt, expect, replyProblems);
   const charged = { ...session, budget: { ...session.budget, usedTokens: session.budget.usedTokens + answer.tokens } };
   const meta: StepMeta = { route: answer.route, firstTryValid: answer.firstTryValid, repaired: answer.repaired, at };

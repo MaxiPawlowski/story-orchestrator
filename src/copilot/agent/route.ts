@@ -1,5 +1,6 @@
 import { askReply, type ModelAsk, type ModelCall } from "@extraction/modelRoute";
 import { parseAgentReply, type ParsedAgentReply } from "./parse";
+import type { AgentTurn } from "./loop";
 import type { AgentReply, AgentRouteId } from "./types";
 
 const AGENT_MAX_TOKENS = 1536;
@@ -24,12 +25,15 @@ export type ReplyCheck = (reply: AgentReply) => string[];
 
 export interface AgentRoute {
   id: AgentRouteId;
+  native?: boolean;
   ask: (prompt: string, expect: "plan" | "step", check?: ReplyCheck) => Promise<RouteAnswer>;
+  settle?: (turn: AgentTurn) => Promise<void>;
+  close?: () => Promise<void>;
 }
 
 export const estimateTokens = (...texts: string[]): number => Math.ceil(texts.reduce((sum, text) => sum + text.length, 0) / 4);
 
-const problemsOf = (parsed: ParsedAgentReply, check?: ReplyCheck): string[] => (parsed.ok ? check?.(parsed.reply) ?? [] : parsed.issues);
+export const problemsOf = (parsed: ParsedAgentReply, check?: ReplyCheck): string[] => (parsed.ok ? check?.(parsed.reply) ?? [] : parsed.issues);
 
 export const localRoute = (model: ModelCall, ask: ModelAsk): AgentRoute => ({
   id: "local",
@@ -58,30 +62,27 @@ export class AgentRouteUnavailable extends Error {
   }
 }
 
-const AGENT_BRIDGE_PATH = "/api/plugins/story-orchestrator-harness/agent";
+export type AgentBridgeEvent =
+  | { kind: "call"; callId: string; tool: string; args: Record<string, unknown> }
+  | { kind: "done"; text: string }
+  | { kind: "ended"; errorKind: string; message: string };
 
-interface AgentToolBridge {
-  open: (input: { tools: Array<Record<string, unknown>>; harness: string; model: string }) => Promise<{ sessionId: string }>;
-  nextCall: (sessionId: string) => Promise<{ tool: string; args: Record<string, unknown> } | { done: string }>;
-  answer: (sessionId: string, result: { ok: boolean; text: string }) => Promise<void>;
+export interface AgentToolBridge {
+  open: (input: { harness: string; model: string; role: string; system: string; prompt: string; tools: Array<Record<string, unknown>>; timeoutMs: number; maxOutputChars: number }) =>
+    Promise<{ ok: true; sessionId: string } | { ok: false; kind: string; message: string }>;
+  nextCall: (sessionId: string, deadlineAt: number) => Promise<AgentBridgeEvent>;
+  answer: (sessionId: string, callId: string, result: { ok: boolean; text: string }) => Promise<boolean>;
   close: (sessionId: string) => Promise<void>;
 }
 
-export interface HarnessTransport {
-  call: (input: { prompt: string; expect: "plan" | "step"; tools: Array<Record<string, unknown>> }) => Promise<string>;
-  bridge?: AgentToolBridge;
+export interface HarnessTarget {
+  harness: string;
+  model: string;
+  timeoutMs: number;
 }
 
-export const HARNESS_ROUTE_REFUSAL = "The harness tool bridge is designed but not built (v2.6 plan 04 H, Agent tool bridge). Route \"Wizard and road ahead\" to a harness " +
-  "under Models per task: the agent then runs there through its text route. The wizard does not fall back to the local profile. " +
-  `Bridge endpoint (501 until built): ${AGENT_BRIDGE_PATH}.`;
-
-export const harnessRoute = (transport: HarnessTransport | null, tools: Array<Record<string, unknown>>): AgentRoute => ({
-  id: "harness",
-  ask: async (prompt, expect, check) => {
-    if (!transport) throw new AgentRouteUnavailable("harness", HARNESS_ROUTE_REFUSAL);
-    const raw = await transport.call({ prompt, expect, tools });
-    const parsed = parseAgentReply(raw, expect);
-    return { route: "harness", parsed, firstTryValid: !problemsOf(parsed, check).length, repaired: false, tokens: estimateTokens(prompt, raw), audit: { prompt, raw } };
-  },
-});
+export interface HarnessTransport {
+  call?: (input: { prompt: string; expect: "plan" | "step"; tools: Array<Record<string, unknown>> }) => Promise<string>;
+  bridge?: AgentToolBridge;
+  target?: HarnessTarget;
+}

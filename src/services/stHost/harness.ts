@@ -26,6 +26,7 @@ export interface HarnessRow {
   quotaUntil: number | null;
   spawns: number;
   cacheWarm?: boolean;
+  agentBridge?: boolean;
 }
 
 export interface HarnessStatus {
@@ -66,6 +67,7 @@ const readRow = (row: Record<string, unknown>): HarnessRow => ({
   quotaUntil: num(row.quotaUntil),
   spawns: num(row.spawns) ?? 0,
   ...(typeof row.cacheWarm === "boolean" ? { cacheWarm: row.cacheWarm } : {}),
+  ...(row.agentBridge === true ? { agentBridge: true } : {}),
 });
 
 export async function harnessCapability(): Promise<{ state: "present" | "absent"; detail: string }> {

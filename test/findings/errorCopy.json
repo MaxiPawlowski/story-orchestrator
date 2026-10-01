@@ -463,6 +463,56 @@
       "reason": "host read probe answers a neutral value the caller reads"
     },
     {
+      "site": "src/services/stHost/harnessBridge.ts#answer",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "an undelivered tool answer reads as false; the bridge route then closes the session, and the plugin's call deadline tears it down anyway"
+    },
+    {
+      "site": "src/services/stHost/harnessBridge.ts#close",
+      "kind": 3,
+      "template": "catch {} #1",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "best-effort close; the plugin's session deadline tears the session down anyway"
+    },
+    {
+      "site": "src/studio/agentHost.ts#resolveAgentHarness",
+      "kind": 3,
+      "template": ".catch(() => null)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "no readable plugin status means no tool bridge: the agent keeps its text route, which reports its own failures"
+    },
+    {
+      "site": "src/copilot/agent/bridge.ts#ask",
+      "kind": 2,
+      "template": "`${opened.kind}: ${opened.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "the harness plugin's own classified refusal (kind + our plugin's message), shown on the agent pane"
+    },
+    {
+      "site": "src/copilot/agent/bridge.ts#ask",
+      "kind": 2,
+      "template": "`${event.errorKind}: ${event.message}`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "the bridge session's classified end (timeout, refused, lapsed, auth, quota), in the plugin's own words"
+    },
+    {
       "site": "src/services/stHost/judge.ts#judgeStatus",
       "kind": 3,
       "template": "catch {} #1",

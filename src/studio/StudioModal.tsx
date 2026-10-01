@@ -18,6 +18,7 @@ import type { ModelCall } from "@extraction/modelRoute";
 import StudioToolbar, { type StudioSaveHandler } from "./components/StudioToolbar";
 import { GateReplayContext } from "./replayContext";
 import type { GateReplaySource } from "./gateReplay";
+import { resolveAgentHarness } from "./agentHost";
 
 export type StudioTab = "graph" | "story" | "qualities" | "checkpoints" | "transitions" | "roster" | "diagnostics" | "copilot";
 
@@ -58,7 +59,7 @@ export const WIZARD_AGENT = wizardAgent;
 
 const agentTurnRunner = (model: ModelCall | undefined, host: WizardHost | undefined): AgentTurnRunner | undefined =>
   (model && host
-    ? (session, draft) => wizardAgent.runAgentTurn({ session, draft, model, environment: host.environment(draft), backgrounds: () => readHostOptions().backgroundNames })
+    ? wizardAgent.createAgentRunner({ model, environment: (draft) => host.environment(draft), backgrounds: () => readHostOptions().backgroundNames, harness: () => resolveAgentHarness() })
     : undefined);
 
 type Props = {
@@ -265,6 +266,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
   };
 
   const handleKeyDown = focusTrapHandler(panelRef, requestClose);
+  const agentRunner = useMemo(() => agentTurnRunner(agentModel, wizardHost), [agentModel, wizardHost]);
 
   return createPortal(
     <dialog
@@ -288,7 +290,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
               options={options}
               copilotEnabled={copilotEnabled}
               runCopilotStage={runCopilotStage}
-              runAgentTurn={agentTurnRunner(agentModel, wizardHost)}
+              runAgentTurn={agentRunner}
               wizardHost={wizardHost}
               intent={intent}
               onSelect={setTab}

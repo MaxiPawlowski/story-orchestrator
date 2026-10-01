@@ -341,15 +341,6 @@ test('rules 8-10: header, origin, admin and body bounds are checked before any s
     assert.equal(allowed.out.body.ok, true, 'the default single-user install (accounts off, admin) is allowed');
 });
 
-test('the agent tool bridge answers 501 with the reason, and never spawns', async () => {
-    const { service, processes, config } = setup({ harness: 'claude' });
-    const { res, out } = fakeResponse();
-    await plugin.createHandlers(service, config).agent(body({ tools: [] }), res);
-    assert.equal(out.statusCode, 501);
-    assert.equal(out.body.kind, 'refused');
-    assert.equal(processes.calls.length, 0);
-});
-
 test('cancel stops only the call of the user who made it', async () => {
     const { service, processes } = setup({ harness: 'claude', script: hanging });
     const pending = service.complete(request('claude', { requestId: 'mine' }), { user: 'alice' });

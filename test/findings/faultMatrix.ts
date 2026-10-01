@@ -23,6 +23,7 @@ export const FAULT_PACKAGES = [
   "wiNormalize",
   "inner",
   "harnessTransport",
+  "agentBridge",
 ] as const;
 
 export const FAULT_SHAPES = [

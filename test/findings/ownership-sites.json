@@ -552,6 +552,22 @@
     "src/runtime/worldInfoGating.ts#WiGatingRuntime.restore>serial": {
       "status": "checked",
       "note": "v2.5 plan 01 E (2026-09-26): the removal dialog's restore. Checks the gating's lifetime run before each book's enable and again before dropping the restored entries from the ledger and provenance, so a stopped gating writes nothing (worldInfoGating.test.ts \"a stopped gating restores nothing\"; control \"offers only entries that were on before normalisation, and restores them only when asked\"). Install-wide work, so its run is the gating's lifetime, not a chat."
+    },
+    "src/copilot/agent/drive.ts#driveAgent": {
+      "status": "checked",
+      "note": "v2.6 plan 04 agent bridge (2026-09-30): the agent's drive loop over the Studio draft. Mints a run on the draft's own ownership (studio/agentHost.ts draftOwnership: the draft store's runEpoch, bumped by loadDraft, reset, New goal and the agent pane unmounting) and checks it after every agent turn, before the op reaches the draft (applyOp), before the session is committed, and before the bridge is answered (settle); a lapsed run writes nothing and closes the bridge (drive.test.ts \"a draft replaced while the agent turn runs writes nothing and closes the bridge\"; control \"an owned turn applies its op, commits and settles the bridge call\")."
+    },
+    "src/copilot/agent/drive.ts#confirmProvisioning": {
+      "status": "checked",
+      "note": "v2.6 plan 04 agent bridge (2026-09-30): the author's confirmation of a provisioning step. The asset is created through the install's own write path (applyProvisioning, censused as CopilotCoordinator.applyProvisioning); the draft follow-ups (requirements, roster) are applied only when the draft run minted before that await still holds (drive.test.ts \"a provisioning confirmed after the draft was replaced leaves the draft alone\")."
+    },
+    "src/copilot/agent/loop.ts#advanceAgent": {
+      "status": "local",
+      "note": "v2.6 plan 04 agent bridge (2026-09-30), census root added: recordUnparsed builds the NEXT session value and returns it; nothing outside the call is written. The caller (driveAgent) checks its run before committing it."
+    },
+    "src/copilot/agent/turn.ts#createAgentRunner>anonymous": {
+      "status": "local",
+      "note": "v2.6 plan 04 agent bridge (2026-09-30): `settle` matches the write-name pattern but writes nothing we keep: it forwards the turn to the chosen route, which answers the parked tool call over HTTP. Its only caller is driveAgent, after driveAgent's own run check."
     }
   }
 }

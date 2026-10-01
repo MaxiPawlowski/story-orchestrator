@@ -4,6 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { BRIDGE_HARNESSES, createAgentBridge, validateOpen } from './agentBridge.mjs';
 
 export const PLUGIN_VERSION = '1.0.0';
 export const HARNESS_IDS = Object.freeze(['claude', 'codex', 'opencode']);
@@ -362,7 +363,7 @@ export function killTreeDefault(pid, platform = process.platform) {
     });
 }
 
-export function runProcess({ bin, argv, env, cwd, stdin, deadlineMs, maxOutputChars, spawnImpl = spawn, killTree = killTreeDefault, signal = null, now = () => performance.now() }) {
+export function runProcess({ bin, argv, env, cwd, stdin, deadlineMs, maxOutputChars, spawnImpl = spawn, killTree = killTreeDefault, signal = null, now = () => performance.now(), onStdout = null }) {
     const started = now();
     return new Promise((resolve) => {
         let child;
@@ -389,7 +390,9 @@ export function runProcess({ bin, argv, env, cwd, stdin, deadlineMs, maxOutputCh
         if (signal?.aborted) kill('cancelled');
         child.on('spawn', () => { spawnMs = Math.round(now() - started); });
         child.stdout?.on('data', (chunk) => {
-            stdout += chunk.toString('utf8');
+            const text = chunk.toString('utf8');
+            stdout += text;
+            onStdout?.(text);
             if (maxOutputChars && stdout.length > maxOutputChars * 2 + 4096) kill('output-bound');
         });
         child.stderr?.on('data', (chunk) => { if (stderr.length < 64_000) stderr += chunk.toString('utf8'); });
@@ -526,6 +529,7 @@ export function createHarnessService({
     fsImpl = fs,
     now = Date.now,
     log = (line) => console.log(`[story-orchestrator-harness] ${line}`),
+    bridge = {},
 } = {}) {
     const gate = createGate(config);
     const inFlight = new Map();
@@ -570,6 +574,7 @@ export function createHarnessService({
             spawns: state[harness].spawns,
             quotaUntil,
             ...(harness === 'opencode' ? { cacheWarm: fsImpl.existsSync(warmMarker) } : {}),
+            agentBridge: entry.offer && BRIDGE_HARNESSES.includes(harness),
         };
     };
 
@@ -675,18 +680,41 @@ export function createHarnessService({
         return answer.ok ? { ok: true } : answer;
     };
 
+    const agent = createAgentBridge({
+        config,
+        env,
+        spawnImpl,
+        killTree,
+        fsImpl,
+        now,
+        limits: LIMITS,
+        helpers: { openOwnedHome, closeOwnedHome, childEnv, runProcess, classify },
+        host: {
+            ready: async (harness) => {
+                if (!probed) await probe();
+                return preconditions({ harness });
+            },
+            binary: (harness) => probed.rows[harness].binary.path,
+            loginFile: loginFileOf,
+            cacheDir,
+            noteSpawn: (harness) => { state[harness].spawns += 1; },
+            log: (line) => log(`agent ${line}`),
+            noteQuota: (harness, retryAt) => { state[harness].quotaUntil = retryAt; },
+            noteClosed: (harness, closed) => {
+                if (closed.copyRewritten) state[harness].copyRewrites += 1;
+                if (closed.realChanged) state[harness].blocked = `${harness}'s real login file changed during an agent session; calls are held until the plugin restarts`;
+            },
+        },
+        ...bridge,
+    });
+
     const shutdown = () => {
         for (const entry of inFlight.values()) entry.controller.abort();
+        return agent.shutdown();
     };
 
-    return { status, complete, cancel, warm, shutdown, probe, gate, state };
+    return { status, complete, cancel, warm, shutdown, probe, gate, state, agent };
 }
-
-export const AGENT_BRIDGE_REFUSAL = Object.freeze({
-    ok: false,
-    kind: 'refused',
-    message: 'The MCP tool bridge for the agentic wizard is designed but not built (v2.6 plan 04 H, "Agent tool bridge"). The wizard reaches a harness through its text route: route the Wizard role to a harness under Models per task.',
-});
 
 const userHandle = (request) => request?.user?.profile?.handle ?? 'default-user';
 
@@ -726,8 +754,34 @@ export function createHandlers(service, config) {
                 return response.json(await service.warm());
             });
         },
-        agent(request, response) {
-            return entry(request, response, async () => response.status(501).json(AGENT_BRIDGE_REFUSAL));
+        agentOpen(request, response) {
+            return entry(request, response, async (body) => {
+                const checked = validateOpen(body, config, LIMITS);
+                if (checked.issue) return response.json({ ok: false, kind: checked.kind, message: checked.issue });
+                const opened = await service.agent.open(checked.value, { user: userHandle(request) });
+                return opened.kind === 'busy' ? response.status(429).json(opened) : response.json(opened);
+            });
+        },
+        agentNext(request, response) {
+            return entry(request, response, async (body) => {
+                const controller = new AbortController();
+                response.on?.('close', () => { if (!response.writableFinished) controller.abort(); });
+                const found = await service.agent.next(isRecord(body) ? body.sessionId : null, { user: userHandle(request), waitMs: isRecord(body) ? body.waitMs : undefined, signal: controller.signal });
+                return found.error ? response.status(found.error.status).json({ error: found.error.error }) : response.json(found.event);
+            });
+        },
+        agentAnswer(request, response) {
+            return entry(request, response, async (body) => {
+                const fields = isRecord(body) ? body : {};
+                const found = service.agent.answer(fields.sessionId, { user: userHandle(request), callId: fields.callId, ok: fields.ok, text: fields.text });
+                return found.error ? response.status(found.error.status).json({ error: found.error.error }) : response.json(found.value);
+            });
+        },
+        agentClose(request, response) {
+            return entry(request, response, async (body) => {
+                const found = await service.agent.close(isRecord(body) ? body.sessionId : null, { user: userHandle(request) });
+                return found.error ? response.status(found.error.status).json({ error: found.error.error }) : response.json(found.value);
+            });
         },
     };
 }
@@ -743,13 +797,16 @@ export async function init(router) {
     router.post('/complete', (request, response) => { void handlers.complete(request, response); });
     router.post('/cancel', (request, response) => { void handlers.cancel(request, response); });
     router.post('/warm', (request, response) => { void handlers.warm(request, response); });
-    router.post('/agent', (request, response) => { void handlers.agent(request, response); });
+    router.post('/agent/open', (request, response) => { void handlers.agentOpen(request, response); });
+    router.post('/agent/next', (request, response) => { void handlers.agentNext(request, response); });
+    router.post('/agent/answer', (request, response) => { void handlers.agentAnswer(request, response); });
+    router.post('/agent/close', (request, response) => { void handlers.agentClose(request, response); });
     const offered = HARNESS_IDS.filter((id) => config.harnesses[id].offer);
     console.log(`[story-orchestrator-harness] loaded; offered: ${offered.length ? offered.join(', ') : 'none (config.json)'}; admin-only: ${!config.allowNonAdmin}`);
 }
 
 export async function exit() {
-    running?.shutdown();
+    await running?.shutdown();
     running = null;
 }
 

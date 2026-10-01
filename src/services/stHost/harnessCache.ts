@@ -15,6 +15,8 @@ export async function refreshHarnessStatus(refresh = false): Promise<HarnessStat
 
 export const sendHarness = async (request: HarnessRequest): Promise<ModelReply> => (await load()).sendHarnessRequest(request);
 
+export const openAgentBridge = async () => (await import("./harnessBridge")).createHarnessBridgeClient();
+
 const modelOf = (harness: HarnessId, model: string): HarnessModel | null | undefined => {
   const row = last && last.harnesses[harness];
   return row ? row.models.find((entry) => entry.id === model) || null : last ? null : undefined;

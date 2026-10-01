@@ -39,9 +39,14 @@ const renderInstall = (environment: ProvisioningEnvironment): string => [
   `lorebooks this story may write into: ${environment.ownedLorebooks.join(", ") || "(none yet: create the story's own lorebook first)"}`,
 ].join("\n");
 
-const header = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment): string[] => [
-  RULES.join("\n"),
-  `TOOLS\n${renderToolSchema()}`,
+const NATIVE_RULES = [
+  "You are the agent inside the Story Orchestrator wizard. You change the story draft ONLY through your tools, one call at a time, and the author reviews every change.",
+  "Call the tools natively. A plan or a finished reply is one JSON object as plain text.",
+];
+
+const header = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment, native = false): string[] => [
+  (native ? [...NATIVE_RULES, ...RULES.slice(2)] : RULES).join("\n"),
+  ...(native ? [] : [`TOOLS\n${renderToolSchema()}`]),
   `GOAL\n${session.goal}`,
   `DRAFT\n${runReadTool("readStory", {}, draft, emptyLookup())}`,
   `UNUSED FIELDS\n${renderCoverage(storyCoverage(draft))}`,
@@ -49,15 +54,17 @@ const header = (session: AgentSession, draft: StoryV2, environment: Provisioning
   ...(session.notes.length > 1 ? [`AUTHOR NOTES\n${session.notes.slice(1).filter((note) => note.role === "author").map((note) => `- ${note.text}`).join("\n")}`] : []),
 ];
 
-export const renderPlanPrompt = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment): string => [
-  ...header(session, draft, environment),
+export const renderPlanPrompt = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment, native = false): string => [
+  ...header(session, draft, environment, native),
   "REPLY NOW with the plan only: {\"plan\": [\"one step per entry, in the order you will do them\"]}",
 ].join("\n\n");
 
-export const renderStepPrompt = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment): string => [
-  ...header(session, draft, environment),
+export const renderStepPrompt = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment, native = false): string => [
+  ...header(session, draft, environment, native),
   `PLAN (agreed with the author)\n${session.plan.map((step, index) => `${index + 1}. ${step}`).join("\n")}`,
   `RECENT STEPS (newest last)\n${session.steps.slice(-RECENT_STEPS).map(renderStep).join("\n") || "(none yet)"}`,
   `Budget: step ${session.steps.length + 1} of ${session.budget.maxSteps}.`,
-  "REPLY NOW with one tool call: {\"thought\": \"why this step\", \"tool\": \"<name>\", \"args\": {…}} — or {\"done\": \"what you did\"} when the plan is finished.",
+  native
+    ? "CONTINUE NOW: call your tools one at a time for the steps that remain. When the plan is finished, reply with {\"done\": \"what you did\"} as plain text."
+    : "REPLY NOW with one tool call: {\"thought\": \"why this step\", \"tool\": \"<name>\", \"args\": {…}} — or {\"done\": \"what you did\"} when the plan is finished.",
 ].join("\n\n");
