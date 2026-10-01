@@ -49,3 +49,4 @@ chat vectorization on** (`vectors.enabled_chats: true`, insert 3, protect 5), wh
 by similarity through its own path. **Diagnostic row (never decides F1/F2):** Summarize off **and** Vector Storage chats off,
 ×1, same fixture, restored afterwards. It only attributes the leak; the verdict stays on the declared rows. F3 (J5 + J6)
 is not run: F2 and F4 already fail as declared, so F3 cannot change the verdict.
+- Second diagnostic run (13:30Z), same settings, also records the 700 characters before each of the first 12 leaked markers and which seeded rows' `extra` changed, to name the channel.
