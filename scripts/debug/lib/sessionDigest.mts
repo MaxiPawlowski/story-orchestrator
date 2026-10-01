@@ -1,6 +1,15 @@
 import type { StoryIndexEntry } from './sessionCharters.mts';
 import { defectCounts } from './modelDefects.mts';
 
+const repairNote = (repair: { swiped?: boolean; repaired?: unknown[]; unrepaired?: Array<{ messageId?: number }> } | null | undefined, messageId: number | null | undefined) => {
+  if (!repair) return '';
+  if (Array.isArray(repair.repaired)) {
+    if (repair.repaired.includes(messageId)) return ' (swiped once)';
+    return repair.unrepaired?.some((entry) => entry.messageId === messageId) ? ' (left in the chat)' : '';
+  }
+  return repair.swiped ? ' (swiped once)' : '';
+};
+
 export const ANOMALY_KINDS = [
   'stall', 'extraction-rejected', 'empty-private-block', 'lore-force-lost', 'lore-constant-missed', 'judge-fallback',
   'save-lost', 'unexpected-jump', 'rollback', 'console-error', 'model-call-failure', 'model-defect', 'harness-error',
@@ -232,7 +241,7 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
   const playedTurns = (files.turns ?? []).filter((row) => row.value && !row.value.unparsed && inPlay(row.value.at, playFrom));
   for (const row of playedTurns) {
     for (const defect of Array.isArray(row.value.modelDefects) ? row.value.modelDefects : []) {
-      add('model-defect', row, paths.turns ?? 'turns.jsonl', `model ${defect.kind} in message ${defect.messageId ?? '?'}${defect.speaker ? ` (${defect.speaker})` : ''}: ${String(defect.sample ?? '').slice(0, 120)}${row.value.autoRepair?.swiped ? ' (swiped once)' : ''}`, { kind: defect.kind, messageId: defect.messageId ?? null, rule: defect.rule ?? null });
+      add('model-defect', row, paths.turns ?? 'turns.jsonl', `model ${defect.kind} in message ${defect.messageId ?? '?'}${defect.speaker ? ` (${defect.speaker})` : ''}: ${String(defect.sample ?? '').slice(0, 120)}${repairNote(row.value.autoRepair, defect.messageId)}`, { kind: defect.kind, messageId: defect.messageId ?? null, rule: defect.rule ?? null });
     }
   }
 
@@ -313,7 +322,8 @@ export function renderFindings(digest: Digest, sessionDir: string): string {
   out.push('## Counts', '', `- flags: ${digest.flags.length}`, ...ANOMALY_KINDS.map((kind) => `- ${kind}: ${digest.counts[kind] ?? 0}`), '');
   out.push('## Judge health', '', ...renderJudgeHealth(digest.judge), '');
   out.push('## Model defects', '', digest.modelDefects.turns
-    ? `- ${digest.modelDefects.turns} turn(s) with a defective reply: loop ${digest.modelDefects.loop}, corrupt ${digest.modelDefects.corrupt}; swiped once by the loop guard: ${digest.modelDefects.repaired}`
+    ? `- ${digest.modelDefects.turns} turn(s) with a defective reply: loop ${digest.modelDefects.loop}, corrupt ${digest.modelDefects.corrupt}; swiped once by the loop guard: ${digest.modelDefects.repaired}; ` +
+      `left in the chat (not the last reply): ${digest.modelDefects.unrepaired} message(s)`
     : 'None detected.', '');
   out.push('## Flags', '');
   if (!digest.flags.length) out.push('None.', '');

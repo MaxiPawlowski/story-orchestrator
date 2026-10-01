@@ -39,5 +39,5 @@ test('T1 loop guard: word-merge damage is corrupt (glued function words, bad con
 test('T1 loop guard: defect counts per session', () => {
   const loop = { kind: 'loop' as const, messageId: 1, speaker: null, sample: 's', rule: 'r' };
   const corrupt = { ...loop, kind: 'corrupt' as const };
-  assert.deepEqual(defectCounts([{ modelDefects: [] }, { modelDefects: [loop, corrupt], autoRepair: { swiped: true } }, { modelDefects: [corrupt], autoRepair: { swiped: false } }, {}]), { turns: 2, loop: 1, corrupt: 2, repaired: 1 });
+  assert.deepEqual(defectCounts([{ modelDefects: [] }, { modelDefects: [loop, corrupt], autoRepair: { swiped: true } }, { modelDefects: [corrupt], autoRepair: { swiped: false } }, {}]), { turns: 2, loop: 1, corrupt: 2, repaired: 1, unrepaired: 0 });
 });
