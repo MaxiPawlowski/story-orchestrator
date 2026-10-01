@@ -33,6 +33,7 @@ import { parseStoryV2OrThrow } from "@engine/index";
 import { EffectsApplier } from "./effectsApplier";
 import type { RuntimeExtras } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
+import { mintToken, type RunContext, type RunOwnership } from "./runToken";
 
 const story = parseStoryV2OrThrow({
   format: 2, id: "saga", title: "Saga", description: "",
@@ -57,7 +58,7 @@ const extras = () => ({
   updatedAt: "x", ui: { announceTransitions: false }, effects: { ledger: [], cast: [] },
 }) as unknown as RuntimeExtras;
 
-const applier = () => new EffectsApplier(testOwnership(), {
+const applier = (ownership: RunOwnership = testOwnership()) => new EffectsApplier(ownership, {
   reads: { read: (target) => (target.kind === "cast" ? { disabled: host.disabled.includes(target.member) } : null) },
   persist: async () => {},
   restore: async () => true,
@@ -94,5 +95,28 @@ describe("AS-10: an import's activate and a concurrent hydrate of the same check
     await effects.applyCheckpoint(story, story.checkpointById.start, state, {} as never, "hydrate", ["start"]);
     expect(host.calls.filter((call) => call.startsWith("cast:"))).toEqual(["cast:+-Mara", "cast:+-Finn", "cast:+-Leila"]);
     expect(host.calls.filter((call) => call.startsWith("bg:"))).toEqual(["bg:start.jpg", "bg:start.jpg"]);
+  });
+});
+
+describe("v2.6 03 SP5: a hydrate never joins an activate that the same world change made lapse", () => {
+  it("the epoch moves while the activate writes the cast: the hydrate applies the checkpoint itself", async () => {
+    const world: RunContext = { chatId: "chat-a", storyId: "saga", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+    const ownership: RunOwnership = {
+      mint: (window) => mintToken(world, window ?? null),
+      check: (token) => (token.sessionEpoch === world.sessionEpoch ? { ok: true } : { ok: false, reason: "epoch", detail: "moved" }),
+    };
+    let release: () => void = () => undefined;
+    host.gate = new Promise<void>((resolve) => { release = resolve; });
+    const effects = applier(ownership);
+    const state = extras();
+    const activate = effects.applyCheckpoint(story, story.checkpointById.start, state, {} as never, "activate", ["start"]);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    world.sessionEpoch = 2;
+    host.gate = null;
+    const hydrate = effects.applyCheckpoint(story, story.checkpointById.start, state, {} as never, "hydrate", ["start"]);
+    release();
+    await Promise.all([activate, hydrate]);
+    expect(host.calls.filter((call) => call.startsWith("bg:"))).toEqual(["bg:start.jpg"]);
+    expect(state.lastAppliedCheckpointId).toBe("start");
   });
 });
