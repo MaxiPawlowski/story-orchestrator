@@ -44,3 +44,25 @@ changed after a run.
 ## Records
 
 `test/measurements/v2.6-03/sp2/` (batch logs, run records, header diff, summary). Raw payload captures stay local.
+
+## Addendum 2026-10-01 12:05Z — procedure change before the re-run (bars unchanged)
+
+Stated after the first series and before any re-run. The first series' as-declared results stand and are reported.
+
+- **Bundle.** The staged dev bundle moved from `6f56533e8608` to `ceb15ac19ec0` (model-config fixes: DeepSeek read
+  budget 131072, shared-read first ask 1024) while the night-pact pair was running on a page loaded before it. That pair
+  is kept as a diagnostic (`sp2/diag-old-bundle/`); the series was restarted after `st-session reload` on `ceb15ac19ec0`.
+- **Setup race (measured nothing).** `wendhope-wall` (R1) and `esha-escape` (R1, R4) failed their setup `expect`: a real
+  cadence read of the checkpoint's onEnter reply (DeepSeek) landed after the scripted `/cp set` and overwrote it
+  (`location` → `aegis_guild_hall`; `esha_dread` 4 → 3, an accepted `DELTA` from the Lady's arrival). Those runs are
+  **not measured**. `wendhope-wall` R4 failed before its recast leg on "engine last 9, reply 10" (the boundary of the
+  newest reply had not committed yet), also not a measurement of the spike.
+- **Change (v2 fixtures, `scripts/spike/v26-03/patch-sp2-fixtures.py`):** (1) after `/cp activate` + idle, wait
+  `schedulerIdle` (8 s quiet) before the `/cp set` lines, so the onEnter read lands first; (2) before each edit leg, wait
+  until the engine has committed the newest message (≤ 180 s). No check, marker or pass rule changes.
+- **Re-run:** `wendhope-wall` and `esha-escape`, R1 + R4, ×1, on the v2 fixtures. `night-pact` and `lord-spirit` keep
+  their first-series results (their setup held).
+- **Diagnostic arm (never decides R4):** `diag-r4-night-pact.json` = the night-pact R4 plus a wait for the spike's own
+  `recommit:<id>` audit before each next send. The first series' recast legs failed because the next request went out
+  before the spike's read landed (`schedulerIdle` does not see `runExtractionNow`, which bypasses the scheduler); the
+  arm separates "re-commit wrong" from "re-commit late".
