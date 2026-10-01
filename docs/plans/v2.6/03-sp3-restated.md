@@ -45,3 +45,20 @@ re-printed as history.
 ## Records
 
 `test/measurements/v2.6-03/sp3/` (calibration reports r1/r2, phaseA output, score.mjs output, summary).
+
+## SP3.b acceptance re-measure (Phase B), stated 2026-10-01 before the run
+
+Bar (04 §SP3.b, v2.5's Phase B condition, unchanged): A2 re-measured on the **same 174 director windows** (`lab/aliases/
+director.json`, identical at pins `e1c91fb` and `59e8821`), two fresh runs, each ≤ half its Phase A rate:
+run 1 ≤ **3.30**, run 2 ≤ **2.87** wrong-or-null per 50. Miss → SP3.b dropped (removal commit + planted-import control).
+
+- **Build:** master `c2afb11e` (SP3.b built) merged into `v26-spikes-03b`, dev build served to **lane 2 only** through
+  the lane-browser route (`scripts/spike/v26-03/serve-branch-on-lane.mts`); the shared slot is not restaged. Run header
+  captured before, diffed after; it names the served bundle.
+- **Rows:** `scripts/spike/sp3/phaseB-rows.mjs <pin>/lab/aliases/director.json <pin>/lab/aliases/aliases.json
+  test/fixtures/judge/director.json` (the lab's 312 `ship[]` aliases attached; the fixture backed up first and restored
+  after, never committed).
+- **Runs:** `so-role-calibration.mts run --role director --arm adolion-sp3b-r{1,2} --expect-count 174 --profile
+  "deepseek 4.1 flash"`, back to back on lane 2. Scored exactly as Phase A (`test/measurements/v2.6-03/sp3/a2-live.json`):
+  a miss is a null pick or a pick outside the row's `acceptable`; the bar reads their sum. Null-only reported beside.
+- Records under `test/measurements/v2.6-03/sp3b/`.
