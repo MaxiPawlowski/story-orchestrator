@@ -29,6 +29,8 @@ const covers = (newer: TurnRange | undefined, older: TurnRange | undefined): boo
   return Boolean(newer && older && newer.from <= older.from && newer.to >= older.to);
 };
 
+const readsLater = (newer: TurnRange | undefined, older: TurnRange | undefined): boolean => Boolean(newer && older && newer.to > older.to);
+
 const withLevels = (entry: ApplyQueueEntry, deltas: BlackboardDelta[]): ApplyQueueEntry => {
   const { tensionLevels, ...rest } = entry;
   const tension = deltas.some((delta) => delta.q === TENSION_CURRENT_KEY);
@@ -69,9 +71,10 @@ export class ApplyQueue {
     const discarded: ApplyQueueEntry[] = [];
 
     pending.forEach((entry, index) => {
-      const rewrites = pending.slice(index + 1)
-        .filter((newer) => covers(newer.turnRange, entry.turnRange))
-        .flatMap((newer) => newer.deltas);
+      const rewrites = [
+        ...pending.slice(index + 1).filter((newer) => covers(newer.turnRange, entry.turnRange)),
+        ...pending.slice(0, index).filter((earlier) => readsLater(earlier.turnRange, entry.turnRange)),
+      ].flatMap((newer) => newer.deltas);
       const [kept, dropped] = splitEntry(entry, (delta) => !rewrites.some((later) => later.q === delta.q && !blackboard.holdsAgainst(delta, later)));
       if (dropped) discarded.push(dropped);
       if (!kept) return;
