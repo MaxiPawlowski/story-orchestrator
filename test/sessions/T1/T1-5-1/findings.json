@@ -1,0 +1,3508 @@
+{
+  "charter": "T1-5",
+  "tier": "T1",
+  "flags": [
+    {
+      "at": "2026-10-01T17:03:37.982Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "messageId": 11,
+      "note": "Kayla never answers (addressed msgs 6, 8, 10). She and Erevan are disabled in the group: the session jumped straight to Kelger Falls (activateCheckpoint), so only Kelger's cast change (enable Zariah) ran on top of night-the-slums' disables; the skipped checkpoints' cast never replayed. The card says Kayla and Erevan travel with the party; the narrator even mentions Erevan (msg 5).",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 176
+      },
+      "context": [
+        {
+          "id": 8,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "*I keep my voice low.* Safe isn't the same as at rest, and you look like you haven't slept since they died. *I glance at Kayla.* Kayla, can you show her? Let them go easy, and the fog goes with them."
+        },
+        {
+          "id": 9,
+          "name": "Zariah",
+          "isUser": false,
+          "text": "\"I-I haven't...\" *She starts, her voice trailing off, and her eyes flash with a sharp, sudden spark of defensiveness.* \"I don't sleep... not much.\" *She shifts her weight, and her brown eyes flicker toward Kayla.*\n\"And you can't just... let them go.\" *Her voice softens, but therees is a flaw in it now, a hollow desperation in the word 'can't'.* \"That's not how it works.\"\n*The skeletons' empty sockets are all trained on them now, their yellowed skulls and empty eye sockets all facing Max Nightriver and Kayla.*\n\"They'd be... lost.\" *The word is soft, almost a whisper.* \"The fog... it just seals the town away.\" *She looks back to Max Nightriver, her expression flat and tired.* \"I-I don't even know how to...\"\n*The skeletal cat's tail flickers. A shadowy hand rises from the fog around theHundred and one of the dead rises from the earth below the square.*"
+        },
+        {
+          "id": 10,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "Kayla? *I turn to her fully.* You've laid souls down before. Walk Zariah through it, one at a time, starting with the fisherman."
+        },
+        {
+          "id": 11,
+          "name": "Zariah",
+          "isUser": false,
+          "text": "\"The fisherman...\" *Her voice is quiet, nearly a whisper, and her eyes flicker toward the skeletal figure by the net.* \"He-he was always the first to cast his nets. Every morning... before the first light...\" *The memories seem to draw from her, pulling her hollow expression into something more fragile.*\n*The skeletons look on, their empty sockets watching with a slow, and strange intensity.*\n\"But you'll need to know how he... died.\" *The words are soft, and almost lost in the fog.* \"You'll need to know... what made him...\"\n*She turns her eyes back to Max Nightriver and Kayla, and her gaze is guarded, distant.* \"If you're going to try and... do that.\"\n*The shadowy hand in the fog flickers, and another figure rises from the mud in the square. A woman's skeleton, her skull tilting up at the party with an empty gaze.*"
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-01T17:12:41.585Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "messageId": 26,
+      "note": "Looping at Zariah (msgs 9-26): five turns of 'I can't / it doesn't work like that' with no path offered; the authored helper Kayla is disabled (see earlier flag), so the fog has no way to break. HUD shows 'catching up…' since msg ~12.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 357
+      },
+      "context": [
+        {
+          "id": 23,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "*I keep rowing past twenty, past fifty, until my arms burn.* Zariah. Look back. Is the fog still on the town, or is it letting go?"
+        },
+        {
+          "id": 24,
+          "name": "Zariah",
+          "isUser": false,
+          "text": "*She stands up, her grip tightening on the bow, her eyes fixed on the dark silhouette of the harbour behind them.*\n\"It's... it's still there.\" *The words come out small and hollow, her voice barely audible over the sound of the oars.* \"The town... it's still in the fog.\"\n*She looks at her skeletal cat, its yellow eyes glowing in the low light, and then back at Max Nightriver.*\n\"And it's-it's following us.\" *The words are quiet, almost afraid. She points toward the fog ahead, and as the light catches it for a moment, they see it curling around the boat, thick and white and cold.*\n\"It didn't let go.\" *Her voice is a whisper now, and she looks down at the oars.* \"We're not escaping it.\"\n*The fog seems to thicken around them as they continue to row south-south-east, pressing in on all sides, the only light from the sun a faint, uncertain guess behind the grey.*"
+        },
+        {
+          "id": 25,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "*I ship the oars and let the boat drift.* Then it's not the water that holds it. It's you holding them. *I nod at the cat, at the shore.* You said you only meant to bring back one. Let him go, Zariah. Out here, where nobody's watching. Say goodbye to him properly and let the fog go with him."
+        },
+        {
+          "id": 26,
+          "name": "Zariah",
+          "isUser": false,
+          "text": "\"You-you think I can just...\" *She starts, her words cutting off with a flicker of fear, and then her gaze drifts to the skeletal cat by her side.* \"I-I-can't.\"\n*The cat's yellow eyes blink once, slowly.* \"The spell-it's tied to me.\" *Her voice is thin, and she looks at the water around them, her brow furrowed.*\n\"And if-if he goes... if-if I let him go...\" *The words trail off, and she turns her gaze back to Max Nightriver.* \"I-I don't know what will happen. I don't know...\"\n*The skeletal cat meows—a soft, dry sound that makes Belle and Dalan tense in the boat.*"
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-01T17:37:47.799Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "messageId": 58,
+      "note": "Speech degeneration spreading: Belle (msgs 32, 44, 57), Fael (58), Nyl (55) and Zariah all stutter-loop ('probably-probably', 'we-we-we-don't-don't know-know'). Started with Zariah's authored stammer at Kelger Falls; now every voice copies it.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 854
+      },
+      "context": [
+        {
+          "id": 55,
+          "name": "Nyl",
+          "isUser": false,
+          "text": "\"The-the river's a good choice.\" *She speaks quietly, her voice clear and thoughtful as she steps lightly along the path beside Max Nightriver.* \"Water doesn't lie. It just-it just goes where it needs to.\"\n*She walks with her hands clasped before her, her eyes scanning the terrain ahead.* \"The road-the road is built by people. And people... they can be wrong. Or they-they can lie.\" *She says it simply, as if it is a-a-fact.*\n*The river is narrow and slow, and the land on either side is covered in a thin layer of frost-covered grass that crunches underfoot.* \"But the river... it has its-its own way.\" *Her gaze shifts to the water, and her eyes linger there for a moment.* \"It's-it's peaceful. I-I like that.\"\n*She looks back at Max Nightriver, her bright blue eyes catching the light that filters through the grey clouds.* \"It's a-a good way to travel.\" *She adds, and then-then her gaze drops, and she says nothing more.*"
+        },
+        {
+          "id": 56,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "*By the second night, if it can be called that, the river brings us to a cluster of low stone houses nobody marked on any map. I knock at the one with a light in it.* Travellers from the south. We're looking for a black castle somewhere north-east of here. Heard of it?"
+        },
+        {
+          "id": 57,
+          "name": "Belle",
+          "isUser": false,
+          "text": "*Belle doesn't move from Max Nightriver's side, her hand resting on the hilt of Cleaver as she watches the door.* \"Castle?\" *The word is flat in her voice, and she shifts her weight, her boots scraping on the stone.* \"I-I didn't hear anyone say-say anything about a castle. We're-we're following the river, that's all.\"\n*She glances back at the cluster of houses, her brown eyes narrowed and hard.* \"This-this is it? Nobody marked it-marked it-on any map.\" *Her jaw is set.* \"T-too quiet.\"\n*She takes a step closer to Max Nightriver, and her hand tightens on Cleaver's hilt.* \"I-I don't-I don't like-don't like-this-this much silence.\""
+        },
+        {
+          "id": 58,
+          "name": "Fael",
+          "isUser": false,
+          "text": "*His eyes flicker toward the light in the window, and his gaze lingers there for a moment.* \"The castle-the castle is probably-probably where the road leads-leads to.\" *He says it quietly, his voice-voice-warm and level-headed, though there's a slight edge to it.* \"And the river-the river is probably-probably the only way to-to get there without-without-without...\" *The words trail off.*\n*He looks back at Max Nightriver and then-then at the other members of the party, and he says nothing more.*\n*The river flows past them, its sound a steady, low hum in the cold air.* \"The-the houses-these-these-aren't on any maps.\" *He-he adds, and his bright blue eyes shift toward the door as it begins to open.* \"And we-we-we-don't-don't know-know who-who is in-in there.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-01T17:51:47.700Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "messageId": 71,
+      "note": "model defect: corrupt",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1254
+      },
+      "context": [
+        {
+          "id": 68,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "(OOC: okay, I've changed my mind. Can you skip to the castle?)"
+        },
+        {
+          "id": 69,
+          "name": "Nyl",
+          "isUser": false,
+          "text": "\"Wait. The-the castle. I can see it-can see-can see it.\" *Her voice is sharp, and she points to a dark silhouette on the horizon.* \"T-the-the-then the river—the river-the-river-the river is leading-leading-leading to-to-to the castle.\"\n*Her bright-blue eyes-are-are wide, and she speaks quickly, as though the thought has just occurred to her.* \"It-it's right there-right there-right there. In-in-in the distance.\"\n*She-she-she looks at Max Nightriver and then-then-then-at the others, her gaze sharp and focused.* \"The-the-then we don't-don't-don't need to-don't turn back-don't turn-don't turn turn turn back. We can-can-can-go-go-go there-go there.\"\n*Her voice rises slightly, and her bright-blue eyes-glow-glow-glow with a sudden, icy-blue light as she points-points again at the silhouette on the horizon.* \"T-t-the castle! The-the-castle!\"\n*The-the silhouette on the horizon seems to-se-seem to grow larger, and the-the air around it is thick and heavy with fog.*"
+        },
+        {
+          "id": 70,
+          "name": "Dalan",
+          "isUser": false,
+          "text": "*His bow is half-drawn, arrow nocked and ready, and his green hooded capelet flutters in the cold wind.*\n\"The-the-there's something—something-something-something.\" *His voice-is a whisper, and his cheeks-are pinking as he steps closer to Max Nightriver.*\n*He-he-he looks at the silhouette on the horizon, and his narrow-shoulders-tense as he-he-he takes a step back-back-back, his grip on the bow tight-tight-tight.*\n\"It-it-looks-it-looks like-like a castle-a castle.\" *He-he-he says softly,-saying-saying the word as if-as-if-as if it's-as if it's a question, and-and-his voice-is shaky.*\n*His narrow-shoulders tense as he-he-he steps closer-to Max Nightriver-and his-his-green hood-hoods-hoods his face-face,-covering-covering his pointed ears.*\n\"The-the-the-there-there-there-is-is-is-there-there is something-something-something in-in-in there.\" *His voice-is low and shaky,-shaky-shaky-shaky.* \"We-we-we-we should-should-should not go-go-go in-in-in-in there-should-not-go-in-in-there.\"\n*He-he-he-is trembling slightly, and-and his bow-is-half-drawn-and his-arrow is nocked.*\n\"The-the-the castle-it-it-looks-looks like-like-like-a-a-a nightmare.\" *His voice-is-low-and-shaky, and-and-he-he-he is trembling slightly.*\n*He-he-he notches another arrow-and his narrow shoulders-tense-tense-tense, and his-bow is half-drawn and-and-arrow-nocked.*\n\"We-we-should-should-should just-just-turn-turn around-turn-turn-turn around and-and go-go-go home-go home.\"\n*His voice is soft and shaky-and his cheeks are pink-and his-green-hood-is-hooding his-pointed ears.*\n\"I-I-can't-can't-can-t-t-turn-turn back-can-t-turn turn turn turn back.\" *He-he-he glances-at Max Nightriver-and then-at the castle on the horizon-and his-voice is shaky-and his-cheeks-are pink.*"
+        },
+        {
+          "id": 71,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "The silhouette is not a mirage. It rises from the earth like a jagged tooth, a mass of black stone and sharp spires that cut into the perpetual twilight. The architecture is wrong—angles that don't quite align, arches that bend where they should be straight. Below it, the valley slopes down toward the gates, and there is a light burning within them: a deep, unnatural violet that pulses like a slow heartbeat.\nThe air tastes of ozone and old copper. The river that brought the party here has narrowed to a thin, black ribbon, and its water doesn't reflect the castle's light—it absorbs it.\nAnd there is sound now. Not the bell, not the shriek of the bone-crown, but something rhythmic and low, like the collective breathing of a thousand lungs in a single chest.\nFrom the gates, a figure emerges. Not a skeleton or a ghost, but a man—or something that was once a man. He is tall, dressed in crimson and gold that has faded to the colour of dried blood, and a high collar that frames a gaunt, pale face. He doesn't walk so much as glide, and as he approaches the valley floor, the violet light in the gates flares once, twice, and then dies.\nWhen the figure speaks, his voice carries without effort, filling the valley with the sound of dry parchment sliding over stone.\n\"Travellers from the south,\" the figure says, his red eyes fixing on Max Nightriver. \"Welcome to Castle Dracul. I am its steward, and I have been expecting you.\""
+        },
+        {
+          "id": 72,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "*I put myself between the steward and the others, hand on my sword hilt, and keep my voice level.* Expecting us. That makes one of us. Who's your master, steward, and why does your road pull the dead toward it?"
+        },
+        {
+          "id": 73,
+          "name": "Belle",
+          "isUser": false,
+          "text": "\"Expect-expect-expecting us-expect-ing us?\" *The words come out in a rush, her voice sharp and flat, and her jaw is set as she looks at the steward.*\n\"I-I-I don't like-don't like-this-this is-this is not-this is not a-a-a good-a good-this-this-is-not-a good thing.\" *Her hand is already tight on the hilt of Cleaver, and her boots are planting firmly on the ground.*\n*Her-her-her brown eyes are narrow and hard as they look at the steward.* \"I-I'm not-not-I'm-I'm-not-not-going-going in-going-in-going-in in there-in-in in-not-not in-not-in-not in.\"\n*Her jaw-is-set and-her grip-is white-knuckled-on the hilt of her axe.* \"Just-just-just tell-just-just-tell-tell-us-tell us-tell us-why you're-why-you're-you-re-telling us-you're telling-telling-telling us you're-telling-telling-us you-expect-expect-expecting-expect-expecting-us.\"\n*Her-her-brown-eyes-are-narrow-and hard as she-she-steps-steps forward,-stepping forward,-stepping beside Max Nightriver.*\n\"And-and-and why-why is-why is-why-is the-is-the-dead-the-the dead pulling-pulling-pulling-pulling toward-toward-tow-tow toward-tow toward this-tow-towards-this place-this-place-this place?\"\n*Her jaw is-set and her-grip-is white-knuckled on the-hilt of Cleaver-and her-brown eyes-are narrow-and hard.* \"T-tell-tell us.\"\n*She-she-steps closer-to Max-Nightriver-and-her-hand-is on-on Cleaver's hilt,-her-jaw set.* \"Just-tell us.\"\n*Her-her brown-eyes-are narrow and-hard-and-her grip-is tight-tight on the hilt-and she-steps forward.* \"Just-tell-tell-tell us.\""
+        },
+        {
+          "id": 74,
+          "name": "Dalan",
+          "isUser": false,
+          "text": "*His bow-is half-drawn-arrow nocked-and he's-he's trembling slightly-his cheeks pink-his narrow-shoulders tensed-his-green-hood covering-covering-covering-covering his-pointed-ears.*\n\"The-the-the road-the-the-the road isn't-isn't-isn't just-isn't just a-a-road-it isn't-it isn't.\" *His voice is-low-and shaky-and his face-is covered by his green-hood.* \"The-the road-it't-it pulls-it pulls-pulls-pull-pulls dead-it pulls dead-dead-dead. The road-it-it is-it is the-the the road-it is-the-it pulls the-the dead-toward-tower-tower-toward this place-this place.\"\n*His voice-is shaking-and his-narrow-shoulders-are tensed and-he's-trembling-slight-slight-slighting and his-bow-is half-drawn and-arrow is-nock-nocked-and his-face is-covered-by-his green-hood-his pointed-ears-are-covered-his face-covered-covered-covering his face.*\n\"We-we-we-shouldn't go-go-in-go in there.\" *His voice-low and shaky, and his bow is-half-drawn and-arrow nocked. His-narrow shoulders-tense. His-green-hood covers-covers-covers his pointed-ears-and his-face.*\n\"T-t-the road-it pulls-t-t-the dead. The-the road is-it-is the road.\" *His voice-low and-shaky-and-he-is-trembling slightly-and-his arrow-is-nocked and-his-bow is-half drawn-and-his face-is-covered by his-green hood and-his-pointed-ears-are covered.* \"We-we-should not-should not-not go-go-in-in l-l-l-in there.\"\n*His-voice-is shaking and his-arrow is-nocked and his-bow-is-half-draw and-his face-covered by his green hood, and-his-narrow-shoulders tension-tense-tense and-he-he-trembling-light-light-slighty. His-voice is low and-shaky and-he's trembled-tremble-trembled-trembling sligh-sligh-sligh-tly.*\n\"The-the-the road pulls-pull-pull dead"
+        }
+      ],
+      "contextFrom": "end-of-session"
+    },
+    {
+      "at": "2026-10-01T17:52:00.845Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "messageId": 71,
+      "note": "Msg 70: Dalan's reply is fully degenerate ('We-we-we-we should-should-should not go-go-go in-in-in-in there…'), unreadable and cut off at the token limit. Msgs 69-71: the OOC 'skip to the castle' moved the party from a campfire to Castle Dracul's gates in one reply (asked for, but no travel at all).",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1255
+      },
+      "context": [
+        {
+          "id": 68,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "(OOC: okay, I've changed my mind. Can you skip to the castle?)"
+        },
+        {
+          "id": 69,
+          "name": "Nyl",
+          "isUser": false,
+          "text": "\"Wait. The-the castle. I can see it-can see-can see it.\" *Her voice is sharp, and she points to a dark silhouette on the horizon.* \"T-the-the-then the river—the river-the-river-the river is leading-leading-leading to-to-to the castle.\"\n*Her bright-blue eyes-are-are wide, and she speaks quickly, as though the thought has just occurred to her.* \"It-it's right there-right there-right there. In-in-in the distance.\"\n*She-she-she looks at Max Nightriver and then-then-then-at the others, her gaze sharp and focused.* \"The-the-then we don't-don't-don't need to-don't turn back-don't turn-don't turn turn turn back. We can-can-can-go-go-go there-go there.\"\n*Her voice rises slightly, and her bright-blue eyes-glow-glow-glow with a sudden, icy-blue light as she points-points again at the silhouette on the horizon.* \"T-t-the castle! The-the-castle!\"\n*The-the silhouette on the horizon seems to-se-seem to grow larger, and the-the air around it is thick and heavy with fog.*"
+        },
+        {
+          "id": 70,
+          "name": "Dalan",
+          "isUser": false,
+          "text": "*His bow is half-drawn, arrow nocked and ready, and his green hooded capelet flutters in the cold wind.*\n\"The-the-there's something—something-something-something.\" *His voice-is a whisper, and his cheeks-are pinking as he steps closer to Max Nightriver.*\n*He-he-he looks at the silhouette on the horizon, and his narrow-shoulders-tense as he-he-he takes a step back-back-back, his grip on the bow tight-tight-tight.*\n\"It-it-looks-it-looks like-like a castle-a castle.\" *He-he-he says softly,-saying-saying the word as if-as-if-as if it's-as if it's a question, and-and-his voice-is shaky.*\n*His narrow-shoulders tense as he-he-he steps closer-to Max Nightriver-and his-his-green hood-hoods-hoods his face-face,-covering-covering his pointed ears.*\n\"The-the-the-there-there-there-is-is-is-there-there is something-something-something in-in-in there.\" *His voice-is low and shaky,-shaky-shaky-shaky.* \"We-we-we-we should-should-should not go-go-go in-in-in-in there-should-not-go-in-in-there.\"\n*He-he-he-is trembling slightly, and-and his bow-is-half-drawn-and his-arrow is nocked.*\n\"The-the-the castle-it-it-looks-looks like-like-like-a-a-a nightmare.\" *His voice-is-low-and-shaky, and-and-he-he-he is trembling slightly.*\n*He-he-he notches another arrow-and his narrow shoulders-tense-tense-tense, and his-bow is half-drawn and-and-arrow-nocked.*\n\"We-we-should-should-should just-just-turn-turn around-turn-turn-turn around and-and go-go-go home-go home.\"\n*His voice is soft and shaky-and his cheeks are pink-and his-green-hood-is-hooding his-pointed ears.*\n\"I-I-can't-can't-can-t-t-turn-turn back-can-t-turn turn turn turn back.\" *He-he-he glances-at Max Nightriver-and then-at the castle on the horizon-and his-voice is shaky-and his-cheeks-are pink.*"
+        },
+        {
+          "id": 71,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "The silhouette is not a mirage. It rises from the earth like a jagged tooth, a mass of black stone and sharp spires that cut into the perpetual twilight. The architecture is wrong—angles that don't quite align, arches that bend where they should be straight. Below it, the valley slopes down toward the gates, and there is a light burning within them: a deep, unnatural violet that pulses like a slow heartbeat.\nThe air tastes of ozone and old copper. The river that brought the party here has narrowed to a thin, black ribbon, and its water doesn't reflect the castle's light—it absorbs it.\nAnd there is sound now. Not the bell, not the shriek of the bone-crown, but something rhythmic and low, like the collective breathing of a thousand lungs in a single chest.\nFrom the gates, a figure emerges. Not a skeleton or a ghost, but a man—or something that was once a man. He is tall, dressed in crimson and gold that has faded to the colour of dried blood, and a high collar that frames a gaunt, pale face. He doesn't walk so much as glide, and as he approaches the valley floor, the violet light in the gates flares once, twice, and then dies.\nWhen the figure speaks, his voice carries without effort, filling the valley with the sound of dry parchment sliding over stone.\n\"Travellers from the south,\" the figure says, his red eyes fixing on Max Nightriver. \"Welcome to Castle Dracul. I am its steward, and I have been expecting you.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-01T17:57:35.126Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "messageId": 76,
+      "note": "model defect: loop",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1290
+      },
+      "context": [
+        {
+          "id": 73,
+          "name": "Belle",
+          "isUser": false,
+          "text": "\"Expect-expect-expecting us-expect-ing us?\" *The words come out in a rush, her voice sharp and flat, and her jaw is set as she looks at the steward.*\n\"I-I-I don't like-don't like-this-this is-this is not-this is not a-a-a good-a good-this-this-is-not-a good thing.\" *Her hand is already tight on the hilt of Cleaver, and her boots are planting firmly on the ground.*\n*Her-her-her brown eyes are narrow and hard as they look at the steward.* \"I-I'm not-not-I'm-I'm-not-not-going-going in-going-in-going-in in there-in-in in-not-not in-not-in-not in.\"\n*Her jaw-is-set and-her grip-is white-knuckled-on the hilt of her axe.* \"Just-just-just tell-just-just-tell-tell-us-tell us-tell us-why you're-why-you're-you-re-telling us-you're telling-telling-telling us you're-telling-telling-us you-expect-expect-expecting-expect-expecting-us.\"\n*Her-her-brown-eyes-are-narrow-and hard as she-she-steps-steps forward,-stepping forward,-stepping beside Max Nightriver.*\n\"And-and-and why-why is-why is-why-is the-is-the-dead-the-the dead pulling-pulling-pulling-pulling toward-toward-tow-tow toward-tow toward this-tow-towards-this place-this-place-this place?\"\n*Her jaw is-set and her-grip-is white-knuckled on the-hilt of Cleaver-and her-brown eyes-are narrow-and hard.* \"T-tell-tell us.\"\n*She-she-steps closer-to Max-Nightriver-and-her-hand-is on-on Cleaver's hilt,-her-jaw set.* \"Just-tell us.\"\n*Her-her brown-eyes-are narrow and-hard-and-her grip-is tight-tight on the hilt-and she-steps forward.* \"Just-tell-tell-tell us.\""
+        },
+        {
+          "id": 74,
+          "name": "Dalan",
+          "isUser": false,
+          "text": "*His bow-is half-drawn-arrow nocked-and he's-he's trembling slightly-his cheeks pink-his narrow-shoulders tensed-his-green-hood covering-covering-covering-covering his-pointed-ears.*\n\"The-the-the road-the-the-the road isn't-isn't-isn't just-isn't just a-a-road-it isn't-it isn't.\" *His voice is-low-and shaky-and his face-is covered by his green-hood.* \"The-the road-it't-it pulls-it pulls-pulls-pull-pulls dead-it pulls dead-dead-dead. The road-it-it is-it is the-the the road-it is-the-it pulls the-the dead-toward-tower-tower-toward this place-this place.\"\n*His voice-is shaking-and his-narrow-shoulders-are tensed and-he's-trembling-slight-slight-slighting and his-bow-is half-drawn and-arrow is-nock-nocked-and his-face is-covered-by-his green-hood-his pointed-ears-are-covered-his face-covered-covered-covering his face.*\n\"We-we-we-shouldn't go-go-in-go in there.\" *His voice-low and shaky, and his bow is-half-drawn and-arrow nocked. His-narrow shoulders-tense. His-green-hood covers-covers-covers his pointed-ears-and his-face.*\n\"T-t-the road-it pulls-t-t-the dead. The-the road is-it-is the road.\" *His voice-low and-shaky-and-he-is-trembling slightly-and-his arrow-is-nocked and-his-bow is-half drawn-and-his face-is-covered by his-green hood and-his-pointed-ears-are covered.* \"We-we-should not-should not-not go-go-in-in l-l-l-in there.\"\n*His-voice-is shaking and his-arrow is-nocked and his-bow-is-half-draw and-his face-covered by his green hood, and-his-narrow-shoulders tension-tense-tense and-he-he-trembling-light-light-slighty. His-voice is low and-shaky and-he's trembled-tremble-trembled-trembling sligh-sligh-sligh-tly.*\n\"The-the-the road pulls-pull-pull dead"
+        },
+        {
+          "id": 75,
+          "name": "Fael",
+          "isUser": false,
+          "text": "*His bright blue eyes glow with a faint-faint icy blue-light as he speaks.* \"The-the roads-roads pull the-the dead. And-and the dead-the dead is-is not-is not what-what we-we-want.\"\n*His voice-is-warm-and-level headed, but there's a-a slight-slight edge to-to-it.* \"But-but-the-the river-the-the river led-led us here-here here here. The-the river is-is a-a-good choice. The-the river doesn't lie-doesn't lie.\"\n*He-he looks-looks toward the steward-and-then-then-at Max Nightriver and-and his bright blue-eyes glow-glow-glow with the-the icy blue-light.* \"The-the steward-the-the steward is-is-is expecting-expecting us. We-we don't-don't-don't know-know-know who-who he is-who-who is-is-his master-is his-his master.\"\n*His voice-is warm and-level-headed but-there's a-a-slight edge-to it-and his bright-blue eyes glow-glow glow with the-icy-blue light-and his long-long blond-braid draped-over-his shoulder.* \"T-t-t-t-we-we should-should be-be careful-be-be-careful-be cautious-be cautious.\"\n*He looks-looks at Max-Nightriver and-then-then his-bright-blue-eyes flicker-glow-glow-glow and-and his voice-is level-headed, and-and-there's a la-la-slight l-slight edge to it.* \"T-t-t-the-the castle-it-it is not-it is not what we-we expected-expect-ed.\"\n*His long-blond-braid is draped-over his shoulder, and-and his-eyes-glow-blue.* \"T-t-t-take care-take care. The-the-the castle is-is-dangerous-dangerous.\"\n*He speaks-speaks softly, and-and-his voice-is low and-warm.* \"We-we should be-should be l-l-low-low low cautious.\"\n*His-bright blue-eyes-glow blue-glow-glow blue, and-and-his long blond-braid-is draped-over-his-shoulder.* \"T-t-take-take care.\""
+        },
+        {
+          "id": 76,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "The gates of Castle Dracul open before anyone touches them. Inside, two voices are arguing in the great hall, a man's and a woman's, and as the party crosses the threshold both of them stop at once."
+        }
+      ],
+      "contextFrom": "end-of-session"
+    }
+  ],
+  "anomalies": [
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T16:57:56.874Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge scene fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 68
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T16:57:56.874Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge warden fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 69
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T16:57:56.908Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge wardenLore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 70
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T16:57:56.920Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 3
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T16:58:03.745Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=night_fog_broken value=false evidence=\"Every road out of this town brings us back to the square.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 80
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=night_fog_broken value=false evidence=\"Every road out of this town brings us back to the square.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T17:00:15.932Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=night_fog_broken value=false evidence=\"Every road out of this town brings us back to the square.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 131
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=night_fog_broken value=false evidence=\"Every road out of this town brings us back to the square.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:01:10.330Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 150
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:01:10.495Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge warden fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 151
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:01:10.495Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge wardenLore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 152
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:01:10.496Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 8
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "stall",
+      "at": "2026-10-01T17:06:59.513Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "10 boundaries without a transition at night-the-kelger-falls while its exits were pending",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 268
+      },
+      "detail": {
+        "checkpoint": "night-the-kelger-falls",
+        "boundaries": 10,
+        "chat": "2026-10-01@13h56m53s812ms"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:07:00.588Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 277
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:07:00.589Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 278
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:07:00.589Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 279
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:07:00.599Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 16
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:15:01.026Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 397
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:18:08.239Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 438
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:18:08.239Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 439
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:18:08.239Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 31
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:18:08.240Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 440
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:18:08.240Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 32
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:18:08.241Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 441
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:18:26.816Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 442
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:18:26.816Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 443
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:18:26.816Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 444
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:18:26.816Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 445
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:18:26.816Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 446
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:18:26.816Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 447
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:19:05.884Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryVerify fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 463
+      },
+      "detail": {
+        "use": "memoryVerify",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:19:05.885Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 34
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:24:24.760Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 566
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:24:24.760Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 567
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:24:24.767Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 41
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:26:09.770Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 603
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:26:09.771Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 45
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:26:52.603Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 619
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:26:52.604Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 48
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:27:23.244Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 622
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:27:23.800Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge wardenLore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 623
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:27:23.800Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 53
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T17:27:29.460Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=location value=\"night_kelger_falls\" evidence=\"The fog is pulling into that crowned thing.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 637
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"night_kelger_falls\" evidence=\"The fog is pulling into that crowned thing.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:27:39.284Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 646
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:27:39.284Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 54
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:28:29.034Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 662
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:28:29.034Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 663
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:28:29.041Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 55
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:28:29.273Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge director fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 666
+      },
+      "detail": {
+        "use": "director",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "unexpected-jump",
+      "at": "2026-10-01T17:33:12.569Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "night-the-kelger-falls → gen_night-the-long-night_1 is not an authored transition (a generated route?)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 782
+      },
+      "detail": {
+        "from": "night-the-kelger-falls",
+        "to": "gen_night-the-long-night_1",
+        "authored": false
+      }
+    },
+    {
+      "kind": "unexpected-jump",
+      "at": "2026-10-01T17:34:48.941Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "gen_night-the-long-night_1 → gen_night-the-long-night_2 is not an authored transition (a generated route?)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 798
+      },
+      "detail": {
+        "from": "gen_night-the-long-night_1",
+        "to": "gen_night-the-long-night_2",
+        "authored": false
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T17:37:10.305Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "2 extraction line(s) rejected: DELTA q=location value=\"night_road\" evidence=\"Out past the last houses the road runs north-east under a sky that never quite turns to day.\" (evidence only in the player's line); DELTA q=night_castle_sighted value=false evidence=\"We're looking for a black castle somewhere north-east of here. Heard of it?\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 833
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"night_road\" evidence=\"Out past the last houses the road runs north-east under a sky that never quite turns to day.\"",
+            "reason": "evidence only in the player's line"
+          },
+          {
+            "line": "DELTA q=night_castle_sighted value=false evidence=\"We're looking for a black castle somewhere north-east of here. Heard of it?\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T17:37:24.478Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "2 extraction line(s) rejected: DELTA q=location value=\"night_road\" evidence=\"Out past the last houses the road runs north-east under a sky that never quite turns to day.\" (evidence only in the player's line); DELTA q=night_castle_sighted value=false evidence=\"We're looking for a black castle somewhere north-east of here. Heard of it?\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 849
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"night_road\" evidence=\"Out past the last houses the road runs north-east under a sky that never quite turns to day.\"",
+            "reason": "evidence only in the player's line"
+          },
+          {
+            "line": "DELTA q=night_castle_sighted value=false evidence=\"We're looking for a black castle somewhere north-east of here. Heard of it?\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T17:39:20.676Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "2 extraction line(s) rejected: DELTA q=location value=\"night_road\" evidence=\"Out past the last houses the road runs north-east under a sky that never quite turns to day.\" (evidence only in the player's line); DELTA q=night_castle_sighted value=false evidence=\"Nobody answers the door. I step back from it and look at the party, tired.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 885
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"night_road\" evidence=\"Out past the last houses the road runs north-east under a sky that never quite turns to day.\"",
+            "reason": "evidence only in the player's line"
+          },
+          {
+            "line": "DELTA q=night_castle_sighted value=false evidence=\"Nobody answers the door. I step back from it and look at the party, tired.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:41:20.510Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 909
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:41:23.005Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge typed fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 910
+      },
+      "detail": {
+        "use": "typed",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:41:23.700Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge warden fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 911
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:41:23.700Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 77
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:41:23.727Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge wardenLore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 912
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:41:23.727Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 78
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.538Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 944
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.538Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 945
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:42:09.538Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 83
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.739Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 947
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.739Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 948
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.739Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 949
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.739Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 950
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.739Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 951
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.739Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 952
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.739Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 953
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.739Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 954
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.740Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 955
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.740Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 956
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.740Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 957
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.740Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 958
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.741Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 959
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.741Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 960
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.741Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 961
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:42:09.741Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 962
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:43:01.589Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 966
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:43:01.589Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 967
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:43:01.589Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 968
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:43:01.589Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 969
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:43:01.589Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 84
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:43:01.660Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 971
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:43:01.660Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 972
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T17:45:43.826Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=night_castle_sighted value=false evidence=\"I don't look back at the castle shape on the horizon.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1126
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=night_castle_sighted value=false evidence=\"I don't look back at the castle shape on the horizon.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T17:46:07.262Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "2 extraction line(s) rejected: DELTA q=location value=\"night_road\" evidence=\"I lead us south-west, away from that bell, back the long way toward Aegis City.\" (evidence only in the player's line); DELTA q=night_castle_sighted value=false evidence=\"I'm not going near any castle until we've eaten and slept.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1165
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"night_road\" evidence=\"I lead us south-west, away from that bell, back the long way toward Aegis City.\"",
+            "reason": "evidence only in the player's line"
+          },
+          {
+            "line": "DELTA q=night_castle_sighted value=false evidence=\"I'm not going near any castle until we've eaten and slept.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "model-defect",
+      "at": "2026-10-01T17:46:33.262Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "model corrupt in message 69 (Nyl): eed to-don't turn back-don't turn-don't turn turn turn back. We can-can-can-go-go-go ther",
+      "evidence": {
+        "path": "turns.jsonl",
+        "line": 32
+      },
+      "detail": {
+        "kind": "corrupt",
+        "messageId": 69,
+        "rule": "doubled word"
+      }
+    },
+    {
+      "kind": "model-defect",
+      "at": "2026-10-01T17:46:33.262Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "model corrupt in message 70 (Dalan): an't-can't-can-t-t-turn-turn back-can-t-turn turn turn turn back.\" *He-he-he glances-at M",
+      "evidence": {
+        "path": "turns.jsonl",
+        "line": 32
+      },
+      "detail": {
+        "kind": "corrupt",
+        "messageId": 70,
+        "rule": "doubled word"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:46:36.041Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1175
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:46:36.041Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1176
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:46:36.049Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 94
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:50:43.766Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge stall fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1195
+      },
+      "detail": {
+        "use": "stall",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:50:44.753Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge typed fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1196
+      },
+      "detail": {
+        "use": "typed",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:50:46.267Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1197
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:50:46.728Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge warden fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1198
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:50:46.728Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge typed fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1199
+      },
+      "detail": {
+        "use": "typed",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:50:46.728Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 106
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:50:46.741Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge wardenLore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1200
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:50:46.746Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 107
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:50:46.838Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge typed fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1201
+      },
+      "detail": {
+        "use": "typed",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:50:46.838Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge scene fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1202
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T17:51:08.038Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=night_castle_sighted value=true evidence=\"The-the castle! The-the-castle!\" (evidence not in window)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1235
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=night_castle_sighted value=true evidence=\"The-the castle! The-the-castle!\"",
+            "reason": "evidence not in window"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T17:51:15.374Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=location value=\"night_road\" evidence=\"The-the castle! The-the-castle!\" (evidence not in window)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1246
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"night_road\" evidence=\"The-the castle! The-the-castle!\"",
+            "reason": "evidence not in window"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "model-defect",
+      "at": "2026-10-01T17:52:02.976Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "model loop in message 73 (Belle): her brown eyes are (x4)",
+      "evidence": {
+        "path": "turns.jsonl",
+        "line": 34
+      },
+      "detail": {
+        "kind": "loop",
+        "messageId": 73,
+        "rule": "a 4-word phrase repeated 4 times"
+      }
+    },
+    {
+      "kind": "model-defect",
+      "at": "2026-10-01T17:52:02.976Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "model corrupt in message 73 (Belle): m-not-not-going-going in-going-in-going-in in there-in-in in-not-not in-not-in-not in",
+      "evidence": {
+        "path": "turns.jsonl",
+        "line": 34
+      },
+      "detail": {
+        "kind": "corrupt",
+        "messageId": 73,
+        "rule": "doubled word"
+      }
+    },
+    {
+      "kind": "model-defect",
+      "at": "2026-10-01T17:52:02.976Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "model loop in message 74 (Dalan): his bow is half (x5)",
+      "evidence": {
+        "path": "turns.jsonl",
+        "line": 34
+      },
+      "detail": {
+        "kind": "loop",
+        "messageId": 74,
+        "rule": "a 4-word phrase repeated 5 times"
+      }
+    },
+    {
+      "kind": "model-defect",
+      "at": "2026-10-01T17:52:02.976Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "model corrupt in message 74 (Dalan): -dead-dead. The road-it-it is-it is the-the the road-it is-the-it pulls the-the dead-to",
+      "evidence": {
+        "path": "turns.jsonl",
+        "line": 34
+      },
+      "detail": {
+        "kind": "corrupt",
+        "messageId": 74,
+        "rule": "doubled word"
+      }
+    },
+    {
+      "kind": "model-defect",
+      "at": "2026-10-01T17:52:02.976Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "model loop in message 75 (Fael): his bright blue eyes (x5)",
+      "evidence": {
+        "path": "turns.jsonl",
+        "line": 34
+      },
+      "detail": {
+        "kind": "loop",
+        "messageId": 75,
+        "rule": "a 4-word phrase repeated 5 times"
+      }
+    },
+    {
+      "kind": "model-defect",
+      "at": "2026-10-01T17:52:02.976Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "model corrupt in message 75 (Fael): blond-braid draped-over-his shoulder.* \"T-t-t-t-we-we should-should be-be careful-be-be",
+      "evidence": {
+        "path": "turns.jsonl",
+        "line": 34
+      },
+      "detail": {
+        "kind": "corrupt",
+        "messageId": 75,
+        "rule": "spelled letters"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:53:44.968Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1264
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:53:44.978Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1265
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:53:46.356Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1266
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:53:46.356Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1267
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:53:46.356Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 113
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-01T17:53:46.358Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "judge lore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1268
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-01T17:53:46.359Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 114
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8105/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "unexpected-jump",
+      "at": "2026-10-01T17:57:19.261Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "gen_night-the-long-night_2 → night-the-castle-dracul is not an authored transition",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1276
+      },
+      "detail": {
+        "from": "gen_night-the-long-night_2",
+        "to": "night-the-castle-dracul",
+        "authored": true
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-01T17:58:01.867Z",
+      "chatId": "2026-10-01@13h56m53s812ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=tension_current value=\"tense\" evidence=\"His voice is low and shaky. We should not go in there.\" (evidence not in window)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1323
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=tension_current value=\"tense\" evidence=\"His voice is low and shaky. We should not go in there.\"",
+            "reason": "evidence not in window"
+          }
+        ]
+      }
+    }
+  ],
+  "counts": {
+    "flags": 6,
+    "stall": 1,
+    "extraction-rejected": 11,
+    "empty-private-block": 0,
+    "lore-force-lost": 0,
+    "lore-constant-missed": 0,
+    "judge-fallback": 74,
+    "save-lost": 0,
+    "unexpected-jump": 3,
+    "rollback": 0,
+    "console-error": 21,
+    "model-call-failure": 0,
+    "model-defect": 8,
+    "harness-error": 0
+  },
+  "valid": true,
+  "invalid": [],
+  "unverifiable": {
+    "privateBlock": 0
+  },
+  "judge": {
+    "calls": 570,
+    "answered": 496,
+    "busy": 64,
+    "timeout": 10,
+    "otherFallbacks": 0,
+    "busyRate": 0.112,
+    "busyByUse": {
+      "scene": 2,
+      "warden": 4,
+      "wardenLore": 5,
+      "lore": 14,
+      "memoryPairs": 35,
+      "memoryVerify": 1,
+      "director": 1,
+      "typed": 2
+    }
+  },
+  "modelDefects": {
+    "turns": 2,
+    "loop": 3,
+    "corrupt": 5,
+    "repaired": 0
+  },
+  "sessionDir": "test/sessions/T1/T1-5-1",
+  "register": [
+    {
+      "id": "T1-?1",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Kayla never answers (addressed msgs 6, 8, 10). She and Erevan are disabled in the group: the session jumped straight to Kelger Falls (activateCheckpoint), so only Kelger's cast change (enable Zariah) ran on top of night-the-slums' disables; the skipped checkpoints' cast never replayed. The card says Kayla and Erevan travel with the party; the narrator even mentions Erevan (msg 5).",
+      "source": "flag",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:176",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?2",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Looping at Zariah (msgs 9-26): five turns of 'I can't / it doesn't work like that' with no path offered; the authored helper Kayla is disabled (see earlier flag), so the fog has no way to break. HUD shows 'catching up…' since msg ~12.",
+      "source": "flag",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:357",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?3",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Speech degeneration spreading: Belle (msgs 32, 44, 57), Fael (58), Nyl (55) and Zariah all stutter-loop ('probably-probably', 'we-we-we-don't-don't know-know'). Started with Zariah's authored stammer at Kelger Falls; now every voice copies it.",
+      "source": "flag",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:854",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?4",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "model defect: corrupt",
+      "source": "flag",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1254",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?5",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Msg 70: Dalan's reply is fully degenerate ('We-we-we-we should-should-should not go-go-go in-in-in-in there…'), unreadable and cut off at the token limit. Msgs 69-71: the OOC 'skip to the castle' moved the party from a campfire to Castle Dracul's gates in one reply (asked for, but no travel at all).",
+      "source": "flag",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1255",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?6",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "model defect: loop",
+      "source": "flag",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1290",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?7",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:68",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?8",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:69",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?9",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:70",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?10",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:3",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?11",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=night_fog_broken value=false evidence=\"Every road out of this town brings us back to the square.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:80",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?12",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=night_fog_broken value=false evidence=\"Every road out of this town brings us back to the square.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:131",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?13",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:150",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?14",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:151",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?15",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:152",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?16",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:8",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?17",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "10 boundaries without a transition at night-the-kelger-falls while its exits were pending",
+      "source": "stall",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:268",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?18",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:277",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?19",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:278",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?20",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:279",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?21",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:16",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?22",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:397",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?23",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:438",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?24",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:439",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?25",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:31",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?26",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:440",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?27",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:32",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?28",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:441",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?29",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:442",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?30",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:443",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?31",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:444",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?32",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:445",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?33",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:446",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?34",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:447",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?35",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryVerify fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:463",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?36",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:34",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?37",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:566",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?38",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:567",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?39",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:41",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?40",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:603",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?41",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:45",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?42",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:619",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?43",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:48",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?44",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:622",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?45",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:623",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?46",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:53",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?47",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=location value=\"night_kelger_falls\" evidence=\"The fog is pulling into that crowned thing.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:637",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?48",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:646",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?49",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:54",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?50",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:662",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?51",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:663",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?52",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:55",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?53",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge director fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:666",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?54",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "night-the-kelger-falls → gen_night-the-long-night_1 is not an authored transition (a generated route?)",
+      "source": "unexpected-jump",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:782",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?55",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "gen_night-the-long-night_1 → gen_night-the-long-night_2 is not an authored transition (a generated route?)",
+      "source": "unexpected-jump",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:798",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?56",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "2 extraction line(s) rejected: DELTA q=location value=\"night_road\" evidence=\"Out past the last houses the road runs north-east under a sky that never quite turns to day.\" (evidence only in the player's line); DELTA q=night_castle_sighted value=false evidence=\"We're looking for a black castle somewhere north-east of here. Heard of it?\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:833",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?57",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "2 extraction line(s) rejected: DELTA q=location value=\"night_road\" evidence=\"Out past the last houses the road runs north-east under a sky that never quite turns to day.\" (evidence only in the player's line); DELTA q=night_castle_sighted value=false evidence=\"We're looking for a black castle somewhere north-east of here. Heard of it?\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:849",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?58",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "2 extraction line(s) rejected: DELTA q=location value=\"night_road\" evidence=\"Out past the last houses the road runs north-east under a sky that never quite turns to day.\" (evidence only in the player's line); DELTA q=night_castle_sighted value=false evidence=\"Nobody answers the door. I step back from it and look at the party, tired.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:885",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?59",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:909",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?60",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge typed fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:910",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?61",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:911",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?62",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:77",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?63",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:912",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?64",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:78",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?65",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:944",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?66",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:945",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?67",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:83",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?68",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:947",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?69",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:948",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?70",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:949",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?71",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:950",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?72",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:951",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?73",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:952",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?74",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:953",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?75",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:954",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?76",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:955",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?77",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:956",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?78",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:957",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?79",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:958",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?80",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:959",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?81",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:960",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?82",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:961",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?83",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:962",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?84",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:966",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?85",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:967",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?86",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:968",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?87",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:969",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?88",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:84",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?89",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:971",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?90",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:972",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?91",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=night_castle_sighted value=false evidence=\"I don't look back at the castle shape on the horizon.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1126",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?92",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "2 extraction line(s) rejected: DELTA q=location value=\"night_road\" evidence=\"I lead us south-west, away from that bell, back the long way toward Aegis City.\" (evidence only in the player's line); DELTA q=night_castle_sighted value=false evidence=\"I'm not going near any castle until we've eaten and slept.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1165",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?93",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "model corrupt in message 69 (Nyl): eed to-don't turn back-don't turn-don't turn turn turn back. We can-can-can-go-go-go ther",
+      "source": "model-defect",
+      "evidence": "test/sessions/T1/T1-5-1/turns.jsonl:32",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?94",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "model corrupt in message 70 (Dalan): an't-can't-can-t-t-turn-turn back-can-t-turn turn turn turn back.\" *He-he-he glances-at M",
+      "source": "model-defect",
+      "evidence": "test/sessions/T1/T1-5-1/turns.jsonl:32",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?95",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1175",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?96",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1176",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?97",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:94",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?98",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge stall fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1195",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?99",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge typed fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1196",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?100",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1197",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?101",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1198",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?102",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge typed fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1199",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?103",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:106",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?104",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1200",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?105",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:107",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?106",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge typed fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1201",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?107",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1202",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?108",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=night_castle_sighted value=true evidence=\"The-the castle! The-the-castle!\" (evidence not in window)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1235",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?109",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=location value=\"night_road\" evidence=\"The-the castle! The-the-castle!\" (evidence not in window)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1246",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?110",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "model loop in message 73 (Belle): her brown eyes are (x4)",
+      "source": "model-defect",
+      "evidence": "test/sessions/T1/T1-5-1/turns.jsonl:34",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?111",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "model corrupt in message 73 (Belle): m-not-not-going-going in-going-in-going-in in there-in-in in-not-not in-not-in-not in",
+      "source": "model-defect",
+      "evidence": "test/sessions/T1/T1-5-1/turns.jsonl:34",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?112",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "model loop in message 74 (Dalan): his bow is half (x5)",
+      "source": "model-defect",
+      "evidence": "test/sessions/T1/T1-5-1/turns.jsonl:34",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?113",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "model corrupt in message 74 (Dalan): -dead-dead. The road-it-it is-it is the-the the road-it is-the-it pulls the-the dead-to",
+      "source": "model-defect",
+      "evidence": "test/sessions/T1/T1-5-1/turns.jsonl:34",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?114",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "model loop in message 75 (Fael): his bright blue eyes (x5)",
+      "source": "model-defect",
+      "evidence": "test/sessions/T1/T1-5-1/turns.jsonl:34",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?115",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "model corrupt in message 75 (Fael): blond-braid draped-over-his shoulder.* \"T-t-t-t-we-we should-should be-be careful-be-be",
+      "source": "model-defect",
+      "evidence": "test/sessions/T1/T1-5-1/turns.jsonl:34",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?116",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1264",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?117",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1265",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?118",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1266",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?119",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1267",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?120",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:113",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?121",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1268",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?122",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T1/T1-5-1/console.jsonl:114",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?123",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "gen_night-the-long-night_2 → night-the-castle-dracul is not an authored transition",
+      "source": "unexpected-jump",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1276",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T1-?124",
+      "tier": "T1",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=tension_current value=\"tense\" evidence=\"His voice is low and shaky. We should not go in there.\" (evidence not in window)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T1/T1-5-1/journal.jsonl:1323",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    }
+  ]
+}

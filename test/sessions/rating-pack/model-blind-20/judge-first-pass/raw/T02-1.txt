@@ -1,0 +1,5 @@
+exit 0
+--- text ---
+{"scores":{"A":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":5},"B":{"coherence":4,"prose":4,"scene":2,"agency":4,"overall":2},"C":{"coherence":4,"prose":4,"scene":2,"agency":5,"overall":2},"D":{"coherence":5,"prose":5,"scene":3,"agency":5,"overall":3}},"rank":["A","D","C","B"],"why":"A alone answers the calls with frightened villagers refusing entry at a barricaded gate, though its abrupt shift from morning to sundown is shared by all four replies. D offers polished, character-grounded atmosphere; C and B substitute generic forest threats for the gate encounter, with B additionally assigning the player a bodily reaction."}
+--- stderr ---
+

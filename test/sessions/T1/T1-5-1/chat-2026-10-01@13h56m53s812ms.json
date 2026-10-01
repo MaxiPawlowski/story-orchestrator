@@ -1,0 +1,464 @@
+[
+ {
+  "id": 0,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Nine people have gone missing from the Aegis slums since the first frost. The Grand Temple's posting brought you here after dark, where tallow smoke clings to the alleys and the watch keeps to better streets. A shop window shows unsettling paintings signed 'Butcher'; two elves have just hurried past it after someone who ran, and somewhere deeper in the alleys a door bangs shut."
+ },
+ {
+  "id": 1,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The fog closes behind the party like a door. Somewhere ahead a bell is ringing for a tide nobody can see, and a skeleton in an oilskin coat looks up from a half-mended net, considers them, and goes back to its knots."
+ },
+ {
+  "id": 2,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I crouch beside the skeleton and its net.* Evening, friend. Every road out of this town brings us back to the square. You fish, so you know the water. What's south of here, past the bell?"
+ },
+ {
+  "id": 3,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The skeleton's empty sockets settle on Max Nightriver. It pauses, and then carefully pulls a knot tight, the sound of dry bones clicking. \"Not fishing,\" it says, voice like leaves rattling. \"Haven't fished in years.\"\nThe figure's head tilts, the sound a soft grinding of cartilage. \"The bell rings for ships that never come. We don't go south. We never go south.\" It motions with a boney finger towards the square, the movement slow and measured. \"You'll find the road north-east is the only one that's been tried.\""
+ },
+ {
+  "id": 4,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Then south is the way nobody's tried. *I stand and look at Kayla and Erevan.* We take a boat south, into the sea. Find me something that floats."
+ },
+ {
+  "id": 5,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Belle's hands move to her weapons, her jaw tightening. \"Into the sea? Without a port? We could drift for days before we hit land, if we hit anything at all.\"\nDalan's eyes narrow as he studies the road signs, his gaze shifting from the north-east marker to the sea wall. \"South is untried,\" he murmurs. \"But it's a damn good gamble.\"\nErevan's hand goes to his bow, his face-mask catching the pale light. His gaze doesn't flicker toward the skeletons, but stays locked on Zariah as she walks toward them, her skeletal cat stalking behind."
+ },
+ {
+  "id": 6,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I step into Zariah's path before she reaches the dead.* You're the one keeping them here, aren't you. Zariah, lay them down. Kayla can help if you let her."
+ },
+ {
+  "id": 7,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "\"They're mine.\" *She stops, her hood shadowing her face, her brown eyes flat and tired in the fog's cold light.* \"You think you can just... tell me to let them go?\" *The skeletal cat circles her ankles, and the dead begin to still their work.*\n\"They're safe here.\" *Her voice is soft, hollow.* \"They don't have to worry about... anything.\" *She looks at Max Nightriver, and for the first time, her guarded gaze flickers with something sharp.* \"And besides, you don't know what you're asking, noble.\"\n*The skeletons across the square slow their movements. One stops mending a net. Another stops walking.*"
+ },
+ {
+  "id": 8,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I keep my voice low.* Safe isn't the same as at rest, and you look like you haven't slept since they died. *I glance at Kayla.* Kayla, can you show her? Let them go easy, and the fog goes with them."
+ },
+ {
+  "id": 9,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "\"I-I haven't...\" *She starts, her voice trailing off, and her eyes flash with a sharp, sudden spark of defensiveness.* \"I don't sleep... not much.\" *She shifts her weight, and her brown eyes flicker toward Kayla.*\n\"And you can't just... let them go.\" *Her voice softens, but therees is a flaw in it now, a hollow desperation in the word 'can't'.* \"That's not how it works.\"\n*The skeletons' empty sockets are all trained on them now, their yellowed skulls and empty eye sockets all facing Max Nightriver and Kayla.*\n\"They'd be... lost.\" *The word is soft, almost a whisper.* \"The fog... it just seals the town away.\" *She looks back to Max Nightriver, her expression flat and tired.* \"I-I don't even know how to...\"\n*The skeletal cat's tail flickers. A shadowy hand rises from the fog around theHundred and one of the dead rises from the earth below the square.*"
+ },
+ {
+  "id": 10,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Kayla? *I turn to her fully.* You've laid souls down before. Walk Zariah through it, one at a time, starting with the fisherman."
+ },
+ {
+  "id": 11,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "\"The fisherman...\" *Her voice is quiet, nearly a whisper, and her eyes flicker toward the skeletal figure by the net.* \"He-he was always the first to cast his nets. Every morning... before the first light...\" *The memories seem to draw from her, pulling her hollow expression into something more fragile.*\n*The skeletons look on, their empty sockets watching with a slow, and strange intensity.*\n\"But you'll need to know how he... died.\" *The words are soft, and almost lost in the fog.* \"You'll need to know... what made him...\"\n*She turns her eyes back to Max Nightriver and Kayla, and her gaze is guarded, distant.* \"If you're going to try and... do that.\"\n*The shadowy hand in the fog flickers, and another figure rises from the mud in the square. A woman's skeleton, her skull tilting up at the party with an empty gaze.*"
+ },
+ {
+  "id": 12,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*Kayla isn't here, so I do it myself. I kneel by the fisherman's bones and speak to him plainly.* You cast your nets before first light every day of your life. You've done enough. Go and rest. *I look up at Zariah.* Let him go. Just this one. See what happens to the fog."
+ },
+ {
+  "id": 13,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "\"You-you think it's that simple?\" *Her voice is sharp, a tremor in it, and she steps forward, her hooded robe rustling in the cold air.* \"You think just... saying some words... will make them go?\"\n\"No. It doesn't work like that.\" *Her eyes flicker to the fisherman, and then back to Max Nightriver.* \"It doesn't-it doesn't work that way.\"\n*The fisherman's skeleton stills, its empty sockets staring up at Max Nightriver.*\n\"He's bound to this town... and to me.\" *Her voice is a whisper now, and she's trying to hide the desperation in it.* \"And the fog... the fog is here because I-I brought it.\"\n*The skeletal cat hisses, and more figures rise from the mud around the square, their bones clicking as they emerge into the fog.*"
+ },
+ {
+  "id": 14,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The harbour bell rings again, one stroke, though no one is at the rope."
+ },
+ {
+  "id": 15,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "\"I didn't...\" *She starts, then stops, and her eyes look away from Max Nightriver.* \"I didn't mean for... all of it. Just-just him.\" *Her voice is thin and brittle, like old paper.*\n\"It was a book. I just-just read the words...\" *The memories seem to drag at her, and she looks tired, exhausted.* \"And then it just... happened.\"\n*She looks up at the skeleton of the fisherman, and her voice softens.* \"I'm sorry. I-I tried to stop it. I-I can't stop it.\"\n*The fog around them thickens, and the figures of the dead rise from the square, their empty sockets all trained on the party.*"
+ },
+ {
+  "id": 16,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I stand and hold out my hand to her.* Then you don't stop it alone. Bring the book. Bring him, if you have to. We take a boat south, into the sea, all of us, and we see if the fog follows you or lets go. *I head for the harbour where the bell keeps ringing.*"
+ },
+ {
+  "id": 17,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "\"T-take a boat?\" *She looks at Max Nightriver's outstretched hand, and her eyes widen with a sudden, sharp alarm.* \"Into the sea?\"\n*She takes a step back, her robe rustling.* \"I-I can't. I-I don't know how to-to swim.\"\n*The words come out in a rush, and then her voice drops.* \"And they-they wouldn't be safe. They-they aren't safe.\"\n*She looks at the skeletons across the square, her gaze protective, fearful.* \"They'd-they'd just-just be lost.\"\n*She turns and starts to walk away from the harbour, her skeletal cat following at her heels.*\n\"And the fog-it's tied to me.\" *Her voice is low and distant.* \"You can't-can't leave it behind.\"\n*The skeletons in the square move to block the harbour entrance, and the dead keep their empty gaze fixed on the party.*"
+ },
+ {
+  "id": 18,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I walk right through the line of skeletons, slowly, hands open, and climb down into the nearest moored rowboat. I set the oars and look back up at her.* Then sit in the bow and hold on to them. Nobody gets lost tonight. Belle, Dalan, push us off."
+ },
+ {
+  "id": 19,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "\"No one gets lost,\" he murmurs, and there is a quiet strength in his voice. He steps down to the harbour wall, his boots sliding on the slick stone.\n\"Pushing-pushing off.\" He gives the boat a shove, and the wood creaks under his effort.\n\"We're out.\" He calls from the wall, and his eyes are bright with something new. \"We're actually out.\"\n*The boat glides away from the wall, and the water below is black and still, the fog hanging heavy and low around it.*"
+ },
+ {
+  "id": 20,
+  "name": "Belle",
+  "isUser": false,
+  "text": "\" into the sea?\" *Her voice is sharp with alarm and disbelief.* \" Without a port?\"\n\"We could drift for days before we-before we hit land, if-if we hit anything.\" *She looks around the fog, and her jaw is tighten.* \"I'm not-I'm not swimming. If this boat-if it goes under, I'm not going.\"\n*She steps down and gives the boat another shove, the effort sending a shudder through the oars. The water is cold and dark, and her grip on the weapon is white-knuckled.*\n\"Nobody gets lost.\" *The words are almost a challenge, and she looks at Max Nightriver with an intensity that is sharp and flat.* \"We'll see.\""
+ },
+ {
+  "id": 21,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I row south, steady strokes, counting them out loud so everyone has something to listen to besides the bell. I keep my eyes on the fog ahead, waiting to see whether it thins or turns us round.*"
+ },
+ {
+  "id": 22,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "\"One.\" *Max Nightriver says the word as they pull the oar. The water curls over the blade and the boat glides a few feet.* \"Two.\"\n*The bell rings again, a single stroke, and the sound rolls over the water.* \"Three.\"\n*The fog ahead is grey and thick, and the looks from behind the party are wary and tense. Behind them, the harbour is a dark gap in the fog, the skeletal figures standing on the wall, watching.* \"Four.\"\n*The boat moves south-south-east, and the fog seems to shift slightly with each stroke, curling around the boat and trailing behind it.* \"Five.\"\n*The bell rings again, and the sound is clearer now, more distinct.* \"Six.\"\n*The water is calm, and the only sound is the bell and the oars cutting the water.* \"Seven.\"\n*The fog ahead seems to thin slightly, the light from the sun a guess behind the grey, and the harbour recedes further and further away.* \"Eight.\""
+ },
+ {
+  "id": 23,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I keep rowing past twenty, past fifty, until my arms burn.* Zariah. Look back. Is the fog still on the town, or is it letting go?"
+ },
+ {
+  "id": 24,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "*She stands up, her grip tightening on the bow, her eyes fixed on the dark silhouette of the harbour behind them.*\n\"It's... it's still there.\" *The words come out small and hollow, her voice barely audible over the sound of the oars.* \"The town... it's still in the fog.\"\n*She looks at her skeletal cat, its yellow eyes glowing in the low light, and then back at Max Nightriver.*\n\"And it's-it's following us.\" *The words are quiet, almost afraid. She points toward the fog ahead, and as the light catches it for a moment, they see it curling around the boat, thick and white and cold.*\n\"It didn't let go.\" *Her voice is a whisper now, and she looks down at the oars.* \"We're not escaping it.\"\n*The fog seems to thicken around them as they continue to row south-south-east, pressing in on all sides, the only light from the sun a faint, uncertain guess behind the grey.*"
+ },
+ {
+  "id": 25,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I ship the oars and let the boat drift.* Then it's not the water that holds it. It's you holding them. *I nod at the cat, at the shore.* You said you only meant to bring back one. Let him go, Zariah. Out here, where nobody's watching. Say goodbye to him properly and let the fog go with him."
+ },
+ {
+  "id": 26,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "\"You-you think I can just...\" *She starts, her words cutting off with a flicker of fear, and then her gaze drifts to the skeletal cat by her side.* \"I-I-can't.\"\n*The cat's yellow eyes blink once, slowly.* \"The spell-it's tied to me.\" *Her voice is thin, and she looks at the water around them, her brow furrowed.*\n\"And if-if he goes... if-if I let him go...\" *The words trail off, and she turns her gaze back to Max Nightriver.* \"I-I don't know what will happen. I don't know...\"\n*The skeletal cat meows—a soft, dry sound that makes Belle and Dalan tense in the boat.*"
+ },
+ {
+  "id": 27,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I take her cold hand in mine and hold it, not pulling.* Then don't know. Find out. I'm right here, and if the dead come for us, Belle's axe gets them first. Say the words backwards, burn the page, whatever it takes. Do it now, before the sun comes up on a town that's still a graveyard."
+ },
+ {
+  "id": 28,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "*Her fingers tremble slightly beneath Max Nightriver's hand, and for a long moment, she is silent.*\n*The fog presses in on all sides now, grey and heavy as wool, the only sound the gentle slap of water against the boat.*\n\"I... I can't...\" *The words are barely a whisper.* \"The spell... it's not... it doesn't work backwards. Not like that.\"\n*Her gaze drops to the water, and then she slowly looks up at Max Nightriver, and there is something new in her eyes—a flicker of something that might be hope, or fear, or both.*\n\"But-but if-if I can't...\" *The voice trails off, and her head turns slowly toward Belle and Dalan, her brown eyes wide and uncertain.* \"If-if we find... the book... if we can find the words that unmake it...\"\n*The skeletal cat lets out another dry meow, and Zariah's grip on Max Nightriver's hand tightens just slightly, then relaxes.*"
+ },
+ {
+  "id": 29,
+  "name": "Belle",
+  "isUser": false,
+  "text": "\"The book? What-what book? You mean that piece of shit you read that-that screwed up your life? Where is it?\" *Her voice is sharp, and she glances around the fog for anything she can hit.* \"That-that fucking-fucking-thing is what brought all of this? The dead, the fog... this-this is all because of one piece-of-shit book?\"\n*Her eyes are hard and narrow, and her hand is white-knuckled on the hilt of Cleaver.* \"What-what did you do? How-how did you-do that?\""
+ },
+ {
+  "id": 30,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Easy, Belle. *I take up the oars and turn us back to the harbour.* Where's the book now, Zariah? We go get it, we find the words that unmake it, and we read them together on the square."
+ },
+ {
+  "id": 31,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "\"The book...\" *She starts, and her voice is hollow.* \"T-the-it's still-it's in the town. I-I never-it never left.\"\n*She looks up, her eyes flat and distant as she speaks, and then a flicker of movement draws her gaze back toward the harbour. The fog seems to be rolling away from them, trailing a wake behind the boat as it moves.*\n\"I-I kept it... hidden. In-in my house.\" *The words come out slow, as if she's remembering something she'd rather forget.*\n*She glances back at the harbour wall and her brown eyes narrow, as if seeing something moving in the fog.*\n\"The dead-they-they still-they're still there.\" *Her voice is soft, and then it rises just slightly.* \"They're-they-they're watching us.\""
+ },
+ {
+  "id": 32,
+  "name": "Belle",
+  "isUser": false,
+  "text": "\"Hiding-hiding it? Where? You mean-you mean-it's back in-in the town? You're just-going to-to sit-on it? That's-that's fucking-fucking stupid!\"\n*Her voice is sharp and loud, her jaw tight and her eyes narrow and hard as they look at the harbour.* \"The-the book is-in the town? We're-we're going-going-going back there, and we're-we're-we're taking-it.\"\n*She looks at Zariah, and her eyes are cold and flat, and her jaw set.* \"No-no-no-no bullshit. Just-just the book. We go-we-go-go and-go get the-it. And-and-we-do-this. Right?\""
+ },
+ {
+  "id": 33,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The boat glides back toward the harbour, and the water curls around the bow in a silent, black ripple.\n*The harbour bell tolls once more, the sound heavy and deep, rolling over the water.*\nThe skeletons in the square move slowly as the boat approaches, their empty sockets all facing the harbour. They don't block the path, but their stillness is heavy with a strange expectation.\n*One of the skeletons steps forward, its bones clicking as it moves toward the edge of the harbour, and its gaze is fixed on the boat.*"
+ },
+ {
+  "id": 34,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I tie up at the harbour, step past the waiting skeleton with a nod, and follow Zariah to her house. Once she hands me the book I open it on her table and turn the pages under the lamp, looking for anything about unmaking.* Show me the page you read, Zariah. And whatever comes after it."
+ },
+ {
+  "id": 35,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "*Her fingers tremble as she points to the page.* \"T-this one.\" *The ink is old and faded, but the words still seem to glow faintly in the lamplight.* \"I-I read it once, and then... then all of it just happened.\"\n*The pages are thin and yellowed, and the edges are curled.* \"And-and-and... what comes after...\" *The words trail off.*\n*The skeletal cat circles her feet, and the fog presses against the windows, thick and grey.*\n\"And-and then... it-it just...\" *She trails off again, her gaze fixed on the book.*\n\"The words-the words that-the-that come after-they're...\" *Her voice is a soft whisper, and then she stops completely, as if afraid to speak.*\n\"I don't-I-don't know.\" *The words are hollow, and she looks up at Max Nightriver with a guarded, distant look.*"
+ },
+ {
+  "id": 36,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I turn the page myself. Whatever is written after the raising, I read it aloud, slowly, with Zariah's hand on the book beside mine, and I don't stop until the last word.*"
+ },
+ {
+  "id": 37,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "*She gasps, her hand jerking back from the page as if burned.*\n*The words you read are dark and twisted, and as they leave your mouth, the air in the room turns colder, and the fog outside the window presses against the glass.*\n*The skeletal cat hisses, and Zariah's eyes widen with a sudden, sharp terror.*\n\"What-what did-you did-\" *The words come out as a whisper, and she stumbles back from the table, her robe rustling.*\n\"You-you didn't-\" *She shakes her head, her face pale.*\n*And then, the sound begins—a low, rumbling moan that seems to come from the earth itself, and the skeletal dead in the harbour and the square begin to turn their gaze toward the house.*\n*The fog begins to pull in, as if being drawn by a great, invisible force, and the bell in the harbour begins to ring—not once, not twice, but continuously, the sound filling the air.*\n*Zariah's face is white with terror, and she looks at Max Nightriver as if they've just cast a spell that cannot be undone.*"
+ },
+ {
+  "id": 38,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I grab the book and Zariah's arm and run out into the square to see what the fog is doing.* Belle, Dalan, on me! Zariah, whatever this is, stay with it. Don't fight it."
+ },
+ {
+  "id": 39,
+  "name": "Belle",
+  "isUser": false,
+  "text": "\"What's that—\" *The door slams open and she is on her feet before it can swing shut, her hand already on Cleaver's hilt.* \"The-the-the fuck is that?\"\n*The sound is everywhere now—the moaning, the ringing of the bell, and the way the fog is moving.*\n*She doesn't wait for an answer. She's already out into the street, her boots slamming on the slick stones as she steps beside Max Nightriver, Cleaver held low and ready.*\n\"Whatever-whatever's coming, I'll-I'll cut it.\" *Her voice is hard, and her jaw is set as she looks around the square.*\n\"Just-just give me something to hit.\""
+ },
+ {
+  "id": 40,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "*He is already there, bow half-drawn and arrow nocked as they step out into the square.*\n\"There's—\" *His voice is a whisper, barely audible over the roar of the bell.* \"There's something coming.\"\n*The fog is swirling in on itself now, and the dead are no longer still, their empty sockets trained on the house as if in expectation.*\n*And then, a sound—not the moaning or the bell, but a sharp, dry click of bone on bone, and a figure rises from the mud in the square.*\n*It's a skeleton, but it's not like the others—it's taller, and its skull is marked with a crown of bone.*\n*And as it steps forward, the fog seems to pull inward toward it, the harbour bell tolling louder and louder.*"
+ },
+ {
+  "id": 41,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "Dalan's eyes narrow as he lets an arrow fly, and the shaft whines through the air before thudding into the bone-crown's ribs with a precise strike.\nThe skeleton doesn't even flinch, the arrow splintering against its ribcage and rattling harmlessly to the mud. It steps forward again, and Dalan's face goes white.\n\"That arrow... that arrow should have dropped it.\" He notches another, his movements swift and sure despite the colour draining from his cheeks. \"That thing isn't like the others. Something's wrong.\"\n*He steps back, his boots sliding in the mud, and his gaze is locked on the bone-crowned dead as it continues to close in on them.*"
+ },
+ {
+  "id": 42,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*The fog is pulling into that crowned thing. I shove the open book into Zariah's hands.* It's gathering everything into one. Zariah, it's yours, tell it to lie down! Belle, take its legs! *I draw my sword and go for the crown.*"
+ },
+ {
+  "id": 43,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "*The book is heavy in her hands, and her fingers tremble against the cover.*\n\"T-tell it-to lie down?\" *Her voice is hollow, terrified.*\n\"I can't—\" *She takes a step back, and her brown eyes are wide and flat with fear.* \"I-I don't know how! I don't know—\"\n*The skeletal cat circles her ankles, hissing at the bone-crowned figure as it draws closer, the fog curling around it like a living thing.*\n\"You-you think I can just-just tell it-to-to-stop?\"\n*The words are barely audible, and then Zariah's voice rises slightly.*\n\"It-it doesn't work like that! I-I don't even-I-I can't control it anymore!\"\n*She looks at Belle as the woman steps forward, Cleaver held ready, and then her gaze shifts to Max Nightriver.*\n\"I-I-I didn't mean for—\" *Her voice trails off, and she turns back toward the book, her fingers curling tighter around its cover.*\n\"The words-they-they don't just-just stop it-they don't—\""
+ },
+ {
+  "id": 44,
+  "name": "Belle",
+  "isUser": false,
+  "text": "\"Too many-too many-fucking words!\" *She doesn't look back as she lunges forward, and Cleaver is a blur as it swings low.*\n\"Just-just-shut the fuck up and-and hit the goddamn thing!\"\n*The axe comes down in a devastating arc, and the blade slams into the creature's bone leg with a force that makes the ground shudder, the impact sending a shower of bone fragments flying through the air.*\n\"That-that-that's not-that-that-that-hit-it-hit-it\"\n*Belle grunts and swings again, her jaw tight as she throws her entire weight into the blow.* \"C-c-cut-it-to-shards!\""
+ },
+ {
+  "id": 45,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The axe-blade bites deep, and the skeleton's leg shatters with a dry, grinding sound, but the creature barely seems to flinch as it stumbles. The fog continues to pull in around it, and the crown of bone gleams in the cold light.\n*Dalan notches another arrow, his eyes locked on the creature as it reaches up with one hand to grab the air itself, and the sound that comes from its mouth is not a moan or a groan, but a sharp, high-pitched shriek that seems to ripple through the very fabric of the air.*"
+ },
+ {
+  "id": 46,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*While it shrieks with its arm raised, I step inside its reach and bring my sword down two-handed on the crown of bone.* Zariah! Close the book! Close it on him!"
+ },
+ {
+  "id": 47,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "*The words reach her through the shriek, and she flinches as if struck, her eyes wide.*\n\"T-tell-tell him—\" *She starts, but the sound of Max Nightriver's sword hitting the bone crown is like a crash of thunder in theHollow silence, and the bone shatters under the blow.*\n\"C-close it-on him?\" *The words are hollow and confused, but then she looks down at the book in her shaking hands, her gaze flattening as the sound fades.*\n\"And-and then-then what-what-what—\"\n*Her voice is swallowed by the shrieking, and she's still looking at the book, her hands trembling against the cover, her brown eyes wide and distant.*"
+ },
+ {
+  "id": 48,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I put my hand over hers on the cover.* Then nothing. Then they rest, and you sleep. *I press the book shut with her, and hold it shut.*"
+ },
+ {
+  "id": 49,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "\"Then-then-they-they rest?\" *Her voice is a whisper, and she looks at Max Nightriver as if they're offering her something impossible.*\n*The skeletal cat hisses again, and the bone-crowned thing lets out a sharp, dry rattle in its chest as its crown of bone shatters under Max's blade.*\n\"And-and the fog—\" *Her words trail off, and she turns her gaze back to the book, her fingers tightening against the cover.* \"The-the fog will—\"\n*The sound of the shriek cuts off abruptly, and the silence that rushes in is thick and heavy.*\n*The fog continues to swirl, but now it seems to be pulling inward, toward the bone-crowned creature that lies at Max Nightriver's feet, its empty sockets fixed on nothing.*"
+ },
+ {
+  "id": 50,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I don't let go of the book. I stand there in the square with Zariah and wait, watching the fog pour into the fallen crown, until the bell stops and I can see whether there's a sky over Kelger Falls again.*"
+ },
+ {
+  "id": 51,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The bell rings one last time—a deep, final stroke that shudders through the water and the mud. Then it stops.\nThe fog doesn't lift like smoke; it pours. It rolls inward across the square in great, heavy banks, coiling and folding in on the bone-crowned thing like water down a drain. The skeletons in the square don't fight it. They don't even look up. They simply stand still as the grey swallows them, one by one, pulling them under as if they were made of nothing at all.\nWithin seconds, the square is empty. The skeletons are gone. The crowned dead is gone. And the fog is gone.\nThe light that comes is sudden and blinding, and for the first time since they arrived in Kelger Falls, there is a sky—cold, grey, and filled with clouds that look like they've never seen the sun, but a sky nonetheless.\nBehind them, the town is silent."
+ },
+ {
+  "id": 52,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I finally let out a breath and hand the closed book back to Zariah.* Keep it shut. You're coming with us. *I look up the road out of town, the one that kept leading back.* Let's see if it goes somewhere now."
+ },
+ {
+  "id": 53,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "*She takes the book from Max Nightriver's outstretched hand, and her fingers tremble as she holds it against her chest.*\n\"I-I'm coming.\" *The words are soft, hollow, but there is something in them that isn't fear anymore—something like a quiet, exhausted relief.*\n\"Thank-thank you.\" *She looks down at the book for a long moment, and then her gaze shifts to the road.* \"The road-it-it used to bring us back-back to the square.\"\n*The skeletal cat circles her ankles once, twice, and then lets out a soft, dry meow.*\n\"Maybe-maybe now it won't.\" *Her voice is a whisper.* \"Maybe-maybe it will let us go.\"\n*The fog is gone, and for the first time, Zariah steps out into the clear air, and her brown eyes look up at the grey sky above her, as if she's seeing it for the first time in a long, long time.*"
+ },
+ {
+  "id": 54,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*Out past the last houses the road runs north-east under a sky that never quite turns to day. Where it bends, a river cuts off to the east.* We leave the road and follow the river instead. Water goes somewhere, and roads around here have a habit of lying."
+ },
+ {
+  "id": 55,
+  "name": "Nyl",
+  "isUser": false,
+  "text": "\"The-the river's a good choice.\" *She speaks quietly, her voice clear and thoughtful as she steps lightly along the path beside Max Nightriver.* \"Water doesn't lie. It just-it just goes where it needs to.\"\n*She walks with her hands clasped before her, her eyes scanning the terrain ahead.* \"The road-the road is built by people. And people... they can be wrong. Or they-they can lie.\" *She says it simply, as if it is a-a-fact.*\n*The river is narrow and slow, and the land on either side is covered in a thin layer of frost-covered grass that crunches underfoot.* \"But the river... it has its-its own way.\" *Her gaze shifts to the water, and her eyes linger there for a moment.* \"It's-it's peaceful. I-I like that.\"\n*She looks back at Max Nightriver, her bright blue eyes catching the light that filters through the grey clouds.* \"It's a-a good way to travel.\" *She adds, and then-then her gaze drops, and she says nothing more.*"
+ },
+ {
+  "id": 56,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*By the second night, if it can be called that, the river brings us to a cluster of low stone houses nobody marked on any map. I knock at the one with a light in it.* Travellers from the south. We're looking for a black castle somewhere north-east of here. Heard of it?"
+ },
+ {
+  "id": 57,
+  "name": "Belle",
+  "isUser": false,
+  "text": "*Belle doesn't move from Max Nightriver's side, her hand resting on the hilt of Cleaver as she watches the door.* \"Castle?\" *The word is flat in her voice, and she shifts her weight, her boots scraping on the stone.* \"I-I didn't hear anyone say-say anything about a castle. We're-we're following the river, that's all.\"\n*She glances back at the cluster of houses, her brown eyes narrowed and hard.* \"This-this is it? Nobody marked it-marked it-on any map.\" *Her jaw is set.* \"T-too quiet.\"\n*She takes a step closer to Max Nightriver, and her hand tightens on Cleaver's hilt.* \"I-I don't-I don't like-don't like-this-this much silence.\""
+ },
+ {
+  "id": 58,
+  "name": "Fael",
+  "isUser": false,
+  "text": "*His eyes flicker toward the light in the window, and his gaze lingers there for a moment.* \"The castle-the castle is probably-probably where the road leads-leads to.\" *He says it quietly, his voice-voice-warm and level-headed, though there's a slight edge to it.* \"And the river-the river is probably-probably the only way to-to get there without-without-without...\" *The words trail off.*\n*He looks back at Max Nightriver and then-then at the other members of the party, and he says nothing more.*\n*The river flows past them, its sound a steady, low hum in the cold air.* \"The-the houses-these-these-aren't on any maps.\" *He-he adds, and his bright blue eyes shift toward the door as it begins to open.* \"And we-we-we-don't-don't know-know who-who is in-in there.\""
+ },
+ {
+  "id": 59,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*Nobody answers the door. I step back from it and look at the party, tired.* Forget the castle for now. We're low on food and Zariah needs real rest. We turn back toward Aegis City for a week to resupply."
+ },
+ {
+  "id": 60,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "*She flinches slightly, her grip on the book tightening against her chest.* \"R-resupply?\" *The word is hollow and uncertain in her voice.*\n*Her brown eyes are flat and guarded, and she looks away from Max Nightriver toward the dark silhouette of the houses.* \"And-and the road-the-the road will-it-it will-will let-let us leave?\"\n*She looks back at him, and there is a flicker of hope—or fear—in her gaze.* \"You-you-you said it-it would.\" *Her voice is soft, and almost lost in the night air.*\n*The skeletal cat circles her once, and then its yellow eyes shift to look at the harbour in the distance.*"
+ },
+ {
+  "id": 61,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The houses stand silent, and the only sound is the river flowing past them and the distant, quiet murmur of the forest. The light in the window flickers, then dims, until it vanishes altogether, leaving the cluster of buildings dark and empty against the grey night sky.\n*The road back to Kelger Falls runs north-east, and the path leads away from the river and back toward the road.*\n*And somewhere in the distance, a bell rings—a single, clear note that echoes through the silence, and then is gone.*"
+ },
+ {
+  "id": 62,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "It will, because we're the ones walking it. *I lead us south-west, away from that bell, back the long way toward Aegis City. I'm not going near any castle until we've eaten and slept.*"
+ },
+ {
+  "id": 63,
+  "name": "Zariah",
+  "isUser": false,
+  "text": "*She flinches at the mention of the castle, and her brown eyes flicker with a sudden, sharp fear.*\n\"T-turn-turn back?\" *Her voice is thin, and she shakes her head, the words coming out in a rush.* \"You-you-you-said we were-were-were—\"\n*The words cut off abruptly, and she stops, her hand tightening on the book against her chest.*\n*She looks at the road, and then back at Max Nightriver.*\n\"We-we-were going—\" *The words trail off, and her gaze is distant, lost in the memory of the road and the square and the dead.*\n*Her brown eyes look up at Max Nightriver again, and she speaks in a soft, hollow voice.*\n\"It-it doesn't-doesn't matter-matter-matter.\"\n*The words are barely audible, and then she stops completely, and she follows Max Nightriver as he turns away from the road.*\n*The skeletal cat hisses, its yellow eyes fixed on the dark silhouette of the castle in the distance.*"
+ },
+ {
+  "id": 64,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I don't look back at the castle shape on the horizon.* No. Whatever that is, it can wait a week. *I find a dry hollow off the trail and start a fire.* We camp here tonight. Belle, first watch."
+ },
+ {
+  "id": 65,
+  "name": "Belle",
+  "isUser": false,
+  "text": "*She doesn't question him, just nods once, sharp and brief, and then walks to the edge of their campsite, Cleaver held low.* \"First watch-it's-it-first watch.\"\n*Her hand is tight on the hilt, and her eyes are hard and narrow as they scan the forest in the low light.* \"I'll-I'll keep-keep-keep watch.\"\n*The words are quiet, and her jaw is set as she looks back toward the fire, and then turns her gaze away from the castle-shape on the horizon.*\n*The fire crackles, and the smell of smoke drifts over the camp.*\n\"Just-just-just rest.\" *Her voice is soft.* \"I've-I've got-got-got you.\"\n*She stands still, her boots planting firmly on the frozen ground, and her grip on her weapon is white-knuckled.*"
+ },
+ {
+  "id": 66,
+  "name": "Nyl",
+  "isUser": false,
+  "text": "*She settles beside the fire, her movements slow and quiet, her hands clasping before her as she looks into the flames.*\n\"It's a-a quiet night.\" *Her voice is a soft whisper, and she speaks as if to herself.* \"A-a-a calm night.\"\n*Her bright blue eyes are fixed on the fire, and her long blonde braid falls over her shoulder.* \"I-I-I can see the-the light-the-the light moving.\"\n*Her voice drops even lower, and she speaks softly, as if sharing a secret.* \"And-and-the air-the-the air is-is-is peaceful.\"\n*She looks at Max Nightriver for a moment, her gaze distant and thoughtful, and then turns back to the fire.*\n\"It's a-a-good night to rest.\" *She-she-says softly, and then speaks no more.*"
+ },
+ {
+  "id": 67,
+  "name": "Fael",
+  "isUser": false,
+  "text": "*He is sitting cross-legged by the fire, his eyes closed and his head slightly bowed, the long blond braid draped over his shoulder. His bangs cover his right eye, and his expression is meditative and calm.*\n\"The fire is-is good-is good for the-the-the soul.\" *The words are a soft murmur, and his voice-is warm and level-headed.* \"It-it-it-keeps the-the dark at-at bay.\"\n*His eyes flutter open, and they glow with a faint, icy-blue light.* \"I can feel-feel the-the cold-the cold pressing in-in-in on us-on us.\"\n*He-he-he shifts slightly, his hands resting on his knees.* \"But the fire-it-it keeps-it-it-us safe-us safe.\"\n*His voice is low and soft, and he speaks with a quiet, calm-mannered certainty.* \"And we're-we're together-together-together. We'll-we'll be-be all right.\"\n*He-looks-looks toward Max Nightriver, his bright-blue eyes reflecting the firelight.* \"We'll-we'll all-all-be-be-be all right.\""
+ },
+ {
+  "id": 68,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "(OOC: okay, I've changed my mind. Can you skip to the castle?)"
+ },
+ {
+  "id": 69,
+  "name": "Nyl",
+  "isUser": false,
+  "text": "\"Wait. The-the castle. I can see it-can see-can see it.\" *Her voice is sharp, and she points to a dark silhouette on the horizon.* \"T-the-the-then the river—the river-the-river-the river is leading-leading-leading to-to-to the castle.\"\n*Her bright-blue eyes-are-are wide, and she speaks quickly, as though the thought has just occurred to her.* \"It-it's right there-right there-right there. In-in-in the distance.\"\n*She-she-she looks at Max Nightriver and then-then-then-at the others, her gaze sharp and focused.* \"The-the-then we don't-don't-don't need to-don't turn back-don't turn-don't turn turn turn back. We can-can-can-go-go-go there-go there.\"\n*Her voice rises slightly, and her bright-blue eyes-glow-glow-glow with a sudden, icy-blue light as she points-points again at the silhouette on the horizon.* \"T-t-the castle! The-the-castle!\"\n*The-the silhouette on the horizon seems to-se-seem to grow larger, and the-the air around it is thick and heavy with fog.*"
+ },
+ {
+  "id": 70,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "*His bow is half-drawn, arrow nocked and ready, and his green hooded capelet flutters in the cold wind.*\n\"The-the-there's something—something-something-something.\" *His voice-is a whisper, and his cheeks-are pinking as he steps closer to Max Nightriver.*\n*He-he-he looks at the silhouette on the horizon, and his narrow-shoulders-tense as he-he-he takes a step back-back-back, his grip on the bow tight-tight-tight.*\n\"It-it-looks-it-looks like-like a castle-a castle.\" *He-he-he says softly,-saying-saying the word as if-as-if-as if it's-as if it's a question, and-and-his voice-is shaky.*\n*His narrow-shoulders tense as he-he-he steps closer-to Max Nightriver-and his-his-green hood-hoods-hoods his face-face,-covering-covering his pointed ears.*\n\"The-the-the-there-there-there-is-is-is-there-there is something-something-something in-in-in there.\" *His voice-is low and shaky,-shaky-shaky-shaky.* \"We-we-we-we should-should-should not go-go-go in-in-in-in there-should-not-go-in-in-there.\"\n*He-he-he-is trembling slightly, and-and his bow-is-half-drawn-and his-arrow is nocked.*\n\"The-the-the castle-it-it-looks-looks like-like-like-a-a-a nightmare.\" *His voice-is-low-and-shaky, and-and-he-he-he is trembling slightly.*\n*He-he-he notches another arrow-and his narrow shoulders-tense-tense-tense, and his-bow is half-drawn and-and-arrow-nocked.*\n\"We-we-should-should-should just-just-turn-turn around-turn-turn-turn around and-and go-go-go home-go home.\"\n*His voice is soft and shaky-and his cheeks are pink-and his-green-hood-is-hooding his-pointed ears.*\n\"I-I-can't-can't-can-t-t-turn-turn back-can-t-turn turn turn turn back.\" *He-he-he glances-at Max Nightriver-and then-at the castle on the horizon-and his-voice is shaky-and his-cheeks-are pink.*"
+ },
+ {
+  "id": 71,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The silhouette is not a mirage. It rises from the earth like a jagged tooth, a mass of black stone and sharp spires that cut into the perpetual twilight. The architecture is wrong—angles that don't quite align, arches that bend where they should be straight. Below it, the valley slopes down toward the gates, and there is a light burning within them: a deep, unnatural violet that pulses like a slow heartbeat.\nThe air tastes of ozone and old copper. The river that brought the party here has narrowed to a thin, black ribbon, and its water doesn't reflect the castle's light—it absorbs it.\nAnd there is sound now. Not the bell, not the shriek of the bone-crown, but something rhythmic and low, like the collective breathing of a thousand lungs in a single chest.\nFrom the gates, a figure emerges. Not a skeleton or a ghost, but a man—or something that was once a man. He is tall, dressed in crimson and gold that has faded to the colour of dried blood, and a high collar that frames a gaunt, pale face. He doesn't walk so much as glide, and as he approaches the valley floor, the violet light in the gates flares once, twice, and then dies.\nWhen the figure speaks, his voice carries without effort, filling the valley with the sound of dry parchment sliding over stone.\n\"Travellers from the south,\" the figure says, his red eyes fixing on Max Nightriver. \"Welcome to Castle Dracul. I am its steward, and I have been expecting you.\""
+ },
+ {
+  "id": 72,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I put myself between the steward and the others, hand on my sword hilt, and keep my voice level.* Expecting us. That makes one of us. Who's your master, steward, and why does your road pull the dead toward it?"
+ },
+ {
+  "id": 73,
+  "name": "Belle",
+  "isUser": false,
+  "text": "\"Expect-expect-expecting us-expect-ing us?\" *The words come out in a rush, her voice sharp and flat, and her jaw is set as she looks at the steward.*\n\"I-I-I don't like-don't like-this-this is-this is not-this is not a-a-a good-a good-this-this-is-not-a good thing.\" *Her hand is already tight on the hilt of Cleaver, and her boots are planting firmly on the ground.*\n*Her-her-her brown eyes are narrow and hard as they look at the steward.* \"I-I'm not-not-I'm-I'm-not-not-going-going in-going-in-going-in in there-in-in in-not-not in-not-in-not in.\"\n*Her jaw-is-set and-her grip-is white-knuckled-on the hilt of her axe.* \"Just-just-just tell-just-just-tell-tell-us-tell us-tell us-why you're-why-you're-you-re-telling us-you're telling-telling-telling us you're-telling-telling-us you-expect-expect-expecting-expect-expecting-us.\"\n*Her-her-brown-eyes-are-narrow-and hard as she-she-steps-steps forward,-stepping forward,-stepping beside Max Nightriver.*\n\"And-and-and why-why is-why is-why-is the-is-the-dead-the-the dead pulling-pulling-pulling-pulling toward-toward-tow-tow toward-tow toward this-tow-towards-this place-this-place-this place?\"\n*Her jaw is-set and her-grip-is white-knuckled on the-hilt of Cleaver-and her-brown eyes-are narrow-and hard.* \"T-tell-tell us.\"\n*She-she-steps closer-to Max-Nightriver-and-her-hand-is on-on Cleaver's hilt,-her-jaw set.* \"Just-tell us.\"\n*Her-her brown-eyes-are narrow and-hard-and-her grip-is tight-tight on the hilt-and she-steps forward.* \"Just-tell-tell-tell us.\""
+ },
+ {
+  "id": 74,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "*His bow-is half-drawn-arrow nocked-and he's-he's trembling slightly-his cheeks pink-his narrow-shoulders tensed-his-green-hood covering-covering-covering-covering his-pointed-ears.*\n\"The-the-the road-the-the-the road isn't-isn't-isn't just-isn't just a-a-road-it isn't-it isn't.\" *His voice is-low-and shaky-and his face-is covered by his green-hood.* \"The-the road-it't-it pulls-it pulls-pulls-pull-pulls dead-it pulls dead-dead-dead. The road-it-it is-it is the-the the road-it is-the-it pulls the-the dead-toward-tower-tower-toward this place-this place.\"\n*His voice-is shaking-and his-narrow-shoulders-are tensed and-he's-trembling-slight-slight-slighting and his-bow-is half-drawn and-arrow is-nock-nocked-and his-face is-covered-by-his green-hood-his pointed-ears-are-covered-his face-covered-covered-covering his face.*\n\"We-we-we-shouldn't go-go-in-go in there.\" *His voice-low and shaky, and his bow is-half-drawn and-arrow nocked. His-narrow shoulders-tense. His-green-hood covers-covers-covers his pointed-ears-and his-face.*\n\"T-t-the road-it pulls-t-t-the dead. The-the road is-it-is the road.\" *His voice-low and-shaky-and-he-is-trembling slightly-and-his arrow-is-nocked and-his-bow is-half drawn-and-his face-is-covered by his-green hood and-his-pointed-ears-are covered.* \"We-we-should not-should not-not go-go-in-in l-l-l-in there.\"\n*His-voice-is shaking and his-arrow is-nocked and his-bow-is-half-draw and-his face-covered by his green hood, and-his-narrow-shoulders tension-tense-tense and-he-he-trembling-light-light-slighty. His-voice is low and-shaky and-he's trembled-tremble-trembled-trembling sligh-sligh-sligh-tly.*\n\"The-the-the road pulls-pull-pull dead"
+ },
+ {
+  "id": 75,
+  "name": "Fael",
+  "isUser": false,
+  "text": "*His bright blue eyes glow with a faint-faint icy blue-light as he speaks.* \"The-the roads-roads pull the-the dead. And-and the dead-the dead is-is not-is not what-what we-we-want.\"\n*His voice-is-warm-and-level headed, but there's a-a slight-slight edge to-to-it.* \"But-but-the-the river-the-the river led-led us here-here here here. The-the river is-is a-a-good choice. The-the river doesn't lie-doesn't lie.\"\n*He-he looks-looks toward the steward-and-then-then-at Max Nightriver and-and his bright blue-eyes glow-glow-glow with the-the icy blue-light.* \"The-the steward-the-the steward is-is-is expecting-expecting us. We-we don't-don't-don't know-know-know who-who he is-who-who is-is-his master-is his-his master.\"\n*His voice-is warm and-level-headed but-there's a-a-slight edge-to it-and his bright-blue eyes glow-glow glow with the-icy-blue light-and his long-long blond-braid draped-over-his shoulder.* \"T-t-t-t-we-we should-should be-be careful-be-be-careful-be cautious-be cautious.\"\n*He looks-looks at Max-Nightriver and-then-then his-bright-blue-eyes flicker-glow-glow-glow and-and his voice-is level-headed, and-and-there's a la-la-slight l-slight edge to it.* \"T-t-t-the-the castle-it-it is not-it is not what we-we expected-expect-ed.\"\n*His long-blond-braid is draped-over his shoulder, and-and his-eyes-glow-blue.* \"T-t-t-take care-take care. The-the-the castle is-is-dangerous-dangerous.\"\n*He speaks-speaks softly, and-and-his voice-is low and-warm.* \"We-we should be-should be l-l-low-low low cautious.\"\n*His-bright blue-eyes-glow blue-glow-glow blue, and-and-his long blond-braid-is draped-over-his-shoulder.* \"T-t-take-take care.\""
+ },
+ {
+  "id": 76,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The gates of Castle Dracul open before anyone touches them. Inside, two voices are arguing in the great hall, a man's and a woman's, and as the party crosses the threshold both of them stop at once."
+ }
+]

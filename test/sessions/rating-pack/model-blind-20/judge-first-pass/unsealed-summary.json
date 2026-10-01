@@ -1,0 +1,64 @@
+{
+  "model": "openai/gpt-6-astra",
+  "turns": 20,
+  "letters": [
+    "A",
+    "B",
+    "C",
+    "D"
+  ],
+  "rows": [
+    {
+      "config": "BL2-v12-tc-minpfirst",
+      "turns": 20,
+      "mean": {
+        "coherence": 4.6,
+        "prose": 4.55,
+        "scene": 3.45,
+        "agency": 4.7,
+        "overall": 3.6
+      },
+      "meanRank": 1.85,
+      "firstPlaces": 10
+    },
+    {
+      "config": "BL1-v11-tc-minpfirst",
+      "turns": 20,
+      "mean": {
+        "coherence": 4.45,
+        "prose": 4.75,
+        "scene": 3.5,
+        "agency": 4.9,
+        "overall": 3.55
+      },
+      "meanRank": 2,
+      "firstPlaces": 6
+    },
+    {
+      "config": "BL0-v11-prod-asis",
+      "turns": 20,
+      "mean": {
+        "coherence": 3.65,
+        "prose": 3.75,
+        "scene": 2.9,
+        "agency": 4.6,
+        "overall": 2.5
+      },
+      "meanRank": 3.05,
+      "firstPlaces": 1
+    },
+    {
+      "config": "BL3-cydonia-q5-mistral-minpfirst",
+      "turns": 20,
+      "mean": {
+        "coherence": 3.95,
+        "prose": 4.45,
+        "scene": 2.75,
+        "agency": 4.3,
+        "overall": 2.6
+      },
+      "meanRank": 3.1,
+      "firstPlaces": 3
+    }
+  ]
+}

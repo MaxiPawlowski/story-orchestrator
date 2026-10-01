@@ -8,6 +8,7 @@ import {
   buildInventory, buildManifest, castResetPlan, checkInventory, diffInventories, expectedStartDisabled, lastGoodSeed, seedDrift, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
   type AdolionManifest, type Inventory, type LaneDisk, type RuntimeReadiness, type SpriteFolder, type SpritePackSource,
 } from './lib/adolionFresh.mts';
+import { applyPresetOverlay, PRESET_OVERLAY_RECORD, type OverlayRecord } from './lib/presetOverlay.mts';
 import { findReclaimable, gib, lastSeededLaneBytes, removeStaleSpriteWorktrees, seedSpaceNeed, seedSpaceRefusal, type SpaceFs } from './lib/seedSpace.mts';
 
 const USAGE = `Usage: node scripts/debug/adolion-fresh.mts <command> [...]
@@ -15,13 +16,15 @@ const USAGE = `Usage: node scripts/debug/adolion-fresh.mts <command> [...]
 v2.6 overview rule 14: a clean Adolion install on a freshly seeded lane, checked against the pinned
 campaign build. Lanes 1+ only; lane 0 is the user's.
 
-  seed <lane> [--commit <sha>] [--headed] [--stop] [--for <charterId>] [--break-lease]
+  seed <lane> [--commit <sha>] [--headed] [--stop] [--for <charterId>] [--break-lease] [--no-preset-overlay]
       refused while the lane's lease.json (written by so-session stop) names a chat a later charter
       still continues, unless that charter is the one --for names or --break-lease is given;
       refused below max(5 GB, 2.5 x the last seeded lane) free on the lanes drive, naming old-pin sprite
       worktrees in other lanes and archived lanes; this lane's own old-pin sprite worktrees are removed first
       (worktree remove, never a plain delete);
       stop the lane, re-seed it (st-lanes seed --fresh), strip the campaign's assets from the copy,
+      apply the preset overlay (adolion-fresh.presets.json) to the lane's copied presets and read it back
+      (a missing preset or key fails the seed; --no-preset-overlay keeps the real install's presets),
       start it, run the campaign installer at the pinned commit (adolion-fresh.pin.json), upload the
       sprite packs from an LFS checkout of that commit (a git worktree, uploads only), create the groups, select exactly the lorebooks the stories require, import the nine stories, take a
       so-assets baseline, then write and check the inventory (and diff it against the lane's last one)
@@ -247,7 +250,18 @@ const summary = (inventory: Inventory) => ({
   spriteFolders: inventory.sprites.filter((entry) => entry.labels.length).length, sprites: inventory.sprites.reduce((total, entry) => total + entry.labels.length, 0),
 });
 
-async function seed(n: number, commitArg: string | null, headed: boolean, stopAfter: boolean) {
+async function presetOverlay(n: number, disabled: boolean): Promise<OverlayRecord> {
+  const paths = lane(n);
+  const record = await applyPresetOverlay(paths.user, {
+    read: async (path) => (existsSync(path) ? readFile(path, 'utf-8') : null),
+    write: (path, text) => writeFile(path, text, 'utf-8'),
+  }, { disabled });
+  await mkdir(paths.work, { recursive: true });
+  await writeFile(join(paths.work, PRESET_OVERLAY_RECORD), JSON.stringify(record, null, 2), 'utf-8');
+  return record;
+}
+
+async function seed(n: number, commitArg: string | null, headed: boolean, stopAfter: boolean, noPresetOverlay = false) {
   const { lanePreflight } = await import('./st-lanes.mts');
   const refused = lanePreflight();
   if (refused) throw new Error(`adolion-fresh needs the dev bundle: ${refused}`);
@@ -266,6 +280,8 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
   await lanes('seed', String(n), '--fresh');
   const stripped = await strip(manifest, paths.user);
   console.log(`      stripped ${JSON.stringify(stripped)}`);
+  const presets = await presetOverlay(n, noPresetOverlay);
+  console.log(presets.applied ? `      preset overlay ${presets.sha256.slice(0, 12)}: ${presets.edits.map((edit) => `${edit.preset}.${edit.key}${edit.changed ? '' : ' (unchanged)'}${edit.mirror ? ' +settings.json' : ''}`).join(', ')}` : `      preset overlay OFF (${presets.reason})`);
   const logFrom = await logSize(paths.root);
   console.log(`[3/7] start lane ${n}`);
   await lanes('start', String(n), ...(headed ? ['--headed'] : []));
@@ -294,7 +310,7 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
   const report = await writeRecord(n, inventory, problems, {
     commit: pin.commit, pinned: pin.pinned, stripped, baseline: join(paths.debug, 'adolion-fresh-asset-baseline.json'), baselineTrusted: page.baseline?.trusted ?? false,
     extraction: page.extraction, groups: page.groups, imports: page.imports, castResets: page.castResets ?? [], notes: page.notes ?? [], summary: summary(inventory),
-    space, laneBytes: await dirBytes(paths.root),
+    space, laneBytes: await dirBytes(paths.root), presetOverlay: presets,
   });
   if (stopAfter) { console.log('[7/7] stop lane'); await lanes('stop', String(n)); } else console.log(`[7/7] lane ${n} left running at ${paths.url}`);
   return report;
@@ -548,7 +564,7 @@ async function main() {
       const refused = leaseRefusal(await readLease(lane(n).root), await sessionsUnder(resolve(REPO_ROOT, 'test', 'sessions')), argValue(rest, '--for'));
       if (refused) throw new Error(`refusing to re-seed: ${refused}`);
     }
-    report = await seed(n, argValue(rest, '--commit'), rest.includes('--headed'), rest.includes('--stop'));
+    report = await seed(n, argValue(rest, '--commit'), rest.includes('--headed'), rest.includes('--stop'), rest.includes('--no-preset-overlay'));
   }
   else if (command === 'check') report = await check(laneArg(rest[0]), argValue(rest, '--drop-book'));
   else if (command === 'diff') {

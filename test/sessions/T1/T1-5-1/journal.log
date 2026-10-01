@@ -1,0 +1,1327 @@
+Following the session journal → C:\dev\story-orchestrator\test\sessions\T1\T1-5-1\journal.jsonl every 1000 ms. Ctrl-C to stop.
+2026-10-01T16:57:05.959Z session      chat 2026-10-01@13h56m53s812ms · story adolion-night · at The Fog at Kelger Falls (boundary 3, 2 messages)
+2026-10-01T16:56:54.168Z status       No story selected for this chat
+2026-10-01T16:56:54.178Z story        quality macro skipped
+2026-10-01T16:56:54.178Z story        quality macro skipped
+2026-10-01T16:56:54.178Z story        quality macro skipped
+2026-10-01T16:56:54.178Z story        quality macro skipped
+2026-10-01T16:56:54.178Z story        quality macro skipped
+2026-10-01T16:56:54.178Z story        quality macro skipped
+2026-10-01T16:56:54.189Z boundary     boundary 1: nothing applied (gate)
+2026-10-01T16:56:57.743Z story        restored 1 host change(s)
+2026-10-01T16:56:57.886Z boundary     boundary 2: nothing applied (manual)
+2026-10-01T16:56:59.140Z status       Now at The Fog at Kelger Falls
+2026-10-01T16:56:59.240Z story        away recap not due
+2026-10-01T16:56:59.351Z status       Following The Fog at Kelger Falls
+2026-10-01T16:56:59.407Z model-call   generation via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:56:59.428Z boundary     boundary 3: nothing applied (gate)
+2026-10-01T16:56:59.771Z judge        judge scene in 330 ms
+2026-10-01T16:56:59.795Z judge        judge typed in 355 ms
+2026-10-01T16:56:59.858Z judge        judge typed in 0 ms
+2026-10-01T16:56:59.859Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:57:00.158Z judge        judge warden in 388 ms
+2026-10-01T16:57:00.321Z judge        judge scene in 0 ms
+2026-10-01T16:57:00.541Z judge        judge warden in 220 ms
+2026-10-01T16:57:02.528Z extraction   read cue:night-the-slums->night-the-soul-painter msgs 0-0 → 2 accepted, 0 rejected
+2026-10-01T16:57:02.528Z delta        location = night_slums
+2026-10-01T16:57:02.528Z delta        tension_current = 0.25
+2026-10-01T16:57:02.528Z delta        queued location=night_slums, tension_current=0.25 for the next boundary
+2026-10-01T16:57:02.773Z judge        judge memoryVerify in 242 ms
+2026-10-01T16:57:03.091Z judge        judge critic in 294 ms
+2026-10-01T16:57:05.621Z judge        judge typed in 272 ms
+2026-10-01T16:57:02.528Z audit        audit cue:night-the-slums->night-the-soul-painter msgs 0-0 scope [guild_reputation, location, night_castle_sighted, night_fog_broken, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-01T16:57:05.622Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:57:08.119Z extraction   read scene:judge msgs 0-1 → 2 accepted, 0 rejected
+2026-10-01T16:57:08.119Z delta        location = night_kelger_falls
+2026-10-01T16:57:08.119Z delta        tension_current = 0.25
+2026-10-01T16:57:08.119Z delta        queued location=night_kelger_falls, tension_current=0.25 for the next boundary
+2026-10-01T16:57:08.440Z judge        judge memoryVerify in 319 ms
+2026-10-01T16:57:08.931Z judge        judge curatorFilter in 231 ms
+2026-10-01T16:57:09.025Z judge        judge typed in 0 ms
+2026-10-01T16:57:08.119Z audit        audit scene:judge msgs 0-1 scope [guild_reputation, location, night_castle_sighted, night_fog_broken, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-01T16:57:08.932Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:57:09.990Z stagecraft   World Info curator proposed 1 change(s) at The Fog at Kelger Falls
+2026-10-01T16:57:09.026Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:57:11.173Z extraction   read cadence msgs 0-1 → 2 accepted, 0 rejected
+2026-10-01T16:57:11.173Z delta        location = night_kelger_falls
+2026-10-01T16:57:11.173Z delta        tension_current = 0.25
+2026-10-01T16:57:11.173Z delta        queued location=night_kelger_falls, tension_current=0.25 for the next boundary
+2026-10-01T16:57:11.396Z judge        judge memoryVerify in 222 ms
+2026-10-01T16:57:11.173Z audit        audit cadence msgs 0-1 scope [guild_reputation, location, night_castle_sighted, night_fog_broken, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-01T16:57:11.602Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:57:13.062Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:57:32.497Z payload      5 story blocks injected (generation)
+2026-10-01T16:57:32.533Z payload      6 story blocks injected (generation)
+2026-10-01T16:57:33.177Z judge        judge lore in 436 ms
+2026-10-01T16:57:33.220Z judge        judge lore in 484 ms
+2026-10-01T16:57:33.489Z judge        judge lore in 316 ms
+2026-10-01T16:57:33.527Z judge        judge lore in 317 ms
+2026-10-01T16:57:33.729Z judge        judge lore in 241 ms
+2026-10-01T16:57:34.013Z judge        judge director in 266 ms
+2026-10-01T16:57:34.014Z talk         Adolion Narrator speaks (judge)
+2026-10-01T16:57:34.233Z payload      6 story blocks injected (generation)
+2026-10-01T16:57:34.502Z payload      6 story blocks injected (generation)
+2026-10-01T16:57:43.331Z story        Sampler overlay "Adolion: Fog at Kelger" applied to this checkpoint's replies
+2026-10-01T16:57:56.029Z story        NPC reply Adolion Narrator (afterSpeak) skipped by its roll
+2026-10-01T16:57:56.494Z boundary     applied location=night_kelger_falls, tension_current=0.25; discarded location=night_slums, tension_current=0.25, location=night_kelger_falls, tension_current=0.25 (superseded)
+2026-10-01T16:57:56.539Z judge        judge director in 276 ms
+2026-10-01T16:57:56.540Z talk         silence speaks (judge)
+2026-10-01T16:57:56.874Z judge        judge scene fell back (busy) in 28 ms
+2026-10-01T16:57:56.874Z judge        judge warden fell back (busy) in 29 ms
+2026-10-01T16:57:56.908Z judge        judge wardenLore fell back (busy) in 29 ms
+2026-10-01T16:57:57.161Z judge        judge typed in 316 ms
+2026-10-01T16:58:00.304Z judge        judge typed in 250 ms
+2026-10-01T16:58:00.304Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:58:03.999Z judge        judge memoryVerify in 251 ms
+2026-10-01T16:58:04.292Z delta        queued location=night_kelger_falls, tension_current=0.25 for the next boundary
+2026-10-01T16:58:03.745Z extraction   read cue:night-the-kelger-falls->gen_night-the-long-night_1 msgs 0-3 → 2 accepted, 1 rejected
+2026-10-01T16:58:03.745Z delta        location = night_kelger_falls
+2026-10-01T16:58:03.745Z delta        tension_current = 0.25
+2026-10-01T16:58:03.745Z delta        queued location=night_kelger_falls, tension_current=0.25 for the next boundary
+2026-10-01T16:58:03.745Z audit        audit cue:night-the-kelger-falls->gen_night-the-long-night_1 msgs 0-3 scope [guild_reputation, location, night_castle_sighted, night_fog_broken, tension_current] → 2 accepted, 1 rejected
+2026-10-01T16:58:05.907Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:58:07.521Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:58:08.595Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:58:22.874Z payload      7 story blocks injected (generation)
+2026-10-01T16:58:22.928Z payload      8 story blocks injected (generation)
+2026-10-01T16:58:23.535Z judge        judge lore in 380 ms
+2026-10-01T16:58:23.587Z judge        judge lore in 420 ms
+2026-10-01T16:58:23.873Z judge        judge lore in 344 ms
+2026-10-01T16:58:23.905Z judge        judge lore in 323 ms
+2026-10-01T16:58:24.134Z judge        judge lore in 262 ms
+2026-10-01T16:58:24.366Z judge        judge director in 219 ms
+2026-10-01T16:58:24.367Z talk         Adolion Narrator speaks (judge)
+2026-10-01T16:58:25.450Z payload      8 story blocks injected (generation)
+2026-10-01T16:58:59.522Z story        NPC reply Adolion Narrator (afterSpeak) skipped by its roll
+2026-10-01T16:58:59.811Z payload      8 story blocks injected (generation)
+2026-10-01T16:59:01.282Z boundary     applied location=night_kelger_falls, tension_current=0.25
+2026-10-01T16:59:02.169Z talk         silence speaks (judge)
+2026-10-01T16:59:02.169Z judge        judge director in 1078 ms
+2026-10-01T16:59:02.241Z judge        judge typed in 313 ms
+2026-10-01T16:59:02.437Z judge        judge scene in 270 ms
+2026-10-01T16:59:02.508Z judge        judge warden in 268 ms
+2026-10-01T16:59:02.877Z judge        judge wardenLore in 441 ms
+2026-10-01T16:59:02.878Z stagecraft   Warden flagged Adolion Narrator's reply (house-rule)
+2026-10-01T16:59:21.337Z payload      7 story blocks injected (generation)
+2026-10-01T16:59:21.382Z payload      8 story blocks injected (generation)
+2026-10-01T16:59:21.958Z judge        judge lore in 358 ms
+2026-10-01T16:59:21.994Z judge        judge lore in 388 ms
+2026-10-01T16:59:22.246Z judge        judge lore in 291 ms
+2026-10-01T16:59:22.307Z judge        judge lore in 316 ms
+2026-10-01T16:59:22.468Z judge        judge lore in 223 ms
+2026-10-01T16:59:22.712Z talk         Zariah speaks (judge)
+2026-10-01T16:59:22.712Z judge        judge director in 228 ms
+2026-10-01T17:00:04.607Z story        NPC reply Adolion Narrator (afterSpeak) skipped by its roll
+2026-10-01T17:00:04.917Z payload      8 story blocks injected (generation)
+2026-10-01T17:00:06.768Z payload      8 story blocks injected (generation)
+2026-10-01T17:00:08.420Z payload      8 story blocks injected (generation)
+2026-10-01T17:00:10.259Z boundary     boundary 6: nothing applied (gate)
+2026-10-01T17:00:10.500Z talk         silence speaks (judge)
+2026-10-01T17:00:10.500Z judge        judge director in 368 ms
+2026-10-01T17:00:10.780Z judge        judge scene in 290 ms
+2026-10-01T17:00:10.795Z judge        judge warden in 296 ms
+2026-10-01T17:00:11.028Z judge        judge wardenLore in 248 ms
+2026-10-01T17:00:11.868Z judge        judge typed in 225 ms
+2026-10-01T17:00:11.869Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:00:16.188Z judge        judge memoryVerify in 254 ms
+2026-10-01T17:00:16.952Z delta        queued location=night_kelger_falls, tension_current=0.32499999999999996 for the next boundary
+2026-10-01T17:00:15.932Z extraction   read cadence msgs 2-7 → 2 accepted, 1 rejected
+2026-10-01T17:00:15.932Z delta        location = night_kelger_falls
+2026-10-01T17:00:15.932Z delta        tension_current = 0.32499999999999996
+2026-10-01T17:00:15.932Z delta        queued location=night_kelger_falls, tension_current=0.32499999999999996 for the next boundary
+2026-10-01T17:00:15.932Z audit        audit cadence msgs 2-7 scope [location, night_castle_sighted, night_fog_broken, party_injuries, party_rank, tension_current] → 2 accepted, 1 rejected
+2026-10-01T17:00:31.134Z payload      7 story blocks injected (generation)
+2026-10-01T17:00:31.162Z payload      8 story blocks injected (generation)
+2026-10-01T17:00:31.705Z judge        judge lore in 339 ms
+2026-10-01T17:00:31.753Z judge        judge lore in 383 ms
+2026-10-01T17:00:32.004Z judge        judge lore in 302 ms
+2026-10-01T17:00:32.072Z judge        judge lore in 323 ms
+2026-10-01T17:00:32.246Z judge        judge lore in 243 ms
+2026-10-01T17:00:32.529Z talk         Zariah speaks (judge)
+2026-10-01T17:00:32.529Z judge        judge director in 271 ms
+2026-10-01T17:00:33.902Z payload      8 story blocks injected (generation)
+2026-10-01T17:00:35.091Z payload      8 story blocks injected (generation)
+2026-10-01T17:00:36.456Z payload      8 story blocks injected (generation)
+2026-10-01T17:00:37.687Z payload      8 story blocks injected (generation)
+2026-10-01T17:01:06.872Z story        NPC reply Adolion Narrator (afterSpeak) skipped by its roll
+2026-10-01T17:01:07.349Z boundary     applied location=night_kelger_falls, tension_current=0.32499999999999996
+2026-10-01T17:01:07.371Z payload      6 story blocks injected (generation)
+2026-10-01T17:01:07.821Z talk         Adolion Narrator speaks (judge)
+2026-10-01T17:01:07.821Z judge        judge director in 578 ms
+2026-10-01T17:01:10.330Z judge        judge scene fell back (timeout) in 2511 ms
+2026-10-01T17:01:10.495Z judge        judge warden fell back (busy) in 166 ms
+2026-10-01T17:01:10.495Z judge        judge wardenLore fell back (busy) in 2683 ms
+2026-10-01T17:01:10.513Z judge        judge typed in 2701 ms
+2026-10-01T17:02:05.527Z payload      7 story blocks injected (generation)
+2026-10-01T17:02:05.573Z payload      8 story blocks injected (generation)
+2026-10-01T17:02:06.201Z judge        judge lore in 396 ms
+2026-10-01T17:02:06.216Z judge        judge lore in 393 ms
+2026-10-01T17:02:06.527Z judge        judge lore in 330 ms
+2026-10-01T17:02:06.595Z judge        judge lore in 384 ms
+2026-10-01T17:02:06.757Z judge        judge lore in 231 ms
+2026-10-01T17:02:07.050Z talk         Zariah speaks (judge)
+2026-10-01T17:02:07.050Z judge        judge director in 275 ms
+2026-10-01T17:02:44.536Z story        NPC reply Adolion Narrator (afterSpeak) skipped by its roll
+2026-10-01T17:02:45.010Z payload      8 story blocks injected (generation)
+2026-10-01T17:02:47.212Z payload      8 story blocks injected (generation)
+2026-10-01T17:02:49.373Z payload      8 story blocks injected (generation)
+2026-10-01T17:02:51.222Z payload      8 story blocks injected (generation)
+2026-10-01T17:02:52.692Z boundary     boundary 8: nothing applied (gate)
+2026-10-01T17:02:52.951Z talk         silence speaks (judge)
+2026-10-01T17:02:52.951Z judge        judge director in 278 ms
+2026-10-01T17:02:53.226Z judge        judge typed in 316 ms
+2026-10-01T17:02:53.234Z judge        judge scene in 285 ms
+2026-10-01T17:02:53.496Z judge        judge wardenLore in 263 ms
+2026-10-01T17:02:53.498Z judge        judge warden in 273 ms
+2026-10-01T17:02:54.953Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:03:37.982Z flag         Kayla never answers (addressed msgs 6, 8, 10). She and Erevan are disabled in the group: the session jumped straight to Kelger Falls (activateCheckpoint), so only Kelger's cast change (enable Zariah) ran on top of night-the-slums' disables; the skipped checkpoints' cast never replayed. The card says Kayla and Erevan travel with the party; the narrator even mentions Erevan (msg 5).
+2026-10-01T17:03:41.583Z payload      8 story blocks injected (generation)
+2026-10-01T17:03:41.620Z payload      9 story blocks injected (generation)
+2026-10-01T17:03:42.250Z judge        judge lore in 381 ms
+2026-10-01T17:03:42.263Z judge        judge lore in 408 ms
+2026-10-01T17:03:42.569Z judge        judge lore in 322 ms
+2026-10-01T17:03:42.606Z judge        judge lore in 347 ms
+2026-10-01T17:03:42.940Z judge        judge lore in 373 ms
+2026-10-01T17:03:43.211Z talk         Zariah speaks (judge)
+2026-10-01T17:03:43.211Z judge        judge director in 259 ms
+2026-10-01T17:04:19.187Z story        NPC reply Adolion Narrator (afterSpeak) fired by its roll
+2026-10-01T17:04:19.529Z payload      9 story blocks injected (generation)
+2026-10-01T17:04:20.981Z payload      9 story blocks injected (generation)
+2026-10-01T17:04:22.511Z payload      9 story blocks injected (generation)
+2026-10-01T17:04:26.539Z payload      9 story blocks injected (generation)
+2026-10-01T17:04:27.993Z boundary     boundary 9: nothing applied (gate)
+2026-10-01T17:04:28.050Z talk         Zariah speaks (judge)
+2026-10-01T17:04:28.050Z judge        judge director in 281 ms
+2026-10-01T17:04:28.212Z boundary     boundary 10: nothing applied (gate)
+2026-10-01T17:04:28.545Z payload      8 story blocks injected (generation)
+2026-10-01T17:04:28.671Z payload      9 story blocks injected (generation)
+2026-10-01T17:04:28.802Z judge        judge warden in 588 ms
+2026-10-01T17:04:28.873Z judge        judge scene in 661 ms
+2026-10-01T17:04:29.056Z judge        judge wardenLore in 254 ms
+2026-10-01T17:04:29.192Z judge        judge typed in 320 ms
+2026-10-01T17:04:29.722Z judge        judge lore in 674 ms
+2026-10-01T17:04:29.735Z judge        judge lore in 547 ms
+2026-10-01T17:04:30.084Z judge        judge lore in 366 ms
+2026-10-01T17:04:30.110Z judge        judge lore in 380 ms
+2026-10-01T17:04:30.342Z judge        judge lore in 259 ms
+2026-10-01T17:04:30.542Z judge        judge typed in 433 ms
+2026-10-01T17:04:30.544Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:04:35.301Z judge        judge memoryVerify in 285 ms
+2026-10-01T17:04:35.954Z delta        queued location=night_kelger_falls, tension_current=0.37749999999999995 for the next boundary
+2026-10-01T17:04:37.011Z delta        queued location=night_kelger_falls, tension_current=0.37749999999999995 for the next boundary
+2026-10-01T17:04:35.013Z extraction   read cadence msgs 8-13 → 2 accepted, 0 rejected
+2026-10-01T17:04:35.013Z delta        location = night_kelger_falls
+2026-10-01T17:04:35.013Z delta        tension_current = 0.37749999999999995
+2026-10-01T17:04:35.013Z delta        queued location=night_kelger_falls, tension_current=0.37749999999999995 for the next boundary
+2026-10-01T17:04:35.013Z audit        audit cadence msgs 8-13 scope [location, night_castle_sighted, night_fog_broken, night_inquisition_suspicion, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:05:19.380Z boundary     applied location=night_kelger_falls, tension_current=0.37749999999999995
+2026-10-01T17:05:19.634Z reconciliation stall re-check queued for night_fog_broken
+2026-10-01T17:05:19.736Z talk         silence speaks (judge)
+2026-10-01T17:05:19.736Z judge        judge director in 306 ms
+2026-10-01T17:05:19.982Z judge        judge typed in 311 ms
+2026-10-01T17:05:20.020Z judge        judge stall in 286 ms
+2026-10-01T17:05:21.266Z judge        judge warden in 1248 ms
+2026-10-01T17:05:21.268Z judge        judge scene in 1289 ms
+2026-10-01T17:05:21.566Z judge        judge wardenLore in 300 ms
+2026-10-01T17:05:39.756Z payload      8 story blocks injected (generation)
+2026-10-01T17:05:39.795Z payload      9 story blocks injected (generation)
+2026-10-01T17:05:40.406Z judge        judge lore in 382 ms
+2026-10-01T17:05:40.461Z judge        judge lore in 432 ms
+2026-10-01T17:05:40.729Z judge        judge lore in 328 ms
+2026-10-01T17:05:40.807Z judge        judge lore in 350 ms
+2026-10-01T17:05:40.959Z judge        judge lore in 231 ms
+2026-10-01T17:05:41.213Z talk         Zariah speaks (judge)
+2026-10-01T17:05:41.213Z judge        judge director in 247 ms
+2026-10-01T17:05:42.502Z payload      9 story blocks injected (generation)
+2026-10-01T17:05:43.812Z payload      9 story blocks injected (generation)
+2026-10-01T17:05:45.399Z payload      9 story blocks injected (generation)
+2026-10-01T17:06:08.187Z boundary     boundary 12: nothing applied (gate)
+2026-10-01T17:06:08.694Z judge        judge director in 512 ms
+2026-10-01T17:06:08.695Z talk         silence speaks (judge)
+2026-10-01T17:06:08.909Z judge        judge scene in 418 ms
+2026-10-01T17:06:10.832Z judge        judge wardenLore in 1924 ms
+2026-10-01T17:06:10.840Z judge        judge warden in 2147 ms
+2026-10-01T17:06:11.584Z judge        judge typed in 240 ms
+2026-10-01T17:06:11.585Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:06:15.212Z judge        judge memoryVerify in 231 ms
+2026-10-01T17:06:15.512Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.4142499999999999 for the next boundary
+2026-10-01T17:06:16.559Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.4142499999999999 for the next boundary
+2026-10-01T17:06:14.979Z extraction   read cadence msgs 14-17 → 3 accepted, 0 rejected
+2026-10-01T17:06:14.979Z delta        location = night_kelger_falls
+2026-10-01T17:06:14.979Z delta        night_fog_broken = false
+2026-10-01T17:06:14.979Z delta        tension_current = 0.4142499999999999
+2026-10-01T17:06:14.979Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.4142499999999999 for the next boundary
+2026-10-01T17:06:14.979Z audit        audit cadence msgs 14-17 scope [location, night_castle_sighted, night_fog_broken, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:06:30.518Z payload      8 story blocks injected (generation)
+2026-10-01T17:06:30.562Z payload      9 story blocks injected (generation)
+2026-10-01T17:06:31.213Z judge        judge lore in 370 ms
+2026-10-01T17:06:31.242Z judge        judge lore in 442 ms
+2026-10-01T17:06:31.530Z judge        judge lore in 320 ms
+2026-10-01T17:06:31.565Z judge        judge lore in 328 ms
+2026-10-01T17:06:31.758Z judge        judge lore in 230 ms
+2026-10-01T17:06:32.000Z judge        judge director in 233 ms
+2026-10-01T17:06:32.001Z talk         Dalan speaks (judge)
+2026-10-01T17:06:33.663Z payload      9 story blocks injected (generation)
+2026-10-01T17:06:56.232Z payload      9 story blocks injected (generation)
+2026-10-01T17:06:57.295Z payload      9 story blocks injected (generation)
+2026-10-01T17:06:58.340Z payload      9 story blocks injected (generation)
+2026-10-01T17:06:59.400Z talk         Belle speaks (mention)
+2026-10-01T17:06:59.513Z boundary     applied location=night_kelger_falls, night_fog_broken=false, tension_current=0.4142499999999999
+2026-10-01T17:06:59.763Z payload      8 story blocks injected (generation)
+2026-10-01T17:06:59.809Z payload      9 story blocks injected (generation)
+2026-10-01T17:07:00.000Z judge        judge typed in 254 ms
+2026-10-01T17:07:00.039Z judge        judge scene in 292 ms
+2026-10-01T17:07:00.262Z judge        judge wardenLore in 224 ms
+2026-10-01T17:07:00.278Z judge        judge warden in 279 ms
+2026-10-01T17:07:00.279Z stagecraft   Continuity warden flagged Dalan's reply
+2026-10-01T17:07:00.583Z judge        judge lore in 325 ms
+2026-10-01T17:07:00.588Z judge        judge lore fell back (busy) in 9 ms
+2026-10-01T17:07:00.589Z judge        judge lore fell back (busy) in 734 ms
+2026-10-01T17:07:00.589Z judge        judge lore fell back (busy) in 735 ms
+2026-10-01T17:07:00.601Z judge        judge lore in 328 ms
+2026-10-01T17:07:51.224Z boundary     boundary 14: nothing applied (gate)
+2026-10-01T17:07:51.298Z payload      7 story blocks injected (generation)
+2026-10-01T17:07:51.703Z reconciliation stall re-check queued for night_fog_broken
+2026-10-01T17:07:51.784Z talk         Zariah speaks (judge)
+2026-10-01T17:07:51.784Z judge        judge director in 508 ms
+2026-10-01T17:07:52.047Z judge        judge typed in 315 ms
+2026-10-01T17:07:52.052Z judge        judge stall in 269 ms
+2026-10-01T17:07:53.960Z judge        judge warden in 1909 ms
+2026-10-01T17:07:53.966Z judge        judge scene in 1921 ms
+2026-10-01T17:07:54.196Z judge        judge wardenLore in 237 ms
+2026-10-01T17:09:11.096Z payload      8 story blocks injected (generation)
+2026-10-01T17:09:11.138Z payload      9 story blocks injected (generation)
+2026-10-01T17:09:11.746Z judge        judge lore in 366 ms
+2026-10-01T17:09:11.773Z judge        judge lore in 408 ms
+2026-10-01T17:09:12.085Z judge        judge lore in 316 ms
+2026-10-01T17:09:12.102Z judge        judge lore in 360 ms
+2026-10-01T17:09:12.321Z judge        judge lore in 238 ms
+2026-10-01T17:09:12.569Z talk         Adolion Narrator speaks (judge)
+2026-10-01T17:09:12.569Z judge        judge director in 236 ms
+2026-10-01T17:09:13.963Z payload      9 story blocks injected (generation)
+2026-10-01T17:10:07.108Z boundary     boundary 15: nothing applied (gate)
+2026-10-01T17:10:07.511Z judge        judge director in 536 ms
+2026-10-01T17:10:07.512Z talk         silence speaks (judge)
+2026-10-01T17:10:07.873Z judge        judge scene in 377 ms
+2026-10-01T17:10:07.909Z judge        judge warden in 399 ms
+2026-10-01T17:10:09.994Z judge        judge wardenLore in 2122 ms
+2026-10-01T17:10:09.995Z stagecraft   Warden flagged Adolion Narrator's reply (house-rule)
+2026-10-01T17:10:11.005Z judge        judge typed in 283 ms
+2026-10-01T17:10:11.005Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:10:14.291Z judge        judge memoryVerify in 265 ms
+2026-10-01T17:10:14.813Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.4399749999999999 for the next boundary
+2026-10-01T17:10:14.018Z extraction   read cadence msgs 18-22 → 3 accepted, 0 rejected
+2026-10-01T17:10:14.018Z delta        location = night_kelger_falls
+2026-10-01T17:10:14.018Z delta        night_fog_broken = false
+2026-10-01T17:10:14.018Z delta        tension_current = 0.4399749999999999
+2026-10-01T17:10:14.018Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.4399749999999999 for the next boundary
+2026-10-01T17:10:14.018Z audit        audit cadence msgs 18-22 scope [location, night_castle_sighted, night_fog_broken, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:10:28.694Z payload      8 story blocks injected (generation)
+2026-10-01T17:10:28.756Z payload      9 story blocks injected (generation)
+2026-10-01T17:10:29.414Z judge        judge lore in 370 ms
+2026-10-01T17:10:29.460Z judge        judge lore in 421 ms
+2026-10-01T17:10:29.745Z judge        judge lore in 337 ms
+2026-10-01T17:10:29.752Z judge        judge lore in 296 ms
+2026-10-01T17:10:29.974Z judge        judge lore in 230 ms
+2026-10-01T17:10:30.209Z talk         Zariah speaks (judge)
+2026-10-01T17:10:30.209Z judge        judge director in 228 ms
+2026-10-01T17:11:05.495Z payload      9 story blocks injected (generation)
+2026-10-01T17:11:07.028Z payload      9 story blocks injected (generation)
+2026-10-01T17:11:09.803Z boundary     applied location=night_kelger_falls, night_fog_broken=false, tension_current=0.4399749999999999
+2026-10-01T17:11:10.103Z talk         silence speaks (judge)
+2026-10-01T17:11:10.103Z judge        judge director in 334 ms
+2026-10-01T17:11:10.400Z judge        judge scene in 299 ms
+2026-10-01T17:11:10.542Z judge        judge typed in 468 ms
+2026-10-01T17:11:10.784Z judge        judge warden in 385 ms
+2026-10-01T17:11:10.793Z judge        judge wardenLore in 252 ms
+2026-10-01T17:11:10.793Z stagecraft   Warden flagged Zariah's reply (house-rule)
+2026-10-01T17:11:13.639Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:11:32.739Z payload      8 story blocks injected (generation)
+2026-10-01T17:11:32.786Z payload      9 story blocks injected (generation)
+2026-10-01T17:11:33.399Z judge        judge lore in 374 ms
+2026-10-01T17:11:33.456Z judge        judge lore in 393 ms
+2026-10-01T17:11:33.698Z judge        judge lore in 304 ms
+2026-10-01T17:11:33.758Z judge        judge lore in 306 ms
+2026-10-01T17:11:33.931Z judge        judge lore in 234 ms
+2026-10-01T17:11:34.167Z judge        judge director in 228 ms
+2026-10-01T17:11:34.168Z talk         Zariah speaks (judge)
+2026-10-01T17:12:18.665Z payload      9 story blocks injected (generation)
+2026-10-01T17:12:20.525Z boundary     boundary 17: nothing applied (gate)
+2026-10-01T17:12:20.772Z reconciliation stall re-check queued for night_fog_broken
+2026-10-01T17:12:20.829Z judge        judge director in 331 ms
+2026-10-01T17:12:20.830Z talk         silence speaks (judge)
+2026-10-01T17:12:21.162Z judge        judge typed in 357 ms
+2026-10-01T17:12:21.166Z judge        judge stall in 339 ms
+2026-10-01T17:12:21.551Z judge        judge scene in 391 ms
+2026-10-01T17:12:21.567Z judge        judge warden in 403 ms
+2026-10-01T17:12:21.800Z judge        judge wardenLore in 250 ms
+2026-10-01T17:12:41.585Z flag         Looping at Zariah (msgs 9-26): five turns of 'I can't / it doesn't work like that' with no path offered; the authored helper Kayla is disabled (see earlier flag), so the fog has no way to break. HUD shows 'catching up…' since msg ~12.
+2026-10-01T17:12:45.667Z payload      8 story blocks injected (generation)
+2026-10-01T17:12:45.708Z payload      9 story blocks injected (generation)
+2026-10-01T17:12:46.391Z judge        judge lore in 396 ms
+2026-10-01T17:12:46.478Z judge        judge lore in 473 ms
+2026-10-01T17:12:46.712Z judge        judge lore in 326 ms
+2026-10-01T17:12:46.792Z judge        judge lore in 318 ms
+2026-10-01T17:12:46.933Z judge        judge lore in 223 ms
+2026-10-01T17:12:47.209Z talk         Zariah speaks (judge)
+2026-10-01T17:12:47.209Z judge        judge director in 265 ms
+2026-10-01T17:12:48.967Z payload      9 story blocks injected (generation)
+2026-10-01T17:12:50.341Z payload      9 story blocks injected (generation)
+2026-10-01T17:12:52.241Z payload      9 story blocks injected (generation)
+2026-10-01T17:14:02.633Z talk         Belle speaks (mention)
+2026-10-01T17:14:02.700Z boundary     boundary 18: nothing applied (gate)
+2026-10-01T17:14:03.012Z payload      8 story blocks injected (generation)
+2026-10-01T17:14:03.108Z payload      9 story blocks injected (generation)
+2026-10-01T17:14:03.338Z judge        judge warden in 277 ms
+2026-10-01T17:14:03.352Z judge        judge scene in 296 ms
+2026-10-01T17:14:03.596Z judge        judge wardenLore in 260 ms
+2026-10-01T17:14:03.658Z judge        judge lore in 310 ms
+2026-10-01T17:14:03.920Z judge        judge lore in 328 ms
+2026-10-01T17:14:03.954Z judge        judge lore in 300 ms
+2026-10-01T17:14:04.184Z judge        judge lore in 232 ms
+2026-10-01T17:14:04.212Z judge        judge lore in 296 ms
+2026-10-01T17:14:06.668Z judge        judge typed in 233 ms
+2026-10-01T17:14:06.669Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:14:09.955Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.45798249999999985 for the next boundary
+2026-10-01T17:14:10.018Z judge        judge memoryVerify in 219 ms
+2026-10-01T17:14:11.016Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.45798249999999985 for the next boundary
+2026-10-01T17:14:09.796Z extraction   read cadence msgs 23-28 → 3 accepted, 0 rejected
+2026-10-01T17:14:09.796Z delta        location = night_kelger_falls
+2026-10-01T17:14:09.796Z delta        night_fog_broken = false
+2026-10-01T17:14:09.796Z delta        tension_current = 0.45798249999999985
+2026-10-01T17:14:09.796Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.45798249999999985 for the next boundary
+2026-10-01T17:14:09.796Z audit        audit cadence msgs 23-28 scope [location, night_castle_sighted, night_fog_broken, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:14:57.838Z boundary     applied location=night_kelger_falls, night_fog_broken=false, tension_current=0.45798249999999985
+2026-10-01T17:14:57.913Z payload      7 story blocks injected (generation)
+2026-10-01T17:14:58.514Z talk         Dalan speaks (judge)
+2026-10-01T17:14:58.514Z judge        judge director in 708 ms
+2026-10-01T17:15:01.026Z judge        judge scene fell back (timeout) in 2515 ms
+2026-10-01T17:15:02.035Z judge        judge typed in 3528 ms
+2026-10-01T17:15:02.408Z judge        judge warden in 1383 ms
+2026-10-01T17:15:02.490Z judge        judge wardenLore in 456 ms
+2026-10-01T17:16:16.689Z payload      8 story blocks injected (generation)
+2026-10-01T17:16:16.736Z payload      9 story blocks injected (generation)
+2026-10-01T17:16:17.443Z judge        judge lore in 372 ms
+2026-10-01T17:16:17.454Z judge        judge lore in 371 ms
+2026-10-01T17:16:17.761Z judge        judge lore in 323 ms
+2026-10-01T17:16:17.799Z judge        judge lore in 349 ms
+2026-10-01T17:16:18.043Z judge        judge lore in 284 ms
+2026-10-01T17:16:18.298Z talk         Zariah speaks (judge)
+2026-10-01T17:16:18.298Z judge        judge director in 246 ms
+2026-10-01T17:16:19.523Z payload      9 story blocks injected (generation)
+2026-10-01T17:17:48.450Z payload      9 story blocks injected (generation)
+2026-10-01T17:17:49.985Z payload      9 story blocks injected (generation)
+2026-10-01T17:17:52.716Z talk         Belle speaks (mention)
+2026-10-01T17:17:52.815Z boundary     boundary 20: nothing applied (gate)
+2026-10-01T17:17:53.113Z reconciliation stall re-check queued for night_fog_broken
+2026-10-01T17:17:53.204Z payload      8 story blocks injected (generation)
+2026-10-01T17:17:54.886Z payload      9 story blocks injected (generation)
+2026-10-01T17:17:55.262Z judge        judge stall in 1881 ms
+2026-10-01T17:17:55.604Z judge        judge typed in 2225 ms
+2026-10-01T17:17:55.613Z judge        judge scene in 353 ms
+2026-10-01T17:17:56.028Z judge        judge warden in 425 ms
+2026-10-01T17:17:56.481Z judge        judge wardenLore in 869 ms
+2026-10-01T17:17:56.482Z stagecraft   Continuity warden flagged Zariah's reply
+2026-10-01T17:17:56.495Z judge        judge lore in 473 ms
+2026-10-01T17:17:57.120Z judge        judge lore in 643 ms
+2026-10-01T17:17:57.132Z judge        judge lore in 642 ms
+2026-10-01T17:17:57.541Z judge        judge lore in 425 ms
+2026-10-01T17:17:57.747Z judge        judge lore in 618 ms
+2026-10-01T17:18:07.175Z judge        judge memoryPairs in 260 ms
+2026-10-01T17:18:07.184Z judge        judge memoryPairs in 270 ms
+2026-10-01T17:18:07.397Z judge        judge memoryPairs in 223 ms
+2026-10-01T17:18:07.498Z judge        judge memoryPairs in 314 ms
+2026-10-01T17:18:07.617Z judge        judge memoryPairs in 221 ms
+2026-10-01T17:18:07.825Z judge        judge memoryPairs in 328 ms
+2026-10-01T17:18:07.859Z judge        judge memoryPairs in 243 ms
+2026-10-01T17:18:08.234Z judge        judge memoryPairs in 410 ms
+2026-10-01T17:18:08.235Z judge        judge memoryPairs in 0 ms
+2026-10-01T17:18:08.239Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T17:18:08.239Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T17:18:08.240Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T17:18:08.241Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T17:18:26.816Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:18:26.816Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:18:26.816Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:18:26.816Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:18:26.816Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:18:26.816Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:18:58.110Z boundary     boundary 21: nothing applied (gate)
+2026-10-01T17:18:58.745Z talk         Adolion Narrator speaks (judge)
+2026-10-01T17:18:58.745Z judge        judge director in 596 ms
+2026-10-01T17:18:58.780Z judge        judge scene in 351 ms
+2026-10-01T17:18:59.068Z payload      8 story blocks injected (generation)
+2026-10-01T17:18:59.797Z payload      9 story blocks injected (generation)
+2026-10-01T17:18:59.859Z judge        judge wardenLore in 1079 ms
+2026-10-01T17:18:59.876Z judge        judge warden in 1132 ms
+2026-10-01T17:19:00.194Z judge        judge lore in 340 ms
+2026-10-01T17:19:00.223Z judge        judge lore in 351 ms
+2026-10-01T17:19:00.520Z judge        judge lore in 330 ms
+2026-10-01T17:19:00.526Z judge        judge lore in 307 ms
+2026-10-01T17:19:00.757Z judge        judge lore in 238 ms
+2026-10-01T17:19:00.936Z judge        judge typed in 411 ms
+2026-10-01T17:19:00.936Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:19:05.884Z judge        judge memoryVerify fell back (busy) in 3 ms
+2026-10-01T17:19:06.739Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.47058774999999986 for the next boundary
+2026-10-01T17:19:05.879Z extraction   read cadence msgs 29-32 → 3 accepted, 0 rejected
+2026-10-01T17:19:05.879Z delta        location = night_kelger_falls
+2026-10-01T17:19:05.879Z delta        night_fog_broken = false
+2026-10-01T17:19:05.879Z delta        tension_current = 0.47058774999999986
+2026-10-01T17:19:05.879Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.47058774999999986 for the next boundary
+2026-10-01T17:19:05.879Z audit        audit cadence msgs 29-32 scope [location, night_castle_sighted, night_fog_broken, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:20:07.552Z boundary     applied location=night_kelger_falls, night_fog_broken=false, tension_current=0.47058774999999986
+2026-10-01T17:20:08.142Z judge        judge typed in 305 ms
+2026-10-01T17:20:08.155Z judge        judge scene in 316 ms
+2026-10-01T17:20:08.717Z judge        judge wardenLore in 563 ms
+2026-10-01T17:20:08.719Z judge        judge warden in 578 ms
+2026-10-01T17:20:27.498Z payload      8 story blocks injected (generation)
+2026-10-01T17:20:27.542Z payload      9 story blocks injected (generation)
+2026-10-01T17:20:28.192Z judge        judge lore in 376 ms
+2026-10-01T17:20:28.214Z judge        judge lore in 394 ms
+2026-10-01T17:20:28.509Z judge        judge lore in 321 ms
+2026-10-01T17:20:28.539Z judge        judge lore in 328 ms
+2026-10-01T17:20:28.729Z judge        judge lore in 221 ms
+2026-10-01T17:20:28.975Z talk         Zariah speaks (judge)
+2026-10-01T17:20:28.975Z judge        judge director in 236 ms
+2026-10-01T17:21:16.180Z payload      9 story blocks injected (generation)
+2026-10-01T17:21:18.156Z payload      9 story blocks injected (generation)
+2026-10-01T17:21:19.945Z payload      9 story blocks injected (generation)
+2026-10-01T17:21:21.631Z payload      9 story blocks injected (generation)
+2026-10-01T17:21:23.434Z boundary     boundary 23: nothing applied (gate)
+2026-10-01T17:21:23.676Z reconciliation stall re-check queued for night_fog_broken
+2026-10-01T17:21:23.726Z talk         silence speaks (judge)
+2026-10-01T17:21:23.726Z judge        judge director in 371 ms
+2026-10-01T17:21:24.125Z judge        judge stall in 401 ms
+2026-10-01T17:21:24.149Z judge        judge typed in 440 ms
+2026-10-01T17:21:24.556Z judge        judge warden in 409 ms
+2026-10-01T17:21:24.557Z judge        judge scene in 435 ms
+2026-10-01T17:21:24.806Z judge        judge wardenLore in 251 ms
+2026-10-01T17:21:42.948Z payload      8 story blocks injected (generation)
+2026-10-01T17:21:42.984Z payload      9 story blocks injected (generation)
+2026-10-01T17:21:43.649Z judge        judge lore in 386 ms
+2026-10-01T17:21:43.717Z judge        judge lore in 450 ms
+2026-10-01T17:21:43.975Z judge        judge lore in 330 ms
+2026-10-01T17:21:44.063Z judge        judge lore in 350 ms
+2026-10-01T17:21:44.210Z judge        judge lore in 236 ms
+2026-10-01T17:21:44.446Z talk         Zariah speaks (judge)
+2026-10-01T17:21:44.446Z judge        judge director in 229 ms
+2026-10-01T17:22:32.239Z payload      9 story blocks injected (generation)
+2026-10-01T17:22:34.143Z payload      9 story blocks injected (generation)
+2026-10-01T17:22:35.687Z payload      9 story blocks injected (generation)
+2026-10-01T17:22:37.125Z payload      9 story blocks injected (generation)
+2026-10-01T17:22:38.689Z boundary     boundary 24: nothing applied (gate)
+2026-10-01T17:22:39.063Z talk         silence speaks (judge)
+2026-10-01T17:22:39.063Z judge        judge director in 395 ms
+2026-10-01T17:22:39.553Z judge        judge scene in 521 ms
+2026-10-01T17:22:39.630Z judge        judge warden in 569 ms
+2026-10-01T17:22:39.782Z judge        judge wardenLore in 230 ms
+2026-10-01T17:22:40.642Z judge        judge typed in 256 ms
+2026-10-01T17:22:40.643Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:22:44.356Z judge        judge memoryVerify in 240 ms
+2026-10-01T17:22:44.945Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.5544114249999998 for the next boundary
+2026-10-01T17:22:44.114Z extraction   read cadence msgs 33-37 → 3 accepted, 0 rejected
+2026-10-01T17:22:44.114Z delta        location = night_kelger_falls
+2026-10-01T17:22:44.114Z delta        night_fog_broken = false
+2026-10-01T17:22:44.114Z delta        tension_current = 0.5544114249999998
+2026-10-01T17:22:44.114Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.5544114249999998 for the next boundary
+2026-10-01T17:22:44.114Z audit        audit cadence msgs 33-37 scope [location, night_castle_sighted, night_fog_broken, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:22:49.261Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:23:03.898Z payload      8 story blocks injected (generation)
+2026-10-01T17:23:03.940Z payload      9 story blocks injected (generation)
+2026-10-01T17:23:04.611Z judge        judge lore in 386 ms
+2026-10-01T17:23:04.675Z judge        judge lore in 454 ms
+2026-10-01T17:23:04.944Z judge        judge lore in 336 ms
+2026-10-01T17:23:05.026Z judge        judge lore in 355 ms
+2026-10-01T17:23:05.183Z judge        judge lore in 240 ms
+2026-10-01T17:23:05.433Z judge        judge director in 240 ms
+2026-10-01T17:23:05.434Z talk         Belle speaks (judge)
+2026-10-01T17:23:06.953Z payload      9 story blocks injected (generation)
+2026-10-01T17:23:48.622Z payload      9 story blocks injected (generation)
+2026-10-01T17:23:49.799Z payload      9 story blocks injected (generation)
+2026-10-01T17:23:50.955Z payload      9 story blocks injected (generation)
+2026-10-01T17:23:54.892Z boundary     applied location=night_kelger_falls, night_fog_broken=false, tension_current=0.5544114249999998
+2026-10-01T17:23:54.991Z judge        judge director in 273 ms
+2026-10-01T17:23:54.992Z talk         Dalan speaks (judge)
+2026-10-01T17:23:55.439Z payload      8 story blocks injected (generation)
+2026-10-01T17:23:55.504Z payload      9 story blocks injected (generation)
+2026-10-01T17:23:55.565Z judge        judge typed in 380 ms
+2026-10-01T17:23:55.862Z judge        judge warden in 299 ms
+2026-10-01T17:23:55.868Z judge        judge scene in 682 ms
+2026-10-01T17:23:56.088Z judge        judge wardenLore in 227 ms
+2026-10-01T17:23:56.196Z judge        judge lore in 333 ms
+2026-10-01T17:23:56.438Z judge        judge lore in 355 ms
+2026-10-01T17:23:56.528Z judge        judge lore in 337 ms
+2026-10-01T17:23:56.767Z judge        judge lore in 333 ms
+2026-10-01T17:23:56.791Z judge        judge lore in 264 ms
+2026-10-01T17:24:22.943Z talk         Zariah speaks (mention)
+2026-10-01T17:24:22.994Z boundary     boundary 26: nothing applied (gate)
+2026-10-01T17:24:23.184Z payload      7 story blocks injected (generation)
+2026-10-01T17:24:23.351Z reconciliation stall re-check queued for night_fog_broken
+2026-10-01T17:24:23.822Z judge        judge stall in 443 ms
+2026-10-01T17:24:23.833Z judge        judge typed in 455 ms
+2026-10-01T17:24:24.110Z judge        judge warden in 278 ms
+2026-10-01T17:24:24.281Z judge        judge scene in 461 ms
+2026-10-01T17:24:24.353Z judge        judge wardenLore in 244 ms
+2026-10-01T17:24:24.647Z judge        judge lore in 370 ms
+2026-10-01T17:24:24.753Z judge        judge lore in 403 ms
+2026-10-01T17:24:24.760Z judge        judge lore fell back (busy) in 11 ms
+2026-10-01T17:24:24.760Z judge        judge lore fell back (busy) in 980 ms
+2026-10-01T17:24:25.071Z judge        judge lore in 428 ms
+2026-10-01T17:25:10.710Z boundary     boundary 27: nothing applied (gate)
+2026-10-01T17:25:13.971Z judge        judge warden in 294 ms
+2026-10-01T17:25:13.985Z judge        judge scene in 312 ms
+2026-10-01T17:25:14.973Z judge        judge typed in 226 ms
+2026-10-01T17:25:14.973Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:25:18.683Z judge        judge memoryVerify in 221 ms
+2026-10-01T17:25:18.803Z delta        queued location=night_kelger_falls, tension_current=0.6130879974999999 for the next boundary
+2026-10-01T17:25:18.460Z extraction   read cadence msgs 38-41 → 2 accepted, 0 rejected
+2026-10-01T17:25:18.460Z delta        location = night_kelger_falls
+2026-10-01T17:25:18.460Z delta        tension_current = 0.6130879974999999
+2026-10-01T17:25:18.460Z delta        queued location=night_kelger_falls, tension_current=0.6130879974999999 for the next boundary
+2026-10-01T17:25:18.460Z audit        audit cadence msgs 38-41 scope [location, night_castle_sighted, night_fog_broken, night_inquisition_suspicion, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:25:34.311Z payload      8 story blocks injected (generation)
+2026-10-01T17:25:34.373Z payload      9 story blocks injected (generation)
+2026-10-01T17:25:35.068Z judge        judge lore in 382 ms
+2026-10-01T17:25:35.079Z judge        judge lore in 398 ms
+2026-10-01T17:25:35.392Z judge        judge lore in 328 ms
+2026-10-01T17:25:35.393Z judge        judge lore in 318 ms
+2026-10-01T17:25:35.638Z judge        judge lore in 248 ms
+2026-10-01T17:25:35.908Z judge        judge director in 260 ms
+2026-10-01T17:25:35.909Z talk         Zariah speaks (judge)
+2026-10-01T17:26:03.881Z payload      9 story blocks injected (generation)
+2026-10-01T17:26:05.813Z payload      9 story blocks injected (generation)
+2026-10-01T17:26:07.783Z talk         Belle speaks (mention)
+2026-10-01T17:26:07.868Z boundary     applied location=night_kelger_falls, tension_current=0.6130879974999999
+2026-10-01T17:26:08.324Z payload      8 story blocks injected (generation)
+2026-10-01T17:26:08.464Z payload      9 story blocks injected (generation)
+2026-10-01T17:26:08.663Z judge        judge typed in 436 ms
+2026-10-01T17:26:08.671Z judge        judge scene in 442 ms
+2026-10-01T17:26:09.136Z judge        judge wardenLore in 466 ms
+2026-10-01T17:26:09.146Z judge        judge warden in 485 ms
+2026-10-01T17:26:09.455Z judge        judge lore in 323 ms
+2026-10-01T17:26:09.608Z judge        judge lore in 466 ms
+2026-10-01T17:26:09.767Z judge        judge lore in 316 ms
+2026-10-01T17:26:09.770Z judge        judge lore fell back (busy) in 4 ms
+2026-10-01T17:26:09.920Z judge        judge lore in 316 ms
+2026-10-01T17:26:48.764Z boundary     boundary 29: nothing applied (gate)
+2026-10-01T17:26:49.025Z reconciliation stall re-check queued for night_fog_broken
+2026-10-01T17:26:49.120Z talk         Adolion Narrator speaks (judge)
+2026-10-01T17:26:49.120Z judge        judge director in 310 ms
+2026-10-01T17:26:49.499Z judge        judge typed in 411 ms
+2026-10-01T17:26:49.504Z judge        judge stall in 386 ms
+2026-10-01T17:26:49.653Z payload      8 story blocks injected (generation)
+2026-10-01T17:26:51.703Z payload      9 story blocks injected (generation)
+2026-10-01T17:26:51.914Z judge        judge warden in 2412 ms
+2026-10-01T17:26:51.921Z judge        judge scene in 2425 ms
+2026-10-01T17:26:52.180Z judge        judge wardenLore in 267 ms
+2026-10-01T17:26:52.265Z judge        judge lore in 350 ms
+2026-10-01T17:26:52.514Z judge        judge lore in 338 ms
+2026-10-01T17:26:52.600Z judge        judge lore in 338 ms
+2026-10-01T17:26:52.603Z judge        judge lore fell back (busy) in 4 ms
+2026-10-01T17:26:52.864Z judge        judge lore in 354 ms
+2026-10-01T17:27:20.292Z boundary     boundary 30: nothing applied (gate)
+2026-10-01T17:27:23.244Z judge        judge scene fell back (timeout) in 2507 ms
+2026-10-01T17:27:23.800Z judge        judge wardenLore fell back (busy) in 557 ms
+2026-10-01T17:27:23.888Z judge        judge warden in 3149 ms
+2026-10-01T17:27:25.472Z judge        judge typed in 429 ms
+2026-10-01T17:27:25.473Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:27:30.229Z delta        queued night_fog_broken=false, tension_current=0.6541615982499999 for the next boundary
+2026-10-01T17:27:31.306Z delta        queued night_fog_broken=false, tension_current=0.6541615982499999 for the next boundary
+2026-10-01T17:27:32.373Z judge        judge memoryVerify in 2911 ms
+2026-10-01T17:27:32.396Z delta        queued night_fog_broken=false, tension_current=0.6541615982499999 for the next boundary
+2026-10-01T17:27:33.473Z delta        queued night_fog_broken=false, tension_current=0.6541615982499999 for the next boundary
+2026-10-01T17:27:34.564Z delta        queued night_fog_broken=false, tension_current=0.6541615982499999 for the next boundary
+2026-10-01T17:27:29.460Z extraction   read cadence msgs 42-45 → 2 accepted, 1 rejected
+2026-10-01T17:27:29.460Z delta        night_fog_broken = false
+2026-10-01T17:27:29.460Z delta        tension_current = 0.6541615982499999
+2026-10-01T17:27:29.460Z delta        queued night_fog_broken=false, tension_current=0.6541615982499999 for the next boundary
+2026-10-01T17:27:29.460Z audit        audit cadence msgs 42-45 scope [location, night_castle_sighted, night_fog_broken, party_injuries, party_rank, tension_current] → 2 accepted, 1 rejected
+2026-10-01T17:27:38.692Z judge        judge memoryPairs in 0 ms
+2026-10-01T17:27:38.692Z judge        judge memoryPairs in 0 ms
+2026-10-01T17:27:38.692Z judge        judge memoryPairs in 0 ms
+2026-10-01T17:27:38.692Z judge        judge memoryPairs in 0 ms
+2026-10-01T17:27:38.959Z judge        judge memoryPairs in 268 ms
+2026-10-01T17:27:38.983Z judge        judge memoryPairs in 291 ms
+2026-10-01T17:27:39.213Z judge        judge memoryPairs in 231 ms
+2026-10-01T17:27:39.278Z judge        judge memoryPairs in 320 ms
+2026-10-01T17:27:39.284Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T17:28:03.913Z judge        judge memoryPairs in 268 ms
+2026-10-01T17:28:03.925Z judge        judge memoryPairs in 282 ms
+2026-10-01T17:28:04.146Z judge        judge memoryPairs in 222 ms
+2026-10-01T17:28:04.163Z judge        judge memoryPairs in 250 ms
+2026-10-01T17:28:04.371Z judge        judge memoryPairs in 225 ms
+2026-10-01T17:28:04.394Z judge        judge memoryPairs in 232 ms
+2026-10-01T17:28:04.592Z judge        judge memoryPairs in 221 ms
+2026-10-01T17:28:04.623Z judge        judge memoryPairs in 230 ms
+2026-10-01T17:28:04.841Z judge        judge memoryPairs in 218 ms
+2026-10-01T17:28:04.865Z judge        judge memoryPairs in 241 ms
+2026-10-01T17:28:05.203Z model-call   supersession via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:28:28.177Z payload      8 story blocks injected (generation)
+2026-10-01T17:28:28.223Z payload      9 story blocks injected (generation)
+2026-10-01T17:28:28.905Z judge        judge lore in 391 ms
+2026-10-01T17:28:29.029Z judge        judge lore in 519 ms
+2026-10-01T17:28:29.034Z judge        judge lore fell back (busy) in 9 ms
+2026-10-01T17:28:29.034Z judge        judge lore fell back (busy) in 524 ms
+2026-10-01T17:28:29.259Z judge        judge lore in 358 ms
+2026-10-01T17:28:29.273Z talk         Zariah speaks (mention)
+2026-10-01T17:28:29.273Z judge        judge director fell back (busy) in 0 ms
+2026-10-01T17:28:56.003Z payload      9 story blocks injected (generation)
+2026-10-01T17:28:57.409Z payload      9 story blocks injected (generation)
+2026-10-01T17:28:58.708Z payload      9 story blocks injected (generation)
+2026-10-01T17:28:59.954Z boundary     applied night_fog_broken=false, tension_current=0.6541615982499999
+2026-10-01T17:29:00.329Z talk         silence speaks (judge)
+2026-10-01T17:29:00.329Z judge        judge director in 444 ms
+2026-10-01T17:29:00.611Z judge        judge typed in 300 ms
+2026-10-01T17:29:00.657Z judge        judge scene in 330 ms
+2026-10-01T17:29:00.878Z judge        judge warden in 269 ms
+2026-10-01T17:29:00.902Z judge        judge wardenLore in 246 ms
+2026-10-01T17:29:00.902Z stagecraft   Warden flagged Zariah's reply (house-rule)
+2026-10-01T17:29:18.766Z payload      8 story blocks injected (generation)
+2026-10-01T17:29:18.810Z payload      9 story blocks injected (generation)
+2026-10-01T17:29:19.511Z judge        judge lore in 380 ms
+2026-10-01T17:29:19.522Z judge        judge lore in 383 ms
+2026-10-01T17:29:19.837Z judge        judge lore in 330 ms
+2026-10-01T17:29:19.838Z judge        judge lore in 320 ms
+2026-10-01T17:29:20.083Z judge        judge lore in 247 ms
+2026-10-01T17:29:20.364Z talk         Zariah speaks (judge)
+2026-10-01T17:29:20.364Z judge        judge director in 270 ms
+2026-10-01T17:29:21.451Z payload      9 story blocks injected (generation)
+2026-10-01T17:29:22.526Z payload      9 story blocks injected (generation)
+2026-10-01T17:29:23.953Z payload      9 story blocks injected (generation)
+2026-10-01T17:29:54.128Z boundary     boundary 32: nothing applied (gate)
+2026-10-01T17:29:54.435Z reconciliation stall re-check queued for night_fog_broken
+2026-10-01T17:29:54.873Z talk         silence speaks (judge)
+2026-10-01T17:29:54.873Z judge        judge director in 798 ms
+2026-10-01T17:29:55.368Z judge        judge typed in 811 ms
+2026-10-01T17:29:55.402Z judge        judge stall in 532 ms
+2026-10-01T17:29:57.134Z judge        judge scene in 1768 ms
+2026-10-01T17:29:57.424Z judge        judge wardenLore in 291 ms
+2026-10-01T17:29:57.424Z judge        judge warden in 2024 ms
+2026-10-01T17:29:59.441Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:30:02.858Z judge        judge typed in 361 ms
+2026-10-01T17:30:02.859Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:30:08.059Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:30:13.796Z judge        judge memoryVerify in 349 ms
+2026-10-01T17:30:13.841Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.6829131187749998 for the next boundary
+2026-10-01T17:30:14.939Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.6829131187749998 for the next boundary
+2026-10-01T17:30:16.022Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.6829131187749998 for the next boundary
+2026-10-01T17:30:13.433Z extraction   read reconcile:night_fog_broken msgs 1-49 → 3 accepted, 0 rejected
+2026-10-01T17:30:13.433Z delta        location = night_kelger_falls
+2026-10-01T17:30:13.433Z delta        night_fog_broken = false
+2026-10-01T17:30:13.433Z delta        tension_current = 0.6829131187749998
+2026-10-01T17:30:13.433Z delta        queued location=night_kelger_falls, night_fog_broken=false, tension_current=0.6829131187749998 for the next boundary
+2026-10-01T17:30:16.128Z reconciliation stall re-check resolved (10 evidence)
+2026-10-01T17:30:16.128Z reconciliation stall re-check resolved (1 evidence)
+2026-10-01T17:30:16.128Z reconciliation stall re-check resolved (1 evidence)
+2026-10-01T17:30:16.128Z reconciliation stall re-check resolved (1 evidence)
+2026-10-01T17:30:16.128Z reconciliation stall re-check resolved (1 evidence)
+2026-10-01T17:30:16.128Z reconciliation stall re-check resolved (1 evidence)
+2026-10-01T17:30:16.128Z reconciliation stall re-check resolved (1 evidence)
+2026-10-01T17:30:16.128Z reconciliation stall re-check resolved (1 evidence)
+2026-10-01T17:30:17.134Z judge        judge curatorFilter in 609 ms
+2026-10-01T17:30:13.433Z audit        audit reconcile:night_fog_broken msgs 1-49 scope [location, night_castle_sighted, night_fog_broken, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:30:16.527Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:30:17.135Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:30:18.657Z stagecraft   World Info curator proposed 1 change(s) at The Fog at Kelger Falls
+2026-10-01T17:30:18.273Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:30:21.687Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:30:37.105Z payload      8 story blocks injected (generation)
+2026-10-01T17:30:37.155Z payload      9 story blocks injected (generation)
+2026-10-01T17:30:37.936Z judge        judge lore in 403 ms
+2026-10-01T17:30:37.946Z judge        judge lore in 422 ms
+2026-10-01T17:30:38.312Z judge        judge lore in 371 ms
+2026-10-01T17:30:38.313Z judge        judge lore in 382 ms
+2026-10-01T17:30:38.567Z judge        judge lore in 257 ms
+2026-10-01T17:30:38.807Z judge        judge director in 229 ms
+2026-10-01T17:30:38.808Z talk         Adolion Narrator speaks (judge)
+2026-10-01T17:30:40.084Z payload      9 story blocks injected (generation)
+2026-10-01T17:30:41.804Z payload      9 story blocks injected (generation)
+2026-10-01T17:30:43.464Z payload      9 story blocks injected (generation)
+2026-10-01T17:31:17.785Z talk         Zariah speaks (mention)
+2026-10-01T17:31:17.934Z boundary     applied location=night_kelger_falls, night_fog_broken=false, tension_current=0.6829131187749998
+2026-10-01T17:31:18.263Z payload      7 story blocks injected (generation)
+2026-10-01T17:31:19.907Z judge        judge scene in 892 ms
+2026-10-01T17:31:19.938Z judge        judge warden in 921 ms
+2026-10-01T17:31:21.250Z judge        judge wardenLore in 1345 ms
+2026-10-01T17:31:21.499Z judge        judge typed in 256 ms
+2026-10-01T17:31:21.500Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:31:25.245Z judge        judge memoryVerify in 248 ms
+2026-10-01T17:31:25.646Z delta        queued night_fog_broken=true, tension_current=0.5530391831424998 for the next boundary
+2026-10-01T17:31:24.995Z extraction   read cadence msgs 46-51 → 2 accepted, 0 rejected
+2026-10-01T17:31:24.995Z delta        night_fog_broken = true
+2026-10-01T17:31:24.995Z delta        tension_current = 0.5530391831424998
+2026-10-01T17:31:24.995Z delta        queued night_fog_broken=true, tension_current=0.5530391831424998 for the next boundary
+2026-10-01T17:31:24.995Z audit        audit cadence msgs 46-51 scope [location, night_castle_sighted, night_fog_broken, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:31:26.386Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:31:27.835Z judge        judge typed in 235 ms
+2026-10-01T17:31:28.004Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:31:27.835Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:31:29.669Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:31:31.565Z judge        judge memoryVerify in 257 ms
+2026-10-01T17:31:31.573Z delta        queued night_fog_broken=true, tension_current=0.3871274281997498 for the next boundary
+2026-10-01T17:31:30.924Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:31:32.677Z delta        queued night_fog_broken=true, tension_current=0.3871274281997498 for the next boundary
+2026-10-01T17:31:31.305Z extraction   read cue:night-the-kelger-falls->gen_night-the-long-night_1 msgs 44-51 → 2 accepted, 0 rejected
+2026-10-01T17:31:31.305Z delta        night_fog_broken = true
+2026-10-01T17:31:31.305Z delta        tension_current = 0.3871274281997498
+2026-10-01T17:31:31.305Z delta        queued night_fog_broken=true, tension_current=0.3871274281997498 for the next boundary
+2026-10-01T17:31:31.305Z audit        audit cue:night-the-kelger-falls->gen_night-the-long-night_1 msgs 44-51 scope [location, night_castle_sighted, night_fog_broken, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:31:32.184Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:31:35.554Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:31:37.028Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:31:38.662Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:32:39.330Z payload      8 story blocks injected (generation)
+2026-10-01T17:32:39.381Z payload      9 story blocks injected (generation)
+2026-10-01T17:32:40.165Z judge        judge lore in 355 ms
+2026-10-01T17:32:40.180Z judge        judge lore in 385 ms
+2026-10-01T17:32:40.457Z judge        judge lore in 297 ms
+2026-10-01T17:32:40.496Z judge        judge lore in 320 ms
+2026-10-01T17:32:40.684Z judge        judge lore in 228 ms
+2026-10-01T17:32:40.937Z talk         Zariah speaks (judge)
+2026-10-01T17:32:40.937Z judge        judge director in 235 ms
+2026-10-01T17:33:12.569Z boundary     applied night_fog_broken=true, tension_current=0.3871274281997498, progress_toward_night-dawn=3; discarded night_fog_broken=true, tension_current=0.5530391831424998 (superseded)
+2026-10-01T17:33:12.569Z transition   night-the-kelger-falls → gen_night-the-long-night_1
+2026-10-01T17:33:12.678Z talk         silence speaks (judge)
+2026-10-01T17:33:12.678Z judge        judge director in 408 ms
+2026-10-01T17:33:12.949Z status       Moved into The Fog Lifts
+2026-10-01T17:33:13.247Z judge        judge typed in 259 ms
+2026-10-01T17:33:14.713Z judge        judge scene in 1723 ms
+2026-10-01T17:33:14.935Z judge        judge warden in 1690 ms
+2026-10-01T17:33:14.987Z judge        judge wardenLore in 275 ms
+2026-10-01T17:33:50.539Z payload      8 story blocks injected (generation)
+2026-10-01T17:33:50.600Z payload      9 story blocks injected (generation)
+2026-10-01T17:33:51.403Z judge        judge lore in 380 ms
+2026-10-01T17:33:51.440Z judge        judge lore in 427 ms
+2026-10-01T17:33:51.751Z judge        judge lore in 352 ms
+2026-10-01T17:33:51.758Z judge        judge lore in 322 ms
+2026-10-01T17:33:51.998Z judge        judge lore in 248 ms
+2026-10-01T17:34:48.941Z boundary     boundary 35: nothing applied (gate)
+2026-10-01T17:34:48.941Z transition   gen_night-the-long-night_1 → gen_night-the-long-night_2
+2026-10-01T17:34:49.376Z status       Moved into The Road to Castle Dracul
+2026-10-01T17:34:51.189Z judge        judge scene in 1518 ms
+2026-10-01T17:34:51.214Z judge        judge typed in 1544 ms
+2026-10-01T17:34:51.556Z judge        judge wardenLore in 343 ms
+2026-10-01T17:34:51.579Z judge        judge warden in 391 ms
+2026-10-01T17:35:08.580Z payload      8 story blocks injected (generation)
+2026-10-01T17:35:08.628Z payload      9 story blocks injected (generation)
+2026-10-01T17:35:09.391Z judge        judge lore in 374 ms
+2026-10-01T17:35:09.401Z judge        judge lore in 393 ms
+2026-10-01T17:35:09.714Z judge        judge lore in 316 ms
+2026-10-01T17:35:09.720Z judge        judge lore in 334 ms
+2026-10-01T17:35:09.992Z judge        judge lore in 280 ms
+2026-10-01T17:35:46.531Z payload      9 story blocks injected (generation)
+2026-10-01T17:35:47.058Z judge        judge lore in 395 ms
+2026-10-01T17:35:47.081Z judge        judge lore in 413 ms
+2026-10-01T17:35:47.380Z judge        judge lore in 326 ms
+2026-10-01T17:35:47.416Z judge        judge lore in 339 ms
+2026-10-01T17:35:47.630Z judge        judge lore in 252 ms
+2026-10-01T17:36:59.550Z boundary     boundary 36: nothing applied (gate)
+2026-10-01T17:37:00.426Z status       Following The Road to Castle Dracul
+2026-10-01T17:37:00.595Z boundary     boundary 37: nothing applied (gate)
+2026-10-01T17:37:01.841Z judge        judge scene in 697 ms
+2026-10-01T17:37:01.929Z judge        judge warden in 781 ms
+2026-10-01T17:37:04.738Z judge        judge typed in 2811 ms
+2026-10-01T17:37:04.755Z judge        judge wardenLore in 2936 ms
+2026-10-01T17:37:04.756Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T17:37:06.069Z judge        judge typed in 267 ms
+2026-10-01T17:37:06.070Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:10.583Z judge        judge memoryVerify in 276 ms
+2026-10-01T17:37:11.125Z delta        queued tension_current=0.3459891997398249 for the next boundary
+2026-10-01T17:37:12.219Z delta        queued tension_current=0.3459891997398249 for the next boundary
+2026-10-01T17:37:10.305Z extraction   read cadence msgs 52-57 → 1 accepted, 2 rejected
+2026-10-01T17:37:10.305Z delta        tension_current = 0.3459891997398249
+2026-10-01T17:37:10.305Z delta        queued tension_current=0.3459891997398249 for the next boundary
+2026-10-01T17:37:10.305Z audit        audit cadence msgs 52-57 scope [location, night_castle_sighted, night_inquisition_suspicion, party_injuries, party_rank, tension_current] → 1 accepted, 2 rejected
+2026-10-01T17:37:12.940Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:14.925Z judge        judge typed in 290 ms
+2026-10-01T17:37:14.595Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:18.441Z judge        judge curatorFilter in 423 ms
+2026-10-01T17:37:14.926Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:18.442Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:20.037Z stagecraft   World Info curator proposed 3 change(s) at The Road to Castle Dracul
+2026-10-01T17:37:19.834Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:24.750Z delta        queued tension_current=0.3171924398178774 for the next boundary
+2026-10-01T17:37:24.791Z judge        judge memoryVerify in 310 ms
+2026-10-01T17:37:25.855Z delta        queued tension_current=0.3171924398178774 for the next boundary
+2026-10-01T17:37:26.953Z delta        queued tension_current=0.3171924398178774 for the next boundary
+2026-10-01T17:37:24.478Z extraction   read cue:gen_night-the-long-night_2->night-the-castle-dracul msgs 51-58 → 1 accepted, 2 rejected
+2026-10-01T17:37:24.478Z delta        tension_current = 0.3171924398178774
+2026-10-01T17:37:24.478Z delta        queued tension_current=0.3171924398178774 for the next boundary
+2026-10-01T17:37:24.478Z audit        audit cue:gen_night-the-long-night_2->night-the-castle-dracul msgs 51-58 scope [location, night_castle_sighted, night_inquisition_suspicion, party_injuries, tension_current] → 1 accepted, 2 rejected
+2026-10-01T17:37:27.345Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:28.446Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:30.245Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:29.372Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:47.799Z flag         Speech degeneration spreading: Belle (msgs 32, 44, 57), Fael (58), Nyl (55) and Zariah all stutter-loop ('probably-probably', 'we-we-we-don't-don't know-know'). Started with Zariah's authored stammer at Kelger Falls; now every voice copies it.
+2026-10-01T17:37:58.948Z payload      8 story blocks injected (generation)
+2026-10-01T17:37:58.999Z payload      9 story blocks injected (generation)
+2026-10-01T17:37:59.692Z judge        judge lore in 354 ms
+2026-10-01T17:37:59.704Z judge        judge lore in 370 ms
+2026-10-01T17:37:59.996Z judge        judge lore in 310 ms
+2026-10-01T17:38:00.002Z judge        judge lore in 302 ms
+2026-10-01T17:38:00.221Z judge        judge lore in 226 ms
+2026-10-01T17:38:37.423Z payload      9 story blocks injected (generation)
+2026-10-01T17:38:37.879Z judge        judge lore in 342 ms
+2026-10-01T17:38:37.909Z judge        judge lore in 382 ms
+2026-10-01T17:38:38.151Z judge        judge lore in 276 ms
+2026-10-01T17:38:38.326Z judge        judge lore in 420 ms
+2026-10-01T17:38:38.388Z judge        judge lore in 238 ms
+2026-10-01T17:39:10.976Z boundary     applied tension_current=0.3171924398178774, progress_toward_night-dawn=5; discarded tension_current=0.3459891997398249 (superseded)
+2026-10-01T17:39:11.308Z payload      7 story blocks injected (generation)
+2026-10-01T17:39:12.070Z boundary     boundary 39: nothing applied (gate)
+2026-10-01T17:39:12.864Z judge        judge typed in 793 ms
+2026-10-01T17:39:13.082Z judge        judge scene in 1010 ms
+2026-10-01T17:39:13.177Z judge        judge scene in 0 ms
+2026-10-01T17:39:15.034Z judge        judge wardenLore in 1953 ms
+2026-10-01T17:39:15.039Z judge        judge warden in 2179 ms
+2026-10-01T17:39:15.040Z stagecraft   Warden flagged Zariah's reply (house-rule)
+2026-10-01T17:39:15.695Z judge        judge typed in 663 ms
+2026-10-01T17:39:15.695Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:39:20.962Z judge        judge memoryVerify in 282 ms
+2026-10-01T17:39:21.447Z delta        queued tension_current=0.2970347078725142 for the next boundary
+2026-10-01T17:39:22.552Z delta        queued tension_current=0.2970347078725142 for the next boundary
+2026-10-01T17:39:20.676Z extraction   read cue:gen_night-the-long-night_2->night-the-castle-dracul msgs 53-60 → 1 accepted, 2 rejected
+2026-10-01T17:39:20.676Z delta        tension_current = 0.2970347078725142
+2026-10-01T17:39:20.676Z delta        queued tension_current=0.2970347078725142 for the next boundary
+2026-10-01T17:39:20.676Z audit        audit cue:gen_night-the-long-night_2->night-the-castle-dracul msgs 53-60 scope [location, night_castle_sighted, night_inquisition_suspicion, party_injuries, tension_current] → 1 accepted, 2 rejected
+2026-10-01T17:39:24.672Z judge        judge typed in 237 ms
+2026-10-01T17:39:24.672Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:39:28.564Z judge        judge memoryVerify in 232 ms
+2026-10-01T17:39:29.368Z delta        queued location=night_kelger_falls, night_castle_sighted=false, tension_current=0.2829242955107599 for the next boundary
+2026-10-01T17:39:28.330Z extraction   read cadence msgs 58-61 → 3 accepted, 0 rejected
+2026-10-01T17:39:28.330Z delta        location = night_kelger_falls
+2026-10-01T17:39:28.330Z delta        night_castle_sighted = false
+2026-10-01T17:39:28.330Z delta        tension_current = 0.2829242955107599
+2026-10-01T17:39:28.330Z delta        queued location=night_kelger_falls, night_castle_sighted=false, tension_current=0.2829242955107599 for the next boundary
+2026-10-01T17:39:28.330Z audit        audit cadence msgs 58-61 scope [location, night_castle_sighted, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:39:30.933Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:39:32.512Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:39:36.589Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:39:38.272Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:39:41.372Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:40:25.946Z payload      8 story blocks injected (generation)
+2026-10-01T17:40:25.998Z payload      9 story blocks injected (generation)
+2026-10-01T17:40:26.799Z judge        judge lore in 385 ms
+2026-10-01T17:40:26.829Z judge        judge lore in 406 ms
+2026-10-01T17:40:27.121Z judge        judge lore in 325 ms
+2026-10-01T17:40:27.135Z judge        judge lore in 309 ms
+2026-10-01T17:40:27.390Z judge        judge lore in 270 ms
+2026-10-01T17:41:17.215Z boundary     applied tension_current=0.2970347078725142, location=night_kelger_falls, night_castle_sighted=false, tension_current=0.2829242955107599
+2026-10-01T17:41:20.510Z judge        judge scene fell back (timeout) in 2517 ms
+2026-10-01T17:41:23.005Z judge        judge typed fell back (timeout) in 5015 ms
+2026-10-01T17:41:23.700Z judge        judge warden fell back (busy) in 3193 ms
+2026-10-01T17:41:23.727Z judge        judge wardenLore fell back (busy) in 723 ms
+2026-10-01T17:41:26.504Z judge        judge typed in 605 ms
+2026-10-01T17:41:26.504Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:41:31.036Z delta        queued location=night_road, night_castle_sighted=false, tension_current=0.2730470068575319 for the next boundary
+2026-10-01T17:41:31.488Z judge        judge memoryVerify in 472 ms
+2026-10-01T17:41:32.182Z delta        queued location=night_road, night_castle_sighted=false, tension_current=0.2730470068575319 for the next boundary
+2026-10-01T17:41:33.310Z delta        queued location=night_road, night_castle_sighted=false, tension_current=0.2730470068575319 for the next boundary
+2026-10-01T17:41:34.535Z delta        queued location=night_road, night_castle_sighted=false, tension_current=0.2730470068575319 for the next boundary
+2026-10-01T17:41:35.670Z delta        queued location=night_road, night_castle_sighted=false, tension_current=0.2730470068575319 for the next boundary
+2026-10-01T17:41:30.812Z extraction   read cue:gen_night-the-long-night_2->night-the-castle-dracul msgs 56-63 → 3 accepted, 0 rejected
+2026-10-01T17:41:30.812Z delta        location = night_road
+2026-10-01T17:41:30.812Z delta        night_castle_sighted = false
+2026-10-01T17:41:30.812Z delta        tension_current = 0.2730470068575319
+2026-10-01T17:41:30.812Z delta        queued location=night_road, night_castle_sighted=false, tension_current=0.2730470068575319 for the next boundary
+2026-10-01T17:41:30.812Z audit        audit cue:gen_night-the-long-night_2->night-the-castle-dracul msgs 56-63 scope [location, night_castle_sighted, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:41:38.614Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:41:43.248Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:41:50.537Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:41:53.945Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:42:08.041Z judge        judge memoryPairs in 311 ms
+2026-10-01T17:42:08.063Z judge        judge memoryPairs in 334 ms
+2026-10-01T17:42:08.307Z judge        judge memoryPairs in 268 ms
+2026-10-01T17:42:08.328Z judge        judge memoryPairs in 266 ms
+2026-10-01T17:42:08.528Z judge        judge memoryPairs in 222 ms
+2026-10-01T17:42:08.592Z judge        judge memoryPairs in 265 ms
+2026-10-01T17:42:08.788Z judge        judge memoryPairs in 261 ms
+2026-10-01T17:42:08.812Z judge        judge memoryPairs in 222 ms
+2026-10-01T17:42:09.048Z judge        judge memoryPairs in 233 ms
+2026-10-01T17:42:09.171Z judge        judge memoryPairs in 356 ms
+2026-10-01T17:42:09.312Z judge        judge memoryPairs in 267 ms
+2026-10-01T17:42:09.475Z judge        judge memoryPairs in 305 ms
+2026-10-01T17:42:09.535Z judge        judge memoryPairs in 224 ms
+2026-10-01T17:42:09.538Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T17:42:09.538Z judge        judge memoryPairs fell back (busy) in 723 ms
+2026-10-01T17:42:09.737Z judge        judge memoryPairs in 262 ms
+2026-10-01T17:42:09.739Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.739Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.739Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.739Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.739Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.739Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.739Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.739Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.740Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.740Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.740Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.740Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.741Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.741Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:42:09.741Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:42:09.741Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:43:01.331Z judge        judge memoryPairs in 253 ms
+2026-10-01T17:43:01.363Z judge        judge memoryPairs in 286 ms
+2026-10-01T17:43:01.585Z judge        judge memoryPairs in 254 ms
+2026-10-01T17:43:01.589Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T17:43:01.589Z judge        judge memoryPairs fell back (busy) in 424 ms
+2026-10-01T17:43:01.589Z judge        judge memoryPairs fell back (busy) in 424 ms
+2026-10-01T17:43:01.589Z judge        judge memoryPairs fell back (busy) in 424 ms
+2026-10-01T17:43:01.659Z judge        judge memoryPairs in 296 ms
+2026-10-01T17:43:01.660Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:43:01.660Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:43:02.145Z model-call   supersession via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:43:03.508Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:04.699Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:05.914Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:03.410Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:43:07.244Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:08.457Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:09.616Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:10.748Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:11.935Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:13.053Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:14.157Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:15.282Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:16.391Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:17.513Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:18.636Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:19.744Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:20.882Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:21.945Z payload      8 story blocks injected (generation)
+2026-10-01T17:43:22.004Z payload      9 story blocks injected (generation)
+2026-10-01T17:43:22.030Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:22.828Z judge        judge lore in 408 ms
+2026-10-01T17:43:22.838Z judge        judge lore in 414 ms
+2026-10-01T17:43:23.145Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:23.193Z judge        judge lore in 369 ms
+2026-10-01T17:43:23.233Z judge        judge lore in 399 ms
+2026-10-01T17:43:23.452Z judge        judge lore in 261 ms
+2026-10-01T17:43:24.333Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:25.450Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:26.558Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:27.670Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:28.783Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:29.921Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:31.030Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:32.137Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:33.260Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:34.368Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:35.495Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:36.603Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:37.759Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:38.862Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:39.991Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:41.112Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:42.220Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:43.329Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:44.436Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:45.589Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:46.694Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:47.804Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:48.994Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:50.168Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:51.373Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:43:53.658Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:05.399Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:06.508Z payload      9 story blocks injected (generation)
+2026-10-01T17:44:06.667Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:07.329Z judge        judge lore in 380 ms
+2026-10-01T17:44:07.376Z judge        judge lore in 413 ms
+2026-10-01T17:44:07.629Z judge        judge lore in 305 ms
+2026-10-01T17:44:07.723Z judge        judge lore in 351 ms
+2026-10-01T17:44:07.853Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:07.896Z judge        judge lore in 269 ms
+2026-10-01T17:44:08.992Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:10.100Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:11.210Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:12.312Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:13.420Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:14.545Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:15.653Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:16.761Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:17.886Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:18.996Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:20.137Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:21.244Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:22.353Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:23.476Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:24.584Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:25.706Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:26.815Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:27.937Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:29.044Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:30.174Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:31.281Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:32.403Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:33.507Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:34.616Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:35.724Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:36.830Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:37.942Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:39.064Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:40.203Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:41.337Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:42.444Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:43.752Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:44.179Z payload      9 story blocks injected (generation)
+2026-10-01T17:44:44.646Z judge        judge lore in 362 ms
+2026-10-01T17:44:44.684Z judge        judge lore in 396 ms
+2026-10-01T17:44:44.952Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:45.005Z judge        judge lore in 364 ms
+2026-10-01T17:44:45.022Z judge        judge lore in 342 ms
+2026-10-01T17:44:45.246Z judge        judge lore in 244 ms
+2026-10-01T17:44:46.107Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:47.268Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:48.462Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:49.568Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:50.691Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:51.793Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:52.905Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:54.042Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:55.180Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:56.286Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:57.399Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:58.521Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:44:59.671Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:00.782Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:01.914Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:03.020Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:04.143Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:05.252Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:06.387Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:07.511Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:08.652Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:09.756Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:10.878Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:11.986Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:13.095Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:14.204Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:15.328Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:16.458Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:17.761Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:28.980Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:30.245Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:31.647Z delta        queued location=night_road, tension_current=0.19113290480027234 for the next boundary
+2026-10-01T17:45:32.529Z boundary     applied location=night_road, night_castle_sighted=false, tension_current=0.2730470068575319, location=night_road, tension_current=0.19113290480027234
+2026-10-01T17:45:36.728Z reconciliation stall re-check queued for night_castle_sighted
+2026-10-01T17:45:36.810Z boundary     boundary 42: nothing applied (gate)
+2026-10-01T17:45:37.468Z boundary     boundary 43: nothing applied (gate)
+2026-10-01T17:45:38.267Z judge        judge stall in 880 ms
+2026-10-01T17:45:38.354Z judge        judge typed in 969 ms
+2026-10-01T17:45:38.670Z judge        judge scene in 405 ms
+2026-10-01T17:45:38.701Z judge        judge warden in 349 ms
+2026-10-01T17:45:38.987Z judge        judge wardenLore in 318 ms
+2026-10-01T17:45:38.988Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T17:45:38.989Z judge        judge typed in 289 ms
+2026-10-01T17:45:39.772Z judge        judge typed in 788 ms
+2026-10-01T17:45:39.773Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:45:44.067Z delta        queued location=night_road, tension_current=0.20879303336019062 for the next boundary
+2026-10-01T17:45:44.233Z judge        judge memoryVerify in 404 ms
+2026-10-01T17:45:45.195Z delta        queued location=night_road, tension_current=0.20879303336019062 for the next boundary
+2026-10-01T17:45:43.826Z extraction   read cue:gen_night-the-long-night_2->night-the-castle-dracul msgs 58-65 → 2 accepted, 1 rejected
+2026-10-01T17:45:43.826Z delta        location = night_road
+2026-10-01T17:45:43.826Z delta        tension_current = 0.20879303336019062
+2026-10-01T17:45:43.826Z delta        queued location=night_road, tension_current=0.20879303336019062 for the next boundary
+2026-10-01T17:45:43.826Z audit        audit cue:gen_night-the-long-night_2->night-the-castle-dracul msgs 58-65 scope [location, night_castle_sighted, party_injuries, party_rank, tension_current] → 2 accepted, 1 rejected
+2026-10-01T17:45:47.784Z judge        judge typed in 238 ms
+2026-10-01T17:45:47.785Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:45:52.642Z judge        judge memoryVerify in 285 ms
+2026-10-01T17:45:53.377Z delta        queued location=night_road, night_castle_sighted=false, tension_current=0.14615512335213343 for the next boundary
+2026-10-01T17:45:54.495Z delta        queued location=night_road, night_castle_sighted=false, tension_current=0.14615512335213343 for the next boundary
+2026-10-01T17:45:52.352Z extraction   read scene:location msgs 60-67 → 3 accepted, 0 rejected
+2026-10-01T17:45:52.352Z delta        location = night_road
+2026-10-01T17:45:52.352Z delta        night_castle_sighted = false
+2026-10-01T17:45:52.352Z delta        tension_current = 0.14615512335213343
+2026-10-01T17:45:52.352Z delta        queued location=night_road, night_castle_sighted=false, tension_current=0.14615512335213343 for the next boundary
+2026-10-01T17:45:52.352Z audit        audit scene:location msgs 60-67 scope [location, night_castle_sighted, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:45:56.590Z judge        judge curatorFilter in 869 ms
+2026-10-01T17:45:56.650Z judge        judge typed in 925 ms
+2026-10-01T17:45:56.591Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:45:57.909Z stagecraft   World Info curator proposed 2 change(s) at The Road to Castle Dracul
+2026-10-01T17:45:58.384Z judge        judge curatorFilter in 0 ms
+2026-10-01T17:45:58.385Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:45:59.684Z stagecraft   World Info curator proposed 2 change(s) at The Road to Castle Dracul
+2026-10-01T17:45:56.650Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:46:01.406Z judge        judge memoryVerify in 308 ms
+2026-10-01T17:46:01.673Z delta        queued location=night_road, night_castle_sighted=false, party_injuries=0, tension_current=0.17730858634649338 for the next boundary
+2026-10-01T17:46:01.096Z extraction   read reconcile:night_castle_sighted msgs 56-65 → 4 accepted, 0 rejected
+2026-10-01T17:46:01.096Z delta        location = night_road
+2026-10-01T17:46:01.096Z delta        night_castle_sighted = false
+2026-10-01T17:46:01.096Z delta        party_injuries = 0
+2026-10-01T17:46:01.096Z delta        tension_current = 0.17730858634649338
+2026-10-01T17:46:01.096Z delta        queued location=night_road, night_castle_sighted=false, party_injuries=0, tension_current=0.17730858634649338 for the next boundary
+2026-10-01T17:46:02.557Z reconciliation stall re-check resolved (4 evidence)
+2026-10-01T17:46:01.096Z audit        audit reconcile:night_castle_sighted msgs 56-65 scope [location, night_castle_sighted, party_injuries, tension_current] → 4 accepted, 0 rejected
+2026-10-01T17:46:03.827Z judge        judge typed in 289 ms
+2026-10-01T17:46:03.828Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:46:07.533Z delta        queued party_injuries=0, tension_current=0.12411601044254536 for the next boundary
+2026-10-01T17:46:07.575Z judge        judge memoryVerify in 311 ms
+2026-10-01T17:46:08.651Z delta        queued party_injuries=0, tension_current=0.12411601044254536 for the next boundary
+2026-10-01T17:46:07.262Z extraction   read cadence msgs 62-66 → 2 accepted, 2 rejected
+2026-10-01T17:46:07.262Z delta        party_injuries = 0
+2026-10-01T17:46:07.262Z delta        tension_current = 0.12411601044254536
+2026-10-01T17:46:07.262Z delta        queued party_injuries=0, tension_current=0.12411601044254536 for the next boundary
+2026-10-01T17:46:07.262Z audit        audit cadence msgs 62-66 scope [location, night_castle_sighted, party_injuries, tension_current] → 2 accepted, 2 rejected
+2026-10-01T17:46:09.549Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:46:12.469Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:46:14.983Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:46:17.051Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:46:18.693Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:46:35.061Z payload      8 story blocks injected (generation)
+2026-10-01T17:46:35.162Z payload      9 story blocks injected (generation)
+2026-10-01T17:46:36.023Z judge        judge lore in 378 ms
+2026-10-01T17:46:36.035Z judge        judge lore in 386 ms
+2026-10-01T17:46:36.041Z judge        judge lore fell back (busy) in 11 ms
+2026-10-01T17:46:36.041Z judge        judge lore fell back (busy) in 396 ms
+2026-10-01T17:46:36.346Z judge        judge lore in 327 ms
+2026-10-01T17:47:17.748Z payload      9 story blocks injected (generation)
+2026-10-01T17:47:18.281Z judge        judge lore in 357 ms
+2026-10-01T17:47:18.312Z judge        judge lore in 398 ms
+2026-10-01T17:47:18.599Z judge        judge lore in 322 ms
+2026-10-01T17:47:18.643Z judge        judge lore in 335 ms
+2026-10-01T17:47:18.825Z judge        judge lore in 227 ms
+2026-10-01T17:48:53.884Z payload      9 story blocks injected (generation)
+2026-10-01T17:48:54.724Z judge        judge lore in 381 ms
+2026-10-01T17:48:54.836Z judge        judge lore in 504 ms
+2026-10-01T17:48:55.069Z judge        judge lore in 350 ms
+2026-10-01T17:48:55.139Z judge        judge lore in 308 ms
+2026-10-01T17:48:55.321Z judge        judge lore in 254 ms
+2026-10-01T17:50:37.147Z boundary     applied location=night_road, night_castle_sighted=false, tension_current=0.14615512335213343, location=night_road, night_castle_sighted=false, party_injuries=0, tension_current=0.17730858634649338, party_injuries=0, tension_current=0.12411601044254536; discarded location=night_road, tension_current=0.20879303336019062 (superseded)
+2026-10-01T17:50:37.582Z payload      7 story blocks injected (generation)
+2026-10-01T17:50:38.435Z reconciliation stall re-check queued for night_castle_sighted
+2026-10-01T17:50:38.524Z boundary     boundary 45: nothing applied (gate)
+2026-10-01T17:50:39.851Z boundary     boundary 46: nothing applied (gate)
+2026-10-01T17:50:43.766Z judge        judge stall fell back (timeout) in 4014 ms
+2026-10-01T17:50:44.753Z judge        judge typed fell back (timeout) in 5004 ms
+2026-10-01T17:50:46.267Z judge        judge scene fell back (timeout) in 2503 ms
+2026-10-01T17:50:46.728Z judge        judge warden fell back (busy) in 1977 ms
+2026-10-01T17:50:46.728Z judge        judge typed fell back (busy) in 6343 ms
+2026-10-01T17:50:46.741Z judge        judge wardenLore fell back (busy) in 475 ms
+2026-10-01T17:50:46.838Z judge        judge typed fell back (busy) in 38 ms
+2026-10-01T17:50:46.838Z judge        judge scene fell back (busy) in 38 ms
+2026-10-01T17:50:46.728Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:50:51.092Z judge        judge memoryVerify in 275 ms
+2026-10-01T17:50:51.344Z delta        queued location=night_road, night_castle_sighted=true, tension_current=0.16188120730978173 for the next boundary
+2026-10-01T17:50:52.512Z delta        queued location=night_road, night_castle_sighted=true, tension_current=0.16188120730978173 for the next boundary
+2026-10-01T17:50:50.814Z extraction   read cue:gen_night-the-long-night_2->night-the-castle-dracul msgs 62-69 → 3 accepted, 0 rejected
+2026-10-01T17:50:50.814Z delta        location = night_road
+2026-10-01T17:50:50.814Z delta        night_castle_sighted = true
+2026-10-01T17:50:50.814Z delta        tension_current = 0.16188120730978173
+2026-10-01T17:50:50.814Z delta        queued location=night_road, night_castle_sighted=true, tension_current=0.16188120730978173 for the next boundary
+2026-10-01T17:50:50.814Z audit        audit cue:gen_night-the-long-night_2->night-the-castle-dracul msgs 62-69 scope [guild_reputation, location, night_castle_sighted, night_inquisition_suspicion, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:50:55.426Z judge        judge typed in 274 ms
+2026-10-01T17:50:55.426Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:00.629Z delta        queued location=night_castle_dracul, night_castle_sighted=true, tension_current=0.1883168451168472 for the next boundary
+2026-10-01T17:51:00.669Z judge        judge memoryVerify in 301 ms
+2026-10-01T17:51:01.740Z delta        queued location=night_castle_dracul, night_castle_sighted=true, tension_current=0.1883168451168472 for the next boundary
+2026-10-01T17:51:00.365Z extraction   read cue:gen_night-the-long-night_2->night-the-castle-dracul msgs 64-71 → 3 accepted, 0 rejected
+2026-10-01T17:51:00.365Z delta        location = night_castle_dracul
+2026-10-01T17:51:00.365Z delta        night_castle_sighted = true
+2026-10-01T17:51:00.365Z delta        tension_current = 0.1883168451168472
+2026-10-01T17:51:00.365Z delta        queued location=night_castle_dracul, night_castle_sighted=true, tension_current=0.1883168451168472 for the next boundary
+2026-10-01T17:51:00.365Z audit        audit cue:gen_night-the-long-night_2->night-the-castle-dracul msgs 64-71 scope [location, night_castle_sighted, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:51:02.931Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:04.222Z judge        judge typed in 580 ms
+2026-10-01T17:51:04.828Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:04.223Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:08.350Z judge        judge memoryVerify in 308 ms
+2026-10-01T17:51:08.661Z delta        queued location=night_road, tension_current=0.20682179158179304 for the next boundary
+2026-10-01T17:51:08.038Z extraction   read reconcile:night_castle_sighted msgs 56-69 → 2 accepted, 1 rejected
+2026-10-01T17:51:08.038Z delta        location = night_road
+2026-10-01T17:51:08.038Z delta        tension_current = 0.20682179158179304
+2026-10-01T17:51:08.038Z delta        queued location=night_road, tension_current=0.20682179158179304 for the next boundary
+2026-10-01T17:51:09.734Z reconciliation stall re-check resolved (2 evidence)
+2026-10-01T17:51:08.038Z audit        audit reconcile:night_castle_sighted msgs 56-69 scope [location, night_castle_sighted, party_injuries, tension_current] → 2 accepted, 1 rejected
+2026-10-01T17:51:06.489Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:12.109Z judge        judge typed in 902 ms
+2026-10-01T17:51:11.416Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:12.109Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:15.635Z judge        judge memoryVerify in 260 ms
+2026-10-01T17:51:15.772Z delta        queued night_castle_sighted=true, tension_current=0.21977525410725512 for the next boundary
+2026-10-01T17:51:15.374Z extraction   read cadence msgs 67-70 → 2 accepted, 1 rejected
+2026-10-01T17:51:15.374Z delta        night_castle_sighted = true
+2026-10-01T17:51:15.374Z delta        tension_current = 0.21977525410725512
+2026-10-01T17:51:15.374Z delta        queued night_castle_sighted=true, tension_current=0.21977525410725512 for the next boundary
+2026-10-01T17:51:15.374Z audit        audit cadence msgs 67-70 scope [location, night_castle_sighted, party_injuries, tension_current] → 2 accepted, 1 rejected
+2026-10-01T17:51:13.296Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:17.239Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:18.788Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:19.977Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:23.739Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:25.531Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:26.986Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:51:47.700Z flag         model defect: corrupt
+2026-10-01T17:52:00.845Z flag         Msg 70: Dalan's reply is fully degenerate ('We-we-we-we should-should-should not go-go-go in-in-in-in there…'), unreadable and cut off at the token limit. Msgs 69-71: the OOC 'skip to the castle' moved the party from a campfire to Castle Dracul's gates in one reply (asked for, but no travel at all).
+2026-10-01T17:52:04.790Z payload      7 story blocks injected (generation)
+2026-10-01T17:52:04.897Z payload      8 story blocks injected (generation)
+2026-10-01T17:52:05.859Z judge        judge lore in 397 ms
+2026-10-01T17:52:05.896Z judge        judge lore in 425 ms
+2026-10-01T17:52:06.189Z judge        judge lore in 334 ms
+2026-10-01T17:52:06.196Z judge        judge lore in 305 ms
+2026-10-01T17:52:06.434Z judge        judge lore in 247 ms
+2026-10-01T17:53:43.015Z payload      8 story blocks injected (generation)
+2026-10-01T17:53:44.968Z judge        judge lore fell back (timeout) in 1520 ms
+2026-10-01T17:53:44.978Z judge        judge lore fell back (timeout) in 1516 ms
+2026-10-01T17:53:46.356Z judge        judge lore fell back (busy) in 1393 ms
+2026-10-01T17:53:46.356Z judge        judge lore fell back (busy) in 2877 ms
+2026-10-01T17:53:46.358Z judge        judge lore fell back (busy) in 1385 ms
+2026-10-01T17:55:22.550Z payload      8 story blocks injected (generation)
+2026-10-01T17:55:23.274Z judge        judge lore in 407 ms
+2026-10-01T17:55:23.379Z judge        judge lore in 501 ms
+2026-10-01T17:55:23.651Z judge        judge lore in 381 ms
+2026-10-01T17:55:23.700Z judge        judge lore in 326 ms
+2026-10-01T17:55:23.881Z judge        judge lore in 231 ms
+2026-10-01T17:57:19.261Z boundary     applied night_castle_sighted=true, location=night_castle_dracul, night_castle_sighted=true, tension_current=0.1883168451168472, location=night_road, tension_current=0.20682179158179304, night_castle_sighted=true, tension_current=0.21977525410725512, progress_toward_night-dawn=8; discarded location=night_road, tension_current=0.16188120730978173 (superseded)
+2026-10-01T17:57:19.261Z transition   gen_night-the-long-night_2 → night-the-castle-dracul
+2026-10-01T17:57:30.446Z status       Moved into Castle Dracul
+2026-10-01T17:57:30.599Z boundary     boundary 48: nothing applied (gate)
+2026-10-01T17:57:31.283Z status       Following Castle Dracul
+2026-10-01T17:57:31.358Z boundary     boundary 49: nothing applied (gate)
+2026-10-01T17:57:32.195Z boundary     boundary 50: nothing applied (gate)
+2026-10-01T17:57:32.506Z judge        judge typed in 1256 ms
+2026-10-01T17:57:32.510Z judge        judge scene in 1257 ms
+2026-10-01T17:57:33.044Z judge        judge scene in 0 ms
+2026-10-01T17:57:33.935Z judge        judge wardenLore in 1426 ms
+2026-10-01T17:57:34.325Z judge        judge warden in 1821 ms
+2026-10-01T17:57:34.326Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T17:57:34.383Z judge        judge curatorFilter in 450 ms
+2026-10-01T17:57:34.384Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:57:35.126Z flag         model defect: loop
+2026-10-01T17:57:35.208Z judge        judge typed in 884 ms
+2026-10-01T17:57:35.217Z judge        judge typed in 836 ms
+2026-10-01T17:57:35.660Z stagecraft   World Info curator proposed 1 change(s) at Castle Dracul
+2026-10-01T17:57:35.679Z judge        judge typed in 472 ms
+2026-10-01T17:57:35.218Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:57:40.209Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:57:46.287Z judge        judge memoryVerify in 295 ms
+2026-10-01T17:57:46.430Z delta        queued location=night_castle_dracul, night_in_astoria=false, night_original_taken=false, party_injuries=0, tension_current=0.30384267787507857 for the next boundary
+2026-10-01T17:57:47.610Z delta        queued location=night_castle_dracul, night_in_astoria=false, night_original_taken=false, party_injuries=0, tension_current=0.30384267787507857 for the next boundary
+2026-10-01T17:57:45.986Z extraction   read scene:cast msgs 66-73 → 5 accepted, 0 rejected
+2026-10-01T17:57:45.986Z delta        location = night_castle_dracul
+2026-10-01T17:57:45.986Z delta        night_in_astoria = false
+2026-10-01T17:57:45.986Z delta        night_original_taken = false
+2026-10-01T17:57:45.986Z delta        party_injuries = 0
+2026-10-01T17:57:45.986Z delta        tension_current = 0.30384267787507857
+2026-10-01T17:57:45.986Z delta        queued location=night_castle_dracul, night_in_astoria=false, night_original_taken=false, party_injuries=0, tension_current=0.30384267787507857 for the next boundary
+2026-10-01T17:57:45.986Z audit        audit scene:cast msgs 66-73 scope [location, night_in_astoria, night_original_taken, party_injuries, tension_current] → 5 accepted, 0 rejected
+2026-10-01T17:57:56.831Z judge        judge typed in 787 ms
+2026-10-01T17:57:56.831Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:58:02.418Z delta        queued location=night_castle_dracul, night_in_astoria=false, night_original_taken=false, party_injuries=0 for the next boundary
+2026-10-01T17:58:02.825Z judge        judge memoryVerify in 955 ms
+2026-10-01T17:58:03.618Z delta        queued location=night_castle_dracul, night_in_astoria=false, night_original_taken=false, party_injuries=0 for the next boundary
+2026-10-01T17:58:04.844Z delta        queued location=night_castle_dracul, night_in_astoria=false, night_original_taken=false, party_injuries=0 for the next boundary
+2026-10-01T17:58:06.043Z delta        queued location=night_castle_dracul, night_in_astoria=false, night_original_taken=false, party_injuries=0 for the next boundary
+2026-10-01T17:58:07.263Z delta        queued location=night_castle_dracul, night_in_astoria=false, night_original_taken=false, party_injuries=0 for the next boundary
+2026-10-01T17:58:08.411Z delta        queued location=night_castle_dracul, night_in_astoria=false, night_original_taken=false, party_injuries=0 for the next boundary
+2026-10-01T17:58:01.867Z extraction   read scene:judge msgs 69-76 → 4 accepted, 1 rejected
+2026-10-01T17:58:01.867Z delta        location = night_castle_dracul
+2026-10-01T17:58:01.867Z delta        night_in_astoria = false
+2026-10-01T17:58:01.867Z delta        night_original_taken = false
+2026-10-01T17:58:01.867Z delta        party_injuries = 0
+2026-10-01T17:58:01.867Z delta        queued location=night_castle_dracul, night_in_astoria=false, night_original_taken=false, party_injuries=0 for the next boundary
+2026-10-01T17:58:01.867Z audit        audit scene:judge msgs 69-76 scope [location, night_in_astoria, night_original_taken, party_injuries, tension_current] → 4 accepted, 1 rejected
+2026-10-01T17:58:11.649Z judge        judge typed in 802 ms
+
+Stopped after 1292 events and 31 audits.

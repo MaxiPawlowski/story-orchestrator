@@ -1,0 +1,687 @@
+{
+  "storyId": "adolion-adventurer",
+  "activeCheckpointId": "road-to-wendhope",
+  "boundary": 12,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Adventurer Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Mountains of Shadow": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "wall_breached": false,
+    "adv_looking_for_hands": false,
+    "guild_reputation": 1,
+    "party_injuries": 0,
+    "location": "north_road",
+    "tension_current": 0.12975749999999997,
+    "party_name": "Iron Kettles",
+    "path": "wendhope",
+    "progress_toward_after-the-fog": 3
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "fce11875-e294-4d3a-a9a7-d70914d38561",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Max Nightriver has a new Guild badge and no party yet",
+      "createdAt": 3,
+      "messageId": 2
+    },
+    {
+      "id": "e741a915-1e81-43b5-8569-f3b23aef5a67",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "steer Max toward a low-risk posting before Wendhope",
+      "createdAt": 3,
+      "messageId": 2
+    },
+    {
+      "id": "9915174d-afaf-4556-87d3-1317a24cd448",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 5,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Wendhope posting is D-rank but pays Sheridan coin, and Tobias suspects the Sheridans fear more than a collapsed mine.",
+      "createdAt": 5,
+      "messageId": 6
+    },
+    {
+      "id": "038d1a01-554d-4b0a-bf07-297e397b0505",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 5,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "The party is registered as the Iron Kettles and has taken the Investigate Wendhope posting.",
+      "createdAt": 5,
+      "messageId": 6
+    },
+    {
+      "id": "99be8b5c-c206-4e3e-9226-1d428aae4263",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 5,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party is registered as the Iron Kettles and has taken the Investigate Wendhope posting.",
+      "createdAt": 5,
+      "messageId": 6
+    },
+    {
+      "id": "72732572-02b4-4a5f-bf14-d158a94c55b5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 5,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "suspects",
+      "content": "The Sheridans' high payment for Wendhope means the village's trouble is more than a collapsed mine.",
+      "createdAt": 5,
+      "messageId": 6
+    },
+    {
+      "id": "b2282190-e5b5-440b-9287-156e13d33909",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 5,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "intends",
+      "content": "To file the Iron Kettles' registration and send them off on the Wendhope contract.",
+      "createdAt": 5,
+      "messageId": 6
+    },
+    {
+      "id": "bac8fbe0-6ee7-43b3-b2b8-834c31a56899",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The Sheridans are paying unusually well for the Wendhope posting, suggesting they fear more than a collapsed mine.",
+      "createdAt": 6,
+      "messageId": 8
+    },
+    {
+      "id": "28089aa2-4a8c-4a5e-8833-3c689c3e40fd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Sheridans are paying unusually well for the Wendhope posting, suggesting they fear more than a collapsed mine.",
+      "createdAt": 6,
+      "messageId": 8
+    },
+    {
+      "id": "38290f88-1b06-4e3a-9ab5-20934859dc85",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Sheridans' generous payment hints Wendhope's silence hides more than a collapsed mine.",
+      "createdAt": 6,
+      "messageId": 8
+    },
+    {
+      "id": "f3f01356-7e70-4a50-a84f-b472290bc3a1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The Iron Kettles have taken the Wendhope posting and plan to ride north.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "11f761f5-8cfa-4acf-b407-f5f4ba769d90",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "The Iron Kettles are registered and hold the D-rank Investigate Wendhope posting.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "13b429e1-990e-4d79-b414-50d5cbb05c96",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party rides north for Wendhope at first light.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "0c76c7cd-cd16-4df9-a0d9-e460cafa3804",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party rides north for Wendhope at first light.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "c358369e-3caf-414e-9d6f-706eb081b824",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To join the Wendhope ride if the coin is right, waiting at the Victory's Game.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "d238975d-84be-41fc-94f1-9a6c0d68dd8f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To meet the party at the northern gate at first light.",
+      "createdAt": 7,
+      "messageId": 9,
+      "affirmedAt": [
+        {
+          "messageId": 12,
+          "boundary": 10
+        },
+        {
+          "messageId": 13,
+          "boundary": 10
+        }
+      ]
+    },
+    {
+      "id": "c7045dec-cfc2-49bd-9bc6-af9cf4d22a90",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The north road to Wendhope is empty and something on it has caught Belle and Dalan's attention",
+      "createdAt": 8,
+      "messageId": 11,
+      "supersededBy": "retired@8",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 8
+      }
+    },
+    {
+      "id": "dfad79b4-e3ae-4e79-a3b7-aed60ccce146",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The north road to Wendhope is empty and something on it has caught her attention",
+      "createdAt": 8,
+      "messageId": 11,
+      "supersededBy": "retired@8",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 8
+      }
+    },
+    {
+      "id": "fce2ca47-0380-448a-9a4f-a294b6e29ddd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The north road to Wendhope is empty and something on it has caught his attention",
+      "createdAt": 8,
+      "messageId": 11,
+      "supersededBy": "retired@8",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 8
+      }
+    },
+    {
+      "id": "df4447a7-dd3d-4d90-bb3f-62ce1711fe93",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 8,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "to have Max seal the arrangement with coin at the Victory's Game",
+      "createdAt": 8,
+      "messageId": 11
+    },
+    {
+      "id": "3c70f152-3848-4d95-85c7-67e89128b0fe",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The north road to Wendhope is empty and something on it has caught her attention",
+      "createdAt": 8,
+      "messageId": 11
+    },
+    {
+      "id": "538625c7-84e9-41d3-99b2-a5e5450a042d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The north road to Wendhope is empty and something on it has caught his attention",
+      "createdAt": 8,
+      "messageId": 11
+    },
+    {
+      "id": "31f67832-541d-4018-9bd7-4195a254723e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The north road to Wendhope is empty and something on it has caught Belle and Dalan's attention",
+      "createdAt": 8,
+      "messageId": 11
+    },
+    {
+      "id": "4587e409-f651-4af6-8337-a4960231bf0e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Iron Kettles are registered and hold the D-rank Investigate Wendhope posting.",
+      "createdAt": 10,
+      "messageId": 12
+    },
+    {
+      "id": "2ad6d8f5-7d2f-4b9b-90cd-f8e5386e2466",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The north road shows no tracks from the last three carriages and nothing has come back for them.",
+      "createdAt": 10,
+      "messageId": 13,
+      "supersededBy": "retired@10",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 10
+      }
+    },
+    {
+      "id": "9f88a0da-1ad6-4fb1-8932-2834681f998a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 10,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "suspects",
+      "content": "Something is deliberately keeping travelers off the north road.",
+      "createdAt": 10,
+      "messageId": 13,
+      "supersededBy": "retired@10",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 10
+      }
+    },
+    {
+      "id": "954651b1-05a4-4ee1-87b2-3f3fdaad7fe3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "A riderless horse in Sheridan blue came down the road at a walk, still saddled",
+      "createdAt": 10,
+      "messageId": 13
+    },
+    {
+      "id": "97b0dcf0-ada3-48bb-8cf0-4121f54c9914",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "A riderless horse in Sheridan blue came down the road at a walk, still saddled",
+      "createdAt": 10,
+      "messageId": 13
+    },
+    {
+      "id": "7e077b54-61d8-4912-a4fb-8cbff550a430",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "There are no tracks from the last three carriages and nobody has come back for them",
+      "createdAt": 10,
+      "messageId": 13
+    },
+    {
+      "id": "4acb55f4-9761-4386-9dc4-605ddf5bbfac",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Not even bandits have come for the goods, which they would have",
+      "createdAt": 10,
+      "messageId": 13
+    },
+    {
+      "id": "04265196-4780-4eb4-baea-8eb7188ec819",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 10,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "suspects",
+      "content": "Something is keeping travelers off the road",
+      "createdAt": 10,
+      "messageId": 13
+    },
+    {
+      "id": "8961b472-f1dc-4ca1-9cb4-71049acaf99a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The tracks of the last three carriages end half a mile back and nothing has returned for them or their cargo.",
+      "createdAt": 12,
+      "messageId": 16
+    },
+    {
+      "id": "ee418b7b-88c3-42dd-aa4c-2da122c6fc75",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Something on the north road is keeping travelers off it.",
+      "createdAt": 12,
+      "messageId": 16
+    },
+    {
+      "id": "c52c4f54-d595-425a-8217-4f43b9690e83",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The north road is empty and the last three carriages' tracks end half a mile back.",
+      "createdAt": 12,
+      "messageId": 16
+    },
+    {
+      "id": "32deb257-a0b8-4f2f-9249-0ff7fee5ab1c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 12,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "Get paid for the Wendhope job without the party getting killed first.",
+      "createdAt": 12,
+      "messageId": 16
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 7,
+      "name": "Alder",
+      "avatar": "Alder.png"
+    },
+    {
+      "index": 10,
+      "name": "Alida",
+      "avatar": "Alida.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 57,
+      "name": "Giada",
+      "avatar": "Giada.png"
+    },
+    {
+      "index": 59,
+      "name": "Gustall",
+      "avatar": "Gustall.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 141,
+      "name": "Talis",
+      "avatar": "Talis.png"
+    },
+    {
+      "index": 145,
+      "name": "Tatiana",
+      "avatar": "Tatiana.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    }
+  ],
+  "payloadEpoch": "1790876005112-rg8fah"
+}

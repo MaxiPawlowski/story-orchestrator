@@ -1,0 +1,1334 @@
+Following the session journal → C:\dev\story-orchestrator\test\sessions\T1\T1-6-1\journal.jsonl every 1000 ms. Ctrl-C to stop.
+2026-10-01T16:49:09.549Z session      chat 2026-10-01@13h48m59s000ms · story adolion-esha · at The Last Chapel (boundary 1, 1 messages)
+2026-10-01T16:48:59.316Z status       No story selected for this chat
+2026-10-01T16:48:59.322Z story        quality macro skipped
+2026-10-01T16:48:59.322Z story        quality macro skipped
+2026-10-01T16:48:59.322Z story        quality macro skipped
+2026-10-01T16:48:59.322Z story        quality macro skipped
+2026-10-01T16:48:59.322Z story        quality macro skipped
+2026-10-01T16:48:59.322Z story        quality macro skipped
+2026-10-01T16:48:59.322Z story        quality macro skipped
+2026-10-01T16:48:59.322Z story        quality macro skipped
+2026-10-01T16:48:59.336Z boundary     boundary 1: nothing applied (gate)
+2026-10-01T16:49:00.900Z story        away recap not due
+2026-10-01T16:49:01.013Z status       Following The Last Chapel
+2026-10-01T16:49:01.354Z judge        judge scene in 287 ms
+2026-10-01T16:49:01.396Z judge        judge typed in 330 ms
+2026-10-01T16:49:01.431Z judge        judge typed in 0 ms
+2026-10-01T16:49:01.432Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:49:01.592Z judge        judge warden in 239 ms
+2026-10-01T16:49:03.340Z extraction   read cue:esha-the-last-chapel->esha-the-guardians msgs 0-0 → 3 accepted, 0 rejected
+2026-10-01T16:49:03.340Z delta        esha_at_border = false
+2026-10-01T16:49:03.340Z delta        location = esha_alks_chapel
+2026-10-01T16:49:03.340Z delta        tension_current = 0.25
+2026-10-01T16:49:03.340Z delta        queued esha_at_border=false, location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:49:03.567Z judge        judge memoryVerify in 224 ms
+2026-10-01T16:49:03.340Z audit        audit cue:esha-the-last-chapel->esha-the-guardians msgs 0-0 scope [esha_at_border, location, tension_current] → 3 accepted, 0 rejected
+2026-10-01T16:49:28.641Z payload      3 story blocks injected (generation)
+2026-10-01T16:49:28.687Z payload      4 story blocks injected (generation)
+2026-10-01T16:49:29.324Z judge        judge lore in 385 ms
+2026-10-01T16:49:29.351Z judge        judge lore in 417 ms
+2026-10-01T16:49:29.677Z judge        judge lore in 360 ms
+2026-10-01T16:49:29.683Z judge        judge lore in 337 ms
+2026-10-01T16:49:29.941Z judge        judge lore in 265 ms
+2026-10-01T16:49:30.222Z judge        judge director in 240 ms
+2026-10-01T16:49:30.223Z talk         Ashliel speaks (judge)
+2026-10-01T16:49:47.121Z story        NPC reply Adolion Narrator (afterSpeak) fired by its roll
+2026-10-01T16:49:47.344Z payload      4 story blocks injected (generation)
+2026-10-01T16:49:47.758Z payload      4 story blocks injected (generation)
+2026-10-01T16:49:48.352Z boundary     applied esha_at_border=false, location=esha_alks_chapel, tension_current=0.25
+2026-10-01T16:49:49.332Z judge        judge director in 1102 ms
+2026-10-01T16:49:49.333Z talk         Ashliel speaks (judge)
+2026-10-01T16:49:49.455Z boundary     boundary 3: nothing applied (gate)
+2026-10-01T16:49:49.786Z payload      4 story blocks injected (generation)
+2026-10-01T16:49:49.872Z payload      5 story blocks injected (generation)
+2026-10-01T16:49:49.952Z judge        judge typed in 497 ms
+2026-10-01T16:49:49.977Z judge        judge scene in 521 ms
+2026-10-01T16:49:50.240Z judge        judge wardenLore in 264 ms
+2026-10-01T16:49:50.256Z judge        judge warden in 304 ms
+2026-10-01T16:49:50.347Z judge        judge typed in 0 ms
+2026-10-01T16:49:50.560Z judge        judge lore in 311 ms
+2026-10-01T16:49:50.605Z judge        judge lore in 372 ms
+2026-10-01T16:49:50.926Z judge        judge lore in 326 ms
+2026-10-01T16:49:50.928Z judge        judge lore in 372 ms
+2026-10-01T16:49:51.191Z judge        judge lore in 266 ms
+2026-10-01T16:49:50.347Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:49:53.694Z judge        judge memoryVerify in 251 ms
+2026-10-01T16:49:53.998Z delta        queued esha_at_border=false, location=esha_alks_chapel, party_injuries=0, tension_current=0.25 for the next boundary
+2026-10-01T16:49:49.428Z model-call   generation via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:49:54.404Z judge        judge critic in 243 ms
+2026-10-01T16:49:55.027Z delta        queued esha_at_border=false, location=esha_alks_chapel, party_injuries=0, tension_current=0.25 for the next boundary
+2026-10-01T16:49:53.440Z extraction   read cue:esha-the-last-chapel->esha-the-guardians msgs 0-2 → 4 accepted, 0 rejected
+2026-10-01T16:49:53.440Z delta        esha_at_border = false
+2026-10-01T16:49:53.440Z delta        location = esha_alks_chapel
+2026-10-01T16:49:53.440Z delta        party_injuries = 0
+2026-10-01T16:49:53.440Z delta        tension_current = 0.25
+2026-10-01T16:49:53.440Z delta        queued esha_at_border=false, location=esha_alks_chapel, party_injuries=0, tension_current=0.25 for the next boundary
+2026-10-01T16:49:55.758Z judge        judge typed fell back (busy) in 5 ms
+2026-10-01T16:49:53.440Z audit        audit cue:esha-the-last-chapel->esha-the-guardians msgs 0-2 scope [esha_at_border, location, party_injuries, tension_current] → 4 accepted, 0 rejected
+2026-10-01T16:49:55.759Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:49:58.054Z judge        judge memoryVerify fell back (busy) in 0 ms
+2026-10-01T16:49:58.100Z delta        queued esha_at_border=false, location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:49:59.131Z delta        queued esha_at_border=false, location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:49:58.053Z extraction   read cadence msgs 0-3 → 3 accepted, 0 rejected
+2026-10-01T16:49:58.053Z delta        esha_at_border = false
+2026-10-01T16:49:58.053Z delta        location = esha_alks_chapel
+2026-10-01T16:49:58.053Z delta        tension_current = 0.25
+2026-10-01T16:49:58.053Z delta        queued esha_at_border=false, location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:49:58.053Z audit        audit cadence msgs 0-3 scope [esha_at_border, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-01T16:50:07.338Z boundary     applied party_injuries=0, esha_at_border=false, location=esha_alks_chapel, tension_current=0.25; discarded esha_at_border=false, location=esha_alks_chapel, tension_current=0.25 (superseded)
+2026-10-01T16:50:07.819Z judge        judge typed in 272 ms
+2026-10-01T16:50:07.825Z judge        judge scene in 277 ms
+2026-10-01T16:50:08.509Z judge        judge wardenLore in 684 ms
+2026-10-01T16:50:08.517Z judge        judge warden in 699 ms
+2026-10-01T16:50:24.027Z payload      6 story blocks injected (generation)
+2026-10-01T16:50:24.092Z payload      7 story blocks injected (generation)
+2026-10-01T16:50:24.341Z judge        judge lore fell back (busy) in 20 ms
+2026-10-01T16:50:24.341Z judge        judge lore fell back (busy) in 20 ms
+2026-10-01T16:50:24.342Z judge        judge lore fell back (busy) in 16 ms
+2026-10-01T16:50:24.360Z talk         Sali speaks (mention)
+2026-10-01T16:50:24.360Z judge        judge director fell back (busy) in 0 ms
+2026-10-01T16:50:58.481Z payload      7 story blocks injected (generation)
+2026-10-01T16:51:00.632Z payload      7 story blocks injected (generation)
+2026-10-01T16:51:02.811Z boundary     boundary 5: nothing applied (gate)
+2026-10-01T16:51:03.021Z talk         Ashliel speaks (judge)
+2026-10-01T16:51:03.021Z judge        judge director in 268 ms
+2026-10-01T16:51:03.265Z judge        judge typed in 255 ms
+2026-10-01T16:51:03.278Z payload      6 story blocks injected (generation)
+2026-10-01T16:51:03.312Z payload      7 story blocks injected (generation)
+2026-10-01T16:51:03.352Z judge        judge scene in 332 ms
+2026-10-01T16:51:03.534Z judge        judge warden in 270 ms
+2026-10-01T16:51:03.582Z judge        judge wardenLore in 231 ms
+2026-10-01T16:51:03.841Z judge        judge lore in 311 ms
+2026-10-01T16:51:03.904Z judge        judge lore in 325 ms
+2026-10-01T16:51:04.166Z judge        judge lore in 330 ms
+2026-10-01T16:51:04.180Z judge        judge lore in 281 ms
+2026-10-01T16:51:04.387Z judge        judge lore in 222 ms
+2026-10-01T16:51:04.566Z judge        judge typed in 386 ms
+2026-10-01T16:51:04.567Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:51:10.172Z delta        queued location=esha_alks_chapel, esha_at_border=false, tension_current=0.25 for the next boundary
+2026-10-01T16:51:10.235Z judge        judge memoryVerify in 305 ms
+2026-10-01T16:51:11.200Z delta        queued location=esha_alks_chapel, esha_at_border=false, tension_current=0.25 for the next boundary
+2026-10-01T16:51:09.923Z extraction   read cue:esha-the-last-chapel->esha-the-guardians msgs 0-6 → 3 accepted, 0 rejected
+2026-10-01T16:51:09.923Z delta        location = esha_alks_chapel
+2026-10-01T16:51:09.923Z delta        esha_at_border = false
+2026-10-01T16:51:09.923Z delta        tension_current = 0.25
+2026-10-01T16:51:09.923Z delta        queued location=esha_alks_chapel, esha_at_border=false, tension_current=0.25 for the next boundary
+2026-10-01T16:51:09.923Z audit        audit cue:esha-the-last-chapel->esha-the-guardians msgs 0-6 scope [esha_at_border, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-01T16:51:29.272Z boundary     applied location=esha_alks_chapel, esha_at_border=false, tension_current=0.25
+2026-10-01T16:51:29.739Z judge        judge scene in 262 ms
+2026-10-01T16:51:29.762Z judge        judge warden in 284 ms
+2026-10-01T16:51:32.284Z judge        judge wardenLore in 2546 ms
+2026-10-01T16:51:32.286Z judge        judge typed in 2352 ms
+2026-10-01T16:51:32.286Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:51:35.886Z delta        queued location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:51:35.948Z judge        judge memoryVerify in 217 ms
+2026-10-01T16:51:36.916Z delta        queued location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:51:35.729Z extraction   read cadence msgs 4-7 → 2 accepted, 0 rejected
+2026-10-01T16:51:35.729Z delta        location = esha_alks_chapel
+2026-10-01T16:51:35.729Z delta        tension_current = 0.25
+2026-10-01T16:51:35.729Z delta        queued location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:51:35.729Z audit        audit cadence msgs 4-7 scope [esha_at_border, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-01T16:51:38.355Z judge        judge typed in 225 ms
+2026-10-01T16:51:38.355Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:51:42.511Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:51:47.270Z delta        queued esha_at_border=false, location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:51:47.347Z judge        judge memoryVerify in 278 ms
+2026-10-01T16:51:48.300Z delta        queued esha_at_border=false, location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:51:47.066Z extraction   read cue:esha-the-last-chapel->esha-the-guardians msgs 0-7 → 3 accepted, 0 rejected
+2026-10-01T16:51:47.066Z delta        esha_at_border = false
+2026-10-01T16:51:47.066Z delta        location = esha_alks_chapel
+2026-10-01T16:51:47.066Z delta        tension_current = 0.25
+2026-10-01T16:51:47.066Z delta        queued esha_at_border=false, location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:51:47.066Z audit        audit cue:esha-the-last-chapel->esha-the-guardians msgs 0-7 scope [esha_at_border, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-01T16:52:00.044Z payload      6 story blocks injected (generation)
+2026-10-01T16:52:00.078Z payload      7 story blocks injected (generation)
+2026-10-01T16:52:00.767Z judge        judge lore in 492 ms
+2026-10-01T16:52:00.776Z judge        judge lore in 497 ms
+2026-10-01T16:52:00.781Z judge        judge lore fell back (busy) in 9 ms
+2026-10-01T16:52:00.781Z judge        judge lore fell back (busy) in 506 ms
+2026-10-01T16:52:01.129Z judge        judge lore in 366 ms
+2026-10-01T16:52:01.143Z judge        judge director fell back (busy) in 0 ms
+2026-10-01T16:52:01.145Z model-call   director via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:52:01.746Z talk         Ashliel speaks (director)
+2026-10-01T16:52:02.798Z payload      7 story blocks injected (generation)
+2026-10-01T16:52:02.837Z judge        judge lore in 0 ms
+2026-10-01T16:52:02.850Z judge        judge lore fell back (busy) in 10 ms
+2026-10-01T16:52:03.140Z judge        judge lore in 303 ms
+2026-10-01T16:52:25.102Z payload      7 story blocks injected (generation)
+2026-10-01T16:52:26.593Z payload      7 story blocks injected (generation)
+2026-10-01T16:52:28.255Z talk         Sali speaks (mention)
+2026-10-01T16:52:28.360Z boundary     applied esha_at_border=false, location=esha_alks_chapel, tension_current=0.25; discarded location=esha_alks_chapel, tension_current=0.25 (superseded)
+2026-10-01T16:52:28.568Z payload      6 story blocks injected (generation)
+2026-10-01T16:52:28.607Z payload      7 story blocks injected (generation)
+2026-10-01T16:52:28.899Z judge        judge scene in 279 ms
+2026-10-01T16:52:28.920Z judge        judge typed in 301 ms
+2026-10-01T16:52:29.147Z judge        judge warden in 250 ms
+2026-10-01T16:52:29.168Z judge        judge wardenLore in 248 ms
+2026-10-01T16:52:29.463Z judge        judge lore in 320 ms
+2026-10-01T16:52:29.488Z judge        judge lore in 324 ms
+2026-10-01T16:52:29.795Z judge        judge lore in 336 ms
+2026-10-01T16:52:29.826Z judge        judge lore in 342 ms
+2026-10-01T16:52:30.038Z judge        judge lore in 244 ms
+2026-10-01T16:53:02.608Z payload      5 story blocks injected (generation)
+2026-10-01T16:53:31.323Z boundary     boundary 8: nothing applied (gate)
+2026-10-01T16:53:31.531Z reconciliation stall re-check queued for esha_at_border
+2026-10-01T16:53:31.916Z judge        judge stall in 330 ms
+2026-10-01T16:53:31.920Z judge        judge typed in 336 ms
+2026-10-01T16:53:32.190Z judge        judge warden in 271 ms
+2026-10-01T16:53:32.225Z judge        judge scene in 311 ms
+2026-10-01T16:53:32.445Z judge        judge wardenLore in 256 ms
+2026-10-01T16:53:32.706Z judge        judge typed in 242 ms
+2026-10-01T16:53:32.706Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:53:37.327Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:53:42.350Z judge        judge memoryVerify in 264 ms
+2026-10-01T16:53:42.750Z delta        queued location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:53:43.795Z delta        queued location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:53:42.083Z extraction   read cue:esha-the-last-chapel->esha-the-guardians msgs 3-10 → 2 accepted, 0 rejected
+2026-10-01T16:53:42.083Z delta        location = esha_alks_chapel
+2026-10-01T16:53:42.083Z delta        tension_current = 0.25
+2026-10-01T16:53:42.083Z delta        queued location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:53:42.083Z audit        audit cue:esha-the-last-chapel->esha-the-guardians msgs 3-10 scope [esha_at_border, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-01T16:53:55.850Z payload      6 story blocks injected (generation)
+2026-10-01T16:53:55.900Z payload      7 story blocks injected (generation)
+2026-10-01T16:53:56.523Z judge        judge lore in 378 ms
+2026-10-01T16:53:56.540Z judge        judge lore in 388 ms
+2026-10-01T16:53:56.829Z judge        judge lore in 310 ms
+2026-10-01T16:53:56.937Z judge        judge lore in 403 ms
+2026-10-01T16:53:57.062Z judge        judge lore in 235 ms
+2026-10-01T16:53:57.325Z talk         Belle speaks (judge)
+2026-10-01T16:53:57.325Z judge        judge director in 247 ms
+2026-10-01T16:54:36.300Z payload      7 story blocks injected (generation)
+2026-10-01T16:54:38.025Z payload      7 story blocks injected (generation)
+2026-10-01T16:54:39.907Z talk         Dalan speaks (mention)
+2026-10-01T16:54:40.161Z boundary     applied location=esha_alks_chapel, tension_current=0.25
+2026-10-01T16:54:40.219Z payload      6 story blocks injected (generation)
+2026-10-01T16:54:40.287Z payload      7 story blocks injected (generation)
+2026-10-01T16:54:40.865Z judge        judge lore in 347 ms
+2026-10-01T16:54:40.948Z judge        judge lore in 418 ms
+2026-10-01T16:54:41.188Z judge        judge lore in 328 ms
+2026-10-01T16:54:41.276Z judge        judge lore in 333 ms
+2026-10-01T16:54:41.474Z judge        judge lore in 288 ms
+2026-10-01T16:54:41.698Z judge        judge scene in 424 ms
+2026-10-01T16:54:43.010Z judge        judge warden in 1537 ms
+2026-10-01T16:54:43.271Z judge        judge wardenLore in 1574 ms
+2026-10-01T16:54:43.273Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T16:54:43.274Z judge        judge typed in 265 ms
+2026-10-01T16:54:43.277Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:54:46.929Z delta        queued location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:54:47.035Z judge        judge memoryVerify in 218 ms
+2026-10-01T16:54:47.977Z delta        queued location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:54:46.816Z extraction   read cadence msgs 8-12 → 2 accepted, 0 rejected
+2026-10-01T16:54:46.816Z delta        location = esha_alks_chapel
+2026-10-01T16:54:46.816Z delta        tension_current = 0.25
+2026-10-01T16:54:46.816Z delta        queued location=esha_alks_chapel, tension_current=0.25 for the next boundary
+2026-10-01T16:54:46.816Z audit        audit cadence msgs 8-12 scope [esha_at_border, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-01T16:54:49.505Z judge        judge typed in 318 ms
+2026-10-01T16:54:49.506Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:54:53.643Z judge        judge memoryVerify in 247 ms
+2026-10-01T16:54:54.420Z delta        queued location=esha_alks_chapel, tension_current=0.32499999999999996 for the next boundary
+2026-10-01T16:54:53.391Z extraction   read cue:esha-the-last-chapel->esha-the-guardians msgs 5-12 → 2 accepted, 0 rejected
+2026-10-01T16:54:53.391Z delta        location = esha_alks_chapel
+2026-10-01T16:54:53.391Z delta        tension_current = 0.32499999999999996
+2026-10-01T16:54:53.391Z delta        queued location=esha_alks_chapel, tension_current=0.32499999999999996 for the next boundary
+2026-10-01T16:54:53.391Z audit        audit cue:esha-the-last-chapel->esha-the-guardians msgs 5-12 scope [esha_at_border, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-01T16:54:58.602Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:55:05.951Z boundary     applied location=esha_alks_chapel, tension_current=0.32499999999999996; discarded location=esha_alks_chapel, tension_current=0.25 (superseded)
+2026-10-01T16:55:08.815Z judge        judge scene fell back (timeout) in 2501 ms
+2026-10-01T16:55:11.327Z judge        judge typed fell back (timeout) in 5014 ms
+2026-10-01T16:55:11.573Z judge        judge warden fell back (busy) in 2759 ms
+2026-10-01T16:55:11.579Z judge        judge wardenLore fell back (busy) in 253 ms
+2026-10-01T16:55:14.219Z judge        judge typed in 399 ms
+2026-10-01T16:55:14.219Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:55:19.771Z delta        queued location=esha_alks_chapel, tension_current=0.37749999999999995 for the next boundary
+2026-10-01T16:55:20.498Z judge        judge memoryVerify in 1239 ms
+2026-10-01T16:55:20.829Z delta        queued location=esha_alks_chapel, tension_current=0.37749999999999995 for the next boundary
+2026-10-01T16:55:21.875Z delta        queued location=esha_alks_chapel, tension_current=0.37749999999999995 for the next boundary
+2026-10-01T16:55:22.929Z delta        queued location=esha_alks_chapel, tension_current=0.37749999999999995 for the next boundary
+2026-10-01T16:55:24.007Z delta        queued location=esha_alks_chapel, tension_current=0.37749999999999995 for the next boundary
+2026-10-01T16:55:25.082Z delta        queued location=esha_alks_chapel, tension_current=0.37749999999999995 for the next boundary
+2026-10-01T16:55:26.132Z delta        queued location=esha_alks_chapel, tension_current=0.37749999999999995 for the next boundary
+2026-10-01T16:55:19.255Z extraction   read cue:esha-the-last-chapel->esha-the-guardians msgs 6-13 → 2 accepted, 0 rejected
+2026-10-01T16:55:19.255Z delta        location = esha_alks_chapel
+2026-10-01T16:55:19.255Z delta        tension_current = 0.37749999999999995
+2026-10-01T16:55:19.255Z delta        queued location=esha_alks_chapel, tension_current=0.37749999999999995 for the next boundary
+2026-10-01T16:55:19.255Z audit        audit cue:esha-the-last-chapel->esha-the-guardians msgs 6-13 scope [esha_at_border, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-01T16:55:59.555Z judge        judge memoryPairs in 257 ms
+2026-10-01T16:55:59.608Z judge        judge memoryPairs in 311 ms
+2026-10-01T16:55:59.785Z judge        judge memoryPairs in 230 ms
+2026-10-01T16:55:59.859Z judge        judge memoryPairs in 252 ms
+2026-10-01T16:56:00.018Z judge        judge memoryPairs in 234 ms
+2026-10-01T16:56:00.094Z judge        judge memoryPairs in 235 ms
+2026-10-01T16:56:00.281Z judge        judge memoryPairs in 264 ms
+2026-10-01T16:56:00.327Z judge        judge memoryPairs in 232 ms
+2026-10-01T16:56:00.543Z judge        judge memoryPairs in 214 ms
+2026-10-01T16:56:00.573Z judge        judge memoryPairs in 244 ms
+2026-10-01T16:56:00.785Z judge        judge memoryPairs in 213 ms
+2026-10-01T16:56:00.821Z judge        judge memoryPairs in 279 ms
+2026-10-01T16:56:01.005Z judge        judge memoryPairs in 221 ms
+2026-10-01T16:56:01.061Z judge        judge memoryPairs in 241 ms
+2026-10-01T16:56:01.248Z judge        judge memoryPairs in 244 ms
+2026-10-01T16:56:01.280Z judge        judge memoryPairs in 220 ms
+2026-10-01T16:56:01.513Z judge        judge memoryPairs in 230 ms
+2026-10-01T16:56:01.518Z judge        judge memoryPairs fell back (busy) in 6 ms
+2026-10-01T16:56:01.518Z judge        judge memoryPairs fell back (busy) in 236 ms
+2026-10-01T16:56:01.518Z judge        judge memoryPairs fell back (busy) in 236 ms
+2026-10-01T16:56:01.518Z judge        judge memoryPairs fell back (busy) in 236 ms
+2026-10-01T16:56:01.518Z judge        judge memoryPairs fell back (busy) in 236 ms
+2026-10-01T16:56:01.518Z judge        judge memoryPairs fell back (busy) in 235 ms
+2026-10-01T16:56:01.539Z judge        judge memoryPairs in 256 ms
+2026-10-01T16:56:01.540Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T16:56:01.540Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T16:56:33.014Z judge        judge memoryPairs in 5627 ms
+2026-10-01T16:56:33.016Z judge        judge memoryPairs in 5630 ms
+2026-10-01T16:56:34.915Z judge        judge memoryPairs in 1902 ms
+2026-10-01T16:56:34.917Z judge        judge memoryPairs in 1902 ms
+2026-10-01T16:56:34.976Z judge        judge memoryPairs fell back (busy) in 62 ms
+2026-10-01T16:56:34.976Z judge        judge memoryPairs fell back (busy) in 7590 ms
+2026-10-01T16:56:34.976Z judge        judge memoryPairs fell back (busy) in 7590 ms
+2026-10-01T16:56:34.977Z judge        judge memoryPairs fell back (busy) in 61 ms
+2026-10-01T16:56:34.980Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T16:56:34.980Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T16:56:34.980Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T16:56:34.980Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T16:56:35.746Z model-call   supersession via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:56:47.919Z payload      6 story blocks injected (generation)
+2026-10-01T16:56:47.962Z payload      7 story blocks injected (generation)
+2026-10-01T16:56:48.220Z judge        judge lore fell back (busy) in 2 ms
+2026-10-01T16:56:48.220Z judge        judge lore fell back (busy) in 1 ms
+2026-10-01T16:56:48.220Z judge        judge lore fell back (busy) in 0 ms
+2026-10-01T16:56:48.220Z judge        judge lore fell back (busy) in 0 ms
+2026-10-01T16:56:48.238Z talk         Ashliel speaks (mention)
+2026-10-01T16:56:48.238Z judge        judge director fell back (busy) in 0 ms
+2026-10-01T16:57:06.061Z payload      7 story blocks injected (generation)
+2026-10-01T16:57:07.120Z payload      7 story blocks injected (generation)
+2026-10-01T16:57:08.718Z payload      7 story blocks injected (generation)
+2026-10-01T16:57:09.963Z boundary     applied location=esha_alks_chapel, tension_current=0.37749999999999995
+2026-10-01T16:57:10.058Z judge        judge director in 293 ms
+2026-10-01T16:57:10.059Z talk         Adolion Narrator speaks (judge)
+2026-10-01T16:57:10.272Z reconciliation stall re-check queued for esha_at_border
+2026-10-01T16:57:10.565Z payload      6 story blocks injected (generation)
+2026-10-01T16:57:10.730Z payload      7 story blocks injected (generation)
+2026-10-01T16:57:10.809Z judge        judge stall in 494 ms
+2026-10-01T16:57:10.911Z judge        judge typed in 597 ms
+2026-10-01T16:57:11.292Z judge        judge scene in 484 ms
+2026-10-01T16:57:11.341Z judge        judge warden in 431 ms
+2026-10-01T16:57:11.525Z judge        judge wardenLore in 235 ms
+2026-10-01T16:57:11.677Z judge        judge lore in 341 ms
+2026-10-01T16:57:12.002Z judge        judge lore in 329 ms
+2026-10-01T16:57:12.009Z judge        judge lore in 488 ms
+2026-10-01T16:57:12.239Z judge        judge lore in 231 ms
+2026-10-01T16:57:12.346Z judge        judge lore in 349 ms
+2026-10-01T16:57:12.616Z judge        judge typed in 378 ms
+2026-10-01T16:57:12.617Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:57:17.226Z delta        queued location=esha_alks_chapel, tension_current=0.33924999999999994 for the next boundary
+2026-10-01T16:57:17.250Z judge        judge memoryVerify in 263 ms
+2026-10-01T16:57:18.287Z delta        queued location=esha_alks_chapel, tension_current=0.33924999999999994 for the next boundary
+2026-10-01T16:57:16.983Z extraction   read cue:esha-the-last-chapel->esha-the-guardians msgs 8-15 → 2 accepted, 0 rejected
+2026-10-01T16:57:16.983Z delta        location = esha_alks_chapel
+2026-10-01T16:57:16.983Z delta        tension_current = 0.33924999999999994
+2026-10-01T16:57:16.983Z delta        queued location=esha_alks_chapel, tension_current=0.33924999999999994 for the next boundary
+2026-10-01T16:57:16.983Z audit        audit cue:esha-the-last-chapel->esha-the-guardians msgs 8-15 scope [esha_at_border, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-01T16:57:40.795Z boundary     applied location=esha_alks_chapel, tension_current=0.33924999999999994
+2026-10-01T16:57:41.981Z judge        judge scene in 526 ms
+2026-10-01T16:57:42.042Z judge        judge warden in 585 ms
+2026-10-01T16:57:43.212Z judge        judge wardenLore in 1232 ms
+2026-10-01T16:57:43.235Z judge        judge typed in 1194 ms
+2026-10-01T16:57:43.236Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:57:47.957Z judge        judge memoryVerify in 268 ms
+2026-10-01T16:57:48.746Z delta        queued esha_at_border=false, location=esha_alks_chapel, tension_current=0.31247499999999995 for the next boundary
+2026-10-01T16:57:47.686Z extraction   read cadence msgs 13-16 → 3 accepted, 0 rejected
+2026-10-01T16:57:47.686Z delta        esha_at_border = false
+2026-10-01T16:57:47.686Z delta        location = esha_alks_chapel
+2026-10-01T16:57:47.686Z delta        tension_current = 0.31247499999999995
+2026-10-01T16:57:47.686Z delta        queued esha_at_border=false, location=esha_alks_chapel, tension_current=0.31247499999999995 for the next boundary
+2026-10-01T16:57:47.686Z audit        audit cadence msgs 13-16 scope [esha_at_border, location, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T16:57:50.218Z judge        judge typed in 276 ms
+2026-10-01T16:57:50.218Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:57:54.289Z judge        judge memoryVerify in 254 ms
+2026-10-01T16:57:54.302Z delta        queued esha_at_border=false, location=esha_alks_chapel, tension_current=0.29373249999999995 for the next boundary
+2026-10-01T16:57:55.372Z delta        queued esha_at_border=false, location=esha_alks_chapel, tension_current=0.29373249999999995 for the next boundary
+2026-10-01T16:57:54.031Z extraction   read cue:esha-the-last-chapel->esha-the-guardians msgs 9-16 → 3 accepted, 0 rejected
+2026-10-01T16:57:54.031Z delta        esha_at_border = false
+2026-10-01T16:57:54.031Z delta        location = esha_alks_chapel
+2026-10-01T16:57:54.031Z delta        tension_current = 0.29373249999999995
+2026-10-01T16:57:54.031Z delta        queued esha_at_border=false, location=esha_alks_chapel, tension_current=0.29373249999999995 for the next boundary
+2026-10-01T16:57:54.031Z audit        audit cue:esha-the-last-chapel->esha-the-guardians msgs 9-16 scope [esha_at_border, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-01T16:58:20.256Z payload      6 story blocks injected (generation)
+2026-10-01T16:58:20.310Z payload      7 story blocks injected (generation)
+2026-10-01T16:58:20.969Z judge        judge lore in 331 ms
+2026-10-01T16:58:21.034Z judge        judge lore in 406 ms
+2026-10-01T16:58:21.317Z judge        judge lore in 354 ms
+2026-10-01T16:58:21.346Z judge        judge lore in 316 ms
+2026-10-01T16:58:21.572Z judge        judge lore in 257 ms
+2026-10-01T16:58:21.825Z judge        judge director in 238 ms
+2026-10-01T16:58:21.826Z talk         Ashliel speaks (judge)
+2026-10-01T16:59:00.543Z payload      7 story blocks injected (generation)
+2026-10-01T16:59:01.853Z payload      7 story blocks injected (generation)
+2026-10-01T16:59:04.139Z boundary     applied esha_at_border=false, location=esha_alks_chapel, tension_current=0.29373249999999995; discarded esha_at_border=false, location=esha_alks_chapel, tension_current=0.31247499999999995 (superseded)
+2026-10-01T16:59:04.601Z talk         silence speaks (judge)
+2026-10-01T16:59:04.601Z judge        judge director in 475 ms
+2026-10-01T16:59:04.928Z judge        judge typed in 437 ms
+2026-10-01T16:59:04.940Z judge        judge scene in 340 ms
+2026-10-01T16:59:05.274Z judge        judge wardenLore in 335 ms
+2026-10-01T16:59:05.275Z judge        judge warden in 349 ms
+2026-10-01T16:59:05.709Z judge        judge typed in 249 ms
+2026-10-01T16:59:05.709Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:59:09.626Z judge        judge memoryVerify in 247 ms
+2026-10-01T16:59:10.298Z delta        queued esha_at_border=true, location=esha_border, tension_current=0.28061274999999997 for the next boundary
+2026-10-01T16:59:11.357Z delta        queued esha_at_border=true, location=esha_border, tension_current=0.28061274999999997 for the next boundary
+2026-10-01T16:59:09.376Z extraction   read cue:esha-the-last-chapel->esha-the-guardians msgs 11-18 → 3 accepted, 0 rejected
+2026-10-01T16:59:09.376Z delta        esha_at_border = true
+2026-10-01T16:59:09.376Z delta        location = esha_border
+2026-10-01T16:59:09.376Z delta        tension_current = 0.28061274999999997
+2026-10-01T16:59:09.376Z delta        queued esha_at_border=true, location=esha_border, tension_current=0.28061274999999997 for the next boundary
+2026-10-01T16:59:09.376Z audit        audit cue:esha-the-last-chapel->esha-the-guardians msgs 11-18 scope [esha_at_border, location, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T16:59:12.113Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:59:13.811Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:59:14.569Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:59:17.964Z judge        judge curatorFilter in 347 ms
+2026-10-01T16:59:17.966Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:59:19.040Z stagecraft   World Info curator proposed 1 change(s) at The Last Chapel
+2026-10-01T16:59:16.526Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:59:19.513Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T16:59:31.495Z payload      7 story blocks injected (generation)
+2026-10-01T16:59:31.538Z payload      8 story blocks injected (generation)
+2026-10-01T16:59:32.243Z judge        judge lore in 342 ms
+2026-10-01T16:59:32.255Z judge        judge lore in 344 ms
+2026-10-01T16:59:32.565Z judge        judge lore in 327 ms
+2026-10-01T16:59:32.595Z judge        judge lore in 345 ms
+2026-10-01T16:59:32.787Z judge        judge lore in 223 ms
+2026-10-01T16:59:33.030Z talk         Adolion Narrator speaks (judge)
+2026-10-01T16:59:33.030Z judge        judge director in 231 ms
+2026-10-01T17:00:02.950Z payload      8 story blocks injected (generation)
+2026-10-01T17:00:03.988Z payload      8 story blocks injected (generation)
+2026-10-01T17:00:05.857Z boundary     applied esha_at_border=true, location=esha_border, tension_current=0.28061274999999997
+2026-10-01T17:00:05.857Z transition   esha-the-last-chapel → esha-the-guardians
+2026-10-01T17:00:06.401Z talk         silence speaks (judge)
+2026-10-01T17:00:06.401Z judge        judge director in 563 ms
+2026-10-01T17:00:07.078Z payload      6 story blocks injected (generation)
+2026-10-01T17:00:07.871Z status       Moved into The Shrine Stones
+2026-10-01T17:00:08.337Z boundary     boundary 15: nothing applied (gate)
+2026-10-01T17:00:08.801Z status       Following The Shrine Stones
+2026-10-01T17:00:09.274Z judge        judge typed in 937 ms
+2026-10-01T17:00:09.278Z judge        judge scene in 940 ms
+2026-10-01T17:00:09.643Z judge        judge wardenLore in 367 ms
+2026-10-01T17:00:09.701Z judge        judge warden in 430 ms
+2026-10-01T17:00:09.900Z judge        judge typed in 225 ms
+2026-10-01T17:00:08.229Z model-call   generation via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:00:11.835Z judge        judge critic in 223 ms
+2026-10-01T17:00:09.900Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:00:14.282Z judge        judge memoryVerify in 278 ms
+2026-10-01T17:00:14.336Z delta        queued location=esha_border, tension_current=0.271428925 for the next boundary
+2026-10-01T17:00:15.410Z delta        queued location=esha_border, tension_current=0.271428925 for the next boundary
+2026-10-01T17:00:13.999Z extraction   read scene:location msgs 13-20 → 2 accepted, 1 rejected
+2026-10-01T17:00:13.999Z delta        location = esha_border
+2026-10-01T17:00:13.999Z delta        tension_current = 0.271428925
+2026-10-01T17:00:13.999Z delta        queued location=esha_border, tension_current=0.271428925 for the next boundary
+2026-10-01T17:00:13.999Z audit        audit scene:location msgs 13-20 scope [esha_city_reached, esha_dread, esha_led_in, esha_welcome_refused, location, party_injuries, tension_current] → 2 accepted, 1 rejected
+2026-10-01T17:00:17.392Z judge        judge typed in 270 ms
+2026-10-01T17:00:17.392Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:00:22.006Z delta        queued location=esha_border, tension_current=0.26500024749999995 for the next boundary
+2026-10-01T17:00:22.156Z judge        judge memoryVerify in 314 ms
+2026-10-01T17:00:23.070Z delta        queued location=esha_border, tension_current=0.26500024749999995 for the next boundary
+2026-10-01T17:00:21.840Z extraction   read cadence msgs 17-21 → 2 accepted, 0 rejected
+2026-10-01T17:00:21.840Z delta        location = esha_border
+2026-10-01T17:00:21.840Z delta        tension_current = 0.26500024749999995
+2026-10-01T17:00:21.840Z delta        queued location=esha_border, tension_current=0.26500024749999995 for the next boundary
+2026-10-01T17:00:21.840Z audit        audit cadence msgs 17-21 scope [esha_city_reached, esha_dread, esha_led_in, esha_welcome_refused, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:00:24.354Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:00:26.619Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:01:18.833Z payload      7 story blocks injected (generation)
+2026-10-01T17:01:18.876Z payload      8 story blocks injected (generation)
+2026-10-01T17:01:19.593Z judge        judge lore in 390 ms
+2026-10-01T17:01:19.640Z judge        judge lore in 452 ms
+2026-10-01T17:01:19.942Z judge        judge lore in 353 ms
+2026-10-01T17:01:19.999Z judge        judge lore in 363 ms
+2026-10-01T17:01:20.186Z judge        judge lore in 245 ms
+2026-10-01T17:01:20.444Z judge        judge director in 244 ms
+2026-10-01T17:01:20.445Z talk         Adolion Narrator speaks (judge)
+2026-10-01T17:01:21.064Z payload      8 story blocks injected (generation)
+2026-10-01T17:01:21.706Z payload      8 story blocks injected (generation)
+2026-10-01T17:01:51.006Z payload      8 story blocks injected (generation)
+2026-10-01T17:01:52.269Z boundary     applied location=esha_border, tension_current=0.271428925, location=esha_border, tension_current=0.26500024749999995
+2026-10-01T17:01:53.309Z judge        judge director in 1104 ms
+2026-10-01T17:01:53.310Z talk         Dalan speaks (judge)
+2026-10-01T17:01:53.541Z judge        judge typed in 559 ms
+2026-10-01T17:01:54.037Z judge        judge scene in 731 ms
+2026-10-01T17:01:54.174Z judge        judge warden in 636 ms
+2026-10-01T17:01:54.248Z payload      7 story blocks injected (generation)
+2026-10-01T17:01:54.298Z payload      8 story blocks injected (generation)
+2026-10-01T17:01:54.366Z judge        judge wardenLore in 330 ms
+2026-10-01T17:01:54.440Z judge        judge typed in 267 ms
+2026-10-01T17:01:54.788Z judge        judge lore in 427 ms
+2026-10-01T17:01:54.799Z judge        judge lore in 363 ms
+2026-10-01T17:01:55.102Z judge        judge lore in 318 ms
+2026-10-01T17:01:55.154Z judge        judge lore in 359 ms
+2026-10-01T17:01:55.337Z judge        judge lore in 236 ms
+2026-10-01T17:01:54.441Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:01:59.025Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:02:04.875Z story        1 rating reading(s) held: the evidence did not ground the level
+2026-10-01T17:02:05.166Z judge        judge memoryVerify in 290 ms
+2026-10-01T17:02:05.591Z delta        queued location=esha_border, tension_current=0.3355001732499999 for the next boundary
+2026-10-01T17:02:06.711Z delta        queued location=esha_border, tension_current=0.3355001732499999 for the next boundary
+2026-10-01T17:02:04.871Z extraction   read cue:esha-the-guardians->esha-bound-and-led msgs 16-23 → 3 accepted, 0 rejected
+2026-10-01T17:02:04.871Z delta        location = esha_border
+2026-10-01T17:02:04.871Z delta        tension_current = 0.3355001732499999
+2026-10-01T17:02:04.871Z delta        esha_dread = 2
+2026-10-01T17:02:04.871Z delta        queued location=esha_border, tension_current=0.3355001732499999 for the next boundary
+2026-10-01T17:02:04.871Z audit        audit cue:esha-the-guardians->esha-bound-and-led msgs 16-23 scope [esha_city_reached, esha_dread, esha_led_in, esha_welcome_refused, guild_reputation, location, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:02:09.144Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:02:11.038Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:02:14.127Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:02:40.185Z boundary     applied location=esha_border, tension_current=0.3355001732499999
+2026-10-01T17:02:41.711Z judge        judge scene in 931 ms
+2026-10-01T17:02:41.773Z judge        judge typed in 995 ms
+2026-10-01T17:02:42.158Z judge        judge wardenLore in 385 ms
+2026-10-01T17:02:42.158Z judge        judge warden in 448 ms
+2026-10-01T17:02:42.160Z stagecraft   Warden flagged Dalan's reply (house-rule)
+2026-10-01T17:02:41.665Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:02:57.082Z payload      8 story blocks injected (generation)
+2026-10-01T17:02:57.125Z payload      9 story blocks injected (generation)
+2026-10-01T17:02:57.820Z judge        judge lore in 378 ms
+2026-10-01T17:02:57.837Z judge        judge lore in 401 ms
+2026-10-01T17:02:58.122Z judge        judge lore in 307 ms
+2026-10-01T17:02:58.168Z judge        judge lore in 335 ms
+2026-10-01T17:02:58.372Z judge        judge lore in 252 ms
+2026-10-01T17:02:58.699Z talk         Adolion Narrator speaks (judge)
+2026-10-01T17:02:58.699Z judge        judge director in 315 ms
+2026-10-01T17:03:00.053Z payload      9 story blocks injected (generation)
+2026-10-01T17:03:00.113Z payload      9 story blocks injected (generation)
+2026-10-01T17:03:25.300Z boundary     boundary 18: nothing applied (gate)
+2026-10-01T17:03:25.818Z talk         Dalan speaks (judge)
+2026-10-01T17:03:25.818Z judge        judge director in 524 ms
+2026-10-01T17:03:26.300Z payload      8 story blocks injected (generation)
+2026-10-01T17:03:26.364Z payload      9 story blocks injected (generation)
+2026-10-01T17:03:26.386Z judge        judge scene in 578 ms
+2026-10-01T17:03:26.409Z judge        judge warden in 592 ms
+2026-10-01T17:03:26.923Z judge        judge wardenLore in 537 ms
+2026-10-01T17:03:27.252Z judge        judge lore in 818 ms
+2026-10-01T17:03:27.443Z judge        judge lore in 526 ms
+2026-10-01T17:03:27.571Z judge        judge lore in 323 ms
+2026-10-01T17:03:27.764Z judge        judge lore in 324 ms
+2026-10-01T17:03:27.820Z judge        judge lore in 251 ms
+2026-10-01T17:03:28.569Z judge        judge typed in 806 ms
+2026-10-01T17:03:28.570Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:03:31.833Z story        1 rating reading(s) held: the evidence did not ground the level
+2026-10-01T17:03:32.066Z judge        judge memoryVerify in 233 ms
+2026-10-01T17:03:32.345Z delta        queued location=esha_border, tension_current=0.38485012127499996 for the next boundary
+2026-10-01T17:03:31.831Z extraction   read cadence msgs 22-26 → 3 accepted, 0 rejected
+2026-10-01T17:03:31.831Z delta        esha_dread = 2
+2026-10-01T17:03:31.831Z delta        location = esha_border
+2026-10-01T17:03:31.831Z delta        tension_current = 0.38485012127499996
+2026-10-01T17:03:31.831Z delta        queued location=esha_border, tension_current=0.38485012127499996 for the next boundary
+2026-10-01T17:03:31.831Z audit        audit cadence msgs 22-26 scope [esha_city_reached, esha_dread, esha_led_in, esha_welcome_refused, location, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:04:15.346Z boundary     applied location=esha_border, tension_current=0.38485012127499996
+2026-10-01T17:04:16.427Z judge        judge scene in 683 ms
+2026-10-01T17:04:16.488Z judge        judge typed in 746 ms
+2026-10-01T17:04:16.822Z judge        judge wardenLore in 335 ms
+2026-10-01T17:04:16.827Z judge        judge warden in 402 ms
+2026-10-01T17:04:16.828Z stagecraft   Warden flagged Dalan's reply (house-rule)
+2026-10-01T17:04:32.177Z payload      8 story blocks injected (generation)
+2026-10-01T17:04:32.221Z payload      9 story blocks injected (generation)
+2026-10-01T17:04:32.918Z judge        judge lore in 396 ms
+2026-10-01T17:04:32.927Z judge        judge lore in 401 ms
+2026-10-01T17:04:33.242Z judge        judge lore in 329 ms
+2026-10-01T17:04:33.259Z judge        judge lore in 336 ms
+2026-10-01T17:04:33.463Z judge        judge lore in 223 ms
+2026-10-01T17:04:33.697Z talk         Adolion Narrator speaks (judge)
+2026-10-01T17:04:33.697Z judge        judge director in 223 ms
+2026-10-01T17:04:34.627Z payload      9 story blocks injected (generation)
+2026-10-01T17:04:35.754Z payload      9 story blocks injected (generation)
+2026-10-01T17:05:15.926Z payload      9 story blocks injected (generation)
+2026-10-01T17:05:16.940Z boundary     boundary 20: nothing applied (gate)
+2026-10-01T17:05:18.507Z judge        judge director fell back (timeout) in 1505 ms
+2026-10-01T17:05:21.016Z judge        judge scene fell back (timeout) in 2510 ms
+2026-10-01T17:05:22.672Z judge        judge typed fell back (timeout) in 5028 ms
+2026-10-01T17:05:18.508Z model-call   director via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:05:23.757Z judge        judge wardenLore fell back (busy) in 1086 ms
+2026-10-01T17:05:24.073Z judge        judge warden in 3058 ms
+2026-10-01T17:05:24.302Z talk         Belle speaks (director)
+2026-10-01T17:05:24.558Z payload      8 story blocks injected (generation)
+2026-10-01T17:05:24.673Z payload      9 story blocks injected (generation)
+2026-10-01T17:05:25.415Z judge        judge lore in 311 ms
+2026-10-01T17:05:25.869Z judge        judge lore in 769 ms
+2026-10-01T17:05:25.876Z judge        judge lore in 466 ms
+2026-10-01T17:05:26.352Z judge        judge lore in 477 ms
+2026-10-01T17:05:26.353Z judge        judge lore in 488 ms
+2026-10-01T17:05:27.405Z judge        judge typed in 1054 ms
+2026-10-01T17:05:27.405Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:05:31.658Z story        1 rating reading(s) held: the evidence did not ground the level
+2026-10-01T17:05:32.451Z judge        judge memoryVerify in 792 ms
+2026-10-01T17:05:32.575Z delta        queued location=esha_border, tension_current=0.49439508489249995 for the next boundary
+2026-10-01T17:05:33.665Z delta        queued location=esha_border, tension_current=0.49439508489249995 for the next boundary
+2026-10-01T17:05:31.655Z extraction   read cue:esha-the-guardians->gen_esha-the-road-in_1 msgs 22-29 → 3 accepted, 0 rejected
+2026-10-01T17:05:31.655Z delta        esha_dread = 2
+2026-10-01T17:05:31.655Z delta        location = esha_border
+2026-10-01T17:05:31.655Z delta        tension_current = 0.49439508489249995
+2026-10-01T17:05:31.655Z delta        queued location=esha_border, tension_current=0.49439508489249995 for the next boundary
+2026-10-01T17:05:31.655Z audit        audit cue:esha-the-guardians->gen_esha-the-road-in_1 msgs 22-29 scope [esha_city_reached, esha_dread, esha_led_in, esha_welcome_refused, location, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:06:01.533Z boundary     applied location=esha_border, tension_current=0.49439508489249995
+2026-10-01T17:06:03.976Z judge        judge scene in 1112 ms
+2026-10-01T17:06:04.008Z judge        judge warden in 1143 ms
+2026-10-01T17:06:04.735Z judge        judge wardenLore in 760 ms
+2026-10-01T17:06:04.735Z stagecraft   Continuity warden flagged Belle's reply
+2026-10-01T17:06:04.748Z judge        judge typed in 741 ms
+2026-10-01T17:06:05.191Z judge        judge memoryPairs in 424 ms
+2026-10-01T17:06:05.193Z judge        judge memoryPairs in 425 ms
+2026-10-01T17:06:05.423Z judge        judge memoryPairs in 232 ms
+2026-10-01T17:06:05.458Z judge        judge memoryPairs in 266 ms
+2026-10-01T17:06:05.668Z judge        judge memoryPairs in 245 ms
+2026-10-01T17:06:05.679Z judge        judge memoryPairs in 221 ms
+2026-10-01T17:06:05.938Z judge        judge memoryPairs in 271 ms
+2026-10-01T17:06:05.938Z judge        judge memoryPairs in 260 ms
+2026-10-01T17:06:05.944Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T17:06:05.944Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T17:06:05.944Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T17:06:05.944Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T17:06:05.944Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T17:06:05.945Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T17:06:05.947Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:06:05.947Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:06:05.947Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:06:05.947Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:05.947Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:05.947Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:05.947Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:05.947Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:05.948Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:05.949Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:05.949Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:05.949Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:06:05.949Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:06:05.949Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:06:05.949Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:06:05.949Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:06:04.748Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:06:11.192Z story        1 rating reading(s) held: the evidence did not ground the level
+2026-10-01T17:06:11.193Z judge        judge memoryVerify fell back (busy) in 0 ms
+2026-10-01T17:06:11.781Z delta        queued location=esha_border, tension_current=0.57107655942475 for the next boundary
+2026-10-01T17:06:12.921Z delta        queued location=esha_border, tension_current=0.57107655942475 for the next boundary
+2026-10-01T17:06:11.190Z extraction   read cadence msgs 27-30 → 3 accepted, 0 rejected
+2026-10-01T17:06:11.190Z delta        esha_dread = 2
+2026-10-01T17:06:11.190Z delta        location = esha_border
+2026-10-01T17:06:11.190Z delta        tension_current = 0.57107655942475
+2026-10-01T17:06:11.190Z delta        queued location=esha_border, tension_current=0.57107655942475 for the next boundary
+2026-10-01T17:06:11.190Z audit        audit cadence msgs 27-30 scope [esha_city_reached, esha_dread, esha_led_in, esha_welcome_refused, location, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:06:15.037Z judge        judge typed fell back (busy) in 0 ms
+2026-10-01T17:06:15.037Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:06:19.742Z delta        queued location=esha_border, tension_current=0.624753591597325 for the next boundary
+2026-10-01T17:06:20.664Z judge        judge memoryVerify in 675 ms
+2026-10-01T17:06:20.836Z delta        queued location=esha_border, tension_current=0.624753591597325 for the next boundary
+2026-10-01T17:06:21.940Z delta        queued location=esha_border, tension_current=0.624753591597325 for the next boundary
+2026-10-01T17:06:23.064Z delta        queued location=esha_border, tension_current=0.624753591597325 for the next boundary
+2026-10-01T17:06:19.561Z extraction   read cue:esha-the-guardians->gen_esha-the-road-in_1 msgs 23-30 → 2 accepted, 0 rejected
+2026-10-01T17:06:19.561Z delta        location = esha_border
+2026-10-01T17:06:19.561Z delta        tension_current = 0.624753591597325
+2026-10-01T17:06:19.561Z delta        queued location=esha_border, tension_current=0.624753591597325 for the next boundary
+2026-10-01T17:06:19.561Z audit        audit cue:esha-the-guardians->gen_esha-the-road-in_1 msgs 23-30 scope [esha_city_reached, esha_dread, esha_led_in, esha_welcome_refused, guild_reputation, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:06:44.218Z judge        judge memoryPairs in 245 ms
+2026-10-01T17:06:44.238Z judge        judge memoryPairs in 264 ms
+2026-10-01T17:06:44.446Z judge        judge memoryPairs in 229 ms
+2026-10-01T17:06:44.477Z judge        judge memoryPairs in 240 ms
+2026-10-01T17:06:44.663Z judge        judge memoryPairs in 218 ms
+2026-10-01T17:06:44.729Z judge        judge memoryPairs in 253 ms
+2026-10-01T17:06:44.873Z judge        judge memoryPairs in 211 ms
+2026-10-01T17:06:45.083Z judge        judge memoryPairs in 355 ms
+2026-10-01T17:06:45.090Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T17:06:45.090Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T17:06:45.090Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T17:06:45.090Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T17:06:45.090Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T17:06:45.090Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T17:06:45.090Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T17:06:45.298Z judge        judge memoryPairs in 213 ms
+2026-10-01T17:06:45.299Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:45.300Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:45.300Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:45.300Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:06:45.300Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:06:45.300Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:06:45.300Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:06:45.300Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:06:45.301Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:45.301Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:45.301Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:45.301Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:45.301Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:45.301Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:45.301Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:45.301Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:06:45.718Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:07:00.295Z payload      7 story blocks injected (generation)
+2026-10-01T17:07:00.350Z payload      8 story blocks injected (generation)
+2026-10-01T17:07:00.689Z judge        judge lore fell back (busy) in 5 ms
+2026-10-01T17:07:00.689Z judge        judge lore fell back (busy) in 3 ms
+2026-10-01T17:07:00.689Z judge        judge lore fell back (busy) in 2 ms
+2026-10-01T17:07:00.689Z judge        judge lore fell back (busy) in 1 ms
+2026-10-01T17:07:00.689Z judge        judge lore fell back (busy) in 1 ms
+2026-10-01T17:07:00.715Z judge        judge director fell back (busy) in 0 ms
+2026-10-01T17:07:00.716Z talk         Belle speaks (mention)
+2026-10-01T17:07:49.442Z boundary     applied location=esha_border, tension_current=0.624753591597325; discarded location=esha_border, tension_current=0.57107655942475 (superseded)
+2026-10-01T17:07:49.625Z payload      6 story blocks injected (generation)
+2026-10-01T17:07:50.044Z reconciliation stall re-check queued for esha_city_reached, esha_led_in, esha_welcome_refused
+2026-10-01T17:07:50.440Z talk         Adolion Narrator speaks (judge)
+2026-10-01T17:07:50.440Z judge        judge director in 648 ms
+2026-10-01T17:07:50.731Z judge        judge typed in 648 ms
+2026-10-01T17:07:50.896Z judge        judge stall in 457 ms
+2026-10-01T17:07:51.777Z judge        judge scene in 1047 ms
+2026-10-01T17:07:52.274Z judge        judge wardenLore in 498 ms
+2026-10-01T17:07:52.276Z judge        judge warden in 1381 ms
+2026-10-01T17:07:52.277Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T17:07:52.715Z judge        judge typed in 442 ms
+2026-10-01T17:07:52.716Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:07:57.294Z story        1 rating reading(s) held: the evidence did not ground the level
+2026-10-01T17:07:57.572Z judge        judge memoryVerify in 277 ms
+2026-10-01T17:07:57.808Z delta        queued location=esha_border, tension_current=0.6623275141181275 for the next boundary
+2026-10-01T17:07:58.910Z delta        queued location=esha_border, tension_current=0.6623275141181275 for the next boundary
+2026-10-01T17:07:57.291Z extraction   read cue:esha-the-guardians->gen_esha-the-road-in_1 msgs 25-32 → 3 accepted, 0 rejected
+2026-10-01T17:07:57.291Z delta        esha_dread = 2
+2026-10-01T17:07:57.291Z delta        location = esha_border
+2026-10-01T17:07:57.291Z delta        tension_current = 0.6623275141181275
+2026-10-01T17:07:57.291Z delta        queued location=esha_border, tension_current=0.6623275141181275 for the next boundary
+2026-10-01T17:07:57.291Z audit        audit cue:esha-the-guardians->gen_esha-the-road-in_1 msgs 25-32 scope [esha_city_reached, esha_dread, esha_led_in, esha_welcome_refused, location, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:08:00.972Z judge        judge typed in 339 ms
+2026-10-01T17:08:00.973Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:08:05.383Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:08:10.461Z story        1 rating reading(s) held: the evidence did not ground the level
+2026-10-01T17:08:10.741Z judge        judge memoryVerify in 279 ms
+2026-10-01T17:08:11.135Z delta        queued location=esha_border, tension_current=0.6886292598826892 for the next boundary
+2026-10-01T17:08:10.457Z extraction   read reconcile:esha_city_reached,esha_led_in,esha_welcome_refused msgs 21-32 → 3 accepted, 0 rejected
+2026-10-01T17:08:10.457Z delta        location = esha_border
+2026-10-01T17:08:10.457Z delta        esha_dread = 2
+2026-10-01T17:08:10.457Z delta        tension_current = 0.6886292598826892
+2026-10-01T17:08:10.457Z delta        queued location=esha_border, tension_current=0.6886292598826892 for the next boundary
+2026-10-01T17:08:12.080Z reconciliation stall re-check resolved (3 evidence)
+2026-10-01T17:08:10.457Z audit        audit reconcile:esha_city_reached,esha_led_in,esha_welcome_refused msgs 21-32 scope [esha_city_reached, esha_dread, esha_led_in, esha_welcome_refused, location, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:09:12.359Z payload      7 story blocks injected (generation)
+2026-10-01T17:09:12.421Z payload      8 story blocks injected (generation)
+2026-10-01T17:09:13.461Z judge        judge lore in 401 ms
+2026-10-01T17:09:13.495Z judge        judge lore in 420 ms
+2026-10-01T17:09:13.776Z judge        judge lore in 319 ms
+2026-10-01T17:09:13.809Z judge        judge lore in 318 ms
+2026-10-01T17:09:14.040Z judge        judge lore in 265 ms
+2026-10-01T17:09:14.347Z judge        judge director in 287 ms
+2026-10-01T17:09:14.348Z talk         Adolion Narrator speaks (judge)
+2026-10-01T17:09:15.562Z payload      8 story blocks injected (generation)
+2026-10-01T17:09:17.192Z payload      8 story blocks injected (generation)
+2026-10-01T17:10:09.988Z talk         Belle speaks (mention)
+2026-10-01T17:10:10.295Z boundary     applied location=esha_border, tension_current=0.6886292598826892; discarded location=esha_border, tension_current=0.6623275141181275 (superseded)
+2026-10-01T17:10:10.988Z payload      7 story blocks injected (generation)
+2026-10-01T17:10:11.293Z payload      8 story blocks injected (generation)
+2026-10-01T17:10:11.756Z judge        judge typed in 801 ms
+2026-10-01T17:10:11.761Z judge        judge scene in 805 ms
+2026-10-01T17:10:12.925Z judge        judge wardenLore in 1166 ms
+2026-10-01T17:10:12.956Z judge        judge warden in 1202 ms
+2026-10-01T17:10:13.279Z judge        judge lore in 358 ms
+2026-10-01T17:10:13.296Z judge        judge lore in 344 ms
+2026-10-01T17:10:13.670Z judge        judge lore in 379 ms
+2026-10-01T17:10:13.673Z judge        judge lore in 399 ms
+2026-10-01T17:10:13.894Z judge        judge typed in 222 ms
+2026-10-01T17:10:13.948Z judge        judge lore in 279 ms
+2026-10-01T17:10:13.894Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:10:18.753Z story        1 rating reading(s) held: the evidence did not ground the level
+2026-10-01T17:10:19.128Z judge        judge memoryVerify in 369 ms
+2026-10-01T17:10:19.187Z delta        queued esha_led_in=true, location=esha_road_in, tension_current=0.7070404819178824 for the next boundary
+2026-10-01T17:10:20.299Z delta        queued esha_led_in=true, location=esha_road_in, tension_current=0.7070404819178824 for the next boundary
+2026-10-01T17:10:18.750Z extraction   read cue:esha-the-guardians->gen_esha-the-road-in_1 msgs 27-34 → 4 accepted, 0 rejected
+2026-10-01T17:10:18.750Z delta        esha_dread = 2
+2026-10-01T17:10:18.750Z delta        esha_led_in = true
+2026-10-01T17:10:18.750Z delta        location = esha_road_in
+2026-10-01T17:10:18.750Z delta        tension_current = 0.7070404819178824
+2026-10-01T17:10:18.750Z delta        queued esha_led_in=true, location=esha_road_in, tension_current=0.7070404819178824 for the next boundary
+2026-10-01T17:10:18.750Z audit        audit cue:esha-the-guardians->gen_esha-the-road-in_1 msgs 27-34 scope [esha_city_reached, esha_dread, esha_led_in, esha_welcome_refused, location, party_injuries, tension_current] → 4 accepted, 0 rejected
+2026-10-01T17:10:20.952Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:10:22.484Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:10:24.292Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:10:24.216Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:10:26.351Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:10:29.086Z judge        judge curatorFilter in 458 ms
+2026-10-01T17:10:29.087Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:10:29.345Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:10:29.888Z stagecraft   World Info curator proposed 1 change(s) at The Shrine Stones
+2026-10-01T17:11:00.530Z boundary     applied esha_led_in=true, location=esha_road_in, tension_current=0.7070404819178824
+2026-10-01T17:11:00.530Z transition   esha-the-guardians → gen_esha-the-road-in_1
+2026-10-01T17:11:00.835Z status       Moved into The Shrine Stones
+2026-10-01T17:11:01.667Z judge        judge typed in 535 ms
+2026-10-01T17:11:01.671Z judge        judge scene in 538 ms
+2026-10-01T17:11:02.568Z judge        judge warden in 903 ms
+2026-10-01T17:11:02.583Z judge        judge wardenLore in 913 ms
+2026-10-01T17:11:02.584Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T17:11:02.990Z judge        judge typed in 423 ms
+2026-10-01T17:11:02.990Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:11:07.331Z delta        queued location=esha_border, tension_current=0.7199283373425176 for the next boundary
+2026-10-01T17:11:07.368Z judge        judge memoryVerify in 411 ms
+2026-10-01T17:11:08.442Z delta        queued location=esha_border, tension_current=0.7199283373425176 for the next boundary
+2026-10-01T17:11:09.553Z delta        queued location=esha_border, tension_current=0.7199283373425176 for the next boundary
+2026-10-01T17:11:06.955Z extraction   read scene:location msgs 28-35 → 2 accepted, 0 rejected
+2026-10-01T17:11:06.955Z delta        location = esha_border
+2026-10-01T17:11:06.955Z delta        tension_current = 0.7199283373425176
+2026-10-01T17:11:06.955Z delta        queued location=esha_border, tension_current=0.7199283373425176 for the next boundary
+2026-10-01T17:11:06.955Z audit        audit scene:location msgs 28-35 scope [esha_city_reached, esha_dread, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:11:11.266Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:11:13.022Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:11:15.169Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:11:37.892Z flag         Tension felt wrong: HUD reads 'critical' (0.71, expected 0.5) while the scouts politely escort us in after I knelt and sheathed steel (msgs 31-35). It climbed every turn at the stones even on de-escalating lines (0.38 -> 0.49 -> 0.62 -> 0.71).
+2026-10-01T17:11:44.755Z payload      7 story blocks injected (generation)
+2026-10-01T17:11:44.812Z payload      8 story blocks injected (generation)
+2026-10-01T17:11:45.603Z judge        judge lore in 376 ms
+2026-10-01T17:11:45.625Z judge        judge lore in 389 ms
+2026-10-01T17:11:45.929Z judge        judge lore in 331 ms
+2026-10-01T17:11:45.949Z judge        judge lore in 328 ms
+2026-10-01T17:11:46.178Z judge        judge lore in 250 ms
+2026-10-01T17:12:43.360Z payload      8 story blocks injected (generation)
+2026-10-01T17:12:43.834Z judge        judge lore in 357 ms
+2026-10-01T17:12:43.866Z judge        judge lore in 394 ms
+2026-10-01T17:12:44.173Z judge        judge lore in 312 ms
+2026-10-01T17:12:44.265Z judge        judge lore in 436 ms
+2026-10-01T17:12:44.416Z judge        judge lore in 245 ms
+2026-10-01T17:13:58.910Z payload      8 story blocks injected (generation)
+2026-10-01T17:13:59.815Z judge        judge lore in 363 ms
+2026-10-01T17:13:59.949Z judge        judge lore in 487 ms
+2026-10-01T17:14:00.145Z judge        judge lore in 335 ms
+2026-10-01T17:14:00.277Z judge        judge lore in 332 ms
+2026-10-01T17:14:00.365Z judge        judge lore in 222 ms
+2026-10-01T17:15:07.347Z boundary     applied location=esha_border, tension_current=0.7199283373425176
+2026-10-01T17:15:07.347Z transition   gen_esha-the-road-in_1 → gen_esha-the-road-in_2
+2026-10-01T17:15:09.765Z status       Moved into The Road In
+2026-10-01T17:15:10.670Z boundary     boundary 26: nothing applied (gate)
+2026-10-01T17:15:10.670Z transition   gen_esha-the-road-in_2 → esha-the-court
+2026-10-01T17:15:15.930Z judge        judge typed in 497 ms
+2026-10-01T17:15:15.932Z judge        judge scene in 354 ms
+2026-10-01T17:15:16.290Z judge        judge wardenLore in 358 ms
+2026-10-01T17:15:16.306Z judge        judge warden in 377 ms
+2026-10-01T17:15:16.307Z stagecraft   Warden flagged Ashliel's reply (house-rule)
+2026-10-01T17:15:17.079Z judge        judge typed in 788 ms
+2026-10-01T17:15:17.308Z payload      7 story blocks injected (generation)
+2026-10-01T17:15:17.407Z payload      7 story blocks injected (generation)
+2026-10-01T17:15:17.952Z judge        judge lore in 470 ms
+2026-10-01T17:15:18.027Z judge        judge lore in 541 ms
+2026-10-01T17:15:18.275Z judge        judge lore in 328 ms
+2026-10-01T17:15:18.625Z judge        judge lore in 601 ms
+2026-10-01T17:15:18.629Z judge        judge lore in 356 ms
+2026-10-01T17:15:17.079Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:15:21.966Z judge        judge memoryVerify in 226 ms
+2026-10-01T17:15:22.709Z delta        queued location=esha_road_in, tension_current=0.6539498361397623 for the next boundary
+2026-10-01T17:15:23.832Z delta        queued location=esha_road_in, tension_current=0.6539498361397623 for the next boundary
+2026-10-01T17:15:21.734Z extraction   read scene:location msgs 30-37 → 2 accepted, 0 rejected
+2026-10-01T17:15:21.734Z delta        location = esha_road_in
+2026-10-01T17:15:21.734Z delta        tension_current = 0.6539498361397623
+2026-10-01T17:15:21.734Z delta        queued location=esha_road_in, tension_current=0.6539498361397623 for the next boundary
+2026-10-01T17:15:21.734Z audit        audit scene:location msgs 30-37 scope [esha_city_reached, esha_dread, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:15:26.739Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:15:29.283Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:15:30.826Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:15:33.947Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:15:39.073Z flag         model defect: loop
+2026-10-01T17:16:15.187Z status       Moved into The Welcome of Eshalanore
+2026-10-01T17:16:15.325Z boundary     applied location=esha_road_in, tension_current=0.6539498361397623
+2026-10-01T17:16:15.825Z status       Following The Welcome of Eshalanore
+2026-10-01T17:16:15.961Z boundary     boundary 28: nothing applied (gate)
+2026-10-01T17:16:16.487Z payload      8 story blocks injected (generation)
+2026-10-01T17:16:17.118Z judge        judge scene in 1300 ms
+2026-10-01T17:16:17.124Z judge        judge typed in 1308 ms
+2026-10-01T17:16:17.139Z payload      9 story blocks injected (generation)
+2026-10-01T17:16:17.237Z judge        judge scene in 0 ms
+2026-10-01T17:16:17.865Z judge        judge wardenLore in 742 ms
+2026-10-01T17:16:17.880Z judge        judge warden in 765 ms
+2026-10-01T17:16:17.880Z stagecraft   Warden flagged Belle's reply (continuity+house-rule)
+2026-10-01T17:16:18.254Z judge        judge typed in 376 ms
+2026-10-01T17:16:18.265Z judge        judge typed in 402 ms
+2026-10-01T17:16:18.660Z judge        judge lore in 400 ms
+2026-10-01T17:16:18.674Z judge        judge lore in 426 ms
+2026-10-01T17:16:18.962Z judge        judge lore in 308 ms
+2026-10-01T17:16:18.988Z judge        judge lore in 320 ms
+2026-10-01T17:16:19.187Z judge        judge lore in 228 ms
+2026-10-01T17:16:19.432Z talk         Adolion Narrator speaks (judge)
+2026-10-01T17:16:19.432Z judge        judge director in 228 ms
+2026-10-01T17:16:21.367Z payload      9 story blocks injected (generation)
+2026-10-01T17:16:18.265Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:16:23.130Z payload      9 story blocks injected (generation)
+2026-10-01T17:16:23.173Z delta        queued location=esha_road_in, tension_current=0.6077648852978336 for the next boundary
+2026-10-01T17:16:23.379Z judge        judge memoryVerify in 515 ms
+2026-10-01T17:16:24.278Z delta        queued location=esha_road_in, tension_current=0.6077648852978336 for the next boundary
+2026-10-01T17:16:24.542Z payload      9 story blocks injected (generation)
+2026-10-01T17:16:25.402Z delta        queued location=esha_road_in, tension_current=0.6077648852978336 for the next boundary
+2026-10-01T17:16:26.526Z delta        queued location=esha_road_in, tension_current=0.6077648852978336 for the next boundary
+2026-10-01T17:16:22.861Z extraction   read scene:cast msgs 31-38 → 2 accepted, 0 rejected
+2026-10-01T17:16:22.861Z delta        location = esha_road_in
+2026-10-01T17:16:22.861Z delta        tension_current = 0.6077648852978336
+2026-10-01T17:16:22.861Z delta        queued location=esha_road_in, tension_current=0.6077648852978336 for the next boundary
+2026-10-01T17:16:22.861Z audit        audit scene:cast msgs 31-38 scope [esha_belle_missing, esha_dread, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:16:28.589Z judge        judge typed in 293 ms
+2026-10-01T17:16:28.590Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:16:33.237Z delta        queued location=esha_road_in, tension_current=0.5754354197084834 for the next boundary
+2026-10-01T17:16:33.343Z judge        judge memoryVerify in 273 ms
+2026-10-01T17:16:34.338Z delta        queued location=esha_road_in, tension_current=0.5754354197084834 for the next boundary
+2026-10-01T17:16:33.067Z extraction   read scene:location msgs 33-40 → 2 accepted, 0 rejected
+2026-10-01T17:16:33.067Z delta        location = esha_road_in
+2026-10-01T17:16:33.067Z delta        tension_current = 0.5754354197084834
+2026-10-01T17:16:33.067Z delta        queued location=esha_road_in, tension_current=0.5754354197084834 for the next boundary
+2026-10-01T17:16:33.067Z audit        audit scene:location msgs 33-40 scope [esha_belle_missing, esha_dread, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:16:36.443Z judge        judge typed in 0 ms
+2026-10-01T17:16:36.642Z judge        judge curatorFilter in 798 ms
+2026-10-01T17:16:36.643Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:16:37.752Z stagecraft   World Info curator proposed 1 change(s) at The Welcome of Eshalanore
+2026-10-01T17:16:36.444Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:16:41.138Z judge        judge memoryVerify in 322 ms
+2026-10-01T17:16:41.507Z delta        queued location=esha_castle_hall, tension_current=0.5528047937959384 for the next boundary
+2026-10-01T17:16:42.629Z delta        queued location=esha_castle_hall, tension_current=0.5528047937959384 for the next boundary
+2026-10-01T17:16:40.812Z extraction   read scene:judge msgs 33-40 → 2 accepted, 0 rejected
+2026-10-01T17:16:40.812Z delta        location = esha_castle_hall
+2026-10-01T17:16:40.812Z delta        tension_current = 0.5528047937959384
+2026-10-01T17:16:40.812Z delta        queued location=esha_castle_hall, tension_current=0.5528047937959384 for the next boundary
+2026-10-01T17:16:40.812Z audit        audit scene:judge msgs 33-40 scope [esha_belle_missing, esha_dread, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:16:44.411Z judge        judge typed in 265 ms
+2026-10-01T17:16:44.412Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:16:49.350Z judge        judge memoryVerify in 273 ms
+2026-10-01T17:16:49.490Z delta        queued location=esha_road_in, tension_current=0.5369633556571568 for the next boundary
+2026-10-01T17:16:50.608Z delta        queued location=esha_road_in, tension_current=0.5369633556571568 for the next boundary
+2026-10-01T17:16:49.072Z extraction   read cadence msgs 31-39 → 2 accepted, 0 rejected
+2026-10-01T17:16:49.072Z delta        location = esha_road_in
+2026-10-01T17:16:49.072Z delta        tension_current = 0.5369633556571568
+2026-10-01T17:16:49.072Z delta        queued location=esha_road_in, tension_current=0.5369633556571568 for the next boundary
+2026-10-01T17:16:49.072Z audit        audit cadence msgs 31-39 scope [esha_belle_missing, esha_dread, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:16:51.764Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:16:53.889Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:16:55.734Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:16:57.807Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:17:00.407Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:17:49.619Z story        NPC reply Adolion Narrator (afterSpeak) skipped by its roll
+2026-10-01T17:17:50.610Z payload      9 story blocks injected (generation)
+2026-10-01T17:17:52.581Z boundary     applied location=esha_castle_hall, tension_current=0.5528047937959384, location=esha_road_in, tension_current=0.5369633556571568; discarded location=esha_road_in, tension_current=0.6077648852978336, location=esha_road_in, tension_current=0.5754354197084834 (superseded)
+2026-10-01T17:17:53.054Z talk         Elowyn speaks (judge)
+2026-10-01T17:17:53.054Z judge        judge director in 477 ms
+2026-10-01T17:17:53.398Z judge        judge typed in 384 ms
+2026-10-01T17:17:53.414Z judge        judge scene in 363 ms
+2026-10-01T17:17:53.537Z payload      8 story blocks injected (generation)
+2026-10-01T17:17:53.769Z payload      9 story blocks injected (generation)
+2026-10-01T17:17:53.923Z judge        judge wardenLore in 510 ms
+2026-10-01T17:17:53.934Z judge        judge warden in 538 ms
+2026-10-01T17:17:54.420Z judge        judge lore in 501 ms
+2026-10-01T17:17:54.435Z judge        judge lore in 505 ms
+2026-10-01T17:17:54.740Z judge        judge lore in 327 ms
+2026-10-01T17:17:54.775Z judge        judge lore in 345 ms
+2026-10-01T17:17:54.968Z judge        judge lore in 230 ms
+2026-10-01T17:20:02.583Z story        NPC reply Adolion Narrator (afterSpeak) skipped by its roll
+2026-10-01T17:20:03.488Z boundary     boundary 30: nothing applied (gate)
+2026-10-01T17:20:03.705Z payload      7 story blocks injected (generation)
+2026-10-01T17:20:05.548Z judge        judge director fell back (timeout) in 1505 ms
+2026-10-01T17:20:06.740Z judge        judge scene fell back (timeout) in 2509 ms
+2026-10-01T17:20:09.550Z judge        judge warden fell back (timeout) in 4004 ms
+2026-10-01T17:20:10.369Z judge        judge wardenLore in 3630 ms
+2026-10-01T17:20:05.548Z model-call   director via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:20:14.333Z judge        judge typed in 410 ms
+2026-10-01T17:20:14.333Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:20:20.977Z delta        queued location=esha_castle_hall, tension_current=0.5258743489600097 for the next boundary
+2026-10-01T17:20:21.478Z judge        judge memoryVerify in 1325 ms
+2026-10-01T17:20:22.085Z delta        queued location=esha_castle_hall, tension_current=0.5258743489600097 for the next boundary
+2026-10-01T17:20:23.191Z delta        queued location=esha_castle_hall, tension_current=0.5258743489600097 for the next boundary
+2026-10-01T17:20:24.298Z delta        queued location=esha_castle_hall, tension_current=0.5258743489600097 for the next boundary
+2026-10-01T17:20:20.150Z extraction   read cadence msgs 40-43 → 2 accepted, 0 rejected
+2026-10-01T17:20:20.150Z delta        location = esha_castle_hall
+2026-10-01T17:20:20.150Z delta        tension_current = 0.5258743489600097
+2026-10-01T17:20:20.150Z delta        queued location=esha_castle_hall, tension_current=0.5258743489600097 for the next boundary
+2026-10-01T17:20:20.150Z audit        audit cadence msgs 40-43 scope [esha_belle_missing, esha_dread, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:20:27.702Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:20:30.763Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:20:38.074Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:20:57.250Z judge        judge memoryPairs in 263 ms
+2026-10-01T17:20:57.280Z judge        judge memoryPairs in 291 ms
+2026-10-01T17:20:57.463Z judge        judge memoryPairs in 214 ms
+2026-10-01T17:20:57.544Z judge        judge memoryPairs in 265 ms
+2026-10-01T17:20:57.680Z judge        judge memoryPairs in 218 ms
+2026-10-01T17:20:57.787Z judge        judge memoryPairs in 244 ms
+2026-10-01T17:20:57.928Z judge        judge memoryPairs in 249 ms
+2026-10-01T17:20:58.068Z judge        judge memoryPairs in 282 ms
+2026-10-01T17:20:58.328Z judge        judge memoryPairs in 258 ms
+2026-10-01T17:20:58.345Z judge        judge memoryPairs in 275 ms
+2026-10-01T17:20:58.566Z judge        judge memoryPairs in 239 ms
+2026-10-01T17:20:58.575Z judge        judge memoryPairs in 231 ms
+2026-10-01T17:20:58.797Z judge        judge memoryPairs in 232 ms
+2026-10-01T17:20:58.806Z judge        judge memoryPairs in 232 ms
+2026-10-01T17:20:59.042Z judge        judge memoryPairs in 246 ms
+2026-10-01T17:20:59.060Z judge        judge memoryPairs in 255 ms
+2026-10-01T17:20:59.067Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T17:20:59.068Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T17:20:59.068Z judge        judge memoryPairs fell back (busy) in 6 ms
+2026-10-01T17:20:59.068Z judge        judge memoryPairs fell back (busy) in 6 ms
+2026-10-01T17:20:59.068Z judge        judge memoryPairs fell back (busy) in 6 ms
+2026-10-01T17:20:59.068Z judge        judge memoryPairs fell back (busy) in 6 ms
+2026-10-01T17:20:59.068Z judge        judge memoryPairs fell back (busy) in 6 ms
+2026-10-01T17:20:59.311Z judge        judge memoryPairs in 249 ms
+2026-10-01T17:20:59.314Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:20:59.314Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:20:59.314Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:20:59.314Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:20:59.314Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:20:59.314Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:20:59.314Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:20:59.314Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:21:37.029Z judge        judge memoryPairs in 264 ms
+2026-10-01T17:21:37.069Z judge        judge memoryPairs in 307 ms
+2026-10-01T17:21:37.262Z judge        judge memoryPairs in 234 ms
+2026-10-01T17:21:37.373Z judge        judge memoryPairs in 305 ms
+2026-10-01T17:21:37.375Z judge        judge memoryPairs fell back (busy) in 3 ms
+2026-10-01T17:21:37.375Z judge        judge memoryPairs fell back (busy) in 596 ms
+2026-10-01T17:21:37.375Z judge        judge memoryPairs fell back (busy) in 594 ms
+2026-10-01T17:21:37.487Z judge        judge memoryPairs in 226 ms
+2026-10-01T17:21:37.489Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.489Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.489Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.489Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.489Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.489Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.489Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.489Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.491Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:21:37.491Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:21:37.491Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:21:37.491Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:21:37.491Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:21:37.491Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.491Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.491Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.492Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.492Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.492Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.492Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.492Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.492Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.492Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:21:37.933Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:21:45.963Z flag         model defect: corrupt
+2026-10-01T17:21:46.917Z payload      7 story blocks injected (generation)
+2026-10-01T17:21:47.005Z payload      8 story blocks injected (generation)
+2026-10-01T17:21:47.268Z judge        judge lore fell back (busy) in 2 ms
+2026-10-01T17:21:47.268Z judge        judge lore fell back (busy) in 1 ms
+2026-10-01T17:21:47.268Z judge        judge lore fell back (busy) in 0 ms
+2026-10-01T17:22:27.817Z story        NPC reply Adolion Narrator (afterSpeak) skipped by its roll
+2026-10-01T17:22:29.006Z story        eventless change at message 43
+2026-10-01T17:22:30.030Z boundary     boundary 31: nothing applied (gate)
+2026-10-01T17:22:30.743Z judge        judge typed in 296 ms
+2026-10-01T17:22:30.820Z judge        judge scene in 372 ms
+2026-10-01T17:22:31.140Z judge        judge warden in 399 ms
+2026-10-01T17:22:41.558Z payload      7 story blocks injected (generation)
+2026-10-01T17:22:41.605Z payload      8 story blocks injected (generation)
+2026-10-01T17:22:42.438Z judge        judge lore in 389 ms
+2026-10-01T17:22:42.448Z judge        judge lore in 408 ms
+2026-10-01T17:22:42.798Z judge        judge lore in 365 ms
+2026-10-01T17:22:42.801Z judge        judge lore in 358 ms
+2026-10-01T17:22:43.024Z judge        judge lore in 228 ms
+2026-10-01T17:22:43.309Z talk         Elowyn speaks (judge)
+2026-10-01T17:22:43.309Z judge        judge director in 269 ms
+2026-10-01T17:22:44.310Z payload      8 story blocks injected (generation)
+2026-10-01T17:22:45.308Z payload      8 story blocks injected (generation)
+2026-10-01T17:23:26.873Z story        NPC reply Adolion Narrator (afterSpeak) skipped by its roll
+2026-10-01T17:23:27.682Z boundary     boundary 32: nothing applied (gate)
+2026-10-01T17:23:28.119Z talk         Belle speaks (judge)
+2026-10-01T17:23:28.119Z judge        judge director in 450 ms
+2026-10-01T17:23:28.477Z payload      7 story blocks injected (generation)
+2026-10-01T17:23:29.177Z payload      8 story blocks injected (generation)
+2026-10-01T17:23:29.287Z judge        judge scene in 1169 ms
+2026-10-01T17:23:29.314Z judge        judge typed in 1225 ms
+2026-10-01T17:23:29.714Z judge        judge wardenLore in 401 ms
+2026-10-01T17:23:29.724Z judge        judge warden in 439 ms
+2026-10-01T17:23:30.049Z judge        judge lore in 329 ms
+2026-10-01T17:23:30.061Z judge        judge lore in 352 ms
+2026-10-01T17:23:30.368Z judge        judge lore in 323 ms
+2026-10-01T17:23:30.384Z judge        judge lore in 327 ms
+2026-10-01T17:23:30.619Z judge        judge lore in 253 ms
+2026-10-01T17:23:55.927Z story        NPC reply Adolion Narrator (afterSpeak) fired by its roll
+2026-10-01T17:23:57.833Z boundary     boundary 33: nothing applied (gate)
+2026-10-01T17:23:58.140Z judge        judge director in 797 ms
+2026-10-01T17:23:58.141Z talk         silence speaks (judge)
+2026-10-01T17:23:59.493Z boundary     boundary 34: nothing applied (gate)
+2026-10-01T17:24:00.278Z judge        judge scene in 785 ms
+2026-10-01T17:24:00.317Z judge        judge warden in 823 ms
+2026-10-01T17:24:00.535Z judge        judge wardenLore in 260 ms
+2026-10-01T17:24:00.536Z stagecraft   Warden flagged Belle's reply (continuity+house-rule)
+2026-10-01T17:24:00.561Z judge        judge typed in 245 ms
+2026-10-01T17:24:01.395Z judge        judge typed in 372 ms
+2026-10-01T17:24:01.396Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:24:04.478Z judge        judge memoryVerify in 292 ms
+2026-10-01T17:24:04.689Z delta        queued location=esha_castle_hall, tension_current=0.5258743489600097 for the next boundary
+2026-10-01T17:24:04.185Z extraction   read cadence msgs 44-46 → 2 accepted, 0 rejected
+2026-10-01T17:24:04.185Z delta        location = esha_castle_hall
+2026-10-01T17:24:04.185Z delta        tension_current = 0.5258743489600097
+2026-10-01T17:24:04.185Z delta        queued location=esha_castle_hall, tension_current=0.5258743489600097 for the next boundary
+2026-10-01T17:24:04.185Z audit        audit cadence msgs 44-46 scope [esha_belle_missing, esha_dread, guild_reputation, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:24:16.227Z payload      7 story blocks injected (generation)
+2026-10-01T17:24:16.282Z payload      8 story blocks injected (generation)
+2026-10-01T17:24:17.001Z judge        judge lore in 364 ms
+2026-10-01T17:24:17.025Z judge        judge lore in 392 ms
+2026-10-01T17:24:17.341Z judge        judge lore in 319 ms
+2026-10-01T17:24:17.370Z judge        judge lore in 373 ms
+2026-10-01T17:24:17.580Z judge        judge lore in 241 ms
+2026-10-01T17:24:17.606Z judge        judge director fell back (busy) in 16 ms
+2026-10-01T17:24:17.607Z model-call   director via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:24:18.301Z talk         Adolion Narrator speaks (director)
+2026-10-01T17:24:19.148Z payload      8 story blocks injected (generation)
+2026-10-01T17:24:19.227Z payload      8 story blocks injected (generation)
+2026-10-01T17:25:11.277Z boundary     applied location=esha_castle_hall, tension_current=0.5258743489600097
+2026-10-01T17:25:11.715Z reconciliation stall re-check queued for esha_belle_missing
+2026-10-01T17:25:12.373Z judge        judge director in 885 ms
+2026-10-01T17:25:12.374Z talk         silence speaks (judge)
+2026-10-01T17:25:12.939Z judge        judge typed in 874 ms
+2026-10-01T17:25:13.046Z judge        judge stall in 674 ms
+2026-10-01T17:25:14.213Z judge        judge scene in 1276 ms
+2026-10-01T17:25:14.265Z judge        judge warden in 1221 ms
+2026-10-01T17:25:14.448Z judge        judge wardenLore in 236 ms
+2026-10-01T17:25:14.831Z judge        judge typed in 321 ms
+2026-10-01T17:25:14.831Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:25:19.710Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:25:24.706Z judge        judge memoryVerify in 307 ms
+2026-10-01T17:25:24.912Z delta        queued location=esha_castle, tension_current=0.5181120442720067 for the next boundary
+2026-10-01T17:25:26.076Z delta        queued location=esha_castle, tension_current=0.5181120442720067 for the next boundary
+2026-10-01T17:25:27.175Z delta        queued location=esha_castle, tension_current=0.5181120442720067 for the next boundary
+2026-10-01T17:25:28.280Z delta        queued location=esha_castle, tension_current=0.5181120442720067 for the next boundary
+2026-10-01T17:25:29.389Z delta        queued location=esha_castle, tension_current=0.5181120442720067 for the next boundary
+2026-10-01T17:25:24.395Z extraction   read scene:location msgs 42-49 → 2 accepted, 0 rejected
+2026-10-01T17:25:24.395Z delta        location = esha_castle
+2026-10-01T17:25:24.395Z delta        tension_current = 0.5181120442720067
+2026-10-01T17:25:24.395Z delta        queued location=esha_castle, tension_current=0.5181120442720067 for the next boundary
+2026-10-01T17:25:24.395Z audit        audit scene:location msgs 42-49 scope [esha_belle_missing, esha_dread, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:25:31.102Z judge        judge curatorFilter in 935 ms
+2026-10-01T17:25:31.103Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:25:31.864Z stagecraft   World Info curator proposed 1 change(s) at The Welcome of Eshalanore
+2026-10-01T17:25:32.303Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:25:34.185Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:25:37.932Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:25:50.418Z flag         Slow stretch cut short: after two silent turns at the feast the narrator skips an hour, the night and to dawn in one reply (msg 49), moving the party ('the party does so with her', rooms assigned) without my choices.
+2026-10-01T17:25:58.441Z payload      6 story blocks injected (generation)
+2026-10-01T17:25:58.491Z payload      7 story blocks injected (generation)
+2026-10-01T17:25:59.228Z judge        judge lore in 380 ms
+2026-10-01T17:25:59.242Z judge        judge lore in 398 ms
+2026-10-01T17:25:59.563Z judge        judge lore in 325 ms
+2026-10-01T17:25:59.565Z judge        judge lore in 341 ms
+2026-10-01T17:25:59.798Z judge        judge lore in 236 ms
+2026-10-01T17:26:00.071Z talk         Belle speaks (judge)
+2026-10-01T17:26:00.071Z judge        judge director in 259 ms
+2026-10-01T17:26:48.746Z payload      7 story blocks injected (generation)
+2026-10-01T17:26:49.877Z payload      7 story blocks injected (generation)
+2026-10-01T17:26:51.653Z payload      7 story blocks injected (generation)
+2026-10-01T17:26:52.750Z boundary     applied location=esha_castle, tension_current=0.5181120442720067
+2026-10-01T17:26:53.570Z talk         silence speaks (judge)
+2026-10-01T17:26:53.570Z judge        judge director in 760 ms
+2026-10-01T17:26:54.309Z judge        judge scene in 1070 ms
+2026-10-01T17:26:54.701Z judge        judge warden in 1132 ms
+2026-10-01T17:26:54.703Z judge        judge wardenLore in 395 ms
+2026-10-01T17:26:54.703Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T17:26:55.117Z judge        judge typed in 417 ms
+2026-10-01T17:26:55.118Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:26:59.069Z delta        queued location=esha_castle, tension_current=0.4376784309904047 for the next boundary
+2026-10-01T17:26:59.104Z judge        judge memoryVerify in 308 ms
+2026-10-01T17:27:00.178Z delta        queued location=esha_castle, tension_current=0.4376784309904047 for the next boundary
+2026-10-01T17:27:01.301Z delta        queued location=esha_castle, tension_current=0.4376784309904047 for the next boundary
+2026-10-01T17:26:58.794Z extraction   read cadence msgs 47-51 → 2 accepted, 0 rejected
+2026-10-01T17:26:58.794Z delta        location = esha_castle
+2026-10-01T17:26:58.794Z delta        tension_current = 0.4376784309904047
+2026-10-01T17:26:58.794Z delta        queued location=esha_castle, tension_current=0.4376784309904047 for the next boundary
+2026-10-01T17:26:58.794Z audit        audit cadence msgs 47-51 scope [esha_belle_missing, esha_dread, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:27:02.887Z judge        judge typed in 558 ms
+2026-10-01T17:27:02.887Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:27:07.813Z story        1 rating reading(s) held: the evidence did not ground the level
+2026-10-01T17:27:08.099Z judge        judge memoryVerify in 285 ms
+2026-10-01T17:27:08.118Z delta        queued location=esha_castle, tension_current=0.3813749016932833 for the next boundary
+2026-10-01T17:27:09.237Z delta        queued location=esha_castle, tension_current=0.3813749016932833 for the next boundary
+2026-10-01T17:27:07.811Z extraction   read scene:location msgs 44-51 → 3 accepted, 0 rejected
+2026-10-01T17:27:07.811Z delta        location = esha_castle
+2026-10-01T17:27:07.811Z delta        esha_dread = 1
+2026-10-01T17:27:07.811Z delta        tension_current = 0.3813749016932833
+2026-10-01T17:27:07.811Z delta        queued location=esha_castle, tension_current=0.3813749016932833 for the next boundary
+2026-10-01T17:27:07.811Z audit        audit scene:location msgs 44-51 scope [esha_belle_missing, esha_dread, location, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-01T17:27:10.045Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:27:12.393Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:27:14.727Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:27:16.414Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:27:19.493Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:27:32.785Z payload      7 story blocks injected (generation)
+2026-10-01T17:27:32.880Z payload      8 story blocks injected (generation)
+2026-10-01T17:27:33.607Z judge        judge lore in 369 ms
+2026-10-01T17:27:33.648Z judge        judge lore in 406 ms
+2026-10-01T17:27:33.955Z judge        judge lore in 311 ms
+2026-10-01T17:27:34.004Z judge        judge lore in 401 ms
+2026-10-01T17:27:34.196Z judge        judge lore in 242 ms
+2026-10-01T17:27:34.444Z talk         Elowyn speaks (judge)
+2026-10-01T17:27:34.444Z judge        judge director in 238 ms
+2026-10-01T17:28:05.686Z payload      8 story blocks injected (generation)
+2026-10-01T17:28:07.097Z payload      8 story blocks injected (generation)
+2026-10-01T17:28:09.200Z payload      8 story blocks injected (generation)
+2026-10-01T17:28:10.509Z payload      8 story blocks injected (generation)
+2026-10-01T17:28:11.780Z boundary     applied location=esha_castle, tension_current=0.3813749016932833; discarded location=esha_castle, tension_current=0.4376784309904047 (superseded)
+2026-10-01T17:28:12.453Z talk         Belle speaks (judge)
+2026-10-01T17:28:12.453Z judge        judge director in 603 ms
+2026-10-01T17:28:12.937Z judge        judge typed in 720 ms
+2026-10-01T17:28:12.958Z judge        judge scene in 506 ms
+2026-10-01T17:28:13.071Z payload      7 story blocks injected (generation)
+2026-10-01T17:28:13.337Z payload      8 story blocks injected (generation)
+2026-10-01T17:28:13.757Z judge        judge wardenLore in 800 ms
+2026-10-01T17:28:13.768Z judge        judge warden in 832 ms
+2026-10-01T17:28:14.401Z judge        judge lore in 636 ms
+2026-10-01T17:28:14.419Z judge        judge lore in 666 ms
+2026-10-01T17:28:14.697Z judge        judge lore in 300 ms
+2026-10-01T17:28:13.684Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:28:14.798Z judge        judge lore in 383 ms
+2026-10-01T17:28:14.942Z judge        judge lore in 246 ms
+2026-10-01T17:28:54.536Z boundary     boundary 38: nothing applied (gate)
+2026-10-01T17:28:54.640Z payload      7 story blocks injected (generation)
+2026-10-01T17:28:55.405Z reconciliation stall re-check queued for esha_belle_missing
+2026-10-01T17:28:55.999Z talk         silence speaks (judge)
+2026-10-01T17:28:55.999Z judge        judge director in 1469 ms
+2026-10-01T17:28:56.426Z judge        judge typed in 766 ms
+2026-10-01T17:28:56.431Z judge        judge stall in 434 ms
+2026-10-01T17:28:57.577Z judge        judge scene in 1152 ms
+2026-10-01T17:28:57.661Z judge        judge warden in 1231 ms
+2026-10-01T17:28:57.897Z judge        judge wardenLore in 321 ms
+2026-10-01T17:28:57.898Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T17:30:03.127Z payload      8 story blocks injected (generation)
+2026-10-01T17:30:03.180Z payload      9 story blocks injected (generation)
+2026-10-01T17:30:03.927Z judge        judge lore in 346 ms
+2026-10-01T17:30:03.938Z judge        judge lore in 348 ms
+2026-10-01T17:30:04.229Z judge        judge lore in 306 ms
+2026-10-01T17:30:04.246Z judge        judge lore in 312 ms
+2026-10-01T17:30:04.485Z judge        judge lore in 257 ms
+2026-10-01T17:30:04.790Z judge        judge director in 293 ms
+2026-10-01T17:30:04.791Z talk         Elowyn speaks (judge)
+2026-10-01T17:30:05.852Z payload      9 story blocks injected (generation)
+2026-10-01T17:31:18.019Z payload      9 story blocks injected (generation)
+2026-10-01T17:31:22.000Z payload      9 story blocks injected (generation)
+2026-10-01T17:31:25.091Z talk         Belle speaks (mention)
+2026-10-01T17:31:25.398Z boundary     boundary 39: nothing applied (gate)
+2026-10-01T17:31:26.017Z payload      8 story blocks injected (generation)
+2026-10-01T17:31:26.133Z payload      9 story blocks injected (generation)
+2026-10-01T17:31:26.556Z judge        judge scene in 319 ms
+2026-10-01T17:31:26.601Z judge        judge typed in 365 ms
+2026-10-01T17:31:27.089Z judge        judge wardenLore in 488 ms
+2026-10-01T17:31:27.165Z judge        judge warden in 610 ms
+2026-10-01T17:31:27.167Z stagecraft   Warden flagged Elowyn's reply (house-rule)
+2026-10-01T17:31:27.615Z judge        judge lore in 532 ms
+2026-10-01T17:31:27.631Z judge        judge lore in 471 ms
+2026-10-01T17:31:27.928Z judge        judge lore in 323 ms
+2026-10-01T17:31:27.946Z judge        judge lore in 322 ms
+2026-10-01T17:31:28.168Z judge        judge lore in 241 ms
+2026-10-01T17:32:32.778Z boundary     boundary 40: nothing applied (gate)
+2026-10-01T17:32:34.121Z talk         silence speaks (judge)
+2026-10-01T17:32:34.121Z judge        judge director in 914 ms
+2026-10-01T17:32:36.660Z judge        judge scene fell back (timeout) in 2540 ms
+2026-10-01T17:32:38.839Z judge        judge typed fell back (timeout) in 5007 ms
+2026-10-01T17:32:40.662Z judge        judge warden fell back (timeout) in 4004 ms
+2026-10-01T17:32:40.800Z judge        judge wardenLore fell back (busy) in 1962 ms
+2026-10-01T17:32:42.129Z story        save waited behind another save
+2026-10-01T17:33:24.327Z judge        judge memoryPairs in 0 ms
+2026-10-01T17:33:24.586Z judge        judge memoryPairs in 260 ms
+2026-10-01T17:33:24.621Z judge        judge memoryPairs in 294 ms
+2026-10-01T17:33:24.812Z judge        judge memoryPairs in 227 ms
+2026-10-01T17:33:24.855Z judge        judge memoryPairs in 235 ms
+2026-10-01T17:33:25.050Z judge        judge memoryPairs in 239 ms
+2026-10-01T17:33:25.077Z judge        judge memoryPairs in 223 ms
+2026-10-01T17:33:25.288Z judge        judge memoryPairs in 237 ms
+2026-10-01T17:33:25.515Z judge        judge memoryPairs in 225 ms
+2026-10-01T17:33:25.520Z judge        judge memoryPairs in 231 ms
+2026-10-01T17:33:25.743Z judge        judge memoryPairs in 229 ms
+2026-10-01T17:33:25.744Z judge        judge memoryPairs in 225 ms
+2026-10-01T17:33:25.962Z judge        judge memoryPairs in 220 ms
+2026-10-01T17:33:26.055Z judge        judge memoryPairs in 311 ms
+2026-10-01T17:33:26.194Z judge        judge memoryPairs in 233 ms
+2026-10-01T17:33:26.299Z judge        judge memoryPairs in 245 ms
+2026-10-01T17:33:26.529Z judge        judge memoryPairs in 228 ms
+2026-10-01T17:33:26.536Z judge        judge memoryPairs in 236 ms
+2026-10-01T17:33:26.772Z judge        judge memoryPairs in 236 ms
+2026-10-01T17:33:26.775Z judge        judge memoryPairs in 247 ms
+2026-10-01T17:33:26.776Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T17:33:26.776Z judge        judge memoryPairs fell back (busy) in 476 ms
+2026-10-01T17:33:26.776Z judge        judge memoryPairs fell back (busy) in 476 ms
+2026-10-01T17:33:26.778Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T17:33:26.780Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-01T17:33:26.780Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:33:26.780Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:33:26.780Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:33:26.780Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:33:26.780Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:33:26.780Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:33:59.692Z judge        judge memoryPairs in 267 ms
+2026-10-01T17:33:59.708Z judge        judge memoryPairs in 285 ms
+2026-10-01T17:33:59.711Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T17:33:59.711Z judge        judge memoryPairs fell back (busy) in 276 ms
+2026-10-01T17:33:59.711Z judge        judge memoryPairs fell back (busy) in 273 ms
+2026-10-01T17:33:59.711Z judge        judge memoryPairs fell back (busy) in 271 ms
+2026-10-01T17:33:59.711Z judge        judge memoryPairs fell back (busy) in 269 ms
+2026-10-01T17:33:59.928Z judge        judge memoryPairs in 237 ms
+2026-10-01T17:33:59.929Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:33:59.929Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:33:59.929Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:33:59.929Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:33:59.929Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:33:59.929Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-01T17:34:00.384Z model-call   supersession via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:34:01.240Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:34:08.791Z flag         model defect: loop
+2026-10-01T17:34:09.643Z payload      7 story blocks injected (generation)
+2026-10-01T17:34:09.709Z payload      8 story blocks injected (generation)
+2026-10-01T17:34:09.772Z judge        judge lore fell back (busy) in 2 ms
+2026-10-01T17:34:09.772Z judge        judge lore fell back (busy) in 1 ms
+2026-10-01T17:34:09.772Z judge        judge lore fell back (busy) in 0 ms
+2026-10-01T17:34:09.772Z judge        judge lore fell back (busy) in 0 ms
+2026-10-01T17:35:49.246Z story        eventless change at message 57
+2026-10-01T17:35:49.938Z boundary     boundary 41: nothing applied (gate)
+2026-10-01T17:35:52.703Z reconciliation stall re-check queued for esha_belle_missing
+2026-10-01T17:35:53.099Z judge        judge stall in 315 ms
+2026-10-01T17:35:53.117Z judge        judge typed in 335 ms
+2026-10-01T17:35:53.729Z judge        judge scene in 632 ms
+2026-10-01T17:35:53.764Z judge        judge warden in 648 ms
+2026-10-01T17:35:53.765Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T17:36:05.930Z payload      7 story blocks injected (generation)
+2026-10-01T17:36:05.986Z payload      8 story blocks injected (generation)
+2026-10-01T17:36:06.748Z judge        judge lore in 374 ms
+2026-10-01T17:36:06.758Z judge        judge lore in 388 ms
+2026-10-01T17:36:07.067Z judge        judge lore in 323 ms
+2026-10-01T17:36:07.091Z judge        judge lore in 336 ms
+2026-10-01T17:36:07.290Z judge        judge lore in 224 ms
+2026-10-01T17:36:07.579Z talk         Belle speaks (judge)
+2026-10-01T17:36:07.579Z judge        judge director in 271 ms
+2026-10-01T17:37:01.327Z payload      8 story blocks injected (generation)
+2026-10-01T17:37:03.649Z payload      8 story blocks injected (generation)
+2026-10-01T17:37:05.632Z payload      8 story blocks injected (generation)
+2026-10-01T17:37:07.415Z boundary     boundary 42: nothing applied (gate)
+2026-10-01T17:37:08.414Z talk         silence speaks (judge)
+2026-10-01T17:37:08.414Z judge        judge director in 919 ms
+2026-10-01T17:37:09.364Z judge        judge scene in 1313 ms
+2026-10-01T17:37:09.475Z judge        judge warden in 1064 ms
+2026-10-01T17:37:09.725Z judge        judge wardenLore in 362 ms
+2026-10-01T17:37:09.725Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T17:37:11.277Z judge        judge typed in 260 ms
+2026-10-01T17:37:11.277Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:15.707Z story        1 rating reading(s) held: the evidence did not ground the level
+2026-10-01T17:37:15.963Z judge        judge memoryVerify in 255 ms
+2026-10-01T17:37:16.075Z delta        queued esha_belle_missing=false, location=esha_castle, party_injuries=0, tension_current=0.4169624311852983 for the next boundary
+2026-10-01T17:37:17.180Z delta        queued esha_belle_missing=false, location=esha_castle, party_injuries=0, tension_current=0.4169624311852983 for the next boundary
+2026-10-01T17:37:15.704Z extraction   read cadence msgs 52-59 → 5 accepted, 0 rejected
+2026-10-01T17:37:15.704Z delta        esha_belle_missing = false
+2026-10-01T17:37:15.704Z delta        esha_dread = 2
+2026-10-01T17:37:15.704Z delta        location = esha_castle
+2026-10-01T17:37:15.704Z delta        party_injuries = 0
+2026-10-01T17:37:15.704Z delta        tension_current = 0.4169624311852983
+2026-10-01T17:37:15.704Z delta        queued esha_belle_missing=false, location=esha_castle, party_injuries=0, tension_current=0.4169624311852983 for the next boundary
+2026-10-01T17:37:15.704Z audit        audit cadence msgs 52-59 scope [esha_belle_missing, esha_dread, location, party_injuries, tension_current] → 5 accepted, 0 rejected
+2026-10-01T17:37:19.804Z judge        judge curatorFilter in 892 ms
+2026-10-01T17:37:19.831Z judge        judge typed in 0 ms
+2026-10-01T17:37:19.811Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:20.607Z stagecraft   World Info curator proposed 1 change(s) at The Welcome of Eshalanore
+2026-10-01T17:37:19.831Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:24.330Z delta        queued location=esha_castle, tension_current=0.44187370182970875 for the next boundary
+2026-10-01T17:37:24.460Z judge        judge memoryVerify in 272 ms
+2026-10-01T17:37:25.437Z delta        queued location=esha_castle, tension_current=0.44187370182970875 for the next boundary
+2026-10-01T17:37:26.544Z delta        queued location=esha_castle, tension_current=0.44187370182970875 for the next boundary
+2026-10-01T17:37:24.184Z extraction   read scene:judge msgs 52-59 → 2 accepted, 0 rejected
+2026-10-01T17:37:24.184Z delta        location = esha_castle
+2026-10-01T17:37:24.184Z delta        tension_current = 0.44187370182970875
+2026-10-01T17:37:24.184Z delta        queued location=esha_castle, tension_current=0.44187370182970875 for the next boundary
+2026-10-01T17:37:24.184Z audit        audit scene:judge msgs 52-59 scope [esha_belle_missing, esha_dread, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-01T17:37:27.272Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T17:37:30.704Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+
+Stopped after 1293 events and 37 audits.
