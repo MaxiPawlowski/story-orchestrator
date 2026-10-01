@@ -1,4 +1,4 @@
-import { PLAYER_ACTION_CLAUSE } from "@engine/index";
+import { PLAYER_ACTION_CLAUSE, PLAYER_REF } from "@engine/index";
 import { buildContinuityRequest, continuityNote } from "./curators";
 import {
   AGENCY_SCORE, CONTINUITY_MAX_FACTS, HOUSE_RULE_MAX_NOTE, HOUSE_RULE_P, LORE_CONTENT_CHARS, WARDEN_ARM, WARDEN_LORE_MAX_NOTE, WARDEN_LORE_P, WARDEN_MAX_LORE,
@@ -59,7 +59,7 @@ export const LORE_CRITERIA = {
 
 export const agencyNoteText = (player: string): string => {
   const name = player.trim();
-  const clause = name ? PLAYER_ACTION_CLAUSE.replace("The player's", `${name}'s`).replace(/the player/g, name) : PLAYER_ACTION_CLAUSE;
+  const clause = name ? PLAYER_ACTION_CLAUSE.split(PLAYER_REF).join(name) : PLAYER_ACTION_CLAUSE;
   return `Agency: ${clause}`;
 };
 

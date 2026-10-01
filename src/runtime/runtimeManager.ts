@@ -438,7 +438,8 @@ export class RuntimeManager extends CoordinatorDelegates {
   private enqueueExtractorDeltas(acceptedDeltas: ParsedDelta[], window: { from: number; to: number }, origin: string) {
     if (!acceptedDeltas.length) return;
     const story = this.loaded?.story ?? null;
-    const committed = story ? applyCommitEvidence(story, acceptedDeltas, () => this.view.hosts.chat.chatWindow(window.from, window.to).messages) : { accepted: acceptedDeltas, held: [] };
+    const committed = story ? applyCommitEvidence(story, acceptedDeltas, () => this.view.hosts.chat.chatWindow(window.from, window.to).messages,
+        this.engine.serialize().blackboard.values) : { accepted: acceptedDeltas, held: [] };
     this.journalHeld(`${committed.held.length} commitment reading(s) held: no line the player wrote in the window shows the commitment`, committed.held);
     const guarded = story ? applyRatingGrounding(story.qualityByKey, this.engine.serialize().blackboard.values, committed.accepted) : committed;
     this.journalHeld(`${guarded.held.length} rating reading(s) held: the evidence did not ground the level`, guarded.held);

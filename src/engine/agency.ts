@@ -17,25 +17,27 @@ export const agencyFor = (checkpoint: Checkpoint | null | undefined): AgencyPoli
 export const agencyForCheckpoint = (story: NormalizedStoryV2 | null | undefined, checkpointId: string | null | undefined): AgencyPolicy =>
   agencyFor(checkpointId ? story?.checkpointById[checkpointId] : null);
 
+export const PLAYER_REF = "{{user}}";
+
 /** The clause every prompt and hint carries when the player's own acts are not narration's to write. */
-export const PLAYER_ACTION_CLAUSE = "The player's own words and decisions are theirs to write: do not narrate the player acting, accepting, agreeing or refusing.";
+export const PLAYER_ACTION_CLAUSE = `${PLAYER_REF}'s own words and decisions are theirs to write: do not narrate ${PLAYER_REF} acting, accepting, agreeing or refusing.`;
 
 /**
  * How the world may press, given which kind of objective this is. A `player_action` objective still
  * has stakes, but the move belongs to the player — so the world sets the situation up and stops.
  */
-export const NO_CLOSING_QUESTION_CLAUSE = "End on the world and the people in it, never on a question asking the player what they do.";
+export const NO_CLOSING_QUESTION_CLAUSE = `End on the world and the people in it, never on a question asking ${PLAYER_REF} what they do.`;
 
 export const objectiveClause = (kind: ObjectiveKind): string =>
   kind === "player_action"
-    ? `This objective needs the player's own act: present the situation and the choice, then stop — do not resolve it for them. ${NO_CLOSING_QUESTION_CLAUSE}`
-    : "This objective is world pressure: the world presses, answers and escalates on its own, without requiring the player to comply.";
+    ? `This objective needs ${PLAYER_REF}'s own act: present the situation and the choice, then stop — do not resolve it for them. ${NO_CLOSING_QUESTION_CLAUSE}`
+    : `This objective is world pressure: the world presses, answers and escalates on its own, without requiring ${PLAYER_REF} to comply.`;
 
-export const PLAYER_ATTEMPTS_CLAUSE = "The player's message states an attempt; decide its outcome from the world — it may fail.";
+export const PLAYER_ATTEMPTS_CLAUSE = `${PLAYER_REF}'s message states an attempt; decide its outcome from the world — it may fail.`;
 
 export const agencyClauses = (policy: AgencyPolicy): string[] => [
   objectiveClause(policy.objective_kind),
-  ...(policy.protect_player_choice ? ["Never narrate the player accepting what they refused, or going where they declined to go."] : []),
+  ...(policy.protect_player_choice ? [`Never narrate ${PLAYER_REF} accepting what they refused, or going where they declined to go.`] : []),
   ...(policy.never_narrate_player_action ? [PLAYER_ACTION_CLAUSE] : []),
   ...(policy.player_attempts_only ? [PLAYER_ATTEMPTS_CLAUSE] : []),
 ];
