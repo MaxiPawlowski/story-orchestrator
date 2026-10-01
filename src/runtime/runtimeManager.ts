@@ -432,9 +432,9 @@ export class RuntimeManager extends CoordinatorDelegates {
   private enqueueExtractorDeltas(acceptedDeltas: ParsedDelta[], window: { from: number; to: number }, origin: string) {
     if (!acceptedDeltas.length) return;
     const story = this.loaded?.story ?? null;
-    const guarded = story ? applyCommitEvidence(story.qualityByKey, acceptedDeltas) : { accepted: acceptedDeltas, held: [] };
+    const guarded = story ? applyCommitEvidence(story.qualityByKey, acceptedDeltas, () => this.view.hosts.chat.chatWindow(window.from, window.to).messages) : { accepted: acceptedDeltas, held: [] };
     if (guarded.held.length) {
-      this.journal.record("story", `${guarded.held.length} commitment reading(s) held: the evidence did not show the commitment`,
+      this.journal.record("story", `${guarded.held.length} commitment reading(s) held: no line the player wrote in the window shows the commitment`,
           this.journalContext(), guarded.held.map((entry) => `${entry.key}="${entry.value}" from "${entry.evidence.slice(0, 120)}"`).join("; "));
       this.extras.journal = this.journal.getRecords();
     }

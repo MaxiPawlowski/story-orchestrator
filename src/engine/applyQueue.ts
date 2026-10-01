@@ -1,5 +1,5 @@
 import type { ApplyOutcome, Blackboard, BlackboardDelta } from "./blackboard";
-import type { TensionLevel } from "./schema";
+import { TENSION_CURRENT_KEY, type TensionLevel } from "./schema";
 
 export interface TurnRange {
   from: number;
@@ -29,6 +29,20 @@ const covers = (newer: TurnRange | undefined, older: TurnRange | undefined): boo
   return Boolean(newer && older && newer.from <= older.from && newer.to >= older.to);
 };
 
+const withLevels = (entry: ApplyQueueEntry, deltas: BlackboardDelta[]): ApplyQueueEntry => {
+  const { tensionLevels, ...rest } = entry;
+  const tension = deltas.some((delta) => delta.q === TENSION_CURRENT_KEY);
+  return { ...rest, deltas, ...(tension && tensionLevels ? { tensionLevels } : {}) };
+};
+
+const splitEntry = (entry: ApplyQueueEntry, keep: (delta: BlackboardDelta) => boolean): [ApplyQueueEntry | null, ApplyQueueEntry | null] => {
+  const kept = entry.deltas.filter(keep);
+  const dropped = entry.deltas.filter((delta) => !keep(delta));
+  if (!dropped.length) return [entry, null];
+  if (!kept.length) return [null, entry];
+  return [withLevels(entry, kept), withLevels(entry, dropped)];
+};
+
 export class ApplyQueue {
   private entries: ApplyQueueEntry[] = [];
 
@@ -55,13 +69,14 @@ export class ApplyQueue {
     const discarded: ApplyQueueEntry[] = [];
 
     pending.forEach((entry, index) => {
-      const superseded = pending.slice(index + 1).some((newer) => covers(newer.turnRange, entry.turnRange));
-      if (superseded) {
-        discarded.push(entry);
-        return;
-      }
-      const outcomes = entry.deltas.map((delta) => blackboard.applyDelta(delta));
-      applied.push({ ...entry, outcomes });
+      const rewritten = new Set(pending.slice(index + 1)
+        .filter((newer) => covers(newer.turnRange, entry.turnRange))
+        .flatMap((newer) => newer.deltas.map((delta) => delta.q)));
+      const [kept, dropped] = splitEntry(entry, (delta) => !rewritten.has(delta.q));
+      if (dropped) discarded.push(dropped);
+      if (!kept) return;
+      const outcomes = kept.deltas.map((delta) => blackboard.applyDelta(delta));
+      applied.push({ ...kept, outcomes });
     });
 
     return { applied, discarded };

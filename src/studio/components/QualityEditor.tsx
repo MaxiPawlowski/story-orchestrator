@@ -178,7 +178,7 @@ const QualityScopeFields = ({ selected, isReserved, draft, patch, onScope, onLed
           onChange={(event) => patch({ commit_evidence: event.target.value || undefined })}
         />
         <span className="text-[10px] st-muted">
-          A reading only sets this quality when the quote it cited matches. Use it for one-way commitments
+          A reading only sets this quality when a line the player wrote, in the window it read, matches; an NPC or the narrator saying so never counts. Use it for one-way commitments
           (taking a posting, swearing an oath) so a scene aside can never advance the story.
         </span>
       </Field>
