@@ -86,10 +86,11 @@ export const HARNESS_ROUTE_REFUSAL = "The harness offers no agent tool bridge fo
   "with the harness plugin offering it; otherwise the agent runs through its text route on that role's model. The wizard does not fall back to the local profile.";
 
 export const harnessRoute = (transport: HarnessTransport | null, tools: Array<Record<string, unknown>>): AgentRoute => {
-  if (transport?.bridge && transport.target) return createBridgeRoute(transport.bridge, transport.target, tools);
+  if (!transport?.refusal && transport?.bridge && transport.target) return createBridgeRoute(transport.bridge, transport.target, tools);
   return {
     id: "harness",
     ask: async (prompt, expect, check) => {
+      if (transport?.refusal) throw new AgentRouteUnavailable("harness", transport.refusal);
       const call = transport?.call;
       if (!call) throw new AgentRouteUnavailable("harness", HARNESS_ROUTE_REFUSAL);
       const raw = await call({ prompt, expect, tools });

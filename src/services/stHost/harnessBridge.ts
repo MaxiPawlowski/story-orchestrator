@@ -1,6 +1,6 @@
 import { getContext } from "./context";
 import { isRecord } from "@utils/guards";
-import { HARNESS_PLUGIN_BASE } from "./harness";
+import { HARNESS_PLUGIN_BASE, pluginRefusal, STALE_PAGE_REFUSAL } from "./harness";
 
 export const BRIDGE_POLL_MS = 20_000;
 
@@ -46,10 +46,16 @@ export const readBridgeEvent = (data: unknown): BridgeEvent | null => {
   return ended("malformed", "the bridge answered with an unknown event");
 };
 
-const refusedFor = (status: number): { kind: string; message: string } => {
+const BUSY = { kind: "busy", message: "the harness already runs as many calls or agent sessions as it allows; retry shortly" };
+
+const refusedFor = async (response: Response): Promise<{ kind: string; message: string }> => {
+  const { status } = response;
+  if (status === 403) {
+    const refusal = await pluginRefusal(response);
+    return refusal ? { kind: "config", message: `the harness plugin refused this user: ${refusal}` } : { kind: "transport", message: STALE_PAGE_REFUSAL };
+  }
   if (status === 404) return { kind: "config", message: "the harness plugin on the SillyTavern server has no tool bridge (update and restart it)" };
-  if (status === 403) return { kind: "config", message: "the harness plugin refused this user (harness routes are admin-only unless the host allows them)" };
-  if (status === 429) return { kind: "busy", message: "the harness already runs as many agent sessions as it allows; retry shortly" };
+  if (status === 429) return BUSY;
   return { kind: "transport", message: `the harness plugin answered ${String(status)}` };
 };
 
@@ -69,10 +75,10 @@ export const createHarnessBridgeClient = (
     open: async (input) => {
       try {
         const response = await post("open", { ...input });
-        if (!response.ok && response.status !== 429) return { ok: false, ...refusedFor(response.status) };
+        if (!response.ok && response.status !== 429) return { ok: false, ...(await refusedFor(response)) };
         const data = await response.json() as unknown;
         if (isRecord(data) && data.ok === true && typeof data.sessionId === "string") return { ok: true, sessionId: data.sessionId };
-        if (response.status === 429) return { ok: false, ...refusedFor(429) };
+        if (response.status === 429) return { ok: false, ...BUSY };
         return { ok: false, kind: textOf(data, "kind") ?? "malformed", message: textOf(data, "message") ?? "the bridge did not open a session" };
       } catch (error) {
         return { ok: false, kind: "transport", message: error instanceof Error ? error.message : "the harness plugin could not be reached" };
@@ -87,7 +93,10 @@ export const createHarnessBridgeClient = (
           return ended("transport", error instanceof Error ? error.message : "the harness plugin could not be reached");
         }
         if (response.status === 404) return ended("lapsed", "the bridge session is gone (closed, timed out, or replaced by a newer one)");
-        if (!response.ok) return ended(refusedFor(response.status).kind, refusedFor(response.status).message);
+        if (!response.ok) {
+          const refused = await refusedFor(response);
+          return ended(refused.kind, refused.message);
+        }
         const event = readBridgeEvent(await response.json() as unknown);
         if (event) return event;
       }

@@ -187,4 +187,26 @@ describe("agent tool bridge route (v2.6 plan 04 H, option 2)", () => {
     expect(turn.session.plan).toEqual(["local"]);
     expect(prompts[0]).toContain("TOOLS");
   });
+
+  it("CR-J7: a harness refusal reaches the wizard, the local model is never asked, and the refusal is not memoized", async () => {
+    const prompts: string[] = [];
+    const bridge = fakeBridge([{ kind: "done", text: "{\"plan\": [\"bridged\"]}" }]);
+    const answers: Array<{ refusal: string } | { bridge: FakeBridge; target: typeof TARGET }> = [{ refusal: "the harness plugin did not answer its status" }, { bridge, target: TARGET }];
+    let resolved = 0;
+    const runner = createAgentRunner({
+      model: async (prompt) => { prompts.push(prompt); return { text: "{\"plan\": [\"local\"]}", finish: "stop" }; },
+      environment: () => emptyEnvironment(),
+      harness: async () => { resolved += 1; return answers.shift() ?? null; },
+    });
+    const session = newAgentSession("bridge", "review", {}, AT);
+    const refused = runner(session, story());
+    await expect(refused).rejects.toBeInstanceOf(AgentRouteUnavailable);
+    await expect(refused).rejects.toThrow("did not answer its status");
+    expect(prompts).toEqual([]);
+    const turn = await runner(session, story());
+    expect(resolved).toBe(2);
+    expect(turn.session.plan).toEqual(["bridged"]);
+    await runner(turn.session, story()).catch(() => undefined);
+    expect(resolved).toBe(2);
+  });
 });

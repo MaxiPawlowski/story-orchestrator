@@ -7,7 +7,7 @@ import { replyVia } from "./reply";
 export async function probeModel(profileId: string, timeoutMs: number = PROBE_TIMEOUT_MS): Promise<ProbeResult> {
   if (isHarnessKey(profileId)) return (await import("./harnessReply")).probeHarness(profileId);
   const reply = await sendConnectionProfileRequest(profileId, PROBE_PROMPT, PROBE_MAX_TOKENS, { signal: AbortSignal.timeout(timeoutMs) });
-  if (reply.ok || reply.kind === "reasoning-exhausted") return { ok: true };
+  if (reply.ok || reply.kind === "reasoning-exhausted" || reply.kind === "busy") return { ok: true };
   const kind = reply.kind === "refused" ? "config" : reply.kind === "auth" || reply.kind === "quota" || reply.kind === "malformed" ? "transport" : reply.kind;
   return { ok: false, kind, message: reply.kind === "timeout" ? `the memory model did not answer a probe within ${timeoutMs} ms` : reply.message };
 }

@@ -1,6 +1,7 @@
 import { getContext, hostArgMacrosAvailable, hostMacrosAvailable } from "./context";
 import { readPromptBudget } from "./contextBudget";
 import { judgeStatus, JUDGE_PLUGIN_BASE } from "./judge";
+import { pluginVersionIssue } from "@utils/pluginVersions";
 import { backgroundsModule } from "./modules";
 import { listSlashCommands } from "./selectors";
 import { getHostVersion, macroEngineInUse } from "./version";
@@ -79,7 +80,9 @@ const vectorsProbe: Probe = async () => {
 const judgeProbe: Probe = async () => {
   const status = await judgeStatus();
   if (!status) return absent(`nothing answered ${JUDGE_PLUGIN_BASE}/status (not installed, or the route refused) — every judge use stays off`);
-  return status.configured ? present(`plugin ${status.pluginVersion ?? "?"}, ${status.model ?? "model unknown"}`) : absent("the judge plugin is installed but holds no key");
+  const issue = pluginVersionIssue("judge", status.pluginVersion);
+  const version = issue ? `; ${issue}` : "";
+  return status.configured ? present(`plugin ${status.pluginVersion ?? "?"}, ${status.model ?? "model unknown"}${version}`) : absent(`the judge plugin is installed but holds no key${version}`);
 };
 
 const harnessProbe: Probe = () => import("./harness").then((module) => module.harnessCapability());

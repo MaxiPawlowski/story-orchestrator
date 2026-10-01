@@ -85,4 +85,5 @@ export interface HarnessTransport {
   call?: (input: { prompt: string; expect: "plan" | "step"; tools: Array<Record<string, unknown>> }) => Promise<string>;
   bridge?: AgentToolBridge;
   target?: HarnessTarget;
+  refusal?: string;
 }

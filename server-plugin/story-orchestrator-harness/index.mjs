@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BRIDGE_HARNESSES, createAgentBridge, validateOpen } from './agentBridge.mjs';
 
-export const PLUGIN_VERSION = '1.0.0';
+export const PLUGIN_VERSION = '1.1.0';
 export const HARNESS_IDS = Object.freeze(['claude', 'codex', 'opencode']);
 export const PLUGIN_HEADER = 'x-so-plugin';
 export const LIMITS = Object.freeze({
@@ -50,6 +50,7 @@ export const PASS_THROUGH_ENV = Object.freeze([
     'NODE_EXTRA_CA_CERTS', 'SSL_CERT_FILE', 'SSL_CERT_DIR', 'CODEX_CA_CERTIFICATE',
     'DO_NOT_TRACK', 'DISABLE_TELEMETRY', 'DISABLE_ERROR_REPORTING', 'CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC',
 ]);
+export const RM_RETRY = Object.freeze({ recursive: true, force: true, maxRetries: 10, retryDelay: 100 });
 const SHIM_EXTENSIONS = new Set(['.cmd', '.bat', '.ps1']);
 const ID_PATTERN = /^[A-Za-z0-9_-]{1,64}$/;
 const ROLE_PATTERN = /^[a-z][a-z0-9-]{0,31}$/;
@@ -94,10 +95,18 @@ export function sanitizeConfig(raw) {
     };
 }
 
-export function loadConfig(file = path.join(here, 'config.json'), readFile = fs.readFileSync) {
+export function loadConfig(file = path.join(here, 'config.json'), readFile = fs.readFileSync, log = (line) => console.warn(`[story-orchestrator-harness] ${line}`)) {
+    let text;
     try {
-        return sanitizeConfig(JSON.parse(readFile(file, 'utf-8')));
-    } catch {
+        text = readFile(file, 'utf-8');
+    } catch (error) {
+        if (error?.code !== 'ENOENT') log(`config.json could not be read (${error?.code ?? error?.message}); nothing is offered`);
+        return sanitizeConfig({});
+    }
+    try {
+        return sanitizeConfig(JSON.parse(text));
+    } catch (error) {
+        log(`config.json is not valid JSON (${error?.message ?? 'parse error'}); nothing is offered until it is fixed`);
         return sanitizeConfig({});
     }
 }
@@ -137,7 +146,9 @@ const jwtExpiry = (token) => {
     }
 };
 
-export function loginFreshness(harness, file, { now = Date.now(), minMinutes = LIMITS.loginMinMinutes, readFile = fs.readFileSync } = {}) {
+export const modelProvider = (model) => (typeof model === 'string' && model.includes('/') ? model.slice(0, model.indexOf('/')) : null);
+
+export function loginFreshness(harness, file, { now = Date.now(), minMinutes = LIMITS.loginMinMinutes, readFile = fs.readFileSync, providers = null } = {}) {
     let parsed;
     try {
         parsed = JSON.parse(readFile(file, 'utf8'));
@@ -158,14 +169,23 @@ export function loginFreshness(harness, file, { now = Date.now(), minMinutes = L
         if (!(age < 7 * 86_400_000)) return { loggedIn: true, fresh: false, reason: `the saved login was last refreshed over 7 days ago: run \`codex\` once in a terminal on this machine` };
         return { loggedIn: true, fresh: true, reason: null };
     }
-    const oauth = Object.entries(isRecord(parsed) ? parsed : {}).filter(([, entry]) => entry?.type === 'oauth');
-    if (!oauth.length) return { loggedIn: false, fresh: false, reason: 'no subscription (oauth) login in the saved file' };
+    const oauth = Object.entries(isRecord(parsed) ? parsed : {}).filter(([name, entry]) => entry?.type === 'oauth' && (!providers || providers.includes(name)));
+    if (!oauth.length) return { loggedIn: false, fresh: false, reason: providers ? `no subscription (oauth) login for ${providers.join(', ')} in the saved file` : 'no subscription (oauth) login in the saved file' };
     return oauth.every(([, entry]) => entry.expires > floor) ? { loggedIn: true, fresh: true, reason: null } : { loggedIn: true, fresh: false, reason: stale };
 }
 
-const sha256 = (file, readFile = fs.readFileSync) => crypto.createHash('sha256').update(readFile(file)).digest('hex');
+const digest = (bytes) => crypto.createHash('sha256').update(bytes).digest('hex');
+const sha256 = (file, readFile = fs.readFileSync) => digest(readFile(file));
 
-export function openOwnedHome(harness, { tmpRoot, loginFile, cacheDir = null, fsImpl = fs }) {
+export function ownedLoginCopy(harness, text, model) {
+    if (harness !== 'opencode') return text;
+    const provider = modelProvider(model);
+    const parsed = JSON.parse(text);
+    const entry = provider && isRecord(parsed) ? parsed[provider] : null;
+    return JSON.stringify(entry?.type === 'oauth' ? { [provider]: entry } : {});
+}
+
+export function openOwnedHome(harness, { tmpRoot, loginFile, model = null, cacheDir = null, fsImpl = fs }) {
     fsImpl.mkdirSync(path.join(tmpRoot, 'calls'), { recursive: true });
     const root = fsImpl.mkdtempSync(path.join(tmpRoot, 'calls', `${harness}-`));
     const dirs = { root };
@@ -178,17 +198,19 @@ export function openOwnedHome(harness, { tmpRoot, loginFile, cacheDir = null, fs
         dirs.cache = cacheDir;
     }
     for (const name of ['AppData/Roaming', 'AppData/Local']) fsImpl.mkdirSync(path.join(dirs.home, name), { recursive: true });
-    const before = sha256(loginFile, fsImpl.readFileSync);
+    const real = fsImpl.readFileSync(loginFile);
+    const before = digest(real);
     const copy = path.join(root, ...LOGIN_DEST[harness]);
     fsImpl.mkdirSync(path.dirname(copy), { recursive: true });
-    fsImpl.copyFileSync(loginFile, copy);
-    return { ...dirs, loginFile, copy, before };
+    const copied = harness === 'opencode' ? ownedLoginCopy(harness, real.toString('utf8'), model) : real;
+    fsImpl.writeFileSync(copy, copied);
+    return { ...dirs, loginFile, copy, before, copyBefore: digest(copied) };
 }
 
 export function closeOwnedHome(home, fsImpl = fs) {
     const report = { copyRewritten: false, realChanged: false, removed: false };
     try {
-        report.copyRewritten = fsImpl.existsSync(home.copy) && sha256(home.copy, fsImpl.readFileSync) !== home.before;
+        report.copyRewritten = fsImpl.existsSync(home.copy) && sha256(home.copy, fsImpl.readFileSync) !== (home.copyBefore ?? home.before);
     } catch {
         report.copyRewritten = false;
     }
@@ -198,9 +220,20 @@ export function closeOwnedHome(home, fsImpl = fs) {
     } catch {
         report.realChanged = true;
     }
-    try { fsImpl.rmSync(home.root, { recursive: true, force: true }); } catch { /* reported below */ }
+    try { fsImpl.rmSync(home.root, RM_RETRY); } catch { report.removed = false; }
     report.removed = !fsImpl.existsSync(home.root);
     return report;
+}
+
+export function sweepCalls(tmpRoot, fsImpl = fs) {
+    const calls = path.join(tmpRoot, 'calls');
+    let names = [];
+    try { names = fsImpl.readdirSync(calls); } catch { return { swept: 0, left: 0 }; }
+    let left = 0;
+    for (const name of names) {
+        try { fsImpl.rmSync(path.join(calls, name), RM_RETRY); } catch { left += 1; }
+    }
+    return { swept: names.length - left, left };
 }
 
 export function childEnv(harness, home, parent = process.env) {
@@ -336,9 +369,10 @@ export function classify(harness, run, { maxOutputChars, now = Date.now() } = {}
     if (run.killed === 'output-bound') {
         return parsed.text ? { ok: true, text: parsed.text.slice(0, maxOutputChars), finish: 'length', usage: parsed.usage } : { ok: false, kind: 'malformed', message: `${harness} output passed its bound before a reply could be read` };
     }
-    if (parsed.text && !parsed.errors.length) {
+    if (parsed.text && (!parsed.errors.length || parsed.finish !== 'unknown')) {
         const cut = maxOutputChars && parsed.text.length > maxOutputChars;
-        return { ok: true, text: cut ? parsed.text.slice(0, maxOutputChars) : parsed.text, finish: cut ? 'length' : parsed.finish, usage: parsed.usage };
+        const warnings = parsed.errors.map((error) => `${error.status ?? ''} ${error.message}`.trim().slice(0, 200));
+        return { ok: true, text: cut ? parsed.text.slice(0, maxOutputChars) : parsed.text, finish: cut ? 'length' : parsed.finish, usage: parsed.usage, ...(warnings.length ? { warnings } : {}) };
     }
     const evidence = `${errorText} ${run.stderr ?? ''}`;
     if (statuses.includes(401) || statuses.includes(403) || AUTH_TEXT.test(evidence)) {
@@ -448,6 +482,18 @@ export function createGate(config) {
                 pump(harness);
             });
         },
+        tryAcquire(harness) {
+            const lane = lanes.get(harness);
+            if (lane.running >= config.harnesses[harness].concurrency) return null;
+            lane.running += 1;
+            let released = false;
+            return () => {
+                if (released) return;
+                released = true;
+                lane.running -= 1;
+                pump(harness);
+            };
+        },
         counts(harness) {
             const lane = lanes.get(harness);
             return { running: lane.running, queued: lane.queue.length };
@@ -487,10 +533,14 @@ export async function readTextBody(request, limit = LIMITS.maxBodyBytes) {
     if (!/^text\/plain\b/i.test(header(request, 'content-type') ?? '')) return refusal(415, 'send the request as text/plain');
     const chunks = [];
     let size = 0;
-    for await (const chunk of request) {
-        size += chunk.length;
-        if (size > limit) return refusal(413, `request body is over ${limit} bytes`);
-        chunks.push(chunk);
+    try {
+        for await (const chunk of request) {
+            size += chunk.length;
+            if (size > limit) return refusal(413, `request body is over ${limit} bytes`);
+            chunks.push(chunk);
+        }
+    } catch {
+        return refusal(400, 'the request body could not be read');
     }
     try {
         return { body: JSON.parse(Buffer.concat(chunks).toString('utf8')) };
@@ -533,15 +583,59 @@ export function createHarnessService({
 } = {}) {
     const gate = createGate(config);
     const inFlight = new Map();
-    const state = Object.fromEntries(HARNESS_IDS.map((id) => [id, { spawns: 0, quotaUntil: null, blocked: null, copyRewrites: 0 }]));
+    const state = Object.fromEntries(HARNESS_IDS.map((id) => [id, { spawns: 0, quotaUntil: null, blocked: null, blockedHash: null, copyRewrites: 0, leakedHomes: 0 }]));
     let probed = null;
     const cacheDir = path.join(config.tmpRoot, 'opencode-cache');
     const warmMarker = path.join(cacheDir, '.so-warm');
     const loginFileOf = (harness) => config.harnesses[harness].loginFile ?? realLoginFile(harness, env, home);
+    const swept = sweepCalls(config.tmpRoot, fsImpl);
+    if (swept.swept || swept.left) log(JSON.stringify({ sweptHomes: swept.swept, leftHomes: swept.left }));
+
+    const providersOf = (harness, model = null) => {
+        if (harness !== 'opencode') return null;
+        const models = model ? [model] : config.harnesses[harness].models.map((entry) => entry.id);
+        return [...new Set(models.map(modelProvider).filter(Boolean))];
+    };
+
+    const freshness = (harness, model = null) => loginFreshness(harness, loginFileOf(harness), { now: now(), minMinutes: config.loginMinMinutes, readFile: fsImpl.readFileSync, providers: providersOf(harness, model) });
+
+    const realHash = (harness) => {
+        try {
+            return sha256(loginFileOf(harness), fsImpl.readFileSync);
+        } catch {
+            return null;
+        }
+    };
+
+    const heldFor = (harness) => {
+        const current = state[harness];
+        if (!current.blocked) return null;
+        const hash = realHash(harness);
+        if (hash && hash !== current.blockedHash && freshness(harness).fresh) {
+            current.blocked = null;
+            current.blockedHash = null;
+            log(JSON.stringify({ harness, rearmed: true }));
+            return null;
+        }
+        return current.blocked;
+    };
+
+    const noteClosed = (harness, closed, during) => {
+        if (closed.copyRewritten) state[harness].copyRewrites += 1;
+        if (!closed.removed) {
+            state[harness].leakedHomes += 1;
+            log(JSON.stringify({ harness, leakedHome: true }));
+        }
+        if (closed.realChanged) {
+            state[harness].blocked = `${harness}'s real login file changed during ${during}; calls are held until ${harness} is logged in again on this machine`;
+            state[harness].blockedHash = realHash(harness);
+        }
+    };
 
     const probe = async () => {
         const rows = await Promise.all(HARNESS_IDS.map(async (harness) => {
             const entry = config.harnesses[harness];
+            if (!entry.offer) return [harness, { binary: { path: null, error: `${harness} is not offered on this install (config.json)` }, version: null }];
             const binary = resolveBinary(harness, { configured: entry.binary, env, exists: fsImpl.existsSync });
             const version = binary.path ? await readVersion(binary.path, spawnImpl, killTree).catch(() => null) : null;
             return [harness, { binary, version }];
@@ -553,7 +647,8 @@ export function createHarnessService({
     const harnessStatus = (harness, admin) => {
         const entry = config.harnesses[harness];
         const row = probed?.rows[harness] ?? { binary: { path: null, error: 'not probed yet' }, version: null };
-        const login = loginFreshness(harness, loginFileOf(harness), { now: now(), minMinutes: config.loginMinMinutes, readFile: fsImpl.readFileSync });
+        const login = entry.offer ? freshness(harness) : { loggedIn: null, fresh: false, reason: null };
+        const blocked = entry.offer ? heldFor(harness) : null;
         const counts = gate.counts(harness);
         const quotaUntil = state[harness].quotaUntil && state[harness].quotaUntil > now() ? state[harness].quotaUntil : null;
         return {
@@ -563,7 +658,8 @@ export function createHarnessService({
             problem: row.binary.error,
             loggedIn: login.loggedIn,
             fresh: login.fresh,
-            loginProblem: state[harness].blocked ?? login.reason,
+            loginProblem: blocked ?? login.reason,
+            blocked,
             offered: entry.offer,
             isolation: PHASE0[harness],
             models: entry.models.map((model) => ({ ...model })),
@@ -572,6 +668,7 @@ export function createHarnessService({
             running: counts.running,
             queued: counts.queued,
             spawns: state[harness].spawns,
+            leakedHomes: state[harness].leakedHomes,
             quotaUntil,
             ...(harness === 'opencode' ? { cacheWarm: fsImpl.existsSync(warmMarker) } : {}),
             agentBridge: entry.offer && BRIDGE_HARNESSES.includes(harness),
@@ -593,8 +690,9 @@ export function createHarnessService({
         const row = probed?.rows[harness];
         if (!entry.offer) return { kind: 'config', message: `${harness} is not offered on this install (Phase 0: ${PHASE0[harness]}); the host owner turns it on in the plugin's config.json` };
         if (!row?.binary.path) return { kind: 'config', message: `${harness} is not installed on the machine running SillyTavern (${row?.binary.error ?? 'not probed'})` };
-        if (state[harness].blocked) return { kind: 'auth', message: state[harness].blocked };
-        const login = loginFreshness(harness, loginFileOf(harness), { now: now(), minMinutes: config.loginMinMinutes, readFile: fsImpl.readFileSync });
+        const held = heldFor(harness);
+        if (held) return { kind: 'auth', message: held };
+        const login = freshness(harness, request.model ?? null);
         if (!login.fresh) return { kind: 'auth', message: `${harness}: ${login.reason}` };
         if (state[harness].quotaUntil && state[harness].quotaUntil > now()) {
             return { kind: 'quota', message: `${harness} reported its usage limit until ${new Date(state[harness].quotaUntil).toISOString()}`, retryAt: state[harness].quotaUntil };
@@ -619,7 +717,7 @@ export function createHarnessService({
         try {
             const remaining = request.timeoutMs - LIMITS.deadlineMarginMs - (now() - arrived);
             if (remaining <= 0) return { ok: false, kind: 'timeout', message: `${request.harness} waited in the queue past its deadline` };
-            owned = openOwnedHome(request.harness, { tmpRoot: config.tmpRoot, loginFile: loginFileOf(request.harness), cacheDir: request.harness === 'opencode' ? cacheDir : null, fsImpl });
+            owned = openOwnedHome(request.harness, { tmpRoot: config.tmpRoot, loginFile: loginFileOf(request.harness), model: request.model, cacheDir: request.harness === 'opencode' ? cacheDir : null, fsImpl });
             owned.systemFile = path.join(owned.tmp, 'system.txt');
             fsImpl.writeFileSync(owned.systemFile, request.system, 'utf-8');
             const childEnvironment = childEnv(request.harness, owned, env);
@@ -640,19 +738,18 @@ export function createHarnessService({
             const outcome = classify(request.harness, run, { maxOutputChars: request.maxOutputChars, now: now() });
             if (outcome.kind === 'quota' && outcome.retryAt) state[request.harness].quotaUntil = outcome.retryAt;
             return { ...outcome, model: request.model, ms: now() - arrived, spawnMs: run.spawnMs, effortApplied: EFFORTS.includes(request.effort) };
+        } catch (error) {
+            return { ok: false, kind: 'config', message: `${request.harness}: the plugin could not prepare the call (${error?.code ?? error?.message ?? 'error'})` };
         } finally {
-            if (owned) {
-                const closed = closeOwnedHome(owned, fsImpl);
-                if (closed.copyRewritten) state[request.harness].copyRewrites += 1;
-                if (closed.realChanged) state[request.harness].blocked = `${request.harness}'s real login file changed during a call; calls are held until the plugin restarts`;
-            }
+            if (owned) noteClosed(request.harness, closeOwnedHome(owned, fsImpl), 'a call');
             release();
         }
     };
 
     const complete = async (request, options = {}) => {
         const entry = { user: options.user ?? 'default-user', controller: new AbortController() };
-        inFlight.set(request.requestId, entry);
+        const key = `${entry.user}|${request.requestId}`;
+        inFlight.set(key, entry);
         const onAbort = () => entry.controller.abort();
         options.signal?.addEventListener('abort', onAbort);
         try {
@@ -661,13 +758,13 @@ export function createHarnessService({
             return answer;
         } finally {
             options.signal?.removeEventListener('abort', onAbort);
-            inFlight.delete(request.requestId);
+            if (inFlight.get(key) === entry) inFlight.delete(key);
         }
     };
 
     const cancel = (requestId, user) => {
-        const entry = inFlight.get(requestId);
-        if (!entry || entry.user !== user) return false;
+        const entry = inFlight.get(`${user}|${requestId}`);
+        if (!entry) return false;
         entry.controller.abort();
         return true;
     };
@@ -690,20 +787,18 @@ export function createHarnessService({
         limits: LIMITS,
         helpers: { openOwnedHome, closeOwnedHome, childEnv, runProcess, classify },
         host: {
-            ready: async (harness) => {
+            ready: async (harness, model = null) => {
                 if (!probed) await probe();
-                return preconditions({ harness });
+                return preconditions({ harness, model });
             },
+            reserve: (harness) => gate.tryAcquire(harness),
             binary: (harness) => probed.rows[harness].binary.path,
             loginFile: loginFileOf,
             cacheDir,
             noteSpawn: (harness) => { state[harness].spawns += 1; },
             log: (line) => log(`agent ${line}`),
             noteQuota: (harness, retryAt) => { state[harness].quotaUntil = retryAt; },
-            noteClosed: (harness, closed) => {
-                if (closed.copyRewritten) state[harness].copyRewrites += 1;
-                if (closed.realChanged) state[harness].blocked = `${harness}'s real login file changed during an agent session; calls are held until the plugin restarts`;
-            },
+            noteClosed: (harness, closed) => noteClosed(harness, closed, 'an agent session'),
         },
         ...bridge,
     });
@@ -714,6 +809,26 @@ export function createHarnessService({
     };
 
     return { status, complete, cancel, warm, shutdown, probe, gate, state, agent };
+}
+
+export function guardRoute(handler, log = (line) => console.error(`[story-orchestrator-harness] ${line}`)) {
+    return (request, response) => {
+        let pending;
+        try {
+            pending = Promise.resolve(handler(request, response));
+        } catch (error) {
+            pending = Promise.reject(error);
+        }
+        return pending.catch((error) => {
+            log(`a route failed: ${error?.message ?? String(error)}`);
+            if (response.headersSent) return;
+            try {
+                response.status(500).json({ error: 'the harness plugin failed on this request' });
+            } catch {
+                return;
+            }
+        });
+    };
 }
 
 const userHandle = (request) => request?.user?.profile?.handle ?? 'default-user';
@@ -793,14 +908,14 @@ export async function init(router) {
     const service = createHarnessService({ config });
     running = service;
     const handlers = createHandlers(service, config);
-    router.get('/status', (request, response) => { void handlers.status(request, response); });
-    router.post('/complete', (request, response) => { void handlers.complete(request, response); });
-    router.post('/cancel', (request, response) => { void handlers.cancel(request, response); });
-    router.post('/warm', (request, response) => { void handlers.warm(request, response); });
-    router.post('/agent/open', (request, response) => { void handlers.agentOpen(request, response); });
-    router.post('/agent/next', (request, response) => { void handlers.agentNext(request, response); });
-    router.post('/agent/answer', (request, response) => { void handlers.agentAnswer(request, response); });
-    router.post('/agent/close', (request, response) => { void handlers.agentClose(request, response); });
+    router.get('/status', guardRoute(handlers.status));
+    router.post('/complete', guardRoute(handlers.complete));
+    router.post('/cancel', guardRoute(handlers.cancel));
+    router.post('/warm', guardRoute(handlers.warm));
+    router.post('/agent/open', guardRoute(handlers.agentOpen));
+    router.post('/agent/next', guardRoute(handlers.agentNext));
+    router.post('/agent/answer', guardRoute(handlers.agentAnswer));
+    router.post('/agent/close', guardRoute(handlers.agentClose));
     const offered = HARNESS_IDS.filter((id) => config.harnesses[id].offer);
     console.log(`[story-orchestrator-harness] loaded; offered: ${offered.length ? offered.join(', ') : 'none (config.json)'}; admin-only: ${!config.allowNonAdmin}`);
 }

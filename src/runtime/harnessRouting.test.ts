@@ -13,6 +13,8 @@ import { routeMeters, withRoleEffort, withRoleFallback, withRoleHarness } from "
 import { resolvedProfileId, resolveRoute, sanitizeRoleRoutes, type RouteSettings } from "./passProfiles";
 import { fallbackRoute } from "./harnessFallback";
 import { buildRoleRoutes } from "./roleHealth";
+import { failureClass } from "@extraction/breaker";
+import type { RunOwnership } from "./runToken";
 
 const meter = { effort: "default" as const, applied: false, collapsed: false, unsupported: null, budget: 0, chars: 0, tokens: null };
 const exists = (ids: string[]) => (id: string) => ids.includes(id);
@@ -185,5 +187,65 @@ describe("H3: a harness breaker is probed by status, never by a model call", () 
     await expect(probeHarness("harness:claude:haiku")).resolves.toMatchObject({ ok: false, kind: "config" });
     mockStatus.value = null;
     await expect(probeHarness("harness:claude:haiku")).resolves.toMatchObject({ ok: false, kind: "transport" });
+  });
+});
+
+describe("review fixes CR-J (harness routing)", () => {
+  const row = (extra: Record<string, unknown> = {}) => ({ installed: true, offered: true, fresh: true, quotaUntil: null, models: [], ...extra });
+
+  it("CR-J6: a held harness and an unwarmed opencode cache keep the breaker open as config", async () => {
+    mockStatus.value = { harnesses: { opencode: row({ blocked: "opencode's real login file changed during a call" }) } };
+    await expect(probeHarness("harness:opencode:openai/gpt-6-astra")).resolves.toEqual({ ok: false, kind: "config", message: "opencode's real login file changed during a call" });
+    mockStatus.value = { harnesses: { opencode: row({ cacheWarm: false }) } };
+    await expect(probeHarness("harness:opencode:openai/gpt-6-astra")).resolves.toMatchObject({ ok: false, kind: "config", message: expect.stringContaining("not warmed") });
+    mockStatus.value = { harnesses: { opencode: row({ cacheWarm: true, blocked: null }) } };
+    await expect(probeHarness("harness:opencode:openai/gpt-6-astra")).resolves.toEqual({ ok: true });
+  });
+
+  it("CR-J8: busy is its own failure class: it never trips the breaker and never falls back", async () => {
+    expect(failureClass(new ModelCallError("busy", "queued", "harness:claude:sonnet"))).toBe("busy");
+    const calls: ModelRoute[] = [];
+    const reply = jest.fn(async (_prompt: string, route: ModelRoute | null) => {
+      if (route) calls.push(route);
+      if (route?.kind === "harness") throw new ModelCallError("busy", "queued", "harness:claude:sonnet");
+      return { text: "LOCAL", finish: "stop" as const };
+    });
+    const model = createModelCallVia(reply, { settings: () => routed(), exists: exists(["memory", "local"]), planted: false });
+    await expect(model("p", { role: "synthesis", pass: "canon" })).rejects.toMatchObject({ kind: "busy" });
+    expect(calls.map((route) => route.kind)).toEqual(["harness"]);
+  });
+
+  it("CR-J10: a fallback that fails is recorded on its own route, with the route it fell back from", async () => {
+    const records: ModelCallRecord[] = [];
+    const reply = jest.fn(async (_prompt: string, route: ModelRoute | null) => {
+      if (route?.kind === "harness") throw new ModelCallError("quota", "limit", "harness:claude:sonnet");
+      throw new ModelCallError("transport", "the local profile is down", "local");
+    });
+    const model = createModelCallVia(reply, { settings: () => routed(), exists: exists(["memory", "local"]), record: (record) => records.push(record), planted: false });
+    await expect(model("p", { role: "synthesis", pass: "canon" })).rejects.toMatchObject({ kind: "transport", message: "the local profile is down" });
+    expect(records.map((record) => [record.route, record.result, record.fallbackFrom ?? null])).toEqual([
+      ["harness:claude:sonnet", "quota", null], ["local", "transport", "harness:claude:sonnet"],
+    ]);
+  });
+
+  it("CR-J15: a call that lands after its chat went away records nothing in the new chat's ring", async () => {
+    const records: ModelCallRecord[] = [];
+    let epoch = 1;
+    const ownership = {
+      mint: () => ({ epoch }) as never,
+      check: (token: never) => ((token as { epoch: number }).epoch === epoch ? { ok: true as const } : { ok: false as const, reason: "epoch" as const }),
+    } as unknown as RunOwnership;
+    const reply = jest.fn(async () => {
+      epoch += 1;
+      return { text: "ANSWER", finish: "stop" as const };
+    });
+    const settings = { ...routed(), routes: withRoleFallback(routed().routes, "synthesis", null) };
+    const model = createModelCallVia(reply, { settings: () => settings, exists: exists(["memory"]), record: (record) => records.push(record), ownership, planted: false });
+    await expect(model("p", { role: "synthesis", pass: "canon" })).resolves.toMatchObject({ text: "ANSWER" });
+    expect(records).toEqual([]);
+    const steady = jest.fn(async () => ({ text: "ANSWER", finish: "stop" as const }));
+    const control = createModelCallVia(steady, { settings: () => settings, exists: exists(["memory"]), record: (record) => records.push(record), ownership, planted: false });
+    await control("p", { role: "synthesis", pass: "canon" });
+    expect(records.map((record) => record.result)).toEqual(["ok"]);
   });
 });

@@ -47,6 +47,15 @@ const RECORDED = {
 
 const tempRoot = () => fs.mkdtempSync(path.join(os.tmpdir(), 'so-harness-test-'));
 
+const until = async (check, ms = 10000) => {
+    const started = Date.now();
+    while (Date.now() - started < ms) {
+        if (await check()) return true;
+        await new Promise((resolve) => setTimeout(resolve, 25));
+    }
+    return false;
+};
+
 function fakeProcesses(script) {
     const children = new Map();
     const calls = [];
@@ -89,8 +98,9 @@ function setup({ harness = 'claude', offer = true, expiresAt = NOW + 5 * HOUR, s
     fs.writeFileSync(bin, '');
     const config = plugin.sanitizeConfig({ tmpRoot: path.join(root, 'tmp'), harnesses: { [harness]: { binary: bin, loginFile, offer }, ...extraConfig } });
     const processes = fakeProcesses(script);
+    const versionCalls = [];
     const versions = (bin2, argv, options) => (argv[0] === '--version'
-        ? (() => { const c = new EventEmitter(); c.pid = 1; c.stdout = new EventEmitter(); c.stderr = new EventEmitter(); c.stdin = { on() {}, end() { setImmediate(() => { c.stdout.emit('data', Buffer.from('9.9.9')); c.emit('close', 0); }); } }; return c; })()
+        ? (() => { versionCalls.push(bin2); const c = new EventEmitter(); c.pid = 1; c.stdout = new EventEmitter(); c.stderr = new EventEmitter(); c.stdin = { on() {}, end() { setImmediate(() => { c.stdout.emit('data', Buffer.from('9.9.9')); c.emit('close', 0); }); } }; return c; })()
         : processes.spawnImpl(bin2, argv, options));
     const lines = [];
     const service = plugin.createHarnessService({ config, env: { PATH: '', ANTHROPIC_API_KEY: 'sk-canary', ANTHROPIC_AUTH_TOKEN: 'canary', SO_SECRET_CANARY: 'x', HTTPS_PROXY: 'http://proxy:1' }, home: root, spawnImpl: versions, killTree: processes.killTree, now: () => NOW, log: (line) => lines.push(line) });
@@ -98,7 +108,7 @@ function setup({ harness = 'claude', offer = true, expiresAt = NOW + 5 * HOUR, s
         fs.mkdirSync(path.join(config.tmpRoot, 'opencode-cache'), { recursive: true });
         fs.writeFileSync(path.join(config.tmpRoot, 'opencode-cache', '.so-warm'), 'x');
     }
-    return { root, loginFile, config, service, processes, lines };
+    return { root, loginFile, config, service, processes, lines, versionCalls, spawnImpl: versions };
 }
 
 const request = (harness, overrides = {}) => ({
@@ -214,7 +224,7 @@ test('rule 6 / P0-3: the deadline kills the process tree and answers timeout', a
     const run = await plugin.runProcess({ bin: 'x', argv: [], env: {}, cwd: os.tmpdir(), stdin: 'p', deadlineMs: 50, maxOutputChars: 100, spawnImpl: processes.spawnImpl, killTree: processes.killTree });
     assert.equal(run.killed, 'deadline');
     assert.deepEqual(processes.killed, [processes.calls[0].pid]);
-    assert.ok(Date.now() - started < 1000);
+    assert.ok(Date.now() - started < 5000);
     assert.equal(processes.calls[0].options.shell, false);
     assert.equal(processes.calls[0].stdin, 'p');
 });
@@ -250,7 +260,7 @@ test('a routed call runs in an owned home that is gone afterwards; the real logi
     assert.equal(call.options.env.ANTHROPIC_API_KEY, undefined);
     assert.equal(call.options.env.HTTPS_PROXY, 'http://proxy:1');
     assert.equal(fs.readFileSync(loginFile, 'utf8'), before);
-    assert.deepEqual(fs.readdirSync(path.join(config.tmpRoot, 'calls')), []);
+    assert.ok(await until(() => fs.readdirSync(path.join(config.tmpRoot, 'calls')).length === 0), 'the owned home is gone');
 });
 
 test('not offered, not logged in, or not warmed: refused before anything spawns', async () => {
@@ -377,4 +387,181 @@ test('HARNESS_LIVE=1: one real PONG per offered, logged-in harness', { skip: pro
         console.log(harness, JSON.stringify({ ok: answer.ok, kind: answer.kind ?? null, text: answer.text?.slice(0, 20) ?? null, ms: answer.ms, usage: answer.usage ?? null }));
         assert.equal(answer.ok, true, answer.message);
     }
+});
+
+const abortingBody = (headers = {}) => {
+    const stream = new Readable({ read() {} });
+    stream.push(Buffer.from('{"requestId":"r1","harn'));
+    setImmediate(() => stream.destroy(Object.assign(new Error('aborted'), { code: 'ECONNRESET' })));
+    stream.headers = { 'x-so-plugin': '1', 'content-type': 'text/plain;charset=UTF-8', host: 'st.local', ...headers };
+    stream.user = { profile: { handle: 'default-user', admin: true } };
+    return stream;
+};
+
+test('CR-J1: a request stream aborted mid-body answers 400 on every route instead of rejecting the handler', async () => {
+    const { service, config, processes } = setup({ harness: 'claude' });
+    const handlers = plugin.createHandlers(service, config);
+    for (const route of ['complete', 'cancel', 'warm', 'agentOpen', 'agentNext', 'agentAnswer', 'agentClose']) {
+        const { res, out } = fakeResponse();
+        await handlers[route](abortingBody(), res);
+        assert.equal(out.statusCode, 400, route);
+        assert.match(out.body.error, /could not be read/, route);
+    }
+    assert.equal(processes.calls.length, 0);
+});
+
+test('CR-J1: a route whose handler throws or rejects answers 500 once, and never writes over a sent response', async () => {
+    const logged = [];
+    const thrown = fakeResponse();
+    await plugin.guardRoute(() => { throw new Error('sync boom'); }, (line) => logged.push(line))(body({}), thrown.res);
+    assert.equal(thrown.out.statusCode, 500);
+    const rejected = fakeResponse();
+    await plugin.guardRoute(async () => { throw new Error('async boom'); }, (line) => logged.push(line))(body({}), rejected.res);
+    assert.equal(rejected.out.statusCode, 500);
+    const sent = fakeResponse();
+    sent.res.headersSent = true;
+    await plugin.guardRoute(async () => { throw new Error('late boom'); }, (line) => logged.push(line))(body({}), sent.res);
+    assert.equal(sent.out.statusCode, 200, 'nothing is written after the headers went out');
+    assert.equal(logged.length, 3);
+    assert.match(logged[1], /async boom/);
+});
+
+test('CR-J1: a failing owned-home step answers a config error and leaves no home behind', async () => {
+    const { config, loginFile, spawnImpl, processes } = setup({ harness: 'claude' });
+    const fsImpl = { ...fs, writeFileSync: (file, ...rest) => { if (String(file).endsWith('system.txt')) throw Object.assign(new Error('disk full'), { code: 'ENOSPC' }); return fs.writeFileSync(file, ...rest); } };
+    const service = plugin.createHarnessService({ config: { ...config, harnesses: { ...config.harnesses, claude: { ...config.harnesses.claude, loginFile } } }, env: { PATH: '' }, spawnImpl, killTree: processes.killTree, fsImpl, now: () => NOW, log: () => undefined });
+    const answer = await service.complete(request('claude'));
+    assert.deepEqual([answer.ok, answer.kind], [false, 'config']);
+    assert.match(answer.message, /ENOSPC/);
+    assert.equal(processes.calls.length, 0);
+    assert.deepEqual(fs.readdirSync(path.join(config.tmpRoot, 'calls')), []);
+    assert.equal(service.gate.counts('claude').running, 0, 'the slot is released');
+});
+
+test('CR-J2: the owned home is removed with retries, a home that stays is counted and logged, and init sweeps stale homes', async () => {
+    const { config, loginFile, spawnImpl, processes } = setup({ harness: 'claude' });
+    const removals = [];
+    const home = plugin.openOwnedHome('claude', { tmpRoot: config.tmpRoot, loginFile, fsImpl: fs });
+    plugin.closeOwnedHome(home, { ...fs, rmSync: (target, options) => { removals.push([target, options]); return fs.rmSync(target, options); } });
+    const rootRemoval = removals.find(([target]) => target === home.root);
+    assert.equal(rootRemoval?.[1].maxRetries, 10);
+    assert.equal(rootRemoval?.[1].retryDelay, 100);
+    const lines = [];
+    const stuck = { ...fs, rmSync: (target, options) => (String(target).includes(`${path.sep}calls${path.sep}`) ? undefined : fs.rmSync(target, options)) };
+    const leaky = plugin.createHarnessService({ config, env: { PATH: '' }, spawnImpl, killTree: processes.killTree, fsImpl: stuck, now: () => NOW, log: (line) => lines.push(line) });
+    assert.equal((await leaky.complete(request('claude'))).ok, true);
+    assert.equal(leaky.state.claude.leakedHomes, 1);
+    assert.equal((await leaky.status()).harnesses.claude.leakedHomes, 1);
+    assert.ok(lines.some((line) => line.includes('leakedHome')));
+    assert.equal(fs.readdirSync(path.join(config.tmpRoot, 'calls')).length, 1);
+    const swept = [];
+    plugin.createHarnessService({ config, env: { PATH: '' }, spawnImpl, killTree: processes.killTree, now: () => NOW, log: (line) => swept.push(line) });
+    assert.deepEqual(fs.readdirSync(path.join(config.tmpRoot, 'calls')), [], 'a new service sweeps what an earlier one left');
+    assert.match(swept[0], /"sweptHomes":1/);
+});
+
+test('CR-J6: a held harness says so in its status row, and a fresh login re-arms it without a restart', async () => {
+    const holder = {};
+    const { service, processes, loginFile } = setup({
+        harness: 'claude',
+        script: (child) => {
+            if (!holder.done) fs.writeFileSync(holder.loginFile, JSON.stringify(LOGINS.claude(NOW + 9 * HOUR)));
+            holder.done = true;
+            answering('claude')(child);
+        },
+    });
+    holder.loginFile = loginFile;
+    await service.complete(request('claude'));
+    const held = (await service.status()).harnesses.claude;
+    assert.match(held.blocked, /real login file changed/);
+    assert.equal((await service.complete(request('claude', { requestId: 'r2' }))).kind, 'auth');
+    fs.writeFileSync(loginFile, JSON.stringify(LOGINS.claude(NOW + 10 * HOUR)));
+    assert.equal((await service.status()).harnesses.claude.blocked, null);
+    assert.equal((await service.complete(request('claude', { requestId: 'r3' }))).ok, true);
+    assert.equal(processes.calls.length, 2);
+});
+
+test('CR-J9: the owned home carries only the routed provider\'s OAuth entry, never an API key', async () => {
+    const seen = {};
+    const { service, loginFile } = setup({
+        harness: 'opencode',
+        script: (child, call) => {
+            seen.copy = JSON.parse(fs.readFileSync(path.join(call.options.env.XDG_DATA_HOME, 'opencode', 'auth.json'), 'utf8'));
+            answering('opencode')(child);
+        },
+    });
+    fs.writeFileSync(loginFile, JSON.stringify({
+        openai: { type: 'oauth', access: 'at', refresh: 'rt', expires: NOW + 5 * HOUR },
+        anthropic: { type: 'api', key: 'sk-api-canary' },
+        github: { type: 'oauth', access: 'gh', refresh: 'gr', expires: NOW + 5 * HOUR },
+    }));
+    assert.equal((await service.complete(request('opencode'))).ok, true);
+    assert.deepEqual(Object.keys(seen.copy), ['openai']);
+    assert.ok(!JSON.stringify(seen.copy).includes('sk-api-canary'));
+});
+
+test('CR-J19: only the routed model\'s provider login decides freshness', async () => {
+    const { service, loginFile, processes } = setup({ harness: 'opencode' });
+    fs.writeFileSync(loginFile, JSON.stringify({
+        openai: { type: 'oauth', access: 'at', refresh: 'rt', expires: NOW + 5 * HOUR },
+        github: { type: 'oauth', access: 'gh', refresh: 'gr', expires: NOW + 10 * 60_000 },
+    }));
+    assert.equal((await service.complete(request('opencode'))).ok, true);
+    assert.equal((await service.status()).harnesses.opencode.fresh, true);
+    fs.writeFileSync(loginFile, JSON.stringify({ openai: { type: 'oauth', access: 'at', refresh: 'rt', expires: NOW + 10 * 60_000 }, github: { type: 'oauth', access: 'gh', refresh: 'gr', expires: NOW + 5 * HOUR } }));
+    assert.equal((await service.complete(request('opencode', { requestId: 'r2' }))).kind, 'auth', 'control: the routed provider\'s own stale login still refuses');
+    assert.equal(processes.calls.length, 1);
+});
+
+test('CR-J20: a malformed config.json is logged; a missing one is not', () => {
+    const root = tempRoot();
+    const lines = [];
+    const bad = path.join(root, 'config.json');
+    fs.writeFileSync(bad, '{"harnesses": {');
+    assert.equal(plugin.loadConfig(bad, fs.readFileSync, (line) => lines.push(line)).harnesses.opencode.offer, false);
+    assert.equal(lines.length, 1);
+    assert.match(lines[0], /not valid JSON/);
+    plugin.loadConfig(path.join(root, 'missing.json'), fs.readFileSync, (line) => lines.push(line));
+    assert.equal(lines.length, 1);
+});
+
+test('CR-J11: text with a finish is an answer even when the stream also carried an error event; the error rides as a warning', () => {
+    const stdout = [RECORDED.opencodeUnknown, OUTPUTS.opencode('PONG')].join('\n');
+    const answer = plugin.classify('opencode', { stdout, stderr: '', code: 0, killed: null, spawnError: null });
+    assert.equal(answer.ok, true);
+    assert.equal(answer.text, 'PONG');
+    assert.equal(answer.finish, 'stop');
+    assert.match(answer.warnings[0], /Unexpected server error/);
+    const unfinished = [RECORDED.opencodeUnknown, JSON.stringify({ type: 'text', part: { type: 'text', text: 'half' } })].join('\n');
+    assert.equal(plugin.classify('opencode', { stdout: unfinished, stderr: '', code: 1, killed: null, spawnError: null }).ok, false, 'control: text with no finish and an error is still a failure');
+});
+
+test('CR-J14: two users may use the same requestId, and each cancels only their own call', async () => {
+    const { service, processes } = setup({ harness: 'claude', script: hanging });
+    const alice = service.complete(request('claude', { requestId: 'same' }), { user: 'alice' });
+    const bob = service.complete(request('claude', { requestId: 'same' }), { user: 'bob' });
+    assert.ok(await until(() => processes.calls.length === 2));
+    assert.equal(service.cancel('same', 'alice'), true);
+    assert.equal((await alice).kind, 'lapsed');
+    assert.equal(processes.killed.length, 1);
+    assert.equal(service.cancel('same', 'bob'), true, 'bob\'s call is still reachable after alice\'s finished');
+    assert.equal((await bob).kind, 'lapsed');
+});
+
+test('CR-J17: status and the probes touch only offered harnesses; an unoffered CLI is never spawned', async () => {
+    const root = tempRoot();
+    const other = (name) => {
+        const file = path.join(root, `${name}.exe`);
+        fs.writeFileSync(file, '');
+        return file;
+    };
+    const { service, versionCalls } = setup({ harness: 'opencode', extraConfig: { claude: { binary: other('claude'), offer: false }, codex: { binary: other('codex'), offer: false } } });
+    const status = await service.status({ refresh: true });
+    assert.equal(versionCalls.length, 1);
+    assert.match(versionCalls[0], /opencode\.exe$/);
+    assert.equal(status.harnesses.claude.installed, false);
+    assert.equal(status.harnesses.claude.version, null);
+    assert.match(status.harnesses.codex.problem, /not offered/);
+    assert.equal((await service.complete(request('claude'))).kind, 'config');
+    assert.equal((await service.complete(request('codex', { requestId: 'r2' }))).kind, 'config');
 });

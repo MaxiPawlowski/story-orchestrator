@@ -584,6 +584,10 @@
     "src/copilot/agent/turn.ts#createAgentRunner>anonymous": {
       "status": "local",
       "note": "v2.6 plan 04 agent bridge (2026-09-30): `settle` matches the write-name pattern but writes nothing we keep: it forwards the turn to the chosen route, which answers the parked tool call over HTTP. Its only caller is driveAgent, after driveAgent's own run check."
+    },
+    "src/runtime/modelCallCore.ts#createModelCallVia.call": {
+      "status": "checked",
+      "note": "CR-J15: mints a token before the model await (when deps.ownership is given; the manager's model passes its own) and recordCall checks it before every telemetry write, the success note, the failure note and the harness fallback's notes alike, so a call that lands after its chat went away records nothing in the next chat's ring. Case: harnessRouting.test.ts \"CR-J15\"."
     }
   }
 }
