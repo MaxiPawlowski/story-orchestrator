@@ -338,3 +338,5 @@ None.
 - T0-1: adolion-fresh binds each group to its story, so a fresh group chat already plays it; the card reads the entry points instead of picking the story from scratch.
 - Wizard cards (T5-1..T5-4, T6-3) carry no checkpoint ids; `start` opens no chat for them.
 - The register keeps plan 14's columns; the digest's draft rows add a `what` column for the review.
+
+**Re-run after merging master `eba02fc8`:** typecheck 0, typecheck:test 0, lint 0, `npm test` 4909 passed / 1 skipped, build 0, build:dev 0, test:debug 477/477, test:release 77 pass / 0 fail, test:replay 30/30 killed. `MemoryCoordinator.chapters` is still a field initialised with `deps: this.deps` on master, so the seed blocker above stands.
