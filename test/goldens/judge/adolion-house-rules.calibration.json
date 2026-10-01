@@ -1,0 +1,1444 @@
+{
+  "recordedAt": "2026-10-01T16:20:47.655Z",
+  "rows": [
+    {
+      "id": "AH01.broken:0",
+      "right": true,
+      "picked": "p=0.93",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 406
+    },
+    {
+      "id": "AH01.untouched:1",
+      "right": true,
+      "picked": "p=0.54",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 406
+    },
+    {
+      "id": "AH01.untouched:2",
+      "right": true,
+      "picked": "p=0.43",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 406
+    },
+    {
+      "id": "AH01.untouched:3",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 406
+    },
+    {
+      "id": "AH01.untouched:4",
+      "right": true,
+      "picked": "p=0.51",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 406
+    },
+    {
+      "id": "AH01.untouched:5",
+      "right": true,
+      "picked": "p=0.11",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 406
+    },
+    {
+      "id": "AH01.untouched:6",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 406
+    },
+    {
+      "id": "AH01.untouched:7",
+      "right": true,
+      "picked": "p=0.51",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 406
+    },
+    {
+      "id": "AH02.broken:0",
+      "right": true,
+      "picked": "p=0.89",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 396
+    },
+    {
+      "id": "AH02.untouched:1",
+      "right": true,
+      "picked": "p=0.3",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 396
+    },
+    {
+      "id": "AH02.untouched:2",
+      "right": true,
+      "picked": "p=0.15",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 396
+    },
+    {
+      "id": "AH02.untouched:3",
+      "right": true,
+      "picked": "p=0.15",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 396
+    },
+    {
+      "id": "AH02.untouched:4",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 396
+    },
+    {
+      "id": "AH02.untouched:5",
+      "right": true,
+      "picked": "p=0.11",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 396
+    },
+    {
+      "id": "AH02.untouched:6",
+      "right": true,
+      "picked": "p=0.11",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 396
+    },
+    {
+      "id": "AH02.untouched:7",
+      "right": true,
+      "picked": "p=0.07",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 396
+    },
+    {
+      "id": "AH04.untouched:0",
+      "right": true,
+      "picked": "p=0.3",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 264
+    },
+    {
+      "id": "AH04.broken:1",
+      "right": true,
+      "picked": "p=0.84",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 264
+    },
+    {
+      "id": "AH04.untouched:2",
+      "right": true,
+      "picked": "p=0.4",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 264
+    },
+    {
+      "id": "AH04.untouched:3",
+      "right": true,
+      "picked": "p=0.07",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 264
+    },
+    {
+      "id": "AH04.untouched:4",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 264
+    },
+    {
+      "id": "AH04.untouched:5",
+      "right": true,
+      "picked": "p=0.15",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 264
+    },
+    {
+      "id": "AH04.untouched:6",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 264
+    },
+    {
+      "id": "AH04.untouched:7",
+      "right": true,
+      "picked": "p=0.06",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 264
+    },
+    {
+      "id": "AH05.untouched:0",
+      "right": true,
+      "picked": "p=0.21",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH05.broken:1",
+      "right": true,
+      "picked": "p=0.86",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH05.untouched:2",
+      "right": true,
+      "picked": "p=0.6",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH05.untouched:3",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH05.untouched:4",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH05.untouched:5",
+      "right": true,
+      "picked": "p=0.11",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH05.untouched:6",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH05.untouched:7",
+      "right": true,
+      "picked": "p=0.1",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH07.untouched:0",
+      "right": true,
+      "picked": "p=0.25",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 265
+    },
+    {
+      "id": "AH07.untouched:1",
+      "right": false,
+      "picked": "p=0.82",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 265
+    },
+    {
+      "id": "AH07.broken:2",
+      "right": true,
+      "picked": "p=0.87",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 265
+    },
+    {
+      "id": "AH07.untouched:3",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 265
+    },
+    {
+      "id": "AH07.untouched:4",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 265
+    },
+    {
+      "id": "AH07.untouched:5",
+      "right": true,
+      "picked": "p=0.29",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 265
+    },
+    {
+      "id": "AH07.untouched:6",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 265
+    },
+    {
+      "id": "AH07.untouched:7",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 265
+    },
+    {
+      "id": "AH08.untouched:0",
+      "right": true,
+      "picked": "p=0.42",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH08.untouched:1",
+      "right": false,
+      "picked": "p=0.81",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH08.broken:2",
+      "right": false,
+      "picked": "p=0.69",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH08.untouched:3",
+      "right": true,
+      "picked": "p=0.11",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH08.untouched:4",
+      "right": true,
+      "picked": "p=0.1",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH08.untouched:5",
+      "right": true,
+      "picked": "p=0.1",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH08.untouched:6",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH08.untouched:7",
+      "right": true,
+      "picked": "p=0.07",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 244
+    },
+    {
+      "id": "AH10.untouched:0",
+      "right": true,
+      "picked": "p=0.19",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH10.untouched:1",
+      "right": true,
+      "picked": "p=0.35",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH10.untouched:2",
+      "right": true,
+      "picked": "p=0.25",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH10.broken:3",
+      "right": false,
+      "picked": "p=0.6",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH10.untouched:4",
+      "right": true,
+      "picked": "p=0.33",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH10.kept:5",
+      "right": true,
+      "picked": "p=0.15",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH10.untouched:6",
+      "right": true,
+      "picked": "p=0.14",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH10.untouched:7",
+      "right": true,
+      "picked": "p=0.22",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH11.untouched:0",
+      "right": true,
+      "picked": "p=0.22",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 235
+    },
+    {
+      "id": "AH11.untouched:1",
+      "right": true,
+      "picked": "p=0.46",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 235
+    },
+    {
+      "id": "AH11.untouched:2",
+      "right": true,
+      "picked": "p=0.11",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 235
+    },
+    {
+      "id": "AH11.broken:3",
+      "right": false,
+      "picked": "p=0.46",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 235
+    },
+    {
+      "id": "AH11.untouched:4",
+      "right": true,
+      "picked": "p=0.17",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 235
+    },
+    {
+      "id": "AH11.untouched:5",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 235
+    },
+    {
+      "id": "AH11.untouched:6",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 235
+    },
+    {
+      "id": "AH11.untouched:7",
+      "right": true,
+      "picked": "p=0.1",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 235
+    },
+    {
+      "id": "AH13.untouched:0",
+      "right": true,
+      "picked": "p=0.2",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH13.untouched:1",
+      "right": true,
+      "picked": "p=0.17",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH13.untouched:2",
+      "right": true,
+      "picked": "p=0.41",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH13.untouched:3",
+      "right": true,
+      "picked": "p=0.1",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH13.broken:4",
+      "right": true,
+      "picked": "p=0.83",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH13.untouched:5",
+      "right": true,
+      "picked": "p=0.16",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH13.untouched:6",
+      "right": true,
+      "picked": "p=0.2",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH13.untouched:7",
+      "right": false,
+      "picked": "p=0.86",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH14.untouched:0",
+      "right": true,
+      "picked": "p=0.34",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 297
+    },
+    {
+      "id": "AH14.untouched:1",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 297
+    },
+    {
+      "id": "AH14.untouched:2",
+      "right": true,
+      "picked": "p=0.52",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 297
+    },
+    {
+      "id": "AH14.untouched:3",
+      "right": true,
+      "picked": "p=0.18",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 297
+    },
+    {
+      "id": "AH14.broken:4",
+      "right": true,
+      "picked": "p=0.89",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 297
+    },
+    {
+      "id": "AH14.untouched:5",
+      "right": true,
+      "picked": "p=0.11",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 297
+    },
+    {
+      "id": "AH14.untouched:6",
+      "right": true,
+      "picked": "p=0.14",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 297
+    },
+    {
+      "id": "AH14.untouched:7",
+      "right": false,
+      "picked": "p=0.79",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 297
+    },
+    {
+      "id": "AH16.untouched:0",
+      "right": true,
+      "picked": "p=0.3",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 273
+    },
+    {
+      "id": "AH16.untouched:1",
+      "right": true,
+      "picked": "p=0.57",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 273
+    },
+    {
+      "id": "AH16.untouched:2",
+      "right": true,
+      "picked": "p=0.57",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 273
+    },
+    {
+      "id": "AH16.untouched:3",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 273
+    },
+    {
+      "id": "AH16.untouched:4",
+      "right": true,
+      "picked": "p=0.2",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 273
+    },
+    {
+      "id": "AH16.broken:5",
+      "right": true,
+      "picked": "p=0.8",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 273
+    },
+    {
+      "id": "AH16.untouched:6",
+      "right": true,
+      "picked": "p=0.26",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 273
+    },
+    {
+      "id": "AH16.untouched:7",
+      "right": true,
+      "picked": "p=0.19",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 273
+    },
+    {
+      "id": "AH17.untouched:0",
+      "right": true,
+      "picked": "p=0.19",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH17.untouched:1",
+      "right": true,
+      "picked": "p=0.36",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH17.untouched:2",
+      "right": true,
+      "picked": "p=0.42",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH17.untouched:3",
+      "right": true,
+      "picked": "p=0.07",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH17.untouched:4",
+      "right": true,
+      "picked": "p=0.14",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH17.broken:5",
+      "right": true,
+      "picked": "p=0.7",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH17.untouched:6",
+      "right": true,
+      "picked": "p=0.15",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH17.untouched:7",
+      "right": true,
+      "picked": "p=0.17",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH19.untouched:0",
+      "right": true,
+      "picked": "p=0.15",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 254
+    },
+    {
+      "id": "AH19.untouched:1",
+      "right": true,
+      "picked": "p=0.19",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 254
+    },
+    {
+      "id": "AH19.untouched:2",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 254
+    },
+    {
+      "id": "AH19.untouched:3",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 254
+    },
+    {
+      "id": "AH19.untouched:4",
+      "right": true,
+      "picked": "p=0.14",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 254
+    },
+    {
+      "id": "AH19.untouched:5",
+      "right": true,
+      "picked": "p=0.07",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 254
+    },
+    {
+      "id": "AH19.broken:6",
+      "right": false,
+      "picked": "p=0.08",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 254
+    },
+    {
+      "id": "AH19.untouched:7",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 254
+    },
+    {
+      "id": "AH20.untouched:0",
+      "right": true,
+      "picked": "p=0.19",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH20.untouched:1",
+      "right": true,
+      "picked": "p=0.2",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH20.untouched:2",
+      "right": true,
+      "picked": "p=0.33",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH20.untouched:3",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH20.untouched:4",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH20.untouched:5",
+      "right": true,
+      "picked": "p=0.07",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH20.broken:6",
+      "right": false,
+      "picked": "p=0.1",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH20.untouched:7",
+      "right": true,
+      "picked": "p=0.06",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH22.untouched:0",
+      "right": true,
+      "picked": "p=0.26",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH22.untouched:1",
+      "right": true,
+      "picked": "p=0.56",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH22.untouched:2",
+      "right": true,
+      "picked": "p=0.23",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH22.untouched:3",
+      "right": true,
+      "picked": "p=0.1",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH22.untouched:4",
+      "right": false,
+      "picked": "p=0.74",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH22.untouched:5",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH22.untouched:6",
+      "right": true,
+      "picked": "p=0.16",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH22.broken:7",
+      "right": true,
+      "picked": "p=0.88",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 253
+    },
+    {
+      "id": "AH23.untouched:0",
+      "right": true,
+      "picked": "p=0.16",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 267
+    },
+    {
+      "id": "AH23.untouched:1",
+      "right": true,
+      "picked": "p=0.15",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 267
+    },
+    {
+      "id": "AH23.untouched:2",
+      "right": true,
+      "picked": "p=0.14",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 267
+    },
+    {
+      "id": "AH23.untouched:3",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 267
+    },
+    {
+      "id": "AH23.untouched:4",
+      "right": true,
+      "picked": "p=0.26",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 267
+    },
+    {
+      "id": "AH23.untouched:5",
+      "right": true,
+      "picked": "p=0.13",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 267
+    },
+    {
+      "id": "AH23.untouched:6",
+      "right": true,
+      "picked": "p=0.13",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 267
+    },
+    {
+      "id": "AH23.broken:7",
+      "right": true,
+      "picked": "p=0.76",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 267
+    },
+    {
+      "id": "AH25.untouched:0",
+      "right": true,
+      "picked": "p=0.26",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 294
+    },
+    {
+      "id": "AH25.untouched:1",
+      "right": true,
+      "picked": "p=0.39",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 294
+    },
+    {
+      "id": "AH25.untouched:2",
+      "right": true,
+      "picked": "p=0.14",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 294
+    },
+    {
+      "id": "AH25.untouched:3",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 294
+    },
+    {
+      "id": "AH25.untouched:4",
+      "right": true,
+      "picked": "p=0.2",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 294
+    },
+    {
+      "id": "AH25.untouched:5",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 294
+    },
+    {
+      "id": "AH25.untouched:6",
+      "right": true,
+      "picked": "p=0.1",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 294
+    },
+    {
+      "id": "AH25.untouched:7",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 294
+    },
+    {
+      "id": "AH26.untouched:0",
+      "right": true,
+      "picked": "p=0.18",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH26.untouched:1",
+      "right": true,
+      "picked": "p=0.13",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH26.untouched:2",
+      "right": true,
+      "picked": "p=0.27",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH26.untouched:3",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH26.untouched:4",
+      "right": true,
+      "picked": "p=0.07",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH26.kept:5",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH26.untouched:6",
+      "right": true,
+      "picked": "p=0.07",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH26.untouched:7",
+      "right": true,
+      "picked": "p=0.04",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 250
+    },
+    {
+      "id": "AH27.untouched:0",
+      "right": true,
+      "picked": "p=0.4",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 269
+    },
+    {
+      "id": "AH27.untouched:1",
+      "right": false,
+      "picked": "p=0.72",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 269
+    },
+    {
+      "id": "AH27.untouched:2",
+      "right": true,
+      "picked": "p=0.11",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 269
+    },
+    {
+      "id": "AH27.untouched:3",
+      "right": true,
+      "picked": "p=0.11",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 269
+    },
+    {
+      "id": "AH27.kept:4",
+      "right": true,
+      "picked": "p=0.28",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 269
+    },
+    {
+      "id": "AH27.untouched:5",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 269
+    },
+    {
+      "id": "AH27.untouched:6",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 269
+    },
+    {
+      "id": "AH27.kept:7",
+      "right": true,
+      "picked": "p=0.58",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 269
+    },
+    {
+      "id": "AH28.untouched:0",
+      "right": true,
+      "picked": "p=0.16",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH28.untouched:1",
+      "right": true,
+      "picked": "p=0.1",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH28.kept:2",
+      "right": true,
+      "picked": "p=0.19",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH28.untouched:3",
+      "right": true,
+      "picked": "p=0.1",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH28.kept:4",
+      "right": true,
+      "picked": "p=0.17",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH28.untouched:5",
+      "right": true,
+      "picked": "p=0.13",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH28.untouched:6",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH28.untouched:7",
+      "right": true,
+      "picked": "p=0.14",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 257
+    },
+    {
+      "id": "AH29.untouched:0",
+      "right": true,
+      "picked": "p=0.21",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH29.untouched:1",
+      "right": true,
+      "picked": "p=0.39",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH29.untouched:2",
+      "right": true,
+      "picked": "p=0.19",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH29.untouched:3",
+      "right": true,
+      "picked": "p=0.07",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH29.kept:4",
+      "right": true,
+      "picked": "p=0.18",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH29.untouched:5",
+      "right": true,
+      "picked": "p=0.06",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH29.untouched:6",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH29.kept:7",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 278
+    },
+    {
+      "id": "AH33.untouched:0",
+      "right": true,
+      "picked": "p=0.17",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 236
+    },
+    {
+      "id": "AH33.untouched:1",
+      "right": true,
+      "picked": "p=0.23",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 236
+    },
+    {
+      "id": "AH33.untouched:2",
+      "right": true,
+      "picked": "p=0.16",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 236
+    },
+    {
+      "id": "AH33.untouched:3",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 236
+    },
+    {
+      "id": "AH33.untouched:4",
+      "right": true,
+      "picked": "p=0.13",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 236
+    },
+    {
+      "id": "AH33.untouched:5",
+      "right": true,
+      "picked": "p=0.06",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 236
+    },
+    {
+      "id": "AH33.broken:6",
+      "right": false,
+      "picked": "p=0.11",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 236
+    },
+    {
+      "id": "AH33.untouched:7",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 236
+    },
+    {
+      "id": "AH34.untouched:0",
+      "right": true,
+      "picked": "p=0.34",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 289
+    },
+    {
+      "id": "AH34.untouched:1",
+      "right": true,
+      "picked": "p=0.5",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 289
+    },
+    {
+      "id": "AH34.untouched:2",
+      "right": false,
+      "picked": "p=0.79",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 289
+    },
+    {
+      "id": "AH34.untouched:3",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 289
+    },
+    {
+      "id": "AH34.untouched:4",
+      "right": true,
+      "picked": "p=0.24",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 289
+    },
+    {
+      "id": "AH34.broken:5",
+      "right": true,
+      "picked": "p=0.83",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 289
+    },
+    {
+      "id": "AH34.untouched:6",
+      "right": true,
+      "picked": "p=0.13",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 289
+    },
+    {
+      "id": "AH34.untouched:7",
+      "right": true,
+      "picked": "p=0.13",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 289
+    },
+    {
+      "id": "AH35.untouched:0",
+      "right": true,
+      "picked": "p=0.17",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 222
+    },
+    {
+      "id": "AH35.untouched:1",
+      "right": true,
+      "picked": "p=0.1",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 222
+    },
+    {
+      "id": "AH35.untouched:2",
+      "right": true,
+      "picked": "p=0.18",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 222
+    },
+    {
+      "id": "AH35.untouched:3",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 222
+    },
+    {
+      "id": "AH35.untouched:4",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 222
+    },
+    {
+      "id": "AH35.kept:5",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 222
+    },
+    {
+      "id": "AH35.untouched:6",
+      "right": true,
+      "picked": "p=0.1",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 222
+    },
+    {
+      "id": "AH35.untouched:7",
+      "right": true,
+      "picked": "p=0.06",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 222
+    },
+    {
+      "id": "AH36.untouched:0",
+      "right": true,
+      "picked": "p=0.11",
+      "detail": "The narrator voices only the world plus the characters outside the group, never itself.",
+      "latencyMs": 209
+    },
+    {
+      "id": "AH36.untouched:1",
+      "right": true,
+      "picked": "p=0.1",
+      "detail": "The narrator never writes a group member's words or intentions.",
+      "latencyMs": 209
+    },
+    {
+      "id": "AH36.untouched:2",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+      "latencyMs": 209
+    },
+    {
+      "id": "AH36.untouched:3",
+      "right": true,
+      "picked": "p=0.08",
+      "detail": "Each reply stays within two to four short paragraphs.",
+      "latencyMs": 209
+    },
+    {
+      "id": "AH36.untouched:4",
+      "right": true,
+      "picked": "p=0.1",
+      "detail": "A mystery opens one piece at a time, through discovery.",
+      "latencyMs": 209
+    },
+    {
+      "id": "AH36.untouched:5",
+      "right": true,
+      "picked": "p=0.07",
+      "detail": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+      "latencyMs": 209
+    },
+    {
+      "id": "AH36.kept:6",
+      "right": true,
+      "picked": "p=0.12",
+      "detail": "Established facts about Adolion stay consistent with the world book.",
+      "latencyMs": 209
+    },
+    {
+      "id": "AH36.untouched:7",
+      "right": true,
+      "picked": "p=0.09",
+      "detail": "A secret stays hidden until the party uncovers it in play.",
+      "latencyMs": 209
+    }
+  ],
+  "summary": {
+    "use": "house-rules",
+    "fixture": "adolion-house-rules",
+    "right": 187,
+    "total": 200,
+    "rate": 0.935,
+    "families": [
+      {
+        "family": "broken",
+        "right": 12,
+        "total": 18,
+        "floor": 0.85,
+        "ok": false
+      },
+      {
+        "family": "kept",
+        "right": 10,
+        "total": 10,
+        "floor": 0.95,
+        "ok": true
+      },
+      {
+        "family": "untouched",
+        "right": 165,
+        "total": 172,
+        "floor": 0.966,
+        "ok": false
+      }
+    ],
+    "p50LatencyMs": 257,
+    "provider": "typesafe",
+    "requestedModel": "jev-1.13.0",
+    "model": "jev-1.13.0",
+    "modelVerdict": "matched",
+    "min": 0.85,
+    "minGiven": false,
+    "ok": false,
+    "runner": "scripts/spike/typesafe/calibrate-node.mts house-rules --fixture adolion-house-rules --record (off-page)"
+  }
+}

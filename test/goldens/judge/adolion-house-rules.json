@@ -1,0 +1,2959 @@
+{
+  "source": "calibrate-node house-rules over test/fixtures/judge/adolion-house-rules.json: the production question shape, real answers, replayed by jest keyed on state + questions, so a wording change must re-record",
+  "recordedAt": "2026-10-01T16:20:47.655Z",
+  "model": "jev-1.13.0",
+  "right": 187,
+  "total": 200,
+  "calls": [
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "Victory's Tusk is full to bursting: a centaur at one table, a party drowning a loss at another. At the far end, Naomi Moonlight has her boot on a chair and is offering to fight anyone who looks at her twice.\n\nYour humble Gamemaster pulls up the stool beside you, orders a cider and admits he has been waiting all week for this particular duel."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.89
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.3
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.07
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "The steward turns his hat in his hands. \"The Baron thought it would frighten off the Guild,\" he says. \"The last ore caravan never reached Raltdorf. Nor did the riders we sent after it.\"\n\nAnd speaking as your narrator, I have to be honest with you: if I were holding that purse, I would not trust a family that hides half its posting."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.93
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.54
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.43
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.51
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.51
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "Lord Javon lets the question hang, amused, and turns a page of the Crown's letter.\n\nRonan steps forward. \"My lord, let me stand in the heir's place,\" he says, meaning every word, and he has already made up his mind to ask again tomorrow if he is refused tonight."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.21
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.86
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.6
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.1
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "Grod squints at the seal and does not lower his bow. \"Seals don't stop what's coming,\" he calls down. \"Gate stays shut.\"\n\nBelle plants her axe in the dirt. \"Fine. We'll sleep in the ditch, then,\" she growls, already deciding she will break the gate down herself at dusk if it is still shut."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.3
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.84
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.4
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.15
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "The purse is heavy, Sheridan green, and the steward's hand does not leave it. Ellie has already slid the contract across the counter.\n\nYou sign it with a flourish, pocket the advance and tell the steward the party leaves for Wendhope at first light."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.25
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.82
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.87
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.29
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.08
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "Ced and Kela talk over each other, the same tricorn, the same saw cleaver, each sharper about the other's party than about Carrow Keep. Vallie lets them run.\n\nYou choose Ebonwing. Kela grins, Ced shrugs as if he never wanted you anyway, and you follow Kela out to the north gate."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.42
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.81
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.69
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.07
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "The Guild tavern is warm and loud. Word that the party is sitting the C-rank exam has gone round the room before they sit down.\n\nFiana sets down a tray of mugs and leans on the table. \"Most parties who fail it fail on gear,\" she says. \"Not courage. Gear.\"\n\nAt the bar Rydel is polishing the same glass for the third time, listening.\n\nBy the hearth, a bard with a lute has noticed the party and is already walking over with a grin.\n\nAt a table alone, an elven woman in green says something in elvish, clearly meant for Dalan.\n\nA dwarf at the next table loudly bets two crowns the new party won't last a week.\n\nThe hearth crackles. Someone starts a song nobody knows the words to."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.22
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.46
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.46
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.17
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.1
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "The fog comes first, red and thick, pouring out of the trees until the torches on the far wall are only smudges.\n\nThen the screeching starts, from everywhere at once.\n\nThe first Screecher comes over the palisade on all fours, one arm hanging by a strip of skin. It does not seem to notice. An arrow takes it in the chest and it keeps coming.\n\nTo the left a conscript screams as claws open his thigh. Halena drags him back from the parapet and shoves a spear into the gap.\n\nBelow the wall a Screecher falls, and falls apart: it bubbles into the mud like wax, and where it lay a scatter of white flowers opens in the dark.\n\nSomewhere down the line a defender stops shooting and stares into the fog, and the thing climbing toward him has a face he knows.\n\nThe fog is still thick, and dawn is hours away."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.19
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.35
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.25
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.6
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.33
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.14
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.22
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "The offering, a heel of bread and a drop of ale, crumbles to grey dust before the old dwarf has straightened up. He spits and makes the sign of the pick.\n\nIt crumbles because Filwern's power is being eaten from below: long ago the dwarves sealed a god-eating thing beneath the mountain, the mine's blasting has cracked those seals, and it is climbing toward the surface floor by floor, feeding as it comes."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.2
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.17
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.41
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.83
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.16
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.2
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.86
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "The tracks leave the road by the east fence: wide paw prints, too big for any farm dog, and smaller boots beside them.\n\nIt all reads at once: goblin raiders riding wargs, the same band both times, the wagons driven north to a gully two miles off, emptied and burned there, and the meat sold on in the city by a buyer who has paid for every run."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.34
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.52
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.89
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.14
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.79
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "A Screecher comes over the palisade and drives an alabaster blade clean through Halena's thigh. She pulls it out, laughs, and goes on fighting as if nothing had happened.\n\nBy the time the fog pulls back at dawn the wound has closed by itself, and nobody on the wall has so much as a bruise to show for the night."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.3
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.57
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.57
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.2
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.8
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.26
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.19
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "Leevon's lance flicks out faster than a man that size should move and opens a long cut along the heir's forearm. The dark sheen on the blade beads into the wound.\n\nThe cut closes within a breath and the venom drips harmlessly onto the sand, as if the lance were only painted."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.19
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.36
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.42
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.14
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.7
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.17
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "The Guildmaster leans on the upstairs rail: a slender elven woman with long silver hair and both eyes a cool grey, watching the new faces as if she were pricing them.\n\nShe catches the party looking and raises a glass to them, then turns to the table beside theirs and says something that makes the whole table bristle."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.19
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.14
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.09
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "Incense smoke hangs over the Temple District. Inside the little Rypanor shrine an old dwarven priest with a braided white beard sets down his tea to take the bundle from the party.\n\n\"Furabi thanks you,\" he says, and three children underfoot stop fighting long enough to stare at the adventurers."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.19
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.2
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.33
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.06
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "Lord Javon closes his pocketwatch and says nothing for a long moment.\n\nWhat the heir cannot know is that he asked the Crown for the second's place himself, and that he has already promised Nightriver blood to Duchess Eriana Valtara to break the Witch King's seals."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.26
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.56
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.23
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.74
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.16
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.88
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Sophie",
+          "text": "\"Ten crowns for the chapel slates, twelve for the orphanage bedding.\" Sophie flicks her blue tail. \"I haggle for fun. Don't take it personally.\"\n\nBehind the counter she lets the lizardkin glamour slip for one careless heartbeat, and the party sees ice-blue dragon scales and eyes like frozen lakes before she smooths it back."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.16
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.15
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.14
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.26
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.76
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "The arrow takes the Screecher under the collarbone and it does not even slow. Its claws rake Dalan's shoulder as it comes over the parapet; blood darkens his sleeve at once.\n\nThen it overbalances, falls back into the fog, and does not climb again. Dalan's bow arm is shaking."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.27
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.04
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Tobias",
+          "text": "\"Double the usual fee,\" Tobias says, tapping the green wax seal. \"Sheridan money. Which is exactly what bothers me: nobody overpays for a collapsed shaft.\"\n\nHe slides the posting across the counter and leaves his hand flat beside it. \"Read it through before you sign anything.\""
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.26
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.39
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.14
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.2
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.12
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "Qinne talks the way people do when nobody has let them talk in days: about the conscripts, about the arrows running short.\n\nThen she stops, and holds up a strip of linen stained yellow. \"One cut won't close. Alabaster, it looked like. I've told no one.\""
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.4
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.72
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.28
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.58
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "The bread sits on the stone for a long breath. Then it is gone: not crumbled, gone, and one line of the ward marks warms to a dull copper glow beneath it.\n\nNothing else moves. The crack along the seam is still there."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.16
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.19
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.17
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.14
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "The binding is new: the leather still smells of the tanner, and the spine has never been cracked.\n\nErevan, at the barn door, turns his masked face toward the book for a moment and says nothing at all."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.21
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.39
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.19
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.12
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "Hianxo climbs its hill in terraces of ochre stone, the eastern seat of the Zegallan Empire, and over the palace at the top hang the flame banners of Warchief Wurgoth.\n\nThe dock smells of salt fish and cedar smoke. At the foot of the gangplank a girl with three white tails bows exactly as low as she means to."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.17
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.23
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.16
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.06
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.08
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "The Zegallan cannons open at dawn, the same as every day. A ball smashes through the shield wall two men to your left, and when the smoke clears one of them does not get up.\n\nFrom the valley floor comes the roar of the slave corps, already running uphill."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.17
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.18
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.09
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.06
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "The collapse spits out thousands of hand-sized Terrorborn, a black tide clicking from wall to wall, and it rolls straight over Kela.\n\nWhen it thins, Kela brushes the dust off her sleeves without a scratch on her and walks on, and the tunnel back turns out to be clear after all."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.34
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.5
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.79
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.24
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.83
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.13
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.13
+        }
+      }
+    },
+    {
+      "state": {
+        "reply": {
+          "speaker": "Adolion Narrator",
+          "text": "The Guildmaster has to duck to clear the upstairs doorway: very tall, ox horns, a shaggy red mane, and one blue eye where there should be two.\n\nShe looks the new faces over, grins with too many teeth, and asks the next table whether they mean to let a pack of greenhorns beat them to the board."
+        },
+        "house_rules": {
+          "rule_0": "The narrator voices only the world plus the characters outside the group, never itself.",
+          "rule_1": "The narrator never writes a group member's words or intentions.",
+          "rule_2": "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+          "rule_3": "Each reply stays within two to four short paragraphs.",
+          "rule_4": "A mystery opens one piece at a time, through discovery.",
+          "rule_5": "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+          "rule_6": "Established facts about Adolion stay consistent with the world book.",
+          "rule_7": "A secret stays hidden until the party uncovers it in play."
+        }
+      },
+      "questions": {
+        "rule:0": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_0`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:1": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_1`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:2": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_2`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:3": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_3`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:4": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_4`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:5": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_5`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:6": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_6`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        },
+        "rule:7": {
+          "type": "noul",
+          "instructions": "Does `reply` break `house_rules.rule_7`?",
+          "criteria": {
+            "true": "The reply does what the rule forbids or breaks the constraint it states, in its narration or in a character's words",
+            "false": "The reply follows the rule or does not touch it"
+          }
+        }
+      },
+      "answers": {
+        "rule:0": {
+          "type": "noul",
+          "noul": 0.11
+        },
+        "rule:1": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "rule:2": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "rule:3": {
+          "type": "noul",
+          "noul": 0.08
+        },
+        "rule:4": {
+          "type": "noul",
+          "noul": 0.1
+        },
+        "rule:5": {
+          "type": "noul",
+          "noul": 0.07
+        },
+        "rule:6": {
+          "type": "noul",
+          "noul": 0.12
+        },
+        "rule:7": {
+          "type": "noul",
+          "noul": 0.09
+        }
+      }
+    }
+  ]
+}

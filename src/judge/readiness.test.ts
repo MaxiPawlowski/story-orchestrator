@@ -21,7 +21,7 @@ const FIXTURE_OF: Partial<Record<JudgeReadinessKey, string>> = {
   sceneTracker: "scene",
   director: "director",
   agencyCheck: "agency",
-  houseRules: "house-rules",
+  houseRules: "adolion-house-rules",
   loreSelect: "lore",
   wardenLore: "warden-lore",
 };
@@ -55,10 +55,10 @@ describe("judge readiness (v2.3 plan 09)", () => {
     });
   });
 
-  it("reports shipped uses enabled by default", () => {
+  it("reports shipped uses enabled by default, except house rules (below floor on Adolion, 2026-10-01)", () => {
     const rows = judgeReadiness(defaultJudgeSettings());
     expect(rows).toHaveLength(JUDGE_USE_KEYS.length);
-    expect(rows.every((row) => row.enabled)).toBe(true);
+    expect(rows.filter((row) => !row.enabled).map((row) => row.key)).toEqual(["houseRules"]);
   });
 
   // v2.4 plan 07 (X22): sceneOoc and memoryRerank are removed, so every declared use is built,
@@ -73,11 +73,12 @@ describe("judge readiness (v2.3 plan 09)", () => {
 
   // v2.4 plan 07 Phase A, 2026-09-25: both warden families cleared their predeclared floors on jev-1.13.0
   // (test/goldens/judge/agency.calibration.json, house-rules.calibration.json); measured, still author-only and off.
-  it("reports the agency and house-rule families measured on the model Phase A ran on", () => {
+  it("reports agency measured and house rules failed on the Adolion re-measure, off by default", () => {
     expect(JUDGE_READINESS.agencyCheck).toMatchObject({ calibration: 1, latencyP50Ms: 241, measuredOn: "jev-1.13.0" });
-    expect(JUDGE_READINESS.houseRules).toMatchObject({ calibration: 0.9875, latencyP50Ms: 235, measuredOn: "jev-1.13.0" });
-    expect((["agencyCheck", "houseRules"] as const).every((key) => AUTHOR_JUDGE_USES.includes(key) && defaultJudgeSettings().uses[key] === true)).toBe(true);
-    expect(remeasured(settings({ agencyCheck: true, houseRules: true })).filter((row) => ["agencyCheck", "houseRules"].includes(row.key)).map((row) => row.verdict)).toEqual(["measured", "measured"]);
+    expect(JUDGE_READINESS.houseRules).toMatchObject({ calibration: 0.935, latencyP50Ms: 257, measuredOn: "jev-1.13.0", passed: false });
+    expect((["agencyCheck", "houseRules"] as const).every((key) => AUTHOR_JUDGE_USES.includes(key))).toBe(true);
+    expect([defaultJudgeSettings().uses.agencyCheck, defaultJudgeSettings().uses.houseRules]).toEqual([true, false]);
+    expect(remeasured(settings({ agencyCheck: true, houseRules: true })).filter((row) => ["agencyCheck", "houseRules"].includes(row.key)).map((row) => [row.verdict, row.calibrationProblem])).toEqual([["measured", undefined], ["unproven", "failed"]]);
     expect(remeasured(settings({ agencyCheck: true }, { model: "jev-2.0.0" })).find((row) => row.key === "agencyCheck")?.verdict).toBe("unproven");
   });
 

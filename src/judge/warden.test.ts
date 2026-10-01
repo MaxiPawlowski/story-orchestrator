@@ -183,6 +183,16 @@ describe("Phase A goldens (recorded 2026-09-25 on jev-1.13.0, replayed with no j
     ["house-rules.json", (ask, rows) => runHouseRuleCalibration(ask, rows), { broken: [14, 15], kept: [11, 11], untouched: [53, 54] }],
     ["continuity-combined.json", (ask, rows) => runCombinedContinuityCalibration(ask, rows), { reply: [22, 23], broken: [11, 12], consistent: [32, 32] }],
   ];
+  it("adolion-house-rules.json (campaign lab, new {{user}} wording, recorded 2026-10-01): replays to the recorded score, below the broken and untouched floors", async () => {
+    const data = fixture<never>("adolion-house-rules.json");
+    const record = golden("adolion-house-rules.json");
+    const report = await runHouseRuleCalibration(replay("adolion-house-rules.json"), data.rows);
+    expect(record.model).toBe("jev-1.13.0");
+    expect(report.rows.filter((row) => row.picked === null)).toEqual([]);
+    expect([report.right, report.total]).toEqual([187, 200]);
+    const families = judgeFamilyScores(report, data.floors);
+    expect(Object.fromEntries(families.map((row) => [row.family, [row.right, row.total, row.ok]]))).toEqual({ broken: [12, 18, false], kept: [10, 10, true], untouched: [165, 172, false] });
+  });
   for (const [name, run, measured] of cases) {
     it(`${name}: replays every row to the recorded score and clears every predeclared floor`, async () => {
       const data = fixture<never>(name);

@@ -1,0 +1,715 @@
+{
+  "use": "house-rules",
+  "floors": {
+    "broken": 0.85,
+    "kept": 0.95,
+    "untouched": 0.966
+  },
+  "labelledAt": "2026-09-27",
+  "source": "Adolion lab (adolion-campaign lab/judge), v2.5 plan 06 J3 house-rule leg on a real story. One case = one reply against the Adolion saga's 8 house rules (build/story/adolion-saga.story.json house_rules, authored in scripts/build_adventurer.py HOUSE_RULES; 8 = WARDEN_MAX_RULES, so all fit one warden request) as the warden asks them. Labels written before any answer was read: broken = the one rule the reply breaks (at most one per case, by design); kept = rules the reply touches and follows; untouched = every other rule. Each rule is broken twice; 5 replies break none. Every reply is authored at a real checkpoint (checkpoint names it) and stays within 2-4 short paragraphs unless rule 3 is the one broken. playerMessage is context for human readers only; the warden does not see it. Unlike the plugin's 13 objective rules, these are the campaign's own and several are judgement rules (C13 kept taste rules out of the plugin fixture): rules 0-1 (who voices whom), 4 (pacing a mystery) and 7 (secrets) need the scene to judge, so a miss on them is informative, not a defect by itself. judgeOff: with the judge off no rule is flagged, so broken recall is 0 by construction. Floors predeclared as in test/fixtures/judge/house-rules.json; flag at HOUSE_RULE_P 0.7, never retuned.",
+  "rows": [
+    {
+      "id": "AH01",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "The steward turns his hat in his hands. \"The Baron thought it would frighten off the Guild,\" he says. \"The last ore caravan never reached Raltdorf. Nor did the riders we sent after it.\"\n\nAnd speaking as your narrator, I have to be honest with you: if I were holding that purse, I would not trust a family that hides half its posting."
+      },
+      "broken": [
+        0
+      ],
+      "kept": [],
+      "source": "authored at checkpoint the-sheridan-steward (build/story/adolion-saga.story.json); the narrator speaks as itself; everything else stays in the world",
+      "checkpoint": "the-sheridan-steward",
+      "playerMessage": "I ask the steward why the Sheridans didn't put the caravan on the posting.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH02",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Victory's Tusk is full to bursting: a centaur at one table, a party drowning a loss at another. At the far end, Naomi Moonlight has her boot on a chair and is offering to fight anyone who looks at her twice.\n\nYour humble Gamemaster pulls up the stool beside you, orders a cider and admits he has been waiting all week for this particular duel."
+      },
+      "broken": [
+        0
+      ],
+      "kept": [],
+      "source": "authored at checkpoint aegis-victorys-tusk (build/story/adolion-saga.story.json)",
+      "checkpoint": "aegis-victorys-tusk",
+      "playerMessage": "I sit down at the end of the bar and watch Naomi's table.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH04",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Grod squints at the seal and does not lower his bow. \"Seals don't stop what's coming,\" he calls down. \"Gate stays shut.\"\n\nBelle plants her axe in the dirt. \"Fine. We'll sleep in the ditch, then,\" she growls, already deciding she will break the gate down herself at dusk if it is still shut."
+      },
+      "broken": [
+        1
+      ],
+      "kept": [],
+      "source": "authored at checkpoint at-the-walls (build/story/adolion-saga.story.json); the narrator voices Belle (a group member) and her intention",
+      "checkpoint": "at-the-walls",
+      "playerMessage": "I show the Guild seal to the archers on the wall.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH05",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Lord Javon lets the question hang, amused, and turns a page of the Crown's letter.\n\nRonan steps forward. \"My lord, let me stand in the heir's place,\" he says, meaning every word, and he has already made up his mind to ask again tomorrow if he is refused tonight."
+      },
+      "broken": [
+        1
+      ],
+      "kept": [],
+      "source": "authored at checkpoint fathers-summons (build/story/adolion-saga.story.json); Ronan is a group member of the academy act",
+      "checkpoint": "fathers-summons",
+      "playerMessage": "I ask Ronan what he knows of Leevon's record.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH07",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "The purse is heavy, Sheridan green, and the steward's hand does not leave it. Ellie has already slid the contract across the counter.\n\nYou sign it with a flourish, pocket the advance and tell the steward the party leaves for Wendhope at first light."
+      },
+      "broken": [
+        2
+      ],
+      "kept": [],
+      "source": "authored at checkpoint the-sheridan-steward (build/story/adolion-saga.story.json)",
+      "checkpoint": "the-sheridan-steward",
+      "playerMessage": "I look at the purse on the counter.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH08",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Ced and Kela talk over each other, the same tricorn, the same saw cleaver, each sharper about the other's party than about Carrow Keep. Vallie lets them run.\n\nYou choose Ebonwing. Kela grins, Ced shrugs as if he never wanted you anyway, and you follow Kela out to the north gate."
+      },
+      "broken": [
+        2
+      ],
+      "kept": [],
+      "source": "authored at checkpoint deep-kela-and-ced (build/story/adolion-saga.story.json)",
+      "checkpoint": "deep-kela-and-ced",
+      "playerMessage": "I listen to both of them pitch the job.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH10",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "The fog comes first, red and thick, pouring out of the trees until the torches on the far wall are only smudges.\n\nThen the screeching starts, from everywhere at once.\n\nThe first Screecher comes over the palisade on all fours, one arm hanging by a strip of skin. It does not seem to notice. An arrow takes it in the chest and it keeps coming.\n\nTo the left a conscript screams as claws open his thigh. Halena drags him back from the parapet and shoves a spear into the gap.\n\nBelow the wall a Screecher falls, and falls apart: it bubbles into the mud like wax, and where it lay a scatter of white flowers opens in the dark.\n\nSomewhere down the line a defender stops shooting and stares into the fog, and the thing climbing toward him has a face he knows.\n\nThe fog is still thick, and dawn is hours away."
+      },
+      "broken": [
+        3
+      ],
+      "kept": [
+        5
+      ],
+      "source": "authored at checkpoint first-night (build/story/adolion-saga.story.json); seven paragraphs; the danger in it is real",
+      "checkpoint": "first-night",
+      "playerMessage": "I hold my place on the wall and keep firing.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH11",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "The Guild tavern is warm and loud. Word that the party is sitting the C-rank exam has gone round the room before they sit down.\n\nFiana sets down a tray of mugs and leans on the table. \"Most parties who fail it fail on gear,\" she says. \"Not courage. Gear.\"\n\nAt the bar Rydel is polishing the same glass for the third time, listening.\n\nBy the hearth, a bard with a lute has noticed the party and is already walking over with a grin.\n\nAt a table alone, an elven woman in green says something in elvish, clearly meant for Dalan.\n\nA dwarf at the next table loudly bets two crowns the new party won't last a week.\n\nThe hearth crackles. Someone starts a song nobody knows the words to."
+      },
+      "broken": [
+        3
+      ],
+      "kept": [],
+      "source": "authored at checkpoint aegis-the-tavern (build/story/adolion-saga.story.json)",
+      "checkpoint": "aegis-the-tavern",
+      "playerMessage": "I sit down at the long table and listen.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH13",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "The offering, a heel of bread and a drop of ale, crumbles to grey dust before the old dwarf has straightened up. He spits and makes the sign of the pick.\n\nIt crumbles because Filwern's power is being eaten from below: long ago the dwarves sealed a god-eating thing beneath the mountain, the mine's blasting has cracked those seals, and it is climbing toward the surface floor by floor, feeding as it comes."
+      },
+      "broken": [
+        4
+      ],
+      "kept": [],
+      "source": "authored at checkpoint driftmere (build/story/adolion-saga.story.json); the Deep act's whole mystery in one paragraph of narration; no character's secret is named",
+      "checkpoint": "driftmere",
+      "playerMessage": "I watch the old dwarves leave an offering at the mine mouth.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH14",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "The tracks leave the road by the east fence: wide paw prints, too big for any farm dog, and smaller boots beside them.\n\nIt all reads at once: goblin raiders riding wargs, the same band both times, the wagons driven north to a gully two miles off, emptied and burned there, and the meat sold on in the city by a buyer who has paid for every run."
+      },
+      "broken": [
+        4
+      ],
+      "kept": [],
+      "source": "authored at checkpoint aegis-green-meadow (build/story/adolion-saga.story.json); hands over the whole trail and the buyer the scene holds back",
+      "checkpoint": "aegis-green-meadow",
+      "playerMessage": "I look at the tracks by the east fence.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH16",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "A Screecher comes over the palisade and drives an alabaster blade clean through Halena's thigh. She pulls it out, laughs, and goes on fighting as if nothing had happened.\n\nBy the time the fog pulls back at dawn the wound has closed by itself, and nobody on the wall has so much as a bruise to show for the night."
+      },
+      "broken": [
+        5
+      ],
+      "kept": [],
+      "source": "authored at checkpoint first-night (build/story/adolion-saga.story.json)",
+      "checkpoint": "first-night",
+      "playerMessage": "I keep shooting at the Screechers on the wall.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH17",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Leevon's lance flicks out faster than a man that size should move and opens a long cut along the heir's forearm. The dark sheen on the blade beads into the wound.\n\nThe cut closes within a breath and the venom drips harmlessly onto the sand, as if the lance were only painted."
+      },
+      "broken": [
+        5
+      ],
+      "kept": [],
+      "source": "authored at checkpoint the-duel (build/story/adolion-saga.story.json); an envenomed wound with no effect",
+      "checkpoint": "the-duel",
+      "playerMessage": "I watch Leevon's lance as he circles.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH19",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "The Guildmaster leans on the upstairs rail: a slender elven woman with long silver hair and both eyes a cool grey, watching the new faces as if she were pricing them.\n\nShe catches the party looking and raises a glass to them, then turns to the table beside theirs and says something that makes the whole table bristle."
+      },
+      "broken": [
+        6
+      ],
+      "kept": [],
+      "source": "authored at checkpoint guild-hall (build/story/adolion-saga.story.json); Vallie Goredust is a one-eyed minotaur-blooded beastfolk with red hair (Adolion World)",
+      "checkpoint": "guild-hall",
+      "playerMessage": "I look up at the woman watching from the stairs.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH20",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Incense smoke hangs over the Temple District. Inside the little Rypanor shrine an old dwarven priest with a braided white beard sets down his tea to take the bundle from the party.\n\n\"Furabi thanks you,\" he says, and three children underfoot stop fighting long enough to stare at the adventurers."
+      },
+      "broken": [
+        6
+      ],
+      "kept": [],
+      "source": "authored at checkpoint aegis-the-shrine (build/story/adolion-saga.story.json); Manako, a cowgirl shrine maiden, keeps the Rypanor Shrine (Adolion World)",
+      "checkpoint": "aegis-the-shrine",
+      "playerMessage": "I carry the charm-wood into the shrine.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH22",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Lord Javon closes his pocketwatch and says nothing for a long moment.\n\nWhat the heir cannot know is that he asked the Crown for the second's place himself, and that he has already promised Nightriver blood to Duchess Eriana Valtara to break the Witch King's seals."
+      },
+      "broken": [
+        7
+      ],
+      "kept": [],
+      "source": "authored at checkpoint fathers-summons (build/story/adolion-saga.story.json); narration spends the act's central secret in the first scene",
+      "checkpoint": "fathers-summons",
+      "playerMessage": "I wait for Father to explain himself.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH23",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Sophie",
+        "text": "\"Ten crowns for the chapel slates, twelve for the orphanage bedding.\" Sophie flicks her blue tail. \"I haggle for fun. Don't take it personally.\"\n\nBehind the counter she lets the lizardkin glamour slip for one careless heartbeat, and the party sees ice-blue dragon scales and eyes like frozen lakes before she smooths it back."
+      },
+      "broken": [
+        7
+      ],
+      "kept": [],
+      "source": "authored at checkpoint aegis-the-curio-shop (build/story/adolion-saga.story.json); Sophie's true form is the scene's kept secret",
+      "checkpoint": "aegis-the-curio-shop",
+      "playerMessage": "I ask Sophie what she'd knock off the sword for a delivery.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH25",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Tobias",
+        "text": "\"Double the usual fee,\" Tobias says, tapping the green wax seal. \"Sheridan money. Which is exactly what bothers me: nobody overpays for a collapsed shaft.\"\n\nHe slides the posting across the counter and leaves his hand flat beside it. \"Read it through before you sign anything.\""
+      },
+      "broken": [],
+      "kept": [],
+      "source": "authored at checkpoint guild-hall (build/story/adolion-saga.story.json); an NPC outside the group; stops after the answer",
+      "checkpoint": "guild-hall",
+      "playerMessage": "I ask Tobias what the Wendhope posting pays.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH26",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "The arrow takes the Screecher under the collarbone and it does not even slow. Its claws rake Dalan's shoulder as it comes over the parapet; blood darkens his sleeve at once.\n\nThen it overbalances, falls back into the fog, and does not climb again. Dalan's bow arm is shaking."
+      },
+      "broken": [],
+      "kept": [
+        5
+      ],
+      "source": "authored at checkpoint first-night (build/story/adolion-saga.story.json); a real wound with a cost; shows the attempt's result and stops",
+      "checkpoint": "first-night",
+      "playerMessage": "I shoot at the Screecher climbing toward Dalan.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH27",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Qinne talks the way people do when nobody has let them talk in days: about the conscripts, about the arrows running short.\n\nThen she stops, and holds up a strip of linen stained yellow. \"One cut won't close. Alabaster, it looked like. I've told no one.\""
+      },
+      "broken": [],
+      "kept": [
+        4,
+        7
+      ],
+      "source": "authored at checkpoint what-wendhope-knows (build/story/adolion-saga.story.json); one clue for one effort; no answer",
+      "checkpoint": "what-wendhope-knows",
+      "playerMessage": "I sit with Qinne while she rolls bandages and ask about the wounded.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH28",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "The bread sits on the stone for a long breath. Then it is gone: not crumbled, gone, and one line of the ward marks warms to a dull copper glow beneath it.\n\nNothing else moves. The crack along the seam is still there."
+      },
+      "broken": [],
+      "kept": [
+        2,
+        4
+      ],
+      "source": "authored at checkpoint the-sealed-wall (build/story/adolion-saga.story.json); the world answers the attempt, then stops",
+      "checkpoint": "the-sealed-wall",
+      "playerMessage": "I kneel and set my last ration of bread on the seal as an offering to Filwern.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH29",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "The binding is new: the leather still smells of the tanner, and the spine has never been cracked.\n\nErevan, at the barn door, turns his masked face toward the book for a moment and says nothing at all."
+      },
+      "broken": [],
+      "kept": [
+        4,
+        7
+      ],
+      "source": "authored at checkpoint night-the-accused (build/story/adolion-saga.story.json); a discoverable detail; Erevan's suspicion stays behind his mask",
+      "checkpoint": "night-the-accused",
+      "playerMessage": "I look at the book Ren found in her house.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH33",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "Hianxo climbs its hill in terraces of ochre stone, the eastern seat of the Zegallan Empire, and over the palace at the top hang the flame banners of Warchief Wurgoth.\n\nThe dock smells of salt fish and cedar smoke. At the foot of the gangplank a girl with three white tails bows exactly as low as she means to."
+      },
+      "broken": [
+        6
+      ],
+      "kept": [],
+      "source": "authored at checkpoint east-landfall (build/story/adolion-saga.story.json); Hianxo is the capital of the Third Kingdom under Emperor Zhao, not a Zegallan city (Adolion World)",
+      "checkpoint": "east-landfall",
+      "playerMessage": "I look the city over from the dock.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH34",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "The collapse spits out thousands of hand-sized Terrorborn, a black tide clicking from wall to wall, and it rolls straight over Kela.\n\nWhen it thins, Kela brushes the dust off her sleeves without a scratch on her and walks on, and the tunnel back turns out to be clear after all."
+      },
+      "broken": [
+        5
+      ],
+      "kept": [],
+      "source": "authored at checkpoint deep-the-swarm (build/story/adolion-saga.story.json); the swarm costs nothing and the way out is handed back",
+      "checkpoint": "deep-the-swarm",
+      "playerMessage": "I flatten myself against the tunnel wall while the swarm goes past.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH35",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "The Zegallan cannons open at dawn, the same as every day. A ball smashes through the shield wall two men to your left, and when the smoke clears one of them does not get up.\n\nFrom the valley floor comes the roar of the slave corps, already running uphill."
+      },
+      "broken": [],
+      "kept": [
+        5
+      ],
+      "source": "authored at checkpoint war-the-front (build/story/adolion-saga.story.json); the war costs lives",
+      "checkpoint": "war-the-front",
+      "playerMessage": "I stay behind the shield wall when the cannons start.",
+      "judgeOff": {
+        "flagged": []
+      }
+    },
+    {
+      "id": "AH36",
+      "lang": "en",
+      "rules": [
+        "The narrator voices only the world plus the characters outside the group, never itself.",
+        "The narrator never writes a group member's words or intentions.",
+        "{{user}}'s choices belong to {{user}}: show what the world does with an attempt, then stop.",
+        "Each reply stays within two to four short paragraphs.",
+        "A mystery opens one piece at a time, through discovery.",
+        "Danger is real: actions carry consequences even when that makes a reply less exciting.",
+        "Established facts about Adolion stay consistent with the world book.",
+        "A secret stays hidden until the party uncovers it in play."
+      ],
+      "reply": {
+        "speaker": "Adolion Narrator",
+        "text": "The Guildmaster has to duck to clear the upstairs doorway: very tall, ox horns, a shaggy red mane, and one blue eye where there should be two.\n\nShe looks the new faces over, grins with too many teeth, and asks the next table whether they mean to let a pack of greenhorns beat them to the board."
+      },
+      "broken": [],
+      "kept": [
+        6
+      ],
+      "source": "authored at checkpoint guild-hall (build/story/adolion-saga.story.json); Vallie as the world book has her",
+      "checkpoint": "guild-hall",
+      "playerMessage": "I watch the woman coming down the stairs.",
+      "judgeOff": {
+        "flagged": []
+      }
+    }
+  ]
+}
