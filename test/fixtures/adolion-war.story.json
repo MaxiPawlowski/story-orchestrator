@@ -1,0 +1,2467 @@
+{
+  "format": 2,
+  "id": "adolion-war",
+  "version": 7,
+  "title": "Adolion: Fire and War",
+  "description": "Trimmed copy of adolion-war (campaign e1c91fbe): graph, gates, triggers and qualities only.",
+  "qualities": [
+    {
+      "key": "party_rank",
+      "type": "int",
+      "source": "extractor",
+      "monotonic": true,
+      "ledger_binding": {
+        "entity": "The Party",
+        "field": "rank"
+      },
+      "read_as": "rating",
+      "criteria": {
+        "levels": [
+          {
+            "value": 1,
+            "label": "E-rank"
+          },
+          {
+            "value": 2,
+            "label": "D-rank"
+          },
+          {
+            "value": 3,
+            "label": "C-rank"
+          },
+          {
+            "value": 4,
+            "label": "B-rank"
+          },
+          {
+            "value": 5,
+            "label": "A-rank"
+          },
+          {
+            "value": 6,
+            "label": "S-rank"
+          }
+        ]
+      },
+      "rubric": "What Adventurer's Guild rank does the party hold now, as the story has stated it? Only a rank the Guild has actually given counts, not one the party deserves."
+    },
+    {
+      "key": "guild_reputation",
+      "type": "int",
+      "source": "extractor",
+      "ledger_binding": {
+        "entity": "The Party",
+        "field": "guild reputation"
+      },
+      "read_as": "rating",
+      "criteria": {
+        "levels": [
+          {
+            "value": 1,
+            "label": "unknown: one more new party"
+          },
+          {
+            "value": 2,
+            "label": "reliable: finishes what it takes"
+          },
+          {
+            "value": 3,
+            "label": "noticed: the Guildmaster knows the name"
+          },
+          {
+            "value": 4,
+            "label": "trusted: offered the postings nobody else gets"
+          },
+          {
+            "value": 5,
+            "label": "renowned: talked about across Aegis City"
+          }
+        ]
+      },
+      "rubric": "How does the Adventurer's Guild regard the party right now, going by how Guild staff and other adventurers treat them in the story?"
+    },
+    {
+      "key": "party_injuries",
+      "type": "int",
+      "source": "extractor",
+      "ledger_binding": {
+        "entity": "The Party",
+        "field": "injuries"
+      },
+      "read_as": "rating",
+      "criteria": {
+        "levels": [
+          {
+            "value": 0,
+            "label": "unhurt"
+          },
+          {
+            "value": 1,
+            "label": "bruised: scrapes and aches"
+          },
+          {
+            "value": 2,
+            "label": "wounded: real wounds, still fighting fit"
+          },
+          {
+            "value": 3,
+            "label": "badly hurt: someone needs a healer soon"
+          },
+          {
+            "value": 4,
+            "label": "near death: someone may not survive"
+          }
+        ]
+      },
+      "rubric": "How hurt is the worst-off member of the party right now, as the story has shown it?"
+    },
+    {
+      "key": "ritual_stopped",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the rite to break the Nightriver seals been stopped?",
+      "evidence_from": "world"
+    },
+    {
+      "key": "deep_partner",
+      "type": "enum",
+      "values": [
+        "crimsonwing",
+        "ebonwing"
+      ],
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "any",
+      "read_as": "choice",
+      "rubric": "Which of the two high-rank parties has the party agreed to take the Carrow Keep job with? Only a choice actually made and accepted counts. Until then, say nothing about this quality at all.",
+      "criteria": {
+        "crimsonwing": {
+          "what": "The party agreed to go with Ced's party: Ced, Runo and the rest.",
+          "not_for": "Asking Ced questions, praising his record, or saying Ebonwing is worse.",
+          "examples": [
+            "\"Fine. We go with you, Ced. Tell Runo to pack his golems.\"",
+            "The heir shakes Ced's gloved hand across the counter and Vallie stamps it."
+          ]
+        },
+        "ebonwing": {
+          "what": "The party agreed to go with Kela's party: Kela, Safie and the rest.",
+          "not_for": "Asking Kela questions, admiring her reputation, or saying Crimsonwing is worse.",
+          "examples": [
+            "\"We'll march with you, Kela.\"",
+            "Kela nods once, signs beside the heir's name, and Vallie slides the posting over."
+          ]
+        }
+      }
+    },
+    {
+      "key": "rival_bond",
+      "type": "enum",
+      "values": [
+        "allies",
+        "rivals",
+        "enemies"
+      ],
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "read_as": "choice",
+      "criteria": {
+        "allies": {
+          "what": "The two parties parted as friends who would answer each other's call.",
+          "not_for": "Grudging thanks, or a truce for one job.",
+          "examples": [
+            "Kela clasps {{story_player_name}}'s forearm at the Guild door: \"You call, Ebonwing comes. That's all.\""
+          ]
+        },
+        "rivals": {
+          "what": "Respect with an edge: each wants to beat the other to the next big posting.",
+          "not_for": "Open hatred, or a real friendship.",
+          "examples": [
+            "Ced taps the next B-rank posting on the board and grins: \"Ours by sundown, if you're slow.\""
+          ]
+        },
+        "enemies": {
+          "what": "A betrayal or a death between them that will not be forgiven.",
+          "not_for": "An argument that blew over.",
+          "examples": [
+            "Nobody from the other party comes to the funeral, and Tobias quietly stops pairing the two names on postings."
+          ]
+        }
+      },
+      "rubric": "Where did things end between the party and the rival party it went into the Deep with (Crimsonwing or Ebonwing)? Read it from how the two parties parted, not from one sharp word."
+    },
+    {
+      "key": "eastern_debt",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "rubric": "Has someone of standing in the Third Kingdom (a warlord, a clan head, a god of Tiunhime) openly pledged to repay the party, so that the pledge can be called in later?"
+    },
+    {
+      "key": "night_pact",
+      "type": "enum",
+      "values": [
+        "unbound",
+        "wolves",
+        "dracul",
+        "inquisition"
+      ],
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "read_as": "choice",
+      "rubric": "Which power of the night did the party bind itself to by the end of the Night Courts, if any? Read it from a bond actually sworn and accepted, not from who the party fought beside. Until the night at Castle Bathorya is over, say nothing about this quality at all.",
+      "criteria": {
+        "unbound": {
+          "what": "The party walked away owing none of them: every offer refused or left unanswered.",
+          "not_for": "A pact made and then broken in the same scene, or a night still undecided.",
+          "examples": [
+            "{{story_player_name}} hands the offered cup back to Camilla untouched, turns from Lobo's outstretched palm, and walks out of the gate with no one."
+          ]
+        },
+        "wolves": {
+          "what": "A sworn bond with the Nightwolf Clan: blood, a howl, a promise to fight together.",
+          "not_for": "Sharing one fire with the pack, or fighting beside it for one night.",
+          "examples": [
+            "Lobo presses his cut palm to {{story_player_name}}'s, and the whole pack howls the new name into the trees."
+          ]
+        },
+        "dracul": {
+          "what": "A bargain with the Dracul vampires, sealed in blood or on their terms.",
+          "not_for": "Being let go alive from the Dragon's castle, or a truce for one conversation.",
+          "examples": [
+            "Camilla licks the party's blood from the quill and signs beneath their names: \"Owed, on a night of Our choosing.\""
+          ]
+        },
+        "inquisition": {
+          "what": "The party stood with the Inquisition and is now known to it as an ally.",
+          "not_for": "Merely not being arrested, or Erevan's private thanks.",
+          "examples": [
+            "{{story_player_name}} swears before Erevan to stand for Boher's Inquisition, and Erevan's raven flies to carry the party's names to Ren as allies."
+          ]
+        }
+      }
+    },
+    {
+      "key": "forest_oath",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "rubric": "Did the party leave Eshalanore bound by an oath to the Lady of the Forest, sworn aloud and accepted by her? Escaping her, or a promise she did not accept, does not count."
+    },
+    {
+      "key": "war_commission_taken",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "any",
+      "scope_hint": {
+        "from": "war-the-summons"
+      },
+      "rubric": "Has the party agreed to go to the war, either by accepting the Crown's commission as Prince Forre's free company or by promising the Queen or the Princess to go to the front for them? Asking about pay, rank or terms does not count.",
+      "commit_evidence": "\\b(?:take|takes|taking|took|taken|accept(?:s|ed|ing)?|sign(?:s|ed|ing)?|agree(?:s|d)?|agreeing|commit(?:s|ted|ting)?|swear(?:s|ing)?|swore|sworn|pledge(?:s|d)?|vow(?:s|ed)?|enlist(?:s|ed)?|choose(?:s)?|chose|chosen|sets? out|setting out|we'?ll (?:go|do it|come|fight|ride|join|march|help)|i'?ll (?:go|do it|come|fight|ride|join|march|help)|count (?:us|me) in|we'?re in|i'?m in|heads? (?:to|for|north|out)|put (?:us|our names?|my name) down|acept(?:o|a|an|amos|ar|aremos|ado|ada)|firm(?:o|a|an|amos|ar|aremos|ado|ada)|jur(?:o|a|an|amos|ado|amento)|tom(?:o|a|an|amos|aremos) (?:el|la|ese|esa|este|esta|lo)|nos (?:apuntamos|comprometemos|sumamos|vamos|unimos|anotamos)|me (?:apunto|comprometo|sumo|anoto|uno)|se (?:compromete|comprometen|suma|suman|une|unen)|cuent(?:a|en) con (?:nosotros|migo)|cont[aá] con (?:nosotros|migo)|iremos|vamos (?:para|hacia|con)|salimos (?:hacia|para|rumbo)|partimos|lo hacemos|trato hecho|de acuerdo|eleg(?:imos|ido|ida)|elijo|elige|eligen|nos quedamos con|serve|at your service|servimos|serviremos|a sus [oó]rdenes|a tus [oó]rdenes)\\b"
+    },
+    {
+      "key": "war_commission_refused",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "any",
+      "scope_hint": {
+        "from": "war-the-summons"
+      },
+      "rubric": "Has the party refused the King's commission outright, to his face? Hesitating, bargaining over terms or asking for time does not count."
+    },
+    {
+      "key": "war_house_mustered",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-nightriver-answers"
+      },
+      "rubric": "Is House Nightriver's company settled at the muster: the heir has said where it stands in the line or under whom, or sent it home? Its banner arriving on the field does not count."
+    },
+    {
+      "key": "war_crimsonwing_mustered",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-crimsonwing-answers"
+      },
+      "rubric": "Is Crimsonwing settled at the muster: its place in the line agreed, or the party has sent it back to Aegis City? Ced arriving and talking does not count."
+    },
+    {
+      "key": "war_ebonwing_mustered",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-ebonwing-answers"
+      },
+      "rubric": "Is Ebonwing settled at the muster: its place in the line agreed, or the party has sent it back to Aegis City? Kela arriving and talking does not count."
+    },
+    {
+      "key": "war_east_mustered",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-eastern-company"
+      },
+      "rubric": "Is the Third Kingdom's company settled at the muster: received into the army with its place agreed, or turned away? Its ship docking or its march up from the harbour does not count."
+    },
+    {
+      "key": "war_pack_mustered",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-pack-runs"
+      },
+      "rubric": "Is the Nightwolf pack settled at the muster: given a place with the army (camped on the flank, in the line or ranging ahead) by agreement, or sent back into the dark? Wolves at the pickets and a standoff with spears do not count."
+    },
+    {
+      "key": "war_dracul_mustered",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-dragons-due"
+      },
+      "rubric": "Has the party given House Dracul's envoy its answer: the knights accepted on terms the party set, or the offer refused? The coach arriving and the envoy's speech do not count."
+    },
+    {
+      "key": "war_inquisition_mustered",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-inquisition-rides"
+      },
+      "rubric": "Is the Inquisition's column settled at the muster: its place in the march agreed, or asked to ride elsewhere? Riding onto the field does not count."
+    },
+    {
+      "key": "war_oath_answered",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-ladys-gift"
+      },
+      "rubric": "Has the party answered the Lady of the Forest's gift, the living arrows the Guardian of Eshalanore brought: someone has taken them up, or the party has refused them? Seeing the Guardian, or the mark burning, does not count."
+    },
+    {
+      "key": "war_reached_front",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-summons"
+      },
+      "rubric": "Has the army, with the party, reached the front at Fort Vicinitas, in sight of the Zegallan lines at Greywater? Marching out or being on the road does not count."
+    },
+    {
+      "key": "war_taken_captive",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-front"
+      },
+      "rubric": "Has the party been taken prisoner by the Zegallans (in a raid, at the parley or on the ridge) and put in chains for the march west? Being surrounded, or wounded, does not count."
+    },
+    {
+      "key": "war_crossed_lines",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-front"
+      },
+      "rubric": "Has the party slipped behind the Zegallan lines on purpose, west past Greywater toward the Empire? Planning it, or scouting along the line, does not count."
+    },
+    {
+      "key": "war_in_nuwerth",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-front"
+      },
+      "rubric": "Has the party reached Nuwerth, the Zegallan capital, and got inside its walls, in disguise, in chains or by stealth? Seeing its tiers from the road does not count."
+    },
+    {
+      "key": "war_pits_won",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-pits"
+      },
+      "rubric": "Has the party got out of Renfath's pits alive: freedom won on the sand, a bargain kept by Keder, or a breakout through the tunnels? Surviving one bout does not count."
+    },
+    {
+      "key": "war_shelara_freed",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-slave-pens"
+      },
+      "rubric": "Has the party freed Shelara, the Kelnan elf in Nuwerth's slave pens, so that she is out of the slave column's chains and bound to no owner? Buying her, or finishing her Slave Crest in anyone's name, does not count."
+    },
+    {
+      "key": "war_out_of_nuwerth",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-slave-pens"
+      },
+      "rubric": "Has the party got out of Nuwerth and away east toward the Darran lines, with whoever it freed? Reaching the city's outer wall does not count."
+    },
+    {
+      "key": "war_malach",
+      "type": "enum",
+      "values": [
+        "sealed",
+        "driven_off"
+      ],
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "read_as": "choice",
+      "scope_hint": {
+        "from": "war-malachs-fire"
+      },
+      "rubric": "How did the burning of the March by Malach, herald of Prodyr, end? sealed if he was bound on holy ground and is held there; driven_off if he was beaten badly enough to withdraw to his own realm. Until one of those has actually happened, say nothing about this quality at all.",
+      "criteria": {
+        "sealed": {
+          "what": "Malach was held on holy ground while a binding was worked, and the seal holds him there.",
+          "not_for": "Wounding or killing him, which he heals from, or a binding begun and not finished.",
+          "examples": [
+            "The last sigil closes around the ruined chapel's altar and Malach's wings lock in a cage of white light; he screams Prodyr's name and the fire goes out of the village.",
+            "Erevan's arrow pins the celestial to the chapel floor and the Inquisitors' chant seals him in the stone."
+          ]
+        },
+        "driven_off": {
+          "what": "Malach was hurt and shamed enough that he left for his own realm, swearing to return, and the burning stopped.",
+          "not_for": "Him flying up out of reach for a breath, or a pause while he heals mid-fight.",
+          "examples": [
+            "Judgement falls from his hand; Malach snarls, folds his wings around himself and is gone in a burst of white flame.",
+            "\"Prodyr will remember your names,\" he spits, and vanishes, leaving the village smoking but no longer burning."
+          ]
+        }
+      }
+    },
+    {
+      "key": "war_cult_exposed",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "any",
+      "scope_hint": {
+        "from": "war-the-cult-revealed"
+      },
+      "rubric": "Does the party know that the Office of the Fallen under Grave-Warden Edric Tolle is the Queen's Cult, raising the war dead for the Lich Queen, and that Queen Melisande has nothing to do with it? Suspecting the carts, or finding one sigil, does not count."
+    },
+    {
+      "key": "war_on_the_field",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-cult-revealed"
+      },
+      "rubric": "Has the party taken its place at Aldermere Field, with the Darran army drawn up across from the Cursefire Regiment? Riding toward the field does not count."
+    },
+    {
+      "key": "war_battle_joined",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-last-field"
+      },
+      "rubric": "Have the two armies actually clashed at Aldermere Field, the lines meeting, not just drawn up or shouting across the grass?"
+    },
+    {
+      "key": "war_book_taken",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-cult-revealed"
+      },
+      "rubric": "Has the party taken Tolle's black book from him, or destroyed it, before the battle at Aldermere? Reading it, or knowing it matters, does not count."
+    },
+    {
+      "key": "war_turn",
+      "type": "bool",
+      "source": "code",
+      "roll": {
+        "sides": 6,
+        "target": 3
+      },
+      "rubric": "Seeded chance: do the dead rise in the middle of the battle at Aldermere before anyone can stop the rite?"
+    },
+    {
+      "key": "war_outcome",
+      "type": "enum",
+      "values": [
+        "victory",
+        "truce",
+        "pyrrhic"
+      ],
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "read_as": "choice",
+      "scope_hint": {
+        "from": "war-the-last-field"
+      },
+      "rubric": "How did the last battle at Aldermere Field end for the Darran Kingdom? victory if the Cursefire Regiment was broken and driven from the field; truce if the two armies stopped fighting each other and a truce was sworn with Kanna; pyrrhic if the Kingdom held the field but at a ruinous cost. Until the battle is actually over, say nothing about this quality at all.",
+      "criteria": {
+        "victory": {
+          "what": "The Cursefire Regiment broke: its line gone, its banners down, what is left of it running west, and the field the Darran Kingdom's with its army still whole enough to take Greywater back.",
+          "not_for": "One charge thrown back, Kanna wounded, or a win the King announces before it is won.",
+          "examples": [
+            "The Cursefire banner goes down in the mud and the slave corps throws away its spears; by dusk Darran horse are riding into Greywater.",
+            "Kanna is carried off the field on her own soldiers' shields and her regiment runs for the river."
+          ]
+        },
+        "truce": {
+          "what": "The two armies stopped killing each other, and Kanna swore a truce with the Darran crown or its heir, to be kept on her word.",
+          "not_for": "A lull, both sides fighting the dead side by side without any oath, or a parley that broke down.",
+          "examples": [
+            "Kanna drives Blood Oath into the ash and swears it: no Cursefire blade crosses the river until the Warchief answers.",
+            "Forre and the Blood Saint clasp forearms over Tolle's burned pits while both armies watch."
+          ]
+        },
+        "pyrrhic": {
+          "what": "The Kingdom held Aldermere and the Empire withdrew, but the army was bled so badly that the field was all it won.",
+          "not_for": "A victory with ordinary losses, or a battle still being fought.",
+          "examples": [
+            "The Zegallans pull back across the river at nightfall, and half the Darran shield wall is lying in the grass.",
+            "The dead go down at last, and so has most of Forre's army; nobody cheers."
+          ]
+        }
+      }
+    },
+    {
+      "key": "war_home",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "scope_hint": {
+        "from": "war-the-last-field"
+      },
+      "rubric": "After Aldermere Field, has the party come back to the palace in Aegis City to stand before the Crown? Riding for home does not count."
+    },
+    {
+      "key": "war_front",
+      "type": "int",
+      "source": "extractor",
+      "read_as": "rating",
+      "ledger_binding": {
+        "entity": "The Darran Kingdom",
+        "field": "how the war stands"
+      },
+      "criteria": {
+        "levels": [
+          {
+            "value": 1,
+            "label": "collapsing: the Empire is marching on the heartland"
+          },
+          {
+            "value": 2,
+            "label": "losing: the Empire holds its footholds and raids at will"
+          },
+          {
+            "value": 3,
+            "label": "holding: the line stands and neither side advances"
+          },
+          {
+            "value": 4,
+            "label": "turning: the Kingdom is taking ground back"
+          },
+          {
+            "value": 5,
+            "label": "won: the Empire driven back past the border"
+          }
+        ]
+      },
+      "rubric": "How does the war stand for the Darran Kingdom right now, as the story has shown it? Read it from ground held or lost and armies broken, not from speeches, rumours or one skirmish."
+    },
+    {
+      "key": "location",
+      "type": "enum",
+      "values": [
+        "war_throne_room",
+        "war_queens_wing",
+        "war_kingsfield",
+        "war_the_front",
+        "war_renfath",
+        "war_nuwerth_market",
+        "war_burning_villages",
+        "war_ossuary",
+        "war_last_field"
+      ],
+      "source": "extractor",
+      "evidence_from": "world",
+      "rubric": "Where is the party right now? war_throne_room: the palace in Aegis City, its war room or throne hall; war_queens_wing: Queen Melisande's wing of the palace; war_kingsfield: the muster field under Aegis City's western walls; war_the_front: Fort Vicinitas and the ridge over the Ashen March, facing Greywater; war_renfath: Renfath, Nuwerth's great gladiatorial pits; war_nuwerth_market: Nuwerth's slave market and streets; war_burning_villages: the villages of the March behind the Darran line; war_ossuary: the Office of the Fallen's burial ground behind Fort Vicinitas; war_last_field: Aldermere Field."
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "war-the-summons",
+      "name": "The King's War Council",
+      "objective": "Hear the King's war council, and answer his commission.",
+      "type": "anchor",
+      "player_name": "The King's War Council",
+      "start": true,
+      "tension_target": "stirring",
+      "target_turn_length": 5,
+      "state_snapshot": {
+        "location": "war_throne_room",
+        "party_rank": 3,
+        "guild_reputation": 3,
+        "war_front": 2
+      },
+      "agency": {
+        "objective_kind": "player_action",
+        "player_attempts_only": true,
+        "alternate": "war-the-queens-wing"
+      }
+    },
+    {
+      "id": "war-the-queens-wing",
+      "name": "The Queen's Wing",
+      "objective": "Hear the Queen out, and decide.",
+      "type": "intermediate",
+      "player_name": "The Queen's Wing",
+      "tension_target": "tense",
+      "target_turn_length": 3,
+      "state_snapshot": {
+        "location": "war_queens_wing"
+      },
+      "agency": {
+        "objective_kind": "player_action",
+        "player_attempts_only": true
+      }
+    },
+    {
+      "id": "war-nightriver-answers",
+      "name": "House Nightriver Answers",
+      "objective": "Receive House Nightriver's company at the muster, and give it its place.",
+      "type": "intermediate",
+      "player_name": "The Kingsfield Muster",
+      "tension_target": "stirring",
+      "target_turn_length": 4,
+      "state_snapshot": {
+        "location": "war_kingsfield"
+      }
+    },
+    {
+      "id": "war-crimsonwing-answers",
+      "name": "Crimsonwing Answers",
+      "objective": "Receive Crimsonwing at the muster, and give it its place.",
+      "type": "intermediate",
+      "player_name": "A Cart with a Red Wing",
+      "tension_target": "stirring",
+      "target_turn_length": 4,
+      "state_snapshot": {
+        "location": "war_kingsfield"
+      }
+    },
+    {
+      "id": "war-ebonwing-answers",
+      "name": "Ebonwing Answers",
+      "objective": "Receive Ebonwing at the muster, and give it its place.",
+      "type": "intermediate",
+      "player_name": "A Cart with a Black Wing",
+      "tension_target": "stirring",
+      "target_turn_length": 4,
+      "state_snapshot": {
+        "location": "war_kingsfield"
+      }
+    },
+    {
+      "id": "war-the-eastern-company",
+      "name": "The Eastern Company",
+      "objective": "Receive the Third Kingdom's company at the muster, and give it its place.",
+      "type": "intermediate",
+      "player_name": "Banners from the East",
+      "tension_target": "stirring",
+      "target_turn_length": 4,
+      "state_snapshot": {
+        "location": "war_kingsfield"
+      }
+    },
+    {
+      "id": "war-the-pack-runs",
+      "name": "The Pack Runs",
+      "objective": "Receive the Nightwolf pack at the muster, and keep the camp from turning on it.",
+      "type": "intermediate",
+      "player_name": "Wolves at the Pickets",
+      "tension_target": "tense",
+      "target_turn_length": 4,
+      "state_snapshot": {
+        "location": "war_kingsfield"
+      }
+    },
+    {
+      "id": "war-the-dragons-due",
+      "name": "The Dragon's Due",
+      "objective": "Hear House Dracul's offer at the muster, and answer it.",
+      "type": "intermediate",
+      "player_name": "A Black Coach at Midnight",
+      "tension_target": "tense",
+      "target_turn_length": 4,
+      "state_snapshot": {
+        "location": "war_kingsfield"
+      }
+    },
+    {
+      "id": "war-the-inquisition-rides",
+      "name": "The Inquisition Rides",
+      "objective": "Receive the Inquisition's column at the muster, and give it its place.",
+      "type": "intermediate",
+      "player_name": "The Inquisition Rides",
+      "tension_target": "stirring",
+      "target_turn_length": 4,
+      "state_snapshot": {
+        "location": "war_kingsfield"
+      }
+    },
+    {
+      "id": "war-the-ladys-gift",
+      "name": "The Lady's Gift",
+      "objective": "Meet the Lady of the Forest's messenger, and decide what to do with her gift.",
+      "type": "intermediate",
+      "player_name": "A Stag of Living Wood",
+      "tension_target": "stirring",
+      "target_turn_length": 3,
+      "state_snapshot": {
+        "location": "war_kingsfield"
+      }
+    },
+    {
+      "id": "war-the-front",
+      "name": "Fort Vicinitas",
+      "objective": "Hold the ridge before Greywater, and find a way behind the Cursefire Regiment.",
+      "type": "anchor",
+      "player_name": "Fort Vicinitas",
+      "tension_target": "tense",
+      "target_turn_length": 6,
+      "state_snapshot": {
+        "location": "war_the_front",
+        "war_front": 2
+      }
+    },
+    {
+      "id": "war-behind-the-lines",
+      "name": "Behind the Lines",
+      "objective": "West behind the Zegallan lines toward Nuwerth: whatever the road holds.",
+      "type": "intermediate",
+      "player_name": "Behind the Lines"
+    },
+    {
+      "id": "war-the-pits",
+      "name": "Renfath",
+      "objective": "Survive Renfath's sand, and win a way out of the pits.",
+      "type": "anchor",
+      "player_name": "Renfath, the Bloody Ground",
+      "tension_target": "critical",
+      "target_turn_length": 6,
+      "state_snapshot": {
+        "location": "war_renfath",
+        "war_in_nuwerth": true
+      }
+    },
+    {
+      "id": "war-the-slave-pens",
+      "name": "The Slave Pens",
+      "objective": "Free Shelara and whichever of the Kelnan you can, and get out of Nuwerth.",
+      "type": "intermediate",
+      "player_name": "Nuwerth's Slave Market",
+      "tension_target": "tense",
+      "target_turn_length": 5,
+      "state_snapshot": {
+        "location": "war_nuwerth_market",
+        "party_injuries": 2
+      },
+      "agency": {
+        "objective_kind": "player_action",
+        "player_attempts_only": true
+      }
+    },
+    {
+      "id": "war-malachs-fire",
+      "name": "Malach's Fire",
+      "objective": "Stop the herald of Prodyr burning the villages of the March.",
+      "type": "anchor",
+      "player_name": "The March Is Burning",
+      "tension_target": "critical",
+      "target_turn_length": 5,
+      "state_snapshot": {
+        "location": "war_burning_villages",
+        "war_front": 2
+      }
+    },
+    {
+      "id": "war-the-cult-revealed",
+      "name": "The Office of the Fallen",
+      "objective": "Follow the grey carts, and find out who is stealing the dead.",
+      "type": "intermediate",
+      "player_name": "The Crown's Burial Ground",
+      "tension_target": "tense",
+      "target_turn_length": 5,
+      "state_snapshot": {
+        "location": "war_ossuary"
+      }
+    },
+    {
+      "id": "war-the-last-field",
+      "name": "Aldermere Field",
+      "objective": "Fight the last battle at Aldermere Field, and stop the dead from rising.",
+      "type": "anchor",
+      "player_name": "Aldermere Field",
+      "tension_target": "peak",
+      "target_turn_length": 6,
+      "state_snapshot": {
+        "location": "war_last_field",
+        "war_front": 3
+      },
+      "agency": {
+        "objective_kind": "player_action",
+        "player_attempts_only": true
+      }
+    },
+    {
+      "id": "war-the-dead-rise",
+      "name": "The Dead Rise",
+      "objective": "Hold against the risen dead, and still end the battle.",
+      "type": "intermediate",
+      "player_name": "The Dead Rise",
+      "tension_target": "peak",
+      "target_turn_length": 5,
+      "state_snapshot": {
+        "location": "war_last_field"
+      }
+    },
+    {
+      "id": "war-the-field-is-ours",
+      "name": "The Field Is Ours",
+      "objective": "See what victory cost at Aldermere, then ride home to Aegis City.",
+      "type": "intermediate",
+      "player_name": "The Field Is Ours",
+      "tension_target": "stirring",
+      "target_turn_length": 4,
+      "state_snapshot": {
+        "location": "war_last_field"
+      }
+    },
+    {
+      "id": "war-the-truce-of-aldermere",
+      "name": "The Truce of Aldermere",
+      "objective": "Stand witness to the Blood Saint's truce, then ride home to Aegis City.",
+      "type": "intermediate",
+      "player_name": "The Truce of Aldermere",
+      "tension_target": "stirring",
+      "target_turn_length": 4,
+      "state_snapshot": {
+        "location": "war_last_field"
+      }
+    },
+    {
+      "id": "war-what-it-cost",
+      "name": "What It Cost",
+      "objective": "Count what holding Aldermere cost, then ride home to Aegis City.",
+      "type": "intermediate",
+      "player_name": "What It Cost",
+      "tension_target": "tense",
+      "target_turn_length": 4,
+      "state_snapshot": {
+        "location": "war_last_field"
+      }
+    },
+    {
+      "id": "war-the-crown-remembers",
+      "name": "The Crown Remembers",
+      "objective": "Stand before the Crown after the war, and say what it was.",
+      "type": "anchor",
+      "player_name": "The Crown Remembers",
+      "tension_target": "calm",
+      "target_turn_length": 6,
+      "state_snapshot": {
+        "location": "war_throne_room",
+        "party_rank": 4,
+        "guild_reputation": 5,
+        "war_front": 4
+      },
+      "convergence_threshold": 1
+    }
+  ],
+  "transitions": [
+    {
+      "from": "war-the-summons",
+      "to": "war-the-queens-wing",
+      "priority": 1,
+      "gate": {
+        "q": "war_commission_refused",
+        "op": "==",
+        "v": true
+      },
+      "extractor_trigger": "\\b(no|refuse|decline|won't|will not|not our war|find someone else|never)\\b",
+      "extraction_hint": "Set war_commission_refused once the party refuses the King's commission to his face."
+    },
+    {
+      "from": "war-the-summons",
+      "to": "war-nightriver-answers",
+      "priority": 9,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "ritual_stopped",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; House Nightriver's company answers the party's call next."
+    },
+    {
+      "from": "war-the-summons",
+      "to": "war-crimsonwing-answers",
+      "priority": 8,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "all": [
+              {
+                "q": "rival_bond",
+                "op": "==",
+                "v": "allies"
+              },
+              {
+                "q": "deep_partner",
+                "op": "==",
+                "v": "crimsonwing"
+              }
+            ]
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; Crimsonwing answers the party's call next."
+    },
+    {
+      "from": "war-the-summons",
+      "to": "war-ebonwing-answers",
+      "priority": 7,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "all": [
+              {
+                "q": "rival_bond",
+                "op": "==",
+                "v": "allies"
+              },
+              {
+                "q": "deep_partner",
+                "op": "==",
+                "v": "ebonwing"
+              }
+            ]
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; Ebonwing answers the party's call next."
+    },
+    {
+      "from": "war-the-summons",
+      "to": "war-the-eastern-company",
+      "priority": 6,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "eastern_debt",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; the Third Kingdom's company answers the party's call next."
+    },
+    {
+      "from": "war-the-summons",
+      "to": "war-the-pack-runs",
+      "priority": 5,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "wolves"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; the Nightwolf pack answers the party's call next."
+    },
+    {
+      "from": "war-the-summons",
+      "to": "war-the-dragons-due",
+      "priority": 4,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "dracul"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; House Dracul's knights answers the party's call next."
+    },
+    {
+      "from": "war-the-summons",
+      "to": "war-the-inquisition-rides",
+      "priority": 3,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "inquisition"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; the Inquisition's column answers the party's call next."
+    },
+    {
+      "from": "war-the-summons",
+      "to": "war-the-ladys-gift",
+      "priority": 2,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "forest_oath",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; the Lady's gift answers the party's call next."
+    },
+    {
+      "from": "war-the-summons",
+      "to": "war-the-front",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "war_reached_front",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(front|fort|vicinitas|ridge|greywater|march|road|west|arrive)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; set war_reached_front once the army reaches Fort Vicinitas in sight of Greywater."
+    },
+    {
+      "from": "war-the-queens-wing",
+      "to": "war-nightriver-answers",
+      "priority": 9,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "ritual_stopped",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; House Nightriver's company answers the party's call next."
+    },
+    {
+      "from": "war-the-queens-wing",
+      "to": "war-crimsonwing-answers",
+      "priority": 8,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "all": [
+              {
+                "q": "rival_bond",
+                "op": "==",
+                "v": "allies"
+              },
+              {
+                "q": "deep_partner",
+                "op": "==",
+                "v": "crimsonwing"
+              }
+            ]
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; Crimsonwing answers the party's call next."
+    },
+    {
+      "from": "war-the-queens-wing",
+      "to": "war-ebonwing-answers",
+      "priority": 7,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "all": [
+              {
+                "q": "rival_bond",
+                "op": "==",
+                "v": "allies"
+              },
+              {
+                "q": "deep_partner",
+                "op": "==",
+                "v": "ebonwing"
+              }
+            ]
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; Ebonwing answers the party's call next."
+    },
+    {
+      "from": "war-the-queens-wing",
+      "to": "war-the-eastern-company",
+      "priority": 6,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "eastern_debt",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; the Third Kingdom's company answers the party's call next."
+    },
+    {
+      "from": "war-the-queens-wing",
+      "to": "war-the-pack-runs",
+      "priority": 5,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "wolves"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; the Nightwolf pack answers the party's call next."
+    },
+    {
+      "from": "war-the-queens-wing",
+      "to": "war-the-dragons-due",
+      "priority": 4,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "dracul"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; House Dracul's knights answers the party's call next."
+    },
+    {
+      "from": "war-the-queens-wing",
+      "to": "war-the-inquisition-rides",
+      "priority": 3,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "inquisition"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; the Inquisition's column answers the party's call next."
+    },
+    {
+      "from": "war-the-queens-wing",
+      "to": "war-the-ladys-gift",
+      "priority": 2,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "forest_oath",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; the Lady's gift answers the party's call next."
+    },
+    {
+      "from": "war-the-queens-wing",
+      "to": "war-the-front",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "war_commission_taken",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "war_reached_front",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(front|fort|vicinitas|ridge|greywater|march|road|west|arrive)\\b",
+      "extraction_hint": "Set war_commission_taken once the party takes the Crown's commission; set war_reached_front once the army reaches Fort Vicinitas in sight of Greywater."
+    },
+    {
+      "from": "war-nightriver-answers",
+      "to": "war-crimsonwing-answers",
+      "priority": 8,
+      "gate": {
+        "all": [
+          {
+            "q": "war_house_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "all": [
+              {
+                "q": "rival_bond",
+                "op": "==",
+                "v": "allies"
+              },
+              {
+                "q": "deep_partner",
+                "op": "==",
+                "v": "crimsonwing"
+              }
+            ]
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_house_mustered once House Nightriver's company is settled at the muster (given its place, or sent away); Crimsonwing answers the party's call next."
+    },
+    {
+      "from": "war-nightriver-answers",
+      "to": "war-ebonwing-answers",
+      "priority": 7,
+      "gate": {
+        "all": [
+          {
+            "q": "war_house_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "all": [
+              {
+                "q": "rival_bond",
+                "op": "==",
+                "v": "allies"
+              },
+              {
+                "q": "deep_partner",
+                "op": "==",
+                "v": "ebonwing"
+              }
+            ]
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_house_mustered once House Nightriver's company is settled at the muster (given its place, or sent away); Ebonwing answers the party's call next."
+    },
+    {
+      "from": "war-nightriver-answers",
+      "to": "war-the-eastern-company",
+      "priority": 6,
+      "gate": {
+        "all": [
+          {
+            "q": "war_house_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "eastern_debt",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_house_mustered once House Nightriver's company is settled at the muster (given its place, or sent away); the Third Kingdom's company answers the party's call next."
+    },
+    {
+      "from": "war-nightriver-answers",
+      "to": "war-the-pack-runs",
+      "priority": 5,
+      "gate": {
+        "all": [
+          {
+            "q": "war_house_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "wolves"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_house_mustered once House Nightriver's company is settled at the muster (given its place, or sent away); the Nightwolf pack answers the party's call next."
+    },
+    {
+      "from": "war-nightriver-answers",
+      "to": "war-the-dragons-due",
+      "priority": 4,
+      "gate": {
+        "all": [
+          {
+            "q": "war_house_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "dracul"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_house_mustered once House Nightriver's company is settled at the muster (given its place, or sent away); House Dracul's knights answers the party's call next."
+    },
+    {
+      "from": "war-nightriver-answers",
+      "to": "war-the-inquisition-rides",
+      "priority": 3,
+      "gate": {
+        "all": [
+          {
+            "q": "war_house_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "inquisition"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_house_mustered once House Nightriver's company is settled at the muster (given its place, or sent away); the Inquisition's column answers the party's call next."
+    },
+    {
+      "from": "war-nightriver-answers",
+      "to": "war-the-ladys-gift",
+      "priority": 2,
+      "gate": {
+        "all": [
+          {
+            "q": "war_house_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "forest_oath",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_house_mustered once House Nightriver's company is settled at the muster (given its place, or sent away); the Lady's gift answers the party's call next."
+    },
+    {
+      "from": "war-nightriver-answers",
+      "to": "war-the-front",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "war_house_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "war_reached_front",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(front|fort|vicinitas|ridge|greywater|march|road|west|arrive)\\b",
+      "extraction_hint": "Set war_house_mustered once House Nightriver's company is settled at the muster (given its place, or sent away); set war_reached_front once the army reaches Fort Vicinitas in sight of Greywater."
+    },
+    {
+      "from": "war-crimsonwing-answers",
+      "to": "war-the-eastern-company",
+      "priority": 6,
+      "gate": {
+        "all": [
+          {
+            "q": "war_crimsonwing_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "eastern_debt",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_crimsonwing_mustered once Crimsonwing is settled at the muster (given its place, or sent away); the Third Kingdom's company answers the party's call next."
+    },
+    {
+      "from": "war-crimsonwing-answers",
+      "to": "war-the-pack-runs",
+      "priority": 5,
+      "gate": {
+        "all": [
+          {
+            "q": "war_crimsonwing_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "wolves"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_crimsonwing_mustered once Crimsonwing is settled at the muster (given its place, or sent away); the Nightwolf pack answers the party's call next."
+    },
+    {
+      "from": "war-crimsonwing-answers",
+      "to": "war-the-dragons-due",
+      "priority": 4,
+      "gate": {
+        "all": [
+          {
+            "q": "war_crimsonwing_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "dracul"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_crimsonwing_mustered once Crimsonwing is settled at the muster (given its place, or sent away); House Dracul's knights answers the party's call next."
+    },
+    {
+      "from": "war-crimsonwing-answers",
+      "to": "war-the-inquisition-rides",
+      "priority": 3,
+      "gate": {
+        "all": [
+          {
+            "q": "war_crimsonwing_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "inquisition"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_crimsonwing_mustered once Crimsonwing is settled at the muster (given its place, or sent away); the Inquisition's column answers the party's call next."
+    },
+    {
+      "from": "war-crimsonwing-answers",
+      "to": "war-the-ladys-gift",
+      "priority": 2,
+      "gate": {
+        "all": [
+          {
+            "q": "war_crimsonwing_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "forest_oath",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_crimsonwing_mustered once Crimsonwing is settled at the muster (given its place, or sent away); the Lady's gift answers the party's call next."
+    },
+    {
+      "from": "war-crimsonwing-answers",
+      "to": "war-the-front",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "war_crimsonwing_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "war_reached_front",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(front|fort|vicinitas|ridge|greywater|march|road|west|arrive)\\b",
+      "extraction_hint": "Set war_crimsonwing_mustered once Crimsonwing is settled at the muster (given its place, or sent away); set war_reached_front once the army reaches Fort Vicinitas in sight of Greywater."
+    },
+    {
+      "from": "war-ebonwing-answers",
+      "to": "war-the-eastern-company",
+      "priority": 6,
+      "gate": {
+        "all": [
+          {
+            "q": "war_ebonwing_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "eastern_debt",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_ebonwing_mustered once Ebonwing is settled at the muster (given its place, or sent away); the Third Kingdom's company answers the party's call next."
+    },
+    {
+      "from": "war-ebonwing-answers",
+      "to": "war-the-pack-runs",
+      "priority": 5,
+      "gate": {
+        "all": [
+          {
+            "q": "war_ebonwing_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "wolves"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_ebonwing_mustered once Ebonwing is settled at the muster (given its place, or sent away); the Nightwolf pack answers the party's call next."
+    },
+    {
+      "from": "war-ebonwing-answers",
+      "to": "war-the-dragons-due",
+      "priority": 4,
+      "gate": {
+        "all": [
+          {
+            "q": "war_ebonwing_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "dracul"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_ebonwing_mustered once Ebonwing is settled at the muster (given its place, or sent away); House Dracul's knights answers the party's call next."
+    },
+    {
+      "from": "war-ebonwing-answers",
+      "to": "war-the-inquisition-rides",
+      "priority": 3,
+      "gate": {
+        "all": [
+          {
+            "q": "war_ebonwing_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "inquisition"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_ebonwing_mustered once Ebonwing is settled at the muster (given its place, or sent away); the Inquisition's column answers the party's call next."
+    },
+    {
+      "from": "war-ebonwing-answers",
+      "to": "war-the-ladys-gift",
+      "priority": 2,
+      "gate": {
+        "all": [
+          {
+            "q": "war_ebonwing_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "forest_oath",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_ebonwing_mustered once Ebonwing is settled at the muster (given its place, or sent away); the Lady's gift answers the party's call next."
+    },
+    {
+      "from": "war-ebonwing-answers",
+      "to": "war-the-front",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "war_ebonwing_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "war_reached_front",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(front|fort|vicinitas|ridge|greywater|march|road|west|arrive)\\b",
+      "extraction_hint": "Set war_ebonwing_mustered once Ebonwing is settled at the muster (given its place, or sent away); set war_reached_front once the army reaches Fort Vicinitas in sight of Greywater."
+    },
+    {
+      "from": "war-the-eastern-company",
+      "to": "war-the-pack-runs",
+      "priority": 5,
+      "gate": {
+        "all": [
+          {
+            "q": "war_east_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "wolves"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_east_mustered once the Third Kingdom's company is settled at the muster (given its place, or sent away); the Nightwolf pack answers the party's call next."
+    },
+    {
+      "from": "war-the-eastern-company",
+      "to": "war-the-dragons-due",
+      "priority": 4,
+      "gate": {
+        "all": [
+          {
+            "q": "war_east_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "dracul"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_east_mustered once the Third Kingdom's company is settled at the muster (given its place, or sent away); House Dracul's knights answers the party's call next."
+    },
+    {
+      "from": "war-the-eastern-company",
+      "to": "war-the-inquisition-rides",
+      "priority": 3,
+      "gate": {
+        "all": [
+          {
+            "q": "war_east_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "night_pact",
+            "op": "==",
+            "v": "inquisition"
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_east_mustered once the Third Kingdom's company is settled at the muster (given its place, or sent away); the Inquisition's column answers the party's call next."
+    },
+    {
+      "from": "war-the-eastern-company",
+      "to": "war-the-ladys-gift",
+      "priority": 2,
+      "gate": {
+        "all": [
+          {
+            "q": "war_east_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "forest_oath",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_east_mustered once the Third Kingdom's company is settled at the muster (given its place, or sent away); the Lady's gift answers the party's call next."
+    },
+    {
+      "from": "war-the-eastern-company",
+      "to": "war-the-front",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "war_east_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "war_reached_front",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(front|fort|vicinitas|ridge|greywater|march|road|west|arrive)\\b",
+      "extraction_hint": "Set war_east_mustered once the Third Kingdom's company is settled at the muster (given its place, or sent away); set war_reached_front once the army reaches Fort Vicinitas in sight of Greywater."
+    },
+    {
+      "from": "war-the-pack-runs",
+      "to": "war-the-ladys-gift",
+      "priority": 2,
+      "gate": {
+        "all": [
+          {
+            "q": "war_pack_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "forest_oath",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_pack_mustered once the Nightwolf pack is settled at the muster (given its place, or sent away); the Lady's gift answers the party's call next."
+    },
+    {
+      "from": "war-the-pack-runs",
+      "to": "war-the-front",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "war_pack_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "war_reached_front",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(front|fort|vicinitas|ridge|greywater|march|road|west|arrive)\\b",
+      "extraction_hint": "Set war_pack_mustered once the Nightwolf pack is settled at the muster (given its place, or sent away); set war_reached_front once the army reaches Fort Vicinitas in sight of Greywater."
+    },
+    {
+      "from": "war-the-dragons-due",
+      "to": "war-the-ladys-gift",
+      "priority": 2,
+      "gate": {
+        "all": [
+          {
+            "q": "war_dracul_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "forest_oath",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_dracul_mustered once House Dracul's knights is settled at the muster (given its place, or sent away); the Lady's gift answers the party's call next."
+    },
+    {
+      "from": "war-the-dragons-due",
+      "to": "war-the-front",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "war_dracul_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "war_reached_front",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(front|fort|vicinitas|ridge|greywater|march|road|west|arrive)\\b",
+      "extraction_hint": "Set war_dracul_mustered once House Dracul's knights is settled at the muster (given its place, or sent away); set war_reached_front once the army reaches Fort Vicinitas in sight of Greywater."
+    },
+    {
+      "from": "war-the-inquisition-rides",
+      "to": "war-the-ladys-gift",
+      "priority": 2,
+      "gate": {
+        "all": [
+          {
+            "q": "war_inquisition_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "forest_oath",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(banner|company|line|place|flank|march|ride|stand|muster|join|welcome|agree|agreed|deal|terms|accept|commission|serve|swear|sworn|go|refuse|decline|home|away|arrows?)\\b",
+      "extraction_hint": "Set war_inquisition_mustered once the Inquisition's column is settled at the muster (given its place, or sent away); the Lady's gift answers the party's call next."
+    },
+    {
+      "from": "war-the-inquisition-rides",
+      "to": "war-the-front",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "war_inquisition_mustered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "war_reached_front",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(front|fort|vicinitas|ridge|greywater|march|road|west|arrive)\\b",
+      "extraction_hint": "Set war_inquisition_mustered once the Inquisition's column is settled at the muster (given its place, or sent away); set war_reached_front once the army reaches Fort Vicinitas in sight of Greywater."
+    },
+    {
+      "from": "war-the-ladys-gift",
+      "to": "war-the-front",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "war_oath_answered",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "war_reached_front",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(front|fort|vicinitas|ridge|greywater|march|road|west|arrive)\\b",
+      "extraction_hint": "Set war_oath_answered once the Lady's gift is settled at the muster (given its place, or sent away); set war_reached_front once the army reaches Fort Vicinitas in sight of Greywater."
+    },
+    {
+      "from": "war-the-front",
+      "to": "war-the-pits",
+      "priority": 3,
+      "gate": {
+        "q": "war_taken_captive",
+        "op": "==",
+        "v": true
+      },
+      "extractor_trigger": "\\b(captured|chains?|prisoner|taken|shackles?|bound|surrender|caught)\\b",
+      "extraction_hint": "Set war_taken_captive once the Zegallans have the party in chains for the march west."
+    },
+    {
+      "from": "war-the-front",
+      "to": "war-behind-the-lines",
+      "priority": 2,
+      "gate": {
+        "q": "war_crossed_lines",
+        "op": "==",
+        "v": true
+      },
+      "extractor_trigger": "\\b(behind|past|across|slip|sneak|west|lines?|greywater|night|disguise)\\b",
+      "extraction_hint": "Set war_crossed_lines once the party slips west behind the Zegallan lines on purpose."
+    },
+    {
+      "from": "war-behind-the-lines",
+      "to": "war-the-pits",
+      "priority": 2,
+      "gate": {
+        "q": "progress_toward_war-the-pits",
+        "op": ">=",
+        "v": 1
+      },
+      "extractor_trigger": "\\b(nuwerth|renfath|pits?|arena|gate|walls?)\\b",
+      "extraction_hint": "Generated beats move progress toward war-the-pits."
+    },
+    {
+      "from": "war-behind-the-lines",
+      "to": "war-the-pits",
+      "priority": 1,
+      "gate": {
+        "q": "war_in_nuwerth",
+        "op": "==",
+        "v": true
+      },
+      "extractor_trigger": "\\b(nuwerth|tiers?|walls?|gate|city|inside|renfath)\\b",
+      "extraction_hint": "Set war_in_nuwerth once the party is inside Nuwerth's walls."
+    },
+    {
+      "from": "war-the-pits",
+      "to": "war-the-slave-pens",
+      "priority": 1,
+      "gate": {
+        "q": "war_pits_won",
+        "op": "==",
+        "v": true
+      },
+      "extractor_trigger": "\\b(free|freedom|chains?|struck|third|win|won|out|escape|tunnels?|bargain|keder)\\b",
+      "extraction_hint": "Set war_pits_won once the party is out of Renfath's pits alive."
+    },
+    {
+      "from": "war-the-slave-pens",
+      "to": "war-malachs-fire",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "war_shelara_freed",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "war_out_of_nuwerth",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(shelara|cage|column|chains?|free|freed|kelnan|out|gate|east|escape|away|road)\\b",
+      "extraction_hint": "Set war_shelara_freed once Shelara is out of the column's chains and bound to no one; set war_out_of_nuwerth once the party is out of the city and heading east."
+    },
+    {
+      "from": "war-malachs-fire",
+      "to": "war-the-cult-revealed",
+      "priority": 1,
+      "gate": {
+        "q": "war_malach",
+        "op": "in",
+        "v": [
+          "sealed",
+          "driven_off"
+        ]
+      },
+      "extractor_trigger": "\\b(seal|sealed|bound|binding|gone|vanish|vanishes|flee|fled|withdraw|realm|stopped|banish|beaten|retreat)\\b",
+      "extraction_hint": "Set war_malach to sealed once he is bound on holy ground, or driven_off once he withdraws to his realm."
+    },
+    {
+      "from": "war-the-cult-revealed",
+      "to": "war-the-last-field",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "war_cult_exposed",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "war_on_the_field",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(tolle|cult|warden|sigils?|ledgers?|queen|aldermere|field|battle|army)\\b",
+      "extraction_hint": "Set war_cult_exposed once the party knows Tolle's Office of the Fallen is the Queen's Cult and the Queen is innocent; set war_on_the_field once it stands with the army at Aldermere Field."
+    },
+    {
+      "from": "war-the-last-field",
+      "to": "war-the-dead-rise",
+      "priority": 4,
+      "gate": {
+        "all": [
+          {
+            "q": "war_turn",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "war_battle_joined",
+            "op": "==",
+            "v": true
+          },
+          {
+            "q": "tension_current",
+            "op": ">=",
+            "v": 0.75
+          },
+          {
+            "not": {
+              "q": "war_book_taken",
+              "op": "==",
+              "v": true
+            }
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(charge|clash|lines?|shield|cannon|battle|fight|blood)\\b",
+      "extraction_hint": "Set war_battle_joined once the two armies have actually clashed."
+    },
+    {
+      "from": "war-the-last-field",
+      "to": "war-the-field-is-ours",
+      "priority": 3,
+      "gate": {
+        "q": "war_outcome",
+        "op": "==",
+        "v": "victory"
+      },
+      "extractor_trigger": "\\b(broken|rout|flee|run|victory|won|truce|swear|oath|peace|held|hold|cost|lost|over|ends?)\\b",
+      "extraction_hint": "Set war_outcome to victory once the battle at Aldermere is over and ended that way."
+    },
+    {
+      "from": "war-the-last-field",
+      "to": "war-the-truce-of-aldermere",
+      "priority": 2,
+      "gate": {
+        "q": "war_outcome",
+        "op": "==",
+        "v": "truce"
+      },
+      "extractor_trigger": "\\b(broken|rout|flee|run|victory|won|truce|swear|oath|peace|held|hold|cost|lost|over|ends?)\\b",
+      "extraction_hint": "Set war_outcome to truce once the battle at Aldermere is over and ended that way."
+    },
+    {
+      "from": "war-the-last-field",
+      "to": "war-what-it-cost",
+      "priority": 1,
+      "gate": {
+        "q": "war_outcome",
+        "op": "==",
+        "v": "pyrrhic"
+      },
+      "extractor_trigger": "\\b(broken|rout|flee|run|victory|won|truce|swear|oath|peace|held|hold|cost|lost|over|ends?)\\b",
+      "extraction_hint": "Set war_outcome to pyrrhic once the battle at Aldermere is over and ended that way."
+    },
+    {
+      "from": "war-the-dead-rise",
+      "to": "war-the-field-is-ours",
+      "priority": 3,
+      "gate": {
+        "q": "war_outcome",
+        "op": "==",
+        "v": "victory"
+      },
+      "extractor_trigger": "\\b(broken|rout|flee|run|victory|won|truce|swear|oath|peace|held|hold|cost|lost|over|ends?)\\b",
+      "extraction_hint": "Set war_outcome to victory once the battle at Aldermere is over and ended that way."
+    },
+    {
+      "from": "war-the-dead-rise",
+      "to": "war-the-truce-of-aldermere",
+      "priority": 2,
+      "gate": {
+        "q": "war_outcome",
+        "op": "==",
+        "v": "truce"
+      },
+      "extractor_trigger": "\\b(broken|rout|flee|run|victory|won|truce|swear|oath|peace|held|hold|cost|lost|over|ends?)\\b",
+      "extraction_hint": "Set war_outcome to truce once the battle at Aldermere is over and ended that way."
+    },
+    {
+      "from": "war-the-dead-rise",
+      "to": "war-what-it-cost",
+      "priority": 1,
+      "gate": {
+        "q": "war_outcome",
+        "op": "==",
+        "v": "pyrrhic"
+      },
+      "extractor_trigger": "\\b(broken|rout|flee|run|victory|won|truce|swear|oath|peace|held|hold|cost|lost|over|ends?)\\b",
+      "extraction_hint": "Set war_outcome to pyrrhic once the battle at Aldermere is over and ended that way."
+    },
+    {
+      "from": "war-the-field-is-ours",
+      "to": "war-the-crown-remembers",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "progress_toward_war-the-crown-remembers",
+            "op": ">=",
+            "v": 1
+          },
+          {
+            "q": "war_home",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(aegis|palace|throne|king|court|city|home|return)\\b",
+      "extraction_hint": "Set war_home once the party is back at the palace in Aegis City before the Crown."
+    },
+    {
+      "from": "war-the-truce-of-aldermere",
+      "to": "war-the-crown-remembers",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "progress_toward_war-the-crown-remembers",
+            "op": ">=",
+            "v": 1
+          },
+          {
+            "q": "war_home",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(aegis|palace|throne|king|court|city|home|return)\\b",
+      "extraction_hint": "Set war_home once the party is back at the palace in Aegis City before the Crown."
+    },
+    {
+      "from": "war-what-it-cost",
+      "to": "war-the-crown-remembers",
+      "priority": 1,
+      "gate": {
+        "all": [
+          {
+            "q": "progress_toward_war-the-crown-remembers",
+            "op": ">=",
+            "v": 1
+          },
+          {
+            "q": "war_home",
+            "op": "==",
+            "v": true
+          }
+        ]
+      },
+      "extractor_trigger": "\\b(aegis|palace|throne|king|court|city|home|return)\\b",
+      "extraction_hint": "Set war_home once the party is back at the palace in Aegis City before the Crown."
+    }
+  ],
+  "arc_template": {
+    "points": [
+      {
+        "at": 0,
+        "tension": 0.3
+      },
+      {
+        "at": 0.17,
+        "tension": 0.55
+      },
+      {
+        "at": 0.33,
+        "tension": 0.75
+      },
+      {
+        "at": 0.5,
+        "tension": 0.8
+      },
+      {
+        "at": 0.67,
+        "tension": 0.85
+      },
+      {
+        "at": 0.83,
+        "tension": 1
+      },
+      {
+        "at": 1,
+        "tension": 0.15
+      }
+    ]
+  },
+  "roster": [
+    {
+      "id": "dm",
+      "name": "Adolion Narrator",
+      "role": "narrator and game master: voices the world and every character outside the group"
+    },
+    {
+      "id": "companion_a",
+      "name": "Belle",
+      "role": "companion: headstrong barbarian who charges in first and says what she thinks"
+    },
+    {
+      "id": "companion_b",
+      "name": "Dalan",
+      "role": "companion: shy elf ranger, the party's scout, archer and reader of the forest"
+    },
+    {
+      "id": "war_kelnan",
+      "name": "Shelara",
+      "role": "Shelara Kelnan, an elf ranger of the destroyed Kelnan tribe whom the party frees from Nuwerth's slave pens: demure, cynical, mistrustful, a master archer who joins the party"
+    },
+    {
+      "id": "war_king",
+      "name": "Alexander",
+      "role": "King Alexander Davolan, the Warrior King: formal, cunning and vindictive, loved by his soldiers and hungry for one more war"
+    },
+    {
+      "id": "war_queen",
+      "name": "Melisande",
+      "role": "Queen Melisande Davolan, born a Zhao of the Third Kingdom: motherly, lonely, perceptive, a master of rituals and exorcisms whom the court whispers is the Queen's Cult"
+    },
+    {
+      "id": "war_prince",
+      "name": "Forre",
+      "role": "Crown Prince Forre Davolan: arrogant, honest to himself, a peerless blademaster who commands the field army"
+    },
+    {
+      "id": "war_princess",
+      "name": "Haley",
+      "role": "Crown Princess Haley Davolan: proud, sincere, a peerless fencer who will not let the court hang her mother's name on a cult"
+    },
+    {
+      "id": "war_guildmaster",
+      "name": "Vallie",
+      "role": "Vallie Goredust, Guildmaster of the Aegis City Adventurers Guild: a blunt one-eyed minotaur, veteran of the last Zegallan war"
+    },
+    {
+      "id": "war_blood_saint",
+      "name": "Kanna",
+      "role": "Kanna Helfin, the Blood Saint: demonborn captain of the Zegallan Cursefire Regiment, a vulgar, battle-hungry blood mage and a woman of her word"
+    },
+    {
+      "id": "war_executioner",
+      "name": "Keder",
+      "role": "Keder Valfaust, the Ebon Executioner: demonborn Zegallan lieutenant and former pit slave who picks fighters on Renfath's sand and keeps his word"
+    },
+    {
+      "id": "war_herald",
+      "name": "Malach",
+      "role": "Malach, celestial herald of Prodyr: a cruel, cocky pyromaniac burning Darran villages and leaving one survivor in each"
+    },
+    {
+      "id": "war_sister",
+      "name": "Natalia",
+      "role": "Natalia Nightriver, the heir's sister: guarded, witty, an ice mage with more power than control, riding with House Nightriver's company"
+    },
+    {
+      "id": "war_brother",
+      "name": "Welden",
+      "role": "Welden Nightriver, the heir's brother: a frail, bookish ice mage who reads what the house knows about necromancy"
+    },
+    {
+      "id": "war_knight",
+      "name": "Ronan",
+      "role": "Ronan Mavrursk, the heir's sworn knight: a stoic rapier duellist whose parents fled Zegallan slavery"
+    },
+    {
+      "id": "war_crimsonwing",
+      "name": "Ced",
+      "role": "Ced Vinasun, leader of Crimsonwing: alchemically altered hunter with a saw cleaver, answering the party's call as an ally"
+    },
+    {
+      "id": "war_ebonwing",
+      "name": "Kela",
+      "role": "Kela Vinamoon, leader of Ebonwing: alchemically altered huntress with a saw cleaver, answering the party's call as an ally"
+    },
+    {
+      "id": "war_kitsune",
+      "name": "Honami",
+      "role": "Honami Nemaden, three-tailed kitsune onmyoji of Jiansho Academy: sweet, possessive, sent with the Third Kingdom's company to pay a debt"
+    },
+    {
+      "id": "war_alpha",
+      "name": "Lobo",
+      "role": "Lobo Beckst, Alpha of the Nightwolf Clan: arrogant, vulgar, protective of the weak, bound to the party and hating the undead"
+    },
+    {
+      "id": "war_inquisitor",
+      "name": "Erevan",
+      "role": "Erevan Rolavo, masked Inquisitor of the Church of Boher: shy, pious archer with captured Echoes, riding with the Inquisition's column"
+    }
+  ]
+}

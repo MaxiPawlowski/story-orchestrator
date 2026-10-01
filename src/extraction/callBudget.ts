@@ -31,8 +31,8 @@ export const MAX_TOKENS_TABLE: Record<PassFamily, ResponseBudget> = {
   arcSummary: { ratio: 0.25, floor: 256, cap: 1024 },
   canon: { ratio: 0.25, floor: 768, cap: 1536 },
   chapterSeal: { ratio: 0.25, floor: 1024, cap: 1536 },
-  epistemic: { ratio: 0.25, floor: 384, cap: 1024 },
-  ledger: { ratio: 0.25, floor: 384, cap: 1024 },
+  epistemic: { ratio: 0.25, floor: 768, cap: 1024 },
+  ledger: { ratio: 0.25, floor: 768, cap: 1024 },
   curator: { ratio: 0.25, floor: 384, cap: 1024 },
 };
 
