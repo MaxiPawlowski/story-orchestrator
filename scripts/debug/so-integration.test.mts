@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { checkPreconditions, loadFrozen, playRun, type PlayDeps } from './so-integration.mts';
 import { runById, verifyRun, type RouteDoc, type RunsDoc, type RunSpec } from './lib/integrationRuns.mts';
-import { EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './lib/sessionFakes.mts';
+import { clearPage, EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './lib/sessionFakes.mts';
 
 afterEach(() => uninstall());
 
@@ -93,6 +93,7 @@ test('play drives the route on a fake page: played and forced steps, a reopen cu
     startSend: async () => undefined,
     waitGenerating: async () => true,
     clickSwipeRight: async () => undefined,
+    ...clearPage,
     openChat: async () => undefined,
     reload: async () => { reloads += 1; },
     now: () => Date.now(),
@@ -156,7 +157,7 @@ test('play cuts the memory model through page.route during its window only, neve
       return { replied: true };
     },
     waitIdle: async () => undefined, waitScheduler: async () => ({ quietMs: 0 }), startSend: async () => undefined, waitGenerating: async () => true,
-    clickSwipeRight: async () => undefined, openChat: async () => undefined, reload: async () => undefined, now: () => Date.now(),
+    clickSwipeRight: async () => undefined, ...clearPage, openChat: async () => undefined, reload: async () => undefined, now: () => Date.now(),
     spawnTails: async () => ({ stop: async () => undefined }), settleChat: async () => undefined,
     captureEvidence: async () => ({ slices: {} }), evidenceProblems: () => [], readJournal: async () => ({ events: [] }), sleep: async () => undefined,
   };

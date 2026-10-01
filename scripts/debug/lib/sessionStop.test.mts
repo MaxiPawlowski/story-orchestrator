@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { headerDiffArgs, HEADER_DIFF_ALLOW, stopSequence, type StopDeps } from './sessionStop.mts';
-import { diffHeaders } from '../so-run-header.mts';
+import { headerDiffArgs, HEADER_DIFF_ALLOW, servedIdentityWarnings, stopSequence, type StopDeps } from './sessionStop.mts';
+import { describe as describeDifference, diffHeaders } from '../so-run-header.mts';
 
 const drained = { ready: { at: 'r' }, drained: { at: 'd', ok: true } };
 
@@ -49,4 +49,59 @@ test('review leftovers: the stop diff passes --owned with the session chats and 
   const allow = HEADER_DIFF_ALLOW.split(',');
   assert.equal(diffHeaders(header('chat-x', 3), header('chat-x', 5), allow, { ownedChats: ['chat-a'] })[0].allowed, false);
   assert.equal(diffHeaders(header('chat-a', 3), header('chat-a', 5), allow, { ownedChats: ['chat-a'] })[0].allowed, true);
+});
+
+const SERVED = 'ceb15ac19ec07dec3a70c5d80785b611d806cad5e9659520e5d54a8a2182ab19';
+const mismatch = (served: string, dist: string) => `the page is running a bundle that is not the built one: served ${served.slice(0, 16)} vs dist ${dist.slice(0, 16)}`;
+const t0Header = ({ head, bundleSha256, served, dirty = true, extraWarnings = [] as string[] }: { head: string; bundleSha256: string; served: string; dirty?: boolean; extraWarnings?: string[] }) => ({
+  build: { head, dirty, manifest: { version: '2.4.0', flavor: 'prod', bundleSha256, builtAt: `built-${head}`, fileSha256: head.slice(0, 16), sourceSha256: `src-${head}`, bundleBytes: head.length } },
+  bundle: { served: { http: 200, sha256: served, bytes: 1284044 } },
+  warnings: [mismatch(served, bundleSha256), ...extraWarnings],
+  chat: { chatId: 'chat-a', chatLength: 1, groupId: 'g', authorView: false },
+});
+const t0Start = t0Header({ head: 'fb5b07b4c38dbc15adc6d187d99fe7fbeaec43c2', bundleSha256: '38062b709bbf73ef16754056db9d13288a82861a6ed3688133ed12c2a403414b', served: SERVED });
+const t0End = (served = SERVED, patch: Partial<Parameters<typeof t0Header>[0]> = {}) => ({
+  ...t0Header({ head: 'd444cd7fffd21e2097439b875305bfa5e7f9e7d2', bundleSha256: '0d0d9a5777807cec857c17f2b63ce521db59693d1e8129a180c0130ba04444cd', served, ...patch }),
+  chat: { chatId: 'chat-a', chatLength: 14, groupId: 'g', authorView: false },
+});
+const stopDiff = (before: unknown, after: unknown) => diffHeaders(before, after, HEADER_DIFF_ALLOW.split(','), { ownedChats: ['chat-a'], servedIdentity: headerDiffArgs('s', 'e', []).includes('--served-identity') });
+
+test('T0-3 stop: master moving mid-run (build.head, build.manifest.*, the mismatch warning) is allowed when the served bundle is identical', () => {
+  const differences = stopDiff(t0Start, t0End());
+  const blocking = differences.filter((difference) => !difference.allowed).map((difference) => difference.path);
+  assert.deepEqual(blocking, []);
+  const served = differences.filter((difference) => difference.allowedBy?.startsWith('served-bundle')).map((difference) => difference.path);
+  assert.ok(served.includes('build.head'));
+  assert.ok(served.includes('build.manifest.bundleSha256'));
+  assert.ok(served.includes('warnings'));
+  const output = differences.map(describeDifference).join('\n');
+  const warnings = servedIdentityWarnings(output);
+  assert.equal(warnings.length, 1);
+  assert.match(warnings[0], /^the repo build moved during the session \(.*build\.head.*\) while the served bundle ceb15ac19ec07dec stayed identical/);
+});
+
+test('T0-3 stop control: a changed served bundle still invalidates, build drift included', () => {
+  const other = '1111111111111111aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa';
+  const blocking = stopDiff(t0Start, t0End(other)).filter((difference) => !difference.allowed).map((difference) => difference.path);
+  assert.ok(blocking.includes('bundle.served.sha256'));
+  assert.ok(blocking.includes('build.head'));
+  assert.ok(blocking.includes('build.manifest.bundleSha256'));
+  assert.ok(blocking.includes('warnings'));
+});
+
+test('T0-3 stop control: the served identity excuses neither a tree that went dirty nor an unrelated new warning', () => {
+  const clean = t0Header({ head: 'fb5b07b4c38dbc15adc6d187d99fe7fbeaec43c2', bundleSha256: '38062b709bbf73ef16754056db9d13288a82861a6ed3688133ed12c2a403414b', served: SERVED, dirty: false });
+  const blocking = stopDiff(clean, t0End(SERVED, { extraWarnings: ['judge.model could not be read'] })).filter((difference) => !difference.allowed).map((difference) => difference.path);
+  assert.deepEqual(blocking.sort(), ['build.dirty', 'warnings']);
+  assert.deepEqual(diffHeaders(t0Start, t0End(), HEADER_DIFF_ALLOW.split(','), { ownedChats: ['chat-a'] }).filter((difference) => !difference.allowed).map((difference) => difference.path).includes('build.head'), true, 'without --served-identity the build drift still blocks');
+});
+
+test('T0-3 stop: the session records the served-identity allowance as a warning and stays valid', async () => {
+  const output = stopDiff(t0Start, t0End()).map(describeDifference).join('\n');
+  const outcome = await stopSequence(deps({ headerDiff: async () => ({ code: 0, output }) }));
+  assert.equal(outcome.valid, true);
+  assert.equal(outcome.warnings.length, 1);
+  assert.match(outcome.warnings[0], /served bundle ceb15ac19ec07dec stayed identical/);
+  const quiet = await stopSequence(deps());
+  assert.deepEqual(quiet.warnings, []);
 });

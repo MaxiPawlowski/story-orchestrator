@@ -83,6 +83,13 @@ export async function readWizardDrafts(page: any) {
   });
 }
 
+export async function readHostSwipes(page: any): Promise<{ swipes: boolean | null }> {
+  return evaluateInST(page, () => {
+    const box = (globalThis as any).document?.getElementById?.('swipes-checkbox');
+    return { swipes: box ? Boolean(box.checked) : null };
+  });
+}
+
 export async function readEffectiveSettings(page: any) {
   return evaluateInST(page, () => {
     const rt = (globalThis as any).storyOrchestratorRuntime;

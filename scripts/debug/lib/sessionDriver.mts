@@ -20,7 +20,7 @@ export interface LiveRequest {
 }
 
 export async function defaultLiveDeps(): Promise<LiveDeps> {
-  const [actions, navigation, ready] = await Promise.all([import('../st-actions.mts'), import('../st-navigation.mts'), import('./st-ready.mts')]);
+  const [actions, navigation, ready, ui] = await Promise.all([import('../st-actions.mts'), import('../st-navigation.mts'), import('./st-ready.mts'), import('../so-ui.mts')]);
   const settle = (page: any) => navigation.waitForSettledChat(page, { quietMs: 1500, timeoutMs: 60000 });
   return {
     send: (page, line, options) => actions.sendUserMessage(page, line, options as any),
@@ -43,7 +43,18 @@ export async function defaultLiveDeps(): Promise<LiveDeps> {
       }
       return false;
     },
-    clickSwipeRight: (page) => page.locator('#chat .mes.last_mes .swipe_right').first().click({ force: true, timeout: 15000 }),
+    clickSwipeRight: (page, selector) => page.locator(selector).first().click({ force: true, timeout: 15000 }),
+    closeOverlays: async (page) => {
+      await navigation.closeUnpinnedDrawers(page);
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        const open = await evaluateInST(page, () => document.querySelectorAll('dialog[open]').length);
+        if (!open) break;
+        await page.keyboard.press('Escape');
+        await page.waitForTimeout(300);
+      }
+      await page.waitForTimeout(300);
+    },
+    hitTest: (page, selector) => ui.hitTest(page, selector),
     openChat: async (page, target) => {
       if (target.group) await navigation.openGroup(page, target.group);
       await settle(page);

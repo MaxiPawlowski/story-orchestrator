@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { contextOf, readChatInventory, readObservation, readRuntimeBlob, readTranscript, readWizardDrafts } from './sessionPageReads.mts';
+import { contextOf, readChatInventory, readHostSwipes, readObservation, readRuntimeBlob, readTranscript, readWizardDrafts } from './sessionPageReads.mts';
 import { fakeSt, install, uninstall } from './sessionFakes.mts';
 import { findCard, loadCards, parseLiveArgs, verifySession } from '../so-session.mts';
 
@@ -56,4 +56,18 @@ test('AS-22/23 verify: tracked chats need their full persisted runtime and the c
   const ok = await verifySession(dir, session, doc, card);
   assert.deepEqual(ok.invalid, []);
   assert.equal(ok.inventory.chats, 2);
+});
+
+test('T0-3: the host swipes read comes from ST\'s own checkbox, and a missing one reads null', async () => {
+  const box = { checked: true };
+  (globalThis as any).document = { getElementById: (id: string) => (id === 'swipes-checkbox' ? box : null) };
+  try {
+    assert.deepEqual(await readHostSwipes(page), { swipes: true });
+    box.checked = false;
+    assert.deepEqual(await readHostSwipes(page), { swipes: false });
+    (globalThis as any).document = { getElementById: () => null };
+    assert.deepEqual(await readHostSwipes(page), { swipes: null });
+  } finally {
+    delete (globalThis as any).document;
+  }
 });

@@ -86,6 +86,11 @@ export function applyOverBaseline(current: unknown, effective: Record<string, an
   return out;
 }
 
+export function hostSwipesProblems(host: { swipes?: unknown } | null | undefined): string[] {
+  if (host?.swipes === true) return [];
+  return [`SillyTavern swipes read back ${JSON.stringify(host?.swipes ?? null)} on the lane, expected true: swipe-new cannot run (re-seed with adolion-fresh, which switches them on)`];
+}
+
 const OPTIONAL_FLAGS = new Set(['memory.harvestReasoning', 'memory.innerBeat']);
 
 export function effectiveProblems(expected: Record<string, any>, actual: unknown, installOwned: readonly string[]): string[] {
