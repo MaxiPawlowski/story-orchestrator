@@ -10,7 +10,7 @@ const ciRuns = (yaml) => [...yaml.matchAll(/^\s+run: npm (?:run )?([\w:-]+)\s*$/
 const pkg = JSON.parse(readFileSync(join(root, "package.json"), "utf8"));
 
 test("CR-P21: npm run gates is the overview rule 16 chain, in order, and every step is a real script", () => {
-  assert.deepEqual(GATE_STEPS, ["typecheck", "typecheck:test", "lint", "test", "build", "build:dev", "test:debug", "test:release", "test:replay", "test:plugin", "test-storybook:ci"]);
+  assert.deepEqual(GATE_STEPS, ["typecheck", "typecheck:test", "lint", "test", "build", "build:dev", "test:debug", "debug:typecheck", "test:release", "test:replay", "test:plugin", "test-storybook:ci"]);
   assert.equal(pkg.scripts.gates, "node scripts/release/gates.mjs");
   assert.deepEqual(GATE_STEPS.filter((step) => !pkg.scripts[step]), []);
   assert.ok(GATE_STEPS.indexOf("build") < GATE_STEPS.indexOf("build:dev") && GATE_STEPS.indexOf("build:dev") < GATE_STEPS.indexOf("test:release"), "test:release reads both builds");

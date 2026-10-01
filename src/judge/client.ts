@@ -1,6 +1,6 @@
 import { validateJudgeRequest } from "./questions";
-import { isJudgeBusy, pluginFallback, type JudgeGate } from "./gate";
-import { JUDGE_BUSY_RETRIES } from "./policy";
+import { isJudgeBusy, JudgeBusyError, pluginFallback, type JudgeGate } from "./gate";
+import { JUDGE_BUSY_RETRIES, JUDGE_BUSY_RETRY_MS } from "./policy";
 import type { JudgeFallback, JudgeRequest, JudgeResponse, JudgeResult, JudgeTransport, JudgeUsage } from "./types";
 
 export const JUDGE_CACHE_LIMIT = 100;
@@ -58,10 +58,16 @@ async function sendThroughGate(transport: JudgeTransport, request: JudgeRequest,
   for (let attempt = 0; ; attempt += 1) {
     const release = options.gate ? await options.gate.acquire(options.signal) : () => undefined;
     try {
+      const cooling = options.gate?.coolingFor() ?? 0;
+      if (cooling > 0) throw new JudgeBusyError(429, cooling);
       sent(now());
       return await raceTimeout(transport(request, { timeoutMs: options.timeoutMs, ...signal }), options.timeoutMs);
     } catch (error) {
       if (!options.gate || !isJudgeBusy(error) || attempt >= JUDGE_BUSY_RETRIES) throw error;
+      if (error.retryAfterMs !== null && error.retryAfterMs > JUDGE_BUSY_RETRY_MS * (attempt + 1)) {
+        options.gate.coolFor(error.retryAfterMs);
+        throw error;
+      }
     } finally {
       release();
     }

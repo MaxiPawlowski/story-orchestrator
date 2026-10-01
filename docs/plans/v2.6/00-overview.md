@@ -96,7 +96,7 @@ v2.5 rules 1–14 and every invariant in `.claude/rules/architecture.md` are inh
     It runs, in order:
     - `typecheck`, `typecheck:test`, `lint`, `test` (which includes the architecture, ownership and fault-matrix
       guards);
-    - `build`, `build:dev`, `test:debug`, `test:release`;
+    - `build`, `build:dev`, `test:debug`, `debug:typecheck` (the harness scripts type-check), `test:release`;
     - `test:replay` (plan 13's defect-replay set; every mutant must be killed) and `test:plugin`;
     - `test-storybook:ci` (`npm run gates -- --no-storybook` skips it, and the gate record must then say so).
 

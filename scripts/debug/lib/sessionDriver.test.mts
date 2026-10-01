@@ -74,8 +74,14 @@ test('live shot: writes a numbered screenshot into the session dir', async () =>
 test('live age: backdates and reports whether the recap fired', async () => {
   const fake = fakeSt({ chat: chat() });
   install(fake);
-  fake.events.on(EVENT_TYPES.CHAT_CHANGED, () => { fake.state.recap = { title: 'Welcome back' }; });
-  const record: any = await runLive(fakePage(), { verb: 'age', dir: '.', chat: { chatId: 'chat-a', group: null }, args: { hours: 30 } }, deps());
+  const opened: string[] = [];
+  const record: any = await runLive(fakePage(), { verb: 'age', dir: '.', chat: { chatId: 'chat-a', group: 'Adolion - Adventurer', groupId: 'g1' }, args: { hours: 30 } }, deps({
+    openChat: async (_page, target) => {
+      opened.push(`${target.groupId}/${target.chatId}`);
+      fake.state.journal = [...fake.state.journal, { at: new Date().toISOString(), boundary: 3, messageId: 2, kind: 'story', summary: 'away recap shown', detail: { note: 'chat chat-a' } }];
+    },
+  }));
+  assert.deepEqual(opened, ['g1/chat-a']);
   assert.equal(record.kind, 'age');
   assert.equal(record.ok, true);
   assert.equal(record.hours, 30);
@@ -93,9 +99,9 @@ test('turns.jsonl: every record gets the next sequence number', async () => {
 });
 
 test('session chat: the primary chat is the default, an explicit chat must belong to the session', () => {
-  const session = { chats: [{ chatId: 'esha', group: 'Adolion - Esha', primary: false }, { chatId: 'adv', group: 'Adolion - Adventurer', primary: true }] };
-  assert.deepEqual(sessionChat(session, null), { chatId: 'adv', group: 'Adolion - Adventurer' });
-  assert.deepEqual(sessionChat(session, 'esha'), { chatId: 'esha', group: 'Adolion - Esha' });
+  const session = { chats: [{ chatId: 'esha', group: 'Adolion - Esha', primary: false }, { chatId: 'adv', group: 'Adolion - Adventurer', groupId: 'g-adv', primary: true }] };
+  assert.deepEqual(sessionChat(session, null), { chatId: 'adv', group: 'Adolion - Adventurer', groupId: 'g-adv' });
+  assert.deepEqual(sessionChat(session, 'esha'), { chatId: 'esha', group: 'Adolion - Esha', groupId: null });
   assert.throws(() => sessionChat(session, 'nope'), /not one of this session's chats/);
   assert.equal(sessionChat({ chats: [] }, null), null);
 });

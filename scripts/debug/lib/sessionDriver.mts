@@ -3,13 +3,13 @@ import { relative, resolve } from 'node:path';
 import { evaluateInST } from './evaluate.mts';
 import {
   backdateSession, flagMoment, MUTATION_VERBS, runMutation, runTurn, waitSchedulerIdle,
-  type LiveDeps, type LiveOptions, type MutationArgs, type MutationVerb,
+  groupNeedle, type LiveDeps, type LiveOptions, type MutationArgs, type MutationVerb,
 } from './sessionLive.mts';
 
 export const LIVE_VERBS = ['turn', ...MUTATION_VERBS, 'flag', 'shot', 'age', 'adopt'] as const;
 export type LiveVerb = (typeof LIVE_VERBS)[number];
 
-export interface LiveChat { chatId: string; group: string | null }
+export interface LiveChat { chatId: string; group: string | null; groupId?: string | null }
 export interface LiveRequest {
   verb: LiveVerb;
   dir: string;
@@ -56,7 +56,11 @@ export async function defaultLiveDeps(): Promise<LiveDeps> {
     },
     hitTest: (page, selector) => ui.hitTest(page, selector),
     openChat: async (page, target) => {
-      if (target.group) await navigation.openGroup(page, target.group);
+      const needle = groupNeedle(target);
+      if (needle) {
+        await page.waitForFunction((wanted: string) => ((globalThis as any).SillyTavern?.getContext?.().groups ?? []).some((group: any) => group?.id === wanted || group?.name === wanted), needle, { timeout: 60000 });
+        await navigation.openGroup(page, needle);
+      }
       await settle(page);
       await navigation.openChat(page, target.chatId);
       await settle(page);
@@ -103,7 +107,7 @@ export async function runLive(page: any, request: LiveRequest, deps: LiveDeps) {
     return { ...(await runTurn(page, args.line, deps, request.options ?? {})), ensured };
   }
   if ((MUTATION_VERBS as readonly string[]).includes(verb)) {
-    return { ...(await runMutation(page, verb as MutationVerb, { ...args, chatId: request.chat?.chatId ?? args.chatId, group: request.chat?.group ?? args.group ?? null }, deps, request.options ?? {})), ensured };
+    return { ...(await runMutation(page, verb as MutationVerb, { ...args, chatId: request.chat?.chatId ?? args.chatId, group: request.chat?.group ?? args.group ?? null, groupId: request.chat?.groupId ?? args.groupId ?? null }, deps, request.options ?? {})), ensured };
   }
   if (verb === 'flag') {
     if (!args.note) throw new Error('flag needs a note (a word or two)');
@@ -118,7 +122,7 @@ export async function runLive(page: any, request: LiveRequest, deps: LiveDeps) {
     return { kind: 'shot', at: new Date().toISOString(), ok: true, label, path: relative(request.dir, path).replace(/\\/g, '/'), chatId: ensured.chatId };
   }
   if (verb === 'age') {
-    const aged = await backdateSession(page, Number(args.hours));
+    const aged = await backdateSession(page, Number(args.hours), deps, request.chat);
     return { kind: 'age', at: new Date().toISOString(), ...aged, ok: aged.ok === true && aged.fired === true, ensured };
   }
   throw new Error(`unknown live verb ${String(verb)}`);

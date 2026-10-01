@@ -18,6 +18,7 @@ const fakeResponse = () => {
         status(code) { out.statusCode = code; return res; },
         type(value) { out.contentType = value; return res; },
         json(value) { out.body = value; return res; },
+        set(name, value) { out.headers = { ...(out.headers ?? {}), [name.toLowerCase()]: String(value) }; return res; },
         send(value) { out.body = typeof value === 'string' ? JSON.parse(value) : value; return res; },
     };
     return { res, out };
@@ -226,6 +227,40 @@ test('PS-J 3: per user at most 2 in flight and 60 a minute; the excess answers 4
     const later = fakeResponse();
     await handlers.receive(pageRequest(question), later.res);
     assert.equal(later.out.statusCode, 200, 'the window slides');
+});
+
+test('T0: the per-minute limit and in-flight cap come from the env, so N lanes can share one TypeSafe account', async () => {
+    assert.deepEqual(plugin.limitsFromEnv({}), { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: plugin.MAX_CALLS_PER_MINUTE_PER_USER });
+    assert.deepEqual(plugin.limitsFromEnv({ SO_JUDGE_RATE_PER_MIN: '15', SO_JUDGE_MAX_IN_FLIGHT: '1' }), { maxInFlight: 1, perMinute: 15 });
+    for (const bad of ['0', '-3', 'many', '2.5', '']) assert.equal(plugin.limitsFromEnv({ SO_JUDGE_RATE_PER_MIN: bad }).perMinute, plugin.MAX_CALLS_PER_MINUTE_PER_USER, bad);
+    process.env.TYPESAFE_API_KEY = 'sk-test-env-rate';
+    const { calls, fetchImpl } = countingFetch();
+    let clock = 0;
+    const env = { SO_JUDGE_RATE_PER_MIN: '3' };
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, now: () => clock, env });
+    for (let index = 0; index < 3; index += 1) {
+        const out = fakeResponse();
+        await handlers.receive(pageRequest(question), out.res);
+        assert.equal(out.out.statusCode, 200);
+        clock += 1000;
+    }
+    const over = fakeResponse();
+    await handlers.receive(pageRequest(question), over.res);
+    assert.equal(over.out.statusCode, 429, 'the 4th call in a minute at SO_JUDGE_RATE_PER_MIN=3');
+    assert.equal(over.out.headers?.['retry-after'], '57', 'seconds until the oldest call leaves the window');
+    assert.equal(calls.total, 3);
+    const status = fakeResponse();
+    await handlers.status({}, status.res);
+    assert.deepEqual(status.out.body.limits, { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: 3 });
+});
+
+test('T0: an upstream 429 passes its Retry-After to the page', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-test-upstream-429';
+    const fetchImpl = async () => new Response('{"error":"rate limited"}', { status: 429, headers: { 'Retry-After': '20' } });
+    const { res, out } = fakeResponse();
+    await plugin.createHandlers({ accountsEnabled: false, fetchImpl }).receive(pageRequest(question), res);
+    assert.equal(out.statusCode, 429);
+    assert.equal(out.headers?.['retry-after'], '20');
 });
 
 test('seam golden: a page call routed to the typesafe provider reaches TypeSafe byte-identical to the pre-seam plugin', async () => {

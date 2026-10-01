@@ -12,7 +12,7 @@ const fixture = () => {
     const root = fs.mkdtempSync(path.join(os.tmpdir(), 'so-plugin-install-'));
     const extensionRoot = path.join(root, 'ext');
     const stRoot = path.join(root, 'st');
-    for (const [name, version] of [['story-orchestrator-judge', '1.3.0'], ['story-orchestrator-harness', '1.1.0']]) {
+    for (const [name, version] of [['story-orchestrator-judge', '1.4.0'], ['story-orchestrator-harness', '1.1.0']]) {
         const dir = path.join(extensionRoot, 'server-plugin', name);
         fs.mkdirSync(dir, { recursive: true });
         fs.writeFileSync(path.join(dir, 'package.json'), JSON.stringify({ name, version }));
@@ -40,7 +40,7 @@ test('CR-J5: installs both plugins, then a second run changes nothing', () => {
     const first = applyInstall(planInstall({ extensionRoot, stRoot, plugins: PLUGINS }));
     assert.deepEqual(first.map((row) => [row.name, row.action, row.copied.length]), [['story-orchestrator-judge', 'install', 2], ['story-orchestrator-harness', 'install', 2]]);
     const second = applyInstall(planInstall({ extensionRoot, stRoot, plugins: PLUGINS }));
-    assert.deepEqual(second.map((row) => [row.action, row.copied.length, row.installedVersion]), [['unchanged', 0, '1.3.0'], ['unchanged', 0, '1.1.0']]);
+    assert.deepEqual(second.map((row) => [row.action, row.copied.length, row.installedVersion]), [['unchanged', 0, '1.4.0'], ['unchanged', 0, '1.1.0']]);
 });
 
 test('CR-J5: an older install is upgraded; a newer one is refused unless forced', () => {
@@ -48,11 +48,11 @@ test('CR-J5: an older install is upgraded; a newer one is refused unless forced'
     install(stRoot, 'story-orchestrator-judge', '1.2.0');
     install(stRoot, 'story-orchestrator-harness', '9.0.0', 'newer');
     const plan = planInstall({ extensionRoot, stRoot, plugins: PLUGINS });
-    assert.deepEqual(plan.map((row) => [row.action, row.installedVersion, row.sourceVersion]), [['upgrade', '1.2.0', '1.3.0'], ['refuse-downgrade', '9.0.0', '1.1.0']]);
+    assert.deepEqual(plan.map((row) => [row.action, row.installedVersion, row.sourceVersion]), [['upgrade', '1.2.0', '1.4.0'], ['refuse-downgrade', '9.0.0', '1.1.0']]);
     const applied = applyInstall(plan);
     assert.equal(applied[1].copied.length, 0);
     assert.equal(fs.readFileSync(path.join(stRoot, 'plugins', 'story-orchestrator-harness', 'index.mjs'), 'utf-8'), 'newer');
-    assert.match(fs.readFileSync(path.join(stRoot, 'plugins', 'story-orchestrator-judge', 'index.mjs'), 'utf-8'), /1\.3\.0/);
+    assert.match(fs.readFileSync(path.join(stRoot, 'plugins', 'story-orchestrator-judge', 'index.mjs'), 'utf-8'), /1\.4\.0/);
     const forced = applyInstall(planInstall({ extensionRoot, stRoot, plugins: PLUGINS }), { force: true });
     assert.equal(forced[1].copied.length, 2);
     assert.match(fs.readFileSync(path.join(stRoot, 'plugins', 'story-orchestrator-harness', 'index.mjs'), 'utf-8'), /1\.1\.0/);
