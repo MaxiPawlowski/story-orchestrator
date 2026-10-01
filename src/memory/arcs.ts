@@ -122,6 +122,10 @@ export function openArcTexts(arcs: ArcEntry[], limit?: number): string[] {
 
 export const PLAYER_THREAD_LIMIT = 5;
 export const PLAYER_THREAD_OVERLAP = 0.4;
+export const PLAYER_THREAD_WINDOW = 12;
+
+export const playerThreadSince = (checkpointStartedBoundary: number, boundary: number): number =>
+  Math.max(0, Math.min(checkpointStartedBoundary, boundary - PLAYER_THREAD_WINDOW));
 
 const THREAD_FILLER = new Set([
   "that", "this", "with", "from", "what", "whether", "their", "there", "they", "them", "have", "been", "will",

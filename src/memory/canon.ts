@@ -20,6 +20,8 @@ export function canonHistory(text: string): string {
   return (match ? match[1] : text).trim();
 }
 
+export const CANON_WORD_LIMIT = 450;
+
 export function buildCanonSummaryPrompt(storyTitle: string, arcSummaries: string[], facts: string[], checkpoint: CanonCheckpoint | null = null): string {
   const arcSection = arcSummaries.length
     ? `RESOLVED ARC SUMMARIES:\n${arcSummaries.map((summary, index) => `Arc ${index + 1}: ${summary}`).join("\n\n")}`
@@ -36,6 +38,7 @@ export function buildCanonSummaryPrompt(storyTitle: string, arcSummaries: string
     "[where things stand now, at the current checkpoint below: unresolved tensions, active goals, and where the story is heading]",
     "ESTABLISHED FACTS:",
     "[the durable truths about the characters and world]",
+    `Keep the whole document to at most ${CANON_WORD_LIMIT} words; WHAT HAS HAPPENED keeps the key events of the whole story, briefly.`,
     "Output only the three labelled paragraphs. No preamble, no disclaimers.",
     "",
     `STORY: ${storyTitle}`,

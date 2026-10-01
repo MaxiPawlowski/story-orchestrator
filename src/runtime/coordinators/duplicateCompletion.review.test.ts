@@ -98,7 +98,7 @@ describe("extraction|duplicateCompletion: one read's completion delivered twice 
     queue.enqueue(write as never);
     queue.enqueue(write as never);
     const applyDelta = jest.fn(() => ({ applied: true }));
-    const drained = queue.drainAtBoundary({ applyDelta } as never);
+    const drained = queue.drainAtBoundary({ applyDelta, holdsAgainst: () => false } as never);
     expect(applyDelta).toHaveBeenCalledTimes(1);
     expect(drained.applied).toHaveLength(1);
     expect(drained.discarded).toHaveLength(1);
@@ -109,6 +109,6 @@ describe("extraction|duplicateCompletion: one read's completion delivered twice 
     queue.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 3, to: 3 }, deltas: [{ key: "step", value: 2 }], origin: "read-3" } as never);
     queue.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 4, to: 4 }, deltas: [{ key: "step", value: 3 }], origin: "read-4" } as never);
     const applyDelta = jest.fn(() => ({ applied: true }));
-    expect(queue.drainAtBoundary({ applyDelta } as never).applied).toHaveLength(2);
+    expect(queue.drainAtBoundary({ applyDelta, holdsAgainst: () => false } as never).applied).toHaveLength(2);
   });
 });

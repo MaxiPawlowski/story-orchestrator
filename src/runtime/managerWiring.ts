@@ -39,7 +39,7 @@ export interface ManagerPort {
   enqueueExtractorDeltas: (accepted: ParsedDelta[], window: { from: number; to: number }, origin: string) => void;
   commitBoundary: () => Promise<unknown>;
   replaceStory: (story: NormalizedStoryV2) => void;
-  fireSceneBreakReplies: (occurrence: number) => Promise<void>;
+  fireSceneBreakReplies: (breakAt: number) => Promise<void>;
   sceneBreakListeners: Set<(audit: SharedReadAudit, collect?: SchedulerJob[]) => void>;
   arcResolvedListeners: Set<(arcIds: string[]) => void>;
   journal: (kind: JournalRecordKind, summary: string, note?: string) => void;
@@ -104,7 +104,7 @@ export function wireCoordinators(port: ManagerPort) {
     getExpansionGateSources: () => port.gateSources(),
     enqueueExtractorDeltas: (accepted, window, origin) => port.enqueueExtractorDeltas(accepted, window, origin),
     commitBoundary: () => port.commitBoundary(),
-    fireSceneBreakReplies: (occurrence) => port.fireSceneBreakReplies(occurrence),
+    fireSceneBreakReplies: (breakAt) => port.fireSceneBreakReplies(breakAt),
     emitSceneBreak: (audit, collect) => port.sceneBreakListeners.forEach((listener) => listener(audit, collect)),
     emitArcsResolved: (arcs) => { if (port.loaded() && arcs.length) port.arcResolvedListeners.forEach((listener) => listener(arcs.map((arc) => arc.id))); },
     setStatus: (status) => port.setStatus(status),

@@ -1,5 +1,5 @@
 import { branchNoticeText, rollbackNoticeText } from "@runtime/narrative";
-import { HUD_COPY, hudChipLabel, hudPendingText, hudTensionText } from "@runtime/pipeline";
+import { HUD_COPY, hudChipLabel, hudPendingText, hudTensionText, playerPendingCount } from "@runtime/pipeline";
 import type { RuntimeSnapshot } from "@runtime/types";
 
 export interface HudStripProps {
@@ -19,7 +19,7 @@ export const HudStrip = ({ snapshot, onOpenDrawer, onOpenSettings }: HudStripPro
     );
   }
   if (!snapshot.ready) return null;
-  const pending = snapshot.pendingDeltas.length;
+  const pending = playerPendingCount(snapshot.pendingDeltas);
   const chip = hudChipLabel(snapshot.pipeline.state, Boolean(snapshot.lastRollback));
   return (
     <div id="so-hud">

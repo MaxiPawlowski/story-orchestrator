@@ -159,6 +159,7 @@ export interface PendingDeltaReadout {
   quality: string;
   value: PrimitiveValue;
   source: string;
+  opening?: boolean;
 }
 
 export interface MemoryRuntimeSettings {

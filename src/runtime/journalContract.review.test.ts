@@ -36,8 +36,8 @@ describe("V20e: the journal contract", () => {
   it("the queue keeps a write's origin through the drain, applied and discarded alike", () => {
     const story = parseStoryV2OrThrow(linearStory);
     const queue = new ApplyQueue();
-    queue.enqueue({ source: "extractor", origin: "audit-old", blackboardVersionSum: 0, turnRange: { from: 1, to: 1 }, deltas: [{ q: "has_key", v: true, source: "extractor" }] });
-    queue.enqueue({ source: "extractor", origin: "audit-new", blackboardVersionSum: 0, turnRange: { from: 1, to: 2 }, deltas: [{ q: "has_key", v: false, source: "extractor" }, { q: "door_open", v: true, source: "extractor" }] });
+    queue.enqueue({ source: "extractor", origin: "audit-old", blackboardVersionSum: 0, turnRange: { from: 1, to: 1 }, deltas: [{ q: "has_key", v: false, source: "extractor" }] });
+    queue.enqueue({ source: "extractor", origin: "audit-new", blackboardVersionSum: 0, turnRange: { from: 1, to: 2 }, deltas: [{ q: "has_key", v: true, source: "extractor" }, { q: "door_open", v: true, source: "extractor" }] });
     const result = queue.drainAtBoundary(new Blackboard(story));
     expect(result.applied.map((entry) => entry.origin)).toEqual(["audit-new"]);
     expect(result.discarded.map((entry) => entry.origin)).toEqual(["audit-old"]);

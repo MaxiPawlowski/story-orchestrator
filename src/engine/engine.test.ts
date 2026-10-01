@@ -256,13 +256,35 @@ describe("apply queue", () => {
     const story = parseStoryV2OrThrow(linearStory);
     const blackboard = new Blackboard(story);
     const queue = new ApplyQueue();
-    queue.enqueue(entry("has_key", true, 1, 1));
+    queue.enqueue(entry("has_key", false, 1, 1));
     expect(blackboard.get("has_key")).toBeUndefined();
-    queue.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 1, to: 2 }, deltas: [{ q: "has_key", v: false, source: "extractor" }, { q: "door_open", v: true, source: "extractor" }] });
+    queue.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 1, to: 2 }, deltas: [{ q: "has_key", v: true, source: "extractor" }, { q: "door_open", v: true, source: "extractor" }] });
     const result = queue.drainAtBoundary(blackboard);
     expect(result.discarded).toHaveLength(1);
-    expect(blackboard.get("has_key")).toBe(false);
+    expect(blackboard.get("has_key")).toBe(true);
     expect(blackboard.get("door_open")).toBe(true);
+  });
+
+  it("T1-1: a later contrary read does not supersede a pending value the latch would keep", () => {
+    const story = parseStoryV2OrThrow(linearStory);
+    const blackboard = new Blackboard(story);
+    const queue = new ApplyQueue();
+    queue.enqueue(entry("has_key", true, 12, 19));
+    queue.enqueue(entry("has_key", false, 10, 21));
+    const result = queue.drainAtBoundary(blackboard);
+    expect(blackboard.get("has_key")).toBe(true);
+    expect(result.discarded).toEqual([]);
+    expect(result.applied.map((applied) => applied.outcomes[0].ok)).toEqual([true, false]);
+  });
+
+  it("T1-1: a later lower read does not supersede a pending value on a monotonic quality", () => {
+    const story = parseStoryV2OrThrow({ ...linearStory, qualities: [...(linearStory as unknown as { qualities: unknown[] }).qualities, { key: "clues", type: "int", source: "extractor", monotonic: true, rubric: "Clues found." }] });
+    const blackboard = new Blackboard(story);
+    const queue = new ApplyQueue();
+    queue.enqueue(entry("clues", 3, 4, 6));
+    queue.enqueue(entry("clues", 2, 2, 8));
+    queue.drainAtBoundary(blackboard);
+    expect(blackboard.get("clues")).toBe(3);
   });
 
   it("T0-1: a newer covering read that is silent on a key does not supersede it", () => {

@@ -69,10 +69,10 @@ export class ApplyQueue {
     const discarded: ApplyQueueEntry[] = [];
 
     pending.forEach((entry, index) => {
-      const rewritten = new Set(pending.slice(index + 1)
+      const rewrites = pending.slice(index + 1)
         .filter((newer) => covers(newer.turnRange, entry.turnRange))
-        .flatMap((newer) => newer.deltas.map((delta) => delta.q)));
-      const [kept, dropped] = splitEntry(entry, (delta) => !rewritten.has(delta.q));
+        .flatMap((newer) => newer.deltas);
+      const [kept, dropped] = splitEntry(entry, (delta) => !rewrites.some((later) => later.q === delta.q && !blackboard.holdsAgainst(delta, later)));
       if (dropped) discarded.push(dropped);
       if (!kept) return;
       const outcomes = kept.deltas.map((delta) => blackboard.applyDelta(delta));

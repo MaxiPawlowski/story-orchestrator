@@ -1,6 +1,6 @@
 import { agencyFor, gateKeys, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
-import { castVoices, playerThreadTexts, sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
+import { castVoices, playerThreadSince, playerThreadTexts, sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks } from "@stagecraft/index";
 import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
 import { buildConvergenceReadout, buildLastTransition, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot } from "./snapshot";
@@ -8,7 +8,7 @@ import { buildNarrativeStatus, playerLocation, type NarrativeTransition, type Ro
 import { agencyRecovery as agencyRecoveryOf, playerTurnIds, REFUSAL_PLAYER_TEXT, type AgencyRecovery } from "./agencyRecovery";
 import { jumpIndex } from "./messageJump";
 import type { MessageFingerprints } from "./fingerprints";
-import { derivePipelineStatus, expansionInFlight, type PipelineStatus } from "./pipeline";
+import { derivePipelineStatus, expansionInFlight, playerPendingCount, type PipelineStatus } from "./pipeline";
 import { hasUnsavedChanges, SAVE_PLAYER_TEXT } from "./saveHealth";
 import { blobMismatch, loadPersistedRuntime, UNREADABLE_NOTICE } from "./persistence";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
@@ -173,7 +173,7 @@ const chapterParts = (sources: SnapshotSources, story: NormalizedStoryV2 | null,
   const records = memory.chapters ?? [];
   const chapters = chapterKit()?.buildChapterView(story, state?.activeCheckpointId, records) ?? { declared: false, current: null, records: [], ended: storyEnded(records), epilogue: null };
   const origins = new Map(records.map((record) => [record.id, record.playerTitle]));
-  const playerThreads = sources.openThreads.length ? playerThreadTexts(memory.arcs, state?.checkpointStartedBoundary ?? 0) : [];
+  const playerThreads = sources.openThreads.length ? playerThreadTexts(memory.arcs, playerThreadSince(state?.checkpointStartedBoundary ?? 0, state?.boundary ?? 0)) : [];
   const openThreads = playerThreads.map((text) => {
     const origin = memory.arcs.find((arc) => arc.status === "open" && arc.text === text)?.originChapter;
     return origin && origins.has(origin) ? `${text} (since ${origins.get(origin)})` : text;
@@ -210,7 +210,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     });
   });
   (extras.extraction.judgedReads ?? []).forEach((read) => read.deltas.forEach((delta) => noteReader(delta.q, "judge", read.at, delta.confidence)));
-  const pendingDeltas = buildPendingDeltas(sources.pendingWrites, state);
+  const pendingDeltas = buildPendingDeltas(sources.pendingWrites, state, playerTurnIds(sources.chat));
   const tension = buildTensionSnapshot(extras.tension.smoothed, sources.expectedTension, agencyFor(active));
   const agency = agencyFor(active);
   const agencyRecovery: AgencyRecovery | null = agencyRecoveryOf(story, state, sources.boundaryLog, extras.extraction.audits, playerTurnIds(sources.chat));
@@ -244,7 +244,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     chapters: chapterLines,
     epilogue: chapters.epilogue,
     tensionLevel: tension.level,
-    pendingCount: pendingDeltas.length,
+    pendingCount: playerPendingCount(pendingDeltas),
     pipeline,
     sceneLocation: playerLocation(story, confirmedSceneFacts(extras.judge.scene, sceneFieldsInConflict(extras.memory.conflicts))?.location ?? null),
     // Only when a place WAS known: a tracker that has never answered has nothing to be unsure of.

@@ -72,6 +72,13 @@ export class Blackboard {
     return { ok: true, key: delta.q, previous, value: delta.v, version: this.versions[delta.q] };
   }
 
+  holdsAgainst(earlier: BlackboardDelta, later: BlackboardDelta): boolean {
+    const quality = this.story.qualityByKey[earlier.q];
+    if (!quality || earlier.q !== later.q || later.strictUnlatch) return false;
+    if (quality.monotonic && typeof earlier.v === "number" && typeof later.v === "number" && later.v < earlier.v) return true;
+    return Boolean(quality.latching && (quality.type !== "bool" || earlier.v === true) && later.v !== earlier.v);
+  }
+
   // Author recovery only: clear a latched value (or set it) without the latch/monotonic guards, and
   // always bump the version so the apply queue's drift check still sees a change. Used by
   // resetQuality and the step-back recovery, never by an extraction path.

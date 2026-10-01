@@ -533,7 +533,7 @@ describe("RuntimeManager scene detection", () => {
     expect(scenes.map((entry) => entry.text)).toEqual(["They left the hall for the vault."]);
   });
 
-  it("fires the sceneBreak reply once per distinct break, not once per checkpoint", async () => {
+  it("caps the sceneBreak reply at maxTriggers per checkpoint, not per break (T1-1)", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(sceneStory));
     (executeSlashCommands as jest.Mock).mockClear();
@@ -544,7 +544,7 @@ describe("RuntimeManager scene detection", () => {
     await manager.runSceneBreakPass({ ...sceneBreakAudit(), id: "audit-scene-2" });
 
     const shiftCalls = (executeSlashCommands as jest.Mock).mock.calls.filter(([command]) => typeof command === "string" && command.includes("The scene shifts."));
-    expect(shiftCalls).toHaveLength(2);
+    expect(shiftCalls).toHaveLength(1);
     expect(manager.getSnapshot().memory.sceneCount).toBe(2);
   });
 });
@@ -1419,6 +1419,7 @@ describe("RuntimeManager transition announcements and pending deltas", () => {
   it("exposes accepted-but-unapplied deltas until the next boundary", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(gatedStory));
+    mockContext.chat = [{ mes: "I search the vault.", is_user: true }];
     await manager.applyExtractionAudit(keyAudit(), []);
     expect(manager.getSnapshot().pendingDeltas).toEqual([{ quality: "has_key", value: true, source: "extractor" }]);
     mockContext.chat = [{ mes: "found it" }];
