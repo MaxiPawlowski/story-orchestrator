@@ -1,4 +1,4 @@
-import { openAgentBridge, refreshHarnessStatus } from "@services/STAPI";
+import { openAgentBridge, refreshHarnessStatus, type HarnessRow } from "@services/STAPI";
 import type { HarnessTransport } from "@copilot/agent/index";
 import { roleHarness, type RouteSettings } from "@runtime/passProfiles";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "@runtime/runToken";
@@ -22,10 +22,25 @@ export interface AgentHarnessDeps {
 
 const hostDeps: AgentHarnessDeps = { settings: () => getGlobalSettings().extraction, status: () => refreshHarnessStatus(), bridge: openAgentBridge };
 
+export const agentHarnessRefusal = (harness: string, model: string, reason: string): string =>
+  `The wizard is routed to ${harness} (${model}) under Models per task, but ${reason}. ` +
+  "It does not fall back to the local profile: fix the harness, or route \"Wizard and road ahead\" back to its profile.";
+
+const NO_STATUS = "the harness plugin did not answer its status (not installed, not restarted, or the request was refused)";
+
+const reasonFor = (harness: string, model: string, row: HarnessRow | undefined): string | null => {
+  if (!row) return `the harness plugin does not list ${harness}`;
+  if (row.blocked) return row.blocked;
+  if (row.agentBridge !== true) return `${harness} offers no agent tool bridge on this install (the plugin's config.json offers it, opencode only)`;
+  if (!row.models.some((entry) => entry.id === model)) return `the harness plugin does not list the model ${model}`;
+  return null;
+};
+
 export async function resolveAgentHarness(deps: AgentHarnessDeps = hostDeps): Promise<HarnessTransport | null> {
   const routed = roleHarness(deps.settings(), "authoring");
   if (!routed) return null;
-  const row = (await deps.status().catch(() => null))?.harnesses[routed.harness];
-  if (!row || row.agentBridge !== true || !row.models.some((model) => model.id === routed.model)) return null;
+  const status = await deps.status();
+  const reason = status ? reasonFor(routed.harness, routed.model, status.harnesses[routed.harness]) : NO_STATUS;
+  if (reason) return { refusal: agentHarnessRefusal(routed.harness, routed.model, reason) };
   return { bridge: await deps.bridge(), target: { harness: routed.harness, model: routed.model, timeoutMs: AGENT_BRIDGE_TIMEOUT_MS } };
 }

@@ -9,6 +9,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 
 const here = path.dirname(fileURLToPath(import.meta.url));
 const pluginUrl = pathToFileURL(path.join(here, 'index.mjs')).href;
+delete process.env.TYPESAFE_BASE_URL;
 const plugin = await import(pluginUrl);
 
 const fakeResponse = () => {
@@ -57,7 +58,7 @@ test('info satisfies the ST loader contract', () => {
 test('status reports the key source, never the key', async () => {
     process.env.TYPESAFE_API_KEY = 'sk-test-status';
     const { res, out } = fakeResponse();
-    await plugin.createHandlers({ env: {} }).status({}, res);
+    await plugin.createHandlers({ accountsEnabled: false, env: {} }).status({}, res);
     assert.deepEqual(out.body, {
         configured: true, keySource: 'env', model: plugin.DEFAULT_MODEL, pluginVersion: plugin.PLUGIN_VERSION,
         limits: { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: plugin.MAX_CALLS_PER_MINUTE_PER_USER },
@@ -77,7 +78,7 @@ test('systemone forwards with the bearer key and the default model, and passes t
         return new Response(JSON.stringify({ model: 'jev-1.13.0', answers: { greeting: { type: 'noul', noul: 0.97 } } }), { status: 200 });
     };
     const { res, out } = fakeResponse();
-    await plugin.createHandlers({ fetchImpl }).systemone({ body: question }, res);
+    await plugin.createHandlers({ accountsEnabled: false, fetchImpl }).systemone({ body: question }, res);
     assert.equal(out.statusCode, 200);
     assert.equal(out.body.answers.greeting.noul, 0.97);
     assert.equal(seen.length, 1);
@@ -89,7 +90,7 @@ test('systemone forwards with the bearer key and the default model, and passes t
 test('systemone rejects an invalid body before touching the network', async () => {
     let called = false;
     const { res, out } = fakeResponse();
-    await plugin.createHandlers({ fetchImpl: async () => { called = true; } }).systemone({ body: { state: {}, questions: { q: { type: 'choice', instructions: 'x', criteria: { a: null } } } } }, res);
+    await plugin.createHandlers({ accountsEnabled: false, fetchImpl: async () => { called = true; } }).systemone({ body: { state: {}, questions: { q: { type: 'choice', instructions: 'x', criteria: { a: null } } } } }, res);
     assert.equal(out.statusCode, 400);
     assert.equal(called, false);
 });
@@ -102,13 +103,13 @@ test('systemone retries once on 429/529 and reports a timeout as 504', async () 
         return calls === 1 ? new Response('{"error":"busy"}', { status: 429 }) : new Response('{"model":"jev","answers":{}}', { status: 200 });
     };
     const first = fakeResponse();
-    await plugin.createHandlers({ fetchImpl: flaky }).systemone({ body: question }, first.res);
+    await plugin.createHandlers({ accountsEnabled: false, fetchImpl: flaky }).systemone({ body: question }, first.res);
     assert.equal(calls, 2);
     assert.equal(first.out.statusCode, 200);
 
     const hang = async () => { throw Object.assign(new Error('aborted'), { name: 'AbortError' }); };
     const second = fakeResponse();
-    await plugin.createHandlers({ fetchImpl: hang }).systemone({ body: question }, second.res);
+    await plugin.createHandlers({ accountsEnabled: false, fetchImpl: hang }).systemone({ body: question }, second.res);
     assert.equal(second.out.statusCode, 504);
 });
 
@@ -119,7 +120,7 @@ test('with no key anywhere, status says so and systemone answers 409', () => {
       const out = [];
       const res = (sink) => { const r = { status(c) { sink.status = c; return r; }, type() { return r; }, json(v) { sink.body = v; return r; }, send(v) { sink.body = v; return r; } }; return r; };
       const a = {}; await plugin.createHandlers().status({}, res(a));
-      const b = {}; await plugin.createHandlers({ fetchImpl: async () => { throw new Error('must not call'); } }).systemone({ body: ${JSON.stringify(question)} }, res(b));
+      const b = {}; await plugin.createHandlers({ accountsEnabled: false, fetchImpl: async () => { throw new Error('must not call'); } }).systemone({ body: ${JSON.stringify(question)} }, res(b));
       console.log(JSON.stringify({ a, b }));`;
     const env = { ...process.env, HOME: empty, USERPROFILE: empty, TYPESAFE_API_KEY: '' };
     const child = spawnSync(process.execPath, ['--input-type=module', '-e', script], { env, encoding: 'utf-8' });
@@ -156,12 +157,12 @@ test('PS-J 1: the permitted model list is the page\'s own model-id map, and any 
     process.env.TYPESAFE_API_KEY = 'sk-test-models';
     const { calls, fetchImpl } = countingFetch();
     const refused = fakeResponse();
-    await plugin.createHandlers({ fetchImpl }).systemone({ body: { ...question, model: 'gpt-4o' } }, refused.res);
+    await plugin.createHandlers({ accountsEnabled: false, fetchImpl }).systemone({ body: { ...question, model: 'gpt-4o' } }, refused.res);
     assert.equal(refused.out.statusCode, 400);
     assert.match(refused.out.body.error, /model not permitted/);
     assert.equal(calls.total, 0);
     const floatingOk = fakeResponse();
-    await plugin.createHandlers({ fetchImpl }).systemone({ body: { ...question, model: 'jev-latest' } }, floatingOk.res);
+    await plugin.createHandlers({ accountsEnabled: false, fetchImpl }).systemone({ body: { ...question, model: 'jev-latest' } }, floatingOk.res);
     assert.equal(floatingOk.out.statusCode, 200, 'control: a permitted model passes');
     assert.equal(calls.total, 1);
 });
@@ -169,7 +170,7 @@ test('PS-J 1: the permitted model list is the page\'s own model-id map, and any 
 test('PS-J 2: a text/plain body over the bound is refused 413 without parsing it; a JSON-typed body is refused 415', async () => {
     process.env.TYPESAFE_API_KEY = 'sk-test-bound';
     const { calls, fetchImpl } = countingFetch();
-    const handlers = plugin.createHandlers({ fetchImpl });
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl });
     const big = fakeResponse();
     await handlers.receive(pageRequest(null, { raw: `{"state":{"x":"${'a'.repeat(5 * 1024 * 1024)}"}}` }), big.res);
     assert.equal(big.out.statusCode, 413);
@@ -189,7 +190,7 @@ test('PS-J 2: a text/plain body over the bound is refused 413 without parsing it
 test('PS-J 6: without the plugin header, from a foreign origin or a cross-site fetch, the call is refused 403 with no upstream call', async () => {
     process.env.TYPESAFE_API_KEY = 'sk-test-origin';
     const { calls, fetchImpl } = countingFetch();
-    const handlers = plugin.createHandlers({ fetchImpl });
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl });
     for (const headers of [{ 'x-so-plugin': undefined }, { origin: 'https://evil.example' }, { 'sec-fetch-site': 'cross-site' }, { 'sec-fetch-site': 'same-site' }]) {
         const out = fakeResponse();
         await handlers.receive(pageRequest(question, { headers }), out.res);
@@ -205,7 +206,7 @@ test('PS-J 3: per user at most 2 in flight and 60 a minute; the excess answers 4
     process.env.TYPESAFE_API_KEY = 'sk-test-rate';
     const { calls, fetchImpl } = countingFetch();
     let clock = 0;
-    const handlers = plugin.createHandlers({ fetchImpl, now: () => clock });
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, now: () => clock });
     const burst = await Promise.all(Array.from({ length: 20 }, async () => { const out = fakeResponse(); await handlers.receive(pageRequest(question), out.res); return out.out.statusCode; }));
     assert.equal(calls.peak, 2);
     assert.equal(burst.filter((code) => code === 200).length, 2);
@@ -236,7 +237,7 @@ test('seam golden: a page call routed to the typesafe provider reaches TypeSafe 
         return new Response('{"model":"jev-1.13.0","answers":{"greeting":{"type":"noul","noul":0.97}}}', { status: 200 });
     };
     const { res, out } = fakeResponse();
-    await plugin.createHandlers({ fetchImpl }).receive(pageRequest(question), res);
+    await plugin.createHandlers({ accountsEnabled: false, fetchImpl }).receive(pageRequest(question), res);
     assert.equal(out.statusCode, 200);
     assert.deepEqual(seen, [{
         url: 'https://api.typesafe.ai/v1/systemone',
@@ -308,7 +309,7 @@ test('llama-logprob: the completion route forwards only the whitelisted fields t
 test('llama-logprob: unconfigured answers 409 without a network call; a remote host is reported as leaving the machine', async () => {
     const { calls, fetchImpl } = countingFetch();
     const none = fakeResponse();
-    await plugin.createHandlers({ fetchImpl, env: {} }).receiveLlama(pageRequest({ prompt: 'x', n_predict: 1, n_probs: 5, temperature: 0 }), none.res);
+    await plugin.createHandlers({ accountsEnabled: false, fetchImpl, env: {} }).receiveLlama(pageRequest({ prompt: 'x', n_predict: 1, n_probs: 5, temperature: 0 }), none.res);
     assert.equal(none.out.statusCode, 409);
     assert.equal(calls.total, 0);
     assert.deepEqual(plugin.llamaEndpoint({ SO_JUDGE_LLAMA_URL: 'https://pod-8080.proxy.runpod.net' }), { base: 'https://pod-8080.proxy.runpod.net', host: 'pod-8080.proxy.runpod.net', local: false });
@@ -318,9 +319,47 @@ test('llama-logprob: unconfigured answers 409 without a network call; a remote h
 test('live: one real call through the handler (JUDGE_LIVE=1)', { skip: process.env.JUDGE_LIVE !== '1' }, async () => {
     delete process.env.TYPESAFE_API_KEY;
     const { res, out } = fakeResponse();
-    await plugin.createHandlers().systemone({ body: question }, res);
+    await plugin.createHandlers({ accountsEnabled: false }).systemone({ body: question }, res);
     assert.equal(out.statusCode, 200, JSON.stringify(out.body));
     assert.equal(out.body.answers.greeting.type, 'noul');
     assert.ok(out.body.answers.greeting.noul > 0.5);
     assert.match(out.body.model, /^jev-/);
+});
+
+test('CR-J1: a request stream aborted mid-body answers 400 instead of rejecting the handler', async () => {
+    const { calls, fetchImpl } = countingFetch();
+    const handlers = plugin.createHandlers({ fetchImpl, accountsEnabled: false, env: { SO_JUDGE_LLAMA_URL: 'http://127.0.0.1:18080' } });
+    for (const route of ['receive', 'receiveLlama']) {
+        const stream = new Readable({ read() {} });
+        stream.push(Buffer.from('{"state":{"x":'));
+        setImmediate(() => stream.destroy(Object.assign(new Error('aborted'), { code: 'ECONNRESET' })));
+        Object.assign(stream, { headers: { host: '127.0.0.1:8000', 'content-type': 'text/plain;charset=UTF-8', 'x-so-plugin': '1' }, body: {}, user: { profile: { handle: 'default-user' } } });
+        const out = fakeResponse();
+        await handlers[route](stream, out.res);
+        assert.equal(out.out.statusCode, 400, route);
+    }
+    assert.equal(calls.total, 0);
+});
+
+test('CR-J1: a route whose handler rejects answers 500, and never writes over a sent response', async () => {
+    const logged = [];
+    const failed = fakeResponse();
+    await plugin.guardRoute(async () => { throw new Error('boom'); }, (line) => logged.push(line))({}, failed.res);
+    assert.equal(failed.out.statusCode, 500);
+    const sent = fakeResponse();
+    sent.res.headersSent = true;
+    await plugin.guardRoute(() => { throw new Error('late'); }, (line) => logged.push(line))({}, sent.res);
+    assert.equal(sent.out.statusCode, 200);
+    assert.equal(logged.length, 2);
+});
+
+test('CR-J4: when SillyTavern\'s account setting cannot be read, the key rule fails closed and says so', async () => {
+    const logged = [];
+    assert.equal(await plugin.userAccountsEnabled({ load: async () => null, log: (line) => logged.push(line) }), true);
+    assert.equal(await plugin.userAccountsEnabled({ load: async () => ({ getConfigValue: () => { throw new Error('yaml'); } }), log: (line) => logged.push(line) }), true);
+    assert.equal(logged.length, 2);
+    assert.match(logged[0], /treating user accounts as on/);
+    assert.equal(await plugin.userAccountsEnabled({ load: async () => ({ getConfigValue: () => false }), log: (line) => logged.push(line) }), false, 'control: a readable "off" stays off');
+    process.env.TYPESAFE_API_KEY = 'sk-env-must-not-leak';
+    assert.equal(await plugin.resolveKey({}, 'typesafe'), null, 'in this checkout there is no ST util.js, so env is not used');
 });

@@ -81,8 +81,8 @@ export class JudgeRuntime {
     return Boolean(this.deps.providers?.[provider]) && status?.providers?.[provider]?.configured === true;
   }
 
-  private transportFor(provider: JudgeProviderId): JudgeTransport {
-    return provider === DEFAULT_JUDGE_PROVIDER ? this.deps.transport : this.deps.providers?.[provider] ?? this.deps.transport;
+  private transportFor(provider: JudgeProviderId): JudgeTransport | null {
+    return provider === DEFAULT_JUDGE_PROVIDER ? this.deps.transport : this.deps.providers?.[provider] ?? null;
   }
 
   private cacheFor(provider: JudgeProviderId): Map<string, JudgeResponse> {
@@ -99,8 +99,13 @@ export class JudgeRuntime {
   // it asked for, and JudgeResult says which model actually answered.
   probe(request: JudgeRequest, model = this.deps.getSettings().model, provider: JudgeProviderId = DEFAULT_JUDGE_PROVIDER): Promise<JudgeResult> {
     const settings = this.deps.getSettings();
+    const transport = this.transportFor(provider);
+    if (!transport) {
+      const sizes = { stateChars: JSON.stringify(request.state).length, questionCount: Object.keys(request.questions).length };
+      return Promise.resolve({ ...sizes, answers: null, model: null, latencyMs: 0, fallback: "unavailable", cached: false });
+    }
     const outgoing = provider === DEFAULT_JUDGE_PROVIDER ? { ...request, model } : request;
-    return askJudge(this.transportFor(provider), outgoing, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS), gate: this.gate });
+    return askJudge(transport, outgoing, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS), gate: this.gate });
   }
 
   // So-judge reads the verdict here, so the harness and the page share one map.
@@ -150,13 +155,14 @@ export class JudgeRuntime {
       return refuse("uncalibrated");
     }
     const token = this.deps.ownership.mint();
-    if (!(await this.available(provider))) {
+    const transport = this.transportFor(provider);
+    if (!transport || !(await this.available(provider))) {
       const owned = token ? this.deps.ownership.check(token) : undefined;
       if (!owned || owned.ok) this.deps.record({ ...this.fallbackRecord(use, "unavailable", request, asked), ...routed });
       return refuse("unavailable");
     }
     const outgoing = provider === DEFAULT_JUDGE_PROVIDER ? { ...request, model: settings.model } : request;
-    const result = await askJudge(this.transportFor(provider), outgoing, {
+    const result = await askJudge(transport, outgoing, {
       timeoutMs: options.timeoutMs ?? settings.timeoutMs,
       cache: this.cacheFor(provider),
       gate: this.gate,

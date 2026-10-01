@@ -128,3 +128,24 @@ describe("decision-provider routing (v2.6 plan 12 A)", () => {
     expect(sanitizeJudgeSettings({}).provider).toEqual(defaultJudgeSettings().provider);
   });
 });
+
+describe("CR-J22: a probe never falls back to TypeSafe", () => {
+  it("refuses a provider this page has no transport for, and sends nothing", async () => {
+    const records: JudgeCallRecord[] = [];
+    const typesafe = jest.fn<ReturnType<JudgeTransport>, Parameters<JudgeTransport>>(async () => answered);
+    const runtime = new JudgeRuntime({
+      ownership: testOwnership(),
+      getSettings: () => defaultJudgeSettings(),
+      transport: typesafe,
+      status: async () => ({ configured: true }),
+      record: (record) => records.push(record),
+      context: () => ({ boundary: 1, messageId: 1 }),
+    });
+    const probe = { state: { scene: "x" }, questions: { here: { type: "noul" as const, instructions: "Is `scene` set?" } } };
+    await expect(runtime.probe(probe, "jev-1.13.0", "llama-logprob")).resolves.toMatchObject({ answers: null, fallback: "unavailable" });
+    expect(typesafe).not.toHaveBeenCalled();
+    await expect(runtime.probe(probe)).resolves.toMatchObject({ answers: answered.answers });
+    expect(typesafe).toHaveBeenCalledTimes(1);
+    expect(records).toEqual([]);
+  });
+});

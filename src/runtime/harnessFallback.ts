@@ -1,3 +1,4 @@
+import { ModelCallError } from "@extraction/modelError";
 import type { ExtractionReply, ModelRoute } from "@extraction/modelRoute";
 import { routeKey } from "@extraction/modelRoute";
 import type { PassRole } from "@extraction/passRole";
@@ -25,7 +26,13 @@ export async function answerFallback(input: FallbackInput): Promise<ExtractionRe
   const fallback = fallbackRoute(input.settings, input.role, input.exists);
   if (!fallback) throw input.error;
   const startedAt = Date.now();
-  const answer = await input.run(fallback);
+  let answer: ExtractionReply;
+  try {
+    answer = await input.run(fallback);
+  } catch (error) {
+    input.note(fallback, startedAt, error instanceof ModelCallError ? error.kind : "transport", undefined, routeKey(input.route));
+    throw error;
+  }
   input.note(fallback, startedAt, "fallback", answer, routeKey(input.route));
   return answer;
 }

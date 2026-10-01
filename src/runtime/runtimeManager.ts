@@ -104,7 +104,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     rollback: (messageId, journal) => this.rollbackFromMessage(messageId, journal),
   });
   private readonly view = { getStory: () => this.loaded?.story ?? null, getState: () => (this.loaded ? this.engine.serialize() : null), hosts: coordinatorHosts };
-  readonly model = createModelCall({ settings: () => this.getExtractionSettings(), exists: profileExists });
+  readonly model = createModelCall({ settings: () => this.getExtractionSettings(), exists: profileExists, ownership: this.owner.ownership });
   private readonly lifecycle = { persist: () => this.persist(), notify: () => this.notify(), ownership: this.owner.ownership, model: this.model };
   protected readonly co = wireCoordinators({
     view: this.view, lifecycle: this.lifecycle, engine: this.engine, loaded: () => this.loaded, extras: () => this.extras, judge: () => this.judge,

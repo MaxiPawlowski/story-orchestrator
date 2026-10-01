@@ -16,6 +16,17 @@ export class JudgeGateCancelledError extends Error {
 
 export const isJudgeBusy = (error: unknown): error is JudgeBusyError => error instanceof JudgeBusyError;
 
+export class JudgePluginError extends Error {
+  constructor(readonly status: number) {
+    super(`judge plugin ${status}`);
+    this.name = "JudgePluginError";
+  }
+}
+
+const PLUGIN_FALLBACKS: Readonly<Record<number, "timeout" | "unavailable" | "auth">> = { 504: "timeout", 409: "unavailable", 401: "auth" };
+
+export const pluginFallback = (error: unknown): "timeout" | "unavailable" | "auth" | null => (error instanceof JudgePluginError ? PLUGIN_FALLBACKS[error.status] ?? null : null);
+
 export interface JudgeGate {
   acquire(signal?: AbortSignal): Promise<() => void>;
   setCapacity(capacity: number): void;

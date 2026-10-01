@@ -32,6 +32,7 @@ declare global {
   interface CustomToastr {
     success?: (...args: unknown[]) => unknown;
     info?: (...args: unknown[]) => unknown;
+    warning?: (...args: unknown[]) => unknown;
   }
   interface Window {
     toastr?: CustomToastr;
