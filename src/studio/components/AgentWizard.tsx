@@ -280,7 +280,11 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
   };
 
   if (!runTurn) {
-    return <div className="st-subpanel rounded p-3 text-sm st-muted" role="status" aria-label="Agent unavailable">The agent needs the authoring model. Pick a Connection Manager profile in the settings panel.</div>;
+    return (
+      <div className="st-subpanel rounded p-3 text-sm st-muted" role="status" aria-label="Agent unavailable">
+        The agent needs the authoring model. Pick a Connection Manager profile in the settings panel.
+      </div>
+    );
   }
 
   const pending = session ? pendingStep(session) : null;
@@ -300,6 +304,9 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
             {busy ? <button id="so-agent-stop" type="button" className="st-button secondary" onClick={() => { stopRequested.current = true; }}>Stop</button> : null}
             {!busy && (session.status === "stopped" || session.status === "budget") ? (
               <button id="so-agent-continue" type="button" className="st-button secondary" onClick={() => void drive(resumeAgent(session))}>Continue</button>
+            ) : null}
+            {!busy && error && session.status !== "stopped" && session.status !== "budget" ? (
+              <button id="so-agent-retry" type="button" className="st-button secondary" onClick={() => void drive(session)}>Retry</button>
             ) : null}
             {!busy && session.status !== "awaiting-author" ? <button id="so-agent-new-goal" type="button" className="st-button secondary" onClick={newGoal}>New goal</button> : null}
           </div>

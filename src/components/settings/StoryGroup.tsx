@@ -128,8 +128,10 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
       {importOpen && (
         <div id="so-entry-import" className="flex flex-col gap-1 text-sm">
           <label htmlFor="so-import-text">Import story (JSON)</label>
-          <textarea id="so-import-text" className="text_pole" rows={6} value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="Paste story JSON, or pick a file below" />
-          <input type="file" aria-label="Import story from a JSON file" accept=".json,application/json" disabled={busy} onChange={(event) => { void importFile(event.target.files?.[0]); event.target.value = ""; }} />
+          <textarea id="so-import-text" className="text_pole" rows={6} value={importText} onChange={(event) => setImportText(event.target.value)}
+            placeholder="Paste story JSON, or pick a file below" />
+          <input type="file" aria-label="Import story from a JSON file" accept=".json,application/json" disabled={busy}
+            onChange={(event) => { void importFile(event.target.files?.[0]); event.target.value = ""; }} />
           <button type="button" className="menu_button self-start" disabled={busy || !importText.trim()} onClick={() => void importStory()}>Import and load</button>
         </div>
       )}

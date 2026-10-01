@@ -26,6 +26,7 @@ import type { InlineActions } from "./components/inline/InlineDetail";
 import type { StoryDraft } from "./studio/draft";
 import { buildReplaySource, type GateReplaySource } from "./studio/gateReplay";
 import "./styles.css";
+import { log } from "@utils/log";
 
 // The version the settings panel reports is the one this bundle was built from.
 const EXTENSION_VERSION = String(packageJson.version ?? "unknown");
@@ -99,7 +100,7 @@ const openWizardForRequirements = async () => {
 };
 
 const studioFailed = (error: unknown) => {
-  console.warn("[Story Orchestrator] the Studio could not open", error);
+  log.warn("the Studio could not open", error);
   setStudioOpen(false);
   window.toastr?.info?.(LAZY_FAILED_TEXT, "Story Orchestrator");
 };

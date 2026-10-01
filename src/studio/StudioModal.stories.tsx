@@ -27,6 +27,32 @@ export const Seeded: Story = {
   },
 };
 
+export const DialogIsNamedByItsHeading: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement.ownerDocument.body);
+    const dialog = await canvas.findByRole("dialog", { name: "Checkpoint Studio" });
+    await expect(dialog).toHaveAttribute("aria-labelledby", "so-studio-heading");
+    await expect(dialog).toHaveAttribute("open");
+  },
+};
+
+export const ClosingReturnsFocusToTheOpener: Story = {
+  render: () => <KeyboardHost />,
+  play: async ({ canvasElement }) => {
+    const doc = canvasElement.ownerDocument;
+    const body = within(doc.body);
+    const opener = body.getByRole("button", { name: "Open studio" });
+    opener.focus();
+    await expect(opener).toHaveFocus();
+    await userEvent.click(opener);
+    await body.findByRole("dialog", { name: "Checkpoint Studio" });
+    await waitFor(() => expect(doc.activeElement).not.toBe(opener));
+    await userEvent.click(body.getByRole("button", { name: "Close studio" }));
+    await waitFor(() => expect(body.queryByRole("dialog", { name: "Checkpoint Studio" })).toBeNull());
+    await waitFor(() => expect(opener).toHaveFocus());
+  },
+};
+
 export const Empty: Story = {
   beforeEach: () => {
     seedEmptyDraft();
@@ -34,7 +60,7 @@ export const Empty: Story = {
   play: async ({ args, canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
     await userEvent.click(await canvas.findByRole("button", { name: "Close studio" }));
-    await expect(args.onClose).toHaveBeenCalledTimes(1);
+    await waitFor(() => expect(args.onClose).toHaveBeenCalledTimes(1));
   },
 };
 
@@ -43,7 +69,7 @@ export const WizardTabEnabled: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement.ownerDocument.body);
     await userEvent.click(await canvas.findByRole("tab", { name: "Wizard" }));
-    await expect(await canvas.findByLabelText("Copilot unavailable")).toBeInTheDocument();
+    await expect(await canvas.findByLabelText("Wizard unavailable")).toBeInTheDocument();
   },
 };
 

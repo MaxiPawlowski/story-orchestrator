@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { assignedRoleProfiles, branchContinue, closeCharacterPanel, gateReplayHistoryFrom, INLINE_PLAYER_FORBIDDEN_SELECTORS, inlineTextFindings, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings, errorStateFindings } from './so-ui.mts';
+import { attributeFindings, surfaceTextFindings, assignedRoleProfiles, branchContinue, closeCharacterPanel, gateReplayHistoryFrom, INLINE_PLAYER_FORBIDDEN_SELECTORS, inlineTextFindings, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings, errorStateFindings } from './so-ui.mts';
 
 test('keep and lock address the side row inside the named pair', () => {
   assert.equal(memoryQueueSelector({ action: 'keep', key: 'fact:abc' }), '[data-so="conflict-pair"][data-key="fact:abc"] [data-so="conflict-keep"] >> nth=0');
@@ -168,7 +168,7 @@ test('jump refuses when no citation matches instead of clicking nothing', async 
 });
 
 test('v2.5 plan 07: the player-clean sweep forbids the author tools (gate replay, calls, buckets, inspector)', () => {
-  for (const selector of ['[data-so="gate-replay"]', '[data-so="model-calls"]', '[data-so="model-call"]', '[data-so="next-turn-buckets"]', '.so-inspect', '#so-inspector']) {
+  for (const selector of ['[data-so="gate-replay"]', '[data-so="model-calls"]', '[data-so="model-call"]', '[data-so="next-turn-buckets"]', '#so-inspector']) {
     assert.ok(PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
   }
 });
@@ -194,4 +194,31 @@ test('v2.6 plan 08: the inline sweep forbids the author half and flags a leak in
   const leaks = inlineTextFindings([{ mesid: '5', text: 'boundary 3 applied\nError: boom' }]);
   assert.ok(leaks.some((finding) => finding.needle === 'boundary '));
   assert.ok(leaks.some((finding) => finding.needle.includes('raw error text')));
+});
+
+test('CR-U: the player-clean sweep forbids every v2.6 author surface and no longer lists the stale .so-inspect', () => {
+  for (const selector of ['#so-inline-level option[value="3"]', '#so-inline-level option[value="4"]', '#so-chapter-seal', '#so-chapter-fold', '#so-chapter-story-so-far',
+    '#so-chapter-budget', '#so-chapters', '[data-so^="chapter-"]', '#so-inner-harvest-idle', '[data-so="model-call-route"]', '[data-so="model-call-result"]',
+    '[data-so="role-profile-detail"]', '#so-next-turn', '[data-so^="next-turn-"]', '[data-so="payload-folded"]', '[data-so="memory-lock"]', '[data-so^="conflict-"]',
+    '[data-so="quarantined"]', '[data-so="effect-ledger"]', '#so-lore-fired', '[data-so="lore-lost"]', '[data-so="lore-constant-missed"]', '#so-scan-gate',
+    '[data-so^="warden-"]', '[data-so^="driver-"]', '[data-so="expansion-regenerate"]', '[data-so="curator-diff"]', '[data-so="curator-text"]', '[data-so="curator-last-pass"]']) {
+    assert.ok(PLAYER_FORBIDDEN_SELECTORS.includes(selector), selector);
+  }
+  assert.ok(!PLAYER_FORBIDDEN_SELECTORS.includes('.so-inspect'));
+});
+
+test('CR-U: title and aria-label values are swept for needles and raw errors on every player surface', () => {
+  const clean = attributeFindings([{ tab: 'Overview', surface: '#so-hud', attr: 'title', value: 'The story stopped keeping up.' }]);
+  assert.deepEqual(clean, []);
+  const leaks = attributeFindings([
+    { tab: 'Overview', surface: '#so-hud', attr: 'title', value: 'TypeError: x is not a function' },
+    { tab: 'Overview', surface: '#story-orchestrator-settings', attr: 'aria-label', value: 'Advance to checkpoint cp2' },
+  ]);
+  assert.ok(leaks.some((finding) => finding.needle.includes('#so-hud [title] shows raw error text')));
+  assert.ok(leaks.some((finding) => finding.needle.includes('[aria-label] carries "checkpoint"')));
+});
+
+test('CR-U: text needles run on the HUD and the settings panel too', () => {
+  const findings = surfaceTextFindings([{ tab: 'Overview', surface: '#story-orchestrator-settings', text: 'World Info curator' }, { tab: 'Overview', surface: '#so-hud', text: 'The Gate' }]);
+  assert.deepEqual(findings.map((finding) => finding.needle), ['#story-orchestrator-settings: World Info curator']);
 });

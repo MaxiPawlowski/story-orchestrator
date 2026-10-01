@@ -1,10 +1,10 @@
-import { createElement, lazy } from "react";
+import { createElement, lazy, type ComponentProps, type ElementType, type ReactElement } from "react";
 
 type LazyComponent = Awaited<ReturnType<Parameters<typeof lazy>[0]>>["default"];
 
 const failed = new Set<() => void>();
 
-export function lazyRetry<T extends LazyComponent>(factory: () => Promise<{ default: T }>): T {
+export function lazyRetry<T extends LazyComponent>(factory: () => Promise<{ default: T }>): (props: ComponentProps<T>) => ReactElement {
   const load = () => lazy(async () => {
     try {
       return await factory();
@@ -13,10 +13,10 @@ export function lazyRetry<T extends LazyComponent>(factory: () => Promise<{ defa
       throw error;
     }
   });
-  let current: LazyComponent = load();
+  let current: ElementType = load();
   const reset = () => { current = load(); };
-  const LazyRetry = (props: object) => createElement(current, props);
-  return LazyRetry as unknown as T;
+  const LazyRetry = (props: ComponentProps<T>): ReactElement => createElement(current, props);
+  return LazyRetry;
 }
 
 export const resetFailedLazies = (): number => {

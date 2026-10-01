@@ -25,7 +25,7 @@ const profiles = [{ id: "memory", name: "Memory RunPod", model: "artemis" }, { i
 const meta: Meta<typeof RoleProfilesGroup> = {
   title: "Settings/RoleProfilesGroup",
   component: RoleProfilesGroup,
-  args: { routes: allFallback, assigned: {}, profiles, testing: null, onAssign: fn(), onTest: fn(), onEffort: fn(), onHarness: fn(), onFallback: fn(), onOpen: fn() },
+  args: { authorView: true, routes: allFallback, assigned: {}, profiles, testing: null, onAssign: fn(), onTest: fn(), onEffort: fn(), onHarness: fn(), onFallback: fn(), onOpen: fn() },
 };
 
 export default meta;
@@ -63,7 +63,7 @@ export const RoutedAndFailing: Story = {
     await expect(curatorSelect.value).toBe("gone");
     await expect(curatorSelect.selectedOptions[0].textContent).toContain("Missing profile");
     await expect(canvasElement.querySelector('[data-role="curator"] [data-so="role-profile-test"]')).toBeDisabled();
-    await userEvent.click(within(director).getByRole("button", { name: "Test" }));
+    await userEvent.click(within(director).getByRole("button", { name: "Test Speaker direction" }));
     await expect(args.onTest).toHaveBeenCalledWith("director");
     await userEvent.selectOptions(curatorSelect, "");
     await expect(args.onAssign).toHaveBeenCalledWith("curator", null);

@@ -14,6 +14,7 @@ import type { PassRole } from "@extraction/passRole";
 import { GroupHeader } from "./GroupHeader";
 import { CheckRow, FieldLabel } from "./Field";
 import { RoleProfilesGroup, type HarnessOption, type RoleHarnessRoute } from "./RoleProfilesGroup";
+import { log } from "@utils/log";
 
 type Settings = RuntimeSnapshot["extraction"]["settings"];
 
@@ -32,8 +33,10 @@ const AdvancedExtraction = ({ settings, manager }: { settings: Settings; manager
     <summary className="cursor-pointer opacity-80">Advanced</summary>
     <div className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2">
       <div className="flex flex-col gap-1">
-        <FieldLabel htmlFor="so-extraction-cadence" label="Cadence" help="Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often." />
-        <input id="so-extraction-cadence" type="number" min={1} value={settings.cadence} onChange={(event) => manager.setExtractionSettings({ cadence: Math.max(1, Number(event.target.value) || 1) })} />
+        <FieldLabel htmlFor="so-extraction-cadence" label="Cadence"
+          help="Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often." />
+        <input id="so-extraction-cadence" type="number" min={1} value={settings.cadence}
+          onChange={(event) => manager.setExtractionSettings({ cadence: Math.max(1, Number(event.target.value) || 1) })} />
       </div>
       <div className="flex flex-col gap-1">
         <FieldLabel htmlFor="so-extraction-reconcile" label="Reconcile ×" help="When the story stalls, widen the re-read window by this multiplier to double-check missed facts." />
@@ -47,8 +50,10 @@ const AdvancedExtraction = ({ settings, manager }: { settings: Settings; manager
         />
       </div>
       <div className="flex flex-col gap-1">
-        <FieldLabel htmlFor="so-extraction-lag" label="Lag" help="Skip the newest N messages when reading, in case you often re-roll replies. 0 = react to the latest message immediately." />
-        <input id="so-extraction-lag" type="number" min={0} value={settings.stabilityLag} onChange={(event) => manager.setExtractionSettings({ stabilityLag: Math.max(0, Number(event.target.value) || 0) })} />
+        <FieldLabel htmlFor="so-extraction-lag" label="Lag"
+          help="Skip the newest N messages when reading, in case you often re-roll replies. 0 = react to the latest message immediately." />
+        <input id="so-extraction-lag" type="number" min={0} value={settings.stabilityLag}
+          onChange={(event) => manager.setExtractionSettings({ stabilityLag: Math.max(0, Number(event.target.value) || 0) })} />
       </div>
     </div>
   </details>
@@ -115,7 +120,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         cancelled: () => selfTestCancelled.current,
       }));
     } catch (error) {
-      console.warn("[Story Orchestrator] memory model test failed", error);
+      log.warn("memory model test failed", error);
       setSelfTest({ ranAt: new Date().toISOString(), profileId: settings.profileId, results: [], error: "The test could not run. Reload SillyTavern and try again." });
     } finally {
       setSelfTestRunning(false);
@@ -136,7 +141,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
       const { runRoleSelfTest } = await import("@runtime/roleSelfTest");
       roleHealth.record(await runRoleSelfTest(role, { profileId: route.ok ? resolvedProfileId(route) : null }));
     } catch (error) {
-      console.warn("[Story Orchestrator] role test failed", error);
+      log.warn("role test failed", error);
     } finally {
       setTestingRole(null);
     }
@@ -165,7 +170,9 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         <div id="so-not-configured" className="text-xs so-warning-text">Not configured: pick a memory model profile above and every chat, including this one, starts advancing on its own.</div>
       )}
       <div className="flex flex-wrap items-center gap-2">
-        <button id="so-self-test" type="button" className="menu_button" disabled={!settings.profileId} onClick={() => void runSelfTest()}>{selfTestRunning ? "Cancel test" : "Test memory model"}</button>
+        <button id="so-self-test" type="button" className="menu_button" disabled={!settings.profileId} onClick={() => void runSelfTest()}>
+          {selfTestRunning ? "Cancel test" : "Test memory model"}
+        </button>
         <span className="min-w-0 text-xs opacity-70">Runs fixed scenes through the real pipeline and reports what this model can actually do.</span>
       </div>
       {selfTest && <SelfTestResult report={selfTest} onApply={applySelfTestSuggestion} authorView={snapshot.ui.authorView} />}

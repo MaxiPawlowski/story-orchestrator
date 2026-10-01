@@ -120,7 +120,8 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
         title={snapshot.copilot.enabled ? "Start a new story with the wizard." : "Turn on the wizard under Author services first."} onClick={onNewStory}>New story</button>
     )}
     {authorView && onEditStory && (
-      <button id="so-edit-story" type="button" className="menu_button" title="Open this story in the Checkpoint Studio. Saving there offers to update this chat." onClick={onEditStory}>Edit story</button>
+      <button id="so-edit-story" type="button" className="menu_button" onClick={onEditStory}
+        title="Open this story in the Checkpoint Studio. Saving there offers to update this chat.">Edit story</button>
     )}
     <button
       id="so-restart-story-drawer"

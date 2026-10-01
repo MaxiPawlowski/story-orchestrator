@@ -443,6 +443,9 @@ body.no-blur dialog#so-studio-modal {
   color: inherit;
   font: inherit;
   white-space: nowrap;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   cursor: pointer;
 }
 

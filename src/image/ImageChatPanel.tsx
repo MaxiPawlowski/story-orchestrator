@@ -6,6 +6,7 @@ import { imageAutomationText, PLAYER_COPY } from "@runtime/narrative";
 import { startImage } from "./start";
 import type { ImageOverride } from "./settings";
 import { CHECKPOINTS } from "./catalog";
+import { log } from "@utils/log";
 
 export default function ImageChatPanel({ manager, snapshot }: { manager: RuntimeManager; snapshot: RuntimeSnapshot }) {
   const image = startImage(manager);
@@ -16,11 +17,11 @@ export default function ImageChatPanel({ manager, snapshot }: { manager: Runtime
   const override = image.override();
   const update = (patch: Partial<ImageOverride>) => {
     void image.setOverride({ ...override, ...patch }).catch((error: unknown) => {
-      console.warn("[Story Orchestrator] image preference not saved", error);
+      log.warn("image preference not saved", error);
       window.toastr?.info?.(PLAYER_COPY.imagePreferenceError);
     });
   };
-  const cues = [snapshot.imageStory?.checkpoints && "checkpoint changes", snapshot.imageStory?.scenes && "confirmed scene changes"].filter(Boolean);
+  const cues = [snapshot.imageStory?.checkpoints && "each new turn in the story", snapshot.imageStory?.scenes && "confirmed scene changes"].filter(Boolean);
   const automation = imageAutomationText(settings.automation.mode, cues.filter((cue): cue is string => typeof cue === "string"), settings.automation.everyN);
   return <section id="so-image-chat" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2 text-sm">
     <div className="font-medium">Illustrations <span className="opacity-60 font-normal">— this chat</span></div>

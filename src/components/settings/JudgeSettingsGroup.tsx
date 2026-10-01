@@ -8,6 +8,7 @@ import type { JudgeSelfTestReport } from "@judge/selfTest";
 import type { JudgeStatus } from "@services/STAPI";
 import type { WriteResult } from "@utils/writeResult";
 import HelpTooltip from "@components/studio/HelpTooltip";
+import { log } from "@utils/log";
 
 export interface JudgeSettingsPatch {
   enabled?: boolean;
@@ -181,7 +182,7 @@ export function JudgeSettingsGroup({
       setSaved(result.ok ? "saved" : "failed");
       setKeyError(result.ok ? null : result.reason);
     } catch (error) {
-      console.warn("[Story Orchestrator] judge key not saved", error);
+      log.warn("judge key not saved", error);
       setSaved("failed");
       setKeyError(null);
     } finally {

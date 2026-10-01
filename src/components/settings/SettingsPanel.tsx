@@ -12,6 +12,7 @@ import JudgeSettingsGroup, { type JudgeSettingsGroupProps, type JudgeSettingsPat
 import { StoryGroup } from "./StoryGroup";
 import { authoringSettings, DisplayGroup, LorebooksGroup, PacingGroup, StagecraftGroup, TalkGroup } from "./PlayGroups";
 import { CheckRow } from "./Field";
+import { log } from "@utils/log";
 
 const ImageGroup = lazyRetry(() => import("../../image/ImageGroup"));
 const SpriteGroup = lazyRetry(() => import("../../sprites/SpriteGroup"));
@@ -62,7 +63,7 @@ const useJudgeControls = (manager: RuntimeManager) => {
       const { runJudgeDirectorSelfTest } = await import("@judge/selfTest");
       report = await runJudgeDirectorSelfTest((request) => runtime.probe(request));
     } catch (error) {
-      console.warn("[Story Orchestrator] judge self-test failed", error);
+      log.warn("judge self-test failed", error);
     } finally {
       setSelfTest({ running: false, report });
     }

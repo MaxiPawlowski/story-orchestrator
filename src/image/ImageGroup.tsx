@@ -48,8 +48,8 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
         <div className="flex flex-col gap-1">
           <div className="flex items-center gap-1">
             <label htmlFor="so-image-mode">Automation for all chats</label>
-            <HelpTooltip title={"Story: follow each story's authored checkpoint/scene choices. " +
-              "Every N: draw every N replies and at each of the story's checkpoint/scene choices. " +
+            <HelpTooltip title={"Story: follow the moments each story asks art for. " +
+              "Every N: draw every N replies and at each of those story moments. " +
               "Tool: let the model ask. Manual: draw only when you ask."}
               href="/scripts/extensions/third-party/story-orchestrator/README.md#illustrations-and-scope" reference="When images appear" />
           </div>
