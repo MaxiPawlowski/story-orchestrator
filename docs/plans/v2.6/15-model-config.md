@@ -148,3 +148,91 @@ Notes on the gate runs:
 Live gates:
 - F1, F2 and F3 were proven on lane 1 (P1–P3), the main RP on lane 1 (P4) and the DeepSeek read on lane 1 (P5).
 - **F6 and F7 are NOT live-proven.** They need the branch merged and staged, which was not done (see the decisions above).
+
+## 2026-10-01 (afternoon): Artemis word-dropping and line loops, DRY A/B
+
+Two symptoms were reported by plan 14 Part B.
+- **Word-dropping** comes from T1-2-1, msgs 23, 25 and 26. It is mild in 23 ("Ourra-light", "falis"). Msg 25 (Dalan) is unreadable ("bow sliding his into grip … Ashs looks Belle then Tal, nods"). Msg 26 (Belle) drops its articles, with msg 25 already in its context. The prompts were about 42–46k characters, and the server evaluated 9.9–10.5k tokens.
+- **Line loops** come from T1-3-1, msgs 48, 51, 53, 54, 56 and 58. Each reply runs to the 600 cap repeating "The valley is quiet." or "The air is still." The first one is msg 48, captured as request #90 (56.8k characters, 13.7k tokens).
+
+Every request used the profile `Artemis RunPod RP` and the preset `Artemis v1.1 RP`, read from `data/default-user/TextGen Settings/Artemis v1.1 RP.json`:
+- `temperature` 1 (the war checkpoint's 0.8 overlay before the front, 1 after it);
+- `min_p` 0.05;
+- DRY: `dry_multiplier` 0.8, `dry_base` 1.75, `dry_allowed_length` 2, `dry_penalty_last_n` 4096, `dry_sequence_breakers` `["\n", ":", "\"", "*"]`;
+- `top_n_sigma` 0, `xtc_probability` 0, `adaptive_target` -0.01 (off), `repeat_penalty` 1, `top_k` 0, `top_p` 1.
+
+The session prompts and bodies came from `test/sessions/T1/T1-2-1/payloads.jsonl` (#37, #39) and `T1-3-1/payloads.jsonl` (#90). They were replayed through the pod's `/completion`, one call at a time, with `n_predict` 400 (200 for the loop arm). The harness is `C:\dev\so-lanes\artemis-ab\ab.py` and the full log is `calls.jsonl`.
+
+**Fixed seeds are not reproducible on this server.** The server runs 4 parallel slots with `--kv-unified`, and the same seed and body gave different text across runs. So every arm is n=1–4 samples, not a controlled pair.
+
+### The metric that names the cause
+
+Each call also asked for `n_probs: 1`, which returns the model's raw (pre-sampler) probability of the chosen token and of the top token. The metric `belowMinP` counts chosen tokens with raw probability < 0.05 × the raw top.
+- With `min_p` 0.05 and no penalties, such a pick is impossible.
+- Every such pick is therefore a token the model did not want, chosen because a penalty pushed the model's own choice down.
+
+Examples from the base preset:
+
+| Context | Picked (raw p) | Model wanted (raw p) |
+|---|---|---|
+| "He looks at the player" | " as" (0.011) | "," (0.82) |
+| "He looks at Belle" | " and" (0.037) | "," (0.93) |
+| "We ride as the" | " Lantern" (0.05) | " Ash" (0.94) |
+| "the blue crystal at the" (n1024 arm) | " tip" (0.03) | " top" (0.97) |
+
+**Each of these is DRY punishing the model's own stock phrasing.** Late in a session the chat is full of "He looks at the player, and his …" and "A beat, and …". "\nHe looks at the player" is a 5-token match, so DRY takes 0.8 × 1.75³ ≈ 4.3 logits off the right comma. `min_p` is applied after DRY, relative to the penalised top, so junk continuations pass the filter. That is where "theis the", "a small, smile", "this've", "theLash" and "hisL-s-" came from. The curly apostrophes in msg 26 ("We’re") are the same mechanism: the straight `'` was penalised.
+
+**The loop is the same imitation, which DRY cannot see.** "\n" is a sequence breaker, so a match never spans more than one line. "The valley is quiet." is about 5 tokens, so DRY's largest penalty on it is about 2.45 logits, against a loop the model holds at p ≈ 0.99. In the loop arm below, the base preset has `belowMinP` 0 to 1 per 200 tokens: DRY barely touches the loop.
+
+### Arms
+
+Prompts:
+- **W** = T1-2 #39 (Dalan, 10.5k tokens). T1-2 #37 (Talis, 9.9k) is noted where used.
+- **L** = T1-3 #90 plus the first 4 lines the live reply actually produced ("…The valley is quiet." ×3). L measures whether the samplers break out once a loop has started.
+- **S** = T1-2 #1 (Tobias, the first turn, 4.6k tokens).
+
+| Arm | Overrides | Prompt: samples | belowMinP (picks / tokens) | Reading |
+|---|---|---|---|---|
+| base | none | W: 4, Talis: 2 | 9/932 metered, plus a probe of 3/322 | 3 of 6 have merged or dropped words ("theis the", "this've gone", "a small, smile", "the looks at", "theis eyes"); the rest clean. The severity of msg 25 was not reproduced |
+| dryoff | `dry_multiplier 0` | W: 2 | (n/a) | 1 of 2 loops a full line 3×, with "bright and and" (the 2026-09-19 failure) |
+| n1024 | `dry_penalty_last_n 1024` | W: 4, Talis: 1 | 1/392 metered | 1 of 5 corrupt ("there-s-", "hisL-s-", "Lanterners") |
+| n512 | `dry_penalty_last_n 512` | W: 2 | (n/a) | 1 of 2 has "as if if" and "theLash", then a line loop ("The Ash Lanterns." ×4) |
+| m04 | `dry_multiplier 0.4` | W: 2 | 2/359 | both readable; 1 has "the looks at" (the shared seed prefix) |
+| al4 | `dry_allowed_length 4` | W: 2 | 5/542 | 1 of 2 loops ("We'll have to be very ready." ×6) |
+| base | none | L: 2 | 1/400 | **2/2 loop to the cap** (33 and 31 repeats). Reproduced |
+| nobrk | breakers `[":", "\"", "*"]` (no "\n") | L: 2, plain #90: 2 | 5/150 | **2/2 escape the loop** (eos after 10–29 tokens) |
+| cand | nobrk + `dry_multiplier 0.5` + `dry_allowed_length 3` | L: 2, W: 2, Talis: 2, S: 2 | 13/1387 | L: 2/2 escape. **W and Talis: 2 of 4 collapse.** One spells letters ("heL-I-L-E-S-O-T-O-O-R-O-S-A-M-E-R-O-A-D…"); the other runs "her pale face pale and pale…" for 8 lines. S: 2/2 clean, no loop |
+| rp | `repeat_penalty 1.05`, `repeat_last_n 256` | L: 1, W: 1 | 5/331 | L: **still loops** (33 repeats). W: readable |
+
+### Reading
+
+- **Both symptoms are reproduced.** Word-dropping is reproduced in its mild form (3 of 6 base samples); the severity of msg 25 was not seen in 20+ samples. The loop is reproduced 2/2 from the live onset.
+- **Cause: the model imitates itself in context, and DRY handles that imitation badly in both directions.**
+  - Within a line, DRY over-penalises short stock phrases and drops or merges words.
+  - Across lines, the "\n" breaker leaves line loops unpunished.
+  - The symptoms appear late in a session rather than at a prompt length, because a long chat is mostly the model's own formulaic prose.
+- **No DRY setting tested fixes both.**
+  - Taking "\n" out of the breakers is the only lever that breaks the loop. On long prompts (even at multiplier 0.5 and allowed length 3) it produced the worst output measured: DRY then penalises every repeated multi-line structure and forces the model out of distribution. This must not ship.
+  - A smaller window or multiplier (n1024, m04) lowers the over-penalty rate but does not remove it: n1024 still gave "hisL-s-". Neither changes the loop, which never relies on the window.
+  - A mild classic repetition penalty does not break the loop.
+- **What we inject is not the seed.** Request #90 was checked.
+  - The injected blocks (narrator guidance 14.7k characters, `[Earlier scenes]`, `Current state` with 34 one-line facts, `[Recent events]` with the pacing line, `[Scene: dawn. Present: Kanna.]`) contain no duplicated line. "quiet" appears 2× and "A beat" 0×.
+  - All 19 "A beat" and both "The valley is quiet." in the prompt are the model's own earlier replies. **Msg 45, the narrator's previous turn, already ended "A beat, and the valley is quiet.\nThe valley is quiet."**, and that is the seed of msg 48.
+  - Two injection-side contributors are worth a prompt review, not a fix here:
+    1. **The narrator is drafted with nothing new to narrate.** Kanna has just spoken for herself, and the guidance says "Narrate only the world and the characters outside the group … Concrete sight, sound and smell". The pacing line says "sustain the mood without spiking or releasing it … End on the world". Together they invite pure atmosphere lines.
+    2. **The `Current state` block is a 4.5k list of terse one-line facts** at depth ~1. It is the last thing before the reply, in the same terse-line register as the loop. Its goals are also stale (Dalan's active goal "Get the horses", Forre "location=war room").
+
+### Recommendation
+
+**Preset: no change.** Keep `Artemis v1.1 RP` as it is (DRY 0.8 / 1.75 / 2 / 4096, breakers `["\n", ":", "\"", "*"]`). Every tested arm is either no better on one symptom or worse on the other, and the one arm that breaks loops corrupts long-context prose. Since no preset change is recommended, there is no JSON diff and no seed-time patch. Lanes copy `TextGen Settings` from the real install at seed, so a future change would need one.
+
+What to do instead, in order:
+1. **Swipe a reply with a repeated line at once** (the memory note `artemis-rp-config` already says one spiral seeds more). For plan 14 Part B: when a reply repeats any line ≥3 times, or shows a broken run like msg 25, the autonomous driver should `swipe-new` or `regen` before the next turn, and record it as a model defect, not a product finding. Otherwise every later turn plays inside the loop, as msgs 51–58 did. A loop guard has to live in the harness or the product: llama.cpp offers no sampler that punishes a repeated short line without also hitting stock phrases.
+2. **Prompt review (plan 15 prompt audit):**
+   - Do not draft the narrator for a turn on which an in-group character has just spoken and nothing in the world changed. Or give the narrator guidance a "if nothing changes, one short line" escape.
+   - Soften "sustain the mood … End on the world" for that case.
+   - Consider moving `Current state` above the chat history, or rendering it as prose.
+3. **The next sampler arm, if the lead wants more data:** "\n" kept, with `dry_penalty_last_n` 1024 and `dry_multiplier` 0.6, for word-dropping only. It needs about 10+ samples per arm, because the seeds do not reproduce.
+4. **Not pursued:** the msg 25 request was sent twice, 0.2 s apart (#39 and #40, same Dalan prompt), into the 4-slot `--kv-unified` server. No replay came close to msg 25's damage. Whether the concurrent duplicate on shared slots made it worse is untested.
+
+Calls to the pod: 40 in total (`/health`, `/props`, then 38 `/completion` with `n_predict` ≤ 400), all sequential.
