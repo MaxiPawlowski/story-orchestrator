@@ -1070,7 +1070,7 @@
       "title": "Harness routing",
       "question": "Does the wizard work through the CLI harness route as well as through the local route?",
       "story": { "kind": "wizard", "premise": "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen." },
-      "setup": { "mode": "author", "persona": "An author.", "chat": "fresh", "settings": {}, "notes": ["Needs a fresh CLI login (opencode) before starting.", "Route the wizard role to the harness in the settings panel."] },
+      "setup": { "mode": "author", "persona": "An author.", "chat": "fresh", "settings": {}, "notes": ["opencode only, no CLI login (W 2026-09-30): the harness plugin runs opencode in its owned home; no claude or codex arm.", "Route the wizard role to the harness in the settings panel."] },
       "drive": [
         { "title": "Replay T5-1 through the harness", "aim": [], "why": "Same premise, review mode.", "lines": ["A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."] }
       ],

@@ -5,7 +5,7 @@ import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const GATES = ["typecheck", "typecheck:test", "lint", "test", "build", "build:dev", "test:release", "test:plugin", "test:debug", "debug:typecheck", "test-storybook:ci"];
+const GATES = ["typecheck", "typecheck:test", "lint", "test", "build", "build:dev", "test:release", "test:replay", "test:plugin", "test:debug", "debug:typecheck", "test-storybook:ci"];
 
 export const ciRuns = (yaml) => [...yaml.matchAll(/^\s+run: npm (?:run )?([\w:-]+)\s*$/gm)].map((match) => match[1]);
 

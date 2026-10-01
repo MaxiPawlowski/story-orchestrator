@@ -5,6 +5,7 @@ import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { applyMutant, classifyJest, classifyRun, mutationScore, specProblems, stratifiedSample } from './suiteMutants.mjs';
 import { applyAt, mutantsOf } from './suiteMutantGen.mjs';
+import { replayScope } from '../suite/defect-replay.mjs';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const SPECS = join(ROOT, 'test', 'findings', 'defect-replay');
@@ -69,4 +70,10 @@ test('every defect-replay spec is complete and still applies to the current tree
     return own;
   });
   assert.deepEqual(problems, []);
+});
+
+test('CR-P23: test:replay runs each mutant against its named killers by default, and against the whole suite with --full', () => {
+  const spec = { tests: ['src/a.test.ts', 'src/b.test.ts'] };
+  assert.deepEqual(replayScope(spec, false), ['--runTestsByPath', 'src/a.test.ts', 'src/b.test.ts']);
+  assert.deepEqual(replayScope(spec, true), []);
 });

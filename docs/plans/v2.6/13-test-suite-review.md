@@ -1,7 +1,8 @@
 # Plan 13 — Test suite review: fewer tests that each earn their place
 
-**Status: DRAFT 2026-09-30, awaiting user approval.** This plan runs right after step 0 and before any new test is
-written in v2.6, because its output is the budget every other plan's tests follow (overview rule 17).
+**Status: wave 1 + W25 BUILT 2026-09-30 and on master; defect replay 30/30 (re-run 2026-10-01 after the CR-P fixes,
+see `15-review.md`). The final LLM suite runs inside plan 15 Part B.** This plan runs right after step 0 and before
+any new test is written in v2.6, because its output is the budget every other plan's tests follow (overview rule 17).
 
 User request (2026-09-30): "we need to review the amount and quality of our already developed evals and test cases, i
 feel that we have too many".

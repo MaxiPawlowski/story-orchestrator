@@ -1513,7 +1513,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Story: a new story from the wizard: "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."; fresh chat; author mode.
   - Persona: An author.
   - Settings: images off; sprites off.
-  - Needs a fresh CLI login (opencode) before starting.
+  - opencode only, no CLI login (W 2026-09-30): the harness plugin runs opencode in its owned home; no claude or codex arm.
   - Route the wizard role to the harness in the settings panel.
 - **Drive:**
   1. **Replay T5-1 through the harness**. Same premise, review mode.

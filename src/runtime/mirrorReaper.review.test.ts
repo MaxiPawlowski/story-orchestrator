@@ -234,6 +234,15 @@ describe("v2.4 T14: MirrorReaper", () => {
     expect(calls.deleted).toEqual([bookOf("chat-a"), bookOf("chat-b")]);
   });
 
+  it("hostDeletes|duplicateCompletion (CR-P22): the same deletion announced twice asks once and deletes once", async () => {
+    const book = bookOf("chat-a");
+    const { reaper, calls } = harness({ books: new Map([[book, marker("chat-a")]]), presence: new Map([["chat-a", "absent"]]) });
+    await Promise.all([reaper.onChatDeleted("chat-a"), reaper.onChatDeleted("chat-a")]);
+    await reaper.onChatDeleted("chat-a");
+    expect(calls.confirmed).toEqual([book]);
+    expect(calls.deleted).toEqual([book]);
+  });
+
   it("keeps serving events after one reap throws", async () => {
     const book = bookOf("chat-b");
     const { reaper, calls } = harness({ books: new Map([[book, marker("chat-b")]]), presence: new Map([["chat-b", "absent"]]) }, {
