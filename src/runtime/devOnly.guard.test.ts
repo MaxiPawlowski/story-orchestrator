@@ -1,7 +1,7 @@
 import { join } from "path";
 import { SRC, buildGraph, prodFiles, reachableFrom, rel } from "../../test/support/codeHealth";
 
-const PLAN_09_SPIKES = ["src/memory/shortTermAppend.ts", "src/stagecraft/curatorTiers.ts", "src/stagecraft/curatorDigest.ts"];
+const PLAN_09_SPIKES = ["src/memory/shortTermAppend.ts", "src/stagecraft/curatorTiers.ts"];
 
 const DEV_ONLY = [
   "src/runtime/liveSuite.ts",
@@ -28,7 +28,10 @@ const SPIKES = [
   "src/runtime/spikes/toolTurnSummary.ts",
 ];
 const SPIKE_PATTERN = /^src\/runtime\/spikes\//;
-const DROPPED_SPIKES = ["src/runtime/spikes/recommitEdit.ts", "src/runtime/spikes/witnessFilter.ts", "src/runtime/spikes/witnessFilterHost.ts", "src/runtime/wiring/spikes.ts"];
+const DROPPED_SPIKES = [
+  "src/runtime/spikes/recommitEdit.ts", "src/runtime/spikes/witnessFilter.ts", "src/runtime/spikes/witnessFilterHost.ts", "src/runtime/wiring/spikes.ts",
+  "src/stagecraft/curatorDigest.ts",
+];
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
 
 const isDevOnly = (path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path) || SPIKE_PATTERN.test(path);
@@ -120,6 +123,7 @@ import "./runtime/spikes/recommitEdit";
 import "./runtime/spikes/witnessFilter";
 import "./runtime/spikes/witnessFilterHost";
 import "./runtime/wiring/spikes";
+import "./stagecraft/curatorDigest";
 ` : fs.readFileSync(path, "utf8"));
     const reached = staticReach(files, read);
     expect(reached.filter((path) => DROPPED_SPIKES.includes(path))).toEqual([]);

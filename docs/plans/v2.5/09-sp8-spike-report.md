@@ -138,3 +138,10 @@ line" built). Route: `curator` → `deepseek 4.1 flash`; W3's turns on `Artemis 
 | Cost | Prod +1 697 B already measured for the flag reads + writer guard; `.b` moves the 3 346 B tiers chunk into the main entry (≈ +3–5 KB of 1 250 000). `stagecraftCoordinator.ts` +22 lines. Prompt tokens 0 (ST strips `{{// …}}` before the prompt). Latency: none (plan-time check is pure; one re-read at the write edge already exists). | n/a |
 | Surface | Authors: `{{// so:auto}}`, `{{// so:protect}}…{{// so:end}}` in ST's own WI editor (Studio help text owed). Players: none. The campaign's Chronicle already carries the markers. | — |
 | Call | **include → `SP8.b`** | **drop** (removal commit + planted-import control). For Adolion the curator's real scope is the 13-entry Chronicle, below the 40-entry threshold anyway (lab README). |
+
+**Digest removed (v2.6 plan 03, after W4 b FAIL):** `src/stagecraft/curatorDigest.ts` and its spike test, the W4 (b) live
+runner (`liveSuite.ts` `runCuratorDigestCase`, `curatorDigestRunner.test.ts`), `--digest-pad` in `so-role-calibration.mts`,
+`scoreCurator`'s pad/narrow parameters, the `spikes.sp8CuratorDigest` flag, the size-profile fixture and its generator.
+D3: `curatorDigest.ts` is on `devOnly.guard.test.ts`'s `DROPPED_SPIKES`, with the planted-import control. The recorded
+digest goldens stay as evidence and are still excluded from replay by their `digestPad` field. Tiers + spans stay behind
+`spikes.sp8CuratorTiers` until `SP8.b`.

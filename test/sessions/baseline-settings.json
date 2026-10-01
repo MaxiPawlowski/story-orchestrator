@@ -176,7 +176,6 @@
       "sp6Complications": false,
       "sp4AppendShortTerm": false,
       "sp8CuratorTiers": false,
-      "sp8CuratorDigest": false,
       "reasoningEffect": false
     }
   }
