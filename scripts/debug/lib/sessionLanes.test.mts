@@ -4,7 +4,7 @@ import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { archiveLane, continuationsOf, dependencyRefusal, dependentsOf, executionOrder, leaseFor, leaseRefusal, outstandingDependents, planDrift, planLanes, readLease, reseedRefusal, restoreLane, writeLease, judgeRatePlan, laneJudgeRate, loadedJudgeRate, runningLanes, JUDGE_ACCOUNT_RATE_PER_MIN } from './sessionLanes.mts';
+import { archiveLane, continuationsOf, dependencyRefusal, dependentsOf, executionOrder, lanePinVerdict, leaseFor, leaseRefusal, outstandingDependents, planDrift, planLanes, readLease, readSeedRecords, reseedRefusal, restoreLane, seedRecordOf, writeLease, judgeRatePlan, laneJudgeRate, loadedJudgeRate, runningLanes, JUDGE_ACCOUNT_RATE_PER_MIN } from './sessionLanes.mts';
 import { findCard, LANE_PLAN_PATH, loadCards } from '../so-session.mts';
 
 test('AS-29 schedule: cards run tier by tier, and a cross-tier continuation keeps its lane reserved until its tier', async () => {
@@ -128,6 +128,56 @@ test('reseed guard: a lane holding a chat a later card continues is never re-see
   assert.equal(reseedRefusal(doc, 2, [{ charter: 'T2-1', lane: 2 }, { charter: 'T2-3', lane: 2 }, { charter: 'T2-5', lane: 2 }], 'T2-2'), null);
   assert.equal(reseedRefusal(doc, 3, [{ charter: 'T2-1', lane: 2 }], 'T2-2'), null);
   assert.deepEqual(continuationsOf(doc, 'T5-1').map((card) => card.id), ['T5-3', 'T5-4']);
+});
+
+test('pin bump: a continuation of the leased chat runs at the lane\'s own pin, recorded, with its inventory checked against its seed record', async () => {
+  const doc = await loadCards();
+  const card = findCard(doc, 'T2-4');
+  const fresh = findCard(doc, 'T1-2');
+  const inventory = { commit: 'old', books: [{ name: 'Adolion' }], library: [{ id: 'adolion-saga', version: 1 }] };
+  const seeds = [
+    { name: 'report-2026-10-01T10-00-00-000Z.json', report: { commit: 'older', file: 'inv-a.json', problems: [] } },
+    { name: 'report-2026-10-01T11-00-00-000Z.json', report: { commit: 'old', file: 'inv-b.json', problems: [] } },
+    { name: 'report-2026-10-01T12-00-00-000Z.json', report: { commit: 'old', file: 'inv-c.json', problems: ['a book is missing'] } },
+    { name: 'check-2026-10-01T13-00-00-000Z.json', report: { commit: 'old', file: 'inv-d.json', problems: [] } },
+  ];
+  const seed = seedRecordOf(seeds, 'old');
+  assert.equal(seed?.name, 'report-2026-10-01T11-00-00-000Z.json', 'the newest clean seed report of the lane\'s commit; a failed seed and a check are not seed records');
+  assert.equal(seedRecordOf(seeds, 'new'), null);
+  const lease = { lane: 1, holder: 'T1-1', session: 'test/sessions/T1/T1-1-1', chats: ['chat-1'], dependents: ['T2-4'], writtenAt: 'x' };
+  const base = { card, lane: 1, continueChat: 'chat-1', lease, laneCommit: 'old', indexCommit: 'new', seed, seedInventory: inventory, laneInventory: structuredClone(inventory) };
+
+  const accepted = lanePinVerdict(base);
+  assert.deepEqual(accepted.problems, []);
+  assert.deepEqual(accepted.continuedAtPin, { lanePin: 'old', indexPin: 'new', holder: 'T1-1', session: 'test/sessions/T1/T1-1-1', chat: 'chat-1', seedRecord: 'report-2026-10-01T11-00-00-000Z.json' });
+  assert.deepEqual(lanePinVerdict({ ...base, laneCommit: 'new' }), { problems: [], continuedAtPin: null }, 'same pin: nothing to record');
+
+  const drifted = lanePinVerdict({ ...base, laneInventory: { ...inventory, books: [] } });
+  assert.equal(drifted.continuedAtPin, null);
+  assert.match(drifted.problems[0], /lane was seeded from old, the story index is new; the lane inventory drifted from its seed record report-2026-10-01T11-00-00-000Z\.json: \$\.books/);
+  assert.match(lanePinVerdict({ ...base, seed: null, seedInventory: null }).problems[0], /no clean seed record of old/);
+  assert.match(lanePinVerdict({ ...base, laneCommit: null }).problems[0], /^lane was seeded from an unknown build, the story index is new$/);
+
+  const refusedFresh = lanePinVerdict({ ...base, card: fresh, continueChat: null });
+  assert.deepEqual(refusedFresh, { problems: ['lane was seeded from old, the story index is new'], continuedAtPin: null }, 'a fresh card keeps failing closed');
+
+  const refused = (over: Partial<typeof base>) => lanePinVerdict({ ...base, ...over }).problems[0] ?? '';
+  assert.match(refused({ lease: null }), /T2-4 continues a chat, but lane 1 holds no lease/);
+  assert.match(refused({ lease: { ...lease, dependents: ['T2-5'] } }), /does not list T2-4 as a dependent/);
+  assert.match(refused({ lease: { ...lease, chats: ['someone-else'] } }), /does not hold the chat T2-4 continues \(chat-1\)/);
+  assert.match(refused({ lease: { ...lease, lane: 2 } }), /the lease on lane 1 names lane 2/);
+  assert.match(refused({ continueChat: null }), /does not hold the chat T2-4 continues \(none recorded\)/);
+});
+
+test('pin bump: seed records are read from the lane\'s adolion-fresh dir, a broken report reads as no record', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'so-lane-seeds-'));
+  await writeFile(join(dir, 'report-2026-10-01T11-00-00-000Z.json'), JSON.stringify({ commit: 'old', file: 'x.json', problems: [] }), 'utf-8');
+  await writeFile(join(dir, 'report-2026-10-01T12-00-00-000Z.json'), '{broken', 'utf-8');
+  await writeFile(join(dir, 'inventory-latest.json'), '{}', 'utf-8');
+  const records = await readSeedRecords(dir);
+  assert.equal(records.length, 2);
+  assert.equal(seedRecordOf(records, 'old')?.name, 'report-2026-10-01T11-00-00-000Z.json');
+  assert.deepEqual(await readSeedRecords(join(dir, 'missing')), []);
 });
 
 test('T1 judge rate: the account rate is split over the running lanes plus this one, bounded 10..60, and an explicit rate wins', async () => {

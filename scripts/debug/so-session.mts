@@ -10,7 +10,7 @@ import {
 } from './lib/sessionCharters.mts';
 import { digestSession, parseJsonl, parseLines, registerRows, renderFindings, REQUIRED_CAPTURES, type ChatMessage } from './lib/sessionDigest.mts';
 import {
-  archiveLane, DEFAULT_LANES, dependencyRefusal, JUDGE_LANE_RATE_ENV, judgeRatePlan, laneFor, leaseFor, leaseRefusal, loadedJudgeRate, outstandingDependents, planDrift, planLanes, readLease, reseedRefusal, restoreLane, rootOf, runningLanes, sessionsUnder, writeLease,
+  archiveLane, DEFAULT_LANES, dependencyRefusal, JUDGE_LANE_RATE_ENV, judgeRatePlan, lanePinVerdict, laneFor, leaseFor, leaseRefusal, loadedJudgeRate, outstandingDependents, planDrift, planLanes, readLease, readSeedRecords, reseedRefusal, restoreLane, rootOf, runningLanes, seedRecordOf, sessionsUnder, writeLease,
   type LanePlan, type SessionOnLane,
 } from './lib/sessionLanes.mts';
 import { applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, hostSwipesProblems, loadBaseline, mediaPlan, overrideChain } from './lib/sessionBaseline.mts';
@@ -249,11 +249,11 @@ export function planStart(doc: CardDoc, index: StoryIndex, card: Card, options: 
 }
 
 export function startProblems(input: {
-  laneCommit: string | null; indexCommit: string; effective: string[]; pin: { ok: boolean; problems: string[] } | null; page: string[]; age: { fired?: boolean; reason?: string; error?: string } | null;
+  lane: string[]; effective: string[]; pin: { ok: boolean; problems: string[] } | null; page: string[]; age: { fired?: boolean; reason?: string; error?: string } | null;
   ageAsked: boolean; header: { code: number; output: string } | null; tails: string[];
 }): string[] {
   const out: string[] = [];
-  if (input.laneCommit !== input.indexCommit) out.push(`lane was seeded from ${input.laneCommit ?? 'an unknown build'}, the story index is ${input.indexCommit}`);
+  out.push(...input.lane);
   out.push(...input.effective);
   if (input.pin && !input.pin.ok) out.push(...(input.pin.problems.length ? input.pin.problems : ['the routing pin failed']));
   out.push(...input.page);
@@ -308,7 +308,15 @@ async function start(id: string, options: StartOptions) {
   const inventoryPath = resolve(lane.root, 'adolion-fresh', 'inventory-latest.json');
   const inventory = existsSync(inventoryPath) ? await readJson(inventoryPath) : null;
   const laneCommit = inventory?.commit ?? null;
-  if (laneCommit !== index.commit) return fail('lane', startProblems({ laneCommit, indexCommit: index.commit, effective: [], pin: null, page: [], age: null, ageAsked: false, header: null, tails: [] }));
+  const seedRecord = seedRecordOf(await readSeedRecords(resolve(lane.root, 'adolion-fresh')), laneCommit);
+  const seedInventory = seedRecord && existsSync(String(seedRecord.report.file)) ? await readJson(String(seedRecord.report.file)).catch(() => null) : null;
+  const pinVerdict = lanePinVerdict({
+    card, lane: plan.lane, continueChat: plan.open.continueChat, lease: await readLease(lane.root), laneCommit, indexCommit: index.commit,
+    seed: seedRecord, seedInventory, laneInventory: inventory,
+  });
+  if (pinVerdict.problems.length) return fail('lane', startProblems({ lane: pinVerdict.problems, effective: [], pin: null, page: [], age: null, ageAsked: false, header: null, tails: [] }));
+  const continuedAtPin = pinVerdict.continuedAtPin;
+  if (continuedAtPin) warnings.push(`continued at the lane's pin: ${card.id} continues ${continuedAtPin.holder}'s chat ${continuedAtPin.chat} on a lane seeded from ${continuedAtPin.lanePin}, the story index is ${continuedAtPin.indexPin} (inventory matches seed record ${continuedAtPin.seedRecord})`);
   const media = mediaPlan(card.setup.settings ?? {}, plan.media, Number(inventory?.sprites?.prerendered ?? 0));
   const expected = effectiveSettings(baseline, plan.chain, media);
   console.log(`[3/8] baseline settings + card overrides (${media.variant}${media.unexercised.length ? `, unexercised: ${media.unexercised.join(', ')}` : ''}), reload`);
@@ -341,7 +349,7 @@ async function start(id: string, options: StartOptions) {
     const primary = (page.chats ?? []).filter((chat: any) => chat.primary).pop();
     age = await liveInLane(plan.lane, viewportEnv, { verb: 'age', dir, chat: primary ? { chatId: primary.chatId, group: primary.group ?? null, groupId: primary.groupId ?? null } : null, args: { hours: plan.age } });
     await appendTurn(dir, age);
-    if (!age?.fired) return fail('age', startProblems({ laneCommit, indexCommit: index.commit, effective: [], pin: null, page: [], age, ageAsked: true, header: null, tails: [] }));
+    if (!age?.fired) return fail('age', startProblems({ lane: [], effective: [], pin: null, page: [], age, ageAsked: true, header: null, tails: [] }));
   }
   const playFrom = new Date().toISOString();
   console.log('[6/8] run header');
@@ -360,7 +368,7 @@ async function start(id: string, options: StartOptions) {
     settings: { baselineVersion: baseline.version, chain: plan.chain.map((step) => step.card), effective: 'effective-settings.json' },
     media, arm: plan.arm, logOffset: logSize(lane.log), host: effectiveRead.host, presetOverlay: presets.overlay, judgeRate: { ...judgeRate, loaded: loadedRate },
     pin: { profile: plan.pin.profile, orchestrator: plan.pin.orchestrator, judge: plan.pin.judge, verdict: pin.verdict, probe: pin.probe, routing: pin.routing },
-    age, premise: plan.open.premise,
+    age, premise: plan.open.premise, continuedAtPin,
     chatsBefore: page.chatsBefore ?? [], chats: page.chats ?? [], continues: card.setup.continues ?? null, problems: [] as string[], warnings,
   };
   await writeFile(resolve(dir, 'session.json'), JSON.stringify(session, null, 2), 'utf-8');
