@@ -96,3 +96,22 @@ no candidate **or** to a member outside `acceptable`; the null-only count is rep
 | Surface | Author: an aliases field per roster member (Studio roster editor); player: none. |
 | Risk | Ambiguous aliases (lab: 44 shared, 18 unresolvable by scope) must never resolve by guess; `rollback ≡ replay` untouched (director only). |
 | Call | **include → `SP3.b`** (Phase B, director scope only), gated by v2.5's Phase B condition: the A2 rate re-measured on two fresh runs of the same 174 windows, each ≤ half its Phase A rate (≤ 3.30 and ≤ 2.87 per 50). If it misses, drop and keep exact matching. Memory/epistemic/ledger aliasing: **drop** (A1 FAIL on real audits). |
+
+### SP3.b Phase B re-measure (v2.6, 2026-10-01 21:33Z) — **PASS**, SP3.b kept
+
+Restated `docs/plans/v2.6/03-sp3-restated.md` §SP3.b (+ addendum 1). Lane 2 (adolion-fresh at `884380b`, overlay
+`4af4006b7801`), served bundle `8319f7535e1e` (master `948e0d13`, SP3.b built), the same 174 director windows (pin
+`59e8821` rows, JSON-identical to Phase A) with the lab's 312 `ship[]` aliases attached by `phaseB-rows.mjs`, real
+director prompt and parser on `deepseek 4.1 flash`, ×2 back to back. An earlier attempt (19:52Z) hit DeepSeek's
+outage (every call timed out) and was stopped unscored. Record `test/measurements/v2.6-03/sp3b/a2-live.json`.
+
+| Run | Wrong | Null | Per 50 | Bar (½ Phase A) | Result |
+|---|---|---|---|---|---|
+| 1 | 7 | 0 | **2.01** | ≤ 3.30 (≤ 11.5 of 174) | PASS |
+| 2 | 10 | 0 | **2.87** | ≤ 2.87 (≤ 10 of 174: half of Phase A's 20) | PASS (at the bar) |
+
+Canonical controls 12/12 both runs. Lead-over-member misses fell from 13/12 (Phase A) to 3/5; the residue repeats across
+runs (AD038 Shiya↔Eriana, AD062/AD063 Lirael↔Celedir, AD096 Yuna, AD102 Rikako, AD132 Gabriel, AD142 the Lady of the
+Forest). Run 2 sits exactly on its bar (10 of 174 = 2.874 per 50 = half of 5.747); compared in counts, 10 ≤ 10.
+**SP3.b stays** (director scope only). Remaining owed: the campaign build carries `roster[].aliases` before a session
+relies on it (04 §SP3.b).
