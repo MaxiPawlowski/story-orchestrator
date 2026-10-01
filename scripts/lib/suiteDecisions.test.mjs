@@ -23,8 +23,8 @@ test('jest is kept whole; a vacuous file is a fix, and a replay killer says whic
   assert.match(decideAsset('jest', { replay: [], guard: 'nothing named', fixes: 2 }, config).reason, /unnamed/);
 });
 
-test('a vacuous needle whose fix redefines a reported number waits for its owner', () => {
-  assert.equal(decideAsset('live', { name: 'extractor9', vacuous: ['facts.mustContain: ""'], tiers: [] }, config).decision, 'fix (pending decision)');
+test('a vacuous live needle is a fix; a fixture with real needles is kept', () => {
+  assert.equal(decideAsset('live', { name: 'extractor9', vacuous: ['facts.mustContain: ""'], tiers: [] }, config).decision, 'fix');
   assert.equal(decideAsset('live', { name: 'extractor21', vacuous: [], tiers: ['deltas'] }, config).decision, 'keep');
 });
 

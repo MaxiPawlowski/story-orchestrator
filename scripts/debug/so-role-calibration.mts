@@ -33,8 +33,8 @@ then scores it against the floors predeclared in docs/plans/v2.4/08-author-obser
                        rules and floors. The report carries each case's digest ratio. Default arm: digest.
   --holdout            authoring only (v2.5 plan 06 J1): also run test/fixtures/role-calibration/authoring-holdout.json
                        and report its validity/opShape beside the fixture score. It never enters the floors. The hold-out
-                       was all Spanish and went with v2.6 W25 (English only); until an English one is labelled, --holdout
-                       refuses and the verdict requires no hold-out.
+                       is required: a missing hold-out file refuses the run, and an authoring verdict without hold-out scores
+                       is incomplete (v2.6 plan 15 AS-16 relabelled it in English after W25).
 
 verdict: the plan 06 J1 rule over two consecutive recorded reports of one role and one bundle: recommended only if
 both meet every floor; an authoring hold-out miss in either run reads 'fixture floors met; generalisation not shown'.
@@ -101,10 +101,13 @@ export async function loadCases(role: string) {
   return { frozenAt: fixture.frozenAt, floorIds: null, cases: fixture.cases };
 }
 
-export async function loadHoldout(role: string) {
-  if (role !== 'authoring' || !existsSync(join(PROJECT_ROOT, HOLDOUT_FIXTURE))) return null;
-  const holdout = await readJson(HOLDOUT_FIXTURE);
+export async function loadHoldout(role: string, path = HOLDOUT_FIXTURE) {
+  if (role !== 'authoring') return null;
+  if (!existsSync(join(PROJECT_ROOT, path))) throw new Error(`the authoring hold-out ${path} is missing; the authoring gate is blocked until it exists`);
+  const holdout = await readJson(path);
   const fixture = await readJson(`test/fixtures/role-calibration/${holdout.draftsFrom}`);
+  const unresolved = holdout.cases.filter((entry) => !fixture.drafts?.[entry.draft]).map((entry) => entry.id);
+  if (unresolved.length) throw new Error(`the authoring hold-out names drafts ${holdout.draftsFrom} does not hold: ${unresolved.join(', ')}`);
   return {
     labelledAt: holdout.labelledAt,
     cases: holdout.cases.map((entry) => ({ ...entry, draft: fixture.drafts[entry.draft], ...(entry.stage === 'provisioning' ? { environment: fixture.environment } : {}) })),
@@ -115,7 +118,7 @@ export function verdictFromReports(reports) {
   const roles = [...new Set(reports.map((report) => report.role))];
   if (roles.length !== 1) throw new Error(`a verdict is for one role; got ${roles.join(', ')}`);
   const runs: RoleRun[] = reports.map((report) => ({ bundle: report.bundle, meetsFloors: report.summary?.meetsFloors ?? null, holdout: report.holdout ?? null }));
-  return roleVerdict(runs, { holdoutRequired: roles[0] === 'authoring' && existsSync(join(PROJECT_ROOT, HOLDOUT_FIXTURE)) });
+  return roleVerdict(runs, { holdoutRequired: roles[0] === 'authoring' });
 }
 
 async function setRoute(page, role: string, profile: string | null) {

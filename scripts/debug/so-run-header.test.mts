@@ -6,7 +6,10 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { diffHeaders, parseAllow, readBuild, bundleWarning, profileInventory, samplerState, thirdPartyState } from './so-run-header.mts';
+import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+import { join } from 'node:path';
+import { diffHeaders, parseAllow, readBuild, readCampaign, bundleWarning, profileInventory, samplerState, thirdPartyState } from './so-run-header.mts';
 
 const header = (overrides: Record<string, any> = {}) => ({
   label: 'a',
@@ -266,4 +269,42 @@ test('control: an extension that is not installed reads null, not an empty objec
   const state = thirdPartyState({ disabled: [], installed: null, settings: {} });
   assert.equal(state.watched['st-stepped-thinking'], null);
   assert.equal(state.installed, null);
+});
+
+test('campaign: the pin commit and the installed inventory of the lane are recorded, and a re-import at another commit is a blocking diff (CR-P19)', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'so-campaign-'));
+  const pin = join(dir, 'pin.json');
+  const work = join(dir, 'adolion-fresh');
+  mkdirSync(work);
+  writeFileSync(pin, JSON.stringify({ repo: 'C:/dev/adolion-campaign', branch: 'v26', commit: 'aaa111' }));
+  writeFileSync(join(work, 'inventory-latest.json'), JSON.stringify({ commit: 'aaa111', books: [{ name: 'Adolion World' }] }));
+  const before = readCampaign(pin, work);
+  assert.deepEqual(before.warnings, []);
+  assert.equal(before.campaign.pinCommit, 'aaa111');
+  assert.equal(before.campaign.pinBranch, 'v26');
+  assert.equal((before.campaign.installed as { commit: string }).commit, 'aaa111');
+  writeFileSync(pin, JSON.stringify({ repo: 'C:/dev/adolion-campaign', branch: 'v26', commit: 'bbb222' }));
+  writeFileSync(join(work, 'inventory-latest.json'), JSON.stringify({ commit: 'bbb222', books: [{ name: 'Adolion World' }, { name: 'Adolion Chronicle' }] }));
+  const after = readCampaign(pin, work);
+  const blocking = diffHeaders({ campaign: before.campaign } as any, { campaign: after.campaign } as any).filter((entry) => !entry.allowed).map((entry) => entry.path).sort();
+  assert.deepEqual(blocking, ['campaign.installed.commit', 'campaign.installed.sha256', 'campaign.pinCommit']);
+  assert.deepEqual(diffHeaders({ campaign: after.campaign } as any, { campaign: readCampaign(pin, work).campaign } as any), []);
+});
+
+test('campaign: off an adolion-fresh lane the inventory reads null without a warning; a missing or broken pin, or a broken inventory, warns', () => {
+  const dir = mkdtempSync(join(tmpdir(), 'so-campaign-'));
+  const pin = join(dir, 'pin.json');
+  writeFileSync(pin, JSON.stringify({ commit: 'aaa111' }));
+  const plain = readCampaign(pin, join(dir, 'no-lane'));
+  assert.equal(plain.campaign.installed, null);
+  assert.deepEqual(plain.warnings, []);
+  assert.equal(readCampaign(join(dir, 'absent.json'), join(dir, 'no-lane')).warnings.length, 1);
+  writeFileSync(pin, '{not json');
+  assert.match(readCampaign(pin, join(dir, 'no-lane')).warnings[0], /unreadable/);
+  const work = join(dir, 'adolion-fresh');
+  mkdirSync(work);
+  writeFileSync(join(work, 'inventory-latest.json'), '{broken');
+  const broken = readCampaign(join(dir, 'absent.json'), work);
+  assert.deepEqual(broken.campaign.installed, { error: 'unreadable' });
+  assert.equal(broken.warnings.length, 2);
 });

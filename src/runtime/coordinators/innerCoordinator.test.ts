@@ -183,6 +183,30 @@ describe("the inner beat pass (v2.6 plan 06 C)", () => {
     expect(beats()).toBeUndefined();
   });
 
+  it("inner|delayedError (CR-P22): a held call that rejects after the await rejects the pass and writes nothing", async () => {
+    let fail: (error: Error) => void = () => {};
+    const held = new Promise<string>((_resolve, reject) => { fail = reject; });
+    const { deps, beats, persist } = harness({ answers: [held] });
+    const running = new InnerCoordinator(deps).run();
+    await Promise.resolve();
+    await Promise.resolve();
+    expect(beats()).toBeUndefined();
+    fail(new Error("API request failed"));
+    await expect(running).rejects.toThrow("API request failed");
+    expect(beats()).toBeUndefined();
+    expect(persist).not.toHaveBeenCalled();
+  });
+
+  it("inner|duplicateCompletion (CR-P22): the same reply's beat delivered twice is one beat in the ring", async () => {
+    const { deps, beats, prompts } = harness();
+    const coordinator = new InnerCoordinator(deps);
+    await coordinator.run();
+    await coordinator.run();
+    expect(prompts).toHaveLength(2);
+    expect(beats()).toHaveLength(1);
+    expect(beats()?.[0]).toMatchObject({ memberId: "ponticius", basedOnMessageId: 1, beat: "Stall them at the door." });
+  });
+
   it("journals a beat that was never drafted when a newer one replaces it", async () => {
     const { deps, rows, journal } = harness();
     const coordinator = new InnerCoordinator(deps);

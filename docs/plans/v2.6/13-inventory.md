@@ -13,11 +13,11 @@ Column heuristics (all read from the asset text; `scripts/lib/suiteInventory.mjs
 
 | Tier | Assets | Tests / checks | Needs LLM | Guards nothing named | Vacuous | Runtime |
 |---|---|---|---|---|---|---|
-| jest: pure unit | 125 | 2438 | 0 | 31 | 0 | 57.9 s |
-| jest: unit (host faked) | 246 | 2403 | 0 | 32 | 0 | 291.8 s |
+| jest: pure unit | 129 | 2499 | 0 | 33 | 0 | 60.7 s |
+| jest: unit (host faked) | 257 | 2513 | 0 | 33 | 0 | 228.0 s |
 | Storybook | 50 | 327 stories, 323 plays | 0 | — | 0 files without a play | build + run, minutes |
-| harness (node --test) | 74 | 587 | 0 | 33 | 0 | seconds |
-| debug tools (not tests) | 44 | — | — | — | 25 without a harness test | — |
+| harness (node --test) | 87 | 703 | 0 | 42 | 0 | seconds |
+| debug tools (not tests) | 45 | — | — | — | 24 without a harness test | — |
 | no-LLM scenario | 103 | 1301 steps | 0 | 33 | 0 | ~52 min est. |
 | LLM scenario | 72 | 1843 steps | 72 | 19 | 0 | ~368 min est. |
 | journey check | 15 journeys | 144 checks (21 human) | 45 | 66 with no finding id | 0 | ~114 min est. |
@@ -28,383 +28,398 @@ Column heuristics (all read from the asset text; `scripts/lib/suiteInventory.mjs
 | story fixtures in test/scenarios | 20 | — | — | — | — | — |
 | archived run records | 2027 files in 36 dirs | 1997 cited | — | — | — | 24.62 MB (24.18 MB cited) |
 
-jest total: 371 files, 4841 tests, 349.7 s summed per-file runtime.
+jest total: 386 files, 5012 tests, 288.7 s summed per-file runtime.
 
 ## jest files
 
 | File | Tier | Tests | Runtime s | Guards | Replay kills | Fix commits | Dup titles | Vacuous |
 |---|---|---|---|---|---|---|---|---|
 | `src/components/studio/graphPanelUtils.test.ts` | unit (host faked) | 2 | ? | contract |  | 0 |  |  |
-| `src/constants/injectionRegistry.test.ts` | pure unit | 5 | 0.1 | defect |  | 0 |  |  |
-| `src/copilot/agent/loop.test.ts` | pure unit | 15 | ? | contract |  | 0 |  |  |
-| `src/copilot/agent/safety.review.test.ts` | pure unit | 3 | ? | defect |  | 0 |  |  |
-| `src/copilot/agent/tools.test.ts` | pure unit | 10 | ? | contract |  | 0 |  |  |
+| `src/constants/injectionRegistry.test.ts` | pure unit | 5 | 0.2 | defect |  | 0 |  |  |
+| `src/copilot/agent/bridge.test.ts` | pure unit | 13 | 0.3 | contract |  | 1 |  |  |
+| `src/copilot/agent/drive.test.ts` | pure unit | 4 | 0.2 | contract |  | 0 |  |  |
+| `src/copilot/agent/loop.test.ts` | pure unit | 15 | 0.1 | contract |  | 1 |  |  |
+| `src/copilot/agent/safety.review.test.ts` | pure unit | 22 | 0.4 | defect |  | 0 |  |  |
+| `src/copilot/agent/tools.test.ts` | pure unit | 10 | 0.2 | contract |  | 0 |  |  |
 | `src/copilot/authoring.test.ts` | pure unit | 12 | 0.2 | nothing named |  | 3 |  |  |
-| `src/copilot/authoringA16.review.test.ts` | pure unit | 5 | 0.2 | defect |  | 1 |  |  |
-| `src/copilot/parse.test.ts` | pure unit | 22 | 0.2 | contract | lore-select-drops-exclusive | 2 |  |  |
-| `src/copilot/proposal.test.ts` | pure unit | 16 | 0.2 | contract |  | 1 |  |  |
-| `src/copilot/validate.test.ts` | pure unit | 19 | 0.2 | nothing named |  | 2 |  |  |
-| `src/engine/agency.test.ts` | pure unit | 7 | 0.1 | defect |  | 0 |  |  |
-| `src/engine/clampToChat.test.ts` | pure unit | 2 | 0.1 | defect |  | 0 |  |  |
-| `src/engine/convergence.property.test.ts` | pure unit | 1001 | 2.3 | nothing named |  | 1 |  |  |
-| `src/engine/discardPendingFrom.test.ts` | pure unit | 2 | 0.1 | contract |  | 0 |  |  |
-| `src/engine/engine.review.test.ts` | pure unit | 6 | 0.2 | defect |  | 0 |  |  |
-| `src/engine/engine.test.ts` | pure unit | 32 | 0.3 | defect |  | 1 |  |  |
+| `src/copilot/authoringA16.review.test.ts` | pure unit | 5 | 0.1 | defect |  | 1 |  |  |
+| `src/copilot/parse.test.ts` | pure unit | 23 | 0.2 | contract | lore-select-drops-exclusive (killed) | 2 |  |  |
+| `src/copilot/proposal.test.ts` | pure unit | 17 | 0.5 | contract |  | 1 |  |  |
+| `src/copilot/validate.test.ts` | pure unit | 19 | 0.9 | nothing named |  | 2 |  |  |
+| `src/engine/agency.test.ts` | pure unit | 7 | 0.5 | defect |  | 0 |  |  |
+| `src/engine/clampToChat.test.ts` | pure unit | 2 | 0.2 | defect |  | 0 |  |  |
+| `src/engine/convergence.property.test.ts` | pure unit | 1001 | 2.2 | nothing named |  | 1 |  |  |
+| `src/engine/discardPendingFrom.test.ts` | pure unit | 2 | 0.2 | contract |  | 0 |  |  |
+| `src/engine/engine.review.test.ts` | pure unit | 6 | 0.7 | defect |  | 0 |  |  |
+| `src/engine/engine.test.ts` | pure unit | 32 | 0.5 | defect |  | 1 |  |  |
 | `src/engine/evaluatedBlackboard.test.ts` | pure unit | 4 | 0.1 | contract |  | 0 |  |  |
 | `src/engine/exampleStory.test.ts` | pure unit | 8 | 0.2 | nothing named |  | 0 |  |  |
-| `src/engine/historySize.test.ts` | pure unit | 2 | 0.2 | defect |  | 1 |  |  |
-| `src/engine/houseRules.test.ts` | pure unit | 3 | 0.2 | contract |  | 0 |  |  |
+| `src/engine/historySize.test.ts` | pure unit | 2 | 0.1 | defect |  | 1 |  |  |
+| `src/engine/houseRules.test.ts` | pure unit | 3 | 0.1 | contract |  | 0 |  |  |
 | `src/engine/independentStory.test.ts` | pure unit | 2 | 0.1 | defect |  | 0 |  |  |
 | `src/engine/journeyStories.test.ts` | pure unit | 10 | 0.2 | nothing named |  | 0 |  |  |
-| `src/engine/objectiveLine.test.ts` | pure unit | 13 | 0.3 | contract |  | 0 |  |  |
+| `src/engine/objectiveLine.test.ts` | pure unit | 13 | 0.2 | contract |  | 0 |  |  |
 | `src/engine/playerFields.test.ts` | pure unit | 2 | 0.1 | nothing named |  | 0 |  |  |
-| `src/engine/replaceGraph.test.ts` | pure unit | 3 | 0.1 | defect | replace-graph-drops-history, replace-graph-drops-queue | 0 |  |  |
+| `src/engine/replaceGraph.test.ts` | pure unit | 3 | 0.2 | defect | replace-graph-drops-history (killed), replace-graph-drops-queue (killed) | 0 |  |  |
 | `src/engine/rosterRole.test.ts` | pure unit | 2 | 0.1 | contract |  | 0 |  |  |
 | `src/engine/stagecraftFormat.test.ts` | pure unit | 12 | 0.1 | contract |  | 0 |  |  |
-| `src/engine/storyCorpus.test.ts` | pure unit | 3 | 0.5 | contract |  | 0 |  |  |
-| `src/engine/storyDiff.test.ts` | pure unit | 28 | 0.3 | defect |  | 0 |  |  |
-| `src/extraction/authority.review.test.ts` | pure unit | 7 | 0.4 | defect |  | 0 |  |  |
-| `src/extraction/breakerSlowBackend.review.test.ts` | pure unit | 11 | 0.4 | defect |  | 0 |  |  |
+| `src/engine/storyCorpus.test.ts` | pure unit | 3 | 0.3 | contract |  | 0 |  |  |
+| `src/engine/storyDiff.test.ts` | pure unit | 28 | 0.2 | defect |  | 0 |  |  |
+| `src/extraction/authority.review.test.ts` | pure unit | 7 | 0.1 | defect |  | 0 |  |  |
+| `src/extraction/breakerSlowBackend.review.test.ts` | pure unit | 11 | 0.2 | defect |  | 0 |  |  |
 | `src/extraction/callBudget.test.ts` | pure unit | 6 | 0.2 | contract |  | 1 |  |  |
-| `src/extraction/callBudgetScale.test.ts` | unit (host faked) | 6 | 0.4 | contract |  | 1 |  |  |
-| `src/extraction/chunker.test.ts` | pure unit | 9 | 9.1 | contract |  | 0 |  |  |
-| `src/extraction/client.test.ts` | unit (host faked) | 18 | 0.7 | contract |  | 1 |  |  |
-| `src/extraction/clientSlowBackend.test.ts` | unit (host faked) | 12 | 0.5 | nothing named |  | 0 |  |  |
+| `src/extraction/callBudgetScale.test.ts` | unit (host faked) | 6 | 0.2 | contract |  | 1 |  |  |
+| `src/extraction/chunker.test.ts` | pure unit | 9 | 6.3 | contract |  | 0 |  |  |
+| `src/extraction/client.test.ts` | unit (host faked) | 20 | 0.2 | contract |  | 1 |  |  |
+| `src/extraction/clientSlowBackend.test.ts` | unit (host faked) | 12 | 0.2 | nothing named |  | 0 |  |  |
 | `src/extraction/commitGuard.test.ts` | pure unit | 7 | 0.1 | nothing named |  | 0 |  |  |
 | `src/extraction/cues.test.ts` | pure unit | 3 | 0.1 | nothing named |  | 1 |  |  |
 | `src/extraction/degenerate.test.ts` | pure unit | 7 | 0.2 | contract |  | 0 |  |  |
-| `src/extraction/escapedEvidence.test.ts` | pure unit | 24 | 0.3 | defect |  | 0 |  |  |
+| `src/extraction/escapedEvidence.test.ts` | pure unit | 24 | 0.2 | defect |  | 0 |  |  |
 | `src/extraction/evidence.test.ts` | pure unit | 15 | 0.2 | defect |  | 0 |  |  |
-| `src/extraction/evidenceCorpus.test.ts` | pure unit | 3 | 0.2 | defect |  | 0 |  |  |
-| `src/extraction/extraction.test.ts` | pure unit | 48 | 0.4 | contract |  | 2 |  |  |
-| `src/extraction/hintSidecars.test.ts` | pure unit | 30 | 0.2 | contract |  | 0 |  |  |
-| `src/extraction/inputBudget.test.ts` | pure unit | 7 | 0.1 | contract |  | 0 |  |  |
-| `src/extraction/judgedRead.test.ts` | pure unit | 4 | 0.4 | contract |  | 1 |  |  |
-| `src/extraction/labelledEvidence.test.ts` | pure unit | 39 | 0.2 | nothing named |  | 0 |  |  |
-| `src/extraction/parse.test.ts` | pure unit | 20 | 0.2 | nothing named | reasoning-orphan-close | 0 |  |  |
-| `src/extraction/playerEvidence.test.ts` | pure unit | 19 | 0.6 | defect |  | 0 |  |  |
+| `src/extraction/evidenceCorpus.test.ts` | pure unit | 3 | 0.4 | defect |  | 0 |  |  |
+| `src/extraction/extraction.test.ts` | pure unit | 52 | 0.4 | contract |  | 2 |  |  |
+| `src/extraction/hintSidecars.test.ts` | pure unit | 30 | 0.3 | contract |  | 0 |  |  |
+| `src/extraction/inputBudget.test.ts` | pure unit | 7 | 0.2 | contract |  | 0 |  |  |
+| `src/extraction/judgedRead.test.ts` | pure unit | 4 | 0.7 | contract |  | 1 |  |  |
+| `src/extraction/labelledEvidence.test.ts` | pure unit | 39 | 0.4 | nothing named |  | 0 |  |  |
+| `src/extraction/parse.test.ts` | pure unit | 20 | 0.2 | nothing named | reasoning-orphan-close (killed) | 0 |  |  |
+| `src/extraction/playerEvidence.test.ts` | pure unit | 19 | 0.2 | defect |  | 0 |  |  |
 | `src/extraction/preflight.test.ts` | pure unit | 4 | 0.1 | contract |  | 0 |  |  |
-| `src/extraction/reconcile.test.ts` | pure unit | 1 | 0.3 | contract |  | 0 |  |  |
+| `src/extraction/promptAudit.test.ts` | pure unit | 9 | 0.1 | contract |  | 0 |  |  |
+| `src/extraction/reconcile.test.ts` | pure unit | 1 | 0.1 | contract |  | 0 |  |  |
 | `src/extraction/sceneArms.test.ts` | pure unit | 14 | 0.1 | contract |  | 0 |  |  |
-| `src/extraction/scheduler.breaker.test.ts` | pure unit | 17 | 0.4 | contract |  | 0 |  |  |
-| `src/extraction/scheduler.harness.test.ts` | pure unit | 6 | ? | contract |  | 1 |  |  |
-| `src/extraction/scheduler.routes.test.ts` | pure unit | 4 | 0.4 | defect |  | 0 |  |  |
-| `src/extraction/scheduler.test.ts` | pure unit | 21 | 0.7 | defect |  | 3 |  |  |
+| `src/extraction/scheduler.breaker.test.ts` | pure unit | 18 | 0.3 | contract |  | 0 |  |  |
+| `src/extraction/scheduler.harness.test.ts` | pure unit | 6 | 0.1 | contract |  | 1 |  |  |
+| `src/extraction/scheduler.routes.test.ts` | pure unit | 4 | 0.1 | defect |  | 0 |  |  |
+| `src/extraction/scheduler.test.ts` | pure unit | 21 | 0.8 | defect |  | 3 |  |  |
 | `src/extraction/schedulerClear.review.test.ts` | pure unit | 11 | 0.2 | defect |  | 2 |  |  |
 | `src/extraction/schedulerDelayedError.review.test.ts` | pure unit | 4 | 0.2 | defect |  | 0 |  |  |
-| `src/extraction/schedulerReadOwnership.review.test.ts` | pure unit | 2 | 0.2 | defect |  | 0 |  |  |
-| `src/extraction/schedulerReread.review.test.ts` | pure unit | 11 | 0.3 | defect |  | 1 |  |  |
-| `src/extraction/scopeExplain.test.ts` | pure unit | 7 | 0.1 | nothing named |  | 0 |  |  |
-| `src/extraction/sharedReadBudget.test.ts` | pure unit | 9 | 0.6 | contract |  | 1 | 1 |  |
-| `src/extraction/sharedReadFinish.test.ts` | pure unit | 6 | 0.4 | contract |  | 0 |  |  |
-| `src/extraction/windowHygiene.test.ts` | pure unit | 50 | 0.6 | defect |  | 1 |  |  |
-| `src/extraction/windowHygieneWiring.review.test.ts` | pure unit | 7 | 0.3 | defect |  | 0 |  |  |
+| `src/extraction/schedulerReadOwnership.review.test.ts` | pure unit | 2 | 0.1 | defect |  | 0 |  |  |
+| `src/extraction/schedulerReread.review.test.ts` | pure unit | 11 | 0.2 | defect |  | 1 |  |  |
+| `src/extraction/scopeExplain.test.ts` | pure unit | 7 | 0.2 | nothing named |  | 0 |  |  |
+| `src/extraction/sharedReadBudget.test.ts` | pure unit | 9 | 0.2 | contract |  | 1 | 1 |  |
+| `src/extraction/sharedReadFinish.test.ts` | pure unit | 6 | 0.1 | contract |  | 0 |  |  |
+| `src/extraction/windowHygiene.test.ts` | pure unit | 50 | 0.4 | defect |  | 1 |  |  |
+| `src/extraction/windowHygieneWiring.review.test.ts` | pure unit | 7 | 0.5 | defect |  | 0 |  |  |
 | `src/generation/convergence.test.ts` | pure unit | 4 | 0.2 | nothing named |  | 1 |  |  |
-| `src/generation/fork.property.test.ts` | pure unit | 3 | 0.8 | defect |  | 1 |  |  |
-| `src/generation/fork.review.test.ts` | pure unit | 17 | 0.3 | defect | generated-routes-ascending | 0 |  |  |
-| `src/generation/generation.test.ts` | pure unit | 12 | 0.2 | defect |  | 1 |  |  |
-| `src/generation/judgedExpansion.test.ts` | pure unit | 7 | 0.4 | contract |  | 0 |  |  |
+| `src/generation/fork.property.test.ts` | pure unit | 3 | 1.2 | defect |  | 1 |  |  |
+| `src/generation/fork.review.test.ts` | pure unit | 17 | 0.3 | defect | generated-routes-ascending (killed) | 0 |  |  |
+| `src/generation/generation.test.ts` | pure unit | 12 | 0.8 | defect |  | 1 |  |  |
+| `src/generation/judgedExpansion.test.ts` | pure unit | 7 | 0.2 | contract |  | 0 |  |  |
 | `src/generation/latchGuard.test.ts` | pure unit | 2 | 0.1 | defect |  | 1 |  |  |
 | `src/generation/merge.review.test.ts` | pure unit | 2 | 0.1 | defect |  | 0 |  |  |
-| `src/image/image.test.ts` | pure unit | 9 | 0.5 | contract |  | 0 |  |  |
+| `src/image/image.test.ts` | pure unit | 9 | 0.3 | contract |  | 0 |  |  |
 | `src/judge/accounting.review.test.ts` | pure unit | 25 | 0.5 | defect |  | 0 |  |  |
-| `src/judge/cancelled.review.test.ts` | pure unit | 4 | 0.3 | defect |  | 0 |  |  |
-| `src/judge/contradiction.test.ts` | pure unit | 17 | 0.5 | contract |  | 0 |  |  |
-| `src/judge/curators.test.ts` | pure unit | 8 | 0.6 | contract |  | 0 |  |  |
-| `src/judge/expansion.test.ts` | pure unit | 7 | 0.5 | contract |  | 0 |  |  |
-| `src/judge/extraction.test.ts` | pure unit | 10 | 0.4 | contract |  | 0 |  |  |
-| `src/judge/judge.test.ts` | pure unit | 33 | 0.6 | defect |  | 0 |  |  |
-| `src/judge/llamaLogprob.test.ts` | pure unit | 8 | 0.6 | nothing named |  | 0 |  |  |
-| `src/judge/lore.test.ts` | pure unit | 9 | 0.4 | contract |  | 0 |  |  |
-| `src/judge/loreRanking.test.ts` | pure unit | 8 | 0.3 | contract |  | 0 |  |  |
-| `src/judge/loreRelevance.test.ts` | pure unit | 3 | 3.0 | contract |  | 0 |  |  |
-| `src/judge/numbers.test.ts` | pure unit | 5 | 0.2 | contract |  | 0 |  |  |
-| `src/judge/readiness.test.ts` | pure unit | 8 | 0.4 | defect |  | 1 |  |  |
-| `src/judge/scene.test.ts` | pure unit | 6 | 0.4 | contract |  | 0 |  |  |
-| `src/judge/warden.test.ts` | pure unit | 20 | 0.8 | defect |  | 1 |  |  |
-| `src/judge/wardenLore.test.ts` | pure unit | 7 | 0.6 | defect |  | 0 |  |  |
-| `src/memory/arcs.test.ts` | pure unit | 17 | 0.2 | nothing named |  | 0 |  |  |
+| `src/judge/cancelled.review.test.ts` | pure unit | 4 | 0.1 | defect |  | 0 |  |  |
+| `src/judge/contradiction.test.ts` | pure unit | 17 | 0.8 | contract |  | 0 |  |  |
+| `src/judge/curators.test.ts` | pure unit | 8 | 0.2 | contract |  | 0 |  |  |
+| `src/judge/expansion.test.ts` | pure unit | 7 | 0.1 | contract |  | 0 |  |  |
+| `src/judge/extraction.test.ts` | pure unit | 10 | 0.2 | contract |  | 0 |  |  |
+| `src/judge/judge.test.ts` | pure unit | 33 | 0.2 | defect |  | 0 |  |  |
+| `src/judge/llamaLogprob.test.ts` | pure unit | 8 | 0.1 | nothing named |  | 0 |  |  |
+| `src/judge/lore.test.ts` | pure unit | 9 | 0.3 | contract |  | 0 |  |  |
+| `src/judge/loreRanking.test.ts` | pure unit | 8 | 0.1 | contract |  | 0 |  |  |
+| `src/judge/loreRelevance.test.ts` | pure unit | 3 | 4.0 | contract |  | 0 |  |  |
+| `src/judge/numbers.test.ts` | pure unit | 5 | 0.3 | contract |  | 0 |  |  |
+| `src/judge/pluginErrors.test.ts` | pure unit | 5 | 0.3 | nothing named |  | 1 |  |  |
+| `src/judge/readiness.test.ts` | pure unit | 8 | 0.2 | defect |  | 1 |  |  |
+| `src/judge/scene.test.ts` | pure unit | 6 | 0.2 | contract |  | 0 |  |  |
+| `src/judge/warden.test.ts` | pure unit | 20 | 0.2 | defect |  | 1 |  |  |
+| `src/judge/wardenLore.test.ts` | pure unit | 7 | 0.2 | defect |  | 0 |  |  |
+| `src/memory/arcs.test.ts` | pure unit | 17 | 0.3 | nothing named |  | 0 |  |  |
 | `src/memory/budget.test.ts` | pure unit | 8 | 0.2 | defect |  | 1 |  |  |
 | `src/memory/canon.test.ts` | pure unit | 8 | 0.2 | nothing named |  | 1 |  |  |
-| `src/memory/chapters.test.ts` | pure unit | 14 | ? | defect |  | 0 |  |  |
-| `src/memory/consolidate.test.ts` | pure unit | 12 | 0.1 | defect |  | 1 |  |  |
-| `src/memory/contradictions.fixture.test.ts` | pure unit | 14 | 0.6 | nothing named |  | 0 |  |  |
-| `src/memory/derived.test.ts` | pure unit | 15 | 0.3 | contract | derived-shared-hash-lifted | 1 |  |  |
-| `src/memory/epistemic.test.ts` | pure unit | 25 | 0.4 | nothing named | common-knowledge-kept | 1 |  |  |
-| `src/memory/inject.test.ts` | pure unit | 11 | 0.2 | defect |  | 1 |  |  |
+| `src/memory/chapters.test.ts` | pure unit | 13 | 0.1 | nothing named |  | 2 |  |  |
+| `src/memory/consolidate.test.ts` | pure unit | 12 | 0.3 | defect |  | 1 |  |  |
+| `src/memory/contradictions.fixture.test.ts` | pure unit | 14 | 0.3 | nothing named |  | 0 |  |  |
+| `src/memory/derived.test.ts` | pure unit | 15 | 0.2 | contract | derived-shared-hash-lifted (killed) | 1 |  |  |
+| `src/memory/epistemic.test.ts` | pure unit | 25 | 1.1 | nothing named | common-knowledge-kept (killed) | 1 |  |  |
+| `src/memory/inject.test.ts` | pure unit | 11 | 0.1 | defect |  | 1 |  |  |
 | `src/memory/injectFates.test.ts` | pure unit | 5 | 0.1 | contract |  | 1 |  |  |
-| `src/memory/innerVoice.test.ts` | pure unit | 19 | ? | contract |  | 0 |  |  |
-| `src/memory/ledger.test.ts` | pure unit | 16 | 0.2 | defect |  | 1 |  |  |
-| `src/memory/longFixture.test.ts` | pure unit | 5 | 0.6 | nothing named |  | 1 |  |  |
+| `src/memory/innerVoice.test.ts` | pure unit | 19 | 0.2 | contract |  | 0 |  |  |
+| `src/memory/ledger.test.ts` | pure unit | 16 | 0.3 | defect |  | 1 |  |  |
+| `src/memory/longFixture.test.ts` | pure unit | 5 | 0.8 | nothing named |  | 1 |  |  |
 | `src/memory/parse.test.ts` | pure unit | 15 | 0.2 | nothing named |  | 0 |  |  |
-| `src/memory/provenance.test.ts` | pure unit | 23 | 0.3 | defect |  | 1 |  |  |
+| `src/memory/provenance.test.ts` | pure unit | 23 | 0.5 | defect |  | 1 |  |  |
 | `src/memory/reversal.review.test.ts` | pure unit | 12 | 0.1 | defect |  | 0 |  |  |
-| `src/memory/rollbackReplay.property.test.ts` | pure unit | 17 | 8.8 | defect |  | 1 |  |  |
-| `src/memory/sceneDetect.test.ts` | pure unit | 7 | 0.1 | nothing named |  | 0 |  |  |
-| `src/memory/sceneSummary.test.ts` | pure unit | 13 | 0.1 | contract |  | 0 |  |  |
+| `src/memory/rollbackReplay.property.test.ts` | pure unit | 20 | 10.0 | defect |  | 2 |  |  |
+| `src/memory/sceneDetect.test.ts` | pure unit | 7 | 0.2 | nothing named |  | 0 |  |  |
+| `src/memory/sceneSummary.test.ts` | pure unit | 13 | 0.2 | contract |  | 0 |  |  |
 | `src/memory/score.test.ts` | pure unit | 6 | 0.2 | nothing named |  | 1 |  |  |
-| `src/memory/shortTermLocality.spike.test.ts` | pure unit | 6 | 0.6 | defect |  | 0 |  |  |
+| `src/memory/shortTermLocality.spike.test.ts` | pure unit | 6 | 0.9 | defect |  | 0 |  |  |
 | `src/memory/stores.test.ts` | pure unit | 12 | 0.2 | nothing named |  | 1 | 1 |  |
 | `src/memory/supersede.test.ts` | pure unit | 3 | 0.1 | nothing named |  | 1 |  |  |
-| `src/pacing/guidance.test.ts` | pure unit | 5 | 0.1 | defect |  | 0 |  |  |
-| `src/pacing/pacing.test.ts` | pure unit | 18 | 0.3 | defect |  | 0 |  |  |
-| `src/runtime/agencyRecovery.test.ts` | unit (host faked) | 15 | 0.3 | defect |  | 0 |  |  |
-| `src/runtime/architecture.test.ts` | unit (host faked) | 14 | 0.3 | invariant |  | 1 |  |  |
-| `src/runtime/authoringFinish.test.ts` | unit (host faked) | 4 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/awayRecap.test.ts` | unit (host faked) | 13 | 0.5 | nothing named |  | 1 |  |  |
-| `src/runtime/blobChatStamp.review.test.ts` | unit (host faked) | 5 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/blobForeign.review.test.ts` | unit (host faked) | 8 | 0.4 | defect |  | 2 |  |  |
-| `src/runtime/blobUnreadable.review.test.ts` | unit (host faked) | 16 | 0.5 | defect |  | 1 |  |  |
-| `src/runtime/boundaryWork.test.ts` | unit (host faked) | 8 | 0.3 | contract |  | 1 |  |  |
-| `src/runtime/branchContinue.review.test.ts` | unit (host faked) | 19 | 6.5 | defect |  | 1 |  |  |
-| `src/runtime/breakerWatch.test.ts` | unit (host faked) | 5 | 0.4 | contract |  | 0 |  |  |
-| `src/runtime/c1Surfaces.review.test.ts` | unit (host faked) | 6 | 0.4 | defect |  | 0 |  |  |
-| `src/runtime/chapterJump.test.ts` | unit (host faked) | 8 | ? | contract |  | 0 |  |  |
-| `src/runtime/chapters.test.ts` | unit (host faked) | 15 | ? | nothing named |  | 0 |  |  |
-| `src/runtime/chatIdentity.review.test.ts` | unit (host faked) | 14 | 4.8 | defect |  | 1 |  |  |
-| `src/runtime/chatSave.test.ts` | unit (host faked) | 20 | 0.4 | defect | save-binds-late-empty-save | 2 |  |  |
-| `src/runtime/chatWrites.test.ts` | unit (host faked) | 4 | 0.3 | nothing named |  | 0 |  |  |
-| `src/runtime/codeHealth.guard.test.ts` | unit (host faked) | 21 | 30.1 | invariant |  | 0 |  |  |
-| `src/runtime/contextLimitCache.test.ts` | unit (host faked) | 5 | 0.5 | nothing named |  | 0 |  |  |
-| `src/runtime/continuity.test.ts` | unit (host faked) | 4 | 0.4 | contract |  | 0 |  |  |
-| `src/runtime/coordinators/abortedCall.review.test.ts` | unit (host faked) | 8 | 0.4 | defect |  | 0 |  |  |
-| `src/runtime/coordinators/backlogOwnership.review.test.ts` | unit (host faked) | 15 | 0.8 | defect |  | 2 |  |  |
-| `src/runtime/coordinators/budgetWiring.review.test.ts` | unit (host faked) | 23 | 1.3 | defect |  | 1 | 1 |  |
-| `src/runtime/coordinators/contradictedSeed.review.test.ts` | unit (host faked) | 16 | 0.6 | defect |  | 2 |  |  |
-| `src/runtime/coordinators/copilotOwnedLorebooks.test.ts` | unit (host faked) | 6 | 0.4 | defect |  | 1 |  |  |
-| `src/runtime/coordinators/copilotOwnership.review.test.ts` | unit (host faked) | 3 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/coordinators/curatorTiersSpike.review.test.ts` | unit (host faked) | 22 | 0.8 | defect |  | 0 |  |  |
-| `src/runtime/coordinators/draftedPrivateBlock.review.test.ts` | unit (host faked) | 5 | 0.4 | defect |  | 1 |  |  |
-| `src/runtime/coordinators/epistemicMacro.review.test.ts` | unit (host faked) | 6 | 0.6 | defect |  | 1 |  |  |
-| `src/runtime/coordinators/expansionOwnership.review.test.ts` | unit (host faked) | 10 | 0.7 | defect | expansion-generate-unowned | 0 |  |  |
+| `src/pacing/guidance.test.ts` | pure unit | 5 | 0.3 | defect |  | 0 |  |  |
+| `src/pacing/pacing.test.ts` | pure unit | 18 | 0.6 | defect |  | 0 |  |  |
+| `src/runtime/agencyRecovery.test.ts` | unit (host faked) | 15 | 0.8 | defect |  | 0 |  |  |
+| `src/runtime/architecture.test.ts` | unit (host faked) | 16 | 0.9 | invariant |  | 1 |  |  |
+| `src/runtime/authoringFinish.test.ts` | unit (host faked) | 4 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/awayRecap.test.ts` | unit (host faked) | 13 | 0.2 | nothing named |  | 1 |  |  |
+| `src/runtime/blobChatStamp.review.test.ts` | unit (host faked) | 5 | 0.1 | defect |  | 0 |  |  |
+| `src/runtime/blobForeign.review.test.ts` | unit (host faked) | 8 | 0.2 | defect |  | 2 |  |  |
+| `src/runtime/blobUnreadable.review.test.ts` | unit (host faked) | 17 | 0.3 | defect |  | 2 |  |  |
+| `src/runtime/boundaryWork.test.ts` | unit (host faked) | 9 | 0.2 | contract |  | 1 |  |  |
+| `src/runtime/branchContinue.review.test.ts` | unit (host faked) | 19 | 5.0 | defect |  | 1 |  |  |
+| `src/runtime/breakerWatch.test.ts` | unit (host faked) | 5 | 0.1 | contract |  | 0 |  |  |
+| `src/runtime/c1Surfaces.review.test.ts` | unit (host faked) | 6 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/chapterJump.test.ts` | unit (host faked) | 8 | 0.3 | contract |  | 1 |  |  |
+| `src/runtime/chapters.test.ts` | unit (host faked) | 19 | 0.3 | nothing named |  | 0 |  |  |
+| `src/runtime/chapterSaga.test.ts` | unit (host faked) | 12 | 0.8 | defect |  | 1 |  |  |
+| `src/runtime/chapterSeal.review.test.ts` | unit (host faked) | 6 | 0.1 | defect |  | 1 |  |  |
+| `src/runtime/chatIdentity.review.test.ts` | unit (host faked) | 14 | 4.5 | defect |  | 1 |  |  |
+| `src/runtime/chatSave.test.ts` | unit (host faked) | 20 | 0.4 | defect | save-binds-late-empty-save (killed) | 2 |  |  |
+| `src/runtime/chatWrites.test.ts` | unit (host faked) | 4 | 0.4 | nothing named |  | 0 |  |  |
+| `src/runtime/classFieldOrder.guard.test.ts` | unit (host faked) | 5 | 5.8 | invariant |  | 2 |  |  |
+| `src/runtime/codeHealth.guard.test.ts` | unit (host faked) | 21 | 15.0 | invariant |  | 0 |  |  |
+| `src/runtime/contextLimitCache.test.ts` | unit (host faked) | 5 | 0.4 | nothing named |  | 0 |  |  |
+| `src/runtime/continuity.test.ts` | unit (host faked) | 4 | 0.3 | contract |  | 0 |  |  |
+| `src/runtime/coordinators/abortedCall.review.test.ts` | unit (host faked) | 8 | 0.3 | defect |  | 0 |  |  |
+| `src/runtime/coordinators/backlogOwnership.review.test.ts` | unit (host faked) | 15 | 0.2 | defect |  | 2 |  |  |
+| `src/runtime/coordinators/budgetWiring.review.test.ts` | unit (host faked) | 23 | 1.4 | defect |  | 1 | 1 |  |
+| `src/runtime/coordinators/contradictedSeed.review.test.ts` | unit (host faked) | 16 | 0.4 | defect |  | 2 |  |  |
+| `src/runtime/coordinators/copilotOwnedLorebooks.test.ts` | unit (host faked) | 6 | 0.1 | defect |  | 1 |  |  |
+| `src/runtime/coordinators/copilotOwnership.review.test.ts` | unit (host faked) | 3 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/coordinators/curatorTiersSpike.review.test.ts` | unit (host faked) | 22 | 0.4 | defect |  | 0 |  |  |
+| `src/runtime/coordinators/draftedPrivateBlock.review.test.ts` | unit (host faked) | 5 | 0.3 | defect |  | 1 |  |  |
+| `src/runtime/coordinators/duplicateCompletion.review.test.ts` | unit (host faked) | 3 | 0.2 | defect |  | 1 |  |  |
+| `src/runtime/coordinators/epistemicMacro.review.test.ts` | unit (host faked) | 6 | 0.2 | defect |  | 1 |  |  |
+| `src/runtime/coordinators/expansionOwnership.review.test.ts` | unit (host faked) | 10 | 0.5 | defect | expansion-generate-unowned (killed) | 0 |  |  |
 | `src/runtime/coordinators/expansionPreflight.review.test.ts` | unit (host faked) | 3 | 0.3 | defect |  | 0 |  |  |
-| `src/runtime/coordinators/extractionOwnership.review.test.ts` | unit (host faked) | 16 | 0.5 | defect |  | 0 |  |  |
+| `src/runtime/coordinators/extractionOwnership.review.test.ts` | unit (host faked) | 16 | 1.2 | defect |  | 0 |  |  |
 | `src/runtime/coordinators/extractionReadOwnership.review.test.ts` | unit (host faked) | 2 | 0.3 | defect |  | 0 |  |  |
-| `src/runtime/coordinators/factAttribution.review.test.ts` | unit (host faked) | 7 | 0.6 | defect |  | 0 |  |  |
-| `src/runtime/coordinators/innerCoordinator.test.ts` | unit (host faked) | 14 | ? | contract |  | 0 |  |  |
-| `src/runtime/coordinators/innerVoiceInjection.review.test.ts` | unit (host faked) | 14 | ? | defect |  | 0 |  |  |
-| `src/runtime/coordinators/memberGuidance.review.test.ts` | unit (host faked) | 7 | ? | defect |  | 0 |  |  |
-| `src/runtime/coordinators/memoryInjectionRefresh.review.test.ts` | unit (host faked) | 3 | 0.6 | defect | empty-private-block-epistemic, empty-private-block-ledger | 1 |  |  |
-| `src/runtime/coordinators/memoryOwnership.review.test.ts` | unit (host faked) | 26 | 0.6 | defect | patch-spread-erases-derived | 1 |  |  |
-| `src/runtime/coordinators/modelSurface.review.test.ts` | unit (host faked) | 2 | 0.4 | defect |  | 0 |  |  |
-| `src/runtime/coordinators/pacingCoordinator.test.ts` | unit (host faked) | 2 | 0.6 | nothing named |  | 1 |  |  |
-| `src/runtime/coordinators/refuseIncomplete.review.test.ts` | unit (host faked) | 3 | 0.6 | defect |  | 0 |  |  |
-| `src/runtime/coordinators/sceneBurst.review.test.ts` | unit (host faked) | 5 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/coordinators/sceneDetectWorld.review.test.ts` | unit (host faked) | 5 | 0.6 | defect |  | 0 |  |  |
-| `src/runtime/coordinators/sceneFreshness.review.test.ts` | unit (host faked) | 7 | 0.4 | defect |  | 0 |  |  |
-| `src/runtime/coordinators/shortTermSpike.review.test.ts` | unit (host faked) | 3 | 0.3 | defect |  | 0 |  |  |
-| `src/runtime/coordinators/stagecraftCoordinator.review.test.ts` | unit (host faked) | 30 | 1.8 | defect | curator-writes-gated-entry | 2 |  |  |
-| `src/runtime/coordinators/stagecraftCoordinator.test.ts` | unit (host faked) | 56 | 1.3 | defect |  | 2 |  |  |
-| `src/runtime/coordinators/stagecraftWriteAhead.test.ts` | unit (host faked) | 10 | 1.6 | nothing named |  | 0 |  |  |
-| `src/runtime/coordinators/wardenFamilies.review.test.ts` | unit (host faked) | 16 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/curatorDigestRunner.test.ts` | unit (host faked) | 2 | 0.6 | contract |  | 0 |  |  |
-| `src/runtime/curatorFilter.test.ts` | unit (host faked) | 3 | 0.4 | contract |  | 0 |  |  |
-| `src/runtime/curatorWriteAheadHydrate.review.test.ts` | unit (host faked) | 2 | 2.1 | defect |  | 0 |  |  |
-| `src/runtime/devOnly.guard.test.ts` | unit (host faked) | 13 | 26.1 | invariant |  | 0 |  |  |
-| `src/runtime/effectLedger.test.ts` | unit (host faked) | 14 | 0.6 | defect | effect-ledger-evicts-owed-restore | 1 |  |  |
-| `src/runtime/effectRestore.review.test.ts` | unit (host faked) | 11 | 0.5 | defect |  | 1 |  |  |
-| `src/runtime/effectsApplier.test.ts` | unit (host faked) | 34 | 1.0 | defect | scan-mode-file-writes-before-gating, write-ahead-unverified | 0 |  |  |
-| `src/runtime/effectsOwnership.review.test.ts` | unit (host faked) | 14 | 0.4 | defect | background-write-unowned | 1 |  |  |
-| `src/runtime/effectsStaging.review.test.ts` | unit (host faked) | 6 | ? | defect |  | 0 |  |  |
+| `src/runtime/coordinators/factAttribution.review.test.ts` | unit (host faked) | 7 | 1.0 | defect |  | 0 |  |  |
+| `src/runtime/coordinators/innerCoordinator.test.ts` | unit (host faked) | 16 | 0.3 | contract |  | 1 |  |  |
+| `src/runtime/coordinators/innerVoiceInjection.review.test.ts` | unit (host faked) | 14 | 0.3 | defect |  | 0 |  |  |
+| `src/runtime/coordinators/memberGuidance.review.test.ts` | unit (host faked) | 7 | 0.1 | defect |  | 0 |  |  |
+| `src/runtime/coordinators/memoryInjectionRefresh.review.test.ts` | unit (host faked) | 3 | 0.4 | defect | empty-private-block-epistemic (killed), empty-private-block-ledger (killed) | 1 |  |  |
+| `src/runtime/coordinators/memoryOwnership.review.test.ts` | unit (host faked) | 26 | 0.6 | defect | patch-spread-erases-derived (killed) | 1 |  |  |
+| `src/runtime/coordinators/modelSurface.review.test.ts` | unit (host faked) | 2 | 0.1 | defect |  | 0 |  |  |
+| `src/runtime/coordinators/pacingCoordinator.test.ts` | unit (host faked) | 2 | 0.2 | nothing named |  | 1 |  |  |
+| `src/runtime/coordinators/refuseIncomplete.review.test.ts` | unit (host faked) | 3 | 0.3 | defect |  | 0 |  |  |
+| `src/runtime/coordinators/sceneBurst.review.test.ts` | unit (host faked) | 5 | 0.3 | defect |  | 0 |  |  |
+| `src/runtime/coordinators/sceneDetectWorld.review.test.ts` | unit (host faked) | 5 | 0.1 | defect |  | 0 |  |  |
+| `src/runtime/coordinators/sceneFreshness.review.test.ts` | unit (host faked) | 7 | 0.3 | defect |  | 0 |  |  |
+| `src/runtime/coordinators/shortTermSpike.review.test.ts` | unit (host faked) | 3 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/coordinators/stagecraftCoordinator.review.test.ts` | unit (host faked) | 30 | 0.3 | defect | curator-writes-gated-entry (killed) | 2 |  |  |
+| `src/runtime/coordinators/stagecraftCoordinator.test.ts` | unit (host faked) | 57 | 1.5 | defect |  | 3 |  |  |
+| `src/runtime/coordinators/stagecraftWriteAhead.test.ts` | unit (host faked) | 10 | 0.5 | nothing named |  | 0 |  |  |
+| `src/runtime/coordinators/wardenFamilies.review.test.ts` | unit (host faked) | 16 | 0.4 | defect |  | 0 |  |  |
+| `src/runtime/curatorDigestRunner.test.ts` | unit (host faked) | 2 | 0.4 | contract |  | 0 |  |  |
+| `src/runtime/curatorFilter.test.ts` | unit (host faked) | 3 | 0.2 | contract |  | 0 |  |  |
+| `src/runtime/curatorWriteAheadHydrate.review.test.ts` | unit (host faked) | 2 | 3.6 | defect |  | 0 |  |  |
+| `src/runtime/devOnly.guard.test.ts` | unit (host faked) | 13 | 16.2 | invariant |  | 0 |  |  |
+| `src/runtime/effectLedger.test.ts` | unit (host faked) | 16 | 0.6 | defect | effect-ledger-evicts-owed-restore (killed) | 1 |  |  |
+| `src/runtime/effectRestore.review.test.ts` | unit (host faked) | 11 | 0.1 | defect |  | 1 |  |  |
+| `src/runtime/effectsApplier.test.ts` | unit (host faked) | 34 | 0.5 | defect | scan-mode-file-writes-before-gating (killed), write-ahead-unverified (killed) | 0 |  |  |
+| `src/runtime/effectsOwnership.review.test.ts` | unit (host faked) | 14 | 0.2 | defect | background-write-unowned (killed) | 1 |  |  |
+| `src/runtime/effectsStaging.review.test.ts` | unit (host faked) | 6 | 0.4 | defect |  | 1 |  |  |
 | `src/runtime/epochAbort.review.test.ts` | unit (host faked) | 6 | 0.1 | defect |  | 0 |  |  |
-| `src/runtime/errorCopy.guard.test.ts` | unit (host faked) | 5 | 1.7 | invariant |  | 0 |  |  |
+| `src/runtime/errorCopy.guard.test.ts` | unit (host faked) | 5 | 4.2 | invariant |  | 0 |  |  |
 | `src/runtime/exampleStory.review.test.ts` | unit (host faked) | 1 | 0.1 | defect |  | 0 |  |  |
-| `src/runtime/expansionLookahead.test.ts` | unit (host faked) | 8 | 0.3 | defect |  | 1 |  |  |
+| `src/runtime/expansionLookahead.test.ts` | unit (host faked) | 8 | 0.2 | defect |  | 1 |  |  |
 | `src/runtime/extractionEnabled.guard.test.ts` | unit (host faked) | 3 | 0.2 | invariant |  | 0 |  |  |
-| `src/runtime/extrasHydrate.test.ts` | unit (host faked) | 10 | 0.5 | defect | expansion-cache-outlives-contract | 0 |  |  |
-| `src/runtime/faultMatrix.guard.test.ts` | unit (host faked) | 5 | 0.2 | invariant |  | 0 |  |  |
-| `src/runtime/findingsLedger.test.ts` | unit (host faked) | 6 | 0.2 | invariant |  | 0 |  |  |
-| `src/runtime/fingerprintReconcile.review.test.ts` | unit (host faked) | 14 | 2.2 | defect |  | 2 |  |  |
-| `src/runtime/fingerprints.test.ts` | unit (host faked) | 17 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/generationLifecycle.test.ts` | unit (host faked) | 13 | 0.2 | defect |  | 1 |  |  |
+| `src/runtime/extrasChapters.review.test.ts` | unit (host faked) | 3 | 0.2 | defect |  | 1 |  |  |
+| `src/runtime/extrasHydrate.test.ts` | unit (host faked) | 10 | 0.2 | defect | expansion-cache-outlives-contract (killed) | 0 |  |  |
+| `src/runtime/faultMatrix.guard.test.ts` | unit (host faked) | 5 | 0.1 | invariant |  | 0 |  |  |
+| `src/runtime/findingsLedger.test.ts` | unit (host faked) | 6 | 1.6 | invariant |  | 0 |  |  |
+| `src/runtime/fingerprintReconcile.review.test.ts` | unit (host faked) | 14 | 10.4 | defect |  | 2 |  |  |
+| `src/runtime/fingerprints.test.ts` | unit (host faked) | 17 | 0.4 | defect |  | 0 |  |  |
+| `src/runtime/generationLifecycle.test.ts` | unit (host faked) | 13 | 0.6 | defect |  | 1 |  |  |
 | `src/runtime/generationWiring.review.test.ts` | unit (host faked) | 6 | 0.5 | defect |  | 2 |  |  |
-| `src/runtime/groupStoryBinding.test.ts` | unit (host faked) | 2 | 0.1 | contract |  | 0 |  |  |
-| `src/runtime/harnessRouting.test.ts` | unit (host faked) | 15 | ? | defect |  | 0 |  |  |
-| `src/runtime/inlineTimeline.test.ts` | unit (host faked) | 9 | ? | contract |  | 0 |  |  |
-| `src/runtime/journal.test.ts` | unit (host faked) | 19 | 0.4 | contract |  | 2 |  |  |
-| `src/runtime/journalContract.review.test.ts` | unit (host faked) | 5 | 0.7 | defect |  | 1 |  |  |
-| `src/runtime/judge.test.ts` | unit (host faked) | 8 | 0.5 | nothing named |  | 0 |  |  |
-| `src/runtime/judgeExtraction.test.ts` | unit (host faked) | 7 | 0.9 | contract |  | 2 | 1 |  |
-| `src/runtime/judgeGate.review.test.ts` | unit (host faked) | 5 | 0.8 | defect |  | 1 |  |  |
+| `src/runtime/groupStoryBinding.test.ts` | unit (host faked) | 4 | 0.3 | contract |  | 0 |  |  |
+| `src/runtime/harnessRouting.test.ts` | unit (host faked) | 25 | 0.3 | defect |  | 1 |  |  |
+| `src/runtime/inlineTimeline.test.ts` | unit (host faked) | 10 | 0.3 | contract |  | 0 |  |  |
+| `src/runtime/journal.test.ts` | unit (host faked) | 19 | 0.3 | contract |  | 2 |  |  |
+| `src/runtime/journalContract.review.test.ts` | unit (host faked) | 5 | 0.2 | defect |  | 1 |  |  |
+| `src/runtime/judge.test.ts` | unit (host faked) | 8 | 0.2 | nothing named |  | 0 |  |  |
+| `src/runtime/judgeExtraction.test.ts` | unit (host faked) | 7 | 0.8 | contract |  | 2 | 1 |  |
+| `src/runtime/judgeGate.review.test.ts` | unit (host faked) | 5 | 0.5 | defect |  | 1 |  |  |
 | `src/runtime/judgeMemory.test.ts` | unit (host faked) | 5 | 0.6 | contract |  | 1 |  |  |
 | `src/runtime/judgeMeter.review.test.ts` | unit (host faked) | 7 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/judgeMeterRollback.review.test.ts` | unit (host faked) | 1 | 0.4 | defect |  | 0 |  |  |
-| `src/runtime/judgeOwnership.review.test.ts` | unit (host faked) | 7 | 0.4 | defect |  | 1 |  |  |
-| `src/runtime/judgeProviderRouting.test.ts` | unit (host faked) | 7 | 7.6 | contract |  | 0 |  |  |
-| `src/runtime/judgeSeam.golden.test.ts` | unit (host faked) | 1 | 0.4 | contract |  | 0 |  |  |
-| `src/runtime/jumpRelease.review.test.ts` | unit (host faked) | 1 | ? | defect |  | 0 |  |  |
-| `src/runtime/legacyFree.guard.test.ts` | unit (host faked) | 10 | 0.4 | invariant |  | 0 |  |  |
-| `src/runtime/librarySave.test.ts` | unit (host faked) | 14 | 0.6 | defect |  | 0 |  |  |
-| `src/runtime/lifecycleDispose.review.test.ts` | unit (host faked) | 9 | 0.5 | defect |  | 1 |  |  |
-| `src/runtime/liveSuiteTiers.test.ts` | unit (host faked) | 2 | 0.5 | defect |  | 1 |  |  |
-| `src/runtime/loreAborted.review.test.ts` | unit (host faked) | 5 | 0.4 | defect |  | 0 |  |  |
-| `src/runtime/loreExclusive.test.ts` | unit (host faked) | 14 | 0.6 | defect |  | 0 |  |  |
-| `src/runtime/loreFired.test.ts` | unit (host faked) | 5 | ? | contract |  | 0 |  |  |
-| `src/runtime/loreForceWiring.review.test.ts` | unit (host faked) | 7 | 0.6 | defect |  | 1 |  |  |
-| `src/runtime/loreSelect.test.ts` | unit (host faked) | 10 | 0.4 | defect | lore-select-cache-without-story, lore-select-force-result-discarded | 0 |  |  |
-| `src/runtime/macros.test.ts` | unit (host faked) | 6 | 0.6 | contract |  | 0 |  |  |
-| `src/runtime/manualRead.review.test.ts` | unit (host faked) | 1 | 0.6 | defect |  | 1 |  |  |
-| `src/runtime/memoryInjectorFates.test.ts` | unit (host faked) | 3 | 0.4 | contract |  | 1 |  |  |
-| `src/runtime/memoryMirror.test.ts` | unit (host faked) | 30 | 0.6 | defect |  | 2 | 1 |  |
-| `src/runtime/memoryQueue.test.ts` | unit (host faked) | 34 | 0.8 | defect |  | 1 |  |  |
-| `src/runtime/memoryQueueHeld.test.ts` | unit (host faked) | 27 | 0.4 | defect |  | 3 |  |  |
-| `src/runtime/messageIdentity.test.ts` | unit (host faked) | 11 | 0.2 | defect | delete-decodes-post-length | 0 |  |  |
-| `src/runtime/messageJump.test.ts` | unit (host faked) | 6 | 0.2 | contract |  | 0 |  |  |
-| `src/runtime/messageJumpHost.test.ts` | unit (host faked) | 4 | 0.4 | contract |  | 0 |  |  |
-| `src/runtime/mirrorOwnership.review.test.ts` | unit (host faked) | 9 | 0.5 | defect |  | 1 |  |  |
-| `src/runtime/mirrorReaper.review.test.ts` | unit (host faked) | 23 | 0.6 | defect |  | 0 |  |  |
+| `src/runtime/judgeMeterRollback.review.test.ts` | unit (host faked) | 1 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/judgeOwnership.review.test.ts` | unit (host faked) | 7 | 0.3 | defect |  | 1 |  |  |
+| `src/runtime/judgeProviderRouting.test.ts` | unit (host faked) | 8 | 0.2 | contract |  | 1 |  |  |
+| `src/runtime/judgeSeam.golden.test.ts` | unit (host faked) | 1 | 0.2 | contract |  | 0 |  |  |
+| `src/runtime/jumpRelease.review.test.ts` | unit (host faked) | 3 | 0.3 | defect |  | 1 |  |  |
+| `src/runtime/legacyFree.guard.test.ts` | unit (host faked) | 10 | 0.5 | invariant |  | 0 |  |  |
+| `src/runtime/librarySave.test.ts` | unit (host faked) | 14 | 0.3 | defect |  | 0 |  |  |
+| `src/runtime/lifecycleDispose.review.test.ts` | unit (host faked) | 9 | 0.4 | defect |  | 1 |  |  |
+| `src/runtime/liveSuiteTiers.test.ts` | unit (host faked) | 2 | 0.2 | defect |  | 1 |  |  |
+| `src/runtime/loreAborted.review.test.ts` | unit (host faked) | 5 | 0.1 | defect |  | 0 |  |  |
+| `src/runtime/loreExclusive.test.ts` | unit (host faked) | 14 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/loreFired.test.ts` | unit (host faked) | 5 | 0.7 | contract |  | 0 |  |  |
+| `src/runtime/loreForceWiring.review.test.ts` | unit (host faked) | 7 | 0.4 | defect |  | 1 |  |  |
+| `src/runtime/loreSelect.test.ts` | unit (host faked) | 10 | 0.3 | defect | lore-select-cache-without-story (killed), lore-select-force-result-discarded (killed) | 0 |  |  |
+| `src/runtime/macros.test.ts` | unit (host faked) | 6 | 0.3 | contract |  | 0 |  |  |
+| `src/runtime/manualRead.review.test.ts` | unit (host faked) | 1 | 0.2 | defect |  | 1 |  |  |
+| `src/runtime/memoryInjectorFates.test.ts` | unit (host faked) | 3 | 0.1 | contract |  | 1 |  |  |
+| `src/runtime/memoryMirror.test.ts` | unit (host faked) | 31 | 0.2 | defect |  | 2 | 1 |  |
+| `src/runtime/memoryQueue.test.ts` | unit (host faked) | 34 | 0.3 | defect |  | 1 |  |  |
+| `src/runtime/memoryQueueHeld.test.ts` | unit (host faked) | 27 | 0.2 | defect |  | 3 |  |  |
+| `src/runtime/messageIdentity.test.ts` | unit (host faked) | 11 | 0.2 | defect | delete-decodes-post-length (killed) | 0 |  |  |
+| `src/runtime/messageJump.test.ts` | unit (host faked) | 6 | 0.3 | contract |  | 0 |  |  |
+| `src/runtime/messageJumpHost.test.ts` | unit (host faked) | 4 | 0.1 | contract |  | 0 |  |  |
+| `src/runtime/mirrorOwnership.review.test.ts` | unit (host faked) | 9 | 0.2 | defect |  | 1 |  |  |
+| `src/runtime/mirrorReaper.review.test.ts` | unit (host faked) | 24 | 0.3 | defect |  | 1 |  |  |
 | `src/runtime/mirrorScan.test.ts` | unit (host faked) | 13 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/modelCall.test.ts` | unit (host faked) | 5 | 0.4 | defect |  | 0 |  |  |
+| `src/runtime/modelCall.test.ts` | unit (host faked) | 5 | 0.1 | defect |  | 0 |  |  |
+| `src/runtime/modelCallChat.review.test.ts` | unit (host faked) | 3 | 0.1 | defect |  | 1 |  |  |
 | `src/runtime/modelCalls.test.ts` | unit (host faked) | 6 | 0.4 | contract |  | 0 |  |  |
-| `src/runtime/narrative.test.ts` | unit (host faked) | 8 | 0.5 | contract |  | 1 |  |  |
-| `src/runtime/nextTurn.test.ts` | unit (host faked) | 7 | 0.3 | contract |  | 1 |  |  |
-| `src/runtime/nextTurnCost.test.ts` | unit (host faked) | 11 | 0.4 | contract |  | 0 |  |  |
-| `src/runtime/npcLateLanding.review.test.ts` | unit (host faked) | 4 | ? | defect |  | 0 |  |  |
-| `src/runtime/npcRepliesOwnership.review.test.ts` | unit (host faked) | 6 | 0.4 | defect |  | 0 |  |  |
-| `src/runtime/npcReplyRewind.test.ts` | unit (host faked) | 3 | 0.1 | nothing named |  | 0 |  |  |
-| `src/runtime/npcReplyRoll.test.ts` | unit (host faked) | 7 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/npcStreamLanding.review.test.ts` | unit (host faked) | 5 | 0.6 | defect | npc-stream-lands-in-next-chat | 0 |  |  |
-| `src/runtime/npcTriggerStop.review.test.ts` | unit (host faked) | 6 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/onEnterRollback.review.test.ts` | unit (host faked) | 9 | ? | defect |  | 0 |  |  |
-| `src/runtime/ownership.guard.test.ts` | unit (host faked) | 11 | 1.1 | invariant |  | 1 |  |  |
-| `src/runtime/passProfiles.test.ts` | unit (host faked) | 22 | 0.2 | defect |  | 0 |  |  |
-| `src/runtime/persistenceRetention.test.ts` | unit (host faked) | 6 | 0.4 | defect |  | 0 |  |  |
-| `src/runtime/persistOwnership.review.test.ts` | unit (host faked) | 5 | 0.4 | defect |  | 0 |  |  |
-| `src/runtime/pipeline.test.ts` | unit (host faked) | 16 | 0.5 | contract |  | 1 |  |  |
-| `src/runtime/prodSurface.test.ts` | unit (host faked) | 5 | 0.4 | contract |  | 1 |  |  |
-| `src/runtime/promptBuckets.test.ts` | unit (host faked) | 5 | 0.5 | contract |  | 0 |  |  |
-| `src/runtime/promptCost.test.ts` | unit (host faked) | 9 | 0.2 | contract |  | 0 |  |  |
-| `src/runtime/qualityMacros.test.ts` | unit (host faked) | 9 | 0.2 | contract |  | 0 |  |  |
-| `src/runtime/quarantineExclusion.review.test.ts` | unit (host faked) | 7 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/reasoningControl.test.ts` | unit (host faked) | 17 | ? | contract |  | 0 |  |  |
-| `src/runtime/reloadPromptBlocks.review.test.ts` | unit (host faked) | 9 | 5.3 | defect |  | 0 |  |  |
-| `src/runtime/repair.test.ts` | unit (host faked) | 32 | 0.5 | defect |  | 1 |  |  |
-| `src/runtime/requestBudget.test.ts` | unit (host faked) | 4 | 0.5 | contract |  | 0 |  |  |
+| `src/runtime/narrative.test.ts` | unit (host faked) | 8 | 0.2 | contract |  | 1 |  |  |
+| `src/runtime/nextTurn.test.ts` | unit (host faked) | 7 | 0.2 | contract |  | 1 |  |  |
+| `src/runtime/nextTurnCost.test.ts` | unit (host faked) | 11 | 0.2 | contract |  | 0 |  |  |
+| `src/runtime/npcLateLanding.review.test.ts` | unit (host faked) | 4 | 0.3 | defect |  | 0 |  |  |
+| `src/runtime/npcRepliesOwnership.review.test.ts` | unit (host faked) | 6 | 0.1 | defect |  | 0 |  |  |
+| `src/runtime/npcReplyRewind.test.ts` | unit (host faked) | 3 | 0.2 | nothing named |  | 0 |  |  |
+| `src/runtime/npcReplyRoll.test.ts` | unit (host faked) | 7 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/npcStreamLanding.review.test.ts` | unit (host faked) | 5 | 0.2 | defect | npc-stream-lands-in-next-chat (killed) | 0 |  |  |
+| `src/runtime/npcTriggerStop.review.test.ts` | unit (host faked) | 6 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/onEnterRollback.review.test.ts` | unit (host faked) | 10 | 0.2 | defect |  | 1 |  |  |
+| `src/runtime/ownership.guard.test.ts` | unit (host faked) | 11 | 3.0 | invariant |  | 1 |  |  |
+| `src/runtime/passProfiles.test.ts` | unit (host faked) | 24 | 0.3 | defect |  | 0 |  |  |
+| `src/runtime/persistenceRetention.test.ts` | unit (host faked) | 6 | 0.3 | defect |  | 0 |  |  |
+| `src/runtime/persistOwnership.review.test.ts` | unit (host faked) | 5 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/pipeline.test.ts` | unit (host faked) | 16 | 0.4 | contract |  | 1 |  |  |
+| `src/runtime/pluginVersionCheck.test.ts` | unit (host faked) | 4 | 0.2 | nothing named |  | 1 |  |  |
+| `src/runtime/prodSurface.test.ts` | unit (host faked) | 5 | 0.2 | contract |  | 1 |  |  |
+| `src/runtime/promptBuckets.test.ts` | unit (host faked) | 5 | 0.1 | contract |  | 0 |  |  |
+| `src/runtime/promptCost.test.ts` | unit (host faked) | 9 | 0.1 | contract |  | 0 |  |  |
+| `src/runtime/qualityMacros.test.ts` | unit (host faked) | 9 | 0.1 | contract |  | 0 |  |  |
+| `src/runtime/quarantineExclusion.review.test.ts` | unit (host faked) | 7 | 0.1 | defect |  | 0 |  |  |
+| `src/runtime/reasoningControl.test.ts` | unit (host faked) | 17 | 0.1 | contract |  | 0 |  |  |
+| `src/runtime/reloadPromptBlocks.review.test.ts` | unit (host faked) | 9 | 3.5 | defect |  | 0 |  |  |
+| `src/runtime/repair.test.ts` | unit (host faked) | 33 | 0.4 | defect |  | 1 |  |  |
+| `src/runtime/requestBudget.test.ts` | unit (host faked) | 4 | 0.2 | contract |  | 0 |  |  |
 | `src/runtime/requirements.test.ts` | unit (host faked) | 12 | 0.3 | defect |  | 0 |  |  |
-| `src/runtime/requirementsRefresh.review.test.ts` | unit (host faked) | 3 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/requirementsWatch.test.ts` | unit (host faked) | 11 | 0.2 | contract |  | 0 |  |  |
-| `src/runtime/roleCalibration.test.ts` | unit (host faked) | 38 | 0.5 | nothing named |  | 3 |  |  |
-| `src/runtime/roleHealth.test.ts` | unit (host faked) | 6 | 0.2 | defect |  | 0 |  |  |
-| `src/runtime/roleSelfTest.test.ts` | unit (host faked) | 9 | 0.2 | defect |  | 0 |  |  |
-| `src/runtime/rollback.review.test.ts` | unit (host faked) | 9 | 0.5 | defect | nan-rollback-accepted, rollback-keeps-pending-writes | 0 |  |  |
-| `src/runtime/roster.test.ts` | unit (host faked) | 11 | 0.5 | defect |  | 2 |  |  |
+| `src/runtime/requirementsRefresh.review.test.ts` | unit (host faked) | 3 | 0.3 | defect |  | 0 |  |  |
+| `src/runtime/requirementsWatch.test.ts` | unit (host faked) | 11 | 0.3 | contract |  | 0 |  |  |
+| `src/runtime/roleCalibration.test.ts` | unit (host faked) | 38 | 0.6 | nothing named |  | 3 |  |  |
+| `src/runtime/roleHealth.test.ts` | unit (host faked) | 6 | 0.1 | defect |  | 0 |  |  |
+| `src/runtime/roleSelfTest.test.ts` | unit (host faked) | 9 | 0.4 | defect |  | 0 |  |  |
+| `src/runtime/rollback.review.test.ts` | unit (host faked) | 10 | 0.3 | defect | nan-rollback-accepted (killed), rollback-keeps-pending-writes (killed) | 0 |  |  |
+| `src/runtime/rollbackKit.review.test.ts` | unit (host faked) | 2 | 0.1 | defect |  | 1 |  |  |
+| `src/runtime/roster.test.ts` | unit (host faked) | 11 | 0.3 | defect |  | 2 |  |  |
 | `src/runtime/runGuard.test.ts` | unit (host faked) | 6 | 0.2 | contract |  | 0 |  |  |
 | `src/runtime/runOwner.abort.test.ts` | unit (host faked) | 8 | 0.2 | contract |  | 0 |  |  |
-| `src/runtime/runtimeManager.test.ts` | unit (host faked) | 102 | 1.6 | defect |  | 5 | 1 |  |
-| `src/runtime/runToken.test.ts` | unit (host faked) | 18 | 0.1 | defect |  | 0 |  |  |
-| `src/runtime/samplerOverlay.test.ts` | unit (host faked) | 10 | 0.1 | contract |  | 0 |  |  |
-| `src/runtime/samplerOverlayEffect.test.ts` | unit (host faked) | 10 | 0.4 | contract |  | 0 |  |  |
+| `src/runtime/runtimeManager.test.ts` | unit (host faked) | 102 | 1.3 | defect |  | 5 | 1 |  |
+| `src/runtime/runToken.test.ts` | unit (host faked) | 18 | 0.5 | defect |  | 0 |  |  |
+| `src/runtime/samplerOverlay.test.ts` | unit (host faked) | 10 | 0.2 | contract |  | 0 |  |  |
+| `src/runtime/samplerOverlayEffect.test.ts` | unit (host faked) | 10 | 0.6 | contract |  | 0 |  |  |
 | `src/runtime/samplerOverlayHost.test.ts` | unit (host faked) | 5 | 0.2 | contract |  | 1 |  |  |
-| `src/runtime/saveEvidence.test.ts` | unit (host faked) | 12 | 0.2 | defect |  | 2 |  |  |
-| `src/runtime/saveHealth.test.ts` | unit (host faked) | 8 | 0.2 | defect |  | 0 |  |  |
-| `src/runtime/scanGatePlan.test.ts` | unit (host faked) | 12 | 1.8 | defect |  | 2 |  |  |
+| `src/runtime/saveEvidence.test.ts` | unit (host faked) | 12 | 0.1 | defect |  | 2 |  |  |
+| `src/runtime/saveHealth.test.ts` | unit (host faked) | 8 | 0.1 | defect |  | 0 |  |  |
+| `src/runtime/scanGatePlan.test.ts` | unit (host faked) | 12 | 4.8 | defect |  | 2 |  |  |
 | `src/runtime/scanMemory.test.ts` | unit (host faked) | 2 | 0.1 | defect |  | 0 |  |  |
-| `src/runtime/sceneArmRunner.test.ts` | unit (host faked) | 3 | 0.3 | contract |  | 0 |  |  |
-| `src/runtime/sceneCoordinator.test.ts` | unit (host faked) | 8 | 0.4 | contract |  | 1 | 1 |  |
-| `src/runtime/sceneInjectWrite.review.test.ts` | unit (host faked) | 7 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/sceneStale.review.test.ts` | unit (host faked) | 7 | 0.3 | defect |  | 0 |  |  |
+| `src/runtime/sceneArmRunner.test.ts` | unit (host faked) | 3 | 0.1 | contract |  | 0 |  |  |
+| `src/runtime/sceneCoordinator.test.ts` | unit (host faked) | 8 | 0.1 | contract |  | 1 | 1 |  |
+| `src/runtime/sceneInjectWrite.review.test.ts` | unit (host faked) | 7 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/sceneStale.review.test.ts` | unit (host faked) | 7 | 0.1 | defect |  | 0 |  |  |
 | `src/runtime/scoreContext.test.ts` | unit (host faked) | 1 | 0.1 | defect |  | 0 |  |  |
 | `src/runtime/selfTest.review.test.ts` | unit (host faked) | 3 | 0.1 | defect |  | 0 |  |  |
 | `src/runtime/selfTest.test.ts` | unit (host faked) | 13 | 0.2 | defect |  | 0 |  |  |
-| `src/runtime/settingsLoad.test.ts` | unit (host faked) | 2 | 0.3 | defect |  | 0 |  |  |
-| `src/runtime/settingsRoot.test.ts` | unit (host faked) | 7 | 0.4 | contract |  | 0 |  |  |
+| `src/runtime/settingsLoad.test.ts` | unit (host faked) | 2 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/settingsRoot.test.ts` | unit (host faked) | 7 | 0.3 | contract |  | 0 |  |  |
 | `src/runtime/settingsView.review.test.ts` | unit (host faked) | 3 | 0.5 | defect |  | 0 |  |  |
-| `src/runtime/settingsWrites.test.ts` | unit (host faked) | 9 | 0.6 | defect |  | 0 |  |  |
-| `src/runtime/shippedLinks.guard.test.ts` | unit (host faked) | 4 | 0.2 | invariant |  | 0 |  |  |
-| `src/runtime/slashCommands.test.ts` | unit (host faked) | 6 | 0.6 | contract |  | 1 |  |  |
-| `src/runtime/snapshotCache.test.ts` | unit (host faked) | 7 | 0.5 | nothing named |  | 0 |  |  |
-| `src/runtime/spikeFlags.test.ts` | unit (host faked) | 2 | 0.3 | contract |  | 0 |  |  |
-| `src/runtime/spikes/recommitEdit.review.test.ts` | unit (host faked) | 12 | 55.0 | defect |  | 0 | 1 |  |
-| `src/runtime/spikes/sp5Scenario.test.ts` | unit (host faked) | 13 | 0.7 | nothing named |  | 0 |  |  |
-| `src/runtime/spikes/sp5ScenarioHost.test.ts` | unit (host faked) | 3 | 0.3 | nothing named |  | 0 |  |  |
-| `src/runtime/spikes/sp6Complications.test.ts` | unit (host faked) | 14 | 2.4 | nothing named |  | 0 |  |  |
-| `src/runtime/spikes/sp7Chance.test.ts` | unit (host faked) | 16 | 12.4 | nothing named |  | 0 |  |  |
-| `src/runtime/spikes/swipeBack.review.test.ts` | unit (host faked) | 11 | 28.7 | defect |  | 0 | 1 |  |
-| `src/runtime/spikes/toolTurnProbe.test.ts` | unit (host faked) | 1 | 0.3 | nothing named |  | 0 |  |  |
+| `src/runtime/settingsWrites.test.ts` | unit (host faked) | 9 | 0.3 | defect |  | 0 |  |  |
+| `src/runtime/shippedLinks.guard.test.ts` | unit (host faked) | 4 | 0.1 | invariant |  | 0 |  |  |
+| `src/runtime/slashCommands.test.ts` | unit (host faked) | 6 | 0.2 | contract |  | 1 |  |  |
+| `src/runtime/snapshotCache.test.ts` | unit (host faked) | 7 | 0.2 | nothing named |  | 0 |  |  |
+| `src/runtime/spikeFlags.test.ts` | unit (host faked) | 2 | 0.1 | contract |  | 0 |  |  |
+| `src/runtime/spikes/recommitEdit.review.test.ts` | unit (host faked) | 12 | 19.9 | defect |  | 0 | 1 |  |
+| `src/runtime/spikes/sp5Scenario.test.ts` | unit (host faked) | 13 | 0.3 | nothing named |  | 0 |  |  |
+| `src/runtime/spikes/sp5ScenarioHost.test.ts` | unit (host faked) | 3 | 0.1 | nothing named |  | 0 |  |  |
+| `src/runtime/spikes/sp6Complications.test.ts` | unit (host faked) | 14 | 5.5 | nothing named |  | 0 |  |  |
+| `src/runtime/spikes/sp7Chance.test.ts` | unit (host faked) | 16 | 8.7 | nothing named |  | 0 |  |  |
+| `src/runtime/spikes/swipeBack.review.test.ts` | unit (host faked) | 11 | 25.5 | defect |  | 0 | 1 |  |
+| `src/runtime/spikes/toolTurnProbe.test.ts` | unit (host faked) | 1 | 0.1 | nothing named |  | 0 |  |  |
 | `src/runtime/spikes/toolTurnSummary.test.ts` | unit (host faked) | 4 | 0.1 | nothing named |  | 0 |  |  |
 | `src/runtime/spikes/witnessFilter.test.ts` | unit (host faked) | 7 | 0.1 | nothing named |  | 0 |  |  |
-| `src/runtime/spikes/witnessFilterHost.test.ts` | unit (host faked) | 4 | 0.6 | nothing named |  | 0 |  |  |
-| `src/runtime/startupWiring.review.test.ts` | unit (host faked) | 13 | 13.2 | defect |  | 2 |  |  |
-| `src/runtime/stateExport.test.ts` | unit (host faked) | 3 | 0.1 | contract |  | 0 |  |  |
-| `src/runtime/stopRuntime.test.ts` | unit (host faked) | 6 | 0.5 | nothing named |  | 2 |  |  |
-| `src/runtime/storyIdentity.test.ts` | unit (host faked) | 16 | 0.6 | nothing named |  | 1 |  |  |
-| `src/runtime/storyImportWarnings.review.test.ts` | unit (host faked) | 2 | 0.3 | defect |  | 0 |  |  |
-| `src/runtime/storySelectionOwnership.review.test.ts` | unit (host faked) | 3 | 0.4 | defect |  | 1 |  |  |
+| `src/runtime/spikes/witnessFilterHost.test.ts` | unit (host faked) | 4 | 0.2 | nothing named |  | 0 |  |  |
+| `src/runtime/stagedFrom.review.test.ts` | unit (host faked) | 6 | 0.1 | defect |  | 1 |  |  |
+| `src/runtime/startupWiring.review.test.ts` | unit (host faked) | 13 | 8.3 | defect |  | 2 |  |  |
+| `src/runtime/stateExport.test.ts` | unit (host faked) | 3 | 0.3 | contract |  | 0 |  |  |
+| `src/runtime/stopRuntime.test.ts` | unit (host faked) | 6 | 0.4 | nothing named |  | 2 |  |  |
+| `src/runtime/storyIdentity.test.ts` | unit (host faked) | 16 | 1.5 | nothing named |  | 1 |  |  |
+| `src/runtime/storyImportWarnings.review.test.ts` | unit (host faked) | 2 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/storySelectionOwnership.review.test.ts` | unit (host faked) | 3 | 0.2 | defect |  | 1 |  |  |
 | `src/runtime/storyStart.review.test.ts` | unit (host faked) | 6 | 0.4 | defect |  | 0 |  |  |
-| `src/runtime/storyUpdate.review.test.ts` | unit (host faked) | 2 | 0.3 | defect |  | 0 |  |  |
-| `src/runtime/storyUpdate.test.ts` | unit (host faked) | 11 | 0.4 | defect |  | 1 |  |  |
-| `src/runtime/talkControl.test.ts` | unit (host faked) | 36 | 0.7 | contract | talk-key-not-chat-scoped | 1 |  |  |
-| `src/runtime/talkOwnership.review.test.ts` | unit (host faked) | 9 | 0.4 | defect |  | 0 |  |  |
+| `src/runtime/storyUpdate.review.test.ts` | unit (host faked) | 2 | 0.1 | defect |  | 0 |  |  |
+| `src/runtime/storyUpdate.test.ts` | unit (host faked) | 11 | 0.1 | defect |  | 1 |  |  |
+| `src/runtime/talkControl.test.ts` | unit (host faked) | 36 | 0.5 | contract | talk-key-not-chat-scoped (killed) | 1 |  |  |
+| `src/runtime/talkOwnership.review.test.ts` | unit (host faked) | 9 | 0.2 | defect |  | 0 |  |  |
 | `src/runtime/turnBridge.review.test.ts` | unit (host faked) | 12 | 0.4 | defect |  | 0 |  |  |
-| `src/runtime/turnBridge.test.ts` | unit (host faked) | 19 | 0.5 | nothing named | greeting-commits-boundary | 0 |  |  |
-| `src/runtime/turnBridgeDelete.review.test.ts` | unit (host faked) | 6 | 0.4 | defect |  | 0 |  |  |
-| `src/runtime/turnBridgeIdentity.review.test.ts` | unit (host faked) | 8 | 0.5 | defect | nan-host-message-id | 1 |  |  |
-| `src/runtime/turnBridgeOwnership.review.test.ts` | unit (host faked) | 8 | 0.4 | defect |  | 1 |  |  |
-| `src/runtime/typedRead.test.ts` | unit (host faked) | 2 | 0.3 | defect |  | 0 |  |  |
-| `src/runtime/wizardSessions.test.ts` | unit (host faked) | 10 | 0.3 | defect |  | 1 |  |  |
-| `src/runtime/worldInfoEvidence.test.ts` | unit (host faked) | 23 | 0.2 | defect |  | 0 |  |  |
-| `src/runtime/worldInfoEvidenceHost.test.ts` | unit (host faked) | 6 | 0.5 | nothing named |  | 0 |  |  |
-| `src/runtime/worldInfoGates.test.ts` | unit (host faked) | 11 | 0.2 | contract | world-info-toggled-in-place | 1 |  |  |
-| `src/runtime/worldInfoGating.test.ts` | unit (host faked) | 26 | 0.5 | defect | scan-mode-file-writes-before-gating | 0 |  |  |
-| `src/runtime/worldInfoLedger.test.ts` | unit (host faked) | 8 | 0.5 | contract |  | 0 |  |  |
-| `src/runtime/worldInfoNormalize.test.ts` | unit (host faked) | 8 | 0.4 | contract |  | 0 |  |  |
+| `src/runtime/turnBridge.test.ts` | unit (host faked) | 20 | 1.5 | nothing named | greeting-commits-boundary (killed) | 0 |  |  |
+| `src/runtime/turnBridgeDelete.review.test.ts` | unit (host faked) | 6 | 0.5 | defect |  | 0 |  |  |
+| `src/runtime/turnBridgeIdentity.review.test.ts` | unit (host faked) | 8 | 0.2 | defect | nan-host-message-id (killed) | 1 |  |  |
+| `src/runtime/turnBridgeOwnership.review.test.ts` | unit (host faked) | 8 | 0.5 | defect |  | 1 |  |  |
+| `src/runtime/typedRead.test.ts` | unit (host faked) | 2 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/wizardSessions.test.ts` | unit (host faked) | 10 | 0.4 | defect |  | 1 |  |  |
+| `src/runtime/worldInfoEvidence.test.ts` | unit (host faked) | 23 | 0.4 | defect |  | 0 |  |  |
+| `src/runtime/worldInfoEvidenceHost.test.ts` | unit (host faked) | 6 | 0.1 | nothing named |  | 0 |  |  |
+| `src/runtime/worldInfoGates.test.ts` | unit (host faked) | 11 | 0.1 | contract | world-info-toggled-in-place (killed) | 1 |  |  |
+| `src/runtime/worldInfoGating.test.ts` | unit (host faked) | 26 | 0.3 | defect | scan-mode-file-writes-before-gating (killed) | 0 |  |  |
+| `src/runtime/worldInfoLedger.test.ts` | unit (host faked) | 8 | 0.1 | contract |  | 0 |  |  |
+| `src/runtime/worldInfoNormalize.test.ts` | unit (host faked) | 8 | 0.1 | contract |  | 0 |  |  |
 | `src/runtime/worldInfoScan.test.ts` | unit (host faked) | 7 | 0.1 | contract |  | 0 |  |  |
-| `src/runtime/worldInfoSettings.test.ts` | unit (host faked) | 5 | 0.3 | defect |  | 0 |  |  |
-| `src/services/stHost/authorNotes.test.ts` | unit (host faked) | 9 | 0.2 | defect |  | 0 |  |  |
+| `src/runtime/worldInfoSettings.test.ts` | unit (host faked) | 5 | 0.2 | defect |  | 0 |  |  |
+| `src/services/stHost/authorNotes.test.ts` | unit (host faked) | 9 | 0.1 | defect |  | 0 |  |  |
 | `src/services/stHost/backgrounds.test.ts` | unit (host faked) | 4 | 0.2 | defect |  | 0 |  |  |
-| `src/services/stHost/capabilities.test.ts` | unit (host faked) | 15 | 0.6 | defect |  | 0 |  |  |
+| `src/services/stHost/capabilities.test.ts` | unit (host faked) | 17 | 0.2 | defect |  | 0 |  |  |
 | `src/services/stHost/chatFiles.test.ts` | unit (host faked) | 11 | 0.2 | defect |  | 0 |  |  |
 | `src/services/stHost/chatScenario.test.ts` | unit (host faked) | 3 | 0.1 | nothing named |  | 0 |  |  |
-| `src/services/stHost/contextBudget.test.ts` | unit (host faked) | 4 | 0.1 | nothing named |  | 0 |  |  |
-| `src/services/stHost/contextLimit.test.ts` | unit (host faked) | 12 | 0.4 | contract |  | 1 |  |  |
+| `src/services/stHost/contextBudget.test.ts` | unit (host faked) | 4 | 0.2 | nothing named |  | 0 |  |  |
+| `src/services/stHost/contextLimit.test.ts` | unit (host faked) | 12 | 0.1 | contract |  | 1 |  |  |
 | `src/services/stHost/extensionPrompts.test.ts` | unit (host faked) | 13 | 0.1 | defect |  | 0 |  |  |
 | `src/services/stHost/groups.test.ts` | unit (host faked) | 6 | 0.2 | defect |  | 0 |  |  |
-| `src/services/stHost/harness.test.ts` | unit (host faked) | 4 | ? | nothing named |  | 0 |  |  |
-| `src/services/stHost/inlineMount.test.ts` | unit (host faked) | 4 | ? | contract |  | 0 |  |  |
-| `src/services/stHost/judge.review.test.ts` | unit (host faked) | 2 | 0.4 | defect |  | 0 |  |  |
-| `src/services/stHost/loreBindings.test.ts` | unit (host faked) | 4 | 0.2 | nothing named |  | 0 |  |  |
-| `src/services/stHost/macroEngine.test.ts` | unit (host faked) | 5 | 0.2 | contract |  | 0 |  |  |
-| `src/services/stHost/modelReply.test.ts` | unit (host faked) | 26 | 0.4 | contract |  | 0 |  |  |
+| `src/services/stHost/harness.test.ts` | unit (host faked) | 7 | 0.1 | nothing named |  | 1 |  |  |
+| `src/services/stHost/harnessBridge.test.ts` | unit (host faked) | 5 | 0.1 | contract |  | 1 |  |  |
+| `src/services/stHost/inlineMount.test.ts` | unit (host faked) | 4 | 0.1 | contract |  | 0 |  |  |
+| `src/services/stHost/judge.review.test.ts` | unit (host faked) | 3 | 0.1 | defect |  | 1 |  |  |
+| `src/services/stHost/loreBindings.test.ts` | unit (host faked) | 4 | 0.1 | nothing named |  | 0 |  |  |
+| `src/services/stHost/macroEngine.test.ts` | unit (host faked) | 5 | 0.6 | contract |  | 0 |  |  |
+| `src/services/stHost/modelReply.test.ts` | unit (host faked) | 33 | 0.6 | contract |  | 1 |  |  |
 | `src/services/stHost/persistence.test.ts` | unit (host faked) | 2 | 0.1 | defect |  | 0 |  |  |
 | `src/services/stHost/popup.test.ts` | unit (host faked) | 4 | 0.3 | contract |  | 0 |  |  |
-| `src/services/stHost/promptBucketsParse.test.ts` | unit (host faked) | 5 | 0.1 | contract |  | 0 |  |  |
-| `src/services/stHost/reasoningPayload.test.ts` | unit (host faked) | 9 | ? | defect |  | 0 |  |  |
-| `src/services/stHost/saveWatcher.test.ts` | unit (host faked) | 22 | 0.8 | defect | save-binds-late-empty-save | 4 |  |  |
-| `src/services/stHost/saveWatcherStop.test.ts` | unit (host faked) | 3 | 0.1 | nothing named |  | 1 |  |  |
-| `src/services/stHost/slashCommands.test.ts` | unit (host faked) | 4 | 0.2 | nothing named |  | 0 |  |  |
-| `src/services/stHost/streamGuard.test.ts` | unit (host faked) | 5 | 0.2 | contract | npc-stream-lands-in-next-chat | 0 |  |  |
-| `src/services/stHost/typedResults.test.ts` | unit (host faked) | 3 | 3.4 | invariant |  | 1 |  |  |
-| `src/services/stHost/worldInfo.test.ts` | unit (host faked) | 37 | 0.7 | defect |  | 0 | 1 |  |
+| `src/services/stHost/promptBucketsParse.test.ts` | unit (host faked) | 5 | 0.2 | contract |  | 0 |  |  |
+| `src/services/stHost/reasoningPayload.test.ts` | unit (host faked) | 8 | 0.1 | defect |  | 0 |  |  |
+| `src/services/stHost/saveWatcher.test.ts` | unit (host faked) | 22 | 0.8 | defect | save-binds-late-empty-save (killed) | 4 |  |  |
+| `src/services/stHost/saveWatcherStop.test.ts` | unit (host faked) | 3 | 0.3 | nothing named |  | 1 |  |  |
+| `src/services/stHost/slashCommands.test.ts` | unit (host faked) | 4 | 0.1 | nothing named |  | 0 |  |  |
+| `src/services/stHost/streamGuard.test.ts` | unit (host faked) | 7 | 0.1 | contract | npc-stream-lands-in-next-chat (killed) | 0 |  |  |
+| `src/services/stHost/typedResults.test.ts` | unit (host faked) | 3 | 11.3 | invariant |  | 1 |  |  |
+| `src/services/stHost/worldInfo.test.ts` | unit (host faked) | 37 | 0.2 | defect |  | 0 | 1 |  |
 | `src/services/stHost/worldInfoFiles.test.ts` | unit (host faked) | 5 | 0.2 | contract |  | 0 |  |  |
-| `src/services/stHost/worldInfoScan.test.ts` | unit (host faked) | 6 | 0.2 | defect |  | 0 |  |  |
-| `src/sprites/sprites.test.ts` | pure unit | 18 | 0.5 | nothing named |  | 0 |  |  |
-| `src/stagecraft/createCandidate.test.ts` | pure unit | 19 | 0.4 | nothing named |  | 0 |  |  |
-| `src/stagecraft/curatorDigest.spike.test.ts` | pure unit | 6 | 1.6 | contract |  | 0 |  |  |
-| `src/stagecraft/curatorTiers.test.ts` | pure unit | 20 | 0.3 | contract |  | 0 |  |  |
+| `src/services/stHost/worldInfoScan.test.ts` | unit (host faked) | 6 | 0.1 | defect |  | 0 |  |  |
+| `src/sprites/sprites.test.ts` | pure unit | 20 | 0.2 | nothing named |  | 0 |  |  |
+| `src/stagecraft/createCandidate.test.ts` | pure unit | 19 | 0.2 | nothing named |  | 0 |  |  |
+| `src/stagecraft/curatorDigest.spike.test.ts` | pure unit | 6 | 2.6 | contract |  | 0 |  |  |
+| `src/stagecraft/curatorTiers.test.ts` | pure unit | 20 | 0.2 | contract |  | 0 |  |  |
 | `src/stagecraft/hardening.test.ts` | pure unit | 31 | 0.6 | nothing named |  | 1 |  |  |
-| `src/stagecraft/stagecraft.test.ts` | pure unit | 23 | 0.2 | contract |  | 2 |  |  |
-| `src/studio/coverage.test.ts` | unit (host faked) | 3 | ? | contract |  | 0 |  |  |
-| `src/studio/diagnostics.test.ts` | unit (host faked) | 26 | 0.5 | defect |  | 1 |  |  |
-| `src/studio/draft.test.ts` | unit (host faked) | 8 | 0.1 | contract |  | 0 |  |  |
+| `src/stagecraft/stagecraft.test.ts` | pure unit | 23 | 1.2 | contract |  | 2 |  |  |
+| `src/studio/agentHost.test.ts` | unit (host faked) | 3 | 0.1 | contract |  | 1 |  |  |
+| `src/studio/coverage.test.ts` | unit (host faked) | 3 | 0.2 | contract |  | 0 |  |  |
+| `src/studio/diagnostics.test.ts` | unit (host faked) | 26 | 0.2 | defect |  | 1 |  |  |
+| `src/studio/draft.test.ts` | unit (host faked) | 8 | 0.3 | contract |  | 0 |  |  |
 | `src/studio/gateOptions.test.ts` | unit (host faked) | 8 | 0.1 | nothing named |  | 0 |  |  |
-| `src/studio/gateReplay.property.test.ts` | unit (host faked) | 1 | 0.6 | contract |  | 0 |  |  |
+| `src/studio/gateReplay.property.test.ts` | unit (host faked) | 1 | 2.0 | contract |  | 0 |  |  |
 | `src/studio/gateReplay.records.test.ts` | unit (host faked) | 1 | 0.0 | contract |  | 1 |  |  |
 | `src/studio/gateReplay.test.ts` | unit (host faked) | 13 | 0.2 | contract |  | 1 |  |  |
-| `src/studio/graphAdapter.test.ts` | unit (host faked) | 2 | 0.2 | contract |  | 0 |  |  |
-| `src/studio/innerVoiceAuthoring.test.ts` | unit (host faked) | 7 | ? | contract |  | 0 |  |  |
-| `src/studio/io.test.ts` | unit (host faked) | 3 | 0.1 | nothing named |  | 0 |  |  |
-| `src/studio/lazyGlobals.guard.test.ts` | unit (host faked) | 1 | ? | invariant | studio-chunk-global-outlives-stop | 1 |  |  |
-| `src/studio/mutations.test.ts` | unit (host faked) | 18 | 0.3 | defect |  | 1 |  |  |
+| `src/studio/graphAdapter.test.ts` | unit (host faked) | 4 | 0.7 | contract |  | 0 |  |  |
+| `src/studio/innerVoiceAuthoring.test.ts` | unit (host faked) | 7 | 0.2 | contract |  | 0 |  |  |
+| `src/studio/io.test.ts` | unit (host faked) | 3 | 0.7 | nothing named |  | 0 |  |  |
+| `src/studio/lazyGlobals.guard.test.ts` | unit (host faked) | 1 | 0.1 | invariant | studio-chunk-global-outlives-stop (killed) | 1 |  |  |
+| `src/studio/mutations.test.ts` | unit (host faked) | 21 | 0.2 | defect |  | 1 |  |  |
 | `src/studio/qualityUsage.test.ts` | unit (host faked) | 4 | 0.1 | nothing named |  | 0 |  |  |
-| `src/talk/talk.test.ts` | pure unit | 27 | 0.3 | nothing named | talk-lead-outside-speakers | 1 |  |  |
+| `src/talk/talk.test.ts` | pure unit | 27 | 0.2 | nothing named | talk-lead-outside-speakers (killed) | 1 |  |  |
 | `src/utils/guards.test.ts` | pure unit | 3 | 0.2 | nothing named |  | 0 |  |  |
-| `src/utils/log.test.ts` | pure unit | 5 | 0.2 | nothing named |  | 1 |  |  |
-| `src/utils/mountRegistry.test.ts` | pure unit | 4 | 0.3 | nothing named |  | 1 |  |  |
-| `src/utils/samplerKeys.test.ts` | pure unit | 5 | 0.1 | contract |  | 0 |  |  |
-| `src/utils/string.test.ts` | pure unit | 22 | 0.1 | nothing named |  | 0 |  |  |
-| `src/utils/wordDiff.test.ts` | pure unit | 5 | 0.2 | contract |  | 0 |  |  |
-| `src/wizard/ownership.review.test.ts` | pure unit | 2 | 0.5 | defect |  | 0 |  |  |
-| `src/wizard/provisioning.test.ts` | pure unit | 26 | 0.4 | contract |  | 1 |  |  |
+| `src/utils/log.test.ts` | pure unit | 5 | 0.3 | nothing named |  | 1 |  |  |
+| `src/utils/mountRegistry.test.ts` | pure unit | 4 | 0.2 | nothing named |  | 1 |  |  |
+| `src/utils/samplerKeys.test.ts` | pure unit | 5 | 0.2 | contract |  | 0 |  |  |
+| `src/utils/string.test.ts` | pure unit | 22 | 0.2 | nothing named |  | 0 |  |  |
+| `src/utils/wordDiff.test.ts` | pure unit | 5 | 0.1 | contract |  | 0 |  |  |
+| `src/wizard/ownership.review.test.ts` | pure unit | 2 | 0.2 | defect |  | 0 |  |  |
+| `src/wizard/provisioning.test.ts` | pure unit | 26 | 1.0 | contract |  | 1 |  |  |
 
 ## Storybook
 
@@ -477,7 +492,7 @@ jest total: 371 files, 4841 tests, 349.7 s summed per-file runtime.
 | `scripts/debug/lib/connection.test.mts` | 10 | contract | 0 |  |
 | `scripts/debug/lib/contradictionRelease.test.mts` | 8 | nothing named | 0 |  |
 | `scripts/debug/lib/focusWalk.test.mts` | 4 | nothing named | 0 |  |
-| `scripts/debug/lib/identityVerbs.test.mts` | 22 | defect | 0 |  |
+| `scripts/debug/lib/identityVerbs.test.mts` | 22 | defect | 1 |  |
 | `scripts/debug/lib/interopVerbs.test.mts` | 9 | defect | 0 |  |
 | `scripts/debug/lib/journeyArchive.test.mts` | 8 | defect | 1 |  |
 | `scripts/debug/lib/judgeHarness.test.mts` | 21 | defect | 1 |  |
@@ -492,6 +507,16 @@ jest total: 371 files, 4841 tests, 349.7 s summed per-file runtime.
 | `scripts/debug/lib/roleEffort.test.mts` | 4 | nothing named | 0 |  |
 | `scripts/debug/lib/roleVerdict.test.mts` | 7 | nothing named | 0 |  |
 | `scripts/debug/lib/scenarioCleanup.test.mts` | 3 | nothing named | 1 |  |
+| `scripts/debug/lib/sessionCharters.test.mts` | 14 | defect | 0 |  |
+| `scripts/debug/lib/sessionDigest.test.mts` | 6 | contract | 0 |  |
+| `scripts/debug/lib/sessionDriver.test.mts` | 10 | contract | 0 |  |
+| `scripts/debug/lib/sessionEvidence.test.mts` | 3 | nothing named | 0 |  |
+| `scripts/debug/lib/sessionLanes.test.mts` | 5 | nothing named | 0 |  |
+| `scripts/debug/lib/sessionLive.test.mts` | 15 | nothing named | 0 |  |
+| `scripts/debug/lib/sessionPin.test.mts` | 4 | nothing named | 0 |  |
+| `scripts/debug/lib/sessionRubric.test.mts` | 4 | nothing named | 0 |  |
+| `scripts/debug/lib/sessionRunbook.test.mts` | 4 | contract | 0 |  |
+| `scripts/debug/lib/sessionSpend.test.mts` | 6 | nothing named | 0 |  |
 | `scripts/debug/lib/settingsSave.test.mts` | 2 | defect | 1 |  |
 | `scripts/debug/lib/soloSandbox.test.mts` | 6 | contract | 0 |  |
 | `scripts/debug/lib/st-ready.test.mts` | 2 | nothing named | 0 |  |
@@ -510,35 +535,38 @@ jest total: 371 files, 4841 tests, 349.7 s summed per-file runtime.
 | `scripts/debug/so-legacy-books.test.mts` | 12 | nothing named | 0 |  |
 | `scripts/debug/so-responsive.test.mts` | 1 | nothing named | 0 |  |
 | `scripts/debug/so-role-calibration.test.mts` | 4 | nothing named | 0 |  |
-| `scripts/debug/so-run-header.test.mts` | 29 | defect | 1 |  |
+| `scripts/debug/so-run-header.test.mts` | 31 | defect | 2 |  |
 | `scripts/debug/so-save-recorder.test.mts` | 9 | nothing named | 0 |  |
 | `scripts/debug/so-scenario.runSteps.test.mts` | 4 | defect | 0 |  |
 | `scripts/debug/so-ui.test.mts` | 20 | defect | 1 |  |
 | `scripts/debug/sp6Score.test.mts` | 6 | nothing named | 0 |  |
 | `scripts/debug/st-lanes.test.mts` | 6 | contract | 1 |  |
-| `scripts/debug/st-payload.test.mts` | 14 | defect | 0 |  |
+| `scripts/debug/st-payload.test.mts` | 17 | defect | 0 |  |
+| `scripts/lib/pluginInstall.test.mjs` | 4 | nothing named | 1 |  |
 | `scripts/lib/stRoot.test.mjs` | 4 | nothing named | 0 |  |
-| `scripts/lib/suiteDecisions.test.mjs` | 4 | contract | 0 |  |
+| `scripts/lib/suiteDecisions.test.mjs` | 4 | contract | 1 |  |
 | `scripts/lib/suiteInventory.test.mjs` | 7 | defect | 2 |  |
-| `scripts/lib/suiteMutants.test.mjs` | 6 | defect | 1 |  |
+| `scripts/lib/suiteMutants.test.mjs` | 7 | defect | 2 |  |
 | `scripts/release/artifact.test.mjs` | 7 | contract | 1 |  |
 | `scripts/release/attestation.test.mjs` | 12 | defect | 1 |  |
 | `scripts/release/attestationRules.test.mjs` | 16 | nothing named | 1 |  |
 | `scripts/release/buildFlavours.test.mjs` | 6 | nothing named | 0 |  |
 | `scripts/release/bundleBudget.test.mjs` | 4 | defect | 0 |  |
-| `scripts/release/ci.test.mjs` | 2 | nothing named | 0 |  |
+| `scripts/release/ci.test.mjs` | 2 | nothing named | 1 |  |
 | `scripts/release/citations.test.mjs` | 4 | nothing named | 0 |  |
 | `scripts/release/debugSurface.test.mjs` | 3 | nothing named | 0 |  |
+| `scripts/release/gates.test.mjs` | 4 | nothing named | 1 |  |
 | `scripts/release/inventory.test.mjs` | 3 | nothing named | 0 |  |
 | `scripts/release/licences.test.mjs` | 3 | nothing named | 0 |  |
 | `scripts/release/manifest.test.mjs` | 5 | contract | 0 |  |
 | `scripts/release/serveFlavour.test.mjs` | 5 | nothing named | 0 |  |
 | `scripts/release/smokeChecks.test.mjs` | 3 | nothing named | 0 |  |
-| `scripts/release/versions.test.mjs` | 6 | contract | 0 |  |
+| `scripts/release/versions.test.mjs` | 7 | contract | 1 |  |
 | `scripts/spike/sp3/phaseA.test.mjs` | 6 | contract | 0 |  |
 | `server-plugin/story-orchestrator-gpu/gate.test.mjs` | 8 | nothing named | 0 |  |
-| `server-plugin/story-orchestrator-harness/plugin.test.mjs` | 20 | contract | 1 |  |
-| `server-plugin/story-orchestrator-judge/plugin.test.mjs` | 18 | defect | 1 |  |
+| `server-plugin/story-orchestrator-harness/agent.test.mjs` | 17 | nothing named | 1 |  |
+| `server-plugin/story-orchestrator-harness/plugin.test.mjs` | 30 | contract | 2 |  |
+| `server-plugin/story-orchestrator-judge/plugin.test.mjs` | 21 | defect | 2 |  |
 
 ## Scenarios
 
@@ -620,7 +648,7 @@ jest total: 371 files, 4841 tests, 349.7 s summed per-file runtime.
 | `test/scenarios/live-v25-01-real-books.json` | LLM scenario | 28 | 3 | 196 | contract | 7 | 0 | yes |  |
 | `test/scenarios/live-v25-02-a37-output-budget.json` | no-LLM scenario | 1 | 0 | 7 | contract | 5 | 0 | yes |  |
 | `test/scenarios/live-v25-02-c7-note-order.json` | no-LLM scenario | 5 | 0 | 15 | defect | 8 | 0 | yes |  |
-| `test/scenarios/live-v25-04-negation.json` | no-LLM scenario | 6 | 0 | 17 | contract | 5 | 1 | yes |  |
+| `test/scenarios/live-v25-04-negation.json` | no-LLM scenario | 6 | 0 | 17 | contract | 6 | 1 | yes |  |
 | `test/scenarios/live-v25-05-breaker-slow.json` | LLM scenario | 22 | 1 | 94 | defect | 9 | 1 | yes |  |
 | `test/scenarios/live-v25-05-memorize-timeout.json` | no-LLM scenario | 18 | 0 | 41 | defect | 9 | 1 | yes |  |
 | `test/scenarios/live-v25-05-token-estimate.json` | no-LLM scenario | 3 | 0 | 11 | defect | 6 | 0 | yes |  |
@@ -916,7 +944,7 @@ Support files whose name, stem or directory no test, scenario, journey or script
 
 ## Debug tools without a harness test
 
-`adolion-fresh.mts`, `so-artifact-smoke.mts`, `so-backlog-ownership-check.mts`, `so-copilot.mts`, `so-curator-suite.mts`, `so-extraction-check.mts`, `so-judge.mts`, `so-library.mts`, `so-lore-probe.mts`, `so-mutation-check.mts`, `so-popup-injection-check.mts`, `so-read-ownership-check.mts`, `so-runtime-check.mts`, `so-sp6-score.mts`, `so-state.mts`, `so-studio-keyboard.mts`, `so-timeout-arm.mts`, `so-turn-types-check.mts`, `so-wizard-agent.mts`, `st-actions.mts`, `st-chat.mts`, `st-context.mts`, `st-extension-settings.mts`, `st-navigation.mts`, `st-search.mts`
+`so-artifact-smoke.mts`, `so-backlog-ownership-check.mts`, `so-copilot.mts`, `so-curator-suite.mts`, `so-extraction-check.mts`, `so-judge.mts`, `so-library.mts`, `so-lore-probe.mts`, `so-mutation-check.mts`, `so-popup-injection-check.mts`, `so-read-ownership-check.mts`, `so-runtime-check.mts`, `so-sp6-score.mts`, `so-state.mts`, `so-studio-keyboard.mts`, `so-timeout-arm.mts`, `so-turn-types-check.mts`, `so-wizard-agent.mts`, `st-actions.mts`, `st-chat.mts`, `st-context.mts`, `st-extension-settings.mts`, `st-navigation.mts`, `st-search.mts`
 
 ## Archived run records
 

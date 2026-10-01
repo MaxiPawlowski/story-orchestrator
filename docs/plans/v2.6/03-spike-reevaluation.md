@@ -1,6 +1,7 @@
 # Plan 03 — Spike re-evaluation on Adolion (SP1–SP10)
 
-**Status: DRAFT 2026-09-30, awaiting user approval.** Nothing has been run.
+**Status: APPROVED 2026-09-30; nothing run yet.** SP7 goes first (W17). The spike legs are measurements and run in
+plan 15 Part B on the €20 RunPod budget (W28); any rater leg is recorded for the user's review (overview rule 11).
 
 v2.5 plan 09 ran all ten spikes on toy stories: two members, one room and a dozen lorebook entries. Several stalled
 for lack of data, and several failed for reasons the data caused. `adolion-campaign/lab/` rebuilds each spike's

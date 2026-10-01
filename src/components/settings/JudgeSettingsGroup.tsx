@@ -42,6 +42,7 @@ const concernText = (row: JudgeReadinessRow): string => {
   if (row.uncalibratedOn) return `routed to ${JUDGE_PROVIDERS[row.uncalibratedOn].label}, not calibrated there`;
   if (row.splitFrom?.length) return `shares a call with ${row.splitFrom.map(labelOf).join(", ")} on another provider: none of them runs`;
   if (row.modelMismatch) return `on, but not measured on ${row.modelMismatch.answered ?? row.modelMismatch.configured} (measured on ${row.modelMismatch.measuredOn})`;
+  if (row.fixtureStale) return `on, but its rate was measured on an older fixture revision (${row.fixtureStale.measured ?? "unrecorded"}, now ${row.fixtureStale.current}): needs re-measure`;
   return "on, but nothing has measured it";
 };
 

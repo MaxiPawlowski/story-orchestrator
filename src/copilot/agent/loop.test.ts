@@ -155,7 +155,7 @@ describe("agent loop (v2.6 plan 11 A2)", () => {
     expect(opPreview(story(), { kind: "setHouseRules", rules: ["No boats."] })).toEqual({ action: "update", label: "Set 1 house rule(s)", before: null, after: ["No boats."] });
   });
 
-  it("refuses the harness route until plan 04 H, and never falls back to the local profile", async () => {
+  it("refuses the harness route when the plugin offers no transport, and never falls back to the local profile", async () => {
     await expect(advanceAgent(running(), agentContext(story()), harnessRoute(null, []), AT)).rejects.toBeInstanceOf(AgentRouteUnavailable);
   });
 });

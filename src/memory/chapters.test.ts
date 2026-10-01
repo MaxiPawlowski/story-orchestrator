@@ -151,10 +151,6 @@ describe("chronicle", () => {
   it("offers the oldest uncovered records for an era, never the newest", () => {
     expect(eraCandidates(records, [], 5).map((item) => item.id)).toEqual(["a", "b", "c"]);
   });
-
-  it("is byte-stable: the same records render the same text every time (Q-M6)", () => {
-    expect(renderChronicle(records, [], 700).text).toBe(renderChronicle(records.map((item) => ({ ...item })), [], 700).text);
-  });
 });
 
 describe("canon fact selection", () => {

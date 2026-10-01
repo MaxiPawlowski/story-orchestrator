@@ -1,16 +1,17 @@
 {
-  "at": "2026-09-30T15:41:48.900Z",
+  "at": "2026-10-01T07:04:18.132Z",
+  "scope": "named",
   "baseline": {
-    "tests": 380,
-    "ms": 32671
+    "tests": 460,
+    "ms": 61370
   },
-  "mutants": 25,
-  "killed": 25,
+  "mutants": 30,
+  "killed": 30,
   "rows": [
     {
       "id": "background-write-unowned",
       "verdict": "killed",
-      "ms": 8961,
+      "ms": 23409,
       "killedBy": [
         "control: a switch during the LAST cast change stops before the background"
       ],
@@ -19,7 +20,7 @@
     {
       "id": "common-knowledge-kept",
       "verdict": "killed",
-      "ms": 8621,
+      "ms": 8202,
       "killedBy": [
         "dropCommonKnowledge drops a [knows] fact three characters are all handed in one batch, whatever its punctuation",
         "dropCommonKnowledge drops a fact every character present knows, even when only two are present"
@@ -29,7 +30,7 @@
     {
       "id": "curator-writes-gated-entry",
       "verdict": "killed",
-      "ms": 12394,
+      "ms": 10628,
       "killedBy": [
         "V10: a revert addresses the entry by its recorded uid an entry renamed into a checkpoint-gated one is left alone and kept"
       ],
@@ -38,7 +39,7 @@
     {
       "id": "delete-decodes-post-length",
       "verdict": "killed",
-      "ms": 9737,
+      "ms": 7381,
       "killedBy": [
         "v2.4 T1: decodeDelete decodes a middle delete to the removed message, not to the post-delete length",
         "v2.4 T1: decodeDelete decodes one event that removed a tool-call run with its reply (multi-count)",
@@ -51,16 +52,26 @@
     {
       "id": "derived-shared-hash-lifted",
       "verdict": "killed",
-      "ms": 12702,
+      "ms": 7298,
       "killedBy": [
         "derived artifacts reverse with their inputs keeps a shared hash excluded while an older exclusion survives"
       ],
       "killedCount": 1
     },
     {
+      "id": "effect-ledger-evicts-owed-restore",
+      "verdict": "killed",
+      "ms": 7893,
+      "killedBy": [
+        "the effect ledger records writes before they happen v2.6 plan 01 (Saga cast leak): never forgets a row it still owes a restore, so leaving the chat puts back every member",
+        "the effect ledger records writes before they happen keeps every live row even past the limit, because a forgotten applied row is a leaked host change"
+      ],
+      "killedCount": 2
+    },
+    {
       "id": "empty-private-block-epistemic",
       "verdict": "killed",
-      "ms": 10116,
+      "ms": 9001,
       "killedBy": [
         "a stored epistemic signal is injected in the same call (plan 05) refreshes the private block when the epistemic read lands, without the caller asking"
       ],
@@ -69,7 +80,7 @@
     {
       "id": "empty-private-block-ledger",
       "verdict": "killed",
-      "ms": 8981,
+      "ms": 8952,
       "killedBy": [
         "a stored epistemic signal is injected in the same call (plan 05) refreshes the ledger block when the ledger read lands, without the caller asking"
       ],
@@ -78,7 +89,7 @@
     {
       "id": "expansion-cache-outlives-contract",
       "verdict": "killed",
-      "ms": 9179,
+      "ms": 9811,
       "killedBy": [
         "expansion cache contract a chain from another contract is dropped, and a current one is kept",
         "expansion cache contract a playing chain from another contract is dropped too, and so is one with no origin"
@@ -88,7 +99,7 @@
     {
       "id": "expansion-generate-unowned",
       "verdict": "killed",
-      "ms": 10998,
+      "ms": 21376,
       "killedBy": [
         "expansion generation is owned by the world it started in (plan 11) writes nothing into the chat that replaced it, and persists nothing for it"
       ],
@@ -97,7 +108,7 @@
     {
       "id": "generated-routes-ascending",
       "verdict": "killed",
-      "ms": 10238,
+      "ms": 6830,
       "killedBy": [
         "R9: a generated beat's outcomes are routes merges one outgoing transition per outcome, in declaration order",
         "R9: a generated beat's outcomes are routes sets the anchor-entry threshold from the WORST route, so no route starves it"
@@ -107,7 +118,7 @@
     {
       "id": "greeting-commits-boundary",
       "verdict": "killed",
-      "ms": 12753,
+      "ms": 6735,
       "killedBy": [
         "TurnBridge boundary commits ignores a 'first_message' message: no boundary, no afterSpeak replies",
         "TurnBridge boundary commits commits nothing for a fresh group chat posting every member's greeting before chat_changed",
@@ -119,16 +130,25 @@
     {
       "id": "lore-select-cache-without-story",
       "verdict": "killed",
-      "ms": 17276,
+      "ms": 6655,
       "killedBy": [
         "LoreSelector (v2.2 plan 04) does not reuse a cached selection after the chat swaps stories under the same lore scope"
       ],
       "killedCount": 1
     },
     {
+      "id": "lore-select-drops-exclusive",
+      "verdict": "killed",
+      "ms": 6085,
+      "killedBy": [
+        "parseProposal keeps an explicit exclusive flag on a lore_select op, so a wizard scope edit cannot drop it (v2.6 plan 01, v2.5 plan 08 S)"
+      ],
+      "killedCount": 1
+    },
+    {
       "id": "lore-select-force-result-discarded",
       "verdict": "killed",
-      "ms": 9846,
+      "ms": 6050,
       "killedBy": [
         "LoreSelector (v2.2 plan 04) reports no selection when the host refuses the force, and does not claim it applied",
         "L5: the complete selection exclusive mode may act on X3: a refused force leaves no selection"
@@ -138,7 +158,7 @@
     {
       "id": "nan-host-message-id",
       "verdict": "killed",
-      "ms": 8571,
+      "ms": 5939,
       "killedBy": [
         "V4: what one turn is a null or empty id is not message 0"
       ],
@@ -147,7 +167,7 @@
     {
       "id": "nan-rollback-accepted",
       "verdict": "killed",
-      "ms": 8691,
+      "ms": 7698,
       "killedBy": [
         "V4: a mutation with no message id rewinds nothing, even where the engine would read the id as 'from the start'",
         "v2.4 plan 02 §10: every runRollback leaves its outcome on the notices records noop, history-unavailable and a missing id in order, each with a rising seq"
@@ -155,9 +175,22 @@
       "killedCount": 2
     },
     {
+      "id": "npc-stream-lands-in-next-chat",
+      "verdict": "killed",
+      "ms": 8271,
+      "killedBy": [
+        "v2.5 C1 (D1): an llm NPC /trigger reply never lands in the chat the player switched to a switch mid-stream leaves the populated next chat untouched in memory and unsaved (tokens after the load, CHAT_CHANGED later)",
+        "v2.5 C1 (D1): an llm NPC /trigger reply never lands in the chat the player switched to a switch after the last token (the natural finish) still writes and saves nothing in the next chat",
+        "guardStreamToChat arms every processor a token reveals, so an auto-continue after the first is guarded too",
+        "guardStreamToChat refuses a write when the chat was cleared in place under the same chat id",
+        "guardStreamToChat stops at the first write after the chat id changes, before ST has cleared the departing chat"
+      ],
+      "killedCount": 5
+    },
+    {
       "id": "patch-spread-erases-derived",
       "verdict": "killed",
-      "ms": 10441,
+      "ms": 8324,
       "killedBy": [
         "control: a scene summary keeps its derived record, so a rollback past it restores the scene rows it expired"
       ],
@@ -166,7 +199,7 @@
     {
       "id": "reasoning-orphan-close",
       "verdict": "killed",
-      "ms": 8905,
+      "ms": 6530,
       "killedBy": [
         "stripChannelNoise survives a quoted opener or closer inside the reasoning",
         "stripChannelNoise drops reasoning whose opener was prefilled by the prompt template",
@@ -177,7 +210,7 @@
     {
       "id": "replace-graph-drops-history",
       "verdict": "killed",
-      "ms": 13042,
+      "ms": 18336,
       "killedBy": [
         "L4: replacing the graph under a live run keeps the history a later edit rolls back through"
       ],
@@ -186,7 +219,7 @@
     {
       "id": "replace-graph-drops-queue",
       "verdict": "killed",
-      "ms": 9838,
+      "ms": 7803,
       "killedBy": [
         "L4: replacing the graph under a live run keeps the write the boundary is about to commit"
       ],
@@ -195,7 +228,7 @@
     {
       "id": "rollback-keeps-pending-writes",
       "verdict": "killed",
-      "ms": 8758,
+      "ms": 7448,
       "killedBy": [
         "cross-store rollback without an engine transition drops queued writes whose read reached the mutation, on the path that restores nothing (v2.4 plan 01 T1 live)"
       ],
@@ -204,7 +237,7 @@
     {
       "id": "save-binds-late-empty-save",
       "verdict": "killed",
-      "ms": 75452,
+      "ms": 67991,
       "killedBy": [
         "v2.4 plan 02 (J10.14): a save that runs after the open chat changed holds back an empty save of another chat while our save is armed, and says why it did not count",
         "v2.4 plan 02 (J10.14): a save that runs after the open chat changed control: an empty save of the chat our save was asked for is sent",
@@ -220,9 +253,27 @@
       "killedCount": 11
     },
     {
+      "id": "scan-mode-file-writes-before-gating",
+      "verdict": "killed",
+      "ms": 8774,
+      "killedBy": [
+        "world_info effect v2.5 P01-L1: in scan mode, before the gating activates or settles, neither the path replay nor the release writes a lorebook"
+      ],
+      "killedCount": 1
+    },
+    {
+      "id": "studio-chunk-global-outlives-stop",
+      "verdict": "killed",
+      "ms": 6912,
+      "killedBy": [
+        "v2.6 plan 01 (E4 cycle): the lazy Studio chunk sets no global of its own leaves every storyOrchestrator global to the mount registry, so storyOrchestratorStop removes it"
+      ],
+      "killedCount": 1
+    },
+    {
       "id": "talk-key-not-chat-scoped",
       "verdict": "killed",
-      "ms": 11583,
+      "ms": 7972,
       "killedBy": [
         "TalkController intercept scopes the decision to the chat, so a new chat at the same checkpoint and message index decides again"
       ],
@@ -231,7 +282,7 @@
     {
       "id": "talk-lead-outside-speakers",
       "verdict": "killed",
-      "ms": 9845,
+      "ms": 9100,
       "killedBy": [
         "buildCandidates adds a lead the speakers list leaves out, so the rules can still pick it",
         "buildCandidates alternates an added lead with the others under no_repeat instead of repeating it",
@@ -242,7 +293,7 @@
     {
       "id": "world-info-toggled-in-place",
       "verdict": "killed",
-      "ms": 9635,
+      "ms": 11679,
       "killedBy": [
         "worldInfoPlan lets a later checkpoint switch an earlier entry off, and replays in path order"
       ],
@@ -251,7 +302,7 @@
     {
       "id": "write-ahead-unverified",
       "verdict": "killed",
-      "ms": 16639,
+      "ms": 6349,
       "killedBy": [
         "the write-ahead record gates the effect (plan 11) refuses it, and says why, when the pending row is still unsaved"
       ],

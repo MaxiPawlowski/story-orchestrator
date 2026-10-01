@@ -5,6 +5,9 @@ import {
 import { JudgeRuntime } from "./judge";
 import { testOwnership } from "../../test/findings/testOwnership";
 
+const REMEASURED = { fixtureRevisions: Object.fromEntries(Object.entries(JUDGE_READINESS_BY_PROVIDER.typesafe).flatMap(([key, fact]) => (fact?.fixtureRevision ? [[key, fact.fixtureRevision]] : []))) };
+const remeasured: typeof judgeReadiness = (settings, dependencies = {}, answered = null, extra = {}) => judgeReadiness(settings, dependencies, answered, { ...extra, ...REMEASURED });
+
 const routed = (routes: Partial<Record<(typeof JUDGE_ROUTE_KEYS)[number], JudgeProviderId>>): JudgeSettings => {
   const base = defaultJudgeSettings();
   return { ...base, provider: { ...base.provider, ...routes } };
@@ -114,8 +117,8 @@ describe("decision-provider routing (v2.6 plan 12 A)", () => {
     const stall = rows.find((row) => row.key === "stallCheck");
     expect(stall).toMatchObject({ verdict: "unproven", provider: "llama-logprob", uncalibratedOn: "llama-logprob", calibration: null });
     expect(judgeReadinessConcerns(rows).map((row) => row.key)).toContain("stallCheck");
-    expect(judgeReadiness(defaultJudgeSettings()).find((row) => row.key === "stallCheck")).toMatchObject({ verdict: "measured", provider: "typesafe" });
-    expect(judgeReadiness(routed({ sceneTracker: "llama-logprob" })).find((row) => row.key === "sceneTrigger")).toMatchObject({ verdict: "unproven", splitFrom: ["sceneTracker"] });
+    expect(remeasured(defaultJudgeSettings()).find((row) => row.key === "stallCheck")).toMatchObject({ verdict: "measured", provider: "typesafe" });
+    expect(remeasured(routed({ sceneTracker: "llama-logprob" })).find((row) => row.key === "sceneTrigger")).toMatchObject({ verdict: "unproven", splitFrom: ["sceneTracker"] });
   });
 
   it("sanitize keeps known providers, maps anything else to typesafe, and keeps only known acknowledged notices", () => {

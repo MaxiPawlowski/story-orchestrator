@@ -1,6 +1,7 @@
 # Plan 12 — Open judge: a provider-agnostic decision layer, every candidate use spiked, every public option surveyed
 
-**Status: DRAFT 2026-09-30, awaiting user approval. Nothing here is built.**
+**Status: Phase 0 + Phase A BUILT 2026-09-30 and on master (provider seam, survey, J4); Phases B and C not started.
+See Gate record.**
 
 User answers (overview, 2026-09-30):
 - **Q1b:** "today this is a new decisions standard, there are many open source alternatives. Can we use something
@@ -109,8 +110,9 @@ follows rule 5 only once its floor is met), defer (a v2.7 seed) or drop.
 
 ## Gates
 
-Phase A: pure tier plus the existing judge suites and a live J11 ×1 on TypeSafe (no change). Phases B and C are lane runs
-per their fixtures, ×1 here and ×2 of anything recommended in plan 10.
+Phase A: pure tier plus the existing judge suites. The live J11 on TypeSafe is a regression row, so it runs in plan 14
+T6 and ×2 at the T7 freeze (overview rule 13; no per-plan ×1). Phases B and C are measurements: lane runs per their
+fixtures when a recommendation waits on them, and ×2 of anything recommended at the T7 freeze.
 
 ## Unresolved questions
 

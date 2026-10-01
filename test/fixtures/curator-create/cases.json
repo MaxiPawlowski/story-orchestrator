@@ -1,5 +1,5 @@
 {
-  "_about": "v2.4 plan 06 F5 Phase A. Labels frozen 2026-09-25 by the plan-06 build, BEFORE any model answer was read (v2.3 plan-10 audit rule). A 'propose' case has an entity established by >=2 live facts and no entry; the sample passes when >=1 create card survives the code guards AND names the case's entity. A 'none' case passes only when no create card survives. Floors declared in the plan before the run: propose >= 0.90 of samples, none = 1.00 of samples. Do not edit a label after a run; add a case instead.",
+  "_about": "v2.4 plan 06 F5 Phase A. Labels frozen 2026-09-25 by the plan-06 build, BEFORE any model answer was read (v2.3 plan-10 audit rule). A 'propose' case has an entity established by >=2 live facts and no entry; the sample passes when >=1 create card survives the code guards AND names the case's entity. A 'none' case passes only when no create card survives. Floors declared in the plan before the run: propose >= 0.90 of samples, none = 1.00 of samples. Do not edit a label after a run; add a case instead. v2.6 W25 removed the nine Spanish cases (p08-p11, n07-n11); p12-p15 and n12-n16 are English cases added 2026-10-01 (v2.6 plan 15, AS-16), labelled before any model answer was read, to restore the declared >= 22 cases and >= 10 of each label. Their ids are new so no earlier record can be read as theirs.",
   "frozenAt": "2026-09-25",
   "floors": { "propose": 0.9, "none": 1.0 },
   "samples": 3,
@@ -94,6 +94,69 @@
       "entries": [{ "uid": 3, "comment": "Ember Keep", "keys": ["keep", "fortress"], "content": "A basalt fortress over a dormant volcano, held by the Reyes family." }],
       "facts": ["Captain Reyes refused the ultimatum.", "Captain Reyes ordered the gates barred."],
       "canon": "Captain Reyes walked the walls and ordered the gates barred."
+    },
+    {
+      "id": "p12", "lang": "en", "label": "propose", "why": "established", "entity": "Skullbiter",
+      "story": "The Goblin Warrens", "checkpoint": "The lower gate", "book": "Goblin Warrens Lore", "roster": ["Arryn", "Dalan"],
+      "entries": [{ "uid": 0, "comment": "Goblin Lords", "keys": ["goblin lord"], "content": "Goblin Lords are as strong as a B Rank adventurer and lead several goblin bands at once." }, { "uid": 1, "comment": "The Warrens", "keys": ["warren", "tunnels"], "content": "A maze of goblin tunnels dug into the hills south of Brittleforest." }],
+      "facts": ["Skullbiter is the hobgoblin who guards the warren's lower gate.", "Skullbiter carries a club studded with adventurers' teeth.", "Dalan put an arrow in Skullbiter's shoulder and it did not slow him down."],
+      "canon": "Arryn and Dalan fought their way down to the lower gate, where a hulking hobgoblin called Skullbiter threw them back up the tunnel."
+    },
+    {
+      "id": "p13", "lang": "en", "label": "propose", "why": "established", "entity": "Silverfall Shrine",
+      "story": "The Wraith of Silverfall", "checkpoint": "The haunted village", "book": "Silverfall Lore", "roster": ["Belle", "Karos"],
+      "entries": [{ "uid": 0, "comment": "Silverfall", "keys": ["silverfall", "village"], "content": "A logging village on the edge of the Forbidden Forest, half empty since the killings began." }],
+      "facts": ["The Silverfall Shrine holds the bones of the village's founder.", "The wraith only appears within sight of the Silverfall Shrine.", "Karos found fresh blood on the Silverfall Shrine's altar."],
+      "canon": "Belle and Karos kept watch over the Silverfall Shrine until midnight, when Karos noticed the altar was wet with blood."
+    },
+    {
+      "id": "p14", "lang": "en", "label": "propose", "why": "established", "entity": "Reverend Johanson",
+      "story": "The Whispering Chapel", "checkpoint": "The quest board", "book": "Temple District Lore", "roster": ["Ellie"],
+      "entries": [{ "uid": 0, "comment": "Temple District", "keys": ["temple district", "temples"], "content": "The quarter of Aegis City where most of the temples stand, the Grand Temple of Boher above them all." }, { "uid": 1, "comment": "Holy Church", "keys": ["holy church", "boher"], "content": "The church of Boher, the God of Life, sworn enemy of every necromancer." }],
+      "facts": ["Reverend Johanson posted the quest about the whispering chapel.", "Reverend Johanson pays his adventurers in holy water instead of coin.", "Ellie saw Reverend Johanson burn a letter sealed with a black skull."],
+      "canon": "At the guild desk Ellie handed over Reverend Johanson's quest and warned, quietly, that the reverend had been burning letters."
+    },
+    {
+      "id": "p15", "lang": "en", "label": "propose", "why": "established", "entity": "Sunstone Lance",
+      "story": "Ruins of the Sun Court", "checkpoint": "The altar hall", "book": "Sun Court Lore", "roster": ["Arryn", "Dalan"],
+      "entries": [{ "uid": 0, "comment": "The Sun Court", "keys": ["sun court", "ruins"], "content": "The sand-buried palace of a dead desert kingdom, haunted by skeletons that still guard it." }],
+      "facts": ["The Sunstone Lance was sealed beneath the Sun Court's altar.", "The Sunstone Lance burns any undead it touches.", "Arryn wants the Sunstone Lance to replace the lance she broke in the Vile Jungle."],
+      "canon": "Dalan read the altar's inscription aloud: the Sunstone Lance lay sealed below, and Arryn was already prying at the stones."
+    },
+    {
+      "id": "n12", "lang": "en", "label": "none", "why": "named-once", "entity": "Grubnik",
+      "story": "The Goblin Warrens", "checkpoint": "The warren mouth", "book": "Goblin Warrens Lore", "roster": ["Arryn", "Dalan"],
+      "entries": [{ "uid": 1, "comment": "The Warrens", "keys": ["warren", "tunnels"], "content": "A maze of goblin tunnels dug into the hills south of Brittleforest." }],
+      "facts": ["Dalan bribed a goblin called Grubnik with a copper ring.", "Arryn cleaned goblin blood from her lance at the warren's mouth.", "The party rested an hour before going deeper."],
+      "canon": "At the warren's mouth Dalan traded a copper ring for directions, and the party rested before going deeper."
+    },
+    {
+      "id": "n13", "lang": "en", "label": "none", "why": "covered", "entity": "The Silverfall Wraith",
+      "story": "The Wraith of Silverfall", "checkpoint": "Midnight vigil", "book": "Silverfall Lore", "roster": ["Belle", "Karos"],
+      "entries": [{ "uid": 0, "comment": "Silverfall", "keys": ["silverfall", "village"], "content": "A logging village on the edge of the Forbidden Forest." }, { "uid": 1, "comment": "The Silverfall Wraith", "keys": ["wraith", "ghost"], "content": "The spirit of a woodcutter murdered by his own brother. It screams at midnight and cannot rest until the killer is named." }],
+      "facts": ["The Silverfall Wraith was a woodcutter murdered by his own brother.", "The Silverfall Wraith screams every night at midnight.", "Belle tried to cleave the Silverfall Wraith and her axe passed straight through it."],
+      "canon": "At midnight the Silverfall Wraith rose screaming; Belle's greataxe passed through it like smoke."
+    },
+    {
+      "id": "n14", "lang": "en", "label": "none", "why": "near-dup", "entity": "Sunstone Lance",
+      "story": "Ruins of the Sun Court", "checkpoint": "The altar hall", "book": "Sun Court Lore", "roster": ["Arryn", "Dalan"],
+      "entries": [{ "uid": 0, "comment": "The Sun Court", "keys": ["sun court", "ruins"], "content": "The sand-buried palace of a dead desert kingdom." }, { "uid": 1, "comment": "The Sunstone Lance", "keys": ["sunstone", "lance"], "content": "A relic lance sealed beneath the Sun Court's altar. It burns any undead it touches." }],
+      "facts": ["The Sunstone Lance was sealed beneath the Sun Court's altar.", "The Sunstone Lance burns any undead it touches."],
+      "canon": "Arryn lifted the Sunstone Lance from beneath the altar, and the skeletons in the hall flinched from its glow."
+    },
+    {
+      "id": "n15", "lang": "en", "label": "none", "why": "nothing-new", "entity": null,
+      "story": "The Whispering Chapel", "checkpoint": "The Grand Temple", "book": "Temple District Lore", "roster": ["Ellie"],
+      "entries": [{ "uid": 0, "comment": "Temple District", "keys": ["temple district", "temples"], "content": "The quarter of Aegis City where most of the temples stand, the Grand Temple of Boher above them all." }, { "uid": 1, "comment": "Holy Church", "keys": ["holy church", "boher"], "content": "The church of Boher, the God of Life, sworn enemy of every necromancer." }],
+      "facts": ["The Holy Church worships Boher, the God of Life.", "The Grand Temple of Boher stands in the Temple District.", "The Holy Church hunts necromancers."],
+      "canon": "Ellie walked the player through the Temple District to the Grand Temple, where the priests of Boher were at prayer."
+    },
+    {
+      "id": "n16", "lang": "en", "label": "none", "why": "roster", "entity": "Belle",
+      "story": "The Wraith of Silverfall", "checkpoint": "The village tavern", "book": "Silverfall Lore", "roster": ["Belle", "Karos"],
+      "entries": [{ "uid": 0, "comment": "Silverfall", "keys": ["silverfall", "village"], "content": "A logging village on the edge of the Forbidden Forest." }],
+      "facts": ["Belle swings Cleaver, her stone greataxe.", "Belle picked a fight with the village blacksmith and won.", "Belle refuses to sleep indoors in Silverfall."],
+      "canon": "Belle broke the blacksmith's nose over a spilled drink, then went to sleep in the stable rather than the inn."
     }
   ]
 }
