@@ -204,19 +204,19 @@ test('PS-J 6: without the plugin header, from a foreign origin or a cross-site f
     assert.equal(noFetchMetadata.out.statusCode, 200, 'control: a same-origin client that sends neither header still passes on the custom header');
 });
 
-test('PS-J 3: per user at most 2 in flight and 60 a minute; the excess answers 429 without an upstream call', async () => {
+test('PS-J 3: per user at most 2 in flight and 60 a minute; a burst queues up to 16 behind the two, the excess answers 429 without an upstream call', async () => {
     process.env.TYPESAFE_API_KEY = 'sk-test-rate';
     const { calls, fetchImpl } = countingFetch();
     let clock = 0;
     const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, now: () => clock });
     const burst = await Promise.all(Array.from({ length: 20 }, async () => { const out = fakeResponse(); await handlers.receive(pageRequest(question), out.res); return out.out.statusCode; }));
     assert.equal(calls.peak, 2);
-    assert.equal(burst.filter((code) => code === 200).length, 2);
-    assert.equal(burst.filter((code) => code === 429).length, 18);
+    assert.equal(burst.filter((code) => code === 200).length, 2 + plugin.MAX_QUEUED_PER_USER);
+    assert.equal(burst.filter((code) => code === 429).length, 20 - 2 - plugin.MAX_QUEUED_PER_USER);
     const other = fakeResponse();
     await handlers.receive(pageRequest(question, { handle: 'bob' }), other.res);
     assert.equal(other.out.statusCode, 200, 'control: another user is not held by the first user\'s burst');
-    for (let index = 0; index < 58; index += 1) {
+    for (let index = 0; index < 60 - 2 - plugin.MAX_QUEUED_PER_USER; index += 1) {
         const out = fakeResponse();
         await handlers.receive(pageRequest(question), out.res);
         assert.equal(out.out.statusCode, 200);
@@ -253,6 +253,35 @@ test('T0: the per-minute limit and in-flight cap come from the env, so N lanes c
     const status = fakeResponse();
     await handlers.status({}, status.res);
     assert.deepEqual(status.out.body.limits, { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: 3 });
+});
+
+test('T1-6: a call queued behind two in flight waits for a slot, and is refused only when none frees within the wait', async () => {
+    let clock = 0;
+    const acquire = plugin.createLimiter({ maxInFlight: 2, perMinute: 60, maxQueued: 4, queueWaitMs: 50, now: () => clock });
+    const first = await acquire('u');
+    const second = await acquire('u');
+    const queued = acquire('u');
+    first();
+    const third = await queued;
+    assert.equal(typeof third, 'function', 'a release hands the slot to the waiting call');
+    const starved = await acquire('u');
+    assert.equal(starved, null, 'nothing freed within the wait');
+    second();
+    third();
+    assert.equal(typeof (await acquire('u')), 'function');
+});
+
+test('T1-6: a queued call woken into a full minute passes the slot on rather than holding the queue', async () => {
+    let clock = 0;
+    const acquire = plugin.createLimiter({ maxInFlight: 1, perMinute: 2, maxQueued: 4, queueWaitMs: 50, now: () => clock });
+    const first = await acquire('u');
+    const a = acquire('u');
+    const b = acquire('u');
+    first();
+    const gotA = await a;
+    assert.equal(typeof gotA, 'function');
+    gotA();
+    assert.equal(await b, null, 'the third call in a minute is refused by the window');
 });
 
 test('T0: an upstream 429 passes its Retry-After to the page', async () => {

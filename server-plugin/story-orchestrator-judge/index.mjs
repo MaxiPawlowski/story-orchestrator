@@ -22,6 +22,8 @@ export const UPSTREAM_TIMEOUT_MS = 10_000;
 export const PERMITTED_MODELS = Object.freeze(['jev-1.13.0', 'jev-latest', 'jev-preview']);
 export const MAX_BODY_BYTES = MAX_REQUEST_CHARS * 4;
 export const MAX_IN_FLIGHT_PER_USER = 2;
+export const MAX_QUEUED_PER_USER = 16;
+export const QUEUE_WAIT_MS = 2_000;
 export const MAX_CALLS_PER_MINUTE_PER_USER = 60;
 export const RATE_ENV = 'SO_JUDGE_RATE_PER_MIN';
 export const IN_FLIGHT_ENV = 'SO_JUDGE_MAX_IN_FLIGHT';
@@ -275,24 +277,52 @@ export function limitsFromEnv(env = process.env) {
 
 const WINDOW_MS = 60_000;
 
-export function createLimiter({ maxInFlight = MAX_IN_FLIGHT_PER_USER, perMinute = MAX_CALLS_PER_MINUTE_PER_USER, now = Date.now, onRefuse = () => undefined } = {}) {
+export function createLimiter({
+    maxInFlight = MAX_IN_FLIGHT_PER_USER, perMinute = MAX_CALLS_PER_MINUTE_PER_USER, maxQueued = MAX_QUEUED_PER_USER, queueWaitMs = QUEUE_WAIT_MS,
+    now = Date.now, onRefuse = () => undefined,
+} = {}) {
     const users = new Map();
-    return (handle) => {
-        const user = users.get(handle) ?? { inFlight: 0, stamps: [] };
-        users.set(handle, user);
+    const take = (user) => {
         const at = now();
         user.stamps = user.stamps.filter((stamp) => at - stamp < WINDOW_MS);
-        if (user.inFlight >= maxInFlight) {
-            onRefuse(1);
-            return null;
-        }
         if (user.stamps.length >= perMinute) {
             onRefuse(Math.max(1, Math.ceil((user.stamps[0] + WINDOW_MS - at) / 1000)));
             return null;
         }
         user.inFlight += 1;
         user.stamps.push(at);
-        return () => { user.inFlight -= 1; };
+        let released = false;
+        return () => {
+            if (released) return;
+            released = true;
+            user.inFlight -= 1;
+            user.waiting.shift()?.();
+        };
+    };
+    return async (handle) => {
+        const user = users.get(handle) ?? { inFlight: 0, stamps: [], waiting: [] };
+        users.set(handle, user);
+        if (user.inFlight < maxInFlight && !user.waiting.length) return take(user);
+        if (user.waiting.length >= maxQueued) {
+            onRefuse(1);
+            return null;
+        }
+        const slot = await new Promise((resolve) => {
+            const wake = () => { clearTimeout(timer); resolve(true); };
+            const timer = setTimeout(() => {
+                const index = user.waiting.indexOf(wake);
+                if (index >= 0) user.waiting.splice(index, 1);
+                resolve(false);
+            }, queueWaitMs);
+            user.waiting.push(wake);
+        });
+        if (!slot) {
+            onRefuse(1);
+            return null;
+        }
+        const release = take(user);
+        if (!release) user.waiting.shift()?.();
+        return release;
     };
 }
 
@@ -319,7 +349,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
         if (blocked) return response.status(blocked.status).json({ error: blocked.error });
         const read = await readTextBody(request);
         if (read.error) return response.status(read.status).json({ error: read.error });
-        const release = acquire(request?.user?.profile?.handle ?? 'default-user');
+        const release = await acquire(request?.user?.profile?.handle ?? 'default-user');
         if (!release) {
             refusals.local += 1;
             response.set?.('Retry-After', String(retryAfter));
