@@ -34,7 +34,7 @@ const makeManager = () => {
     getOpenArcs: jest.fn(() => ["The missing sun-heart"]),
     getNarrativeStatus: jest.fn(() => ({
       title: "Quest for the Sun Ruins",
-      sections: [{ id: "now", label: "Where you are", lines: ["The Ruined Gate"] }],
+      sections: [{ id: "now", label: "Where you are", lines: ["The Ruined Gate"] }, { id: "threads", label: "Open threads", lines: ["The missing sun-heart"] }],
       text: "Where you are\n  The Ruined Gate",
     })),
     getSnapshot: jest.fn(() => ({

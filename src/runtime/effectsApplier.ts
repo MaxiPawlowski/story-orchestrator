@@ -24,6 +24,7 @@ import { couldNot, wrote } from "@utils/writeResult";
 import { samplerOverlay } from "./samplerOverlay";
 import type { WriteResult } from "@utils/writeResult";
 import { renderBlackboardMemo } from "./blackboardMemo";
+import { transitionNoteText } from "./narrative";
 import { appendRow, pendingRow, restorePlan, rowsAfter, setStatus, type EffectWrite } from "./effectLedger";
 import { effectExtensions, type EffectExtension, type EffectExtensionInput } from "./effectExtensions";
 import type { EffectLedgerRow, EffectTarget, RuntimeExtras, RuntimeSnapshot } from "./types";
@@ -198,7 +199,7 @@ export class EffectsApplier {
   // A transition the player was never told about leaves a trace: both ways out of this used to be silent.
   async announceTransition(checkpoint: Checkpoint | undefined, extras: RuntimeExtras, ownsOpenChat = true) {
     if (!checkpoint) return;
-    await this.announceText(checkpoint.objective ? `◈ ${checkpoint.name} — ${checkpoint.objective}` : `◈ ${checkpoint.name}`, extras, ownsOpenChat, `transition to "${checkpoint.name}"`);
+    await this.announceText(transitionNoteText(checkpoint), extras, ownsOpenChat, `transition to "${checkpoint.name}"`);
   }
 
   async announceText(raw: string, extras: RuntimeExtras, ownsOpenChat = true, what = `"${raw}"`) {

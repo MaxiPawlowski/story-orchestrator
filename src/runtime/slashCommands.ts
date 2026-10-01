@@ -131,7 +131,7 @@ async function storyCommand(manager: RuntimeManager, value: string | string[]) {
     return dump(`${narrative.title}\n\n${narrative.text}`);
   }
   if (command === "threads") {
-    const threads = manager.getOpenArcs();
+    const threads = manager.getNarrativeStatus().sections.find((section) => section.id === "threads")?.lines ?? [];
     return dump(threads.length ? threads.map((thread) => `• ${thread}`).join("\n") : "No open threads right now.");
   }
   if (command === "flag") {

@@ -17,11 +17,27 @@ export function hashMemoryText(text: string): string {
   return fnv1a(stableStringify(text.trim().toLowerCase()));
 }
 
+const SOURCE_GONE = new Set(["source-removed", "quarantined"]);
+
+const sourceKey = (entry: MemoryEntry): string | null => {
+  const messageId = entry.messageId ?? entry.provenance?.messageId;
+  return typeof messageId === "number" ? `${groupKey(entry.tier, entry.characterId)}:${messageId}:${hashMemoryText(entry.text)}` : null;
+};
+
 export function addMemoryEntries(state: MemoryStoreState, entries: MemoryEntry[], range: TurnRange): { state: MemoryStoreState; accepted: MemoryEntry[]; discarded: MemoryEntry[] } {
   if (!entries.length) return { state, accepted: [], discarded: [] };
   const excludedSet = new Set(state.excluded);
-  const survivors = entries.filter((entry) => !excludedSet.has(hashMemoryText(entry.text)));
-  const discarded: MemoryEntry[] = entries.filter((entry) => excludedSet.has(hashMemoryText(entry.text)));
+  const held = new Set(state.entries.filter((entry) => !SOURCE_GONE.has(entry.provenance?.validity ?? "live")).map(sourceKey).filter((key): key is string => key !== null));
+  const repeated = (entry: MemoryEntry) => {
+    const key = sourceKey(entry);
+    if (key === null) return false;
+    if (held.has(key)) return true;
+    held.add(key);
+    return false;
+  };
+  const survivors: MemoryEntry[] = [];
+  const discarded: MemoryEntry[] = [];
+  entries.forEach((entry) => (excludedSet.has(hashMemoryText(entry.text)) || repeated(entry) ? discarded : survivors).push(entry));
 
   const groups = new Map<string, MemoryEntry[]>();
   survivors.forEach((entry) => {

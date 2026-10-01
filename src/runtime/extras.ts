@@ -188,7 +188,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
 };
 
 export const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true });
-export const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: true, hudEnabled: true, inline: defaultInlineSettings() });
+export const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: false, hudEnabled: true, inline: defaultInlineSettings() });
 export const createStagecraft = (): StagecraftRuntimeState => ({ settings: defaultStagecraftSettings(), proposals: [], lastPass: null, lastRunBoundary: -1, lastError: null });
 
 export const sanitizeStagecraft = (value: RuntimeExtras | undefined): StagecraftRuntimeState => {

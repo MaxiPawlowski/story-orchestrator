@@ -50,3 +50,21 @@ finding("R9", () => {
     `a generated beat with two validated outcomes produced ${outgoing.length} outgoing transition(s): merge reads outcomes[0] only, so every alternative route the generator proposed is discarded and a player who takes it has nowhere to go`,
   );
 });
+
+describe("T0 finding 4: a generated step carries the player name of the stub it replaces", () => {
+  it("names every generated beat after the stub, so the HUD never falls back to Current scene", () => {
+    const { parsed } = parsedBeats();
+    const raw = rawStory();
+    raw.checkpoints = raw.checkpoints.map((checkpoint: { id: string }) => (checkpoint.id === "bridge_stub" ? { ...checkpoint, player_name: "Camp on the North Road" } : checkpoint));
+    const merged = mergeExpansions(raw, entryFor(parsed.beats));
+    const generated = merged.checkpoints.filter((checkpoint) => checkpoint.id.startsWith("gen_bridge_stub_"));
+    expect(generated.length).toBeGreaterThan(0);
+    expect(generated.every((checkpoint) => checkpoint.player_name === "Camp on the North Road")).toBe(true);
+  });
+
+  it("control: a stub without a player name leaves the beats unnamed for the player", () => {
+    const { parsed } = parsedBeats();
+    const merged = mergeExpansions(rawStory(), entryFor(parsed.beats));
+    expect(merged.checkpoints.filter((checkpoint) => checkpoint.id.startsWith("gen_bridge_stub_")).some((checkpoint) => checkpoint.player_name)).toBe(false);
+  });
+});

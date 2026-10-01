@@ -23,10 +23,13 @@ export function shouldShowAwayRecap(lastSessionAt: string | null, now: number, m
 
 // Returning after a gap shows the standing player composition, not a second one written for the
 // popup: same sections, same wording — only the heading knows you were away.
+const RECAP_SKIPS = new Set(["about", "pending"]);
+
 export function buildAwayRecap(narrative: NarrativeStatus, gapMs: number): AwayRecap {
   const title = awayRecapTitle(narrative.title, formatGap(gapMs));
-  const lines = narrative.sections.map((section) => `${section.label}\n${section.lines.join("\n")}`);
-  return { title, lines, render: (doc) => renderNarrativeNode(narrative, doc, title) };
+  const recap = { ...narrative, sections: narrative.sections.filter((section) => !RECAP_SKIPS.has(section.id)) };
+  const lines = recap.sections.map((section) => `${section.label}\n${section.lines.join("\n")}`);
+  return { title, lines, render: (doc) => renderNarrativeNode(recap, doc, title) };
 }
 
 export interface RecapPopupHandle {

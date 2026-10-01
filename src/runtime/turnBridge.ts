@@ -231,7 +231,7 @@ export class TurnBridge {
     if (await this.manager.rollbackOnEnter(kind, from)) return;
     const replaced = journal ? null : this.seam?.(kind, messageId) ?? null;
     if (replaced) return replaced();
-    await (journal ? this.manager.rollbackFromMessage(from, journal) : this.manager.rollbackFromMessage(from));
+    await this.manager.rollbackFromMessage(from, journal ?? undefined, kind === "update" ? "edit" : kind);
   }
 
   private decodeDelete(postLength: number) {

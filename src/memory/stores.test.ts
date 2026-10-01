@@ -68,8 +68,8 @@ describe("memory stores", () => {
   it("expires non-pinned scene-scoped entries but keeps pinned ones", () => {
     let state = createMemoryState();
     state = addMemoryEntries(state, [
-      entry({ id: "scene-drop", expiration: "scene" }),
-      entry({ id: "scene-pinned", expiration: "scene", pinned: true }),
+      entry({ id: "scene-drop", text: "Mara is waiting at the gate.", expiration: "scene" }),
+      entry({ id: "scene-pinned", text: "Mara is holding the lantern.", expiration: "scene", pinned: true }),
       entry({ id: "permanent", expiration: "permanent" }),
     ], { from: 0, to: 10 }).state;
     const expired = expireScoped(state, "scene");
@@ -117,5 +117,31 @@ describe("memory stores", () => {
     state = addMemoryEntries(state, [entry({ id: "a" })], { from: 0, to: 5 }).state;
     const capped = capTier(state, "facts", 10);
     expect(capped).toBe(state);
+  });
+});
+
+describe("T0 finding 7: a re-read of the same message does not store the same fact again", () => {
+  const read = (id: string, boundary: number, messageId = 11) => entry({ id, text: "The Ash Lanterns left Aegis City at first light.", messageId, createdAt: boundary });
+
+  it("drops a fact a live row already holds for the same message, across overlapping windows", () => {
+    let state = createMemoryState();
+    state = addMemoryEntries(state, [read("a", 4)], { from: 0, to: 11 }).state;
+    state = addMemoryEntries(state, [read("b", 5), read("c", 5)], { from: 5, to: 12 }).state;
+    state = addMemoryEntries(state, [read("d", 6)], { from: 8, to: 14 }).state;
+    expect(state.entries.map((row) => row.id)).toEqual(["a"]);
+  });
+
+  it("keeps the same words from another message, another tier or another character", () => {
+    let state = createMemoryState();
+    state = addMemoryEntries(state, [read("a", 4)], { from: 0, to: 11 }).state;
+    state = addMemoryEntries(state, [read("b", 5, 12), { ...read("c", 5), tier: "session_details" }, { ...read("d", 5), characterId: "belle" }], { from: 5, to: 12 }).state;
+    expect(state.entries.map((row) => row.id)).toEqual(["a", "b", "c", "d"]);
+  });
+
+  it("a row whose source was removed does not block the re-read that replaces it", () => {
+    let state = createMemoryState();
+    state = addMemoryEntries(state, [{ ...read("a", 4), provenance: { source: "extractor", messageId: 11, boundary: 4, pass: "shared-read", validity: "source-removed" } }], { from: 0, to: 11 }).state;
+    state = addMemoryEntries(state, [read("b", 5)], { from: 5, to: 12 }).state;
+    expect(state.entries.map((row) => row.id)).toEqual(["a", "b"]);
   });
 });

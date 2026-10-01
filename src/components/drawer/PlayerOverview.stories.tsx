@@ -1,6 +1,7 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { fn, within, userEvent, expect } from "@storybook/test";
-import { buildNarrativeStatus } from "@runtime/narrative";
+import { buildNarrativeStatus, playerLocation } from "@runtime/narrative";
+import type { NormalizedStoryV2 } from "@engine/index";
 import type { ExtractionHealth } from "@extraction/index";
 import { derivePipelineStatus } from "@runtime/pipeline";
 import type { ExtractionRuntimeState, RuntimeSnapshot } from "@runtime/types";
@@ -23,6 +24,7 @@ const snapshot = (options: {
   missingMembers?: string[];
   canon?: string;
   health?: ExtractionHealth;
+  sceneLocation?: string | null;
 } = {}): RuntimeSnapshot => {
   const pipeline = derivePipelineStatus(options.extraction ?? extraction(), undefined, options.health ?? null);
   return {
@@ -38,12 +40,13 @@ const snapshot = (options: {
       tensionLevel: "tense",
       pendingCount: options.pending ?? 0,
       pipeline,
+      sceneLocation: options.sceneLocation ?? null,
     }),
   } as unknown as RuntimeSnapshot;
 };
 
 // v2.3 plan 09 fixture: a long session's canon is a paragraph per scene, and the recaps have to stay
-// readable when it is. Nothing is truncated — the panel scrolls, the story is not edited.
+// readable when it is. The story so far ends at the last whole sentence inside its budget; the threads list scrolls.
 const LONG_CANON = [
   "The party crossed the singing dunes at dusk, and Arin would not say what she had heard in them.",
   "At the waystation the ferryman took the sun-key from Luke's hand, turned it over twice, and gave it back without a word about the price.",
@@ -81,7 +84,8 @@ export const LongCanonAndManyThreads: Story = {
   args: { snapshot: snapshot({ canon: LONG_CANON, threads: LONG_THREADS, pending: 4 }) },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/the corridor runs down further than the hill/)).toBeInTheDocument();
+    await expect(canvas.getByText(/before anyone thought to ask why\.$/)).toBeInTheDocument();
+    await expect(canvasElement.textContent ?? "").not.toMatch(/Past the arch/);
     await expect(canvas.getByText(/At the waystation the ferryman took the sun-key/)).toBeInTheDocument();
     await expect(canvas.getByText("Open thread 12: the question the story has not answered yet.")).toBeInTheDocument();
     await expect(canvas.getByText("The Ruined Gate")).toBeInTheDocument();
@@ -139,6 +143,34 @@ export const SteppedBack: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(/The story stepped back to The Job Board/)).toBeInTheDocument();
     await expect(canvas.queryByText(/Investigate the Job Board/)).toBeNull();
+  },
+};
+
+export const SteppedBackBySwipe: Story = {
+  args: { snapshot: { ...snapshot(), lastRollback: { checkpointName: "Investigate the Job Board", playerName: "The Job Board", at: "2026-10-01T12:00:00.000Z", kind: "swipe" } } as RuntimeSnapshot },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("The story stepped back to The Job Board to match the swiped reply.")).toBeInTheDocument();
+    await expect(canvas.queryByText(/your edit/)).toBeNull();
+  },
+};
+
+const LOCATION = { key: "location", type: "enum", source: "extractor", rubric: "Where?", values: ["aegis_guild_hall", "north_road"], player_labels: { north_road: "the road north" } };
+const ADOLION_PLACES = { qualityByKey: { location: LOCATION } } as unknown as NormalizedStoryV2;
+
+export const UnlabelledLocationLeftOut: Story = {
+  args: { snapshot: snapshot({ sceneLocation: playerLocation(ADOLION_PLACES, "aegis_guild_hall") }) },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.textContent ?? "").not.toMatch(/aegis_guild_hall|\bAt\b/);
+  },
+};
+
+export const LabelledLocationShown: Story = {
+  args: { snapshot: snapshot({ sceneLocation: playerLocation(ADOLION_PLACES, "north_road") }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText("At the road north.")).toBeInTheDocument();
+    await expect(canvasElement.textContent ?? "").not.toMatch(/north_road/);
   },
 };
 

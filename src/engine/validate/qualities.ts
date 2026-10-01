@@ -36,7 +36,22 @@ const readCommitEvidence = (value: Record<string, unknown>, source: Quality["sou
   return { commit_evidence: pattern };
 };
 
-const readEvidenceFrom = (value: Record<string, unknown>, source: Quality["source"], path: string, errors: ValidationError[]): Pick<Quality, "evidence_from"> => {
+const readPlayerLabels = (value: Record<string, unknown>, values: string[] | undefined, path: string, errors: ValidationError[]): Pick<Quality, "player_labels"> => {
+  if (value.player_labels === undefined) return {};
+  if (!values || !isRecord(value.player_labels)) {
+    addError(errors, `${path}.player_labels`, "player_labels map enum values to the words a player reads");
+    return {};
+  }
+  const labels: Record<string, string> = {};
+  Object.entries(value.player_labels).forEach(([option, label]) => {
+    if (!values.includes(option)) addError(errors, `${path}.player_labels.${option}`, `'${option}' is not one of the enum values`);
+    else if (typeof label !== "string" || !label.trim()) addError(errors, `${path}.player_labels.${option}`, "a player label is non-empty text");
+    else labels[option] = label.trim();
+  });
+  return Object.keys(labels).length ? { player_labels: labels } : {};
+};
+
+const readEvidenceFrom =(value: Record<string, unknown>, source: Quality["source"], path: string, errors: ValidationError[]): Pick<Quality, "evidence_from"> => {
   if (value.evidence_from === undefined) return {};
   if (!isOneOf(value.evidence_from, EVIDENCE_FROM)) {
     addError(errors, `${path}.evidence_from`, "evidence_from must be any or world");
@@ -151,6 +166,7 @@ export const readQuality = (value: unknown, path: string, errors: ValidationErro
     source,
     rubric,
     ...(values ? { values } : {}),
+    ...readPlayerLabels(value, type === "enum" ? values : undefined, path, errors),
     ...(typeof value.latching === "boolean" ? { latching: value.latching } : {}),
     ...(typeof value.monotonic === "boolean" ? { monotonic: value.monotonic } : {}),
     ...(isRecord(value.scope_hint) ? { scope_hint: value.scope_hint as Quality["scope_hint"] } : {}),

@@ -135,7 +135,13 @@ export class ExtractionCoordinator {
     const wanted = reconciliationKeySet(targetedKeys);
     const index = events.findIndex((event) => event.resolvedAt === null && reconciliationKeySet(event.targetedKeys) === wanted);
     if (index < 0) return;
-    events[index] = { ...events[index], ...(resolve ? { resolvedAt: new Date().toISOString() } : {}), evidence: [...events[index].evidence, ...evidence] };
+    const at = new Date().toISOString();
+    events[index] = { ...events[index], ...(resolve ? { resolvedAt: at } : {}), evidence: [...events[index].evidence, ...evidence] };
+    const answered = `answered with ${events[index].id}`;
+    if (resolve) events.forEach((event, other) => {
+      if (other <= index || event.resolvedAt !== null || reconciliationKeySet(event.targetedKeys) !== wanted) return;
+      events[other] = { ...event, resolvedAt: at, evidence: [...event.evidence, answered] };
+    });
     this.state.reconciliationEvents = events;
   }
 

@@ -78,9 +78,11 @@ export interface ExpansionActivity {
 export const expansionInFlight = (expansion: ExpansionRuntimeState): boolean =>
   Boolean(expansion.scheduler.inFlight) || Object.values(expansion.entries).some((entry) => entry.status === "queued" || entry.status === "generating");
 
-export function derivePipelineStatus(extraction: ExtractionRuntimeState, expansion?: ExpansionActivity, health: ExtractionHealth | null = null, ended = false): PipelineStatus {
+export function derivePipelineStatus(
+  extraction: ExtractionRuntimeState, expansion?: ExpansionActivity, health: ExtractionHealth | null = null, ended = false, active: { id: string } | null = null,
+): PipelineStatus {
   if (ended) return { state: "complete", text: "The story has ended. You can keep playing on in the epilogue.", detail: null, needsSetup: false, nextAction: null };
-  const problem = pipelineProblem(extraction, health);
+  const problem = pipelineProblem(extraction, health, active?.id ?? null);
   if (problem) return problem;
   if (expansion?.generating) {
     return { state: "working", text: "Preparing the road ahead…", detail: null, needsSetup: false, nextAction: "wait" };
@@ -90,7 +92,7 @@ export function derivePipelineStatus(extraction: ExtractionRuntimeState, expansi
   return { state: "idle", text: "Following along.", detail: null, needsSetup: false, nextAction: "wait" };
 }
 
-function pipelineProblem(extraction: ExtractionRuntimeState, health: ExtractionHealth | null): PipelineStatus | null {
+function pipelineProblem(extraction: ExtractionRuntimeState, health: ExtractionHealth | null, activeCheckpointId: string | null): PipelineStatus | null {
   const { settings, scheduler, reconciliationEvents } = extraction;
   if (scheduler.lastError) {
     return { state: "error", text: "The story stopped keeping up — something went wrong reading the scene.", detail: scheduler.lastError, needsSetup: false, nextAction: "wait" };
@@ -113,7 +115,8 @@ function pipelineProblem(extraction: ExtractionRuntimeState, health: ExtractionH
   if (health?.kind === "transport") {
     return { state: "stalled-rechecking", text: TRANSPORT_PLAYER_TEXT, detail: health.detail, needsSetup: false, nextAction: "retry", retryable: true };
   }
-  if (reconciliationEvents.some((event) => event.resolvedAt === null)) {
+  const openHere = (event: { resolvedAt: string | null; checkpointId: string }) => event.resolvedAt === null && (activeCheckpointId === null || event.checkpointId === activeCheckpointId);
+  if (reconciliationEvents.some(openHere)) {
     return { state: "stalled-rechecking", text: "Catching up — re-checking recent scenes.", detail: null, needsSetup: false, nextAction: "retry" };
   }
   return null;
