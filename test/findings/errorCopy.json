@@ -253,7 +253,7 @@
       "reason": "a pass-reason key, not an error"
     },
     {
-      "site": "src/runtime/effectsApplier.ts#EffectsApplier.restoreEffects",
+      "site": "src/runtime/effectLedger.ts#runRestoreSteps",
       "kind": 3,
       "template": ".catch(() => false)",
       "surface": "author",
