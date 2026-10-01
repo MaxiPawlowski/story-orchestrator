@@ -27,15 +27,49 @@ export interface JudgeReadinessFact {
   /** The versioned model the calibration ran on, or null when nothing has measured it. */
   measuredOn: string | null;
   recommendation: string;
-  fixtureRevision?: string;
+  fixtureRevision?: string | null;
   passed?: boolean;
 }
 
 const MEASURED_ON = "jev-1.13.0";
 
-export const JUDGE_FIXTURE_REVISION = "judge-fixtures-r1";
+export const JUDGE_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string>> = {
+  stallCheck: "285953bcdcd0",
+  memoryVerify: "35299aebd287",
+  warden: "667319dbcd15",
+  expansionCritic: "94ba671a348a",
+  expansionLookahead: "775cd0b58e03",
+  lookahead: "775cd0b58e03",
+  curatorFilter: "8c4be67eb91b",
+  typedExtraction: "74b12b210456",
+  memoryPairs: "ef829c8a4916",
+  sceneTrigger: "efa5d9d5461f",
+  sceneTracker: "efa5d9d5461f",
+  director: "d30d38c6ce47",
+  agencyCheck: "1a69bad097f7",
+  houseRules: "39549769df3a",
+  loreSelect: "9711db218ed5",
+};
 
-const MEASURED_TABLE: Record<JudgeReadinessKey, JudgeReadinessFact> = {
+const MEASURED_FIXTURE_REVISION: Partial<Record<JudgeReadinessKey, string>> = {
+  stallCheck: "6488a00457b4",
+  memoryVerify: "63b138077a48",
+  warden: "e36b7ffb1416",
+  expansionCritic: "a4cd5b4f30ea",
+  expansionLookahead: "9d5eb0138595",
+  lookahead: "9d5eb0138595",
+  curatorFilter: "04b19da3f28b",
+  typedExtraction: "14c783278c4a",
+  memoryPairs: "473bfcc69f5c",
+  sceneTrigger: "d070291ec38c",
+  sceneTracker: "d070291ec38c",
+  director: "05634493af10",
+  agencyCheck: "52d957eb519c",
+  houseRules: "1713bebb8c76",
+  loreSelect: "809cfe5c852b",
+};
+
+export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = {
   stallCheck: { calibration: 1, latencyP50Ms: 1188, live: "J11.23", measuredOn: MEASURED_ON, recommendation: "The strongest measured use: both families clean." },
   memoryVerify: { calibration: 0.9792, latencyP50Ms: 275, live: "J11.7, J11.8", measuredOn: MEASURED_ON, recommendation: "Also the cheapest measured call, against a 3000 ms budget." },
   warden: {
@@ -124,14 +158,33 @@ export const RING_USE_TO_READINESS: Record<string, JudgeReadinessKey[]> = {
   warden: ["warden"],
 };
 
-export const JUDGE_READINESS: Record<JudgeReadinessKey, JudgeReadinessFact> = Object.fromEntries(
-  Object.entries(MEASURED_TABLE).map(([key, fact]) => [key, fact.calibration === null ? fact : { ...fact, fixtureRevision: JUDGE_FIXTURE_REVISION, passed: true }]),
-) as Record<JudgeReadinessKey, JudgeReadinessFact>;
+type ReadinessFacts = Record<JudgeReadinessKey, JudgeReadinessFact>;
+
+const withFixtureRevisions = (facts: ReadinessFacts, revisions: Partial<Record<JudgeReadinessKey, string>>): ReadinessFacts =>
+  Object.fromEntries(
+    Object.entries(facts).map(([key, fact]) => [key, { ...fact, fixtureRevision: fact.fixtureRevision ?? revisions[key as JudgeReadinessKey] ?? null }]),
+  ) as ReadinessFacts;
 
 export const JUDGE_READINESS_BY_PROVIDER: Record<JudgeProviderId, Partial<Record<JudgeReadinessKey, JudgeReadinessFact>>> = {
-  typesafe: JUDGE_READINESS,
+  typesafe: withFixtureRevisions(JUDGE_READINESS, MEASURED_FIXTURE_REVISION),
   "llama-logprob": {},
 };
+
+export interface JudgeFixtureStale {
+  measured: string | null;
+  current: string;
+}
+
+export function fixtureStale(
+  key: JudgeReadinessKey,
+  fact: JudgeReadinessFact,
+  current: Partial<Record<JudgeReadinessKey, string>> = JUDGE_FIXTURE_REVISION,
+): JudgeFixtureStale | undefined {
+  const revision = current[key];
+  if (fact.calibration === null || revision === undefined) return undefined;
+  const measured = fact.fixtureRevision ?? null;
+  return measured === revision ? undefined : { measured, current: revision };
+}
 
 export const readinessFact = (provider: JudgeProviderId, key: JudgeReadinessKey): JudgeReadinessFact =>
   JUDGE_READINESS_BY_PROVIDER[provider][key] ?? {
@@ -148,16 +201,16 @@ export type JudgeCalibrationProblem = "unmeasured" | "failed" | "stale" | "model
 
 const servedId = (model: string) => model.replace(/^llama-server:/, "");
 
-export function calibrationProblem(fact: JudgeReadinessFact, served: string | null | undefined): JudgeCalibrationProblem | null {
+export function calibrationProblem(key: JudgeReadinessKey, fact: JudgeReadinessFact, served: string | null | undefined): JudgeCalibrationProblem | null {
   if (fact.calibration === null) return "unmeasured";
   if (fact.passed === false) return "failed";
-  if (fact.fixtureRevision !== JUDGE_FIXTURE_REVISION) return "stale";
+  if (fixtureStale(key, fact) || (fact.fixtureRevision ?? null) === null) return "stale";
   if (served && fact.measuredOn !== null && servedId(served) !== fact.measuredOn) return "model";
   return null;
 }
 
 export const providerCleared = (provider: JudgeProviderId, key: JudgeReadinessKey, served: JudgeServedModels = {}): boolean =>
-  provider === DEFAULT_JUDGE_PROVIDER || calibrationProblem(readinessFact(provider, key), served[provider]) === null;
+  provider === DEFAULT_JUDGE_PROVIDER || calibrationProblem(key, readinessFact(provider, key), served[provider]) === null;
 
 export const RING_USE_ROUTE_KEYS: Record<string, JudgeReadinessKey[]> = {
   ...RING_USE_TO_READINESS,
@@ -207,6 +260,7 @@ export interface JudgeReadinessRow extends JudgeReadinessFact {
   uncalibratedOn?: JudgeProviderId;
   calibrationProblem?: JudgeCalibrationProblem;
   splitFrom?: JudgeReadinessKey[];
+  fixtureStale?: JudgeFixtureStale;
 }
 
 /**
@@ -242,7 +296,7 @@ export function judgeReadiness(
   settings: JudgeSettings,
   dependencies: Partial<Record<JudgeUseKey, JudgeUseKey>> = {},
   lastAnswered: string | null = null,
-  extra: { warden?: boolean; served?: JudgeServedModels } = {},
+  extra: { warden?: boolean; fixtureRevisions?: Partial<Record<JudgeReadinessKey, string>>; served?: JudgeServedModels } = {},
 ): JudgeReadinessRow[] {
   const row = (key: JudgeReadinessKey, enabled: boolean): JudgeReadinessRow => {
     const provider = settings.provider?.[key] ?? DEFAULT_JUDGE_PROVIDER;
@@ -251,17 +305,22 @@ export function judgeReadiness(
     if (!settings.enabled || !enabled) return { ...base, verdict: "off" };
     const dependency = key === "warden" ? undefined : dependencies[key];
     if (dependency && settings.uses[dependency] !== true) return { ...base, verdict: "blocked", blockedBy: dependency };
+    const typesafe = provider === DEFAULT_JUDGE_PROVIDER;
     const served = extra.served?.[provider] ?? null;
-    const problem = calibrationProblem(fact, provider === DEFAULT_JUDGE_PROVIDER ? null : served);
-    if (problem === "unmeasured" && provider !== DEFAULT_JUDGE_PROVIDER) return { ...base, verdict: "unproven", uncalibratedOn: provider };
-    if (problem === "failed" || problem === "stale") return { ...base, verdict: "unproven", calibrationProblem: problem, ...(provider === DEFAULT_JUDGE_PROVIDER ? {} : { uncalibratedOn: provider }) };
+    const problem = typesafe ? null : calibrationProblem(key, fact, null);
+    if (problem === "unmeasured") return { ...base, verdict: "unproven", uncalibratedOn: provider };
+    if (problem === "failed" || problem === "stale") {
+      const stale = fixtureStale(key, fact, extra.fixtureRevisions);
+      return { ...base, verdict: "unproven", uncalibratedOn: provider, calibrationProblem: problem, ...(stale ? { fixtureStale: stale } : {}) };
+    }
+    if (typesafe && fact.passed === false) return { ...base, verdict: "unproven", calibrationProblem: "failed" };
     const split = settings.provider ? splitPartners(settings, key) : [];
     if (split.length) return { ...base, verdict: "unproven", splitFrom: split };
     if (fact.calibration === null) return { ...base, verdict: "unproven" };
-    const mismatch = provider === DEFAULT_JUDGE_PROVIDER
-      ? modelMismatch(settings.model, lastAnswered, fact.measuredOn)
-      : servedMismatch(provider, served, fact.measuredOn);
-    return mismatch ? { ...base, verdict: "unproven", modelMismatch: mismatch } : { ...base, verdict: "measured" };
+    const mismatch = typesafe ? modelMismatch(settings.model, lastAnswered, fact.measuredOn) : servedMismatch(provider, served, fact.measuredOn);
+    if (mismatch) return { ...base, verdict: "unproven", modelMismatch: mismatch };
+    const stale = fixtureStale(key, fact, extra.fixtureRevisions);
+    return stale ? { ...base, verdict: "unproven", fixtureStale: stale } : { ...base, verdict: "measured" };
   };
   const rows = JUDGE_USE_KEYS.map((key) => row(key, settings.uses[key] === true));
   return extra.warden ? [...rows, row("warden", true)] : rows;

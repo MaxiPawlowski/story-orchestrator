@@ -294,16 +294,23 @@ test('withoutBranchChats: the sandbox delete skips recorded branches and leaves 
 
 test('branch_create returns only once the opened branch holds its messages (ST names the chat before it loads them)', async () => {
   const state: { groupId: string; chatId: string; chat: unknown[] } = { groupId: 'g1', chatId: 'sandbox', chat: [{}, {}, {}] };
+  const loading = { pending: false, reads: 0 };
   g.SillyTavern = {
-    getContext: () => ({
-      ...state,
-      executeSlashCommandsWithOptions: async () => {
-        state.chatId = 'sandbox - Branch #1';
-        state.chat = [];
-        setTimeout(() => { state.chat = [{}, {}]; }, 300);
-        return { pipe: 'sandbox - Branch #1' };
-      },
-    }),
+    getContext: () => {
+      if (loading.pending && ++loading.reads >= 3) {
+        state.chat = [{}, {}];
+        loading.pending = false;
+      }
+      return {
+        ...state,
+        executeSlashCommandsWithOptions: async () => {
+          state.chatId = 'sandbox - Branch #1';
+          state.chat = [];
+          loading.pending = true;
+          return { pipe: 'sandbox - Branch #1' };
+        },
+      };
+    },
   };
   const guard = { groupId: 'g1', owned: ['sandbox'], preexisting: [], branchChats: [] as string[] };
   await branchCreate(page as never, { mesId: 1 }, guard);

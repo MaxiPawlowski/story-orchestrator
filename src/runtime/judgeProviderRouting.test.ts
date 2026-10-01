@@ -5,6 +5,9 @@ import {
 import { JudgeRuntime } from "./judge";
 import { testOwnership } from "../../test/findings/testOwnership";
 
+const REMEASURED = { fixtureRevisions: Object.fromEntries(Object.entries(JUDGE_READINESS_BY_PROVIDER.typesafe).flatMap(([key, fact]) => (fact?.fixtureRevision ? [[key, fact.fixtureRevision]] : []))) };
+const remeasured: typeof judgeReadiness = (settings, dependencies = {}, answered = null, extra = {}) => judgeReadiness(settings, dependencies, answered, { ...extra, ...REMEASURED });
+
 const routed = (routes: Partial<Record<(typeof JUDGE_ROUTE_KEYS)[number], JudgeProviderId>>): JudgeSettings => {
   const base = defaultJudgeSettings();
   return { ...base, provider: { ...base.provider, ...routes } };
@@ -59,7 +62,7 @@ describe("decision-provider routing (v2.6 plan 12 A)", () => {
 
   it("control: once a calibration row exists for provider x use, the call goes to that provider and the record names it", async () => {
     const table = JUDGE_READINESS_BY_PROVIDER["llama-logprob"];
-    table.director = { calibration: 0.95, latencyP50Ms: 300, live: null, measuredOn: "artemis", recommendation: "test row", fixtureRevision: JUDGE_FIXTURE_REVISION, passed: true };
+    table.director = { calibration: 0.95, latencyP50Ms: 300, live: null, measuredOn: "artemis", recommendation: "test row", fixtureRevision: JUDGE_FIXTURE_REVISION.director, passed: true };
     try {
       const { runtime, records, typesafe, llama } = setup(routed({ director: "llama-logprob" }));
       await runtime.director(input);
@@ -74,7 +77,7 @@ describe("decision-provider routing (v2.6 plan 12 A)", () => {
 
   it("a provider the server has not configured is unavailable, never silently sent to typesafe instead", async () => {
     const table = JUDGE_READINESS_BY_PROVIDER["llama-logprob"];
-    table.memoryPairs = { calibration: 0.9, latencyP50Ms: 300, live: null, measuredOn: "artemis", recommendation: "test row", fixtureRevision: JUDGE_FIXTURE_REVISION, passed: true };
+    table.memoryPairs = { calibration: 0.9, latencyP50Ms: 300, live: null, measuredOn: "artemis", recommendation: "test row", fixtureRevision: JUDGE_FIXTURE_REVISION.memoryPairs, passed: true };
     try {
       const records: JudgeCallRecord[] = [];
       const typesafe = jest.fn<ReturnType<JudgeTransport>, Parameters<JudgeTransport>>(async () => answered);
@@ -114,8 +117,8 @@ describe("decision-provider routing (v2.6 plan 12 A)", () => {
     const stall = rows.find((row) => row.key === "stallCheck");
     expect(stall).toMatchObject({ verdict: "unproven", provider: "llama-logprob", uncalibratedOn: "llama-logprob", calibration: null });
     expect(judgeReadinessConcerns(rows).map((row) => row.key)).toContain("stallCheck");
-    expect(judgeReadiness(defaultJudgeSettings()).find((row) => row.key === "stallCheck")).toMatchObject({ verdict: "measured", provider: "typesafe" });
-    expect(judgeReadiness(routed({ sceneTracker: "llama-logprob" })).find((row) => row.key === "sceneTrigger")).toMatchObject({ verdict: "unproven", splitFrom: ["sceneTracker"] });
+    expect(remeasured(defaultJudgeSettings()).find((row) => row.key === "stallCheck")).toMatchObject({ verdict: "measured", provider: "typesafe" });
+    expect(remeasured(routed({ sceneTracker: "llama-logprob" })).find((row) => row.key === "sceneTrigger")).toMatchObject({ verdict: "unproven", splitFrom: ["sceneTracker"] });
   });
 
   it("sanitize keeps known providers, maps anything else to typesafe, and keeps only known acknowledged notices", () => {
@@ -152,7 +155,7 @@ describe("CR-J22: a probe never falls back to TypeSafe", () => {
 
 describe("AS-4: readiness and routing are keyed provider x model x use x fixture revision", () => {
   const fact = (patch: Record<string, unknown> = {}) => ({
-    calibration: 0.95, latencyP50Ms: 300, live: null, measuredOn: "artemis", recommendation: "test row", fixtureRevision: JUDGE_FIXTURE_REVISION, passed: true, ...patch,
+    calibration: 0.95, latencyP50Ms: 300, live: null, measuredOn: "artemis", recommendation: "test row", fixtureRevision: JUDGE_FIXTURE_REVISION.director, passed: true, ...patch,
   });
   const withRow = async (patch: Record<string, unknown>, body: () => Promise<void> | void) => {
     const table = JUDGE_READINESS_BY_PROVIDER["llama-logprob"];
@@ -205,7 +208,7 @@ describe("AS-4: readiness and routing are keyed provider x model x use x fixture
     const saved = { ...row! };
     Object.assign(row!, { fixtureRevision: "older-fixtures" });
     try {
-      expect(judgeReadiness(routed({}), {}, null).find((entry) => entry.key === "stallCheck")).toMatchObject({ verdict: "unproven", calibrationProblem: "stale" });
+      expect(judgeReadiness(routed({}), {}, null).find((entry) => entry.key === "stallCheck")).toMatchObject({ verdict: "unproven", fixtureStale: { measured: "older-fixtures" } });
       expect(judgeRoute(routed({}), "stall").refused).toBeUndefined();
     } finally {
       Object.assign(row!, saved);

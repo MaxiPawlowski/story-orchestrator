@@ -104,7 +104,7 @@ The user is away until their quota returns. Their instructions, verbatim in subs
 Resume each from its worktree.
 
 **User decisions 2026-10-01:**
-- CR-J3: remote judge calls wait for the privacy notice to be acknowledged. The fallback is `unacknowledged`; defaults stay on; the tests acknowledge on each lane.
+- CR-J3 (revised by the user later on 2026-10-01): **no notice gating** — entering a key is consent to send data, and the judge can be disabled anytime; the notice says so. (Superseded first answer: remote judge calls wait for the privacy notice to be acknowledged.) The fallback is `unacknowledged`; defaults stay on; the tests acknowledge on each lane.
 - Judge floors after W25: re-measure in English. Add English cases to restore the fixture sizes, re-run those calibrations live, and switch off by default any use still below its floor.
 
 **Resume state 2026-10-01 ~03:00:** the agents hit the spend limit (it resets 03:40).
@@ -125,3 +125,9 @@ Still to do:
 - implement CR-J3 gating and the English re-measure;
 - install plugins (`npm run plugins:install`, then an ST restart);
 - pod, SP7, Part B.
+
+**Resume state 2026-10-01 (usage limit):**
+- Merged to master, not pushed: CR-P (gates on master were running, log `C:/dev/so-lanes/0/debug/gates-master-crp.log`; push only if green, Storybook included).
+- Done, not merged: English judge fixtures `a17c71b5` (worktree-agent-aee4e6828c4988fbe; every judge use now reads "needs re-measure" until `15-judge-remeasure.md` is run).
+- Running or interim: CR-U UI (a0dd5baa), Astra product (aadcf340), session tooling (a5f49f10), measurement vehicles (a7a25035, with R4 done and plan 07 scope / intents-saga sub-agents), campaign readiness (a8677412), duplicate extraction audit fix (new).
+- Then: merge each with gates, push, plugins install, restage, pod, model-config audit, judge re-measure, SP7/D1, mark dev done, Part B.

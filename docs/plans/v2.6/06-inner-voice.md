@@ -1,6 +1,8 @@
 # Plan 06 — Inner voice: what a character wants, kept private and rolled back
 
-**Status: DRAFT 2026-09-30. Nothing built.** Overview: `00-overview.md`. This plan replaces Stepped Thinking with our own design.
+**Status: A–D BUILT 2026-09-30 and on master (`1e6f3f52`; UI leftovers `eba02fc8`), off by default. C0–C5 are
+measurements, run in plan 15 Part B; C3's ratings are recorded for the user's review (blind-rating pack). See Gate
+record.** Overview: `00-overview.md`. This plan replaces Stepped Thinking with our own design.
 
 ## The pattern worth keeping
 
@@ -162,7 +164,8 @@ This phase replaces Stepped Thinking's "think before speaking".
   - C: C0–C5.
   - D: the privacy journey check.
 - `so-run-header diff` around each batch.
-- Per-plan live ×1; the ×2 happens in plan 03 (v2.5 rule 14).
+- No per-plan live ×1 (overview rule 13, superseding v2.5 rule 14): the live rows run in plan 14's tiers (T3 for C,
+  T2 for D's privacy check), ×2 at the T7 freeze.
 
 ## Resolved 2026-09-30 (review)
 

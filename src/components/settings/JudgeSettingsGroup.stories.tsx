@@ -156,7 +156,8 @@ export const ReadinessNamesWhatIsNotWorking: Story = {
     await expect(readiness?.textContent).toContain(`Prepare ahead: on, but "Heading toward (author view)" is off`);
     await expect(canvasElement.querySelector("#so-judge-use-scene-ooc")).toBeNull();
     await expect(canvasElement.querySelector("#so-judge-use-memory-rerank")).toBeNull();
-    await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("Stall check 100%");
+    await expect(readiness?.textContent).toContain("Stall check: on, but its rate was measured on an older fixture revision");
+    await expect(canvasElement.querySelector("#so-judge-readiness-summary")).toBeNull();
   },
 };
 
@@ -191,12 +192,13 @@ export const PlayerSeesNoSpendLine: Story = {
   },
 };
 
-export const ReadinessSilentWhenEverythingIsMeasured: Story = {
+export const ReadinessSaysARateNeedsReMeasure: Story = {
   args: { settings: settings({ enabled: true }, { stallCheck: true, memoryVerify: true }), status: ready },
   play: async ({ canvasElement }) => {
-    await expect(canvasElement.querySelector("#so-judge-readiness")).toBeNull();
-    await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("Check memory before storing 98%");
-    await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("measured on jev-1.13.0");
+    const readiness = canvasElement.querySelector("#so-judge-readiness");
+    await expect(readiness?.textContent).toContain("Check memory before storing: on, but its rate was measured on an older fixture revision");
+    await expect(readiness?.textContent).toContain("needs re-measure");
+    await expect(canvasElement.querySelector("#so-judge-readiness-summary")).toBeNull();
     await expect(canvasElement.querySelector("#so-judge-recommended-config")).toBeInTheDocument();
   },
 };

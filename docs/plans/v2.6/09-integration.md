@@ -1,14 +1,16 @@
 # Plan 09 — Integration pass: every feature on, together, on Adolion
 
-**Status: DRAFT 2026-09-30, awaiting user approval.**
+**Status: APPROVED 2026-09-30; not run.** I1–I6 run in plan 14 **T7, before the freeze** (runbook in
+`14-tiered-testing.md` §T7), played by Claude in plan 15 Part B (W26).
 
-Each v2.5 feature was gated alone, with its switch on and the rest off or mocked. The user's sessions are meant to judge
+Each v2.5 feature was gated alone, with its switch on and the rest off or mocked. The sessions (Claude's, W26) are meant to judge
 how the features work together (2026-09-30), so the machine should find the interaction defects first, and the user's
 time should go to judgement, not to bug reports the harness could have filed.
 
 ## Configuration under test
 
-This is "everything on", the configuration the user will play:
+This is "everything on", the configuration the sessions play (Claude in plan 15 Part B; the user's own sessions are
+optional, later):
 - scan-mode WI;
 - judge defaults on (overview rule 5), including every `judge.uses.*`;
 - the curator in `auto` and the warden;
@@ -27,8 +29,8 @@ A second column runs the **shipped defaults**, which differ once 04–08 decide 
 
 ## When
 
-These runs belong to the end of development (overview rule 13). They are the first part of the final LLM suite,
-run from `adolion-fresh` (rule 14), and a finding here is fixed before plan 10 phase F starts.
+These runs belong to the end of development (overview rule 13). They run in plan 14 T7 before the freeze, from
+`adolion-fresh` (rule 14), and a finding here is fixed before the cumulative ×2 (plan 10 phase F) starts.
 
 ## Runs
 

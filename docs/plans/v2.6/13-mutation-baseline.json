@@ -1,74 +1,65 @@
 {
-  "at": "2026-09-30T16:02:42.514Z",
+  "at": "2026-10-01T03:37:25.801Z",
   "seed": 20260930,
   "sample": 200,
-  "population": 4469,
+  "population": 5142,
   "populationByDir": {
-    "engine": 1232,
-    "extraction": 931,
-    "judge": 1213,
-    "memory": 934,
+    "engine": 1381,
+    "extraction": 981,
+    "judge": 1324,
+    "memory": 1275,
     "pacing": 84,
-    "talk": 75
+    "talk": 97
   },
-  "files": 111,
-  "wallSeconds": 4051,
+  "files": 124,
+  "wallSeconds": 3732,
   "total": {
-    "killed": 143,
-    "survived": 56,
-    "crashed": 1,
+    "killed": 142,
+    "survived": 44,
+    "crashed": 0,
     "no-tests": 0,
-    "timeout": 0,
-    "scored": 199,
-    "score": 0.7185929648241206
+    "timeout": 14,
+    "scored": 186,
+    "score": 0.7634408602150538
   },
   "perDir": {
     "engine": {
-      "killed": 38,
-      "survived": 17,
+      "killed": 37,
+      "survived": 3,
       "crashed": 0,
       "no-tests": 0,
-      "timeout": 0,
-      "scored": 55,
-      "score": 0.6909090909090909
+      "timeout": 14,
+      "scored": 40,
+      "score": 0.925
     },
     "memory": {
-      "killed": 32,
-      "survived": 10,
+      "killed": 36,
+      "survived": 14,
       "crashed": 0,
       "no-tests": 0,
       "timeout": 0,
-      "scored": 42,
-      "score": 0.7619047619047619
+      "scored": 50,
+      "score": 0.72
     },
     "extraction": {
-      "killed": 31,
-      "survived": 10,
-      "crashed": 1,
+      "killed": 29,
+      "survived": 9,
+      "crashed": 0,
       "no-tests": 0,
       "timeout": 0,
-      "scored": 41,
-      "score": 0.7560975609756098
+      "scored": 38,
+      "score": 0.7631578947368421
     },
     "judge": {
-      "killed": 37,
-      "survived": 17,
+      "killed": 35,
+      "survived": 16,
       "crashed": 0,
       "no-tests": 0,
       "timeout": 0,
-      "scored": 54,
-      "score": 0.6851851851851852
+      "scored": 51,
+      "score": 0.6862745098039216
     },
     "talk": {
-      "killed": 2,
-      "survived": 1,
-      "crashed": 0,
-      "no-tests": 0,
-      "timeout": 0,
-      "scored": 3,
-      "score": 0.6666666666666666
-    },
-    "pacing": {
       "killed": 3,
       "survived": 1,
       "crashed": 0,
@@ -76,418 +67,347 @@
       "timeout": 0,
       "scored": 4,
       "score": 0.75
+    },
+    "pacing": {
+      "killed": 2,
+      "survived": 1,
+      "crashed": 0,
+      "no-tests": 0,
+      "timeout": 0,
+      "scored": 3,
+      "score": 0.6666666666666666
     }
   },
   "outcomes": [
     {
-      "file": "src/engine/blackboard.ts",
-      "line": 62,
-      "operator": "< -> <=",
-      "original": "<",
-      "replacement": "<=",
-      "start": 2489,
+      "file": "src/engine/agency.ts",
+      "line": 10,
+      "operator": "false -> true",
+      "original": "false",
+      "replacement": "true",
+      "start": 550,
       "verdict": "killed",
-      "ms": 173125
+      "ms": 15035
     },
     {
       "file": "src/engine/blackboard.ts",
-      "line": 81,
+      "line": 24,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 864,
+      "verdict": "killed",
+      "ms": 16638
+    },
+    {
+      "file": "src/engine/checkpointGuidance.ts",
+      "line": 6,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 357,
+      "verdict": "killed",
+      "ms": 81009
+    },
+    {
+      "file": "src/engine/checkpointGuidance.ts",
+      "line": 12,
       "operator": "if (…) -> if (false)",
-      "original": "value === undefined",
+      "original": "typeof value === \"string\"",
       "replacement": "false",
-      "start": 3518,
-      "verdict": "survived",
-      "ms": 400187
-    },
-    {
-      "file": "src/engine/chance.ts",
-      "line": 43,
-      "operator": "!== -> ===",
-      "original": "!==",
-      "replacement": "===",
-      "start": 1506,
+      "start": 765,
       "verdict": "killed",
-      "ms": 59350
+      "ms": 18330
     },
     {
-      "file": "src/engine/convergence.ts",
-      "line": 11,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 605,
-      "verdict": "killed",
-      "ms": 299161
-    },
-    {
-      "file": "src/engine/convergence.ts",
-      "line": 11,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 631,
-      "verdict": "killed",
-      "ms": 314263
-    },
-    {
-      "file": "src/engine/convergence.ts",
-      "line": 13,
-      "operator": "!== -> ===",
-      "original": "!==",
-      "replacement": "===",
-      "start": 903,
-      "verdict": "survived",
-      "ms": 348551
-    },
-    {
-      "file": "src/engine/convergence.ts",
-      "line": 25,
-      "operator": "|| -> &&",
-      "original": "||",
-      "replacement": "&&",
-      "start": 1486,
-      "verdict": "killed",
-      "ms": 73260
-    },
-    {
-      "file": "src/engine/engine.ts",
-      "line": 265,
-      "operator": "> -> >=",
-      "original": ">",
-      "replacement": ">=",
-      "start": 11910,
-      "verdict": "killed",
-      "ms": 167933
-    },
-    {
-      "file": "src/engine/engine.ts",
-      "line": 270,
-      "operator": "true -> false",
-      "original": "true",
+      "file": "src/engine/checkpointGuidance.ts",
+      "line": 18,
+      "operator": "if (…) -> if (false)",
+      "original": "unknownKeys.length",
       "replacement": "false",
-      "start": 12168,
+      "start": 1045,
       "verdict": "killed",
-      "ms": 119721
+      "ms": 168007
     },
     {
       "file": "src/engine/engine.ts",
-      "line": 318,
-      "operator": "?? -> &&",
-      "original": "??",
-      "replacement": "&&",
-      "start": 14481,
-      "verdict": "survived",
-      "ms": 350412
+      "line": 86,
+      "operator": "if (…) -> if (false)",
+      "original": "story.checkpointById[state.activeCheckpointId]",
+      "replacement": "false",
+      "start": 3225,
+      "verdict": "killed",
+      "ms": 137724
     },
     {
       "file": "src/engine/engine.ts",
-      "line": 417,
+      "line": 177,
+      "operator": "cond ? -> true ?",
+      "original": "oldest",
+      "replacement": "true",
+      "start": 7640,
+      "verdict": "timeout",
+      "ms": 240188
+    },
+    {
+      "file": "src/engine/engine.ts",
+      "line": 258,
+      "operator": "false -> true",
+      "original": "false",
+      "replacement": "true",
+      "start": 11469,
+      "verdict": "killed",
+      "ms": 212019
+    },
+    {
+      "file": "src/engine/engine.ts",
+      "line": 283,
       "operator": "+ -> -",
       "original": "+",
       "replacement": "-",
-      "start": 19401,
-      "verdict": "survived",
-      "ms": 327883
+      "start": 12836,
+      "verdict": "timeout",
+      "ms": 240208
     },
     {
       "file": "src/engine/engine.ts",
-      "line": 452,
-      "operator": "- -> +",
-      "original": "-",
-      "replacement": "+",
-      "start": 21194,
-      "verdict": "survived",
-      "ms": 465534
-    },
-    {
-      "file": "src/engine/gates.ts",
-      "line": 7,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 319,
-      "verdict": "killed",
-      "ms": 195551
-    },
-    {
-      "file": "src/engine/qualityRead.ts",
-      "line": 14,
-      "operator": "if (…) -> if (false)",
-      "original": "quality.criteria && \"levels\" in quality.criteria && Array.isArray(quality.criteria.levels) && quality.criteria.levels.length >= 2",
-      "replacement": "false",
-      "start": 639,
-      "verdict": "killed",
-      "ms": 255180
-    },
-    {
-      "file": "src/engine/qualityRead.ts",
-      "line": 14,
-      "operator": "&& -> ||",
-      "original": "&&",
-      "replacement": "||",
-      "start": 688,
-      "verdict": "killed",
-      "ms": 50558
-    },
-    {
-      "file": "src/engine/storyDiff.ts",
-      "line": 85,
-      "operator": "?? -> &&",
-      "original": "??",
-      "replacement": "&&",
-      "start": 3276,
-      "verdict": "killed",
-      "ms": 44718
-    },
-    {
-      "file": "src/engine/storyDiff.ts",
-      "line": 165,
-      "operator": "if (…) -> if (false)",
-      "original": "quality.latching && !after.latching && ctx.latched[quality.key]",
-      "replacement": "false",
-      "start": 6887,
-      "verdict": "killed",
-      "ms": 241548
-    },
-    {
-      "file": "src/engine/storyDiff.ts",
-      "line": 287,
-      "operator": "drop !",
-      "original": "!sameValue(previous.stagecraft, next.stagecraft)",
-      "replacement": "sameValue(previous.stagecraft, next.stagecraft)",
-      "start": 12893,
-      "verdict": "killed",
-      "ms": 237291
-    },
-    {
-      "file": "src/engine/storyDiff.ts",
-      "line": 288,
-      "operator": "if (…) -> if (false)",
-      "original": "previous.objective_block !== next.objective_block",
-      "replacement": "false",
-      "start": 13066,
-      "verdict": "killed",
-      "ms": 55383
-    },
-    {
-      "file": "src/engine/storyDiff.ts",
-      "line": 302,
-      "operator": "cond ? -> true ?",
-      "original": "ctx.entries.length",
-      "replacement": "true",
-      "start": 14681,
-      "verdict": "killed",
-      "ms": 44638
-    },
-    {
-      "file": "src/engine/validate.ts",
-      "line": 76,
-      "operator": "drop !",
-      "original": "!reachableAnchors",
-      "replacement": "reachableAnchors",
-      "start": 4643,
-      "verdict": "killed",
-      "ms": 29137
-    },
-    {
-      "file": "src/engine/validate.ts",
-      "line": 96,
-      "operator": "if (…) -> if (false)",
-      "original": "errors.length",
-      "replacement": "false",
-      "start": 5910,
-      "verdict": "killed",
-      "ms": 156153
-    },
-    {
-      "file": "src/engine/validate.ts",
-      "line": 138,
-      "operator": "cond ? -> true ?",
-      "original": "options.house_rules",
-      "replacement": "true",
-      "start": 8420,
-      "verdict": "survived",
-      "ms": 446945
-    },
-    {
-      "file": "src/engine/validate/checkpoints.ts",
-      "line": 31,
-      "operator": "if (…) -> if (false)",
-      "original": "!isRecord(value)",
-      "replacement": "false",
-      "start": 1590,
-      "verdict": "survived",
-      "ms": 281037
-    },
-    {
-      "file": "src/engine/validate/checkpoints.ts",
-      "line": 50,
-      "operator": "cond ? -> true ?",
-      "original": "isOneOf(entry.trigger, NPC_REPLY_TRIGGERS)",
-      "replacement": "true",
-      "start": 2395,
-      "verdict": "killed",
-      "ms": 216953
-    },
-    {
-      "file": "src/engine/validate/checkpoints.ts",
-      "line": 65,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 3351,
-      "verdict": "killed",
-      "ms": 220659
-    },
-    {
-      "file": "src/engine/validate/checkpoints.ts",
-      "line": 98,
-      "operator": "!== -> ===",
-      "original": "!==",
-      "replacement": "===",
-      "start": 5344,
-      "verdict": "killed",
-      "ms": 305451
-    },
-    {
-      "file": "src/engine/validate/checkpoints.ts",
-      "line": 137,
+      "line": 332,
       "operator": "|| -> &&",
       "original": "||",
       "replacement": "&&",
-      "start": 7055,
-      "verdict": "survived",
-      "ms": 270899
-    },
-    {
-      "file": "src/engine/validate/checkpoints.ts",
-      "line": 159,
-      "operator": "if (…) -> if (false)",
-      "original": "isRecord(value.director)",
-      "replacement": "false",
-      "start": 8187,
+      "start": 15297,
       "verdict": "killed",
-      "ms": 22348
+      "ms": 167848
     },
     {
-      "file": "src/engine/validate/checkpoints.ts",
-      "line": 163,
+      "file": "src/engine/gates.ts",
+      "line": 34,
+      "operator": ".some -> .every",
+      "original": "some",
+      "replacement": "every",
+      "start": 1690,
+      "verdict": "timeout",
+      "ms": 240217
+    },
+    {
+      "file": "src/engine/schema.ts",
+      "line": 388,
       "operator": "cond ? -> true ?",
-      "original": "typeof value.director.instruction === \"string\"",
+      "original": "quality.type === \"enum\" && quality.latching === true",
       "replacement": "true",
-      "start": 8464,
+      "start": 11874,
+      "verdict": "killed",
+      "ms": 25049
+    },
+    {
+      "file": "src/engine/schema.ts",
+      "line": 389,
+      "operator": "?? -> &&",
+      "original": "??",
+      "replacement": "&&",
+      "start": 11950,
+      "verdict": "killed",
+      "ms": 22158
+    },
+    {
+      "file": "src/engine/storyDiff.ts",
+      "line": 171,
+      "operator": "!== -> ===",
+      "original": "!==",
+      "replacement": "===",
+      "start": 7235,
+      "verdict": "killed",
+      "ms": 79962
+    },
+    {
+      "file": "src/engine/storyDiff.ts",
+      "line": 183,
+      "operator": "if (…) -> if (false)",
+      "original": "next.checkpointById[checkpoint.id]",
+      "replacement": "false",
+      "start": 7757,
+      "verdict": "killed",
+      "ms": 19113
+    },
+    {
+      "file": "src/engine/storyDiff.ts",
+      "line": 229,
+      "operator": "?? -> &&",
+      "original": "??",
+      "replacement": "&&",
+      "start": 9838,
+      "verdict": "timeout",
+      "ms": 240171
+    },
+    {
+      "file": "src/engine/storyDiff.ts",
+      "line": 247,
+      "operator": "if (…) -> if (false)",
+      "original": "sameValue(transition.gate, after.gate)",
+      "replacement": "false",
+      "start": 10638,
+      "verdict": "killed",
+      "ms": 23391
+    },
+    {
+      "file": "src/engine/storyDiff.ts",
+      "line": 266,
+      "operator": "?? -> &&",
+      "original": "??",
+      "replacement": "&&",
+      "start": 11646,
       "verdict": "survived",
-      "ms": 292349
+      "ms": 239790
     },
     {
-      "file": "src/engine/validate/checkpoints.ts",
-      "line": 215,
+      "file": "src/engine/storyDiff.ts",
+      "line": 300,
+      "operator": "!== -> ===",
+      "original": "!==",
+      "replacement": "===",
+      "start": 14686,
+      "verdict": "killed",
+      "ms": 30118
+    },
+    {
+      "file": "src/engine/storyDiff.ts",
+      "line": 306,
+      "operator": ".some -> .every",
+      "original": "some",
+      "replacement": "every",
+      "start": 15157,
+      "verdict": "killed",
+      "ms": 20261
+    },
+    {
+      "file": "src/engine/storyDiff.ts",
+      "line": 344,
       "operator": "=== -> !==",
       "original": "===",
       "replacement": "!==",
-      "start": 10973,
-      "verdict": "killed",
-      "ms": 22602
+      "start": 17422,
+      "verdict": "timeout",
+      "ms": 240220
     },
     {
-      "file": "src/engine/validate/checkpoints.ts",
-      "line": 227,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 11742,
+      "file": "src/engine/validate.ts",
+      "line": 19,
+      "operator": "!== -> ===",
+      "original": "!==",
+      "replacement": "===",
+      "start": 1026,
       "verdict": "killed",
-      "ms": 49067
+      "ms": 15790
     },
     {
-      "file": "src/engine/validate/common.ts",
-      "line": 12,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 503,
-      "verdict": "killed",
-      "ms": 26369
-    },
-    {
-      "file": "src/engine/validate/gates.ts",
-      "line": 9,
-      "operator": "if (…) -> if (false)",
-      "original": "!isRecord(value)",
-      "replacement": "false",
-      "start": 438,
-      "verdict": "killed",
-      "ms": 88940
-    },
-    {
-      "file": "src/engine/validate/gates.ts",
-      "line": 9,
+      "file": "src/engine/validate.ts",
+      "line": 80,
       "operator": "drop !",
-      "original": "!isRecord(value)",
-      "replacement": "isRecord(value)",
-      "start": 438,
+      "original": "!reachableAnchors",
+      "replacement": "reachableAnchors",
+      "start": 4822,
       "verdict": "killed",
-      "ms": 29142
+      "ms": 14238
     },
     {
-      "file": "src/engine/validate/gates.ts",
-      "line": 14,
-      "operator": "if (…) -> if (false)",
-      "original": "\"q\" in value || \"op\" in value || \"v\" in value",
-      "replacement": "false",
-      "start": 545,
+      "file": "src/engine/validate/chapters.ts",
+      "line": 10,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 468,
       "verdict": "killed",
-      "ms": 42370
+      "ms": 172364
+    },
+    {
+      "file": "src/engine/validate/checkpoints.ts",
+      "line": 16,
+      "operator": "!== -> ===",
+      "original": "!==",
+      "replacement": "===",
+      "start": 831,
+      "verdict": "killed",
+      "ms": 80409
+    },
+    {
+      "file": "src/engine/validate/checkpoints.ts",
+      "line": 122,
+      "operator": "&& -> ||",
+      "original": "&&",
+      "replacement": "||",
+      "start": 6543,
+      "verdict": "killed",
+      "ms": 14622
+    },
+    {
+      "file": "src/engine/validate/checkpoints.ts",
+      "line": 135,
+      "operator": "if (…) -> if (false)",
+      "original": "!isRecord(value)",
+      "replacement": "false",
+      "start": 7192,
+      "verdict": "killed",
+      "ms": 13171
+    },
+    {
+      "file": "src/engine/validate/checkpoints.ts",
+      "line": 199,
+      "operator": "if (…) -> if (false)",
+      "original": "value.chain.mode === \"director\" || value.chain.mode === \"scripted\"",
+      "replacement": "false",
+      "start": 10103,
+      "verdict": "timeout",
+      "ms": 240173
+    },
+    {
+      "file": "src/engine/validate/checkpoints.ts",
+      "line": 202,
+      "operator": "!== -> ===",
+      "original": "!==",
+      "replacement": "===",
+      "start": 10335,
+      "verdict": "timeout",
+      "ms": 240335
+    },
+    {
+      "file": "src/engine/validate/checkpoints.ts",
+      "line": 203,
+      "operator": "|| -> &&",
+      "original": "||",
+      "replacement": "&&",
+      "start": 10401,
+      "verdict": "survived",
+      "ms": 234833
+    },
+    {
+      "file": "src/engine/validate/checkpoints.ts",
+      "line": 260,
+      "operator": "!== -> ===",
+      "original": "!==",
+      "replacement": "===",
+      "start": 13610,
+      "verdict": "killed",
+      "ms": 20469
+    },
+    {
+      "file": "src/engine/validate/checkpoints.ts",
+      "line": 271,
+      "operator": "if (…) -> if (false)",
+      "original": "motives",
+      "replacement": "false",
+      "start": 14336,
+      "verdict": "killed",
+      "ms": 219035
     },
     {
       "file": "src/engine/validate/gates.ts",
       "line": 18,
-      "operator": "drop !",
-      "original": "!q",
-      "replacement": "q",
-      "start": 730,
-      "verdict": "killed",
-      "ms": 56742
-    },
-    {
-      "file": "src/engine/validate/gates.ts",
-      "line": 19,
       "operator": "if (…) -> if (false)",
-      "original": "!op",
+      "original": "!q",
       "replacement": "false",
-      "start": 806,
-      "verdict": "survived",
-      "ms": 299486
-    },
-    {
-      "file": "src/engine/validate/gates.ts",
-      "line": 20,
-      "operator": "&& -> ||",
-      "original": "&&",
-      "replacement": "||",
-      "start": 918,
-      "verdict": "survived",
-      "ms": 455019
-    },
-    {
-      "file": "src/engine/validate/gates.ts",
-      "line": 56,
-      "operator": "|| -> &&",
-      "original": "||",
-      "replacement": "&&",
-      "start": 2587,
-      "verdict": "survived",
-      "ms": 442795
-    },
-    {
-      "file": "src/engine/validate/gates.ts",
-      "line": 61,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 2913,
-      "verdict": "killed",
-      "ms": 80517
+      "start": 730,
+      "verdict": "timeout",
+      "ms": 240232
     },
     {
       "file": "src/engine/validate/gates.ts",
@@ -495,59 +415,99 @@
       "operator": "&& -> ||",
       "original": "&&",
       "replacement": "||",
-      "start": 3718,
+      "start": 3692,
       "verdict": "killed",
-      "ms": 10954
+      "ms": 14744
     },
     {
-      "file": "src/engine/validate/qualities.ts",
-      "line": 15,
-      "operator": "cond ? -> true ?",
-      "original": "examples.length",
-      "replacement": "true",
-      "start": 1026,
-      "verdict": "survived",
-      "ms": 331236
-    },
-    {
-      "file": "src/engine/validate/qualities.ts",
-      "line": 85,
-      "operator": "if (…) -> if (false)",
-      "original": "readAs === \"rating\"",
-      "replacement": "false",
-      "start": 3982,
+      "file": "src/engine/validate/gates.ts",
+      "line": 78,
+      "operator": "!== -> ===",
+      "original": "!==",
+      "replacement": "===",
+      "start": 3734,
       "verdict": "killed",
-      "ms": 111079
+      "ms": 14161
     },
     {
-      "file": "src/engine/validate/qualities.ts",
-      "line": 123,
+      "file": "src/engine/validate/gates.ts",
+      "line": 92,
       "operator": "if (…) -> if (false)",
-      "original": "!source",
+      "original": "Array.isArray(leaf.v)",
       "replacement": "false",
-      "start": 6020,
+      "start": 4270,
       "verdict": "survived",
-      "ms": 296181
+      "ms": 223458
+    },
+    {
+      "file": "src/engine/validate/gates.ts",
+      "line": 104,
+      "operator": "&& -> ||",
+      "original": "&&",
+      "replacement": "||",
+      "start": 4727,
+      "verdict": "killed",
+      "ms": 11392
+    },
+    {
+      "file": "src/engine/validate/gates.ts",
+      "line": 116,
+      "operator": "if (…) -> if (false)",
+      "original": "\"not\" in gate",
+      "replacement": "false",
+      "start": 5348,
+      "verdict": "timeout",
+      "ms": 240216
     },
     {
       "file": "src/engine/validate/qualities.ts",
-      "line": 129,
+      "line": 12,
       "operator": "=== -> !==",
       "original": "===",
       "replacement": "!==",
-      "start": 6385,
+      "start": 581,
       "verdict": "killed",
-      "ms": 46844
+      "ms": 98419
     },
     {
       "file": "src/engine/validate/qualities.ts",
-      "line": 171,
+      "line": 40,
       "operator": "if (…) -> if (false)",
-      "original": "existing.source !== \"code\" || existing.type !== \"float\" || !existing.monotonic",
+      "original": "value.evidence_from === undefined",
       "replacement": "false",
-      "start": 8229,
-      "verdict": "survived",
-      "ms": 282536
+      "start": 2114,
+      "verdict": "killed",
+      "ms": 10753
+    },
+    {
+      "file": "src/engine/validate/qualities.ts",
+      "line": 96,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 4735,
+      "verdict": "killed",
+      "ms": 103004
+    },
+    {
+      "file": "src/engine/validate/qualities.ts",
+      "line": 124,
+      "operator": "drop !",
+      "original": "!rubric",
+      "replacement": "rubric",
+      "start": 6101,
+      "verdict": "killed",
+      "ms": 16666
+    },
+    {
+      "file": "src/engine/validate/qualities.ts",
+      "line": 170,
+      "operator": "if (…) -> if (false)",
+      "original": "existing",
+      "replacement": "false",
+      "start": 8206,
+      "verdict": "timeout",
+      "ms": 240157
     },
     {
       "file": "src/engine/validate/qualities.ts",
@@ -557,588 +517,527 @@
       "replacement": "===",
       "start": 8273,
       "verdict": "killed",
-      "ms": 212741
+      "ms": 13128
     },
     {
-      "file": "src/engine/validate/storyOptions.ts",
-      "line": 16,
-      "operator": "&& -> ||",
-      "original": "&&",
-      "replacement": "||",
-      "start": 784,
+      "file": "src/engine/validate/qualities.ts",
+      "line": 178,
+      "operator": "true -> false",
+      "original": "true",
+      "replacement": "false",
+      "start": 8555,
       "verdict": "killed",
-      "ms": 325874
+      "ms": 9599
     },
     {
       "file": "src/engine/validate/storyOptions.ts",
-      "line": 69,
+      "line": 61,
+      "operator": "if (…) -> if (false)",
+      "original": "!isRecord(value)",
+      "replacement": "false",
+      "start": 2987,
+      "verdict": "killed",
+      "ms": 191994
+    },
+    {
+      "file": "src/engine/validate/storyOptions.ts",
+      "line": 70,
+      "operator": "!== -> ===",
+      "original": "!==",
+      "replacement": "===",
+      "start": 3404,
+      "verdict": "killed",
+      "ms": 23892
+    },
+    {
+      "file": "src/engine/validate/storyOptions.ts",
+      "line": 70,
+      "operator": "> -> >=",
+      "original": ">",
+      "replacement": ">=",
+      "start": 3462,
+      "verdict": "timeout",
+      "ms": 240145
+    },
+    {
+      "file": "src/engine/validate/storyOptions.ts",
+      "line": 74,
       "operator": "=== -> !==",
       "original": "===",
       "replacement": "!==",
-      "start": 3351,
+      "start": 3627,
       "verdict": "killed",
-      "ms": 30821
+      "ms": 228510
     },
     {
       "file": "src/engine/validate/storyOptions.ts",
-      "line": 80,
+      "line": 94,
+      "operator": "> -> >=",
+      "original": ">",
+      "replacement": ">=",
+      "start": 4757,
+      "verdict": "timeout",
+      "ms": 240201
+    },
+    {
+      "file": "src/engine/validate/storyOptions.ts",
+      "line": 95,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 4939,
+      "verdict": "killed",
+      "ms": 13871
+    },
+    {
+      "file": "src/engine/validate/storyOptions.ts",
+      "line": 133,
       "operator": "cond ? -> true ?",
-      "original": "minP !== undefined",
+      "original": "arcMatch && anchor && amount !== null",
       "replacement": "true",
-      "start": 4016,
-      "verdict": "killed",
-      "ms": 76411
+      "start": 6854,
+      "verdict": "timeout",
+      "ms": 240241
     },
     {
       "file": "src/engine/validate/storyOptions.ts",
-      "line": 159,
-      "operator": "|| -> &&",
-      "original": "||",
-      "replacement": "&&",
-      "start": 8715,
-      "verdict": "survived",
-      "ms": 327344
-    },
-    {
-      "file": "src/engine/validate/storyOptions.ts",
-      "line": 163,
+      "line": 136,
       "operator": "cond ? -> true ?",
-      "original": "image.checkpoints === true",
+      "original": "Array.isArray(value)",
       "replacement": "true",
-      "start": 8942,
+      "start": 7016,
       "verdict": "killed",
-      "ms": 93457
+      "ms": 16363
     },
     {
       "file": "src/engine/validate/storyOptions.ts",
-      "line": 187,
-      "operator": "cond ? -> true ?",
-      "original": "loreSelect",
-      "replacement": "true",
-      "start": 10674,
-      "verdict": "survived",
-      "ms": 476165
-    },
-    {
-      "file": "src/engine/worldInfoEffects.ts",
-      "line": 27,
-      "operator": "&& -> ||",
-      "original": "&&",
-      "replacement": "||",
-      "start": 1159,
-      "verdict": "killed",
-      "ms": 24906
+      "line": 170,
+      "operator": ".some -> .every",
+      "original": "some",
+      "replacement": "every",
+      "start": 9352,
+      "verdict": "timeout",
+      "ms": 240284
     },
     {
       "file": "src/extraction/breaker.ts",
-      "line": 59,
-      "operator": "if (…) -> if (false)",
-      "original": "current",
-      "replacement": "false",
-      "start": 2449,
-      "verdict": "survived",
-      "ms": 168873
-    },
-    {
-      "file": "src/extraction/callBudget.ts",
-      "line": 18,
-      "operator": "+ -> -",
-      "original": "+",
-      "replacement": "-",
-      "start": 867,
+      "line": 34,
+      "operator": "cond ? -> true ?",
+      "original": "kind === \"transport\" || kind === \"timeout\" || kind === \"auth\" || kind === \"quota\" || kind === \"malformed\"",
+      "replacement": "true",
+      "start": 1376,
       "verdict": "killed",
-      "ms": 17812
+      "ms": 87107
     },
     {
-      "file": "src/extraction/callBudget.ts",
-      "line": 18,
-      "operator": "+ -> -",
-      "original": "+",
-      "replacement": "-",
-      "start": 931,
-      "verdict": "killed",
-      "ms": 25075
-    },
-    {
-      "file": "src/extraction/callBudget.ts",
-      "line": 41,
-      "operator": ".max -> .min",
-      "original": "max",
-      "replacement": "min",
-      "start": 2123,
-      "verdict": "killed",
-      "ms": 15854
-    },
-    {
-      "file": "src/extraction/chatRows.ts",
-      "line": 11,
-      "operator": "?? -> &&",
-      "original": "??",
+      "file": "src/extraction/breaker.ts",
+      "line": 34,
+      "operator": "|| -> &&",
+      "original": "||",
       "replacement": "&&",
-      "start": 609,
+      "start": 1397,
       "verdict": "killed",
-      "ms": 127944
+      "ms": 9583
     },
     {
-      "file": "src/extraction/cues.ts",
-      "line": 7,
-      "operator": "drop !",
-      "original": "!activeCheckpointId",
-      "replacement": "activeCheckpointId",
-      "start": 381,
+      "file": "src/extraction/contract.ts",
+      "line": 31,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 1854,
       "verdict": "killed",
-      "ms": 47446
+      "ms": 9205
     },
     {
       "file": "src/extraction/cues.ts",
       "line": 9,
-      "operator": "drop !",
+      "operator": "if (…) -> if (false)",
       "original": "!transition.extractor_trigger",
-      "replacement": "transition.extractor_trigger",
+      "replacement": "false",
       "start": 530,
+      "verdict": "survived",
+      "ms": 83355
+    },
+    {
+      "file": "src/extraction/cues.ts",
+      "line": 17,
+      "operator": ".some -> .every",
+      "original": "some",
+      "replacement": "every",
+      "start": 869,
       "verdict": "killed",
-      "ms": 48051
+      "ms": 9458
+    },
+    {
+      "file": "src/extraction/degenerate.ts",
+      "line": 13,
+      "operator": "?? -> &&",
+      "original": "??",
+      "replacement": "&&",
+      "start": 519,
+      "verdict": "killed",
+      "ms": 12021
     },
     {
       "file": "src/extraction/degenerate.ts",
       "line": 42,
-      "operator": "> -> >=",
-      "original": ">",
-      "replacement": ">=",
-      "start": 1800,
-      "verdict": "survived",
-      "ms": 187235
+      "operator": "if (…) -> if (false)",
+      "original": "coverage > DEGENERATE_COVERAGE",
+      "replacement": "false",
+      "start": 1791,
+      "verdict": "killed",
+      "ms": 10283
     },
     {
       "file": "src/extraction/evidence.ts",
-      "line": 48,
-      "operator": "true -> false",
-      "original": "true",
-      "replacement": "false",
-      "start": 2099,
-      "verdict": "killed",
-      "ms": 101055
-    },
-    {
-      "file": "src/extraction/evidence.ts",
-      "line": 66,
-      "operator": "cond ? -> true ?",
-      "original": "speaker",
-      "replacement": "true",
-      "start": 2724,
-      "verdict": "killed",
-      "ms": 111048
-    },
-    {
-      "file": "src/extraction/fixtureRun.ts",
-      "line": 41,
-      "operator": "?? -> &&",
-      "original": "??",
-      "replacement": "&&",
-      "start": 1521,
-      "verdict": "crashed",
-      "ms": 26722,
-      "note": "no result: (C:\\dev\\story-orchestrator\\node_modules\\jest-runtime\\build\\index.js:832:12)\r\n    at Runtime.requireModuleOrMock (C:\\dev\\story-orchestrator\\node_modules\\jest-runtime\\build\\index.js:964:21)\r\n    at C:\\Users\\RolaPorElNapo\\AppData\\Local\\Temp\\so-mutation-0\\src\\runtime\\index.ts:75:24\r\n\r\nNode.js v22.22.0\r\n"
-    },
-    {
-      "file": "src/extraction/inputBudget.ts",
-      "line": 94,
-      "operator": "if (…) -> if (false)",
-      "original": "kept.length === 0",
-      "replacement": "false",
-      "start": 3618,
-      "verdict": "killed",
-      "ms": 23240
-    },
-    {
-      "file": "src/extraction/inputBudget.ts",
-      "line": 104,
-      "operator": "true -> false",
-      "original": "true",
-      "replacement": "false",
-      "start": 3939,
-      "verdict": "killed",
-      "ms": 16216
-    },
-    {
-      "file": "src/extraction/parse.ts",
-      "line": 84,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 3801,
-      "verdict": "killed",
-      "ms": 172598
-    },
-    {
-      "file": "src/extraction/parse.ts",
-      "line": 174,
-      "operator": "if (…) -> if (false)",
-      "original": "signals.length",
-      "replacement": "false",
-      "start": 7259,
-      "verdict": "killed",
-      "ms": 180453
-    },
-    {
-      "file": "src/extraction/preflight.ts",
-      "line": 22,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 1119,
-      "verdict": "killed",
-      "ms": 22971
-    },
-    {
-      "file": "src/extraction/reconcile.ts",
-      "line": 17,
-      "operator": "if (…) -> if (false)",
-      "original": "value === undefined",
-      "replacement": "false",
-      "start": 864,
-      "verdict": "survived",
-      "ms": 148425
-    },
-    {
-      "file": "src/extraction/reconcile.ts",
-      "line": 22,
-      "operator": "false -> true",
-      "original": "false",
-      "replacement": "true",
-      "start": 1203,
-      "verdict": "survived",
-      "ms": 112840
-    },
-    {
-      "file": "src/extraction/reconcile.ts",
-      "line": 65,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 2898,
-      "verdict": "killed",
-      "ms": 144041
-    },
-    {
-      "file": "src/extraction/sceneArms.ts",
-      "line": 30,
-      "operator": "|| -> &&",
-      "original": "||",
-      "replacement": "&&",
-      "start": 817,
-      "verdict": "killed",
-      "ms": 14338
-    },
-    {
-      "file": "src/extraction/scheduler.ts",
-      "line": 183,
-      "operator": "false -> true",
-      "original": "false",
-      "replacement": "true",
-      "start": 7372,
-      "verdict": "killed",
-      "ms": 99108
-    },
-    {
-      "file": "src/extraction/scheduler.ts",
-      "line": 190,
-      "operator": ".min -> .max",
-      "original": "min",
-      "replacement": "max",
-      "start": 7710,
-      "verdict": "killed",
-      "ms": 123433
-    },
-    {
-      "file": "src/extraction/scheduler.ts",
-      "line": 226,
-      "operator": "- -> +",
-      "original": "-",
-      "replacement": "+",
-      "start": 9455,
-      "verdict": "survived",
-      "ms": 118556
-    },
-    {
-      "file": "src/extraction/scheduler.ts",
-      "line": 243,
-      "operator": "cond ? -> true ?",
-      "original": "entry",
-      "replacement": "true",
-      "start": 10160,
-      "verdict": "survived",
-      "ms": 133217
-    },
-    {
-      "file": "src/extraction/scheduler.ts",
-      "line": 254,
-      "operator": "cond ? -> true ?",
-      "original": "entry",
-      "replacement": "true",
-      "start": 10744,
-      "verdict": "killed",
-      "ms": 81541
-    },
-    {
-      "file": "src/extraction/scheduler.ts",
-      "line": 265,
-      "operator": "cond ? -> true ?",
-      "original": "dangling",
-      "replacement": "true",
-      "start": 11344,
-      "verdict": "killed",
-      "ms": 126704
-    },
-    {
-      "file": "src/extraction/scheduler.ts",
-      "line": 370,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 16167,
-      "verdict": "killed",
-      "ms": 116488
-    },
-    {
-      "file": "src/extraction/scheduler.ts",
-      "line": 392,
-      "operator": "drop !",
-      "original": "!this.dangling(profileId)",
-      "replacement": "this.dangling(profileId)",
-      "start": 17176,
-      "verdict": "survived",
-      "ms": 132580
-    },
-    {
-      "file": "src/extraction/scheduler.ts",
-      "line": 398,
-      "operator": "|| -> &&",
-      "original": "||",
-      "replacement": "&&",
-      "start": 17429,
-      "verdict": "survived",
-      "ms": 121973
-    },
-    {
-      "file": "src/extraction/scheduler.ts",
-      "line": 398,
+      "line": 34,
       "operator": "<= -> <",
       "original": "<=",
       "replacement": "<",
-      "start": 17449,
-      "verdict": "survived",
-      "ms": 133927
+      "start": 1618,
+      "verdict": "killed",
+      "ms": 7927
     },
     {
-      "file": "src/extraction/scheduler.ts",
-      "line": 401,
+      "file": "src/extraction/inputBudget.ts",
+      "line": 58,
       "operator": "?? -> &&",
       "original": "??",
       "replacement": "&&",
-      "start": 17678,
+      "start": 2026,
       "verdict": "killed",
-      "ms": 118245
+      "ms": 14066
     },
     {
-      "file": "src/extraction/scheduler.ts",
-      "line": 435,
-      "operator": "|| -> &&",
-      "original": "||",
-      "replacement": "&&",
-      "start": 19045,
-      "verdict": "killed",
-      "ms": 110041
-    },
-    {
-      "file": "src/extraction/scheduler.ts",
-      "line": 458,
-      "operator": "cond ? -> true ?",
-      "original": "ownership",
-      "replacement": "true",
-      "start": 20139,
-      "verdict": "killed",
-      "ms": 114297
-    },
-    {
-      "file": "src/extraction/scheduler.ts",
-      "line": 496,
-      "operator": "cond ? -> true ?",
-      "original": "index < 0",
-      "replacement": "true",
-      "start": 21860,
-      "verdict": "killed",
-      "ms": 116190
-    },
-    {
-      "file": "src/extraction/scope.ts",
-      "line": 11,
-      "operator": "if (…) -> if (false)",
-      "original": "\"not\" in gate",
-      "replacement": "false",
-      "start": 530,
-      "verdict": "survived",
-      "ms": 146184
-    },
-    {
-      "file": "src/extraction/scope.ts",
-      "line": 16,
-      "operator": "drop !",
-      "original": "!hint",
-      "replacement": "hint",
-      "start": 726,
-      "verdict": "killed",
-      "ms": 50435
-    },
-    {
-      "file": "src/extraction/sharedRead.ts",
+      "file": "src/extraction/inputBudget.ts",
       "line": 64,
-      "operator": "&& -> ||",
-      "original": "&&",
-      "replacement": "||",
-      "start": 3501,
-      "verdict": "killed",
-      "ms": 128972
-    },
-    {
-      "file": "src/extraction/sharedRead.ts",
-      "line": 192,
-      "operator": "cond ? -> true ?",
-      "original": "refused",
-      "replacement": "true",
-      "start": 10234,
-      "verdict": "killed",
-      "ms": 122471
-    },
-    {
-      "file": "src/extraction/sharedRead.ts",
-      "line": 206,
-      "operator": "cond ? -> true ?",
-      "original": "judged",
-      "replacement": "true",
-      "start": 10962,
-      "verdict": "killed",
-      "ms": 100425
-    },
-    {
-      "file": "src/extraction/windowHygiene.ts",
-      "line": 80,
-      "operator": "drop !",
-      "original": "!open.drop",
-      "replacement": "open.drop",
-      "start": 3264,
-      "verdict": "killed",
-      "ms": 142085
-    },
-    {
-      "file": "src/extraction/windowHygiene.ts",
-      "line": 87,
-      "operator": "!== -> ===",
-      "original": "!==",
-      "replacement": "===",
-      "start": 3491,
-      "verdict": "killed",
-      "ms": 112478
-    },
-    {
-      "file": "src/extraction/windowHygiene.ts",
-      "line": 124,
-      "operator": "false -> true",
-      "original": "false",
-      "replacement": "true",
-      "start": 5640,
-      "verdict": "killed",
-      "ms": 122700
-    },
-    {
-      "file": "src/judge/client.ts",
-      "line": 48,
-      "operator": "&& -> ||",
-      "original": "&&",
-      "replacement": "||",
-      "start": 1767,
+      "operator": "> -> >=",
+      "original": ">",
+      "replacement": ">=",
+      "start": 2353,
       "verdict": "survived",
-      "ms": 214626
+      "ms": 166397
     },
     {
-      "file": "src/judge/client.ts",
-      "line": 86,
-      "operator": "drop !",
-      "original": "!response",
-      "replacement": "response",
-      "start": 3793,
+      "file": "src/extraction/inputBudget.ts",
+      "line": 105,
+      "operator": "cond ? -> true ?",
+      "original": "trimmed",
+      "replacement": "true",
+      "start": 3956,
+      "verdict": "killed",
+      "ms": 84847
+    },
+    {
+      "file": "src/extraction/parse.ts",
+      "line": 35,
+      "operator": "if (…) -> if (false)",
+      "original": "match[1] === undefined",
+      "replacement": "false",
+      "start": 1795,
+      "verdict": "killed",
+      "ms": 14757
+    },
+    {
+      "file": "src/extraction/parse.ts",
+      "line": 96,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 4287,
+      "verdict": "killed",
+      "ms": 111142
+    },
+    {
+      "file": "src/extraction/reconcile.ts",
+      "line": 6,
+      "operator": "if (…) -> if (false)",
+      "original": "\"q\" in gate",
+      "replacement": "false",
+      "start": 373,
+      "verdict": "killed",
+      "ms": 74276
+    },
+    {
+      "file": "src/extraction/reconcile.ts",
+      "line": 77,
+      "operator": "?? -> &&",
+      "original": "??",
+      "replacement": "&&",
+      "start": 3599,
       "verdict": "killed",
       "ms": 9143
     },
     {
-      "file": "src/judge/client.ts",
-      "line": 97,
-      "operator": "false -> true",
-      "original": "false",
-      "replacement": "true",
-      "start": 4805,
-      "verdict": "killed",
-      "ms": 189190
+      "file": "src/extraction/reconcile.ts",
+      "line": 78,
+      "operator": "- -> +",
+      "original": "-",
+      "replacement": "+",
+      "start": 3656,
+      "verdict": "survived",
+      "ms": 85711
     },
     {
-      "file": "src/judge/contradiction.ts",
-      "line": 42,
-      "operator": "&& -> ||",
-      "original": "&&",
-      "replacement": "||",
-      "start": 2155,
+      "file": "src/extraction/scheduler.ts",
+      "line": 205,
+      "operator": "if (…) -> if (false)",
+      "original": "!existing?.window",
+      "replacement": "false",
+      "start": 8380,
       "verdict": "killed",
-      "ms": 15959
+      "ms": 73572
     },
     {
-      "file": "src/judge/contradictionCalibration.ts",
-      "line": 15,
+      "file": "src/extraction/scheduler.ts",
+      "line": 257,
       "operator": "=== -> !==",
       "original": "===",
       "replacement": "!==",
-      "start": 621,
-      "verdict": "killed",
-      "ms": 20086
+      "start": 11071,
+      "verdict": "survived",
+      "ms": 89897
     },
     {
-      "file": "src/judge/contradictionCalibration.ts",
-      "line": 57,
-      "operator": "cond ? -> true ?",
-      "original": "value.total",
-      "replacement": "true",
-      "start": 3059,
-      "verdict": "killed",
-      "ms": 33502
-    },
-    {
-      "file": "src/judge/contradictionCalibration.ts",
-      "line": 81,
-      "operator": ".some -> .every",
-      "original": "some",
-      "replacement": "every",
-      "start": 4248,
-      "verdict": "killed",
-      "ms": 25520
-    },
-    {
-      "file": "src/judge/curatorCalibration.ts",
-      "line": 47,
+      "file": "src/extraction/scheduler.ts",
+      "line": 267,
       "operator": "&& -> ||",
       "original": "&&",
       "replacement": "||",
-      "start": 1862,
+      "start": 11482,
       "verdict": "killed",
-      "ms": 32426
+      "ms": 76568
     },
     {
-      "file": "src/judge/curatorFilter.ts",
-      "line": 41,
-      "operator": "true -> false",
-      "original": "true",
+      "file": "src/extraction/scheduler.ts",
+      "line": 319,
+      "operator": "if (…) -> if (false)",
+      "original": "profileId === this.readProfile()",
       "replacement": "false",
-      "start": 1966,
+      "start": 14169,
+      "verdict": "survived",
+      "ms": 86799
+    },
+    {
+      "file": "src/extraction/scheduler.ts",
+      "line": 331,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 14638,
       "verdict": "killed",
-      "ms": 20406
+      "ms": 76605
+    },
+    {
+      "file": "src/extraction/scheduler.ts",
+      "line": 348,
+      "operator": "- -> +",
+      "original": "-",
+      "replacement": "+",
+      "start": 15480,
+      "verdict": "killed",
+      "ms": 79606
+    },
+    {
+      "file": "src/extraction/scheduler.ts",
+      "line": 403,
+      "operator": "if (…) -> if (false)",
+      "original": "!fired && boundary > 0 && boundary % settings.cadence === 0 && !this.underPressure()",
+      "replacement": "false",
+      "start": 17805,
+      "verdict": "killed",
+      "ms": 75127
+    },
+    {
+      "file": "src/extraction/scheduler.ts",
+      "line": 403,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 17859,
+      "verdict": "killed",
+      "ms": 68026
+    },
+    {
+      "file": "src/extraction/scheduler.ts",
+      "line": 434,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 19162,
+      "verdict": "killed",
+      "ms": 73716
+    },
+    {
+      "file": "src/extraction/scheduler.ts",
+      "line": 438,
+      "operator": "|| -> &&",
+      "original": "||",
+      "replacement": "&&",
+      "start": 19317,
+      "verdict": "killed",
+      "ms": 73085
+    },
+    {
+      "file": "src/extraction/scheduler.ts",
+      "line": 447,
+      "operator": "if (…) -> if (false)",
+      "original": "!story || !state || !settings.enabled",
+      "replacement": "false",
+      "start": 19767,
+      "verdict": "survived",
+      "ms": 98184
+    },
+    {
+      "file": "src/extraction/scheduler.ts",
+      "line": 462,
+      "operator": "cond ? -> true ?",
+      "original": "settings.budget",
+      "replacement": "true",
+      "start": 20581,
+      "verdict": "survived",
+      "ms": 85238
+    },
+    {
+      "file": "src/extraction/scheduler.ts",
+      "line": 513,
+      "operator": "false -> true",
+      "original": "false",
+      "replacement": "true",
+      "start": 22780,
+      "verdict": "killed",
+      "ms": 77705
+    },
+    {
+      "file": "src/extraction/scheduler.ts",
+      "line": 529,
+      "operator": "if (…) -> if (false)",
+      "original": "isLapse(error) || failureClass(error) === \"config\" || failureClass(error) === \"exhausted\"",
+      "replacement": "false",
+      "start": 23298,
+      "verdict": "killed",
+      "ms": 72397
+    },
+    {
+      "file": "src/extraction/scope.ts",
+      "line": 38,
+      "operator": "?? -> &&",
+      "original": "??",
+      "replacement": "&&",
+      "start": 1747,
+      "verdict": "killed",
+      "ms": 8174
+    },
+    {
+      "file": "src/extraction/scope.ts",
+      "line": 52,
+      "operator": "?? -> &&",
+      "original": "??",
+      "replacement": "&&",
+      "start": 2323,
+      "verdict": "survived",
+      "ms": 86724
+    },
+    {
+      "file": "src/extraction/sharedRead.ts",
+      "line": 153,
+      "operator": "if (…) -> if (false)",
+      "original": "!budget",
+      "replacement": "false",
+      "start": 7656,
+      "verdict": "killed",
+      "ms": 74381
+    },
+    {
+      "file": "src/extraction/sharedRead.ts",
+      "line": 167,
+      "operator": "+ -> -",
+      "original": "+",
+      "replacement": "-",
+      "start": 8694,
+      "verdict": "survived",
+      "ms": 97650
+    },
+    {
+      "file": "src/extraction/windowHygiene.ts",
+      "line": 37,
+      "operator": "?? -> &&",
+      "original": "??",
+      "replacement": "&&",
+      "start": 1729,
+      "verdict": "killed",
+      "ms": 85201
+    },
+    {
+      "file": "src/extraction/windowHygiene.ts",
+      "line": 76,
+      "operator": "&& -> ||",
+      "original": "&&",
+      "replacement": "||",
+      "start": 3133,
+      "verdict": "killed",
+      "ms": 80886
+    },
+    {
+      "file": "src/extraction/windowHygiene.ts",
+      "line": 108,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 4498,
+      "verdict": "killed",
+      "ms": 79396
+    },
+    {
+      "file": "src/extraction/windowHygiene.ts",
+      "line": 114,
+      "operator": "false -> true",
+      "original": "false",
+      "replacement": "true",
+      "start": 4834,
+      "verdict": "killed",
+      "ms": 10011
+    },
+    {
+      "file": "src/judge/client.ts",
+      "line": 53,
+      "operator": "|| -> &&",
+      "original": "||",
+      "replacement": "&&",
+      "start": 2069,
+      "verdict": "killed",
+      "ms": 102123
+    },
+    {
+      "file": "src/judge/contradictionCalibration.ts",
+      "line": 31,
+      "operator": "drop !",
+      "original": "!row.fallback",
+      "replacement": "row.fallback",
+      "start": 1525,
+      "verdict": "survived",
+      "ms": 19406
+    },
+    {
+      "file": "src/judge/contradictionCalibration.ts",
+      "line": 58,
+      "operator": ">= -> >",
+      "original": ">=",
+      "replacement": ">",
+      "start": 3098,
+      "verdict": "survived",
+      "ms": 19946
+    },
+    {
+      "file": "src/judge/curators.ts",
+      "line": 50,
+      "operator": "> -> >=",
+      "original": ">",
+      "replacement": ">=",
+      "start": 2825,
+      "verdict": "survived",
+      "ms": 130586
     },
     {
       "file": "src/judge/curators.ts",
@@ -1148,17 +1047,17 @@
       "replacement": "||",
       "start": 3158,
       "verdict": "killed",
-      "ms": 16440
+      "ms": 10494
     },
     {
       "file": "src/judge/director.ts",
       "line": 35,
-      "operator": "cond ? -> true ?",
-      "original": "allowSilence",
-      "replacement": "true",
-      "start": 1363,
+      "operator": "if (…) -> if (false)",
+      "original": "candidates.length + (allowSilence ? 1 : 0) < 2",
+      "replacement": "false",
+      "start": 1342,
       "verdict": "killed",
-      "ms": 18337
+      "ms": 108624
     },
     {
       "file": "src/judge/director.ts",
@@ -1168,37 +1067,27 @@
       "replacement": "&&",
       "start": 1758,
       "verdict": "killed",
-      "ms": 194505
+      "ms": 9263
     },
     {
       "file": "src/judge/director.ts",
-      "line": 50,
-      "operator": "cond ? -> true ?",
-      "original": "input.allowHandBack",
-      "replacement": "true",
-      "start": 2383,
-      "verdict": "survived",
-      "ms": 295339
-    },
-    {
-      "file": "src/judge/director.ts",
-      "line": 86,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 5219,
+      "line": 75,
+      "operator": "if (…) -> if (false)",
+      "original": "picked && picked.confidence >= DIRECTOR_ROLE_CONFIDENCE",
+      "replacement": "false",
+      "start": 4305,
       "verdict": "killed",
-      "ms": 24082
+      "ms": 105681
     },
     {
-      "file": "src/judge/director.ts",
-      "line": 88,
-      "operator": "?? -> &&",
-      "original": "??",
-      "replacement": "&&",
-      "start": 5386,
-      "verdict": "survived",
-      "ms": 280581
+      "file": "src/judge/expansion.ts",
+      "line": 80,
+      "operator": "* -> /",
+      "original": "*",
+      "replacement": "/",
+      "start": 4236,
+      "verdict": "killed",
+      "ms": 10009
     },
     {
       "file": "src/judge/expansion.ts",
@@ -1208,57 +1097,27 @@
       "replacement": "-",
       "start": 5150,
       "verdict": "killed",
-      "ms": 16673
+      "ms": 110233
     },
     {
       "file": "src/judge/extraction.ts",
-      "line": 109,
-      "operator": "if (…) -> if (false)",
-      "original": "shown === null || !answer",
-      "replacement": "false",
-      "start": 5303,
+      "line": 47,
+      "operator": "cond ? -> true ?",
+      "original": "criterion.examples?.length",
+      "replacement": "true",
+      "start": 1635,
       "verdict": "survived",
-      "ms": 261285
+      "ms": 133513
     },
     {
       "file": "src/judge/extraction.ts",
-      "line": 109,
-      "operator": "drop !",
-      "original": "!answer",
-      "replacement": "answer",
-      "start": 5321,
-      "verdict": "survived",
-      "ms": 210278
-    },
-    {
-      "file": "src/judge/extraction.ts",
-      "line": 175,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 9607,
-      "verdict": "killed",
-      "ms": 185677
-    },
-    {
-      "file": "src/judge/extraction.ts",
-      "line": 179,
+      "line": 174,
       "operator": "!== -> ===",
       "original": "!==",
       "replacement": "===",
-      "start": 9986,
+      "start": 9461,
       "verdict": "killed",
-      "ms": 198261
-    },
-    {
-      "file": "src/judge/extraction.ts",
-      "line": 195,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 10433,
-      "verdict": "killed",
-      "ms": 157979
+      "ms": 114472
     },
     {
       "file": "src/judge/extraction.ts",
@@ -1268,47 +1127,77 @@
       "replacement": "||",
       "start": 11593,
       "verdict": "killed",
-      "ms": 221249
+      "ms": 95818
     },
     {
       "file": "src/judge/extraction.ts",
-      "line": 228,
-      "operator": "|| -> &&",
-      "original": "||",
-      "replacement": "&&",
-      "start": 12309,
+      "line": 216,
+      "operator": ">= -> >",
+      "original": ">=",
+      "replacement": ">",
+      "start": 11663,
       "verdict": "survived",
-      "ms": 243296
+      "ms": 133588
     },
     {
-      "file": "src/judge/gate.ts",
-      "line": 54,
-      "operator": "false -> true",
-      "original": "false",
-      "replacement": "true",
-      "start": 1924,
+      "file": "src/judge/extractionCalibration.ts",
+      "line": 44,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 1948,
       "verdict": "killed",
-      "ms": 236179
+      "ms": 18617
     },
     {
-      "file": "src/judge/gate.ts",
+      "file": "src/judge/extractionCalibration.ts",
       "line": 57,
-      "operator": "true -> false",
-      "original": "true",
+      "operator": "if (…) -> if (false)",
+      "original": "!plan",
       "replacement": "false",
-      "start": 1998,
-      "verdict": "survived",
-      "ms": 216590
+      "start": 2841,
+      "verdict": "killed",
+      "ms": 19735
     },
     {
       "file": "src/judge/gate.ts",
-      "line": 75,
-      "operator": "drop !",
-      "original": "!waiting.length",
-      "replacement": "waiting.length",
-      "start": 2473,
+      "line": 74,
+      "operator": "if (…) -> if (false)",
+      "original": "signal?.aborted",
+      "replacement": "false",
+      "start": 2372,
+      "verdict": "survived",
+      "ms": 129142
+    },
+    {
+      "file": "src/judge/llamaLogprob.ts",
+      "line": 87,
+      "operator": "if (…) -> if (false)",
+      "original": "!(total > 0)",
+      "replacement": "false",
+      "start": 4262,
       "verdict": "killed",
-      "ms": 188146
+      "ms": 17881
+    },
+    {
+      "file": "src/judge/llamaLogprob.ts",
+      "line": 108,
+      "operator": "if (…) -> if (false)",
+      "original": "!isRecord(response)",
+      "replacement": "false",
+      "start": 5480,
+      "verdict": "survived",
+      "ms": 21478
+    },
+    {
+      "file": "src/judge/llamaLogprob.ts",
+      "line": 139,
+      "operator": "cond ? -> true ?",
+      "original": "call.signal",
+      "replacement": "true",
+      "start": 7082,
+      "verdict": "survived",
+      "ms": 20341
     },
     {
       "file": "src/judge/lore.ts",
@@ -1318,57 +1207,67 @@
       "replacement": "true",
       "start": 3343,
       "verdict": "killed",
-      "ms": 22000
+      "ms": 10131
     },
     {
-      "file": "src/judge/lore.ts",
-      "line": 75,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 3345,
-      "verdict": "killed",
-      "ms": 11929
+      "file": "src/judge/loreCalibration.ts",
+      "line": 31,
+      "operator": "cond ? -> true ?",
+      "original": "result.answers",
+      "replacement": "true",
+      "start": 1576,
+      "verdict": "survived",
+      "ms": 18167
     },
     {
       "file": "src/judge/loreRanking.ts",
-      "line": 64,
-      "operator": "if (…) -> if (false)",
-      "original": "turn.ranked.length >= RANKING_CUTOFF + 1",
-      "replacement": "false",
-      "start": 3291,
-      "verdict": "killed",
-      "ms": 11860
-    },
-    {
-      "file": "src/judge/loreRelevanceCalibration.ts",
-      "line": 126,
-      "operator": "> -> >=",
-      "original": ">",
-      "replacement": ">=",
-      "start": 6795,
-      "verdict": "survived",
-      "ms": 37516
-    },
-    {
-      "file": "src/judge/loreScore.ts",
-      "line": 54,
+      "line": 63,
       "operator": "cond ? -> true ?",
-      "original": "level === 0",
+      "original": "withCut.some((pick, index) => withCut.some((other, otherIndex) => otherIndex > index && other.score === pick.score))",
       "replacement": "true",
-      "start": 3091,
+      "start": 3155,
       "verdict": "killed",
-      "ms": 11760
+      "ms": 6486
+    },
+    {
+      "file": "src/judge/loreRanking.ts",
+      "line": 65,
+      "operator": "- -> +",
+      "original": "-",
+      "replacement": "+",
+      "start": 3562,
+      "verdict": "killed",
+      "ms": 56078
+    },
+    {
+      "file": "src/judge/memory.ts",
+      "line": 47,
+      "operator": "if (…) -> if (false)",
+      "original": "p < VERIFY_DOWNWEIGHT_BELOW",
+      "replacement": "false",
+      "start": 2681,
+      "verdict": "killed",
+      "ms": 96983
+    },
+    {
+      "file": "src/judge/memory.ts",
+      "line": 71,
+      "operator": "drop !",
+      "original": "!(answer.choice in PAIR_CRITERIA)",
+      "replacement": "(answer.choice in PAIR_CRITERIA)",
+      "start": 3779,
+      "verdict": "killed",
+      "ms": 5997
     },
     {
       "file": "src/judge/numbers.ts",
-      "line": 80,
-      "operator": "+ -> -",
-      "original": "+",
-      "replacement": "-",
-      "start": 3671,
+      "line": 25,
+      "operator": "if (…) -> if (false)",
+      "original": "part in UNITS",
+      "replacement": "false",
+      "start": 1689,
       "verdict": "killed",
-      "ms": 17694
+      "ms": 8875
     },
     {
       "file": "src/judge/questions.ts",
@@ -1378,97 +1277,117 @@
       "replacement": "question.instructions.trim()",
       "start": 1388,
       "verdict": "killed",
-      "ms": 13104
+      "ms": 7001
     },
     {
       "file": "src/judge/questions.ts",
-      "line": 27,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 1739,
+      "line": 28,
+      "operator": "|| -> &&",
+      "original": "||",
+      "replacement": "&&",
+      "start": 1794,
       "verdict": "killed",
-      "ms": 15983
+      "ms": 6025
     },
     {
-      "file": "src/judge/readiness.ts",
-      "line": 148,
-      "operator": "if (…) -> if (false)",
-      "original": "inEffect.length && inEffect.every((id) => id === measuredOn)",
-      "replacement": "false",
-      "start": 7631,
-      "verdict": "killed",
-      "ms": 10148
-    },
-    {
-      "file": "src/judge/readiness.ts",
-      "line": 167,
+      "file": "src/judge/questions.ts",
+      "line": 30,
       "operator": "&& -> ||",
       "original": "&&",
       "replacement": "||",
-      "start": 8597,
+      "start": 2029,
       "verdict": "killed",
-      "ms": 11213
+      "ms": 90987
+    },
+    {
+      "file": "src/judge/questions.ts",
+      "line": 34,
+      "operator": "> -> >=",
+      "original": ">",
+      "replacement": ">=",
+      "start": 2210,
+      "verdict": "survived",
+      "ms": 170420
     },
     {
       "file": "src/judge/readiness.ts",
-      "line": 173,
-      "operator": "cond ? -> true ?",
-      "original": "extra.warden",
-      "replacement": "true",
-      "start": 9133,
+      "line": 138,
+      "operator": "|| -> &&",
+      "original": "||",
+      "replacement": "&&",
+      "start": 7182,
       "verdict": "killed",
-      "ms": 12770
+      "ms": 129834
+    },
+    {
+      "file": "src/judge/readiness.ts",
+      "line": 205,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 10256,
+      "verdict": "killed",
+      "ms": 121615
+    },
+    {
+      "file": "src/judge/scene.ts",
+      "line": 109,
+      "operator": "cond ? -> true ?",
+      "original": "answer",
+      "replacement": "true",
+      "start": 5268,
+      "verdict": "killed",
+      "ms": 118076
     },
     {
       "file": "src/judge/scene.ts",
       "line": 125,
-      "operator": "&& -> ||",
-      "original": "&&",
-      "replacement": "||",
-      "start": 6068,
-      "verdict": "survived",
-      "ms": 283881
-    },
-    {
-      "file": "src/judge/scene.ts",
-      "line": 136,
-      "operator": "?? -> &&",
-      "original": "??",
-      "replacement": "&&",
-      "start": 6711,
-      "verdict": "killed",
-      "ms": 15361
-    },
-    {
-      "file": "src/judge/scene.ts",
-      "line": 234,
-      "operator": ".min -> .max",
-      "original": "min",
-      "replacement": "max",
-      "start": 11655,
-      "verdict": "survived",
-      "ms": 252473
-    },
-    {
-      "file": "src/judge/scene.ts",
-      "line": 237,
       "operator": "cond ? -> true ?",
-      "original": "read.sceneBreak",
+      "original": "type && type in SCENE_BREAK_TYPES",
       "replacement": "true",
-      "start": 11726,
+      "start": 6063,
       "verdict": "survived",
-      "ms": 223801
+      "ms": 135555
     },
     {
       "file": "src/judge/sceneCalibration.ts",
-      "line": 44,
-      "operator": "cond ? -> true ?",
-      "original": "read.location",
-      "replacement": "true",
-      "start": 2496,
-      "verdict": "survived",
-      "ms": 22471
+      "line": 39,
+      "operator": "!== -> ===",
+      "original": "!==",
+      "replacement": "===",
+      "start": 2229,
+      "verdict": "killed",
+      "ms": 12108
+    },
+    {
+      "file": "src/judge/sceneCalibration.ts",
+      "line": 48,
+      "operator": "!== -> ===",
+      "original": "!==",
+      "replacement": "===",
+      "start": 2673,
+      "verdict": "killed",
+      "ms": 9085
+    },
+    {
+      "file": "src/judge/sceneCalibration.ts",
+      "line": 57,
+      "operator": "!== -> ===",
+      "original": "!==",
+      "replacement": "===",
+      "start": 3147,
+      "verdict": "killed",
+      "ms": 18981
+    },
+    {
+      "file": "src/judge/selfTest.ts",
+      "line": 30,
+      "operator": "!== -> ===",
+      "original": "!==",
+      "replacement": "===",
+      "start": 1390,
+      "verdict": "killed",
+      "ms": 6100
     },
     {
       "file": "src/judge/selfTest.ts",
@@ -1476,9 +1395,9 @@
       "operator": "=== -> !==",
       "original": "===",
       "replacement": "!==",
-      "start": 1440,
+      "start": 1460,
       "verdict": "killed",
-      "ms": 9777
+      "ms": 5575
     },
     {
       "file": "src/judge/selfTest.ts",
@@ -1488,77 +1407,87 @@
       "replacement": "!==",
       "start": 3912,
       "verdict": "killed",
-      "ms": 23410
+      "ms": 19248
     },
     {
       "file": "src/judge/selfTest.ts",
-      "line": 130,
-      "operator": "if (…) -> if (false)",
-      "original": "!rows.length",
-      "replacement": "false",
-      "start": 5974,
+      "line": 89,
+      "operator": "cond ? -> true ?",
+      "original": "result.fallback",
+      "replacement": "true",
+      "start": 4169,
       "verdict": "survived",
-      "ms": 29518
+      "ms": 19550
     },
     {
-      "file": "src/judge/selfTestCases.ts",
-      "line": 39,
-      "operator": "false -> true",
-      "original": "false",
+      "file": "src/judge/selfTest.ts",
+      "line": 110,
+      "operator": "cond ? -> true ?",
+      "original": "result.fallback",
       "replacement": "true",
-      "start": 1384,
+      "start": 5264,
       "verdict": "survived",
-      "ms": 39748
+      "ms": 20789
     },
     {
       "file": "src/judge/settings.ts",
-      "line": 112,
+      "line": 130,
       "operator": "&& -> ||",
       "original": "&&",
       "replacement": "||",
-      "start": 4662,
+      "start": 5735,
       "verdict": "survived",
-      "ms": 259492
+      "ms": 135561
     },
     {
       "file": "src/judge/settings.ts",
-      "line": 127,
+      "line": 145,
       "operator": "+ -> -",
       "original": "+",
       "replacement": "-",
-      "start": 5481,
+      "start": 6570,
       "verdict": "killed",
-      "ms": 14465
+      "ms": 7457
+    },
+    {
+      "file": "src/judge/settings.ts",
+      "line": 151,
+      "operator": "if (…) -> if (false)",
+      "original": "record.discarded",
+      "replacement": "false",
+      "start": 6790,
+      "verdict": "killed",
+      "ms": 5985
     },
     {
       "file": "src/judge/warden.ts",
-      "line": 99,
+      "line": 62,
       "operator": "cond ? -> true ?",
-      "original": "input.facts.length",
+      "original": "name",
       "replacement": "true",
-      "start": 4640,
+      "start": 2579,
       "verdict": "killed",
-      "ms": 174539
-    },
-    {
-      "file": "src/judge/warden.ts",
-      "line": 114,
-      "operator": "?? -> &&",
-      "original": "??",
-      "replacement": "&&",
-      "start": 6064,
-      "verdict": "killed",
-      "ms": 213765
+      "ms": 104047
     },
     {
       "file": "src/judge/wardenCalibration.ts",
-      "line": 138,
-      "operator": "cond ? -> true ?",
-      "original": "entry.consistent.includes(index)",
-      "replacement": "true",
-      "start": 6172,
+      "line": 63,
+      "operator": "&& -> ||",
+      "original": "&&",
+      "replacement": "||",
+      "start": 2887,
       "verdict": "killed",
-      "ms": 25416
+      "ms": 20529
+    },
+    {
+      "file": "src/judge/wardenCalibration.ts",
+      "line": 63,
+      "operator": "> -> >=",
+      "original": ">",
+      "replacement": ">=",
+      "start": 2896,
+      "verdict": "survived",
+      "ms": 20733
     },
     {
       "file": "src/judge/wardenCalibration.ts",
@@ -1568,67 +1497,147 @@
       "replacement": "!==",
       "start": 6396,
       "verdict": "survived",
-      "ms": 37115
+      "ms": 18653
     },
     {
       "file": "src/judge/wardenCalibration.ts",
-      "line": 162,
-      "operator": "?? -> &&",
-      "original": "??",
-      "replacement": "&&",
-      "start": 7096,
+      "line": 194,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 8958,
       "verdict": "killed",
-      "ms": 29613
-    },
-    {
-      "file": "src/judge/wardenCalibration.ts",
-      "line": 211,
-      "operator": "cond ? -> true ?",
-      "original": "result.answers",
-      "replacement": "true",
-      "start": 10219,
-      "verdict": "survived",
-      "ms": 24293
+      "ms": 18669
     },
     {
       "file": "src/memory/arcs.ts",
-      "line": 39,
+      "line": 56,
       "operator": "if (…) -> if (false)",
-      "original": "arc.status !== \"open\"",
+      "original": "signal.kind !== \"open\"",
       "replacement": "false",
-      "start": 1232,
+      "start": 1721,
+      "verdict": "killed",
+      "ms": 100779
+    },
+    {
+      "file": "src/memory/arcs.ts",
+      "line": 75,
+      "operator": "cond ? -> true ?",
+      "original": "arc.id === id",
+      "replacement": "true",
+      "start": 2451,
       "verdict": "survived",
-      "ms": 168282
+      "ms": 117732
+    },
+    {
+      "file": "src/memory/arcs.ts",
+      "line": 119,
+      "operator": ".max -> .min",
+      "original": "max",
+      "replacement": "min",
+      "start": 4741,
+      "verdict": "killed",
+      "ms": 107614
     },
     {
       "file": "src/memory/budget.ts",
-      "line": 14,
+      "line": 6,
+      "operator": ".max -> .min",
+      "original": "max",
+      "replacement": "min",
+      "start": 200,
+      "verdict": "killed",
+      "ms": 5707
+    },
+    {
+      "file": "src/memory/chapterFold.ts",
+      "line": 24,
+      "operator": "!== -> ===",
+      "original": "!==",
+      "replacement": "===",
+      "start": 871,
+      "verdict": "survived",
+      "ms": 49045
+    },
+    {
+      "file": "src/memory/chapterFold.ts",
+      "line": 45,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 1870,
+      "verdict": "killed",
+      "ms": 14918
+    },
+    {
+      "file": "src/memory/chapterInput.ts",
+      "line": 32,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 1039,
+      "verdict": "killed",
+      "ms": 31358
+    },
+    {
+      "file": "src/memory/chapterInput.ts",
+      "line": 49,
+      "operator": "&& -> ||",
+      "original": "&&",
+      "replacement": "||",
+      "start": 2286,
+      "verdict": "killed",
+      "ms": 39467
+    },
+    {
+      "file": "src/memory/chapterRecord.ts",
+      "line": 71,
+      "operator": "drop !",
+      "original": "!summary",
+      "replacement": "summary",
+      "start": 3799,
+      "verdict": "killed",
+      "ms": 37136
+    },
+    {
+      "file": "src/memory/chapterRecord.ts",
+      "line": 82,
       "operator": "+ -> -",
       "original": "+",
       "replacement": "-",
-      "start": 506,
-      "verdict": "killed",
-      "ms": 35280
-    },
-    {
-      "file": "src/memory/budget.ts",
-      "line": 61,
-      "operator": "> -> >=",
-      "original": ">",
-      "replacement": ">=",
-      "start": 2005,
-      "verdict": "killed",
-      "ms": 24088
-    },
-    {
-      "file": "src/memory/budget.ts",
-      "line": 61,
-      "operator": "false -> true",
-      "original": "false",
-      "replacement": "true",
-      "start": 2027,
+      "start": 4623,
       "verdict": "survived",
-      "ms": 189661
+      "ms": 41777
+    },
+    {
+      "file": "src/memory/chapterRecord.ts",
+      "line": 89,
+      "operator": "&& -> ||",
+      "original": "&&",
+      "replacement": "||",
+      "start": 5014,
+      "verdict": "survived",
+      "ms": 46586
+    },
+    {
+      "file": "src/memory/chapterRecord.ts",
+      "line": 127,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 7116,
+      "verdict": "survived",
+      "ms": 43894
+    },
+    {
+      "file": "src/memory/chronicle.ts",
+      "line": 24,
+      "operator": "cond ? -> true ?",
+      "original": "form === \"summary\"",
+      "replacement": "true",
+      "start": 661,
+      "verdict": "killed",
+      "ms": 30271
     },
     {
       "file": "src/memory/conflicts.ts",
@@ -1638,47 +1647,17 @@
       "replacement": "side.standing",
       "start": 4018,
       "verdict": "killed",
-      "ms": 7407
+      "ms": 10295
     },
     {
       "file": "src/memory/conflicts.ts",
-      "line": 103,
-      "operator": ">= -> >",
-      "original": ">=",
-      "replacement": ">",
-      "start": 4867,
-      "verdict": "survived",
-      "ms": 146578
-    },
-    {
-      "file": "src/memory/conflicts.ts",
-      "line": 103,
-      "operator": "?? -> &&",
-      "original": "??",
-      "replacement": "&&",
-      "start": 4886,
-      "verdict": "survived",
-      "ms": 188896
-    },
-    {
-      "file": "src/memory/conflicts.ts",
-      "line": 213,
-      "operator": "drop !",
-      "original": "!claimsDifferentValue(entry, row, bound)",
-      "replacement": "claimsDifferentValue(entry, row, bound)",
-      "start": 9520,
+      "line": 189,
+      "operator": "if (…) -> if (false)",
+      "original": "!bound",
+      "replacement": "false",
+      "start": 8494,
       "verdict": "killed",
-      "ms": 97295
-    },
-    {
-      "file": "src/memory/conflicts.ts",
-      "line": 239,
-      "operator": "cond ? -> true ?",
-      "original": "read.confidence === undefined",
-      "replacement": "true",
-      "start": 11051,
-      "verdict": "killed",
-      "ms": 126577
+      "ms": 91943
     },
     {
       "file": "src/memory/conflicts.ts",
@@ -1688,277 +1667,307 @@
       "replacement": "true",
       "start": 11772,
       "verdict": "survived",
-      "ms": 195425
+      "ms": 110693
     },
     {
-      "file": "src/memory/consolidate.ts",
-      "line": 43,
+      "file": "src/memory/conflicts.ts",
+      "line": 256,
       "operator": "=== -> !==",
       "original": "===",
       "replacement": "!==",
-      "start": 1359,
-      "verdict": "killed",
-      "ms": 22511
+      "start": 11788,
+      "verdict": "survived",
+      "ms": 109631
     },
     {
-      "file": "src/memory/consolidate.ts",
-      "line": 48,
-      "operator": "&& -> ||",
-      "original": "&&",
-      "replacement": "||",
-      "start": 1676,
-      "verdict": "killed",
-      "ms": 20300
-    },
-    {
-      "file": "src/memory/consolidate.ts",
-      "line": 76,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 2393,
-      "verdict": "killed",
-      "ms": 7529
-    },
-    {
-      "file": "src/memory/consolidate.ts",
-      "line": 77,
-      "operator": "cond ? -> true ?",
-      "original": "hasMarker",
-      "replacement": "true",
-      "start": 2499,
-      "verdict": "killed",
-      "ms": 19116
-    },
-    {
-      "file": "src/memory/consolidate.ts",
-      "line": 173,
+      "file": "src/memory/conflicts.ts",
+      "line": 322,
       "operator": "if (…) -> if (false)",
-      "original": "relation === \"duplicate\"",
+      "original": "!row.locked && hasStateChangeMarker(candidate.text)",
       "replacement": "false",
-      "start": 7254,
+      "start": 16227,
       "verdict": "killed",
-      "ms": 16924
+      "ms": 98266
     },
     {
-      "file": "src/memory/derived.ts",
-      "line": 71,
-      "operator": "if (…) -> if (false)",
-      "original": "!built && !orphaned",
-      "replacement": "false",
-      "start": 3754,
-      "verdict": "killed",
-      "ms": 16364
-    },
-    {
-      "file": "src/memory/entities.ts",
-      "line": 12,
-      "operator": "drop !",
-      "original": "!story",
-      "replacement": "story",
-      "start": 618,
-      "verdict": "killed",
-      "ms": 156631
-    },
-    {
-      "file": "src/memory/entities.ts",
-      "line": 40,
-      "operator": "&& -> ||",
-      "original": "&&",
-      "replacement": "||",
-      "start": 2330,
-      "verdict": "killed",
-      "ms": 171435
-    },
-    {
-      "file": "src/memory/epistemic.ts",
-      "line": 47,
-      "operator": ">= -> >",
-      "original": ">=",
-      "replacement": ">",
-      "start": 1935,
-      "verdict": "survived",
-      "ms": 143002
-    },
-    {
-      "file": "src/memory/epistemic.ts",
-      "line": 71,
-      "operator": "< -> <=",
-      "original": "<",
-      "replacement": "<=",
-      "start": 2793,
-      "verdict": "survived",
-      "ms": 173025
-    },
-    {
-      "file": "src/memory/inject.ts",
-      "line": 37,
-      "operator": "drop !",
-      "original": "!isLive(entry)",
-      "replacement": "isLive(entry)",
-      "start": 1311,
-      "verdict": "killed",
-      "ms": 99487
-    },
-    {
-      "file": "src/memory/inject.ts",
-      "line": 66,
-      "operator": "+ -> -",
-      "original": "+",
-      "replacement": "-",
-      "start": 2705,
-      "verdict": "killed",
-      "ms": 15707
-    },
-    {
-      "file": "src/memory/inject.ts",
-      "line": 69,
-      "operator": "- -> +",
-      "original": "-",
-      "replacement": "+",
-      "start": 2862,
-      "verdict": "killed",
-      "ms": 19105
-    },
-    {
-      "file": "src/memory/ledger.ts",
-      "line": 71,
+      "file": "src/memory/consolidate.ts",
+      "line": 82,
       "operator": "=== -> !==",
       "original": "===",
       "replacement": "!==",
-      "start": 2761,
+      "start": 2881,
       "verdict": "killed",
-      "ms": 19491
+      "ms": 10152
     },
     {
-      "file": "src/memory/ledger.ts",
-      "line": 94,
-      "operator": "?? -> &&",
-      "original": "??",
-      "replacement": "&&",
-      "start": 3992,
-      "verdict": "survived",
-      "ms": 203709
-    },
-    {
-      "file": "src/memory/ledger.ts",
-      "line": 103,
-      "operator": "drop !",
-      "original": "!pinnedKeys.has(key)",
-      "replacement": "pinnedKeys.has(key)",
-      "start": 4686,
-      "verdict": "killed",
-      "ms": 8178
-    },
-    {
-      "file": "src/memory/ledger.ts",
+      "file": "src/memory/consolidate.ts",
       "line": 114,
+      "operator": "drop !",
+      "original": "!inDup",
+      "replacement": "inDup",
+      "start": 4172,
+      "verdict": "killed",
+      "ms": 5783
+    },
+    {
+      "file": "src/memory/consolidate.ts",
+      "line": 144,
+      "operator": "drop !",
+      "original": "!dropped.has(entry.id)",
+      "replacement": "dropped.has(entry.id)",
+      "start": 5609,
+      "verdict": "killed",
+      "ms": 6142
+    },
+    {
+      "file": "src/memory/consolidate.ts",
+      "line": 151,
       "operator": "&& -> ||",
       "original": "&&",
       "replacement": "||",
-      "start": 5266,
+      "start": 6052,
       "verdict": "killed",
-      "ms": 14854
+      "ms": 76437
     },
     {
-      "file": "src/memory/ledger.ts",
-      "line": 142,
-      "operator": "if (…) -> if (false)",
-      "original": "boundKeys.has(key)",
-      "replacement": "false",
-      "start": 6561,
+      "file": "src/memory/consolidate.ts",
+      "line": 185,
+      "operator": "|| -> &&",
+      "original": "||",
+      "replacement": "&&",
+      "start": 7725,
       "verdict": "killed",
-      "ms": 16067
+      "ms": 6233
     },
     {
-      "file": "src/memory/parse.ts",
-      "line": 15,
+      "file": "src/memory/consolidate.ts",
+      "line": 196,
+      "operator": ".some -> .every",
+      "original": "some",
+      "replacement": "every",
+      "start": 8334,
+      "verdict": "killed",
+      "ms": 5409
+    },
+    {
+      "file": "src/memory/contract.ts",
+      "line": 101,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 6321,
+      "verdict": "survived",
+      "ms": 124870
+    },
+    {
+      "file": "src/memory/contract.ts",
+      "line": 137,
       "operator": "!== -> ===",
       "original": "!==",
       "replacement": "===",
-      "start": 710,
+      "start": 8786,
       "verdict": "killed",
-      "ms": 15347
+      "ms": 102826
     },
     {
-      "file": "src/memory/parse.ts",
-      "line": 18,
+      "file": "src/memory/entities.ts",
+      "line": 13,
+      "operator": "if (…) -> if (false)",
+      "original": "!story",
+      "replacement": "false",
+      "start": 676,
+      "verdict": "survived",
+      "ms": 111329
+    },
+    {
+      "file": "src/memory/inject.ts",
+      "line": 127,
       "operator": "cond ? -> true ?",
-      "original": "raw.startsWith(\"\\\"\") && raw.endsWith(\"\\\"\")",
+      "original": "text",
       "replacement": "true",
-      "start": 809,
+      "start": 5586,
       "verdict": "killed",
-      "ms": 12439
+      "ms": 96231
     },
     {
-      "file": "src/memory/parse.ts",
-      "line": 91,
+      "file": "src/memory/innerBeat.ts",
+      "line": 55,
       "operator": "drop !",
-      "original": "!content",
-      "replacement": "content",
-      "start": 3505,
+      "original": "!beat",
+      "replacement": "beat",
+      "start": 2126,
       "verdict": "killed",
-      "ms": 9395
+      "ms": 9759
     },
     {
-      "file": "src/memory/provenance.ts",
-      "line": 106,
-      "operator": "drop !",
-      "original": "!found",
-      "replacement": "found",
-      "start": 5321,
-      "verdict": "killed",
-      "ms": 138835
+      "file": "src/memory/innerRender.ts",
+      "line": 71,
+      "operator": "cond ? -> true ?",
+      "original": "lines.length",
+      "replacement": "true",
+      "start": 3565,
+      "verdict": "survived",
+      "ms": 117704
     },
     {
-      "file": "src/memory/reverse.ts",
-      "line": 58,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 3538,
-      "verdict": "killed",
-      "ms": 104451
-    },
-    {
-      "file": "src/memory/sceneSummary.ts",
-      "line": 42,
+      "file": "src/memory/innerRender.ts",
+      "line": 136,
       "operator": "&& -> ||",
       "original": "&&",
       "replacement": "||",
-      "start": 1883,
-      "verdict": "killed",
-      "ms": 14842
+      "start": 7097,
+      "verdict": "survived",
+      "ms": 108420
     },
     {
-      "file": "src/memory/sceneSummary.ts",
-      "line": 58,
+      "file": "src/memory/innerRender.ts",
+      "line": 137,
+      "operator": "cond ? -> true ?",
+      "original": "voice?.omniscient",
+      "replacement": "true",
+      "start": 7162,
+      "verdict": "killed",
+      "ms": 101873
+    },
+    {
+      "file": "src/memory/innerVoice.ts",
+      "line": 51,
+      "operator": "if (…) -> if (false)",
+      "original": "motive",
+      "replacement": "false",
+      "start": 2277,
+      "verdict": "killed",
+      "ms": 99951
+    },
+    {
+      "file": "src/memory/ledger.ts",
+      "line": 46,
+      "operator": "&& -> ||",
+      "original": "&&",
+      "replacement": "||",
+      "start": 1733,
+      "verdict": "killed",
+      "ms": 8544
+    },
+    {
+      "file": "src/memory/parse.ts",
+      "line": 77,
+      "operator": "if (…) -> if (false)",
+      "original": "!text",
+      "replacement": "false",
+      "start": 2807,
+      "verdict": "killed",
+      "ms": 8610
+    },
+    {
+      "file": "src/memory/parse.ts",
+      "line": 100,
+      "operator": "|| -> &&",
+      "original": "||",
+      "replacement": "&&",
+      "start": 3881,
+      "verdict": "killed",
+      "ms": 10701
+    },
+    {
+      "file": "src/memory/provenance.ts",
+      "line": 67,
       "operator": "=== -> !==",
       "original": "===",
       "replacement": "!==",
-      "start": 2772,
+      "start": 3056,
       "verdict": "killed",
-      "ms": 11553
+      "ms": 58196
+    },
+    {
+      "file": "src/memory/provenance.ts",
+      "line": 97,
+      "operator": "if (…) -> if (false)",
+      "original": "!found",
+      "replacement": "false",
+      "start": 4675,
+      "verdict": "killed",
+      "ms": 107620
+    },
+    {
+      "file": "src/memory/reverse.ts",
+      "line": 46,
+      "operator": "drop !",
+      "original": "!reversal.lifted.includes(hash)",
+      "replacement": "reversal.lifted.includes(hash)",
+      "start": 2612,
+      "verdict": "killed",
+      "ms": 66882
+    },
+    {
+      "file": "src/memory/reverse.ts",
+      "line": 53,
+      "operator": "drop !",
+      "original": "!excluded.includes(hashMemoryText(entry.text))",
+      "replacement": "excluded.includes(hashMemoryText(entry.text))",
+      "start": 3123,
+      "verdict": "killed",
+      "ms": 74908
+    },
+    {
+      "file": "src/memory/sceneSummary.ts",
+      "line": 39,
+      "operator": "?? -> &&",
+      "original": "??",
+      "replacement": "&&",
+      "start": 1669,
+      "verdict": "killed",
+      "ms": 11980
     },
     {
       "file": "src/memory/score.ts",
-      "line": 66,
-      "operator": "/ -> *",
-      "original": "/",
-      "replacement": "*",
-      "start": 2175,
+      "line": 64,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 2011,
       "verdict": "survived",
-      "ms": 146921
+      "ms": 119341
     },
     {
       "file": "src/memory/score.ts",
-      "line": 86,
-      "operator": "* -> /",
-      "original": "*",
-      "replacement": "/",
-      "start": 3003,
+      "line": 72,
+      "operator": "?? -> &&",
+      "original": "??",
+      "replacement": "&&",
+      "start": 2417,
       "verdict": "killed",
-      "ms": 10792
+      "ms": 5546
+    },
+    {
+      "file": "src/memory/shortTermAppend.ts",
+      "line": 5,
+      "operator": "+ -> -",
+      "original": "+",
+      "replacement": "-",
+      "start": 213,
+      "verdict": "survived",
+      "ms": 50721
+    },
+    {
+      "file": "src/memory/shortTermAppend.ts",
+      "line": 14,
+      "operator": "drop !",
+      "original": "!candidate.pinned",
+      "replacement": "candidate.pinned",
+      "start": 715,
+      "verdict": "killed",
+      "ms": 10649
+    },
+    {
+      "file": "src/memory/stores.ts",
+      "line": 21,
+      "operator": "drop !",
+      "original": "!entries.length",
+      "replacement": "entries.length",
+      "start": 856,
+      "verdict": "killed",
+      "ms": 6691
     },
     {
       "file": "src/memory/stores.ts",
@@ -1968,67 +1977,37 @@
       "replacement": "+",
       "start": 2644,
       "verdict": "killed",
-      "ms": 23371
+      "ms": 110850
     },
     {
       "file": "src/memory/stores.ts",
-      "line": 62,
-      "operator": ".max -> .min",
-      "original": "max",
-      "replacement": "min",
-      "start": 2713,
-      "verdict": "killed",
-      "ms": 29194
-    },
-    {
-      "file": "src/memory/stores.ts",
-      "line": 93,
+      "line": 89,
       "operator": "&& -> ||",
       "original": "&&",
       "replacement": "||",
-      "start": 5132,
+      "start": 4831,
       "verdict": "killed",
-      "ms": 11532
+      "ms": 6792
     },
     {
       "file": "src/memory/stores.ts",
-      "line": 108,
-      "operator": "if (…) -> if (false)",
-      "original": "!entry.pinned",
-      "replacement": "false",
-      "start": 6206,
+      "line": 166,
+      "operator": ".max -> .min",
+      "original": "max",
+      "replacement": "min",
+      "start": 9633,
       "verdict": "killed",
-      "ms": 13689
+      "ms": 7737
     },
     {
-      "file": "src/memory/supersede.ts",
-      "line": 17,
-      "operator": "cond ? -> true ?",
-      "original": "set.has(entry.id) && entry.contradicted",
-      "replacement": "true",
-      "start": 714,
+      "file": "src/memory/types.ts",
+      "line": 232,
+      "operator": "&& -> ||",
+      "original": "&&",
+      "replacement": "||",
+      "start": 7111,
       "verdict": "survived",
-      "ms": 147080
-    },
-    {
-      "file": "src/pacing/steering.ts",
-      "line": 42,
-      "operator": "cond ? -> true ?",
-      "original": "mine",
-      "replacement": "true",
-      "start": 2246,
-      "verdict": "survived",
-      "ms": 170629
-    },
-    {
-      "file": "src/pacing/steering.ts",
-      "line": 53,
-      "operator": "=== -> !==",
-      "original": "===",
-      "replacement": "!==",
-      "start": 2744,
-      "verdict": "killed",
-      "ms": 148903
+      "ms": 154723
     },
     {
       "file": "src/pacing/steering.ts",
@@ -2038,47 +2017,67 @@
       "replacement": "true",
       "start": 2866,
       "verdict": "killed",
-      "ms": 149289
+      "ms": 11529
     },
     {
       "file": "src/pacing/steering.ts",
-      "line": 55,
-      "operator": "cond ? -> true ?",
-      "original": "drift < -threshold",
-      "replacement": "true",
-      "start": 2899,
-      "verdict": "killed",
-      "ms": 154628
+      "line": 60,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 3200,
+      "verdict": "survived",
+      "ms": 124994
     },
     {
-      "file": "src/talk/parse.ts",
-      "line": 34,
-      "operator": "&& -> ||",
-      "original": "&&",
-      "replacement": "||",
-      "start": 1536,
+      "file": "src/pacing/tension.ts",
+      "line": 12,
+      "operator": "=== -> !==",
+      "original": "===",
+      "replacement": "!==",
+      "start": 306,
+      "verdict": "killed",
+      "ms": 103864
+    },
+    {
+      "file": "src/talk/nextSpeakers.ts",
+      "line": 8,
+      "operator": "- -> +",
+      "original": "-",
+      "replacement": "+",
+      "start": 643,
       "verdict": "survived",
-      "ms": 64321
+      "ms": 41078
+    },
+    {
+      "file": "src/talk/prompt.ts",
+      "line": 14,
+      "operator": "cond ? -> true ?",
+      "original": "roles",
+      "replacement": "true",
+      "start": 762,
+      "verdict": "killed",
+      "ms": 5936
     },
     {
       "file": "src/talk/rules.ts",
-      "line": 34,
-      "operator": ".some -> .every",
-      "original": "some",
-      "replacement": "every",
-      "start": 1702,
+      "line": 10,
+      "operator": "|| -> &&",
+      "original": "||",
+      "replacement": "&&",
+      "start": 419,
       "verdict": "killed",
-      "ms": 9908
+      "ms": 6070
     },
     {
       "file": "src/talk/rules.ts",
       "line": 60,
-      "operator": "!== -> ===",
-      "original": "!==",
-      "replacement": "===",
-      "start": 2977,
+      "operator": "cond ? -> true ?",
+      "original": "noRepeat",
+      "replacement": "true",
+      "start": 2914,
       "verdict": "killed",
-      "ms": 21588
+      "ms": 6690
     }
   ]
 }

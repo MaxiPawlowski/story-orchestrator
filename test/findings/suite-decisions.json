@@ -52,12 +52,6 @@
       "reason": "group and solo arms of one preview-capture check (96% identical)"
     }
   ],
-  "pendingDecision": [
-    {
-      "pattern": "^extractor(6|7|8|9|1[0-4]|1[6-9]|20)$",
-      "reason": "vacuous facts needle (mustContain [\"\"], mustNotContain [\"zzz\"]); the fix redefines the facts column, which is v2.5 plan 05's open user decision 2 (X15: never silently). Not changed here."
-    }
-  ],
   "journeyMinutes": {
     "_source": "median span of journal-follow.jsonl / journey.log timestamps in the archived records (v2.4-acceptance, v2.4-postfreeze, v2.5-*), measured 2026-09-30; checks without a record use the step estimate",
     "J3": 6.1,
@@ -324,5 +318,22 @@
       ]
     }
   ],
+  "partB": {
+    "runpodEur": 20,
+    "marginEur": 1,
+    "podEurPerHour": 0.66,
+    "podPriceNote": "about EUR 0.66/h (the RTX PRO 4500 pod measured at $0.72/h, gotchas 2026-09-22)",
+    "llmParallel": 2,
+    "mainModel": "Artemis, profile `Artemis RunPod RP`",
+    "passModel": "DeepSeek",
+    "priority": [
+      "T0 playable: its three charters and every blocker fix with its targeted re-run (nothing else counts until a session commits turns).",
+      "The measurements a build waits on: 03 SP7 D4/D4b first (W17), then the 07 Q-M arms (T2), recorded for the user's review where a human rates them.",
+      "One pass of each tier's charters T1-T6 (plan 14), Claude playing; their human-rated arms recorded for the review pack.",
+      "Plan 09 I1-I3 x1, everything-on column first (T7, before the freeze); then I4-I6.",
+      "The built rows of this list x2 on the frozen candidate: journeys and live scenarios kept by R3.",
+      "Placeholder rows at their phase F caps x1, then x2 as the budget allows; the judge-off column last."
+    ]
+  },
   "cutNote": "Placeholder minutes are each plan's own sizing; capMinutes is the phase F budget this plan (R5) gives the owning plan: the regression leg only, because measurement legs run once in their own plan (overview rule 13)."
 }

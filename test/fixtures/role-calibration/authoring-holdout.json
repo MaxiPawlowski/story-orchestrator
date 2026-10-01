@@ -1,0 +1,38 @@
+{
+  "_about": "v2.5 plan 06 J1 authoring hold-out (the memory-pairs-holdout rule), relabelled in English for v2.6 plan 15 (AS-16) after W25 removed the all-Spanish one. Five English rows over two drafts that no fixture case uses (they live in this file, so authoring.json's frozen cases never saw them), labelled 2026-10-01 BEFORE any model answer was read for any of them. Same scoring as authoring.json (validity, opShape). Scored in both x2 re-runs of `so-role-calibration.mts run --role authoring --holdout` and reported beside the fixture score; they never enter or change the fixture floors. A miss in either run turns the recommended-config row into 'fixture floors met; generalisation not shown', and a run without the hold-out leaves the verdict incomplete. Ids h06-h10 are new so no record of the Spanish h01-h05 can be read as theirs. Do not edit a label after a run; add a row instead.",
+  "labelledAt": "2026-10-01",
+  "draftsFrom": "authoring-holdout.json",
+  "drafts": {
+    "crypt": {
+      "format": 2, "id": "cal-crypt", "title": "The Abbey Crypt", "description": "A party of adventurers descends into the crypt beneath an abandoned abbey of the Holy Church.",
+      "qualities": [{ "key": "door_open", "type": "bool", "source": "extractor", "rubric": "Is the crypt door open?" }],
+      "checkpoints": [
+        { "id": "entrance", "name": "The Entrance", "objective": "Find a way to open the crypt.", "type": "anchor", "start": true },
+        { "id": "crypt", "name": "The Crypt", "objective": "Recover the relic.", "type": "anchor" }
+      ],
+      "transitions": [{ "from": "entrance", "to": "crypt", "priority": 1, "gate": { "q": "door_open", "op": "==", "v": true } }],
+      "roster": []
+    },
+    "ghost-ship": {
+      "format": 2, "id": "cal-ghost-ship", "title": "The Drifting Ship", "description": "A crew boards a ship found drifting through thick fog.",
+      "qualities": [
+        { "key": "boarded", "type": "bool", "source": "extractor", "rubric": "Has the crew boarded the drifting ship?" },
+        { "key": "log_read", "type": "bool", "source": "extractor", "rubric": "Has the crew read the captain's log?" }
+      ],
+      "checkpoints": [
+        { "id": "fog", "name": "The Fog", "objective": "Reach the drifting ship.", "type": "anchor", "start": true },
+        { "id": "deck", "name": "The Deck", "objective": "Search the ship.", "type": "anchor" },
+        { "id": "cabin", "name": "The Captain's Cabin", "objective": "Find out what happened to the crew.", "type": "anchor" }
+      ],
+      "transitions": [],
+      "roster": []
+    }
+  },
+  "cases": [
+    { "id": "h06", "lang": "en", "stage": "checkpoints", "draft": "crypt", "ask": "never", "message": "Add an intermediate checkpoint, The Ossuary, where the party discovers the relic is a fake.", "require": { "kind": "addCheckpoint", "min": 1, "match": { "type": "intermediate" } } },
+    { "id": "h07", "lang": "en", "stage": "checkpoints", "draft": "ghost-ship", "ask": "never", "message": "Add a final anchor, The Wreck, where the crew abandons the ship carrying the captain's log.", "require": { "kind": "addCheckpoint", "min": 1, "match": { "type": "anchor" } } },
+    { "id": "h08", "lang": "en", "stage": "checkpoints", "draft": "crypt", "ask": "never", "message": "When the story reaches The Crypt, the door should already count as open.", "require": { "kind": "setCheckpointSnapshot", "min": 1 } },
+    { "id": "h09", "lang": "en", "stage": "transitions", "draft": "ghost-ship", "ask": "never", "message": "Connect the fog to the deck once the crew has boarded, and the deck to the captain's cabin once they have read the log.", "require": { "kind": "addTransition", "min": 2 } },
+    { "id": "h10", "lang": "en", "stage": "effects", "draft": "ghost-ship", "ask": "never", "message": "Give The Fog an author's note: the fog swallows every sound.", "require": { "kind": "setCheckpointEffects", "min": 1 } }
+  ]
+}

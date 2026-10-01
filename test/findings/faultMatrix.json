@@ -18,9 +18,10 @@
       "note": "Junk deltas are rejected line by line and nothing is accepted from them."
     },
     "extraction|duplicateCompletion": {
-      "status": "partial",
-      "evidence": "src/extraction/scheduler.test.ts#coalesces pending P2 scene passes to the latest under pressure",
-      "note": "Queued duplicate scene passes coalesce under pressure; no test delivers one completion twice."
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/duplicateCompletion.review.test.ts#stores the read's fact once, and both deliveries name the same read and window",
+      "note": "CR-P22 (2026-10-01): one read's completion is delivered twice through the real ExtractionCoordinator + MemoryCoordinator: the fact is stored once (the re-read window replaces it), both deliveries enqueue under the same read id and window, and the engine's ApplyQueue applies the duplicate write once (the newer write covering the same turn range supersedes the older; a different window is two writes, the control). The audit ring keeps both deliveries as two rows (telemetry only, nothing is applied twice). Queued duplicate scene passes also coalesce under pressure.",
+      "alsoEvidence": ["src/runtime/coordinators/duplicateCompletion.review.test.ts#the engine applies the twice-enqueued deltas once: the newer write covering the same window supersedes the older", "src/extraction/scheduler.test.ts#coalesces pending P2 scene passes to the latest under pressure"]
     },
     "extraction|backendUnavailable": {
       "status": "covered",
@@ -224,7 +225,8 @@
     "stagecraft|duplicateCompletion": {
       "status": "covered",
       "evidence": "src/runtime/coordinators/stagecraftCoordinator.test.ts#a second apply started while the first is at the host writes nothing more",
-      "note": "AE-01 review (2026-09-25): the old citation ran ONE pass and checked `dueForRun()`, which delivers no duplicate. This test completes one accepted op twice: a second `applyAccepted` for the same boundary starts while the first is held at its host write. Both used to read the op as accepted and write it (2 host writes); applies are now serialized, so it is one host write, one `applied` op in one record and one journal line. Its control (\"control: an op accepted while the first apply is at the host is written by the second\") proves the second apply is not simply dropped: an op accepted mid-apply is still written, and the first apply's patch no longer erases a record appended during its awaits. The sequential repeat is pinned too (\"the same boundary applied again after it finished is a no-op\"). The curator pass itself cannot complete twice for one call; a second pass while one is in flight is refused by the hold (\"coalesces: one pass per boundary gap, and never while one is in flight\")."
+      "note": "AE-01 review (2026-09-25): the old citation ran ONE pass and checked `dueForRun()`, which delivers no duplicate. This test completes one accepted op twice: a second `applyAccepted` for the same boundary starts while the first is held at its host write. Both used to read the op as accepted and write it (2 host writes); applies are now serialized, so it is one host write, one `applied` op in one record and one journal line. Its control (\"control: an op accepted while the first apply is at the host is written by the second\") proves the second apply is not simply dropped: an op accepted mid-apply is still written, and the first apply's patch no longer erases a record appended during its awaits. The sequential repeat is pinned too (\"the same boundary applied again after it finished is a no-op\"). The curator pass itself cannot complete twice for one call; a second pass while one is in flight is refused by the hold (\"coalesces: one pass per boundary gap, and never while one is in flight\"). CR-P22 (2026-10-01): a curator completion re-delivered as a second auto-accepted record at the same boundary writes the entry once; the duplicate op is marked failed, never written twice.",
+      "alsoEvidence": ["src/runtime/coordinators/stagecraftCoordinator.test.ts#CR-P22: a curator completion re-delivered as a second auto-accepted record lands the entry as one delivery would"]
     },
     "stagecraft|backendUnavailable": {
       "status": "covered",
@@ -479,9 +481,10 @@
       "note": "A so-owner marker that is not ours, names no chat or is not JSON never makes a book reapable."
     },
     "hostDeletes|duplicateCompletion": {
-      "status": "partial",
-      "evidence": "src/runtime/mirrorReaper.review.test.ts#asks one question at a time when a group delete announces several chats",
-      "note": "COVERED: several deletions announced together are serialised, one question at a time. NOT COVERED: no test delivers the same deletion event twice."
+      "status": "covered",
+      "evidence": "src/runtime/mirrorReaper.review.test.ts#hostDeletes|duplicateCompletion (CR-P22): the same deletion announced twice asks once and deletes once",
+      "note": "CR-P22 (2026-10-01): the same chat deletion announced twice (concurrently, then once more) raises one question and deletes the book once. Several different deletions announced together are serialised, one question at a time.",
+      "alsoEvidence": ["src/runtime/mirrorReaper.review.test.ts#asks one question at a time when a group delete announces several chats"]
     },
     "hostDeletes|backendUnavailable": {
       "status": "covered",
@@ -624,9 +627,10 @@
       "note": "v2.6 plan 06 C: a held inner call released after the await is written to its own chat's beat ring."
     },
     "inner|delayedError": {
-      "status": "partial",
-      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#a backend failure rejects the pass and writes nothing (the boundary work catches it)",
-      "note": "The rejection is immediate in the test, not held; a held rejection takes the same path (no write before the check)."
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#inner|delayedError (CR-P22): a held call that rejects after the await rejects the pass and writes nothing",
+      "note": "CR-P22 (2026-10-01): the model call is held open and rejected after the pass awaited it; the pass rejects (boundary work catches it), and neither the beat ring nor the save is touched. The immediate rejection takes the same path.",
+      "alsoEvidence": ["src/runtime/coordinators/innerCoordinator.test.ts#a backend failure rejects the pass and writes nothing (the boundary work catches it)"]
     },
     "inner|malformedResponse": {
       "status": "covered",
@@ -634,9 +638,10 @@
       "note": "One repair pass at most, then journaled as unusable; nothing is written."
     },
     "inner|duplicateCompletion": {
-      "status": "partial",
-      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#C2 structural bound: at most two inner calls per player turn, repairs and group chains included",
-      "note": "Repeated runs in one player turn are bounded to two calls; pushBeat keeps one beat per member, chat and reply. No test re-delivers one completion twice."
+      "status": "covered",
+      "evidence": "src/runtime/coordinators/innerCoordinator.test.ts#inner|duplicateCompletion (CR-P22): the same reply's beat delivered twice is one beat in the ring",
+      "note": "CR-P22 (2026-10-01): the pass runs twice over the same character reply (two model calls, inside the per-turn bound); pushBeat keeps one beat per member, chat and reply, so the ring holds one. Repeated runs in one player turn stay bounded to two calls.",
+      "alsoEvidence": ["src/runtime/coordinators/innerCoordinator.test.ts#C2 structural bound: at most two inner calls per player turn, repairs and group chains included"]
     },
     "inner|backendUnavailable": {
       "status": "covered",
