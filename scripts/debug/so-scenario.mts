@@ -14,7 +14,7 @@ import { readExtractionSettings, restoreExtractionSettings } from './lib/extract
 import { readJudgeConfig, restoreJudgeConfig } from './lib/judgeHarness.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
-import { adoptNewSandboxChat, assertInSandbox, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, readChatOnDisk, reopenSandboxChat } from './st-navigation.mts';
+import { adoptForeignChat, adoptNewSandboxChat, assertInSandbox, cleanupForeignChats, beginSandboxSession, deleteSandboxChats, openGroup, openMostRecentGroupChat, readActiveChat, readChatOnDisk, reopenSandboxChat } from './st-navigation.mts';
 import { deleteMessage, editMessage, executeSlashCommand, sendCompactMessage, sendUserMessage, swipeMessage, waitForIdle } from './st-actions.mts';
 import { dumpCurrentChatState } from './so-state.mts';
 import { answerWizardQuestions, applyWizardProvisioning, assertPlayerClean, branchContinue, closeCheckpointStudio, decideCuratorOp, getPipelineState, getStagecraftState, getWizardState, getMemoryQueueState, getMemoryFates, getModelCallsState, getGateReplayState, getNextTurnState, getInlineState, setInlineLevel, jumpToCitation, memoryQueueAction, openCheckpointStudio, openExtensionSettings, openStoryDrawer, openWizard, runWizardStage, saveStudioDraft, selectMemoryProfile, switchDrawerTab, switchStudioTab, takeAnnotatedScreenshot, hitTest, pointerClick } from './so-ui.mts';
@@ -33,7 +33,8 @@ is whichever group was last active, which may be another session's.
 Every step first checks the page is still on a sandbox chat and aborts ("sandbox escaped") if it is not.
 Sandbox cleanup deletes the run's chats, then each memory-mirror book named for one of them
 ("Story Orchestrator - <title> - <owned chat id>"), and clears every storyOrchestratorDebug* response (also cleared at start).
-A step that deliberately opens a new chat carries "adoptsNewChat": true next to its verb, e.g. {"eval": "...", "adoptsNewChat": true}.
+A step that deliberately opens a new chat carries "adoptsNewChat": true next to its verb, e.g. {"eval": "...", "adoptsNewChat": true};
+"adoptsNewChat": "other-group" adopts a chat the step created in ANOTHER group (cleanup deletes it; a leak fails the run).
 "log": true (or a character budget) next to a verb prints its output after the ok line, so a run log shows what a
 nondeterministic step actually got (e.g. which op kind the real curator proposed).
 
@@ -1017,6 +1018,9 @@ async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore:
   if (guard && generation.idle) {
     cleaned.clearedDebugResponses = await clearDebugResponses(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
     await recordSandboxStory(page, guard);
+    if (guard.foreignChats?.length) {
+      try { cleaned.foreignChats = await cleanupForeignChats(page, guard); } catch (err) { cleaned.foreignChats = { error: err instanceof Error ? err.message : String(err), leaked: guard.foreignChats.map((entry) => entry.chatId) }; }
+    }
     try { cleaned.soloChats = await cleanupSoloChats(page, guard); } catch (err) { cleaned.soloChats = { error: err instanceof Error ? err.message : String(err), leaked: (guard.soloChats ?? []).map((entry) => entry.chatId) }; }
     if (guard.activeEntityBefore) {
       try { cleaned.activeEntity = await restoreActiveEntity(page, guard); } catch (err) { cleaned.activeEntity = { captured: true, before: guard.activeEntityBefore, restored: false, error: err instanceof Error ? err.message : String(err) }; }
@@ -1114,7 +1118,10 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
     try {
       if (guard) await assertInSandbox(page, guard, `before step ${index + 1} (${key})`);
       if (requireStory && STORY_BOUND_VERBS.has(key) && !(await evaluateInST(page, () => Boolean(globalThis.storyOrchestratorRuntime?.getSnapshot?.()?.storyId)))) throw new Error(storylessStepError(key));
-      const chatsBeforeStep = guard && step.adoptsNewChat ? (await readActiveChat(page)).groupChats : null;
+      const chatsBeforeStep = guard && step.adoptsNewChat === true ? (await readActiveChat(page)).groupChats : null;
+      const chatsByGroupBefore = guard && step.adoptsNewChat === 'other-group'
+        ? await evaluateInST(page, () => Object.fromEntries(SillyTavern.getContext().groups.map((group) => [group.id, [...group.chats]])))
+        : null;
       output = await runStep(page, key, step[key], { scenarioDir, importedHashes, assetBaseline, guard });
       // T2: a verb that answered `{ok:false}` used to be logged as a passing step, so an import
       // that never landed or a restart that never happened read as green and every later
@@ -1128,6 +1135,7 @@ async function runSteps(page, steps, { scenarioDir = PROJECT_ROOT, importedHashe
         throw new Error(`${key}: reported ok:false${detail ? ` — ${JSON.stringify(detail).slice(0, 300)}` : ''}`);
       }
       if (chatsBeforeStep) await adoptNewSandboxChat(page, guard, chatsBeforeStep);
+      if (chatsByGroupBefore) await adoptForeignChat(page, guard, chatsByGroupBefore);
       if (guard) await recordSandboxStory(page, guard);
       const entry = { index, key, ok: true, ms: Date.now() - startedAt };
       result.steps.push(entry);
@@ -1246,6 +1254,11 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
       if (branches.error || branches.leaked?.length || branches.failed?.length) {
         result.ok = false;
         result.error = [result.error, `cleanup left branch chat(s): leaked ${JSON.stringify(branches.leaked ?? [])}, failed ${JSON.stringify(branches.failed ?? [])}${branches.error ? `, ${branches.error}` : ''}`].filter(Boolean).join('; ');
+      }
+      const foreign = (cleanup.foreignChats ?? {}) as { leaked?: string[]; error?: string };
+      if (foreign.error || foreign.leaked?.length) {
+        result.ok = false;
+        result.error = [result.error, `cleanup left another group's chat(s) this run opened: ${foreign.error ?? JSON.stringify(foreign.leaked)}`].filter(Boolean).join('; ');
       }
       const solos = (cleanup.soloChats ?? {}) as { leaked?: string[]; error?: string };
       if (solos.error || solos.leaked?.length) {

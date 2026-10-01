@@ -84,3 +84,4 @@ check changes.
   pre-story empty value) and in C3 (whose path is reached by jumps: the rollback past the harvest write restores that
   empty value, and the landfall text must be absent from the request). Both expectations follow (c). Every other C1–C5
   check is the lab's.
+- Harness: the lab's chat B lives in another group, which the sandbox guard refused ("sandbox escaped" at step 22 of the first v5 attempt, 14:03Z). `so-scenario` gains `adoptsNewChat: "other-group"` (adopt only a chat created during the step in another group; cleanup deletes it, a leak fails the run; `scripts/debug/foreignChat.test.mts`). The v5 fixture marks its chat-B step with it. Re-run, same checks.
