@@ -1,0 +1,30 @@
+ok   build.head  "47eca2c198b7d237ef6c528a0046e7a89597476d" -> "36f2cb848508fb1bd57b2f2b846a2549a000b611"  (allowed by served-bundle 6525728b22b7f3e8)
+WARNING: the page is running a bundle that is not the built one: served 6525728b22b7f3e8 vs dist 510a01f11a7b1e20
+ok   chat.chatLength  1 -> 33  (allowed by progress)
+ok   group.disabledMembers  +Ellie.png +Tobias.png +Vallie.png  (allowed by group)
+ok   story.activeCheckpointId  "guild-hall" -> "road-to-wendhope"  (allowed by progress)
+ok   story.boundary  1 -> 20  (allowed by progress)
+{
+  "baseline": "C:\\dev\\story-orchestrator\\test\\sessions\\T1\\T1-2-1\\run-header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "chatId",
+    "groupId",
+    "authorView",
+    "story",
+    "group",
+    "inventory.journal"
+  ],
+  "differences": 5,
+  "progress": 3,
+  "blocking": 0,
+  "blockingPaths": [],
+  "servedIdentity": [
+    "build.head"
+  ],
+  "warnings": [
+    "the page is running a bundle that is not the built one: served 6525728b22b7f3e8 vs dist 510a01f11a7b1e20"
+  ],
+  "wrote": "C:\\dev\\story-orchestrator\\test\\sessions\\T1\\T1-2-1\\run-header-end.json",
+  "ok": true
+}

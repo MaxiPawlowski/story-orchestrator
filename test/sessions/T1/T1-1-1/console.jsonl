@@ -1,0 +1,157 @@
+{"at":"2026-10-01T14:06:13.469Z","type":"info","text":"console tail attached"}
+{"at":"2026-10-01T14:07:06.026Z","type":"warning","text":"Stream stats: 153 tokens, 5.12 seconds, rate: 29.91 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:07:24.977Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:07:41.699Z","type":"warning","text":"Stream stats: 76 tokens, 2.58 seconds, rate: 29.48 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:08:03.139Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:08:22.989Z","type":"warning","text":"Stream stats: 160 tokens, 5.63 seconds, rate: 28.40 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:08:48.744Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:09:08.587Z","type":"warning","text":"Stream stats: 128 tokens, 4.29 seconds, rate: 29.85 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:09:20.361Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:10:14.681Z","type":"warning","text":"Stream stats: 109 tokens, 3.66 seconds, rate: 29.81 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:10:18.861Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:10:30.497Z","type":"warning","text":"Stream stats: 86 tokens, 2.88 seconds, rate: 29.89 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:10:31.008Z","type":"warning","text":"[Macro] Warning: Dynamic macro \"words\" uses unsupported number/boolean format. {macroName: words, range: Object, raw: words, call: Object}","location":"http://127.0.0.1:8101/scripts/macros/engine/MacroDiagnostics.js:106"}
+{"at":"2026-10-01T14:10:55.079Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:11:52.585Z","type":"warning","text":"Stream stats: 136 tokens, 4.61 seconds, rate: 29.50 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:11:55.243Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:12:30.613Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:12:55.686Z","type":"warning","text":"Stream stats: 108 tokens, 3.95 seconds, rate: 27.35 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:12:58.317Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:13:06.516Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:13:15.931Z","type":"warning","text":"Stream stats: 78 tokens, 2.68 seconds, rate: 29.08 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:13:16.886Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:13:17.016Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:13:20.359Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:13:20.375Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:13:20.389Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:13:20.412Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:13:34.371Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:13:34.433Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:14:00.909Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:14:51.556Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:16:16.808Z","type":"warning","text":"Stream stats: 165 tokens, 5.61 seconds, rate: 29.42 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:16:36.129Z","type":"warning","text":"Stream stats: 77 tokens, 4.94 seconds, rate: 15.58 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:16:38.760Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:16:43.414Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:16:45.748Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:17:47.613Z","type":"warning","text":"Stream stats: 111 tokens, 5.10 seconds, rate: 21.76 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:17:49.119Z","type":"warning","text":"[Macro] Warning: Dynamic macro \"words\" uses unsupported number/boolean format. {macroName: words, range: Object, raw: words, call: Object}","location":"http://127.0.0.1:8101/scripts/macros/engine/MacroDiagnostics.js:106"}
+{"at":"2026-10-01T14:19:01.016Z","type":"warning","text":"Stream stats: 113 tokens, 10.04 seconds, rate: 11.26 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:19:54.009Z","type":"warning","text":"Stream stats: 86 tokens, 3.01 seconds, rate: 28.54 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:19:57.308Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:19:58.617Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:21:14.885Z","type":"warning","text":"Stream stats: 129 tokens, 10.28 seconds, rate: 12.55 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:21:32.079Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:22:02.710Z","type":"warning","text":"Stream stats: 138 tokens, 10.33 seconds, rate: 13.36 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:22:04.292Z","type":"warning","text":"[Macro] Warning: Dynamic macro \"words\" uses unsupported number/boolean format. {macroName: words, range: Object, raw: words, call: Object}","location":"http://127.0.0.1:8101/scripts/macros/engine/MacroDiagnostics.js:106"}
+{"at":"2026-10-01T14:22:14.987Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:23:21.403Z","type":"warning","text":"Stream stats: 132 tokens, 20.09 seconds, rate: 6.57 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:24:16.596Z","type":"warning","text":"Stream stats: 133 tokens, 7.16 seconds, rate: 18.58 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:24:19.011Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:24:19.073Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:24:19.243Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:24:19.684Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:24:23.764Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:24:25.168Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:24:25.237Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:24:37.578Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:24:50.144Z","type":"warning","text":"Stream stats: 113 tokens, 1.89 seconds, rate: 59.82 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:24:51.309Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:24:51.402Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:24:54.152Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:25:04.275Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:25:28.645Z","type":"warning","text":"Stream stats: 124 tokens, 6.94 seconds, rate: 17.86 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:25:57.829Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:26:24.865Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:26:52.681Z","type":"warning","text":"Stream stats: 179 tokens, 6.36 seconds, rate: 28.16 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:27:06.342Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:27:31.644Z","type":"warning","text":"Stream stats: 126 tokens, 6.91 seconds, rate: 18.25 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:27:32.899Z","type":"warning","text":"[Macro] Warning: Dynamic macro \"words\" uses unsupported number/boolean format. {macroName: words, range: Object, raw: words, call: Object}","location":"http://127.0.0.1:8101/scripts/macros/engine/MacroDiagnostics.js:106"}
+{"at":"2026-10-01T14:27:34.881Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:27:35.385Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:27:35.388Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:27:44.604Z","type":"warning","text":"Timeout waiting for generation unlock","location":"http://127.0.0.1:8101/scripts/slash-commands.js:4992"}
+{"at":"2026-10-01T14:28:47.553Z","type":"warning","text":"Stream stats: 188 tokens, 10.73 seconds, rate: 17.51 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:28:53.133Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:29:27.676Z","type":"warning","text":"Stream stats: 134 tokens, 18.97 seconds, rate: 7.06 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:29:30.921Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:29:33.388Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:30:08.007Z","type":"warning","text":"Stream stats: 107 tokens, 11.52 seconds, rate: 9.28 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:30:13.429Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:30:47.443Z","type":"warning","text":"Stream stats: 225 tokens, 14.85 seconds, rate: 15.15 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:30:54.209Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:30:55.577Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:31:21.716Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:31:21.720Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:31:21.732Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:31:47.607Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:32:34.461Z","type":"warning","text":"Stream stats: 156 tokens, 10.91 seconds, rate: 14.30 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:33:42.991Z","type":"warning","text":"Stream stats: 203 tokens, 9.89 seconds, rate: 20.53 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:33:44.477Z","type":"warning","text":"[Macro] Warning: Dynamic macro \"words\" uses unsupported number/boolean format. {macroName: words, range: Object, raw: words, call: Object}","location":"http://127.0.0.1:8101/scripts/macros/engine/MacroDiagnostics.js:106"}
+{"at":"2026-10-01T14:33:46.673Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:33:46.720Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:33:46.795Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:33:46.812Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:33:46.843Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:33:47.030Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:33:52.070Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:33:53.086Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:34:35.384Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:34:35.385Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:35:12.941Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:36:50.264Z","type":"warning","text":"Stream stats: 142 tokens, 11.46 seconds, rate: 12.39 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:36:55.557Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:38:32.613Z","type":"warning","text":"Stream stats: 185 tokens, 44.19 seconds, rate: 4.19 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:38:44.339Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:40:31.701Z","type":"warning","text":"Stream stats: 169 tokens, 7.11 seconds, rate: 23.76 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:41:24.069Z","type":"warning","text":"Stream stats: 158 tokens, 8.95 seconds, rate: 17.65 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:41:29.757Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:42:32.465Z","type":"warning","text":"Stream stats: 177 tokens, 8.59 seconds, rate: 20.61 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:42:33.960Z","type":"warning","text":"[Macro] Warning: Dynamic macro \"words\" uses unsupported number/boolean format. {macroName: words, range: Object, raw: words, call: Object}","location":"http://127.0.0.1:8101/scripts/macros/engine/MacroDiagnostics.js:106"}
+{"at":"2026-10-01T14:42:45.512Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:42:45.786Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:43:31.296Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:43:31.722Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:44:56.869Z","type":"warning","text":"Stream stats: 172 tokens, 20.96 seconds, rate: 8.21 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:44:59.647Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:44:59.679Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:44:59.709Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:44:59.725Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:45:00.162Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:45:26.204Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:45:38.302Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:45:49.623Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:45:49.623Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:46:03.880Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:46:04.160Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:46:21.926Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:46:21.927Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:46:30.899Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:46:35.816Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:46:38.125Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:46:40.131Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:47:10.854Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:47:43.695Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:49:39.973Z","type":"warning","text":"Stream stats: 216 tokens, 18.58 seconds, rate: 11.63 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:49:45.024Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:49:46.272Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:50:17.976Z","type":"warning","text":"Stream stats: 258 tokens, 11.53 seconds, rate: 22.38 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:50:19.087Z","type":"warning","text":"[Macro] Warning: Dynamic macro \"words\" uses unsupported number/boolean format. {macroName: words, range: Object, raw: words, call: Object}","location":"http://127.0.0.1:8101/scripts/macros/engine/MacroDiagnostics.js:106"}
+{"at":"2026-10-01T14:50:20.949Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:50:21.332Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:50:22.291Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:50:24.380Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:50:25.506Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:50:31.276Z","type":"warning","text":"Timeout waiting for generation unlock","location":"http://127.0.0.1:8101/scripts/slash-commands.js:4992"}
+{"at":"2026-10-01T14:52:26.471Z","type":"warning","text":"Stream stats: 175 tokens, 31.14 seconds, rate: 5.62 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:52:29.894Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:52:29.894Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:52:59.371Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:53:09.558Z","type":"warning","text":"Stream stats: 146 tokens, 7.85 seconds, rate: 18.60 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:53:14.025Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8101/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-01T14:53:26.852Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:54:08.478Z","type":"warning","text":"Stream stats: 194 tokens, 24.70 seconds, rate: 7.85 TPS","location":"http://127.0.0.1:8101/script.js:3898"}
+{"at":"2026-10-01T14:54:11.609Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:54:11.906Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:54:11.937Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}
+{"at":"2026-10-01T14:54:17.668Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8101/script.js:9415"}

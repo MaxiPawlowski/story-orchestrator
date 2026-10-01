@@ -1,0 +1,356 @@
+[
+ {
+  "id": 0,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Zegallan banners from the last war hang above the palace map table. King Alexander names the villages lost on the Ashen March while Prince Forre marks a road to Fort Vicinitas in ink. Vallie has brought the Guild charter: the Crown wants a free company that can go where its army cannot. The council falls quiet, and every face at the table turns to you."
+ },
+ {
+  "id": 1,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Princess Haley, do you believe the rumour about your mother?"
+ },
+ {
+  "id": 2,
+  "name": "Haley",
+  "isUser": false,
+  "text": "Haley's knuckles whiten against her fan. A beat, and her voice is ice. \"The rumours are—\" Her eyes flash. \"The rumours are childish and base.\" Her posture stiffens as she turns her gaze from the King, from Forre, from Vallie. \"My mother is not—\" She stops, the words catching. The King's face is stone. Prince Forre's eyes are unreadable.\nAnd Haley's jaw sets. She breathes, slow and quiet. She does not speak further."
+ },
+ {
+  "id": 3,
+  "name": "Alexander",
+  "isUser": false,
+  "text": "Alexander's dark eyes narrow, and his hand falls away from the map table. \"The Princess believes—\" He doesn't finish the word. His face hardens, and a voice that has commanded armies rises. \"This is a war council, not a gossip's den.\"\nThe King stands, and the silver of his crown gleams in the shadow of the Zegallan banners. \"The missing dead will be looked into. But the matter is not here.\"\nHis gaze is not on Haley. It is on you. \"The commission is this: Greywater, the Ashen March, the missing dead. The Guild's charter will see you through.\"\nA beat, and his voice drops. \"Do you accept?\""
+ },
+ {
+  "id": 4,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Guildmaster Vallie, what is the Crown really asking of adventurers?"
+ },
+ {
+  "id": 5,
+  "name": "Vallie",
+  "isUser": false,
+  "text": "Vallie doesn't wait for the King to notice. She shifts her weight, boots creaking on the stone floor, and steps into the circle of light from the map table. Her blue eye is fixed on the party.\n\"The Crown's asking for a scalpel,\" she says, her voice blunt and low. \"Where Forre's army goes in with a hammer, you're the ones who sneak in. The missing dead? That's what they want you to investigate. But make no mistake—they're sending you into the Empire's teeth.\"\nShe glances at the King, her expression unreadable. \"The Crown will pay you, and the Guild will back you. But this isn't a stroll in the park. It's a foray into enemy territory. You'll be behind their lines, and if you get caught...\" She trails off, and for a beat there is nothing but the quiet of the war room. \"You'll be on your own.\""
+ },
+ {
+  "id": 6,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "So who is burning the villages behind the line?"
+ },
+ {
+  "id": 7,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "A murmur passes through the councillors. Haley's hand tightens on her fan, and Forre's green eyes flicker to the King.\n\"A winged herald calling himself a servant of Prodyr,\" Alexander says, his voice cold. \"He claims to be a divine messenger. The villages he burns are—\" He doesn't finish. \"He is the Empire's weapon.\"\nVallie's eye narrows. \"One he can't control.\" She glances at the party. \"And that's why they want you. Soldiers fight armies. You hunt monsters.\""
+ },
+ {
+  "id": 8,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "A runner in mud-splashed Crown livery is let in, whispers to Prince Forre, and is sent out again. Forre moves a black token one finger's breadth east across the map, and says nothing."
+ },
+ {
+  "id": 9,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Prince Forre, what did your runner just tell you? And Your Majesty, how far east has the line slipped?"
+ },
+ {
+  "id": 10,
+  "name": "Forre",
+  "isUser": false,
+  "text": "Forre's head tilts, and he doesn't look up from the map. \"A messenger's duty is to deliver news, not to explain it.\" His emerald eyes are fixed on the black token.\nHe traces the line of the token's new position with a fingertip, and doesn't smile. \"The runner says the western front has moved. That's all.\"\nHe looks up, and his expression is cool. \"The line has slipped a mile and a half. A mile and a half that costs us ten villages.\"\nHe turns to the King, and his voice is sharp. \"Father. We're losing the war.\""
+ },
+ {
+  "id": 11,
+  "name": "Alexander",
+  "isUser": false,
+  "text": "Alexander does not move. His hand rests on the table, and his face is stone.\n\"The line has not slipped,\" he says, and his voice is low. \"The line is where I say it is.\"\nHe looks at Forre, and his eyes are dark. \"You will not tell me we are losing the war.\"\nThe King stands, his white fur mantle shifting, and the air in the room is cold. \"The line will hold at Fort Vicinitas.\"\nHe looks at the party. \"And this is why you will go to Greywater. To find the missing dead.\"\nA beat, and his face hardens. \"And to end this rumour.\""
+ },
+ {
+  "id": 12,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Belle, what do you make of Greywater? ...Actually, never mind. Dalan, how many arrows do we have left?"
+ },
+ {
+  "id": 13,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "Dalan blinks, his eyes flicking from Belle to Max, then he's counting. \"Forty-eight. Thirty-six standard, twelve for piercing.\" He checks his quiver, then glances at the map. \"Not enough to fight our way out of an army.\"\nHe looks up at Max, and his cheeks go pink. \"But enough to hunt one or two monsters.\""
+ },
+ {
+  "id": 14,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Queen Melisande, will you speak for yourself on this?"
+ },
+ {
+  "id": 15,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The question is aimed at an empty chair. Melisande's seat is a throne of carved stone, draped in purple velvet and embroidered with the sigils of the Third Kingdom. It sits untouched.\nThe King's face is stone. Prince Forre doesn't look up from the map. Princess Haley's grip on her fan tightens until her knuckles are white.\nThe room is silent, save for the soft crackle of the fire and the creak of a banner in the breeze."
+ },
+ {
+  "id": 16,
+  "name": "Haley",
+  "isUser": false,
+  "text": "Haley's fan snaps shut with a sound like a bone breaking. \"Mother is not—\" She stops, her breath sharp. Her eyes are wide and green, and they're fixed on the empty chair.\n\"She is not here.\" Her voice is a thin edge. \"And she is not—\"\nA beat. \"She is not necromancer.\"\nForre's eyes are still on the map. The King's face does not change.\nHaley's chin rises, and her fan is open again, this time held like a shield. \"And she is not to be spoken of like that.\""
+ },
+ {
+  "id": 17,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Your Majesty, who exactly would we answer to in the field, you or the Prince?"
+ },
+ {
+  "id": 18,
+  "name": "Alexander",
+  "isUser": false,
+  "text": "Alexander's dark eyes are hard, and he does not move from his place. \"The Crown,\" he says, his voice low. \"You answer to the Crown. In the field, that is the Prince.\"\nHe turns his gaze to Forre, and there is a flicker of something. \"But the commission is mine.\"\nA beat, and his gaze is back on the party. \"And you will report to the Crown.\"\nThe King stands still, his white fur mantle catching the light, and his voice drops. \"Do you accept?\""
+ },
+ {
+  "id": 19,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Guildmaster, be straight with me. Does the Guild think this commission is worth our lives?"
+ },
+ {
+  "id": 20,
+  "name": "Vallie",
+  "isUser": false,
+  "text": "Vallie doesn't wait for the King to notice. She shifts her weight, boots creaking on the stone floor, and steps into the circle of light from the map table. Her blue eye is fixed on the party.\n\"The Guild's thinking is this: The Crown will pay you for this job, and the Guild will back you. But this isn't a stroll in the park.\" Her voice is blunt and low. \"You're being sent behind their lines, and if you get caught...\"\nShe looks at the King, her expression unreadable. \"You'll be on your own.\"\nA beat, and she looks back at the party. \"The Guild thinks you can handle it. But don't mistake that for a promise you'll come back.\""
+ },
+ {
+  "id": 21,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Belle, you've been quiet. What do you think of this King and his war?"
+ },
+ {
+  "id": 22,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle's jaw sets, and she shifts her weight. \"The King's right to call us a scalpel,\" she says, her voice flat. \"Forre's hammer will smash everything, but it won't find what we're looking for.\"\nShe looks at Max, then at the map. \"We'll go behind the lines, find what's missing, and bring it back.\"\nA beat, and her grin is all teeth. \"And I'll have my axe in the skulls of that winged herald if he shows his face.\""
+ },
+ {
+  "id": 23,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Prince Forre, you let that rumour about the Queen run through camp. Why haven't you put it down?"
+ },
+ {
+  "id": 24,
+  "name": "Forre",
+  "isUser": false,
+  "text": "Forre's green eyes flicker up from the map, and he doesn't smile. \"A rumour is a fire. You don't put it out by pouring water on it. You starve it of oxygen.\"\nHe looks back at the map, his finger tracing the line of the token. \"And I am not in the business of extinguishing fires that warm my house.\"\nHe looks up, and his expression is cool. \"The court speaks. The court whispers. The court lies.\"\nHe doesn't say anything else."
+ },
+ {
+  "id": 25,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Has anyone actually seen where the dead go after they leave their graves?"
+ },
+ {
+  "id": 26,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The question hangs in the air, and for a beat there is nothing but the quiet of the war room.\nPrince Forre doesn't look up from the map. Guildmaster Vallie shifts her weight, her leather boots creaking on the stone floor.\nThe King stands still, his face a mask, his gaze fixed on the map table where the Zegallan banner hangs above.\nA beat, and he speaks, his voice low and flat. \"No one.\"\nHe looks at you, his eyes dark. \"No one has seen where they go.\"\nAnd the silence stretches, and the King does not look away."
+ },
+ {
+  "id": 27,
+  "name": "Alexander",
+  "isUser": false,
+  "text": "\"The dead do not leave their graves,\" he says, and his voice is low. \"The dead stay where they are placed.\"\nHe looks at you. \"And we will find out where they are going.\"\nHe doesn't move, his face a mask. \"And we will bring them back.\"\nThe King's voice is sharp. \"And we will end this rumour.\""
+ },
+ {
+  "id": 28,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Then we take the King's commission. Point us at the front, Your Majesty."
+ },
+ {
+  "id": 29,
+  "name": "Alexander",
+  "isUser": false,
+  "text": "Alexander's face does not soften, but there is a flicker of something in his eyes. \"Very well.\"\nHe looks at Forre. \"The commission is yours.\"\nAnd he looks at you again. \"And you will be remembered for your names.\"\nThe King turns, and his white fur mantle shifts as he walks away from the map table, his footsteps echoing in the war room.\nA beat, and his voice drops. \"Do not fail me.\"\nHe does not look back."
+ },
+ {
+  "id": 30,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Belle, Dalan, get the horses. We ride for Fort Vicinitas tonight."
+ },
+ {
+  "id": 31,
+  "name": "Belle",
+  "isUser": false,
+  "text": "\"Finally.\" Belle's grin is sharp, and she cracks her knuckles. \"Get the horses. We'll ride for Fort Vicinitas before dawn.\"\nShe glances at the map one more time, then at Forre. \"We'll bring you back what you're looking for.\"\nAnd she turns and leaves the war room, her boots heavy on the stone floor.\nA beat, and the sound of her footsteps fades.\nThe room is quiet, and the smell of old banners and map parchment lingers."
+ },
+ {
+  "id": 32,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "Dalan's eyes flicker to the map, then he's already moving. \"The horses. Yes.\"\nHe shifts his weight, and his cheeks go pink. \"I'll get the horses. Right away.\"\nAnd he turns and leaves the war room as well, his footsteps quiet on the stone floor.\nThe sound of his boots fades, and the room is silent.\nA beat, and Forre's emerald eyes are still on the map table, where the Zegallan token sits one finger's breadth east.\nThe room is quiet."
+ },
+ {
+  "id": 33,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We ride west through the night and reach the gates of Fort Vicinitas at dawn."
+ },
+ {
+  "id": 34,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The ride is cold, the road a dark ribbon cutting through the hills. The party's horses' hooves drum against the earth, and the scent of pine and wet grass follows them.\nThe first light of dawn breaks over the ridge, painting the sky in shades of grey and pale blue.\nAnd there, at the edge of the ridge, sits Fort Vicinitas—a sprawl of grey stone and iron, its banners snapping in the wind, and its gates open wide.\nThe stone walls rise high, their faces scored with the scars of old wars, and the air is thick with the smell of horse sweat and woodsmoke.\nA sentry stands at the gate, his spear-tip catching the first light."
+ },
+ {
+  "id": 35,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We ride through the gate and report to whoever commands Fort Vicinitas."
+ },
+ {
+  "id": 36,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The horses' hooves clatter on the stone as the party passes through the gate. The sentry steps aside, his spear-tip lowered.\nThe courtyard is empty, save for a few soldiers who are just stirring.\nA man in plate armour stands at the far end of the courtyard, his face grim and his eyes hard. He is watching the party approach.\nHis armour is scarred and dented, and a longsword hangs at his hip.\nHe does not move as the party approaches, but his gaze is fixed on them.\nAnd his voice is low and flat.\n\"You're the Crown's free company.\"\nHe doesn't wait for an answer.\n\"I am Captain Kaelen. I command this fort.\"\nHe looks at the party, his gaze lingering on Belle and Dalan.\n\"The Prince will be here by noon. Until then, you are under my command.\"\nHe looks at you.\n\"And we have much to discuss.\""
+ },
+ {
+  "id": 37,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The first gun speaks from across the valley just after dawn: a flat boom, a whistle, and a fountain of black earth fifty yards short of the ridge. Along the shield wall nobody flinches. They have heard it every morning for a month."
+ },
+ {
+  "id": 38,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Captain, we heard the Zegallans sent someone under a parley flag. Take us to the parley."
+ },
+ {
+  "id": 39,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Captain Kaelen doesn't move at first. His gaze is hard, and his face doesn't change.\n\"You're under my command,\" he says, and his voice is low. \"And I'll tell you when you're ready.\"\nA beat, and he shifts his weight. \"There is no parley.\"\nHe looks at you, and his eyes narrow. \"And you're lucky I don't put you in the stocks for speaking to the Crown's army like that.\"\nAnd he turns away.\nThe first gun speaks again: a flat boom, a whistle. And a fountain of black earth Fifty yards short of the ridge."
+ },
+ {
+  "id": 40,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle's hand goes to Cleaver's haft, and her jaw sets. \"The hell he—\"\nShe stops, and her eyes are dark. \"You don't tell me when I'm ready, old man.\"\nShe looks at you, then back at the Captain. \"If you're not going to take us, I'll carve my own path.\"\nAnd she doesn't wait. She turns on her heel, and her boots are heavy on the stone floor as she heads for the gate."
+ },
+ {
+  "id": 41,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "Dalan is already looking toward the gate, and his gaze is sharp.\n\"Belle.\" He says it quiet, but there is an edge. \"Wait.\"\nHe looks at Kaelen, then at you, and he doesn't blink. \"We're here to do a job. Not start another fight.\"\nHe shifts his weight, and his cheeks go pink. \"And Captain's right. We can't just walk out.\"\nA beat, and he looks at Max. \"Not if we want to get this right.\"\nHe looks back at Kaelen, and his expression is flat. \"We'll wait for the Prince.\""
+ },
+ {
+  "id": 42,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Then we go out under a white flag ourselves. Belle, the flag. We walk halfway down the ridge and wait for the Zegallans to send someone."
+ },
+ {
+  "id": 43,
+  "name": "Belle",
+  "isUser": false,
+  "text": "\"A white flag? Fuck that. I'm not some dog begging for scraps.\"\nShe looks at you. \"We don't ask. We take. And if they want to talk, they'll come to us.\"\nA beat, and her grin is all teeth. \"And if they don't, we'll give them a reason.\"\nShe turns, and her boots are heavy as she heads for the ridge.\n\"And as for the flag—\" She stops, and looks at Dalan. \"Find a white flag. We're not asking for anything.\"\nShe looks at you, and her expression is sharp. \"We're just going to be there. And we'll see what they say.\""
+ },
+ {
+  "id": 44,
+  "name": "Kanna",
+  "isUser": false,
+  "text": "Kanna drives Blood Oath into the mud, her dark red eyes narrowing. \"LOUD and fuckin' plain, then. You bury yours, I bury mine. My regiment keeps Greywater. Break it and I break you. I keep my word.\"\nThe Zegallan banner flutters in the wind, and there is no mistaking the sign.\nA beat, and she shifts her weight. \"And you've been diggin' up our dead at Greywater, too. Some new kind of sick-fuck game?\"\nThe black steel of her armour gleams in the dawn light. \"Or maybe the Darrans finally got the balls to send in someone worth killin'.\"\nA beat, and her voice drops. \"Which one is it?\""
+ },
+ {
+  "id": 45,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The wind shifts, and carries the scent of iron and wet stone.\nThe banners of the Empire and the Crown are in sight, but there is no sound of guns, and no movement from the lines.\nA beat, and the valley is quiet.\nThe valley is quiet."
+ },
+ {
+  "id": 46,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Blood Saint, we're not the ones digging up your dead. Why do you care where the dead go?"
+ },
+ {
+  "id": 47,
+  "name": "Kanna",
+  "isUser": false,
+  "text": "Kanna's eyes flicker, and a beat, her jaw sets. \"Cares? I don't give a fuck about some piles of rot.\"\nShe shifts her weight, and the black steel of her armour catches the light. \"What I care about is the disrespect. And the cowardice.\"\nA beat, and her fangs show. \"A soldier earns their place in the dirt. And when someone goes digging, that's an insult to every man and woman who fell.\"\nShe looks at you, her dark red eyes cold and hard. \"So you Darrans can't tell me why you're diggin', and you can't tell me what you're looking for. But you're gonna tell me if you're the ones who did it.\"\nA beat, and her hand goes to Blood Oath. \"And you're gonna do it fast.\""
+ },
+ {
+  "id": 48,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The Zegallan banners flutter in the wind, and the valley is quiet, and there is only the sound of a banner snapping and the wind on the stones.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe"
+ },
+ {
+  "id": 49,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle doesn't turn around. Her hand is still on Cleaver's haft, and her jaw is set, and she's not smiling.\n\"Not us.\" She says it flat and hard. \"We're here on a job from the Crown, and we're looking for the missing dead, not diggin' 'em up.\"\nA beat, and she shifts her weight. \"So maybe you should stop caring about what the Darrans are doing, and start caring about where your own dead are going.\"\nAnd her eyes are sharp. \"Because if your dead are leaving the pits, and our dead are leaving our graves, then maybe we've got the same problem.\"\nA beat, and she looks at Kanna. \"And maybe we should be talking about that, not about who's digging where.\"\nAnd her voice drops. \"Because if we're both losing our dead, then neither of us is winning.\""
+ },
+ {
+  "id": 50,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Kanna, swear on Blood Oath that your regiment didn't take them, and I'll swear the same for ours."
+ },
+ {
+  "id": 51,
+  "name": "Kanna",
+  "isUser": false,
+  "text": "Kanna's hand tightens on the shaft of her greataxe. Her eyes narrow, and for a beat, the air around her seems to grow hot.\n\"I swear on Blood Oath,\" she says, and her voice is low and steady. \"That the Cursefire Regiment didn't take your dead.\"\nA beat, and she lets go of the axe. \"And you swear on Cleaver?\"\nHer gaze is fixed on you, and her eyes are dark. \"Because if you're lying, I'll take your head and throw it to the crows.\"\nA beat, and her expression hardens. \"And if I'm lying, you can take mine.\"\nAnd her voice drops, a threat that is as clear as a command. \"But I'm not lying.\"\nAnd her hand lets go of Blood Oath.\nA beat, and the air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is"
+ },
+ {
+  "id": 52,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I swear it on my family's name. Prince Forre, you heard her. Will you hold to a truce over Greywater's graves?"
+ },
+ {
+  "id": 53,
+  "name": "Forre",
+  "isUser": false,
+  "text": "Forre's head tilts, and he doesn't look at the Blood Saint. \"The dead should rest where they fall. I will hold to a truce.\"\nA beat, and his eyes are still on the map. \"And I will be the one to see that we both keep our word.\"\nHe looks at Kanna, and his expression is cool. \"And if we find you are lying, and you break our dead in return, then we will not hold you to account.\"\nHe says it softly, and it's a thing that is a promise. \"And we will not spare you.\"\nAnd his hand goes to the longsword at his hip.\nA beat, and his gaze is still on Kanna.\nThe air is still, and the valley is quiet.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air"
+ },
+ {
+  "id": 54,
+  "name": "Kanna",
+  "isUser": false,
+  "text": "Kanna's eyes narrow, and a beat, her teeth show. \"My word is my word, Prince. And I keep my word.\"\nA beat, and she shifts her weight, the black steel of her armour catching the light. \"But I've seen too many Darran promises broken.\"\nA beat, and her hand goes to Blood Oath, the greataxe that is her soul. \"And if you break mine, then I'll kill you. I'll tear you apart.\"\nAnd her voice is a snarl, and her fangs are sharp. \"And I'll make you regret it.\"\nA beat, and she looks at Forre, and her gaze is hard. \"But I'll keep my word. Because I'm a soldier.\"\nAnd her voice is flat, and there is no mistaking the promise. \"And we're going to see who's lying.\"\nA beat, and she doesn't look away from Forre.\nThe air is still, the valley is quiet.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air"
+ },
+ {
+  "id": 55,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Then who is digging up Greywater, if it's neither of us?"
+ },
+ {
+  "id": 56,
+  "name": "Kanna",
+  "isUser": false,
+  "text": "Kanna's gaze flickers to Belle, and a beat, she doesn't smile. \"No one I know.\"\nA beat, and her voice drops. \"And no one I'd expect.\"\nA beat, and her eyes narrow. \"The dead should rest in peace. And when they're dug up, that's an insult to them.\"\nA beat, and her jaw sets. \"And I don't like being insulted.\"\nAnd her hand is on Blood Oath.\nA beat, and the air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still"
+ },
+ {
+  "id": 57,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle doesn't flinch. Her grip on Cleaver doesn't tighten.\n\"That's what I'm trying to figure out,\" she says, her voice flat. \"So why don't we stop staring at each other and figure it out together?\"\nA beat, and she glances at Kanna. \"Because if neither of us is doing it, then someone else is. And that someone might not be our friend.\"\nAnd her grin is all teeth. \"And I'm sure you'd rather have a worthy opponent than a coward digging up your dead.\"\nA beat, and her expression is sharp. \"So we're talking. And we''re talking now.\"\nA beat, and her teeth flash. \"And we're talking about who might be doing this. And who might be digging them up.\"\nAnd her jaw is set, and she's not smiling.\nA beat, and her grip on Cleaver is still.\nA beat, and the air in the valley is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still.\nThe air is still."
+ },
+ {
+  "id": 58,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The banners of the Empire and the Crown flutter in the wind, and the valley is quiet, and there is only the sound of a banner snapping and the wind on the stones.\nThe valley is quiet.\nA beat, and the scent of ash and iron lingers, and the light is grey.\nAnd the valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is quiet.\nThe valley is"
+ }
+]

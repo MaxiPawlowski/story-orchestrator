@@ -1,0 +1,200 @@
+[
+ {
+  "id": 0,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "You came to Aegis City to make a name with a blade, a bow or a spell, and three days ago you signed the Adventurers' Guild register to do it. Your Guild badge is new, your purse is light, and you have no party yet. The Guild sends no one out alone.\n\nToday the hall is loud enough to be heard from the street. At the counter, Tobias, who hands out the Guild's work, has set a register beside the quest board and keeps tapping one notice: Wendhope, a mining village in the north that has gone silent, offering more coin than a collapsed mine should be worth.\n\nTwo others are looking for a party too. Belle, a barbarian out of the Mountains of Shadow with a greataxe as tall as she is, leans in the tavern arch and makes no secret of being bored. Dalan, a quiet elf archer who has drifted between parties for a year, pretends to read the notices. Beside Tobias, Ellie keeps glancing from those two to you, pen already inked to write a new party's name into the Guild's book."
+ },
+ {
+  "id": 1,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "What's the job on the board with the red seal?"
+ },
+ {
+  "id": 2,
+  "name": "Tobias",
+  "isUser": false,
+  "text": "\"The Wendhope posting,\" he says, tapping it again. \"Investigate why the mining village has sent no ore for three weeks. The reward is twice what it should be for a D-rank job.\" He looks at the player. \"The Sheridans pay for it, and they do not pay extra for collapsed shafts.\""
+ },
+ {
+  "id": 3,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Twice the pay for a dead mine. Who are the Sheridans, and what do they think is up there?"
+ },
+ {
+  "id": 4,
+  "name": "Tobias",
+  "isUser": false,
+  "text": "\"The Sheridans,\" he says with a slight frown. \"The House Sheridan is one of the Eight Great Houses of Darran Kingdom.\" He looks over the ledger. \"They own vast swathes of the frontier lands, and Wendhope is on their land.\" He pauses, his blue eyes narrow. \"This is not our business, but the extra coin smells worse than any collapsed mine.\""
+ },
+ {
+  "id": 5,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "A collapsed mine shaft for that pay? No. We'll find something else."
+ },
+ {
+  "id": 6,
+  "name": "Tobias",
+  "isUser": false,
+  "text": "He pulls his hand from the notice and looks at the player with a quiet, knowing look. \"I understand. I will not send a party out on a job that smells bad to me as well.\" He looks at the Ellie and nods to her. \"Ellie, what other D-rank quests are there for us?\""
+ },
+ {
+  "id": 7,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Yes, Ellie, what else is there? And Tobias, tell the Sheridans to hire soldiers if they think something's up there."
+ },
+ {
+  "id": 8,
+  "name": "Ellie",
+  "isUser": false,
+  "text": "Ellie's eyebrows arch and she pulls out a stack of quests from a drawer, fanning them like a deck of cards. \"Let's see...\" She taps a few with a manicured nail. \"A merchant needs protection on the road to Oakhaven, a farmer needs pests cleared from his wheat fields, and...\" She pauses, looking between Belle and Dalan. \"And a woman is seeking a companion for her daughter who needs to travel to the capital. It pays well for a simple escort.\"\nShe glances at the tavern arch. \"The merchant job is for a party of three.\" She straightens, professional. \"The farmer's pest clearing is for two, but she does not need anyone with a large axe.\" Her gaze drifts to the Dalan as well. \"The escort would be for a party of two.\"\nBehind her, the tavern is still loud with talk and laughter, and Belle is still waiting, Dalan still pretending to read notices."
+ },
+ {
+  "id": 9,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Hm. Maybe. Maybe the merchant job. Or maybe not. Belle, Dalan, what do you two think?"
+ },
+ {
+  "id": 10,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle pushes off from the tavern arch, and her eyes flick to the Dalan for a beat. She glances at the merchant notice. \"A road job. Fine by me. Keeps me moving.\" Her eyes flick to the player. \"Just you and me, and this bow-string elf, eh? That's a clan.\"\nShe glances at Dalan. \"You in, or are you still pretending that notice says something interesting?\""
+ },
+ {
+  "id": 11,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "Dalan's ears flick at the sound of Belle's voice, and he looks up from the notice. He looks at the player, then at Belle, then back to the notice in his hand. \"The merchant road,\" he says softly, his voice polite and careful. \"I can track from the road, and I know the tree lines.\" He glances at the and his cheeks pink slightly. \"And... the road will be safer than the woods alone.\"\nHe lets his bow slide from his shoulder to his hand, his fingers brushing the leather grip. \"I can be part of a clan.\"\nHe looks up at the player, and his blue eyes are quiet, searching."
+ },
+ {
+  "id": 12,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I shrug and look around the hall."
+ },
+ {
+  "id": 13,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The Guild hall fills with the low rumble of conversation and the clink of coin, the smell of pine sawdust and old leather hanging in the air. At the counter, Ellie's pen stays inked and ready, her blue eyes tracking the three adventurers with the patience of a bird of prey.\nBehind the arch, the tavern is a roar of laughter and the scrape of benches. A group of C-rankers in matching tabards argue loudly over a game of cards at one of the long tables, and the tavern keeper’s daughter shouts a drink-order back through the roar.\nUpstairs, the Guildmaster's door creaks open. Vallie's horned silhouette fills the doorway as she leans against the frame, one eye scanning the hall from below. The minotaur-woman's thick arms rest on the door-post, her muscled chest rising and falling with each slow breath. She doesn't say a word, but the look in her eye says she's watching."
+ },
+ {
+  "id": 14,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I wait."
+ },
+ {
+  "id": 15,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The hall fills with sound: the scrape of boots on stone, the murmur of conversation, the smell of roast meat and stale ale drifting through the arch to the tavern. Dalan shifts his weight, fingers tapping the grip of his bow. Belle leans against the wall, arms crossed, watching the player with an open, unbled patience that says she will move when you move.\nEllie's pen remains poised over the Guild's ledger, a small droplet of ink beginning to form at the tip. Her blue eyes flick between the player, Belle, and Dalan as the seconds tick by.\nUpstairs, Vallie doesn't move from the doorway, her single eye watching the trio below. A D-rank party that takes a job and runs is no big loss to the Guild, but a new face that knows how to think is different. The minotaur's chest rises and falls slowly, her sharp teeth catching a sliver of light."
+ },
+ {
+  "id": 16,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Come on, you two. We'll be in the tavern if anyone has a real job."
+ },
+ {
+  "id": 17,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Dalan's ears flick at the player's words, and he is moving before they're finished. He is already halfway to the arch as he turns back to the group, his bow sliding across his back.\nBelle is not as quick. She pushes off the wall with a slow, deliberative patience, her greataxe Cleaver sliding against her shoulder. \"Fair enough,\" she says, her eyes lingering on the player for a moment. \"Tavern's better than waiting around.\"\nEllie's pen pauses mid-air. She looks at the trio as they move away from the counter, a small furrow in her brow. Then she looks down at her ledger, and her expression shifts to one of thoughtful consideration. She does not speak, but her pen stays poised over the page."
+ },
+ {
+  "id": 18,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We find a table in the tavern and order three ales. Anyone here hiring?"
+ },
+ {
+  "id": 19,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The tavern is a low-ceilinged space of timber and stone, filled with the rumble of voices and the clink of glass. The scent of roast pork and stale beer hangs heavy in the air.\nA table in a corner is vacant, its surface scarred by old knife marks. Belle pulls out a bench with a scrape of wood on stone, and sits, propping Cleaver against the wall beside her. Dalan takes his place across from her, his elbows on the table, fingers drumming a quiet rhythm.\nThe tavern keeper's daughter brings the three ales over in a small, stained wooden tray, her movements efficient and practiced. She sets them down without a word and turns to scan the room.\nFurther in the tavern, a few tables are occupied. At one, a pair of adventurers in matched green tabards argue over a map spread across the table. At another, a weathered man with a scarred face nurses a single ale, his eyes moving slowly from face to face.\nThe tavern keeper's daughter pauses, her gaze sweeping over the trio, and then looks back toward the kitchen."
+ },
+ {
+  "id": 20,
+  "name": "Talis",
+  "isUser": false,
+  "text": "\"Hiiiiii!\" Her voice rings out above the tavern's low hum.\nTalis bounces on her heels, her long blue ponytail swinging as she stops at the edge of the bench where Belle and Dalan sit. \"A new party! A brand new party!\" She clasps her hands together. \"I saw you three talking at the counter! You're looking for a job, right?\"\nHer sky-blue eyes are wide with excitement. \"I'm Talis!\" She beams. \"And I have my staff!\"\nShe leans her crystal-tipped staff against the wall next to Belle's axe, the blue crystal at the top pulsing with a soft, rhythmic light. \"And I can do magic!\" She pauses, and her face falls slightly. \"The really big kind! Not the boring study-kind. The explosive kind!\"\nShe leans closer, her voice dropping to a stage-whisper. \"I'm not allowed to take jobs alone. My mother is an Archmage and she thinks I need a partner. But I have plenty of magic! Lots and lots!\"\nShe straightens, her face bright again. \"So I'm looking for a partner! And you three look like a proper clan! A real party!\"\nHer eyes flick between Belle and Dalan, and her smile is infectious. \"So, are you hiring? Because I can cast fireballs and lightning-zaps and all sorts of things!\""
+ },
+ {
+  "id": 21,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I raise my mug to the scarred man nursing his ale. You look like you've been around. Any work in here that isn't a dead mine?"
+ },
+ {
+  "id": 22,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The scarred man looks up slowly, his face etched with deep lines that seem to catch the tavern's dim light. He hasn't touched his ale in a long time.\nHe doesn't speak at first, just watches the player with eyes that have seen too much and too little.\n\"The north road,\" he says finally, his voice low and dry as old parchment. \"The carts stopped coming two weeks back. The Sheridans have had no ore from Wendhope since then.\"\nHe taps the rim of his glass with one finger, a slow, deliberate movement. \"The posting on that board is for fools. They'll send you into a silence that swallows men whole.\"\nHe looks back down at his drink, and his voice drops to a whisper. \"I'm the last one who came back. They're paying double because they know the odds.\"\nHis words hang in the air, cold and quiet.\nTalis has gone silent, her eyes wide and fixed on the scarred man's face. She doesn't move, doesn't breathe.\nBelle has stopped her fidgeting, her hand resting on the handle of Cleaver.\nDalan's grip on his bow has tightened, his knuckles white.\nThe tavern is still loud around them, but at their table, the air has gone cold and still."
+ },
+ {
+  "id": 23,
+  "name": "Talis",
+  "isUser": false,
+  "text": "\"A silence that swallows men...\" Talis whispers.\nShe shudders, and the blue ponytail swings. \"The north road,\" she murmurs. \"The carts stopped.\"\nShe looks at the player, and her eyes are wide and glassy. \"That's the kind of magic that swallows people! The kind of darkness that eats you up!\"\nShe looks back at the scarred man, and her voice trembles. \"I've heard stories about that kind of thing. My mother told me about it.\"\nShe shivers, and her ponytail bounces. \"But it's not our kind of magic! Not our kind! Our magic is bright! Ourra-light and zap-zapy!\"\nShe looks at the Belle, and her smile falis. \"We don't go where the silence is, do we? We don't do that kind of magic.\"\nShe looks at the Dalan, and her voice drops. \"We do the merchant road! The light, the sunny road! Not the silence-swallows-men road!\"\nHer eyes flicker back to the player, her hope and fear fighting for a space on her face. \"We do the merchant road, right?\""
+ },
+ {
+  "id": 24,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I set my mug down and walk back to the counter. Tobias. Fine. Triple the fee, and we ride as the Ash Lanterns."
+ },
+ {
+  "id": 25,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "Dalan is on his feet before player finished, bow sliding his into grip \" Ashs he softly and small touches lips \" Ashs looks Belle then Tal, nods \" can in north And know demon.\"\nHis on bow firm but cheeks pink a, pride He at player \" can the Lantern.\""
+ },
+ {
+  "id": 26,
+  "name": "Belle",
+  "isUser": false,
+  "text": "\"Fuck the lanterns.\"\nBelle pushes off from table and grin is teeth and rage. \" Lanterns are for folks scared of dark. We’re Ash.\"\nShe steps past them for her axe, and hand tightens on haft.\n\"Ashs don’t need light. Ashs are all that’s left after it burns. That’s what a clan is.\"\nShe steps into hall and glares at Tobies, and grin is all teeth. \" Write it in. Ashs. We’re taking the silence, and we’re bringing it back.\""
+ },
+ {
+  "id": 27,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Ash Lanterns, Belle. Both words. Tobias, Ellie: write us in for Wendhope as the Ash Lanterns, at triple the fee."
+ },
+ {
+  "id": 28,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The tavern is silent enough now that the word rings through the hall. Belle's grin is a thin line.\nTobias has stepped back from the counter, and his blue eyes have gone hard as river stones.\n\"Triple the fee,\" he says, and the words are quiet, but they carry. \"The Sheridans will not pay triple for a D-rank party to walk into a silence that swallows men.\"\nHe looks at the player, then at Belle, then at Dalan. His eyes flick to Talis, and her blue crystal is pulsing fast and bright.\n\"The Guild does not negotiate with House Sheridan, and House Sheridan does not pay triple. The Guild pays the posted rate, and not a copper more.\"\nBehind him, Ellie's pen has stopped mid-air, and her face is pale, her blue eyes wide.\nUpstairs, Vallie is leaning on the doorframe, and she is looking down at the hall. Her eye is not blinking.\n\"The Guild will not be made a fool of,\" Tobias says, his voice low and hard. \"The Wendhope posting stays at double the fee, and not a copper more. And you will take the posting as Ash Lanterns, or you will not take it at all.\"\nHe steps forward, and his eyes are hard as river stones. \"The Guild is not a market, and I am not a merchant. We are an organization. And we will not be trifled with.\"\nHe stops, and his hand rests on the counter, and he looks at the player with eyes that are hard as river stones.\n\"Take the posting at double the fee as the Ash Lanterns,\" he says, \"or do not take it. But there is no third option. There is no negotiating. There is no bargaining. There is no trifled. There is only the Guild.\"\nHe stops, and he looks at the Belle, and his eyes soften just a fraction. \"You have no name. And the Guild will not write you into the book without a name. So we will call you the Ash Lanterns. And you will take the Wendhope posting at double the fee. That is the final word.\"\nHe stops, and looks at the Ellie, and his face is a mask of stone. \"Ellie, write them in.\"\nEllie's pen moves, and her hand is steady. She writes the name Ash Lanterns in the Guild's ledger, and the ink is dark and thick.\n\"Done,\" she says, her voice quiet and steady. \"You are the Ash Lanterns.\"\nShe looks up at the player, and her eyes are bright with something like approval.\n\"You are the Ash Lanterns,\" she says again. \"And you are registered for the Wendhope posting.\"\nShe looks at the Tobias, and her voice is quiet. \"The Guild is ready"
+ },
+ {
+  "id": 29,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Double it is, then. We take the Wendhope posting. Belle, Dalan, Talis, get your gear, we leave at first light."
+ },
+ {
+  "id": 30,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle's hand tightens on Cleaver's haft, and a grin breaks her face. \"First light, then. I'm going to chop the silence out of that cave and bring it back.\"\nShe steps away from the table, and her boots are heavy on the tavern's stone.\n\"Talis, get your fancy zaps ready. Dalan, keep your eyes on the treeline. I'll be the one making the noise.\"\nShe looks at the player, her brown eyes bright with a fierce, predatory light.\n\"Ash Lanterns,\" she says, and the word is a promise. \"We're taking the north road.\"\nShe turns and walks back into the hall, her greataxe sliding against the wall as she passes.\nBehind her, Dalan's bow is already in his hand, and his grip is tight.\nTalis's staff is pulsing with a bright, eager light.\nThe tavern is loud again, but at their table, the air is clear and the intent is set.\n\"First light,\" Talis repeats, her voice bright and nervous. \"First light! We leave at first light!\"\nDalan's grip on his bow is white. \"First light,\" he says quietly.\nThe scarred man is still nursing his ale, and his eyes have followed the trio's movement.\nUpstairs, Vallie has straightened in her doorway. She does not speak, but her eye is watching.\nEllie's ledger is closed, and her pen is put away.\n\"First light,\" she says quietly.\nThe Guildhall is quiet again, and the Guildhall's light is dimming as evening settles.\nThe Ash Lanterns have taken the Wendhope posting, and they will ride the north road at first light."
+ },
+ {
+  "id": 31,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "At first light we head north out of the city gate."
+ },
+ {
+  "id": 32,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The road leads north, away from Aegis City's walls. The grass is long and green, the air clear and crisp, the smell of damp earth and pine needles filling the nostrils.\nBehind them, the city gate fades into the distance, a silhouette of stone against the pale light of dawn.\nThe road narrows as it leaves the cultivated lands, and the pines begin to close in. The trees are tall and dark, their needles muffling every sound.\nThe air is cold. The wind drops, and the forest grows quiet.\nBelle's boots are heavy on the earth, and Cleaver is slung across her back. Dalan's eyes are scanning the treelines, his hand on his bow.\nTalis's staff pulses with a soft, rhythmic light, the blue crystal at the top catching the morning light.\nThe road winds deeper into the forest, and the trees grow closer together, their branches reaching over the road like gnarled fingers.\nThe air is damp. The smell of pine needles and wet earth fills the nostrils, and the sound of their footsteps is the only sound in the forest.\nThe road is quiet. Too quiet.\nDalan's ears flick, and his fingers tighten on his bow. \"The treelines,\" he says softly. \"They're too close.\"\nThe road is silent.\nBelle's grin is teeth and rage. \"Good,\" she says, and her hand tightens on the haft of Cleaver. \"The silence is coming. And I'm ready.\"\nShe steps forward, her boots heavy on the earth.\nTalis's staff flashes bright blue. \"I'm ready too!\" she says, her voice bright and eager. \"I've got my zaps! Lots and lots of zaps!\"\nThe road is silent.\nThe silence is waiting.\nAnd the Ash Lanterns are walking right into it."
+ }
+]

@@ -1,0 +1,283 @@
+{
+  "charter": "T1-2",
+  "title": "Refuse the hook",
+  "session": {
+    "dir": "test/sessions/T1/T1-2-1",
+    "lane": 3,
+    "startedAt": "2026-10-01T14:22:14.261Z",
+    "media": "full"
+  },
+  "scores": [
+    "works",
+    "annoying",
+    "broken",
+    "not-noticed"
+  ],
+  "rows": [
+    {
+      "feature": "agency (refusal handling)",
+      "score": "annoying",
+      "note": "Refusals respected: no forced departure, no narrated agreement; first refusal got one neutral answer (msg 6, both swipes), 'maybe' and two idle turns held at the hall with no pressure (msgs 10-15). But the second refusal addressed to Tobias was never answered (msg 8, flag), and the player's natural acceptance (msg 24 card sample line 'we ride as the Ash Lanterns', msg 27 'write us in for Wendhope') was held 3x by commit_evidence, so the story ignored the yes until a third phrasing ('We take the Wendhope posting', msg 29). Steward alternate never surfaced (not needed: tavern exit taken).",
+      "evidence": [
+        "turns.jsonl:4",
+        "turns.jsonl:8",
+        "journal.jsonl:577"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T14:49:27.315Z"
+    },
+    {
+      "feature": "transition timing",
+      "score": "annoying",
+      "note": "guild-hall -> adv-guild-tavern at boundary 12 (msg 19), the reply after the walk-out line, correct gate; tavern -> road-to-wendhope at msg 32, one reply after the clean acceptance (msg 29) but two replies after Ellie registered the party (msg 28) because the commitment hold; the narrator already narrated departure (msg 30) before the story moved. No jump without a party name.",
+      "evidence": [
+        "journal.jsonl:396",
+        "journal.jsonl:631"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T14:49:28.187Z"
+    },
+    {
+      "feature": "speaker direction",
+      "score": "annoying",
+      "note": "Named address mostly works (Ellie msg 8, Belle+Dalan msg 10-11 both answer the maybe). Misses: Tobias addressed in msg 7 never answers (director hands back to player, composite 0.53); in the tavern the Narrator voices Tobias and Ellie at length (msg 28, warden flagged house-rule) and a nameless scarred man instead of the enabled Rydel (msg 22); Belle's reply voices Talis/Dalan/Ellie (msg 30). Loops 'hard as river stones' x4 (msg 28).",
+      "evidence": [
+        "turns.jsonl:8",
+        "turns.jsonl:20",
+        "journal.jsonl:163"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T14:49:29.001Z"
+    },
+    {
+      "feature": "timeline at level 1",
+      "score": "works",
+      "note": "Inline chips at the tavern transition read in player words: 'The scene changed', 'Ellie left', 'Vallie left', 'Rydel joined', 'Talis joined'... no ids or internals. No /comment transition note posted (default off confirmed, shots/024).",
+      "evidence": [
+        "shots/016-tavern-transition.png",
+        "shots/024-road-north.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T14:49:29.806Z"
+    },
+    {
+      "feature": "HUD",
+      "score": "works",
+      "note": "HUD showed The Wendhope Job at the hall (shots/006), changed only on the tavern walk-out (Adventurers Without a Party, shots/016) and on acceptance (The Journey North, shots/024); tension readout moved calm->stirring->tense. Minor: '1 update next turn' chip is internal-ish.",
+      "evidence": [
+        "shots/006-swipe-arrow-covered.png",
+        "shots/016-tavern-transition.png",
+        "shots/024-road-north.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T14:49:30.685Z"
+    }
+  ],
+  "playerClean": {
+    "at": "2026-10-01T14:48:27.579Z",
+    "ok": false,
+    "tabs": [
+      "Overview",
+      "Memory"
+    ],
+    "surfaces": [
+      "#drawer-manager",
+      "#so-hud",
+      "#story-orchestrator-settings"
+    ],
+    "selectorsChecked": 111,
+    "findings": [
+      {
+        "tab": "Overview",
+        "needle": "#drawer-manager [title] carries \"blackboard\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"quality\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"quality\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#drawer-manager [title] carries \"blackboard\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"quality\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"quality\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings: World Info curator"
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings: World Info curator"
+      }
+    ],
+    "sweep": [],
+    "recoveryControls": []
+  }
+}

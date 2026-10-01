@@ -1,0 +1,293 @@
+{
+  "charter": "T1-1",
+  "title": "Follow the hook",
+  "session": {
+    "dir": "test/sessions/T1/T1-1-1",
+    "lane": 1,
+    "startedAt": "2026-10-01T14:06:13.821Z",
+    "media": "full"
+  },
+  "scores": [
+    "works",
+    "annoying",
+    "broken",
+    "not-noticed"
+  ],
+  "rows": [
+    {
+      "feature": "transition timing",
+      "score": "annoying",
+      "note": "Hall->Road North one round late (accepted msg 5, named msg 7, moved at msg 11; reader first held off because Tobias had not written it). Walls: arrived msg 13, but the story went into generated road beats (gen_on-the-road_1/_2, HUD 'First Night on the Road' in daylight) and only reached Hold, Wendhope Is Closed at msg 25 (6 rounds late): the reached_walls rubric wants archers and the narrator wrote none; a reached_walls=true read (msgs 12-19) was discarded as superseded by a later false read. first-night (msg 32), What Wendhope Knows right after dawn (msg 51), Into Needlehaven on entering the forest (msg 76) were all on time.",
+      "evidence": [
+        "journal.jsonl:222",
+        "journal.jsonl:304",
+        "journal.jsonl:337",
+        "journal.jsonl:496",
+        "journal.jsonl:548",
+        "journal.jsonl:675",
+        "journal.jsonl:1303",
+        "journal.jsonl:1905",
+        "shots/009-overview-at-gate-gen-beat.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T14:56:02.298Z"
+    },
+    {
+      "feature": "agency (never narrates you)",
+      "score": "works",
+      "note": "No reply wrote Max's words or decisions across 28 turns. Closest: narrator msg 38 'the party has only one thing left to do. Fight.' and msg 75 'the party stands their ground' (group framing, not a decision for Max). Commitments were the player's own lines.",
+      "evidence": [
+        "turns.jsonl:21",
+        "turns.jsonl:22",
+        "turns.jsonl:37"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T14:56:03.161Z"
+    },
+    {
+      "feature": "speaker direction",
+      "score": "works",
+      "note": "Belle and Dalan both got moments throughout (msgs 2/4 hall, 16/21/23 gate, 35/36 wall, 39/41/42 fight, 70/76 mine/forest); Tobias spoke only in the hall (msg 6); narrator answered when addressed except the gate stall (msgs 20-23: two rounds of companions only while the wall voice never replied; flagged). Judge director mostly fell back busy (318 busy fallbacks at SO_JUDGE_RATE_PER_MIN=15), so most picks came from the LLM director or rules.",
+      "evidence": [
+        "journal.jsonl:539",
+        "turns.jsonl:14",
+        "turns.jsonl:20",
+        "turns.jsonl:22"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T14:56:04.102Z"
+    },
+    {
+      "feature": "pacing / tension",
+      "score": "works",
+      "note": "Tension stirring in the hall, tense at the gate, rose through the night to ~0.93 (HUD 'critical'/'peak' msgs 39-49) and dropped to ~0.42 after dawn (HUD 'tense'). HUD always showed the scene title; '5 updates next turn' shows before the first turn (T0 LOW still there).",
+      "evidence": [
+        "journal.jsonl:1095",
+        "journal.jsonl:1103",
+        "shots/019-first-night-hud.png",
+        "shots/001-start-guild-hall.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T14:56:05.049Z"
+    },
+    {
+      "feature": "secrets kept",
+      "score": "works",
+      "note": "Duggy denied anything but 'a vein of quartz' when asked (msg 56) and only agreed to show the mine when pressed (msg 59); the pale roots were SHOWN by the narrator (msg 65), never admitted. Qinne not met; Dalan never volunteered the alabaster secret. No [Scene direction] echo; guidance now arrives as [Scene state: …] and nothing leaked verbatim. Needlehaven named at dawn (msg 49) is in the authored first-night scene state.",
+      "evidence": [
+        "turns.jsonl:29",
+        "turns.jsonl:30",
+        "turns.jsonl:34"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T14:56:05.981Z"
+    }
+  ],
+  "playerClean": {
+    "at": "2026-10-01T14:54:24.258Z",
+    "ok": false,
+    "tabs": [
+      "Overview",
+      "Memory"
+    ],
+    "surfaces": [
+      "#drawer-manager",
+      "#so-hud",
+      "#story-orchestrator-settings"
+    ],
+    "selectorsChecked": 111,
+    "findings": [
+      {
+        "tab": "Overview",
+        "needle": "#drawer-manager [title] carries \"blackboard\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"quality\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"quality\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#drawer-manager [title] carries \"blackboard\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"quality\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"quality\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings: World Info curator"
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings: World Info curator"
+      }
+    ],
+    "sweep": [],
+    "recoveryControls": []
+  }
+}

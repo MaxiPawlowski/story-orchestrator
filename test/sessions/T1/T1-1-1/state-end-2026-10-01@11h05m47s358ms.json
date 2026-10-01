@@ -1,0 +1,935 @@
+{
+  "storyId": "adolion-adventurer",
+  "activeCheckpointId": "into-needlehaven",
+  "boundary": 50,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Adventurer Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Mountains of Shadow": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "adv_looking_for_hands": false,
+    "guild_reputation": 0,
+    "party_injuries": 1,
+    "location": "needlehaven",
+    "tension_current": 0.6596362475538456,
+    "party_rank": 0,
+    "party_name": "Grey Pennants",
+    "path": "wendhope",
+    "progress_toward_after-the-fog": 9,
+    "first_camp": true,
+    "reached_walls": true,
+    "progress_toward_at-the-walls": 1,
+    "inside_wendhope": true,
+    "sundown_outside": false,
+    "assault_begun": true,
+    "evidence": 6,
+    "knows_spirit": false,
+    "survived_first_night": true,
+    "in_needlehaven": true
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "1d3b70e7-5d91-459e-a555-6f9dd765963d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 0,
+        "boundary": 1,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The player has no party yet and the Guild sends no one out alone",
+      "createdAt": 1,
+      "messageId": 0
+    },
+    {
+      "id": "3218d51f-f3e0-4476-bd5e-33847980a0ab",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 0,
+        "boundary": 1,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "The player has no party yet and is a candidate to match with Belle and Dalan",
+      "createdAt": 1,
+      "messageId": 0
+    },
+    {
+      "id": "1fb3a6b6-8b57-492a-8d82-4521944239e4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 8,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "hiding",
+      "content": "She paused and smiled knowingly while finishing the Grey Pennants entry, concealing something about the registration",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 8,
+      "messageId": 13
+    },
+    {
+      "id": "5884aad2-c239-425e-9d52-f9bf2170e8c7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Duggy said the three of them would stay above while he went down alone",
+      "createdAt": 37,
+      "messageId": 61,
+      "supersededBy": "retired@39",
+      "retiredAt": {
+        "messageId": 63,
+        "boundary": 39
+      }
+    },
+    {
+      "id": "3b5bec40-f1df-481e-b15e-2c35d320901b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Duggy said not to follow him and not to come looking if they hear anything",
+      "createdAt": 37,
+      "messageId": 61,
+      "supersededBy": "retired@39",
+      "retiredAt": {
+        "messageId": 63,
+        "boundary": 39
+      }
+    },
+    {
+      "id": "0bbb4590-1f1a-47c1-aa5a-94afc9ac8480",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 37,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Duggy is afraid of whatever is in the tunnel",
+      "createdAt": 37,
+      "messageId": 61
+    },
+    {
+      "id": "06783cc3-3237-48cf-82e6-4a14cf0198ff",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 37,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "believes",
+      "content": "Duggy will lead them to the tunnel and let them see it",
+      "createdAt": 37,
+      "messageId": 61,
+      "supersededBy": "retired@41",
+      "retiredAt": {
+        "messageId": 65,
+        "boundary": 41
+      }
+    },
+    {
+      "id": "5e2aa023-caca-4900-86d4-051b43b6f122",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 62,
+        "boundary": 38,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "The quartz lode is connected to whatever is coming out of the forest.",
+      "createdAt": 38,
+      "messageId": 62
+    },
+    {
+      "id": "a3eec296-7c1f-4008-8953-8ee364aebe71",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The pale roots in the tunnel come from Needlehaven forest.",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "0f0af7ef-e341-4538-a005-e39071d54561",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The mine foreman is dead and Duggy is hiding what the miners found.",
+      "createdAt": 46,
+      "messageId": 72,
+      "supersededBy": "retired@46",
+      "retiredAt": {
+        "messageId": 72,
+        "boundary": 46
+      }
+    },
+    {
+      "id": "1a594cef-b55f-4195-a7bb-cb9eb3431ccf",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Duggy agreed to show him the tunnel and said he would not go alone",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "e479197e-2768-4c37-a4e3-03d1d677ff65",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "believes",
+      "content": "Duggy found only a vein of pure quartz and nothing more",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "518d7347-ffcd-420c-822a-a505dec2cc75",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Duggy",
+      "tag": "hiding",
+      "content": "That he is the Mayor, not the mine foreman",
+      "hiddenFrom": "Belle",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "7d60481f-1d0e-445e-b0ab-d16f4bd5cc45",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Duggy",
+      "tag": "hiding",
+      "content": "That he is the Mayor, not the mine foreman",
+      "hiddenFrom": "Dalan",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "2cecfae2-7139-4ca7-8a7e-16fcaa286b63",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Duggy",
+      "tag": "hiding",
+      "content": "That the mine foreman is dead",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "7f6a746b-c4b1-4b33-8a3b-c2c9d9968c76",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Duggy",
+      "tag": "hiding",
+      "content": "That the mine foreman is dead",
+      "hiddenFrom": "Belle",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "4499423f-f677-4698-97a7-9c8eb23710a5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Duggy",
+      "tag": "hiding",
+      "content": "That the mine foreman is dead",
+      "hiddenFrom": "Dalan",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "20d317c2-9ce8-4dc7-88fc-0a7c57951c3b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Duggy",
+      "tag": "hiding",
+      "content": "That he intends to go down alone and keep the party above ground",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "10c608df-6c02-4a52-9e85-0cdc9aeb42b4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Duggy",
+      "tag": "hiding",
+      "content": "That he intends to go down alone and keep the party above ground",
+      "hiddenFrom": "Belle",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "7e07e131-33e0-47c0-99bc-fe88711fb98e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Duggy",
+      "tag": "hiding",
+      "content": "That he intends to go down alone and keep the party above ground",
+      "hiddenFrom": "Dalan",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "0d991522-b9df-431f-a8e7-1718641b3ca3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Duggy",
+      "tag": "hiding",
+      "content": "What he is seeing in the dark ahead",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "e687f411-8884-498b-bdaf-58b50339efbc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Duggy",
+      "tag": "hiding",
+      "content": "What he is seeing in the dark ahead",
+      "hiddenFrom": "Belle",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "4e82b76f-e5cd-444b-b32a-f051e9b8785c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 72,
+        "boundary": 46,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Duggy",
+      "tag": "hiding",
+      "content": "What he is seeing in the dark ahead",
+      "hiddenFrom": "Dalan",
+      "createdAt": 46,
+      "messageId": 72
+    },
+    {
+      "id": "9cac4112-84a5-423b-a2be-e31e28407723",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 75,
+        "boundary": 48,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Duggy was pulled from the tunnel and the party entered Needlehaven forest",
+      "createdAt": 48,
+      "messageId": 75
+    },
+    {
+      "id": "5eea378e-59ee-4892-8b84-5cd85c8d640d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 75,
+        "boundary": 48,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The pale roots run from Needlehaven and the party must go into the forest to find their source.",
+      "createdAt": 48,
+      "messageId": 75
+    },
+    {
+      "id": "65e1862e-20f2-4e61-838e-9b286d572a58",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 75,
+        "boundary": 48,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Duggy",
+      "tag": "hiding",
+      "content": "What he saw or found in the tunnel that made him go down alone and beg them to stay back.",
+      "hiddenFrom": "The Party",
+      "createdAt": 48,
+      "messageId": 75
+    },
+    {
+      "id": "03fd77c5-b0a7-43c7-9259-d16f258cdb3c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Killing a Screecher leaves white petals behind.",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "6448b9bd-8259-4ddd-b938-74e9c57de0b0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party walked out the west postern and across the field into Needlehaven forest",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "926cda49-0991-41c7-adf9-86525de73cf6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party walked out the west postern and across the field into Needlehaven forest",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "847942cb-c19a-46d0-8c00-fadf15f9e943",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The red fog rose as they entered Needlehaven forest",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "d94278e3-2c1c-4ac3-9eef-b476578a05d6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The red fog rose as they entered Needlehaven forest",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "712ce33c-598a-4f06-8c5e-dbb328ed05e8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Screechers attacked the party in Needlehaven forest",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "5f660c09-07cf-4ccb-8ee9-1a8d60d0dfb4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Screechers attacked the party in Needlehaven forest",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "b7d5d7f1-3dd8-4400-a9a6-7aeff36f8f29",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "White flowers are scattered across the ground in Needlehaven forest",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "893b0ee3-490b-4805-8fb7-7af46d77b132",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "White flowers are scattered across the ground in Needlehaven forest",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "d1d5106b-ec87-4b83-b01a-5689d403721e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The roots curl around the trees and stones in Needlehaven forest",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "4aa5b7f8-0185-4a56-9729-817ec7e8258f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The roots curl around the trees and stones in Needlehaven forest",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "7663c62f-6e90-4414-abdc-f311d74bd05f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The Screechers have alabaster skin that shines in the fog",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "56330a34-ec19-4906-af31-cd576873cb73",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The Screechers have alabaster skin that shines in the fog",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "b7d67ded-a5cf-4672-bfec-4661426de6f8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Belle killed a Screecher with Cleaver and it left white petals",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "0c48a939-6ebc-48a9-87ee-0e8e69dd06ea",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle killed a Screecher with Cleaver and it left white petals",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "2be73915-d229-4072-a54c-9a7d5c42a4a0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Halena Vivinallo walked the parapet counting arrows out loud",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "14d23df0-0c66-4711-b4fc-714c6e94eb96",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Halena Vivinallo walked the parapet counting arrows out loud",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "88538aeb-b924-4a01-b0c0-dc66772fadd6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The smell in the tunnel was of decay but not rot, something dying but also living",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "611205b5-7713-4e14-bd1c-a6ca46a4d514",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The smell in the tunnel was of decay but not rot, something dying but also living",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "b0a85fec-75d4-4a51-ba9a-6c712e06040d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "A voice that is not Duggy's and not human echoed \"Who's there?\" from the dark",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "6545f3ff-9b0f-43d5-a42b-b6fb96a95cf7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "A second, more distant voice echoed \"Who's there?\" from the dark",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "69a2a56c-58bc-4ea2-a5bf-93cc585910b3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "A second, more distant voice echoed \"Who's there?\" from the dark",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "91b6e6cd-7c2b-479e-b391-fe55834f59c7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Duggy's voice was thin and trembling when he said not to come closer",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "14526ecd-e3d4-4ef0-88d6-7a8f15b92e6e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Duggy's voice was thin and trembling when he said not to come closer",
+      "createdAt": 49,
+      "messageId": 76
+    },
+    {
+      "id": "789a0f95-f544-4950-a85d-ec2275b90f36",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 76,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The scraping sound in the tunnel was slow and steady, like something pulling itself along stone",
+      "createdAt": 49,
+      "messageId": 76
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 7,
+      "name": "Alder",
+      "avatar": "Alder.png"
+    },
+    {
+      "index": 10,
+      "name": "Alida",
+      "avatar": "Alida.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 57,
+      "name": "Giada",
+      "avatar": "Giada.png"
+    },
+    {
+      "index": 59,
+      "name": "Gustall",
+      "avatar": "Gustall.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 141,
+      "name": "Talis",
+      "avatar": "Talis.png"
+    },
+    {
+      "index": 145,
+      "name": "Tatiana",
+      "avatar": "Tatiana.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    }
+  ],
+  "payloadEpoch": "1790863573456-oaglbg"
+}

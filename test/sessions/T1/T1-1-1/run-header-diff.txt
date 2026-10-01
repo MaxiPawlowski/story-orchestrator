@@ -1,0 +1,45 @@
+ok   build.head  "47eca2c198b7d237ef6c528a0046e7a89597476d" -> "36f2cb848508fb1bd57b2f2b846a2549a000b611"  (allowed by served-bundle 6525728b22b7f3e8)
+ok   build.manifest.builtAt  "2026-10-01T13:41:31.072Z" -> "2026-10-01T14:52:57.906Z"  (allowed by served-bundle 6525728b22b7f3e8)
+ok   build.manifest.bundleBytes  1214514 -> 1214045  (allowed by served-bundle 6525728b22b7f3e8)
+ok   build.manifest.bundleSha256  "510a01f11a7b1e20806e193de33b26a565b2081883a723b799e80277f3421691" -> "b992fe7946f82164089fdff5de6b90ac8dc20932908cfb74c43da4f898b41325"  (allowed by served-bundle 6525728b22b7f3e8)
+ok   build.manifest.fileSha256  "40f7e55213d18810" -> "63a1accb9321c644"  (allowed by served-bundle 6525728b22b7f3e8)
+ok   build.manifest.sourceFiles  535 -> 531  (allowed by served-bundle 6525728b22b7f3e8)
+ok   build.manifest.sourceSha256  "9f38ecb4d2f35eb3ce4eec65a55d74f14882ef6e5899e4feac47dbde60e3b803" -> "5e16ba44fa0c265e799d1398ed2efa7ae118f2ef3c106eb8258c18b1a9dee809"  (allowed by served-bundle 6525728b22b7f3e8)
+ok   chat.chatLength  1 -> 78  (allowed by progress)
+ok   group.disabledMembers  +Ellie.png +Tobias.png +Vallie.png  (allowed by group)
+ok   story.activeCheckpointId  "guild-hall" -> "into-needlehaven"  (allowed by progress)
+ok   story.boundary  1 -> 50  (allowed by progress)
+ok   warnings  +the page is running a bundle that is not the built one: served 6525728b22b7f3e8 vs dist b992fe7946f82164 -the page is running a bundle that is not the built one: served 6525728b22b7f3e8 vs dist 510a01f11a7b1e20  (allowed by served-bundle 6525728b22b7f3e8)
+WARNING: the page is running a bundle that is not the built one: served 6525728b22b7f3e8 vs dist b992fe7946f82164
+{
+  "baseline": "C:\\dev\\story-orchestrator\\test\\sessions\\T1\\T1-1-1\\run-header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "chatId",
+    "groupId",
+    "authorView",
+    "story",
+    "group",
+    "inventory.journal"
+  ],
+  "differences": 12,
+  "progress": 3,
+  "blocking": 0,
+  "blockingPaths": [],
+  "servedIdentity": [
+    "build.head",
+    "build.manifest.builtAt",
+    "build.manifest.bundleBytes",
+    "build.manifest.bundleSha256",
+    "build.manifest.fileSha256",
+    "build.manifest.sourceFiles",
+    "build.manifest.sourceSha256",
+    "warnings"
+  ],
+  "warnings": [
+    "the page is running a bundle that is not the built one: served 6525728b22b7f3e8 vs dist 510a01f11a7b1e20",
+    "the page is running a bundle that is not the built one: served 6525728b22b7f3e8 vs dist b992fe7946f82164"
+  ],
+  "wrote": "C:\\dev\\story-orchestrator\\test\\sessions\\T1\\T1-1-1\\run-header-end.json",
+  "ok": true
+}

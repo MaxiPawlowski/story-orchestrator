@@ -1,0 +1,14 @@
+{
+  "verb": "shot",
+  "dir": "C:\\dev\\story-orchestrator\\test\\sessions\\T1\\T1-3-1",
+  "chat": {
+    "chatId": "2026-10-01@11h14m14s121ms",
+    "group": "Adolion - Fire and War",
+    "groupId": "1790863596367"
+  },
+  "args": {
+    "label": "end",
+    "seq": 29
+  },
+  "options": {}
+}
