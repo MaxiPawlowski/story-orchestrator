@@ -3,7 +3,7 @@
   "summary": {
     "use": "contradiction-release",
     "fixture": "contradiction-release-holdout",
-    "rows": 14,
+    "rows": 9,
     "modes": [
       "holdout"
     ],
@@ -30,15 +30,11 @@
             "wording": "a",
             "releaseErr": {
               "hit": 0,
-              "total": 5
-            },
-            "releaseErrEs": {
-              "hit": 0,
-              "total": 2
+              "total": 3
             },
             "paraphraseRelease": {
-              "hit": 5,
-              "total": 5
+              "hit": 3,
+              "total": 3
             },
             "ok": true
           },
@@ -46,15 +42,11 @@
             "wording": "b",
             "releaseErr": {
               "hit": 0,
-              "total": 5
-            },
-            "releaseErrEs": {
-              "hit": 0,
-              "total": 2
+              "total": 3
             },
             "paraphraseRelease": {
-              "hit": 5,
-              "total": 5
+              "hit": 3,
+              "total": 3
             },
             "ok": true
           }
@@ -111,34 +103,6 @@
       "latencyMs": 236
     },
     {
-      "id": "R04.a",
-      "right": true,
-      "picked": "hold",
-      "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":1,\"probabilities\":{\"distinct\":0,\"update\":1,\"duplicate\":0,\"unrelated\":0}}",
-      "latencyMs": 235
-    },
-    {
-      "id": "R04.b",
-      "right": true,
-      "picked": "hold",
-      "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.98,\"probabilities\":{\"distinct\":0,\"update\":0.01,\"contradicts\":0.99,\"agrees\":0}}",
-      "latencyMs": 253
-    },
-    {
-      "id": "R05.a",
-      "right": true,
-      "picked": "hold",
-      "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.99,\"probabilities\":{\"unrelated\":0,\"duplicate\":0,\"update\":1,\"distinct\":0}}",
-      "latencyMs": 285
-    },
-    {
-      "id": "R05.b",
-      "right": true,
-      "picked": "hold",
-      "detail": "{\"type\":\"choice\",\"choice\":\"contradicts\",\"confidence\":0.99,\"probabilities\":{\"contradicts\":0.99,\"agrees\":0,\"distinct\":0,\"update\":0.01}}",
-      "latencyMs": 293
-    },
-    {
       "id": "R06.a",
       "right": true,
       "picked": "release",
@@ -181,34 +145,6 @@
       "latencyMs": 256
     },
     {
-      "id": "R09.a",
-      "right": true,
-      "picked": "release",
-      "detail": "{\"type\":\"choice\",\"choice\":\"duplicate\",\"confidence\":0.87,\"probabilities\":{\"unrelated\":0,\"update\":0.09,\"duplicate\":0.91,\"distinct\":0}}",
-      "latencyMs": 275
-    },
-    {
-      "id": "R09.b",
-      "right": true,
-      "picked": "release",
-      "detail": "{\"type\":\"choice\",\"choice\":\"agrees\",\"confidence\":0.93,\"probabilities\":{\"distinct\":0,\"contradicts\":0,\"agrees\":0.95,\"update\":0.05}}",
-      "latencyMs": 264
-    },
-    {
-      "id": "R10.a",
-      "right": true,
-      "picked": "release",
-      "detail": "{\"type\":\"choice\",\"choice\":\"duplicate\",\"confidence\":1,\"probabilities\":{\"duplicate\":1,\"distinct\":0,\"update\":0,\"unrelated\":0}}",
-      "latencyMs": 229
-    },
-    {
-      "id": "R10.b",
-      "right": true,
-      "picked": "release",
-      "detail": "{\"type\":\"choice\",\"choice\":\"agrees\",\"confidence\":1,\"probabilities\":{\"update\":0,\"agrees\":1,\"distinct\":0,\"contradicts\":0}}",
-      "latencyMs": 244
-    },
-    {
       "id": "R11.a",
       "right": true,
       "picked": "hold",
@@ -221,20 +157,6 @@
       "picked": "hold",
       "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.41,\"probabilities\":{\"contradicts\":0.44,\"agrees\":0,\"distinct\":0,\"update\":0.56}}",
       "latencyMs": 419
-    },
-    {
-      "id": "R12.a",
-      "right": true,
-      "picked": "hold",
-      "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":1,\"probabilities\":{\"unrelated\":0,\"duplicate\":0,\"distinct\":0,\"update\":1}}",
-      "latencyMs": 271
-    },
-    {
-      "id": "R12.b",
-      "right": true,
-      "picked": "hold",
-      "detail": "{\"type\":\"choice\",\"choice\":\"update\",\"confidence\":0.85,\"probabilities\":{\"update\":0.89,\"agrees\":0,\"distinct\":0,\"contradicts\":0.11}}",
-      "latencyMs": 257
     },
     {
       "id": "R13.a",

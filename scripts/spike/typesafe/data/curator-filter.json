@@ -1,6 +1,6 @@
 {
   "labelledAt": "2026-09-19",
-  "note": "v2.2 plan 04 Phase A. attention = the story has overtaken the entry (stale) or made a switched-off entry newly relevant; fine = nothing to do. Labels written before any judge answer was read. The noir set is in Spanish.",
+  "note": "v2.2 plan 04 Phase A. attention = the story has overtaken the entry (stale) or made a switched-off entry newly relevant; fine = nothing to do. Labels written before any judge answer was read. The Spanish noir set went with v2.6 W25.",
   "stories": [
     {
       "id": "sun-ruins",
@@ -28,20 +28,6 @@
         { "id": "E10", "title": "Escape Pods", "on": true, "content": "The ship carries four escape pods on deck two.", "attention": false },
         { "id": "E11", "title": "Kepler Station", "on": false, "content": "Kepler Station is a mining outpost with a repair dock. It only answers short-range hails.", "attention": true, "why": "switched off, now needed: it is the destination and only short-range hails work" },
         { "id": "E12", "title": "Captain's Log", "on": true, "content": "Captain Okafor keeps a paper log in her quarters and writes in it every night.", "attention": false }
-      ]
-    },
-    {
-      "id": "noir",
-      "checkpoint": { "name": "Atrapar a Doyle", "objective": "Arrest the harbor master before he flees." },
-      "canon": "Asuntos Internos arrestó al teniente Brandt después de ver las fotos del muelle. Maeve declaró que quien pagaba a la policía del puerto era el jefe del puerto, Doyle. El libro de cuentas del contrabandista apareció bajo el suelo de la lavandería de Pike Street.",
-      "openThreads": ["¿Dónde se esconde Doyle?"],
-      "entries": [
-        { "id": "E13", "title": "Teniente Brandt", "on": true, "content": "El teniente Brandt dirige la policía del puerto y cobra sobornos cada semana en el muelle nueve.", "attention": true, "why": "Brandt fue arrestado" },
-        { "id": "E14", "title": "El libro de cuentas", "on": true, "content": "Nadie sabe dónde está el libro de cuentas del contrabandista.", "attention": true, "why": "el libro apareció" },
-        { "id": "E15", "title": "Blue Anchor", "on": true, "content": "El Blue Anchor es un club nocturno junto al muelle nueve; Maeve canta allí casi todas las noches.", "attention": false },
-        { "id": "E16", "title": "Doyle", "on": false, "content": "Doyle, el jefe del puerto, tiene una lancha amarrada en el muelle doce, lista para huir.", "attention": true, "why": "desactivada pero ahora necesaria: hay que atrapar a Doyle" },
-        { "id": "E17", "title": "Mae Hollis", "on": true, "content": "Mae Hollis es detective de homicidios y la compañera de Max desde hace seis años.", "attention": false },
-        { "id": "E18", "title": "Lluvia en Mercer Street", "on": true, "content": "En Mercer Street llueve casi todas las noches y las farolas parpadean.", "attention": false }
       ]
     },
     {

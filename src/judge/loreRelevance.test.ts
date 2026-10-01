@@ -57,10 +57,9 @@ describe("lore relevance comparison (v2.3 plan 10 A)", () => {
     expect(measured.score.ok).toBe(false);
   });
 
-  it("covers every row of the fixture, Spanish included", async () => {
+  it("covers every row of the fixture (17 since v2.6 W25 removed the 8 Spanish ones)", async () => {
     const rows = resolveRelevanceCases(fixture()).filter((row) => row.candidates?.length);
-    const spanish = rows.filter((row) => row.lang === "es");
-    expect(rows).toHaveLength(25);
-    expect(spanish.length).toBeGreaterThanOrEqual(8);
+    expect(rows).toHaveLength(17);
+    expect(golden().calls.every((call) => call.questionCount > 0)).toBe(true);
   });
 });

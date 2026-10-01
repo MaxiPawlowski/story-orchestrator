@@ -3,26 +3,25 @@
   "summary": {
     "use": "backgrounds",
     "fixture": "backgrounds",
-    "right": 19,
-    "total": 22,
-    "rate": 0.8636,
+    "right": 16,
+    "total": 19,
+    "rate": 0.8421,
     "families": [
       {
         "family": "pick",
-        "right": 15,
-        "total": 18,
+        "right": 13,
+        "total": 16,
         "floor": 0.85,
         "ok": false
       },
       {
         "family": "none",
-        "right": 4,
-        "total": 4,
+        "right": 3,
+        "total": 3,
         "floor": 1,
         "ok": true
       }
     ],
-    "spanish": "3/3",
     "p50LatencyMs": 565,
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
@@ -156,27 +155,6 @@
       "picked": "none@0.98",
       "detail": "none",
       "latencyMs": 833
-    },
-    {
-      "id": "BX07.pick",
-      "right": true,
-      "picked": "landscape winter lake house.jpg@1",
-      "detail": "landscape winter lake house.jpg",
-      "latencyMs": 906
-    },
-    {
-      "id": "BX08.pick",
-      "right": true,
-      "picked": "cityscape postapoc.jpg@0.94",
-      "detail": "cityscape postapoc.jpg | landscape postapoc.jpg",
-      "latencyMs": 952
-    },
-    {
-      "id": "BX09.none",
-      "right": true,
-      "picked": "none@0.96",
-      "detail": "none",
-      "latencyMs": 970
     },
     {
       "id": "BX10.pick",

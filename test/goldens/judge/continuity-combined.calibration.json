@@ -3,33 +3,32 @@
   "summary": {
     "use": "continuity",
     "fixture": "continuity-combined",
-    "right": 83,
-    "total": 85,
-    "rate": 0.9765,
+    "right": 65,
+    "total": 67,
+    "rate": 0.9701,
     "families": [
       {
         "family": "reply",
-        "right": 27,
-        "total": 28,
+        "right": 22,
+        "total": 23,
         "floor": 0.9,
         "ok": true
       },
       {
         "family": "broken",
-        "right": 14,
-        "total": 15,
+        "right": 11,
+        "total": 12,
         "floor": 0.85,
         "ok": true
       },
       {
         "family": "consistent",
-        "right": 42,
-        "total": 42,
+        "right": 32,
+        "total": 32,
         "floor": 0.966,
         "ok": true
       }
     ],
-    "spanish": "18/18",
     "p50LatencyMs": 995,
     "requestedModel": null,
     "model": "jev-1.13.0",
@@ -265,19 +264,6 @@
       "latencyMs": 1011
     },
     {
-      "id": "C14.reply",
-      "right": true,
-      "picked": "Max answered the sphinx's riddle correctly.",
-      "latencyMs": 975
-    },
-    {
-      "id": "C14.broken:0",
-      "right": true,
-      "picked": "p=0.82",
-      "detail": "Max answered the sphinx's riddle correctly.",
-      "latencyMs": 975
-    },
-    {
       "id": "C15.reply",
       "right": true,
       "picked": "no note",
@@ -497,114 +483,6 @@
       "picked": "p=0.1",
       "detail": "The inner chamber is flooded.",
       "latencyMs": 1321
-    },
-    {
-      "id": "CX07.reply",
-      "right": true,
-      "picked": "no note",
-      "latencyMs": 1422
-    },
-    {
-      "id": "CX07.consistent:0",
-      "right": true,
-      "picked": "p=0.04",
-      "detail": "Arin fue herida en el derrumbe y sangra.",
-      "latencyMs": 1422
-    },
-    {
-      "id": "CX07.consistent:1",
-      "right": true,
-      "picked": "p=0.03",
-      "detail": "La recompensa es de 500 coronas.",
-      "latencyMs": 1422
-    },
-    {
-      "id": "CX07.consistent:2",
-      "right": true,
-      "picked": "p=0.03",
-      "detail": "Luke se unió a la expedición.",
-      "latencyMs": 1422
-    },
-    {
-      "id": "CX08.reply",
-      "right": true,
-      "picked": "Es de noche fuera de las ruinas.",
-      "latencyMs": 1450
-    },
-    {
-      "id": "CX08.consistent:0",
-      "right": true,
-      "picked": "p=0.06",
-      "detail": "La puerta principal de las ruinas se derrumbó.",
-      "latencyMs": 1450
-    },
-    {
-      "id": "CX08.consistent:1",
-      "right": true,
-      "picked": "p=0.07",
-      "detail": "El grupo entró por un túnel lateral.",
-      "latencyMs": 1450
-    },
-    {
-      "id": "CX08.broken:2",
-      "right": true,
-      "picked": "p=0.95",
-      "detail": "Es de noche fuera de las ruinas.",
-      "latencyMs": 1450
-    },
-    {
-      "id": "CX09.reply",
-      "right": true,
-      "picked": "no note",
-      "latencyMs": 1493
-    },
-    {
-      "id": "CX09.consistent:0",
-      "right": true,
-      "picked": "p=0.05",
-      "detail": "Luke tiene doce años.",
-      "latencyMs": 1493
-    },
-    {
-      "id": "CX09.consistent:1",
-      "right": true,
-      "picked": "p=0.06",
-      "detail": "Luke se unió a la expedición.",
-      "latencyMs": 1493
-    },
-    {
-      "id": "CX09.consistent:2",
-      "right": true,
-      "picked": "p=0.08",
-      "detail": "Ponticius firmó el contrato.",
-      "latencyMs": 1493
-    },
-    {
-      "id": "CX10.reply",
-      "right": true,
-      "picked": "La cámara interior está inundada.",
-      "latencyMs": 1468
-    },
-    {
-      "id": "CX10.consistent:0",
-      "right": true,
-      "picked": "p=0.04",
-      "detail": "Max lleva el Corazón del Sol en su mochila.",
-      "latencyMs": 1468
-    },
-    {
-      "id": "CX10.consistent:1",
-      "right": true,
-      "picked": "p=0.05",
-      "detail": "Arin no sabe dónde está el Corazón del Sol.",
-      "latencyMs": 1468
-    },
-    {
-      "id": "CX10.broken:2",
-      "right": true,
-      "picked": "p=0.98",
-      "detail": "La cámara interior está inundada.",
-      "latencyMs": 1468
     }
   ]
 }

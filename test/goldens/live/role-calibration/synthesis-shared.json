@@ -21,23 +21,11 @@
   "summary": {
     "role": "synthesis",
     "overall": {
-      "cases": 8,
+      "cases": 5,
       "metrics": {
         "validity": {
-          "passed": 8,
-          "total": 8,
-          "rate": 1,
-          "floor": null,
-          "ok": null
-        }
-      }
-    },
-    "es": {
-      "cases": 3,
-      "metrics": {
-        "validity": {
-          "passed": 3,
-          "total": 3,
+          "passed": 5,
+          "total": 5,
           "rate": 1,
           "floor": null,
           "ok": null
@@ -245,118 +233,6 @@
           {
             "speaker": "Oskar",
             "text": "The ferryman pushes off from the bank without a word. The reeds close behind the boat."
-          }
-        ]
-      }
-    },
-    {
-      "role": "synthesis",
-      "id": "s06",
-      "lang": "es",
-      "responses": [
-        "Max and Mara descended into a damp, dimly lit crypt beneath the altar to retrieve a relic. Mara warned Max not to touch anything as he approached the final niche to lift its lid."
-      ],
-      "finishes": [
-        "stop"
-      ],
-      "latencyMs": 2142,
-      "score": {
-        "valid": true,
-        "empty": false,
-        "truncated": false,
-        "noise": false
-      },
-      "case": {
-        "id": "s06",
-        "lang": "es",
-        "messages": [
-          {
-            "speaker": "Max",
-            "text": "Empujo la losa detrás del altar y bajo por la escalera de piedra."
-          },
-          {
-            "speaker": "Narrador",
-            "text": "La cripta huele a humedad. Las antorchas apenas iluminan los nichos de los antiguos abades."
-          },
-          {
-            "speaker": "Mara",
-            "text": "\"La reliquia debería estar en el nicho del fondo. No toques nada más.\""
-          },
-          {
-            "speaker": "Max",
-            "text": "Me acerco al nicho del fondo y levanto la tapa."
-          }
-        ]
-      }
-    },
-    {
-      "role": "synthesis",
-      "id": "s07",
-      "lang": "es",
-      "responses": [
-        "After the soldiers departed at dawn, Doña Elena met with Max and served wine. She revealed that Mayor Ruiz had fled to the port with tax money and was not alone."
-      ],
-      "finishes": [
-        "stop"
-      ],
-      "latencyMs": 2884,
-      "score": {
-        "valid": true,
-        "empty": false,
-        "truncated": false,
-        "noise": false
-      },
-      "case": {
-        "id": "s07",
-        "lang": "es",
-        "messages": [
-          {
-            "speaker": "Doña Elena",
-            "text": "\"Los soldados se fueron al amanecer. Ahora puedo hablar.\" Sirve dos vasos de vino."
-          },
-          {
-            "speaker": "Max",
-            "text": "\"¿Qué sabe del alcalde Ruiz?\""
-          },
-          {
-            "speaker": "Doña Elena",
-            "text": "\"Que huyó con el dinero de los impuestos hacia el puerto. Y que no iba solo.\""
-          }
-        ]
-      }
-    },
-    {
-      "role": "synthesis",
-      "id": "s08",
-      "lang": "es",
-      "responses": [
-        "Max boarded a derelict, crewless ship that appeared through the fog. He discovered the deck deserted and found disturbing fingernail marks on the captain's cabin door, creating an ominous atmosphere."
-      ],
-      "finishes": [
-        "stop"
-      ],
-      "latencyMs": 1923,
-      "score": {
-        "valid": true,
-        "empty": false,
-        "truncated": false,
-        "noise": false
-      },
-      "case": {
-        "id": "s08",
-        "lang": "es",
-        "messages": [
-          {
-            "speaker": "Narrador",
-            "text": "La niebla se abre y aparece el casco negro de un barco a la deriva, sin luces ni tripulación."
-          },
-          {
-            "speaker": "Max",
-            "text": "Lanzo un garfio a la borda y subo a la cubierta."
-          },
-          {
-            "speaker": "Narrador",
-            "text": "La cubierta está desierta. En la puerta del camarote del capitán hay marcas de uñas."
           }
         ]
       }

@@ -2,8 +2,8 @@
   "source": "calibrate-node agency over test/fixtures/judge/agency.json: the production question shape, real answers, replayed by jest keyed on state + questions, so a wording change must re-record",
   "recordedAt": "2026-09-25T04:56:59.664Z",
   "model": "jev-1.13.0",
-  "right": 51,
-  "total": 51,
+  "right": 41,
+  "total": 41,
   "calls": [
     {
       "state": {
@@ -89,50 +89,6 @@
             "2": 0,
             "3": 0.04,
             "4": 0.02
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "reply": {
-          "speaker": "Narrador",
-          "text": "La puerta se abre sola. Entras, desenvainas la espada y gritas: «¿Hay alguien aquí?»"
-        },
-        "player": "Max",
-        "player_message": "Llamo a la puerta."
-      },
-      "questions": {
-        "agency": {
-          "type": "score",
-          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
-          "criteria": [
-            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          ]
-        }
-      },
-      "answers": {
-        "agency": {
-          "type": "score",
-          "score": 3.45,
-          "confidence": 0.57,
-          "legend": {
-            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          },
-          "probabilities": {
-            "0": 0.01,
-            "1": 0.01,
-            "2": 0,
-            "3": 0.5,
-            "4": 0.48
           }
         }
       }
@@ -712,50 +668,6 @@
     {
       "state": {
         "reply": {
-          "speaker": "Narrador",
-          "text": "El mapa muestra dos rutas entre las colinas. Decides tomar la del norte y guardas el mapa en la mochila."
-        },
-        "player": "Max",
-        "player_message": "Me quedo mirando el mapa."
-      },
-      "questions": {
-        "agency": {
-          "type": "score",
-          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
-          "criteria": [
-            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          ]
-        }
-      },
-      "answers": {
-        "agency": {
-          "type": "score",
-          "score": 3.93,
-          "confidence": 0.95,
-          "legend": {
-            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          },
-          "probabilities": {
-            "0": 0,
-            "1": 0.01,
-            "2": 0,
-            "3": 0.04,
-            "4": 0.95
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "reply": {
           "speaker": "Luke",
           "text": "“Wait, the bridge is gone?!” *Luke's voice pitches higher, his eyes widening as he stares at the river.* “I—I mean, that's not what we're supposed to find!” *He looks back and forth between Arin and the collapsed bridge, his voice rapid and uncertain.* “But if it's gone, then… then we can still cross, right? There must be some other way.” *He looks over to Arin, his eager-to-please expression shifting into a bit of worry.*\n*Luke's hand goes to the hilt of his short sword, his fingers clutching it with a bit too much excitement.* “Maybe we can… maybe we can jump over? No, that's too wide.” *He looks back at the river, his pale face creasing in concern.* “But we can't just swim! What if there are monsters in the river? What if we're—what if we're being swept downstream into some monster's nest?” *His words tumble out of his mouth quickly, his chainmail clattering as he shifts his weight.*\n*He turns to look at Arin, his eagerness shining through.* \"But we can find a way, right? We've got—we've got you and Max!\" *He looks at Max with a bit of awe, as if he's just sure that they'll find a solution.* \"You guys are legends! You'll know exactly what to do!\"\n*Luke's oversized chainmail clatters as he stands there, his short sword clattering against his hip as he looks between Arin and and the river.* \"So... so what should we do? Maybe we can build a raft? Or... or look for another crossing?\" *He looks back at Arin with hopeful eyes.*"
         },
@@ -844,50 +756,6 @@
     {
       "state": {
         "reply": {
-          "speaker": "Conde Ruiz",
-          "text": "El conde insiste con una sonrisa. Al final aceptas, firmas el pergamino y le estrechas la mano."
-        },
-        "player": "Max",
-        "player_message": "Rechazo el trato."
-      },
-      "questions": {
-        "agency": {
-          "type": "score",
-          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
-          "criteria": [
-            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          ]
-        }
-      },
-      "answers": {
-        "agency": {
-          "type": "score",
-          "score": 3.98,
-          "confidence": 0.99,
-          "legend": {
-            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          },
-          "probabilities": {
-            "0": 0,
-            "1": 0,
-            "2": 0,
-            "3": 0.01,
-            "4": 0.99
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "reply": {
           "speaker": "Narrator",
           "text": "The wind rises off the lake, carrying the smell of snow. Across the square a lantern gutters and goes out."
         },
@@ -925,50 +793,6 @@
             "2": 0,
             "3": 0,
             "4": 0
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "reply": {
-          "speaker": "Pescadora",
-          "text": "\"Sigue la costa hacia el sur\", dice la pescadora. Le das las gracias, le compras un pescado y echas a andar hacia el puerto."
-        },
-        "player": "Max",
-        "player_message": "Pregunto por el camino al puerto."
-      },
-      "questions": {
-        "agency": {
-          "type": "score",
-          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
-          "criteria": [
-            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          ]
-        }
-      },
-      "answers": {
-        "agency": {
-          "type": "score",
-          "score": 3.07,
-          "confidence": 0.67,
-          "legend": {
-            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          },
-          "probabilities": {
-            "0": 0.01,
-            "1": 0.07,
-            "2": 0,
-            "3": 0.69,
-            "4": 0.23
           }
         }
       }
@@ -1240,50 +1064,6 @@
     {
       "state": {
         "reply": {
-          "speaker": "Arin",
-          "text": "\"Que es una trampa.\" Max asiente y dice: \"Entonces entramos por la puerta de atrás.\""
-        },
-        "player": "Max",
-        "player_message": "Arin, ¿qué opinas?"
-      },
-      "questions": {
-        "agency": {
-          "type": "score",
-          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
-          "criteria": [
-            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          ]
-        }
-      },
-      "answers": {
-        "agency": {
-          "type": "score",
-          "score": 3.7,
-          "confidence": 0.75,
-          "legend": {
-            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          },
-          "probabilities": {
-            "0": 0.05,
-            "1": 0.01,
-            "2": 0,
-            "3": 0.05,
-            "4": 0.89
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "reply": {
           "speaker": "Narrator",
           "text": "The idol comes free of its pedestal with a click. Somewhere below, stone grinds on stone and the floor begins to tilt."
         },
@@ -1365,50 +1145,6 @@
             "2": 0,
             "3": 0,
             "4": 0.01
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "reply": {
-          "speaker": "Conde Ruiz",
-          "text": "El conde frunce el ceño. \"Como quieras. La oferta sigue en pie hasta el anochecer.\""
-        },
-        "player": "Max",
-        "player_message": "Rechazo el trato."
-      },
-      "questions": {
-        "agency": {
-          "type": "score",
-          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
-          "criteria": [
-            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          ]
-        }
-      },
-      "answers": {
-        "agency": {
-          "type": "score",
-          "score": 0.07,
-          "confidence": 0.94,
-          "legend": {
-            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          },
-          "probabilities": {
-            "0": 0.95,
-            "1": 0.05,
-            "2": 0,
-            "3": 0,
-            "4": 0
           }
         }
       }
@@ -1680,50 +1416,6 @@
     {
       "state": {
         "reply": {
-          "speaker": "Pescadora",
-          "text": "\"Sigue la costa hacia el sur, dos horas a pie\", responde la pescadora sin dejar de remendar la red."
-        },
-        "player": "Max",
-        "player_message": "Pregunto por el camino al puerto."
-      },
-      "questions": {
-        "agency": {
-          "type": "score",
-          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
-          "criteria": [
-            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          ]
-        }
-      },
-      "answers": {
-        "agency": {
-          "type": "score",
-          "score": 0.15,
-          "confidence": 0.87,
-          "legend": {
-            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          },
-          "probabilities": {
-            "0": 0.85,
-            "1": 0.15,
-            "2": 0,
-            "3": 0,
-            "4": 0
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "reply": {
           "speaker": "Duke Harlan",
           "text": "The Duke's smile thins. \"A pity. The offer stands until the bells ring at dusk.\" He turns back to his wine."
         },
@@ -1900,94 +1592,6 @@
     {
       "state": {
         "reply": {
-          "speaker": "Luke",
-          "text": "\"¡V-vale!\" Luke se esconde detrás de ti, agarrando la espada con las dos manos."
-        },
-        "player": "Max",
-        "player_message": "Luke, quédate detrás de mí."
-      },
-      "questions": {
-        "agency": {
-          "type": "score",
-          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
-          "criteria": [
-            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          ]
-        }
-      },
-      "answers": {
-        "agency": {
-          "type": "score",
-          "score": 0.15,
-          "confidence": 0.88,
-          "legend": {
-            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          },
-          "probabilities": {
-            "0": 0.9,
-            "1": 0.09,
-            "2": 0,
-            "3": 0,
-            "4": 0.01
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "reply": {
-          "speaker": "Narrador",
-          "text": "La tapa cede con un chasquido; te sobresaltas cuando sale una nube de polvo, y debajo brillan unas monedas antiguas."
-        },
-        "player": "Max",
-        "player_message": "Abro el cofre."
-      },
-      "questions": {
-        "agency": {
-          "type": "score",
-          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
-          "criteria": [
-            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          ]
-        }
-      },
-      "answers": {
-        "agency": {
-          "type": "score",
-          "score": 1.86,
-          "confidence": 0.87,
-          "legend": {
-            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          },
-          "probabilities": {
-            "0": 0.01,
-            "1": 0.12,
-            "2": 0.86,
-            "3": 0.01,
-            "4": 0
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "reply": {
           "speaker": "Narrator",
           "text": "The stranger's hood hides his face. Your hand drifts to your sword and you ask him, \"What business do you have here?\""
         },
@@ -2025,50 +1629,6 @@
             "2": 0,
             "3": 0.31,
             "4": 0.68
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "reply": {
-          "speaker": "Narrador",
-          "text": "A mitad de camino la piedra se desmorona bajo tus dedos y resbalas de nuevo hasta el barro."
-        },
-        "player": "Max",
-        "player_message": "Intento trepar el muro."
-      },
-      "questions": {
-        "agency": {
-          "type": "score",
-          "instructions": "Does `reply` write what only `player` does, says, decides or thinks? `player_message` is what the player wrote themselves.",
-          "criteria": [
-            "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          ]
-        }
-      },
-      "answers": {
-        "agency": {
-          "type": "score",
-          "score": 1.09,
-          "confidence": 0.77,
-          "legend": {
-            "0": "world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-            "1": "restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-            "2": "a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-            "3": "a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-            "4": "a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words"
-          },
-          "probabilities": {
-            "0": 0.1,
-            "1": 0.8,
-            "2": 0.02,
-            "3": 0.07,
-            "4": 0.01
           }
         }
       }

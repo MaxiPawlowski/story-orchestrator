@@ -37,9 +37,9 @@ describe("v2.5 plan 09 SP8 W4 (a): the digest bounds the prompt on an Adolion-si
   });
   const worst = Math.max(...ratios.map((row) => (row.digest ?? row.full) / row.full));
 
-  it("runs over the 20 calibration cases on a >= 150-entry book built from the real size profile", () => {
+  it("runs over the 12 calibration cases on a >= 150-entry book built from the real size profile", () => {
     expect(profile.source.entries).toBeGreaterThanOrEqual(150);
-    expect(ratios).toHaveLength(20);
+    expect(ratios).toHaveLength(12);
     expect(ratios.every((row) => row.entries >= 150 && row.digest !== null)).toBe(true);
     if (process.env.SO_SPIKE_REPORT) process.stdout.write(`${JSON.stringify({ worst, ratios })}\n`);
   });

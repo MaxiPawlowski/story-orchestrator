@@ -165,14 +165,13 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
     return { ...out, verdict: judge.modelVerdict(model ?? null, out.model) };
   }, { use, model: requestedModel, rows: use === 'lore' ? fixture.rows.map((row: any) => ({ ...row, candidates: row.candidates ?? fixture.pools?.[row.pool] ?? [] })) : use === 'backgrounds' ? fixture.rows.map((row: any) => ({ ...row, installed: fixture.installed })) : fixture.rows });
   const labelOf: Record<string, string> = Object.fromEntries(fixture.rows.filter((row: any) => row.label).map((row: any) => [row.id, row.label]));
-  const tagOf = Object.fromEntries(fixture.rows.map((row: any) => [row.id, row.tags ?? (row.lang === 'es' ? ['spanish'] : [])]));
+  const tagOf = Object.fromEntries(fixture.rows.map((row: any) => [row.id, row.tags ?? []]));
   const tagsOf = (id: string): string[] => tagOf[id] ?? tagOf[id.split('.')[0]] ?? [];
   for (const row of report.rows) console.log(`${row.right ? 'ok  ' : 'MISS'} ${row.id.padEnd(5)} ${String(row.picked).padEnd(16)} ${String(row.latencyMs).padStart(5)} ms  ${tagsOf(row.id).join(',')}${row.fallback ? `  fallback=${row.fallback}` : ''}${row.detail ? `  [${row.id in labelOf ? labelOf[row.id] : ''}] ${row.detail}` : ''}`);
   const rate = report.total ? report.right / report.total : 0;
-  const spanish = report.rows.filter((row: any) => tagsOf(row.id).includes('spanish'));
   const families = ['scene', 'lore', 'curator-filter', 'continuity', 'backgrounds', 'typed', 'stall', 'critic', 'variants', 'agency', 'house-rules', 'warden-lore', 'warden-lore-facts'].includes(use) ? familyScores(report.rows, fixture.floors ?? {}) : [];
   families.forEach((row) => console.log(`${row.ok ? 'ok  ' : 'FAIL'} ${row.family.padEnd(9)} ${row.right}/${row.total} floor ${row.floor}`));
-  const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), ...(families.length ? { families } : {}), spanish: `${spanish.filter((row: any) => row.right).length}/${spanish.length}`, p50LatencyMs: report.p50LatencyMs, requestedModel: requestedModel ?? null, model: report.model, modelVerdict: report.verdict.verdict as ModelVerdict, ...(report.verdict.resolvedTo ? { resolvedTo: report.verdict.resolvedTo } : {}), min, minGiven: process.argv.includes('--min'), ok: calibrationOk({ rate, min, minGiven: process.argv.includes('--min'), families, modelVerdict: report.verdict.verdict }) };
+  const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), ...(families.length ? { families } : {}), p50LatencyMs: report.p50LatencyMs, requestedModel: requestedModel ?? null, model: report.model, modelVerdict: report.verdict.verdict as ModelVerdict, ...(report.verdict.resolvedTo ? { resolvedTo: report.verdict.resolvedTo } : {}), min, minGiven: process.argv.includes('--min'), ok: calibrationOk({ rate, min, minGiven: process.argv.includes('--min'), families, modelVerdict: report.verdict.verdict }) };
   console.log(JSON.stringify(summary, null, 2));
   await writeJSON({ summary, report }, `so-judge-calibrate-${fixtureName}`);
   if (record) {
@@ -194,11 +193,11 @@ async function calibrateRelease(page: any, fixtureName: string, record: boolean,
     const out = await judge.calibrate('contradiction-release', cases, model);
     return { ...out, phaseA: judge.scoreContradictionRelease(out, cases, modes), verdict: judge.modelVerdict(model ?? null, out.model) };
   }, { cases, modes, model: requestedModel });
-  const labelOf: Record<string, string> = Object.fromEntries(cases.map((row) => [row.id, `${row.label}${row.lang === 'es' ? ',es' : ''}`]));
+  const labelOf: Record<string, string> = Object.fromEntries(cases.map((row) => [row.id, row.label]));
   for (const row of report.rows) console.log(`${row.right ? 'ok  ' : 'MISS'} ${row.id.padEnd(6)} ${String(row.picked).padEnd(8)} ${String(row.latencyMs).padStart(5)} ms  [${labelOf[row.id.split('.')[0]] ?? ''}]${row.fallback ? `  fallback=${row.fallback}` : ''}${row.detail ? `  ${row.detail}` : ''}`);
   for (const mode of report.phaseA.modes) {
     if (!mode.measured) console.log(`OPEN ${mode.mode}: unmeasured (no cosine bracket file; run so-contradiction-cosine.mts capture --record)`);
-    for (const arm of mode.arms) console.log(`${arm.ok ? 'ok  ' : 'FAIL'} ${mode.mode} (${arm.wording}) releaseErr ${arm.releaseErr.hit}/${arm.releaseErr.total} es ${arm.releaseErrEs.hit}/${arm.releaseErrEs.total} paraphrase ${arm.paraphraseRelease.hit}/${arm.paraphraseRelease.total}`);
+    for (const arm of mode.arms) console.log(`${arm.ok ? 'ok  ' : 'FAIL'} ${mode.mode} (${arm.wording}) releaseErr ${arm.releaseErr.hit}/${arm.releaseErr.total} paraphrase ${arm.paraphraseRelease.hit}/${arm.paraphraseRelease.total}`);
   }
   const modelVerdict = report.verdict.verdict as ModelVerdict;
   const summary = { use: 'contradiction-release', fixture: fixtureName, rows: cases.length, modes: Object.keys(modes), brackets: bracketNames, passing: report.phaseA.passing, p50LatencyMs: report.p50LatencyMs, requestedModel: requestedModel ?? null, model: report.model, modelVerdict, ...(report.verdict.resolvedTo ? { resolvedTo: report.verdict.resolvedTo } : {}), ok: report.phaseA.ok && modelVerdict !== 'mismatch' && modelVerdict !== 'unknown' };

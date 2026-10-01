@@ -5,7 +5,7 @@
     "narrowed": 0
   },
   "labelledAt": "2026-09-19",
-  "source": "Promoted from scripts/spike/typesafe/data/curator-filter.json (Phase A, labels written before any answer was read; the noir set is Spanish). recall = an entry needing attention is still shown to the curator; narrowed = a fine switched-on entry was dropped from its prompt (reported, no floor).",
+  "source": "Promoted from scripts/spike/typesafe/data/curator-filter.json (Phase A, labels written before any answer was read; the Spanish noir set went with v2.6 W25). recall = an entry needing attention is still shown to the curator; narrowed = a fine switched-on entry was dropped from its prompt (reported, no floor).",
   "rows": [
     {
       "id": "sun-ruins",
@@ -113,60 +113,6 @@
         false,
         false,
         true,
-        false
-      ]
-    },
-    {
-      "id": "noir",
-      "lang": "es",
-      "input": {
-        "checkpoint": {
-          "name": "Atrapar a Doyle",
-          "objective": "Arrest the harbor master before he flees."
-        },
-        "canon": "Asuntos Internos arrestó al teniente Brandt después de ver las fotos del muelle. Maeve declaró que quien pagaba a la policía del puerto era el jefe del puerto, Doyle. El libro de cuentas del contrabandista apareció bajo el suelo de la lavandería de Pike Street.",
-        "openThreads": [
-          "¿Dónde se esconde Doyle?"
-        ],
-        "entries": [
-          {
-            "title": "Teniente Brandt",
-            "content": "El teniente Brandt dirige la policía del puerto y cobra sobornos cada semana en el muelle nueve.",
-            "enabled": true
-          },
-          {
-            "title": "El libro de cuentas",
-            "content": "Nadie sabe dónde está el libro de cuentas del contrabandista.",
-            "enabled": true
-          },
-          {
-            "title": "Blue Anchor",
-            "content": "El Blue Anchor es un club nocturno junto al muelle nueve; Maeve canta allí casi todas las noches.",
-            "enabled": true
-          },
-          {
-            "title": "Doyle",
-            "content": "Doyle, el jefe del puerto, tiene una lancha amarrada en el muelle doce, lista para huir.",
-            "enabled": false
-          },
-          {
-            "title": "Mae Hollis",
-            "content": "Mae Hollis es detective de homicidios y la compañera de Max desde hace seis años.",
-            "enabled": true
-          },
-          {
-            "title": "Lluvia en Mercer Street",
-            "content": "En Mercer Street llueve casi todas las noches y las farolas parpadean.",
-            "enabled": true
-          }
-        ]
-      },
-      "attention": [
-        true,
-        true,
-        false,
-        true,
-        false,
         false
       ]
     },

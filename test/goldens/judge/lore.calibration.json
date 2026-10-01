@@ -3,26 +3,25 @@
   "summary": {
     "use": "lore",
     "fixture": "lore",
-    "right": 70,
-    "total": 78,
-    "rate": 0.8974,
+    "right": 54,
+    "total": 59,
+    "rate": 0.9153,
     "families": [
       {
         "family": "recall",
-        "right": 35,
-        "total": 39,
+        "right": 27,
+        "total": 30,
         "floor": 0.8,
         "ok": true
       },
       {
         "family": "precision",
-        "right": 35,
-        "total": 39,
+        "right": 27,
+        "total": 29,
         "floor": 0.7,
         "ok": true
       }
     ],
-    "spanish": "16/19",
     "p50LatencyMs": 509,
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
@@ -260,97 +259,6 @@
       "latencyMs": 306
     },
     {
-      "id": "L06.recall:SO-J11 Adolion World.49",
-      "right": true,
-      "picked": "p=0.86",
-      "latencyMs": 267
-    },
-    {
-      "id": "L06.recall:SO-J11 Adolion World.48",
-      "right": true,
-      "picked": "p=0.77",
-      "latencyMs": 267
-    },
-    {
-      "id": "L06.recall:SO-J11 Adolion World.51",
-      "right": true,
-      "picked": "p=0.81",
-      "latencyMs": 267
-    },
-    {
-      "id": "L06.recall:SO-J11 Adolion World.14",
-      "right": false,
-      "picked": "p=0.32",
-      "latencyMs": 267
-    },
-    {
-      "id": "L06.precision:SO-J11 Adolion World.49",
-      "right": true,
-      "picked": "p=0.86",
-      "detail": "Place - Castle Bathorya",
-      "latencyMs": 267
-    },
-    {
-      "id": "L06.precision:SO-J11 Adolion World.51",
-      "right": true,
-      "picked": "p=0.81",
-      "detail": "Race - Elder Vampire",
-      "latencyMs": 267
-    },
-    {
-      "id": "L06.precision:SO-J11 Adolion World.48",
-      "right": true,
-      "picked": "p=0.77",
-      "detail": "NPC - Gabriel Malvoraux",
-      "latencyMs": 267
-    },
-    {
-      "id": "L07.recall:SO-J11 Adolion World.16",
-      "right": true,
-      "picked": "p=0.74",
-      "latencyMs": 663
-    },
-    {
-      "id": "L07.recall:SO-J11 Adolion World.52",
-      "right": true,
-      "picked": "p=0.82",
-      "latencyMs": 663
-    },
-    {
-      "id": "L07.recall:SO-J11 Adolion World.53",
-      "right": true,
-      "picked": "p=0.75",
-      "latencyMs": 663
-    },
-    {
-      "id": "L07.precision:SO-J11 Adolion World.52",
-      "right": true,
-      "picked": "p=0.82",
-      "detail": "Creature - Goblin Lord",
-      "latencyMs": 663
-    },
-    {
-      "id": "L07.precision:SO-J11 Adolion World.53",
-      "right": true,
-      "picked": "p=0.75",
-      "detail": "Creature - Hobgoblin",
-      "latencyMs": 663
-    },
-    {
-      "id": "L07.precision:SO-J11 Adolion World.16",
-      "right": true,
-      "picked": "p=0.74",
-      "detail": "Creature - goblin",
-      "latencyMs": 663
-    },
-    {
-      "id": "L07.precision:SO-J11 Adolion World.30",
-      "right": false,
-      "picked": "p=0.63",
-      "detail": "Lore - Quest Target",
-      "latencyMs": 663
-    },
-    {
       "id": "L08.recall:SO-J11 Adolion World.57",
       "right": true,
       "picked": "p=0.86",
@@ -434,39 +342,6 @@
       "picked": "p=0.64",
       "detail": "Lore - Inquisition",
       "latencyMs": 571
-    },
-    {
-      "id": "L10.recall:SO-J11 Adolion World.27",
-      "right": true,
-      "picked": "p=0.9",
-      "latencyMs": 682
-    },
-    {
-      "id": "L10.recall:SO-J11 Adolion World.18",
-      "right": true,
-      "picked": "p=0.82",
-      "latencyMs": 682
-    },
-    {
-      "id": "L10.precision:SO-J11 Adolion World.27",
-      "right": true,
-      "picked": "p=0.9",
-      "detail": "NPC - Fiana",
-      "latencyMs": 682
-    },
-    {
-      "id": "L10.precision:SO-J11 Adolion World.18",
-      "right": true,
-      "picked": "p=0.82",
-      "detail": "NPC - Ellie",
-      "latencyMs": 682
-    },
-    {
-      "id": "L10.precision:SO-J11 Adolion World.24",
-      "right": false,
-      "picked": "p=0.63",
-      "detail": "NPC - Arryn",
-      "latencyMs": 682
     },
     {
       "id": "W1.recall:spike-sun-ruins.0",

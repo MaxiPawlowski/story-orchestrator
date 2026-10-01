@@ -70,34 +70,6 @@
       ]
     },
     {
-      "id": "R05", "world": "sun-ruins", "checkpoint": "cp-5", "tags": ["spanish"],
-      "transcript": [
-        { "speaker": "DM Narrator", "text": "Bajo tierra, la cámara interior está en silencio; solo la antorcha de Arin ilumina el altar." },
-        { "speaker": "Luke", "text": "\"¡Mira, Max! ¡Brilla como el sol!\"" },
-        { "speaker": "Arin", "text": "\"No toques nada todavía. Podría haber trampas.\"" },
-        { "speaker": "Max", "text": "\"Ahí está el Corazón del Sol, sobre el altar. Lo tomo con cuidado.\"" }
-      ],
-      "labels": { "present": { "Arin": true, "Ponticius": false, "Luke": true }, "location": "inner chamber", "time": "unclear" },
-      "reachable": [
-        { "name": "Find the Artifact", "objective": "Recover the Sun's Heart Artifact from the inner chamber.", "heading": true },
-        { "name": "Departure Preparations", "objective": "Decide whether to take Luke along before departing for the Sun Ruins.", "heading": false }
-      ]
-    },
-    {
-      "id": "R06", "world": "sun-ruins", "checkpoint": "cp-6", "tags": ["spanish"],
-      "transcript": [
-        { "speaker": "DM Narrator", "text": "Esa noche el salón del gremio está casi vacío. Ponticius cuenta monedas detrás del mostrador." },
-        { "speaker": "Luke", "text": "Luke se ha quedado dormido en un banco junto al fuego." },
-        { "speaker": "Arin", "text": "\"Hazlo rápido, Max. Quiero una cama.\"" },
-        { "speaker": "Max", "text": "Pongo el Corazón del Sol sobre el mostrador. \"Aquí está tu artefacto, Ponticius. Ahora paga.\"" }
-      ],
-      "labels": { "present": { "Arin": true, "Ponticius": true, "Luke": true }, "location": "guild hall", "time": "night" },
-      "reachable": [
-        { "name": "Return to the Guild", "objective": "Deliver the artifact to the Guild Master and claim your reward.", "heading": true },
-        { "name": "Travel with Luke", "objective": "Reach the Sun Ruins with Luke and face the sphinx's riddle.", "heading": false }
-      ]
-    },
-    {
       "id": "R07", "world": "ship", "checkpoint": "reactor", "tags": ["english"],
       "transcript": [
         { "speaker": "Narrator", "text": "The engine room is a cage of pipes and red warning light; the reactor hums unevenly." },
@@ -149,20 +121,6 @@
       "labels": { "present": { "Captain Okafor": false, "Pell": false }, "location": "crew quarters", "time": "night" },
       "reachable": [
         { "name": "Seal the Breach", "objective": "Patch the hull breach on deck three.", "heading": false },
-        { "name": "Abandon Ship", "objective": "Get everyone into the escape pods.", "heading": false }
-      ]
-    },
-    {
-      "id": "R11", "world": "ship", "checkpoint": "reactor", "tags": ["spanish"],
-      "transcript": [
-        { "speaker": "Narrator", "text": "En la sala de máquinas el aire huele a ozono y a metal caliente." },
-        { "speaker": "Captain Okafor", "text": "Okafor entra y se planta junto al reactor. \"Estoy aquí. ¿Qué necesitas?\"" },
-        { "speaker": "Pell", "text": "\"La brecha de la cubierta tres nos está robando el aire.\"" },
-        { "speaker": "Max", "text": "\"Pell, capitana: sellemos esa brecha antes de que perdamos el aire. Yo llevo los parches.\"" }
-      ],
-      "labels": { "present": { "Captain Okafor": true, "Pell": true }, "location": "engine room", "time": "unclear" },
-      "reachable": [
-        { "name": "Seal the Breach", "objective": "Patch the hull breach on deck three.", "heading": true },
         { "name": "Abandon Ship", "objective": "Get everyone into the escape pods.", "heading": false }
       ]
     },
@@ -222,20 +180,6 @@
       ]
     },
     {
-      "id": "R16", "world": "noir", "checkpoint": "ledger", "tags": ["spanish"],
-      "transcript": [
-        { "speaker": "Narrator", "text": "La luz del mediodía entra por las ventanas del Blue Anchor vacío; las sillas siguen sobre las mesas." },
-        { "speaker": "Maeve", "text": "Maeve fuma junto al piano, sin mirarnos. \"Llegáis pronto. Aún no abrimos.\"" },
-        { "speaker": "Mae Hollis", "text": "Mae se sienta frente a ella. \"No venimos a escucharte cantar.\"" },
-        { "speaker": "Max", "text": "\"Maeve, dinos quién le paga a Brandt y te sacamos de esta ciudad.\"" }
-      ],
-      "labels": { "present": { "Mae Hollis": true, "Maeve": true, "Lt. Brandt": false }, "location": "Blue Anchor nightclub", "time": "midday" },
-      "reachable": [
-        { "name": "Turn Maeve", "objective": "Get Maeve to name who pays the harbor police.", "heading": true },
-        { "name": "Find the Ledger", "objective": "Recover the smuggler's ledger.", "heading": false }
-      ]
-    },
-    {
       "id": "R17", "world": "manor", "checkpoint": "gallery", "tags": ["english"],
       "transcript": [
         { "speaker": "Narrator", "text": "Night has fallen; a single candle lights the long portrait gallery." },
@@ -287,19 +231,6 @@
         { "name": "Leave the Manor", "objective": "Pack and leave Ashworth Hall before nightfall.", "heading": true },
         { "name": "Search the Library", "objective": "Find the family records in the library.", "heading": false }
       ]
-    },
-    {
-      "id": "R21", "world": "manor", "checkpoint": "gallery", "tags": ["spanish"],
-      "transcript": [
-        { "speaker": "Narrator", "text": "A mediodía, la galería de retratos está bañada de luz. Lady Ashworth y Graves esperan junto al cuadro del abuelo." },
-        { "speaker": "Graves", "text": "\"La señora ha accedido a hablar con usted, señor.\"" },
-        { "speaker": "Max", "text": "\"Señora Ashworth, ¿por qué se mueven los retratos? Quiero la verdad.\"" }
-      ],
-      "labels": { "present": { "Lady Ashworth": true, "Graves": true }, "location": "portrait gallery", "time": "midday" },
-      "reachable": [
-        { "name": "Confront Lady Ashworth", "objective": "Make her explain why the portraits move.", "heading": true },
-        { "name": "Leave the Manor", "objective": "Pack and leave Ashworth Hall before nightfall.", "heading": false }
-      ]
     }
   ],
   "ooc": [
@@ -311,9 +242,6 @@
     { "id": "O06", "ooc": true, "lang": "en", "text": "Please don't have Luke die in this story, ok?" },
     { "id": "O07", "ooc": true, "lang": "en", "text": "(OOC: Mae should be the one who finds the ledger)" },
     { "id": "O08", "ooc": true, "lang": "en", "text": "Stop the scene here, I want to save and continue tomorrow." },
-    { "id": "O09", "ooc": true, "lang": "es", "text": "(OOC: ¿podemos saltar a la parte de las ruinas?)" },
-    { "id": "O10", "ooc": true, "lang": "es", "text": "Oye, haz que la capitana sea más amable, porfa." },
-    { "id": "O11", "ooc": true, "lang": "es", "text": "[fuera de personaje] vuelvo en cinco minutos" },
     { "id": "O12", "ooc": true, "lang": "en", "text": "Regenerate that, Graves wouldn't talk like that." },
     { "id": "O13", "ooc": false, "lang": "en", "text": "\"Stop!\" I shout at the guard. \"Skip the formalities and let us through.\"" },
     { "id": "O14", "ooc": false, "lang": "en", "text": "I ask Arin to be less sarcastic for once." },
@@ -322,9 +250,6 @@
     { "id": "O17", "ooc": false, "lang": "en", "text": "\"HALO, describe the room. Every sensor reading.\"" },
     { "id": "O18", "ooc": false, "lang": "en", "text": "I grab Luke by the shoulders. \"Don't you dare die on me out there.\"" },
     { "id": "O19", "ooc": false, "lang": "en", "text": "\"Save your breath, Brandt. We know everything.\"" },
-    { "id": "O20", "ooc": false, "lang": "es", "text": "\"¡Alto!\" le grito al guardia. \"Déjanos pasar.\"" },
-    { "id": "O21", "ooc": false, "lang": "es", "text": "Le pido a Arin que por una vez no sea sarcástica." },
-    { "id": "O22", "ooc": false, "lang": "es", "text": "\"Pell, reinicia el sistema. Otra vez.\"" },
     { "id": "O23", "ooc": false, "lang": "en", "text": "I take a deep breath and keep climbing the stairs." },
     { "id": "O24", "ooc": false, "lang": "en", "text": "\"Continue the story, old man. What happened to the last crew?\"" }
   ]

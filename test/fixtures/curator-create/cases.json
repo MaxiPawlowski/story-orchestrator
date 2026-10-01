@@ -54,34 +54,6 @@
       "canon": "At the auction the Glass Choir lost the mirror to Vey and left humming a note that made the lamps shiver."
     },
     {
-      "id": "p08", "lang": "es", "label": "propose", "why": "established", "entity": "Doña Remedios",
-      "story": "La Casa del Pozo", "checkpoint": "La cocina", "book": "Lore Casa del Pozo", "roster": ["Lucía", "Tomás"],
-      "entries": [{ "uid": 0, "comment": "La casa", "keys": ["casa", "caserón"], "content": "Un caserón de piedra junto a un pozo seco, abandonado desde la guerra." }],
-      "facts": ["Doña Remedios es la vieja cocinera que nunca abandonó la casa.", "Doña Remedios guarda la llave del sótano en el delantal.", "Tomás le tiene miedo a Doña Remedios desde niño."],
-      "canon": "En la cocina, Lucía encontró a Doña Remedios hirviendo agua como si nadie se hubiera ido nunca; la llave del sótano asomaba de su delantal."
-    },
-    {
-      "id": "p09", "lang": "es", "label": "propose", "why": "established", "entity": "Cofradía del Pozo",
-      "story": "La Casa del Pozo", "checkpoint": "El pueblo", "book": "Lore Casa del Pozo", "roster": ["Lucía", "Tomás"],
-      "entries": [{ "uid": 0, "comment": "La casa", "keys": ["casa", "caserón"], "content": "Un caserón de piedra junto a un pozo seco." }],
-      "facts": ["La Cofradía del Pozo es una hermandad del pueblo que se reúne cada luna nueva.", "La Cofradía del Pozo quiere que la casa siga cerrada.", "El alcalde pertenece a la Cofradía del Pozo."],
-      "canon": "En la plaza, el alcalde advirtió a Lucía que la Cofradía del Pozo no toleraría que abrieran la casa."
-    },
-    {
-      "id": "p10", "lang": "es", "label": "propose", "why": "established", "entity": "Faro de San Telmo",
-      "story": "Costa Muerta", "checkpoint": "La tormenta", "book": "Lore Costa Muerta", "roster": ["Inés", "Marco"],
-      "entries": [{ "uid": 2, "comment": "El puerto", "keys": ["puerto", "muelle"], "content": "Un puerto pesquero pequeño, protegido por un espigón de piedra." }],
-      "facts": ["El Faro de San Telmo lleva apagado desde el naufragio del Esperanza.", "Alguien volvió a encender el Faro de San Telmo durante la tormenta.", "Marco jura que vio una figura en lo alto del Faro de San Telmo."],
-      "canon": "En plena tormenta la luz del Faro de San Telmo barrió la bahía por primera vez en años, e Inés corrió hacia el acantilado."
-    },
-    {
-      "id": "p11", "lang": "es", "label": "propose", "why": "established", "entity": "el Tuerto",
-      "story": "Costa Muerta", "checkpoint": "La taberna", "book": "Lore Costa Muerta", "roster": ["Inés", "Marco"],
-      "entries": [{ "uid": 2, "comment": "El puerto", "keys": ["puerto", "muelle"], "content": "Un puerto pesquero pequeño." }, { "uid": 3, "comment": "Faro de San Telmo", "keys": ["faro", "San Telmo"], "content": "Un faro apagado desde el naufragio del Esperanza." }],
-      "facts": ["El Tuerto es el contrabandista que controla el muelle de noche.", "El Tuerto perdió el ojo en el naufragio del Esperanza.", "Inés le debe dinero al Tuerto."],
-      "canon": "En la taberna, el Tuerto recordó a Inés su deuda y le ofreció perdonarla si le contaba quién encendió el faro."
-    },
-    {
       "id": "n01", "lang": "en", "label": "none", "why": "named-once", "entity": "Garrick",
       "story": "The Salt Road", "checkpoint": "The river town", "book": "Salt Road Lore", "roster": ["Mira", "Tolan"],
       "entries": [{ "uid": 0, "comment": "The Delta", "keys": ["delta", "marsh"], "content": "A drowned plain of reeds and channels." }, { "uid": 1, "comment": "Brass Lantern", "keys": ["brass lantern", "inn"], "content": "The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger." }],
@@ -122,41 +94,6 @@
       "entries": [{ "uid": 3, "comment": "Ember Keep", "keys": ["keep", "fortress"], "content": "A basalt fortress over a dormant volcano, held by the Reyes family." }],
       "facts": ["Captain Reyes refused the ultimatum.", "Captain Reyes ordered the gates barred."],
       "canon": "Captain Reyes walked the walls and ordered the gates barred."
-    },
-    {
-      "id": "n07", "lang": "es", "label": "none", "why": "named-once", "entity": "Paquito",
-      "story": "La Casa del Pozo", "checkpoint": "El camino", "book": "Lore Casa del Pozo", "roster": ["Lucía", "Tomás"],
-      "entries": [{ "uid": 0, "comment": "La casa", "keys": ["casa", "caserón"], "content": "Un caserón de piedra junto a un pozo seco." }],
-      "facts": ["Tomás saludó a un pastor llamado Paquito en el camino.", "Lucía y Tomás llegaron a la casa al mediodía."],
-      "canon": "De camino a la casa, Tomás saludó a un pastor y siguieron andando."
-    },
-    {
-      "id": "n08", "lang": "es", "label": "none", "why": "covered", "entity": "la llave del sótano",
-      "story": "La Casa del Pozo", "checkpoint": "El sótano", "book": "Lore Casa del Pozo", "roster": ["Lucía", "Tomás"],
-      "entries": [{ "uid": 0, "comment": "La casa", "keys": ["casa", "caserón"], "content": "Un caserón de piedra junto a un pozo seco." }, { "uid": 1, "comment": "Doña Remedios", "keys": ["Remedios", "cocinera", "llave"], "content": "La vieja cocinera que nunca abandonó la casa. Guarda la llave del sótano en el delantal y no la entrega a nadie." }],
-      "facts": ["Doña Remedios guarda la llave del sótano en el delantal.", "Lucía pidió la llave del sótano y Doña Remedios se negó."],
-      "canon": "Lucía pidió la llave del sótano; Doña Remedios se la negó sin levantar la vista del fogón."
-    },
-    {
-      "id": "n09", "lang": "es", "label": "none", "why": "near-dup", "entity": "Faro",
-      "story": "Costa Muerta", "checkpoint": "El acantilado", "book": "Lore Costa Muerta", "roster": ["Inés", "Marco"],
-      "entries": [{ "uid": 3, "comment": "El faro", "keys": ["faro", "San Telmo"], "content": "El Faro de San Telmo lleva apagado desde el naufragio del Esperanza, pero alguien volvió a encenderlo durante la tormenta." }],
-      "facts": ["El Faro de San Telmo lleva apagado desde el naufragio del Esperanza.", "Alguien volvió a encender el Faro de San Telmo durante la tormenta."],
-      "canon": "Inés subió al acantilado y vio la luz del faro girar sobre la bahía."
-    },
-    {
-      "id": "n10", "lang": "es", "label": "none", "why": "nothing-new", "entity": null,
-      "story": "Costa Muerta", "checkpoint": "El amanecer", "book": "Lore Costa Muerta", "roster": ["Inés", "Marco"],
-      "entries": [{ "uid": 2, "comment": "El puerto", "keys": ["puerto", "muelle"], "content": "Un puerto pesquero pequeño, protegido por un espigón de piedra." }, { "uid": 4, "comment": "El Tuerto", "keys": ["Tuerto", "contrabandista"], "content": "El contrabandista que controla el muelle de noche. Perdió el ojo en el naufragio del Esperanza." }],
-      "facts": ["Inés y Marco volvieron al puerto al amanecer.", "El Tuerto controla el muelle de noche."],
-      "canon": "Al amanecer volvieron al puerto; el muelle estaba vacío y el mar en calma."
-    },
-    {
-      "id": "n11", "lang": "es", "label": "none", "why": "roster", "entity": "Marco",
-      "story": "Costa Muerta", "checkpoint": "La taberna", "book": "Lore Costa Muerta", "roster": ["Inés", "Marco"],
-      "entries": [{ "uid": 2, "comment": "El puerto", "keys": ["puerto", "muelle"], "content": "Un puerto pesquero pequeño." }],
-      "facts": ["Marco jura que vio una figura en lo alto del faro.", "Marco es el hermano menor de Inés."],
-      "canon": "Marco contó en la taberna lo que vio en el faro, y nadie le creyó."
     }
   ]
 }

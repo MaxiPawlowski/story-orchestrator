@@ -44,7 +44,7 @@ test('probeCosines brackets each pair within 1/2^steps, in both directions, and 
 test('bracketFile refuses a capture with a failed or missing row, and keeps the lower direction otherwise', async () => {
   const fixture = JSON.parse(await readFile(join(PROJECT_ROOT, FIXTURE_PATH), 'utf-8'));
   const ids: string[] = fixture.rows.map((row: { id: string }) => row.id);
-  assert.equal(ids.length, 35);
+  assert.equal(ids.length, 21);
   const full = ids.map((id) => ({ id, claimToEstablished: 0.5, establishedToClaim: 0.48 }));
   const built = bracketFile('abcdef012345', 't', 'present', full, ids);
   assert.ok(built.ok);

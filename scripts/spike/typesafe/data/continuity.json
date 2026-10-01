@@ -25,8 +25,6 @@
     "reply": { "speaker": "Captain Okafor", "text": "\"Both of our injured are stable. Good.\"" }, "contradicts": [], "tags": ["state"] },
   { "id": "C13", "established": ["Graves is loyal to Lady Ashworth.", "In the portrait, Lord Ashworth's painted hand now points at the door."],
     "reply": { "speaker": "Narrator", "text": "The portrait of Lord Ashworth hangs exactly as it always has, his painted hand resting on his sword." }, "contradicts": [1], "tags": ["state"] },
-  { "id": "C14", "established": ["Max answered the sphinx's riddle correctly."],
-    "reply": { "speaker": "DM Narrator", "text": "La esfinge ruge: \"Tu respuesta fue incorrecta, mortal.\"" }, "contradicts": [0], "tags": ["spanish"] },
   { "id": "C15", "established": ["Mae Hollis is left-handed."],
     "reply": { "speaker": "Narrator", "text": "Mae draws her revolver with her left hand and steps into the doorway." }, "contradicts": [], "tags": ["restatement"] },
   { "id": "C16", "established": ["Luke is twelve years old."],

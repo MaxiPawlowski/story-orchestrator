@@ -2,8 +2,8 @@
   "source": "calibrate-node continuity over test/fixtures/judge/continuity-holdout.json: the production question shape, real answers, replayed by jest keyed on state + questions, so a wording change must re-record",
   "recordedAt": "2026-09-21T16:52:12.890Z",
   "model": "jev-1.13.0",
-  "right": 27,
-  "total": 27,
+  "right": 18,
+  "total": 18,
   "calls": [
     {
       "state": {
@@ -88,46 +88,6 @@
     {
       "state": {
         "established_facts": {
-          "fact_0": "Mae Hollis le debe trescientos dólares a Maeve.",
-          "fact_1": "Es lunes por la noche."
-        },
-        "reply": {
-          "speaker": "Maeve",
-          "text": "\"Esta noche no, Mae. Pero el viernes quiero mis trescientos.\""
-        }
-      },
-      "questions": {
-        "fact:0": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        },
-        "fact:1": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        }
-      },
-      "answers": {
-        "fact:0": {
-          "type": "noul",
-          "noul": 0.04
-        },
-        "fact:1": {
-          "type": "noul",
-          "noul": 0.05
-        }
-      }
-    },
-    {
-      "state": {
-        "established_facts": {
           "fact_0": "Captain Okafor lost her voice in the smoke and can only whisper.",
           "fact_1": "The escape pod is fueled.",
           "fact_2": "Pell is on the bridge."
@@ -175,46 +135,6 @@
         "fact:2": {
           "type": "noul",
           "noul": 0.05
-        }
-      }
-    },
-    {
-      "state": {
-        "established_facts": {
-          "fact_0": "La capitana Okafor perdió la voz y solo puede susurrar.",
-          "fact_1": "La cápsula de escape tiene combustible."
-        },
-        "reply": {
-          "speaker": "Captain Okafor",
-          "text": "Okafor susurra algo que casi no se oye y señala la cápsula."
-        }
-      },
-      "questions": {
-        "fact:0": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        },
-        "fact:1": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        }
-      },
-      "answers": {
-        "fact:0": {
-          "type": "noul",
-          "noul": 0.04
-        },
-        "fact:1": {
-          "type": "noul",
-          "noul": 0.04
         }
       }
     },
@@ -321,46 +241,6 @@
         "fact:2": {
           "type": "noul",
           "noul": 0.06
-        }
-      }
-    },
-    {
-      "state": {
-        "established_facts": {
-          "fact_0": "Graves nunca ha salido de la mansión.",
-          "fact_1": "Lady Ashworth guarda la llave de la biblioteca en una cadena al cuello."
-        },
-        "reply": {
-          "speaker": "Narrator",
-          "text": "Lady Ashworth saca la llave de la biblioteca de un cajón del escritorio, donde siempre la deja."
-        }
-      },
-      "questions": {
-        "fact:0": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        },
-        "fact:1": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        }
-      },
-      "answers": {
-        "fact:0": {
-          "type": "noul",
-          "noul": 0.04
-        },
-        "fact:1": {
-          "type": "noul",
-          "noul": 0.9
         }
       }
     }

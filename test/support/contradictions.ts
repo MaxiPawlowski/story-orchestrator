@@ -8,7 +8,7 @@ export type K0Band = "dup" | "sameTopic" | "below";
 
 export interface K0Row {
   id: string;
-  lang: "en" | "es";
+  lang: "en";
   label: K0Label;
   form?: "negation" | "plain";
   established: string;
@@ -112,8 +112,8 @@ export interface Rate {
 
 export interface K0Score {
   held: string[];
-  recall: { all: Rate; es: Rate; inBand: Rate; belowBand: Rate; belowNegation: Rate; belowNegationEs: Rate; belowPlain: Rate };
-  falseHold: { all: Rate; es: Rate; belowBand: Rate };
+  recall: { all: Rate; inBand: Rate; belowBand: Rate; belowNegation: Rate; belowPlain: Rate };
+  falseHold: { all: Rate; belowBand: Rate };
   update: Rate;
 }
 
@@ -131,14 +131,12 @@ export function scoreK0(fixture: K0Fixture, arm: BandArm, mode: K0Mode): K0Score
     held: [...held].sort(),
     recall: {
       all: rate(contradicts, held),
-      es: rate(contradicts.filter((item) => item.lang === "es"), held),
       inBand: rate(contradicts.filter((item) => !below(item)), held),
       belowBand: rate(contradicts.filter(below), held),
       belowNegation: rate(contradicts.filter((item) => below(item) && item.form === "negation"), held),
-      belowNegationEs: rate(contradicts.filter((item) => below(item) && item.form === "negation" && item.lang === "es"), held),
       belowPlain: rate(contradicts.filter((item) => below(item) && item.form === "plain"), held),
     },
-    falseHold: { all: rate(wrong, held), es: rate(wrong.filter((item) => item.lang === "es"), held), belowBand: rate(wrong.filter(below), held) },
+    falseHold: { all: rate(wrong, held), belowBand: rate(wrong.filter(below), held) },
     update: rate(fixture.rows.filter((item) => item.label === "update"), held),
   };
 }

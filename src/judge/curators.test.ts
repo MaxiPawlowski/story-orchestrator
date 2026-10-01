@@ -74,7 +74,7 @@ describe("curator calibration (real answers, production shape)", () => {
   it("backgrounds: every no-fit case stays unchanged; the pick family is under its floor (the scene-setter is not built)", async () => {
     const data = fixture("backgrounds.json") as { floors: Record<string, number>; installed: string[]; rows: BackgroundCase[] };
     const scores = judgeFamilyScores(await runBackgroundCalibration(replay("backgrounds.json"), data.rows, data.installed), data.floors);
-    expect(scores.find((row) => row.family === "none")).toMatchObject({ right: 4, total: 4 });
-    expect(scores.find((row) => row.family === "pick")).toMatchObject({ right: 15, total: 18, ok: false });
+    expect(scores.find((row) => row.family === "none")).toMatchObject({ right: 3, total: 3 });
+    expect(scores.find((row) => row.family === "pick")).toMatchObject({ right: 13, total: 16, ok: false });
   });
 });

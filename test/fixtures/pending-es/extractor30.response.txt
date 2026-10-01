@@ -1,3 +1,0 @@
-DELTA q=carta_robada value=true evidence="Inés toma la carta sellada del escritorio y la esconde en su manga"
-SCENE_NONE
-[hiding] Inés from Alcalde | tomó la carta sellada y la tiene en la manga

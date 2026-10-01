@@ -8,14 +8,13 @@ const fixture = JSON.parse(readFileSync(join(ROOT, "test/fixtures/curator-create
 const byId = (id: string) => fixture.cases.find((entry) => entry.id === id) as CreateCase;
 
 describe("F5 Phase A fixture (labels frozen before any model answer)", () => {
-  it("has >=20 cases, >=8 Spanish, >=10 of each label, the declared floors and unique ids", () => {
+  it("has 13 cases (7 propose, 6 none; the 9 Spanish ones went with v2.6 W25), the declared floors and unique ids", () => {
     const { cases } = fixture;
     expect(fixture.frozenAt).toBe("2026-09-25");
     expect(fixture.floors).toEqual({ propose: 0.9, none: 1 });
-    expect(cases.length).toBeGreaterThanOrEqual(20);
-    expect(cases.filter((entry) => entry.lang === "es").length).toBeGreaterThanOrEqual(8);
-    expect(cases.filter((entry) => entry.label === "propose").length).toBeGreaterThanOrEqual(10);
-    expect(cases.filter((entry) => entry.label === "none").length).toBeGreaterThanOrEqual(10);
+    expect(cases).toHaveLength(13);
+    expect(cases.filter((entry) => entry.label === "propose")).toHaveLength(7);
+    expect(cases.filter((entry) => entry.label === "none")).toHaveLength(6);
     expect(new Set(cases.map((entry) => entry.id)).size).toBe(cases.length);
   });
 
@@ -81,25 +80,25 @@ describe("F5 code guards", () => {
   });
 
   it("a near-duplicate is a warning with the entry named, not a refusal", () => {
-    const near = byId("n09");
-    const verdict = validateCreate({ lorebook: near.book, comment: "Faro de San Telmo", keys: ["faro"], content: "El Faro de San Telmo lleva apagado desde el naufragio del Esperanza, pero alguien volvió a encenderlo durante la tormenta." }, caseContext(near));
+    const near = byId("n04");
+    const verdict = validateCreate({ lorebook: near.book, comment: "Warden Hale", keys: ["warden"], content: "Warden Hale runs Greyfen, takes bribes in tobacco and keeps the master key on a chain at his neck." }, caseContext(near));
     expect(verdict.ok).toBe(true);
-    expect(verdict.nearDups[0]?.comment).toBe("El faro");
+    expect(verdict.nearDups[0]?.comment).toBe("The Warden");
     expect(verdict.nearDups[0]?.score).toBeGreaterThanOrEqual(CREATE_NEAR_DUP_THRESHOLD);
   });
 
   it("trigram Jaccard ignores accents, case and punctuation", () => {
-    expect(trigramJaccard("Doña Remedios!", "dona remedios")).toBe(1);
+    expect(trigramJaccard("Café Noël!", "cafe noel")).toBe(1);
     expect(trigramJaccard("the delta", "glass choir")).toBeLessThan(0.1);
   });
 });
 
 describe("F5 scoring (end to end, after the code guards)", () => {
   it("a positive passes only on a valid card that names its entity", () => {
-    const entry = byId("p08");
-    expect(scoreCreateSample(entry, "[create] Lore Casa del Pozo || Doña Remedios || Remedios, cocinera || La vieja cocinera que guarda la llave del sótano.").pass).toBe(true);
+    const entry = byId("p05");
+    expect(scoreCreateSample(entry, "[create] Greyfen Lore || Warden Hale || Hale, warden || The warden who takes bribes in tobacco and wears the master key.").pass).toBe(true);
     expect(scoreCreateSample(entry, "NONE").pass).toBe(false);
-    expect(scoreCreateSample(entry, "[create] Lore Casa del Pozo || El sótano || sótano || La llave del sótano la guarda Doña Remedios.").pass).toBe(false);
+    expect(scoreCreateSample(entry, "[create] Greyfen Lore || The master key || master key || Warden Hale keeps the master key on a chain.").pass).toBe(false);
   });
 
   it("a negative passes only when no card survives; a refused card is not a failure", () => {

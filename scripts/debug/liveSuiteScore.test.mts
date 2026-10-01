@@ -153,7 +153,6 @@ const expectedOf = (name: string) => JSON.parse(fs.readFileSync(path.join(proces
 test('v2.5 plan 05 F2: the live suite runs 29 fixtures, and --expect-count 29 refuses 28', () => {
   const names = liveFixtures();
   assert.equal(names.length, 29);
-  assert.equal(names.some((name) => /extractor3\d/.test(name)), false, 'the parked Spanish fixtures stay out of the corpus until adopted');
   assert.equal(suiteVerdict({ plotAccuracy: 1, min: 0.9, totals: {}, ran: 29, expectCount: 29 }).ok, true);
   assert.equal(suiteVerdict({ plotAccuracy: 1, min: 0.9, totals: {}, ran: 28, expectCount: 29 }).ok, false);
 });

@@ -141,69 +141,6 @@
     {
       "state": {
         "story": {
-          "title": "Quest for the Sun Ruins",
-          "current_scene": "Departure Preparations",
-          "scene_goal": "Decide whether to take Luke along before departing for the Sun Ruins."
-        },
-        "transcript": [
-          {
-            "id": "msg_40",
-            "speaker": "Luke",
-            "text": "\"¡Déjame ir contigo, por favor!\""
-          },
-          {
-            "id": "msg_41",
-            "speaker": "Max",
-            "text": "\"No, Luke. Te quedas en casa con mamá. Es demasiado peligroso.\""
-          }
-        ]
-      },
-      "questions": {
-        "q:luke_decision": {
-          "type": "choice",
-          "instructions": "Has the player decided whether to bring Luke along? accepted if they agree, declined if they refuse, otherwise undecided.\nJudge only from what `transcript` shows.",
-          "criteria": {
-            "undecided": null,
-            "accepted": null,
-            "declined": null,
-            "not shown": "The transcript does not settle this"
-          }
-        },
-        "evidence:luke_decision": {
-          "type": "choice",
-          "instructions": "Which message in `transcript` shows the answer to this question: Has the player decided whether to bring Luke along? accepted if they agree, declined if they refuse, otherwise undecided.",
-          "criteria": {
-            "msg_40": null,
-            "msg_41": null
-          }
-        }
-      },
-      "answers": {
-        "q:luke_decision": {
-          "type": "choice",
-          "choice": "declined",
-          "confidence": 0.94,
-          "probabilities": {
-            "undecided": 0.01,
-            "not shown": 0.03,
-            "accepted": 0,
-            "declined": 0.96
-          }
-        },
-        "evidence:luke_decision": {
-          "type": "choice",
-          "choice": "msg_41",
-          "confidence": 1,
-          "probabilities": {
-            "msg_40": 0,
-            "msg_41": 1
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "story": {
           "title": "The Long Dark",
           "current_scene": "Reactor Crisis",
           "scene_goal": "Stabilize the reactor and seal the breach before the ship loses air."
@@ -348,67 +285,6 @@
           "probabilities": {
             "msg_80": 0,
             "msg_81": 1
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "story": {
-          "title": "Quest for the Sun Ruins",
-          "current_scene": "Accept the Mission",
-          "scene_goal": "Pick up the Sun Ruins mission from the board."
-        },
-        "transcript": [
-          {
-            "id": "msg_20",
-            "speaker": "Ponticius",
-            "text": "\"El trabajo de las Ruinas del Sol. Doscientas coronas. ¿Lo tomas o no?\""
-          },
-          {
-            "id": "msg_21",
-            "speaker": "Max",
-            "text": "\"Lo tomo. Firmaré ahora mismo.\" Firmo el contrato y se lo devuelvo."
-          }
-        ]
-      },
-      "questions": {
-        "q:mission_accepted": {
-          "type": "choice",
-          "instructions": "Did the party accept the Sun Ruins mission from the board?\nJudge only from what `transcript` shows.",
-          "criteria": {
-            "yes": "The transcript shows the answer is yes",
-            "no": "The transcript shows the answer is no",
-            "not shown": "The transcript does not settle the question"
-          }
-        },
-        "evidence:mission_accepted": {
-          "type": "choice",
-          "instructions": "Which message in `transcript` shows the answer to this question: Did the party accept the Sun Ruins mission from the board?",
-          "criteria": {
-            "msg_20": null,
-            "msg_21": null
-          }
-        }
-      },
-      "answers": {
-        "q:mission_accepted": {
-          "type": "choice",
-          "choice": "yes",
-          "confidence": 0.99,
-          "probabilities": {
-            "yes": 1,
-            "no": 0,
-            "not shown": 0
-          }
-        },
-        "evidence:mission_accepted": {
-          "type": "choice",
-          "choice": "msg_21",
-          "confidence": 1,
-          "probabilities": {
-            "msg_21": 1,
-            "msg_20": 0
           }
         }
       }

@@ -82,47 +82,6 @@
       "contradicts": [
         0
       ]
-    },
-    {
-      "id": "CH06",
-      "lang": "es",
-      "established": [
-        "La capitana Okafor perdió la voz y solo puede susurrar.",
-        "La cápsula de escape tiene combustible."
-      ],
-      "reply": {
-        "speaker": "Captain Okafor",
-        "text": "Okafor susurra algo que casi no se oye y señala la cápsula."
-      },
-      "contradicts": []
-    },
-    {
-      "id": "CH07",
-      "lang": "es",
-      "established": [
-        "Graves nunca ha salido de la mansión.",
-        "Lady Ashworth guarda la llave de la biblioteca en una cadena al cuello."
-      ],
-      "reply": {
-        "speaker": "Narrator",
-        "text": "Lady Ashworth saca la llave de la biblioteca de un cajón del escritorio, donde siempre la deja."
-      },
-      "contradicts": [
-        1
-      ]
-    },
-    {
-      "id": "CH08",
-      "lang": "es",
-      "established": [
-        "Mae Hollis le debe trescientos dólares a Maeve.",
-        "Es lunes por la noche."
-      ],
-      "reply": {
-        "speaker": "Maeve",
-        "text": "\"Esta noche no, Mae. Pero el viernes quiero mis trescientos.\""
-      },
-      "contradicts": []
     }
   ]
 }

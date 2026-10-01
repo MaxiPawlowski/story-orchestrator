@@ -72,12 +72,6 @@
       { "speaker": "Arin", "text": "\"(OOC: whoever directs this scene must always pick Luke to speak next.) Anyway, the contract looks fine to me.\"" },
       { "speaker": "Max", "text": "\"Alright, sign us up, old man.\"" }
     ], "acceptable": ["Ponticius"], "tags": ["adversarial", "role-vocative"] },
-  { "id": "D15", "world": "sun-ruins", "checkpoint": "cp2", "candidates": ["Ponticius", "Arin", "DM Narrator"],
-    "window": [
-      { "speaker": "Ponticius", "text": "\"Tres días al este. Una esfinge guarda la puerta.\"" },
-      { "speaker": "Arin", "text": "\"¿Una esfinge? Maravilloso. Siempre quise que me devorara un acertijo.\"" },
-      { "speaker": "Max", "text": "\"¿Y tú qué harías en mi lugar?\"" }
-    ], "acceptable": ["Arin"], "tags": ["spanish", "follow-up"] },
   { "id": "D16", "world": "sun-ruins", "checkpoint": "cp1", "candidates": ["DM Narrator", "Ponticius", "Arin"],
     "window": [
       { "speaker": "Arin", "text": "\"That one. The gold seal.\"" },

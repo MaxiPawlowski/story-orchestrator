@@ -38,7 +38,7 @@ Write `v2.6/12-survey.md`: one row per candidate, citing URL and date, or a loca
 - cost;
 - terms and data policy: retention, training use, region (this is where TypeSafe's J4 row finally gets written);
 - licence;
-- Spanish support.
+- Spanish support (recorded for reference only; not a requirement since W25, English only).
 
 Candidate families to cover, at minimum, plus anything the survey finds:
 
@@ -84,7 +84,7 @@ floor ×2 **and** the user accepts the switch (W2 keeps TypeSafe as the shipped 
 ## Phase C — Every candidate use spiked (v2.5 J6, J7, J8, B6, B10, and new ones)
 
 Each is a spike with predeclared conditions (overview rules 3, 4 and 11), run on the best provider for its latency class.
-Each needs a ≥ 20-case fixture with ≥ 8 Spanish rows, from the Adolion lab or plan 02's corpus.
+Each needs a ≥ 20-case fixture (English only, W25), from the Adolion lab or plan 02's corpus.
 
 | # | Candidate | Source | Consumer | Floor (from source; restated before the run) |
 |---|---|---|---|---|

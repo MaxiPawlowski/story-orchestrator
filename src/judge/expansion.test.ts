@@ -59,12 +59,12 @@ describe("expansion judge calibration (real answers, production shape)", () => {
     const data = fixture("critic.json") as { floors: Record<string, number>; rows: CriticCase[] };
     const scores = judgeFamilyScores(await runCriticCalibration(replay("critic.json"), data.rows), data.floors);
     expect(scores.filter((row) => !row.ok)).toEqual([]);
-    expect(scores.find((row) => row.family === "verdict")).toMatchObject({ right: 40, total: 40 });
+    expect(scores.find((row) => row.family === "verdict")).toMatchObject({ right: 34, total: 34 });
   });
 
   it("variants: code picks the clean chain and rejects every contradicting one", async () => {
     const data = fixture("variants.json") as { floors: Record<string, number>; rows: VariantStub[] };
     const scores = judgeFamilyScores(await runVariantCalibration(replay("variants.json"), data.rows), data.floors);
-    expect(scores).toEqual([expect.objectContaining({ family: "pick", right: 10, total: 10 }), expect.objectContaining({ family: "rejected", right: 10, total: 10 })]);
+    expect(scores).toEqual([expect.objectContaining({ family: "pick", right: 8, total: 8 }), expect.objectContaining({ family: "rejected", right: 8, total: 8 })]);
   });
 });

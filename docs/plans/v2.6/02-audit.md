@@ -70,8 +70,8 @@ Coverage key:
 | D1 | **confirmed**, and larger than written: the routes have no player lines | no real-play corpus (`lab/README.md:12`, `TESTING.md:10`); routes are `{set, expect}` only (`tests/routes-*.json`) |
 | D2 | confirmed | `lab/needles/README.md` "What it cannot measure": one open checkpoint |
 | D3 | confirmed | `lab/README.md`: SP10 has nothing |
-| D4 | confirmed, and narrowed | Spanish exists in needles, aliases, judge and complications. It is **absent** from `lab/curator/` (W3) and `lab/witness/`, and those are the only two D4 needs |
-| D5 | confirmed | no Adolion contradiction pairs; the toy file `test/fixtures/memory/contradictions.json` has 35 rows (14 Spanish), not Adolion |
+| D4 | **dropped** (W25, 2026-09-30: English only) | was: Spanish exists in needles, aliases, judge and complications and is absent from `lab/curator/` (W3) and `lab/witness/`. The lab's Spanish slices are removed in the campaign pass; this repo's Spanish test data is gone (`13-test-suite-review.md` §Gate record — W25 English only) |
+| D5 | confirmed | no Adolion contradiction pairs; the toy file `test/fixtures/memory/contradictions.json` has 21 rows (35 before W25 removed the 14 Spanish ones), not Adolion |
 | D6 | confirmed | no Adolion extractor triple exists |
 | D7 | confirmed | 04 L7 cites "v2.6 02 D7 data" (04 l.11) |
 | D8 | confirmed; needs no data of its own | a count read from D1 with the warden on (judge default, overview rule 5) |

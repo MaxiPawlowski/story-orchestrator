@@ -249,3 +249,36 @@ discarded the worktree's local `.claude/settings.local.json` edit.
 | R4 `test/` < 10 MB target | **Dropped.** Every cited record stays in the repo; `test:release` keeps verifying citations. Uncited records stay moved out. |
 | Vacuous extractor needles (14 fixtures, v2.5 plan 05 open decision 2) | **Fix them**: a real needle each, or an explicit "no facts expectation". The facts number drops to its honest value. |
 | The 8.6 lane-hour gap in R5 | **Deferred** until development is finished and the suite list is final (user asked first whether development was done). |
+
+## Gate record — W25 English only (2026-09-30, master merged at `eba02fc8`)
+
+Overview W25: Spanish test data, fixtures, goldens and floors removed; gap D4 dropped (`02-data-gaps.md`, `02-audit.md`).
+
+Removed (rows): judge fixtures 109 (agency 10, backgrounds 3, continuity 5, continuity-combined 5, continuity-holdout 3,
+contradiction-release-holdout 5, critic 6, curator-filter 1, director 8 incl. D15, house-rules 4, lore 3, lore-holdout 2,
+lore-relevance 8, memory-pairs 3, memory-pairs-holdout 3, memory-verify 12 incl. case H21, scene 9, scene-holdout 4,
+stall 2, typed 2, variants 2, warden-lore 8); K0 `contradictions.json` 14 (+ cosine file); curator-create 9 (+ 9 live
+goldens); curator-fuzzy 4; role-calibration curator 8, authoring 8 (+ 3 drafts), synthesis 3, the all-Spanish
+`authoring-holdout.json` (5); `test/fixtures/pending-es/` (extractor30/31, f3 long-es-1); 15 live role goldens; 18 replay
+goldens' calls; 15 `*.calibration.json` records; 2 contradiction-release records; spike data (`scripts/spike/typesafe/data`)
+45 rows/sets; 11 Spanish turns from each L5 X1 scenario, the es leg of `live-v25-04-negation`.
+
+Measurement code: `releaseErrEs` (contradiction release floor) and the role calibration `es` slice are gone; the director
+role floor is 22 of 25 (D01–D26 minus D15, which the LLM director missed in both measurements, so parity holds). The
+authoring hold-out is gone; `so-role-calibration --holdout` refuses and the verdict needs no hold-out until an English one
+is labelled. Every summary and replay count was recomputed from the remaining rows (old → new in the commit). Findings:
+K0 N1 no longer adds a false hold (K35 was Spanish); contradiction-release wording `a` now passes too; the lore-relevance
+golden reads Noul nDCG@4 0.921 vs Score 0.875 (was 0.927 / 0.886), same verdict; `scene.calibration.json`'s recorded
+`present` family is 35/40, below its 0.9 floor on English rows alone (the replay golden reads 36/40, at the floor);
+warden-lore (18 cases, 2 untouched) and curator-create (13 cases) are now below their declared minimum sizes.
+
+Not changed (product): `src/judge/numbers.ts` (Spanish number words), `selfTestCases.ts` (D15, a Spanish follow-up,
+in the in-app self-test), `types.ts` (Spanish chars/token ratio as the conservative budget), `scripts/debug/lib/limitProbe.mts`
+(the es probe behind that ratio), and `readiness.ts` rates (recorded live on the mixed fixtures). Records under
+`test/journeys/records/` and `test/findings/mutations/` are history and untouched.
+
+Gates (worktree, after the merge): `npm run typecheck` 0; `npm run typecheck:test` 0; `npm run lint` 0; `npm test` 0
+(369 suites, 4 909 passed, 1 skipped); `npm run build` 0; `npm run build:dev` 0; `npm run test:debug` 0 (456 pass);
+`npm run test:release` 0 from Git Bash (77 pass; from PowerShell `UP: clean-host.sh keeps a pre-release suffix` fails
+because `bash` resolves to another shell there, not this change); `npm run test:replay` 0 (30 of 30 killed).
+Inventory and decisions regenerated (`scripts/suite/inventory.mjs`, `decisions.mjs`). No model calls, no lanes.

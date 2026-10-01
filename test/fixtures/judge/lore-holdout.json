@@ -481,29 +481,6 @@
       ]
     },
     {
-      "id": "LH4",
-      "lang": "es",
-      "pool": "adolion",
-      "scene": {
-        "checkpointName": "Life as an adventurer",
-        "objective": "Take jobs, climb the ranks and survive Adolion.",
-        "window": [
-          {
-            "speaker": "Narrador",
-            "text": "Una ladrona pelirroja con botas altas te arranca la bolsa del cinturón y corre hacia los callejones."
-          },
-          {
-            "speaker": "Max",
-            "text": "\"¿Es de esa banda de rateros de la capital, la que apenas tiene diez miembros?\""
-          }
-        ]
-      },
-      "needed": [
-        "SO-J11 Adolion World.75",
-        "SO-J11 Adolion World.76"
-      ]
-    },
-    {
       "id": "LH5",
       "lang": "en",
       "pool": "adolion",
@@ -526,29 +503,6 @@
         "SO-J11 Adolion World.125",
         "SO-J11 Adolion World.126",
         "SO-J11 Adolion World.128"
-      ]
-    },
-    {
-      "id": "LH6",
-      "lang": "es",
-      "pool": "adolion",
-      "scene": {
-        "checkpointName": "Life as an adventurer",
-        "objective": "Take jobs, climb the ranks and survive Adolion.",
-        "window": [
-          {
-            "speaker": "Narrador",
-            "text": "Bajáis a la ciudad de edificios púrpura bajo la tierra, donde las elfas de piel oscura gobiernan y los esclavos cargan piedras."
-          },
-          {
-            "speaker": "Max",
-            "text": "\"¿A qué diosa rezan aquí? He oído que es la señora del engaño y la venganza.\""
-          }
-        ]
-      },
-      "needed": [
-        "SO-J11 Adolion World.106",
-        "SO-J11 Adolion World.107"
       ]
     }
   ]

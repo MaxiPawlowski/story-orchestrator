@@ -2,77 +2,9 @@
   "source": "calibrate-node backgrounds over test/fixtures/judge/backgrounds.json: the production question shape, real answers, replayed by jest keyed on state + questions, so a wording change must re-record",
   "recordedAt": "2026-09-19T14:58:49.268Z",
   "model": "jev-1.13.0",
-  "right": 19,
-  "total": 22,
+  "right": 16,
+  "total": 19,
   "calls": [
-    {
-      "state": {
-        "scene": "La casa del lago — Pasar la noche a salvo de la tormenta de nieve. (at cabaña, at night).\nNarrador: Una cabaña solitaria sobre el lago helado; sale humo de la chimenea.\nMax: Llamo a la puerta con los guantes cubiertos de nieve."
-      },
-      "questions": {
-        "pick": {
-          "type": "choice",
-          "instructions": "Which installed background image best fits `scene`? File names describe the picture. Pick \"none\" if no background fits the setting.",
-          "criteria": {
-            "bedroom clean.jpg": null,
-            "bedroom cyberpunk.jpg": null,
-            "bedroom red.jpg": null,
-            "bedroom tatami.jpg": null,
-            "cityscape medieval market.jpg": null,
-            "cityscape medieval night.jpg": null,
-            "cityscape postapoc.jpg": null,
-            "forest treehouse fireworks air baloons (by kallmeflocc).jpg": null,
-            "japan classroom side.jpg": null,
-            "japan classroom.jpg": null,
-            "japan path cherry blossom.jpg": null,
-            "japan university.jpg": null,
-            "landscape autumn great tree.jpg": null,
-            "landscape beach day.png": null,
-            "landscape beach night.jpg": null,
-            "landscape mountain lake.jpg": null,
-            "landscape postapoc.jpg": null,
-            "landscape winter lake house.jpg": null,
-            "royal.jpg": null,
-            "sun_ruins.jpg": null,
-            "sun_ruins2.jpg": null,
-            "tavern day.jpg": null,
-            "none": "No installed background fits this setting"
-          }
-        }
-      },
-      "answers": {
-        "pick": {
-          "type": "choice",
-          "choice": "landscape winter lake house.jpg",
-          "confidence": 0.99,
-          "probabilities": {
-            "sun_ruins.jpg": 0,
-            "royal.jpg": 0,
-            "landscape mountain lake.jpg": 0,
-            "japan classroom side.jpg": 0,
-            "japan classroom.jpg": 0,
-            "landscape beach night.jpg": 0,
-            "japan path cherry blossom.jpg": 0,
-            "none": 0,
-            "japan university.jpg": 0,
-            "bedroom cyberpunk.jpg": 0,
-            "landscape postapoc.jpg": 0,
-            "cityscape medieval market.jpg": 0,
-            "cityscape postapoc.jpg": 0,
-            "forest treehouse fireworks air baloons (by kallmeflocc).jpg": 0,
-            "landscape beach day.png": 0,
-            "landscape winter lake house.jpg": 1,
-            "bedroom red.jpg": 0,
-            "bedroom clean.jpg": 0,
-            "bedroom tatami.jpg": 0,
-            "sun_ruins2.jpg": 0,
-            "tavern day.jpg": 0,
-            "landscape autumn great tree.jpg": 0,
-            "cityscape medieval night.jpg": 0
-          }
-        }
-      }
-    },
     {
       "state": {
         "scene": "The Reactor — Stabilize containment before it breaches. (at engine room).\nHALO: \"Coolant pressure falling. Containment at forty percent.\"\nPell: Pell slams the manual override."
@@ -409,74 +341,6 @@
             "landscape winter lake house.jpg": 0,
             "japan university.jpg": 0,
             "sun_ruins2.jpg": 0.05
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "scene": "El precinto — Leer el expediente antes de que vuelva el teniente. (at comisaría, at night).\nNarrador: Tres de la mañana en la comisaría: café frío, teléfonos que suenan, lluvia contra el cristal.\nMax: Abro el cajón del archivador."
-      },
-      "questions": {
-        "pick": {
-          "type": "choice",
-          "instructions": "Which installed background image best fits `scene`? File names describe the picture. Pick \"none\" if no background fits the setting.",
-          "criteria": {
-            "bedroom clean.jpg": null,
-            "bedroom cyberpunk.jpg": null,
-            "bedroom red.jpg": null,
-            "bedroom tatami.jpg": null,
-            "cityscape medieval market.jpg": null,
-            "cityscape medieval night.jpg": null,
-            "cityscape postapoc.jpg": null,
-            "forest treehouse fireworks air baloons (by kallmeflocc).jpg": null,
-            "japan classroom side.jpg": null,
-            "japan classroom.jpg": null,
-            "japan path cherry blossom.jpg": null,
-            "japan university.jpg": null,
-            "landscape autumn great tree.jpg": null,
-            "landscape beach day.png": null,
-            "landscape beach night.jpg": null,
-            "landscape mountain lake.jpg": null,
-            "landscape postapoc.jpg": null,
-            "landscape winter lake house.jpg": null,
-            "royal.jpg": null,
-            "sun_ruins.jpg": null,
-            "sun_ruins2.jpg": null,
-            "tavern day.jpg": null,
-            "none": "No installed background fits this setting"
-          }
-        }
-      },
-      "answers": {
-        "pick": {
-          "type": "choice",
-          "choice": "none",
-          "confidence": 0.94,
-          "probabilities": {
-            "sun_ruins2.jpg": 0,
-            "landscape postapoc.jpg": 0,
-            "japan classroom.jpg": 0,
-            "tavern day.jpg": 0,
-            "bedroom cyberpunk.jpg": 0,
-            "forest treehouse fireworks air baloons (by kallmeflocc).jpg": 0,
-            "landscape autumn great tree.jpg": 0,
-            "landscape beach day.png": 0,
-            "cityscape medieval market.jpg": 0,
-            "sun_ruins.jpg": 0,
-            "bedroom red.jpg": 0,
-            "japan classroom side.jpg": 0,
-            "none": 0.95,
-            "cityscape postapoc.jpg": 0,
-            "japan university.jpg": 0,
-            "bedroom clean.jpg": 0,
-            "bedroom tatami.jpg": 0,
-            "cityscape medieval night.jpg": 0.05,
-            "japan path cherry blossom.jpg": 0,
-            "landscape winter lake house.jpg": 0,
-            "landscape mountain lake.jpg": 0,
-            "royal.jpg": 0,
-            "landscape beach night.jpg": 0
           }
         }
       }
@@ -1225,74 +1089,6 @@
             "japan classroom side.jpg": 0,
             "sun_ruins2.jpg": 0,
             "sun_ruins.jpg": 0
-          }
-        }
-      }
-    },
-    {
-      "state": {
-        "scene": "Ruinas de la ciudad — Encontrar agua potable entre los escombros. (at ciudad en ruinas, at afternoon).\nNarrador: Coches oxidados y torres partidas por la mitad llenan la avenida muerta.\nMax: Reviso cada coche buscando botellas."
-      },
-      "questions": {
-        "pick": {
-          "type": "choice",
-          "instructions": "Which installed background image best fits `scene`? File names describe the picture. Pick \"none\" if no background fits the setting.",
-          "criteria": {
-            "bedroom clean.jpg": null,
-            "bedroom cyberpunk.jpg": null,
-            "bedroom red.jpg": null,
-            "bedroom tatami.jpg": null,
-            "cityscape medieval market.jpg": null,
-            "cityscape medieval night.jpg": null,
-            "cityscape postapoc.jpg": null,
-            "forest treehouse fireworks air baloons (by kallmeflocc).jpg": null,
-            "japan classroom side.jpg": null,
-            "japan classroom.jpg": null,
-            "japan path cherry blossom.jpg": null,
-            "japan university.jpg": null,
-            "landscape autumn great tree.jpg": null,
-            "landscape beach day.png": null,
-            "landscape beach night.jpg": null,
-            "landscape mountain lake.jpg": null,
-            "landscape postapoc.jpg": null,
-            "landscape winter lake house.jpg": null,
-            "royal.jpg": null,
-            "sun_ruins.jpg": null,
-            "sun_ruins2.jpg": null,
-            "tavern day.jpg": null,
-            "none": "No installed background fits this setting"
-          }
-        }
-      },
-      "answers": {
-        "pick": {
-          "type": "choice",
-          "choice": "cityscape postapoc.jpg",
-          "confidence": 0.93,
-          "probabilities": {
-            "landscape autumn great tree.jpg": 0,
-            "landscape postapoc.jpg": 0.01,
-            "none": 0,
-            "japan classroom.jpg": 0,
-            "landscape beach night.jpg": 0,
-            "japan classroom side.jpg": 0,
-            "sun_ruins2.jpg": 0.02,
-            "cityscape postapoc.jpg": 0.93,
-            "royal.jpg": 0,
-            "japan path cherry blossom.jpg": 0,
-            "bedroom clean.jpg": 0,
-            "bedroom red.jpg": 0,
-            "bedroom cyberpunk.jpg": 0,
-            "sun_ruins.jpg": 0.03,
-            "forest treehouse fireworks air baloons (by kallmeflocc).jpg": 0,
-            "japan university.jpg": 0,
-            "landscape beach day.png": 0,
-            "cityscape medieval night.jpg": 0,
-            "bedroom tatami.jpg": 0,
-            "cityscape medieval market.jpg": 0,
-            "landscape mountain lake.jpg": 0,
-            "landscape winter lake house.jpg": 0,
-            "tavern day.jpg": 0
           }
         }
       }

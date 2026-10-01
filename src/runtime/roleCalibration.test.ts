@@ -52,11 +52,10 @@ const authoringCase = (entry: Record<string, unknown>): AuthoringCalibrationCase
 });
 
 describe("role calibration fixtures (labels frozen before any model answer)", () => {
-  it("curator: 20 cases, 8 Spanish, the declared floors, unique ids, labels consistent", () => {
+  it("curator: 12 cases, the declared floors, unique ids, labels consistent", () => {
     const cases: CuratorCalibrationCase[] = curatorFixture.cases;
-    expect(cases).toHaveLength(20);
-    expect(cases.filter((entry) => entry.lang === "es")).toHaveLength(8);
-    expect(new Set(cases.map((entry) => entry.id)).size).toBe(20);
+    expect(cases).toHaveLength(12);
+    expect(new Set(cases.map((entry) => entry.id)).size).toBe(12);
     expect(curatorFixture.floors).toEqual({ validity: 0.9, opShape: 0.85, decision: 0.7 });
     for (const entry of cases) {
       const titles = entry.scope.entries.map((item) => item.comment);
@@ -67,10 +66,9 @@ describe("role calibration fixtures (labels frozen before any model answer)", ()
     }
   });
 
-  it("authoring: 20 cases, 8 Spanish, every base draft validates clean, every required kind is allowed by its stage", () => {
+  it("authoring: 12 cases, every base draft validates clean, every required kind is allowed by its stage", () => {
     const cases = (authoringFixture.cases as Array<Record<string, unknown>>).map(authoringCase);
-    expect(cases).toHaveLength(20);
-    expect(cases.filter((entry) => entry.lang === "es")).toHaveLength(8);
+    expect(cases).toHaveLength(12);
     expect(authoringFixture.floors).toEqual({ validity: 0.9, opShape: 0.8 });
     for (const entry of cases) {
       expect(validateProposal(entry.draft, []).blocking).toEqual([]);
@@ -78,14 +76,13 @@ describe("role calibration fixtures (labels frozen before any model answer)", ()
     }
   });
 
-  it("synthesis: 8 cases, 3 Spanish, no floor", () => {
-    expect(synthesisFixture.cases).toHaveLength(8);
-    expect(synthesisFixture.cases.filter((entry: { lang: string }) => entry.lang === "es")).toHaveLength(3);
+  it("synthesis: 5 cases, no floor", () => {
+    expect(synthesisFixture.cases).toHaveLength(5);
     expect(synthesisFixture.floors).toBeUndefined();
   });
 
-  it("director: the floored rows are D01-D26", () => {
-    expect(directorFixture.rows.slice(0, 26).map((row: { id: string }) => row.id)).toEqual(Array.from({ length: 26 }, (_, index) => `D${String(index + 1).padStart(2, "0")}`));
+  it("director: the floored rows are D01-D26 without D15", () => {
+    expect(directorFixture.rows.map((row: { id: string }) => row.id)).toEqual(Array.from({ length: 26 }, (_, index) => `D${String(index + 1).padStart(2, "0")}`).filter((id) => id !== "D15"));
   });
 });
 
@@ -179,24 +176,23 @@ describe("scoreSynthesis", () => {
 const record = <R extends CalibrationRole>(role: R, id: string, lang: string, score: RoleCaseRecord<R>["score"]): RoleCaseRecord => ({ role, id, lang, responses: [], finishes: [], latencyMs: 0, score }) as RoleCaseRecord;
 
 describe("summarizeRoleCalibration", () => {
-  it("director: the floor is 22 of D01-D26; Spanish rows are reported, never floored", () => {
-    const rows = Array.from({ length: 33 }, (_, index) => record("director", `D${String(index + 1).padStart(2, "0")}`, index >= 26 ? "es" : "en", { pick: "A", answerCorrect: index >= 4, inTime: true, correct: index >= 4 }));
-    const ids = rows.slice(0, 26).map((row) => row.id);
+  it("director: the floor is 22 of the 25 floored rows; a row outside the floor set is not counted", () => {
+    const rows = Array.from({ length: 26 }, (_, index) => record("director", `D${String(index + 1).padStart(2, "0")}`, "en", { pick: "A", answerCorrect: index >= 3, inTime: true, correct: index >= 3 }));
+    const ids = rows.slice(0, 25).map((row) => row.id);
     const summary = summarizeRoleCalibration("director", rows, { floorIds: ids });
-    expect(summary.overall.metrics.correct).toMatchObject({ passed: 22, total: 26, ok: true });
-    expect(summary.es.metrics.correct).toMatchObject({ passed: 7, total: 7, ok: null });
+    expect(summary.overall.metrics.correct).toMatchObject({ passed: 22, total: 25, ok: true });
     expect(summary.meetsFloors).toBe(true);
-    const short = summarizeRoleCalibration("director", rows.map((row, index) => (index === 4 ? { ...row, score: { ...row.score, correct: false } } : row)), { floorIds: ids });
+    expect(summarizeRoleCalibration("director", rows, { floorIds: rows.map((row) => row.id) }).meetsFloors).toBe(false);
+    const short = summarizeRoleCalibration("director", rows.map((row, index) => (index === 3 ? { ...row, score: { ...row.score, correct: false } } : row)), { floorIds: ids });
     expect(short.meetsFloors).toBe(false);
   });
-  it("curator: every floor binds overall and on the Spanish slice", () => {
+  it("curator: every floor binds overall", () => {
     const good = { valid: true, opLines: 1, survived: 1, decision: true, kept: [], dropped: [] };
-    const rows = Array.from({ length: 20 }, (_, index) => record("curator", `c${index}`, index >= 12 ? "es" : "en", good));
+    const rows = Array.from({ length: 12 }, (_, index) => record("curator", `c${index}`, "en", good));
     expect(summarizeRoleCalibration("curator", rows).meetsFloors).toBe(true);
-    const esMiss = rows.map((row, index) => (index >= 12 && index < 15 ? { ...row, score: { ...good, decision: false } } : row));
-    const summary = summarizeRoleCalibration("curator", esMiss);
-    expect(summary.overall.metrics.decision.ok).toBe(true);
-    expect(summary.es.metrics.decision).toMatchObject({ passed: 5, total: 8, ok: false });
+    const miss = rows.map((row, index) => (index < 4 ? { ...row, score: { ...good, decision: false } } : row));
+    const summary = summarizeRoleCalibration("curator", miss);
+    expect(summary.overall.metrics.decision).toMatchObject({ passed: 8, total: 12, ok: false });
     expect(summary.meetsFloors).toBe(false);
   });
   it("curator opShape is surviving records over op lines read", () => {
@@ -223,32 +219,17 @@ describe("recorded live goldens replay through the same run path", () => {
   const REACHABILITY_REFUSED = { valid: false, status: "failed", shape: false, repaired: true };
   const INTERMEDIATE_OK = { valid: true, status: "ok", shape: true, kinds: ["addCheckpoint"], issues: [] };
   const REACHABILITY = "no reachable anchor";
-  const CHANGED_BY_CODE: Record<string, { cases: Record<string, { before: Record<string, unknown>; why: string; after: Record<string, unknown>; unused: number }>; overall: Record<string, number>; es: Record<string, number> }> = {
+  const CHANGED_BY_CODE: Record<string, { cases: Record<string, { before: Record<string, unknown>; why: string; after: Record<string, unknown>; unused: number }>; overall: Record<string, number> }> = {
     "authoring-shared.json": {
       cases: { a07: { before: REACHABILITY_REFUSED, why: REACHABILITY, after: { ...INTERMEDIATE_OK, repaired: false }, unused: 1 } },
-      overall: { validity: 17, opShape: 17, firstTry: 16 },
-      es: { validity: 6, opShape: 6, firstTry: 6 },
+      overall: { validity: 11, opShape: 11, firstTry: 10 },
     },
     "authoring-shared-e420eab0c646.json": {
       cases: {
         a05: { before: REACHABILITY_REFUSED, why: REACHABILITY, after: { ...INTERMEDIATE_OK, repaired: true }, unused: 0 },
         a07: { before: REACHABILITY_REFUSED, why: REACHABILITY, after: { ...INTERMEDIATE_OK, repaired: false }, unused: 1 },
-        a15: { before: REACHABILITY_REFUSED, why: REACHABILITY, after: { ...INTERMEDIATE_OK, repaired: true }, unused: 0 },
       },
-      overall: { validity: 20, opShape: 20, firstTry: 15 },
-      es: { validity: 8, opShape: 8, firstTry: 6 },
-    },
-    "curator-shared-e420eab0c646.json": {
-      cases: {
-        c13: {
-          before: { survived: 0, decision: false, kept: [] },
-          why: '"La Cripta\\" (Abadía Lore)\\" is not an entry this story owns',
-          after: { survived: 1, decision: true, kept: ["enable:La Cripta"], dropped: [] },
-          unused: 0,
-        },
-      },
-      overall: { validity: 20, opShape: 14, decision: 19 },
-      es: { validity: 8, opShape: 6, decision: 7 },
+      overall: { validity: 12, opShape: 12, firstTry: 9 },
     },
   };
   const passedBy = (slice: { metrics: Record<string, { passed: number }> }) => Object.fromEntries(Object.entries(slice.metrics).map(([name, metric]) => [name, metric.passed]));
@@ -306,7 +287,7 @@ describe("recorded live goldens replay through the same run path", () => {
       expect(Object.keys(changed?.cases ?? {}).every((id) => golden.records.some((entry: { id: string }) => entry.id === id))).toBe(true);
       if (changed && golden.role !== "authoring") {
         const current = summarizeRoleCalibration(golden.role, unanswered);
-        expect({ overall: passedBy(current.overall), es: passedBy(current.es) }).toEqual({ overall: changed.overall, es: changed.es });
+        expect(passedBy(current.overall)).toEqual(changed.overall);
       }
       if (golden.role !== "authoring") return;
       const outOfStage = (golden.records as Array<{ id: string; case: AuthoringCalibrationCase; score: AuthoringScore }>)
@@ -314,7 +295,7 @@ describe("recorded live goldens replay through the same run path", () => {
         .map((entry) => entry.id);
       expect(refusedByStage).toEqual(outOfStage);
       const enforced = summarizeRoleCalibration("authoring", unanswered);
-      expect({ overall: passedBy(enforced.overall), es: passedBy(enforced.es) }).toEqual(changed ? { overall: changed.overall, es: changed.es } : { overall: passedBy(golden.summary.overall), es: passedBy(golden.summary.es) });
+      expect(passedBy(enforced.overall)).toEqual(changed ? changed.overall : passedBy(golden.summary.overall));
     });
   }
 });

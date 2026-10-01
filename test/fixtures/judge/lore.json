@@ -628,55 +628,6 @@
       ]
     },
     {
-      "id": "L06",
-      "lang": "es",
-      "pool": "adolion",
-      "scene": {
-        "checkpointName": "Life as an adventurer",
-        "objective": "Take jobs, climb the ranks and survive Adolion.",
-        "window": [
-          {
-            "speaker": "Narrador",
-            "text": "Más allá de la ciudad caída se alza un castillo gótico enorme. Dicen que sus pasillos cambian de sitio para atrapar a quien entra."
-          },
-          {
-            "speaker": "Max",
-            "text": "\"¿Y su señor? He oído que es un no-muerto antiguo que ni siquiera teme al sol, y que acaba de despertar.\""
-          }
-        ]
-      },
-      "needed": [
-        "SO-J11 Adolion World.49",
-        "SO-J11 Adolion World.48",
-        "SO-J11 Adolion World.51",
-        "SO-J11 Adolion World.14"
-      ]
-    },
-    {
-      "id": "L07",
-      "lang": "es",
-      "pool": "adolion",
-      "scene": {
-        "checkpointName": "Life as an adventurer",
-        "objective": "Take jobs, climb the ranks and survive Adolion.",
-        "window": [
-          {
-            "speaker": "Aldeano",
-            "text": "\"Anoche vinieron las pequeñas criaturas verdes, decenas de ellas. Con ellas venían brutos de más de dos metros con garrotes.\""
-          },
-          {
-            "speaker": "Max",
-            "text": "\"¿Y quién las dirigía? Algo tan organizado necesita un jefe fuerte que dé órdenes desde atrás.\""
-          }
-        ]
-      },
-      "needed": [
-        "SO-J11 Adolion World.16",
-        "SO-J11 Adolion World.52",
-        "SO-J11 Adolion World.53"
-      ]
-    },
-    {
       "id": "L08",
       "lang": "en",
       "pool": "adolion",
@@ -722,29 +673,6 @@
         "SO-J11 Adolion World.63",
         "SO-J11 Adolion World.62",
         "SO-J11 Adolion World.61"
-      ]
-    },
-    {
-      "id": "L10",
-      "lang": "es",
-      "pool": "adolion",
-      "scene": {
-        "checkpointName": "Life as an adventurer",
-        "objective": "Take jobs, climb the ranks and survive Adolion.",
-        "window": [
-          {
-            "speaker": "Narrador",
-            "text": "En la barra, la camarera risueña te guiña un ojo y te sirve el mejor cóctel que has probado; dicen que también cocina de maravilla."
-          },
-          {
-            "speaker": "Max",
-            "text": "\"¿Es verdad que eres la mejor amiga de la recepcionista elfa? Necesito que me presentes.\""
-          }
-        ]
-      },
-      "needed": [
-        "SO-J11 Adolion World.27",
-        "SO-J11 Adolion World.18"
       ]
     },
     {

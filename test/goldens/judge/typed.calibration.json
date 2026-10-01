@@ -3,26 +3,25 @@
   "summary": {
     "use": "typed",
     "fixture": "typed",
-    "right": 113,
-    "total": 134,
-    "rate": 0.8433,
+    "right": 109,
+    "total": 130,
+    "rate": 0.8385,
     "families": [
       {
         "family": "answered",
-        "right": 56,
-        "total": 57,
+        "right": 54,
+        "total": 55,
         "floor": 0.95,
         "ok": true
       },
       {
         "family": "coverage",
-        "right": 57,
-        "total": 77,
+        "right": 55,
+        "total": 75,
         "floor": 0,
         "ok": true
       }
     ],
-    "spanish": "4/4",
     "p50LatencyMs": 1290,
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
@@ -272,32 +271,6 @@
       "right": false,
       "picked": "under floor",
       "latencyMs": 972
-    },
-    {
-      "id": "H21.coverage:mission_accepted",
-      "right": true,
-      "picked": "true@1",
-      "latencyMs": 1041
-    },
-    {
-      "id": "H21.answered:mission_accepted",
-      "right": true,
-      "picked": "true",
-      "detail": "[true]",
-      "latencyMs": 1041
-    },
-    {
-      "id": "H22.coverage:luke_decision",
-      "right": true,
-      "picked": "\"declined\"@0.99",
-      "latencyMs": 996
-    },
-    {
-      "id": "H22.answered:luke_decision",
-      "right": true,
-      "picked": "\"declined\"",
-      "detail": "[\"declined\"]",
-      "latencyMs": 996
     },
     {
       "id": "H23.coverage:hull_breach_sealed",

@@ -40,7 +40,7 @@ export const curatorFilter: Experiment = {
       id: this.id,
       title: this.title,
       summary: [
-        `${rows.length} entries over ${stories.length} stories: ${positives} need attention (stale or newly needed), ${rows.length - positives} fine. Spanish: the noir set.`,
+        `${rows.length} entries over ${stories.length} stories: ${positives} need attention (stale or newly needed), ${rows.length - positives} fine.`,
         `AUROC ${fixed(auroc(binary))}. Recall floor 0.9: ${sweep.map((row) => `cut ${row.cut} → recall ${frac(row.recall, positives)}, keeps ${row.kept}/${rows.length}`).join('; ')}.`,
       ],
       sections: [{ title: 'Every entry', body: table(['entry', 'story', 'on', 'label', 'p', 'why'], rows.map((row) => [`${row.id} ${row.title}`, row.story, row.on ? 'on' : 'off', row.attention ? 'attention' : 'fine', `${fixed(row.p)}${(row.p >= 0.5) === row.attention ? '' : ' ✗'}`, row.why ?? ''])) }],

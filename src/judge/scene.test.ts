@@ -84,7 +84,7 @@ describe("scene read calibration (real answers, production shape)", () => {
 
   it("held-out breaks: no false trigger, recall over the regex's 50%", async () => {
     const scores = sceneFamilyScores(await runSceneCalibration(replay("scene-holdout.json"), cases("scene-holdout.json")));
-    expect(scores.find((row) => row.family === "nobreak")).toMatchObject({ right: 12, total: 12 });
+    expect(scores.find((row) => row.family === "nobreak")).toMatchObject({ right: 10, total: 10 });
     expect(scores.find((row) => row.family === "break")?.ok).toBe(true);
   });
 });

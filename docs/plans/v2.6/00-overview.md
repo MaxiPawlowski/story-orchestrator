@@ -255,7 +255,7 @@ None of these is built until it meets its predeclared floor. The question is whi
 | **J6b bundle** | merge one boundary's judge calls into one request | only helps if they share context; its Phase 0 checks that first | **Phase 0 only** |
 | **J6c tension read** | the judge scores tension instead of the extractor | waits on the extractor's tension fix being proven live; a Reddit report says numeric tension grading "still wasn't good" | **after the tension fix** |
 | **J6d shadow record** | the extractor also answers what the judge answered, and the differences are logged author-only | measurement only | v2.7 |
-| **J7** (7 ideas) | scene-break confirmation, canon verification, epistemic via the judge, cast tuning, two-hop look-ahead, per-quality floors, canon drafts | each needs a 20-case fixture with 8 Spanish rows | v2.7, unless one matters for Adolion |
+| **J7** (7 ideas) | scene-break confirmation, canon verification, epistemic via the judge, cast tuning, two-hop look-ahead, per-quality floors, canon drafts | each needs a 20-case fixture (English only, W25) | v2.7, unless one matters for Adolion |
 | **B6 hosted routes** | reach Jev through NanoGPT, OpenRouter or a local Jev-like model, as a second vendor | useful only if a host serves Jev's probability contract (plain chat completions don't count); each host re-calibrates every recommended use ×2 and adds a privacy row | **docs-only Phase 0** |
 | **B10 CLI model as judge** | Claude or Codex through the harness answering judge questions | text, not probabilities, so every threshold needs a new rule; 2–7 s to spawn, so off-path only; needs the harness build | **defer** |
 

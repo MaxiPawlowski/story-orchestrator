@@ -46,9 +46,8 @@ describe("the two release wordings", () => {
 describe("Phase A scoring (the live run is pending; this pins the instrument)", () => {
   const holdout = JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/judge/contradiction-release-holdout.json"), "utf8")) as { floors: Record<string, number>; rows: ContradictionReleaseCase[] };
 
-  it("declares the hold-out before any answer: >= 12 rows, >= 4 es, and the plan's floors", () => {
-    expect(holdout.rows.length).toBeGreaterThanOrEqual(12);
-    expect(holdout.rows.filter((row) => row.lang === "es").length).toBeGreaterThanOrEqual(4);
+  it("declares the hold-out before any answer: 9 rows (14 before v2.6 W25 removed the Spanish ones) and the plan's floors", () => {
+    expect(holdout.rows).toHaveLength(9);
     expect(holdout.floors).toEqual({ ...CONTRADICTION_RELEASE_FLOORS });
   });
 
@@ -70,23 +69,20 @@ describe("Phase A scoring (the live run is pending; this pins the instrument)", 
     for (const wording of ["a", "b"] as const) expect(scoreReleaseArm(report, holdout.rows, wording, ids).ok).toBe(true);
   });
 
-  it("one released contradiction fails the arm (releaseErr floor 0.05 over 5 rows), and a Spanish one fails it on its own", async () => {
+  it("one released contradiction fails the arm (releaseErr floor 0.05 over 3 rows)", async () => {
     const releasing = (id: string) => plant((request) => holdout.rows.some((row) => row.id === id && row.claim === claimOf(request)) || holdout.rows.some((row) => row.label === "agrees" && row.claim === claimOf(request)));
     const en = scoreReleaseArm(await runContradictionReleaseCalibration(releasing("R01"), holdout.rows), holdout.rows, "b", ids);
     expect([en.releaseErr.hit, en.ok]).toEqual([1, false]);
-    const es = scoreReleaseArm(await runContradictionReleaseCalibration(releasing("R04"), holdout.rows), holdout.rows, "b", ids);
-    expect([es.releaseErrEs.hit, es.ok]).toEqual([1, false]);
   });
 
-  it("a released Spanish contradiction fails the arm even when the overall rate is within 0.05", () => {
+  it("one released contradiction in 21 stays within the 0.05 releaseErr floor", () => {
     const cases: ContradictionReleaseCase[] = [
-      ...Array.from({ length: 21 }, (_, index) => ({ id: `C${index}`, lang: index === 0 ? "es" : "en", label: "contradicts" as const, established: "e", claim: `c${index}` })),
+      ...Array.from({ length: 21 }, (_, index) => ({ id: `C${index}`, lang: "en", label: "contradicts" as const, established: "e", claim: `c${index}` })),
       { id: "A0", lang: "en", label: "agrees", established: "e", claim: "a" },
     ];
     const rows = cases.map((row) => ({ id: `${row.id}.b`, right: true, picked: row.id === "C0" || row.id === "A0" ? "release" : "hold", latencyMs: 0 }));
     const score = scoreReleaseArm({ rows }, cases, "b", new Set(cases.map((row) => row.id)));
-    expect(score.releaseErr.hit / score.releaseErr.total).toBeLessThanOrEqual(CONTRADICTION_RELEASE_FLOORS.releaseErr);
-    expect([score.releaseErrEs.hit, score.ok]).toEqual([1, false]);
+    expect([score.releaseErr.hit, score.ok]).toEqual([1, true]);
   });
 
   it("the judge-off column releases nothing, so it equals today's holds and fails the paraphrase floor", async () => {
@@ -106,7 +102,7 @@ describe("Phase A scoring (the live run is pending; this pins the instrument)", 
 describe("the Phase A verdict over every band mode", () => {
   const cases: ContradictionReleaseCase[] = [
     { id: "C1", lang: "en", label: "contradicts", established: "e", claim: "c1" },
-    { id: "C2", lang: "es", label: "contradicts", established: "e", claim: "c2" },
+    { id: "C2", lang: "en", label: "contradicts", established: "e", claim: "c2" },
     { id: "A1", lang: "en", label: "agrees", established: "e", claim: "a1" },
     { id: "A2", lang: "en", label: "agrees", established: "e", claim: "a2" },
   ];

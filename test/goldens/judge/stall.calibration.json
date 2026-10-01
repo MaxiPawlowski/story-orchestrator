@@ -3,26 +3,25 @@
   "summary": {
     "use": "stall",
     "fixture": "stall",
-    "right": 89,
-    "total": 89,
+    "right": 85,
+    "total": 85,
     "rate": 1,
     "families": [
       {
         "family": "direct",
-        "right": 30,
-        "total": 30,
+        "right": 28,
+        "total": 28,
         "floor": 1,
         "ok": true
       },
       {
         "family": "kept",
-        "right": 59,
-        "total": 59,
+        "right": 57,
+        "total": 57,
         "floor": 1,
         "ok": true
       }
     ],
-    "spanish": "4/4",
     "p50LatencyMs": 1188,
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
@@ -261,34 +260,6 @@
       "picked": "p=0.22",
       "detail": "artifact_secured == false",
       "latencyMs": 952
-    },
-    {
-      "id": "H21.direct:0",
-      "right": true,
-      "picked": "p=0.95",
-      "detail": "mission_accepted == true",
-      "latencyMs": 933
-    },
-    {
-      "id": "H21.kept:0",
-      "right": true,
-      "picked": "p=0.95",
-      "detail": "mission_accepted == true",
-      "latencyMs": 933
-    },
-    {
-      "id": "H22.direct:0",
-      "right": true,
-      "picked": "p=0.96",
-      "detail": "luke_decision == \"declined\"",
-      "latencyMs": 978
-    },
-    {
-      "id": "H22.kept:0",
-      "right": true,
-      "picked": "p=0.96",
-      "detail": "luke_decision == \"declined\"",
-      "latencyMs": 978
     },
     {
       "id": "H23.kept:0",

@@ -1,6 +1,6 @@
 {
   "labelledAt": "2026-09-19",
-  "note": "v2.2 plan 07 Phase A. Each stub has three hand-written chains whose labels are defect categories: clean, contradicts (a beat breaks an established fact), wanders (the beats do not move toward the target). The two noir stubs are in Spanish. Labels written before any judge answer was read.",
+  "note": "v2.2 plan 07 Phase A. Each stub has three hand-written chains whose labels are defect categories: clean, contradicts (a beat breaks an established fact), wanders (the beats do not move toward the target). The two Spanish noir stubs went with v2.6 W25. Labels written before any judge answer was read.",
   "stubs": [
     {
       "id": "V01", "lang": "en",
@@ -66,28 +66,6 @@
         { "label": "clean", "beats": ["Pell traces the fault to coolant loop two.", "Max holds the valve while Pell bypasses the loop as the heat climbs.", "The reactor settles and main power comes back."] },
         { "label": "contradicts", "beats": ["The reactor has been running perfectly all week, so Pell naps.", "Max checks the logs.", "Main power comes back on."] },
         { "label": "wanders", "beats": ["The crew throws a birthday party in the galley.", "Max plays cards with HALO.", "Everyone goes to sleep."] }
-      ]
-    },
-    {
-      "id": "V07", "lang": "es",
-      "facts": ["Brandt fue arrestado por Asuntos Internos.", "Doyle, el jefe del puerto, pagaba a la policía."],
-      "target": { "name": "Atrapar a Doyle", "objective": "Arrest the harbor master before he flees." },
-      "cast": ["Max", "Mae Hollis", "Maeve", "Lt. Brandt", "Doyle"], "trajectory": ["stirring", "tense", "peak"],
-      "chains": [
-        { "label": "clean", "beats": ["Max y Mae buscan a Doyle en la oficina del puerto.", "Descubren que huye hacia su lancha en el muelle doce.", "Lo alcanzan en el muelle y lo arrestan."] },
-        { "label": "contradicts", "beats": ["Brandt, todavía al mando de la policía del puerto, avisa a Doyle.", "Doyle escapa por la puerta de atrás.", "Max y Mae lo alcanzan en el muelle."] },
-        { "label": "wanders", "beats": ["Max y Mae van a cenar al Blue Anchor.", "Escuchan a Maeve cantar toda la noche.", "Se toman el fin de semana libre."] }
-      ]
-    },
-    {
-      "id": "V08", "lang": "es",
-      "facts": ["El libro de cuentas apareció en la lavandería de Pike Street.", "Maeve es la informante."],
-      "target": { "name": "Proteger a Maeve", "objective": "Get Maeve out of the city safely." },
-      "cast": ["Max", "Mae Hollis", "Maeve", "Doyle"], "trajectory": ["tense", "tense", "calm"],
-      "chains": [
-        { "label": "clean", "beats": ["Mae esconde a Maeve en su apartamento.", "Los hombres de Doyle vigilan la estación de tren.", "Suben a Maeve al tren de medianoche sin que la vean."] },
-        { "label": "contradicts", "beats": ["Siguen buscando el libro de cuentas, que nadie ha encontrado todavía.", "Mae esconde a Maeve.", "Suben a Maeve al tren."] },
-        { "label": "wanders", "beats": ["Max investiga un robo de joyas sin relación.", "Mae se toma unas vacaciones.", "Maeve vuelve a cantar en el club como si nada."] }
       ]
     },
     {

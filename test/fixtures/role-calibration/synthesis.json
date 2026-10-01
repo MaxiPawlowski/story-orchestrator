@@ -27,19 +27,6 @@
     { "id": "s05", "lang": "en", "messages": [
       { "speaker": "Arin", "text": "\"I don't trust him. He lied about the map.\"" },
       { "speaker": "Max", "text": "\"Then we watch him. We still need his boat.\"" },
-      { "speaker": "Oskar", "text": "The ferryman pushes off from the bank without a word. The reeds close behind the boat." } ] },
-    { "id": "s06", "lang": "es", "messages": [
-      { "speaker": "Max", "text": "Empujo la losa detrás del altar y bajo por la escalera de piedra." },
-      { "speaker": "Narrador", "text": "La cripta huele a humedad. Las antorchas apenas iluminan los nichos de los antiguos abades." },
-      { "speaker": "Mara", "text": "\"La reliquia debería estar en el nicho del fondo. No toques nada más.\"" },
-      { "speaker": "Max", "text": "Me acerco al nicho del fondo y levanto la tapa." } ] },
-    { "id": "s07", "lang": "es", "messages": [
-      { "speaker": "Doña Elena", "text": "\"Los soldados se fueron al amanecer. Ahora puedo hablar.\" Sirve dos vasos de vino." },
-      { "speaker": "Max", "text": "\"¿Qué sabe del alcalde Ruiz?\"" },
-      { "speaker": "Doña Elena", "text": "\"Que huyó con el dinero de los impuestos hacia el puerto. Y que no iba solo.\"" } ] },
-    { "id": "s08", "lang": "es", "messages": [
-      { "speaker": "Narrador", "text": "La niebla se abre y aparece el casco negro de un barco a la deriva, sin luces ni tripulación." },
-      { "speaker": "Max", "text": "Lanzo un garfio a la borda y subo a la cubierta." },
-      { "speaker": "Narrador", "text": "La cubierta está desierta. En la puerta del camarote del capitán hay marcas de uñas." } ] }
+      { "speaker": "Oskar", "text": "The ferryman pushes off from the bank without a word. The reeds close behind the boat." } ] }
   ]
 }

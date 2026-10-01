@@ -42,6 +42,4 @@ test('v2.5 plan 05 F3: the predeclared floors decide, each failing on its own', 
 test('v2.5 plan 05 F3: the measurement set loads, with five long scenes and two short ones', async () => {
   const scenes = await loadScenes(path.join(process.cwd(), 'test/fixtures/f3-scene'));
   assert.deepEqual(scenes.map((scene) => `${scene.slice}:${scene.name}`), ['long:long-1-envoy', 'long:long-2-well', 'long:long-3-ink', 'long:long-4-silver', 'long:long-5-map', 'short:short-1-ledger', 'short:short-2-cellar']);
-  const es = await loadScenes(path.join(process.cwd(), 'test/fixtures/pending-es/f3-scene'));
-  assert.deepEqual(es.map((scene) => scene.lang), ['es']);
 });
