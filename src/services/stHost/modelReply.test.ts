@@ -79,7 +79,8 @@ describe("cleanTextCompletionReply mirrors the TC clean-up extractData:false ski
   });
 });
 
-const NO_METER = { effort: "default", applied: false, collapsed: false, unsupported: null, budget: 0, chars: 0, tokens: null };
+const NO_METER = { effort: "default", applied: false, supported: true, sent: null, observed: false, collapsed: false, unsupported: null, budget: 0, chars: 0, tokens: null };
+const UNKNOWN = { usage: { input: null, output: null, costUsd: null }, model: null };
 
 const fakeHost = (api: string, reply: unknown = { choices: [{ text: "NO_DELTA", finish_reason: "stop" }] }, preset: string | undefined = "Default") => {
   const calls: Array<{ custom: Record<string, unknown>; override: Record<string, unknown> }> = [];
@@ -98,7 +99,7 @@ describe("requestModelReply: the typed seam (v2.4 plan 03 D1)", () => {
   it("CC profile sends no temperature/top_p, so the preset and ST's per-model rules decide (03-H7/H8)", async () => {
     const { host, calls } = fakeHost("claude", { content: [{ type: "text", text: "x" }], stop_reason: "end_turn" });
     const reply = await requestModelReply(host, "p1", "prompt", 512, { samplers: { temperature: 0.1, top_p: 0.9 } });
-    expect(reply).toEqual({ ok: true, text: "cc text", finish: "stop", meter: NO_METER });
+    expect(reply).toEqual({ ok: true, text: "cc text", finish: "stop", meter: NO_METER, ...UNKNOWN });
     expect(calls[0].override).toEqual({ stream: false });
   });
 
@@ -161,14 +162,14 @@ describe("requestModelReply: the typed seam (v2.4 plan 03 D1)", () => {
     const { host, calls } = fakeHost("llamacpp", { choices: [{ text: "partial", finish_reason: "length" }] });
     const controller = new AbortController();
     const reply = await requestModelReply(host, "p1", "prompt", 64, { signal: controller.signal });
-    expect(reply).toEqual({ ok: true, text: "partial", finish: "length", meter: NO_METER });
+    expect(reply).toEqual({ ok: true, text: "partial", finish: "length", meter: NO_METER, ...UNKNOWN });
     expect(calls[0].custom).toMatchObject({ extractData: false, stream: false, signal: controller.signal });
   });
 
   it("a TC reply is cleaned with the profile's instruct template before anyone parses it (03-H17)", async () => {
     const { host } = fakeHost("llamacpp", { choices: [{ text: "NO_DELTA\n<start_of_turn>user\nDELTA crossed value=true evidence=\"x\"", finish_reason: "stop" }] });
     host.instructSequences = () => ({ stop_sequence: "<end_of_turn>", input_sequence: "<start_of_turn>user" });
-    expect(await requestModelReply(host, "p1", "prompt", 64)).toEqual({ ok: true, text: "NO_DELTA\n", finish: "stop", meter: NO_METER });
+    expect(await requestModelReply(host, "p1", "prompt", 64)).toEqual({ ok: true, text: "NO_DELTA\n", finish: "stop", meter: NO_METER, ...UNKNOWN });
   });
 
   it("a deleted profile is config before any request goes out", async () => {
@@ -211,7 +212,7 @@ describe("requestModelReply: reasoning effort, budget and reasoning-exhausted (v
     const reply = await requestModelReply(host, "p1", "prompt", 512, { effort: "medium", reasoningBudget: 2048 });
     expect(budgets).toEqual([2560]);
     expect(calls[0].override).toEqual({ stream: false, reasoning_effort: "medium", include_reasoning: true });
-    expect(reply).toEqual({ ok: true, text: "NO_DELTA", finish: "stop", meter: { effort: "medium", applied: true, collapsed: false, unsupported: null, budget: 2048, chars: 8, tokens: null } });
+    expect(reply).toEqual({ ok: true, text: "NO_DELTA", finish: "stop", meter: { effort: "medium", applied: true, supported: true, sent: "medium", observed: true, collapsed: false, unsupported: null, budget: 2048, chars: 8, tokens: null }, ...UNKNOWN });
   });
 
   it("off and unsupported levels add no budget; unsupported sends nothing and says so", async () => {
@@ -246,5 +247,32 @@ describe("requestModelReply: reasoning effort, budget and reasoning-exhausted (v
   it("control: an empty answer that stopped on its own with no reasoning stays an ordinary empty reply", async () => {
     const { host } = fakeHost("llamacpp", { choices: [{ text: "", finish_reason: "stop" }] });
     expect(await requestModelReply(host, "p1", "prompt", 64)).toMatchObject({ ok: true, text: "" });
+  });
+});
+
+describe("AS-20: the reply keeps the provider's usage and model; unknown stays unknown", () => {
+  it("an OpenAI-shaped reply (DeepSeek, OpenRouter) carries its usage, cost and model", async () => {
+    const { host } = fakeHost("openai", { model: "deepseek-chat", choices: [{ message: { content: "x" }, finish_reason: "stop" }], usage: { prompt_tokens: 120, completion_tokens: 30, cost: 0.0004 } });
+    expect(await requestModelReply(host, "p1", "prompt", 64)).toMatchObject({ ok: true, usage: { input: 120, output: 30, costUsd: 0.0004 }, model: "deepseek-chat" });
+  });
+
+  it("a reply with no usage (ST's normalized Claude reply) records unknown, never zero", async () => {
+    const { host } = fakeHost("claude", { choices: [{ message: { content: "x" } }], content: [{ type: "text", text: "x" }] });
+    expect(await requestModelReply(host, "p1", "prompt", 64)).toMatchObject({ ok: true, usage: { input: null, output: null, costUsd: null }, model: null });
+  });
+
+  it("AS-5: the meter tells requested, supported, sent and observed effort apart", async () => {
+    const reply = { choices: [{ message: { content: "x" } }], content: [{ type: "thinking", thinking: "abc" }, { type: "text", text: "x" }] };
+    const stripped = fakeHost("openai", reply);
+    stripped.host.reasoningRoute = () => ({ api: "chat", source: "openai", model: "gpt-4o", includeBody: null });
+    expect(await requestModelReply(stripped.host, "p1", "prompt", 64, { effort: "high", reasoningBudget: 512 })).toMatchObject({
+      ok: true, meter: { effort: "high", applied: false, supported: false, sent: null, budget: 0, observed: true, chars: 3 },
+    });
+    expect(stripped.calls[0].override).not.toHaveProperty("reasoning_effort");
+    const fixed = fakeHost("openai", { choices: [{ message: { content: "x" } }] });
+    fixed.host.reasoningRoute = () => ({ api: "chat", source: "openai", model: "gpt-5.3-chat-latest", includeBody: null });
+    expect(await requestModelReply(fixed.host, "p1", "prompt", 64, { effort: "high", reasoningBudget: 512 })).toMatchObject({
+      ok: true, meter: { effort: "high", applied: true, supported: true, sent: "medium", observed: false },
+    });
   });
 });

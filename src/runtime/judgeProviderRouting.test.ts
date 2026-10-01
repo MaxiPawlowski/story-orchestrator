@@ -1,5 +1,5 @@
 import {
-  defaultJudgeSettings, judgeReadiness, judgeReadinessConcerns, judgeRoute, sanitizeJudgeSettings, JUDGE_READINESS_BY_PROVIDER, JUDGE_ROUTE_KEYS, RING_USE_ROUTE_KEYS,
+  defaultJudgeSettings, judgeReadiness, judgeReadinessConcerns, judgeRoute, sanitizeJudgeSettings, JUDGE_FIXTURE_REVISION, JUDGE_READINESS_BY_PROVIDER, JUDGE_ROUTE_KEYS, RING_USE_ROUTE_KEYS,
   type JudgeCallRecord, type JudgeDirectorInput, type JudgeProviderId, type JudgeResponse, type JudgeSettings, type JudgeTransport,
 } from "@judge/index";
 import { JudgeRuntime } from "./judge";
@@ -59,7 +59,7 @@ describe("decision-provider routing (v2.6 plan 12 A)", () => {
 
   it("control: once a calibration row exists for provider x use, the call goes to that provider and the record names it", async () => {
     const table = JUDGE_READINESS_BY_PROVIDER["llama-logprob"];
-    table.director = { calibration: 0.95, latencyP50Ms: 300, live: null, measuredOn: "artemis", recommendation: "test row" };
+    table.director = { calibration: 0.95, latencyP50Ms: 300, live: null, measuredOn: "artemis", recommendation: "test row", fixtureRevision: JUDGE_FIXTURE_REVISION, passed: true };
     try {
       const { runtime, records, typesafe, llama } = setup(routed({ director: "llama-logprob" }));
       await runtime.director(input);
@@ -74,7 +74,7 @@ describe("decision-provider routing (v2.6 plan 12 A)", () => {
 
   it("a provider the server has not configured is unavailable, never silently sent to typesafe instead", async () => {
     const table = JUDGE_READINESS_BY_PROVIDER["llama-logprob"];
-    table.memoryPairs = { calibration: 0.9, latencyP50Ms: 300, live: null, measuredOn: "artemis", recommendation: "test row" };
+    table.memoryPairs = { calibration: 0.9, latencyP50Ms: 300, live: null, measuredOn: "artemis", recommendation: "test row", fixtureRevision: JUDGE_FIXTURE_REVISION, passed: true };
     try {
       const records: JudgeCallRecord[] = [];
       const typesafe = jest.fn<ReturnType<JudgeTransport>, Parameters<JudgeTransport>>(async () => answered);
@@ -147,5 +147,68 @@ describe("CR-J22: a probe never falls back to TypeSafe", () => {
     await expect(runtime.probe(probe)).resolves.toMatchObject({ answers: answered.answers });
     expect(typesafe).toHaveBeenCalledTimes(1);
     expect(records).toEqual([]);
+  });
+});
+
+describe("AS-4: readiness and routing are keyed provider x model x use x fixture revision", () => {
+  const fact = (patch: Record<string, unknown> = {}) => ({
+    calibration: 0.95, latencyP50Ms: 300, live: null, measuredOn: "artemis", recommendation: "test row", fixtureRevision: JUDGE_FIXTURE_REVISION, passed: true, ...patch,
+  });
+  const withRow = async (patch: Record<string, unknown>, body: () => Promise<void> | void) => {
+    const table = JUDGE_READINESS_BY_PROVIDER["llama-logprob"];
+    table.director = fact(patch);
+    try {
+      await body();
+    } finally {
+      delete table.director;
+    }
+  };
+
+  it("refuses a stale calibration (another fixture revision) and sends nothing", () => withRow({ fixtureRevision: "older-fixtures" }, async () => {
+    expect(judgeRoute(routed({ director: "llama-logprob" }), "director")).toMatchObject({ refused: "uncalibrated" });
+    const { runtime, llama, records } = setup(routed({ director: "llama-logprob" }));
+    await runtime.director(input);
+    expect(llama).not.toHaveBeenCalled();
+    expect(records[0]).toMatchObject({ fallback: "uncalibrated", provider: "llama-logprob" });
+    expect(judgeReadiness(routed({ director: "llama-logprob" })).find((row) => row.key === "director")).toMatchObject({ verdict: "unproven", calibrationProblem: "stale" });
+  }));
+
+  it("refuses a failed calibration (below its floor) and sends nothing", () => withRow({ passed: false }, async () => {
+    expect(judgeRoute(routed({ director: "llama-logprob" }), "director")).toMatchObject({ refused: "uncalibrated" });
+    const { runtime, llama } = setup(routed({ director: "llama-logprob" }));
+    await runtime.director(input);
+    expect(llama).not.toHaveBeenCalled();
+    expect(judgeReadiness(routed({ director: "llama-logprob" })).find((row) => row.key === "director")).toMatchObject({ verdict: "unproven", calibrationProblem: "failed" });
+  }));
+
+  it("a non-default provider serving another model than the calibrated one: the answer is discarded and the next call is refused before sending", () => withRow({}, async () => {
+    const { runtime, llama, records } = setup(routed({ director: "llama-logprob" }));
+    llama.mockImplementation(async () => ({ ...answered, model: "llama-server:qwen" }));
+    await expect(runtime.director(input)).resolves.toBeNull();
+    expect(records[0]).toMatchObject({ fallback: "model-mismatch", provider: "llama-logprob", model: "llama-server:qwen" });
+    await runtime.director(input);
+    expect(llama).toHaveBeenCalledTimes(1);
+    expect(judgeRoute(routed({ director: "llama-logprob" }), "director", { "llama-logprob": "llama-server:qwen" })).toMatchObject({ refused: "uncalibrated" });
+    expect(judgeRoute(routed({ director: "llama-logprob" }), "director", { "llama-logprob": "llama-server:artemis" }).refused).toBeUndefined();
+  }));
+
+  it("readiness checks the model on a non-default provider: unknown or another model is unproven, the calibrated one is measured", () => withRow({}, () => {
+    const settings = routed({ director: "llama-logprob" });
+    const director = (served?: string) => judgeReadiness(settings, {}, null, served ? { served: { "llama-logprob": served } } : {}).find((row) => row.key === "director");
+    expect(director()).toMatchObject({ verdict: "unproven", modelMismatch: { answered: null, measuredOn: "artemis" } });
+    expect(director("llama-server:qwen")).toMatchObject({ verdict: "unproven", modelMismatch: { answered: "llama-server:qwen" } });
+    expect(director("llama-server:artemis")).toMatchObject({ verdict: "measured" });
+  }));
+
+  it("a stale typesafe row reads unproven but keeps routing (the default provider never refuses)", () => {
+    const row = JUDGE_READINESS_BY_PROVIDER.typesafe.stallCheck;
+    const saved = { ...row! };
+    Object.assign(row!, { fixtureRevision: "older-fixtures" });
+    try {
+      expect(judgeReadiness(routed({}), {}, null).find((entry) => entry.key === "stallCheck")).toMatchObject({ verdict: "unproven", calibrationProblem: "stale" });
+      expect(judgeRoute(routed({}), "stall").refused).toBeUndefined();
+    } finally {
+      Object.assign(row!, saved);
+    }
   });
 });

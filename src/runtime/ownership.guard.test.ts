@@ -51,6 +51,11 @@ function delegateOwner(key: string, seen = new Set<string>(), table: Record<stri
 }
 
 describe("write-edge ownership census", () => {
+  test("AS-9: no site is classified twice (JSON keeps the last duplicate key silently)", () => {
+    const keys = [...readFileSync(LEDGER_PATH, "utf-8").matchAll(/^ {4}"([^"]+)": \{/gm)].map((match) => match[1]);
+    expect(keys.filter((key, index) => keys.indexOf(key) !== index)).toEqual([]);
+  });
+
   test("every site that writes after an await is classified", () => {
     const unclassified = sites.filter((site) => !rows[site.key]);
     expect(unclassified.map((site) => `${site.key}  writes [${site.writes.join(", ")}]`)).toEqual([]);

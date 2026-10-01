@@ -29,7 +29,7 @@ const DEFAULT_ROSTER = [
 ];
 
 const DEFAULT_CHAT = [
-  { name: "Arin", mes: "I will take the sword back from the vault tonight, whatever it costs." },
+  { name: "Arin", mes: "I will take the sword back from the vault tonight, whatever it costs. A bribed guard, a burned ledger, then I leave town at dawn." },
   { name: "Max", mes: "I nod.", is_user: true },
 ];
 

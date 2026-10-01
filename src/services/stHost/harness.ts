@@ -114,8 +114,11 @@ export const readHarnessAnswer = (data: unknown, effort: ReasoningEffort): Model
     ok: true,
     text: answer,
     finish: typeof data.finish === "string" && FINISHES.has(data.finish) ? data.finish as ModelFinish : "unknown",
-    meter: { effort, applied, collapsed: false, unsupported: applied || effort === "default" ? null : "this harness takes low, medium or high only", budget: 0, chars: 0, tokens: null },
-    ...(usage ? { usage } : {}),
+    meter: {
+      effort, applied, supported: applied || effort === "default", sent: applied ? effort : null, observed: false,
+      collapsed: false, unsupported: applied || effort === "default" ? null : "this harness takes low, medium or high only", budget: 0, chars: 0, tokens: null,
+    },
+    usage: usage ?? { input: null, output: null, costUsd: null },
     spawnMs: num(data.spawnMs),
   };
 };

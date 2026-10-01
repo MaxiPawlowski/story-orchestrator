@@ -81,17 +81,51 @@ test("ACCEPTED needs every human row scored, against the one human-score file", 
   assert.deepEqual(runProblems(record({ humanRecord: `C:\\dev\\so\\${SCORES.replace(/\//g, "\\")}` }), { accepted: true, humanScores: SCORES }), []);
 });
 
-test("×2 is two CONSECUTIVE green runs: pass-fail-pass is not twice, fail-pass-pass is", () => {
+test("×2 is the FIRST two runs of a series: pass-fail-pass is not twice, and neither is fail-pass-pass with no named change", () => {
   const pfp = seriesVerdict([run(true), run(false), run(true)]);
   assert.equal(pfp.twice, false);
   assert.equal(pfp.green, 2);
   const fpp = seriesVerdict([run(false), run(true), run(true)]);
-  assert.equal(fpp.twice, true);
-  assert.deepEqual(fpp.pair, [1, 2]);
+  assert.equal(fpp.twice, false);
   const ppf = seriesVerdict([run(true), run(true), run(false)]);
-  assert.deepEqual([ppf.twice, ppf.green, ppf.total], [true, 2, 3]);
+  assert.deepEqual([ppf.twice, ppf.pair, ppf.green, ppf.total], [true, [0, 1], 2, 3]);
   assert.equal(seriesVerdict([run(true)]).twice, false);
   assert.equal(seriesVerdict([]).twice, false);
+});
+
+test("AS-3 H-g: pass-fail-pass-pass with no change is flaky and stays red", () => {
+  const pfpp = seriesVerdict([run(true), run(false), run(true), run(true)]);
+  assert.deepEqual([pfpp.twice, pfpp.pair, pfpp.series], [false, null, 1]);
+});
+
+test("AS-3 H-g: fail, named change, pass, pass is ×2 in the new series; an unnamed or blank change starts nothing", () => {
+  const fcpp = seriesVerdict([run(false), run(true, { change: "fixture: J1.2 waits on checkpointIn" }), run(true)]);
+  assert.deepEqual([fcpp.twice, fcpp.pair, fcpp.series], [true, [1, 2], 2]);
+  assert.equal(seriesVerdict([run(false), run(true, { change: "  " }), run(true)]).twice, false);
+  const failedAfter = seriesVerdict([run(true), run(true), run(false, { change: "harness: lane 2 reseeded" }), run(true)]);
+  assert.deepEqual([failedAfter.twice, failedAfter.series], [false, 2]);
+});
+
+test("AS-3 H-g: a pair across two builds or fixtures is refused, and a build change needs a named series boundary", () => {
+  const across = seriesVerdict([run(true), run(true, { build: OTHER })]);
+  assert.equal(across.twice, false);
+  assert.ok(across.problems.some((line) => line.includes("without a named change")), across.problems.join(" | "));
+  const named = seriesVerdict([run(true), run(true, { build: OTHER, change: "product: A35 fix, re-frozen" }), run(true, { build: OTHER })], { attestedBuild: OTHER });
+  assert.deepEqual([named.twice, named.pair, named.problems], [true, [1, 2], []]);
+});
+
+test("AS-3: journeyVerdicts reads a run's named change from the attestation", () => {
+  const entries = {
+    ...twoGreen,
+    "J1/run3/record.json": record({ ranAt: "2026-09-25T12:00:00Z" }),
+    "J1/run3/header-start.json": header(BUILD),
+    "J1/run0/record.json": record({ ranAt: "2026-09-25T09:00:00Z", strict: false }),
+    "J1/run0/header-start.json": header(BUILD),
+  };
+  const flaky = journeyVerdicts(attestation("PARTIAL", [cite(0), cite(1), cite(2)]), files(entries), { attestedBuild: BUILD });
+  assert.equal(flaky.J1.twice, false);
+  const changed = journeyVerdicts(attestation("PARTIAL", [cite(0), { ...cite(1), change: "harness: --strict restored" }, cite(2)]), files(entries), { attestedBuild: BUILD });
+  assert.deepEqual([changed.J1.twice, changed.J1.pair], [true, [1, 2]]);
 });
 
 test("×2 needs an unchanged, known build and fixture, on the attested build when one is given", () => {

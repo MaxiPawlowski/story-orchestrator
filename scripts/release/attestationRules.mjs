@@ -93,19 +93,24 @@ export function seriesVerdict(runs, { attestedBuild = null } = {}) {
     problems.push("runs are not listed in the order they ran, so consecutive cannot be read from the list");
   }
   const green = runs.map((run) => Array.isArray(run.problems) && run.problems.length === 0);
+  const named = (run) => typeof run?.change === "string" && run.change.trim().length > 0;
+  const starts = runs.map((run, index) => index === 0 || named(run));
+  runs.forEach((run, index) => {
+    if (index === 0 || starts[index]) return;
+    const before = runs[index - 1];
+    if ((before.build && run.build && before.build !== run.build) || (before.fixture && run.fixture && before.fixture !== run.fixture)) {
+      problems.push(`runs ${index} and ${index + 1} differ in build or fixture without a named change: a new series needs one`);
+    }
+  });
+  const first = starts.lastIndexOf(true);
   let pair = null;
-  for (let index = 1; index < runs.length && !pair && !problems.length; index += 1) {
-    const [left, right] = [runs[index - 1], runs[index]];
-    if (!green[index - 1] || !green[index]) continue;
-    if (!left.build || left.build !== right.build) continue;
-    if (!left.fixture || left.fixture !== right.fixture) continue;
-    if (attestedBuild && left.build !== attestedBuild) continue;
-    pair = [index - 1, index];
+  if (first >= 0 && first + 1 < runs.length && !starts[first + 1] && !problems.length && green[first] && green[first + 1]) {
+    const [left, right] = [runs[first], runs[first + 1]];
+    const known = left.build && left.build === right.build && left.fixture && left.fixture === right.fixture;
+    if (!known) problems.push("two adjacent green runs exist, but not on a known, unchanged build and fixture");
+    else if (!attestedBuild || left.build === attestedBuild) pair = [first, first + 1];
   }
-  if (!pair && !problems.length && green.some((value, index) => value && green[index + 1])) {
-    problems.push("two adjacent green runs exist, but not on a known, unchanged build and fixture");
-  }
-  return { twice: Boolean(pair), pair, green: green.filter(Boolean).length, total: runs.length, problems };
+  return { twice: Boolean(pair), pair, series: starts.filter(Boolean).length, green: green.filter(Boolean).length, total: runs.length, problems };
 }
 
 export function journeyVerdicts(attestation, load, { attestedBuild = null, humanScores = null } = {}) {
@@ -115,11 +120,11 @@ export function journeyVerdicts(attestation, load, { attestedBuild = null, human
       .filter(([id, journey]) => /^J\d+$/.test(id) && typeof journey.notRun !== "string")
       .map(([id, journey]) => {
         const runs = (journey.runs ?? []).map((run) => {
-          if (!isRecord(run) || typeof run.record !== "string") return { problems: ["cites no record: a run summary typed into the attestation is not evidence"], build: null, fixture: null, ranAt: null, retried: 0 };
+          if (!isRecord(run) || typeof run.record !== "string") return { problems: ["cites no record: a run summary typed into the attestation is not evidence"], build: null, fixture: null, ranAt: null, retried: 0, change: isRecord(run) ? run.change ?? null : null };
           const pathProblem = citedPathProblem(run.record) ?? (run.header === undefined ? null : citedPathProblem(run.header));
-          if (pathProblem) return { problems: [pathProblem], build: null, fixture: null, ranAt: null, retried: 0 };
+          if (pathProblem) return { problems: [pathProblem], build: null, fixture: null, ranAt: null, retried: 0, change: isRecord(run) ? run.change ?? null : null };
           const record = load(run.record);
-          if (!record) return { problems: [`record ${run.record} is not on disk`], build: null, fixture: null, ranAt: null, retried: 0 };
+          if (!record) return { problems: [`record ${run.record} is not on disk`], build: null, fixture: null, ranAt: null, retried: 0, change: isRecord(run) ? run.change ?? null : null };
           const header = load(run.header ?? headerBeside(run.record));
           const problems = runProblems(record, { accepted, humanScores });
           if (record.id !== id) problems.push(`record ${run.record} is ${record.id}, not ${id}`);
@@ -129,6 +134,7 @@ export function journeyVerdicts(attestation, load, { attestedBuild = null, human
             fixture: run.fixture ?? record.fileSha256 ?? null,
             ranAt: record.ranAt ?? null,
             retried: retriedCount(record),
+            change: run.change ?? null,
           };
         });
         return [id, { runs, ...seriesVerdict(runs, { attestedBuild }) }];

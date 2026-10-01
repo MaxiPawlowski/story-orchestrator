@@ -8,7 +8,7 @@ import type { PipelineStatus } from "./pipeline";
 import type { RollbackNotice } from "./narrative";
 import { REFUSAL_PLAYER_TEXT } from "./agencyRecovery";
 import { effectiveInlineLevel, PLAYER_LEVEL_CAP, type InlineCategory, type InlineLevel, type InlineSettings } from "./settingsModel";
-import type { EffectLedgerRow, PayloadCapture, TalkDecisionAudit, TensionHistoryRow, VerifyDrop } from "./types";
+import type { EffectLedgerRow, EffectLedgerStatus, PayloadCapture, TalkDecisionAudit, TensionHistoryRow, VerifyDrop } from "./types";
 
 export type InlineState = "live" | "pending" | "applied" | "refused";
 
@@ -249,15 +249,33 @@ function loreItems(sources: InlineSources): Draft[] {
   return [...fired, ...curator, ...raw];
 }
 
+interface EffectWording {
+  done: string;
+  doing: string;
+}
+
+const EFFECT_STATUS: Record<EffectLedgerStatus, { state: InlineState; text: (words: EffectWording) => string }> = {
+  applied: { state: "applied", text: (words) => words.done },
+  pending: { state: "pending", text: (words) => `${words.doing} (not confirmed)` },
+  failed: { state: "refused", text: (words) => `${words.doing} failed` },
+  reverted: { state: "refused", text: (words) => `${words.done}, then undone` },
+  "revert-failed": { state: "refused", text: (words) => `${words.done}, and could not be undone` },
+  "externally-changed": { state: "refused", text: (words) => `${words.done}, then changed elsewhere` },
+};
+
+const effectDraft = (row: EffectLedgerRow, id: string, words: EffectWording): Draft => {
+  const status = EFFECT_STATUS[row.status];
+  return { id, messageId: row.messageId, category: "cast", level: row.status === "applied" ? 1 : 3, state: status.state, text: status.text(words) };
+};
+
 function castItems(sources: InlineSources): Draft[] {
   const effects = sources.effects.flatMap((row): Draft[] => {
-    if (row.target.kind === "cast" && row.status !== "failed") {
-      const disabled = row.after?.disabled === true;
-      return [{ id: `cast:member:${row.id}`, messageId: row.messageId, category: "cast", level: 1, state: "applied", text: `${memberName(row.target.member)} ${disabled ? "left" : "joined"}` }];
+    if (row.target.kind === "cast") {
+      const name = memberName(row.target.member);
+      const left = row.after?.disabled === true;
+      return [effectDraft(row, `cast:member:${row.id}`, { done: `${name} ${left ? "left" : "joined"}`, doing: `${name} ${left ? "leaving" : "joining"}` })];
     }
-    if (row.target.kind === "background" && row.status === "applied") {
-      return [{ id: `cast:background:${row.id}`, messageId: row.messageId, category: "cast", level: 1, state: "applied", text: "The scene changed" }];
-    }
+    if (row.target.kind === "background") return [effectDraft(row, `cast:background:${row.id}`, { done: "The scene changed", doing: "Scene change" })];
     return [];
   });
   const talk = sources.talkDecisions.flatMap((decision): Draft[] => {

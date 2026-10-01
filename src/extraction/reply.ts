@@ -65,5 +65,5 @@ export const replyVia = (transport: ModelTransport, harness: HarnessTransport = 
   answeredObserver?.({ profileId, ms: Date.now() - startedAt });
   const text = stripReasoningBlocks(reply.text);
   if (!text.trim() && reply.text.trim()) throw new ModelCallError("reasoning-exhausted", reasoningExhaustedMessage({ chars: reply.text.length, tokens: null }, reply.finish), profileId);
-  return reply.meter ? { text, finish: reply.finish, meter: reply.meter } : { text, finish: reply.finish };
+  return { text, finish: reply.finish, ...(reply.meter ? { meter: reply.meter } : {}), ...(reply.usage ? { usage: reply.usage } : {}), ...(reply.model !== undefined ? { model: reply.model } : {}) };
 };

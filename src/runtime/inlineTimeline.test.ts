@@ -5,6 +5,7 @@ import type { SharedReadAudit } from "@extraction/index";
 import { provenance, type MemoryEntry } from "@memory/index";
 import { composeInlineTimeline, inlineMessageIds, visibleInlineItems, type InlineSources, type InlineView } from "./inlineTimeline";
 import { inspectMessage } from "./messageInspector";
+import type { EffectLedgerStatus } from "./types";
 import { defaultInlineSettings, effectiveInlineLevel, INLINE_WINDOW_MAX, sanitizeGlobalSettings, sanitizeInlineSettings, type InlineLevel } from "./settingsModel";
 
 const ROOT = join(__dirname, "../..");
@@ -172,5 +173,50 @@ describe("inline timeline composer (v2.6 plan 08 D3/D4)", () => {
     expect(sanitizeGlobalSettings({}).display.inline).toEqual({ level: 1, categories: {}, window: 20 });
     expect(sanitizeInlineSettings({ level: 7, categories: { lore: false, bogus: false, memory: "no" }, window: 5000 })).toEqual({ level: 1, categories: { lore: false }, window: INLINE_WINDOW_MAX });
     expect(sanitizeInlineSettings({ level: 3, window: 0 })).toEqual({ level: 3, categories: {}, window: 20 });
+  });
+});
+
+describe("AS-8: a cast or background chip says what the ledger row really is", () => {
+  const castRow = (status: EffectLedgerStatus, id = `c-${status}`, messageId = 3) => ({
+    id, effect: "cast", target: { kind: "cast" as const, group: "g", member: "Mira.png" }, before: { disabled: true }, after: { disabled: false }, checkpointId: null, boundary: 1, messageId, at: "x", status,
+  });
+  const backgroundRow = (status: EffectLedgerStatus) => ({
+    id: `b-${status}`, effect: "background", target: { kind: "background" as const }, before: { name: "a.jpg" }, after: { name: "b.jpg" }, checkpointId: null, boundary: 1, messageId: 3, at: "x", status,
+  });
+  const STATUSES: EffectLedgerStatus[] = ["pending", "applied", "failed", "reverted", "revert-failed", "externally-changed"];
+  const castChips = (view: InlineView) => (view.byMessage[3] ?? []).filter((item) => item.id.startsWith("cast:member") || item.id.startsWith("cast:background"));
+
+  it.each(STATUSES)("%s: only an applied row is told to the player as done", (status) => {
+    const view = composeInlineTimeline(sources(SUN, { effects: [castRow(status), backgroundRow(status) as never] }));
+    const chips = castChips(view);
+    const player = chips.filter((item) => item.level <= 2);
+    if (status === "applied") {
+      expect(player.map((item) => [item.text, item.state])).toEqual([["Mira joined", "applied"], ["The scene changed", "applied"]]);
+      return;
+    }
+    expect(player).toEqual([]);
+    expect(chips.every((item) => item.state !== "applied")).toBe(true);
+    if (status !== "failed") expect(chips.length).toBe(2);
+  });
+
+  it("the author sees each other status named, never as joined/changed plain", () => {
+    const view = composeInlineTimeline(sources(SUN, { effects: STATUSES.map((status) => castRow(status)) }));
+    const author = castChips(view).filter((item) => item.id.startsWith("cast:member")).map((item) => [item.state, item.text]);
+    expect(author).toEqual([
+      ["pending", "Mira joining (not confirmed)"],
+      ["applied", "Mira joined"],
+      ["refused", "Mira joining failed"],
+      ["refused", "Mira joined, then undone"],
+      ["refused", "Mira joined, and could not be undone"],
+      ["refused", "Mira joined, then changed elsewhere"],
+    ]);
+  });
+
+  it("a rollback on a surviving message (an edit) turns the chip from joined to undone", () => {
+    const applied = composeInlineTimeline(sources(SUN, { effects: [castRow("applied", "e7", 3)] }));
+    expect(castChips(applied).filter((item) => item.level <= 2).map((item) => item.text)).toEqual(["Mira joined"]);
+    const rolledBack = composeInlineTimeline(sources(SUN, { effects: [castRow("reverted", "e7", 3)], chatLength: 8 }));
+    expect(castChips(rolledBack).filter((item) => item.level <= 2)).toEqual([]);
+    expect(castChips(rolledBack).map((item) => item.text)).toEqual(["Mira joined, then undone"]);
   });
 });

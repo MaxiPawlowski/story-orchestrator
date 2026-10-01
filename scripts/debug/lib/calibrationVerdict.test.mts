@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { calibrationOk } from './calibrationVerdict.mts';
+import { calibrationOk, providerVerdict, readJudgeProvider } from './calibrationVerdict.mts';
 
 const families = [{ ok: true }, { ok: true }];
 
@@ -27,4 +27,16 @@ test('v2.4 plan 07 T25: an alias that resolved to a version passes; no answering
   assert.equal(calibrationOk({ rate: 1, min: 0.85, minGiven: true, families, modelVerdict: 'resolved' }), true);
   assert.equal(calibrationOk({ rate: 1, min: 0.85, minGiven: true, families, modelVerdict: 'matched' }), true);
   assert.equal(calibrationOk({ rate: 1, min: 0.85, minGiven: true, families, modelVerdict: 'unknown' }), false);
+});
+
+test('AS-17: --provider takes only a known provider, and defaults to typesafe', () => {
+  assert.equal(readJudgeProvider(undefined), 'typesafe');
+  assert.equal(readJudgeProvider('llama-logprob'), 'llama-logprob');
+  assert.throws(() => readJudgeProvider('openai'), /unknown judge provider/);
+});
+
+test('AS-17: a llama calibration records the model that answered; TypeSafe keeps its alias verdict', () => {
+  assert.deepEqual(providerVerdict('llama-logprob', { verdict: 'mismatch' }, 'llama-server:artemis'), { verdict: 'resolved', resolvedTo: 'llama-server:artemis' });
+  assert.deepEqual(providerVerdict('llama-logprob', { verdict: 'mismatch' }, null), { verdict: 'unknown' });
+  assert.deepEqual(providerVerdict('typesafe', { verdict: 'mismatch' }, 'jev-2'), { verdict: 'mismatch' });
 });

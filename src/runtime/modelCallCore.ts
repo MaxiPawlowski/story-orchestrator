@@ -1,7 +1,7 @@
 import { ModelCallError } from "@extraction/modelError";
 import type { PassRole } from "@extraction/passRole";
 import type { ReasoningMeter } from "@services/STAPI";
-import { routeKey, type ExtractionReply, type ModelCall, type ModelPass, type ModelRoute } from "@extraction/modelRoute";
+import { routeKey, UNKNOWN_USAGE, type ExtractionReply, type ModelCall, type ModelPass, type ModelRoute } from "@extraction/modelRoute";
 import type { RouteReply } from "@extraction/reply";
 import { resolveRoute, type HarnessListed, type RouteSettings } from "./passProfiles";
 import type { ModelCallRecord } from "./modelCallLog";
@@ -69,7 +69,8 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
       if (!deps.record || (token && deps.ownership && !deps.ownership.check(token).ok)) return;
       deps.record({
         at: new Date(startedAt).toISOString(), role: ask.role, pass: ask.pass, route: routeKey(used), result, ms: Date.now() - startedAt,
-        samplers: used.kind === "profile" ? "applied" : "not-applied", usage: answer && answer.usage, spawnMs: answer && answer.spawnMs, fallbackFrom, ...stamp,
+        samplers: used.kind === "profile" ? "applied" : "not-applied", ...(answer ? { usage: answer.usage ?? UNKNOWN_USAGE, model: answer.model ?? null } : {}),
+        spawnMs: answer && answer.spawnMs, fallbackFrom, ...stamp,
       });
     };
     const startedAt = Date.now();
