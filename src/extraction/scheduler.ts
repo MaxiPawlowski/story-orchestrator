@@ -2,6 +2,7 @@ import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engi
 import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, ParsedMemoryLine } from "@memory/index";
 import type { ExtraGateSource, TypedJudge } from "./types";
 import { getChatWindow } from "./chatWindow";
+import { isCueReason, mergeCueReasons } from "./cues";
 import { Breaker, DANGLING_PROFILE_DETAIL, failedProfile, failedRetryAt, failureClass, probeTimeoutMs, type ExtractionHealth, type ProbeResult, type ProbeTrigger } from "./breaker";
 import { isLapse } from "./modelError";
 import { isHarnessKey } from "@utils/harness";
@@ -107,6 +108,8 @@ export const REREAD_SETTLE_MAX_MS = 10_000;
 
 const overlaps = (left: { from: number; to: number }, right: { from: number; to: number }) => left.from <= right.to && right.from <= left.to;
 
+const isWindowlessCue = (job: SchedulerJob): boolean => job.priority === 0 && !job.run && !job.window && isCueReason(job.reason);
+
 const errorText = (error: unknown, fallback: string): string => (error instanceof Error ? error.message : fallback);
 
 export class ExtractionScheduler {
@@ -175,7 +178,7 @@ export class ExtractionScheduler {
         if (this.queue[index].priority === 2) this.queue.splice(index, 1);
       }
     }
-    if (this.mergeRead(job) || this.mergeReread(job)) return;
+    if (this.mergeRead(job) || this.mergeReread(job) || this.mergeCue(job)) return;
     this.queue.push(job);
     this.queue.sort((left, right) => left.priority - right.priority);
     this.host.onSchedulerChange();
@@ -192,6 +195,15 @@ export class ExtractionScheduler {
       const to = Math.max(left.to, right.to);
       existing.window = getChatWindow(Math.max(Math.min(left.from, right.from), to - CADENCE_WINDOW_MAX + 1), to);
     }
+    return true;
+  }
+
+  private mergeCue(job: SchedulerJob): boolean {
+    if (!isWindowlessCue(job)) return false;
+    const existing = this.queue.find(isWindowlessCue);
+    if (!existing) return false;
+    existing.reason = mergeCueReasons(existing.reason, job.reason);
+    this.host.onSchedulerChange();
     return true;
   }
 

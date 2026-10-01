@@ -356,3 +356,19 @@ Not mine, noticed: the judge master switch tooltip (`JudgeSettingsGroup.tsx:205`
 | test-storybook:ci | **NOT green**: `EADDRINUSE 0.0.0.0:6006`, another agent's Storybook held the port; no story ran. No `.tsx` changed here; run it once the port is free |
 
 No live gate (no lanes, no model calls, by instruction).
+
+## Review fixes: read coalescing (2026-10-01)
+
+From `15-model-config.md` "Needs the lead's decision" 2 and 3.
+
+| Item | Fix | Proof |
+|---|---|---|
+| Forced-cue reads multiplied | Root cause: `scheduleForcedCues` (`src/extraction/cues.ts:17-19` before) scheduled one windowless P0 read per matching transition, and the scheduler had no merge for windowless P0 reads, so N cues on one window = N identical reads (same window, resolved at run time; same derived scope). Now one scan schedules ONE read, reason `cue:<from>-><to>,…` (single cue unchanged: `cue:a->b`), and `ExtractionScheduler.mergeCue` folds a later windowless cue read into one still queued (pair union, deduped). Scope: the shared read already derives active + reachable gates (`deriveScope`), so the one read covers every cued gate. Untouched: P0 before P1, P1 merge, lapsed re-read merge, explicit-window reads (rollback/reconcile), scene reads (journeys match `scene:location` exactly), the cue scan window, retries, ownership, one audit per read. | `src/extraction/cueCoalesce.test.ts` on a trimmed copy of `adolion-war` (campaign `e1c91fbe`, `test/fixtures/adolion-war.story.json`): hub `war-the-summons`, one player line matching 9 cues → **9 reads before, 1 after**; two boundaries with the read still queued → **18 before, 1 after** (reads the newest window); controls: a read that already ran + a newer window = 2 reads; cue + rollback re-read + pending P1 = 3 reads in order P0 cue, P0 rollback, P1 cadence; cue never merges into `scene:location`. Red 5/5 before the fix. |
+| Epistemic/ledger floor | `MAX_TOKENS_TABLE` epistemic and ledger floor 384 → 768 (cap 1024 unchanged; curator stays 384). | `callBudget.test.ts` |
+| Backlog windows sized for a 512 reply (master regression, found by the gate) | `747d88d7` made the shared read ask 1024, but `planBacklog` still budgeted input for `DEFAULT_MAX_TOKENS` (512), so the first memorize window was trimmed (`budgetWiring.review.test.ts` red on master `b96cdf7b`). `planBacklog` now budgets for `maxTokensCap("sharedRead")`; the test's read budget follows the same constant. | `budgetWiring.review.test.ts` (red on master, green here) |
+
+Expected live effect on the audit's turn: 19 reads over 2 boundaries → 3 (one cue read per boundary + the cadence read), or 2 when the second boundary's cues arrive while the first cue read is still queued. Not measured live (no lanes, no model calls, by instruction). Narrowing the campaign's broad `extractor_trigger` regexes is still open (campaign repo, not touched).
+
+Not done, noted: a windowless `scene:*` read and a cue read at the same boundary are still two reads of the same window; merging them would change the `scene:location` / `scene:judge` audit reasons J11 matches exactly.
+
+Gates: `npm run gates -- --no-storybook`: all green. typecheck, typecheck:test, lint ok; test 5212 passed, 1 skipped; build ok, main entry 1,242,767 B (budget 1,250,000); build:dev ok; test:debug 738/0; test:release 90/0; test:replay all killed; test:plugin 73/0. Storybook skipped (it cannot find stories from a worktree).

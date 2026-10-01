@@ -26,7 +26,7 @@ const stapi = {
 };
 
 import { ExtractionCoordinator } from "./extractionCoordinator";
-import { estimateTokens } from "@extraction/callBudget";
+import { estimateTokens, maxTokensCap } from "@extraction/callBudget";
 import { createTokenMeter } from "@extraction/tokenMeter";
 import { inputBudget } from "@extraction/inputBudget";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
@@ -110,7 +110,7 @@ function harness(options: { lastSceneEnd?: number; shortTermEnd?: number; limit?
 
 beforeEach(() => { host.calls = []; host.hold = null; seedChat(60); });
 
-const readBudget = inputBudget({ value: LIMIT, source: "preset" }, 512).input;
+const readBudget = inputBudget({ value: LIMIT, source: "preset" }, maxTokensCap("sharedRead")).input;
 
 describe("memorize backlog: token-bounded windows and a bounded full pass", () => {
   it("replaces the fixed 8-message windows with token-bounded ones that cover the chat in order", async () => {
