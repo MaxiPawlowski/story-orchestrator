@@ -5,7 +5,7 @@
 
 export type OverSteerFamily = { name: string; metaTokens: string[] };
 
-export const GUIDANCE_FAMILY: OverSteerFamily = { name: 'guidance', metaTokens: ['guidance', 'Scene direction', '[Story'] };
+export const GUIDANCE_FAMILY: OverSteerFamily = { name: 'guidance', metaTokens: ['guidance', 'Scene direction', 'private direction', '[Story'] };
 
 export const MAX_SHARED_SPAN = 6;
 
@@ -61,7 +61,7 @@ export const WARDEN_OVER_STEER_FAMILIES = ['continuity', 'agency', 'house-rule']
 
 // v2.4 plan 06 T16a: the objective line rides the guidance block; naming the objective as a heading or as
 // met is the over-steer, while the restate span measures copying its wording.
-export const OBJECTIVE_FAMILY: OverSteerFamily = { name: 'objective', metaTokens: ['Objective:', 'Scene direction', 'objective is complete', 'objective achieved', '[Story'] };
+export const OBJECTIVE_FAMILY: OverSteerFamily = { name: 'objective', metaTokens: ['Objective:', 'Scene direction', 'private direction', 'objective is complete', 'objective achieved', '[Story'] };
 
 export const COMPLICATION_FAMILY: OverSteerFamily = { name: 'complication', metaTokens: ['World pressure:', 'Let it land'] };
 

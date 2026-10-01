@@ -3,6 +3,7 @@ import { INJECTION_REGISTRY } from "@constants/injectionRegistry";
 import type { InjectorHosts, PromptHost } from "../hostPorts";
 import type { MemoryRuntimeState, TensionRuntimeState } from "../types";
 import { MemoryInjector } from "../memoryInjector";
+import { GUIDANCE_PREAMBLE } from "@pacing/guidance";
 import { PacingCoordinator } from "./pacingCoordinator";
 
 const KEY = INJECTION_REGISTRY.checkpointGuidance.key;
@@ -59,9 +60,9 @@ describe("v2.6 plan 04 C13: per-member guidance is staged per drafted member", (
   it("drafting Haley sends Haley's part and the shared part, never Forre's", () => {
     const { pacing, block } = harness(story);
     pacing.updateSteering();
-    expect(block()).toBe("Scene direction: The duel is at noon.");
+    expect(block()).toBe(`${GUIDANCE_PREAMBLE}\nThe duel is at noon.`);
     pacing.draftGuidance("haley");
-    expect(block()).toContain("Scene direction: The duel is at noon.");
+    expect(block()).toContain(`${GUIDANCE_PREAMBLE}\nThe duel is at noon.`);
     expect(block()).toContain("Direction for Haley only: You rigged the blade.");
     expect(block()).not.toContain("You owe the duke money.");
     pacing.draftGuidance("forre");
@@ -72,12 +73,12 @@ describe("v2.6 plan 04 C13: per-member guidance is staged per drafted member", (
   it("the narrator, an unknown draft and the resting prompt see only the shared part", () => {
     const { pacing, block } = harness(story);
     pacing.draftGuidance("narrator");
-    expect(block()).toBe("Scene direction: The duel is at noon.");
+    expect(block()).toBe(`${GUIDANCE_PREAMBLE}\nThe duel is at noon.`);
     pacing.draftGuidance(null);
-    expect(block()).toBe("Scene direction: The duel is at noon.");
+    expect(block()).toBe(`${GUIDANCE_PREAMBLE}\nThe duel is at noon.`);
     pacing.draftGuidance("haley");
     pacing.releaseDraftGuidance();
-    expect(block()).toBe("Scene direction: The duel is at noon.");
+    expect(block()).toBe(`${GUIDANCE_PREAMBLE}\nThe duel is at noon.`);
   });
 
   it("a solo chat whose roster is one member hears that member's part at rest, and a withheld run still does not", () => {

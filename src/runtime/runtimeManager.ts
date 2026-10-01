@@ -9,6 +9,7 @@ import {
   type ExtractionScheduler, type ParsedDelta, type SchedulerJob, type SharedReadAudit, type SharedReadWindow,
 } from "@extraction/index";
 import { applyCommitEvidence } from "@extraction/commitGuard";
+import { applyRatingGrounding } from "@extraction/ratingGuard";
 import { clearAllMemoryInjection } from "@memory/index";
 import {
   getContext, profileExists, readExtensionPromptBlocks, readInjectedPromptBlocks, showTextPopup,
@@ -432,18 +433,23 @@ export class RuntimeManager extends CoordinatorDelegates {
   private enqueueExtractorDeltas(acceptedDeltas: ParsedDelta[], window: { from: number; to: number }, origin: string) {
     if (!acceptedDeltas.length) return;
     const story = this.loaded?.story ?? null;
-    const guarded = story ? applyCommitEvidence(story.qualityByKey, acceptedDeltas) : { accepted: acceptedDeltas, held: [] };
-    if (guarded.held.length) {
-      this.journal.record("story", `${guarded.held.length} commitment reading(s) held: the evidence did not show the commitment`,
-          this.journalContext(), guarded.held.map((entry) => `${entry.key}="${entry.value}" from "${entry.evidence.slice(0, 120)}"`).join("; "));
-      this.extras.journal = this.journal.getRecords();
-    }
+    const committed = story ? applyCommitEvidence(story.qualityByKey, acceptedDeltas) : { accepted: acceptedDeltas, held: [] };
+    this.journalHeld(`${committed.held.length} commitment reading(s) held: the evidence did not show the commitment`, committed.held);
+    const guarded = story ? applyRatingGrounding(story.qualityByKey, this.engine.serialize().blackboard.values, committed.accepted) : committed;
+    this.journalHeld(`${guarded.held.length} rating reading(s) held: the evidence did not ground the level`, guarded.held);
     if (!guarded.accepted.length) return;
     const tensionLevels = this.pacing.applyExtractorTension(guarded.accepted);
     const versions = this.engine.serialize().blackboard.versions;
     this.engine.enqueue({ source: "extractor", origin, blackboardVersionSum: Object.values(versions).reduce((sum,
         version) => sum + version, 0), turnRange: window, deltas: guarded.accepted.map((entry) => entry.delta),
         ...(tensionLevels.length ? { tensionLevels } : {}) });
+  }
+
+  private journalHeld(summary: string, held: Array<{ key: string; value: string; evidence: string; reason?: string }>) {
+    if (!held.length) return;
+    this.journal.record("story", summary, this.journalContext(),
+        held.map((entry) => `${entry.key}="${entry.value}"${entry.reason ? ` (${entry.reason})` : ""} from "${entry.evidence.slice(0, 120)}"`).join("; "));
+    this.extras.journal = this.journal.getRecords();
   }
 
   attachJudge(judge: JudgeRuntime) { this.judge = judge; }

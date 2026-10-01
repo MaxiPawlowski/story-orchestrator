@@ -198,7 +198,9 @@ export class EffectsApplier {
   // A transition the player was never told about leaves a trace: both ways out of this used to be silent.
   async announceTransition(checkpoint: Checkpoint | undefined, extras: RuntimeExtras, ownsOpenChat = true) {
     if (!checkpoint) return;
-    await this.announceText(checkpoint.objective ? `◈ ${checkpoint.name} — ${checkpoint.objective}` : `◈ ${checkpoint.name}`, extras, ownsOpenChat, `transition to "${checkpoint.name}"`);
+    const objective = checkpoint.objective?.trim() ?? "";
+    const named = objective.toLowerCase().startsWith(checkpoint.name.trim().toLowerCase()) ? `◈ ${objective}` : `◈ ${checkpoint.name} — ${objective}`;
+    await this.announceText(objective ? named : `◈ ${checkpoint.name}`, extras, ownsOpenChat, `transition to "${checkpoint.name}"`);
   }
 
   async announceText(raw: string, extras: RuntimeExtras, ownsOpenChat = true, what = `"${raw}"`) {

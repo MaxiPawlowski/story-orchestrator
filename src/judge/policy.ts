@@ -33,7 +33,7 @@ export const DIRECTOR_LEAD_BONUS = 0.25;
 export const DIRECTOR_ADDRESSED_WEIGHT = 2;
 export const DIRECTOR_SILENCE = { nobody: 0.5, maxAddressed: 0.5 } as const;
 // A chained turn hands back to the player when the scene is content to wait: same confidence bar as
-// silence, so the two are not contradictory.
+// silence, so the two are not contradictory, and like silence never past a character the latest message addresses.
 export const DIRECTOR_HANDBACK = 0.5;
 export const DIRECTOR_TIMEOUT_MS = 1500;
 

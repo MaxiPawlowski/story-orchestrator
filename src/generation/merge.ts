@@ -1,4 +1,4 @@
-import { chainThresholdFor, parseStoryV2, progressQualityForAnchor, type GateNode, type NormalizedStoryV2, type StoryV2, type Transition } from "@engine/index";
+import { chainThresholdFor, gateKeys, parseStoryV2, progressQualityForAnchor, type GateNode, type NormalizedStoryV2, type StoryV2, type Transition } from "@engine/index";
 import type { ExtraGateSource } from "@extraction/types";
 import type { ExpansionCacheEntry } from "./types";
 
@@ -7,6 +7,22 @@ const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 const allGate = (left: GateNode, right: GateNode): GateNode => ({ all: [left, right] });
 
 const generatedId = (entry: ExpansionCacheEntry, index: number) => `gen_${entry.stubId}_${index + 1}`;
+
+const MAX_NAME_WORDS = 8;
+
+export const shortCheckpointName = (objective: string): string => {
+  const whole = objective.trim().replace(/[.!?;:,\s]+$/, "");
+  const clause = whole.split(/[.;:!?\u2014\u2013(]|,\s|\s-\s|\s(?:and|but|then)\s/i).map((part) => part.trim()).find(Boolean) ?? whole;
+  const words = clause.split(/\s+/).filter(Boolean);
+  return words.length > MAX_NAME_WORDS ? `${words.slice(0, MAX_NAME_WORDS).join(" ")}\u2026` : words.join(" ");
+};
+
+const stubExits = (transitions: Transition[], entry: ExpansionCacheEntry): Transition[] => {
+  const progress = progressQualityForAnchor(entry.targetAnchorId);
+  return transitions
+    .filter((transition) => transition.from === entry.stubId && !gateKeys(transition.gate).includes(progress))
+    .sort((left, right) => right.priority - left.priority);
+};
 
 export function mergeExpansions(rawStory: unknown, entries: Record<string, ExpansionCacheEntry>): NormalizedStoryV2 {
   const raw = clone(rawStory) as StoryV2;
@@ -18,13 +34,15 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
     const target = raw.checkpoints.find((checkpoint) => checkpoint.id === entry.targetAnchorId);
     if (!target) return;
     const chapter = raw.checkpoints.find((checkpoint) => checkpoint.id === entry.stubId)?.chapter;
+    const exits = stubExits(raw.transitions, entry);
     for (let index = transitions.length - 1; index >= 0; index -= 1) {
       if (transitions[index].from === entry.sourceCheckpointId && transitions[index].to === entry.stubId) transitions.splice(index, 1);
     }
     entry.beats.forEach((beat, index) => {
       checkpoints.push({
         id: generatedId(entry, index),
-        name: beat.objective,
+        name: beat.title ?? shortCheckpointName(beat.objective),
+        ...(beat.title ? { player_name: beat.title } : {}),
         objective: beat.objective,
         type: "intermediate",
         guidance: beat.guidance,
@@ -62,6 +80,7 @@ export function mergeExpansions(rawStory: unknown, entries: Record<string, Expan
         if (!isFinal && outcome.progress) transition.effects = { progress: outcome.progress };
         transitions.push(transition);
       });
+      exits.forEach((exit, exitIndex) => transitions.push({ ...exit, from, priority: declared + exits.length - exitIndex }));
     });
   });
   const parsed = parseStoryV2({ ...raw, checkpoints, transitions });

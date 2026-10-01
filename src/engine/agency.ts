@@ -24,9 +24,11 @@ export const PLAYER_ACTION_CLAUSE = "The player's own words and decisions are th
  * How the world may press, given which kind of objective this is. A `player_action` objective still
  * has stakes, but the move belongs to the player — so the world sets the situation up and stops.
  */
+export const NO_CLOSING_QUESTION_CLAUSE = "End on the world and the people in it, never on a question asking the player what they do.";
+
 export const objectiveClause = (kind: ObjectiveKind): string =>
   kind === "player_action"
-    ? "This objective needs the player's own act: present the situation and the choice, then stop — do not resolve it for them."
+    ? `This objective needs the player's own act: present the situation and the choice, then stop — do not resolve it for them. ${NO_CLOSING_QUESTION_CLAUSE}`
     : "This objective is world pressure: the world presses, answers and escalates on its own, without requiring the player to comply.";
 
 export const PLAYER_ATTEMPTS_CLAUSE = "The player's message states an attempt; decide its outcome from the world — it may fail.";

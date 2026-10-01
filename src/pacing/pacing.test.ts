@@ -2,7 +2,7 @@ import * as pacingStory from "../../test/fixtures/pacing.story.json";
 import { runReplay, type ReplayStep } from "../../test/support/replay";
 import { expectedTension } from "./shapes";
 import { getSteeringHint, getTensionTrajectory } from "./steering";
-import { DEFAULT_AGENCY, type AgencyPolicy } from "@engine/index";
+import { DEFAULT_AGENCY, NO_CLOSING_QUESTION_CLAUSE, objectiveClause, type AgencyPolicy } from "@engine/index";
 import { levelToNumeric, numericToLevel, updateEma } from "./tension";
 
 describe("tension transforms", () => {
@@ -102,6 +102,20 @@ describe("steering", () => {
       expect(escalate).toContain("put a hard choice in front of the player");
       const ease = getSteeringHint(0.7, 0.3, undefined, policy({ objective_kind: "player_action" }))!.text;
       expect(ease).toContain("room to decide what comes next");
+    });
+
+    it("T0-2: hands the move over without inviting a closing \"What do you do?\"", () => {
+      const texts = [
+        getSteeringHint(0.1, 0.9, undefined, policy({ objective_kind: "player_action" }))!.text,
+        getSteeringHint(0.4, 0.6, undefined, policy({ objective_kind: "player_action" }))!.text,
+        getSteeringHint(0.7, 0.3, undefined, policy({ objective_kind: "player_action" }))!.text,
+        getSteeringHint(0.5, 0.5, undefined, policy())!.text,
+        getSteeringHint(0.1, 0.9, undefined, policy())!.text,
+        objectiveClause("player_action"),
+      ];
+      texts.forEach((text) => expect(text).toContain(NO_CLOSING_QUESTION_CLAUSE));
+      expect(NO_CLOSING_QUESTION_CLAUSE).toMatch(/what they do/);
+      expect(getSteeringHint(0.5, 0.5, undefined, policy({ never_narrate_player_action: false }))!.text).not.toContain(NO_CLOSING_QUESTION_CLAUSE);
     });
 
     it("drops the player clause only when the author turned it off", () => {

@@ -33,6 +33,8 @@ export function renderGenerationPrompt(story: NormalizedStoryV2, input: PlannedE
     `Target anchor: ${checkpointLine(story, input.candidate.targetAnchorId)}`,
     `Write beats that carry the story from the source checkpoint to the target anchor's situation. Each beat's objective and guidance set up a situation ` +
       `for the cast to play; name only the cast above or people the facts already establish.`,
+    `Each beat's title is a short scene name of two to five words, like a chapter heading, shown to the player: it names the place or situation and never ` +
+      `says what happens there. The objective says what the beat is for.`,
     `Beat count: ${input.beats}`,
     `State delta: ${JSON.stringify(input.deltas)}`,
     `Tension trajectory: ${JSON.stringify(input.tensionTrajectory)}`,
@@ -54,7 +56,7 @@ export function renderGenerationPrompt(story: NormalizedStoryV2, input: PlannedE
       `to it, not on the state before the beat. Two outcomes with the same gate are one route.`,
     `Progress counts the SMALLEST amount among a beat's outcomes, so give every outcome of a non-final beat a progress amount; an outcome without one makes that beat count 0.`,
     `Return exact JSON only: ` +
-      `{"beats":[{"objective":"...","guidance":"...","tension_target":"calm|stirring|tense|critical|peak",` +
+      `{"beats":[{"title":"...","objective":"...","guidance":"...","tension_target":"calm|stirring|tense|critical|peak",` +
       `"outcomes":[{"label":"success","gate":{"q":"key_found","op":"==","v":true},"deltas":[{"q":"key_found","v":true}],` +
       `"progress":{"anchor":"${input.candidate.targetAnchorId}","amount":1}}]}]}`,
   ].join("\n");

@@ -189,6 +189,12 @@ describe("decideDirector", () => {
     expect(decideDirector(composite(0.2, 0.3, 0.1, 0.1, 0.8), input())).toMatchObject({ kind: "member" });
   });
 
+  it("T0-2: a chained turn does not hand back to the player past a character the latest message addresses", () => {
+    const handback = { handback: noulOf(0.8) };
+    expect(decideDirector({ ...composite(0.1, 0.9), ...handback }, input({ allowHandBack: true }))).toMatchObject({ kind: "member", rosterId: "arin", via: "composite" });
+    expect(decideDirector({ ...composite(0.1, 0.2), ...handback }, input({ allowHandBack: true }))).toMatchObject({ kind: "player", via: "composite" });
+  });
+
   it("returns null when composite answers are missing", () => {
     expect(decideDirector({ "addr:ponticius": noulOf(0.9) }, input())).toBeNull();
   });

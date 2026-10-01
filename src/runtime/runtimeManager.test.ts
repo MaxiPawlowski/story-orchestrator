@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { PLAYER_ATTEMPTS_CLAUSE, objectiveClause } from "@engine/index";
 import type { SharedReadAudit } from "@extraction/index";
 import { disableWIEntry, enableWIEntry, executeSlashCommands, getActiveGroup } from "@services/STAPI";
+import { GUIDANCE_PREAMBLE } from "@pacing/guidance";
 import { RuntimeManager } from "./runtimeManager";
 import { BLOB_VERSION } from "./persistence";
 import { defaultInlineSettings } from "./settingsModel";
@@ -147,6 +148,23 @@ const selectNothing = () => { (mockContext.chatMetadata.story_orchestrator as { 
 describe("RuntimeManager pacing", () => {
   beforeEach(() => resetHost());
 
+  it("T0-2: holds an extracted rank the evidence does not ground, before it reaches the apply queue", async () => {
+    const ranks = ["E-rank", "D-rank", "C-rank"].map((label, index) => ({ value: index + 1, label }));
+    const ranked = { ...story, id: "ranked", qualities: [{ key: "party_rank", type: "int", source: "extractor", monotonic: true, read_as: "rating", criteria: { levels: ranks }, rubric: "Rank?" }] };
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(ranked));
+    const read = (v: number, evidence: string, id: string) => ({ ...tensionAudit("stirring", 0.25), id, acceptedDeltas: [{ delta: { q: "party_rank", v, source: "extractor" as const }, evidence }] });
+    await manager.applyExtractionAudit(read(0, "You're all F-rank.", "f-rank"), []);
+    mockContext.chat = [{ mes: "You're all F-rank." }];
+    await manager.commitBoundary();
+    expect(manager.getSnapshot().blackboard.party_rank).toBe(0);
+    await manager.applyExtractionAudit(read(2, "The Ash Lanterns just took a D-rank posting.", "d-rank"), []);
+    mockContext.chat = [{ mes: "You're all F-rank." }, { mes: "The Ash Lanterns just took a D-rank posting." }];
+    await manager.commitBoundary();
+    expect(manager.getSnapshot().blackboard.party_rank).toBe(0);
+    expect(manager.getSessionJournal().some((event) => /rating reading/.test(event.summary))).toBe(true);
+  });
+
   it("starts a bound group's story in a fresh chat and leaves populated chats unselected", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify({ ...story, id: "adolion-saga" }));
@@ -274,21 +292,21 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
     story.checkpoints[1] = { ...story.checkpoints[1], effects: { author_note: "The sphinx speaks in riddles." } } as typeof story.checkpoints[1] & { effects: unknown };
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(story));
-    expect(block()?.value).toBe(`Scene direction: ${WANDER}\nObjective: Start. ${objectiveClause("world_pressure")}`);
+    expect(block()?.value).toBe(`${GUIDANCE_PREAMBLE}\n${WANDER}\nObjective: Start. ${objectiveClause("world_pressure")}`);
     await manager.activateCheckpoint("sphinx");
-    expect(block()).toEqual({ value: `Scene direction: ${SPHINX}`, depth: 4 });
+    expect(block()).toEqual({ value: `${GUIDANCE_PREAMBLE}\n${SPHINX}`, depth: 4 });
     await manager.activateCheckpoint("plain");
-    expect(block()?.value).toBe(`Objective: Walk on. ${objectiveClause("world_pressure")}`);
+    expect(block()?.value).toBe(`${GUIDANCE_PREAMBLE}\nObjective: Walk on. ${objectiveClause("world_pressure")}`);
   });
   const goAudit = (): SharedReadAudit => ({ ...tensionAudit("stirring", 0), id: "audit-go", scope: ["go"], acceptedDeltas: [{ delta: { q: "go", v: true, source: "extractor" }, evidence: "they set off" }] });
 
   it("sets the active checkpoint's guidance on load and on activate, at depth 4, owned by the config tab", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(guided(WANDER)));
-    expect(block()).toEqual({ value: `Scene direction: ${WANDER}`, depth: 4 });
+    expect(block()).toEqual({ value: `${GUIDANCE_PREAMBLE}\n${WANDER}`, depth: 4 });
 
     await manager.activateCheckpoint("sphinx");
-    expect(block()).toEqual({ value: `Scene direction: ${SPHINX}`, depth: 4 });
+    expect(block()).toEqual({ value: `${GUIDANCE_PREAMBLE}\n${SPHINX}`, depth: 4 });
     expect(manager.getSnapshot().nextTurn.find((row) => row.key === "story_orchestrator_guidance")).toMatchObject({ label: "Checkpoint guidance", owner: "runtime/coordinators/pacingCoordinator", ownerTab: "config", depth: 4 });
   });
 
@@ -298,11 +316,11 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
     story.checkpoints[2] = { ...story.checkpoints[2], agency: { player_attempts_only: true } } as typeof story.checkpoints[2] & { agency: unknown };
     const manager = new RuntimeManager();
     await manager.importStory(JSON.stringify(story));
-    expect(block()).toEqual({ value: `Scene direction: ${WANDER}\n${PLAYER_ATTEMPTS_CLAUSE}`, depth: 4 });
+    expect(block()).toEqual({ value: `${GUIDANCE_PREAMBLE}\n${WANDER}\n${PLAYER_ATTEMPTS_CLAUSE}`, depth: 4 });
     await manager.activateCheckpoint("plain");
     expect(block()).toEqual({ value: PLAYER_ATTEMPTS_CLAUSE, depth: 4 });
     await manager.activateCheckpoint("sphinx");
-    expect(block()).toEqual({ value: `Scene direction: ${SPHINX}`, depth: 4 });
+    expect(block()).toEqual({ value: `${GUIDANCE_PREAMBLE}\n${SPHINX}`, depth: 4 });
   });
 
   it("clears the block on a checkpoint whose guidance is empty", async () => {
@@ -355,14 +373,14 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
     await manager.importStory(readFileSync(join(__dirname, "..", "..", "test", "fixtures", "generated-fork.story.json"), "utf-8"));
     await manager.applyExtractionAudit({ ...goAudit(), id: "audit-key", scope: ["key_found"], acceptedDeltas: [{ delta: { q: "key_found", v: true, source: "extractor" }, evidence: "the key" }] }, []);
     expect(await manager.runExpansionNow(readFileSync(join(__dirname, "..", "..", "test", "goldens", "generation", "generated-fork.3.response.txt"), "utf-8"))).toBe(true);
-    expect(block()?.value).toMatch(/^Objective: /);
+    expect(block()?.value).toMatch(/\nObjective: /);
     mockContext.chat = [{ mes: "found it" }];
     await manager.commitBoundary();
     const generated = manager.getStory()?.checkpointById.gen_fork_stub_1;
     expect(manager.getEngineState()?.activeCheckpointId).toBe("gen_fork_stub_1");
     expect(generated?.guidance).toBeTruthy();
     expect(generated?.effects).toBeUndefined();
-    expect(block()).toEqual({ value: `Scene direction: ${generated?.guidance}\nObjective: ${generated?.objective.trim()} ${objectiveClause("world_pressure")}`, depth: 4 });
+    expect(block()).toEqual({ value: `${GUIDANCE_PREAMBLE}\n${generated?.guidance}\nObjective: ${generated?.objective.trim()} ${objectiveClause("world_pressure")}`, depth: 4 });
   });
 });
 

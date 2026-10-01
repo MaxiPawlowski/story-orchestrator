@@ -3,6 +3,8 @@ import type { CriticVerdict, GeneratedBeat, GeneratedOutcome } from "./types";
 import { isRecord } from "@utils/guards";
 import { normalizeJsonText } from "@utils/json";
 
+const MAX_TITLE_CHARS = 60;
+
 const isPrimitive = (value: unknown): value is PrimitiveValue => typeof value === "string" || typeof value === "number" || typeof value === "boolean";
 
 const coerceValue = (quality: Quality | undefined, value: PrimitiveValue): PrimitiveValue => {
@@ -96,6 +98,7 @@ export function parseGeneratedBeats(raw: string, story: NormalizedStoryV2): { be
     }
     const objective = typeof entry.objective === "string" ? entry.objective : "";
     const guidance = typeof entry.guidance === "string" ? entry.guidance : "";
+    const title = typeof entry.title === "string" ? entry.title.trim().slice(0, MAX_TITLE_CHARS) : "";
     const tension = typeof entry.tension_target === "string" && (TENSION_LEVELS as readonly string[]).includes(entry.tension_target) ? entry.tension_target : null;
     if (!objective.trim()) issues.push(`${path}.objective: required`);
     if (!guidance.trim()) issues.push(`${path}.guidance: required`);
@@ -110,7 +113,7 @@ export function parseGeneratedBeats(raw: string, story: NormalizedStoryV2): { be
       `${beatId}:${outcomeIndex}`,
     )).filter((outcome): outcome is GeneratedOutcome => Boolean(outcome)) : [];
     if (!objective || !guidance || !tension || !outcomes.length) return null;
-    return { id: beatId, objective, guidance, tension_target: tension, outcomes };
+    return { id: beatId, ...(title ? { title } : {}), objective, guidance, tension_target: tension, outcomes };
   }).filter((entry): entry is GeneratedBeat => Boolean(entry));
   return { beats, issues };
 }

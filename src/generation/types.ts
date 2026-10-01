@@ -32,6 +32,7 @@ export interface PlannedExpansionInput {
 export interface GeneratedBeat extends ScaffoldingBeat {
   /** The beat's index in the response it was parsed from. Never renumbered. */
   id: string;
+  title?: string;
   objective: string;
   guidance: string;
   tension_target: TensionLevel;
