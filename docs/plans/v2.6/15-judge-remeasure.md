@@ -201,3 +201,43 @@ find stories from a worktree.
 
 `so-run-header diff` against `run-header-start.json`: 15 blocking paths, all `build.*`/`bundle.served.*` (the
 staged-bundle swap and the worktree's copied manifest); no settings, profile, judge or inventory drift.
+
+## Gate record (house rules on the new Adolion wording) — 2026-10-01, branch `v26-houserules-remeasure`
+
+Why: the campaign (`adolion-campaign` `b8d2a2b`) reworded the saga's house rules (rule 2 `The player's
+choices belong to the player` -> `{{user}}'s choices belong to {{user}}`, rule 7 `the players` -> `the
+party`). The warden quotes `story.house_rules` verbatim (`runtime/continuity.ts:85`), so it asks the
+judge about the literal `{{user}}`. The readiness fixture `house-rules.json` (generic objective rules)
+does not mirror the campaign and its revision did not move; the campaign lab
+`lab/judge/house-rules-adolion.json` (25 cases x 8 rules = 200 rows, already on the new wording, labels
+from 2026-09-27, never measured live before) is the measurement that does. It is copied verbatim to
+`test/fixtures/judge/adolion-house-rules.json` and the `houseRules` readiness row is now bound to it
+(`FIXTURE_OF`, `JUDGE_FIXTURE_REVISION` = `MEASURED_FIXTURE_REVISION` = `bcaa55db4856`).
+
+Off-page, no lane, no ST: `node --no-warnings --experimental-transform-types
+scripts/spike/typesafe/calibrate-node.mts house-rules --fixture adolion-house-rules --record` (plugin
+handler in-process, key from `~/.typesafe/api-key/.env`, paced <= 2 in flight / <= 60 per min).
+**25 TypeSafe calls**, model `jev-1.13.0`, no fallback, no busy row.
+
+| Family | Right/rows | Floor | |
+|---|---|---|---|
+| broken | 12/18 (0.667) | 0.85 | FAIL |
+| kept | 10/10 | 0.95 | ok |
+| untouched | 165/172 (0.959) | 0.966 | FAIL |
+| overall | 187/200 (0.935), p50 257 ms | | |
+
+Misses by rule: rule 6 (world-book consistency; the warden never sees the world book) broken 0/3; rule 3
+(two to four paragraphs) broken 0/2 (p 0.60, 0.46); rule 2 (`{{user}}`) broken 1/2 missed at p 0.69 (flag at
+0.70). The 7 untouched false alarms: rule 1 x3 (who writes a member's words, p 0.72-0.82), rule 7
+(secrets) x2, rule 4 (mystery pacing) x1, rule 2 x1 (AH34, p 0.79).
+Most misses sit on the judgement rules the lab README already names (0, 1, 4, 7 need the scene) and on
+rule 6, which needs data the warden is not given.
+
+Verdict per "Below floor" above: **`houseRules` off by default** (`JUDGE_USES_OFF_BY_DEFAULT` read by
+`defaultJudgeUses()`, `src/judge/settings.ts`; a stored install keeps its value), readiness rate 0.935 /
+p50 257 with `passed: false` (an install that turns it on reads `unproven`, `calibrationProblem: failed`),
+recommendation and README row rewritten. Floors not retuned. The generic objective-rule fixture
+(`house-rules.json`, 79/80) still replays at its floors in `warden.test.ts`; the Adolion golden replays
+to its recorded below-floor score (`test/goldens/judge/adolion-house-rules.json`,
+`adolion-house-rules.calibration.json`). For the campaign: rules 3 and 6 are not checkable from the reply
+alone at the floor; an objective-only rule set would need its own measurement before turning the use back on.

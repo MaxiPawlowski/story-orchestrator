@@ -8,7 +8,7 @@ import { JUDGE_CALL_RING_LIMIT } from "./policy";
 import { runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration } from "./selfTest";
 import { buildPairRequest, buildVerifyRequest, pairDecision, PAIR_SAME_THING_CRITERIA, verifyVerdict, VERIFY_CRITERIA, type JudgePairRelation } from "./memory";
 import { JUDGE_SELF_TEST_CASES } from "./selfTestCases";
-import { appendJudgeCall, createJudgeRuntime, defaultJudgeSettings, dropJudgeCallsAfter, JUDGE_USE_KEYS, judgeUseActive, sanitizeJudgeRuntime, sanitizeJudgeSettings } from "./settings";
+import { appendJudgeCall, createJudgeRuntime, defaultJudgeSettings, dropJudgeCallsAfter, JUDGE_USE_KEYS, JUDGE_USES_OFF_BY_DEFAULT, judgeUseActive, sanitizeJudgeRuntime, sanitizeJudgeSettings } from "./settings";
 import type { JudgeAnswer, JudgeRequest, JudgeResponse, JudgeTransport } from "./types";
 
 const request = (overrides: Partial<JudgeRequest> = {}): JudgeRequest => ({
@@ -231,10 +231,12 @@ describe("decideDirector", () => {
 });
 
 describe("judge settings", () => {
-  it("enables shipped uses by default and keeps the judge configurable", () => {
+  it("enables shipped uses by default except those below their floor, and keeps the judge configurable", () => {
     const defaults = defaultJudgeSettings();
     expect(defaults.enabled).toBe(true);
-    expect(JUDGE_USE_KEYS.every((key) => defaults.uses[key] === true)).toBe(true);
+    expect(JUDGE_USES_OFF_BY_DEFAULT).toEqual(["houseRules"]);
+    expect(JUDGE_USE_KEYS.filter((key) => defaults.uses[key] !== true)).toEqual(["houseRules"]);
+    expect(sanitizeJudgeSettings({ ...defaults, uses: { ...defaults.uses, houseRules: true } }).uses.houseRules).toBe(true);
     expect(defaults.expansion).toEqual({ variants: 1, temperature: 0.7, pick: "code" });
     expect(defaults.model).toBe("jev-1.13.0");
   });

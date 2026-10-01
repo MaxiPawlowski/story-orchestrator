@@ -67,7 +67,9 @@ export interface JudgeRuntimeState {
   meter: JudgeMeter;
 }
 
-export const defaultJudgeUses = (): JudgeUses => Object.fromEntries(JUDGE_USE_KEYS.map((key) => [key, true])) as JudgeUses;
+export const JUDGE_USES_OFF_BY_DEFAULT: readonly JudgeUseKey[] = ["houseRules"];
+
+export const defaultJudgeUses = (): JudgeUses => Object.fromEntries(JUDGE_USE_KEYS.map((key) => [key, !JUDGE_USES_OFF_BY_DEFAULT.includes(key)])) as JudgeUses;
 
 export const defaultJudgeProviders = (): JudgeProviderRoutes => Object.fromEntries(JUDGE_ROUTE_KEYS.map((key) => [key, DEFAULT_JUDGE_PROVIDER])) as JudgeProviderRoutes;
 
