@@ -372,7 +372,7 @@ describe("RuntimeManager checkpoint guidance (v2.4 plan 01, D7)", () => {
     const manager = new RuntimeManager();
     await manager.importStory(readFileSync(join(__dirname, "..", "..", "test", "fixtures", "generated-fork.story.json"), "utf-8"));
     await manager.applyExtractionAudit({ ...goAudit(), id: "audit-key", scope: ["key_found"], acceptedDeltas: [{ delta: { q: "key_found", v: true, source: "extractor" }, evidence: "the key" }] }, []);
-    expect(await manager.runExpansionNow(readFileSync(join(__dirname, "..", "..", "test", "goldens", "generation", "generated-fork.3.response.txt"), "utf-8"))).toBe(true);
+    expect(await manager.runExpansionNow(readFileSync(join(__dirname, "..", "..", "test", "goldens", "generation", "generated-fork.played.response.txt"), "utf-8"))).toBe(true);
     expect(block()?.value).toMatch(/\nObjective: /);
     mockContext.chat = [{ mes: "found it" }];
     await manager.commitBoundary();
@@ -1852,7 +1852,7 @@ describe("RuntimeManager: an expansion merged between boundaries (L4)", () => {
   beforeEach(() => resetHost());
 
   const forkStory = () => readFileSync(join(__dirname, "..", "..", "test", "fixtures", "generated-fork.story.json"), "utf-8");
-  const forkGolden = () => readFileSync(join(__dirname, "..", "..", "test", "goldens", "generation", "generated-fork.3.response.txt"), "utf-8");
+  const forkGolden = () => readFileSync(join(__dirname, "..", "..", "test", "goldens", "generation", "generated-fork.played.response.txt"), "utf-8");
   const keyAudit = (): SharedReadAudit => ({ ...tensionAudit("stirring", 0), id: "audit-key", scope: ["key_found"], acceptedDeltas: [{ delta: { q: "key_found", v: true, source: "extractor" }, evidence: "the key" }] });
 
   it("keeps the extraction delta the next boundary was going to commit", async () => {

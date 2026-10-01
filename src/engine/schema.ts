@@ -9,6 +9,7 @@ export const TENSION_LEVELS = ["calm", "stirring", "tense", "critical", "peak"] 
 export const PLACEHOLDER_ENUM_VALUES = ["undecided", "none", "pending", "unset", "tbd"] as const;
 export const ARC_TEMPLATE_NAMES = ["rising", "fall_recovery", "three_act"] as const;
 export const TENSION_CURRENT_KEY = "tension_current";
+export const TENSION_FRESH_MESSAGES = 3;
 export const NPC_REPLY_TRIGGERS = ["onEnter", "afterSpeak", "sceneBreak"] as const;
 export const NPC_REPLY_KINDS = ["scripted", "llm"] as const;
 

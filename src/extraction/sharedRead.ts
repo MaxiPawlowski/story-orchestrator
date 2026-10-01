@@ -1,4 +1,4 @@
-import type { EngineState, NormalizedStoryV2, NormalizedTransition } from "@engine/index";
+import { TENSION_CURRENT_KEY, type EngineState, type NormalizedStoryV2, type NormalizedTransition } from "@engine/index";
 import { fnv1a, stableStringify } from "@runtime/hash";
 import type { ExtractionReply, ModelAsk, ModelCall } from "./modelRoute";
 import { getCanonLite } from "./canonLite";
@@ -67,7 +67,8 @@ const screenDeltas = (parsed: ParsedSharedRead, residual: readonly ScopedQuality
       rejected.push({ line, reason: PLAYER_ONLY_EVIDENCE });
       continue;
     }
-    accepted.push({ ...entry, messageId: quality.evidence_from === "world" ? worldSources[0] : sources[0] });
+    const attributable = quality.evidence_from === "world" ? worldSources : sources;
+    accepted.push({ ...entry, messageId: entry.delta.q === TENSION_CURRENT_KEY ? attributable[attributable.length - 1] : attributable[0] });
   }
   return { accepted, rejected };
 };

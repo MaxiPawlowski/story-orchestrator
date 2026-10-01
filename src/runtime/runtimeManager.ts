@@ -206,7 +206,7 @@ export class RuntimeManager extends CoordinatorDelegates {
       await this.effects.restoreFor(this.extras, "exit");
       if (!run.stillOwns()) return;
       this.extras = createExtras(getGlobalSettings);
-      this.pacing.clearPending();
+      this.pacing.reset();
       this.pacing.updateSteering();
       clearAllMemoryInjection(coordinatorHosts.prompt);
       this.status = status;
@@ -444,10 +444,11 @@ export class RuntimeManager extends CoordinatorDelegates {
     const guarded = story ? applyRatingGrounding(story.qualityByKey, this.engine.serialize().blackboard.values, committed.accepted) : committed;
     this.journalHeld(`${guarded.held.length} rating reading(s) held: the evidence did not ground the level`, guarded.held);
     if (!guarded.accepted.length) return;
-    const tensionLevels = this.pacing.applyExtractorTension(guarded.accepted);
+    const { accepted, levels: tensionLevels } = this.pacing.applyExtractorTension(guarded.accepted, window.to);
+    if (!accepted.length) return;
     const versions = this.engine.serialize().blackboard.versions;
     this.engine.enqueue({ source: "extractor", origin, blackboardVersionSum: Object.values(versions).reduce((sum,
-        version) => sum + version, 0), turnRange: window, deltas: guarded.accepted.map((entry) => entry.delta),
+        version) => sum + version, 0), turnRange: window, deltas: accepted.map((entry) => entry.delta),
         ...(tensionLevels.length ? { tensionLevels } : {}) });
   }
 
@@ -502,7 +503,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   private async loadStory(loaded: LoadedStory, mode: "activate" | "hydrate", knownPersisted: PersistedStoryRuntime | null = null) {
     const previous = this.loaded?.story ?? null;
     this.validationErrors = [];
-    this.pacing.clearPending();
+    this.pacing.reset();
     const persisted = mode === "hydrate" ? knownPersisted ?? loadPersistedRuntime(loaded.record.id) : null;
     const priorSessionAt = persisted?.extras?.lastSessionAt ?? null;
     this.invalidateRuns();
