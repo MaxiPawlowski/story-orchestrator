@@ -12,5 +12,10 @@ DeepSeek (orchestrator passes) and TypeSafe judge spend per session, written by 
 
 ## RunPod pod hours (the lead adds these by hand)
 
+Budget: EUR 20 granted 2026-09-30 (about USD 21.6 at 1.08), stop at about EUR 19 (USD 20.5).
+Baseline: RunPod account spend 2026-10-01 before this work = USD 0.05 (storage only); 2026-09-29..30 spend (USD 14.40) was earlier sessions' and is not counted.
+Reused resource: network volume `x9gi6f1rig` (comfy-pod, EU-RO-1, 50 GB, holds the Artemis GGUF); storage billing is pre-existing and not counted.
+
 | Date | Pod | GPU | $/h | Hours | Cost | Note |
 |---|---|---|---|---|---|---|
+| 2026-10-01 | 5mmoei8glfi1gu llm-pod-4500-so26 (created this work, started 11:01:27Z) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | running | | Artemis 31B Q4_K_M, ctx 196608, parallel 4, kv-unified; IDLE_MINUTES 90 |
