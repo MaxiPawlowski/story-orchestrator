@@ -71,3 +71,16 @@ row is `reverted`: since v2.6 04 C4 (built 2026-09-30, after the lab fixture was
 releases the departing checkpoint's owned effects before it applies the target's. The held scenario equals the path
 replay's (the C1 condition). Change: that bookkeeping check counts `applied` **or** `reverted` scenario rows. No C1–C5
 check changes.
+
+## Addendum 4 2026-10-01 14:05Z — the measured run (bars unchanged)
+
+- **Bundle:** lane 2 alone serves this branch's dev build `15ff8e26ba2e` (commit `301b0d5a`, includes the import fix
+  `32527192`) through a route on lane 2's browser (`scripts/spike/v26-03/serve-branch-on-lane.mts`); the shared ST slot
+  (`6525728b22b7`, T1 sessions) is untouched. Fixture `v5`: no reopen (the fix is what is exercised), a wait for the
+  import's scenario row, and the ledger settle after each activate (addendum 2), the bookkeeping count of addendum 3.
+- **C4 is option (c), as recorded and user-approved** (04 §C4; confirmed by the lead 2026-10-01): a `/cp activate` jump
+  releases the source's staging and applies the target alone. The lab fixture, written before C4, expects scenario
+  inheritance across jumps in two places: at `east-the-road-inland` (authors none; under (c) the override is the
+  pre-story empty value) and in C3 (whose path is reached by jumps: the rollback past the harvest write restores that
+  empty value, and the landfall text must be absent from the request). Both expectations follow (c). Every other C1–C5
+  check is the lab's.
