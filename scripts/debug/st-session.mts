@@ -114,6 +114,9 @@ async function runStarter() {
     '--disable-background-networking',
     '--disable-dev-shm-usage',
     '--window-size=1920,1080',
+    '--disable-backgrounding-occluded-windows',
+    '--disable-renderer-backgrounding',
+    '--disable-background-timer-throttling',
   ];
   if (!headed) chromeArgs.push('--headless=new');
   chromeArgs.push('about:blank');
