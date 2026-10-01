@@ -567,3 +567,120 @@ describe("chained multi-speaker turns", () => {
     expect(calls.decisions).toEqual([]);
   });
 });
+
+describe("T1-2: a member the player's line addresses gets their turn", () => {
+  const roster = [
+    { id: "dm", name: "Adolion Narrator", role: "narrator and game master" },
+    { id: "guild_rep", name: "Tobias", role: "guild receptionist at the quest counter" },
+    { id: "companion_a", name: "Belle", role: "companion: barbarian" },
+    { id: "companion_b", name: "Dalan", role: "companion: elf ranger" },
+    { id: "guild_girl", name: "Ellie", role: "Guild receptionist beside Tobias" },
+    { id: "guildmaster", name: "Vallie", role: "Guildmaster" },
+    { id: "bartender", name: "Rydel", role: "Guild tavern bartender" },
+  ];
+  const guildHall: TalkControl = {
+    lead: "Adolion Narrator",
+    speakers: [{ member: "Adolion Narrator", weight: 3 }, { member: "Tobias", weight: 2 }, { member: "Belle" }, { member: "Dalan" }, { member: "Ellie" }, { member: "Vallie" }],
+    no_repeat: false,
+    allow_silence: false,
+    director: { instruction: "Pick Tobias when the player talks to the counter." },
+  };
+  const hallIds = ["dm", "guild_rep", "companion_a", "companion_b", "guild_girl", "guildmaster"];
+  const chain = () => ({ enabled: true, max: 3, stopOnTransition: true, holdExtraction: false });
+  const msg6 = { speaker: "Tobias", isUser: false, text: "\"I understand.\" He looks at Ellie. \"Ellie, what other D-rank quests are there for us?\"" };
+  const msg7 = { speaker: "Max Nightriver", isUser: true, text: "Yes, Ellie, what else is there? And Tobias, tell the Sheridans to hire soldiers if they think something's up there." };
+  const msg8 = { speaker: "Ellie", isUser: false, text: "Ellie's eyebrows arch and she pulls out a stack of quests from a drawer. \"A merchant needs protection on the road to Oakhaven.\"" };
+  const ellieFirst = { kind: "member" as const, rosterId: "guild_girl", name: "Ellie", confidence: 0.74, via: "choice" as const };
+  const handBack = { kind: "player" as const, confidence: 0.53, via: "composite" as const };
+
+  const playMsg7 = async (line: typeof msg7) => {
+    let window = [msg6, line];
+    let last = "guild_rep";
+    let index = 0;
+    const answers = [ellieFirst, handBack];
+    const judge = jest.fn(async () => answers[Math.min(index++, answers.length - 1)]);
+    const { host, calls } = makeHost({
+      getActiveTalkControl: () => guildHall,
+      getRoster: () => roster,
+      getEnabledRosterIds: () => hallIds,
+      getChainConfig: chain,
+      getDraftedRosterId: () => "guild_girl",
+      getLastSpeakerRosterId: () => last,
+      getPlayerName: () => "Max Nightriver",
+      getWindow: () => window,
+      judgeDirector: judge,
+    });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    window = [...window, msg8];
+    last = "guild_girl";
+    await controller.onWrapperFinished();
+    return { calls, judge };
+  };
+
+  it("msg 7 named Ellie and Tobias: after Ellie answers, Tobias is drafted instead of the recorded hand-back (turns.jsonl:8)", async () => {
+    const { calls } = await playMsg7(msg7);
+    expect(calls.triggered).toEqual(["Tobias"]);
+    expect(calls.decisions.at(-1)).toMatchObject({ chosenRosterId: "guild_rep", chosenName: "Tobias", source: "mention", chainStep: 1 });
+  });
+
+  it("control: once every addressee has answered, the recorded hand-back stands", async () => {
+    const { calls, judge } = await playMsg7({ ...msg7, text: "Yes, Ellie, what else is there?" });
+    expect(calls.triggered).toEqual([]);
+    expect(judge).toHaveBeenCalledTimes(2);
+    expect(calls.decisions.at(-1)).toMatchObject({ chosenRosterId: null, source: "judge" });
+  });
+
+  it("msg 27 named Tobias, enabled but left out of the tavern's speakers: he is a candidate, so the narrator is not left to voice him (turns.jsonl:20)", async () => {
+    const tavern: TalkControl = {
+      lead: "Adolion Narrator",
+      speakers: [{ member: "Adolion Narrator", weight: 2 }, { member: "Belle" }, { member: "Dalan" }, { member: "Rydel", weight: 2 }],
+      no_repeat: true,
+      allow_silence: false,
+      director: true,
+    };
+    const judge = jest.fn(async (input: { candidates: Array<{ rosterId: string; name: string }> }) => {
+      const tobias = input.candidates.find((candidate) => candidate.name === "Tobias");
+      return tobias
+        ? { kind: "member" as const, rosterId: tobias.rosterId, name: tobias.name, confidence: 0.8, via: "choice" as const }
+        : { kind: "member" as const, rosterId: "dm", name: "Adolion Narrator", confidence: 0.67, via: "choice" as const };
+    });
+    const { host, calls } = makeHost({
+      getActiveTalkControl: () => tavern,
+      getRoster: () => roster,
+      getEnabledRosterIds: () => ["dm", "guild_rep", "companion_a", "companion_b", "bartender"],
+      getDraftedRosterId: () => "guild_rep",
+      getPlayerName: () => "Max Nightriver",
+      getWindow: () => [{ speaker: "Max Nightriver", isUser: true, text: "Ash Lanterns, Belle. Both words. Tobias, Ellie: write us in for Wendhope as the Ash Lanterns, at triple the fee." }],
+      judgeDirector: judge,
+    });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    const pass = makeAbort();
+    await controller.intercept(pass.abort, "normal");
+    const offered = judge.mock.calls[0][0].candidates.map((candidate) => candidate.name);
+    expect(offered).toContain("Tobias");
+    expect(offered).not.toContain("Ellie");
+    expect(pass.state.aborted).toBe(false);
+    expect(calls.decisions[0]).toMatchObject({ chosenName: "Tobias" });
+  });
+
+  it("control: a name in a character's reply, not the player's line, adds no candidate", async () => {
+    const tavern: TalkControl = { lead: "Adolion Narrator", speakers: [{ member: "Adolion Narrator" }, { member: "Belle" }], director: true };
+    const judge = jest.fn(async (_input: { candidates: Array<{ name: string }> }) => ({ kind: "member" as const, rosterId: "dm", name: "Adolion Narrator", confidence: 0.9, via: "choice" as const }));
+    const { host } = makeHost({
+      getActiveTalkControl: () => tavern,
+      getRoster: () => roster,
+      getEnabledRosterIds: () => ["dm", "guild_rep", "companion_a"],
+      getDraftedRosterId: () => "dm",
+      getPlayerName: () => "Max Nightriver",
+      getWindow: () => [{ speaker: "Max Nightriver", isUser: true, text: "I look around." }, { speaker: "Belle", isUser: false, text: "Tobias is waving at us." }],
+      judgeDirector: judge,
+    });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    expect(judge.mock.calls[0][0].candidates.map((candidate) => candidate.name)).toEqual(["Adolion Narrator", "Belle"]);
+  });
+});

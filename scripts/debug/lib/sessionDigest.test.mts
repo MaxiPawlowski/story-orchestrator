@@ -102,6 +102,19 @@ test('AS-24 digest: an index-only member is not resolved across page epochs, and
   assert.equal(digest.unverifiable.privateBlock, 1);
 });
 
+test('T1-2/T1-3 digest: a side call made while a member is drafted is not that member\'s reply', async () => {
+  const { files, only } = await plantedPrivate();
+  const as = (body: unknown) => files.payloads.map((row) => (row.value.draftMember === 2 ? { ...row, value: { ...row.value, draftMemberName: 'Belle', body: JSON.stringify(body) } } : row));
+  const compaction = { messages: [{ role: 'user', content: 'Write plain TEXT ONLY. Do NOT continue the roleplay or speak as any character.\nMaintain a rolling 3-5 sentence summary.' }], model: 'deepseek-flash' };
+  const director = { messages: [{ role: 'user', content: 'Decide who speaks.\nAnswer: SPEAKER: <Adolion Narrator | Belle | Dalan>' }] };
+  const summarize = { prompt: '<|turn>user\nI head north.<turn|>\n<|turn>system\n[Pause your roleplay. Summarize the most important facts. Your response should include nothing but the summary.]<turn|>\n<|turn>model\n' };
+  assert.equal(only({ ...files, payloads: as(compaction) }).length, 0, 'payloads.jsonl:63 (T1-2): a one-message memory pass');
+  assert.equal(only({ ...files, payloads: as(director) }).length, 0, 'T1-3 payloads.jsonl:59: the director call');
+  assert.equal(only({ ...files, payloads: as(summarize) }).length, 0, 'T1-3 payloads.jsonl:142: ST Summarize, a quiet generation');
+  assert.equal(only({ ...files, payloads: as({ prompt: '<|turn>user\nBelle?<turn|>\n<|turn>model\nBelle:' }) }).length, 1, 'control: Belle\'s own text-completion reply');
+  assert.equal(only({ ...files, payloads: as({ messages: [{ role: 'system', content: 'card' }, { role: 'user', content: 'Belle?' }] }) }).length, 1, 'control: a chat-completion reply carries the transcript');
+});
+
 test('AS-22 digest: a missing capture file makes the session invalid instead of reading as zero anomalies', async () => {
   const { files, paths } = await loadSessionFiles(fixture('clean'), await loadIndex());
   assert.equal(digestSession(files, paths).valid, true);

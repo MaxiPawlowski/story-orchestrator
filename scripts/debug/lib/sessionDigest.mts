@@ -78,6 +78,16 @@ const inPlay = (at: unknown, playFrom: number | null) => {
 
 const normalize = (name: unknown) => String(name ?? '').trim().toLowerCase();
 
+export function isDraftedReply(body: string, name: string | null): boolean {
+  let parsed: unknown;
+  try { parsed = JSON.parse(body); } catch { return true; }
+  const request = parsed as { prompt?: unknown; messages?: unknown };
+  if (Array.isArray(request.messages)) return request.messages.length > 1;
+  if (typeof request.prompt !== 'string') return true;
+  const tail = request.prompt.trimEnd().toLowerCase();
+  return name ? tail.endsWith(`${normalize(name)}:`) : /\n[^\n]{1,80}:$/.test(tail);
+}
+
 function contextFor(chat: ChatMessage[] | undefined, messageId: number): ChatMessage[] {
   if (!chat?.length || messageId < 0) return [];
   return chat.filter((message) => message.id >= messageId - CONTEXT_TURNS && message.id <= messageId + CONTEXT_TURNS);
@@ -213,6 +223,7 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
     const name = typeof entry.draftMemberName === 'string' && entry.draftMemberName ? entry.draftMemberName
       : sameEpoch ? (state!.characters ?? []).find((character) => String(character.index) === String(entry.draftMember))?.name ?? null
         : typeof entry.draftMember === 'string' ? entry.draftMember : null;
+    if (!isDraftedReply(body, name)) continue;
     if (!state || !name || (capture.boundary === null && capture.lastMessageId === null)) { unverifiablePrivate += 1; continue; }
     const held = (state.epistemic ?? []).filter((item) => normalize(item.subject) === normalize(name) && heldAtCapture(item, capture));
     const key = `${entry.epoch ?? ''}|${entry.index ?? row.line}|${name}`;

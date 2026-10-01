@@ -2,6 +2,7 @@ import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
 import { parseStoryV2OrThrow } from "@engine/validate";
 import { applyBackground, applyCharacterAN, clearCharacterAN, disableWIEntry, enableWIEntry, executeSlashCommands, setGroupMembersDisabled } from "@services/STAPI";
 import { EffectsApplier, PENDING_NOT_SAVED } from "./effectsApplier";
+import { castInPlay } from "./castInPlay";
 import { readGatingModeWith, setScanGatingActive, setScanGatingSettled } from "./worldInfoMode";
 import type { RuntimeExtras, RuntimeSnapshot } from "./types";
 import { testOwnership } from "../../test/findings/testOwnership";
@@ -424,6 +425,47 @@ describe("the write-ahead record gates the effect (plan 11)", () => {
     expect(extras.effects.ledger.map((row) => row.status)).toEqual(["failed"]);
     expect(extras.effects.ledger[0].reason).toBe(PENDING_NOT_SAVED);
     expect(journalled).toEqual(["cast effect was not applied"]);
+  });
+});
+
+describe("T1-2: a cast change that drops a member the play just brought in says so", () => {
+  const roadRows = [
+    { name: "Talis", mes: "\"Hiiiiii!\" Talis bounces on her heels. \"A new party!\"" },
+    { name: "Max Nightriver", is_user: true, mes: "I raise my mug to the scarred man nursing his ale." },
+    { name: "Adolion Narrator", mes: "The scarred man looks up slowly." },
+    { name: "Talis", mes: "\"A silence that swallows men...\" Talis whispers." },
+    { name: "Max Nightriver", is_user: true, mes: "I set my mug down and walk back to the counter. Tobias. Fine. Triple the fee, and we ride as the Ash Lanterns." },
+    { name: "Dalan", mes: "Dalan is on his feet." },
+    { name: "Belle", mes: "\"Fuck the lanterns.\"" },
+    { name: "Max Nightriver", is_user: true, mes: "Ash Lanterns, Belle. Both words. Tobias, Ellie: write us in for Wendhope as the Ash Lanterns, at triple the fee." },
+    { name: "Adolion Narrator", mes: "Tobias has stepped back from the counter." },
+    { name: "Max Nightriver", is_user: true, mes: "Double it is, then. We take the Wendhope posting. Belle, Dalan, Talis, get your gear, we leave at first light." },
+    { name: "Belle", mes: "\"First light, then.\"" },
+  ];
+  const roadDisable = ["Tobias", "Ellie", "Vallie", "Rydel", "Talis", "Alida", "Tatiana"];
+
+  it("names Talis (spoke, and the player named her) and nobody the player only mentioned or who never spoke (msgs 20-30)", () => {
+    expect(castInPlay(roadDisable, roadRows)).toEqual(["Talis"]);
+    expect(castInPlay(roadDisable, roadRows.slice(0, 9))).toEqual([]);
+  });
+
+  it("journals it on entering the checkpoint, not on hydrate, and still applies the authored change", async () => {
+    const previous = mockContext.chat;
+    mockContext.chat = roadRows as unknown as typeof mockContext.chat;
+    try {
+      const story = { title: "Fixture" } as unknown as NormalizedStoryV2;
+      const road = { id: "road", name: "The Road North", objective: "", type: "anchor", effects: { cast_changes: { disable: ["Talis", "Mara"] } } } as unknown as Checkpoint;
+      const extras = () => ({ ...makeExtras(), requirements: { ready: true }, effects: { ledger: [], cast: [] } } as unknown as RuntimeExtras);
+      const journal = jest.fn();
+      await new EffectsApplier(testOwnership(), { journal }).applyCheckpoint(story, road, extras(), {} as RuntimeSnapshot, "activate", []);
+      expect(journal).toHaveBeenCalledWith('cast change at "The Road North" removed Talis, whom the play just brought in', expect.stringContaining("gate this change on a quality"));
+      expect(setGroupMembersDisabled).toHaveBeenCalledWith([], ["Mara"]);
+      journal.mockClear();
+      await new EffectsApplier(testOwnership(), { journal }).applyCheckpoint(story, road, extras(), {} as RuntimeSnapshot, "hydrate", []);
+      expect(journal).not.toHaveBeenCalled();
+    } finally {
+      mockContext.chat = previous;
+    }
   });
 });
 

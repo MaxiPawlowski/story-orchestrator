@@ -1,8 +1,8 @@
 import { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT, type RosterMember, type TalkControl, type TalkControlChain } from "@engine/index";
 import type { JudgeDirectorDecision, JudgeDirectorInput } from "@judge/index";
 import {
-  buildCandidates, chooseByRules, directorEnabled, directorInstruction, findCandidate, narrowByMention,
-  parseDirectorResponse, renderDirectorPrompt, type DirectorWindowMessage, type TalkCandidate, type TalkDecisionSource,
+  addressedMembers, buildCandidates, chooseByRules, directorEnabled, directorInstruction, findCandidate, latestPlayerLine, narrowByMention,
+  parseDirectorResponse, withAddressed, renderDirectorPrompt, type DirectorWindowMessage, type TalkCandidate, type TalkDecisionSource,
 } from "@talk/index";
 import { timeoutAbortReason } from "@utils/signals";
 import { beginRun, type MessageWindow, type RunGuard, type RunOwnership } from "./runToken";
@@ -253,17 +253,29 @@ export class TalkController {
   // Hand back to the player is only offered when the checkpoint asks for it. With no judge or LLM
   // director there is nothing to say "enough", so the chain stops rather than let the rules loop.
   private async decideChainSpeaker(control: TalkControl, config: TalkChainConfig, chain: ChainState): Promise<string | null> {
-    const candidates = buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds())
-      .filter((candidate) => !chain.speakers.includes(candidate.rosterId));
-    if (!candidates.length) return null;
     const window = this.host.getWindow();
-    const handBack = config.stopOnPlayer;
-    const run = beginRun(this.host.ownership, this.window());
+    const { line, members } = this.addressed(window);
+    const fresh = (candidate: TalkCandidate) => !chain.speakers.includes(candidate.rosterId);
+    const candidates = withAddressed(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), members).filter(fresh);
+    if (!candidates.length) return null;
+    const answered = new Set(window.slice(line + 1).map((message) => message.speaker.trim().toLowerCase()));
+    const pending = members.filter((member) => fresh(member) && !answered.has(member.name.trim().toLowerCase()));
     const messageId = this.host.getLastMessageId();
     const checkpointId = this.host.getCheckpointInfo()?.id ?? chain.checkpointId;
+    if (pending.length === 1) {
+      const [next] = pending;
+      this.host.recordDecision({
+        at: new Date().toISOString(), messageId, checkpointId, chosenRosterId: next.rosterId, chosenName: next.name,
+        source: "mention", latencyMs: 0, chainStep: chain.spokeCount,
+      });
+      return next.name;
+    }
+    const pool = pending.length ? pending : candidates;
+    const handBack = !pending.length && config.stopOnPlayer;
+    const run = beginRun(this.host.ownership, this.window());
     const startedAt = Date.now();
-    const decision = await this.runJudge(control, candidates, window, handBack)
-      ?? (directorEnabled(control) ? await this.runDirector(control, candidates, window, handBack) : null);
+    const decision = await this.runJudge(control, pool, window, handBack)
+      ?? (directorEnabled(control) ? await this.runDirector(control, pool, window, handBack) : null);
     if (!run.stillOwns() || !decision || decision.kind === "pass") return null;
     if (decision.kind !== "member") {
       this.host.recordDecision({
@@ -336,12 +348,13 @@ export class TalkController {
   }
 
   private async computeDecision(control: TalkControl): Promise<Decision> {
-    const candidates = buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds());
+    const window = this.host.getWindow();
+    const { line, members } = this.addressed(window);
+    const candidates = withAddressed(buildCandidates(control, this.host.getRoster(), this.host.getEnabledRosterIds()), line === window.length - 1 ? members : []);
     if (!candidates.length) return { kind: "pass" };
     // A scripted chain fixes the voice order: the first is the first line of the sequence.
     const scripted = control.chain && control.chain.mode === "scripted" ? findCandidate(candidates, control.chain.sequence?.[0]) : null;
     if (scripted) return { kind: "member", rosterId: scripted.rosterId, name: scripted.name, source: "rules" };
-    const window = this.host.getWindow();
     const judged = await this.runJudge(control, candidates, window, false);
     if (judged) return judged;
     const lastText = window.length ? window[window.length - 1].text : "";
@@ -355,6 +368,11 @@ export class TalkController {
       return this.chooseFallback(control, pool, "fallback");
     }
     return this.chooseFallback(control, pool, "rules");
+  }
+
+  private addressed(window: DirectorWindowMessage[]): { line: number; members: TalkCandidate[] } {
+    const line = latestPlayerLine(window, this.host.getPlayerName?.() ?? "");
+    return { line, members: line < 0 ? [] : addressedMembers(this.host.getRoster(), this.host.getEnabledRosterIds(), window[line].text) };
   }
 
   private chooseFallback(control: TalkControl, pool: TalkCandidate[], source: TalkDecisionSource): Decision {

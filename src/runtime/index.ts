@@ -117,11 +117,12 @@ const startWatches = () => {
 
 const windowAccess = (): WindowAccess => {
   const chatLastId = () => (Array.isArray(getContext().chat) ? getContext().chat.length - 1 : -1);
-  const recentWindow = () => {
+  const recentTurns = () => {
     const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
-    return getChatWindow(Math.max(0, chat.length - DIRECTOR_WINDOW_MESSAGES)).messages.map((message) => ({ speaker: message.speaker, text: message.text }));
+    return getChatWindow(Math.max(0, chat.length - DIRECTOR_WINDOW_MESSAGES)).messages.map((message) => ({ speaker: message.speaker, text: message.text, isUser: message.isUser }));
   };
-  return { chatLastId, recentWindow };
+  const recentWindow = () => recentTurns().map(({ speaker, text }) => ({ speaker, text }));
+  return { chatLastId, recentWindow, recentTurns };
 };
 
 export const RUNTIME_GLOBALS = [

@@ -2,7 +2,7 @@ import { fakeHosts } from "../../../test/support/fakeHosts";
 import { plantedModel } from "../../../test/support/modelCall";
 import { EPISTEMIC_INJECTION_KEY } from "@constants/defaults";
 import type { InnerBeat } from "@memory/index";
-import { NARRATOR_HEADER } from "@memory/innerRender";
+import { NARRATOR_HEADER, NARRATOR_NAMED_FIRST, NARRATOR_SELF_VOICED } from "@memory/innerRender";
 import { loadInnerRender } from "@memory/index";
 import { MemoryCoordinator } from "./memoryCoordinator";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
@@ -20,6 +20,7 @@ interface Setup {
   beats?: InnerBeat[];
   boundary?: number;
   motives?: boolean;
+  disabled?: string[];
 }
 
 const DEFAULT_ROSTER = [
@@ -39,7 +40,7 @@ function harness(setup: Setup = {}) {
   const stapi = {
     settingsAreLoaded: () => true,
     getContext: () => ({ chat, chatId: "chat-a", extensionSettings: {}, chatMetadata: {} }),
-    getActiveGroup: () => (setup.group === false ? null : { members: ["arin.png", "ponticius.png", "dm narrator.png"], disabled_members: [] }),
+    getActiveGroup: () => (setup.group === false ? null : { members: ["arin.png", "ponticius.png", "dm narrator.png"], disabled_members: setup.disabled ?? [] }),
     resolveGroupMemberId: (name: string) => `${name.toLowerCase()}.png`,
     hostSystemUserName: "SillyTavern System",
     getCharacterNameById: (id: number) => MEMBERS[id],
@@ -238,5 +239,21 @@ describe("narrator view (v2.6 plan 06 D, block-scoped privacy)", () => {
     expect(block()).toContain("- You suspect: someone copied his key");
     coordinator.onMemberDrafted(0);
     expect(block()).not.toContain("copied his key");
+  });
+
+  it("T1-2: the narrator is told which enabled members voice themselves, and to use a named character before inventing one (msgs 22, 28)", () => {
+    const { coordinator } = harness({ disabled: ["ponticius.png"] });
+    coordinator.updateInjection();
+    coordinator.onMemberDrafted(2);
+    expect(block()).toContain(`${NARRATOR_SELF_VOICED} Arin.`);
+    expect(block()).toContain(NARRATOR_NAMED_FIRST);
+    coordinator.onMemberDrafted(0);
+    expect(block()).not.toContain(NARRATOR_SELF_VOICED);
+  });
+
+  it("control: a solo narrator voices everyone, so it is told nothing about self-voiced members", () => {
+    const { coordinator } = harness({ group: false });
+    coordinator.updateInjection();
+    expect(block()).not.toContain(NARRATOR_SELF_VOICED);
   });
 });

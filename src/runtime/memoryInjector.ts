@@ -79,7 +79,10 @@ export class MemoryInjector {
   }
 
   private voices(story: NormalizedStoryV2): CastVoice[] {
-    return castVoices(story, this.deps.getState()?.activeCheckpointId ?? null);
+    const voices = castVoices(story, this.deps.getState()?.activeCheckpointId ?? null);
+    if (!this.hosts.roster.getActiveGroup()) return voices;
+    const enabled = new Set(enabledCharacterIds(story, this.hosts.roster));
+    return voices.map((voice) => (enabled.has(voice.id) ? { ...voice, selfVoiced: true } : voice));
   }
 
   private memberBlock(story: NormalizedStoryV2, id: string, knowledge: EpistemicEntry[], beat = ""): string {

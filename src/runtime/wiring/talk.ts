@@ -9,7 +9,7 @@ import { promptCost } from "../promptCost";
 import { spikeSeams } from "../spikeSeams";
 import type { LiveParts, WindowAccess } from "./types";
 
-const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, recentWindow }: WindowAccess): TalkControlHost => ({
+const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, recentTurns }: WindowAccess): TalkControlHost => ({
   isGroupChat: () => Boolean(getActiveGroup()),
   getChatId: () => getContext().chatId ?? null,
   getActiveTalkControl: () => runtimeManager.getActiveTalkControl(),
@@ -21,7 +21,7 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
     return name ? runtimeManager.rosterIdForName(name) : null;
   },
   getLastMessageId: chatLastId,
-  getWindow: recentWindow,
+  getWindow: recentTurns,
   getCheckpointInfo: () => runtimeManager.getActiveCheckpointInfo(),
   callDirector: (prompt, signal) => askText(runtimeManager.model, prompt, { role: "director", pass: "director", maxTokens: DIRECTOR_MAX_TOKENS, signal }),
   breakerOpen: () => live.scheduler?.breakerOpen(routedProfileId("director")) ?? false,

@@ -1,5 +1,5 @@
 import type { RosterMember, TalkControl } from "@engine/index";
-import type { TalkCandidate } from "./types";
+import type { DirectorWindowMessage, TalkCandidate } from "./types";
 
 const normalize = (value: string) => value.trim().toLowerCase();
 
@@ -43,7 +43,28 @@ export const narrowByMention = (candidates: TalkCandidate[], text: string): Talk
   return candidates.filter((candidate) => extractWords(candidate.name).some((word) => words.has(word)));
 };
 
-export const directorEnabled = (control: TalkControl): boolean => control.director === true || (typeof control.director === "object" && control.director !== null);
+export const latestPlayerLine = (window: DirectorWindowMessage[], playerName: string): number => {
+  const player = normalize(playerName);
+  for (let index = window.length - 1; index >= 0; index -= 1) {
+    const message = window[index];
+    if (message.isUser ?? (player.length > 0 && normalize(message.speaker) === player)) return index;
+  }
+  return -1;
+};
+
+export const addressedMembers = (roster: RosterMember[], enabledRosterIds: string[], text: string): TalkCandidate[] => {
+  const enabled = new Set(enabledRosterIds);
+  const members = roster.filter((member) => enabled.has(member.id))
+    .map((member): TalkCandidate => ({ rosterId: member.id, name: member.name ?? member.id, weight: 1, ...(member.role ? { role: member.role } : {}) }));
+  return narrowByMention(members, text);
+};
+
+export const withAddressed = (candidates: TalkCandidate[], addressed: TalkCandidate[]): TalkCandidate[] => [
+  ...candidates,
+  ...addressed.filter((member) => !candidates.some((candidate) => candidate.rosterId === member.rosterId)),
+];
+
+export const directorEnabled =(control: TalkControl): boolean => control.director === true || (typeof control.director === "object" && control.director !== null);
 
 export const directorInstruction = (control: TalkControl): string | undefined => {
   return typeof control.director === "object" && control.director !== null && control.director.instruction?.trim() ? control.director.instruction : undefined;

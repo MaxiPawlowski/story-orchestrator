@@ -38,6 +38,7 @@ export interface CastVoice {
   motive?: string;
   beat?: string;
   omniscient?: boolean;
+  selfVoiced?: boolean;
 }
 
 interface VoiceStory {

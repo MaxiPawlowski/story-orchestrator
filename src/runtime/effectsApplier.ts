@@ -34,6 +34,7 @@ import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { generationWatch } from "./generationWatch";
 import { recordNpcReplyFire, recordOnEnterPost } from "./npcReplyRewind";
 import { isRecord } from "@utils/guards";
+import { castInPlay } from "./castInPlay";
 
 // What a host effect changed, read back from the host as it is NOW. Every reader is a
 // QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
@@ -303,7 +304,7 @@ export class EffectsApplier {
     if (!run.stillOwns()) return;
     if (ready && mode === "hydrate") await this.applyCastMirror(extras, scope, run);
     if (!run.stillOwns()) return;
-    if (ready && effects.cast_changes !== undefined) await this.applyCastChanges(effects.cast_changes, extras, scope, run);
+    if (ready && effects.cast_changes !== undefined) await this.applyCastChanges(effects.cast_changes, extras, scope, run, mode === "activate" ? checkpoint.name : null);
     // Deterministic stagecraft: idempotent, so hydrating a chat and rolling back into this
     // checkpoint both restore its background without re-triggering anything.
     // `applyCastChanges` awaits once per member, so this needs its own check: without it the
@@ -373,9 +374,14 @@ export class EffectsApplier {
 
   // Each member the effect names is one decision about a shared group, so each is its own row: a
   // two-member change that fails on the second leaves the first recorded and restorable.
-  private async applyCastChanges(value: unknown, extras: RuntimeExtras, scope: { checkpointId: string | null; boundary: number; messageId: number }, run: RunGuard) {
+  private async applyCastChanges(value: unknown, extras: RuntimeExtras, scope: { checkpointId: string | null; boundary: number; messageId: number }, run: RunGuard, entering: string | null) {
     if (!isRecord(value)) return;
     const group = getActiveGroup();
+    const dropped = entering ? castInPlay(readStrings(value.disable), Array.isArray(getContext().chat) ? getContext().chat : []) : [];
+    if (dropped.length) this.deps.journal?.(
+      `cast change at "${entering}" removed ${dropped.join(", ")}, whom the play just brought in`,
+      "the authored cast_changes.disable wins; to keep a member the play recruits, gate this change on a quality the play sets",
+    );
     const changes: Array<[string, boolean]> = [
       ...readStrings(value.disable).map((name): [string, boolean] => [name, true]),
       ...readStrings(value.enable).map((name): [string, boolean] => [name, false])
