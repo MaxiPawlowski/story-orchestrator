@@ -27,9 +27,10 @@ describe("callBudget: one declared table for every memory-model call (v2.4 plan 
     expect(maxTokensFor("canon", 10)).toBe(1536);
     expect(maxTokensFor("canon", 4182)).toBe(2091);
     expect(maxTokensFor("canon", 100000)).toBe(3072);
-    expect(maxTokensFor("epistemic", 10)).toBe(768);
+    expect(maxTokensFor("epistemic", 10)).toBe(1280);
     expect(maxTokensFor("ledger", 10)).toBe(768);
-    expect(maxTokensFor("epistemic", 3500)).toBe(875);
+    expect(maxTokensFor("epistemic", 6000)).toBe(1500);
+    expect(maxTokensFor("epistemic", 100000)).toBe(1536);
     expect(maxTokensFor("curator", 10)).toBe(384);
     expect(maxTokensFor("curator", 100000)).toBe(1024);
   });

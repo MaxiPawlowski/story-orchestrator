@@ -16,6 +16,9 @@ export function renderArcContractSection(openArcs: string[] = []): string {
   ].join("\n");
 }
 
+export const EPISTEMIC_MAX_ENTRIES = 20;
+export const EPISTEMIC_MAX_RETIRES = 12;
+
 const INTENDS_LINE = "[intends] Character | what they are trying to achieve — only when that character says or shows it in their own words or actions; never the player's";
 
 export function renderEpistemicContractSection(): string {
@@ -102,7 +105,7 @@ export function buildEpistemicPassPrompt(sceneText: string, participants: string
           return `[${index + 1}] ${label}`;
         }),
         "After your new entries, output [retire] <number> for each existing entry that this scene explicitly supersedes, contradicts, or resolves. Only retire on an explicit " +
-          "change — never on inference.",
+          `change — never on inference. Output at most ${EPISTEMIC_MAX_RETIRES} [retire] lines.`,
         "",
       ]
     : [];
@@ -125,6 +128,7 @@ export function buildEpistemicPassPrompt(sceneText: string, participants: string
     "- DECEPTION: when a character makes a false statement, write [hiding] for the liar; if a listener accepts it unchallenged, also write [believes] for them with the false content.",
     "- KNOWS vs SUSPECTS: a character explicitly told a fact [knows] it; reserve [suspects] for a feeling without direct information.",
     "- BELIEVES is ONLY for demonstrably false beliefs — never for correct conclusions or mere feelings.",
+    `- LENGTH: output at most ${EPISTEMIC_MAX_ENTRIES} entries, the most important asymmetries first, one short sentence each. Then stop.`,
     "If nothing is established, output NONE.",
     "",
     ...existingBlock,

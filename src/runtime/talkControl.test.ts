@@ -579,6 +579,52 @@ describe("chained multi-speaker turns", () => {
     expect(calls.triggered).toEqual([]);
     expect(calls.decisions).toEqual([]);
   });
+  it("T1 follow-up: reports the chain pending from a voice's close through the next speaker's decision and trigger, and clear once it ends", async () => {
+    const gates: Array<() => void> = [];
+    const hold = () => new Promise<void>((resolve) => { gates.push(resolve); });
+    const answers: JudgeAnswer[] = [
+      { kind: "member", rosterId: "guard", name: "Mara", confidence: 0.9, via: "choice" },
+      { kind: "member", rosterId: "sage", name: "Finn", confidence: 0.8, via: "choice" },
+      { kind: "player", confidence: 0.7, via: "choice" },
+    ];
+    let index = 0;
+    const { host, calls } = makeChainHost(answers, {
+      judgeDirector: async () => { const answer = answers[Math.min(index++, answers.length - 1)]; if (index === 2) await hold(); return answer; },
+      triggerMember: async (name) => { calls.triggered.push(name); await hold(); },
+    });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    expect(controller.chainPending()).toBe(false);
+    const closing = controller.onWrapperFinished();
+    expect(controller.chainPending()).toBe(true);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    gates.shift()?.();
+    await closing;
+    expect(calls.triggered).toEqual(["Finn"]);
+    expect(controller.chainPending()).toBe(true);
+    gates.shift()?.();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(controller.chainPending()).toBe(false);
+    controller.onWrapperStarted({ type: "normal" });
+    controller.onGenerationStarted({ force_chid: 1 });
+    await controller.onWrapperFinished();
+    expect(calls.triggered).toEqual(["Finn"]);
+    expect(controller.chainPending()).toBe(false);
+  });
+
+  it("T1 follow-up: a trigger that fails still clears the pending chain", async () => {
+    const { host } = makeChainHost([
+      { kind: "member", rosterId: "guard", name: "Mara", confidence: 0.9, via: "choice" },
+      { kind: "member", rosterId: "sage", name: "Finn", confidence: 0.8, via: "choice" },
+    ], { triggerMember: async () => { throw new Error("slash failed"); } });
+    const controller = new TalkController(host);
+    controller.onWrapperStarted({ type: "normal" });
+    await controller.intercept(makeAbort().abort, "normal");
+    await controller.onWrapperFinished().catch(() => undefined);
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(controller.chainPending()).toBe(false);
+  });
 });
 
 describe("T1-2: a member the player's line addresses gets their turn", () => {

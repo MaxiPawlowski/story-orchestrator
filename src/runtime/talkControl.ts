@@ -140,8 +140,22 @@ export class TalkController {
   private pass: PassState | null = null;
   private reconciled: { key: string; run: RunGuard | null } | null = null;
   private chain: ChainState | null = null;
+  private inFlight = 0;
 
   constructor(private readonly host: TalkControlHost) {}
+
+  chainPending(): boolean {
+    return this.inFlight > 0;
+  }
+
+  private track(work: Promise<void>): Promise<void> {
+    this.inFlight += 1;
+    return work.finally(() => { this.inFlight -= 1; });
+  }
+
+  private trigger(name: string): void {
+    void this.track(this.host.triggerMember(name)).catch((error) => log.warn("speaker direction: the chosen voice could not be triggered", error));
+  }
 
   onGenerationStarted(params: Record<string, unknown> | undefined) {
     this.forcedChid = params && typeof params.force_chid === "number" ? params.force_chid : null;
@@ -190,7 +204,11 @@ export class TalkController {
     abort(false);
   }
 
-  async onWrapperFinished(): Promise<void> {
+  onWrapperFinished(): Promise<void> {
+    return this.track(this.finishWrapper());
+  }
+
+  private async finishWrapper(): Promise<void> {
     const pass = this.pass;
     this.pass = null;
     if (!pass || !pass.loud) return;
@@ -208,7 +226,7 @@ export class TalkController {
     if (decision.kind !== "member") return;
     if (this.reconciled?.key === key && this.reconciled.run?.stillOwns() !== false) return;
     this.reconciled = { key, run: this.cached?.key === key ? this.cached.run : null };
-    void this.host.triggerMember(decision.name);
+    this.trigger(decision.name);
   }
 
   private endChain(): void {
@@ -242,7 +260,7 @@ export class TalkController {
       chain.hold = true;
       this.host.setExtractionHold?.(true);
     }
-    void this.host.triggerMember(next);
+    this.trigger(next);
   }
 
   private scriptedSpeaker(config: TalkChainConfig, index: number): string | null {

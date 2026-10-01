@@ -283,6 +283,8 @@ const pageGenerating = (page: any) => evaluateInST(page, () => {
   return Boolean(doc?.body?.dataset?.generating);
 });
 
+const talkChainPending = (page: any) => evaluateInST(page, () => (globalThis as any).storyOrchestratorTalk?.chainPending?.() === true);
+
 export async function waitRoundSettled(page: any, deps: Pick<LiveDeps, 'waitIdle' | 'now'>, cursor: number, { quietMs = ROUND_QUIET_MS, timeoutMs = 600000 }: { quietMs?: number; timeoutMs?: number } = {}) {
   const startedAt = deps.now();
   let seen = -1;
@@ -292,7 +294,7 @@ export async function waitRoundSettled(page: any, deps: Pick<LiveDeps, 'waitIdle
     const events = (await readRecorder(page, cursor)).events;
     const activity = events.filter((event) => ROUND_ACTIVITY.has(event.event)).length;
     if (activity !== seen) { seen = activity; lastActivity = deps.now(); }
-    const open = roundOpen(events) || await pageGenerating(page);
+    const open = roundOpen(events) || await pageGenerating(page) || await talkChainPending(page);
     if (open) lastActivity = deps.now();
     else if (deps.now() - lastActivity >= quietMs) return { settled: true, polls, open: false, waitedMs: deps.now() - startedAt };
     polls += 1;
