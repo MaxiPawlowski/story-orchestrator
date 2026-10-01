@@ -30,7 +30,7 @@ const alive = (pid) => {
     }
 };
 
-const until = async (check, ms = 5000) => {
+const until = async (check, ms = 15000) => {
     const started = Date.now();
     while (Date.now() - started < ms) {
         if (await check()) return true;

@@ -500,6 +500,15 @@ npx test-storybook --url http://127.0.0.1:6121 --index-json
 worktree before the change: **+134 B** (the lazy `openAgentBridge` loader and the `agentBridge` status field). Every
 other new client file sits in the lazy Studio / harness chunks. Budget 1,250,000 not raised.
 
+**After merging master again** (C3/C4/C12/C13, UI leftovers, plan 15 docs; conflicts in this file and `loop.test.ts` imports,
+both resolved keeping both sides): typecheck, typecheck:test, lint pass; `npm test` 373 suites passed, 1 skipped, 4931 tests
+passed, 1 skipped; build + build:dev pass; test:debug 457/457; test:release 77 pass, 2 skipped; test:replay 30 of 30 killed;
+**test:plugin: one run 55 pass / 1 fail / 3 skipped** (run right after the replay suite; the failing test name was not
+captured), then 56/0/3 in 18 further runs (9 sequential, 6 + 6 in parallel under load), not reproduced. The likeliest
+timing-sensitive spot is the agent tests' `until` waits for process death and teardown (5 s default), now 15 s; 56/0/3 after.
+Recorded as a flake, not called green beyond that. Main entry after this merge: **1,214,667 B** (master moved; this
+branch's own delta was the +134 B measured above).
+
 Live gate: none (rule 13; harness routes are an opt-in real-LLM path). Owed to Phase A / plan 10: `HARNESS_LIVE=1
 node --test server-plugin/story-orchestrator-harness/agent.test.mjs` on a warmed, offered opencode, then J14 with the
 Wizard role routed to `harness:opencode:<model>`.
