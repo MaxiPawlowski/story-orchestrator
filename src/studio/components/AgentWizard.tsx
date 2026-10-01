@@ -1,17 +1,17 @@
-import React, { useRef, useState } from "react";
-import type { StoryV2 } from "@engine/index";
+import React, { useEffect, useRef, useState } from "react";
 
 import {
-  AGENT_MODES, addAuthorNote, agentStats, applyAgentOp, applyProvisioningFollowUps, approvePlan, isProvisionOp, checkToolCall, decideStep, newAgentSession, opPreview, pendingStep, resolveProvisioning,
-  resumeAgent, setAgentMode, stopAgent, type AgentMode, type AgentOp, type AgentSession, type AgentStep, type AgentTurn,
+  AGENT_MODES, addAuthorNote, agentStats, applyAgentOp, applyProvisioningFollowUps, approvePlan, isProvisionOp, checkToolCall, confirmProvisioning, decideStep, driveAgent, newAgentSession,
+  opPreview, pendingStep, resumeAgent, setAgentMode, type AgentMode, type AgentOp, type AgentRunner, type AgentSession, type AgentStep,
 } from "@copilot/agent/index";
 import { emptyEnvironment } from "@wizard/index";
+import { draftOwnership } from "../agentHost";
 import { coverageGaps, storyCoverage } from "../coverage";
 import { useDraftStore } from "../draft";
 import ProvisioningCard from "./ProvisioningCard";
 import type { WizardHost } from "./StudioCopilot";
 
-export type AgentTurnRunner = (session: AgentSession, draft: StoryV2) => Promise<AgentTurn>;
+export type AgentTurnRunner = AgentRunner;
 
 type Props = {
   runTurn?: AgentTurnRunner;
@@ -19,8 +19,6 @@ type Props = {
   initial?: AgentSession | null;
   onPersist?: (session: AgentSession) => void;
 };
-
-const DRIVE_LIMIT = 60;
 
 const MODE_LABELS: Record<AgentMode, string> = {
   review: "Review every change",
@@ -214,23 +212,28 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
     return next;
   };
 
+  useEffect(() => () => {
+    useDraftStore.getState().endRuns();
+    void runTurn?.close?.();
+  }, [runTurn]);
+
+  const lapsedCopy = (lapsed: string) => `The agent stopped: the draft changed under it (${lapsed}). Nothing more was written.`;
+
   const drive = async (start: AgentSession) => {
     if (!runTurn) return;
     stopRequested.current = false;
     setBusy(true);
     setError(null);
     try {
-      let current = commit(start);
-      for (let turn = 0; turn < DRIVE_LIMIT && (current.status === "planning" || current.status === "running"); turn += 1) {
-        if (stopRequested.current) {
-          current = commit(stopAgent(current));
-          break;
-        }
-        const result = await runTurn(current, useDraftStore.getState().draft);
-        const apply = result.apply;
-        if (apply) mutate((draft) => applyAgentOp(draft, apply));
-        current = commit(result.session);
-      }
+      const outcome = await driveAgent(start, {
+        runner: runTurn,
+        ownership: draftOwnership,
+        draft: () => useDraftStore.getState().draft,
+        applyOp: (op) => mutate((draft) => applyAgentOp(draft, op)),
+        commit,
+        stopRequested: () => stopRequested.current,
+      });
+      if (outcome.lapsed) setError(lapsedCopy(outcome.lapsed));
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "The agent call failed");
     } finally {
@@ -250,15 +253,28 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
     if (!session || !host || !isProvisionOp(op)) return;
     setBusy(true);
     try {
-      const outcome = await host.applyProvisioning(op, useDraftStore.getState().draft);
-      if (outcome.ok) mutate((draft) => applyProvisioningFollowUps(draft, op));
-      const next = resolveProvisioning(session, step.id, outcome, useDraftStore.getState().draft);
+      const outcome = await confirmProvisioning(session, step, op, {
+        ownership: draftOwnership,
+        draft: () => useDraftStore.getState().draft,
+        provision: (created, draft) => host.applyProvisioning(created, draft),
+        applyFollowUps: (created) => mutate((draft) => applyProvisioningFollowUps(draft, created)),
+      });
       setBusy(false);
-      void drive(next);
+      if (outcome.lapsed) {
+        setError(lapsedCopy(outcome.lapsed));
+        return;
+      }
+      void drive(outcome.session);
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "Provisioning failed");
       setBusy(false);
     }
+  };
+
+  const newGoal = () => {
+    useDraftStore.getState().endRuns();
+    void runTurn?.close?.();
+    setSession(null);
   };
 
   if (!runTurn) {
@@ -283,7 +299,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
             {!busy && (session.status === "stopped" || session.status === "budget") ? (
               <button id="so-agent-continue" type="button" className="st-button secondary" onClick={() => void drive(resumeAgent(session))}>Continue</button>
             ) : null}
-            {!busy && session.status !== "awaiting-author" ? <button type="button" className="st-button secondary" onClick={() => { setSession(null); }}>New goal</button> : null}
+            {!busy && session.status !== "awaiting-author" ? <button type="button" className="st-button secondary" onClick={newGoal}>New goal</button> : null}
           </div>
           {session.status === "awaiting-plan" ? <PlanEditor session={session} busy={busy} onGo={(plan) => void drive(approvePlan(session, plan))} /> : null}
           {session.plan.length && session.status !== "awaiting-plan" ? (

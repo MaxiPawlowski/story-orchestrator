@@ -1,6 +1,7 @@
 import type { StoryV2 } from "@engine/index";
 import { advanceAgent, agentStats, applyAgentOp, approvePlan, decideStep, newAgentSession, opPreview, pendingStep, resolveProvisioning, stopAgent } from "./loop";
-import { AgentRouteUnavailable, harnessRoute } from "./route";
+import { harnessRoute } from "./bridge";
+import { AgentRouteUnavailable } from "./route";
 import { renderStagePrompt } from "../prompts";
 import { agentContext, scriptedRoute } from "./testing";
 import type { AgentSession } from "./types";

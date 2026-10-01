@@ -13,7 +13,9 @@
     "server-plugin/story-orchestrator-gpu/package.json"
   ],
   "optional": [
+    "server-plugin/story-orchestrator-harness/agentBridge.mjs",
     "server-plugin/story-orchestrator-harness/index.mjs",
+    "server-plugin/story-orchestrator-harness/mcpShim.mjs",
     "server-plugin/story-orchestrator-harness/package.json"
   ],
   "dirs": ["examples"],

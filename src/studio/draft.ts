@@ -45,9 +45,11 @@ export interface DraftState {
   dirty: boolean;
   selectedCheckpointId: string | null;
   selectedTransitionIndex: number | null;
+  runEpoch: number;
 }
 
 export interface DraftActions {
+  endRuns: () => void;
   mutate: (fn: (draft: StoryDraft) => StoryDraft, options?: { history?: boolean }) => void;
   loadDraft: (draft: StoryDraft, sourceHash?: string | null) => void;
   newDraft: () => void;
@@ -60,7 +62,7 @@ export interface DraftActions {
 
 export type DraftStore = DraftState & DraftActions;
 
-const initialData = (draft: StoryDraft, baseline: StoryDraft = draft): DraftState => ({
+const initialData = (draft: StoryDraft, baseline: StoryDraft = draft): Omit<DraftState, "runEpoch"> => ({
   draft,
   baseline: clone(baseline),
   sourceHash: null,
@@ -73,7 +75,9 @@ const initialData = (draft: StoryDraft, baseline: StoryDraft = draft): DraftStat
 
 export const useDraftStore = create<DraftStore>((set, get) => ({
   ...initialData(newStoryDraft()),
-  mutate: (fn, options) => set((state) => {
+  runEpoch: 0,
+  endRuns: () => set((state) => ({ runEpoch: state.runEpoch + 1 })),
+  mutate:(fn, options) => set((state) => {
     const next = fn(state.draft);
     if (next === state.draft) return {};
     const keepHistory = options?.history !== false;
@@ -84,9 +88,10 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
       ...derive(next, state.baseline),
     };
   }),
-  loadDraft: (draft, sourceHash = null) => set(() => ({
+  loadDraft: (draft, sourceHash = null) => set((state) => ({
     ...initialData(draft),
     sourceHash,
+    runEpoch: state.runEpoch + 1,
   })),
   newDraft: () => get().loadDraft(newStoryDraft()),
   undo: () => set((state) => {
@@ -115,6 +120,7 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
     const restored = clone(state.baseline);
     return {
       draft: restored,
+      runEpoch: state.runEpoch + 1,
       past: [],
       future: [],
       ...clampSelection(restored, state.selectedCheckpointId, null),

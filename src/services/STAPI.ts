@@ -76,7 +76,7 @@ export { observeSamplerPayloads, readSamplerPreset, samplerApi, type SamplerPayl
 export { installScanGating, probeScanGating, vectorsScanWorldInfo, type ScanGatingHandle } from "@services/stHost/worldInfoScan";
 export { getSelectedConnectionProfileId, listConnectionProfiles, profileExists, sendConnectionProfileRequest } from "@services/stHost/connectionProfiles";
 export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, ModelSamplers, ModelUsage, ReasoningMeter } from "@services/stHost/modelReply";
-export { harnessContextLimit, harnessListed, harnessStatusCached, refreshHarnessStatus, sendHarness } from "@services/stHost/harnessCache";
+export { harnessContextLimit, harnessListed, harnessStatusCached, openAgentBridge, refreshHarnessStatus, sendHarness } from "@services/stHost/harnessCache";
 export type { HarnessModel, HarnessRequest, HarnessRow, HarnessStatus } from "@services/stHost/harness";
 export type { ConnectionProfileSummary } from "@services/stHost/connectionProfiles";
 export { countTokens, countTokensBatch } from "@services/stHost/tokenizer";

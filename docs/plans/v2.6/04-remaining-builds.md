@@ -391,7 +391,7 @@ Live gate: none. Harness routes are an opt-in, real-LLM path, and v2.6 rule 13 b
 - User: refresh the Claude login (run `claude` once) before any `claude:*` arm.
 - Phase A (lane time, real models, final suite): the recipe above. The P0-7 5/5 re-run on the warmed opencode cache is still owed (B2). Codex owned-home isolation is not run (PHASE0).
 - A call that lands after a chat switch is recorded in the ring of the chat now open. This is telemetry only; the answer stays owned by its caller's `RunOwnership`.
-- Agent bridge option 2 is not built; recommendation above.
+- Agent bridge option 2: built 2026-09-30, see "Gate record — agent bridge" below.
 
 ## Gate record — C3/C4/C12/C13 (2026-09-30, the approved design calls)
 
@@ -440,3 +440,89 @@ Commands (worktree, after the second master merge):
   "Checkpoint guidance" while a member is drafted.
 - Test mocks gained `rollbackOnEnter` (five TurnBridge suites), `stateLog: []` (`requirementsRefresh`) and a boundary `context`
   (`runtimeManager.test.ts` commit probe); none of them changes an assertion.
+
+## Gate record — agent bridge (2026-09-30, option 2, opencode only)
+
+Branch `worktree-agent-a07bc1e52f57fd7c7`, master `bd61f23f` merged (fast-forward). Not merged to master. No lane, no ST,
+no ComfyUI, no real CLI call: every plugin test drives a fake opencode (`fixtures/fake-opencode.mjs`) that speaks MCP to
+the real shim.
+
+### Built
+
+| Part | Where | What |
+|---|---|---|
+| Session store + routes | `server-plugin/story-orchestrator-harness/agentBridge.mjs`, wired in `index.mjs` | `POST /agent/open`, `/agent/next` (long poll, ≤ 25 s, `pending` on timeout), `/agent/answer`, `/agent/close`; the 501 `/agent` stub is gone. Open validates the body and the tool schemas (≤ 64 tools, 200 KB, closed tool keys, `[A-Za-z][A-Za-z0-9_]` names, unique, object schemas, depth ≤ 8, no `$ref`), then runs `preconditions` (offer gate, installed, fresh login, quota, warmed cache). One session per user and role (a second open replaces the first); sessions per harness ≤ its `concurrency` (429 busy). Each session: an owned home (login copy, hash-checked at close), a local channel (named pipe on Windows, socket in the owned home elsewhere) with a 32-byte secret handshake and one shim connection, `opencode run --pure --format json --agent so-agent`, prompt on stdin. A tool call is parked with its own call deadline (default 120 s); ≤ 4 parked, more are refused to the shim at once; a call is answered once, by its own user, in its own session (else 404/409). Teardown (close, session deadline, call deadline, replacement, a foreign tool event, `exit()`): answers every parked call, kills the tree, closes the channel, deletes the owned home, frees the owner slot, wakes waiting polls with the reason; a 60 s tombstone keeps only the reason. Log line: `{harness, model, ms, calls, kind}`. `/status` rows gain `agentBridge` (offered && opencode). |
+| MCP shim | `server-plugin/story-orchestrator-harness/mcpShim.mjs` | Newline-delimited JSON-RPC over stdio: `initialize` (echoes the client's protocol version), `ping`, `tools/list` (exactly the page's tools from the owned tools file), `tools/call` (unknown name → -32602; forwarded over the channel, answered as `{content:[{type:"text"}], isError}`); exits when the channel closes. |
+| Isolation | `bridgeAgentConfig`, `bridgeArgv` | Same owned home, env allowlist (`childEnv`), `--pure`, deadline tree kill and output bound as H. `OPENCODE_CONFIG_CONTENT` carries exactly one MCP server (`so`, command `[node, mcpShim.mjs]`, the pipe/secret/tools file in its `environment`, not the CLI's) and one agent `so-agent` with `tools: {"*": false, "so_*": true}` and edit/bash/webfetch denied. A tool event on stdout for anything not `so_*` ends the session as `refused`. |
+| Host seam | `src/services/stHost/harnessBridge.ts` (lazy), `harnessCache.openAgentBridge`, `STAPI` | `open` / `nextCall(sessionId, deadlineAt)` (re-polls `pending`, 404 → ended lapsed) / `answer` / `close`, plugin header + CSRF headers, `text/plain`. |
+| Bridge route | `src/copilot/agent/bridge.ts` (`createBridgeRoute`, `harnessRoute`) | `harnessRoute` takes the bridge when the transport carries one and its target, else the text protocol (`call`), else refuses (`HARNESS_ROUTE_REFUSAL`, no fallback). The bridge route is `native`: the prompt drops the text tool list and asks for native calls. A parked call becomes an ordinary `{kind:"call"}` reply, so `executeReply` → `checkToolCall` → `mutations.ts` / `validateProvisioningOp` run unchanged; a plan or `done` arrives as the harness's final text. A call while the plan is due is refused. `settle` answers the shim with the step's status, observation and check, and keeps the session only while the agent is `running`; a pending edit or provisioning step (the author must decide) answers "Waiting for the author…" and closes it. |
+| Runner + drive | `src/copilot/agent/turn.ts` (`createAgentRunner`), `drive.ts` (`driveAgent`, `confirmProvisioning`) | The runner resolves its route once (bridge when offered, else the local route over `manager.model`, which is the H text route when the Wizard role is routed to a harness). `driveAgent` mints a draft run, checks it after every turn before `applyOp`, before commit and before `settle`, and always closes the runner. `confirmProvisioning` creates the asset through `host.applyProvisioning` and applies the draft follow-ups only if the run still holds. |
+| Studio | `src/studio/agentHost.ts`, `draft.ts`, `AgentWizard.tsx`, `StudioModal.tsx` | `draftOwnership` over the draft store's new in-memory `runEpoch` (bumped by `loadDraft`, `reset`, `endRuns`: New goal and the agent pane unmounting). `resolveAgentHarness`: the bridge only when `authoring` is routed to a harness whose status row says `agentBridge` and lists the model. The runner is memoized per Studio mount. A lapsed run shows "The agent stopped: the draft changed under it (…)". |
+| Census / fault matrix / error copy | `test/findings/ownershipCensus.ts` (root `src/copilot/agent` added), `ownership-sites.json` (+4: `driveAgent`, `confirmProvisioning` checked; `advanceAgent`, `createAgentRunner>anonymous` local), `faultMatrix.ts` + `.json` (package `agentBridge`, 10 cells: 8 covered, 1 partial, 1 na), `errorCopy.json` (+5 rows) | |
+
+Nothing persisted changed: blob v6 untouched, `runEpoch` is in-memory, the transcript rides `wizardSessions[].agent` as before.
+
+### Tests
+
+- Plugin (node:test, `agent.test.mjs`, 13 + 1 skipped): parked call answered through the real shim and the session gone (home, process, owner slot, log line fields); isolation (argv, env allowlist, owned XDG/HOME, exactly one MCP server, agent tools, the fake CLI sees exactly `so_readStory`/`so_addQuality`); shim unit (exact list, unknown tool refused, notifications unanswered); answer routing (own session, once, other user 404, unknown call 409); session deadline with nobody polling; call deadline; foreign tool → refused; replacement + close; bounded queue (a burst of 6: 4 delivered, 2 refused at once); open validation (10 refusals); admin / header / origin / cross-site / offer / unwarmed refusals before any spawn, status `agentBridge`; the four routes end to end; shutdown. `HARNESS_LIVE=1` case: one real opencode session through the shim (skipped by default, **not run**: it spends quota; real-model runs belong to Phase A).
+- Jest: `bridge.test.ts` (12: read observed + session kept, unknown tool refused and answered ok:false, review edit waits + closes, auto-draft edit returned, provisioning waits in auto-draft + `decideStep` cannot create it, call-before-plan refused, plan as text, refused open / ended session throw, `harnessRoute` selection, runner resolves once / settles / closes, no bridge → local route), `drive.test.ts` (4), `harnessBridge.test.ts` (4), `agentHost.test.ts` (2).
+
+**Mutants** (`.debug/bridge_mutants.py`: apply, run the named suite, restore; controls pass unmutated). All 6 killed:
+
+| Mutant | Killed by |
+|---|---|
+| the shim offers a second tool (`bash`) | agent.test: isolation (exposed list), shim unit (exact list) |
+| an answer routed to the wrong session (the last opened) | agent.test: "an answer reaches only its own session, once, and another user is refused" |
+| no teardown on the session deadline | agent.test: "the session deadline tears everything down even when the page never polls" |
+| the drive writes a lapsed turn | drive.test: "a draft replaced while the agent turn runs writes nothing and closes the bridge" |
+| provisioning follow-ups ignore the lapse | drive.test: "a provisioning confirmed after the draft was replaced leaves the draft alone" |
+| the bridge keeps its session while the author decides | bridge.test: review edit / provisioning cases (`closed`) |
+
+### Gates (worktree, after merging master `bd61f23f`)
+
+```
+npm run typecheck        pass
+npm run typecheck:test   pass
+npm run lint             pass
+npm test                 368 suites passed, 1 skipped; 4884 tests passed, 1 skipped
+npm run build            pass (prod)
+npm run build:dev        pass
+npm run test:debug       457/457
+npm run test:release     77 pass, 2 skipped, 0 fail
+npm run test:replay      defect replay: 30 of 30 killed
+npm run test:plugin      56 pass, 3 skipped (JUDGE_LIVE, 2 × HARNESS_LIVE), 0 fail
+npx storybook build -o .sb-static-04b --quiet; npx http-server .sb-static-04b -p 6121 -s -c-1;
+npx test-storybook --url http://127.0.0.1:6121 --index-json
+                         47 suites, 313/313 (server stopped, dir deleted)
+```
+
+**Bundle:** `dist/manifest.json` `bundle.bytes` = **1,206,941** vs 1,206,807 for `bd61f23f` built the same way in this
+worktree before the change: **+134 B** (the lazy `openAgentBridge` loader and the `agentBridge` status field). Every
+other new client file sits in the lazy Studio / harness chunks. Budget 1,250,000 not raised.
+
+**After merging master again** (C3/C4/C12/C13, UI leftovers, plan 15 docs; conflicts in this file and `loop.test.ts` imports,
+both resolved keeping both sides): typecheck, typecheck:test, lint pass; `npm test` 373 suites passed, 1 skipped, 4931 tests
+passed, 1 skipped; build + build:dev pass; test:debug 457/457; test:release 77 pass, 2 skipped; test:replay 30 of 30 killed;
+**test:plugin: one run 55 pass / 1 fail / 3 skipped** (run right after the replay suite; the failing test name was not
+captured), then 56/0/3 in 18 further runs (9 sequential, 6 + 6 in parallel under load), not reproduced. The likeliest
+timing-sensitive spot is the agent tests' `until` waits for process death and teardown (5 s default), now 15 s; 56/0/3 after.
+Recorded as a flake, not called green beyond that. Main entry after this merge: **1,214,667 B** (master moved; this
+branch's own delta was the +134 B measured above).
+
+Live gate: none (rule 13; harness routes are an opt-in real-LLM path). Owed to Phase A / plan 10: `HARNESS_LIVE=1
+node --test server-plugin/story-orchestrator-harness/agent.test.mjs` on a warmed, offered opencode, then J14 with the
+Wizard role routed to `harness:opencode:<model>`.
+
+### Deviations
+
+- `AgentToolBridge` changed shape from the stub: `open` takes the prompt, system, tools, deadline and output bound and answers a typed refusal; `nextCall` takes a deadline and returns `call {callId,…} | done {text} | ended {errorKind, message}`; `answer` names the call id. `harnessRoute` moved from `route.ts` to `bridge.ts` (the code-health S7 ratchet refused the route ↔ bridge import cycle).
+- The shim is answered **after** the drive loop applies and commits the turn (`runner.settle`), not inside `advanceAgent`, so the harness hears what actually happened to the draft; a lapsed run closes the session without answering.
+- A bridge session lives only while the agent is `running`: every author decision (a pending edit, a provisioning card, stop, budget) closes it, and the next turn opens a fresh one with the full step prompt (the decision is in RECENT STEPS). Multi-call sessions happen in `auto-draft` and across read/simulate/lookup calls.
+- Gate: `offer: true` on the opencode entry (no separate bridge switch). The tool bridge is refused for `claude`/`codex` by validation (`opencode only`), per the 2026-09-30 decision.
+- **Unverified opencode facts** (no real CLI run here): that `--pure` still loads an MCP server from `OPENCODE_CONFIG_CONTENT`, that local MCP `environment` reaches the server process, and that MCP tools are named `<server>_<tool>` so `so_*` enables exactly them. `HARNESS_LIVE=1` is the check; if any is wrong, the session ends `refused`/`timeout` rather than widening anything, because the agent's `tools` start from `"*": false`.
+- The mutant script stays in the gitignored `.debug/`, as H's `h04_mutants.py` did.
+
+### Open items
+
+- `HARNESS_LIVE=1` bridge run and J14 on the bridge (Phase A / plan 10).
+- W1–W6 on `--route harness` (plan 11) now have a bridge to run against.
