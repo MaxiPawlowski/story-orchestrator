@@ -214,7 +214,8 @@
       "title": "Group direction",
       "question": "In a crowded war council, does the right character answer when you address one by name, and does someone sensible answer when you address nobody?",
       "story": { "kind": "adolion", "id": "adolion-war" },
-      "setup": { "mode": "player", "persona": "The Nightriver heir leading a C-rank party at the King's council.", "chat": "fresh", "startAt": "war-the-summons", "settings": {} },
+      "setup": { "mode": "player", "persona": "The Nightriver heir leading a C-rank party at the King's council.", "chat": "fresh", "startAt": "war-the-summons", "settings": {}, "notes": ["A crowded council is where per-member checkpoint guidance (guidance.members, each speaker's own steer) shows: the preflight refuses the start when the pinned War carries none."] },
+      "requires": { "features": ["memberGuidance"] },
       "drive": [
         { "title": "Talk to one person by name", "aim": ["war-the-summons"], "why": "Speakers here: Narrator, Alexander, Forre, Haley, Vallie, Belle, Dalan.", "lines": ["Princess Haley, do you believe the rumour about your mother?", "Guildmaster, what is the Crown really asking of adventurers?"] },
         { "title": "Talk to nobody in particular", "aim": ["war-the-summons"], "why": "An open question to the room; the narrator or the King should take it.", "lines": ["So who is burning the villages behind the line?"] },
@@ -400,7 +401,7 @@
         "chat": "fresh",
         "startAt": "driftmere",
         "settings": { "chapters": { "seal": true, "storySoFar": true, "recap": true } },
-        "notes": ["Seeded at Driftmere so the Driftmere act ends and the Nightriver act begins inside the session.", "This chat is continued by T2-3 and T2-5: do not delete it."]
+        "notes": ["Seeded at Driftmere so the Driftmere act ends and the Nightriver act begins inside the session.", "For the 07 Q-M pack: after the act change, ask about the first act with turn ... --arm chaptered, then setting <dir> memory.chapters.storySoFar false, swipe-new <dir> --arm plain on the same message, and switch storySoFar back on. The pairs go to test/sessions/rating-pack/Q-M/ unlabelled; the gate stays pending until the user rates them.", "This chat is continued by T2-3 and T2-5: do not delete it."]
       },
       "drive": [
         { "title": "Hear Driftmere out", "aim": ["driftmere", "the-first-descent"], "why": "Serenola, the survivor at the Minotaur's Tusk, Naomi; then entered_mines.", "lines": ["Baroness, what did the last expedition find?", "Naomi, you want a fight? Come down with us."] },
@@ -426,7 +427,7 @@
       "provocations": ["Ask a companion about something from 40 turns ago.", "Leave the chat idle for 20 minutes mid-session, then continue."],
       "flagWhen": ["A companion forgot something important.", "A chapter title or recap was wrong.", "Replies got slow as the chat grew."],
       "stopWhen": "80 turns and past Father's Summons, or 2 hours; split across days by stopping and continuing in T2-3.",
-      "rubric": [{ "feature": "long-run memory" }, { "feature": "chapter seal" }, { "feature": "story so far / Previously" }, { "feature": "Memory tab" }, { "feature": "act change" }, { "feature": "07 Q-M legs", "ask": "the chapter texts and their sources, for blind rating", "reviewer": "user" }],
+      "rubric": [{ "feature": "long-run memory" }, { "feature": "chapter seal" }, { "feature": "story so far / Previously" }, { "feature": "Memory tab" }, { "feature": "act change" }, { "feature": "07 Q-M legs", "ask": "the chapter texts and their sources, for blind rating", "reviewer": "user", "gate": "Q-M" }],
       "loggedAutomatically": ["every memory write, consolidation and chapter seal (journal)", "extraction reads and canon passes", "prompt size per generation (payloads.jsonl)"],
       "knownLimits": ["Chapter features are switched on for this session only; their defaults wait on the Q-M floors (plan 07).", "Images and sprites are off.", "The 07 Q-M legs are recorded for the user's review, not decided by Claude: the chapter record, story so far and Previously text are kept as evidence for the user's blind rating."]
     },
@@ -468,7 +469,7 @@
       "title": "Contradiction",
       "question": "When the player asserts something that contradicts an established fact, is it held for review instead of overwriting the fact?",
       "story": { "kind": "adolion", "id": "adolion-saga" },
-      "setup": { "mode": "author", "persona": "The same Saga persona as T2-1, played with Author view on.", "chat": "continue", "continues": "T2-1", "settings": {}, "notes": ["Author mode: the memory queue (held and conflicted rows, Lock as canon) and the warden's note approval are author-only. The warden runs in its default review mode, so its note waits in the author Scheduler until you approve it."] },
+      "setup": { "mode": "author", "persona": "The same Saga persona as T2-1, played with Author view on.", "chat": "continue", "continues": "T2-1", "settings": { "chapters": { "fold": true } }, "notes": ["The fold arm (AS-25): on top of T2-1's seal and story-so-far, chapters.fold is on, so a generation sends the story so far in place of the sealed messages. so-session start asserts the setting landed, every turn records how many messages were folded, and stop refuses the session when no turn folded any.", "Author mode: the memory queue (held and conflicted rows, Lock as canon) and the warden's note approval are author-only. The warden runs in its default review mode, so its note waits in the author Scheduler until you approve it."] },
       "drive": [
         { "title": "Contradict the seal", "aim": ["nightriver-house", "fathers-summons"], "why": "Say the opposite of how the Devourer ended.", "lines": ["We never went past the seal, remember? Driftmere's mine is fine."] },
         { "title": "Contradict a companion fact", "aim": ["nightriver-house", "fathers-summons", "whispers"], "why": "Say something wrong about Riyo or Naomi.", "lines": ["Riyo's always had two ordinary arms."] },
@@ -489,7 +490,7 @@
       "provocations": ["Contradict yourself twice in a row.", "Contradict something only the narrator said."],
       "flagWhen": ["The held item was confusing.", "The story picked up the wrong version."],
       "stopWhen": "Three contradictions tried and the queue read, or 30 minutes.",
-      "rubric": [{ "feature": "contradiction handling" }, { "feature": "memory queue" }, { "feature": "continuity warden" }],
+      "rubric": [{ "feature": "contradiction handling" }, { "feature": "memory queue" }, { "feature": "continuity warden" }, { "feature": "chapter fold", "ask": "the folded chapters still inform the replies; nothing the player needed vanished" }],
       "loggedAutomatically": ["held / conflicted memory rows", "warden notes and judge memory checks", "extraction reads of your contradicting lines"],
       "knownLimits": ["Only established facts (locked, authored or decided) hold a claim; a merely pinned fact does not.", "A contradiction worded far from the fact may not be detected.", "Author mode: the player-mode surfaces of this chat were checked at the end of T2-1."]
     },
@@ -586,15 +587,15 @@
       "id": "T3-1",
       "tier": "T3",
       "title": "Everything on",
-      "question": "With the inner voice and the timeline on (images and sprites stay off in the autonomous run), what helps the story and what distracts?",
+      "question": "With everything on (inner voice, timeline, scene images, sprites), what helps the story and what distracts?",
       "story": { "kind": "adolion", "id": "adolion-deep" },
       "setup": {
         "mode": "player",
         "persona": "The Nightriver heir leading a C-rank party at the Guild counter.",
         "chat": "fresh",
         "startAt": "deep-joint-posting",
-        "settings": { "innerHarvest": true, "innerBeat": true, "inlineLevel": 1 },
-        "notes": ["Images and sprites stay OFF in the autonomous run: the shared ComfyUI at 127.0.0.1:8188 is forbidden (plan 15). The image and sprite beats are a known limit, not a finding.", "Both inner voice toggles are author-only, so so-session start sets them: #so-inner-harvest (harvestReasoning, read characters' reasoning for intent) and #so-inner-beat (innerBeat, a private beat for the next speaker).", "This chat is continued by T3-2."]
+        "settings": { "innerHarvest": true, "innerBeat": true, "inlineLevel": 1, "images": true, "sprites": true },
+        "notes": ["The autonomous run is the recorded no-media variant (AS-27): so-session start T3-1 defaults to --media off, which writes images off and cannot reach the shared ComfyUI at 127.0.0.1:8188 (plan 15); sprites show only if the lane holds pre-rendered ones, which need no ComfyUI. Its scene-image and sprite rows are marked unexercised and never counted green, and stop fails the session if the lane log shows any ComfyUI call. The full variant is --media on --allow-comfy, only when nobody else renders there.", "Both inner voice toggles are author-only, so so-session start sets them: #so-inner-harvest (harvestReasoning, read characters' reasoning for intent) and #so-inner-beat (innerBeat, a private beat for the next speaker).", "For the 06 C3 pack: when a reply follows an inner beat, take it with turn ... --arm beat, then setting <dir> memory.innerBeat false, swipe-new <dir> --arm plain on the same message, and setting <dir> memory.innerBeat true before playing on. Each such pair goes to test/sessions/rating-pack/C3/ unlabelled.", "This chat is continued by T3-2."]
       },
       "drive": [
         { "title": "Choose a partner party", "aim": ["deep-with-crimsonwing", "deep-with-ebonwing", "deep-kela-and-ced"], "why": "deep_partner crimsonwing or ebonwing (or refuse).", "lines": ["We'll go with Crimsonwing.", "Ced, Kela, why should we pick either of you?"] },
@@ -615,9 +616,9 @@
       "provocations": ["Swipe a reply right after an inner beat was prepared.", "Reload while the memory model is still preparing a beat."],
       "flagWhen": ["Something distracted you.", "A character acted on a motive that came from nowhere."],
       "stopWhen": "You are inside the keep, or 60 minutes.",
-      "rubric": [{ "feature": "inner voice" }, { "feature": "timeline at level 1" }, { "feature": "overall presentation" }, { "feature": "06 C3 inner voice leg", "ask": "the beats and the replies they fed, for blind rating", "reviewer": "user" }, { "feature": "C5/C6 surface decisions", "ask": "what helped and what distracted, as evidence", "reviewer": "user" }],
+      "rubric": [{ "feature": "inner voice" }, { "feature": "timeline at level 1" }, { "feature": "overall presentation" }, { "feature": "06 C3 inner voice leg", "ask": "the beats and the replies they fed, for blind rating", "reviewer": "user", "gate": "C3" }, { "feature": "C5/C6 surface decisions", "ask": "what helped and what distracted, as evidence", "reviewer": "user" }, { "feature": "scene images", "media": "images" }, { "feature": "sprites", "media": "sprites" }],
       "loggedAutomatically": ["inner-voice beats (used, stale, missing)", "prompts sent"],
-      "knownLimits": ["Images and sprites are off: ComfyUI is forbidden in the autonomous run (plan 15). Scene images and sprites are not rated.", "Harvest needs replies that carry reasoning and the knowledge tracking profile; if it shows Idle, record that.", "The 06 C3 leg and the C5/C6 decisions are recorded for the user's review, not decided by Claude."]
+      "knownLimits": ["In the no-media variant scene images (and sprites, unless pre-rendered) are unexercised: ComfyUI is forbidden in the autonomous run (plan 15). Those rows are not rated and never count green.", "Harvest needs replies that carry reasoning and the knowledge tracking profile; if it shows Idle, record that.", "The 06 C3 leg and the C5/C6 decisions are recorded for the user's review, not decided by Claude."]
     },
     {
       "id": "T3-2",
@@ -772,8 +773,8 @@
       "tier": "T4",
       "title": "Abuse",
       "question": "When the player swipes, edits and deletes at every feature's moment, do story, memory, timeline and saves still agree?",
-      "story": { "kind": "adolion", "id": "adolion-academy" },
-      "setup": { "mode": "player", "persona": "A Nightriver heir who keeps changing their mind.", "chat": "fresh", "startAt": "nightriver-house", "settings": { "innerHarvest": true, "innerBeat": true, "chapters": { "seal": true, "storySoFar": true }, "curator": { "enabled": true, "acceptMode": "review" } }, "notes": ["The inner voice toggles (#so-inner-harvest, #so-inner-beat) are author-only; so-session start sets both."] },
+      "story": { "kind": "adolion", "id": "adolion-saga" },
+      "setup": { "mode": "player", "persona": "A Nightriver heir who keeps changing their mind.", "chat": "fresh", "startAt": "nightriver-house", "settings": { "innerHarvest": true, "innerBeat": true, "chapters": { "seal": true, "storySoFar": true, "fold": true }, "curator": { "enabled": true, "acceptMode": "review" } }, "notes": ["AS-25: the mutations run on the Saga's Nightriver act, a genuinely chaptered story (plan 07 leaves the standalone Academy chapterless), so a swipe, edit or delete has a sealed chapter to unfold. The preflight refuses the start when the pinned Saga has no chapters, and stop refuses a session that sealed none.", "The inner voice toggles (#so-inner-harvest, #so-inner-beat) are author-only; so-session start sets both."] },
       "drive": [
         { "title": "Swipe a transition", "aim": ["fathers-summons"], "why": "path = witch_king; swipe the reply that moved it.", "lines": ["I go to Father's study at once."] },
         { "title": "Edit a memory moment", "aim": ["fathers-summons", "whispers"], "why": "Say something memorable, then edit it away.", "lines": ["I swear on Mother's grave I'll never duel for this house."] },
@@ -783,9 +784,11 @@
       "lookFor": [
         { "what": "After each mutation, the HUD, Memory tab and timeline agree with the chat; the Overview says 'the current scene' in plain words rather than naming internals.", "where": "Overview" },
         { "what": "The step-back notice names the checkpoint you returned to.", "where": "Overview" },
-        { "what": "A pending curator proposal from a deleted reply is withdrawn.", "where": "chat" }
+        { "what": "A pending curator proposal from a deleted reply is withdrawn.", "where": "chat" },
+        { "what": "Rolling back past a chapter seal unfolds that chapter: its record leaves the Overview and the sealed messages come back into play.", "where": "Overview" }
       ],
       "mustNotHappen": [
+        "A sealed chapter survives the rollback of the messages it sealed.",
         "A fact from an edited-away line remains in memory.",
         "The story stays ahead of the chat after a swipe.",
         "A chat message disappears that you did not delete.",
@@ -794,7 +797,7 @@
       "provocations": ["Swipe during generation.", "Edit a message five back."],
       "flagWhen": ["Anything disagreed after a mutation."],
       "stopWhen": "Every mutation tried at two different moments, or 45 minutes.",
-      "rubric": [{ "feature": "rollback: story" }, { "feature": "rollback: memory" }, { "feature": "rollback: timeline" }, { "feature": "saves after mutations" }],
+      "rubric": [{ "feature": "rollback: story" }, { "feature": "rollback: memory" }, { "feature": "rollback: chapters" }, { "feature": "rollback: timeline" }, { "feature": "saves after mutations" }],
       "loggedAutomatically": ["every rollback and boundary regression", "save outcomes", "memory derived records and reversals"],
       "knownLimits": ["Images and sprites are off (no ComfyUI in this tier)."]
     },
@@ -894,7 +897,7 @@
       "title": "Wizard, premise 1",
       "question": "Can the author make a playable story from the first premise with the wizard in review mode, and play 20 turns of it?",
       "story": { "kind": "wizard", "premiseId": "cartographer", "premise": "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen." },
-      "setup": { "mode": "author", "persona": "An author; later, the apprentice cartographer.", "chat": "fresh", "settings": {}, "notes": ["Start from the settings panel: New story (wizard).", "Use the wizard's Agent entry with Agent mode 'review': every change waits for you and each change card has Reject. The Step by step entry has no per-item reject.", "Once the story is saved and its group's chat is open, run so-session adopt <dir>: T5-3 and T5-4 continue that chat."] },
+      "setup": { "mode": "author", "persona": "An author; later, the apprentice cartographer.", "chat": "fresh", "settings": {}, "notes": ["Start from the settings panel: New story (wizard).", "Use the wizard's Agent entry with Agent mode 'review': every change waits for you and each change card has Reject. The Step by step entry has no per-item reject.", "Once the story is saved and its group's chat is open, run so-session adopt <dir>: T5-3 and T5-4 continue that chat.", "For the 11 W6 pack, start the first run with --arm agent; a second run on the same premise with --arm staged uses the Step by step entry instead. stop exports each run's draft and pairs the two stories by premise, unlabelled, in test/sessions/rating-pack/W6/."] },
       "drive": [
         { "title": "Premise and interview", "aim": [], "why": "Paste the premise; answer the wizard's questions, use 'You decide' once.", "lines": ["A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."] },
         { "title": "Turning points and characters", "aim": [], "why": "Review each proposed change card; Reject one with a reason (Agent mode only).", "lines": ["Make the third house quieter and more dangerous."] },
@@ -916,7 +919,7 @@
       "provocations": ["Ask the wizard to do something outside a story (write a lorebook for another story)."],
       "flagWhen": ["You had to touch JSON.", "A step was unclear."],
       "stopWhen": "The story is saved, adopted and 20 turns are played, or 90 minutes.",
-      "rubric": [{ "feature": "wizard interview" }, { "feature": "review mode" }, { "feature": "provisioning" }, { "feature": "playability of the result" }],
+      "rubric": [{ "feature": "wizard interview" }, { "feature": "review mode" }, { "feature": "provisioning" }, { "feature": "playability of the result" }, { "feature": "11 W6 leg", "ask": "the finished story, paired with the other wizard arm's on the same premise, for blind rating", "reviewer": "user", "gate": "W6" }],
       "loggedAutomatically": ["the wizard transcript and every tool call", "created assets (the wizard ledger)", "the first 20 turns' journal"],
       "knownLimits": ["The wizard route is the local model; the harness route is T6-3.", "Per-item reject exists only in Agent mode."]
     },
@@ -1027,7 +1030,7 @@
       "title": "Reasoning",
       "question": "Does each recommended reasoning setting play at least as well as the default on the T1-1 route?",
       "story": { "kind": "adolion", "id": "adolion-adventurer" },
-      "setup": { "mode": "player", "persona": "The same persona as T1-1.", "chat": "fresh", "startAt": "guild-hall", "settings": {}, "notes": ["Apply one row of docs/plans/v2.6/recommended-reasoning.md per run (settings panel, per role), and note which in the rubric."] },
+      "setup": { "mode": "player", "persona": "The same persona as T1-1.", "chat": "fresh", "startAt": "guild-hall", "settings": {}, "notes": ["Apply one row of docs/plans/v2.6/recommended-reasoning.md per run (settings panel, per role), and note which in the rubric.", "For the 05 R4 pack: at a climax, take the reply with turn ... --arm reasoning, switch the row off with setting <dir> <path> <value>, swipe-new <dir> --arm plain on the same message, then restore the row. The pairs go to test/sessions/rating-pack/R4/ unlabelled."] },
       "drive": [
         { "title": "Replay the hall", "aim": ["road-to-wendhope"], "why": "Same lines as T1-1.", "lines": ["We'll take Wendhope. Call us the Grey Pennants."] },
         { "title": "Replay the walls", "aim": ["at-the-walls", "first-night"], "why": "Same lines as T1-1.", "lines": ["Here's the Guild seal and the Sheridan contract. Open up."] }
@@ -1040,7 +1043,7 @@
       "provocations": [],
       "flagWhen": ["Anything slower or worse than T1-1."],
       "stopWhen": "The walls reached, per setting; about 30 minutes each.",
-      "rubric": [{ "feature": "reasoning setting (name it)" }, { "feature": "latency" }, { "feature": "extraction quality" }, { "feature": "05 R4 leg", "ask": "replies per setting, for blind rating", "reviewer": "user" }],
+      "rubric": [{ "feature": "reasoning setting (name it)" }, { "feature": "latency" }, { "feature": "extraction quality" }, { "feature": "05 R4 leg", "ask": "replies per setting, for blind rating", "reviewer": "user", "gate": "R4" }],
       "loggedAutomatically": ["reasoning exhausted / empty reply events", "model-call latency per pass"],
       "knownLimits": ["05 R4 is recorded for the user's review, not decided by Claude."],
       "waits": "plan 05 R3: docs/plans/v2.6/recommended-reasoning.md (the recommended reasoning table) does not exist yet."

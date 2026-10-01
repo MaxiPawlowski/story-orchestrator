@@ -43,9 +43,9 @@ const memoryModelLimit = (profileId: string | null) => {
 if (__SO_DEV__) {
   ui.global("storyOrchestratorRuntime", manager);
   void loadDraft().then(({ useDraftStore }) => ui.global("storyOrchestratorStudioDraft", useDraftStore));
-  void import("./studio/StudioModal").then(({ STUDIO_TAB_IDS, WIZARD_AGENT }) => {
+  void import("./studio/StudioModal").then(({ STUDIO_TAB_IDS, WIZARD_AGENT, WIZARD_HARNESS }) => {
     ui.global("storyOrchestratorStudioTabs", STUDIO_TAB_IDS);
-    if (__SO_DEV__) ui.global("storyOrchestratorWizardAgent", WIZARD_AGENT);
+    if (__SO_DEV__) ui.global("storyOrchestratorWizardAgent", { ...WIZARD_AGENT, resolveAgentHarness: WIZARD_HARNESS });
   });
 }
 

@@ -16,6 +16,7 @@ export interface LiveRequest {
   chat: LiveChat | null;
   args: MutationArgs & { note?: string; via?: 'drawer' | 'slash'; label?: string; hours?: number; seq?: number };
   options?: LiveOptions;
+  tag?: { arm?: string; gate?: string };
 }
 
 export async function defaultLiveDeps(): Promise<LiveDeps> {

@@ -4,9 +4,9 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { REPO_ROOT } from '../../lib/stRoot.mjs';
 import {
-  comfyRefusal, coverageProblems, JUDGE_USES, nextSessionNumber, renderCardsDocument, rubricProblems, rubricTemplate, settingsPatch, validateCardDoc, type CardDoc,
+  comfyRefusal, coverageProblems, JUDGE_USES, nextSessionNumber, renderCardsDocument, rubricProblems, rubricSummary, rubricTemplate, settingsPatch, UNEXERCISED, validateCardDoc, type CardDoc,
 } from './sessionCharters.mts';
-import { CARDS_DOC_PATH, findCard, loadCards, loadIndex, planStart } from '../so-session.mts';
+import { CARDS_DOC_PATH, findCard, loadCards, loadIndex, pinProblems, planStart, repinCharters, startProblems } from '../so-session.mts';
 
 const PLAN_TIER_COUNTS = { T0: 3, T1: 7, T2: 6, T3: 6, T4: 4, T5: 5, T6: 4, T7: 1 };
 const clone = (doc: CardDoc): CardDoc => JSON.parse(JSON.stringify(doc));
@@ -72,16 +72,87 @@ test('plan 14 cards: docs/plans/v2.6/14-cards.md is in sync with charters.json',
   assert.equal(onDisk, renderCardsDocument(doc, index), 'run: node scripts/debug/so-session.mts cards --write');
 });
 
-test('plan 14 start: a card that needs images or sprites is refused without --allow-comfy, before any lane is touched', async () => {
+test('plan 14 start: the full media variant needs --allow-comfy, before any lane is touched', async () => {
   const [doc, index] = await Promise.all([loadCards(), loadIndex()]);
-  const card = clone(doc).cards.find((candidate) => candidate.id === 'T3-1')!;
+  const card = clone(doc).cards.find((candidate) => candidate.id === 'T0-1')!;
   card.setup.settings = { ...card.setup.settings, images: true, sprites: true };
-  const refused = planStart(doc, index, card, { lane: 4, allowComfy: false, seed: true }, null);
+  const refused = planStart(doc, index, card, { lane: 4, allowComfy: false, seed: true, media: 'on' }, null);
   assert.ok(refused.refused && /127\.0\.0\.1:8188/.test(refused.refused) && /--allow-comfy/.test(refused.refused));
-  const allowed = planStart(doc, index, card, { lane: 4, allowComfy: true, seed: true }, null);
+  const allowed = planStart(doc, index, card, { lane: 4, allowComfy: true, seed: true, media: 'on' }, null);
   assert.equal(allowed.refused, null);
   assert.equal((allowed as any).patch.image.enabled, true);
   assert.equal(comfyRefusal(findCard(doc, 'T0-1'), false), null);
+});
+
+test('AS-27 start: without --media the card runs as the recorded no-media variant, which needs no ComfyUI', async () => {
+  const [doc, index] = await Promise.all([loadCards(), loadIndex()]);
+  const card = clone(doc).cards.find((candidate) => candidate.id === 'T0-1')!;
+  card.setup.settings = { ...card.setup.settings, images: true, sprites: true };
+  const plan = planStart(doc, index, card, { lane: 4, allowComfy: false, seed: true }, null) as any;
+  assert.equal(plan.refused, null);
+  assert.equal(plan.media, 'off');
+  const t31 = findCard(doc, 'T3-1');
+  assert.deepEqual(t31.rubric.filter((row) => row.media).map((row) => row.media), ['images', 'sprites']);
+  const rubric = rubricTemplate(t31, {}, ['images', 'sprites']);
+  const media = rubric.rows.filter((row: any) => row.media);
+  assert.ok(media.every((row: any) => row.status === UNEXERCISED));
+  assert.equal(rubricProblems(rubric).filter((line) => /scene images|sprites/.test(line)).length, 0, 'an unexercised row is not an open row');
+  media[0].score = 'works';
+  assert.ok(rubricProblems(rubric).some((line) => line.includes('may carry no score')));
+  rubric.rows.forEach((row: any) => { if (row.status !== UNEXERCISED) { row.score = row.reviewer ? null : 'works'; row.note = 'seen'; row.evidence = ['x']; row.scoredBy = 'claude'; } });
+  media[0].score = null;
+  const summary = rubricSummary(rubric);
+  assert.equal(summary.unexercised, 2);
+  assert.equal(summary.green, rubric.rows.filter((row: any) => !row.reviewer && !row.media).length, 'unexercised rows never count green');
+});
+
+test('AS-22 start: lane, settings, pin, page, recap, header and tail discrepancies are all blocking', () => {
+  const clean = { laneCommit: 'abc', indexCommit: 'abc', effective: [], pin: { ok: true, problems: [] }, page: [], age: null, ageAsked: false, header: { code: 0, output: '' }, tails: [] };
+  assert.deepEqual(startProblems(clean), []);
+  assert.equal(startProblems({ ...clean, laneCommit: 'old' }).length, 1);
+  assert.equal(startProblems({ ...clean, pin: { ok: false, problems: ['main profile is "none"'] } }).length, 1);
+  assert.equal(startProblems({ ...clean, page: ['story adolion-saga did not load'] }).length, 1);
+  assert.equal(startProblems({ ...clean, ageAsked: true, age: { fired: false } }).length, 1);
+  assert.equal(startProblems({ ...clean, header: { code: 1, output: 'boom' } }).length, 1);
+  assert.equal(startProblems({ ...clean, tails: ['the journal tail never acknowledged'] }).length, 1);
+  assert.equal(startProblems({ ...clean, effective: ['setting judge.enabled is false after the reload, expected true'] }).length, 1);
+});
+
+test('AS-11 start: a card is refused when its pinned story lacks the data it exercises, and validate names every such card', async () => {
+  const [doc, index] = await Promise.all([loadCards(), loadIndex()]);
+  const card = findCard(doc, 'T2-1');
+  const refused = planStart(doc, index, card, { lane: 1, allowComfy: false, seed: true }, null);
+  if (index.stories['adolion-saga'].features?.chapters) assert.equal(refused.refused, null);
+  else assert.match(String(refused.refused), /lacks the data the card exercises[\s\S]*has no chapters/);
+});
+
+test('AS-25/27/28 cards: media rows need the card to ask for the medium, blind gates are the user\'s, requires is closed', async () => {
+  const [doc, index] = await Promise.all([loadCards(), loadIndex()]);
+  const broken = clone(doc);
+  const t11 = broken.cards.find((candidate) => candidate.id === 'T1-1')!;
+  t11.rubric.push({ feature: 'images', media: 'images' }, { feature: 'pack', gate: 'C3' }, { feature: 'pack2', reviewer: 'user', gate: 'X9' as never });
+  t11.requires = { features: ['wings' as never], artifacts: { turns: 0, nonsense: 2 } as never };
+  const problems = validateCardDoc(broken, index);
+  for (const needle of ['a images row needs the card to ask for images', 'blind gate C3 is the user\'s verdict', 'gate must be C3|R4|Q-M|W6', 'unknown feature "wings"', 'requires.artifacts.turns must be a positive integer', 'unknown artifact "nonsense"']) {
+    assert.ok(problems.some((problem) => problem.includes(needle)), `missing "${needle}" in:\n${problems.join('\n')}`);
+  }
+  const gated = doc.cards.flatMap((card) => card.rubric.filter((row) => row.gate).map((row) => `${card.id}:${row.gate}`));
+  assert.deepEqual(gated, ['T2-1:Q-M', 'T3-1:C3', 'T5-1:W6', 'T6-1:R4']);
+  assert.equal(findCard(doc, 'T4-1').story.id, 'adolion-saga', 'chapter rollback runs on a genuinely chaptered story');
+  assert.equal(findCard(doc, 'T2-3').setup.settings?.chapters?.fold, true, 'a fold arm exists');
+});
+
+test('AS-11 index: charters.json is repinned by rewriting its pin field only', () => {
+  const text = '{\n  "version": 1,\n  "pin": "aaa111",\n  "cards": []\n}\n';
+  assert.equal(repinCharters(text, 'bbb222'), '{\n  "version": 1,\n  "pin": "bbb222",\n  "cards": []\n}\n');
+  assert.equal(repinCharters(text, 'aaa111'), text);
+  assert.throws(() => repinCharters('{}', 'x'), /no "pin" field/);
+});
+
+test('AS-11 validate: the index, the charters and the adolion-fresh pin must agree', async () => {
+  const [doc, index] = await Promise.all([loadCards(), loadIndex()]);
+  assert.deepEqual(pinProblems(index.commit, index, doc), []);
+  assert.equal(pinProblems('feedface', index, doc).length, 2);
 });
 
 test('plan 14 start: every card that does not ask for media switches images and sprites off explicitly', async () => {

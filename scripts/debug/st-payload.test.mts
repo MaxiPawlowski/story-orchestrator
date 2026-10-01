@@ -66,6 +66,50 @@ test('capture indices stay unique and monotonic past the ring cap', async () => 
   assert.equal(indices.at(-1), RING + 24);
 });
 
+test('AS-24: each capture records its chat, the newest message, the story boundary and the drafted member by name', async () => {
+  delete (globalThis as any).__soDebugPayloads;
+  globalThis.fetch = (async () => ({ ok: true })) as any;
+  const handlers: Record<string, (value?: unknown) => void> = {};
+  const context = { chatId: 'chat-a', chat: [{}, {}, {}], characters: [{ name: 'Narrator' }, { name: 'Belle' }], eventSource: { on: (key: string, fn: any) => { handlers[key] = fn; } }, eventTypes: { GROUP_MEMBER_DRAFTED: 'a', GENERATION_ENDED: 'b' } };
+  (globalThis as any).SillyTavern = { getContext: () => context };
+  (globalThis as any).storyOrchestratorRuntime = { getSnapshot: () => ({ boundary: 4 }) };
+  try {
+    await armPayloadCapture(fakePage);
+    handlers.a(1);
+    await generate('x');
+    context.chatId = 'chat-b';
+    handlers.b();
+    await generate('y');
+    const [first, second] = (globalThis as any).__soDebugPayloads.entries;
+    assert.deepEqual({ chatId: first.chatId, lastMessageId: first.lastMessageId, boundary: first.boundary, draftMember: first.draftMember, draftMemberName: first.draftMemberName }, { chatId: 'chat-a', lastMessageId: 2, boundary: 4, draftMember: 1, draftMemberName: 'Belle' });
+    assert.equal(second.chatId, 'chat-b');
+    assert.equal(second.draftMemberName, null);
+  } finally {
+    delete (globalThis as any).storyOrchestratorRuntime;
+  }
+});
+
+test('AS-22: persist acknowledges readiness once it has drained the armed page, and a drain request still gets a final poll', async () => {
+  const dir = await mkdtemp(join(tmpdir(), 'so-payload-ack-'));
+  const out = join(dir, 'payloads.jsonl');
+  const ready: any[] = [];
+  let requested = false;
+  let polls = 0;
+  const { drainGate } = await import('./lib/sessionTails.mts');
+  const gate = drainGate(() => requested);
+  await generate('before');
+  const run = persistPayloads(fakePage, {
+    out, intervalMs: 5, onEntry: () => {}, onReady: async (where: any) => { ready.push(where); },
+    shouldStop: () => { polls += 1; if (polls === 2) { requested = true; void generate('during'); } return gate(); },
+  });
+  const result = await run;
+  assert.equal(ready.length, 1);
+  assert.ok(ready[0].epoch);
+  assert.deepEqual(tags((await readFile(out, 'utf-8')).trim().split('\n').map((line) => JSON.parse(line))), ['before', 'during']);
+  assert.equal(result.written, 2);
+  await rm(dir, { recursive: true, force: true });
+});
+
 test('re-arming an already armed page does not double-patch fetch', async () => {
   const again = await armPayloadCapture(fakePage);
   assert.equal(again.alreadyArmed, true);

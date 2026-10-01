@@ -14,9 +14,10 @@ node scripts/debug/so-session.mts budget
 ```
 
 - The served bundle must be the dev flavour (`dist/manifest.json` `flavor: "dev"`); staging it is the lead's step, not the runbook's.
-- `start` fails before opening anything when the main profile does not answer a tiny probe, a role is not on DeepSeek, or the judge state or key is wrong (`page-pin.json`).
-- Never touch ComfyUI at 127.0.0.1:8188: images and sprites stay off, and no card here needs `--allow-comfy`.
-- Lanes run in parallel; at most two LLM-heavy lanes at once (llama-server `LLM_PARALLEL`). A lane that holds a chat a later card continues is never re-seeded (`start` refuses).
+- `start` fails closed (exit 2, `start-failed.json`, no session) on any blocking discrepancy: a card whose pinned story lacks the data it exercises, a lane seeded from another build, a setting the runtime does not read back as the baseline plus the card's overrides (`test/sessions/baseline-settings.json`), a failed routing pin (`page-pin.json`), a page problem, a recap that did not fire, a failed run header, or a tail that never acknowledged it is capturing.
+- `stop` exports every visited or created chat, asks each tail to drain and waits for it before stopping it, and exits 1 on an invalid session (failed header diff, missing capture, lost drain, missing required artifact, a ComfyUI call). An invalid session is re-run, never scored.
+- Never touch ComfyUI at 127.0.0.1:8188: every card runs with `--media off` (the default), the recorded no-media variant; image and sprite rubric rows are unexercised, and no card here needs `--allow-comfy`.
+- Lanes run in parallel, tier by tier; at most two LLM-heavy lanes at once (llama-server `LLM_PARALLEL`). A lane whose chat a later card continues is leased (`lease.json`): `start` and `adolion-fresh seed` refuse to re-seed it until the continuation ran; `so-session lane archive <n>` keeps it if the lane is needed sooner.
 - `turn` sends one real line, waits for every reply of the round (a group send can be several generations) and for the scheduler, and appends the record to `turns.jsonl`. Mutations (`swipe-new`, `regen`, `edit`, `delete`, `switch-chat-mid-gen`, `reload-mid-gen`) record what they did and the rollback the product performed.
 - Beats are signposts: when the story moves elsewhere, play what the story offers and keep the card's look-for and must-not-happen in view.
 - A score is a claim the user will check: every `score` needs a note and evidence inside the session dir. Rows marked `--record` are recorded for the user's review, never scored.
@@ -326,6 +327,7 @@ node scripts/debug/so-session.mts turn test/sessions/T2/T2-1-1 "We kill it. Free
 node scripts/debug/so-session.mts turn test/sessions/T2/T2-1-1 "We climb for the lifts and go find Serenola."
 # beat 6: Go home to Nightriver -> nightriver-house | fathers-summons
 node scripts/debug/so-session.mts turn test/sessions/T2/T2-1-1 "A letter from home? Then we go to Aegis City, to the estate."
+# blind gate Q-M: tag each paired reply with --arm (card notes); stop rebuilds test/sessions/rating-pack/Q-M/, verdicts stay the user's
 # provocation: Ask a companion about something from 40 turns ago.
 # provocation: Leave the chat idle for 20 minutes mid-session, then continue.
 # flag at once on any of 5 must-not-happen item(s), and when: A companion forgot something important. / A chapter title or recap was wrong. / Replies got slow as the chat grew.
@@ -387,6 +389,7 @@ node scripts/debug/so-session.mts digest test/sessions/T2/T2-3-1
 node scripts/debug/so-session.mts score test/sessions/T2/T2-3-1 0 <works|annoying|broken|not-noticed> "<contradiction handling: what was seen>" --evidence <path:line|shots/x.png>
 node scripts/debug/so-session.mts score test/sessions/T2/T2-3-1 1 <works|annoying|broken|not-noticed> "<memory queue: what was seen>" --evidence <path:line|shots/x.png>
 node scripts/debug/so-session.mts score test/sessions/T2/T2-3-1 2 <works|annoying|broken|not-noticed> "<continuity warden: what was seen>" --evidence <path:line|shots/x.png>
+node scripts/debug/so-session.mts score test/sessions/T2/T2-3-1 3 <works|annoying|broken|not-noticed> "<chapter fold: what was seen>" --evidence <path:line|shots/x.png>
 ```
 
 ### T2-4 Away and back (lane 3, continues on its lane)
@@ -466,6 +469,7 @@ node scripts/debug/so-session.mts turn test/sessions/T3/T3-1-1 "Runo, what does 
 node scripts/debug/so-session.mts turn test/sessions/T3/T3-1-1 "We watch the patrols and time the change of watch."
 # beat 4: Go in -> deep-the-altar
 node scripts/debug/so-session.mts turn test/sessions/T3/T3-1-1 "Over the wall at the change of watch."
+# blind gate C3: tag each paired reply with --arm (card notes); stop rebuilds test/sessions/rating-pack/C3/, verdicts stay the user's
 # provocation: Swipe a reply right after an inner beat was prepared.
 # provocation: Reload while the memory model is still preparing a beat.
 # flag at once on any of 4 must-not-happen item(s), and when: Something distracted you. / A character acted on a motive that came from nowhere.
@@ -477,6 +481,8 @@ node scripts/debug/so-session.mts score test/sessions/T3/T3-1-1 1 <works|annoyin
 node scripts/debug/so-session.mts score test/sessions/T3/T3-1-1 2 <works|annoying|broken|not-noticed> "<overall presentation: what was seen>" --evidence <path:line|shots/x.png>
 node scripts/debug/so-session.mts score test/sessions/T3/T3-1-1 3 --record "<06 C3 inner voice leg: what was kept for the user>" --evidence <path:line>
 node scripts/debug/so-session.mts score test/sessions/T3/T3-1-1 4 --record "<C5/C6 surface decisions: what was kept for the user>" --evidence <path:line>
+# rubric 5 (scene images): unexercised in the no-media variant, so it takes no score and never counts green
+# rubric 6 (sprites): unexercised in the no-media variant, so it takes no score and never counts green
 ```
 
 ### T3-2 Timeline levels (lane 3, continues on its lane)
@@ -615,14 +621,15 @@ node scripts/debug/so-session.mts swipe-new test/sessions/T4/T4-1-1
 node scripts/debug/so-session.mts swipe-new test/sessions/T4/T4-1-1
 # provocation: Swipe during generation.
 # provocation: Edit a message five back.
-# flag at once on any of 4 must-not-happen item(s), and when: Anything disagreed after a mutation.
+# flag at once on any of 5 must-not-happen item(s), and when: Anything disagreed after a mutation.
 node scripts/debug/so-session.mts flag test/sessions/T4/T4-1-1 "<what you saw>"
 node scripts/debug/so-session.mts stop test/sessions/T4/T4-1-1
 node scripts/debug/so-session.mts digest test/sessions/T4/T4-1-1
 node scripts/debug/so-session.mts score test/sessions/T4/T4-1-1 0 <works|annoying|broken|not-noticed> "<rollback: story: what was seen>" --evidence <path:line|shots/x.png>
 node scripts/debug/so-session.mts score test/sessions/T4/T4-1-1 1 <works|annoying|broken|not-noticed> "<rollback: memory: what was seen>" --evidence <path:line|shots/x.png>
-node scripts/debug/so-session.mts score test/sessions/T4/T4-1-1 2 <works|annoying|broken|not-noticed> "<rollback: timeline: what was seen>" --evidence <path:line|shots/x.png>
-node scripts/debug/so-session.mts score test/sessions/T4/T4-1-1 3 <works|annoying|broken|not-noticed> "<saves after mutations: what was seen>" --evidence <path:line|shots/x.png>
+node scripts/debug/so-session.mts score test/sessions/T4/T4-1-1 2 <works|annoying|broken|not-noticed> "<rollback: chapters: what was seen>" --evidence <path:line|shots/x.png>
+node scripts/debug/so-session.mts score test/sessions/T4/T4-1-1 3 <works|annoying|broken|not-noticed> "<rollback: timeline: what was seen>" --evidence <path:line|shots/x.png>
+node scripts/debug/so-session.mts score test/sessions/T4/T4-1-1 4 <works|annoying|broken|not-noticed> "<saves after mutations: what was seen>" --evidence <path:line|shots/x.png>
 ```
 
 ### T4-2 Switching (lane 4, seeds the lane)
@@ -696,7 +703,7 @@ node scripts/debug/so-session.mts score test/sessions/T4/T4-4-1 3 <works|annoyin
 ### T5-1 Wizard, premise 1 (lane 3, seeds the lane)
 
 ```bash
-node scripts/debug/so-session.mts start T5-1 --lane 3
+node scripts/debug/so-session.mts start T5-1 --lane 3 --arm agent
 # wizard: drive it in the lane browser (so-ui.mts new-story-wizard / wizard-run / wizard-apply), premise cartographer
 # beat 1: Premise and interview
 node scripts/debug/so-session.mts turn test/sessions/T5/T5-1-1 "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
@@ -707,6 +714,7 @@ node scripts/debug/so-session.mts turn test/sessions/T5/T5-1-1 "Make the third h
 node scripts/debug/so-session.mts adopt test/sessions/T5/T5-1-1
 # beat 4: Play 20 turns
 node scripts/debug/so-session.mts turn test/sessions/T5/T5-1-1 "I finish inking the northern border and watch the ink move."
+# blind gate W6: tag each paired reply with --arm (card notes); stop rebuilds test/sessions/rating-pack/W6/, verdicts stay the user's
 # provocation: Ask the wizard to do something outside a story (write a lorebook for another story).
 # flag at once on any of 4 must-not-happen item(s), and when: You had to touch JSON. / A step was unclear.
 node scripts/debug/so-session.mts flag test/sessions/T5/T5-1-1 "<what you saw>"
@@ -716,6 +724,7 @@ node scripts/debug/so-session.mts score test/sessions/T5/T5-1-1 0 <works|annoyin
 node scripts/debug/so-session.mts score test/sessions/T5/T5-1-1 1 <works|annoying|broken|not-noticed> "<review mode: what was seen>" --evidence <path:line|shots/x.png>
 node scripts/debug/so-session.mts score test/sessions/T5/T5-1-1 2 <works|annoying|broken|not-noticed> "<provisioning: what was seen>" --evidence <path:line|shots/x.png>
 node scripts/debug/so-session.mts score test/sessions/T5/T5-1-1 3 <works|annoying|broken|not-noticed> "<playability of the result: what was seen>" --evidence <path:line|shots/x.png>
+node scripts/debug/so-session.mts score test/sessions/T5/T5-1-1 4 --record "<11 W6 leg: what was kept for the user>" --evidence <path:line>
 ```
 
 ### T5-2 Wizard, premises 2 and 3 (lane 4, seeds the lane)
@@ -815,6 +824,7 @@ node scripts/debug/so-session.mts start T6-1 --lane 2 --force-waiting
 node scripts/debug/so-session.mts turn test/sessions/T6/T6-1-1 "We'll take Wendhope. Call us the Grey Pennants."
 # beat 2: Replay the walls -> at-the-walls | first-night
 node scripts/debug/so-session.mts turn test/sessions/T6/T6-1-1 "Here's the Guild seal and the Sheridan contract. Open up."
+# blind gate R4: tag each paired reply with --arm (card notes); stop rebuilds test/sessions/rating-pack/R4/, verdicts stay the user's
 # flag at once on any of 3 must-not-happen item(s), and when: Anything slower or worse than T1-1.
 node scripts/debug/so-session.mts flag test/sessions/T6/T6-1-1 "<what you saw>"
 node scripts/debug/so-session.mts stop test/sessions/T6/T6-1-1

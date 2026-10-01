@@ -37,11 +37,22 @@ export async function armPayloadCapture(page) {
       // 100th collide on index 100 — `watch` then stopped printing and a persisted record would
       // silently lose every later turn. Verified on 2026-09-20 (v2.3 plan 01 §A0).
       const index = state.nextIndex++;
+      const where = (() => {
+        try {
+          const now = SillyTavern.getContext();
+          const boundary = (globalThis as any).storyOrchestratorRuntime?.getSnapshot?.()?.boundary;
+          return { chatId: now.chatId ?? null, lastMessageId: Array.isArray(now.chat) ? now.chat.length - 1 : null, boundary: Number.isFinite(boundary) ? boundary : null };
+        } catch {
+          return { chatId: null, lastMessageId: null, boundary: null };
+        }
+      })();
       state.entries.push({
         ...entry,
         index,
         epoch: state.epoch,
         draftMember: state.currentDraftMember,
+        draftMemberName: state.currentDraftMemberName ?? null,
+        ...where,
         capturedAt: new Date().toISOString(),
       });
       state.entries = state.entries.slice(-100);
@@ -92,9 +103,15 @@ export async function armPayloadCapture(page) {
     };
     ctx.eventSource.on(ctx.eventTypes.GROUP_MEMBER_DRAFTED, (member) => {
       state.currentDraftMember = member;
+      try {
+        state.currentDraftMemberName = SillyTavern.getContext().characters?.[member]?.name ?? null;
+      } catch {
+        state.currentDraftMemberName = null;
+      }
     });
     ctx.eventSource.on(ctx.eventTypes.GENERATION_ENDED, () => {
       state.currentDraftMember = null;
+      state.currentDraftMemberName = null;
     });
     state.armed = true;
     return { armed: true, alreadyArmed: false, count: state.entries.length, epoch: state.epoch, nextIndex: state.nextIndex };
@@ -170,7 +187,8 @@ export async function getPayloads(page, count = 1, member = null) {
 
 // v2.3 plan 01 §A0: keep every generation request of a played session on disk. The in-page ring
 // holds the last 100 and a reload wipes it, so the P0 record needs a drain loop, not a ring read.
-export async function persistPayloads(page, { out, intervalMs = 1000, onEntry = null, shouldStop = null } = {} as any) {
+export async function persistPayloads(page, { out, intervalMs = 1000, onEntry = null, shouldStop = null, onReady = null } = {} as any) {
+  let announced = false;
   let epoch: string | null = null;
   let since = 0;
   let responseSince = 0;
@@ -253,6 +271,10 @@ export async function persistPayloads(page, { out, intervalMs = 1000, onEntry = 
   while (!stopped) {
     try {
       await poll();
+      if (!announced && onReady && epoch) {
+        announced = true;
+        await onReady({ epoch, nextIndex: since });
+      }
     } catch (err) {
       // A reload mid-read destroys the execution context and is ordinary; a disk failure is not.
       if (writeErrors) break;
@@ -302,10 +324,17 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
   if (command === 'arm' && process.argv.includes('--persist')) {
     const out = resolve(process.cwd(), argValue('--out', resolve(DEBUG_DIR, 'st-payload-session.jsonl')));
     const intervalMs = Number(argValue('--interval-ms', 1000));
+    const ack = process.argv.includes('--ack') ? await import('./lib/sessionTails.mts') : null;
+    if (ack) await ack.clearAcks(out);
     runCli(async (page) => {
       await armPayloadCapture(page);
       console.log(`Persisting every capture → ${out} every ${intervalMs} ms. Ctrl-C to stop.`);
-      const result = await persistPayloads(page, { out, intervalMs });
+      const result = await persistPayloads(page, {
+        out, intervalMs,
+        onReady: ack ? (where) => ack.writeAck(ack.ackPaths(out).ready, { tail: 'payloads', ...where }) : null,
+        shouldStop: ack ? ack.drainGate(ack.drainRequested(out)) : null,
+      });
+      if (ack) await ack.writeAck(ack.ackPaths(out).drained, { tail: 'payloads', ...result, ok: result.writeErrors === 0 && result.dropped === 0 });
       console.log(`\n${JSON.stringify(result)}`);
       if (result.dropped) console.error(`WARNING: ${result.dropped} captures were evicted from the page ring before they were drained — lower --interval-ms.`);
       if (result.unknownGaps) console.error(`WARNING: the page restarted ${result.unknownGaps} time(s); captures between the last drain and each restart are UNKNOWN, not zero.`);

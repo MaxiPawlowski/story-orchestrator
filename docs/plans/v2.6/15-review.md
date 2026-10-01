@@ -171,3 +171,48 @@ Same seed (20260930) and sample size (200), `node scripts/suite/mutation-baselin
 | test-storybook:ci | **NOT green**: the runner reported "No tests found" (exit 1) |
 
 The Storybook step failed before running anything. The test runner resolved its root to the main checkout (`C:\dev\story-orchestrator`, reached through this worktree's node_modules junction), so `<worktree>/src/**/*.stories.*` matched 0 files. This comes from the agent-worktree layout, not from any story. The CR-P changes touch no `.stories.tsx` and no UI component. Even so, Storybook is not green here: it must be run from a checkout with its own node_modules (or on master after merge) before anyone calls this record fully green.
+
+
+## Review fixes AS (session tooling), 2026-10-01
+
+Astra's plan-14 readiness findings AS-21..AS-29 and the tooling half of AS-11. The driver commit `28f6611b` was checked first: it closed none of these. Every fix has a node:test case (or one jest case) that failed first. Red check: the new and edited tests were run in a scratch copy against the pre-change sources (`HEAD` before this work): `sessionDigest` 7 new cases red, `st-payload` 2 red, `sessionRunbook` 2 red, `sessionLanes`/`sessionCharters` and every new module's test red at import (the exports did not exist). No lanes, no model calls, no ComfyUI.
+
+| Finding | Fix | Test that failed first |
+|---|---|---|
+| AS-21 wizard agent harness | `lib/wizardAgentDrive.mts`: `so-wizard-agent --route harness` and J14.1 drive the UI's own runner (`createAgentRunner`), the UI's bridge resolver (`resolveAgentHarness`, now exposed on the dev global as `storyOrchestratorWizardAgent.resolveAgentHarness`) and `driveAgent`, wrapping the bridge to record open/tool/answer/close. `bridgeEvidenceProblems` refuses a bridged run missing any of the four. New J14.2 asserts the evidence. Opt-in `so-wizard-agent.mts bridge-check` exercises a real opencode bridge; not run here | `wizardAgentDrive.test.mts` (UI handles, bridge evidence, refusal) |
+| AS-22 fail closed | `lib/sessionTails.mts`: tails write `<out>.ready` after their first poll and `<out>.drained` after one more full poll once `<out>.drain` exists (`st-payload --ack`, `so-journal follow --ack`, console tail). `start` refuses (writes `start-failed.json`, exit 2) on a missing ready ack, a blocking pin/page/run-header discrepancy or a settings mismatch. `lib/sessionStop.mts`: stop runs end export → header diff → drain → wait for drained → kill → verify; a failed diff, a missing ack, a missing JSONL or a missing required artifact marks the session INVALID and exits 1. `digest` exits 1 on an invalid session | `sessionTails.test.mts`, `sessionStop.test.mts`, `st-payload.test.mts` (ack), `sessionDigest.test.mts` (missing JSONL = invalid) |
+| AS-23 evidence | `lib/sessionPageReads.mts` + `lib/sessionArtifacts.mts`: every live verb records the observed chat (`trackChat`), stop exports every chat created since `chatsBefore`, `wizard-drafts.json`, `runtime-<chatId>.json` (the whole `chat_metadata.story_orchestrator`: engine history, effect ledger, chapter store; `runtimeProblems` checks them), `transcripts.jsonl` with swipes, and each flag's context at event time (`contextFrom`). Required per-charter artifact counts (`requiredArtifacts`) are verified at stop | `sessionArtifacts.test.mts`, `sessionPageReads.test.mts`, `sessionDigest.test.mts` (event-time flag context) |
+| AS-24 private-block anomaly | Payload captures carry `chatId`, `boundary`, `lastMessageId`, `draftMemberName`. The digest matches a capture only to its own chat's end state, names the member by `draftMemberName` or a same-epoch index, and reconstructs what the member held at capture time from each item's message/boundary provenance (`heldAtCapture`); anything it cannot place counts as unverifiable, never as a finding | `sessionDigest.test.mts`: cross-chat negative, acquired-later negative, unverifiable count, planted positive |
+| AS-25 chapters and harvest | T4-1 now plays `adolion-saga` with `chapters {seal, storySoFar, fold}` and rubric row "rollback: chapters" (academy carries no chapters); T2-3 sets `chapters.fold`; `requiredFeatures` refuses a start whose pinned story lacks the chapters the card needs; `requiredArtifacts` requires chapter records, folded payloads and harvested reasoning (`HARVEST_HEADER`, the same header `src/memory/innerRender.ts` writes) whenever the effective settings enable them | `sessionArtifacts.test.mts`, `sessionCharters.test.mts` (AS-25) |
+| AS-26 baseline settings | `test/sessions/baseline-settings.json` (versioned, judge on, images/sprites off, spikes off) + `lib/sessionBaseline.mts`: the root→card override chain is merged over the baseline, applied over the lane's settings keeping only the declared install-owned paths, read back from the page and asserted (`effectiveProblems`); recorded in `session.json`. `src/runtime/sessionBaseline.test.ts` fails when `defaultGlobalSettings` gains a leaf the baseline does not state. Per the 2026-10-01 decision there is no notice gate: the earlier acknowledge step was removed, and no `acknowledgeJudgeNotice` handle is assumed | `sessionBaseline.test.mts`, `sessionBaseline.test.ts` (jest) |
+| AS-27 no-media variant | `start --media off` is the default: images and sprites stay off, ComfyUI calls in the lane log fail the session (`comfyCalls`). T3-1 asks for images/sprites but its recorded variant is no-media; its media rubric rows are written `unexercised` (a score there is refused, `rubricSummary` never counts them green). Pre-rendered sprites may still show (`mediaPlan`). `--media on` still needs `--allow-comfy` | `sessionCharters.test.mts` (AS-27), `sessionBaseline.test.mts` (mediaPlan) |
+| AS-28 blind gates | `lib/ratingPack.mts`: C3 (T3-1), R4 (T6-1), Q-M (T2-1), W6 (T5-1) build paired, shuffled (seeded), unlabelled packs under `test/sessions/rating-pack/<gate>/`, with the arm key in a separate file and any human verdict preserved by pair id. `gateStatus` is always `pending`; nothing here can turn a gate green. Live verbs take `--arm`/`--gate` tags so the pairs come from recorded turns | `ratingPack.test.mts`, `sessionCharters.test.mts` (gate rows need a user reviewer) |
+| AS-29 lanes | `planLanes` schedules from the transitive continuation graph across tiers (tier order, reservations `fromTier`/`untilTier`, waves); a lane holding a chat a later card continues is leased (`<lanes>/<n>/lease.json`), `adolion-fresh seed` refuses a leased lane unless `--for <dependent>` or `--break-lease`, and `so-session lane archive|restore|lease` moves `data`, `adolion-fresh` and the lease aside and back. `lane-plan.json` regenerated; `plan --check` reports drift | `sessionLanes.test.mts` (+6) |
+| AS-11 tooling | `index` reads whatever commit the pin names, records per-story `features` (chapters, chapter assignments, drives, motives, member guidance) and regenerates the story index and `14-cards.md` together; `validate` reports pin, baseline and plan drift and each card whose required features the pinned story lacks; `start` refuses such a card. T1-3 declares `requires.features: ["memberGuidance"]` | `sessionCharters.test.mts` (AS-11), `sessionArtifacts.test.mts` (featureProblems) |
+
+Deviations:
+
+- Outside the allowed dirs: `src/index.tsx` (dev global gains `resolveAgentHarness`), `src/studio/StudioModal.tsx` (`export const WIZARD_HARNESS`), `src/runtime/sessionBaseline.test.ts` (jest, because the baseline must be checked against the real `defaultGlobalSettings`) and `test/journeys/j14-agent-wizard.journey.json` (AS-21 names J14). `WIZARD_AGENT` is kept as is: the defect-replay mutant `studio-chunk-global-outlives-stop` targets that line.
+- The pin is still `5e2974b`, whose stories carry no chapters, drives, motives or member guidance, so `validate` reports 17 story-data problems and the preflight refuses the 8 cards that need them (T1-3, T2-1, T2-3, T2-5, T3-1, T3-2, T3-3, T4-1) until the pin moves (the readiness branch has the data; counting it was checked there). That refusal is the intended behaviour.
+- The debug skill and `.claude/rules/debug-scripts.md` are not updated (out of scope); `14-autonomous-runbook.md` carries the new start/stop/lane behaviour.
+- Not run: `bridge-check` (real opencode), any live session.
+
+### Gates
+
+`npm run gates` in this worktree, 2026-10-01, after merging master `ec5083e9`:
+
+| Step | Result |
+|---|---|
+| typecheck | ok (13.5 s) |
+| typecheck:test | ok (30.6 s) |
+| lint | ok (19.5 s) |
+| test | ok: 385 suites passed, 1 skipped; 5016 tests passed, 1 skipped (227.7 s) |
+| build | ok (25.1 s) |
+| build:dev | ok (29.1 s) |
+| test:debug | ok: 591 pass, 0 fail (13.1 s) |
+| test:release | ok: 82 pass, 2 skipped, 0 fail (5.2 s) |
+| test:replay | ok: 30 of 30 mutants killed (296.1 s) |
+| test:plugin | ok: 73 pass, 3 skipped, 0 fail (11.7 s) |
+| test-storybook:ci | **NOT green**: `serve-sb` could not bind port 6006 (`EADDRINUSE`, held by another session's process, left alone) |
+
+No `.stories.tsx` and no UI component changed here; Storybook still has to run from a checkout with the port free (or on master after merge) before this record is fully green.

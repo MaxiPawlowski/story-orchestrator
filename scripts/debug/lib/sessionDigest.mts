@@ -19,7 +19,9 @@ export interface Row<T = any> { line: number; value: T }
 export interface Evidence { path: string; line: number }
 export interface Anomaly { kind: AnomalyKind; at: string | null; chatId: string | null; summary: string; evidence: Evidence; detail?: Record<string, unknown> }
 export interface ChatMessage { id: number; name: string; isUser: boolean; text: string }
-export interface Flag { at: string; chatId: string | null; messageId: number; note: string; evidence: Evidence; context: ChatMessage[] }
+export interface Flag { at: string; chatId: string | null; messageId: number; note: string; evidence: Evidence; context: ChatMessage[]; contextFrom: 'event-time' | 'end-of-session' | 'none' }
+
+export interface EndState { characters?: Array<{ index: number; name: string }>; epistemic?: any[]; payloadEpoch?: string | null }
 
 export interface SessionFiles {
   session: { charter: string; tier: string; playFrom?: string | null; story?: { kind: string; id?: string } };
@@ -28,11 +30,33 @@ export interface SessionFiles {
   console: Row[];
   logs: Record<string, Row<string>[]>;
   chats: Record<string, ChatMessage[]>;
-  states: Record<string, { characters?: Array<{ index: number; name: string }>; epistemic?: any[] }>;
+  states: Record<string, EndState>;
   story: StoryIndexEntry | null;
+  turns?: Row[];
+  missing?: string[];
 }
 
-export interface Digest { charter: string; tier: string; flags: Flag[]; anomalies: Anomaly[]; counts: Record<string, number> }
+export interface Digest {
+  charter: string; tier: string; flags: Flag[]; anomalies: Anomaly[]; counts: Record<string, number>;
+  valid: boolean; invalid: string[]; unverifiable: { privateBlock: number };
+}
+
+export const REQUIRED_CAPTURES = ['journal.jsonl', 'payloads.jsonl', 'console.jsonl'] as const;
+
+const finite = (value: unknown): number | null => (typeof value === 'number' && Number.isFinite(value) ? value : null);
+
+export function heldAtCapture(item: any, capture: { boundary: number | null; lastMessageId: number | null }): boolean {
+  if (!PRIVATE_TAGS.includes(item?.tag)) return false;
+  const created = finite(item.createdAt);
+  const source = finite(item.messageId);
+  if (capture.boundary === null && capture.lastMessageId === null) return false;
+  if (capture.boundary !== null && (created === null || created >= capture.boundary)) return false;
+  if (capture.lastMessageId !== null && source !== null && source >= capture.lastMessageId) return false;
+  if (capture.boundary === null && source === null) return false;
+  const retired = item.retiredAt ? finite(item.retiredAt.boundary) : null;
+  if (item.supersededBy && (retired === null || capture.boundary === null || retired <= capture.boundary)) return false;
+  return true;
+}
 
 export const parseJsonl = (text: string): Row[] => text.split(/\r?\n/).flatMap((raw, at) => {
   if (!raw.trim()) return [];
@@ -73,14 +97,26 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
 
   const flags: Flag[] = [];
   const seenFlags = new Set<string>();
+  const flagTurns = (files.turns ?? []).filter((row) => row.value?.kind === 'flag' && Array.isArray(row.value?.context?.messages));
+  const eventContext = (at: unknown, note: string, chatId: string | null) => {
+    const exact = flagTurns.find((row) => row.value.flag?.at === at);
+    const byNote = flagTurns.filter((row) => String(row.value.note ?? '') === note && (!chatId || !row.value.context?.chatId || row.value.context.chatId === chatId));
+    return (exact ?? byNote[0])?.value.context ?? null;
+  };
   for (const row of played.filter((candidate) => candidate.value.kind === 'flag')) {
     const key = `${row.value.at}|${row.value.summary}`;
     if (seenFlags.has(key)) continue;
     seenFlags.add(key);
     const chatId = row.value.chatId ?? null;
+    const messageId = Number(row.value.messageId ?? -1);
+    const note = String(row.value.detail?.note ?? row.value.summary ?? '');
+    const atEvent = eventContext(row.value.at, note, chatId);
+    const fromEvent = atEvent ? contextFor(atEvent.messages as ChatMessage[], messageId >= 0 ? messageId : Number(atEvent.messageId ?? -1)) : [];
+    const fromEnd = contextFor(chatId ? files.chats[chatId] : undefined, messageId);
+    const context = fromEvent.length ? fromEvent : fromEnd;
     flags.push({
-      at: row.value.at, chatId, messageId: Number(row.value.messageId ?? -1), note: String(row.value.detail?.note ?? row.value.summary ?? ''),
-      evidence: { path: paths.journal, line: row.line }, context: contextFor(chatId ? files.chats[chatId] : undefined, Number(row.value.messageId ?? -1)),
+      at: row.value.at, chatId, messageId, note, evidence: { path: paths.journal, line: row.line }, context,
+      contextFrom: fromEvent.length ? 'event-time' : fromEnd.length ? 'end-of-session' : 'none',
     });
   }
 
@@ -163,23 +199,26 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
   }
 
   const reportedPrivate = new Set<string>();
+  let unverifiablePrivate = 0;
   for (const row of files.payloads) {
     const entry = row.value;
     if (!entry || entry.unparsed || entry.draftMember === null || entry.draftMember === undefined) continue;
     if (!inPlay(entry.capturedAt, playFrom)) continue;
     const body = typeof entry.body === 'string' ? entry.body : JSON.stringify(entry.body ?? '');
     if (!/"(?:prompt|messages)"/.test(body) || body.includes(PRIVATE_BLOCK_HEADER)) continue;
-    const captured = timeOf(entry.capturedAt);
-    for (const state of Object.values(files.states)) {
-      const name = (state.characters ?? []).find((character) => String(character.index) === String(entry.draftMember))?.name ?? (typeof entry.draftMember === 'string' ? entry.draftMember : null);
-      if (!name) continue;
-      const held = (state.epistemic ?? []).filter((item) => normalize(item.subject) === normalize(name) && PRIVATE_TAGS.includes(item.tag) && !item.supersededBy
-        && (captured === null || Number(item.createdAt ?? Infinity) < captured));
-      const key = `${entry.epoch ?? ''}|${entry.index ?? row.line}|${name}`;
-      if (!held.length || reportedPrivate.has(key)) continue;
-      reportedPrivate.add(key);
-      add('empty-private-block', row, paths.payloads, `${name} was drafted with no private block while holding ${held.length} private entr${held.length === 1 ? 'y' : 'ies'}`, { member: name, held: held.map((item) => `${item.tag}: ${item.content}`) });
-    }
+    const chatId = typeof entry.chatId === 'string' && entry.chatId ? entry.chatId : null;
+    const state = chatId ? files.states[chatId] : undefined;
+    const capture = { boundary: finite(entry.boundary), lastMessageId: finite(entry.lastMessageId) };
+    const sameEpoch = Boolean(state?.payloadEpoch) && state!.payloadEpoch === entry.epoch;
+    const name = typeof entry.draftMemberName === 'string' && entry.draftMemberName ? entry.draftMemberName
+      : sameEpoch ? (state!.characters ?? []).find((character) => String(character.index) === String(entry.draftMember))?.name ?? null
+        : typeof entry.draftMember === 'string' ? entry.draftMember : null;
+    if (!state || !name || (capture.boundary === null && capture.lastMessageId === null)) { unverifiablePrivate += 1; continue; }
+    const held = (state.epistemic ?? []).filter((item) => normalize(item.subject) === normalize(name) && heldAtCapture(item, capture));
+    const key = `${entry.epoch ?? ''}|${entry.index ?? row.line}|${name}`;
+    if (!held.length || reportedPrivate.has(key)) continue;
+    reportedPrivate.add(key);
+    add('empty-private-block', { ...row, value: { ...entry, chatId } }, paths.payloads, `${name} was drafted in ${chatId} at boundary ${capture.boundary ?? '?'} with no private block while holding ${held.length} private entr${held.length === 1 ? 'y' : 'ies'} acquired before it`, { member: name, chatId, boundary: capture.boundary, lastMessageId: capture.lastMessageId, held: held.map((item) => `${item.tag}: ${item.content} (boundary ${item.createdAt})`) });
   }
 
   for (const row of files.console) {
@@ -197,7 +236,11 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
 
   anomalies.sort((left, right) => (timeOf(left.at) ?? 0) - (timeOf(right.at) ?? 0) || ANOMALY_KINDS.indexOf(left.kind) - ANOMALY_KINDS.indexOf(right.kind));
   const counts = Object.fromEntries(ANOMALY_KINDS.map((kind) => [kind, anomalies.filter((anomaly) => anomaly.kind === kind).length]));
-  return { charter: files.session.charter, tier: files.session.tier, flags, anomalies, counts: { flags: flags.length, ...counts } };
+  const invalid = (files.missing ?? []).map((name) => `${name} is missing: zero anomalies from it would mean no evidence, not a clean run`);
+  return {
+    charter: files.session.charter, tier: files.session.tier, flags, anomalies, counts: { flags: flags.length, ...counts },
+    valid: invalid.length === 0, invalid, unverifiable: { privateBlock: unverifiablePrivate },
+  };
 }
 
 export function registerRows(digest: Digest, sessionDir: string) {
@@ -213,13 +256,15 @@ const cell = (value: string) => value.replace(/\|/g, '/').replace(/\r?\n/g, ' ')
 
 export function renderFindings(digest: Digest, sessionDir: string): string {
   const out = [`# Findings draft: ${digest.charter}`, '', `Session \`${sessionDir}\`. Draft rows for \`docs/plans/v2.6/14-findings.md\`; severity and class are decided in the review.`, ''];
+  if (!digest.valid) out.push('## INVALID SESSION', '', ...digest.invalid.map((line) => `- ${line}`), '', 'The counts below cover only what was captured.', '');
+  if (digest.unverifiable.privateBlock) out.push(`Private-block checks that could not be reconstructed (capture without chat, boundary or member identity): ${digest.unverifiable.privateBlock}.`, '');
   out.push('## Counts', '', `- flags: ${digest.flags.length}`, ...ANOMALY_KINDS.map((kind) => `- ${kind}: ${digest.counts[kind] ?? 0}`), '');
   out.push('## Flags', '');
   if (!digest.flags.length) out.push('None.', '');
   for (const flag of digest.flags) {
     out.push(`### ${flag.at} (message ${flag.messageId})`, '', `- note: ${flag.note || '(no note)'}`, `- evidence: \`${flag.evidence.path}:${flag.evidence.line}\``);
     if (flag.context.length) {
-      out.push('- context:');
+      out.push(`- context (${flag.contextFrom}):`);
       for (const message of flag.context) out.push(`  - ${message.id === flag.messageId ? '**' : ''}#${message.id} ${message.name}: ${cell(message.text).slice(0, 300)}${message.id === flag.messageId ? '**' : ''}`);
     }
     out.push('');

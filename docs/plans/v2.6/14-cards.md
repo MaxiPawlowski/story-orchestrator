@@ -282,6 +282,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Persona: The Nightriver heir leading a C-rank party at the King's council.
   - Starts at The King's War Council `war-the-summons`.
   - Settings: images off; sprites off.
+  - A crowded council is where per-member checkpoint guidance (guidance.members, each speaker's own steer) shows: the preflight refuses the start when the pinned War carries none.
 - **Drive:**
   1. **Talk to one person by name**, aims at The King's War Council `war-the-summons`. Speakers here: Narrator, Alexander, Forre, Haley, Vallie, Belle, Dalan.
      - Sample line: "Princess Haley, do you believe the rumour about your mother?"
@@ -317,6 +318,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - speaker direction (open questions)
   - cast changes
   - secrets kept
+- **Story data required:** memberGuidance (preflight refuses the start when the pinned build lacks it).
 - **Logged automatically:**
   - every talk decision with its source (rules, director, judge) and latency
   - judge director calls and fallbacks
@@ -536,6 +538,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Starts at Driftmere `driftmere`, seeded by `so-session start`.
   - Settings: images off; sprites off; chapters: seal on, storySoFar on, recap on.
   - Seeded at Driftmere so the Driftmere act ends and the Nightriver act begins inside the session.
+  - For the 07 Q-M pack: after the act change, ask about the first act with turn ... --arm chaptered, then setting <dir> memory.chapters.storySoFar false, swipe-new <dir> --arm plain on the same message, and switch storySoFar back on. The pairs go to test/sessions/rating-pack/Q-M/ unlabelled; the gate stays pending until the user rates them.
   - This chat is continued by T2-3 and T2-5: do not delete it.
 - **Drive:**
   1. **Hear Driftmere out**, aims at Driftmere `driftmere` or The First Descent `the-first-descent`. Serenola, the survivor at the Minotaur's Tusk, Naomi; then entered_mines.
@@ -578,7 +581,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - story so far / Previously
   - Memory tab
   - act change
-  - 07 Q-M legs: the chapter texts and their sources, for blind rating (recorded for the user's review, not decided by Claude)
+  - 07 Q-M legs: the chapter texts and their sources, for blind rating [blind gate Q-M: paired, shuffled, unlabelled artifacts go to test/sessions/rating-pack/; the gate stays pending until the user rates them] (recorded for the user's review, not decided by Claude)
 - **Logged automatically:**
   - every memory write, consolidation and chapter seal (journal)
   - extraction reads and canon passes
@@ -643,7 +646,8 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Setup:**
   - Story: `adolion-saga` (Adolion: The Saga); continues the T2-1 chat; author mode.
   - Persona: The same Saga persona as T2-1, played with Author view on.
-  - Settings: images off; sprites off.
+  - Settings: images off; sprites off; chapters: fold on.
+  - The fold arm (AS-25): on top of T2-1's seal and story-so-far, chapters.fold is on, so a generation sends the story so far in place of the sealed messages. so-session start asserts the setting landed, every turn records how many messages were folded, and stop refuses the session when no turn folded any.
   - Author mode: the memory queue (held and conflicted rows, Lock as canon) and the warden's note approval are author-only. The warden runs in its default review mode, so its note waits in the author Scheduler until you approve it.
 - **Drive:**
   1. **Contradict the seal**, aims at Home to Nightriver `nightriver-house` or Father's Summons `fathers-summons`. Say the opposite of how the Devourer ended.
@@ -674,6 +678,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - contradiction handling
   - memory queue
   - continuity warden
+  - chapter fold: the folded chapters still inform the replies; nothing the player needed vanished
 - **Logged automatically:**
   - held / conflicted memory rows
   - warden notes and judge memory checks
@@ -810,14 +815,15 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 
 ### T3-1 Everything on
 
-- **Question:** With the inner voice and the timeline on (images and sprites stay off in the autonomous run), what helps the story and what distracts?
+- **Question:** With everything on (inner voice, timeline, scene images, sprites), what helps the story and what distracts?
 - **Setup:**
   - Story: `adolion-deep` (Adolion: Crimsonwing & Ebonwing); fresh chat; player mode.
   - Persona: The Nightriver heir leading a C-rank party at the Guild counter.
   - Starts at Two Wings at One Counter `deep-joint-posting`.
-  - Settings: timeline level 1; images off; sprites off; inner voice harvest (#so-inner-harvest) on; inner voice beat (#so-inner-beat) on.
-  - Images and sprites stay OFF in the autonomous run: the shared ComfyUI at 127.0.0.1:8188 is forbidden (plan 15). The image and sprite beats are a known limit, not a finding.
+  - Settings: timeline level 1; images ON; sprites ON; inner voice harvest (#so-inner-harvest) on; inner voice beat (#so-inner-beat) on.
+  - The autonomous run is the recorded no-media variant (AS-27): so-session start T3-1 defaults to --media off, which writes images off and cannot reach the shared ComfyUI at 127.0.0.1:8188 (plan 15); sprites show only if the lane holds pre-rendered ones, which need no ComfyUI. Its scene-image and sprite rows are marked unexercised and never counted green, and stop fails the session if the lane log shows any ComfyUI call. The full variant is --media on --allow-comfy, only when nobody else renders there.
   - Both inner voice toggles are author-only, so so-session start sets them: #so-inner-harvest (harvestReasoning, read characters' reasoning for intent) and #so-inner-beat (innerBeat, a private beat for the next speaker).
+  - For the 06 C3 pack: when a reply follows an inner beat, take it with turn ... --arm beat, then setting <dir> memory.innerBeat false, swipe-new <dir> --arm plain on the same message, and setting <dir> memory.innerBeat true before playing on. Each such pair goes to test/sessions/rating-pack/C3/ unlabelled.
   - This chat is continued by T3-2.
 - **Drive:**
   1. **Choose a partner party**, aims at Crimsonwing at the North Gate `deep-with-crimsonwing` or Ebonwing at the North Gate `deep-with-ebonwing` or Kela and Ced `deep-kela-and-ced`. deep_partner crimsonwing or ebonwing (or refuse).
@@ -848,13 +854,15 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - inner voice
   - timeline at level 1
   - overall presentation
-  - 06 C3 inner voice leg: the beats and the replies they fed, for blind rating (recorded for the user's review, not decided by Claude)
+  - 06 C3 inner voice leg: the beats and the replies they fed, for blind rating [blind gate C3: paired, shuffled, unlabelled artifacts go to test/sessions/rating-pack/; the gate stays pending until the user rates them] (recorded for the user's review, not decided by Claude)
   - C5/C6 surface decisions: what helped and what distracted, as evidence (recorded for the user's review, not decided by Claude)
+  - scene images (images: unexercised in the no-media variant, never counted green)
+  - sprites (sprites: unexercised in the no-media variant, never counted green)
 - **Logged automatically:**
   - inner-voice beats (used, stale, missing)
   - prompts sent
 - **Known limits:**
-  - Images and sprites are off: ComfyUI is forbidden in the autonomous run (plan 15). Scene images and sprites are not rated.
+  - In the no-media variant scene images (and sprites, unless pre-rendered) are unexercised: ComfyUI is forbidden in the autonomous run (plan 15). Those rows are not rated and never count green.
   - Harvest needs replies that carry reasoning and the knowledge tracking profile; if it shows Idle, record that.
   - The 06 C3 leg and the C5/C6 decisions are recorded for the user's review, not decided by Claude.
 
@@ -1078,10 +1086,11 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 
 - **Question:** When the player swipes, edits and deletes at every feature's moment, do story, memory, timeline and saves still agree?
 - **Setup:**
-  - Story: `adolion-academy` (Adolion: House Nightriver); fresh chat; player mode.
+  - Story: `adolion-saga` (Adolion: The Saga); fresh chat; player mode.
   - Persona: A Nightriver heir who keeps changing their mind.
-  - Starts at Home to Nightriver `nightriver-house`.
-  - Settings: images off; sprites off; inner voice harvest (#so-inner-harvest) on; inner voice beat (#so-inner-beat) on; chapters: seal on, storySoFar on; curator on (review).
+  - Starts at Home to Nightriver `nightriver-house`, seeded by `so-session start`.
+  - Settings: images off; sprites off; inner voice harvest (#so-inner-harvest) on; inner voice beat (#so-inner-beat) on; chapters: seal on, storySoFar on, fold on; curator on (review).
+  - AS-25: the mutations run on the Saga's Nightriver act, a genuinely chaptered story (plan 07 leaves the standalone Academy chapterless), so a swipe, edit or delete has a sealed chapter to unfold. The preflight refuses the start when the pinned Saga has no chapters, and stop refuses a session that sealed none.
   - The inner voice toggles (#so-inner-harvest, #so-inner-beat) are author-only; so-session start sets both.
 - **Drive:**
   1. **Swipe a transition**, aims at Father's Summons `fathers-summons`. path = witch_king; swipe the reply that moved it.
@@ -1096,7 +1105,9 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - After each mutation, the HUD, Memory tab and timeline agree with the chat; the Overview says 'the current scene' in plain words rather than naming internals. *(Overview)*
   - The step-back notice names the checkpoint you returned to. *(Overview)*
   - A pending curator proposal from a deleted reply is withdrawn. *(chat)*
+  - Rolling back past a chapter seal unfolds that chapter: its record leaves the Overview and the sealed messages come back into play. *(Overview)*
 - **Must not happen** (press the flag at once):
+  - A sealed chapter survives the rollback of the messages it sealed.
   - A fact from an edited-away line remains in memory.
   - The story stays ahead of the chat after a swipe.
   - A chat message disappears that you did not delete.
@@ -1110,6 +1121,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
 - **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - rollback: story
   - rollback: memory
+  - rollback: chapters
   - rollback: timeline
   - saves after mutations
 - **Logged automatically:**
@@ -1256,6 +1268,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Start from the settings panel: New story (wizard).
   - Use the wizard's Agent entry with Agent mode 'review': every change waits for you and each change card has Reject. The Step by step entry has no per-item reject.
   - Once the story is saved and its group's chat is open, run so-session adopt <dir>: T5-3 and T5-4 continue that chat.
+  - For the 11 W6 pack, start the first run with --arm agent; a second run on the same premise with --arm staged uses the Step by step entry instead. stop exports each run's draft and pairs the two stories by premise, unlabelled, in test/sessions/rating-pack/W6/.
 - **Drive:**
   1. **Premise and interview**. Paste the premise; answer the wizard's questions, use 'You decide' once.
      - Sample line: "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
@@ -1286,6 +1299,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - review mode
   - provisioning
   - playability of the result
+  - 11 W6 leg: the finished story, paired with the other wizard arm's on the same premise, for blind rating [blind gate W6: paired, shuffled, unlabelled artifacts go to test/sessions/rating-pack/; the gate stays pending until the user rates them] (recorded for the user's review, not decided by Claude)
 - **Logged automatically:**
   - the wizard transcript and every tool call
   - created assets (the wizard ledger)
@@ -1463,6 +1477,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - Starts at The Guild Hall `guild-hall`.
   - Settings: images off; sprites off.
   - Apply one row of docs/plans/v2.6/recommended-reasoning.md per run (settings panel, per role), and note which in the rubric.
+  - For the 05 R4 pack: at a climax, take the reply with turn ... --arm reasoning, switch the row off with setting <dir> <path> <value>, swipe-new <dir> --arm plain on the same message, then restore the row. The pairs go to test/sessions/rating-pack/R4/ unlabelled.
 - **Drive:**
   1. **Replay the hall**, aims at The Road North `road-to-wendhope`. Same lines as T1-1.
      - Sample line: "We'll take Wendhope. Call us the Grey Pennants."
@@ -1484,7 +1499,7 @@ Pinned Adolion build `5e2974bdfa534af1fc99b011db7c4944bf40d0df`. 36 cards. Start
   - reasoning setting (name it)
   - latency
   - extraction quality
-  - 05 R4 leg: replies per setting, for blind rating (recorded for the user's review, not decided by Claude)
+  - 05 R4 leg: replies per setting, for blind rating [blind gate R4: paired, shuffled, unlabelled artifacts go to test/sessions/rating-pack/; the gate stays pending until the user rates them] (recorded for the user's review, not decided by Claude)
 - **Logged automatically:**
   - reasoning exhausted / empty reply events
   - model-call latency per pass
