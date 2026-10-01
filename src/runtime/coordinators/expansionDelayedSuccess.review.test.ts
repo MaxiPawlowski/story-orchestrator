@@ -9,7 +9,7 @@ import { ExpansionCoordinator } from "./expansionCoordinator";
 const root = join(__dirname, "..", "..", "..");
 const raw = JSON.parse(readFileSync(join(root, "test/fixtures/background-generation.story.json"), "utf-8"));
 const story = parseStoryV2OrThrow(raw);
-const good = readFileSync(join(root, "test/goldens/background-generator1.response.txt"), "utf-8");
+const good = readFileSync(join(root, "test/goldens/background-generator-played.response.txt"), "utf-8");
 const candidate = findStubExpansionCandidate(story, "start")!;
 
 const harness = (switchDuring: "generation" | "critic" | null) => {

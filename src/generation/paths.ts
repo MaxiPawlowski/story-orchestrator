@@ -1,4 +1,4 @@
-import type { GateNode, PrimitiveValue, ScaffoldingDelta } from "@engine/index";
+import { renderGateText, type GateLeaf, type GateNode, type PrimitiveValue, type ScaffoldingDelta } from "@engine/index";
 import type { GeneratedBeat, GeneratedOutcome } from "./types";
 
 // A generated beat with several outcomes is several routes, and both the code
@@ -34,6 +34,49 @@ export const applyOutcome = (values: Record<string, PrimitiveValue>, outcome: Pi
   applyDeltas({ ...values, ...gatePins(outcome.gate) }, outcome.deltas);
 
 const pathKey = (path: Record<string, PrimitiveValue>) => JSON.stringify(Object.keys(path).sort().map((name) => [name, path[name]]));
+
+const leafKnown = (leaf: GateLeaf, value: PrimitiveValue | undefined): boolean | null => {
+  if (value === undefined) return null;
+  if (leaf.op === "==") return value === leaf.v;
+  if (leaf.op === "!=") return value !== leaf.v;
+  if (leaf.op === "in") return Array.isArray(leaf.v) && leaf.v.includes(value);
+  if (typeof value !== "number" || typeof leaf.v !== "number") return null;
+  if (leaf.op === ">=") return value >= leaf.v;
+  if (leaf.op === "<=") return value <= leaf.v;
+  if (leaf.op === ">") return value > leaf.v;
+  return value < leaf.v;
+};
+
+export const gateKnown = (gate: GateNode, values: Record<string, PrimitiveValue>): boolean | null => {
+  if ("q" in gate) return leafKnown(gate, values[gate.q]);
+  if ("not" in gate) {
+    const inner = gateKnown(gate.not, values);
+    return inner === null ? null : !inner;
+  }
+  const parts = ("all" in gate ? gate.all : gate.any).map((entry) => gateKnown(entry, values));
+  const decisive = "all" in gate ? false : true;
+  if (parts.includes(decisive)) return decisive;
+  return parts.includes(null) ? null : !decisive;
+};
+
+export const gatesHeldOnEntry = (entry: Record<string, PrimitiveValue>, beats: GeneratedBeat[]): string[] => {
+  const issues = new Set<string>();
+  let states = [entry];
+  beats.forEach((beat, index) => {
+    const next = new Map<string, Record<string, PrimitiveValue>>();
+    for (const state of states) {
+      for (const outcome of beat.outcomes) {
+        if (gateKnown(outcome.gate, state) === true) {
+          issues.add(`beat ${index + 1} outcome '${outcome.label}' gate ${renderGateText(outcome.gate)} already holds when the beat starts, so the beat would pass without being played`);
+        }
+        const after = applyOutcome(state, outcome);
+        next.set(pathKey(after), after);
+      }
+    }
+    states = [...next.values()].slice(0, MAX_OUTCOME_PATHS);
+  });
+  return [...issues];
+};
 
 /** Every value-vector a chain can end in, one per route. Empty means "too many routes to check". */
 export const outcomePaths = (start: Record<string, PrimitiveValue>, beats: GeneratedBeat[]): Record<string, PrimitiveValue>[] => {

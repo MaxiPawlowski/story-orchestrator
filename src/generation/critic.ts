@@ -2,7 +2,7 @@ import { progressQualityForAnchor, thresholdFor, type GateLeaf, type GateNode, t
 import { askText, type ModelAsk, type ModelCall } from "@extraction/modelRoute";
 import { renderCriticPrompt } from "./prompts";
 import { parseCriticVerdict } from "./parse";
-import { outcomePaths } from "./paths";
+import { gatePins, gatesHeldOnEntry, outcomePaths } from "./paths";
 import type { CodeCheckResult, CriticVerdict, GeneratedBeat, PlannedExpansionInput } from "./types";
 
 const valuesEqual = (left: PrimitiveValue | undefined, right: PrimitiveValue) => left === right;
@@ -84,6 +84,8 @@ export function runCodeChecks(story: NormalizedStoryV2, input: PlannedExpansionI
       });
     });
   });
+
+  issues.push(...gatesHeldOnEntry({ ...latched, ...gatePins(input.candidate.transition.gate) }, beats));
 
   return { ok: issues.length === 0, issues, progressTotal };
 }
