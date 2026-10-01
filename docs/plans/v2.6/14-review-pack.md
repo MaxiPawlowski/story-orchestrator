@@ -14,6 +14,7 @@
 | 6 | **C4 option (c) consequence**: after a `/cp activate` jump, a checkpoint that relied on an inherited scenario plays unstaged | Keep (c) or revisit (b) | SP5 report |
 | 7 | **Campaign rewrites** I made from the findings: guidance stated as pressure not outcome (13 checkpoints), no closing "What do you do?", location `player_labels`, beat-title scene names (96), narrowed triggers, Spanish commit phrases removed | Skim the diff; veto anything | campaign `59e8821` |
 | 8 | **Judge per-lane rate** set from an assumed 90/min account budget (TypeSafe documents none) | Tell me your real TypeSafe limit if you know it | `14-findings.md` T1 harness |
+| 9 | **House-rules judge OFF by default** (first exception to rule 5): re-measured on the campaign's `{{user}}` wording, below floor (broken 0.667 vs 0.85, untouched 0.959 vs 0.966); the judge cannot see the world book | Confirm off; v2.7 seed to give it lore context | `test/fixtures/judge/adolion-house-rules.json`, `v2.7-seeds.md` |
 
 ## Tiers
 
