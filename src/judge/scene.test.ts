@@ -67,19 +67,36 @@ describe("scene read questions (v2.2 plan 03)", () => {
 });
 
 describe("scene read calibration (real answers, production shape)", () => {
+  const goldenOf = (name: string) => JSON.parse(readFileSync(join(process.cwd(), "test/goldens/judge", name), "utf8")) as { recordedAt: string; model: string; calls: Array<{ state: unknown; questions: unknown; answers: Record<string, JudgeAnswer> }> };
   const replay = (name: string) => {
-    const golden = JSON.parse(readFileSync(join(process.cwd(), "test/goldens/judge", name), "utf8")) as { model: string; calls: Array<{ state: unknown; questions: unknown; answers: Record<string, JudgeAnswer> }> };
+    const golden = goldenOf(name);
     const byRequest = new Map(golden.calls.map((call) => [JSON.stringify([call.state, call.questions]), call.answers]));
     return async (request: JudgeRequest) => ({ answers: byRequest.get(JSON.stringify([request.state, request.questions])) ?? null, model: golden.model, latencyMs: 0, stateChars: 0, questionCount: Object.keys(request.questions).length, cached: false });
   };
-  const cases = (name: string) => JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/judge", name), "utf8")).rows as SceneCalibrationCase[];
+  const cases = (name: string) => JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/judge", name), "utf8")).rows as Array<SceneCalibrationCase & { addedAt?: string }>;
+  const addedSinceGolden = (name: string) => {
+    const recorded = goldenOf(name).recordedAt.slice(0, 10);
+    return new Set(cases(name).filter((row) => row.addedAt !== undefined && row.addedAt > recorded).map((row) => row.id));
+  };
 
-  it("R01–R21 + S01–S22 (both shapes): every built family at its Phase A floor", async () => {
-    const report = await runSceneCalibration(replay("scene.json"), cases("scene.json"));
+  it("recorded rows (both shapes): every built family at its Phase A floor; only rows added after the golden go unanswered", async () => {
+    const pending = addedSinceGolden("scene.json");
+    const report = await runSceneCalibration(replay("scene.json"), cases("scene.json").filter((row) => !pending.has(row.id)));
     expect(report.rows.filter((row) => row.picked === null)).toEqual([]);
     const scores = sceneFamilyScores(report);
     expect(scores.map((row) => row.family)).toEqual(["present", "location", "time", "heading", "break", "nobreak"]);
     expect(scores.filter((row) => !row.ok)).toEqual([]);
+    const late = await runSceneCalibration(replay("scene.json"), cases("scene.json").filter((row) => pending.has(row.id)));
+    expect(late.rows.filter((row) => row.picked !== null)).toEqual([]);
+  });
+
+  it("the present family is well powered in English (AS-16): >= 60 labels, >= 25 of each polarity", () => {
+    const rows = cases("scene.json");
+    const labels = rows.flatMap((row) => Object.values(row.labels.present ?? {}));
+    expect(rows.every((row) => row.lang === "en")).toBe(true);
+    expect(labels.length).toBeGreaterThanOrEqual(60);
+    expect(labels.filter(Boolean).length).toBeGreaterThanOrEqual(25);
+    expect(labels.filter((label) => !label).length).toBeGreaterThanOrEqual(25);
   });
 
   it("held-out breaks: no false trigger, recall over the regex's 50%", async () => {

@@ -9,7 +9,7 @@
     "nobreak": 1
   },
   "labelledAt": "2026-09-19",
-  "source": "Promoted from scripts/spike/typesafe/data/scene-read.json (windows R01-R21) and scenes.json (S01-S22, each twice: inside the full state, and trigger-only as `<id>t`). Labels were written before any answer was read. OOC is not included: it failed Phase A and is not built.",
+  "source": "Promoted from scripts/spike/typesafe/data/scene-read.json (windows R01-R21) and scenes.json (S01-S22, each twice: inside the full state, and trigger-only as `<id>t`). Labels were written before any answer was read. OOC is not included: it failed Phase A and is not built. R22-R31 are English window rows added 2026-10-01 (v2.6 plan 15, AS-16; `addedAt`), labelled before any answer was read, to power the `present` family after W25 removed R05/R06/R11/R16/R21: hard positives (asleep, silent, arriving last) and hard negatives (named, quoted, gone elsewhere, left mid-window). The replay golden predates them, so they are unanswered until the live re-measure records it.",
   "rows": [
     {
       "id": "R01",
@@ -1351,6 +1351,862 @@
         "time": "evening",
         "heading": {
           "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R22",
+      "kind": "window",
+      "lang": "en",
+      "addedAt": "2026-10-01",
+      "input": {
+        "storyTitle": "The Goblin Contract",
+        "checkpointName": "Guild Briefing",
+        "objective": "Accept the goblin extermination quest from the guild.",
+        "cast": [
+          {
+            "rosterId": "adolion_narrator",
+            "name": "Adolion Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "ellie",
+            "name": "Ellie",
+            "role": "The guild receptionist who hands out and stamps quests at the front desk"
+          },
+          {
+            "rosterId": "arryn",
+            "name": "Arryn",
+            "role": "The player's companion, an elf knight with a lance and plate armour"
+          },
+          {
+            "rosterId": "dalan",
+            "name": "Dalan",
+            "role": "The player's companion, an elf archer who hates being called cute"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "Market District",
+          "Brittleforest road",
+          "goblin warren"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Take the Quest",
+            "objective": "Accept the goblin quest at the reception desk."
+          },
+          {
+            "id": "r2",
+            "name": "Ride to Brittleforest",
+            "objective": "Travel to the village the goblins are raiding."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Adolion Narrator",
+            "text": "Morning light pours through the tall windows of the guild hall; adventurers crowd the reception desk."
+          },
+          {
+            "speaker": "Ellie",
+            "text": "\"Goblins near Brittleforest again,\" Ellie says, sliding a parchment across the desk. \"E Rank work, but the pay is fair.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I glance back at Arryn, still asleep with her head on a table by the door. \"Dalan will want in too, once he's back from buying arrows in the Market District.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "ellie": true,
+          "arryn": true,
+          "dalan": false
+        },
+        "location": "guild hall",
+        "time": "morning",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R23",
+      "kind": "window",
+      "lang": "en",
+      "addedAt": "2026-10-01",
+      "input": {
+        "storyTitle": "The Goblin Contract",
+        "checkpointName": "On the Road",
+        "objective": "Reach Brittleforest before nightfall.",
+        "cast": [
+          {
+            "rosterId": "adolion_narrator",
+            "name": "Adolion Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "ellie",
+            "name": "Ellie",
+            "role": "The guild receptionist who hands out and stamps quests at the front desk"
+          },
+          {
+            "rosterId": "arryn",
+            "name": "Arryn",
+            "role": "The player's companion, an elf knight with a lance and plate armour"
+          },
+          {
+            "rosterId": "dalan",
+            "name": "Dalan",
+            "role": "The player's companion, an elf archer who hates being called cute"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "Market District",
+          "Brittleforest road",
+          "goblin warren"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Ride to Brittleforest",
+            "objective": "Arrive at the village the goblins are raiding."
+          },
+          {
+            "id": "r2",
+            "name": "Return to Aegis City",
+            "objective": "Give up the quest and go back to the guild."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Adolion Narrator",
+            "text": "At midday the party is an hour out of Aegis City on the Brittleforest road. Arryn rides ahead on her grey mare, lance resting on her shoulder."
+          },
+          {
+            "speaker": "Dalan",
+            "text": "\"Ellie said the goblins hit the mill first,\" Dalan says from the cart, counting the arrows in his quiver. \"We should start there.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I nod and flick the reins. \"The mill, then. Keep moving.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "ellie": false,
+          "arryn": true,
+          "dalan": true
+        },
+        "location": "Brittleforest road",
+        "time": "midday",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R24",
+      "kind": "window",
+      "lang": "en",
+      "addedAt": "2026-10-01",
+      "input": {
+        "storyTitle": "The Goblin Contract",
+        "checkpointName": "The Warren",
+        "objective": "Clear the goblin warren.",
+        "cast": [
+          {
+            "rosterId": "adolion_narrator",
+            "name": "Adolion Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "ellie",
+            "name": "Ellie",
+            "role": "The guild receptionist who hands out and stamps quests at the front desk"
+          },
+          {
+            "rosterId": "arryn",
+            "name": "Arryn",
+            "role": "The player's companion, an elf knight with a lance and plate armour"
+          },
+          {
+            "rosterId": "dalan",
+            "name": "Dalan",
+            "role": "The player's companion, an elf archer who hates being called cute"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "guild hall",
+          "Market District",
+          "Brittleforest road",
+          "goblin warren"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Kill the Goblin Lord",
+            "objective": "Find and kill the Goblin Lord in the deepest chamber."
+          },
+          {
+            "id": "r2",
+            "name": "Flee the Warren",
+            "objective": "Get out of the tunnels alive."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Adolion Narrator",
+            "text": "Night. Torchlight gutters in the goblin warren where the tunnel splits in two; drums beat somewhere deeper in."
+          },
+          {
+            "speaker": "Arryn",
+            "text": "\"I hold this junction,\" Arryn says, planting her lance."
+          },
+          {
+            "speaker": "Dalan",
+            "text": "\"Then I scout left.\" Dalan slips into the dark side tunnel, and his footsteps fade until we cannot hear them at all."
+          },
+          {
+            "speaker": "Max",
+            "text": "I stay beside Arryn. \"When he's back, we push on to the Goblin Lord's chamber,\" I whisper."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "ellie": false,
+          "arryn": true,
+          "dalan": false
+        },
+        "location": "goblin warren",
+        "time": "night",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R25",
+      "kind": "window",
+      "lang": "en",
+      "addedAt": "2026-10-01",
+      "input": {
+        "storyTitle": "Shadows of Bathorya",
+        "checkpointName": "The Castle Gates",
+        "objective": "Get inside Castle Bathorya.",
+        "cast": [
+          {
+            "rosterId": "adolion_narrator",
+            "name": "Adolion Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "gabriel",
+            "name": "Gabriel Malvoraux",
+            "role": "An Elder Vampire, lord of Castle Bathorya"
+          },
+          {
+            "rosterId": "karos",
+            "name": "Karos",
+            "role": "A butler and hand-to-hand fighter travelling with the player"
+          },
+          {
+            "rosterId": "belle",
+            "name": "Belle",
+            "role": "A barbarian with a stone greataxe called Cleaver, travelling with the player"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "castle gates",
+          "great hall",
+          "crypts",
+          "Gragow ruins"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Enter the Castle",
+            "objective": "Get past the gates into Castle Bathorya."
+          },
+          {
+            "id": "r2",
+            "name": "Search Gragow",
+            "objective": "Explore the ruins of the Fallen City of Gragow."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Adolion Narrator",
+            "text": "The sun sets behind the iron gates of Castle Bathorya; a single lamp burns in a high window."
+          },
+          {
+            "speaker": "Belle",
+            "text": "\"Gabriel's up there somewhere, counting his silver.\" Belle spits and hefts Cleaver. \"Let's knock.\""
+          },
+          {
+            "speaker": "Karos",
+            "text": "Karos adjusts his gloves. \"One does not knock on a vampire's door, madam. One is invited.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I push on the gate. It swings open. \"Consider us invited.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "gabriel": false,
+          "karos": true,
+          "belle": true
+        },
+        "location": "castle gates",
+        "time": "evening",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R26",
+      "kind": "window",
+      "lang": "en",
+      "addedAt": "2026-10-01",
+      "input": {
+        "storyTitle": "Shadows of Bathorya",
+        "checkpointName": "The Great Hall",
+        "objective": "Learn what the vampire lord wants.",
+        "cast": [
+          {
+            "rosterId": "adolion_narrator",
+            "name": "Adolion Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "gabriel",
+            "name": "Gabriel Malvoraux",
+            "role": "An Elder Vampire, lord of Castle Bathorya"
+          },
+          {
+            "rosterId": "karos",
+            "name": "Karos",
+            "role": "A butler and hand-to-hand fighter travelling with the player"
+          },
+          {
+            "rosterId": "belle",
+            "name": "Belle",
+            "role": "A barbarian with a stone greataxe called Cleaver, travelling with the player"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "castle gates",
+          "great hall",
+          "crypts",
+          "Gragow ruins"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Bargain with Gabriel",
+            "objective": "Strike a deal with the vampire lord."
+          },
+          {
+            "id": "r2",
+            "name": "Search Gragow",
+            "objective": "Explore the ruins of the Fallen City of Gragow."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Adolion Narrator",
+            "text": "Night. The great hall is cold and empty; candles light themselves one by one along the walls. Belle stands beside you, Cleaver raised."
+          },
+          {
+            "speaker": "Karos",
+            "text": "\"Someone knows we are here,\" Karos murmurs, stepping in front of you."
+          },
+          {
+            "speaker": "Adolion Narrator",
+            "text": "A door at the far end opens and Gabriel Malvoraux walks in, smiling. \"Guests. How rare.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I step forward. \"We came to talk terms, my lord.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "gabriel": true,
+          "karos": true,
+          "belle": true
+        },
+        "location": "great hall",
+        "time": "night",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R27",
+      "kind": "window",
+      "lang": "en",
+      "addedAt": "2026-10-01",
+      "input": {
+        "storyTitle": "Shadows of Bathorya",
+        "checkpointName": "The Fallen City",
+        "objective": "Find the reliquary in Gragow.",
+        "cast": [
+          {
+            "rosterId": "adolion_narrator",
+            "name": "Adolion Narrator",
+            "role": "The narrator: describes places, crowds, weather, dangers and anyone who is not in the cast"
+          },
+          {
+            "rosterId": "gabriel",
+            "name": "Gabriel Malvoraux",
+            "role": "An Elder Vampire, lord of Castle Bathorya"
+          },
+          {
+            "rosterId": "karos",
+            "name": "Karos",
+            "role": "A butler and hand-to-hand fighter travelling with the player"
+          },
+          {
+            "rosterId": "belle",
+            "name": "Belle",
+            "role": "A barbarian with a stone greataxe called Cleaver, travelling with the player"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "castle gates",
+          "great hall",
+          "crypts",
+          "Gragow ruins"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Find the Reliquary",
+            "objective": "Locate the reliquary in the ruined chapel."
+          },
+          {
+            "id": "r2",
+            "name": "Return to Bathorya",
+            "objective": "Go back to the castle with what you found."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Adolion Narrator",
+            "text": "The afternoon sun bakes the broken streets of Gragow; nothing moves among the ruins."
+          },
+          {
+            "speaker": "Karos",
+            "text": "\"Miss Belle has gone back to guard the camp,\" Karos says, \"and Lord Gabriel will expect the reliquary at the castle by nightfall.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I point at the bell tower of the ruined chapel. \"There. The reliquary will be in the chapel.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "gabriel": false,
+          "karos": true,
+          "belle": false
+        },
+        "location": "Gragow ruins",
+        "time": "afternoon",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R28",
+      "kind": "window",
+      "lang": "en",
+      "addedAt": "2026-10-01",
+      "input": {
+        "storyTitle": "The Drowned Abbey",
+        "checkpointName": "Arrival",
+        "objective": "Find out why the abbey's crypt is flooding.",
+        "cast": [
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the abbey, the water, the weather and anyone not in the cast"
+          },
+          {
+            "rosterId": "sister_maren",
+            "name": "Sister Maren",
+            "role": "A nun who guards the abbey's flooded crypt"
+          },
+          {
+            "rosterId": "tobin",
+            "name": "Tobin",
+            "role": "The player's squire, a nervous teenage boy"
+          },
+          {
+            "rosterId": "the_abbot",
+            "name": "The Abbot",
+            "role": "The abbey's elderly head, who rarely leaves his study"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "abbey courtyard",
+          "flooded crypt",
+          "abbot's study",
+          "village"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Descend to the Crypt",
+            "objective": "Go down into the flooded crypt."
+          },
+          {
+            "id": "r2",
+            "name": "Question the Abbot",
+            "objective": "Get the Abbot to explain the flooding."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "Dawn mist hangs over the abbey courtyard. Tobin waits by the well, holding the horses' reins."
+          },
+          {
+            "speaker": "Sister Maren",
+            "text": "Sister Maren unfolds a letter. \"The Abbot writes that he will not leave his study. He asks that you see the crypt first.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "\"Then the crypt it is. Show us the way down, Sister.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "sister_maren": true,
+          "tobin": true,
+          "the_abbot": false
+        },
+        "location": "abbey courtyard",
+        "time": "dawn",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R29",
+      "kind": "window",
+      "lang": "en",
+      "addedAt": "2026-10-01",
+      "input": {
+        "storyTitle": "The Drowned Abbey",
+        "checkpointName": "The Abbot's Secret",
+        "objective": "Learn what the Abbot is hiding.",
+        "cast": [
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the abbey, the water, the weather and anyone not in the cast"
+          },
+          {
+            "rosterId": "sister_maren",
+            "name": "Sister Maren",
+            "role": "A nun who guards the abbey's flooded crypt"
+          },
+          {
+            "rosterId": "tobin",
+            "name": "Tobin",
+            "role": "The player's squire, a nervous teenage boy"
+          },
+          {
+            "rosterId": "the_abbot",
+            "name": "The Abbot",
+            "role": "The abbey's elderly head, who rarely leaves his study"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "abbey courtyard",
+          "flooded crypt",
+          "abbot's study",
+          "village"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Descend to the Crypt",
+            "objective": "Go down into the flooded crypt."
+          },
+          {
+            "id": "r2",
+            "name": "Question the Abbot",
+            "objective": "Get the Abbot to explain the flooding."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "Evening. The Abbot's study smells of candle smoke and old paper; the old man sits behind a desk piled with charts of the river."
+          },
+          {
+            "speaker": "The Abbot",
+            "text": "\"Sister Maren has gone to evening prayers, and your squire is down in the village finding a smith, I hear. Good. What I say now is for you alone.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I pull up a chair. \"Then tell me why the crypt floods.\""
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "sister_maren": false,
+          "tobin": false,
+          "the_abbot": true
+        },
+        "location": "abbot's study",
+        "time": "evening",
+        "heading": {
+          "r1": false,
+          "r2": true
+        }
+      }
+    },
+    {
+      "id": "R30",
+      "kind": "window",
+      "lang": "en",
+      "addedAt": "2026-10-01",
+      "input": {
+        "storyTitle": "The Drowned Abbey",
+        "checkpointName": "The Flooded Crypt",
+        "objective": "Reach the sealed tomb.",
+        "cast": [
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the abbey, the water, the weather and anyone not in the cast"
+          },
+          {
+            "rosterId": "sister_maren",
+            "name": "Sister Maren",
+            "role": "A nun who guards the abbey's flooded crypt"
+          },
+          {
+            "rosterId": "tobin",
+            "name": "Tobin",
+            "role": "The player's squire, a nervous teenage boy"
+          },
+          {
+            "rosterId": "the_abbot",
+            "name": "The Abbot",
+            "role": "The abbey's elderly head, who rarely leaves his study"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "abbey courtyard",
+          "flooded crypt",
+          "abbot's study",
+          "village"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Open the Sealed Tomb",
+            "objective": "Break the seal on the tomb at the far end of the crypt."
+          },
+          {
+            "id": "r2",
+            "name": "Question the Abbot",
+            "objective": "Get the Abbot to explain the flooding."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "Night. Black water laps at the steps of the flooded crypt; Tobin's torch shakes in his hand."
+          },
+          {
+            "speaker": "Sister Maren",
+            "text": "\"Mind the third step,\" Sister Maren says, wading in ahead of you. \"It is gone.\""
+          },
+          {
+            "speaker": "Narrator",
+            "text": "Slow footsteps sound on the stair above: the Abbot himself comes down into the crypt, a lantern in one hand and his staff in the other."
+          },
+          {
+            "speaker": "Max",
+            "text": "I wade deeper, toward the sealed tomb at the far end."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "sister_maren": true,
+          "tobin": true,
+          "the_abbot": true
+        },
+        "location": "flooded crypt",
+        "time": "night",
+        "heading": {
+          "r1": true,
+          "r2": false
+        }
+      }
+    },
+    {
+      "id": "R31",
+      "kind": "window",
+      "lang": "en",
+      "addedAt": "2026-10-01",
+      "input": {
+        "storyTitle": "The Drowned Abbey",
+        "checkpointName": "Market Day",
+        "objective": "Get the sword mended before returning to the abbey.",
+        "cast": [
+          {
+            "rosterId": "narrator",
+            "name": "Narrator",
+            "role": "The narrator: describes the abbey, the water, the weather and anyone not in the cast"
+          },
+          {
+            "rosterId": "sister_maren",
+            "name": "Sister Maren",
+            "role": "A nun who guards the abbey's flooded crypt"
+          },
+          {
+            "rosterId": "tobin",
+            "name": "Tobin",
+            "role": "The player's squire, a nervous teenage boy"
+          },
+          {
+            "rosterId": "the_abbot",
+            "name": "The Abbot",
+            "role": "The abbey's elderly head, who rarely leaves his study"
+          }
+        ],
+        "player": "Max",
+        "locations": [
+          "abbey courtyard",
+          "flooded crypt",
+          "abbot's study",
+          "village"
+        ],
+        "reachable": [
+          {
+            "id": "r1",
+            "name": "Descend to the Crypt",
+            "objective": "Go down into the flooded crypt."
+          },
+          {
+            "id": "r2",
+            "name": "Question the Abbot",
+            "objective": "Get the Abbot to explain the flooding."
+          }
+        ],
+        "window": [
+          {
+            "speaker": "Narrator",
+            "text": "Mid-morning in the village: the market is loud with fishwives and carts."
+          },
+          {
+            "speaker": "Tobin",
+            "text": "\"The smith says he can mend your sword by noon,\" Tobin says, handing you a ticket. \"And Sister Maren sent word she'll meet us back at the abbey tonight.\""
+          },
+          {
+            "speaker": "Max",
+            "text": "I pocket the ticket and buy us both a hot pie."
+          }
+        ],
+        "families": {
+          "sceneBreak": true,
+          "tracker": true,
+          "lookahead": true
+        }
+      },
+      "labels": {
+        "present": {
+          "sister_maren": false,
+          "tobin": true,
+          "the_abbot": false
+        },
+        "location": "village",
+        "time": "morning",
+        "heading": {
+          "r1": false,
           "r2": false
         }
       }

@@ -76,6 +76,21 @@ describe("role calibration fixtures (labels frozen before any model answer)", ()
     }
   });
 
+  it("authoring hold-out (AS-16): five English rows over its own drafts, labelled apart from the fixture, every draft clean and every required kind allowed", () => {
+    const holdout = read("test/fixtures/role-calibration/authoring-holdout.json");
+    expect(holdout.draftsFrom).toBe("authoring-holdout.json");
+    expect(holdout.cases).toHaveLength(5);
+    expect(holdout.cases.every((entry: { lang: string }) => entry.lang === "en")).toBe(true);
+    expect(Object.keys(holdout.drafts).filter((name) => name in authoringFixture.drafts)).toEqual([]);
+    const fixtureIds = new Set((authoringFixture.cases as Array<{ id: string }>).map((entry) => entry.id));
+    expect(holdout.cases.filter((entry: { id: string }) => fixtureIds.has(entry.id))).toEqual([]);
+    for (const raw of holdout.cases as Array<Record<string, unknown>>) {
+      const entry = { ...(raw as unknown as AuthoringCalibrationCase), draft: holdout.drafts[raw.draft as string] as StoryV2 };
+      expect(validateProposal(entry.draft, []).blocking).toEqual([]);
+      expect(allowedStageKinds(renderStagePrompt(entry.stage, entry.draft, entry.message, [], entry.environment))).toContain(entry.require.kind);
+    }
+  });
+
   it("synthesis: 5 cases, no floor", () => {
     expect(synthesisFixture.cases).toHaveLength(5);
     expect(synthesisFixture.floors).toBeUndefined();
