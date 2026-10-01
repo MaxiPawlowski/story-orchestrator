@@ -1,0 +1,71 @@
+{
+ "spike": "SP5",
+ "restated": "docs/plans/v2.6/03-sp5-restated.md (1c4038ab + addenda 3f60ab76, addendum 2, addendum 3, each before its attempt)",
+ "lane": 2,
+ "bundle": "ceb15ac19ec0 (attempts 1-4); branch 15ff8e26ba2e on lane 2 only via a browser route (v5 attempts, includes 32527192)",
+ "attempts": [
+  {
+   "fixture": "lab as written",
+   "stoppedAt": "step 5",
+   "why": "no scenario ledger row after the saga import: import-time effects defect (hydrate joins a lapsed activate)"
+  },
+  {
+   "fixture": "v2 (reopen after import)",
+   "stoppedAt": "step 12",
+   "why": "check ran before the ~100-member cast apply finished"
+  },
+  {
+   "fixture": "v3 (+ ledger settle)",
+   "stoppedAt": "step 13",
+   "why": "bookkeeping check counted only applied rows; C4 jump release marks the departing row reverted"
+  },
+  {
+   "fixture": "v4 (+ reverted counted)",
+   "stoppedAt": "step 17",
+   "why": "a /cp activate jump to a checkpoint that authors no scenario leaves the override empty; path replay says east-landfall's (C4 release vs inheritance)"
+  },
+  {
+   "fixture": "v5 (branch bundle, no reopen, C4 option (c) expectations, other-group chat B, return to A before C, waits)",
+   "stoppedAt": "step 31 of 61 (C1 switching loop)",
+   "why": "the lab helper's goto could not leave chat A for chat B while A's 125-member hydrate was still writing the cast (still on A after 30 s); C1/C2/C3/C5 not reached"
+  }
+ ],
+ "probes": {
+  "probe3": "after import, ledger stuck at 2 rows (AN + 1 cast) for 300 s",
+  "probe-toy": "toy story on toy group: 1 scenario row, scenario written",
+  "probe4": "reopen, settle, /cp activate east-landfall: guild-hall row reverted, east-landfall applied, background applied"
+ },
+ "hydrateApplySeconds": [
+  56,
+  53,
+  49
+ ],
+ "productFix": "32527192 fix(effects): a hydrate never joins an activate the same world change made lapse (not staged)",
+ "result": "not decided: C4 PASS, import fix verified live; C1/C2/C3/C5 not reached",
+ "unblock": [
+  "merge + stage 32527192",
+  "fix the lab helper goto (openGroupById then wait for the group's chat list; wait out the hydrate before switching), or drive C1 with st-navigation between steps",
+  "re-run C1, C2, C3, C5 (x1), then the worth review"
+ ],
+ "residue": "all SP5 chats, solo chat and group mutes cleaned by hand after the last attempt (a chat-integrity popup wedged the page; lane 2 browser restarted per the gotcha); Fire and War's 13 mutes predate these runs",
+ "cost": {
+  "pod_minutes": 0,
+  "deepseek_calls_approx": 20,
+  "typesafe_calls": 0
+ },
+ "measured": {
+  "importFix": "PASS live: with 32527192 the saga import wrote guild-hall's scenario row without a reopen (ledger 116 rows when the step ran, scenario held) in 3 of 3 v5 attempts",
+  "hydratePathReplay": "guild-hall scenario after import; east-harvest-festival scenario after the path guild-hall > east-landfall > east-the-road-inland > east-harvest-festival",
+  "C4jump_optionC": "east-landfall writes; a jump to east-the-road-inland (authors none) leaves the pre-story empty override and reverts landfall's row, as option (c) specifies; 3 of 3 v5 attempts",
+  "C4": {
+   "A_saga": "PASS (8 enabled, 7 card scenarios, 4 distinct texts: story block once, 0 card texts with the override; APPEND control carries each text once per member)",
+   "B_academy": "PASS (6 enabled, 5 card scenarios, 2 distinct; same)",
+   "result": "PASS x1 on Adolion (both groups), 3 consecutive v5 attempts for A, 2 for B"
+  },
+  "C1": "not reached (harness: cross-group goto during a long hydrate)",
+  "C2": "not reached",
+  "C3": "not reached",
+  "C5": "not reached",
+  "cost": "each checkpoint apply on the 125-member group spends 40-110 s writing ~100 cast members before the scenario lands (settle times 49-110 s); a return to chat A re-wrote ~75 cast rows (101-110 s)"
+ }
+}

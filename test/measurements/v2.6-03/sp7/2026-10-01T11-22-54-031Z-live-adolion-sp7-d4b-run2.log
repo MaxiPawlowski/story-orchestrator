@@ -1,0 +1,127 @@
+2026-10-01T11:24:09.384Z 1/26 eval ok 1674ms
+2026-10-01T11:24:09.384Z 1/26 eval -> {"flag":true,"ringCleared":true,"chatId":"2026-10-01@08h24m06s920ms"}
+2026-10-01T11:24:09.391Z 2/26 eval ok 6ms
+2026-10-01T11:24:10.351Z 3/26 import_story ok 961ms
+2026-10-01T11:24:10.359Z 4/26 eval ok 7ms
+2026-10-01T11:24:10.359Z 4/26 eval -> {"loaded":"adolion-east","talk":true,"boundary":1}
+2026-10-01T11:24:14.796Z 5/26 slash ok 4438ms
+2026-10-01T11:24:16.456Z 6/26 wait ok 1659ms
+2026-10-01T11:24:16.575Z 7/26 eval ok 118ms
+2026-10-01T11:24:16.575Z 7/26 eval -> {"chatStart":2,"boundaryStart":3}
+2026-10-01T11:24:16.697Z 8/26 eval ok 122ms
+2026-10-01T11:24:16.697Z 8/26 eval -> {"pass":1,"boundary":3,"chat":2}
+2026-10-01T11:24:18.493Z 9/26 send ok 1796ms
+2026-10-01T11:24:21.459Z 10/26 slash ok 2966ms
+2026-10-01T11:24:22.982Z 11/26 wait ok 1523ms
+2026-10-01T11:24:22.989Z 12/26 eval ok 6ms
+2026-10-01T11:24:22.989Z 12/26 eval -> {"startedBoundary":4,"pickBoundary":5,"gong":"A bronze gong rolls across the sand. \"Group entry, Honami Ne"}
+2026-10-01T11:24:44.420Z 13/26 send_generate ok 21432ms
+2026-10-01T11:24:45.987Z 14/26 wait ok 1566ms
+2026-10-01T11:24:45.998Z 15/26 eval ok 10ms
+2026-10-01T11:24:45.998Z 15/26 eval -> {"chosen":"Honami","source":"rules","draw":{"kind":"talk","key":"talk","chatId":"2026-10-01@08h24m06s920ms","storyId":"adolion-east","boundary":5,"unit":0.09658022946678102},"drawsThisPass":1,"walkIfAllFiveEnabled":"Honami","east_upset":false,"entered":{"startedBoundary":4,"pickBoundary":5,"gong":"A bronze gong rolls across the sand. \"Group entry, Honami Ne"},"offline":"node lab/chance/chance-draws.mjs --chat '2026-10-01@08h24m06s920ms' --story adolion-east --boundary 5"}
+2026-10-01T11:24:49.088Z 16/26 eval ok 3091ms
+2026-10-01T11:24:49.088Z 16/26 eval -> {"rolledBack":true,"outcome":{"seq":16,"result":"applied","fromMessage":2,"at":"2026-10-01T11:24:46.933Z"},"boundary":3}
+2026-10-01T11:24:49.096Z 17/26 eval ok 7ms
+2026-10-01T11:24:49.096Z 17/26 eval -> {"pass":2,"boundary":3,"chat":2}
+2026-10-01T11:24:50.785Z 18/26 send ok 1689ms
+2026-10-01T11:24:53.641Z 19/26 slash ok 2855ms
+2026-10-01T11:24:55.184Z 20/26 wait ok 1542ms
+2026-10-01T11:24:55.191Z 21/26 eval ok 7ms
+2026-10-01T11:24:55.191Z 21/26 eval -> {"startedBoundary":4,"pickBoundary":5,"gong":"A bronze gong rolls across the sand. \"Group entry, Honami Ne"}
+2026-10-01T11:25:09.061Z 22/26 send_generate ok 13870ms
+2026-10-01T11:25:10.598Z 23/26 wait ok 1537ms
+2026-10-01T11:25:10.603Z 24/26 eval ok 6ms
+2026-10-01T11:25:10.604Z 24/26 eval -> {"chosen":"Honami","source":"rules","draw":{"kind":"talk","key":"talk","chatId":"2026-10-01@08h24m06s920ms","storyId":"adolion-east","boundary":5,"unit":0.09658022946678102},"drawsThisPass":1,"walkIfAllFiveEnabled":"Honami","east_upset":false,"entered":{"startedBoundary":4,"pickBoundary":5,"gong":"A bronze gong rolls across the sand. \"Group entry, Honami Ne"},"offline":"node lab/chance/chance-draws.mjs --chat '2026-10-01@08h24m06s920ms' --story adolion-east --boundary 5"}
+2026-10-01T11:25:10.609Z 25/26 eval ok 6ms
+2026-10-01T11:25:10.609Z 25/26 eval -> {"D4b":"same speaker","first":{"chosen":"Honami","source":"rules","draw":{"kind":"talk","key":"talk","chatId":"2026-10-01@08h24m06s920ms","storyId":"adolion-east","boundary":5,"unit":0.09658022946678102},"drawsThisPass":1,"walkIfAllFiveEnabled":"Honami","east_upset":false,"entered":{"startedBoundary":4,"pickBoundary":5,"gong":"A bronze gong rolls across the sand. \"Group entry, Honami Ne"},"offline":"node lab/chance/chance-draws.mjs --chat '2026-10-01@08h24m06s920ms' --story adolion-east --boundary 5"},"again":{"chosen":"Honami","source":"rules","draw":{"kind":"talk","key":"talk","chatId":"2026-10-01@08h24m06s920ms","storyId":"adolion-east","boundary":5,"unit":0.09658022946678102},"drawsThisPass":1,"walkIfAllFiveEnabled":"Honami","east_upset":false,"entered":{"startedBoundary":4,"pickBound
+2026-10-01T11:25:12.253Z 26/26 eval ok 1643ms
+2026-10-01T11:25:12.253Z 26/26 eval -> {"flag":false,"record":{"passes":[{"chosen":"Honami","source":"rules","draw":{"kind":"talk","key":"talk","chatId":"2026-10-01@08h24m06s920ms","storyId":"adolion-east","boundary":5,"unit":0.09658022946678102},"drawsThisPass":1,"walkIfAllFiveEnabled":"Honami","east_upset":false,"entered":{"startedBoundary":4,"pickBoundary":5,"gong":"A bronze gong rolls across the sand. \"Group entry, Honami Ne"},"offline":"node lab/chance/chance-draws.mjs --chat '2026-10-01@08h24m06s920ms' --story adolion-east --boundary 5"},{"chosen":"Honami","source":"rules","draw":{"kind":"talk","key":"talk","chatId":"2026-10-01@08h24m06s920ms","storyId":"adolion-east","boundary":5,"unit":0.09658022946678102},"drawsThisPass":1,"walkIfAllFiveEnabled":"Honami","east_upset":false,"entered":{"startedBoundary":4,"pickBoundary"
+2026-10-01T11:25:25.522Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-10-01T11-25-25-518Z_so-scenario-result.json
+2026-10-01T11:25:25.522Z {
+2026-10-01T11:25:25.522Z   "ok": true,
+2026-10-01T11:25:25.522Z   "steps": 26,
+2026-10-01T11:25:25.522Z   "cleanup": {
+2026-10-01T11:25:25.522Z     "generation": {
+2026-10-01T11:25:25.522Z       "idle": true,
+2026-10-01T11:25:25.522Z       "wasGenerating": false,
+2026-10-01T11:25:25.522Z       "stops": 0,
+2026-10-01T11:25:25.522Z       "waitedMs": 1638,
+2026-10-01T11:25:25.522Z       "lastSeen": {
+2026-10-01T11:25:25.522Z         "generating": false,
+2026-10-01T11:25:25.522Z         "saving": false,
+2026-10-01T11:25:25.522Z         "chatId": "2026-10-01@08h24m06s920ms",
+2026-10-01T11:25:25.522Z         "signals": []
+2026-10-01T11:25:25.522Z       }
+2026-10-01T11:25:25.522Z     },
+2026-10-01T11:25:25.522Z     "importedStoryHashes": [
+2026-10-01T11:25:25.522Z       "v2-ad97ac3a"
+2026-10-01T11:25:25.522Z     ],
+2026-10-01T11:25:25.522Z     "library": {
+2026-10-01T11:25:25.522Z       "changed": true,
+2026-10-01T11:25:25.522Z       "removed": [],
+2026-10-01T11:25:25.522Z       "restored": [
+2026-10-01T11:25:25.522Z         "adolion-east@7 (v2-ad97ac3a)"
+2026-10-01T11:25:25.522Z       ],
+2026-10-01T11:25:25.522Z       "saved": {
+2026-10-01T11:25:25.522Z         "status": 200
+2026-10-01T11:25:25.522Z       },
+2026-10-01T11:25:25.522Z       "verified": true
+2026-10-01T11:25:25.522Z     },
+2026-10-01T11:25:25.523Z     "clearedDebugResponses": [],
+2026-10-01T11:25:25.523Z     "soloChats": {
+2026-10-01T11:25:25.523Z       "deleted": [],
+2026-10-01T11:25:25.523Z       "leaked": []
+2026-10-01T11:25:25.523Z     },
+2026-10-01T11:25:25.523Z     "sandboxChatId": "2026-10-01@08h24m06s920ms",
+2026-10-01T11:25:25.523Z     "owned": [
+2026-10-01T11:25:25.523Z       "2026-10-01@08h24m06s920ms"
+2026-10-01T11:25:25.523Z     ],
+2026-10-01T11:25:25.523Z     "deleted": [
+2026-10-01T11:25:25.523Z       "2026-10-01@08h24m06s920ms"
+2026-10-01T11:25:25.523Z     ],
+2026-10-01T11:25:25.523Z     "notDeleted": [],
+2026-10-01T11:25:25.523Z     "resurrected": [],
+2026-10-01T11:25:25.523Z     "lateFileRepaired": [],
+2026-10-01T11:25:25.523Z     "saveSettleMs": 1534,
+2026-10-01T11:25:25.523Z     "skipped": [],
+2026-10-01T11:25:25.523Z     "currentChatAtCleanup": "2026-10-01@08h24m06s920ms",
+2026-10-01T11:25:25.523Z     "currentGroupAtCleanup": "1790852643626",
+2026-10-01T11:25:25.523Z     "chatAfterCleanup": "2026-10-01@08h04m03s398ms",
+2026-10-01T11:25:25.523Z     "branchChats": {
+2026-10-01T11:25:25.523Z       "recorded": [],
+2026-10-01T11:25:25.523Z       "deleted": [],
+2026-10-01T11:25:25.523Z       "failed": [],
+2026-10-01T11:25:25.523Z       "leaked": []
+2026-10-01T11:25:25.523Z     },
+2026-10-01T11:25:25.523Z     "mirrorBooks": {
+2026-10-01T11:25:25.523Z       "deleted": [],
+2026-10-01T11:25:25.523Z       "failed": [],
+2026-10-01T11:25:25.523Z       "leaked": []
+2026-10-01T11:25:25.523Z     },
+2026-10-01T11:25:25.523Z     "reapPrompts": {
+2026-10-01T11:25:25.523Z       "dismissed": [],
+2026-10-01T11:25:25.523Z       "leaked": []
+2026-10-01T11:25:25.523Z     },
+2026-10-01T11:25:25.523Z     "extraction": {
+2026-10-01T11:25:25.523Z       "restored": false,
+2026-10-01T11:25:25.523Z       "unchanged": true,
+2026-10-01T11:25:25.523Z       "settings": {
+2026-10-01T11:25:25.523Z         "enabled": true,
+2026-10-01T11:25:25.523Z         "cadence": 1,
+2026-10-01T11:25:25.523Z         "stabilityLag": 0,
+2026-10-01T11:25:25.523Z         "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T11:25:25.523Z         "profiles": {
+2026-10-01T11:25:25.523Z           "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T11:25:25.523Z           "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T11:25:25.523Z           "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T11:25:25.523Z           "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T11:25:25.523Z           "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+2026-10-01T11:25:25.523Z         }
+2026-10-01T11:25:25.523Z       }
+2026-10-01T11:25:25.523Z     },
+2026-10-01T11:25:25.523Z     "judge": {
+2026-10-01T11:25:25.523Z       "restored": false,
+2026-10-01T11:25:25.523Z       "unchanged": true
+2026-10-01T11:25:25.523Z     }
+2026-10-01T11:25:25.523Z   }
+2026-10-01T11:25:25.523Z }

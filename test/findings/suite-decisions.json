@@ -439,16 +439,15 @@
           "tier": "T7"
         },
         {
-          "id": "03-SP9-SP10",
-          "what": "witness filter F1-F4; tool-call turns Q1-Q3",
-          "minutes": 45,
+          "id": "03-SP10",
+          "what": "tool-call turns Q1-Q3 (SP9 witness filter dropped by v2.6 03, 2026-10-01)",
+          "minutes": 30,
           "capMinutes": 15,
-          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict test/scenarios/v25-09-witness-f4.json test/scenarios/v25-09-tool-turn.json",
-          "when": "each only if 03 records its include (SP9 witness filter, SP10 tool-call turns)",
-          "config": "adolion-fresh lane; F1/F2 with Summarize on and off as two rows (03)",
+          "command": "node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict test/scenarios/v25-09-tool-turn.json",
+          "when": "only if 03 records its include (SP10 tool-call turns)",
+          "config": "adolion-fresh lane",
           "artifacts": [
             "st-lanes batch summary",
-            "witness F4 labels score",
             "run header before + `so-run-header.mts diff` after"
           ],
           "originTier": "T2-2",

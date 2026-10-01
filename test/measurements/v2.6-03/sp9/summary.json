@@ -1,0 +1,129 @@
+{
+ "spike": "SP9",
+ "restated": "docs/plans/v2.6/03-sp9-restated.md (1c4038ab before any run; each diagnostic stated in a commit before it ran)",
+ "lane": 2,
+ "bundle": "ceb15ac19ec0",
+ "routes": {
+  "generations": "Artemis RunPod RP",
+  "f4": "presence (no model)"
+ },
+ "rows": {
+  "summarize_on": {
+   "result": "not measured",
+   "why": "generation 10 (Natalia) returned no reply and generation 11 (Shiya) sent no request once ST Summarize ran its own quiet pass at 10 messages; the record step never ran (raw/batch-f1f2f5-summarize-on.log)"
+  },
+  "summarize_off": {
+   "f1": {
+    "generations": 24,
+    "extrasChanged": 1,
+    "fileRowsChanged": 1,
+    "liveSymbolRows": []
+   },
+   "f2": {
+    "requests": 24,
+    "unwitnessedVisible": 41,
+    "witnessedMissing": 0,
+    "witnessedChecked": 432
+   },
+   "epistemicHits": 31,
+   "f5": {
+    "calls": 24,
+    "p95Ms": 0.3999999761581421,
+    "maxMs": 0.6000000238418579
+   }
+  },
+  "diag_vectors_write_only": {
+   "f1": {
+    "generations": 24,
+    "extrasChanged": 1,
+    "fileRowsChanged": 1,
+    "liveSymbolRows": []
+   },
+   "f2": {
+    "requests": 24,
+    "unwitnessedVisible": 48,
+    "witnessedMissing": 0,
+    "witnessedChecked": 432
+   },
+   "epistemicHits": 34,
+   "f5": {
+    "calls": 24,
+    "p95Ms": 0.5,
+    "maxMs": 0.5
+   },
+   "note": "runtime write of vectors.enabled_chats=false did not reach the Vector Storage extension (it keeps its own settings object), so Vector Storage was still on"
+  },
+  "diag2_leak_context": {
+   "f1": {
+    "generations": 24,
+    "extrasChanged": 1,
+    "fileRowsChanged": 1,
+    "liveSymbolRows": []
+   },
+   "f2": {
+    "requests": 24,
+    "unwitnessedVisible": 38,
+    "witnessedMissing": 0,
+    "witnessedChecked": 432
+   },
+   "epistemicHits": 25,
+   "f5": {
+    "calls": 24,
+    "p95Ms": 0.20000004768371582,
+    "maxMs": 0.40000009536743164
+   },
+   "note": "every leaked marker among the first 12 sits in a \"Past events:\" block (Vector Storage chat template); changed row: index 37 gained extra.reasoning \"\" (an ST host write)"
+  },
+  "diag3_vectors_off_reloaded": {
+   "f1": {
+    "generations": 24,
+    "extrasChanged": 1,
+    "fileRowsChanged": 1,
+    "liveSymbolRows": []
+   },
+   "f2": {
+    "requests": 24,
+    "unwitnessedVisible": 35,
+    "witnessedMissing": 0,
+    "witnessedChecked": 432
+   },
+   "epistemicHits": 15,
+   "f5": {
+    "calls": 24,
+    "p95Ms": 0.2999999523162842,
+    "maxMs": 0.3999999761581421
+   },
+   "note": "Vector Storage chats really off (saved, page reloaded): the remaining hits are model mimicry: Artemis ends generated replies with marker tokens such as \"[n01]\"; those replies are witnessed, so a marker search over the whole request reads them as leaks"
+  }
+ },
+ "F1": {
+  "bar": "chat file and live extra byte-identical before/after 20 generations",
+  "measured": "1 file row and 1 live extra changed in every row (the newest seeded row gains extra.reasoning \"\" from ST); 0 own symbols on live rows",
+  "result": "FAIL as declared (a host write, not the filter)"
+ },
+ "F2": {
+  "bar": "0 unwitnessed visible, 100 % witnessed kept",
+  "measured": "witnessed kept 432/432 in every row; unwitnessed visible 41 (Summarize off, the declared row), 48 and 38 (Vector Storage still on), 35 (Vector Storage off: model mimicry of markers)",
+  "result": "FAIL as declared (Summarize on: not measured)"
+ },
+ "F3": {
+  "result": "not run (F2 and F4 already fail; F3 cannot change the verdict)"
+ },
+ "F4": {
+  "bar": ">= 0.9 of 40 labelled messages",
+  "measured": "4/40 = 0.10 (presence, names only; exactly the lab prediction 4/40)",
+  "result": "FAIL"
+ },
+ "F5": {
+  "bar": "interceptor p95 <= 5 ms added",
+  "measured": "p95 0.40 / 0.50 / 0.50 / 0.30 ms over 24 calls per row",
+  "result": "PASS"
+ },
+ "toy": "witnessFilter.test.ts, witnessFilterHost.test.ts green before the removal",
+ "cost": {
+  "pod_minutes_approx": 40,
+  "deepseek_calls": 0,
+  "typesafe_calls": 0,
+  "generations": 106
+ }
+}

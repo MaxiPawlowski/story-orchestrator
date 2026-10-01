@@ -1,0 +1,145 @@
+2026-10-01T12:09:34.287Z 1/42 eval ok 14ms
+2026-10-01T12:09:34.287Z 1/42 eval -> {"flag":true,"before":{"recommitEdit":false,"swipeBackCache":false,"witnessFilter":false,"sp5Scenario":false,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":false,"sp8CuratorDigest":false,"reasoningEffect":false},"cadence":1,"judge":false,"group":"Adolion - Eshalanore"}
+2026-10-01T12:09:35.926Z 2/42 import_story ok 1639ms
+2026-10-01T12:09:37.519Z 3/42 wait ok 1594ms
+2026-10-01T12:09:38.061Z 4/42 expect ok 542ms
+2026-10-01T12:09:56.192Z 5/42 slash ok 18130ms
+2026-10-01T12:09:57.733Z 6/42 wait ok 1542ms
+2026-10-01T12:10:10.707Z 7/42 wait ok 12974ms
+2026-10-01T12:10:12.464Z 8/42 slash ok 1756ms
+2026-10-01T12:10:14.182Z 9/42 slash ok 1717ms
+2026-10-01T12:10:15.894Z 10/42 slash ok 1712ms
+2026-10-01T12:10:17.598Z 11/42 slash ok 1704ms
+2026-10-01T12:10:19.313Z 12/42 slash ok 1716ms
+2026-10-01T12:10:20.842Z 13/42 wait ok 1529ms
+2026-10-01T12:10:21.493Z 14/42 expect ok 650ms
+2026-10-01T12:10:23.190Z 15/42 send ok 1698ms
+2026-10-01T12:10:23.441Z 16/42 eval ok 250ms
+2026-10-01T12:10:23.441Z 16/42 eval -> {"id":3,"name":"The Lady of the Forest","swipes":1}
+2026-10-01T12:10:24.978Z 17/42 wait ok 1538ms
+2026-10-01T12:10:41.167Z 18/42 wait ok 16189ms
+2026-10-01T12:10:42.871Z 19/42 send ok 1704ms
+2026-10-01T12:10:43.161Z 20/42 eval ok 289ms
+2026-10-01T12:10:43.161Z 20/42 eval -> {"id":5,"name":"Elowyn","swipes":1}
+2026-10-01T12:10:44.718Z 21/42 wait ok 1558ms
+2026-10-01T12:11:18.457Z 22/42 wait ok 33738ms
+2026-10-01T12:11:20.183Z 23/42 send ok 1726ms
+2026-10-01T12:11:20.439Z 24/42 eval ok 256ms
+2026-10-01T12:11:20.439Z 24/42 eval -> {"id":7,"name":"Adolion Narrator","swipes":1}
+2026-10-01T12:11:22.002Z 25/42 wait ok 1563ms
+2026-10-01T12:11:50.072Z 26/42 wait ok 28070ms
+2026-10-01T12:11:50.080Z 27/42 eval ok 8ms
+2026-10-01T12:11:50.377Z 28/42 eval ok 297ms
+2026-10-01T12:11:50.377Z 28/42 eval -> {"leg":"editor","id":7,"at":1790856710083,"active":"esha-the-lady","stats":{"cycles":6,"recommits":0,"reads":6,"skipped":1}}
+2026-10-01T12:11:51.924Z 29/42 wait ok 1547ms
+2026-10-01T12:12:00.150Z 30/42 wait ok 8226ms
+2026-10-01T12:12:00.161Z 31/42 eval ok 10ms
+2026-10-01T12:12:00.161Z 31/42 eval -> {"leg":"editor","id":7,"at":1790856710083,"active":"esha-the-lady","stats":{"cycles":6,"recommits":0,"reads":6,"skipped":1},"reads":[],"after":{"active":"esha-the-lady","stats":{"cycles":7,"recommits":0,"reads":7,"skipped":1}}}
+2026-10-01T12:12:57.436Z 32/42 send_generate ok 57275ms
+2026-10-01T12:12:57.472Z 33/42 eval ok 36ms
+2026-10-01T12:12:57.472Z 33/42 eval -> {"leg":"editor","flag":true,"activeAtRequest":"esha-the-oath-taken","markers":["edit"],"reads":[],"before":{"cycles":6,"recommits":0,"reads":6,"skipped":1},"after":{"active":"esha-the-lady","stats":{"cycles":7,"recommits":0,"reads":7,"skipped":1}}}
+2026-10-01T12:13:15.910Z 34/42 wait ok 18437ms
+2026-10-01T12:13:16.055Z 35/42 eval ok 145ms
+2026-10-01T12:13:16.528Z 36/42 eval ok 473ms
+2026-10-01T12:13:16.528Z 36/42 eval -> {"leg":"recast","id":11,"at":1790856796098,"active":"esha-the-oath-taken","stats":{"cycles":7,"recommits":0,"reads":7,"skipped":1}}
+2026-10-01T12:13:18.098Z 37/42 wait ok 1570ms
+2026-10-01T12:13:53.047Z 38/42 wait ok 34948ms
+2026-10-01T12:13:53.056Z 39/42 eval ok 9ms
+2026-10-01T12:13:53.056Z 39/42 eval -> {"leg":"recast","id":11,"at":1790856796098,"active":"esha-the-oath-taken","stats":{"cycles":7,"recommits":0,"reads":7,"skipped":1},"reads":[{"reason":"cue:esha-the-oath-taken->esha-the-treeline","window":{"from":4,"to":11}},{"reason":"cadence","window":{"from":4,"to":11}}],"after":{"active":"esha-the-oath-taken","stats":{"cycles":8,"recommits":0,"reads":8,"skipped":2}}}
+2026-10-01T12:14:17.823Z 40/42 send_generate ok 24766ms
+2026-10-01T12:14:17.870Z 41/42 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: R4 recast: the request after the edit carries ["edit"], expected only recast :: {"leg":"recast","flag":true,"activeAtRequest":"esha-the-oath-taken","markers":["edit"],"reads":[{"reason":"cue:esha-the-oath-taken->esha-the-treeline","window":{"from":4,"to":11}},{"reason":"cadence","window":{"from":4,"to":11}}],"before":{"cycles":7,"recommits":0,"reads":7,"skipped":1},"after":{"active":"esha-the-oath-taken","stats":{"cycles":8,"recommits":0,"reads":8,"skipped":2}}}
+2026-10-01T12:14:17.870Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:744)
+2026-10-01T12:14:17.870Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:913)
+2026-10-01T12:14:17.870Z     at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+2026-10-01T12:14:17.870Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-10-01T12:14:17.870Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-10-01T12:14:19.075Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-10-01T12-14-19-033Z_so-scenario-failure.json
+2026-10-01T12:14:37.666Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-10-01T12-14-37-664Z_so-scenario-result.json
+2026-10-01T12:14:37.666Z {
+2026-10-01T12:14:37.666Z   "ok": false,
+2026-10-01T12:14:37.666Z   "steps": 41,
+2026-10-01T12:14:37.666Z   "cleanup": {
+2026-10-01T12:14:37.666Z     "generation": {
+2026-10-01T12:14:37.666Z       "idle": true,
+2026-10-01T12:14:37.666Z       "wasGenerating": true,
+2026-10-01T12:14:37.666Z       "stops": 9,
+2026-10-01T12:14:37.666Z       "waitedMs": 9829,
+2026-10-01T12:14:37.666Z       "lastSeen": {
+2026-10-01T12:14:37.666Z         "generating": false,
+2026-10-01T12:14:37.666Z         "saving": false,
+2026-10-01T12:14:37.666Z         "chatId": "2026-10-01@09h09m33s025ms",
+2026-10-01T12:14:37.666Z         "signals": []
+2026-10-01T12:14:37.666Z       }
+2026-10-01T12:14:37.666Z     },
+2026-10-01T12:14:37.666Z     "importedStoryHashes": [
+2026-10-01T12:14:37.666Z       "v2-439059aa"
+2026-10-01T12:14:37.666Z     ],
+2026-10-01T12:14:37.666Z     "library": {
+2026-10-01T12:14:37.666Z       "changed": true,
+2026-10-01T12:14:37.666Z       "removed": [],
+2026-10-01T12:14:37.666Z       "restored": [
+2026-10-01T12:14:37.666Z         "adolion-esha@7 (v2-439059aa)"
+2026-10-01T12:14:37.666Z       ],
+2026-10-01T12:14:37.666Z       "saved": {
+2026-10-01T12:14:37.666Z         "status": 200
+2026-10-01T12:14:37.666Z       },
+2026-10-01T12:14:37.666Z       "verified": true
+2026-10-01T12:14:37.666Z     },
+2026-10-01T12:14:37.666Z     "clearedDebugResponses": [],
+2026-10-01T12:14:37.666Z     "soloChats": {
+2026-10-01T12:14:37.666Z       "deleted": [],
+2026-10-01T12:14:37.666Z       "leaked": []
+2026-10-01T12:14:37.666Z     },
+2026-10-01T12:14:37.666Z     "sandboxChatId": "2026-10-01@09h09m33s025ms",
+2026-10-01T12:14:37.666Z     "owned": [
+2026-10-01T12:14:37.666Z       "2026-10-01@09h09m33s025ms"
+2026-10-01T12:14:37.666Z     ],
+2026-10-01T12:14:37.666Z     "deleted": [
+2026-10-01T12:14:37.666Z       "2026-10-01@09h09m33s025ms"
+2026-10-01T12:14:37.666Z     ],
+2026-10-01T12:14:37.666Z     "notDeleted": [],
+2026-10-01T12:14:37.666Z     "resurrected": [],
+2026-10-01T12:14:37.666Z     "lateFileRepaired": [],
+2026-10-01T12:14:37.666Z     "saveSettleMs": 1555,
+2026-10-01T12:14:37.666Z     "skipped": [],
+2026-10-01T12:14:37.666Z     "currentChatAtCleanup": "2026-10-01@09h09m33s025ms",
+2026-10-01T12:14:37.666Z     "currentGroupAtCleanup": "1790852643850",
+2026-10-01T12:14:37.666Z     "chatAfterCleanup": "2026-10-01@08h04m03s636ms",
+2026-10-01T12:14:37.666Z     "branchChats": {
+2026-10-01T12:14:37.666Z       "recorded": [],
+2026-10-01T12:14:37.666Z       "deleted": [],
+2026-10-01T12:14:37.666Z       "failed": [],
+2026-10-01T12:14:37.666Z       "leaked": []
+2026-10-01T12:14:37.666Z     },
+2026-10-01T12:14:37.666Z     "mirrorBooks": {
+2026-10-01T12:14:37.666Z       "deleted": [],
+2026-10-01T12:14:37.666Z       "failed": [],
+2026-10-01T12:14:37.666Z       "leaked": []
+2026-10-01T12:14:37.666Z     },
+2026-10-01T12:14:37.666Z     "reapPrompts": {
+2026-10-01T12:14:37.666Z       "dismissed": [],
+2026-10-01T12:14:37.666Z       "leaked": []
+2026-10-01T12:14:37.666Z     },
+2026-10-01T12:14:37.666Z     "extraction": {
+2026-10-01T12:14:37.666Z       "restored": false,
+2026-10-01T12:14:37.666Z       "unchanged": true,
+2026-10-01T12:14:37.666Z       "settings": {
+2026-10-01T12:14:37.666Z         "enabled": true,
+2026-10-01T12:14:37.666Z         "cadence": 1,
+2026-10-01T12:14:37.666Z         "stabilityLag": 0,
+2026-10-01T12:14:37.666Z         "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:14:37.666Z         "profiles": {
+2026-10-01T12:14:37.666Z           "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:14:37.666Z           "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:14:37.666Z           "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:14:37.666Z           "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:14:37.666Z           "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+2026-10-01T12:14:37.666Z         }
+2026-10-01T12:14:37.666Z       }
+2026-10-01T12:14:37.666Z     },
+2026-10-01T12:14:37.666Z     "judge": {
+2026-10-01T12:14:37.666Z       "restored": false,
+2026-10-01T12:14:37.666Z       "unchanged": true
+2026-10-01T12:14:37.666Z     }
+2026-10-01T12:14:37.666Z   }
+2026-10-01T12:14:37.666Z }

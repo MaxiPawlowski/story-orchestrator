@@ -1,0 +1,66 @@
+2026-10-01T12:25:20.796Z DIFF build.head  "1c4038abf910e6b5f0a104140efed3773ef31520" -> "7c553aa2c324421aa90a295614658c5cd3947c9c"
+2026-10-01T12:25:20.798Z WARNING: the page is running a bundle that is not the built one: served ceb15ac19ec07dec vs dist 5f1aa272c1addb25
+2026-10-01T12:25:20.798Z DIFF build.manifest  null -> undefined
+2026-10-01T12:25:20.798Z DIFF build.manifest.builtAt  undefined -> "2026-10-01T11:40:35.241Z"
+2026-10-01T12:25:20.798Z DIFF build.manifest.bundleBytes  undefined -> 1241915
+2026-10-01T12:25:20.798Z DIFF build.manifest.bundleSha256  undefined -> "5f1aa272c1addb2572b91e6ba888139d94e05e6c4b23bc5d1c4dbb5296ca7943"
+2026-10-01T12:25:20.798Z DIFF build.manifest.commit  undefined -> null
+2026-10-01T12:25:20.799Z DIFF build.manifest.fileSha256  undefined -> "156c0cefc7b87bc9"
+2026-10-01T12:25:20.799Z DIFF build.manifest.flavor  undefined -> "prod"
+2026-10-01T12:25:20.799Z DIFF build.manifest.hostVersion  undefined -> "1.19.0"
+2026-10-01T12:25:20.799Z DIFF build.manifest.sourceFiles  undefined -> 534
+2026-10-01T12:25:20.799Z DIFF build.manifest.sourceSha256  undefined -> "5bf80e1f21a420ba746adbc57f14d4c9c5e2a2557b7c2f6a043ba05c06dbfd81"
+2026-10-01T12:25:20.799Z DIFF build.manifest.version  undefined -> "2.4.0"
+2026-10-01T12:25:20.799Z DIFF chat.chatId  null -> "2026-10-01@08h04m03s864ms"
+2026-10-01T12:25:20.799Z ok   chat.chatLength  2 -> 1  (allowed by progress)
+2026-10-01T12:25:20.799Z DIFF chat.groupId  null -> "1790852643865"
+2026-10-01T12:25:20.799Z DIFF group.disabledMembers  +Alice.png +Camilla.png +Cassius.png +Erevan.png +Felthorn.png +Gabriel.png +Kayla.png +Kuromu.png +Lobo.png +Morrigan.png +Nalea.png +Ren.png +Selena.png +Vivie.png +Zariah.png
+2026-10-01T12:25:20.799Z DIFF group.members  +Adolion Narrator.png +Alice.png +Belle.png +Camilla.png +Cassius.png +Dalan.png +Erevan.png +Fael.png +Felthorn.png +Gabriel.png +Kayla.png +Kuromu.png +Lobo.png +Morrigan.png +Nalea.png +Nyl.png +Ren.png +Selena.png +Vivie.png +Zariah.png
+2026-10-01T12:25:20.799Z DIFF group.name  null -> "Adolion - Night Courts"
+2026-10-01T12:25:20.799Z DIFF spikes.recommitEdit  true -> false
+2026-10-01T12:25:20.799Z ok   story.activeCheckpointId  null -> "night-the-slums"  (allowed by progress)
+2026-10-01T12:25:20.799Z ok   story.boundary  null -> 1  (allowed by progress)
+2026-10-01T12:25:20.799Z DIFF story.contentHash  null -> "v2-1f312653"
+2026-10-01T12:25:20.799Z DIFF story.id  null -> "adolion-night"
+2026-10-01T12:25:20.799Z DIFF story.playedVersion  null -> 6
+2026-10-01T12:25:20.799Z DIFF story.title  null -> "Adolion: Night Courts"
+2026-10-01T12:25:20.799Z DIFF warnings  +the page is running a bundle that is not the built one: served ceb15ac19ec07dec vs dist 5f1aa272c1addb25 -dist/manifest.json names no bundle: what the page is running cannot be compared to a build
+2026-10-01T12:25:20.799Z {
+2026-10-01T12:25:20.799Z   "baseline": "test/measurements/v2.6-03/sp2/header-start.json",
+2026-10-01T12:25:20.799Z   "label": "diff-end",
+2026-10-01T12:25:20.799Z   "allow": [],
+2026-10-01T12:25:20.799Z   "differences": 26,
+2026-10-01T12:25:20.799Z   "progress": 3,
+2026-10-01T12:25:20.799Z   "blocking": 23,
+2026-10-01T12:25:20.799Z   "blockingPaths": [
+2026-10-01T12:25:20.799Z     "build.head",
+2026-10-01T12:25:20.799Z     "build.manifest",
+2026-10-01T12:25:20.799Z     "build.manifest.builtAt",
+2026-10-01T12:25:20.799Z     "build.manifest.bundleBytes",
+2026-10-01T12:25:20.799Z     "build.manifest.bundleSha256",
+2026-10-01T12:25:20.799Z     "build.manifest.commit",
+2026-10-01T12:25:20.799Z     "build.manifest.fileSha256",
+2026-10-01T12:25:20.799Z     "build.manifest.flavor",
+2026-10-01T12:25:20.799Z     "build.manifest.hostVersion",
+2026-10-01T12:25:20.799Z     "build.manifest.sourceFiles",
+2026-10-01T12:25:20.799Z     "build.manifest.sourceSha256",
+2026-10-01T12:25:20.799Z     "build.manifest.version",
+2026-10-01T12:25:20.799Z     "chat.chatId",
+2026-10-01T12:25:20.799Z     "chat.groupId",
+2026-10-01T12:25:20.799Z     "group.disabledMembers",
+2026-10-01T12:25:20.799Z     "group.members",
+2026-10-01T12:25:20.799Z     "group.name",
+2026-10-01T12:25:20.799Z     "spikes.recommitEdit",
+2026-10-01T12:25:20.799Z     "story.contentHash",
+2026-10-01T12:25:20.799Z     "story.id",
+2026-10-01T12:25:20.799Z     "story.playedVersion",
+2026-10-01T12:25:20.799Z     "story.title",
+2026-10-01T12:25:20.799Z     "warnings"
+2026-10-01T12:25:20.799Z   ],
+2026-10-01T12:25:20.799Z   "warnings": [
+2026-10-01T12:25:20.800Z     "dist/manifest.json names no bundle: what the page is running cannot be compared to a build",
+2026-10-01T12:25:20.800Z     "the page is running a bundle that is not the built one: served ceb15ac19ec07dec vs dist 5f1aa272c1addb25"
+2026-10-01T12:25:20.800Z   ],
+2026-10-01T12:25:20.800Z   "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+2026-10-01T12:25:20.800Z   "ok": false
+2026-10-01T12:25:20.800Z }

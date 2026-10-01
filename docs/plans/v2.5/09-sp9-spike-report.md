@@ -109,3 +109,28 @@ it the "no message-level hiding" stance, is decided after these legs.
   message text only; if the stance changes, keyword-activated lore from unwitnessed messages is a second leak to close.
 - Presence records are in memory: after a reload every older message is unrecorded and kept (fail-open), so the filter only
   hides what happened since the page loaded. A shipped version would need the witness source persisted.
+
+## v2.6 Adolion re-run (plan 03, 2026-10-01)
+
+Restated: `docs/plans/v2.6/03-sp9-restated.md` (committed before any run; each diagnostic committed before it ran; bars
+unchanged). Lane 2, adolion-fresh at `adolion-campaign@e1c91fb`, dev bundle `ceb15ac19ec0`, generations on
+`Artemis RunPod RP`, judge off on the lane copy. Data `lab/witness/` (House Nightriver, 37 seeded messages, 11 asides,
+24 generations, 40 pre-run labels). C5 (name-only presence) is in. Records: `test/measurements/v2.6-03/sp9/summary.json`.
+
+| # | Measured | Result |
+|---|---|---|
+| F1 | 1 seeded file row and 1 live `extra` changed per run (the newest seeded row gains `extra.reasoning: ""` from ST); 0 own symbols | FAIL as declared (host write, as in v2.5) |
+| F2 | Summarize on: **not measured** (Summarize's quiet pass at 10 messages blocked generations 10–11). Summarize off: witnessed kept 432/432, **41 unwitnessed visible**. Diagnostics: the leaked markers sit in ST Vector Storage's `Past events:` block (chat vectorization on in the seeded install); with Vector Storage really off (page reloaded) 35 hits remain, all model mimicry (Artemis ends replies with `[nNN]` marker tokens) | **FAIL** as declared |
+| F3 | not run: F2 and F4 already fail | — |
+| F4 | presence vs 40 labels: **4/40 = 0.10**, exactly the lab's prediction (presence is not hearing: asides, muted onlookers) | **FAIL** |
+| F5 | p95 0.3–0.5 ms over 24 calls | PASS |
+
+## Worth review (v2.6)
+
+| | |
+|---|---|
+| Value | None measured: the only witness source we have (scene presence) agrees with authored sets 10 % of the time, and two host channels (Summarize, Vector Storage) re-insert hidden messages whatever the filter does. |
+| Cost | 2 spike modules + wiring (prod +621 B flag and hook), interceptor < 1 ms. |
+| Surface | Would be an opt-in per story; none built. |
+| Risk | The stance change ("message-level hiding") would promise a privacy the host does not keep. |
+| Call | **drop.** Removed in this plan (`witnessFilter.ts`, `witnessFilterHost.ts`, `wiring/spikes.ts`, the `witnessFilter` flag, the census row, the `v25-09-witness*` fixtures, the final-suite row now SP10 only); D3 `DROPPED_SPIKES` + planted-import control. **The "no message-level hiding" stance stays**: private knowledge by prompt block only (C13 per-member guidance). v2.7 seed only if a witness source (extraction, not presence) clears F4 first, with Summarize/Vector Storage/WI-scan named as channels to close. |

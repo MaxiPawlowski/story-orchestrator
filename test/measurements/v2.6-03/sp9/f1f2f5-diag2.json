@@ -1,0 +1,371 @@
+{
+ "at": "2026-10-01T13:37:05.983Z",
+ "story": "adolion-academy",
+ "f1": {
+  "generations": 24,
+  "extrasChanged": 1,
+  "fileRowsChanged": 1,
+  "liveSymbolRows": []
+ },
+ "f2": {
+  "requests": 24,
+  "unwitnessedVisible": [
+   "Natalia:[n08]",
+   "Shiya:[n01]",
+   "Shiya:[n08]",
+   "Ronan:[n06]",
+   "Ronan:[n08]",
+   "Leila:[n01]",
+   "Leila:[n08]",
+   "Merryn:[n06]",
+   "Merryn:[n08]",
+   "Javon:[n06]",
+   "Javon:[n10]",
+   "Natalia:[n10]",
+   "Shiya:[n08]",
+   "Ronan:[n06]",
+   "Ronan:[n08]",
+   "Ronan:[n09]",
+   "Welden:[n06]",
+   "Welden:[n09]",
+   "Welden:[n10]",
+   "Leila:[n01]",
+   "Leila:[n08]",
+   "Merryn:[n01]",
+   "Merryn:[n05]",
+   "Javon:[n06]",
+   "Javon:[n07]",
+   "Natalia:[n08]",
+   "Shiya:[n08]",
+   "Ronan:[n08]",
+   "Ronan:[n09]",
+   "Ronan:[n10]",
+   "Welden:[n09]",
+   "Welden:[n10]",
+   "Leila:[n01]",
+   "Leila:[n08]",
+   "Merryn:[n06]",
+   "Merryn:[n07]",
+   "Javon:[n07]",
+   "Javon:[n10]"
+  ],
+  "witnessedMissing": [],
+  "witnessedChecked": 432
+ },
+ "epistemic": [
+  {
+   "drafted": "Natalia",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]",
+    "stood closer last night"
+   ]
+  },
+  {
+   "drafted": "Shiya",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]",
+    "stood closer last night"
+   ]
+  },
+  {
+   "drafted": "Ronan",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]",
+    "stood closer last night"
+   ]
+  },
+  {
+   "drafted": "Leila",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]",
+    "stood closer last night"
+   ]
+  },
+  {
+   "drafted": "Merryn",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]",
+    "stood closer last night"
+   ]
+  },
+  {
+   "drafted": "Javon",
+   "secret": "shiya-servants-door",
+   "hits": [
+    "[n10]",
+    "three times since the recess began"
+   ]
+  },
+  {
+   "drafted": "Javon",
+   "secret": "javon-blind-to-findings",
+   "hits": [
+    "[n10]",
+    "three times since the recess began"
+   ]
+  },
+  {
+   "drafted": "Natalia",
+   "secret": "shiya-servants-door",
+   "hits": [
+    "[n10]",
+    "three times since the recess began"
+   ]
+  },
+  {
+   "drafted": "Shiya",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]",
+    "stood closer last night"
+   ]
+  },
+  {
+   "drafted": "Ronan",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]",
+    "stood closer last night"
+   ]
+  },
+  {
+   "drafted": "Ronan",
+   "secret": "shiya-servants-door",
+   "hits": [
+    "[n09]"
+   ]
+  },
+  {
+   "drafted": "Welden",
+   "secret": "shiya-servants-door",
+   "hits": [
+    "[n09]",
+    "[n10]",
+    "three times since the recess began"
+   ]
+  },
+  {
+   "drafted": "Leila",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]",
+    "stood closer last night"
+   ]
+  },
+  {
+   "drafted": "Javon",
+   "secret": "leila-hana-week",
+   "hits": [
+    "[n07]",
+    "please do not say it was me"
+   ]
+  },
+  {
+   "drafted": "Javon",
+   "secret": "javon-blind-to-findings",
+   "hits": [
+    "[n07]",
+    "please do not say it was me"
+   ]
+  },
+  {
+   "drafted": "Natalia",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]",
+    "stood closer last night"
+   ]
+  },
+  {
+   "drafted": "Shiya",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]",
+    "stood closer last night"
+   ]
+  },
+  {
+   "drafted": "Ronan",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]",
+    "stood closer last night"
+   ]
+  },
+  {
+   "drafted": "Ronan",
+   "secret": "shiya-servants-door",
+   "hits": [
+    "[n09]",
+    "[n10]",
+    "three times since the recess began"
+   ]
+  },
+  {
+   "drafted": "Welden",
+   "secret": "shiya-servants-door",
+   "hits": [
+    "[n09]",
+    "[n10]",
+    "three times since the recess began"
+   ]
+  },
+  {
+   "drafted": "Leila",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]",
+    "stood closer last night"
+   ]
+  },
+  {
+   "drafted": "Merryn",
+   "secret": "leila-hana-week",
+   "hits": [
+    "[n07]",
+    "please do not say it was me"
+   ]
+  },
+  {
+   "drafted": "Javon",
+   "secret": "leila-hana-week",
+   "hits": [
+    "[n07]",
+    "please do not say it was me"
+   ]
+  },
+  {
+   "drafted": "Javon",
+   "secret": "shiya-servants-door",
+   "hits": [
+    "[n10]",
+    "three times since the recess began"
+   ]
+  },
+  {
+   "drafted": "Javon",
+   "secret": "javon-blind-to-findings",
+   "hits": [
+    "[n07]",
+    "[n10]",
+    "please do not say it was me",
+    "three times since the recess began"
+   ]
+  }
+ ],
+ "leakCtx": [
+  {
+   "drafted": "Natalia",
+   "marker": "[n08]",
+   "at": 13353,
+   "bodyLength": 23626,
+   "before": "Natalia and Ronan argue over the writ, Welden catches the heir's sleeve and whispers: The figure in my dreams stood closer last night. I have told no one else. ",
+   "after": "[n08]\\nAdolion Narrator: Evening in the "
+  },
+  {
+   "drafted": "Shiya",
+   "marker": "[n01]",
+   "at": 12197,
+   "bodyLength": 21625,
+   "before": " Nightriver library. Welden sits behind a wall of open books on the Trial by Combat; Natalia and Ronan have followed the heir in and shut the door behind them. ",
+   "after": "[n01]\\nAdolion Narrator: Past the eleven"
+  },
+  {
+   "drafted": "Shiya",
+   "marker": "[n08]",
+   "at": 12526,
+   "bodyLength": 21625,
+   "before": "Natalia and Ronan argue over the writ, Welden catches the heir's sleeve and whispers: The figure in my dreams stood closer last night. I have told no one else. ",
+   "after": "[n08]<turn|>\\n<|turn>user\\nMax Nightrive"
+  },
+  {
+   "drafted": "Ronan",
+   "marker": "[n06]",
+   "at": 13071,
+   "bodyLength": 23862,
+   "before": "on the threshold. [n05]\\nMax Nightriver: I take Leila aside to the far shelves, out of the others' hearing, and ask her gently what the maids have been saying. ",
+   "after": "[n06]\\nWelden: While Natalia and Ronan a"
+  },
+  {
+   "drafted": "Ronan",
+   "marker": "[n08]",
+   "at": 13252,
+   "bodyLength": 23862,
+   "before": "Natalia and Ronan argue over the writ, Welden catches the heir's sleeve and whispers: The figure in my dreams stood closer last night. I have told no one else. ",
+   "after": "[n08]<turn|>\\n<|turn>user\\nMax Nightrive"
+  },
+  {
+   "drafted": "Leila",
+   "marker": "[n01]",
+   "at": 13312,
+   "bodyLength": 20748,
+   "before": " Nightriver library. Welden sits behind a wall of open books on the Trial by Combat; Natalia and Ronan have followed the heir in and shut the door behind them. ",
+   "after": "[n01]\\nWelden: While Natalia and Ronan a"
+  },
+  {
+   "drafted": "Leila",
+   "marker": "[n08]",
+   "at": 13493,
+   "bodyLength": 20748,
+   "before": "Natalia and Ronan argue over the writ, Welden catches the heir's sleeve and whispers: The figure in my dreams stood closer last night. I have told no one else. ",
+   "after": "[n08]<turn|>\\n<|turn>model\\nAdolion Narr"
+  },
+  {
+   "drafted": "Merryn",
+   "marker": "[n06]",
+   "at": 12696,
+   "bodyLength": 18243,
+   "before": "told no one else. [n08]\\nMax Nightriver: I take Leila aside to the far shelves, out of the others' hearing, and ask her gently what the maids have been saying. ",
+   "after": "[n06]<turn|>\\n<|turn>model\\nAdolion Narr"
+  },
+  {
+   "drafted": "Merryn",
+   "marker": "[n08]",
+   "at": 12554,
+   "bodyLength": 18243,
+   "before": "Natalia and Ronan argue over the writ, Welden catches the heir's sleeve and whispers: The figure in my dreams stood closer last night. I have told no one else. ",
+   "after": "[n08]\\nMax Nightriver: I take Leila asid"
+  },
+  {
+   "drafted": "Javon",
+   "marker": "[n06]",
+   "at": 14544,
+   "bodyLength": 21945,
+   "before": "formance.\\nPast events:\\nMax Nightriver: I take Leila aside to the far shelves, out of the others' hearing, and ask her gently what the maids have been saying. ",
+   "after": "[n06]\\nShiya: Keep this between us. I ha"
+  },
+  {
+   "drafted": "Javon",
+   "marker": "[n10]",
+   "at": 14689,
+   "bodyLength": 21945,
+   "before": "e been saying. [n06]\\nShiya: Keep this between us. I have seen Duchess Eriana come in by the servants' door after midnight, three times since the recess began. ",
+   "after": "[n10]\\nAdolion Narrator: Mid-year recess"
+  },
+  {
+   "drafted": "Natalia",
+   "marker": "[n10]",
+   "at": 13216,
+   "bodyLength": 28036,
+   "before": "r behind them. [n01]\\nShiya: Keep this between us. I have seen Duchess Eriana come in by the servants' door after midnight, three times since the recess began. ",
+   "after": "[n10]\\nAdolion Narrator: Mid-year recess"
+  }
+ ],
+ "changedRows": [
+  {
+   "index": 37,
+   "now": "{\"bias\":null,\"gen_id\":1790861364062,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\",\"reasoning\":\"\"}",
+   "was": "{\"bias\":null,\"gen_id\":1790861364062,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\"}"
+  }
+ ],
+ "f5": {
+  "calls": 24,
+  "p95Ms": 0.20000004768371582,
+  "maxMs": 0.40000009536743164
+ }
+}

@@ -1,0 +1,131 @@
+2026-10-01T11:20:23.470Z 1/29 eval ok 1514ms
+2026-10-01T11:20:23.470Z 1/29 eval -> {"flag":true,"ringCleared":true,"chatId":"2026-10-01@08h20m20s858ms"}
+2026-10-01T11:20:23.475Z 2/29 eval ok 6ms
+2026-10-01T11:20:24.428Z 3/29 import_story ok 952ms
+2026-10-01T11:20:24.437Z 4/29 eval ok 9ms
+2026-10-01T11:20:24.438Z 4/29 eval -> {"loaded":"adolion-deep","boundary":1}
+2026-10-01T11:20:27.073Z 5/29 slash ok 2636ms
+2026-10-01T11:20:28.615Z 6/29 wait ok 1541ms
+2026-10-01T11:20:28.623Z 7/29 eval ok 8ms
+2026-10-01T11:20:28.623Z 7/29 eval -> {"chatStart":2,"boundaryStart":3}
+2026-10-01T11:20:28.634Z 8/29 eval ok 10ms
+2026-10-01T11:20:28.634Z 8/29 eval -> {"pass":1,"boundary":3,"chat":2}
+2026-10-01T11:20:30.410Z 9/29 send ok 1776ms
+2026-10-01T11:20:32.701Z 10/29 slash ok 2291ms
+2026-10-01T11:20:34.243Z 11/29 wait ok 1542ms
+2026-10-01T11:20:34.250Z 12/29 eval ok 7ms
+2026-10-01T11:20:34.250Z 12/29 eval -> {"startedBoundary":4,"boundary":4}
+2026-10-01T11:20:49.680Z 13/29 slash ok 15430ms
+2026-10-01T11:20:51.218Z 14/29 wait ok 1538ms
+2026-10-01T11:20:51.225Z 15/29 eval ok 7ms
+2026-10-01T11:20:51.225Z 15/29 eval -> {"draw":{"kind":"npc","key":"deep-the-tunnels:afterSpeak:Adolion Narrator:0","chatId":"2026-10-01@08h20m20s858ms","storyId":"adolion-deep","boundary":4,"unit":0.3866335223428905},"fired":false,"rollsThisPass":1,"deep_swarm":true,"entered":{"startedBoundary":4,"boundary":4},"journalLines":1,"offline":"node lab/chance/chance-draws.mjs --chat '2026-10-01@08h20m20s858ms' --story adolion-deep --boundary 4"}
+2026-10-01T11:20:54.271Z 16/29 eval ok 3046ms
+2026-10-01T11:20:54.271Z 16/29 eval -> {"rolledBack":true,"outcome":{"seq":3,"result":"applied","fromMessage":2,"at":"2026-10-01T11:20:52.088Z"},"boundary":3}
+2026-10-01T11:20:54.278Z 17/29 eval ok 7ms
+2026-10-01T11:20:54.278Z 17/29 eval -> {"pass":2,"boundary":3,"chat":2}
+2026-10-01T11:20:55.966Z 18/29 send ok 1688ms
+2026-10-01T11:20:58.127Z 19/29 slash ok 2161ms
+2026-10-01T11:20:59.671Z 20/29 wait ok 1544ms
+2026-10-01T11:20:59.677Z 21/29 eval ok 6ms
+2026-10-01T11:20:59.677Z 21/29 eval -> {"startedBoundary":4,"boundary":4}
+2026-10-01T11:21:06.637Z 22/29 slash ok 6960ms
+2026-10-01T11:21:08.179Z 23/29 wait ok 1542ms
+2026-10-01T11:21:08.187Z 24/29 eval ok 8ms
+2026-10-01T11:21:08.187Z 24/29 eval -> {"draw":{"kind":"npc","key":"deep-the-tunnels:afterSpeak:Adolion Narrator:0","chatId":"2026-10-01@08h20m20s858ms","storyId":"adolion-deep","boundary":4,"unit":0.3866335223428905},"fired":false,"rollsThisPass":1,"deep_swarm":true,"entered":{"startedBoundary":4,"boundary":4},"journalLines":2,"offline":"node lab/chance/chance-draws.mjs --chat '2026-10-01@08h20m20s858ms' --story adolion-deep --boundary 4"}
+2026-10-01T11:21:08.194Z 25/29 eval ok 7ms
+2026-10-01T11:21:08.195Z 25/29 eval -> {"D4":"same draw","first":{"draw":{"kind":"npc","key":"deep-the-tunnels:afterSpeak:Adolion Narrator:0","chatId":"2026-10-01@08h20m20s858ms","storyId":"adolion-deep","boundary":4,"unit":0.3866335223428905},"fired":false,"rollsThisPass":1,"deep_swarm":true,"entered":{"startedBoundary":4,"boundary":4},"journalLines":1,"offline":"node lab/chance/chance-draws.mjs --chat '2026-10-01@08h20m20s858ms' --story adolion-deep --boundary 4"},"again":{"draw":{"kind":"npc","key":"deep-the-tunnels:afterSpeak:Adolion Narrator:0","chatId":"2026-10-01@08h20m20s858ms","storyId":"adolion-deep","boundary":4,"unit":0.3866335223428905},"fired":false,"rollsThisPass":1,"deep_swarm":true,"entered":{"startedBoundary":4,"boundary":4},"journalLines":2,"offline":"node lab/chance/chance-draws.mjs --chat '2026-10-01@08h20m
+2026-10-01T11:21:10.647Z 26/29 slash ok 2452ms
+2026-10-01T11:21:12.191Z 27/29 wait ok 1544ms
+2026-10-01T11:21:12.198Z 28/29 eval ok 6ms
+2026-10-01T11:21:12.198Z 28/29 eval -> {"D5machinery":"routed by the committed draw","deep_swarm":true,"at":"deep-the-swarm"}
+2026-10-01T11:21:13.719Z 29/29 eval ok 1521ms
+2026-10-01T11:21:13.719Z 29/29 eval -> {"flag":false,"record":{"passes":[{"draw":{"kind":"npc","key":"deep-the-tunnels:afterSpeak:Adolion Narrator:0","chatId":"2026-10-01@08h20m20s858ms","storyId":"adolion-deep","boundary":4,"unit":0.3866335223428905},"fired":false,"rollsThisPass":1,"deep_swarm":true,"entered":{"startedBoundary":4,"boundary":4},"journalLines":1,"offline":"node lab/chance/chance-draws.mjs --chat '2026-10-01@08h20m20s858ms' --story adolion-deep --boundary 4"},{"draw":{"kind":"npc","key":"deep-the-tunnels:afterSpeak:Adolion Narrator:0","chatId":"2026-10-01@08h20m20s858ms","storyId":"adolion-deep","boundary":4,"unit":0.3866335223428905},"fired":false,"rollsThisPass":1,"deep_swarm":true,"entered":{"startedBoundary":4,"boundary":4},"journalLines":2,"offline":"node lab/chance/chance-draws.mjs --chat '2026-10-01@08h20m
+2026-10-01T11:21:23.379Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-10-01T11-21-23-375Z_so-scenario-result.json
+2026-10-01T11:21:23.379Z {
+2026-10-01T11:21:23.379Z   "ok": true,
+2026-10-01T11:21:23.379Z   "steps": 29,
+2026-10-01T11:21:23.379Z   "cleanup": {
+2026-10-01T11:21:23.379Z     "generation": {
+2026-10-01T11:21:23.380Z       "idle": true,
+2026-10-01T11:21:23.380Z       "wasGenerating": false,
+2026-10-01T11:21:23.380Z       "stops": 0,
+2026-10-01T11:21:23.380Z       "waitedMs": 1522,
+2026-10-01T11:21:23.380Z       "lastSeen": {
+2026-10-01T11:21:23.380Z         "generating": false,
+2026-10-01T11:21:23.380Z         "saving": false,
+2026-10-01T11:21:23.380Z         "chatId": "2026-10-01@08h20m20s858ms",
+2026-10-01T11:21:23.380Z         "signals": []
+2026-10-01T11:21:23.380Z       }
+2026-10-01T11:21:23.380Z     },
+2026-10-01T11:21:23.380Z     "importedStoryHashes": [
+2026-10-01T11:21:23.380Z       "v2-7564566d"
+2026-10-01T11:21:23.380Z     ],
+2026-10-01T11:21:23.380Z     "library": {
+2026-10-01T11:21:23.380Z       "changed": true,
+2026-10-01T11:21:23.380Z       "removed": [],
+2026-10-01T11:21:23.380Z       "restored": [
+2026-10-01T11:21:23.380Z         "adolion-deep@7 (v2-7564566d)"
+2026-10-01T11:21:23.380Z       ],
+2026-10-01T11:21:23.380Z       "saved": {
+2026-10-01T11:21:23.380Z         "status": 200
+2026-10-01T11:21:23.380Z       },
+2026-10-01T11:21:23.380Z       "verified": true
+2026-10-01T11:21:23.380Z     },
+2026-10-01T11:21:23.380Z     "clearedDebugResponses": [],
+2026-10-01T11:21:23.380Z     "soloChats": {
+2026-10-01T11:21:23.380Z       "deleted": [],
+2026-10-01T11:21:23.380Z       "leaked": []
+2026-10-01T11:21:23.380Z     },
+2026-10-01T11:21:23.380Z     "sandboxChatId": "2026-10-01@08h20m20s858ms",
+2026-10-01T11:21:23.380Z     "owned": [
+2026-10-01T11:21:23.380Z       "2026-10-01@08h20m20s858ms"
+2026-10-01T11:21:23.380Z     ],
+2026-10-01T11:21:23.380Z     "deleted": [
+2026-10-01T11:21:23.380Z       "2026-10-01@08h20m20s858ms"
+2026-10-01T11:21:23.380Z     ],
+2026-10-01T11:21:23.380Z     "notDeleted": [],
+2026-10-01T11:21:23.380Z     "resurrected": [],
+2026-10-01T11:21:23.380Z     "lateFileRepaired": [],
+2026-10-01T11:21:23.380Z     "saveSettleMs": 1521,
+2026-10-01T11:21:23.380Z     "skipped": [],
+2026-10-01T11:21:23.380Z     "currentChatAtCleanup": "2026-10-01@08h20m20s858ms",
+2026-10-01T11:21:23.380Z     "currentGroupAtCleanup": "1790852643383",
+2026-10-01T11:21:23.380Z     "chatAfterCleanup": "2026-10-01@08h04m03s367ms",
+2026-10-01T11:21:23.380Z     "branchChats": {
+2026-10-01T11:21:23.380Z       "recorded": [],
+2026-10-01T11:21:23.380Z       "deleted": [],
+2026-10-01T11:21:23.380Z       "failed": [],
+2026-10-01T11:21:23.380Z       "leaked": []
+2026-10-01T11:21:23.380Z     },
+2026-10-01T11:21:23.380Z     "mirrorBooks": {
+2026-10-01T11:21:23.380Z       "deleted": [],
+2026-10-01T11:21:23.380Z       "failed": [],
+2026-10-01T11:21:23.380Z       "leaked": []
+2026-10-01T11:21:23.380Z     },
+2026-10-01T11:21:23.380Z     "reapPrompts": {
+2026-10-01T11:21:23.380Z       "dismissed": [],
+2026-10-01T11:21:23.380Z       "leaked": []
+2026-10-01T11:21:23.380Z     },
+2026-10-01T11:21:23.380Z     "extraction": {
+2026-10-01T11:21:23.380Z       "restored": false,
+2026-10-01T11:21:23.380Z       "unchanged": true,
+2026-10-01T11:21:23.380Z       "settings": {
+2026-10-01T11:21:23.380Z         "enabled": true,
+2026-10-01T11:21:23.380Z         "cadence": 1,
+2026-10-01T11:21:23.380Z         "stabilityLag": 0,
+2026-10-01T11:21:23.380Z         "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T11:21:23.380Z         "profiles": {
+2026-10-01T11:21:23.380Z           "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T11:21:23.380Z           "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T11:21:23.380Z           "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T11:21:23.380Z           "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T11:21:23.380Z           "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+2026-10-01T11:21:23.380Z         }
+2026-10-01T11:21:23.380Z       }
+2026-10-01T11:21:23.380Z     },
+2026-10-01T11:21:23.380Z     "judge": {
+2026-10-01T11:21:23.380Z       "restored": false,
+2026-10-01T11:21:23.380Z       "unchanged": true
+2026-10-01T11:21:23.380Z     }
+2026-10-01T11:21:23.380Z   }
+2026-10-01T11:21:23.380Z }

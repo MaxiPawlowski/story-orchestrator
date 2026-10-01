@@ -1,6 +1,6 @@
 # Plan 03 — Spike re-evaluation on Adolion (SP1–SP10)
 
-**Status: APPROVED 2026-09-30; nothing run yet.** SP7 goes first (W17). The spike legs are measurements and run in
+**Status: APPROVED 2026-09-30; SP7, SP2, SP3, SP5, SP9 run 2026-10-01 (gate record below); SP8, SP4, SP6, SP1, SP10 not yet.** SP7 goes first (W17). The spike legs are measurements and run in
 plan 15 Part B on the €20 RunPod budget (W28); any rater leg is recorded for the user's review (overview rule 11).
 
 v2.5 plan 09 ran all ten spikes on toy stories: two members, one room and a dozen lorebook entries. Several stalled
@@ -67,3 +67,21 @@ commit with a planted-import control proving the code is gone (v2.5 D3 list upda
 ## Unresolved questions
 
 None.
+
+## Gate record (partial, 2026-10-01: SP7, SP2, SP3, SP5, SP9)
+
+Branch `v26-spikes-03`, lane 2 (adolion-fresh at `e1c91fb`). Bundles: SP7 `6f56533e8608`; SP2/SP3/SP9 `ceb15ac19ec0`;
+SP5 `ceb15ac19ec0` then this branch's `15ff8e26ba2e` served to lane 2 only. The campaign pin moved to `59e8821` after
+these runs; none of them used it. Records: `test/measurements/v2.6-03/<spN>/summary.json`; reports and worth reviews in
+`docs/plans/v2.5/09-<spN>-spike-report.md` §v2.6.
+
+| Spike | Restated | Result | Call |
+|---|---|---|---|
+| SP7 | `03-sp7-restated.md` | D1–D3 toy PASS; D2 Adolion 70 rows PASS; **D4 PASS ×2, D4b PASS ×2**; D5 read on 7 rolls, user acceptance pending | **include** → `SP7.b` (seam now; `roll` schema after D5) |
+| SP2 | `03-sp2-restated.md` (+ addendum) | R1 lag confirmed 3/3; R4 editor 3/3, **recast 0/2** → FAIL; R5 2 reads/edit → FAIL; J6 not run | **drop** (removed `301b0d5a`; v2.7 seed: awaited re-commit) |
+| SP3 | `03-sp3-restated.md` (A3 procedure change) | A1 0.78 % (n 1672, real) FAIL; **A2 6.61 / 5.75 per 50** (174 × 2, DeepSeek) PASS on the declared count; A3 accepted | **include** → `SP3.b` (director scope, gated by its Phase B condition) |
+| SP5 | `03-sp5-restated.md` (+ 4 addenda) | import-time effects defect found and fixed (`32527192`, verified live on the branch bundle); **C4 PASS ×1** (saga + academy); C1/C2/C3/C5 not reached (harness cross-group switch) | **pending** (code stays behind its flag) |
+| SP9 | `03-sp9-restated.md` (+ diagnostics) | F1 FAIL (host write), **F2 FAIL** (Summarize, Vector Storage, model marker mimicry), F3 not run, **F4 0.10 FAIL**, F5 PASS | **drop** (removed `301b0d5a`; stance "no message-level hiding" stays) |
+
+D3: `DROPPED_SPIKES` (`recommitEdit.ts`, `witnessFilter.ts`, `witnessFilterHost.ts`, `wiring/spikes.ts`) with a
+planted-import control in `src/runtime/devOnly.guard.test.ts`. Gates: see the branch's last commit message.

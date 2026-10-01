@@ -1,0 +1,64 @@
+{
+  "files": [
+    "test/journeys/records/v2.4-acceptance/J12/run2/journal-follow.jsonl",
+    "test/journeys/records/v2.4-acceptance/J12/seriesB-run1/journal-follow.jsonl",
+    "test/journeys/records/v2.4-postfreeze/ca25e4a632ed/J12/run1/journal-follow.jsonl",
+    "test/journeys/records/v2.4-postfreeze/ca25e4a632ed/J12/run2/journal-follow.jsonl"
+  ],
+  "castRows": 53,
+  "variantRows": 13,
+  "a1Rate": 0.24528301886792453,
+  "byStore": {
+    "epistemic": {
+      "cast": 4,
+      "variant": 1
+    },
+    "ledger": {
+      "cast": 10,
+      "variant": 1
+    },
+    "memory": {
+      "cast": 39,
+      "variant": 11
+    }
+  },
+  "variants": [
+    "memory:Dalan Evergreen->companion_b (name with extra words)",
+    "epistemic:Dalan Evergreen->companion_b (name with extra words)",
+    "ledger:Dalan Evergreen->companion_b (name with extra words)"
+  ],
+  "decisions": 15,
+  "decisionSources": {
+    "mention": 4,
+    "director": 11
+  },
+  "misses": 0,
+  "a2PerFifty": 0,
+  "a3": {
+    "rowsOk": false,
+    "decisionsOk": false
+  },
+  "distinct": [
+    "16\tmemory\tBelle\tadolion-adventurer\tcanonical:companion_a",
+    "11\tmemory\tDalan Evergreen\tadolion-adventurer\tvariant:companion_b",
+    "8\tmemory\tTobias\tadolion-adventurer\tcanonical:guild_rep",
+    "7\tmemory\tWendhope\tadolion-adventurer\tnone",
+    "6\tmemory\tMax\tadolion-adventurer\tnone",
+    "4\tledger\tTobias\tadolion-adventurer\tcanonical:guild_rep",
+    "4\tmemory\tDalan\tadolion-adventurer\tcanonical:companion_b",
+    "3\tledger\tBelle\tadolion-adventurer\tcanonical:companion_a",
+    "3\tmemory\tThe Party\tadolion-adventurer\tnone",
+    "3\tledger\tTheParty\tadolion-adventurer\tnone",
+    "2\tepistemic\tMax\tadolion-adventurer\tnone",
+    "2\tepistemic\tBelle\tadolion-adventurer\tcanonical:companion_a",
+    "2\tledger\tDalan\tadolion-adventurer\tcanonical:companion_b",
+    "2\tledger\tThe Party\tadolion-adventurer\tnone",
+    "1\tmemory\tSheridans\tadolion-adventurer\tnone",
+    "1\tmemory\tCrimson-Tailed Griffins\tadolion-adventurer\tnone",
+    "1\tepistemic\tDalan\tadolion-adventurer\tcanonical:companion_b",
+    "1\tledger\tMax\tadolion-adventurer\tnone",
+    "1\tepistemic\tDalan Evergreen\tadolion-adventurer\tvariant:companion_b",
+    "1\tmemory\tSheridan House\tadolion-adventurer\tnone",
+    "1\tledger\tDalan Evergreen\tadolion-adventurer\tvariant:companion_b"
+  ]
+}

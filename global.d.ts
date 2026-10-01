@@ -63,8 +63,6 @@ declare global {
   var storyOrchestratorDebugInnerResponse: string | null | undefined;
   var storyOrchestratorJudge: import("./src/runtime/judgeHarness").JudgeHarness | undefined;
   var storyOrchestratorSpikes: ({
-    refresh?: () => Promise<import("./src/runtime/settingsModel").SpikeSettings>;
-    recommitEdit?: { stats: () => import("./src/runtime/spikes/recommitEdit").RecommitStats };
     swipeBackCache?: { stats: () => import("./src/runtime/spikes/swipeBack").SwipeBackStats };
     reasoningEffect?: import("./src/runtime/spikes/reasoningEffectHost").ReasoningEffectDebug;
   } & Partial<import("./src/runtime/spikes/install").SpikeDebug>) | undefined;
@@ -73,7 +71,6 @@ declare global {
   var storyOrchestratorInline: { attachTimes: () => number[] } | undefined;
   var storyOrchestratorScanGating: import("./src/runtime/worldInfoScanHost").ScanGatingDebug | undefined;
   var storyOrchestratorToolTurnProbe: import("./src/runtime/spikes/toolTurnProbe").ToolTurnProbe | undefined;
-  var storyOrchestratorWitness: import("./src/runtime/spikes/witnessFilterHost").WitnessDebug | undefined;
   var storyOrchestratorLore: { selector: import("./src/runtime/loreSelect").LoreSelector; willAddUserMessage: (type: string | undefined, params: Record<string, unknown> | undefined, dryRun: boolean | undefined) => boolean } | undefined;
   var storyOrchestratorDebugCuratorResponse: string | null | undefined;
   var storyOrchestratorDebugCallBudgetScale: number | null | undefined;

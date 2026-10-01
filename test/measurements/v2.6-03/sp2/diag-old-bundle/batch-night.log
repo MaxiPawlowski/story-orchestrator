@@ -1,0 +1,7 @@
+lane 2 test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r1-adolion-night-pact.json run 1: code 0 (260 s)
+lane 2 test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r4-adolion-night-pact.json run 1: code 1 (386 s)
+{
+  "summary": "C:\\dev\\so-lanes\\batch-2026-10-01T11-26-50-196Z.json",
+  "green": 1,
+  "runs": 2
+}

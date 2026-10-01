@@ -1,0 +1,760 @@
+{
+ "adolion-sp3-r1": {
+  "cases": 174,
+  "incomplete": 0,
+  "profile": {
+   "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+   "name": "deepseek 4.1 flash"
+  },
+  "route": {
+   "role": "director",
+   "label": "Speaker direction",
+   "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+   "state": "untested",
+   "detail": "Speaker direction: not tested yet",
+   "effort": "default"
+  },
+  "all": {
+   "n": 174,
+   "correct": 151,
+   "null": 0,
+   "wrong": 23,
+   "nullPer50": 0.0,
+   "missPer50": 6.61,
+   "nullIds": [],
+   "wrongIds": [
+    [
+     "AD013",
+     "Adolion Narrator",
+     [
+      "Gustall"
+     ]
+    ],
+    [
+     "AD019",
+     "Adolion Narrator",
+     [
+      "Riyo"
+     ]
+    ],
+    [
+     "AD021",
+     "Adolion Narrator",
+     [
+      "Dalan"
+     ]
+    ],
+    [
+     "AD032",
+     "Adolion Narrator",
+     [
+      "Welden"
+     ]
+    ],
+    [
+     "AD038",
+     "Shiya",
+     [
+      "Eriana"
+     ]
+    ],
+    [
+     "AD055",
+     "Fiana",
+     [
+      "Rydel"
+     ]
+    ],
+    [
+     "AD056",
+     "Adolion Narrator",
+     [
+      "Grant"
+     ]
+    ],
+    [
+     "AD057",
+     "Alarise",
+     [
+      "Konako"
+     ]
+    ],
+    [
+     "AD062",
+     "Adolion Narrator",
+     [
+      "Celedir"
+     ]
+    ],
+    [
+     "AD063",
+     "Celedir",
+     [
+      "Lirael"
+     ]
+    ],
+    [
+     "AD066",
+     "Adolion Narrator",
+     [
+      "Arryn"
+     ]
+    ],
+    [
+     "AD069",
+     "Adolion Narrator",
+     [
+      "Ryenne"
+     ]
+    ],
+    [
+     "AD075",
+     "Adolion Narrator",
+     [
+      "Panne"
+     ]
+    ],
+    [
+     "AD081",
+     "Adolion Narrator",
+     [
+      "Domas"
+     ]
+    ],
+    [
+     "AD085",
+     "Kela",
+     [
+      "Safie"
+     ]
+    ],
+    [
+     "AD094",
+     "Caetus",
+     [
+      "Caelia"
+     ]
+    ],
+    [
+     "AD095",
+     "Dalan",
+     [
+      "Caetus"
+     ]
+    ],
+    [
+     "AD097",
+     "Vallie",
+     [
+      "Unira"
+     ]
+    ],
+    [
+     "AD102",
+     "Adolion Narrator",
+     [
+      "Rikako"
+     ]
+    ],
+    [
+     "AD103",
+     "Adolion Narrator",
+     [
+      "Honami"
+     ]
+    ],
+    [
+     "AD105",
+     "Hanabi",
+     [
+      "Shinen"
+     ]
+    ],
+    [
+     "AD132",
+     "Alice",
+     [
+      "Gabriel"
+     ]
+    ],
+    [
+     "AD142",
+     "Adolion Narrator",
+     [
+      "The Lady of the Forest"
+     ]
+    ]
+   ]
+  },
+  "aliasRows": {
+   "n": 162,
+   "correct": 139,
+   "null": 0,
+   "wrong": 23,
+   "nullPer50": 0.0,
+   "missPer50": 7.1,
+   "nullIds": [],
+   "wrongIds": [
+    [
+     "AD013",
+     "Adolion Narrator",
+     [
+      "Gustall"
+     ]
+    ],
+    [
+     "AD019",
+     "Adolion Narrator",
+     [
+      "Riyo"
+     ]
+    ],
+    [
+     "AD021",
+     "Adolion Narrator",
+     [
+      "Dalan"
+     ]
+    ],
+    [
+     "AD032",
+     "Adolion Narrator",
+     [
+      "Welden"
+     ]
+    ],
+    [
+     "AD038",
+     "Shiya",
+     [
+      "Eriana"
+     ]
+    ],
+    [
+     "AD055",
+     "Fiana",
+     [
+      "Rydel"
+     ]
+    ],
+    [
+     "AD056",
+     "Adolion Narrator",
+     [
+      "Grant"
+     ]
+    ],
+    [
+     "AD057",
+     "Alarise",
+     [
+      "Konako"
+     ]
+    ],
+    [
+     "AD062",
+     "Adolion Narrator",
+     [
+      "Celedir"
+     ]
+    ],
+    [
+     "AD063",
+     "Celedir",
+     [
+      "Lirael"
+     ]
+    ],
+    [
+     "AD066",
+     "Adolion Narrator",
+     [
+      "Arryn"
+     ]
+    ],
+    [
+     "AD069",
+     "Adolion Narrator",
+     [
+      "Ryenne"
+     ]
+    ],
+    [
+     "AD075",
+     "Adolion Narrator",
+     [
+      "Panne"
+     ]
+    ],
+    [
+     "AD081",
+     "Adolion Narrator",
+     [
+      "Domas"
+     ]
+    ],
+    [
+     "AD085",
+     "Kela",
+     [
+      "Safie"
+     ]
+    ],
+    [
+     "AD094",
+     "Caetus",
+     [
+      "Caelia"
+     ]
+    ],
+    [
+     "AD095",
+     "Dalan",
+     [
+      "Caetus"
+     ]
+    ],
+    [
+     "AD097",
+     "Vallie",
+     [
+      "Unira"
+     ]
+    ],
+    [
+     "AD102",
+     "Adolion Narrator",
+     [
+      "Rikako"
+     ]
+    ],
+    [
+     "AD103",
+     "Adolion Narrator",
+     [
+      "Honami"
+     ]
+    ],
+    [
+     "AD105",
+     "Hanabi",
+     [
+      "Shinen"
+     ]
+    ],
+    [
+     "AD132",
+     "Alice",
+     [
+      "Gabriel"
+     ]
+    ],
+    [
+     "AD142",
+     "Adolion Narrator",
+     [
+      "The Lady of the Forest"
+     ]
+    ]
+   ]
+  },
+  "controls": {
+   "n": 12,
+   "correct": 12,
+   "null": 0,
+   "wrong": 0,
+   "nullPer50": 0.0,
+   "missPer50": 0.0,
+   "nullIds": [],
+   "wrongIds": []
+  },
+  "latencyMs": 755,
+  "summary": {
+   "role": "director",
+   "overall": {
+    "cases": 0,
+    "metrics": {
+     "correct": {
+      "passed": 0,
+      "total": 0,
+      "rate": null,
+      "floor": 0.88,
+      "ok": false
+     },
+     "answerCorrect": {
+      "passed": 0,
+      "total": 0,
+      "rate": null,
+      "floor": null,
+      "ok": null
+     }
+    }
+   },
+   "meetsFloors": false
+  }
+ },
+ "adolion-sp3-r2": {
+  "cases": 174,
+  "incomplete": 0,
+  "profile": {
+   "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+   "name": "deepseek 4.1 flash"
+  },
+  "route": {
+   "role": "director",
+   "label": "Speaker direction",
+   "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+   "state": "untested",
+   "detail": "Speaker direction: not tested yet",
+   "effort": "default",
+   "reasoning": {
+    "effort": "default",
+    "applied": false,
+    "supported": true,
+    "sent": null,
+    "observed": false,
+    "collapsed": false,
+    "unsupported": null,
+    "budget": 0,
+    "chars": 0,
+    "tokens": null
+   }
+  },
+  "all": {
+   "n": 174,
+   "correct": 154,
+   "null": 0,
+   "wrong": 20,
+   "nullPer50": 0.0,
+   "missPer50": 5.75,
+   "nullIds": [],
+   "wrongIds": [
+    [
+     "AD013",
+     "Adolion Narrator",
+     [
+      "Gustall"
+     ]
+    ],
+    [
+     "AD019",
+     "Adolion Narrator",
+     [
+      "Riyo"
+     ]
+    ],
+    [
+     "AD021",
+     "Adolion Narrator",
+     [
+      "Dalan"
+     ]
+    ],
+    [
+     "AD032",
+     "Adolion Narrator",
+     [
+      "Welden"
+     ]
+    ],
+    [
+     "AD038",
+     "Shiya",
+     [
+      "Eriana"
+     ]
+    ],
+    [
+     "AD056",
+     "Adolion Narrator",
+     [
+      "Grant"
+     ]
+    ],
+    [
+     "AD057",
+     "Grant",
+     [
+      "Konako"
+     ]
+    ],
+    [
+     "AD062",
+     "Adolion Narrator",
+     [
+      "Celedir"
+     ]
+    ],
+    [
+     "AD063",
+     "Celedir",
+     [
+      "Lirael"
+     ]
+    ],
+    [
+     "AD066",
+     "Adolion Narrator",
+     [
+      "Arryn"
+     ]
+    ],
+    [
+     "AD069",
+     "Adolion Narrator",
+     [
+      "Ryenne"
+     ]
+    ],
+    [
+     "AD075",
+     "Adolion Narrator",
+     [
+      "Panne"
+     ]
+    ],
+    [
+     "AD081",
+     "Adolion Narrator",
+     [
+      "Domas"
+     ]
+    ],
+    [
+     "AD085",
+     "Kela",
+     [
+      "Safie"
+     ]
+    ],
+    [
+     "AD094",
+     "Caetus",
+     [
+      "Caelia"
+     ]
+    ],
+    [
+     "AD095",
+     "Dalan",
+     [
+      "Caetus"
+     ]
+    ],
+    [
+     "AD097",
+     "Vallie",
+     [
+      "Unira"
+     ]
+    ],
+    [
+     "AD102",
+     "Adolion Narrator",
+     [
+      "Rikako"
+     ]
+    ],
+    [
+     "AD103",
+     "Adolion Narrator",
+     [
+      "Honami"
+     ]
+    ],
+    [
+     "AD132",
+     "Alice",
+     [
+      "Gabriel"
+     ]
+    ]
+   ]
+  },
+  "aliasRows": {
+   "n": 162,
+   "correct": 142,
+   "null": 0,
+   "wrong": 20,
+   "nullPer50": 0.0,
+   "missPer50": 6.17,
+   "nullIds": [],
+   "wrongIds": [
+    [
+     "AD013",
+     "Adolion Narrator",
+     [
+      "Gustall"
+     ]
+    ],
+    [
+     "AD019",
+     "Adolion Narrator",
+     [
+      "Riyo"
+     ]
+    ],
+    [
+     "AD021",
+     "Adolion Narrator",
+     [
+      "Dalan"
+     ]
+    ],
+    [
+     "AD032",
+     "Adolion Narrator",
+     [
+      "Welden"
+     ]
+    ],
+    [
+     "AD038",
+     "Shiya",
+     [
+      "Eriana"
+     ]
+    ],
+    [
+     "AD056",
+     "Adolion Narrator",
+     [
+      "Grant"
+     ]
+    ],
+    [
+     "AD057",
+     "Grant",
+     [
+      "Konako"
+     ]
+    ],
+    [
+     "AD062",
+     "Adolion Narrator",
+     [
+      "Celedir"
+     ]
+    ],
+    [
+     "AD063",
+     "Celedir",
+     [
+      "Lirael"
+     ]
+    ],
+    [
+     "AD066",
+     "Adolion Narrator",
+     [
+      "Arryn"
+     ]
+    ],
+    [
+     "AD069",
+     "Adolion Narrator",
+     [
+      "Ryenne"
+     ]
+    ],
+    [
+     "AD075",
+     "Adolion Narrator",
+     [
+      "Panne"
+     ]
+    ],
+    [
+     "AD081",
+     "Adolion Narrator",
+     [
+      "Domas"
+     ]
+    ],
+    [
+     "AD085",
+     "Kela",
+     [
+      "Safie"
+     ]
+    ],
+    [
+     "AD094",
+     "Caetus",
+     [
+      "Caelia"
+     ]
+    ],
+    [
+     "AD095",
+     "Dalan",
+     [
+      "Caetus"
+     ]
+    ],
+    [
+     "AD097",
+     "Vallie",
+     [
+      "Unira"
+     ]
+    ],
+    [
+     "AD102",
+     "Adolion Narrator",
+     [
+      "Rikako"
+     ]
+    ],
+    [
+     "AD103",
+     "Adolion Narrator",
+     [
+      "Honami"
+     ]
+    ],
+    [
+     "AD132",
+     "Alice",
+     [
+      "Gabriel"
+     ]
+    ]
+   ]
+  },
+  "controls": {
+   "n": 12,
+   "correct": 12,
+   "null": 0,
+   "wrong": 0,
+   "nullPer50": 0.0,
+   "missPer50": 0.0,
+   "nullIds": [],
+   "wrongIds": []
+  },
+  "latencyMs": 764,
+  "summary": {
+   "role": "director",
+   "overall": {
+    "cases": 0,
+    "metrics": {
+     "correct": {
+      "passed": 0,
+      "total": 0,
+      "rate": null,
+      "floor": 0.88,
+      "ok": false
+     },
+     "answerCorrect": {
+      "passed": 0,
+      "total": 0,
+      "rate": null,
+      "floor": null,
+      "ok": null
+     }
+    }
+   },
+   "meetsFloors": false
+  }
+ }
+}

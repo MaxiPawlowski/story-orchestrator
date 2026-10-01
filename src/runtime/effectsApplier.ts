@@ -192,7 +192,7 @@ export class EffectsApplier {
   constructor(private readonly ownership: RunOwnership, private readonly deps: EffectApplierDeps = {}) {}
 
   private appliedChat: string | null = null;
-  private applying: { key: string; done: Promise<void> } | null = null;
+  private applying: { key: string; run: RunGuard; done: Promise<void> } | null = null;
 
   // The one thing a transition posts into the chat itself: a compact system note naming where the
   // story moved (opt-out in settings), kept to one line.
@@ -244,8 +244,9 @@ export class EffectsApplier {
   ): Promise<void> {
     const key = `${openChatId()}|${checkpoint.id}`;
     const running = this.applying;
-    if (mode === "hydrate" && running?.key === key) return running.done;
-    const entry = { key, done: this.applyCheckpointNow(story, checkpoint, extras, snapshot, mode, path, gate) };
+    if (mode === "hydrate" && running?.key === key && running.run.stillOwns()) return running.done;
+    const run = beginRun(this.ownership);
+    const entry = { key, run, done: this.applyCheckpointNow(story, checkpoint, extras, snapshot, mode, path, run, gate) };
     this.applying = entry;
     try {
       await entry.done;
@@ -255,7 +256,7 @@ export class EffectsApplier {
   }
 
   private async applyCheckpointNow(
-    story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], gate?: number,
+    story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], run: RunGuard, gate?: number,
   ) {
     const ready = extras.requirements.ready;
     // This is the write edge with the widest blast radius in the extension: unlike
@@ -269,7 +270,6 @@ export class EffectsApplier {
     // It stops rather than completing. Whatever moved the world — a chat change, a story swap —
     // runs its own applyCheckpoint, so a partial sequence is corrected immediately, while a
     // completed wrong sequence leaves the other story's cast disabled on a shared group.
-    const run = beginRun(this.ownership);
     // The authored new-chat opening goes out FIRST, before any staging. Applying a Saga checkpoint
     // writes ~100 group members one await at a time, so an opening fired at the end of the sequence
     // left a brand-new chat blank for the better part of a minute — and an interrupted apply lost it

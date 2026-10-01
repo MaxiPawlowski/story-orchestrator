@@ -227,7 +227,8 @@ export async function readChatOnDisk(page, chatId: string) {
 export async function assertInSandbox(page, guard, where) {
   const now = await readActiveChat(page);
   const solo = !now.groupId && Boolean(now.chatId) && (guard.soloChats ?? []).some((entry) => entry.chatId === now.chatId);
-  if ((now.groupId === guard.groupId && guard.owned.includes(now.chatId)) || solo) {
+  const foreign = Boolean(now.groupId && now.chatId) && (guard.foreignChats ?? []).some((entry) => entry.groupId === now.groupId && entry.chatId === now.chatId);
+  if ((now.groupId === guard.groupId && guard.owned.includes(now.chatId)) || solo || foreign) {
     guard.current = now.chatId;
     return now;
   }
@@ -238,6 +239,37 @@ export async function assertInSandbox(page, guard, where) {
 
 // Only a step that declares `adoptsNewChat` may move the run to another chat, and only to one it
 // just created in the sandbox group.
+// `adoptsNewChat: "other-group"`: the step opened a NEW chat in another group (it did not exist in any group
+// before the step). The run may stay on it; cleanup deletes it and reports a leak if it cannot.
+export async function adoptForeignChat(page, guard, chatsByGroupBefore) {
+  const now = await readActiveChat(page);
+  const fresh = Boolean(now.groupId && now.chatId) && now.groupId !== guard.groupId
+    && !(chatsByGroupBefore[now.groupId] ?? []).includes(now.chatId);
+  if (fresh) guard.foreignChats = [...(guard.foreignChats ?? []), { groupId: now.groupId, chatId: now.chatId }];
+  return { adopted: fresh ? now.chatId : null, foreign: [...(guard.foreignChats ?? [])] };
+}
+
+export async function cleanupForeignChats(page, guard) {
+  return evaluateInST(page, async (foreign) => {
+    const { groups, deleteGroupChat } = await import(/* webpackIgnore: true */ '/scripts/group-chats.js' as string) as {
+      groups: Array<{ id: string; chats: string[] }>;
+      deleteGroupChat: (groupId: string, chatId: string) => Promise<void>;
+    };
+    const deleted = [];
+    const leaked = [];
+    for (const entry of foreign) {
+      const group = groups.find((candidate) => candidate.id === entry.groupId);
+      if (group?.chats.includes(entry.chatId)) {
+        try { await deleteGroupChat(entry.groupId, entry.chatId); deleted.push(entry.chatId); } catch { leaked.push(entry.chatId); }
+      }
+    }
+    await new Promise((resolve) => setTimeout(resolve, 2500));
+    const all = await fetch('/api/groups/all', { method: 'POST', headers: SillyTavern.getContext().getRequestHeaders() }).then((response) => response.json()) as Array<{ id: string; chats: string[] }>;
+    for (const entry of foreign) if (all.find((group) => group.id === entry.groupId)?.chats.includes(entry.chatId) && !leaked.includes(entry.chatId)) leaked.push(entry.chatId);
+    return { deleted, leaked };
+  }, guard.foreignChats ?? []);
+}
+
 export async function adoptNewSandboxChat(page, guard, chatsBeforeStep) {
   const now = await readActiveChat(page);
   const fresh = now.groupId === guard.groupId && now.chatId && !guard.owned.includes(now.chatId)

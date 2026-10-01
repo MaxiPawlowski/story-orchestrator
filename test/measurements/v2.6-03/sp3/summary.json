@@ -1,0 +1,731 @@
+{
+ "spike": "SP3",
+ "restated": "docs/plans/v2.6/03-sp3-restated.md (1c4038ab, before any run)",
+ "lane": 2,
+ "bundle": "ceb15ac19ec0 (served)",
+ "A1_decided_real_audits": {
+  "sources": [
+   "v2.4 J12 Adolion tails (4)",
+   "this plan's SP2 live reads on adolion-night/adventurer/esha (3 tails, DeepSeek read route)"
+  ],
+  "castRows": 1672,
+  "variantRows": 13,
+  "rate": 0.0078,
+  "byStore": {
+   "epistemic": {
+    "cast": 228,
+    "variant": 1
+   },
+   "ledger": {
+    "cast": 288,
+    "variant": 1
+   },
+   "memory": {
+    "cast": 1156,
+    "variant": 11
+   }
+  },
+  "variants": [
+   "memory:Dalan Evergreen->companion_b (name with extra words)",
+   "epistemic:Dalan Evergreen->companion_b (name with extra words)",
+   "ledger:Dalan Evergreen->companion_b (name with extra words)"
+  ],
+  "j12Only": {
+   "castRows": 53,
+   "variantRows": 13,
+   "rate": 0.2453
+  },
+  "caveat": "SP2's chats are scripted with canonical names; phaseA classify finds ~49 % of titled split keys (lab F1), but no 'none' key in these rows is a roster member's alias (inspected: Max Nightriver = persona, Istvan/Castle Bathorya/Wendhope = not cast)",
+  "result": "FAIL (0.78 % < 5 %, n = 1672)"
+ },
+ "A1_information_authored": "lab/aliases score.mjs on 652 labelled rows: labelled split 47.6 %, today's classifier 31.3 % (recall 0.49); authored, never decides (score-authored.txt)",
+ "A2": {
+  "route": "director role, profile deepseek 4.1 flash, LLM director path (no judge)",
+  "runs": {
+   "adolion-sp3-r1": {
+    "all": {
+     "n": 174,
+     "correct": 151,
+     "null": 0,
+     "wrong": 23,
+     "nullPer50": 0.0,
+     "missPer50": 6.61,
+     "wrongIds": [
+      [
+       "AD013",
+       "Adolion Narrator",
+       [
+        "Gustall"
+       ]
+      ],
+      [
+       "AD019",
+       "Adolion Narrator",
+       [
+        "Riyo"
+       ]
+      ],
+      [
+       "AD021",
+       "Adolion Narrator",
+       [
+        "Dalan"
+       ]
+      ],
+      [
+       "AD032",
+       "Adolion Narrator",
+       [
+        "Welden"
+       ]
+      ],
+      [
+       "AD038",
+       "Shiya",
+       [
+        "Eriana"
+       ]
+      ],
+      [
+       "AD055",
+       "Fiana",
+       [
+        "Rydel"
+       ]
+      ],
+      [
+       "AD056",
+       "Adolion Narrator",
+       [
+        "Grant"
+       ]
+      ],
+      [
+       "AD057",
+       "Alarise",
+       [
+        "Konako"
+       ]
+      ],
+      [
+       "AD062",
+       "Adolion Narrator",
+       [
+        "Celedir"
+       ]
+      ],
+      [
+       "AD063",
+       "Celedir",
+       [
+        "Lirael"
+       ]
+      ],
+      [
+       "AD066",
+       "Adolion Narrator",
+       [
+        "Arryn"
+       ]
+      ],
+      [
+       "AD069",
+       "Adolion Narrator",
+       [
+        "Ryenne"
+       ]
+      ],
+      [
+       "AD075",
+       "Adolion Narrator",
+       [
+        "Panne"
+       ]
+      ],
+      [
+       "AD081",
+       "Adolion Narrator",
+       [
+        "Domas"
+       ]
+      ],
+      [
+       "AD085",
+       "Kela",
+       [
+        "Safie"
+       ]
+      ],
+      [
+       "AD094",
+       "Caetus",
+       [
+        "Caelia"
+       ]
+      ],
+      [
+       "AD095",
+       "Dalan",
+       [
+        "Caetus"
+       ]
+      ],
+      [
+       "AD097",
+       "Vallie",
+       [
+        "Unira"
+       ]
+      ],
+      [
+       "AD102",
+       "Adolion Narrator",
+       [
+        "Rikako"
+       ]
+      ],
+      [
+       "AD103",
+       "Adolion Narrator",
+       [
+        "Honami"
+       ]
+      ],
+      [
+       "AD105",
+       "Hanabi",
+       [
+        "Shinen"
+       ]
+      ],
+      [
+       "AD132",
+       "Alice",
+       [
+        "Gabriel"
+       ]
+      ],
+      [
+       "AD142",
+       "Adolion Narrator",
+       [
+        "The Lady of the Forest"
+       ]
+      ]
+     ]
+    },
+    "aliasRows": {
+     "n": 162,
+     "correct": 139,
+     "null": 0,
+     "wrong": 23,
+     "nullPer50": 0.0,
+     "missPer50": 7.1,
+     "wrongIds": [
+      [
+       "AD013",
+       "Adolion Narrator",
+       [
+        "Gustall"
+       ]
+      ],
+      [
+       "AD019",
+       "Adolion Narrator",
+       [
+        "Riyo"
+       ]
+      ],
+      [
+       "AD021",
+       "Adolion Narrator",
+       [
+        "Dalan"
+       ]
+      ],
+      [
+       "AD032",
+       "Adolion Narrator",
+       [
+        "Welden"
+       ]
+      ],
+      [
+       "AD038",
+       "Shiya",
+       [
+        "Eriana"
+       ]
+      ],
+      [
+       "AD055",
+       "Fiana",
+       [
+        "Rydel"
+       ]
+      ],
+      [
+       "AD056",
+       "Adolion Narrator",
+       [
+        "Grant"
+       ]
+      ],
+      [
+       "AD057",
+       "Alarise",
+       [
+        "Konako"
+       ]
+      ],
+      [
+       "AD062",
+       "Adolion Narrator",
+       [
+        "Celedir"
+       ]
+      ],
+      [
+       "AD063",
+       "Celedir",
+       [
+        "Lirael"
+       ]
+      ],
+      [
+       "AD066",
+       "Adolion Narrator",
+       [
+        "Arryn"
+       ]
+      ],
+      [
+       "AD069",
+       "Adolion Narrator",
+       [
+        "Ryenne"
+       ]
+      ],
+      [
+       "AD075",
+       "Adolion Narrator",
+       [
+        "Panne"
+       ]
+      ],
+      [
+       "AD081",
+       "Adolion Narrator",
+       [
+        "Domas"
+       ]
+      ],
+      [
+       "AD085",
+       "Kela",
+       [
+        "Safie"
+       ]
+      ],
+      [
+       "AD094",
+       "Caetus",
+       [
+        "Caelia"
+       ]
+      ],
+      [
+       "AD095",
+       "Dalan",
+       [
+        "Caetus"
+       ]
+      ],
+      [
+       "AD097",
+       "Vallie",
+       [
+        "Unira"
+       ]
+      ],
+      [
+       "AD102",
+       "Adolion Narrator",
+       [
+        "Rikako"
+       ]
+      ],
+      [
+       "AD103",
+       "Adolion Narrator",
+       [
+        "Honami"
+       ]
+      ],
+      [
+       "AD105",
+       "Hanabi",
+       [
+        "Shinen"
+       ]
+      ],
+      [
+       "AD132",
+       "Alice",
+       [
+        "Gabriel"
+       ]
+      ],
+      [
+       "AD142",
+       "Adolion Narrator",
+       [
+        "The Lady of the Forest"
+       ]
+      ]
+     ]
+    },
+    "controls": {
+     "n": 12,
+     "correct": 12,
+     "null": 0,
+     "wrong": 0,
+     "nullPer50": 0.0,
+     "missPer50": 0.0,
+     "wrongIds": []
+    }
+   },
+   "adolion-sp3-r2": {
+    "all": {
+     "n": 174,
+     "correct": 154,
+     "null": 0,
+     "wrong": 20,
+     "nullPer50": 0.0,
+     "missPer50": 5.75,
+     "wrongIds": [
+      [
+       "AD013",
+       "Adolion Narrator",
+       [
+        "Gustall"
+       ]
+      ],
+      [
+       "AD019",
+       "Adolion Narrator",
+       [
+        "Riyo"
+       ]
+      ],
+      [
+       "AD021",
+       "Adolion Narrator",
+       [
+        "Dalan"
+       ]
+      ],
+      [
+       "AD032",
+       "Adolion Narrator",
+       [
+        "Welden"
+       ]
+      ],
+      [
+       "AD038",
+       "Shiya",
+       [
+        "Eriana"
+       ]
+      ],
+      [
+       "AD056",
+       "Adolion Narrator",
+       [
+        "Grant"
+       ]
+      ],
+      [
+       "AD057",
+       "Grant",
+       [
+        "Konako"
+       ]
+      ],
+      [
+       "AD062",
+       "Adolion Narrator",
+       [
+        "Celedir"
+       ]
+      ],
+      [
+       "AD063",
+       "Celedir",
+       [
+        "Lirael"
+       ]
+      ],
+      [
+       "AD066",
+       "Adolion Narrator",
+       [
+        "Arryn"
+       ]
+      ],
+      [
+       "AD069",
+       "Adolion Narrator",
+       [
+        "Ryenne"
+       ]
+      ],
+      [
+       "AD075",
+       "Adolion Narrator",
+       [
+        "Panne"
+       ]
+      ],
+      [
+       "AD081",
+       "Adolion Narrator",
+       [
+        "Domas"
+       ]
+      ],
+      [
+       "AD085",
+       "Kela",
+       [
+        "Safie"
+       ]
+      ],
+      [
+       "AD094",
+       "Caetus",
+       [
+        "Caelia"
+       ]
+      ],
+      [
+       "AD095",
+       "Dalan",
+       [
+        "Caetus"
+       ]
+      ],
+      [
+       "AD097",
+       "Vallie",
+       [
+        "Unira"
+       ]
+      ],
+      [
+       "AD102",
+       "Adolion Narrator",
+       [
+        "Rikako"
+       ]
+      ],
+      [
+       "AD103",
+       "Adolion Narrator",
+       [
+        "Honami"
+       ]
+      ],
+      [
+       "AD132",
+       "Alice",
+       [
+        "Gabriel"
+       ]
+      ]
+     ]
+    },
+    "aliasRows": {
+     "n": 162,
+     "correct": 142,
+     "null": 0,
+     "wrong": 20,
+     "nullPer50": 0.0,
+     "missPer50": 6.17,
+     "wrongIds": [
+      [
+       "AD013",
+       "Adolion Narrator",
+       [
+        "Gustall"
+       ]
+      ],
+      [
+       "AD019",
+       "Adolion Narrator",
+       [
+        "Riyo"
+       ]
+      ],
+      [
+       "AD021",
+       "Adolion Narrator",
+       [
+        "Dalan"
+       ]
+      ],
+      [
+       "AD032",
+       "Adolion Narrator",
+       [
+        "Welden"
+       ]
+      ],
+      [
+       "AD038",
+       "Shiya",
+       [
+        "Eriana"
+       ]
+      ],
+      [
+       "AD056",
+       "Adolion Narrator",
+       [
+        "Grant"
+       ]
+      ],
+      [
+       "AD057",
+       "Grant",
+       [
+        "Konako"
+       ]
+      ],
+      [
+       "AD062",
+       "Adolion Narrator",
+       [
+        "Celedir"
+       ]
+      ],
+      [
+       "AD063",
+       "Celedir",
+       [
+        "Lirael"
+       ]
+      ],
+      [
+       "AD066",
+       "Adolion Narrator",
+       [
+        "Arryn"
+       ]
+      ],
+      [
+       "AD069",
+       "Adolion Narrator",
+       [
+        "Ryenne"
+       ]
+      ],
+      [
+       "AD075",
+       "Adolion Narrator",
+       [
+        "Panne"
+       ]
+      ],
+      [
+       "AD081",
+       "Adolion Narrator",
+       [
+        "Domas"
+       ]
+      ],
+      [
+       "AD085",
+       "Kela",
+       [
+        "Safie"
+       ]
+      ],
+      [
+       "AD094",
+       "Caetus",
+       [
+        "Caelia"
+       ]
+      ],
+      [
+       "AD095",
+       "Dalan",
+       [
+        "Caetus"
+       ]
+      ],
+      [
+       "AD097",
+       "Vallie",
+       [
+        "Unira"
+       ]
+      ],
+      [
+       "AD102",
+       "Adolion Narrator",
+       [
+        "Rikako"
+       ]
+      ],
+      [
+       "AD103",
+       "Adolion Narrator",
+       [
+        "Honami"
+       ]
+      ],
+      [
+       "AD132",
+       "Alice",
+       [
+        "Gabriel"
+       ]
+      ]
+     ]
+    },
+    "controls": {
+     "n": 12,
+     "correct": 12,
+     "null": 0,
+     "wrong": 0,
+     "nullPer50": 0.0,
+     "missPer50": 0.0,
+     "wrongIds": []
+    }
+   }
+  },
+  "medianLatencyMs": {
+   "adolion-sp3-r1": 755,
+   "adolion-sp3-r2": 764
+  },
+  "decidedCount": "null + wrong member per 50 (restated): 6.61 and 5.75 over all 174; 7.10 and 6.17 over the 162 alias rows; controls 12/12 both runs",
+  "narrowCount": "null only: 0 per 50 both runs (the model always answers with a candidate's listed name)",
+  "stability": "20 of the wrong picks repeat across the two runs (23 and 20)",
+  "pattern": "wrong picks are mostly the lead (Adolion Narrator, 13 and 12) when the window addresses a member by full name, surname, kinship or nickname",
+  "result": "PASS on the declared count (>= 1 per 50 in both runs)"
+ },
+ "A3": {
+  "rows": 1672,
+  "decisions": "174 x 2 (calibration-lane, procedure change stated)",
+  "result": "sample accepted"
+ },
+ "toy": "scripts/spike/sp3/phaseA.test.mjs 6/6",
+ "cost": {
+  "deepseek_calls": 348,
+  "pod_minutes": 0,
+  "typesafe_calls": 0
+ }
+}

@@ -1,0 +1,649 @@
+{
+ "route": "presence (no model)",
+ "chatId": "2026-10-01@09h53m21s265ms",
+ "total": 40,
+ "agree": 4,
+ "rate": 0.1,
+ "disagreements": [
+  0,
+  1,
+  2,
+  3,
+  4,
+  5,
+  6,
+  7,
+  8,
+  9,
+  10,
+  11,
+  12,
+  13,
+  14,
+  15,
+  16,
+  17,
+  18,
+  19,
+  20,
+  21,
+  22,
+  23,
+  24,
+  25,
+  30,
+  31,
+  32,
+  33,
+  34,
+  35,
+  36,
+  37,
+  38,
+  39
+ ],
+ "pass": false,
+ "detail": [
+  {
+   "index": 0,
+   "label": [
+    "Adolion Narrator",
+    "Welden",
+    "Natalia",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Welden",
+    "Leila"
+   ]
+  },
+  {
+   "index": 1,
+   "label": [
+    "Adolion Narrator",
+    "Welden",
+    "Natalia",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Welden",
+    "Leila"
+   ]
+  },
+  {
+   "index": 2,
+   "label": [
+    "Adolion Narrator",
+    "Welden",
+    "Natalia",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Welden",
+    "Leila"
+   ]
+  },
+  {
+   "index": 3,
+   "label": [
+    "Adolion Narrator",
+    "Welden",
+    "Natalia",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Welden",
+    "Leila"
+   ]
+  },
+  {
+   "index": 4,
+   "label": [
+    "Adolion Narrator",
+    "Welden",
+    "Natalia",
+    "Ronan",
+    "Leila"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Welden",
+    "Leila"
+   ]
+  },
+  {
+   "index": 5,
+   "label": [
+    "Adolion Narrator",
+    "Leila"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Welden",
+    "Leila"
+   ]
+  },
+  {
+   "index": 6,
+   "label": [
+    "Adolion Narrator",
+    "Leila"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Welden",
+    "Leila"
+   ]
+  },
+  {
+   "index": 7,
+   "label": [
+    "Adolion Narrator",
+    "Welden"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Welden",
+    "Leila"
+   ]
+  },
+  {
+   "index": 8,
+   "label": [
+    "Adolion Narrator",
+    "Shiya"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Welden",
+    "Leila"
+   ]
+  },
+  {
+   "index": 9,
+   "label": [
+    "Adolion Narrator",
+    "Shiya"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Welden",
+    "Leila"
+   ]
+  },
+  {
+   "index": 10,
+   "label": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn",
+    "Javon",
+    "Haley",
+    "Forre",
+    "Eriana"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn"
+   ]
+  },
+  {
+   "index": 11,
+   "label": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn",
+    "Javon",
+    "Haley",
+    "Forre",
+    "Eriana"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn"
+   ]
+  },
+  {
+   "index": 12,
+   "label": [
+    "Adolion Narrator",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn"
+   ]
+  },
+  {
+   "index": 13,
+   "label": [
+    "Adolion Narrator",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn"
+   ]
+  },
+  {
+   "index": 14,
+   "label": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn"
+   ]
+  },
+  {
+   "index": 15,
+   "label": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn",
+    "Javon",
+    "Haley",
+    "Forre",
+    "Eriana"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn"
+   ]
+  },
+  {
+   "index": 16,
+   "label": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn",
+    "Javon",
+    "Haley",
+    "Forre",
+    "Eriana"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn"
+   ]
+  },
+  {
+   "index": 17,
+   "label": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn",
+    "Javon",
+    "Haley",
+    "Forre",
+    "Eriana"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn"
+   ]
+  },
+  {
+   "index": 18,
+   "label": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn",
+    "Javon",
+    "Haley",
+    "Forre",
+    "Eriana"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn"
+   ]
+  },
+  {
+   "index": 19,
+   "label": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn",
+    "Javon",
+    "Haley",
+    "Forre",
+    "Eriana"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Merryn"
+   ]
+  },
+  {
+   "index": 20,
+   "label": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Leila"
+   ]
+  },
+  {
+   "index": 21,
+   "label": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Leila"
+   ]
+  },
+  {
+   "index": 22,
+   "label": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Leila"
+   ]
+  },
+  {
+   "index": 23,
+   "label": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Leila"
+   ]
+  },
+  {
+   "index": 24,
+   "label": [
+    "Adolion Narrator",
+    "Shiya"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Leila"
+   ]
+  },
+  {
+   "index": 25,
+   "label": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Leila"
+   ]
+  },
+  {
+   "index": 30,
+   "label": [
+    "Adolion Narrator",
+    "Javon",
+    "Natalia",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Javon"
+   ]
+  },
+  {
+   "index": 31,
+   "label": [
+    "Adolion Narrator",
+    "Natalia"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Javon"
+   ]
+  },
+  {
+   "index": 32,
+   "label": [
+    "Adolion Narrator",
+    "Javon",
+    "Natalia",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Javon"
+   ]
+  },
+  {
+   "index": 33,
+   "label": [
+    "Adolion Narrator",
+    "Javon",
+    "Natalia",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Javon"
+   ]
+  },
+  {
+   "index": 34,
+   "label": [
+    "Adolion Narrator",
+    "Javon",
+    "Natalia",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Javon"
+   ]
+  },
+  {
+   "index": 35,
+   "label": [
+    "Adolion Narrator",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Javon"
+   ]
+  },
+  {
+   "index": 36,
+   "label": [
+    "Adolion Narrator",
+    "Javon",
+    "Natalia",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Javon"
+   ]
+  },
+  {
+   "index": 37,
+   "label": [
+    "Adolion Narrator",
+    "Javon",
+    "Natalia",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Javon"
+   ]
+  },
+  {
+   "index": 38,
+   "label": [
+    "Adolion Narrator",
+    "Javon",
+    "Natalia",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Javon"
+   ]
+  },
+  {
+   "index": 39,
+   "label": [
+    "Adolion Narrator",
+    "Javon",
+    "Natalia",
+    "Ronan"
+   ],
+   "presence": [
+    "Adolion Narrator",
+    "Natalia",
+    "Shiya",
+    "Ronan",
+    "Javon"
+   ]
+  }
+ ]
+}

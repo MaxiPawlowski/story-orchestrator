@@ -1,0 +1,142 @@
+2026-10-01T14:20:53.163Z 1/61 inject_script ok 8ms
+2026-10-01T14:20:53.170Z 2/61 inject_script ok 7ms
+2026-10-01T14:20:55.861Z 3/61 eval ok 2691ms
+2026-10-01T14:20:55.861Z 3/61 eval -> {"flag":{"spikes":{"swipeBackCache":false,"sp5Scenario":true,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":false,"sp8CuratorDigest":false,"reasoningEffect":false}},"chats":{"A":{"groupId":"1790852643876","chatId":"2026-10-01@11h20m52s123ms"}},"disabledBefore":{"saga":6,"academy":0},"libraryBefore":["adolion-aegis","adolion-deep","adolion-esha","adolion-war","adolion-academy","adolion-night","adolion-adventurer","adolion-east","adolion-saga"]}
+2026-10-01T14:22:31.490Z 4/61 import_story ok 95629ms
+2026-10-01T14:22:31.500Z 5/61 eval ok 10ms
+2026-10-01T14:22:31.500Z 5/61 eval -> {"applied":true,"secs":0,"rows":116}
+2026-10-01T14:22:31.551Z 6/61 eval ok 51ms
+2026-10-01T14:22:31.551Z 6/61 eval -> {"rows":["applied"],"held":"[Genre: high fantasy adventure with a dark edge, a long tabl"}
+2026-10-01T14:23:07.162Z 7/61 slash ok 35610ms
+2026-10-01T14:23:07.928Z 8/61 wait ok 765ms
+2026-10-01T14:23:16.528Z 9/61 eval ok 8600ms
+2026-10-01T14:23:16.528Z 9/61 eval -> {"settled":true,"secs":8,"rows":120}
+2026-10-01T14:23:18.772Z 10/61 eval ok 2244ms
+2026-10-01T14:23:18.772Z 10/61 eval -> {"held":"[Genre: wuxia tournament adventure with court intrigue, then","applied":2}
+2026-10-01T14:23:21.700Z 11/61 slash ok 2928ms
+2026-10-01T14:23:22.487Z 12/61 wait ok 788ms
+2026-10-01T14:23:30.887Z 13/61 eval ok 8399ms
+2026-10-01T14:23:30.887Z 13/61 eval -> {"settled":true,"secs":8,"rows":120}
+2026-10-01T14:23:32.922Z 14/61 eval ok 2035ms
+2026-10-01T14:23:32.922Z 14/61 eval -> {"held":"","rows":2}
+2026-10-01T14:23:40.116Z 15/61 slash ok 7194ms
+2026-10-01T14:23:40.953Z 16/61 wait ok 837ms
+2026-10-01T14:23:49.288Z 17/61 eval ok 8335ms
+2026-10-01T14:23:49.288Z 17/61 eval -> {"settled":true,"secs":8,"rows":126}
+2026-10-01T14:23:59.732Z 18/61 eval ok 10444ms
+2026-10-01T14:23:59.732Z 18/61 eval -> {"path":["guild-hall","east-landfall","east-the-road-inland","east-harvest-festival"],"applied":1}
+2026-10-01T14:24:03.617Z 19/61 eval ok 3885ms
+2026-10-01T14:24:03.617Z 19/61 eval -> {"label":"A-saga","group":"Adolion - The Saga","members":8,"cardScenarios":7,"distinct":4,"planted":0,"withOverride":{"scenario":1,"cards":{"[Genre: Fantasy, Adventuring, Action]":0,"[Genre: Fantasy, Romance, Drama]":0,"[Genre: Fantasy, Slice of Life, Romance]":0,"[Genre: Fantasy, Slice of Life]":0}},"control":{"scenario":0,"cards":{"[Genre: Fantasy, Adventuring, Action]":2,"[Genre: Fantasy, Romance, Drama]":1,"[Genre: Fantasy, Slice of Life, Romance]":3,"[Genre: Fantasy, Slice of Life]":1}},"expectHits":{"[Genre: Fantasy, Adventuring, Action]":2,"[Genre: Fantasy, Romance, Drama]":1,"[Genre: Fantasy, Slice of Life, Romance]":3,"[Genre: Fantasy, Slice of Life]":1},"fresh":false,"matchesOffline":true,"pass":true}
+2026-10-01T14:24:06.856Z 20/61 wait ok 3239ms
+2026-10-01T14:24:11.290Z 21/61 eval ok 4434ms
+2026-10-01T14:24:11.290Z 21/61 eval -> {"B":{"groupId":"1790852642920","chatId":"2026-10-01@11h24m09s058ms"}}
+2026-10-01T14:24:16.439Z 22/61 import_story ok 5149ms
+2026-10-01T14:24:17.455Z 23/61 eval ok 1016ms
+2026-10-01T14:24:17.455Z 23/61 eval -> {"applied":true,"secs":1,"rows":12}
+2026-10-01T14:24:19.467Z 24/61 eval ok 2012ms
+2026-10-01T14:24:19.467Z 24/61 eval -> {"B":{"groupId":"1790852642920","chatId":"2026-10-01@11h24m09s058ms"},"held":"[Genre: fantasy political intrigue, with something older and"}
+2026-10-01T14:24:29.869Z 25/61 eval ok 10402ms
+2026-10-01T14:24:29.870Z 25/61 eval -> {"label":"B-academy","group":"Adolion - House Nightriver","members":6,"cardScenarios":5,"distinct":2,"planted":0,"withOverride":{"scenario":1,"cards":{"[Genre: Fantasy, Political Intrigue, Romance, Adventure]":0,"[Genre: Fantasy, Romance, Adventure, Political Intrigue]":0}},"control":{"scenario":0,"cards":{"[Genre: Fantasy, Political Intrigue, Romance, Adventure]":3,"[Genre: Fantasy, Romance, Adventure, Political Intrigue]":2}},"expectHits":{"[Genre: Fantasy, Political Intrigue, Romance, Adventure]":3,"[Genre: Fantasy, Romance, Adventure, Political Intrigue]":2},"fresh":true,"matchesOffline":true,"pass":true}
+2026-10-01T14:24:33.066Z 26/61 wait ok 3195ms
+2026-10-01T14:24:39.944Z 27/61 eval ok 6878ms
+2026-10-01T14:24:39.944Z 27/61 eval -> {"back":"2026-10-01@11h20m52s123ms"}
+2026-10-01T14:26:20.709Z 28/61 eval ok 100765ms
+2026-10-01T14:26:20.709Z 28/61 eval -> {"settled":true,"secs":101,"rows":200}
+2026-10-01T14:26:21.434Z 29/61 solo_chat ok 725ms
+2026-10-01T14:26:25.757Z 30/61 eval ok 4322ms
+2026-10-01T14:26:25.757Z 30/61 eval -> {"C":{"avatar":"Belle.png","chatId":"Belle - 2026-10-01@11h26m20s976ms"}}
+2026-10-01T14:27:30.749Z 31/61 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: goto 2026-10-01@11h24m09s058ms: still on 2026-10-01@11h20m52s123ms with story null
+2026-10-01T14:27:30.749Z     at Object.goto (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:136:53)
+2026-10-01T14:27:30.749Z     at async eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:384)
+2026-10-01T14:27:30.749Z     at async <anonymous>:316:30
+2026-10-01T14:27:31.448Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-10-01T14-27-31-425Z_so-scenario-failure.json
+2026-10-01T14:28:33.716Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-10-01T14-28-33-715Z_so-scenario-result.json
+2026-10-01T14:28:33.716Z {
+2026-10-01T14:28:33.716Z   "ok": false,
+2026-10-01T14:28:33.716Z   "steps": 31,
+2026-10-01T14:28:33.716Z   "cleanup": {
+2026-10-01T14:28:33.716Z     "generation": {
+2026-10-01T14:28:33.716Z       "idle": false,
+2026-10-01T14:28:33.716Z       "wasGenerating": false,
+2026-10-01T14:28:33.716Z       "stops": 0,
+2026-10-01T14:28:33.716Z       "waitedMs": 60080,
+2026-10-01T14:28:33.716Z       "lastSeen": {
+2026-10-01T14:28:33.716Z         "generating": false,
+2026-10-01T14:28:33.716Z         "saving": true,
+2026-10-01T14:28:33.716Z         "chatId": "2026-10-01@11h20m52s123ms",
+2026-10-01T14:28:33.716Z         "signals": []
+2026-10-01T14:28:33.716Z       },
+2026-10-01T14:28:33.716Z       "error": "generation did not stop within 60000 ms (last seen: {\"generating\":false,\"saving\":true,\"chatId\":\"2026-10-01@11h20m52s123ms\",\"signals\":[]}); no chat was switched"
+2026-10-01T14:28:33.716Z     },
+2026-10-01T14:28:33.716Z     "importedStoryHashes": [
+2026-10-01T14:28:33.716Z       "v2-6a8fdb5b",
+2026-10-01T14:28:33.716Z       "v2-b35ac63a"
+2026-10-01T14:28:33.716Z     ],
+2026-10-01T14:28:33.716Z     "library": {
+2026-10-01T14:28:33.716Z       "changed": true,
+2026-10-01T14:28:33.716Z       "removed": [],
+2026-10-01T14:28:33.716Z       "restored": [
+2026-10-01T14:28:33.716Z         "adolion-academy@22 (v2-b35ac63a)",
+2026-10-01T14:28:33.716Z         "adolion-saga@11 (v2-6a8fdb5b)"
+2026-10-01T14:28:33.716Z       ],
+2026-10-01T14:28:33.716Z       "saved": {
+2026-10-01T14:28:33.716Z         "status": 200
+2026-10-01T14:28:33.716Z       },
+2026-10-01T14:28:33.716Z       "verified": true
+2026-10-01T14:28:33.716Z     },
+2026-10-01T14:28:33.716Z     "notDeleted": [
+2026-10-01T14:28:33.716Z       "2026-10-01@11h20m52s123ms",
+2026-10-01T14:28:33.716Z       "Belle - 2026-10-01@11h26m20s976ms"
+2026-10-01T14:28:33.716Z     ],
+2026-10-01T14:28:33.716Z     "extraction": {
+2026-10-01T14:28:33.716Z       "restored": true,
+2026-10-01T14:28:33.716Z       "from": {
+2026-10-01T14:28:33.716Z         "enabled": true,
+2026-10-01T14:28:33.716Z         "cadence": 3,
+2026-10-01T14:28:33.716Z         "stabilityLag": 0,
+2026-10-01T14:28:33.716Z         "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z         "profiles": {
+2026-10-01T14:28:33.716Z           "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z           "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z           "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z           "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z           "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+2026-10-01T14:28:33.716Z         }
+2026-10-01T14:28:33.716Z       },
+2026-10-01T14:28:33.716Z       "to": {
+2026-10-01T14:28:33.716Z         "enabled": true,
+2026-10-01T14:28:33.716Z         "cadence": 1,
+2026-10-01T14:28:33.716Z         "stabilityLag": 0,
+2026-10-01T14:28:33.716Z         "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z         "profiles": {
+2026-10-01T14:28:33.716Z           "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z           "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z           "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z           "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z           "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+2026-10-01T14:28:33.716Z         }
+2026-10-01T14:28:33.716Z       },
+2026-10-01T14:28:33.716Z       "verified": {
+2026-10-01T14:28:33.716Z         "enabled": true,
+2026-10-01T14:28:33.716Z         "cadence": 1,
+2026-10-01T14:28:33.716Z         "stabilityLag": 0,
+2026-10-01T14:28:33.716Z         "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z         "profiles": {
+2026-10-01T14:28:33.716Z           "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z           "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z           "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z           "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T14:28:33.716Z           "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+2026-10-01T14:28:33.716Z         }
+2026-10-01T14:28:33.716Z       },
+2026-10-01T14:28:33.716Z       "saved": {
+2026-10-01T14:28:33.716Z         "status": 200
+2026-10-01T14:28:33.716Z       },
+2026-10-01T14:28:33.716Z       "ok": true
+2026-10-01T14:28:33.716Z     },
+2026-10-01T14:28:33.716Z     "judge": {
+2026-10-01T14:28:33.716Z       "restored": false,
+2026-10-01T14:28:33.716Z       "unchanged": true
+2026-10-01T14:28:33.716Z     }
+2026-10-01T14:28:33.716Z   }
+2026-10-01T14:28:33.716Z }

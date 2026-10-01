@@ -1,0 +1,63 @@
+{
+  "lanes": [
+    2
+  ],
+  "items": [
+    "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r1-adolion-lord-spirit.json",
+    "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r4-adolion-lord-spirit.json",
+    "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r1-adolion-wendhope-wall.json",
+    "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r4-adolion-wendhope-wall.json"
+  ],
+  "repeat": 1,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r1-adolion-lord-spirit.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-10-01T11-47-45-843Z-live-v25-09-sp2-r1-adolion-lord-spirit-run1.log",
+      "ms": 187183,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r4-adolion-lord-spirit.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-10-01T11-47-45-843Z-live-v25-09-sp2-r4-adolion-lord-spirit-run1.log",
+      "ms": 335194,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r1-adolion-wendhope-wall.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-10-01T11-47-45-843Z-live-v25-09-sp2-r1-adolion-wendhope-wall-run1.log",
+      "ms": 28963,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r4-adolion-wendhope-wall.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-10-01T11-47-45-843Z-live-v25-09-sp2-r4-adolion-wendhope-wall-run1.log",
+      "ms": 180656,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

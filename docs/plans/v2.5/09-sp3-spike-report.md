@@ -71,3 +71,28 @@ The last line re-measures A1–A3 over the archived tails plus the new ones. Rou
 and the decisions from `director`; the new runs record both routes in their run headers. Projection, not a decision: the archive's
 J11 tails give 13 decisions a run and its only J7 tail gives 0, so four runs add about 26 and A3 would stay below 100. Then A3 fails,
 A1/A2 stay undecided, and SP3 is recorded not built (exact matching stays). No spike code needs removing: Phase A added none to `src/`.
+
+## v2.6 Adolion re-run (plan 03, 2026-10-01)
+
+Restated conditions: `docs/plans/v2.6/03-sp3-restated.md` (committed before any run; bars unchanged). **Procedure change
+(stated there):** A3 counts the lab's calibration-lane director decisions, `adolion-campaign@e1c91fb`
+`lab/aliases/director.json`, **174 rows** (plan 03 said 199; W25 removed the Spanish rows), run ×2 through the real
+director prompt and parser on `deepseek 4.1 flash` (pass role `director`). A2 counts a decision as a miss when it resolves to
+no candidate **or** to a member outside `acceptable`; the null-only count is reported beside it. Records:
+`test/measurements/v2.6-03/sp3/` (`summary.json`, `a2-live.json`, `phaseA-adolion-real.json`, `score-authored.txt`).
+
+| # | Measured | Result |
+|---|---|---|
+| A1 | Real Adolion audits: v2.4 J12 tails + this plan's SP2 reads (3 act stories, DeepSeek): **13 of 1672 cast rows = 0.78 %**, all `Dalan Evergreen` for `Dalan` from J12; 0 in the 1619 SP2 rows. Authored lab rows (information only): 47.6 % labelled, 31.3 % found by today's classifier | **FAIL** (< 5 %) |
+| A2 | Run 1: 23 wrong / 0 null of 174 = **6.61 per 50**; run 2: 20 / 0 = **5.75 per 50** (alias rows 7.10 / 6.17; canonical controls 12/12 both runs). 20 wrong picks repeat across runs; 13 and 12 of them are the lead (Adolion Narrator) chosen over a member addressed by full name, surname, kinship or nickname. Null-only: 0 per 50 | **PASS** on the declared count |
+| A3 | rows 1672 ≥ 300; decisions 174 × 2 ≥ 100 (procedure change) | accepted |
+
+## Worth review (v2.6)
+
+| | |
+|---|---|
+| Value | Harm measured: about 1 in 8 alias-addressed director decisions drafts the wrong member (mostly the lead), stable across two runs; canonical names are 12/12. Memory, epistemic and ledger keys do not split in real reads (A1 0.78 %), so the value is director-only. The gain of aliases is not measured yet; Phase B's own condition measures it. |
+| Cost | Phase B scoped to the director: `roster[].aliases` (schema + validator, the lab's 312 `ship[]` aliases), aliases shown beside each candidate in the director prompt (~+10 prompt tokens per candidate, ~+60 per call on a 6-candidate window), one resolver for `SPEAKER:` answers in `talk/parse.ts`; est. < 1 kB min, ~60 lines, 0 coordinator lines. Latency unchanged (DeepSeek median 755–764 ms per decision). |
+| Surface | Author: an aliases field per roster member (Studio roster editor); player: none. |
+| Risk | Ambiguous aliases (lab: 44 shared, 18 unresolvable by scope) must never resolve by guess; `rollback ≡ replay` untouched (director only). |
+| Call | **include → `SP3.b`** (Phase B, director scope only), gated by v2.5's Phase B condition: the A2 rate re-measured on two fresh runs of the same 174 windows, each ≤ half its Phase A rate (≤ 3.30 and ≤ 2.87 per 50). If it misses, drop and keep exact matching. Memory/epistemic/ledger aliasing: **drop** (A1 FAIL on real audits). |

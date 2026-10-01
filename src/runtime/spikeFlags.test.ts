@@ -1,9 +1,7 @@
 import { defaultGlobalSettings, sanitizeGlobalSettings } from "./settingsModel";
 
 const ALL_OFF = {
-  recommitEdit: false,
   swipeBackCache: false,
-  witnessFilter: false,
   sp5Scenario: false,
   sp7Chance: false,
   sp6Complications: false,
