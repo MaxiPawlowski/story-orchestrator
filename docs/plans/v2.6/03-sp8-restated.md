@@ -37,3 +37,11 @@ A PASS of W3 (with W1/W2) unlocks tiers and spans; W4 is judged separately and u
   tool writes them.
 - **Decision:** W3 PASS → tiers + spans are the `SP8.b` candidate (worth review decides). W4 (b) PASS → the digest is
   a separate candidate. A FAIL → that part is dropped: removal commit with the planted-import control (D3 list).
+
+## Addendum 1 2026-10-01 17:00Z — W3 re-run after a host failure (bars unchanged)
+
+W3 attempt 1 (16:20Z) stopped in round 17 of run 1: the host disk filled (`ENOSPC` in lane 2's `server.log` on
+`/api/chats/save`, then the lane server exited), so run 2 failed its readiness check. Not measured; the partial count
+(16 ops, 5 plan-time drops, 4 of them protected-text refusals) is informational only and never enters the bar. Lane 2
+restarted, the marker book, sandbox chat, imported story and flag removed by hand. Same fixture and procedure re-run
+×2 (`--repeat 2`); a free-space check (≥ 5 GB on C:) precedes it.
