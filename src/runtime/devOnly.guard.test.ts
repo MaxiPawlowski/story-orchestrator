@@ -11,7 +11,6 @@ const DEV_ONLY = [
   "src/judge/calibration.ts",
   "src/judge/selfTestCases.ts",
   "src/services/stHost/chatScenario.ts",
-  "src/engine/chance.ts",
   ...PLAN_09_SPIKES,
 ];
 const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
@@ -23,7 +22,6 @@ const SPIKES = [
   "src/runtime/spikes/sp5Scenario.ts",
   "src/runtime/spikes/sp5ScenarioHost.ts",
   "src/runtime/spikes/sp6Complications.ts",
-  "src/runtime/spikes/sp7Chance.ts",
   "src/runtime/spikes/swipeBack.ts",
   "src/runtime/spikes/swipeCache.ts",
   "src/runtime/spikes/toolTurnProbe.ts",
@@ -132,6 +130,11 @@ import "./runtime/wiring/spikes";
     const planted = join(SRC, "runtime", "index.ts");
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === planted ? `import { installSpikes } from "./spikes/install";\n${fs.readFileSync(path, "utf8")}` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/install.ts", "src/runtime/spikes/sp7Chance.ts", "src/runtime/spikes/sp6Complications.ts", "src/engine/chance.ts"]));
+    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/install.ts", "src/runtime/spikes/sp6Complications.ts"]));
+  });
+
+  it("SP7.b: the seeded chance seam ships in the prod entry graph, and its spike module is gone", () => {
+    expect(staticReach(files)).toEqual(expect.arrayContaining(["src/engine/chance.ts", "src/runtime/chance.ts"]));
+    expect(files.map(rel)).not.toContain("src/runtime/spikes/sp7Chance.ts");
   });
 });

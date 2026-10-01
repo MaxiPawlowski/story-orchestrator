@@ -1,4 +1,5 @@
 import { stripChannelNoise } from "@extraction/parse";
+import { aliasOwner } from "./aliases";
 import type { TalkCandidate } from "./types";
 
 export interface DirectorVerdict {
@@ -20,7 +21,8 @@ const matchCandidate = (value: string, candidates: TalkCandidate[]): TalkCandida
   const exact = candidates.find((candidate) => normalize(candidate.name) === search);
   if (exact) return exact;
   const head = normalize(value.split(/\s+\(|:\s|\s[—–-]\s/)[0] ?? "");
-  return head && head !== search ? candidates.find((candidate) => normalize(candidate.name) === head) ?? null : null;
+  const named = head && head !== search ? candidates.find((candidate) => normalize(candidate.name) === head) ?? null : null;
+  return named ?? aliasOwner(search, candidates) ?? (head && head !== search ? aliasOwner(head, candidates) : null);
 };
 
 const HAND_BACK = /^(player|the player|you)$/i;

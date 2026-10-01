@@ -20,11 +20,28 @@ const readMemberText = (member: Member, key: "role" | "drive", path: string, err
   return value.trim() ? { ...rest, [key]: value.trim() } : rest;
 };
 
+const readMemberAliases = (member: Member, path: string, errors: ValidationError[]): Member => {
+  const { aliases, ...rest } = member;
+  if (aliases === undefined) return member;
+  if (!Array.isArray(aliases) || aliases.some((alias) => typeof alias !== "string")) {
+    addError(errors, `${path}.aliases`, "roster aliases are a list of names");
+    return rest;
+  }
+  const seen = new Set([(member.name ?? member.id).trim().toLowerCase()]);
+  const kept = aliases.map((alias) => alias.trim()).filter((alias) => {
+    const key = alias.toLowerCase();
+    if (!alias || seen.has(key)) return false;
+    seen.add(key);
+    return true;
+  });
+  return kept.length ? { ...rest, aliases: kept } : rest;
+};
+
 export const readRoster = (roster: StoryV2["roster"], errors: ValidationError[]): StoryV2["roster"] => roster.map((member, index) => {
   if (!isRecord(member)) return member;
   const path = `roster.${index}`;
   if (member.view !== undefined && !isOneOf(member.view, ROSTER_VIEWS)) addError(errors, `${path}.view`, "roster view must be own or omniscient");
-  return readMemberText(readMemberText(member, "role", path, errors), "drive", path, errors);
+  return readMemberAliases(readMemberText(readMemberText(member, "role", path, errors), "drive", path, errors), path, errors);
 });
 
 const readMotives = (value: unknown, path: string, errors: ValidationError[]): Record<string, string> | undefined => {

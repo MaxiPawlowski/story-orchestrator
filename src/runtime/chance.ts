@@ -1,7 +1,5 @@
-import { chanceSeed, readChanceRoll, rollOutcome, seededStream, unitDraw, type ChanceRoll } from "@engine/chance";
-import type { DerivedQualityView, PrimitiveValue } from "@engine/index";
-import { isRecord } from "@utils/guards";
-import type { SpikeSeams } from "../spikeSeams";
+import { chanceSeed, rollOutcome, seededStream, unitDraw } from "@engine/chance";
+import type { DerivedQualityView, PrimitiveValue, Quality } from "@engine/index";
 
 export interface ChanceIds {
   chatId: string;
@@ -10,7 +8,7 @@ export interface ChanceIds {
 
 export interface ChanceContext extends ChanceIds {
   boundary: number;
-  raw: unknown;
+  qualities: readonly Quality[];
 }
 
 export type ChanceDrawKind = "npc" | "talk";
@@ -22,25 +20,17 @@ export interface ChanceDraw extends ChanceIds {
   unit: number;
 }
 
-export interface RollQuality {
-  key: string;
-  type: string;
-  roll: ChanceRoll;
+export interface ChanceSeams {
+  derive: (view: DerivedQualityView) => Array<{ q: string; v: PrimitiveValue }>;
+  npcRoll: (key: string) => number | null;
+  talkRandom: () => (() => number) | null;
 }
 
 export const TALK_DRAW_KEY = "talk";
 
-export const rollQualities = (raw: unknown): RollQuality[] => {
-  if (!isRecord(raw) || !Array.isArray(raw.qualities)) return [];
-  return raw.qualities.flatMap((quality): RollQuality[] => {
-    if (!isRecord(quality) || quality.source !== "code" || typeof quality.key !== "string" || typeof quality.type !== "string") return [];
-    const roll = readChanceRoll(quality.roll);
-    return roll ? [{ key: quality.key, type: quality.type, roll }] : [];
-  });
-};
-
-export const chanceGateValues = (raw: unknown, ids: ChanceIds, view: DerivedQualityView): Array<{ q: string; v: PrimitiveValue }> =>
-  rollQualities(raw).flatMap(({ key, type, roll }) => {
+export const chanceGateValues = (qualities: readonly Quality[], ids: ChanceIds, view: DerivedQualityView): Array<{ q: string; v: PrimitiveValue }> =>
+  qualities.flatMap(({ key, type, source, roll }) => {
+    if (!roll || source !== "code") return [];
     const value = rollOutcome(roll, type, unitDraw([ids.chatId, ids.storyId, view.checkpointStartedBoundary, key]));
     return value === null ? [] : [{ q: key, v: value }];
   });
@@ -50,10 +40,19 @@ export const npcRollDraw = (ids: ChanceIds, boundary: number, key: string): numb
 export const talkDrawStream = (ids: ChanceIds, boundary: number): (() => number) =>
   seededStream(chanceSeed([ids.chatId, ids.storyId, boundary, TALK_DRAW_KEY]));
 
-export const createChanceSeams = (read: () => ChanceContext | null, record: (draw: ChanceDraw) => void = () => undefined): SpikeSeams => ({
+const drawListeners = new Set<(draw: ChanceDraw) => void>();
+
+export const onChanceDraw = (listener: (draw: ChanceDraw) => void): (() => void) => {
+  drawListeners.add(listener);
+  return () => { drawListeners.delete(listener); };
+};
+
+const announce = (draw: ChanceDraw) => drawListeners.forEach((listener) => listener(draw));
+
+export const createChanceSeams = (read: () => ChanceContext | null, record: (draw: ChanceDraw) => void = announce): ChanceSeams => ({
   derive: (view) => {
     const context = read();
-    return context ? chanceGateValues(context.raw, context, view) : [];
+    return context ? chanceGateValues(context.qualities, context, view) : [];
   },
   npcRoll: (key) => {
     const context = read();

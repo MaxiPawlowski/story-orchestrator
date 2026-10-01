@@ -1,6 +1,6 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { backdateSession, blackboardDiff, flagMoment, groupNeedle, newJournalEvents, runMutation, runTurn, type LiveDeps } from './sessionLive.mts';
+import { backdateSession, blackboardDiff, flagMoment, groupNeedle, newJournalEvents, runGuardedTurn, runMutation, runTurn, type LiveDeps } from './sessionLive.mts';
 import { clearPage, EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './sessionFakes.mts';
 
 afterEach(() => { uninstall(); delete (globalThis as any).document; });
@@ -56,6 +56,54 @@ test('turn: a group send that drafts two members records both generations, both 
   assert.deepEqual(record.journal.map((event) => event.kind), ['transition']);
   assert.equal(record.pipeline?.state, 'idle');
   assert.ok(record.timing.totalMs > 0 && record.timing.actMs > 0);
+});
+
+test('T1 turn: a group round whose second reply lands after send returns is waited for, and the record holds both replies', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const { ctx, events } = fake;
+  const reply = async (chid: number, text: string) => {
+    await events.emit(EVENT_TYPES.GENERATION_STARTED, 'normal', {}, false);
+    await events.emit(EVENT_TYPES.GROUP_MEMBER_DRAFTED, chid);
+    ctx.chat.push({ name: ctx.characters[chid].name, mes: text });
+    await events.emit(EVENT_TYPES.MESSAGE_RECEIVED, ctx.chat.length - 1, 'normal');
+    await events.emit(EVENT_TYPES.GENERATION_ENDED);
+  };
+  let ticks = 0;
+  const page = fakePage({
+    waitForTimeout: async () => {
+      ticks += 1;
+      if (ticks === 3) await reply(2, 'Dalan arrives late with the ledger.');
+      if (ticks === 4) await events.emit(EVENT_TYPES.GROUP_WRAPPER_FINISHED);
+    },
+  });
+  const send = async (_page: unknown, line: string) => {
+    ctx.chat.push({ name: 'You', is_user: true, mes: line });
+    await events.emit(EVENT_TYPES.GROUP_WRAPPER_STARTED);
+    await reply(1, 'Belle answers first.');
+    return { replied: true, lastSpeaker: 'Belle' };
+  };
+  const record = await runTurn(page, 'Both of you, report.', baseDeps({ send }));
+  assert.equal(record.ok, true, record.problems.join('; '));
+  assert.deepEqual(record.speakers, ['Belle', 'Dalan']);
+  assert.equal(record.generations.count, 2);
+  assert.equal((record.send as any).round.settled, true);
+  assert.ok(ticks >= 4, 'the wait outlasted the second reply and the wrapper close');
+});
+
+test('T1 turn: control, a group round that never closes is reported after the budget, not waited for forever', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const { ctx, events } = fake;
+  const send = async (_page: unknown, line: string) => {
+    ctx.chat.push({ name: 'You', is_user: true, mes: line });
+    await events.emit(EVENT_TYPES.GROUP_WRAPPER_STARTED);
+    ctx.chat.push({ name: 'Belle', mes: 'Still talking.' });
+    return { replied: true };
+  };
+  const record = await runTurn(fakePage(), 'Hello?', baseDeps({ send }), { timeoutMs: 3000 });
+  assert.equal(record.ok, false);
+  assert.ok(record.problems.some((problem) => problem.startsWith('the round did not settle')), record.problems.join('; '));
 });
 
 test('turn: a send that nothing answers is recorded as not ok, and a scheduler that never drains is named', async () => {
@@ -326,6 +374,36 @@ test('T0-3 swipe-new: an arrow that is not hit-testable is never clicked, and th
   assert.match(record.problems[0], /not hit-testable \(overlay: a pointer would hit div\.so-overview-layout\)/);
 });
 
+test('T1 swipe-new: the reply is scrolled into view before the hit-test, so an arrow under the HUD off-screen is reached', async () => {
+  const fake = fakeSt({ chat: [...greeting().slice(0, 2), { name: 'Belle', mes: 'one', swipes: ['one'], swipe_id: 0 }] });
+  install(fake);
+  const view = { atBottom: false };
+  const order: string[] = [];
+  const revealMessage = async (_page: unknown, selector: string) => { order.push(`reveal ${selector}`); view.atBottom = true; return { found: true, scrolledToBottom: true, inView: true }; };
+  const hitTest = async (_page: unknown, selector: string) => {
+    order.push('hit');
+    return view.atBottom ? { selector, found: true, clickable: true } : { selector, found: true, clickable: false, blocked: 'overlay', reason: 'a pointer would hit div#so-hud' };
+  };
+  const clickSwipeRight = async (page: unknown, selector: string) => { order.push('click'); await swipeOn(fake, false)(page, selector); };
+  const record = await runMutation(fakePage(), 'swipe-new', {}, baseDeps({ revealMessage, hitTest, clickSwipeRight }));
+  assert.equal(record.ok, true, record.problems.join('; '));
+  assert.deepEqual(order, ['reveal #chat .mes[mesid="2"] .swipe_right', 'hit', 'click']);
+  assert.deepEqual((record.did as any).revealed, { found: true, scrolledToBottom: true, inView: true });
+});
+
+test('T1 swipe-new: control, an arrow that stays covered after the reveal is still never clicked', async () => {
+  const fake = fakeSt({ chat: [...greeting().slice(0, 2), { name: 'Belle', mes: 'one', swipes: ['one'], swipe_id: 0 }] });
+  install(fake);
+  let reveals = 0;
+  let clicked = false;
+  const revealMessage = async () => { reveals += 1; return { found: true, scrolledToBottom: true, inView: false }; };
+  const hitTest = async (_page: unknown, selector: string) => ({ selector, found: true, clickable: false, blocked: 'overlay', reason: 'a pointer would hit div#so-hud' });
+  const record = await runMutation(fakePage(), 'swipe-new', {}, baseDeps({ revealMessage, hitTest, clickSwipeRight: async () => { clicked = true; } }));
+  assert.equal(clicked, false);
+  assert.equal(reveals, 2, 'one reveal, then one more before giving up');
+  assert.match(record.problems[0], /not hit-testable \(overlay: a pointer would hit div#so-hud\)/);
+});
+
 test('T0-3 swipe-new: a swipe that re-fires a transition and appends a note after the reply is still a new swipe', async () => {
   const fake = fakeSt({ chat: [...greeting().slice(0, 2), { name: 'Tobias', mes: 'A sensible choice.', swipes: ['A sensible choice.'], swipe_id: 0 }] });
   install(fake);
@@ -392,4 +470,48 @@ test('T0-3 delete control: an explicit id still deletes exactly that message, no
   const did = record.did as any;
   assert.deepEqual({ id: did.messageId, isNote: did.isNote, requested: did.target?.requested }, { id: 3, isNote: true, requested: 3 });
   assert.equal(fake.ctx.chat.length, 3);
+});
+
+const LOOPING = 'The front holds.\nThe banners are still.\nThe front holds.\nShe waits.\nThe front holds.';
+const guardedSend = (fake: ReturnType<typeof fakeSt>, replies: Array<[number, string]>) => async (_page: unknown, line: string) => {
+  fake.ctx.chat.push({ name: 'You', is_user: true, mes: line });
+  for (const [chid, text] of replies) {
+    fake.ctx.chat.push({ name: fake.ctx.characters[chid].name, mes: text, swipes: [text], swipe_id: 0 });
+    await fake.events.emit(EVENT_TYPES.MESSAGE_RECEIVED, fake.ctx.chat.length - 1, 'normal');
+  }
+  return { replied: true };
+};
+
+test('T1 loop guard: a looping last reply is recorded, flagged and swiped once before the next turn', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const flags: string[] = [];
+  const record = await runGuardedTurn(fakePage(), 'Hold the line.', baseDeps({ send: guardedSend(fake, [[1, LOOPING]]), flag: async (_page, note) => { flags.push(note); return { kind: 'flag', note, ok: true }; }, clickSwipeRight: swipeOn(fake, false) }));
+  assert.deepEqual(record.modelDefect, { kind: 'loop', messageId: 4, sample: 'The front holds. (x3)' });
+  assert.deepEqual(flags, ['model defect: loop']);
+  assert.equal((record.autoRepair as any).swiped, true);
+  assert.deepEqual((record.autoRepair as any).stillDefective, []);
+  assert.equal(fake.ctx.chat[4].swipes.length, 2, 'one new swipe, not more');
+});
+
+test('T1 loop guard: a corrupt reply that is not the last one is flagged, and the record says why it was not swiped', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const flags: string[] = [];
+  let swiped = false;
+  const record = await runGuardedTurn(fakePage(), 'Report.', baseDeps({ send: guardedSend(fake, [[1, 'Her face was pale pale under the lantern.'], [2, 'Dalan nods.']]), flag: async (_page, note) => { flags.push(note); return { ok: true }; }, clickSwipeRight: async () => { swiped = true; } }));
+  assert.equal(record.modelDefect?.kind, 'corrupt');
+  assert.deepEqual(flags, ['model defect: corrupt']);
+  assert.equal(swiped, false);
+  assert.match(String((record.autoRepair as any).skipped), /not the last character reply/);
+});
+
+test('T1 loop guard: control, a clean round is neither flagged nor swiped', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  let flagged = false;
+  let swiped = false;
+  const record = await runGuardedTurn(fakePage(), 'Onward.', baseDeps({ send: guardedSend(fake, [[1, 'Belle shoulders her pack.'], [2, 'Dalan counts the coin, then counts it again.']]), flag: async () => { flagged = true; return { ok: true }; }, clickSwipeRight: async () => { swiped = true; } }));
+  assert.equal(record.ok, true, record.problems.join('; '));
+  assert.deepEqual({ defect: record.modelDefect, defects: record.modelDefects, repair: record.autoRepair, flagged, swiped }, { defect: null, defects: [], repair: null, flagged: false, swiped: false });
 });

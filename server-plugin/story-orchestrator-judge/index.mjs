@@ -213,7 +213,8 @@ async function callUpstream(key, payload, fetchImpl, url = apiUrl()) {
             });
             const text = await response.text();
             const retryAfter = response.headers?.get?.('retry-after') ?? null;
-            last = { status: response.status, text, ...(retryAfter ? { retryAfter } : {}) };
+            const busyAnswers = (last?.busyAnswers ?? 0) + (RETRY_STATUSES.has(response.status) ? 1 : 0);
+            last = { status: response.status, text, busyAnswers, ...(retryAfter ? { retryAfter } : {}) };
             if (!RETRY_STATUSES.has(response.status)) return last;
         } catch (error) {
             if (error?.name === 'AbortError') return { status: 504, text: JSON.stringify({ error: 'upstream timeout' }) };
@@ -300,10 +301,18 @@ const sendUpstream = (response, upstream) => {
     response.status(upstream.status).type('application/json').send(upstream.text);
 };
 
-export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, accountsEnabled, env = process.env } = {}) {
+export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, accountsEnabled, env = process.env, log = (line) => console.warn(`[story-orchestrator-judge] ${line}`) } = {}) {
     const limits = limitsFromEnv(env);
     let retryAfter = 1;
+    const refusals = { since: new Date(now()).toISOString(), local: 0, upstreamBusyAnswers: 0, upstreamRefused: 0, lastUpstream: null };
     const acquire = createLimiter({ ...limits, now, onRefuse: (seconds) => { retryAfter = seconds; } });
+    const countUpstream = (provider, upstream) => {
+        refusals.upstreamBusyAnswers += upstream?.busyAnswers ?? 0;
+        if (!RETRY_STATUSES.has(upstream?.status)) return;
+        refusals.upstreamRefused += 1;
+        refusals.lastUpstream = { at: new Date(now()).toISOString(), provider, status: upstream.status, retryAfter: upstream.retryAfter ?? null };
+        log(`${provider} answered ${upstream.status} after one retry (Retry-After ${upstream.retryAfter ?? 'none'}); passed to the page`);
+    };
     const keyOptions = typeof accountsEnabled === 'boolean' ? { accountsEnabled } : {};
     const guarded = async (request, response, run) => {
         const blocked = guardRequest(request);
@@ -312,6 +321,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
         if (read.error) return response.status(read.status).json({ error: read.error });
         const release = acquire(request?.user?.profile?.handle ?? 'default-user');
         if (!release) {
+            refusals.local += 1;
             response.set?.('Retry-After', String(retryAfter));
             return response.status(429).json({ error: 'too many judge calls for this user; retry shortly', retryAfterSeconds: retryAfter });
         }
@@ -329,6 +339,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             return response.json({
                 configured: Boolean(resolved), keySource: resolved?.source ?? null, model: DEFAULT_MODEL, pluginVersion: PLUGIN_VERSION,
                 limits,
+                refusals: { ...refusals },
                 providers: {
                     typesafe: { configured: Boolean(resolved), keySource: resolved?.source ?? null, contract: PROVIDERS.typesafe.contract, local: false, host: new URL(apiUrl()).host },
                     'llama-logprob': { configured: Boolean(llama), keySource: llamaKey?.source ?? null, contract: PROVIDERS['llama-logprob'].contract, local: llama?.local ?? false, host: llama?.host ?? null },
@@ -342,6 +353,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             if (issues.length) return response.status(400).json({ error: 'invalid request', issues });
             const resolved = await resolveKey(request, 'llama-logprob', keyOptions);
             const upstream = await callUpstream(resolved?.key ?? null, payload, fetchImpl, `${endpoint.base}/completion`);
+            countUpstream('llama-logprob', upstream);
             sendUpstream(response, upstream);
         },
         async systemone(request, response) {
@@ -353,6 +365,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             if (!PERMITTED_MODELS.includes(model)) return response.status(400).json({ error: `model not permitted: ${model}`, permitted: PERMITTED_MODELS });
             const payload = { state: request.body.state, questions: request.body.questions, model };
             const upstream = await callUpstream(resolved.key, payload, fetchImpl);
+            countUpstream('typesafe', upstream);
             sendUpstream(response, upstream);
         },
         receive(request, response) {

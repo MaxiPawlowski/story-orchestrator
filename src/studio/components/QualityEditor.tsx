@@ -1,5 +1,5 @@
 import React, { useMemo, useState } from "react";
-import { QUALITY_SOURCES, QUALITY_TYPES, READ_AS_TYPES, type EvidenceFrom, type Quality, type QualitySource, type QualityType, type StoryV2 } from "@engine/index";
+import { QUALITY_SOURCES, QUALITY_TYPES, READ_AS_TYPES, ROLL_TYPES, type EvidenceFrom, type Quality, type QualityRoll, type QualitySource, type QualityType, type StoryV2 } from "@engine/index";
 import { useDraftStore } from "../draft";
 import { addQuality, newQuality, nextId, removeQuality, updateQuality } from "../mutations";
 import { findQualityUsages, reservedQualityKeys } from "../qualityUsage";
@@ -111,6 +111,47 @@ const QualityShapeFields = ({ selected, isReserved, patch, onRename, onType, onS
   </>
 );
 
+const DEFAULT_ROLL: QualityRoll = { sides: 6, target: 2 };
+
+const rollable = (quality: Quality) => quality.source === "code" && (ROLL_TYPES as readonly string[]).includes(quality.type);
+
+const DICE = [2, 4, 6, 8, 10, 12, 20, 100];
+
+const diceFor = (sides: number) => (DICE.includes(sides) ? DICE : [...DICE, sides].sort((a, b) => a - b));
+
+const QualityRollFields = ({ selected, patch }: { selected: Quality; patch: (change: Partial<Quality>) => void }) => {
+  const roll = selected.roll;
+  return (
+    <div data-so="quality-roll" className="flex flex-col gap-2">
+      <label className="flex items-center gap-2 text-sm">
+        <input type="checkbox" data-so="quality-roll-toggle" checked={!!roll} onChange={(event) => patch({ roll: event.target.checked ? DEFAULT_ROLL : undefined })} />
+        Seeded chance roll
+      </label>
+      {roll ? (
+        <div className="grid grid-cols-2 gap-3">
+          <Field label="Die">
+            <select data-so="quality-roll-sides" className="text_pole st-input" value={roll.sides} onChange={(event) => {
+              const sides = Number(event.target.value);
+              patch({ roll: { sides, target: Math.min(roll.target, sides) } });
+            }}>
+              {diceFor(roll.sides).map((sides) => <option key={sides} value={sides}>d{sides}</option>)}
+            </select>
+          </Field>
+          <Field label={selected.type === "bool" ? "True at or under" : "Target"}>
+            <select data-so="quality-roll-target" className="text_pole st-input" value={roll.target} onChange={(event) => patch({ roll: { ...roll, target: Number(event.target.value) } })}>
+              {Array.from({ length: roll.sides }, (_, index) => index + 1).map((face) => <option key={face} value={face}>{face}</option>)}
+            </select>
+          </Field>
+        </div>
+      ) : null}
+      <span className="text-[10px] st-muted">
+        Drawn once each time the story enters a checkpoint, from this chat and that moment, so a swipe, a step back or a reopened chat reads the same result.
+        {selected.type === "bool" ? ` True when the die shows ${roll ? `${roll.target} or less on a d${roll.sides}` : "the target or less"}.` : " The value is the face the die shows."}
+      </span>
+    </div>
+  );
+};
+
 interface ScopeProps {
   selected: Quality;
   isReserved: boolean;
@@ -185,6 +226,8 @@ const QualityScopeFields = ({ selected, isReserved, draft, patch, onScope, onLed
       </Field>
     ) : null}
 
+    {rollable(selected) && !isReserved ? <QualityRollFields selected={selected} patch={patch} /> : null}
+
     {selected.source === "extractor" && !isReserved ? (
       <QualityReadEditor quality={selected} storyTitle={draft.title} checkpoint={draft.checkpoints.find((checkpoint) => checkpoint.start) ?? draft.checkpoints[0] ?? null} onChange={patch} />
     ) : null}
@@ -239,6 +282,7 @@ const QualityEditor: React.FC = () => {
       change.read_as = undefined;
       change.criteria = undefined;
     }
+    if (!(ROLL_TYPES as readonly string[]).includes(type)) change.roll = undefined;
     patch(change);
   };
 
@@ -250,6 +294,8 @@ const QualityEditor: React.FC = () => {
       change.criteria = undefined;
       change.evidence_from = undefined;
       change.commit_evidence = undefined;
+    } else {
+      change.roll = undefined;
     }
     patch(change);
   };

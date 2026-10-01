@@ -4,9 +4,7 @@ import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import {
-  archiveLane, continuationsOf, dependencyRefusal, dependentsOf, executionOrder, leaseFor, leaseRefusal, outstandingDependents, planDrift, planLanes, readLease, reseedRefusal, restoreLane, writeLease,
-} from './sessionLanes.mts';
+import { archiveLane, continuationsOf, dependencyRefusal, dependentsOf, executionOrder, leaseFor, leaseRefusal, outstandingDependents, planDrift, planLanes, readLease, reseedRefusal, restoreLane, writeLease, judgeRatePlan, laneJudgeRate, loadedJudgeRate, runningLanes, JUDGE_ACCOUNT_RATE_PER_MIN } from './sessionLanes.mts';
 import { findCard, LANE_PLAN_PATH, loadCards } from '../so-session.mts';
 
 test('AS-29 schedule: cards run tier by tier, and a cross-tier continuation keeps its lane reserved until its tier', async () => {
@@ -130,4 +128,23 @@ test('reseed guard: a lane holding a chat a later card continues is never re-see
   assert.equal(reseedRefusal(doc, 2, [{ charter: 'T2-1', lane: 2 }, { charter: 'T2-3', lane: 2 }, { charter: 'T2-5', lane: 2 }], 'T2-2'), null);
   assert.equal(reseedRefusal(doc, 3, [{ charter: 'T2-1', lane: 2 }], 'T2-2'), null);
   assert.deepEqual(continuationsOf(doc, 'T5-1').map((card) => card.id), ['T5-3', 'T5-4']);
+});
+
+test('T1 judge rate: the account rate is split over the running lanes plus this one, bounded 10..60, and an explicit rate wins', async () => {
+  assert.equal(JUDGE_ACCOUNT_RATE_PER_MIN, 90);
+  assert.deepEqual([1, 2, 3, 4, 20].map((lanes) => laneJudgeRate(lanes)), [60, 45, 30, 22, 10]);
+  assert.deepEqual(judgeRatePlan(3, [1, 4]), { perMinute: 30, lanes: 3, running: [1, 3, 4], account: 90, source: 'derived' });
+  assert.equal(judgeRatePlan(3, [3]).perMinute, 60, 'the lane itself is counted once');
+  assert.equal(judgeRatePlan(3, [1, 4], { env: { SO_JUDGE_ACCOUNT_RATE_PER_MIN: '60' } }).perMinute, 20);
+  assert.deepEqual(judgeRatePlan(3, [1, 4], { requested: 15 }), { perMinute: 15, lanes: 3, running: [1, 3, 4], account: 90, source: 'arg' });
+  assert.equal(judgeRatePlan(3, [1, 4], { requested: 'many' }).source, 'derived');
+  const log = '[story-orchestrator-judge] loaded; key from dotenv\n[story-orchestrator-judge] loaded; key from dotenv; per user 15/min, 2 in flight (SO_JUDGE_RATE_PER_MIN, SO_JUDGE_MAX_IN_FLIGHT)\nnoise\n[story-orchestrator-judge] loaded; key from dotenv; per user 30/min, 2 in flight (SO_JUDGE_RATE_PER_MIN, SO_JUDGE_MAX_IN_FLIGHT)\n';
+  assert.equal(loadedJudgeRate(log), 30, 'the last load wins');
+  assert.equal(loadedJudgeRate('[story-orchestrator-judge] loaded; key from dotenv\n'), null, 'a plugin that does not log its limit is unknown, not 60');
+  const root = await mkdtemp(join(tmpdir(), 'so-lanes-rate-'));
+  for (const [lane, pid] of [['0', '11'], ['1', '12'], ['3', '13'], ['4', 'gone'], ['archive', '14']]) {
+    await mkdir(join(root, lane), { recursive: true });
+    await writeFile(join(root, lane, 'server.pid'), pid, 'utf-8');
+  }
+  assert.deepEqual(await runningLanes(root, (pid) => pid !== 13), [1], 'lane 0 is the user\'s, a dead pid or a non-number is not running');
 });

@@ -949,11 +949,16 @@ export function surfaceTextFindings(texts: Array<{ tab: string; surface: string;
   return texts.flatMap(({ tab, surface, text }) => PLAYER_FORBIDDEN.filter((needle) => text.includes(needle)).map((needle) => ({ tab, needle: `${surface}: ${needle}` })));
 }
 
-export function attributeFindings(values: Array<{ tab: string; surface: string; attr: string; value: string }>) {
-  return values.flatMap(({ tab, surface, attr, value }) => [
-    ...[...PLAYER_FORBIDDEN, ...ATTRIBUTE_NEEDLES].filter((needle) => value.includes(needle)).map((needle) => ({ tab, needle: `${surface} [${attr}] carries "${needle}"` })),
-    ...RAW_ERROR_MARKERS.filter(([, pattern]) => pattern.test(value)).map(([name]) => ({ tab, needle: `${surface} [${attr}] shows raw error text (${name})` })),
-  ]);
+type AttributeValue = { tab: string; surface: string; attr: string; value: string };
+
+const attributeNeedleFindings = (values: AttributeValue[]) => values.flatMap(({ tab, surface, attr, value }) => [...PLAYER_FORBIDDEN, ...ATTRIBUTE_NEEDLES]
+  .filter((needle) => value.includes(needle)).map((needle) => ({ tab, needle: `${surface} [${attr}] carries "${needle}"` })));
+
+const attributeErrorFindings = (values: AttributeValue[]) => values.flatMap(({ tab, surface, attr, value }) => RAW_ERROR_MARKERS
+  .filter(([, pattern]) => pattern.test(value)).map(([name]) => ({ tab, needle: `${surface} [${attr}] shows raw error text (${name})` })));
+
+export function attributeFindings(values: AttributeValue[]) {
+  return values.flatMap((value) => [...attributeNeedleFindings([value]), ...attributeErrorFindings([value])]);
 }
 
 const RAW_SNAKE_TOKEN = /\b[a-z0-9]+(?:_[a-z0-9]+)+\b/g;
@@ -1065,10 +1070,55 @@ export function errorStateFindings(texts: Array<{ tab: string; surface: string; 
     .map(([name, pattern]) => ({ tab, needle: `${surface} shows raw error text (${name}): "${(text.match(pattern)?.[0] ?? '').slice(0, 40)}"` })));
 }
 
-// Surfaces a player can reach without turning anything on: the drawer (every tab it offers), the HUD
-// strip above the composer, and the settings panel — which is `both`, so it may carry display
-// toggles and Restart, but never a steering control.
-const PLAYER_SURFACES = ['#drawer-manager', '#so-hud', '#story-orchestrator-settings'];
+export const DRAWER_SURFACE = '#drawer-manager';
+export const SETTINGS_SURFACE = '#story-orchestrator-settings';
+export const PLAYER_TEXT_SURFACES = [DRAWER_SURFACE, '#so-hud', 'dialog[open] .popup-content'];
+export const PLAYER_SELECTOR_SURFACES = [...PLAYER_TEXT_SURFACES, SETTINGS_SURFACE];
+export const RECORDED_SURFACES = PLAYER_SELECTOR_SURFACES;
+export const AUTHOR_AFFORDANCE_CONTROLS = ['so-author-view'];
+
+export interface PlayerSurfaceRecord {
+  tab: string;
+  texts: Array<{ surface: string; text: string }>;
+  attributes: Array<{ surface: string; attr: string; value: string; id?: string; controls?: string[] }>;
+}
+
+export interface PlayerCleanScope { textSurfaces: string[]; exemptControls: string[] }
+
+export const PLAYER_CLEAN_SCOPE: PlayerCleanScope = { textSurfaces: PLAYER_TEXT_SURFACES, exemptControls: AUTHOR_AFFORDANCE_CONTROLS };
+
+export function playerSurfaceFindings(records: PlayerSurfaceRecord[], tokens: string[] = [], scope: PlayerCleanScope = PLAYER_CLEAN_SCOPE) {
+  const player = (surface: string) => scope.textSurfaces.includes(surface);
+  const exempt = (entry: { id?: string; controls?: string[] }) => [entry.id ?? '', ...(entry.controls ?? [])].some((id) => scope.exemptControls.includes(id));
+  const texts = records.flatMap((record) => record.texts.map((entry) => ({ tab: record.tab, surface: entry.surface, text: entry.text })));
+  const attributes = records.flatMap((record) => record.attributes.map((entry) => ({ tab: record.tab, ...entry })));
+  const drawerText = texts.filter((entry) => entry.surface === DRAWER_SURFACE && player(entry.surface))
+    .flatMap(({ tab, text }) => PLAYER_FORBIDDEN.filter((needle) => text.includes(needle)).map((needle) => ({ tab, needle })));
+  return [
+    ...drawerText,
+    ...attributeNeedleFindings(attributes.filter((entry) => player(entry.surface) && !exempt(entry))),
+    ...attributeErrorFindings(attributes),
+    ...surfaceTextFindings(texts.filter((entry) => player(entry.surface) && entry.surface !== DRAWER_SURFACE)),
+    ...errorStateFindings(texts),
+    ...rawValueFindings(texts.filter((entry) => player(entry.surface)), tokens),
+  ];
+}
+
+async function recordPlayerSurfaces(page, tab: string): Promise<PlayerSurfaceRecord> {
+  return evaluateInST(page, ({ surfaces, tab }) => {
+    const roots = (surface: string) => Array.from(document.querySelectorAll(surface)) as HTMLElement[];
+    const texts = surfaces.flatMap((surface) => {
+      const found = roots(surface);
+      return found.length ? [{ surface, text: found.map((root) => root.innerText ?? '').join('\n') }] : [];
+    });
+    const attributes = surfaces.flatMap((surface) => roots(surface).flatMap((root) => [root, ...Array.from(root.querySelectorAll('[title], [aria-label]'))])
+      .flatMap((node) => ['title', 'aria-label'].filter((attr) => node.hasAttribute(attr)).map((attr) => ({
+        surface, attr, value: node.getAttribute(attr) ?? '', id: node.id || undefined,
+        controls: Array.from(node.querySelectorAll('input, select, button, textarea')).map((control) => control.id).filter(Boolean).slice(0, 4),
+      }))));
+    return { tab, texts, attributes };
+  }, { surfaces: RECORDED_SURFACES, tab });
+}
 
 export async function assertPlayerClean(page) {
   await openStoryDrawer(page);
@@ -1076,27 +1126,20 @@ export async function assertPlayerClean(page) {
   if (authorView !== false) throw new Error(`assert-player-clean requires player mode (authorView=${authorView}). Turn Author view off first.`);
   const tabs = await evaluateInST(page, () => Array.from(document.querySelectorAll('#drawer-manager [role="tablist"] button')).map((button) => button.textContent?.trim() ?? ''));
   const findings = [];
-  for (const tab of tabs) {
-    await switchDrawerTab(page, tab);
-    const text = await evaluateInST(page, () => (document.getElementById('drawer-manager') as HTMLElement | null)?.innerText ?? '');
-    for (const needle of PLAYER_FORBIDDEN) {
-      if ((text ?? '').includes(needle)) findings.push({ tab, needle });
-    }
-  }
   const authorOnlyTabs = tabs.filter((tab) => ['Blackboard', 'Scheduler', 'Payload'].includes(tab));
   if (authorOnlyTabs.length) findings.push({ tab: authorOnlyTabs.join(', '), needle: 'author-only tab offered in player mode' });
   const sweep = [];
   const recoveryControls = [];
-  const errorTexts = [];
+  const records: PlayerSurfaceRecord[] = [];
   const collect = ({ surfaces, selectors }) => {
     const found = [];
     for (const surface of surfaces) {
-      const root = document.querySelector(surface);
-      if (!root) continue;
-      for (const selector of selectors) {
-        for (const node of Array.from(root.querySelectorAll(selector))) {
-          const element = node as HTMLElement;
-          found.push({ surface, selector, visible: element.offsetParent !== null, text: (element.innerText ?? '').slice(0, 60) });
+      for (const root of Array.from(document.querySelectorAll(surface))) {
+        for (const selector of selectors) {
+          for (const node of Array.from(root.querySelectorAll(selector))) {
+            const element = node as HTMLElement;
+            found.push({ surface, selector, visible: element.offsetParent !== null, text: (element.innerText ?? '').slice(0, 60) });
+          }
         }
       }
     }
@@ -1104,34 +1147,24 @@ export async function assertPlayerClean(page) {
   };
   for (const tab of tabs) {
     await switchDrawerTab(page, tab);
-    const hits = await evaluateInST(page, collect, { surfaces: PLAYER_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
+    const hits = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_FORBIDDEN_SELECTORS });
     for (const hit of hits ?? []) {
       findings.push({ tab, needle: `${hit.selector} reachable in ${hit.surface}` });
       sweep.push({ tab, ...hit });
     }
-    const recovery = await evaluateInST(page, collect, { surfaces: PLAYER_SURFACES, selectors: PLAYER_RECOVERY_CONTROLS });
+    const recovery = await evaluateInST(page, collect, { surfaces: PLAYER_SELECTOR_SURFACES, selectors: PLAYER_RECOVERY_CONTROLS });
     for (const control of recovery ?? []) recoveryControls.push({ tab, ...control });
-    const surfaceTexts = await evaluateInST(page, (surfaces) => surfaces.map((surface) => ({
-      surface,
-      text: (document.querySelector(surface) as HTMLElement | null)?.innerText ?? '',
-    })), PLAYER_SURFACES);
-    errorTexts.push(...(surfaceTexts ?? []).map((entry) => ({ tab, ...entry })));
-    const attributes = await evaluateInST(page, (surfaces) => surfaces.flatMap((surface) => Array.from(document.querySelectorAll(`${surface}, ${surface} [title], ${surface} [aria-label]`))
-      .flatMap((node) => ['title', 'aria-label'].filter((attr) => node.hasAttribute(attr)).map((attr) => ({ surface, attr, value: node.getAttribute(attr) ?? '' })))), PLAYER_SURFACES);
-    findings.push(...attributeFindings((attributes ?? []).map((entry) => ({ tab, ...entry }))));
+    records.push(await recordPlayerSurfaces(page, tab));
   }
-  findings.push(...surfaceTextFindings(errorTexts.filter((entry) => entry.surface !== '#drawer-manager')));
   findings.push(...recoveryControlFindings(recoveryControls));
-  findings.push(...errorStateFindings(errorTexts));
   const tokens = rawValueTokens(await evaluateInST(page, () => {
     const story = globalThis.storyOrchestratorRuntime?.getStory?.();
     return story ? { checkpoints: story.checkpoints.map((checkpoint) => ({ id: checkpoint.id })), qualities: story.qualities.map((quality) => ({ type: quality.type, values: quality.values, player_labels: quality.player_labels })) } : null;
   }));
-  findings.push(...rawValueFindings(errorTexts.filter((entry) => entry.surface !== '#story-orchestrator-settings'), tokens));
+  findings.push(...playerSurfaceFindings(records, tokens));
   findings.push(...await inlinePlayerSweep(page, tokens));
-  // Leave the drawer where a player would: on the narrative view, not on the last tab we walked.
   if (tabs.includes('Overview')) await switchDrawerTab(page, 'Overview');
-  return { ok: findings.length === 0, tabs, surfaces: PLAYER_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep, recoveryControls };
+  return { ok: findings.length === 0, tabs, surfaces: PLAYER_TEXT_SURFACES, selectorSurfaces: PLAYER_SELECTOR_SURFACES, selectorsChecked: PLAYER_FORBIDDEN_SELECTORS.length, findings, sweep, recoveryControls, records, tokens };
 }
 
 export async function takeAnnotatedScreenshot(page, label = 'ui-state') {

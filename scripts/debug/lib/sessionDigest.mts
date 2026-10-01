@@ -1,8 +1,9 @@
 import type { StoryIndexEntry } from './sessionCharters.mts';
+import { defectCounts } from './modelDefects.mts';
 
 export const ANOMALY_KINDS = [
   'stall', 'extraction-rejected', 'empty-private-block', 'lore-force-lost', 'lore-constant-missed', 'judge-fallback',
-  'save-lost', 'unexpected-jump', 'rollback', 'console-error', 'model-call-failure', 'harness-error',
+  'save-lost', 'unexpected-jump', 'rollback', 'console-error', 'model-call-failure', 'model-defect', 'harness-error',
 ] as const;
 export type AnomalyKind = (typeof ANOMALY_KINDS)[number];
 
@@ -36,9 +37,29 @@ export interface SessionFiles {
   missing?: string[];
 }
 
+export interface JudgeHealth { calls: number; answered: number; busy: number; timeout: number; otherFallbacks: number; busyRate: number | null; busyByUse: Record<string, number> }
+
 export interface Digest {
   charter: string; tier: string; flags: Flag[]; anomalies: Anomaly[]; counts: Record<string, number>;
-  valid: boolean; invalid: string[]; unverifiable: { privateBlock: number };
+  valid: boolean; invalid: string[]; unverifiable: { privateBlock: number }; judge: JudgeHealth; modelDefects: ReturnType<typeof defectCounts>;
+}
+
+export function judgeHealth(rows: Row[]): JudgeHealth {
+  const health: JudgeHealth = { calls: 0, answered: 0, busy: 0, timeout: 0, otherFallbacks: 0, busyRate: null, busyByUse: {} };
+  for (const row of rows) {
+    const fallback = row.value?.detail?.fallback;
+    if (fallback === 'disabled') continue;
+    health.calls += 1;
+    if (!fallback) health.answered += 1;
+    else if (fallback === 'busy') {
+      health.busy += 1;
+      const use = String(row.value.detail?.use ?? '?');
+      health.busyByUse[use] = (health.busyByUse[use] ?? 0) + 1;
+    } else if (fallback === 'timeout') health.timeout += 1;
+    else health.otherFallbacks += 1;
+  }
+  health.busyRate = health.calls ? Math.round((health.busy / health.calls) * 1000) / 1000 : null;
+  return health;
 }
 
 export const REQUIRED_CAPTURES = ['journal.jsonl', 'payloads.jsonl', 'console.jsonl'] as const;
@@ -83,7 +104,7 @@ function contextFor(chat: ChatMessage[] | undefined, messageId: number): ChatMes
   return chat.filter((message) => message.id >= messageId - CONTEXT_TURNS && message.id <= messageId + CONTEXT_TURNS);
 }
 
-export function digestSession(files: SessionFiles, paths: { journal: string; payloads: string; console: string; logs: Record<string, string> } = {
+export function digestSession(files: SessionFiles, paths: { journal: string; payloads: string; console: string; logs: Record<string, string>; turns?: string } = {
   journal: 'journal.jsonl', payloads: 'payloads.jsonl', console: 'console.jsonl', logs: {},
 }): Digest {
   const playFrom = timeOf(files.session.playFrom);
@@ -198,6 +219,13 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
     if (result && result !== 'ok' && result !== 'fallback') add('model-call-failure', row, paths.journal, `${row.value.detail?.pass ?? 'call'} via ${row.value.detail?.route ?? '?'}: ${result}`, { result, pass: row.value.detail?.pass });
   }
 
+  const playedTurns = (files.turns ?? []).filter((row) => row.value && !row.value.unparsed && inPlay(row.value.at, playFrom));
+  for (const row of playedTurns) {
+    for (const defect of Array.isArray(row.value.modelDefects) ? row.value.modelDefects : []) {
+      add('model-defect', row, paths.turns ?? 'turns.jsonl', `model ${defect.kind} in message ${defect.messageId ?? '?'}${defect.speaker ? ` (${defect.speaker})` : ''}: ${String(defect.sample ?? '').slice(0, 120)}${row.value.autoRepair?.swiped ? ' (swiped once)' : ''}`, { kind: defect.kind, messageId: defect.messageId ?? null, rule: defect.rule ?? null });
+    }
+  }
+
   const reportedPrivate = new Set<string>();
   let unverifiablePrivate = 0;
   for (const row of files.payloads) {
@@ -240,6 +268,8 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
   return {
     charter: files.session.charter, tier: files.session.tier, flags, anomalies, counts: { flags: flags.length, ...counts },
     valid: invalid.length === 0, invalid, unverifiable: { privateBlock: unverifiablePrivate },
+    judge: judgeHealth(played.filter((row) => row.value.kind === 'judge')),
+    modelDefects: defectCounts(playedTurns.map((row) => row.value)),
   };
 }
 
@@ -254,11 +284,26 @@ export function registerRows(digest: Digest, sessionDir: string) {
 
 const cell = (value: string) => value.replace(/\|/g, '/').replace(/\r?\n/g, ' ');
 
+export function renderJudgeHealth(health: JudgeHealth): string[] {
+  if (!health.calls) return ['No judge calls in play.'];
+  const percent = health.busyRate === null ? 'n/a' : `${(health.busyRate * 100).toFixed(1)}%`;
+  const uses = Object.entries(health.busyByUse).sort((a, b) => b[1] - a[1]).map(([use, count]) => `${use} ${count}`).join(', ');
+  return [
+    `- calls: ${health.calls} (answered ${health.answered}, busy ${health.busy}, timeout ${health.timeout}, other fallbacks ${health.otherFallbacks})`,
+    `- busy rate: ${percent}${uses ? ` (by use: ${uses})` : ''}`,
+    '- a busy fallback was never sent: the lane\'s judge rate limit (or a TypeSafe 429 passed through) held it, and the consumer took its no-judge path',
+  ];
+}
+
 export function renderFindings(digest: Digest, sessionDir: string): string {
   const out = [`# Findings draft: ${digest.charter}`, '', `Session \`${sessionDir}\`. Draft rows for \`docs/plans/v2.6/14-findings.md\`; severity and class are decided in the review.`, ''];
   if (!digest.valid) out.push('## INVALID SESSION', '', ...digest.invalid.map((line) => `- ${line}`), '', 'The counts below cover only what was captured.', '');
   if (digest.unverifiable.privateBlock) out.push(`Private-block checks that could not be reconstructed (capture without chat, boundary or member identity): ${digest.unverifiable.privateBlock}.`, '');
   out.push('## Counts', '', `- flags: ${digest.flags.length}`, ...ANOMALY_KINDS.map((kind) => `- ${kind}: ${digest.counts[kind] ?? 0}`), '');
+  out.push('## Judge health', '', ...renderJudgeHealth(digest.judge), '');
+  out.push('## Model defects', '', digest.modelDefects.turns
+    ? `- ${digest.modelDefects.turns} turn(s) with a defective reply: loop ${digest.modelDefects.loop}, corrupt ${digest.modelDefects.corrupt}; swiped once by the loop guard: ${digest.modelDefects.repaired}`
+    : 'None detected.', '');
   out.push('## Flags', '');
   if (!digest.flags.length) out.push('None.', '');
   for (const flag of digest.flags) {

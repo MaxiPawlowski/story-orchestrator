@@ -1,12 +1,9 @@
-import type { PrimitiveValue } from "./schema";
+import type { PrimitiveValue, QualityRoll } from "./schema";
 import { isRecord } from "@utils/guards";
 
 export type ChancePart = string | number;
 
-export interface ChanceRoll {
-  sides: number;
-  target: number;
-}
+export type ChanceRoll = QualityRoll;
 
 const PART_SEPARATOR = "\u0000";
 

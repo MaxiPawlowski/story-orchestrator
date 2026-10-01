@@ -59,10 +59,11 @@ test('info satisfies the ST loader contract', () => {
 test('status reports the key source, never the key', async () => {
     process.env.TYPESAFE_API_KEY = 'sk-test-status';
     const { res, out } = fakeResponse();
-    await plugin.createHandlers({ accountsEnabled: false, env: {} }).status({}, res);
+    await plugin.createHandlers({ accountsEnabled: false, env: {}, now: () => 0 }).status({}, res);
     assert.deepEqual(out.body, {
         configured: true, keySource: 'env', model: plugin.DEFAULT_MODEL, pluginVersion: plugin.PLUGIN_VERSION,
         limits: { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: plugin.MAX_CALLS_PER_MINUTE_PER_USER },
+        refusals: { since: '1970-01-01T00:00:00.000Z', local: 0, upstreamBusyAnswers: 0, upstreamRefused: 0, lastUpstream: null },
         providers: {
             typesafe: { configured: true, keySource: 'env', contract: 'native', local: false, host: 'api.typesafe.ai' },
             'llama-logprob': { configured: false, keySource: null, contract: 'logprob', local: false, host: null },
@@ -258,9 +259,39 @@ test('T0: an upstream 429 passes its Retry-After to the page', async () => {
     process.env.TYPESAFE_API_KEY = 'sk-test-upstream-429';
     const fetchImpl = async () => new Response('{"error":"rate limited"}', { status: 429, headers: { 'Retry-After': '20' } });
     const { res, out } = fakeResponse();
-    await plugin.createHandlers({ accountsEnabled: false, fetchImpl }).receive(pageRequest(question), res);
+    const logged = [];
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, now: () => 0, log: (line) => logged.push(line) });
+    await handlers.receive(pageRequest(question), res);
     assert.equal(out.statusCode, 429);
     assert.equal(out.headers?.['retry-after'], '20');
+    const status = fakeResponse();
+    await handlers.status({}, status.res);
+    assert.deepEqual(status.out.body.refusals, {
+        since: '1970-01-01T00:00:00.000Z', local: 0, upstreamBusyAnswers: 2, upstreamRefused: 1,
+        lastUpstream: { at: '1970-01-01T00:00:00.000Z', provider: 'typesafe', status: 429, retryAfter: '20' },
+    });
+    assert.deepEqual(logged, ['typesafe answered 429 after one retry (Retry-After 20); passed to the page']);
+});
+
+test('T1: /status tells our own limiter\'s 429s from TypeSafe\'s, and a 429 the retry absorbed is counted but not refused', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-test-refusal-split';
+    let upstreamCalls = 0;
+    const fetchImpl = async () => {
+        upstreamCalls += 1;
+        return upstreamCalls === 1 ? new Response('{"error":"busy"}', { status: 429 }) : new Response('{"model":"jev","answers":{}}', { status: 200 });
+    };
+    const logged = [];
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, now: () => 0, env: { SO_JUDGE_RATE_PER_MIN: '1' }, log: (line) => logged.push(line) });
+    const first = fakeResponse();
+    await handlers.receive(pageRequest(question), first.res);
+    assert.equal(first.out.statusCode, 200, 'the plugin retry absorbed the upstream 429');
+    const second = fakeResponse();
+    await handlers.receive(pageRequest(question), second.res);
+    assert.equal(second.out.statusCode, 429, 'our own per-minute limiter');
+    const status = fakeResponse();
+    await handlers.status({}, status.res);
+    assert.deepEqual({ local: status.out.body.refusals.local, upstreamBusyAnswers: status.out.body.refusals.upstreamBusyAnswers, upstreamRefused: status.out.body.refusals.upstreamRefused }, { local: 1, upstreamBusyAnswers: 1, upstreamRefused: 0 });
+    assert.deepEqual(logged, [], 'only a 429 that reaches the page is logged');
 });
 
 test('seam golden: a page call routed to the typesafe provider reaches TypeSafe byte-identical to the pre-seam plugin', async () => {

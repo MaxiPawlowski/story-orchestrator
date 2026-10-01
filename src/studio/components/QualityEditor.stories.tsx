@@ -116,3 +116,35 @@ export const EvidenceFromWorld: Story = {
     await expect(canvas.getByLabelText("Evidence may come from")).toBeDisabled();
   },
 };
+
+export const ChanceRoll: Story = {
+  beforeEach: () => {
+    const story = sampleStory();
+    seedDraft({ ...story, qualities: [...story.qualities, { key: "deep_swarm", type: "bool", source: "code", rubric: "Does a swarm cut off the way back?", roll: { sides: 6, target: 2 } }] });
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const swarm = () => useDraftStore.getState().draft.qualities.find((quality) => quality.key === "deep_swarm");
+    await userEvent.click(canvas.getByRole("button", { name: /deep_swarm/ }));
+    await expect(canvas.getByLabelText("Die")).toHaveValue("6");
+    await expect(canvas.getByLabelText("True at or under")).toHaveValue("2");
+    await expect(canvasElement.querySelector('[data-so="quality-roll"]')?.textContent).toContain("2 or less on a d6");
+    await userEvent.selectOptions(canvas.getByLabelText("True at or under"), "3");
+    await expect(swarm()?.roll).toEqual({ sides: 6, target: 3 });
+    await userEvent.selectOptions(canvas.getByLabelText("Die"), "2");
+    await expect(swarm()?.roll).toEqual({ sides: 2, target: 2 });
+    await userEvent.selectOptions(canvas.getByLabelText("Die"), "20");
+    await expect(swarm()?.roll).toEqual({ sides: 20, target: 2 });
+    await userEvent.click(canvas.getByLabelText("Seeded chance roll"));
+    await expect(swarm()?.roll).toBeUndefined();
+    await userEvent.click(canvas.getByLabelText("Seeded chance roll"));
+    await expect(swarm()?.roll).toEqual({ sides: 6, target: 2 });
+    await userEvent.selectOptions(canvas.getByLabelText("Type"), "enum");
+    await expect(swarm()?.roll).toBeUndefined();
+    await expect(canvasElement.querySelector('[data-so="quality-roll"]')).toBeNull();
+    await userEvent.selectOptions(canvas.getByLabelText("Type"), "bool");
+    await userEvent.click(canvas.getByLabelText("Seeded chance roll"));
+    await userEvent.selectOptions(canvas.getByLabelText("Source"), "extractor");
+    await expect(swarm()?.roll).toBeUndefined();
+  },
+};

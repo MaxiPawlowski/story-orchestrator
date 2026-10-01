@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
 import {
-  buildInventory, buildManifest, checkInventory, diffInventories, expectedStartDisabled, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
+  buildInventory, buildManifest, castResetPlan, checkInventory, diffInventories, expectedStartDisabled, lastGoodSeed, seedDrift, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
   type AdolionManifest, type Inventory, type LaneDisk, type RuntimeReadiness, type SpriteFolder, type SpritePackSource,
 } from './lib/adolionFresh.mts';
 
@@ -189,12 +189,15 @@ async function writeRecord(n: number, inventory: Inventory, problems: string[], 
   await mkdir(work, { recursive: true });
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');
   const latest = join(work, 'inventory-latest.json');
-  const previous = existsSync(latest) ? await readJson(latest) : null;
-  const drift = previous ? diffInventories(previous, inventory) : null;
+  const reports = await Promise.all((await readdir(work)).filter((name) => /^report-.+\.json$/.test(name)).map(async (name) => ({ name, report: await readJson(join(work, name)).catch(() => ({})) })));
+  const good = lastGoodSeed(reports);
+  const previous = good && existsSync(String(good.report.file)) ? await readJson(String(good.report.file)) : null;
+  const { sameAsPrevious, drift } = seedDrift(previous, inventory);
   const file = join(work, `inventory-${stamp}.json`);
   await writeFile(file, JSON.stringify(inventory, null, 2), 'utf-8');
   await writeFile(latest, JSON.stringify(inventory, null, 2), 'utf-8');
-  const report = { lane: n, file, problems, sameAsPrevious: drift ? drift.length === 0 : null, drift, ...extra };
+  const comparedWith = previous && good ? { report: good.name, file: good.report.file, commit: previous.commit, sameBuild: previous.commit === inventory.commit } : null;
+  const report = { lane: n, file, problems, sameAsPrevious, comparedWith, drift, ...extra };
   await writeFile(join(work, `report-${stamp}.json`), JSON.stringify(report, null, 2), 'utf-8');
   return report;
 }
@@ -249,7 +252,7 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
     ...(mediaCalls.length ? [`the lane server made ${mediaCalls.length} image-generation call(s) during the seed: ${mediaCalls[0]}`] : [])];
   const report = await writeRecord(n, inventory, problems, {
     commit: pin.commit, pinned: pin.pinned, stripped, baseline: join(paths.debug, 'adolion-fresh-asset-baseline.json'), baselineTrusted: page.baseline?.trusted ?? false,
-    extraction: page.extraction, groups: page.groups, imports: page.imports, notes: page.notes ?? [], summary: summary(inventory),
+    extraction: page.extraction, groups: page.groups, imports: page.imports, castResets: page.castResets ?? [], notes: page.notes ?? [], summary: summary(inventory),
   });
   if (stopAfter) { console.log('[7/7] stop lane'); await lanes('stop', String(n)); } else console.log(`[7/7] lane ${n} left running at ${paths.url}`);
   return report;
@@ -440,6 +443,32 @@ async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: stri
       const ctx = SillyTavern.getContext();
       return (ctx.groups ?? []).find((group) => group.id === ctx.groupId)?.name ?? null;
     });
+    if (mode === 'seed') {
+      const listGroups = () => evaluateInST(page, async () => {
+        const ctx = SillyTavern.getContext();
+        const response = await fetch('/api/groups/all', { method: 'POST', headers: ctx.getRequestHeaders(), body: '{}' });
+        const groups = response.ok ? await response.json() : [];
+        return groups.map((group: { id: string; name?: string; disabled_members?: string[] }) => ({ id: String(group.id), name: String(group.name ?? ''), disabled_members: group.disabled_members ?? [] }));
+      });
+      const resets = castResetPlan(manifest, await listGroups(), (out.openGroup as string | null) ?? null);
+      if (resets.length) {
+        await evaluateInST(page, async (plan: Array<{ id: string; now: string[] }>) => {
+          const ctx = SillyTavern.getContext();
+          const chats = await import(/* webpackIgnore: true */ '/scripts/group-chats.js' as string) as { editGroup: (id: string, immediately?: boolean, reload?: boolean) => Promise<void> };
+          for (const reset of plan) {
+            const group = (ctx.groups ?? []).find((candidate) => String(candidate.id) === reset.id);
+            if (!group) continue;
+            group.disabled_members = [...reset.now];
+            await chats.editGroup(reset.id, true, false);
+          }
+        }, resets.map((reset) => ({ id: reset.id, now: reset.now })));
+        await page.waitForTimeout(2500);
+        const left = castResetPlan(manifest, await listGroups(), (out.openGroup as string | null) ?? null);
+        for (const still of left) problems.push(`group ${still.group}: cast reset did not land: disabled [${still.was.join(', ')}], want [${still.now.join(', ')}]`);
+        notes.push(`cast reset to the campaign's initial state before the check: ${resets.map((reset) => `${reset.group} disabled [${reset.was.join(', ')}] -> [${reset.now.join(', ')}]`).join('; ')}`);
+      }
+      out.castResets = resets;
+    }
     const restore = await restoreExtractionSettings(page, extraction);
     out.extraction = { before: extraction, restore };
     if ((restore as { ok?: boolean }).ok === false) problems.push(`extraction settings not restored: ${JSON.stringify(restore)}`);

@@ -3,13 +3,11 @@ import { join } from "path";
 import { StoryEngine, parseStoryV2OrThrow, type DerivedQualityView, type PrimitiveValue } from "@engine/index";
 import { dieFace, unitDraw } from "@engine/chance";
 import { chooseByRules } from "@talk/index";
-import { chanceGateValues, createChanceSeams, npcRollDraw, talkDrawStream, type ChanceContext, type ChanceDraw } from "./sp7Chance";
-import { chanceContext, installSpikes, type SpikePort } from "./install";
-import { spikeSeams } from "../spikeSeams";
-import { defaultSpikeSettings } from "../settingsModel";
+import { chanceGateValues, createChanceSeams, npcRollDraw, onChanceDraw, talkDrawStream, type ChanceContext, type ChanceDraw } from "./chance";
 
-const raw = JSON.parse(readFileSync(join(__dirname, "../../../test/fixtures/sp7-chance.story.json"), "utf8"));
+const raw = JSON.parse(readFileSync(join(__dirname, "../../test/fixtures/sp7-chance.story.json"), "utf8"));
 const story = parseStoryV2OrThrow(raw);
+const qualities = story.qualities;
 const STORY_ID = "sp7-chance";
 const BOUNDARIES = 150;
 const CUTS = 200;
@@ -25,8 +23,8 @@ interface TraceRow {
   clueDie: PrimitiveValue | undefined;
 }
 
-const seededDerive = (chatId: string): Derive => (view) => chanceGateValues(raw, { chatId, storyId: STORY_ID }, view);
-const unseededDerive: Derive = (view) => chanceGateValues(raw, { chatId: String(Math.random()), storyId: STORY_ID }, view);
+const seededDerive = (chatId: string): Derive => (view) => chanceGateValues(qualities, { chatId, storyId: STORY_ID }, view);
+const unseededDerive: Derive = (view) => chanceGateValues(qualities, { chatId: String(Math.random()), storyId: STORY_ID }, view);
 
 const input = (seed: number, index: number) => unitDraw(["sp7-d1-input", seed, index]) < 0.5;
 
@@ -67,12 +65,28 @@ const replayMismatches = (derive: Derive, seed: number): number => {
   return mismatches;
 };
 
-const context = (overrides: Partial<ChanceContext> = {}): ChanceContext => ({ chatId: "chat-a", storyId: STORY_ID, boundary: 4, raw, ...overrides });
+const REOPEN_CUTS = 50;
+
+const reopenMismatches = (derive: Derive, seed: number): number => {
+  const original = drive(freshEngine(derive), seed, 0, BOUNDARIES);
+  let mismatches = 0;
+  for (let cut = 0; cut < REOPEN_CUTS; cut += 1) {
+    const at = 1 + Math.floor(unitDraw(["sp7-reopen-cut", seed, cut]) * (BOUNDARIES - 1));
+    const before = freshEngine(derive);
+    drive(before, seed, 0, at);
+    const reopened = freshEngine(derive);
+    reopened.hydrate(JSON.parse(JSON.stringify(before.serialize())));
+    if (JSON.stringify(drive(reopened, seed, at, BOUNDARIES)) !== JSON.stringify(original.slice(at))) mismatches += 1;
+  }
+  return mismatches;
+};
+
+const context = (overrides: Partial<ChanceContext> = {}): ChanceContext => ({ chatId: "chat-a", storyId: STORY_ID, boundary: 4, qualities, ...overrides });
 
 describe("SP7 D1: a chance draw replays", () => {
   it("the same chat, story and boundary give the same draw, and the gate values are a function of them", () => {
     const view = { boundary: 9, activeCheckpointId: "gate", checkpointStartedBoundary: 7 };
-    expect(chanceGateValues(raw, context(), view)).toEqual(chanceGateValues(raw, context(), view));
+    expect(chanceGateValues(qualities, context(), view)).toEqual(chanceGateValues(qualities, context(), view));
     expect(npcRollDraw(context(), 4, "cp:onEnter:arin:0")).toBe(npcRollDraw(context(), 4, "cp:onEnter:arin:0"));
     expect(drive(freshEngine(seededDerive("chat-a")), 11, 0, BOUNDARIES)).toEqual(drive(freshEngine(seededDerive("chat-a")), 11, 0, BOUNDARIES));
   });
@@ -97,6 +111,16 @@ describe("SP7 D1: a chance draw replays", () => {
 
   it("control: an unseeded draw fails the same replay comparison", () => {
     expect(replayMismatches(unseededDerive, 11)).toBeGreaterThan(0);
+  });
+
+  it(`a reopened chat (serialize, hydrate a fresh engine) replays the same draws: ${SEEDS.length} seeds x ${REOPEN_CUTS} cuts`, () => {
+    const measured = SEEDS.map((seed) => ({ seed, mismatches: reopenMismatches(seededDerive(`chat-${seed}`), seed) }));
+    console.log(`SP7.b reopen replay: ${JSON.stringify(measured)}`);
+    expect(measured.every((row) => row.mismatches === 0)).toBe(true);
+  });
+
+  it("control: an unseeded draw fails the reopen comparison", () => {
+    expect(reopenMismatches(unseededDerive, 11)).toBeGreaterThan(0);
   });
 
   it("the engine path visits every checkpoint, so the loop is exercised", () => {
@@ -151,7 +175,7 @@ describe("SP7 D2: the observed rate matches target/sides", () => {
 });
 
 describe("SP7 D3: the seed is a clock-like seam", () => {
-  const source = (path: string) => readFileSync(join(__dirname, "../..", path), "utf8");
+  const source = (path: string) => readFileSync(join(__dirname, "..", path), "utf8");
   const imports = (path: string) => [...source(path).matchAll(/from\s+"([^"]+)"/g)].map((match) => match[1]);
 
   it("engine/chance.ts imports no host, runtime or randomness", () => {
@@ -168,7 +192,7 @@ describe("SP7 D3: the seed is a clock-like seam", () => {
 
   it("control: the seam reads what the engine hands it, so a planted host value changes the draw", () => {
     const view = { boundary: 3, activeCheckpointId: "gate", checkpointStartedBoundary: 2 };
-    expect(chanceGateValues(raw, context(), view)).not.toEqual(chanceGateValues(raw, context(), { ...view, checkpointStartedBoundary: 99 }));
+    expect(chanceGateValues(qualities, context(), view)).not.toEqual(chanceGateValues(qualities, context(), { ...view, checkpointStartedBoundary: 99 }));
   });
 });
 
@@ -176,8 +200,8 @@ describe("SP7 D4/D4b machinery: the NPC roll and the talk pick replay on the sea
   it("the NPC roll draws the same unit for the same boundary and key, and records it", () => {
     const draws: ChanceDraw[] = [];
     const seams = createChanceSeams(() => context({ boundary: 12 }), (draw) => draws.push(draw));
-    const first = seams.npcRoll?.("gate:onEnter:Arin:0");
-    const again = seams.npcRoll?.("gate:onEnter:Arin:0");
+    const first = seams.npcRoll("gate:onEnter:Arin:0");
+    const again = seams.npcRoll("gate:onEnter:Arin:0");
     expect(first).toBe(again);
     expect(draws.map((draw) => [draw.kind, draw.boundary, draw.unit])).toEqual([["npc", 12, first], ["npc", 12, first]]);
   });
@@ -185,28 +209,31 @@ describe("SP7 D4/D4b machinery: the NPC roll and the talk pick replay on the sea
   it("a re-entered boundary picks the same speaker", () => {
     const seams = createChanceSeams(() => context({ boundary: 5 }));
     const candidates = [{ rosterId: "a", name: "A", weight: 1 }, { rosterId: "b", name: "B", weight: 1 }, { rosterId: "c", name: "C", weight: 1 }];
-    const pick = () => chooseByRules({ no_repeat: false }, candidates, { lastSpeakerRosterId: null, random: seams.talkRandom?.() ?? undefined })?.rosterId;
+    const pick = () => chooseByRules({ no_repeat: false }, candidates, { lastSpeakerRosterId: null, random: seams.talkRandom() ?? undefined })?.rosterId;
     expect(pick()).toBe(pick());
   });
 
-  it("control: the flag off installs seams that answer nothing, so today's Math.random path runs", () => {
-    const port: SpikePort = { flags: defaultSpikeSettings, chatId: () => "chat-a", storyId: () => STORY_ID, boundary: () => 3, raw: () => raw };
-    const published: unknown[] = [];
-    const dispose = installSpikes(port, (debug) => published.push(debug));
-    expect(chanceContext(port)).toBeNull();
-    expect(spikeSeams.npcRoll?.("k")).toBeNull();
-    expect(spikeSeams.talkRandom?.()).toBeNull();
-    expect(spikeSeams.derive?.({ boundary: 1, activeCheckpointId: "gate", checkpointStartedBoundary: 0 })).toEqual([]);
-    dispose();
-    expect(spikeSeams.npcRoll).toBeUndefined();
-    expect(published[published.length - 1]).toBeUndefined();
+  it("the draws reach whoever listens, and a listener that left hears nothing", () => {
+    const heard: ChanceDraw[] = [];
+    const stop = onChanceDraw((draw) => heard.push(draw));
+    const seams = createChanceSeams(() => context({ boundary: 3 }));
+    seams.npcRoll("k");
+    stop();
+    seams.npcRoll("k");
+    expect(heard.map((draw) => [draw.kind, draw.boundary, draw.unit])).toEqual([["npc", 3, npcRollDraw({ chatId: "chat-a", storyId: STORY_ID }, 3, "k")]]);
   });
 
-  it("the flag on installs the seeded seams", () => {
-    const port: SpikePort = { flags: () => ({ ...defaultSpikeSettings(), sp7Chance: true }), chatId: () => "chat-a", storyId: () => STORY_ID, boundary: () => 3, raw: () => raw };
-    const dispose = installSpikes(port, () => undefined);
-    expect(spikeSeams.npcRoll?.("k")).toBe(npcRollDraw({ chatId: "chat-a", storyId: STORY_ID }, 3, "k"));
-    expect(spikeSeams.derive?.({ boundary: 1, activeCheckpointId: "gate", checkpointStartedBoundary: 0 }).map((delta) => delta.q)).toEqual(["lock_gives", "clue_die"]);
-    dispose();
+  it("no loaded story answers nothing, so the host keeps Math.random", () => {
+    const seams = createChanceSeams(() => null);
+    expect(seams.npcRoll("k")).toBeNull();
+    expect(seams.talkRandom()).toBeNull();
+    expect(seams.derive({ boundary: 1, activeCheckpointId: "gate", checkpointStartedBoundary: 0 })).toEqual([]);
+  });
+
+  it("only rolled code qualities are drawn, read from the normalized story", () => {
+    const seams = createChanceSeams(() => context({ boundary: 3 }));
+    expect(seams.derive({ boundary: 1, activeCheckpointId: "gate", checkpointStartedBoundary: 0 }).map((delta) => delta.q)).toEqual(["lock_gives", "clue_die"]);
+    const extractorRoll = [{ ...qualities[1], source: "extractor" as const }];
+    expect(chanceGateValues(extractorRoll, context(), { boundary: 1, activeCheckpointId: "gate", checkpointStartedBoundary: 0 })).toEqual([]);
   });
 });

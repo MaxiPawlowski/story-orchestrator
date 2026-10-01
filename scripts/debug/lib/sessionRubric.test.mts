@@ -5,7 +5,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { evidenceRefProblems, findRow, parseEvidence, scoreRow } from './sessionRubric.mts';
 import { rubricProblems, rubricTemplate, USER_REVIEW } from './sessionCharters.mts';
-import { findCard, loadCards, scoreCommand } from '../so-session.mts';
+import { findCard, loadCards, parseScoreArgs, scoreCommand } from '../so-session.mts';
 
 async function sessionDir() {
   const dir = await mkdtemp(join(tmpdir(), 'so-rubric-'));
@@ -62,4 +62,18 @@ test('score command: writes the scored row into rubric.json', async () => {
   const written = JSON.parse(await readFile(join(dir, 'rubric.json'), 'utf-8'));
   assert.deepEqual({ score: written.rows[4].score, note: written.rows[4].note, evidence: written.rows[4].evidence, scoredAt: written.rows[4].scoredAt }, { score: 'annoying', note: 'the checkpoint changed a turn late', evidence: ['turns.jsonl:1'], scoredAt: 'T' });
   assert.equal(result.open.length, 4);
+});
+
+test('T1 score: every evidence path is kept, after one --evidence, a repeated --evidence or a comma list', async () => {
+  assert.deepEqual(parseScoreArgs(['HUD', 'works', 'note', '--evidence', 'turns.jsonl:1', 'shots/001-hud.png']).evidence, ['turns.jsonl:1', 'shots/001-hud.png']);
+  assert.deepEqual(parseScoreArgs(['HUD', 'works', 'note', '--evidence', 'turns.jsonl:1', '--evidence', 'turns.jsonl:2']).evidence, ['turns.jsonl:1', 'turns.jsonl:2']);
+  assert.deepEqual(parseScoreArgs(['HUD', 'works', 'note', '--evidence', 'turns.jsonl:1,shots/001-hud.png']).evidence, ['turns.jsonl:1', 'shots/001-hud.png']);
+  assert.deepEqual(parseScoreArgs(['HUD', '--record', 'seen twice', '--evidence', 'turns.jsonl:2']), { row: 'HUD', score: null, note: 'seen twice', evidence: ['turns.jsonl:2'], record: true, extra: [] });
+  assert.deepEqual(parseScoreArgs(['HUD', 'works', 'a note with spaces', 'stray']).extra, ['stray']);
+  const dir = await sessionDir();
+  await writeFile(join(dir, 'rubric.json'), JSON.stringify(rubricTemplate(findCard(await loadCards(), 'T1-2'))), 'utf-8');
+  await scoreCommand(dir, ['HUD', 'works', 'chips readable', '--evidence', 'turns.jsonl:1', 'shots/001-hud.png', '--evidence', 'turns.jsonl:2'], 'T');
+  const written = JSON.parse(await readFile(join(dir, 'rubric.json'), 'utf-8'));
+  assert.deepEqual(written.rows[4].evidence, ['turns.jsonl:1', 'shots/001-hud.png', 'turns.jsonl:2']);
+  await assert.rejects(scoreCommand(dir, ['HUD', 'works', 'chips', 'readable', '--evidence', 'turns.jsonl:1'], 'T'), /unexpected argument\(s\) "readable"/);
 });
