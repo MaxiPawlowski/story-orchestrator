@@ -50,3 +50,4 @@ by similarity through its own path. **Diagnostic row (never decides F1/F2):** Su
 ×1, same fixture, restored afterwards. It only attributes the leak; the verdict stays on the declared rows. F3 (J5 + J6)
 is not run: F2 and F4 already fail as declared, so F3 cannot change the verdict.
 - Second diagnostic run (13:30Z), same settings, also records the 700 characters before each of the first 12 leaked markers and which seeded rows' `extra` changed, to name the channel.
+- Finding from the second diagnostic: every leaked marker sits in a `Past events:` block (ST Vector Storage's chat template); the runtime write of `vectors.enabled_chats = false` did not reach the extension (it keeps its own settings object), so both diagnostic rows still had Vector Storage on. Third diagnostic (13:40Z): the same write, saved, then `st-session reload` so the extension loads it off.
