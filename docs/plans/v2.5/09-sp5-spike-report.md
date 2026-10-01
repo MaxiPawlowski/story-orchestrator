@@ -104,3 +104,24 @@ Restated: `docs/plans/v2.6/03-sp5-restated.md` (+ three addenda, each committed 
 `effects.scenario` (C4 releases it today); (3) re-run C1–C5 (the lab fixture drives the path by jumps, so it needs (2) or
 a natural-transition variant). Finding for the worth review either way: on a 125-member group every checkpoint apply
 spends ~50–60 s writing the cast before any later effect lands. The code stays behind its flag.
+
+### v5 attempts (2026-10-01 14:00–14:27Z, branch bundle `15ff8e26ba2e` on lane 2 only)
+
+The branch build (with `32527192`) was served to lane 2's browser alone through a route
+(`scripts/spike/v26-03/serve-branch-on-lane.mts`); the shared slot was not restaged. C4 follows the recorded,
+user-approved option (c) (confirmed by the lead): a jump applies the target alone.
+
+| # | Measured | Result |
+|---|---|---|
+| import fix | the saga import wrote guild-hall's scenario row with no reopen, 3 of 3 attempts | **verified live** |
+| C4 | A (saga, 8 enabled, 7 card scenarios, 4 distinct texts) and B (academy, 6 enabled, 5 card scenarios, 2 distinct): the story block once and 0 card texts with the override; the APPEND control carries each text once per member that holds it | **PASS ×1** (A 3/3 attempts, B 2/2) |
+| jump to a non-writing checkpoint | landfall's row reverted, the override back to the pre-story empty value (option (c)) | as designed |
+| C1, C2, C3, C5 | not reached: the lab helper's `goto` could not leave chat A for chat B while A's 125-member hydrate was still writing the cast | not measured |
+
+**Cost seen:** every checkpoint apply on the 125-member saga group spends 40–110 s writing ~100 cast members before the
+scenario lands, and a return to chat A rewrote ~75 cast rows (101–110 s). **For the review:** under C4 (c) a jump target
+that relies on inherited staging (no scenario of its own) plays unstaged after a jump; the user may revisit (c) for
+`effects.scenario` on review day.
+
+**Verdict: still pending.** Unblock: merge + stage `32527192`; fix the helper's cross-group `goto` (wait out the
+hydrate, `openGroupById`, then the chat); re-run C1, C2, C3, C5. The code stays behind its flag.

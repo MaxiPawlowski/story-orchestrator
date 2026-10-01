@@ -1,0 +1,37 @@
+{
+  "lanes": [
+    2
+  ],
+  "items": [
+    "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r1-adolion-night-pact.json",
+    "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r4-adolion-night-pact.json"
+  ],
+  "repeat": 1,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r1-adolion-night-pact.json",
+      "lane": 2,
+      "run": 1,
+      "code": 0,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-10-01T11-38-46-880Z-live-v25-09-sp2-r1-adolion-night-pact-run1.log",
+      "ms": 224094,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r4-adolion-night-pact.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-10-01T11-38-46-880Z-live-v25-09-sp2-r4-adolion-night-pact-run1.log",
+      "ms": 313571,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

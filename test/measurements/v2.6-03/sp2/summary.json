@@ -1,0 +1,45 @@
+{
+  "spike": "SP2",
+  "restated": "docs/plans/v2.6/03-sp2-restated.md (90212624..1c4038ab before any run; addendum 7c553aa2 before the re-run)",
+  "lane": 2,
+  "bundle": { "served": "ceb15ac19ec0 (commit b96cdf7b)", "note": "the first night-pact pair ran on 6f56533e8608 before the restage; kept as diag-old-bundle/, not scored" },
+  "routes": { "main": "Artemis RunPod RP", "read": "deepseek 4.1 flash (975bc0dc)", "judge": "off on the lane copy" },
+  "toy": "R2/R3 jest (recommitEdit.review.test.ts) green in npm test",
+  "R1_control": {
+    "night-pact": { "markers": ["gate"], "activeAtRequest": "night-the-castle-bathorya", "readsBetweenEditAndSend": 0, "lagConfirmed": true },
+    "lord-spirit": { "markers": ["gate"], "activeAtRequest": "the-lord-spirit", "readsBetweenEditAndSend": 0, "lagConfirmed": true },
+    "wendhope-wall": { "markers": ["gate"], "activeAtRequest": "first-night", "readsBetweenEditAndSend": 0, "lagConfirmed": true, "series": 2 },
+    "esha-escape": "not measured (setup race, both series)"
+  },
+  "R4": {
+    "bar": "next request carries the edited state (editor leg edit marker only, recast leg recast marker only, every case); J6 green x2",
+    "editorLeg": {
+      "night-pact": { "markers": ["edit"], "activeAtRequest": "night-owing-no-one", "pass": true },
+      "lord-spirit": { "markers": ["edit"], "activeAtRequest": "the-dying-forest", "pass": true },
+      "wendhope-wall": { "markers": ["edit"], "activeAtRequest": "the-breach", "pass": true, "series": 1 },
+      "night-pact diag": { "markers": ["edit"], "pass": true, "recommitAuditLandedSecondsAfterEdit": 5 }
+    },
+    "recastLeg": {
+      "night-pact": { "markers": ["edit"], "activeAtRequest": "night-dawn", "pass": false, "note": "recommit:12 audit created 2026-10-01T11:47:08Z, 15 s after the request went out; the engine reached night-dawn after the request, the scene World Info was not in it" },
+      "lord-spirit": { "markers": ["edit"], "activeAtRequest": "the-dying-forest", "pass": false, "note": "no recommit audit before the request; cue read for after-the-fog on the settled text did not fire" },
+      "night-pact diag (waits up to 180 s for the recommit audit)": { "landed": null, "markers": ["edit"], "pass": false, "note": "stats count the cycle's read (reads +1) but no recommit:14 audit appeared in 180 s, consistent with the read lapsing under the back-to-back MESSAGE_EDITED pair; the cue read for night-dawn on the settled text did not fire either" },
+      "wendhope-wall": "not measured (series 1: engine had not committed the newest reply; series 2: setup race)",
+      "esha-escape": "not measured (setup race)"
+    },
+    "J6": "not run: R4 and R5 already fail as declared; J6 was left for the end and dropped from this series (lane time went to SP9 F3, which runs J6 with the witness filter)",
+    "result": "FAIL (editor legs 3/3 pass; recast legs 0/2 measured)"
+  },
+  "R5": {
+    "bar": "extra read calls per edit <= 1 (R4 reads between edit and next send minus R1's)",
+    "perEdit": { "night-pact": { "r4": ["recommit:8", "scene:cast"], "r1": [], "extra": 2 }, "lord-spirit": { "r4": ["recommit:6"], "r1": [], "extra": 1 }, "wendhope-wall": { "r4": ["recommit:6", "scene:location"], "r1": [], "extra": 2 } },
+    "note": "the second read is the scene-break read that the re-committed transition triggers (cast/location change); without the spike it happens at the next boundary instead, so the re-commit itself costs one model read. Scored literally as declared.",
+    "route": "read = deepseek 4.1 flash",
+    "result": "FAIL as declared (2 of 3 cases at 2)"
+  },
+  "fixtureFindings": [
+    "lab/swipes scenarios race real extraction: a DeepSeek cadence read of the checkpoint's onEnter reply lands after the scripted /cp set and overwrites it (wendhope location, esha esha_dread); settling reads after /cp activate did not stop it (the /cp set boundaries trigger new reads). Fix: pause extraction (cadence 0) for the setup, or seed with seed_metadata.",
+    "schedulerIdle does not see runExtractionNow reads (they bypass the ExtractionScheduler), so a scenario cannot wait for a manual or spike read with it."
+  ],
+  "residue": "Adolion - Night Courts was left with 15 disabled members (cast_changes of the fixtures); restored to 0 by hand. Adolion - Fire and War has 13 disabled members not caused by these runs.",
+  "cost": { "pod_minutes_approx": 40, "deepseek_calls_approx": 180 }
+}

@@ -83,3 +83,30 @@ unreachable, so **7 of 157 saga checkpoints never play** and the 27 probability 
 | Surface | No player control. Author: a `roll: {sides, target}` on a `source: code` quality (schema + validator + Studio field), which waits on D5. Player sees only outcomes. |
 | Risk to invariants | Engine purity kept (the engine never draws; `derive` is a clock-like seam, D3). Rollback ≡ replay holds (D1, D4, D4b). |
 | Call | **include → `SP7.b`**, in two halves: (1) the seam (seeded NPC `probability` and talk pick, D1–D4b) unconditionally; (2) the `roll` gate schema only after the user accepts D5 (v2.5 §SP7: "the gate schema only with D5"). |
+
+
+### D5 — what each of the 7 Adolion rolls reads (for the user's acceptance)
+
+Every roll is a `source: code` quality with `roll: {sides, target}`, drawn once from
+`hash(chatId, storyId, entry boundary of the drawing checkpoint, key)`. None of the 7 drawing checkpoints can be re-entered,
+so no roll is ever re-drawn; every fallback reaches its act exit, and every branch is reachable only through its roll
+(recomputed on the built graph at `e1c91fb` by `lab/chance/check.py`). The verdict column is the lab's reading, which I
+re-checked against each branch's guidance and agree with.
+
+| Roll | Act | Odds | Drawn at | Branch on true | Also needs (player-driven) | Fallback | Reading |
+|---|---|---|---|---|---|---|---|
+| `wall_breached` | adventurer | d6 ≤ 2 (33.3 %) | `first-night` | `the-breach` | `assault_begun == true` | `what-wendhope-knows` | good: The dice decide a world event (a stretch of Wendhope's wall gives way), not a player choice. It can only happen once the assault has begun, the branch keeps every choice with the party (who to save first), and it rejoins at what-wendhope-knows. |
+| `aegis_examiner_watching` | aegis | d6 ≤ 2 (33.3 %) | `aegis-the-exam` | `aegis-vallie-watches` | `aegis_raiders_engaged == true` | `aegis-a-name-in-the-city`, `aegis-tibalts-manor`, `aegis-a-hard-lesson` | good: An NPC's whereabouts (does Vallie come out to watch) is a fair thing to roll. The branch changes who watches, not what the party may do; the exam verdict stays a read of what the party did, and all three verdict exits are the same as the fallback's. |
+| `deep_swarm` | deep | d6 ≤ 2 (33.3 %) | `deep-the-tunnels` | `deep-the-swarm` | `deep_terrorborn_met == true` | `deep-into-the-dark` | good: A cave-in and a swarm behind the party is a hazard the tunnels' own guidance already promises ('keep the way back open unless the dice say otherwise'). The branch removes the retreat, not a decision, and rejoins at deep-into-the-dark. |
+| `east_upset` | east | d6 ≤ 2 (33.3 %) | `east-the-rounds` | `east-the-upset` | `east_round_fought == true` | `east-the-hattaxi-shadow` | good: Re-judged after the rebuild (the rubric and east-the-upset now make it 'a judges' ruling takes a round from the party, whatever happened in the ring'). The dice no longer decide the party's own fight: they decide whether an onmyoji makes a bad call and the judges uphold it, an NPC act that leaves every bout to play. The branch is a story hook (an injustice, Megumi's hard challenge bout, a council ruling as the last net) and rejoins at east-the-hattaxi-shadow. Caveat: it can overturn a bout the party won, so the narrator must play it as visibly unjust, which the guidance asks for ('half the stands saw was wrong'). |
+| `night_moon` | night | d6 ≤ 2 (33.3 %) | `night-the-siege` | `night-the-full-moon` | `night_pack_met == true` | `night-the-castle-bathorya` | good: The moon is a world condition. It does close one option the siege offers (talking to Lobo: 'no talk works tonight'), so it only fires once the party has already met Lobo (night_pack_met) and the branch states the cost openly; getting through remains the party's doing and it rejoins at night-the-castle-bathorya. Good with that caveat. |
+| `esha_her_gaze` | esha | d6 ≤ 2 (33.3 %) | `esha-the-green-knight` | `esha-her-gaze` | `esha_knight_faced == true` | `esha-the-ritual` | good: The Lady's attention is the capricious power the act is about; rolling it is in character. It fires mid-standoff (esha_knight_faced), raises the stakes, and leaves 'what it costs to get there' to the party; rejoins at esha-the-ritual. |
+| `war_turn` | war | d6 ≤ 3 (50.0 %) | `war-the-last-field` | `war-the-dead-rise` | `war_battle_joined == true` + `tension_current >= 0.75` + not `war_book_taken == true` | `war-the-field-is-ours`, `war-the-truce-of-aldermere`, `war-what-it-cost` | good: Re-judged after the rebuild: the gate now also needs `not war_book_taken == true`, an extractor flag the party earns in war-the-cult-revealed by taking or destroying Tolle's black book. Every path to war-the-last-field passes war-the-cult-revealed (checked on the built graph), so the player always has a chance to earn the blocker. The objective 'stop the dead from rising' is now honest: the party decides whether the rite can still happen; the d6 (3 in 6) only decides whether it does, if they failed to stop it, and only once tension reaches 0.75. All three endings stay open from the branch. |
+
+**Recommendation:** accept D5 with `deep_swarm` (Act IV) as the shipped example. It is the cleanest case: a cave-in
+behind the party is world pressure the tunnels' own guidance already promises, the branch removes the retreat rather
+than a choice, it rejoins at `deep-into-the-dark`, and both live D4 runs routed through it from the committed draw.
+Caveats to accept with it: `east_upset` can overturn a bout the party won (the guidance asks the narrator to play it as
+visibly unjust), and `night_moon` closes the talk option at the siege (it fires only after `night_pack_met`). If you
+accept, `SP7.b` half 2 (the `roll` schema, validator and Studio field) is unblocked; without it, 7 of 157 saga
+checkpoints stay unreachable in prod.

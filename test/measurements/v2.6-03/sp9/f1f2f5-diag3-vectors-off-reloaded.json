@@ -1,0 +1,272 @@
+{
+ "at": "2026-10-01T13:44:51.569Z",
+ "story": "adolion-academy",
+ "f1": {
+  "generations": 24,
+  "extrasChanged": 1,
+  "fileRowsChanged": 1,
+  "liveSymbolRows": []
+ },
+ "f2": {
+  "requests": 24,
+  "unwitnessedVisible": [
+   "Shiya:[n01]",
+   "Leila:[n01]",
+   "Leila:[n02]",
+   "Leila:[n03]",
+   "Leila:[n04]",
+   "Natalia:[n06]",
+   "Natalia:[n07]",
+   "Natalia:[n08]",
+   "Shiya:[n01]",
+   "Shiya:[n02]",
+   "Shiya:[n03]",
+   "Shiya:[n04]",
+   "Shiya:[n05]",
+   "Shiya:[n06]",
+   "Shiya:[n07]",
+   "Shiya:[n08]",
+   "Ronan:[n06]",
+   "Ronan:[n07]",
+   "Ronan:[n08]",
+   "Ronan:[n09]",
+   "Ronan:[n10]",
+   "Welden:[n06]",
+   "Welden:[n07]",
+   "Welden:[n09]",
+   "Welden:[n10]",
+   "Welden:[n11]",
+   "Leila:[n01]",
+   "Leila:[n02]",
+   "Leila:[n03]",
+   "Leila:[n04]",
+   "Leila:[n08]",
+   "Leila:[n09]",
+   "Leila:[n10]",
+   "Leila:[n11]",
+   "Leila:[n12]"
+  ],
+  "witnessedMissing": [],
+  "witnessedChecked": 432
+ },
+ "epistemic": [
+  {
+   "drafted": "Leila",
+   "secret": "natalia-valtara-seal",
+   "hits": [
+    "[n04]"
+   ]
+  },
+  {
+   "drafted": "Natalia",
+   "secret": "leila-hana-week",
+   "hits": [
+    "[n07]"
+   ]
+  },
+  {
+   "drafted": "Natalia",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]"
+   ]
+  },
+  {
+   "drafted": "Shiya",
+   "secret": "leila-hana-week",
+   "hits": [
+    "[n07]"
+   ]
+  },
+  {
+   "drafted": "Shiya",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]"
+   ]
+  },
+  {
+   "drafted": "Shiya",
+   "secret": "natalia-valtara-seal",
+   "hits": [
+    "[n04]"
+   ]
+  },
+  {
+   "drafted": "Ronan",
+   "secret": "leila-hana-week",
+   "hits": [
+    "[n07]"
+   ]
+  },
+  {
+   "drafted": "Ronan",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]"
+   ]
+  },
+  {
+   "drafted": "Ronan",
+   "secret": "shiya-servants-door",
+   "hits": [
+    "[n09]",
+    "[n10]"
+   ]
+  },
+  {
+   "drafted": "Welden",
+   "secret": "leila-hana-week",
+   "hits": [
+    "[n07]"
+   ]
+  },
+  {
+   "drafted": "Welden",
+   "secret": "shiya-servants-door",
+   "hits": [
+    "[n09]",
+    "[n10]"
+   ]
+  },
+  {
+   "drafted": "Leila",
+   "secret": "welden-nightmares",
+   "hits": [
+    "[n08]"
+   ]
+  },
+  {
+   "drafted": "Leila",
+   "secret": "shiya-servants-door",
+   "hits": [
+    "[n09]",
+    "[n10]"
+   ]
+  },
+  {
+   "drafted": "Leila",
+   "secret": "natalia-valtara-seal",
+   "hits": [
+    "[n04]"
+   ]
+  },
+  {
+   "drafted": "Leila",
+   "secret": "heir-knows-venom",
+   "hits": [
+    "[n12]"
+   ]
+  }
+ ],
+ "leakCtx": [
+  {
+   "drafted": "Shiya",
+   "marker": "[n01]",
+   "at": 24015,
+   "bodyLength": 25814,
+   "before": "g my betrothal to Kippon Bertoanal.\\\" Her words are clipped and precise, but there's a which-thin sliver of bitterness in them. \\\"Such a... convenient match.\\\" ",
+   "after": "[n01]<turn|>\\n<|turn>model\\nShiya:\",\"max"
+  },
+  {
+   "drafted": "Leila",
+   "marker": "[n01]",
+   "at": 21807,
+   "bodyLength": 26144,
+   "before": "g my betrothal to Kippon Bertoanal.\\\" Her words are clipped and precise, but there's a which-thin sliver of bitterness in them. \\\"Such a... convenient match.\\\" ",
+   "after": "[n01]<turn|>\\n<|turn>model\\nShiya: Shiya"
+  },
+  {
+   "drafted": "Leila",
+   "marker": "[n02]",
+   "at": 22547,
+   "bodyLength": 26144,
+   "before": "ty disdain.* \\\"I am Shiya Mordred, head maid of the Nightriver house. Your personal maid will be waiting in your room. I trust you will find her... adequate.\\\" ",
+   "after": "[n02]<turn|>\\n<|turn>model\\nRonan: Ronan"
+  },
+  {
+   "drafted": "Leila",
+   "marker": "[n03]",
+   "at": 22883,
+   "bodyLength": 26144,
+   "before": "e gives a small bow as the heir approaches.\\n\\\"The estate is secure,\\\" he says in a low, measured voice. \\\"Your quarters are ready, as per the lord's orders.\\\" ",
+   "after": "[n03]\\n*He steps aside, allowing the hei"
+  },
+  {
+   "drafted": "Leila",
+   "marker": "[n04]",
+   "at": 23173,
+   "bodyLength": 26144,
+   "before": "ulness, as if memorizing every detail of the room, the people and the patterns of movement within.*\\n\\\"I will be outside your door until you have settled in.\\\" ",
+   "after": "[n04]\\n*He remains stationary, his postu"
+  },
+  {
+   "drafted": "Natalia",
+   "marker": "[n06]",
+   "at": 26240,
+   "bodyLength": 34567,
+   "before": "e edges of a page.* \\\"I've been... doing some research. On the... um...\\\" *He trails off, his voice fading into a whisper.* \\\"On-On nothing. Just... reading.\\\" ",
+   "after": "[n06]<turn|>\\n<|turn>system\\n[Write only"
+  },
+  {
+   "drafted": "Natalia",
+   "marker": "[n07]",
+   "at": 30172,
+   "bodyLength": 34567,
+   "before": "ightriver briefly, her eyes pleading, and then quickly avoids her gaze again.*\\n\\\"I-I-I will make it right, I-I swear. J-Just... p-please don't say anything.\\\" ",
+   "after": "[n07]<turn|>\\n<|turn>model\\nMerryn: \\\"Th"
+  },
+  {
+   "drafted": "Natalia",
+   "marker": "[n08]",
+   "at": 32770,
+   "bodyLength": 34567,
+   "before": "ehind his back. His dark brown leather armor is polished to a high shine, and his expression is impassive, his eyes scanning the hallway with a practiced ease. ",
+   "after": "[n08]<turn|>\\n<|turn>model\\nNatalia:\",\"m"
+  },
+  {
+   "drafted": "Shiya",
+   "marker": "[n01]",
+   "at": 21505,
+   "bodyLength": 33012,
+   "before": "g my betrothal to Kippon Bertoanal.\\\" Her words are clipped and precise, but there's a which-thin sliver of bitterness in them. \\\"Such a... convenient match.\\\" ",
+   "after": "[n01]<turn|>\\n<|turn>model\\nShiya: Shiya"
+  },
+  {
+   "drafted": "Shiya",
+   "marker": "[n02]",
+   "at": 22245,
+   "bodyLength": 33012,
+   "before": "ty disdain.* \\\"I am Shiya Mordred, head maid of the Nightriver house. Your personal maid will be waiting in your room. I trust you will find her... adequate.\\\" ",
+   "after": "[n02]<turn|>\\n<|turn>model\\nRonan: Ronan"
+  },
+  {
+   "drafted": "Shiya",
+   "marker": "[n03]",
+   "at": 22581,
+   "bodyLength": 33012,
+   "before": "e gives a small bow as the heir approaches.\\n\\\"The estate is secure,\\\" he says in a low, measured voice. \\\"Your quarters are ready, as per the lord's orders.\\\" ",
+   "after": "[n03]\\n*He steps aside, allowing the hei"
+  },
+  {
+   "drafted": "Shiya",
+   "marker": "[n04]",
+   "at": 22871,
+   "bodyLength": 33012,
+   "before": "ulness, as if memorizing every detail of the room, the people and the patterns of movement within.*\\n\\\"I will be outside your door until you have settled in.\\\" ",
+   "after": "[n04]\\n*He remains stationary, his postu"
+  }
+ ],
+ "changedRows": [
+  {
+   "index": 37,
+   "now": "{\"bias\":null,\"gen_id\":1790861900399,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\",\"reasoning\":\"\"}",
+   "was": "{\"bias\":null,\"gen_id\":1790861900399,\"isSmallSys\":false,\"api\":\"manual\",\"model\":\"slash command\"}"
+  }
+ ],
+ "f5": {
+  "calls": 24,
+  "p95Ms": 0.2999999523162842,
+  "maxMs": 0.3999999761581421
+ }
+}

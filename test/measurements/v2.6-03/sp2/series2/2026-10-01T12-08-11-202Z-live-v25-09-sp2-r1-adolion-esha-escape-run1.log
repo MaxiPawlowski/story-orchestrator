@@ -1,0 +1,105 @@
+2026-10-01T12:08:34.539Z 1/34 eval ok 20ms
+2026-10-01T12:08:34.540Z 1/34 eval -> {"flag":false,"before":{"recommitEdit":true,"swipeBackCache":false,"witnessFilter":false,"sp5Scenario":false,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":false,"sp8CuratorDigest":false,"reasoningEffect":false},"cadence":1,"judge":false,"group":"Adolion - Eshalanore"}
+2026-10-01T12:08:37.250Z 2/34 import_story ok 2712ms
+2026-10-01T12:08:38.803Z 3/34 wait ok 1552ms
+2026-10-01T12:08:39.322Z 4/34 expect ok 519ms
+2026-10-01T12:08:57.938Z 5/34 slash ok 18616ms
+2026-10-01T12:08:59.481Z 6/34 wait ok 1542ms
+2026-10-01T12:09:10.314Z 7/34 wait ok 10833ms
+2026-10-01T12:09:12.040Z 8/34 slash ok 1726ms
+2026-10-01T12:09:13.753Z 9/34 slash ok 1713ms
+2026-10-01T12:09:15.463Z 10/34 slash ok 1709ms
+2026-10-01T12:09:17.164Z 11/34 slash ok 1701ms
+2026-10-01T12:09:18.863Z 12/34 slash ok 1699ms
+2026-10-01T12:09:20.402Z 13/34 wait ok 1539ms
+2026-10-01T12:09:20.983Z 14/34 expect FAIL blackboard.esha_dread: expected 4, got 2
+2026-10-01T12:09:21.629Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-10-01T12-09-21-606Z_so-scenario-failure.json
+2026-10-01T12:09:31.441Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-10-01T12-09-31-440Z_so-scenario-result.json
+2026-10-01T12:09:31.441Z {
+2026-10-01T12:09:31.441Z   "ok": false,
+2026-10-01T12:09:31.441Z   "steps": 14,
+2026-10-01T12:09:31.441Z   "cleanup": {
+2026-10-01T12:09:31.441Z     "generation": {
+2026-10-01T12:09:31.441Z       "idle": true,
+2026-10-01T12:09:31.441Z       "wasGenerating": false,
+2026-10-01T12:09:31.441Z       "stops": 0,
+2026-10-01T12:09:31.441Z       "waitedMs": 1514,
+2026-10-01T12:09:31.441Z       "lastSeen": {
+2026-10-01T12:09:31.441Z         "generating": false,
+2026-10-01T12:09:31.441Z         "saving": false,
+2026-10-01T12:09:31.441Z         "chatId": "2026-10-01@09h08m32s973ms",
+2026-10-01T12:09:31.441Z         "signals": []
+2026-10-01T12:09:31.441Z       }
+2026-10-01T12:09:31.441Z     },
+2026-10-01T12:09:31.441Z     "importedStoryHashes": [
+2026-10-01T12:09:31.441Z       "v2-439059aa"
+2026-10-01T12:09:31.441Z     ],
+2026-10-01T12:09:31.441Z     "library": {
+2026-10-01T12:09:31.441Z       "changed": true,
+2026-10-01T12:09:31.441Z       "removed": [],
+2026-10-01T12:09:31.441Z       "restored": [
+2026-10-01T12:09:31.441Z         "adolion-esha@7 (v2-439059aa)"
+2026-10-01T12:09:31.441Z       ],
+2026-10-01T12:09:31.441Z       "saved": {
+2026-10-01T12:09:31.441Z         "status": 200
+2026-10-01T12:09:31.441Z       },
+2026-10-01T12:09:31.441Z       "verified": true
+2026-10-01T12:09:31.441Z     },
+2026-10-01T12:09:31.441Z     "clearedDebugResponses": [],
+2026-10-01T12:09:31.441Z     "soloChats": {
+2026-10-01T12:09:31.441Z       "deleted": [],
+2026-10-01T12:09:31.441Z       "leaked": []
+2026-10-01T12:09:31.441Z     },
+2026-10-01T12:09:31.441Z     "sandboxChatId": "2026-10-01@09h08m32s973ms",
+2026-10-01T12:09:31.441Z     "owned": [
+2026-10-01T12:09:31.441Z       "2026-10-01@09h08m32s973ms"
+2026-10-01T12:09:31.441Z     ],
+2026-10-01T12:09:31.441Z     "deleted": [
+2026-10-01T12:09:31.441Z       "2026-10-01@09h08m32s973ms"
+2026-10-01T12:09:31.441Z     ],
+2026-10-01T12:09:31.441Z     "notDeleted": [],
+2026-10-01T12:09:31.441Z     "resurrected": [],
+2026-10-01T12:09:31.441Z     "lateFileRepaired": [],
+2026-10-01T12:09:31.441Z     "saveSettleMs": 1524,
+2026-10-01T12:09:31.441Z     "skipped": [],
+2026-10-01T12:09:31.441Z     "currentChatAtCleanup": "2026-10-01@09h08m32s973ms",
+2026-10-01T12:09:31.441Z     "currentGroupAtCleanup": "1790852643850",
+2026-10-01T12:09:31.441Z     "chatAfterCleanup": "2026-10-01@08h04m03s636ms",
+2026-10-01T12:09:31.441Z     "branchChats": {
+2026-10-01T12:09:31.441Z       "recorded": [],
+2026-10-01T12:09:31.441Z       "deleted": [],
+2026-10-01T12:09:31.441Z       "failed": [],
+2026-10-01T12:09:31.441Z       "leaked": []
+2026-10-01T12:09:31.441Z     },
+2026-10-01T12:09:31.441Z     "mirrorBooks": {
+2026-10-01T12:09:31.441Z       "deleted": [],
+2026-10-01T12:09:31.441Z       "failed": [],
+2026-10-01T12:09:31.441Z       "leaked": []
+2026-10-01T12:09:31.441Z     },
+2026-10-01T12:09:31.441Z     "reapPrompts": {
+2026-10-01T12:09:31.441Z       "dismissed": [],
+2026-10-01T12:09:31.441Z       "leaked": []
+2026-10-01T12:09:31.441Z     },
+2026-10-01T12:09:31.441Z     "extraction": {
+2026-10-01T12:09:31.441Z       "restored": false,
+2026-10-01T12:09:31.441Z       "unchanged": true,
+2026-10-01T12:09:31.441Z       "settings": {
+2026-10-01T12:09:31.441Z         "enabled": true,
+2026-10-01T12:09:31.441Z         "cadence": 1,
+2026-10-01T12:09:31.441Z         "stabilityLag": 0,
+2026-10-01T12:09:31.441Z         "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:09:31.441Z         "profiles": {
+2026-10-01T12:09:31.441Z           "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:09:31.441Z           "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:09:31.441Z           "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:09:31.441Z           "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:09:31.441Z           "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+2026-10-01T12:09:31.441Z         }
+2026-10-01T12:09:31.441Z       }
+2026-10-01T12:09:31.441Z     },
+2026-10-01T12:09:31.441Z     "judge": {
+2026-10-01T12:09:31.441Z       "restored": false,
+2026-10-01T12:09:31.441Z       "unchanged": true
+2026-10-01T12:09:31.441Z     }
+2026-10-01T12:09:31.441Z   }
+2026-10-01T12:09:31.441Z }

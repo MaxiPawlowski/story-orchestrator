@@ -1,0 +1,37 @@
+{
+  "lanes": [
+    2
+  ],
+  "items": [
+    "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r1-adolion-esha-escape.json",
+    "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r4-adolion-esha-escape.json"
+  ],
+  "repeat": 1,
+  "strict": true,
+  "results": [
+    {
+      "item": "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r1-adolion-esha-escape.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-10-01T11-59-58-718Z-live-v25-09-sp2-r1-adolion-esha-escape-run1.log",
+      "ms": 55548,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    },
+    {
+      "item": "test/measurements/v2.6-03/_run/sp2/live-v25-09-sp2-r4-adolion-esha-escape.json",
+      "lane": 2,
+      "run": 1,
+      "code": 1,
+      "log": "C:\\dev\\so-lanes\\2\\debug\\batch\\2026-10-01T11-59-58-718Z-live-v25-09-sp2-r4-adolion-esha-escape-run1.log",
+      "ms": 50924,
+      "automated": null,
+      "cleanup": null,
+      "record": null,
+      "failures": []
+    }
+  ]
+}

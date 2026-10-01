@@ -1,0 +1,149 @@
+2026-10-01T12:14:42.519Z 1/44 eval ok 12ms
+2026-10-01T12:14:42.520Z 1/44 eval -> {"flag":true,"before":{"recommitEdit":true,"swipeBackCache":false,"witnessFilter":false,"sp5Scenario":false,"sp7Chance":false,"sp6Complications":false,"sp4AppendShortTerm":false,"sp8CuratorTiers":false,"sp8CuratorDigest":false,"reasoningEffect":false},"cadence":1,"judge":false,"group":"Adolion - Night Courts"}
+2026-10-01T12:14:44.229Z 2/44 import_story ok 1711ms
+2026-10-01T12:14:45.811Z 3/44 wait ok 1582ms
+2026-10-01T12:14:47.184Z 4/44 expect ok 1372ms
+2026-10-01T12:14:49.978Z 5/44 slash ok 2795ms
+2026-10-01T12:14:51.545Z 6/44 wait ok 1567ms
+2026-10-01T12:15:10.284Z 7/44 wait ok 18739ms
+2026-10-01T12:15:12.035Z 8/44 slash ok 1751ms
+2026-10-01T12:15:13.810Z 9/44 slash ok 1775ms
+2026-10-01T12:15:15.650Z 10/44 slash ok 1840ms
+2026-10-01T12:15:17.458Z 11/44 slash ok 1808ms
+2026-10-01T12:15:19.658Z 12/44 slash ok 2198ms
+2026-10-01T12:15:21.227Z 13/44 wait ok 1571ms
+2026-10-01T12:15:22.013Z 14/44 expect ok 786ms
+2026-10-01T12:15:23.769Z 15/44 send ok 1756ms
+2026-10-01T12:15:24.078Z 16/44 eval ok 309ms
+2026-10-01T12:15:24.078Z 16/44 eval -> {"id":4,"name":"Gabriel","swipes":1}
+2026-10-01T12:15:25.635Z 17/44 wait ok 1557ms
+2026-10-01T12:15:50.451Z 18/44 wait ok 24817ms
+2026-10-01T12:15:52.225Z 19/44 send ok 1773ms
+2026-10-01T12:15:52.594Z 20/44 eval ok 369ms
+2026-10-01T12:15:52.594Z 20/44 eval -> {"id":6,"name":"Camilla","swipes":1}
+2026-10-01T12:15:54.204Z 21/44 wait ok 1609ms
+2026-10-01T12:16:49.648Z 22/44 wait ok 55445ms
+2026-10-01T12:16:51.422Z 23/44 send ok 1772ms
+2026-10-01T12:16:52.096Z 24/44 eval ok 675ms
+2026-10-01T12:16:52.097Z 24/44 eval -> {"id":9,"name":"Adolion Narrator","swipes":1}
+2026-10-01T12:17:17.699Z 25/44 wait ok 25602ms
+2026-10-01T12:17:43.523Z 26/44 wait ok 25824ms
+2026-10-01T12:17:43.530Z 27/44 eval ok 8ms
+2026-10-01T12:17:43.990Z 28/44 eval ok 459ms
+2026-10-01T12:17:43.990Z 28/44 eval -> {"leg":"editor","id":9,"at":1790857063533,"active":"night-the-castle-bathorya","stats":{"cycles":8,"recommits":0,"reads":8,"skipped":2}}
+2026-10-01T12:17:45.568Z 29/44 wait ok 1578ms
+2026-10-01T12:18:06.418Z 30/44 wait ok 20851ms
+2026-10-01T12:18:06.427Z 31/44 eval ok 9ms
+2026-10-01T12:18:06.427Z 31/44 eval -> {"landed":"recommit:9","at":"2026-10-01T12:17:48.774Z"}
+2026-10-01T12:18:06.435Z 32/44 eval ok 8ms
+2026-10-01T12:18:06.435Z 32/44 eval -> {"leg":"editor","id":9,"at":1790857063533,"active":"night-the-castle-bathorya","stats":{"cycles":8,"recommits":0,"reads":8,"skipped":2},"reads":[{"reason":"recommit:9","window":{"from":2,"to":9}},{"reason":"scene:cast","window":{"from":2,"to":9}}],"after":{"active":"night-owing-no-one","stats":{"cycles":9,"recommits":0,"reads":9,"skipped":2}}}
+2026-10-01T12:19:32.646Z 33/44 send_generate ok 86211ms
+2026-10-01T12:19:32.659Z 34/44 eval ok 13ms
+2026-10-01T12:19:32.660Z 34/44 eval -> {"leg":"editor","flag":true,"activeAtRequest":"night-owing-no-one","markers":["edit"],"reads":[{"reason":"recommit:9","window":{"from":2,"to":9}},{"reason":"scene:cast","window":{"from":2,"to":9}}],"before":{"cycles":8,"recommits":0,"reads":8,"skipped":2},"after":{"active":"night-owing-no-one","stats":{"cycles":9,"recommits":0,"reads":9,"skipped":2}}}
+2026-10-01T12:19:56.050Z 35/44 wait ok 23391ms
+2026-10-01T12:19:56.060Z 36/44 eval ok 10ms
+2026-10-01T12:19:56.577Z 37/44 eval ok 516ms
+2026-10-01T12:19:56.577Z 37/44 eval -> {"leg":"recast","id":14,"at":1790857196063,"active":"night-owing-no-one","stats":{"cycles":9,"recommits":0,"reads":9,"skipped":2}}
+2026-10-01T12:19:58.125Z 38/44 wait ok 1549ms
+2026-10-01T12:20:33.946Z 39/44 wait ok 35821ms
+2026-10-01T12:23:34.297Z 40/44 eval ok 180351ms
+2026-10-01T12:23:34.297Z 40/44 eval -> {"landed":null,"reason":"recommit:14"}
+2026-10-01T12:23:34.306Z 41/44 eval ok 9ms
+2026-10-01T12:23:34.306Z 41/44 eval -> {"leg":"recast","id":14,"at":1790857196063,"active":"night-owing-no-one","stats":{"cycles":9,"recommits":0,"reads":9,"skipped":2},"reads":[{"reason":"cue:night-owing-no-one->night-dawn","window":{"from":7,"to":14}},{"reason":"cadence","window":{"from":7,"to":14}}],"after":{"active":"night-owing-no-one","stats":{"cycles":10,"recommits":0,"reads":10,"skipped":3}}}
+2026-10-01T12:24:13.852Z 42/44 send_generate ok 39546ms
+2026-10-01T12:24:13.856Z 43/44 eval FAIL Evaluation failed in SillyTavern page: page.evaluate: Error: R4 recast: the request after the edit carries ["edit"], expected only recast :: {"leg":"recast","flag":true,"activeAtRequest":"night-owing-no-one","markers":["edit"],"reads":[{"reason":"cue:night-owing-no-one->night-dawn","window":{"from":7,"to":14}},{"reason":"cadence","window":{"from":7,"to":14}}],"before":{"cycles":9,"recommits":0,"reads":9,"skipped":2},"after":{"active":"night-owing-no-one","stats":{"cycles":10,"recommits":0,"reads":10,"skipped":3}}}
+2026-10-01T12:24:13.856Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:795)
+2026-10-01T12:24:13.856Z     at eval (eval at <anonymous> (eval at evaluate (:290:30)), <anonymous>:3:964)
+2026-10-01T12:24:13.856Z     at eval (eval at evaluate (:290:30), <anonymous>:3:12)
+2026-10-01T12:24:13.856Z     at UtilityScript.evaluate (<anonymous>:292:16)
+2026-10-01T12:24:13.856Z     at UtilityScript.<anonymous> (<anonymous>:1:44)
+2026-10-01T12:24:14.785Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-10-01T12-24-14-753Z_so-scenario-failure.json
+2026-10-01T12:24:58.780Z Wrote JSON: C:\dev\so-lanes\2\debug\2026-10-01T12-24-58-779Z_so-scenario-result.json
+2026-10-01T12:24:58.780Z {
+2026-10-01T12:24:58.780Z   "ok": false,
+2026-10-01T12:24:58.780Z   "steps": 43,
+2026-10-01T12:24:58.780Z   "cleanup": {
+2026-10-01T12:24:58.780Z     "generation": {
+2026-10-01T12:24:58.780Z       "idle": true,
+2026-10-01T12:24:58.780Z       "wasGenerating": true,
+2026-10-01T12:24:58.780Z       "stops": 28,
+2026-10-01T12:24:58.780Z       "waitedMs": 26410,
+2026-10-01T12:24:58.780Z       "lastSeen": {
+2026-10-01T12:24:58.780Z         "generating": false,
+2026-10-01T12:24:58.780Z         "saving": false,
+2026-10-01T12:24:58.780Z         "chatId": "2026-10-01@09h14m41s101ms",
+2026-10-01T12:24:58.780Z         "signals": []
+2026-10-01T12:24:58.780Z       }
+2026-10-01T12:24:58.780Z     },
+2026-10-01T12:24:58.780Z     "importedStoryHashes": [
+2026-10-01T12:24:58.780Z       "v2-1f312653"
+2026-10-01T12:24:58.780Z     ],
+2026-10-01T12:24:58.780Z     "library": {
+2026-10-01T12:24:58.780Z       "changed": true,
+2026-10-01T12:24:58.780Z       "removed": [],
+2026-10-01T12:24:58.780Z       "restored": [
+2026-10-01T12:24:58.780Z         "adolion-night@6 (v2-1f312653)"
+2026-10-01T12:24:58.780Z       ],
+2026-10-01T12:24:58.780Z       "saved": {
+2026-10-01T12:24:58.780Z         "status": 200
+2026-10-01T12:24:58.780Z       },
+2026-10-01T12:24:58.780Z       "verified": true
+2026-10-01T12:24:58.780Z     },
+2026-10-01T12:24:58.780Z     "clearedDebugResponses": [],
+2026-10-01T12:24:58.780Z     "soloChats": {
+2026-10-01T12:24:58.780Z       "deleted": [],
+2026-10-01T12:24:58.780Z       "leaked": []
+2026-10-01T12:24:58.780Z     },
+2026-10-01T12:24:58.780Z     "sandboxChatId": "2026-10-01@09h14m41s101ms",
+2026-10-01T12:24:58.780Z     "owned": [
+2026-10-01T12:24:58.780Z       "2026-10-01@09h14m41s101ms"
+2026-10-01T12:24:58.780Z     ],
+2026-10-01T12:24:58.780Z     "deleted": [
+2026-10-01T12:24:58.780Z       "2026-10-01@09h14m41s101ms"
+2026-10-01T12:24:58.780Z     ],
+2026-10-01T12:24:58.780Z     "notDeleted": [],
+2026-10-01T12:24:58.780Z     "resurrected": [],
+2026-10-01T12:24:58.780Z     "lateFileRepaired": [],
+2026-10-01T12:24:58.780Z     "saveSettleMs": 1842,
+2026-10-01T12:24:58.780Z     "skipped": [],
+2026-10-01T12:24:58.780Z     "currentChatAtCleanup": "2026-10-01@09h14m41s101ms",
+2026-10-01T12:24:58.780Z     "currentGroupAtCleanup": "1790852643865",
+2026-10-01T12:24:58.780Z     "chatAfterCleanup": "2026-10-01@08h04m03s864ms",
+2026-10-01T12:24:58.780Z     "branchChats": {
+2026-10-01T12:24:58.780Z       "recorded": [],
+2026-10-01T12:24:58.780Z       "deleted": [],
+2026-10-01T12:24:58.780Z       "failed": [],
+2026-10-01T12:24:58.780Z       "leaked": []
+2026-10-01T12:24:58.780Z     },
+2026-10-01T12:24:58.780Z     "mirrorBooks": {
+2026-10-01T12:24:58.780Z       "deleted": [],
+2026-10-01T12:24:58.780Z       "failed": [],
+2026-10-01T12:24:58.780Z       "leaked": []
+2026-10-01T12:24:58.780Z     },
+2026-10-01T12:24:58.780Z     "reapPrompts": {
+2026-10-01T12:24:58.780Z       "dismissed": [],
+2026-10-01T12:24:58.780Z       "leaked": []
+2026-10-01T12:24:58.780Z     },
+2026-10-01T12:24:58.780Z     "extraction": {
+2026-10-01T12:24:58.780Z       "restored": false,
+2026-10-01T12:24:58.780Z       "unchanged": true,
+2026-10-01T12:24:58.780Z       "settings": {
+2026-10-01T12:24:58.780Z         "enabled": true,
+2026-10-01T12:24:58.780Z         "cadence": 1,
+2026-10-01T12:24:58.780Z         "stabilityLag": 0,
+2026-10-01T12:24:58.780Z         "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:24:58.780Z         "profiles": {
+2026-10-01T12:24:58.780Z           "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:24:58.780Z           "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:24:58.780Z           "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:24:58.780Z           "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+2026-10-01T12:24:58.780Z           "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+2026-10-01T12:24:58.780Z         }
+2026-10-01T12:24:58.780Z       }
+2026-10-01T12:24:58.780Z     },
+2026-10-01T12:24:58.780Z     "judge": {
+2026-10-01T12:24:58.780Z       "restored": false,
+2026-10-01T12:24:58.780Z       "unchanged": true
+2026-10-01T12:24:58.780Z     }
+2026-10-01T12:24:58.780Z   }
+2026-10-01T12:24:58.780Z }

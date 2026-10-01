@@ -1,0 +1,42 @@
+{
+ "arm": "today (phaseA classify + talk/parse.ts)",
+ "keysAgreeWithNamesInLine": "652/652",
+ "a1": {
+  "labelled": {
+   "cast": 548,
+   "variant": 261
+  },
+  "measured": {
+   "cast": 418,
+   "variant": 131
+  },
+  "variantFound": 128,
+  "variantMissed": 131,
+  "wrongId": 2,
+  "falseCast": 1,
+  "byLang": {
+   "en": {
+    "cast": 548,
+    "variant": 261,
+    "variantFound": 128
+   }
+  },
+  "measuredRate": 0.3134,
+  "labelledRate": 0.4763,
+  "recall": 0.4904
+ },
+ "a2": {
+  "aliasAnswers": 162,
+  "resolvedRight": 1,
+  "resolvedWrong": 0,
+  "miss": 161,
+  "controls": 12,
+  "controlsRight": 12,
+  "missPer50": 49.69,
+  "wrongPer50": 0
+ }
+}
+wrong resolutions:
+  M233 Father -> father (label none)
+  M517 father -> father (label night_bathorya)
+  M638 father -> father (label war_king)
