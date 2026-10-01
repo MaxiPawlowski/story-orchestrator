@@ -23,10 +23,13 @@ const STRONG_DRIFT_THRESHOLD = 0.5;
 // one clause to every hint for every story that does not say otherwise.
 const playerClause = (policy: AgencyPolicy) => (policy.never_narrate_player_action ? ` Do not narrate the player's own words or decisions. ${NO_CLOSING_QUESTION_CLAUSE}` : "");
 
+export const NOTHING_NEW_CLAUSE = "If nothing new is happening, hand the scene back to the player in one short beat; never fill it with weather, silence or atmosphere.";
+
 const hintText = (direction: SteeringDirection, strong: boolean, level: TensionLevel, policy: AgencyPolicy): string => {
   const mine = policy.objective_kind === "player_action";
   const clause = playerClause(policy);
-  if (direction === "hold") return `Pacing: hold the tension near ${level} — sustain the mood without spiking or releasing it.${clause}`;
+  const development = "move the scene with one concrete development: someone acts, something arrives, or something comes out.";
+  if (direction === "hold") return `Pacing: keep the tension near ${level} — ${development} ${NOTHING_NEW_CLAUSE}${clause}`;
   if (direction === "escalate") {
     if (strong) {
       return mine
@@ -38,10 +41,10 @@ const hintText = (direction: SteeringDirection, strong: boolean, level: TensionL
       : `Pacing: raise the tension toward ${level} — sharpen the stakes and let the world press the conflict forward.${clause}`;
   }
   return strong
-    ? `Pacing: wind down decisively toward ${level} — release the pressure and let the scene recover.${clause}`
+    ? `Pacing: wind down decisively toward ${level} — release the pressure through something that happens: a retreat, a truce, help arriving. ${NOTHING_NEW_CLAUSE}${clause}`
     : mine
-      ? `Pacing: ease the tension toward ${level} — let the scene settle and give the player room to decide what comes next.${clause}`
-      : `Pacing: ease the tension toward ${level} — let the scene breathe and settle before the next beat.${clause}`;
+      ? `Pacing: ease the tension toward ${level} — lower the stakes through what people do, then give the player room to decide what comes next.${clause}`
+      : `Pacing: ease the tension toward ${level} — lower the stakes through what people do or say. ${NOTHING_NEW_CLAUSE}${clause}`;
 };
 
 export const getSteeringHint = (

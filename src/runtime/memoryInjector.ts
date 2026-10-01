@@ -2,7 +2,7 @@ import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import {
   applyEpistemicInjection, applyLedgerInjection, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildLedgerView,
   buildMemoryInjectionBlocks, clearAllMemoryInjection, labelMemoryBlock, memoryInjectionView, pinnedOverflowOf, type MemoryInjectionView, clearEpistemicInjection, memoryExtensionKey, openArcTexts,
-  renderLedgerBlock, renderPrivateEpistemicBlock, renderSoloEpistemicBlock, type LedgerBinding, type LedgerView, type MemoryTier,
+  renderLedgerBlock, renderPrivateEpistemicBlock, selectLedgerRows, renderSoloEpistemicBlock, type LedgerBinding, type LedgerView, type MemoryTier,
   type ScoreContext, castVoices, hasInnerVoice, innerRender, joinBlocks, loadInnerRender, withoutLapsedIntents,
   type CastVoice, type EpistemicEntry,
 } from "@memory/index";
@@ -27,6 +27,7 @@ export interface MemoryInjectorDeps {
   hosts: () => InjectorHosts;
   beatFor: (rosterId: string) => string;
   chapters?: () => Pick<ChapterPort, "inject">;
+  ledgerFocus?: () => string[];
 }
 
 // What the memory stores put into SillyTavern's prompt, split out of MemoryCoordinator. The
@@ -120,7 +121,8 @@ export class MemoryInjector {
     const state = this.deps.getState();
     const values = state?.blackboard.values ?? {};
     const versions = state?.blackboard.versions ?? {};
-    applyLedgerInjection(this.hosts.prompt, renderLedgerBlock(buildLedgerView(this.state.ledger, this.deps.ledgerBindings(), values, versions)), LEDGER_INJECTION_DEPTH);
+    const ledger = buildLedgerView(this.state.ledger, this.deps.ledgerBindings(), values, versions);
+    applyLedgerInjection(this.hosts.prompt, renderLedgerBlock(selectLedgerRows(ledger, { boundary: state?.boundary ?? 0, names: this.ledgerFocusNames(story) })), LEDGER_INJECTION_DEPTH);
 
     this.stagedPrivate.clear();
     const capable = this.deps.capable();
@@ -142,6 +144,11 @@ export class MemoryInjector {
     } else {
       clearEpistemicInjection(this.hosts.prompt);
     }
+  }
+
+  private ledgerFocusNames(story: NormalizedStoryV2): string[] {
+    const speaker = activeSpeakerId(story, this.hosts.roster);
+    return [...(this.deps.ledgerFocus?.() ?? []), ...(speaker ? namesForRosterId(story, speaker) : [])];
   }
 
   private setPrivateBlocks(facts: string | null, epistemic: string) {

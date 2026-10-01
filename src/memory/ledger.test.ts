@@ -3,16 +3,20 @@ import {
   buildBoundKeySet,
   buildLedgerView,
   capLedger,
+  LEDGER_INJECT_CHAR_CAP,
+  LEDGER_INJECT_ROW_CAP,
   LEDGER_ROW_CAP,
   ledgerKey,
   removeLedger,
   renderLedgerBlock,
   rollbackLedger,
+  selectLedgerRows,
   setLedgerPinned,
   type LedgerBinding,
 } from "./ledger";
 import { parseLedgerLine } from "./parse";
-import type { LedgerEntry, ParsedLedgerSignal } from "./types";
+import type { LedgerEntry, LedgerView, ParsedLedgerSignal } from "./types";
+import * as t1Ledger from "../../test/fixtures/t1-3-ledger-90.json";
 
 const ctx = (boundary: number, messageId?: number) => ({ boundary, messageId });
 
@@ -159,5 +163,61 @@ describe("V11: trimming prefers what a rollback can no longer reach", () => {
 
   it("control: without a floor the oldest version goes, as before", () => {
     expect(capLedger(entries, 60, 4).map((entry) => entry.id)).toEqual(["b2", "b3", "a8", "b9"]);
+  });
+});
+
+describe("T1: the Current state block injected before a reply is a diet, not the whole ledger", () => {
+  const sig = (entity: string, field: string, value: string, entityType = "character"): ParsedLedgerSignal => ({ entity, field, value, entityType });
+  const noBound = new Set<string>();
+  const row = (entity: string, field: string, value: string, turn: number, bound = false): LedgerView => ({ entity, field, value, turn, bound });
+
+  it("T1-3 #90: keeps the bound rows, the present cast and the fresh rows, and drops the stale goals", () => {
+    const view = t1Ledger.view as LedgerView[];
+    const before = renderLedgerBlock(view);
+    expect(before).toBe(t1Ledger.block);
+    const kept = selectLedgerRows(view, { boundary: t1Ledger.boundary, names: t1Ledger.names });
+    const after = renderLedgerBlock(kept);
+    expect(kept.length).toBeLessThanOrEqual(LEDGER_INJECT_ROW_CAP);
+    expect(after.length).toBeLessThanOrEqual(LEDGER_INJECT_CHAR_CAP + "Current state:".length + 40);
+    expect(after.length).toBeLessThan(before.length / 2);
+    expect(after).not.toContain("Get the horses");
+    expect(after).toContain("guild reputation=2");
+    expect(after).toContain("how the war stands=2");
+    expect(after).toContain("Kanna: weapon=Blood Oath");
+    expect(after).toContain("Greywater: status=held by Cursefire Regiment");
+    expect(kept.filter((entry) => entry.entity === "Alexander")).toEqual([]);
+  });
+
+  it("a row a read stated again stays fresh; one nobody restated ages out", () => {
+    let entries = applyLedgerSignals([], [sig("Kael", "location", "fort"), sig("Kael", "active_goal", "get the horses")], noBound, ctx(1, 1));
+    for (let turn = 2; turn <= 12; turn += 1) entries = applyLedgerSignals(entries, [sig("Kael", "location", "fort")], noBound, ctx(turn, turn));
+    expect(entries).toHaveLength(2);
+    const view = buildLedgerView(entries, [], {}, {});
+    expect(view.find((entry) => entry.field === "location")?.turn).toBe(12);
+    expect(selectLedgerRows(view, { boundary: 12, names: [] }).map((entry) => entry.field)).toEqual(["location"]);
+  });
+
+  it("a rollback past the confirmation ages the row from its own creation again", () => {
+    let entries = applyLedgerSignals([], [sig("Kael", "location", "fort")], noBound, ctx(1, 1));
+    entries = applyLedgerSignals(entries, [sig("Kael", "location", "fort")], noBound, ctx(9, 9));
+    expect(buildLedgerView(rollbackLedger(entries, 5), [], {}, {})[0].turn).toBe(1);
+    expect(buildLedgerView(rollbackLedger(entries, 10), [], {}, {})[0].turn).toBe(9);
+    expect(entries[0].confirmedAt).toBe(9);
+  });
+
+  it("present and checkpoint entities keep older rows longer than the rest; the caps hold, bound rows first", () => {
+    const view = [
+      row("Kanna", "mood", "hostile", 4),
+      row("Captain Kaelen", "mood", "grim", 4),
+      row("Belle", "mood", "sharp", 9),
+      row("The Party", "guild reputation", "2", 0, true),
+      ...Array.from({ length: 40 }, (_, index) => row(`Extra ${index}`, "status", "x".repeat(40), 10)),
+    ];
+    const kept = selectLedgerRows(view, { boundary: 10, names: ["Kanna", "Kaelen"] });
+    expect(kept).toContainEqual(expect.objectContaining({ field: "guild reputation" }));
+    expect(kept.map((entry) => entry.entity)).toEqual(expect.arrayContaining(["Kanna", "Captain Kaelen", "Belle"]));
+    expect(kept.length).toBeLessThanOrEqual(LEDGER_INJECT_ROW_CAP);
+    expect(renderLedgerBlock(kept).length).toBeLessThanOrEqual(LEDGER_INJECT_CHAR_CAP + "Current state:".length + 40);
+    expect(selectLedgerRows([row("Belle", "mood", "sharp", 1)], { boundary: 10, names: ["Kanna"] })).toEqual([]);
   });
 });

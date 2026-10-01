@@ -1,7 +1,7 @@
 import * as pacingStory from "../../test/fixtures/pacing.story.json";
 import { runReplay, type ReplayStep } from "../../test/support/replay";
 import { expectedTension } from "./shapes";
-import { getSteeringHint, getTensionTrajectory } from "./steering";
+import { getSteeringHint, getTensionTrajectory, NOTHING_NEW_CLAUSE } from "./steering";
 import { DEFAULT_AGENCY, NO_CLOSING_QUESTION_CLAUSE, objectiveClause, type AgencyPolicy } from "@engine/index";
 import { levelToNumeric, numericToLevel, updateEma } from "./tension";
 
@@ -120,7 +120,28 @@ describe("steering", () => {
 
     it("drops the player clause only when the author turned it off", () => {
       expect(getSteeringHint(0.1, 0.9, undefined, policy({ never_narrate_player_action: false }))!.text).not.toContain("Do not narrate");
-      expect(getSteeringHint(0.5, 0.5, undefined, policy({ protect_player_choice: false }))!.text).toContain("hold the tension");
+      expect(getSteeringHint(0.5, 0.5, undefined, policy({ protect_player_choice: false }))!.text).toContain("keep the tension near");
+    });
+
+    it("T1: never asks for mood filler, and asks for a development or a hand-back instead", () => {
+      const filler = /sustain the mood|breathe|settle before the next beat|let the scene recover|End on the world/i;
+      const hints = [
+        getSteeringHint(0.5, 0.5, undefined, policy())!,
+        getSteeringHint(0.5, 0.5, undefined, policy({ objective_kind: "player_action" }))!,
+        getSteeringHint(0.7, 0.3, undefined, policy())!,
+        getSteeringHint(0.9, 0.1, undefined, policy())!,
+        getSteeringHint(0.4, 0.6, undefined, policy())!,
+        getSteeringHint(0.1, 0.9, undefined, policy())!,
+      ];
+      hints.forEach((hint) => expect(hint.text).not.toMatch(filler));
+      const hold = hints[0].text;
+      expect(hints[0].direction).toBe("hold");
+      expect(hold).toContain("one concrete development");
+      expect(hold).toContain(NOTHING_NEW_CLAUSE);
+      expect(NOTHING_NEW_CLAUSE).toMatch(/hand the scene back to the player/);
+      expect(hints[2].text).toContain(NOTHING_NEW_CLAUSE);
+      expect(hints[3].text).toContain(NOTHING_NEW_CLAUSE);
+      expect(NO_CLOSING_QUESTION_CLAUSE).toMatch(/not on scenery or mood/);
     });
   });
 

@@ -8,6 +8,7 @@ import { runtimeManager } from "./runtimeManager";
 import { registerSlashCommands } from "./slashCommands";
 import { DIRECTOR_WINDOW_MESSAGES } from "./talkControl";
 import { GenerationLifecycle } from "./generationLifecycle";
+import { LoudGenerationGate } from "./loudGenerationGate";
 import { isTurnMessageType, TurnBridge } from "./turnBridge";
 import { RequirementsWatch } from "./requirementsWatch";
 import { currentChat, loadAtStartup } from "./chatIdentity";
@@ -38,7 +39,7 @@ let started = false;
 let bridge: TurnBridge | null = null;
 let slashRegistered = false;
 let privateInjectionUnsub: (() => void) | null = null;
-const live: LiveParts = { scheduler: null, scene: null, talk: null, typedJudge: null };
+const live: LiveParts = { scheduler: null, scene: null, talk: null, typedJudge: null, loudGate: new LoudGenerationGate() };
 // Every subscription startRuntime makes, so stopRuntime can undo it. Without this a
 // stop/start cycle left the previous run listening, and each boundary dispatched twice — once into
 // live wiring and once into a scheduler and scene coordinator that had already been torn down.

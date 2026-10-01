@@ -151,6 +151,8 @@ export interface LedgerEntry {
   value: string;
   createdAt: number;
   messageId?: number;
+  confirmedAt?: number;
+  confirmedMessageId?: number;
   pinned?: boolean;
   /** Where this version came from and whether it is still valid. */
   provenance: Provenance;

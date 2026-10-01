@@ -51,19 +51,11 @@ export const directorInstruction = (control: TalkControl): string | undefined =>
 
 export interface ChooseOptions {
   lastSpeakerRosterId: string | null;
+  leadEligible?: boolean;
   random?: () => number;
 }
 
-export const chooseByRules = (control: TalkControl, candidates: TalkCandidate[], options: ChooseOptions): TalkCandidate | null => {
-  if (!candidates.length) return null;
-  const noRepeat = control.no_repeat !== false;
-  const filtered = noRepeat ? candidates.filter((candidate) => candidate.rosterId !== options.lastSpeakerRosterId) : candidates;
-  const pool = filtered.length ? filtered : candidates;
-  if (control.lead) {
-    const lead = pool.find((candidate) => matchesRef(candidate, control.lead ?? ""));
-    if (lead) return lead;
-  }
-  const random = options.random ?? Math.random;
+const weightedPick = (pool: TalkCandidate[], random: () => number): TalkCandidate => {
   const total = pool.reduce((sum, candidate) => sum + candidate.weight, 0);
   let roll = random() * total;
   for (const candidate of pool) {
@@ -71,4 +63,18 @@ export const chooseByRules = (control: TalkControl, candidates: TalkCandidate[],
     if (roll <= 0) return candidate;
   }
   return pool[pool.length - 1];
+};
+
+export const chooseByRules = (control: TalkControl, candidates: TalkCandidate[], options: ChooseOptions): TalkCandidate | null => {
+  if (!candidates.length) return null;
+  const noRepeat = control.no_repeat !== false;
+  const filtered = noRepeat ? candidates.filter((candidate) => candidate.rosterId !== options.lastSpeakerRosterId) : candidates;
+  const pool = filtered.length ? filtered : candidates;
+  const leadRef = control.lead ?? "";
+  if (leadRef && options.leadEligible !== false) {
+    const lead = pool.find((candidate) => matchesRef(candidate, leadRef));
+    if (lead) return lead;
+  }
+  const others = leadRef && options.leadEligible === false ? pool.filter((candidate) => !matchesRef(candidate, leadRef)) : pool;
+  return weightedPick(others.length ? others : pool, options.random ?? Math.random);
 };

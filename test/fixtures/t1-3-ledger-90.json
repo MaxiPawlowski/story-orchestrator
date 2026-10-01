@@ -1,0 +1,447 @@
+{
+ "source": "test/sessions/T1/T1-3-1 payload #90 (message 47, boundary 30): the Current state block as sent, turns from the session ledger (unknown = 15)",
+ "boundary": 30,
+ "names": [
+  "Kanna",
+  "Max Nightriver",
+  "Fort Vicinitas",
+  "Hold the ridge before Greywater, and find a way behind the Cursefire Regiment."
+ ],
+ "block": "Current state:\nThe Party: guild reputation=2 | status=arrived at dawn | objective=investigate the missing dead in Greywater and the Ashen March | alliances=The Crown, The Guild | location=Fort Vicinitas | active_goal=under Captain Kaelen's command until the Prince arrives | carried_items=horses\nThe Darran Kingdom: how the war stands=2 | leadership=King Alexander | objective=hold the line at Fort Vicinitas\nMax Nightriver: location=Fort Vicinitas | active_goal=report to whoever commands Fort Vicinitas | mount=horse | carried_items=horses\nBelle: location=Fort Vicinitas | mood=defiant | active_goal=Get the horses and ride for Fort Vicinitas before dawn | carried_items=horses | mount=horse | weapon=Cleaver\nDalan: location=Fort Vicinitas | mood=tense | active_goal=Get the horses | carried_items=horses | mount=horse\nAlexander: mood=stern | active_goal=end the rumour | carried_items=white fur mantle | outfit_disguise=white fur mantle\nForre: mood=quiet | active_goal=Looking at the map table where the Zegallan token sits | location=war room\nVallie: mood=blunt | active_goal=back the party | carried_items=Guild charter\nFort Vicinitas: status=under daily Zegallan bombardment | gates=open | walls=war-scarred | garrison=present, shield wall on the ridge | time=dawn | occupants=Captain Kaelen, soldiers, the party | accessibility=gates open wide | hazards=sentry at the gate | location=ridge over the Ashen March | political_control=Captain Kaelen\nKaelen: role=Captain of Fort Vicinitas | appearance=scarred dented plate armour, longsword at hip | armour=scarred and dented plate | weapon=longsword | location=Fort Vicinitas | outfit_disguise=plate armour, scarred and dented, longsword at hip | mood=grim, hard-eyed | active_goal=command Fort Vicinitas, await the Prince's arrival by noon | demeanor=grim and hard | carried_items=longsword\nKanna: weapon=Blood Oath | armour=black steel | eyes=dark red | demeanor=hostile, demanding answers\nGreywater: status=held by Cursefire Regiment | banners=Empire and Crown both in sight | atmosphere=quiet, no gunfire",
+ "view": [
+  {
+   "entity": "The Party",
+   "field": "guild reputation",
+   "value": "2",
+   "bound": true,
+   "turn": 2
+  },
+  {
+   "entity": "The Party",
+   "field": "status",
+   "value": "arrived at dawn",
+   "bound": false,
+   "turn": 21
+  },
+  {
+   "entity": "The Party",
+   "field": "objective",
+   "value": "investigate the missing dead in Greywater and the Ashen March",
+   "bound": false,
+   "turn": 20
+  },
+  {
+   "entity": "The Party",
+   "field": "alliances",
+   "value": "The Crown, The Guild",
+   "bound": false,
+   "turn": 20
+  },
+  {
+   "entity": "The Party",
+   "field": "location",
+   "value": "Fort Vicinitas",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "The Party",
+   "field": "active_goal",
+   "value": "under Captain Kaelen's command until the Prince arrives",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "The Party",
+   "field": "carried_items",
+   "value": "horses",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "The Darran Kingdom",
+   "field": "how the war stands",
+   "value": "2",
+   "bound": true,
+   "turn": 2
+  },
+  {
+   "entity": "The Darran Kingdom",
+   "field": "leadership",
+   "value": "King Alexander",
+   "bound": false,
+   "turn": 20
+  },
+  {
+   "entity": "The Darran Kingdom",
+   "field": "objective",
+   "value": "hold the line at Fort Vicinitas",
+   "bound": false,
+   "turn": 20
+  },
+  {
+   "entity": "Max Nightriver",
+   "field": "location",
+   "value": "Fort Vicinitas",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Max Nightriver",
+   "field": "active_goal",
+   "value": "report to whoever commands Fort Vicinitas",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Max Nightriver",
+   "field": "mount",
+   "value": "horse",
+   "bound": false,
+   "turn": 21
+  },
+  {
+   "entity": "Max Nightriver",
+   "field": "carried_items",
+   "value": "horses",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "Belle",
+   "field": "location",
+   "value": "Fort Vicinitas",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Belle",
+   "field": "mood",
+   "value": "defiant",
+   "bound": false,
+   "turn": 28
+  },
+  {
+   "entity": "Belle",
+   "field": "active_goal",
+   "value": "Get the horses and ride for Fort Vicinitas before dawn",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "Belle",
+   "field": "carried_items",
+   "value": "horses",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "Belle",
+   "field": "mount",
+   "value": "horse",
+   "bound": false,
+   "turn": 21
+  },
+  {
+   "entity": "Belle",
+   "field": "weapon",
+   "value": "Cleaver",
+   "bound": false,
+   "turn": 28
+  },
+  {
+   "entity": "Dalan",
+   "field": "location",
+   "value": "Fort Vicinitas",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Dalan",
+   "field": "mood",
+   "value": "tense",
+   "bound": false,
+   "turn": 28
+  },
+  {
+   "entity": "Dalan",
+   "field": "active_goal",
+   "value": "Get the horses",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "Dalan",
+   "field": "carried_items",
+   "value": "horses",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "Dalan",
+   "field": "mount",
+   "value": "horse",
+   "bound": false,
+   "turn": 21
+  },
+  {
+   "entity": "Alexander",
+   "field": "mood",
+   "value": "stern",
+   "bound": false,
+   "turn": 21
+  },
+  {
+   "entity": "Alexander",
+   "field": "active_goal",
+   "value": "end the rumour",
+   "bound": false,
+   "turn": 21
+  },
+  {
+   "entity": "Alexander",
+   "field": "carried_items",
+   "value": "white fur mantle",
+   "bound": false,
+   "turn": 21
+  },
+  {
+   "entity": "Alexander",
+   "field": "outfit_disguise",
+   "value": "white fur mantle",
+   "bound": false,
+   "turn": 21
+  },
+  {
+   "entity": "Forre",
+   "field": "mood",
+   "value": "quiet",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "Forre",
+   "field": "active_goal",
+   "value": "Looking at the map table where the Zegallan token sits",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "Forre",
+   "field": "location",
+   "value": "war room",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "Vallie",
+   "field": "mood",
+   "value": "blunt",
+   "bound": false,
+   "turn": 15
+  },
+  {
+   "entity": "Vallie",
+   "field": "active_goal",
+   "value": "back the party",
+   "bound": false,
+   "turn": 15
+  },
+  {
+   "entity": "Vallie",
+   "field": "carried_items",
+   "value": "Guild charter",
+   "bound": false,
+   "turn": 15
+  },
+  {
+   "entity": "Fort Vicinitas",
+   "field": "status",
+   "value": "under daily Zegallan bombardment",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Fort Vicinitas",
+   "field": "gates",
+   "value": "open",
+   "bound": false,
+   "turn": 21
+  },
+  {
+   "entity": "Fort Vicinitas",
+   "field": "walls",
+   "value": "war-scarred",
+   "bound": false,
+   "turn": 21
+  },
+  {
+   "entity": "Fort Vicinitas",
+   "field": "garrison",
+   "value": "present, shield wall on the ridge",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Fort Vicinitas",
+   "field": "time",
+   "value": "dawn",
+   "bound": false,
+   "turn": 21
+  },
+  {
+   "entity": "Fort Vicinitas",
+   "field": "occupants",
+   "value": "Captain Kaelen, soldiers, the party",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Fort Vicinitas",
+   "field": "accessibility",
+   "value": "gates open wide",
+   "bound": false,
+   "turn": 21
+  },
+  {
+   "entity": "Fort Vicinitas",
+   "field": "hazards",
+   "value": "sentry at the gate",
+   "bound": false,
+   "turn": 21
+  },
+  {
+   "entity": "Fort Vicinitas",
+   "field": "location",
+   "value": "ridge over the Ashen March",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "Fort Vicinitas",
+   "field": "political_control",
+   "value": "Captain Kaelen",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Kaelen",
+   "field": "role",
+   "value": "Captain of Fort Vicinitas",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Kaelen",
+   "field": "appearance",
+   "value": "scarred dented plate armour, longsword at hip",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "Kaelen",
+   "field": "armour",
+   "value": "scarred and dented plate",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "Kaelen",
+   "field": "weapon",
+   "value": "longsword",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "Kaelen",
+   "field": "location",
+   "value": "Fort Vicinitas",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Kaelen",
+   "field": "outfit_disguise",
+   "value": "plate armour, scarred and dented, longsword at hip",
+   "bound": false,
+   "turn": 23
+  },
+  {
+   "entity": "Kaelen",
+   "field": "mood",
+   "value": "grim, hard-eyed",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Kaelen",
+   "field": "active_goal",
+   "value": "command Fort Vicinitas, await the Prince's arrival by noon",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Kaelen",
+   "field": "demeanor",
+   "value": "grim and hard",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Kaelen",
+   "field": "carried_items",
+   "value": "longsword",
+   "bound": false,
+   "turn": 24
+  },
+  {
+   "entity": "Kanna",
+   "field": "weapon",
+   "value": "Blood Oath",
+   "bound": false,
+   "turn": 30
+  },
+  {
+   "entity": "Kanna",
+   "field": "armour",
+   "value": "black steel",
+   "bound": false,
+   "turn": 30
+  },
+  {
+   "entity": "Kanna",
+   "field": "eyes",
+   "value": "dark red",
+   "bound": false,
+   "turn": 30
+  },
+  {
+   "entity": "Kanna",
+   "field": "demeanor",
+   "value": "hostile, demanding answers",
+   "bound": false,
+   "turn": 30
+  },
+  {
+   "entity": "Greywater",
+   "field": "status",
+   "value": "held by Cursefire Regiment",
+   "bound": false,
+   "turn": 30
+  },
+  {
+   "entity": "Greywater",
+   "field": "banners",
+   "value": "Empire and Crown both in sight",
+   "bound": false,
+   "turn": 30
+  },
+  {
+   "entity": "Greywater",
+   "field": "atmosphere",
+   "value": "quiet, no gunfire",
+   "bound": false,
+   "turn": 30
+  }
+ ]
+}

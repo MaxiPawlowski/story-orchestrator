@@ -18,7 +18,7 @@ export const INJECTION_REGISTRY = {
   memoryShortTerm: { key: `${MEMORY_INJECTION_KEY_PREFIX}short_term`, depth: 2, writer: "memory/inject.applyMemoryInjection", label: "Memory — short term" },
   memorySceneHistory: { key: `${MEMORY_INJECTION_KEY_PREFIX}scene_history`, depth: 6, writer: "memory/inject.applyMemoryInjection", label: "Memory — scene history", scannable: true },
   epistemic: { key: "story_orchestrator_epistemic", depth: 4, writer: "memory/inject.applyEpistemicInjection" , label: "What the speaker knows" },
-  ledger: { key: "story_orchestrator_ledger", depth: 3, writer: "memory/inject.applyLedgerInjection" , label: "State ledger" },
+  ledger: { key: "story_orchestrator_ledger", depth: 5, writer: "memory/inject.applyLedgerInjection" , label: "State ledger" },
   copilotNudge: { key: "story_copilot_nudge", depth: 4, writer: "runtime/runtimeManager.setCopilotNudge", dynamicDepth: true , label: "Author nudge" },
   sceneTracker: { key: "story_orchestrator_scene", depth: 1, writer: "runtime/coordinators/sceneCoordinator" , label: "Scene so far" },
   continuityNote: { key: "story_orchestrator_continuity", depth: 0, writer: "runtime/coordinators/stagecraftCoordinator" , label: "Continuity note" },
@@ -30,7 +30,6 @@ export const INJECTION_REGISTRY = {
 export const INJECTION_DEPTH_COLLISION_ALLOWLIST: ReadonlyArray<ReadonlySet<string>> = [
   new Set([INJECTION_REGISTRY.memoryFacts.key, INJECTION_REGISTRY.epistemic.key, INJECTION_REGISTRY.checkpointGuidance.key]),
   new Set([INJECTION_REGISTRY.memoryShortTerm.key, INJECTION_REGISTRY.pacing.key]),
-  new Set([INJECTION_REGISTRY.memorySessionDetails.key, INJECTION_REGISTRY.ledger.key]),
   new Set([INJECTION_REGISTRY.sceneTracker.key, INJECTION_REGISTRY.chapterBridge.key]),
 ];
 
