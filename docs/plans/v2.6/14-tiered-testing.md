@@ -1,6 +1,15 @@
 # Plan 14 — Tiered testing: playable first, then feature groups, fixing as we go
 
-**Status: DRAFT 2026-09-30.**
+**Status: APPROVED 2026-09-30; session tooling built (§Gate record). Executed by Claude, not the user (plan 15 Part B,
+W26).**
+
+**Who plays (W26, user 2026-09-30, supersedes the "human first" wording below):**
+- The user delegated plan 14 to Claude. Claude plays every charter on the lanes, records everything, scores each rubric
+  with evidence, and files the findings (plan 15 Part B).
+- The user and Claude review the whole run together on **2026-10-01** (`14-review-pack.md`).
+- The user's own sessions are **optional and later**. v2.6 development is done without them. Wherever this plan says
+  "the user plays" or "rated", read: Claude plays, and anything that needs a human or a blind rating is **recorded
+  for the user's review**.
 
 **Decided by the user on 2026-09-30:**
 - Testing starts when **all development is finished**. That build is the base.
@@ -8,7 +17,7 @@
 - Findings are **fixed during the tier that found them**, not batched until the end.
 
 This plan changes plan 10's order:
-- The user's sessions come **first** within each tier, not after the machine matrix.
+- The sessions (Claude's since W26) come **first** within each tier, not after the machine matrix.
 - Phase F's single final batch becomes **one closing run per tier**, plus a cumulative ×2 at freeze.
 
 ## Rules
@@ -16,10 +25,10 @@ This plan changes plan 10's order:
 1. **Tiers run in order.**
    - A tier starts only when the previous tier's exit criteria hold.
    - Later tiers depend on earlier ones: a memory finding means nothing while turns do not commit.
-2. **Human first, then evals.** Each tier runs this loop:
-   - the user plays that tier's charters;
-   - I digest the logs;
-   - we review them together;
+2. **Sessions first, then evals.** Each tier runs this loop:
+   - Claude plays that tier's charters (W26; the user's own sessions are optional, later);
+   - Claude digests the logs;
+   - the findings are recorded for the joint review (2026-10-01); blockers are fixed in the tier (plan 15 Part B);
    - fixes land;
    - evals are written from the findings;
    - the tier closes.
@@ -43,10 +52,13 @@ This plan changes plan 10's order:
    - Each tier closes by running its own evals and its mapped suite rows ×2.
    - A fix in tier N also re-runs the evals of any earlier tier whose code it touches.
 7. **The fresh-import rule stays.** Each session runs on its own lane, freshly imported with `adolion-fresh`, in a visible browser, so the real install stays clean.
-8. **Blind-rating legs move into the tier that owns the feature** (overview rule 11 is unchanged otherwise). Each leg is rated when its tier runs:
+8. **Blind-rating legs are recorded in the tier that owns the feature, and rated in the review** (overview rule 11,
+   W26). Each tier records both arms of its legs; the blind-rating pack is built from those recorded arms and goes to
+   the joint review (2026-10-01), where the user rates it:
    - 07 Q-M in T2;
    - 06 C3 in T3;
    - 05 R4 in T6;
+   - 11 W6 in T5 (agent story vs the staged wizard on the same premise);
    - 03's rater legs in their tier.
 
 ## Before T0: session tooling (development, gated like any plan)
@@ -94,7 +106,7 @@ The user has a week (decided 2026-09-30), so the plan is about **32 hours of pla
 
 **Overlap.** Tiers stay in order, but a tier does not wait for every fix:
 - The next tier's first charter may start once the current tier has **no open blocker**.
-- Broken and annoying findings are fixed while the user plays the next tier.
+- Broken and annoying findings are fixed while the next tier is played.
 - The tier closes (evals ×2) once its fixes land.
 
 **Coverage.** Across the week, every one of the nine Adolion stories is played at least once:
@@ -221,7 +233,7 @@ The charters list what to try, not steps to follow.
 - established facts hold across 80 turns;
 - no private knowledge leaks;
 - the recap and chapter titles are correct;
-- the 07 Q-M legs are rated.
+- the 07 Q-M arms are recorded for the user's review (blind-rating pack).
 
 ### T3 — Player surface and presentation (5 h)
 
@@ -236,9 +248,9 @@ The charters list what to try, not steps to follow.
 
 **Exit when:**
 - no spoilers in player mode;
-- every surface is scored works, annoying or not wanted;
-- 06 C3 is rated;
-- the C5/C6 surface decisions are made.
+- every surface is scored works, annoying or not wanted, with evidence;
+- the 06 C3 arms are recorded for the user's review (blind-rating pack);
+- the C5/C6 surface questions are recorded for the user's review, with the evidence for each.
 
 ### T4 — Mutations and robustness (3 h)
 
@@ -267,7 +279,10 @@ The charters list what to try, not steps to follow.
 **Exit when:**
 - the whole loop runs without touching JSON;
 - the wizard never writes without confirmation;
-- the A1 inspector decision is made.
+- the 11 W6 pairs are recorded for the user's review (blind-rating pack).
+
+The A1 inspector question is not an exit item: W18 decided it (the inspector is the timeline's author-view
+click-through).
 
 ### T6 — Model and judge configuration (4 h)
 
@@ -275,26 +290,42 @@ The charters list what to try, not steps to follow.
 |---|---|---|
 | T6-1 Reasoning | replay T1-1 | Each recommended reasoning setting (05) |
 | T6-2 Judge providers | replay T1-3 | Each recommended provider per use (12) |
-| T6-3 Harness routing | replay T5-1 | The wizard through the CLI harness route (04 H) |
+| T6-3 Harness routing | replay T5-1 | The wizard through the opencode harness route (04 H; no CLI login, W 2026-09-30) |
 | T6-4 Judge off | replay T2-2 | Judge fully off; every feature falls back silently |
 
 **Exit when:**
 - each recommended configuration plays no worse than the default;
 - the judge off falls back silently;
-- 05 R4 is rated.
+- the 05 R4 arms are recorded for the user's review (blind-rating pack).
 
-### T7 — Freeze and cumulative run
+### T7 — Integration, freeze and cumulative run
 
-- Freeze the candidate.
-- Run the whole cumulative regression set ×2 (plan 10 phase F, expected green on arrival).
-- The user plays one final free session on the frozen build (1 h).
-- Write the attestation.
-- The verdict follows plan 10, with "all four sessions scored" replaced by "every tier's exit criteria met".
+1. **Integration (plan 09 I1–I6), before the freeze.** Everything-on and shipped-defaults columns, from
+   `adolion-fresh`, ×1 each; archived under `test/sessions/T7/integration-<run>/` with a run header diff around each run.
+   Runbook step:
+   - `node scripts/debug/adolion-fresh.mts seed <lane>` per run (I4 and I5 on their own lanes);
+   - I1–I3: `so-session start <card> --lane <n>` on the card that opens the run's story (I1 `T1-1` adventurer, I2
+     `T2-2` academy, I3 `T7` saga), with the everything-on settings of plan 09 written over the card's, played to the
+     run's length (full route, or two acts for the saga);
+   - I4: from `T4-1` (academy, everything on), the mutation storm (swipe/edit/delete/chat switch every ~5 turns), then
+     `so-run-header diff`;
+   - I5: cut the memory model twice, the judge once and the GPU broker once (repoint the profile, record the old
+     `api-url`, put it back), 40 turns;
+   - I6: reload and reopen each of I1–I3 at 3 cut points, then compare against the continuous run;
+   - findings into `09-findings.md`, fixed before step 2 (plan 09 §Gate);
+   - the session mechanics (driver, flags, spend meter) are `14-autonomous-runbook.md`'s.
+2. Freeze the candidate.
+3. Run the whole cumulative regression set ×2 (plan 10 phase F, expected green on arrival).
+4. Claude plays one final free session on the frozen build (1 h), recorded for the review.
+5. Write the attestation.
+6. The verdict follows plan 10, with "all four sessions scored" replaced by "every tier's exit criteria met, and every
+   item recorded for the user's review listed in `14-review-pack.md`".
 
-## Before T0, from the user
+## Before T0
 
-- The three A11 wizard premises (T5-1/T5-2).
-- A claude/codex CLI login refresh (T6-3).
+- The three A11 wizard premises (T5-1/T5-2): **chosen** (`test/measurements/11/premises.json`, delegated to Claude by
+  the user 2026-09-30).
+- No CLI login: opencode only (W 2026-09-30); T6-3 runs on it.
 
 ## Unresolved
 

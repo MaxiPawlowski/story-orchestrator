@@ -121,7 +121,7 @@ describe("T11: a blob this build cannot read is read detached and never overwrit
     expect(blobMismatch()).toBeNull();
   });
 
-  it("control: a well-shaped v5 blob is read and adopted", () => {
+  it("control: a well-shaped blob stamped with this build's BLOB_VERSION is read and adopted", () => {
     open({ version: BLOB_VERSION, chatId: "chat-a", selectedStoryId: "s1", stories: { s1: record("s1") } });
     expect(getMetadataBlob().selectedStoryId).toBe("s1");
     expect(blobMismatch()).toBeNull();

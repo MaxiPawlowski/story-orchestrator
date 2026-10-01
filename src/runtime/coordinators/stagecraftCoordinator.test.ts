@@ -664,6 +664,19 @@ describe("ownership: a curator batch belongs to one chat", () => {
       expect(env.journal.filter((entry) => entry.includes("applied")).length).toBe(1);
     });
 
+    it("CR-P22: a curator completion re-delivered as a second auto-accepted record lands the entry as one delivery would", async () => {
+      const env = harness({ settings: { acceptMode: "auto" } });
+      respond("[rewrite] The bridge || The bridge is gone.");
+      await env.coordinator.runCuratorPass("first");
+      Object.assign(env.read(), { lastRunBoundary: -1 });
+      respond("[rewrite] The bridge || The bridge is gone.");
+      await env.coordinator.runCuratorPass("re-delivered");
+      expect(await env.coordinator.applyAccepted()).toBe(1);
+      expect(updateWIEntryByUid).toHaveBeenCalledTimes(1);
+      expect(entryOf("The bridge")?.content).toBe("The bridge is gone.");
+      expect(env.read().proposals.map((record) => record.ops.map((entry) => entry.status))).toEqual([["applied"], ["failed"]]);
+    });
+
     it("the same boundary applied again after it finished is a no-op", async () => {
       const env = harness({ settings: { acceptMode: "auto" } });
       respond("[rewrite] The bridge || The bridge is gone.");
