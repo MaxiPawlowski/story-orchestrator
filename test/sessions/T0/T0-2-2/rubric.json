@@ -1,0 +1,270 @@
+{
+  "charter": "T0-2",
+  "title": "Come back",
+  "session": {
+    "dir": "test/sessions/T0/T0-2-2",
+    "lane": 1,
+    "startedAt": "2026-10-01T12:12:03.949Z",
+    "media": "full"
+  },
+  "scores": [
+    "works",
+    "annoying",
+    "broken",
+    "not-noticed"
+  ],
+  "rows": [
+    {
+      "feature": "away recap",
+      "score": "annoying",
+      "note": "Recap popup 'Welcome back - Adolion: The Adventurer's Road (away 1d)' fired after a real page reload + reopening the group; 'Where you are: Wendhope's Eastern Gate', no ids/boundaries/quality names. But too long: 8 open threads, mostly the same question reworded and two stale (approach 'from the ridge'), 'Recently' just 'You moved into Wendhope's Eastern Gate', story-so-far cut mid-word, Status 'Catching up' a day later. Closed it at once; the narrator's OOC summary (msg 52) was clearer. NOTE: so-session start --age failed (harness: reloadCurrentChat does not rehydrate, getAwayRecap null once shown); backdated lastSessionAt by hand and did a real reload (T0-2-1/start-failed.json).",
+      "evidence": [
+        "shots/001-away-recap.png",
+        "journal.jsonl:624",
+        "turns.jsonl:3"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T12:28:20.122Z"
+    },
+    {
+      "feature": "state restored after reload",
+      "score": "works",
+      "note": "After the recap reload: HUD 'Wendhope's Eastern Gate / tension stirring', checkpoint Hold Wendhope Is Closed, party_name Ash Lanterns, path wendhope, tension 0.2675 = T0-1 end. After the mid-generation reload (turns.jsonl:7): boundary 32 state back intact, but the player line sent during the reload is gone from the chat (file ends at msg 58) and the queued inside_wendhope=true read was dropped; the next turn's reconcile re-found it and advanced (journal stall re-check resolved). reload-mid-gen itself failed to reopen the group by name (harness), reopened by id by hand.",
+      "evidence": [
+        "turns.jsonl:7",
+        "turns.jsonl:8",
+        "shots/001-away-recap.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T12:28:21.243Z"
+    },
+    {
+      "feature": "Repair (should stay silent)",
+      "score": "works",
+      "note": "Settings Repair card read 'Nothing is missing.' after both reloads; no Repair row and no 'needs setup' chip. The HUD did show a stale 'catching up...' chip throughout (carried from T0-1), which is the pipeline, not Repair.",
+      "evidence": [
+        "turns.jsonl:8"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T12:28:22.314Z"
+    },
+    {
+      "feature": "transition timing",
+      "score": "works",
+      "note": "Hold, Wendhope Is Closed -> The Red Fog fired at msg 61, the first reply after the party slipped through the postern (msg 58) - one reply late, and only because the mid-gen reload dropped the queued read. Note '◈ The Red Fog - Hold the wall until dawn.' + Progress chip 'Wendhope's Wall: Inside the walls at last...'. The red fog itself had not arrived by stop; instead the checkpoint's '[Scene direction: ... The Screechers arrive ... Some die ...]' was echoed into Dalan's reply msg 67 (flagged).",
+      "evidence": [
+        "journal.jsonl:981",
+        "shots/009-inside-red-fog-transition.png",
+        "shots/013-leaked-scene-direction.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T12:28:23.395Z"
+    }
+  ],
+  "playerClean": {
+    "at": "2026-10-01T12:27:30.379Z",
+    "ok": false,
+    "tabs": [
+      "Overview",
+      "Memory"
+    ],
+    "surfaces": [
+      "#drawer-manager",
+      "#so-hud",
+      "#story-orchestrator-settings"
+    ],
+    "selectorsChecked": 111,
+    "findings": [
+      {
+        "tab": "Overview",
+        "needle": "#drawer-manager [title] carries \"blackboard\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"quality\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"quality\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#drawer-manager [title] carries \"blackboard\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"quality\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"quality\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings: World Info curator"
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings: World Info curator"
+      }
+    ],
+    "sweep": [],
+    "recoveryControls": []
+  }
+}

@@ -1,0 +1,1130 @@
+{
+  "charter": "T0-3",
+  "tier": "T0",
+  "title": "First slips",
+  "number": 1,
+  "dir": "test/sessions/T0/T0-3-1",
+  "lane": 3,
+  "laneUrl": "http://127.0.0.1:8103/",
+  "story": {
+    "kind": "adolion",
+    "id": "adolion-adventurer"
+  },
+  "mode": "player",
+  "startedAt": "2026-10-01T11:41:15.363Z",
+  "playFrom": "2026-10-01T11:41:10.294Z",
+  "stoppedAt": "2026-10-01T12:05:10.625Z",
+  "build": {
+    "flavor": "dev",
+    "bundleSha256": "ceb15ac19ec07dec3a70c5d80785b611d806cad5e9659520e5d54a8a2182ab19",
+    "version": "2.4.0",
+    "builtAt": "2026-10-01T11:27:37.462Z",
+    "sourceSha256": "a6db49a55289a4ba9799fa5cde73b87ffab97fc4563cdfcadbbf17771ec0a21a",
+    "laneCampaign": "e1c91fbebb47e22045c32932e750ef2f90cb015c",
+    "indexCommit": "e1c91fbebb47e22045c32932e750ef2f90cb015c"
+  },
+  "pids": {
+    "journal": 80712,
+    "payloads": 80968,
+    "console": 63688
+  },
+  "viewport": null,
+  "settingsPatch": {
+    "image": {
+      "enabled": false
+    },
+    "sprites": {
+      "enabled": false,
+      "explicit": true
+    }
+  },
+  "settings": {
+    "baselineVersion": 1,
+    "chain": [
+      "T0-3"
+    ],
+    "effective": "effective-settings.json"
+  },
+  "media": {
+    "variant": "full",
+    "images": false,
+    "sprites": false,
+    "unexercised": [],
+    "prerenderedSprites": 0
+  },
+  "arm": null,
+  "logOffset": 180055295,
+  "pin": {
+    "profile": "Artemis RunPod RP",
+    "orchestrator": "deepseek",
+    "judge": "on",
+    "verdict": {
+      "ok": true,
+      "problems": []
+    },
+    "probe": {
+      "profile": "Artemis RunPod RP",
+      "ok": true,
+      "ms": 1748,
+      "text": "<|channel>thought\n<channel|>PONG",
+      "error": null
+    },
+    "routing": {
+      "main": {
+        "selectedProfileId": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+        "selectedProfileName": "Artemis RunPod RP",
+        "mainApi": "textgenerationwebui",
+        "onlineStatus": "/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+      },
+      "profiles": [
+        {
+          "id": "beba5264-4e69-4554-9ef0-8749f1caa0bb",
+          "name": "Artemis Local (Unsloth)",
+          "api": "generic",
+          "model": "TheDrummer/Artemis-31B-v1.1-GGUF",
+          "url": "http://127.0.0.1:18888",
+          "fields": {
+            "id": "beba5264-4e69-4554-9ef0-8749f1caa0bb",
+            "mode": "tc",
+            "exclude": [],
+            "api": "generic",
+            "preset": "Artemis v1.1 RP",
+            "api-url": "http://127.0.0.1:18888",
+            "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+            "sysprompt-state": "true",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Artemis Local (Unsloth)",
+            "model": "TheDrummer/Artemis-31B-v1.1-GGUF"
+          }
+        },
+        {
+          "id": "b907b9ce-a720-4858-8ff1-fbe604169a24",
+          "name": "Artemis RunPod",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "b907b9ce-a720-4858-8ff1-fbe604169a24",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+            "sysprompt-state": "true",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Artemis RunPod",
+            "preset": "Artemis v1.1 RP"
+          }
+        },
+        {
+          "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+          "name": "Artemis RunPod RP",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "preset": "Artemis v1.1 RP",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+            "sysprompt-state": "true",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Artemis RunPod RP"
+          }
+        },
+        {
+          "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "name": "deepseek 4.1 flash",
+          "api": "deepseek",
+          "model": "deepseek-flash",
+          "url": null,
+          "fields": {
+            "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+            "mode": "cc",
+            "exclude": [],
+            "api": "deepseek",
+            "model": "deepseek-flash",
+            "name": "deepseek 4.1 flash"
+          }
+        },
+        {
+          "id": "68422a21-7c97-4af8-a1ca-bbe44d83d138",
+          "name": "Image Director",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "68422a21-7c97-4af8-a1ca-bbe44d83d138",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "preset": "Artemis Extraction",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt-state": "false",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Image Director"
+          }
+        },
+        {
+          "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "name": "Story Orchestrator Memory RunPod",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "preset": "Artemis Extraction",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt-state": "false",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Story Orchestrator Memory RunPod"
+          }
+        },
+        {
+          "id": "55f61212-a59e-4bf3-9dcd-4029845293c4",
+          "name": "Story Orchestrator Memory Unsloth",
+          "api": "generic",
+          "model": "TheDrummer/Artemis-31B-v1.1-GGUF",
+          "url": "http://127.0.0.1:18888",
+          "fields": {
+            "id": "55f61212-a59e-4bf3-9dcd-4029845293c4",
+            "mode": "tc",
+            "exclude": [],
+            "api": "generic",
+            "preset": "Artemis Extraction",
+            "api-url": "http://127.0.0.1:18888",
+            "sysprompt-state": "false",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Story Orchestrator Memory Unsloth",
+            "model": "TheDrummer/Artemis-31B-v1.1-GGUF"
+          }
+        }
+      ],
+      "roles": [
+        {
+          "role": "read",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "synthesis",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "authoring",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "director",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "curator",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "inner",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "fallback",
+          "effort": "default",
+          "reasoning": null
+        }
+      ],
+      "judge": {
+        "enabled": true,
+        "uses": {
+          "director": true,
+          "memoryVerify": true,
+          "memoryPairs": true,
+          "sceneTrigger": true,
+          "sceneTracker": true,
+          "lookahead": true,
+          "loreSelect": true,
+          "curatorFilter": true,
+          "typedExtraction": true,
+          "stallCheck": true,
+          "expansionCritic": true,
+          "expansionLookahead": true,
+          "agencyCheck": true,
+          "houseRules": true,
+          "loreExclusive": true,
+          "expressions": true
+        },
+        "provider": {
+          "director": "typesafe",
+          "memoryVerify": "typesafe",
+          "memoryPairs": "typesafe",
+          "sceneTrigger": "typesafe",
+          "sceneTracker": "typesafe",
+          "lookahead": "typesafe",
+          "loreSelect": "typesafe",
+          "curatorFilter": "typesafe",
+          "typedExtraction": "typesafe",
+          "stallCheck": "typesafe",
+          "expansionCritic": "typesafe",
+          "expansionLookahead": "typesafe",
+          "agencyCheck": "typesafe",
+          "houseRules": "typesafe",
+          "loreExclusive": "typesafe",
+          "expressions": "typesafe",
+          "warden": "typesafe"
+        },
+        "pluginHttp": 200,
+        "keyPresent": true
+      },
+      "reasoning": {
+        "budget": "default",
+        "powerUser": {
+          "name": "Gemma 4",
+          "auto_parse": true,
+          "add_to_prompts": false,
+          "auto_expand": false,
+          "show_hidden": false,
+          "prefix": "<|channel>thought\n",
+          "suffix": "<channel|>",
+          "separator": "\n\n",
+          "max_additions": 1
+        }
+      }
+    }
+  },
+  "age": null,
+  "premise": null,
+  "chatsBefore": [
+    {
+      "chatId": "2024-10-27@09h04m05s",
+      "group": "Group: Adventure Awaits!",
+      "groupId": "1703513523027"
+    },
+    {
+      "chatId": "2023-12-30@07h37m27s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #3 - 2023-12-30@07h49m03s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #4 - 2023-12-30@07h49m58s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #7 - 2023-12-30@08h34m59s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #9 - 2023-12-30@08h38m48s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #9 - 2023-12-30@08h43m16s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #10 - 2023-12-30@08h46m02s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #12 - 2023-12-30@09h04m17s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #37 - 2024-1-7@07h44m27s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #38 - 2024-1-7@08h07m14s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #37 - 2024-1-7@08h07m21s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h16m07s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h16m50s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h21m35s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h26m16s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h50m34s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h54m44s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h57m26s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@09h01m01s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h07m39s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h13m12s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h14m18s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h21m12s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h24m17s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h24m55s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #44 - 2024-1-8@07h46m49s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #35 - 2024-1-11@08h47m04s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "2024-10-25@16h35m36s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "2025-10-05@06h12m53s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-19@03h33m31s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "Branch #1 - 2025-10-19@03h36m00s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-19@07h16m29s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-24@12h14m56s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-24@17h18m15s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "Branch #5 - 2025-10-24@17h19m22s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-27@20h24m15s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-02-17@11h42m56s913ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-03-26@12h06m12s510ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-03-26@12h08m16s199ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-05@22h24m53s198ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-05@22h55m21s034ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-06@05h51m54s748ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h45m42s515ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h48m58s737ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h52m33s971ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h54m33s414ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h31m08s263ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h50m22s390ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h57m58s240ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h43m15s689ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h43m40s089ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h54m21s833ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@03h56m01s832ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@03h56m31s664ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@08h08m11s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@10h03m45s492ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h43m26s486ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h44m44s165ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h49m39s901ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@04h14m58s603ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@04h27m07s632ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@05h41m21s356ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h05m16s093ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h12m05s775ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h12m19s409ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h14m25s652ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h15m25s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h19m36s454ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h23m47s982ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h26m46s401ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h26m57s965ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h37m51s942ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h54m40s955ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-19@22h52m47s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@03h36m38s982ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@03h37m03s927ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h09m30s254ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h11m21s482ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h11m46s225ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h34m19s453ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h40m32s180ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@07h06m38s396ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-10-01@08h33m20s426ms",
+      "group": "Adolion - House Nightriver",
+      "groupId": "1790854400449"
+    },
+    {
+      "chatId": "2026-10-01@08h33m20s465ms",
+      "group": "Adolion - The Adventurer's Road",
+      "groupId": "1790854400538"
+    },
+    {
+      "chatId": "2026-10-01@08h33m20s746ms",
+      "group": "Adolion - Between the Roads",
+      "groupId": "1790854400894"
+    },
+    {
+      "chatId": "2026-10-01@08h33m20s932ms",
+      "group": "Adolion - Crimsonwing & Ebonwing",
+      "groupId": "1790854401011"
+    },
+    {
+      "chatId": "2026-10-01@08h33m21s058ms",
+      "group": "Adolion - The Eastern Road",
+      "groupId": "1790854401612"
+    },
+    {
+      "chatId": "2026-10-01@08h33m21s659ms",
+      "group": "Adolion - Eshalanore",
+      "groupId": "1790854402107"
+    },
+    {
+      "chatId": "2026-10-01@08h33m22s140ms",
+      "group": "Adolion - Night Courts",
+      "groupId": "1790854402333"
+    },
+    {
+      "chatId": "2026-10-01@08h33m22s350ms",
+      "group": "Adolion - The Saga",
+      "groupId": "1790854402575"
+    },
+    {
+      "chatId": "2026-10-01@08h33m22s696ms",
+      "group": "Adolion - Fire and War",
+      "groupId": "1790854403118"
+    }
+  ],
+  "chats": [
+    {
+      "chatId": "2026-10-01@08h40m59s527ms",
+      "groupId": "1790854400538",
+      "storyId": "adolion-adventurer",
+      "activeCheckpointId": "guild-hall",
+      "requirementsReady": true,
+      "group": "Adolion - The Adventurer's Road",
+      "primary": true
+    }
+  ],
+  "continues": null,
+  "problems": [],
+  "warnings": [],
+  "runHeaderDiff": {
+    "exit": 1,
+    "ok": false
+  },
+  "evidence": {
+    "files": [
+      "runtime-2026-10-01@08h40m59s527ms.json",
+      "journal-2026-10-01@08h40m59s527ms.json",
+      "chat-2026-10-01@08h40m59s527ms.json",
+      "chat-full-2026-10-01@08h40m59s527ms.json",
+      "state-end-2026-10-01@08h40m59s527ms.json",
+      "snapshot-2026-10-01@08h40m59s527ms.json",
+      "evidence-2026-10-01@08h40m59s527ms.json",
+      "journal-2026-10-01@08h40m59s527ms.md"
+    ],
+    "problems": {
+      "2026-10-01@08h40m59s527ms": []
+    }
+  },
+  "playerClean": {
+    "at": "2026-10-01T12:05:02.498Z",
+    "ok": false,
+    "tabs": [
+      "Overview",
+      "Memory"
+    ],
+    "surfaces": [
+      "#drawer-manager",
+      "#so-hud",
+      "#story-orchestrator-settings"
+    ],
+    "selectorsChecked": 111,
+    "findings": [
+      {
+        "tab": "Overview",
+        "needle": "#drawer-manager [title] carries \"blackboard\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"quality\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"quality\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#drawer-manager [title] carries \"blackboard\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"quality\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"quality\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings: World Info curator"
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings: World Info curator"
+      }
+    ],
+    "sweep": [],
+    "recoveryControls": []
+  },
+  "spend": {
+    "orchestrator": {
+      "calls": 61,
+      "input": 130887,
+      "output": 33470,
+      "measuredCalls": 61,
+      "estimatedCalls": 0,
+      "costUsd": null,
+      "ringCalls": 20,
+      "ringCostUsd": null
+    },
+    "judge": {
+      "calls": 56,
+      "cached": 10,
+      "fallbacks": 1,
+      "input": 323117,
+      "output": 32948,
+      "costUsd": null
+    },
+    "main": {
+      "calls": 14
+    },
+    "responsesCaptured": 63
+  },
+  "tails": {
+    "journal": {
+      "ready": {
+        "at": "2026-10-01T11:41:14.885Z",
+        "pid": 80712,
+        "tail": "journal",
+        "chatId": "2026-10-01@08h40m59s527ms",
+        "storyId": "adolion-adventurer",
+        "boundary": 1
+      },
+      "drained": {
+        "at": "2026-10-01T12:05:08.727Z",
+        "pid": 80712,
+        "tail": "journal",
+        "ok": true,
+        "events": 594,
+        "audits": 23
+      }
+    },
+    "payloads": {
+      "ready": {
+        "at": "2026-10-01T11:41:14.871Z",
+        "pid": 80968,
+        "tail": "payloads",
+        "epoch": "1790854874860-lof0bi",
+        "nextIndex": 0
+      },
+      "drained": {
+        "at": "2026-10-01T12:05:08.937Z",
+        "pid": 80968,
+        "tail": "payloads",
+        "written": 75,
+        "responses": 63,
+        "dropped": 0,
+        "rearmed": 0,
+        "unknownGaps": 0,
+        "writeErrors": 0,
+        "epoch": "1790854874860-lof0bi",
+        "ok": true
+      }
+    },
+    "console": {
+      "ready": {
+        "at": "2026-10-01T11:41:14.872Z",
+        "pid": 63688,
+        "tail": "console"
+      },
+      "drained": {
+        "at": "2026-10-01T12:05:07.139Z",
+        "pid": 63688,
+        "tail": "console",
+        "ok": true,
+        "rows": 25
+      }
+    }
+  },
+  "valid": false,
+  "invalid": [
+    "the run header diff failed (exit 1): the install changed in a way the session did not declare"
+  ]
+}

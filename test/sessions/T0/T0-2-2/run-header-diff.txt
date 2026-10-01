@@ -1,0 +1,28 @@
+DIFF build.head  "d444cd7fffd21e2097439b875305bfa5e7f9e7d2" -> "ea1786a18b44ce6942af319a0e5774aaae5f9a99"
+WARNING: the page is running a bundle that is not the built one: served ceb15ac19ec07dec vs dist 0d0d9a5777807cec
+ok   chat.chatLength  51 -> 70  (allowed by progress)
+ok   story.activeCheckpointId  "at-the-walls" -> "first-night"  (allowed by progress)
+ok   story.boundary  28 -> 39  (allowed by progress)
+{
+  "baseline": "C:\\dev\\story-orchestrator\\test\\sessions\\T0\\T0-2-2\\run-header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "chatId",
+    "groupId",
+    "authorView",
+    "story",
+    "group",
+    "inventory.journal"
+  ],
+  "differences": 4,
+  "progress": 3,
+  "blocking": 1,
+  "blockingPaths": [
+    "build.head"
+  ],
+  "warnings": [
+    "the page is running a bundle that is not the built one: served ceb15ac19ec07dec vs dist 0d0d9a5777807cec"
+  ],
+  "wrote": "C:\\dev\\story-orchestrator\\test\\sessions\\T0\\T0-2-2\\run-header-end.json",
+  "ok": false
+}

@@ -1,0 +1,276 @@
+{
+  "storyId": "adolion-adventurer",
+  "activeCheckpointId": "guild-hall",
+  "boundary": 7,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Adventurer Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Mountains of Shadow": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "party_name": "Ash Lanterns.",
+    "adv_looking_for_hands": false,
+    "guild_reputation": 1,
+    "location": "aegis_guild_hall",
+    "party_injuries": 0,
+    "party_rank": 2,
+    "tension_current": 0.25
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "f9940935-e38b-4c11-aab5-52ee37116d8e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The Ash Lanterns have taken the Wendhope posting and ride north today.",
+      "createdAt": 3,
+      "messageId": 10
+    },
+    {
+      "id": "bd1a40f9-5d5a-4a5b-9c8c-ccc613389ded",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 3,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Something older and unspoken lies behind Tobias's warnings about Wendhope and the Sheridans.",
+      "createdAt": 3,
+      "messageId": 10
+    },
+    {
+      "id": "67e8105f-cc90-4cb9-972c-a0d012fc7fd6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Tobias warned that a party not investigating Wendhope will die.",
+      "createdAt": 3,
+      "messageId": 10
+    },
+    {
+      "id": "dde3a0f9-30a8-4c93-8c13-0626f69eeb5e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 3,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "That Tobias has a personal history with Wendhope or the Sheridans.",
+      "createdAt": 3,
+      "messageId": 10
+    },
+    {
+      "id": "322e16eb-3645-4057-a2d0-63d25f16b811",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "To see the Ash Lanterns investigate Wendhope and not fail.",
+      "createdAt": 3,
+      "messageId": 10
+    },
+    {
+      "id": "93b2705b-8811-4d22-84fa-398a9c192fc9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 5,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Tobias has an old personal history tied to the Sheridans and Wendhope.",
+      "createdAt": 5,
+      "messageId": 12
+    },
+    {
+      "id": "6c82f026-0c4c-4687-a6e3-72d271f42b0f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 5,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "His personal memory and old wound tied to the Sheridans and Wendhope.",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 5,
+      "messageId": 12
+    },
+    {
+      "id": "df241f4c-b19a-48b1-95aa-52ad666cdb87",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 5,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Tobias handed him the rolled Wendhope notice and said \"Do not fail.\"",
+      "createdAt": 5,
+      "messageId": 12
+    },
+    {
+      "id": "434886d0-f0a2-4d43-b7a1-915494f567b9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "Tobias pulled the Wendhope notice from the board and handed it to Max.",
+      "createdAt": 7,
+      "messageId": 13
+    },
+    {
+      "id": "667ecf06-c387-44cb-83ce-aec37214e723",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Tobias pulled the Wendhope notice",
+      "createdAt": 7,
+      "messageId": 13
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 7,
+      "name": "Alder",
+      "avatar": "Alder.png"
+    },
+    {
+      "index": 10,
+      "name": "Alida",
+      "avatar": "Alida.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 57,
+      "name": "Giada",
+      "avatar": "Giada.png"
+    },
+    {
+      "index": 59,
+      "name": "Gustall",
+      "avatar": "Gustall.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 141,
+      "name": "Talis",
+      "avatar": "Talis.png"
+    },
+    {
+      "index": 145,
+      "name": "Tatiana",
+      "avatar": "Tatiana.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    }
+  ],
+  "payloadEpoch": "1790854874860-lof0bi"
+}

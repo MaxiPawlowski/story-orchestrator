@@ -1,0 +1,936 @@
+{
+  "storyId": "adolion-adventurer",
+  "activeCheckpointId": "first-night",
+  "boundary": 39,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Adventurer Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Mountains of Shadow": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "adv_looking_for_hands": false,
+    "guild_reputation": 1,
+    "location": "wendhope_wall",
+    "party_injuries": 0,
+    "tension_current": 0.4984231834345939,
+    "party_rank": 2,
+    "party_name": "Ash Lanterns",
+    "path": "wendhope",
+    "progress_toward_after-the-fog": 4,
+    "first_camp": true,
+    "progress_toward_at-the-walls": 1,
+    "inside_wendhope": true
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "0946d4b6-df9c-4bc2-8a3a-52621680a999",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 0,
+        "boundary": 1,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The Wendhope posting offers more coin than a collapsed mine should be worth",
+      "createdAt": 1,
+      "messageId": 0
+    },
+    {
+      "id": "aa28a737-6cbe-4e35-b163-262e281106e5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 2,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "steer an unproven party away from the Wendhope posting toward work better suited to them",
+      "createdAt": 2,
+      "messageId": 2
+    },
+    {
+      "id": "b83b340d-23e6-4739-85b1-3e441a6c0768",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "To steer green-badged adventurers away from work likely to kill them.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "c759ba50-d47e-45f5-b1c0-4a2e5bd3d3df",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 5,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The Wendhope posting has sat unclaimed for three days and the Sheridans are paying for ore that stopped coming.",
+      "createdAt": 5,
+      "messageId": 8
+    },
+    {
+      "id": "0010a57b-1461-488d-9e6e-ace0b79b23a5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "suspects",
+      "content": "Something worse than a cave-in may have silenced Wendhope.",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "46e60b3b-d700-4ca0-833b-1eb996478875",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 7,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "suspects",
+      "content": "Wendhope's silence may be something worse than a cave-in",
+      "createdAt": 7,
+      "messageId": 11
+    },
+    {
+      "id": "5e3cb958-4ced-4306-8afe-904b07e3678e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party of three is newly formed and taking the long-unclaimed D-rank Wendhope investigation.",
+      "createdAt": 8,
+      "messageId": 13
+    },
+    {
+      "id": "3dc99826-b4ec-4b69-ac90-57ccda65ba17",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 8,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "suspects",
+      "content": "Wendhope's silence may be something worse than a cave-in, given his advice about a blessing for the dead.",
+      "createdAt": 8,
+      "messageId": 13
+    },
+    {
+      "id": "64db6bc7-99ad-481e-8833-721f0a270c44",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party of three has formally taken the Wendhope posting.",
+      "createdAt": 8,
+      "messageId": 13
+    },
+    {
+      "id": "41056895-3837-4452-8316-82731fcd33e8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 8,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "To make the party think through their equipment before they leave.",
+      "createdAt": 8,
+      "messageId": 13
+    },
+    {
+      "id": "8b89403f-91bd-4e69-a484-f152e4d69f13",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "The party's chosen name is the Ash Lanterns and they have taken the Wendhope investigation.",
+      "createdAt": 9,
+      "messageId": 15,
+      "supersededBy": "retired@13",
+      "retiredAt": {
+        "messageId": 22,
+        "boundary": 13
+      }
+    },
+    {
+      "id": "73784ee3-53ad-4ce0-bfce-09a916b24704",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 22,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "The party's chosen name is the Ash Lanterns and they have taken the Wendhope investigation.",
+      "createdAt": 13,
+      "messageId": 22
+    },
+    {
+      "id": "5941b0fd-cf48-458e-9dc9-40229b95f1f2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 31,
+        "boundary": 18,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The carriage is overturned with no people near it",
+      "createdAt": 18,
+      "messageId": 31
+    },
+    {
+      "id": "ade4d0d7-8166-401d-9248-114eb85560ea",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 50,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Wendhope's defenders have shown themselves and ordered the party to turn back.",
+      "createdAt": 28,
+      "messageId": 50
+    },
+    {
+      "id": "3f8b802f-0b01-44c0-965b-c25a2cd613dc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 60,
+        "boundary": 33,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The defenders left the north postern unlocked for the party and warned them to be inside before sundown",
+      "createdAt": 33,
+      "messageId": 60,
+      "supersededBy": "retired@33",
+      "retiredAt": {
+        "messageId": 60,
+        "boundary": 33
+      }
+    },
+    {
+      "id": "ad8874b4-aca5-4a18-b2d7-ca49f457e197",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 34,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "believes",
+      "content": "The party should find Mayor Douglas to learn what happened in Wendhope.",
+      "createdAt": 34,
+      "messageId": 61
+    },
+    {
+      "id": "4f6d4f9f-332b-490a-b59b-34ff8d079ce8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 36,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Captain Halena Vivinallo commands Wendhope's wall defenders",
+      "createdAt": 36,
+      "messageId": 65
+    },
+    {
+      "id": "e161ae0f-458f-4e21-8f87-5fd92530e5c5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 36,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Someone is watching the party from a second-floor window near the gate",
+      "createdAt": 36,
+      "messageId": 65
+    },
+    {
+      "id": "4ac58bb0-956c-4868-b3c7-ccd9022e9ee7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 36,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The defenders left the north postern unlocked for the party and warned them to be inside before sundown",
+      "createdAt": 36,
+      "messageId": 65
+    },
+    {
+      "id": "b6376e9b-d3f2-4a5d-8d45-5b319eb35f46",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 36,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The defenders on the wall are wounded and in need of bandages and food",
+      "createdAt": 36,
+      "messageId": 65
+    },
+    {
+      "id": "211d09e9-edd5-4f89-9647-acebb9314fb2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 36,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The village is empty but not dead, and someone is watching from a second-floor window near the gate",
+      "createdAt": 36,
+      "messageId": 65
+    },
+    {
+      "id": "15c5c0c3-0af1-4fad-b08c-03ebcadee921",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 65,
+        "boundary": 36,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Someone is",
+      "createdAt": 36,
+      "messageId": 65
+    },
+    {
+      "id": "221ad7ee-218f-4bcd-85d8-23164a944e06",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Halena Vivinallo",
+      "tag": "knows",
+      "content": "The Guild was hired by the Sheridans to find out why the ore stopped, and the party has offered to hold the wall tonight.",
+      "createdAt": 37,
+      "messageId": 67
+    },
+    {
+      "id": "4410cda1-77f3-49ac-9361-bce67a744c03",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To find a high vantage point from which to use his bow.",
+      "createdAt": 37,
+      "messageId": 67,
+      "affirmedAt": [
+        {
+          "messageId": 68,
+          "boundary": 38
+        },
+        {
+          "messageId": 69,
+          "boundary": 39
+        }
+      ]
+    },
+    {
+      "id": "3bd7caa0-a9c0-409f-80ab-7ab56badc300",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Halena Vivinallo",
+      "tag": "knows",
+      "content": "The Guild was hired by the Sheridans to find out why the ore stopped.",
+      "createdAt": 37,
+      "messageId": 67
+    },
+    {
+      "id": "93bd1a71-72ce-4e4f-a9da-34e4794f8363",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Captain Halena Vivinallo commands Wendhope's wall and the party is now committed to holding it tonight.",
+      "createdAt": 37,
+      "messageId": 67
+    },
+    {
+      "id": "42c31860-afc0-48d8-9a5a-e9b6d0c5e1d5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "There is no smoke of a fire in the village",
+      "createdAt": 37,
+      "messageId": 67
+    },
+    {
+      "id": "2f12ceca-dd1f-4ef7-adea-c5bbe8563fb2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "There is no one looking out of any window",
+      "createdAt": 37,
+      "messageId": 67
+    },
+    {
+      "id": "7a4b0c52-666f-4275-a08f-d384d089b421",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "suspects",
+      "content": "Something is wrong because there is no reason for the village to have no smoke or movement",
+      "createdAt": 37,
+      "messageId": 67
+    },
+    {
+      "id": "d279b69e-4ee5-4827-bd72-8a9c188e707a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "There is no smoke, no sound, and no people in the village",
+      "createdAt": 37,
+      "messageId": 67
+    },
+    {
+      "id": "d3a8710d-b77f-4c84-9b79-c4f3df6ee9e9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "The party is alone and not alone in the village",
+      "createdAt": 37,
+      "messageId": 67
+    },
+    {
+      "id": "1447fd7e-0eff-4f5e-b71b-e3098772c3ee",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "believes",
+      "content": "The party is not leaving Wendhope until they figure out what is wrong with it",
+      "createdAt": 37,
+      "messageId": 67
+    },
+    {
+      "id": "2fb83270-ee99-406f-ae45-3d8d0c41c685",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To check the left side of the narrow street",
+      "createdAt": 37,
+      "messageId": 67,
+      "affirmedAt": [
+        {
+          "messageId": 68,
+          "boundary": 38
+        }
+      ]
+    },
+    {
+      "id": "d4ab921c-b822-46e6-b87b-c43b61631926",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Captain Halena Vivinallo is in charge of the wall",
+      "createdAt": 37,
+      "messageId": 67
+    },
+    {
+      "id": "0ba67391-a9d8-40f1-aa47-e8f192492596",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The wall is being held against a lot of shit that hasn't killed them yet",
+      "createdAt": 37,
+      "messageId": 67
+    },
+    {
+      "id": "f539ff2e-9d18-4992-9241-2bd509e2c636",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Sheridans hired the Guild to find out why the ore stopped",
+      "createdAt": 37,
+      "messageId": 67
+    },
+    {
+      "id": "699f0450-fc1b-48db-a800-ea0c4ee8c89d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 67,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Halena Vivinallo",
+      "tag": "knows",
+      "content": "The party has offered to hold the wall tonight",
+      "createdAt": 37,
+      "messageId": 67
+    },
+    {
+      "id": "f2f288b6-29b1-4159-b537-e6ac77e4e4dc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 68,
+        "boundary": 38,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Halena Vivinallo",
+      "tag": "knows",
+      "content": "The Guild sent the party to find out why the ore stopped.",
+      "createdAt": 38,
+      "messageId": 68
+    },
+    {
+      "id": "47fe0b3c-bfab-437a-8584-8f842a938d44",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 68,
+        "boundary": 38,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The village is empty but not dead, and someone is watching from a second-floor window near the gate",
+      "createdAt": 38,
+      "messageId": 68
+    },
+    {
+      "id": "47fcdb7f-23e2-45bc-b863-63548cd69a71",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 68,
+        "boundary": 38,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The village is empty but not dead, and someone is watching from a second-floor window near the gate",
+      "createdAt": 38,
+      "messageId": 68
+    },
+    {
+      "id": "a18082f8-1686-41ca-9e69-b9528884abdc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 68,
+        "boundary": 38,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Captain Halena Vivinallo commands Wendhope's wall and the party is now committed to holding it tonight",
+      "createdAt": 38,
+      "messageId": 68
+    },
+    {
+      "id": "c4340ef8-2b06-46aa-9b72-c2d7fd3d61e7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 68,
+        "boundary": 38,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Captain Halena Vivinallo commands Wendhope's wall and the party is now committed to holding it tonight",
+      "createdAt": 38,
+      "messageId": 68
+    },
+    {
+      "id": "b5496ed4-cc28-4b9e-8360-797ce8d8900e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 68,
+        "boundary": 38,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The wall is being held against a lot of shit that hasn't killed them yet",
+      "createdAt": 38,
+      "messageId": 68
+    },
+    {
+      "id": "8e4f68ed-62e4-446a-adb1-a1516fd01168",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 68,
+        "boundary": 38,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The wall is being held against a lot of shit that hasn't killed them yet",
+      "createdAt": 38,
+      "messageId": 68
+    },
+    {
+      "id": "b07735f4-0ce2-4c42-bb84-e5f6fca55a48",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 68,
+        "boundary": 38,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The Sheridans hired the Guild to find out why the ore stopped",
+      "createdAt": 38,
+      "messageId": 68
+    },
+    {
+      "id": "70efb680-8474-4a08-96cd-53a605ea1355",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 68,
+        "boundary": 38,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The Sheridans hired the Guild to find out why the ore stopped",
+      "createdAt": 38,
+      "messageId": 68
+    },
+    {
+      "id": "91be4073-c59a-4fd9-869c-bce563604d4f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 68,
+        "boundary": 38,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party has offered to hold the wall tonight",
+      "createdAt": 38,
+      "messageId": 68
+    },
+    {
+      "id": "16f639eb-e150-4760-b081-485eb131282d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 68,
+        "boundary": 38,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party has offered to hold the wall tonight",
+      "createdAt": 38,
+      "messageId": 68
+    },
+    {
+      "id": "d0a1a169-53f2-4c31-834d-5cb6f9093375",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 39,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party has been posted to hold Wendhope's wall through the night.",
+      "createdAt": 39,
+      "messageId": 69
+    },
+    {
+      "id": "36375022-a36a-4de7-8961-5d7ff5040772",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 39,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party has been posted to hold Wendhope's wall through the night.",
+      "createdAt": 39,
+      "messageId": 69
+    },
+    {
+      "id": "5e49c2ad-442e-4193-8124-bd04ae60623d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 39,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To hold the left side of the wall with her greataxe Cleaver.",
+      "createdAt": 39,
+      "messageId": 69
+    },
+    {
+      "id": "0953d2de-1216-4ac3-9c06-b340970e0bec",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 69,
+        "boundary": 39,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To hold the left side of the wall.",
+      "createdAt": 39,
+      "messageId": 69
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 7,
+      "name": "Alder",
+      "avatar": "Alder.png"
+    },
+    {
+      "index": 10,
+      "name": "Alida",
+      "avatar": "Alida.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 57,
+      "name": "Giada",
+      "avatar": "Giada.png"
+    },
+    {
+      "index": 59,
+      "name": "Gustall",
+      "avatar": "Gustall.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 141,
+      "name": "Talis",
+      "avatar": "Talis.png"
+    },
+    {
+      "index": 145,
+      "name": "Tatiana",
+      "avatar": "Tatiana.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    }
+  ],
+  "payloadEpoch": "1790857265860-58lgp9"
+}

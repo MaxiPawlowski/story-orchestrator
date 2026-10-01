@@ -1,0 +1,1172 @@
+Following the session journal → C:\dev\story-orchestrator\test\sessions\T0\T0-2-2\journal.jsonl every 1000 ms. Ctrl-C to stop.
+2026-10-01T12:12:03.373Z session      chat 2026-10-01@08h41m13s779ms · story adolion-adventurer · at Hold, Wendhope Is Closed (boundary 28, 51 messages)
+2026-10-01T11:41:14.630Z status       No story selected for this chat
+2026-10-01T11:41:14.653Z story        quality macro skipped
+2026-10-01T11:41:14.653Z story        quality macro skipped
+2026-10-01T11:41:14.653Z story        quality macro skipped
+2026-10-01T11:41:14.653Z story        quality macro skipped
+2026-10-01T11:41:14.653Z story        quality macro skipped
+2026-10-01T11:41:14.653Z story        quality macro skipped
+2026-10-01T11:41:14.653Z story        quality macro skipped
+2026-10-01T11:41:14.653Z story        quality macro skipped
+2026-10-01T11:41:14.653Z story        quality macro skipped
+2026-10-01T11:41:14.653Z story        quality macro skipped
+2026-10-01T11:41:14.653Z story        quality macro skipped
+2026-10-01T11:41:14.653Z story        quality macro skipped
+2026-10-01T11:41:14.653Z story        quality macro skipped
+2026-10-01T11:41:14.682Z boundary     boundary 1: nothing applied (gate)
+2026-10-01T11:41:30.148Z story        away recap not due
+2026-10-01T11:41:30.263Z status       Following The Guild Hall
+2026-10-01T11:41:30.790Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:41:34.759Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:41:38.879Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:42:48.427Z flag         Overview 'Where you are' shows a raw id: 'At aegis_guild_hall.' (player mode, before turn 1). Also no requirements readout visible in the player drawer; HUD shows 'The Adventurer's Guild, Aegis City' not the checkpoint name 'The Guild Hall'.
+2026-10-01T11:43:24.256Z boundary     applied adv_looking_for_hands=false, guild_reputation=0, location=aegis_guild_hall, party_injuries=0, tension_current=0.075; discarded location=aegis_guild_hall, tension_current=0 (superseded)
+2026-10-01T11:43:25.869Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:44:15.352Z boundary     applied location=aegis_guild_hall, tension_current=0.0525
+2026-10-01T11:44:16.492Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:44:21.181Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:45:07.487Z boundary     applied adv_looking_for_hands=false, guild_reputation=0, location=aegis_guild_hall, party_injuries=0, tension_current=0.11174999999999999
+2026-10-01T11:45:08.791Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:46:11.878Z boundary     applied location=aegis_guild_hall, tension_current=0.153225
+2026-10-01T11:46:13.413Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:46:18.423Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:46:24.233Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:46:35.156Z boundary     applied guild_reputation=0, location=aegis_guild_hall, party_injuries=0, tension_current=0.20258024999999996; discarded guild_reputation=0, location=aegis_guild_hall, party_injuries=0, tension_current=0.1822575 (superseded)
+2026-10-01T11:46:36.028Z model-call   generation via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:46:40.357Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:46:46.838Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:47:54.556Z boundary     applied adv_looking_for_hands=false, location=aegis_guild_hall, tension_current=0.22676432249999995; discarded adv_looking_for_hands=false, guild_reputation=0, location=aegis_guild_hall, party_injuries=0, tension_current=0.21680617499999993 (superseded)
+2026-10-01T11:47:55.928Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:48:05.361Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:48:47.564Z boundary     applied location=aegis_guild_hall, tension_current=0.23373502574999994
+2026-10-01T11:48:47.890Z reconciliation stall re-check queued for path, party_name, adv_looking_for_hands
+2026-10-01T11:48:49.611Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:48:53.875Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:49:01.434Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:49:08.362Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:49:12.413Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:49:19.675Z reconciliation stall re-check resolved (4 evidence)
+2026-10-01T11:50:07.128Z boundary     applied guild_reputation=1, party_injuries=0, party_rank=0, tension_current=0.3719211138322499; discarded guild_reputation=1, party_injuries=0, tension_current=0.23861451802499994, path=wendhope, tension_current=0.31703016261749994 (superseded)
+2026-10-01T11:50:08.773Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:50:16.267Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:50:17.998Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:50:19.807Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:50:21.560Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:51:19.652Z boundary     applied party_name=Ash Lanterns, path=wendhope, location=aegis_guild_hall, party_rank=0, party_injuries=0, tension_current=0.3353447796825749, progress_toward_after-the-fog=1
+2026-10-01T11:51:19.652Z transition   guild-hall → road-to-wendhope
+2026-10-01T11:51:21.133Z model-call   director via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:51:26.216Z status       Moved into The Road North
+2026-10-01T11:51:27.231Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T11:51:27.468Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:51:27.658Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:51:28.454Z stagecraft   World Info curator proposed 1 change(s) at The Road North
+2026-10-01T11:51:38.234Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:52:01.656Z boundary     applied location=aegis_guild_hall, party_rank=0, tension_current=0.30974134577780243
+2026-10-01T11:52:04.776Z status       Following The Road North
+2026-10-01T11:52:06.598Z judge        judge warden in 845 ms
+2026-10-01T11:52:06.599Z judge        judge typed in 674 ms
+2026-10-01T11:52:06.600Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:52:12.061Z judge        judge memoryVerify in 1631 ms
+2026-10-01T11:52:21.255Z judge        judge memoryPairs in 265 ms
+2026-10-01T11:52:21.268Z judge        judge memoryPairs in 276 ms
+2026-10-01T11:52:21.503Z judge        judge memoryPairs in 249 ms
+2026-10-01T11:52:21.516Z judge        judge memoryPairs in 249 ms
+2026-10-01T11:52:21.722Z judge        judge memoryPairs in 220 ms
+2026-10-01T11:52:21.749Z judge        judge memoryPairs in 234 ms
+2026-10-01T11:52:21.938Z judge        judge memoryPairs in 217 ms
+2026-10-01T11:52:21.974Z judge        judge memoryPairs in 226 ms
+2026-10-01T11:52:21.976Z judge        judge memoryPairs in 0 ms
+2026-10-01T11:52:21.977Z judge        judge memoryPairs in 0 ms
+2026-10-01T11:52:22.220Z judge        judge memoryPairs in 243 ms
+2026-10-01T11:52:22.244Z judge        judge memoryPairs in 268 ms
+2026-10-01T11:52:22.430Z judge        judge memoryPairs in 211 ms
+2026-10-01T11:52:22.503Z judge        judge memoryPairs in 260 ms
+2026-10-01T11:52:22.657Z judge        judge memoryPairs in 228 ms
+2026-10-01T11:52:22.733Z judge        judge memoryPairs in 230 ms
+2026-10-01T11:52:22.734Z judge        judge memoryPairs in 0 ms
+2026-10-01T11:52:22.735Z judge        judge memoryPairs in 0 ms
+2026-10-01T11:52:22.991Z judge        judge memoryPairs in 257 ms
+2026-10-01T11:52:23.002Z judge        judge memoryPairs in 268 ms
+2026-10-01T11:52:23.207Z judge        judge memoryPairs in 218 ms
+2026-10-01T11:52:23.213Z judge        judge memoryPairs in 213 ms
+2026-10-01T11:52:23.429Z judge        judge memoryPairs in 223 ms
+2026-10-01T11:52:23.432Z judge        judge memoryPairs in 220 ms
+2026-10-01T11:52:23.434Z judge        judge memoryPairs in 0 ms
+2026-10-01T11:52:23.435Z judge        judge memoryPairs in 0 ms
+2026-10-01T11:52:23.652Z judge        judge memoryPairs in 218 ms
+2026-10-01T11:52:23.679Z judge        judge memoryPairs in 245 ms
+2026-10-01T11:52:23.881Z judge        judge memoryPairs in 230 ms
+2026-10-01T11:52:23.931Z judge        judge memoryPairs in 253 ms
+2026-10-01T11:52:24.143Z judge        judge memoryPairs in 263 ms
+2026-10-01T11:52:33.571Z judge        judge lore in 1039 ms
+2026-10-01T11:52:33.581Z judge        judge lore in 1044 ms
+2026-10-01T11:52:34.057Z judge        judge lore in 491 ms
+2026-10-01T11:52:34.073Z judge        judge lore in 497 ms
+2026-10-01T11:52:34.588Z judge        judge lore in 532 ms
+2026-10-01T11:52:35.060Z judge        judge director in 456 ms
+2026-10-01T11:53:09.389Z boundary     applied location=aegis_guild_hall, party_rank=0, tension_current=0.2918189420444617; discarded party_rank=1 (superseded)
+2026-10-01T11:53:09.740Z judge        judge director in 424 ms
+2026-10-01T11:53:09.769Z judge        judge memoryPairs in 449 ms
+2026-10-01T11:53:10.315Z judge        judge memoryPairs in 576 ms
+2026-10-01T11:53:10.316Z judge        judge memoryPairs in 548 ms
+2026-10-01T11:53:10.522Z judge        judge memoryPairs in 207 ms
+2026-10-01T11:53:10.564Z judge        judge memoryPairs in 250 ms
+2026-10-01T11:53:10.808Z judge        judge memoryPairs in 245 ms
+2026-10-01T11:53:10.817Z judge        judge memoryPairs in 295 ms
+2026-10-01T11:53:11.032Z judge        judge memoryPairs in 225 ms
+2026-10-01T11:53:11.071Z judge        judge scene in 256 ms
+2026-10-01T11:53:11.299Z judge        judge warden in 268 ms
+2026-10-01T11:53:11.299Z stagecraft   Warden flagged Dalan's reply (house-rule)
+2026-10-01T11:53:11.334Z judge        judge typed in 264 ms
+2026-10-01T11:53:11.334Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:53:11.593Z judge        judge memoryPairs in 295 ms
+2026-10-01T11:53:11.595Z judge        judge memoryPairs in 262 ms
+2026-10-01T11:53:11.839Z judge        judge memoryPairs in 246 ms
+2026-10-01T11:53:11.856Z judge        judge memoryPairs in 262 ms
+2026-10-01T11:53:12.088Z judge        judge memoryPairs in 249 ms
+2026-10-01T11:53:12.104Z judge        judge memoryPairs in 249 ms
+2026-10-01T11:53:12.351Z judge        judge memoryPairs in 248 ms
+2026-10-01T11:53:12.356Z judge        judge memoryPairs in 269 ms
+2026-10-01T11:53:12.594Z judge        judge memoryPairs in 236 ms
+2026-10-01T11:53:12.631Z judge        judge memoryPairs in 273 ms
+2026-10-01T11:53:12.841Z judge        judge memoryPairs in 247 ms
+2026-10-01T11:53:12.857Z judge        judge memoryPairs in 227 ms
+2026-10-01T11:53:13.055Z judge        judge memoryPairs in 215 ms
+2026-10-01T11:53:13.078Z judge        judge memoryPairs in 222 ms
+2026-10-01T11:53:13.295Z judge        judge memoryPairs in 240 ms
+2026-10-01T11:53:13.297Z judge        judge memoryPairs in 220 ms
+2026-10-01T11:53:13.525Z judge        judge memoryPairs in 226 ms
+2026-10-01T11:53:19.356Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T11:53:19.358Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T11:53:19.360Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-01T11:53:19.362Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T11:53:19.364Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T11:53:19.366Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-01T11:53:19.367Z judge        judge memoryPairs fell back (busy) in 3 ms
+2026-10-01T11:53:19.670Z model-call   supersession via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:53:20.465Z judge        judge memoryVerify fell back (busy) in 4 ms
+2026-10-01T11:53:20.671Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:53:22.665Z judge        judge typed in 312 ms
+2026-10-01T11:53:22.665Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:53:26.565Z extraction   read scene:time_skip msgs 14-21 → 1 accepted, 0 rejected
+2026-10-01T11:53:26.565Z delta        location = north_road
+2026-10-01T11:53:26.826Z judge        judge memoryVerify in 258 ms
+2026-10-01T11:53:30.657Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:53:32.278Z story        NPC reply Adolion Narrator (sceneBreak) fired by its roll
+2026-10-01T11:53:32.603Z boundary     applied location=north_road; discarded party_rank=1, location=north_road, tension_current=0.2792732594311232 (superseded)
+2026-10-01T11:53:33.207Z model-call   generation via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:53:34.417Z judge        judge scene in 1138 ms
+2026-10-01T11:53:34.462Z judge        judge typed in 1184 ms
+2026-10-01T11:53:35.461Z judge        judge warden in 1046 ms
+2026-10-01T11:53:35.734Z judge        judge typed in 302 ms
+2026-10-01T11:53:35.735Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:53:37.918Z judge        judge critic in 245 ms
+2026-10-01T11:53:39.842Z extraction   read scene:location msgs 15-22 → 2 accepted, 0 rejected
+2026-10-01T11:53:39.842Z delta        location = north_road
+2026-10-01T11:53:39.842Z delta        tension_current = 0.2792732594311232
+2026-10-01T11:53:40.098Z judge        judge memoryVerify in 252 ms
+2026-10-01T11:53:41.358Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:53:43.051Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:53:45.688Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:53:46.654Z story        NPC reply Adolion Narrator (sceneBreak) skipped by its roll
+2026-10-01T11:53:46.961Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:53:48.775Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:54:07.592Z judge        judge lore in 376 ms
+2026-10-01T11:54:07.612Z judge        judge lore in 391 ms
+2026-10-01T11:54:07.904Z judge        judge lore in 319 ms
+2026-10-01T11:54:07.947Z judge        judge lore in 341 ms
+2026-10-01T11:54:08.123Z judge        judge lore in 221 ms
+2026-10-01T11:54:08.411Z judge        judge director in 274 ms
+2026-10-01T11:54:35.070Z boundary     applied location=north_road, tension_current=0.2792732594311232
+2026-10-01T11:54:35.752Z judge        judge director in 707 ms
+2026-10-01T11:54:36.612Z judge        judge typed in 737 ms
+2026-10-01T11:54:36.685Z judge        judge scene in 810 ms
+2026-10-01T11:54:37.145Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:54:37.170Z judge        judge warden in 559 ms
+2026-10-01T11:54:37.171Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T11:55:07.107Z story        away recap not due
+2026-10-01T11:55:07.786Z status       Continuing Adolion: The Adventurer's Road
+2026-10-01T11:55:07.822Z story        quality macro skipped
+2026-10-01T11:55:07.822Z story        quality macro skipped
+2026-10-01T11:55:07.823Z story        quality macro skipped
+2026-10-01T11:55:07.823Z story        quality macro skipped
+2026-10-01T11:55:07.823Z story        quality macro skipped
+2026-10-01T11:55:07.823Z story        quality macro skipped
+2026-10-01T11:55:07.823Z story        quality macro skipped
+2026-10-01T11:55:07.823Z story        quality macro skipped
+2026-10-01T11:55:07.823Z story        quality macro skipped
+2026-10-01T11:55:07.823Z story        quality macro skipped
+2026-10-01T11:55:07.823Z story        quality macro skipped
+2026-10-01T11:55:07.823Z story        quality macro skipped
+2026-10-01T11:55:07.823Z story        quality macro skipped
+2026-10-01T11:55:29.511Z flag         After reload: state restored fine, but Overview still says 'At north_road.' (raw id) and Open threads repeats itself: rope/lanterns/rations listed twice, Tobias's warnings twice, stipend twice. Feels unfinished.
+2026-10-01T11:55:39.352Z judge        judge lore in 401 ms
+2026-10-01T11:55:39.389Z judge        judge lore in 447 ms
+2026-10-01T11:55:39.684Z judge        judge lore in 299 ms
+2026-10-01T11:55:39.706Z judge        judge lore in 358 ms
+2026-10-01T11:55:39.909Z judge        judge lore in 227 ms
+2026-10-01T11:55:40.165Z judge        judge director in 236 ms
+2026-10-01T11:56:03.404Z boundary     boundary 15: nothing applied (gate)
+2026-10-01T11:56:03.823Z status       Following The Road North
+2026-10-01T11:56:04.244Z judge        judge director in 849 ms
+2026-10-01T11:56:04.788Z judge        judge scene in 817 ms
+2026-10-01T11:56:05.240Z judge        judge warden in 997 ms
+2026-10-01T11:56:05.242Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T11:56:05.695Z judge        judge lore in 336 ms
+2026-10-01T11:56:05.712Z judge        judge lore in 359 ms
+2026-10-01T11:56:06.041Z judge        judge lore in 353 ms
+2026-10-01T11:56:06.044Z judge        judge lore in 339 ms
+2026-10-01T11:56:06.271Z judge        judge typed in 228 ms
+2026-10-01T11:56:06.272Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:56:06.339Z judge        judge lore in 300 ms
+2026-10-01T11:56:09.341Z extraction   read cadence msgs 19-26 → 2 accepted, 0 rejected
+2026-10-01T11:56:09.341Z delta        location = north_road
+2026-10-01T11:56:09.341Z delta        tension_current = 0.2704912816017862
+2026-10-01T11:56:09.570Z judge        judge memoryVerify in 226 ms
+2026-10-01T11:56:23.159Z boundary     applied location=north_road, tension_current=0.2704912816017862
+2026-10-01T11:56:23.753Z reconciliation stall re-check queued for reached_walls, first_camp
+2026-10-01T11:56:24.208Z judge        judge stall in 399 ms
+2026-10-01T11:56:24.266Z judge        judge typed in 458 ms
+2026-10-01T11:56:25.806Z judge        judge scene in 1601 ms
+2026-10-01T11:56:25.838Z judge        judge warden in 1575 ms
+2026-10-01T11:56:38.616Z judge        judge lore in 417 ms
+2026-10-01T11:56:38.626Z judge        judge lore in 432 ms
+2026-10-01T11:56:38.908Z judge        judge lore in 297 ms
+2026-10-01T11:56:38.961Z judge        judge lore in 340 ms
+2026-10-01T11:56:39.159Z judge        judge lore in 253 ms
+2026-10-01T11:56:39.489Z judge        judge director in 300 ms
+2026-10-01T11:56:55.655Z boundary     boundary 17: nothing applied (gate)
+2026-10-01T11:56:56.115Z judge        judge director in 467 ms
+2026-10-01T11:56:56.966Z judge        judge typed in 867 ms
+2026-10-01T11:56:56.968Z judge        judge scene in 855 ms
+2026-10-01T11:56:57.331Z judge        judge warden in 366 ms
+2026-10-01T11:56:57.332Z stagecraft   Warden flagged Dalan's reply (house-rule)
+2026-10-01T11:57:10.158Z judge        judge lore in 386 ms
+2026-10-01T11:57:10.169Z judge        judge lore in 393 ms
+2026-10-01T11:57:10.481Z judge        judge lore in 316 ms
+2026-10-01T11:57:10.494Z judge        judge lore in 340 ms
+2026-10-01T11:57:10.730Z judge        judge lore in 250 ms
+2026-10-01T11:57:10.994Z talk         Adolion Narrator speaks (judge)
+2026-10-01T11:57:10.994Z judge        judge director in 244 ms
+2026-10-01T11:57:36.726Z boundary     boundary 18: nothing applied (gate)
+2026-10-01T11:57:37.436Z talk         silence speaks (judge)
+2026-10-01T11:57:37.436Z judge        judge director in 713 ms
+2026-10-01T11:57:38.466Z judge        judge scene in 1206 ms
+2026-10-01T11:57:38.598Z judge        judge warden in 1164 ms
+2026-10-01T11:57:41.188Z judge        judge typed in 254 ms
+2026-10-01T11:57:41.189Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:57:44.252Z extraction   read cadence msgs 27-31 → 2 accepted, 0 rejected
+2026-10-01T11:57:44.252Z delta        location = north_road
+2026-10-01T11:57:44.252Z delta        tension_current = 0.26434389712125034
+2026-10-01T11:57:44.511Z judge        judge memoryVerify in 258 ms
+2026-10-01T11:58:21.940Z judge        judge lore in 408 ms
+2026-10-01T11:58:21.955Z judge        judge lore in 419 ms
+2026-10-01T11:58:22.280Z judge        judge lore in 329 ms
+2026-10-01T11:58:22.287Z judge        judge lore in 351 ms
+2026-10-01T11:58:22.519Z judge        judge lore in 240 ms
+2026-10-01T11:58:22.810Z talk         Dalan speaks (judge)
+2026-10-01T11:58:22.810Z judge        judge director in 278 ms
+2026-10-01T11:58:48.244Z boundary     applied location=north_road, tension_current=0.26434389712125034
+2026-10-01T11:58:49.429Z reconciliation stall re-check queued for reached_walls, first_camp
+2026-10-01T11:58:49.921Z judge        judge director fell back (timeout) in 1716 ms
+2026-10-01T11:58:49.922Z model-call   director via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:58:50.283Z judge        judge typed in 806 ms
+2026-10-01T11:58:50.289Z judge        judge stall in 369 ms
+2026-10-01T11:58:51.142Z talk         Adolion Narrator speaks (director)
+2026-10-01T11:58:51.335Z judge        judge scene in 1054 ms
+2026-10-01T11:58:51.364Z judge        judge warden in 1076 ms
+2026-10-01T11:58:51.655Z judge        judge typed in 321 ms
+2026-10-01T11:58:51.656Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:58:52.373Z judge        judge lore in 320 ms
+2026-10-01T11:58:52.386Z judge        judge lore in 337 ms
+2026-10-01T11:58:52.692Z judge        judge lore in 311 ms
+2026-10-01T11:58:52.698Z judge        judge lore in 329 ms
+2026-10-01T11:58:52.958Z judge        judge lore in 267 ms
+2026-10-01T11:58:55.767Z extraction   read cue:road-to-wendhope->gen_on-the-road_1 msgs 26-33 → 3 accepted, 1 rejected
+2026-10-01T11:58:55.767Z delta        location = north_road
+2026-10-01T11:58:55.767Z delta        party_injuries = 0
+2026-10-01T11:58:55.767Z delta        tension_current = 0.3350407279848752
+2026-10-01T11:58:56.001Z judge        judge memoryVerify in 231 ms
+2026-10-01T11:58:58.881Z judge        judge typed in 269 ms
+2026-10-01T11:58:58.881Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:59:02.752Z extraction   read reconcile:reached_walls,first_camp msgs 18-33 → 2 accepted, 1 rejected
+2026-10-01T11:59:02.752Z delta        location = north_road
+2026-10-01T11:59:02.752Z delta        tension_current = 0.30952850958941264
+2026-10-01T11:59:02.996Z judge        judge memoryVerify in 238 ms
+2026-10-01T11:59:05.235Z reconciliation stall re-check resolved (3 evidence)
+2026-10-01T11:59:19.003Z boundary     applied location=north_road, tension_current=0.30952850958941264; discarded location=north_road, party_injuries=0, tension_current=0.3350407279848752 (superseded)
+2026-10-01T11:59:22.844Z judge        judge scene fell back (timeout) in 2519 ms
+2026-10-01T11:59:25.336Z judge        judge typed fell back (timeout) in 5013 ms
+2026-10-01T11:59:26.850Z judge        judge warden fell back (timeout) in 4011 ms
+2026-10-01T11:59:27.656Z story        save not confirmed
+2026-10-01T11:59:27.815Z story        save not confirmed
+2026-10-01T11:59:27.940Z story        save not confirmed
+2026-10-01T11:59:28.188Z story        save not confirmed
+2026-10-01T11:59:28.234Z story        save not confirmed
+2026-10-01T11:59:29.657Z judge        judge typed in 1061 ms
+2026-10-01T11:59:29.658Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:59:30.840Z judge        judge lore in 418 ms
+2026-10-01T11:59:30.856Z judge        judge lore in 440 ms
+2026-10-01T11:59:31.291Z judge        judge lore in 458 ms
+2026-10-01T11:59:31.292Z judge        judge lore in 443 ms
+2026-10-01T11:59:31.607Z judge        judge lore in 318 ms
+2026-10-01T11:59:32.205Z judge        judge director in 582 ms
+2026-10-01T11:59:32.206Z talk         Adolion Narrator speaks (judge)
+2026-10-01T11:59:34.081Z extraction   read cue:road-to-wendhope->at-the-walls msgs 27-34 → 3 accepted, 1 rejected
+2026-10-01T11:59:34.081Z delta        location = north_road
+2026-10-01T11:59:34.081Z delta        party_injuries = 0
+2026-10-01T11:59:34.081Z delta        tension_current = 0.29166995671258883
+2026-10-01T11:59:35.071Z judge        judge memoryVerify in 986 ms
+2026-10-01T11:59:40.569Z judge        judge typed in 0 ms
+2026-10-01T11:59:40.570Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T11:59:46.000Z extraction   read cue:road-to-wendhope->gen_on-the-road_1 msgs 27-34 → 2 accepted, 1 rejected
+2026-10-01T11:59:46.000Z delta        location = north_road
+2026-10-01T11:59:46.000Z delta        tension_current = 0.3541689696988122
+2026-10-01T11:59:47.653Z judge        judge memoryVerify in 1641 ms
+2026-10-01T12:00:13.985Z boundary     applied location=north_road, tension_current=0.3541689696988122; discarded location=north_road, party_injuries=0, tension_current=0.29166995671258883 (superseded)
+2026-10-01T12:00:15.550Z talk         silence speaks (judge)
+2026-10-01T12:00:15.550Z judge        judge director in 1185 ms
+2026-10-01T12:00:15.697Z judge        judge scene in 1108 ms
+2026-10-01T12:00:16.338Z judge        judge warden in 793 ms
+2026-10-01T12:00:17.227Z judge        judge typed in 564 ms
+2026-10-01T12:00:17.227Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:00:21.228Z extraction   read cadence msgs 32-36 → 3 accepted, 1 rejected
+2026-10-01T12:00:21.228Z delta        location = north_road
+2026-10-01T12:00:21.228Z delta        party_injuries = 0
+2026-10-01T12:00:21.228Z delta        tension_current = 0.3229182787891685
+2026-10-01T12:00:23.242Z judge        judge memoryVerify in 2006 ms
+2026-10-01T12:00:25.750Z judge        judge memoryPairs in 233 ms
+2026-10-01T12:00:25.780Z judge        judge memoryPairs in 263 ms
+2026-10-01T12:00:26.101Z judge        judge memoryPairs in 352 ms
+2026-10-01T12:00:26.517Z judge        judge memoryPairs in 738 ms
+2026-10-01T12:00:27.025Z judge        judge memoryPairs in 924 ms
+2026-10-01T12:00:27.027Z judge        judge memoryPairs in 510 ms
+2026-10-01T12:00:27.255Z judge        judge memoryPairs in 229 ms
+2026-10-01T12:00:27.347Z judge        judge memoryPairs in 323 ms
+2026-10-01T12:00:27.349Z judge        judge memoryPairs in 0 ms
+2026-10-01T12:00:27.349Z judge        judge memoryPairs in 0 ms
+2026-10-01T12:00:27.515Z judge        judge typed in 261 ms
+2026-10-01T12:00:27.516Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:00:27.611Z judge        judge memoryPairs in 262 ms
+2026-10-01T12:00:27.744Z judge        judge memoryPairs in 229 ms
+2026-10-01T12:00:27.929Z judge        judge memoryPairs in 319 ms
+2026-10-01T12:00:28.003Z judge        judge memoryPairs in 260 ms
+2026-10-01T12:00:28.140Z judge        judge memoryPairs in 211 ms
+2026-10-01T12:00:28.143Z judge        judge memoryPairs in 0 ms
+2026-10-01T12:00:28.143Z judge        judge memoryPairs in 0 ms
+2026-10-01T12:00:28.143Z judge        judge memoryPairs in 0 ms
+2026-10-01T12:00:28.144Z judge        judge memoryPairs in 0 ms
+2026-10-01T12:00:28.372Z judge        judge memoryPairs in 228 ms
+2026-10-01T12:00:28.609Z judge        judge memoryPairs in 231 ms
+2026-10-01T12:00:28.620Z judge        judge memoryPairs in 241 ms
+2026-10-01T12:00:28.852Z judge        judge memoryPairs in 244 ms
+2026-10-01T12:00:28.874Z judge        judge memoryPairs in 255 ms
+2026-10-01T12:00:29.129Z judge        judge memoryPairs in 278 ms
+2026-10-01T12:00:29.151Z judge        judge memoryPairs in 278 ms
+2026-10-01T12:00:29.348Z judge        judge memoryPairs in 220 ms
+2026-10-01T12:00:29.392Z judge        judge memoryPairs in 242 ms
+2026-10-01T12:00:34.736Z extraction   read cue:road-to-wendhope->gen_on-the-road_1 msgs 29-36 → 3 accepted, 1 rejected
+2026-10-01T12:00:34.736Z delta        location = north_road
+2026-10-01T12:00:34.736Z delta        party_injuries = 0
+2026-10-01T12:00:34.736Z delta        tension_current = 0.30104279515241794
+2026-10-01T12:00:35.979Z judge        judge memoryVerify in 1239 ms
+2026-10-01T12:00:50.904Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:01:29.896Z judge        judge memoryPairs in 282 ms
+2026-10-01T12:01:29.955Z judge        judge memoryPairs in 339 ms
+2026-10-01T12:01:30.142Z judge        judge memoryPairs in 246 ms
+2026-10-01T12:01:30.198Z judge        judge memoryPairs in 243 ms
+2026-10-01T12:01:30.400Z judge        judge memoryPairs in 259 ms
+2026-10-01T12:01:30.440Z judge        judge memoryPairs in 243 ms
+2026-10-01T12:01:30.697Z judge        judge memoryPairs in 257 ms
+2026-10-01T12:01:30.703Z judge        judge memoryPairs in 303 ms
+2026-10-01T12:01:30.926Z judge        judge memoryPairs in 220 ms
+2026-10-01T12:01:30.932Z judge        judge memoryPairs in 227 ms
+2026-10-01T12:01:31.139Z judge        judge memoryPairs in 214 ms
+2026-10-01T12:01:31.199Z judge        judge memoryPairs in 268 ms
+2026-10-01T12:01:31.367Z judge        judge memoryPairs in 229 ms
+2026-10-01T12:01:31.490Z judge        judge memoryPairs in 292 ms
+2026-10-01T12:01:31.599Z judge        judge memoryPairs in 233 ms
+2026-10-01T12:01:31.707Z judge        judge memoryPairs in 218 ms
+2026-10-01T12:01:32.145Z model-call   supersession via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:01:32.792Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:02:04.601Z judge        judge lore in 383 ms
+2026-10-01T12:02:04.643Z judge        judge lore in 421 ms
+2026-10-01T12:02:04.920Z judge        judge lore in 324 ms
+2026-10-01T12:02:04.956Z judge        judge lore in 318 ms
+2026-10-01T12:02:05.254Z judge        judge lore in 336 ms
+2026-10-01T12:02:05.508Z talk         Adolion Narrator speaks (judge)
+2026-10-01T12:02:05.508Z judge        judge director in 235 ms
+2026-10-01T12:02:50.303Z boundary     applied location=north_road, party_injuries=0, tension_current=0.30104279515241794; discarded location=north_road, party_injuries=0, tension_current=0.3229182787891685 (superseded)
+2026-10-01T12:02:50.942Z reconciliation stall re-check queued for reached_walls, first_camp
+2026-10-01T12:02:51.335Z judge        judge director in 786 ms
+2026-10-01T12:02:51.336Z talk         silence speaks (judge)
+2026-10-01T12:02:52.021Z judge        judge typed in 1031 ms
+2026-10-01T12:02:52.146Z judge        judge stall in 812 ms
+2026-10-01T12:02:54.525Z judge        judge scene fell back (timeout) in 2506 ms
+2026-10-01T12:02:54.836Z judge        judge warden in 2692 ms
+2026-10-01T12:02:54.836Z stagecraft   Warden flagged Adolion Narrator's reply (house-rule)
+2026-10-01T12:02:55.732Z judge        judge typed in 256 ms
+2026-10-01T12:02:55.733Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:02:59.486Z extraction   read cue:road-to-wendhope->at-the-walls msgs 31-38 → 5 accepted, 0 rejected
+2026-10-01T12:02:59.486Z delta        first_camp = true
+2026-10-01T12:02:59.486Z delta        location = north_road
+2026-10-01T12:02:59.486Z delta        party_injuries = 0
+2026-10-01T12:02:59.486Z delta        reached_walls = false
+2026-10-01T12:02:59.486Z delta        tension_current = 0.28572995660669254
+2026-10-01T12:02:59.765Z judge        judge memoryVerify in 276 ms
+2026-10-01T12:03:02.906Z judge        judge typed in 0 ms
+2026-10-01T12:03:02.906Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:03:02.978Z judge        judge curatorFilter in 818 ms
+2026-10-01T12:03:02.980Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:03:03.767Z stagecraft   World Info curator proposed 1 change(s) at The Road North
+2026-10-01T12:03:06.770Z extraction   read cue:road-to-wendhope->gen_on-the-road_1 msgs 31-38 → 4 accepted, 1 rejected
+2026-10-01T12:03:06.770Z delta        location = north_road
+2026-10-01T12:03:06.770Z delta        party_injuries = 0
+2026-10-01T12:03:06.770Z delta        reached_walls = false
+2026-10-01T12:03:06.770Z delta        tension_current = 0.27501096962468474
+2026-10-01T12:03:07.052Z judge        judge memoryVerify in 279 ms
+2026-10-01T12:03:09.557Z judge        judge typed in 342 ms
+2026-10-01T12:03:09.560Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:03:13.187Z extraction   read reconcile:reached_walls,first_camp msgs 18-38 → 3 accepted, 0 rejected
+2026-10-01T12:03:13.187Z delta        location = north_road
+2026-10-01T12:03:13.187Z delta        first_camp = true
+2026-10-01T12:03:13.187Z delta        tension_current = 0.2675076787372793
+2026-10-01T12:03:13.483Z judge        judge memoryVerify in 293 ms
+2026-10-01T12:03:14.410Z reconciliation stall re-check resolved (3 evidence)
+2026-10-01T12:03:14.830Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:03:17.056Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:03:20.130Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:03:21.586Z story        NPC reply Adolion Narrator (sceneBreak) skipped by its roll
+2026-10-01T12:03:21.936Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:03:24.632Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:03:45.855Z judge        judge lore in 408 ms
+2026-10-01T12:03:45.874Z judge        judge lore in 421 ms
+2026-10-01T12:03:46.226Z judge        judge lore in 357 ms
+2026-10-01T12:03:46.339Z judge        judge lore in 489 ms
+2026-10-01T12:03:46.481Z judge        judge lore in 256 ms
+2026-10-01T12:03:46.740Z talk         Adolion Narrator speaks (judge)
+2026-10-01T12:03:46.740Z judge        judge director in 243 ms
+2026-10-01T12:04:13.597Z boundary     applied location=north_road, first_camp=true, tension_current=0.2675076787372793; discarded first_camp=true, location=north_road, party_injuries=0, reached_walls=false, tension_current=0.28572995660669254, location=north_road, party_injuries=0, reached_walls=false, tension_current=0.27501096962468474 (superseded)
+2026-10-01T12:04:13.597Z transition   road-to-wendhope → gen_on-the-road_1
+2026-10-01T12:04:14.505Z talk         silence speaks (judge)
+2026-10-01T12:04:14.505Z judge        judge director in 988 ms
+2026-10-01T12:04:15.033Z status       Moved into Travel the north road toward Wendhope and let the party notice what the road is missing: no ore wagons, no peddlers, no patrols, no smoke on the horizon, and a growing absence of birdsong as the forest edge nears.
+2026-10-01T12:04:15.299Z judge        judge typed in 229 ms
+2026-10-01T12:04:15.385Z judge        judge scene in 314 ms
+2026-10-01T12:04:15.543Z judge        judge warden in 246 ms
+2026-10-01T12:04:35.424Z flag         After msg 40 the story moved into a generated step: the chat note (msg 41) prints an author objective twice ('Travel the north road toward Wendhope and let the party notice what the road is missing... — Travel the north road...'), HUD just says 'Current scene'. Reads like stage directions leaking to the player. Also the chat already reached Wendhope's gate while the story says we are still on the road.
+2026-10-01T12:04:47.624Z judge        judge lore in 464 ms
+2026-10-01T12:04:47.638Z judge        judge lore in 474 ms
+2026-10-01T12:04:47.971Z judge        judge lore in 340 ms
+2026-10-01T12:04:48.229Z judge        judge lore in 259 ms
+2026-10-01T12:04:48.432Z judge        judge lore in 815 ms
+2026-10-01T12:05:13.373Z boundary     boundary 24: nothing applied (gate)
+2026-10-01T12:05:13.373Z transition   gen_on-the-road_1 → gen_on-the-road_2
+2026-10-01T12:05:14.665Z status       Moved into Reach the walls of Wendhope before sundown and find the gate shut, barred, and guarded by frightened villagers who refuse entry to strangers as night falls.
+2026-10-01T12:05:15.893Z judge        judge typed in 1132 ms
+2026-10-01T12:05:15.973Z judge        judge scene in 1210 ms
+2026-10-01T12:05:16.161Z judge        judge warden in 270 ms
+2026-10-01T12:05:49.917Z judge        judge lore in 374 ms
+2026-10-01T12:05:49.929Z judge        judge lore in 390 ms
+2026-10-01T12:05:50.246Z judge        judge lore in 333 ms
+2026-10-01T12:05:50.257Z judge        judge lore in 332 ms
+2026-10-01T12:05:50.515Z judge        judge lore in 271 ms
+2026-10-01T12:06:07.951Z judge        judge lore in 358 ms
+2026-10-01T12:06:07.999Z judge        judge lore in 400 ms
+2026-10-01T12:06:08.271Z judge        judge lore in 325 ms
+2026-10-01T12:06:08.301Z judge        judge lore in 307 ms
+2026-10-01T12:06:08.510Z judge        judge lore in 241 ms
+2026-10-01T12:06:34.960Z judge        judge lore in 352 ms
+2026-10-01T12:06:34.970Z judge        judge lore in 371 ms
+2026-10-01T12:06:35.267Z judge        judge lore in 301 ms
+2026-10-01T12:06:35.297Z judge        judge lore in 341 ms
+2026-10-01T12:06:35.507Z judge        judge lore in 241 ms
+2026-10-01T12:07:03.604Z boundary     boundary 25: nothing applied (gate)
+2026-10-01T12:07:03.604Z transition   gen_on-the-road_2 → at-the-walls
+2026-10-01T12:07:21.761Z status       Moved into Hold, Wendhope Is Closed
+2026-10-01T12:07:22.447Z boundary     boundary 26: nothing applied (gate)
+2026-10-01T12:07:24.028Z judge        judge typed in 1581 ms
+2026-10-01T12:07:24.031Z judge        judge scene in 1583 ms
+2026-10-01T12:07:24.043Z status       Following Hold, Wendhope Is Closed
+2026-10-01T12:07:24.169Z boundary     boundary 27: nothing applied (gate)
+2026-10-01T12:07:24.170Z judge        judge scene in 0 ms
+2026-10-01T12:07:24.870Z judge        judge warden in 845 ms
+2026-10-01T12:07:24.871Z stagecraft   Warden flagged Dalan's reply (house-rule)
+2026-10-01T12:07:25.041Z judge        judge typed in 872 ms
+2026-10-01T12:07:25.196Z boundary     boundary 28: nothing applied (gate)
+2026-10-01T12:07:25.197Z judge        judge scene in 0 ms
+2026-10-01T12:07:26.007Z judge        judge scene in 0 ms
+2026-10-01T12:07:26.819Z judge        judge typed in 813 ms
+2026-10-01T12:07:26.820Z judge        judge warden in 813 ms
+2026-10-01T12:07:27.219Z judge        judge typed in 401 ms
+2026-10-01T12:07:27.220Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:07:30.286Z extraction   read scene:time_skip msgs 39-46 → 2 accepted, 0 rejected
+2026-10-01T12:07:30.286Z delta        location = wendhope_gate
+2026-10-01T12:07:30.286Z delta        tension_current = 0.3372553751160955
+2026-10-01T12:07:30.590Z judge        judge memoryVerify in 302 ms
+2026-10-01T12:07:33.714Z judge        judge typed in 273 ms
+2026-10-01T12:07:33.715Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:07:34.481Z flag         Narrator replies 40, 43, 48 repeat themselves: 'And there is the silence... the horse is quiet... What do you do?' every turn while we stand at the gate; the gate guards only showed up via the scripted line at msg 50.
+2026-10-01T12:07:37.764Z extraction   read cue:at-the-walls->first-night msgs 43-50 → 2 accepted, 0 rejected
+2026-10-01T12:07:37.764Z delta        location = wendhope_gate
+2026-10-01T12:07:37.764Z delta        tension_current = 0.38607876258126683
+2026-10-01T12:07:38.111Z judge        judge memoryVerify in 273 ms
+2026-10-01T12:07:41.816Z judge        judge typed in 0 ms
+2026-10-01T12:07:41.816Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:07:44.612Z extraction   read scene:time_skip msgs 43-50 → 2 accepted, 0 rejected
+2026-10-01T12:07:44.612Z delta        location = wendhope_gate
+2026-10-01T12:07:44.612Z delta        tension_current = 0.4202551338068867
+2026-10-01T12:07:44.989Z judge        judge memoryVerify in 374 ms
+2026-10-01T12:07:46.803Z judge        judge typed in 0 ms
+2026-10-01T12:07:46.803Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:07:50.482Z extraction   read scene:time_skip msgs 43-50 → 2 accepted, 0 rejected
+2026-10-01T12:07:50.482Z delta        location = wendhope_gate
+2026-10-01T12:07:50.482Z delta        tension_current = 0.4441785936648207
+2026-10-01T12:07:50.830Z judge        judge memoryVerify in 346 ms
+2026-10-01T12:07:52.419Z judge        judge typed in 0 ms
+2026-10-01T12:07:52.419Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:07:56.085Z extraction   read cue:at-the-walls->outside-at-sundown msgs 43-50 → 2 accepted, 0 rejected
+2026-10-01T12:07:56.085Z delta        location = wendhope_gate
+2026-10-01T12:07:56.085Z delta        tension_current = 0.46092501556537446
+2026-10-01T12:07:56.409Z judge        judge memoryVerify in 320 ms
+2026-10-01T12:07:57.828Z judge        judge typed in 0 ms
+2026-10-01T12:07:57.829Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:07:58.686Z judge        judge curatorFilter in 860 ms
+2026-10-01T12:07:58.687Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:07:59.511Z stagecraft   World Info curator proposed 1 change(s) at Hold, Wendhope Is Closed
+2026-10-01T12:08:01.550Z extraction   read scene:time_skip msgs 43-50 → 2 accepted, 0 rejected
+2026-10-01T12:08:01.550Z delta        location = wendhope_gate
+2026-10-01T12:08:01.550Z delta        tension_current = 0.47264751089576207
+2026-10-01T12:08:01.861Z judge        judge memoryVerify in 305 ms
+2026-10-01T12:08:04.273Z judge        judge typed in 575 ms
+2026-10-01T12:08:04.274Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:08:08.465Z extraction   read cadence msgs 37-48 → 4 accepted, 0 rejected
+2026-10-01T12:08:08.465Z delta        location = wendhope_gate
+2026-10-01T12:08:08.465Z delta        inside_wendhope = false
+2026-10-01T12:08:08.465Z delta        sundown_outside = false
+2026-10-01T12:08:08.465Z delta        tension_current = 0.48085325762703346
+2026-10-01T12:08:08.742Z judge        judge memoryVerify in 274 ms
+2026-10-01T12:08:33.189Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:08:35.367Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:08:38.952Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:08:41.393Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:08:43.310Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:09:41.695Z story        away recap not due
+2026-10-01T12:09:42.121Z status       Continuing Adolion: The Adventurer's Road
+2026-10-01T12:09:42.135Z story        quality macro skipped
+2026-10-01T12:09:42.135Z story        quality macro skipped
+2026-10-01T12:09:42.135Z story        quality macro skipped
+2026-10-01T12:09:42.135Z story        quality macro skipped
+2026-10-01T12:09:42.135Z story        quality macro skipped
+2026-10-01T12:09:42.135Z story        quality macro skipped
+2026-10-01T12:09:42.135Z story        quality macro skipped
+2026-10-01T12:09:42.135Z story        quality macro skipped
+2026-10-01T12:09:42.135Z story        quality macro skipped
+2026-10-01T12:09:42.136Z story        quality macro skipped
+2026-10-01T12:09:42.136Z story        quality macro skipped
+2026-10-01T12:09:42.136Z story        quality macro skipped
+2026-10-01T12:09:42.136Z story        quality macro skipped
+2026-10-01T12:11:11.858Z story        away recap queued
+2026-10-01T12:11:52.770Z story        away recap not due
+2026-10-01T12:11:53.108Z status       Continuing Adolion: The Adventurer's Road
+2026-10-01T12:11:53.119Z story        quality macro skipped
+2026-10-01T12:11:53.119Z story        quality macro skipped
+2026-10-01T12:11:53.119Z story        quality macro skipped
+2026-10-01T12:11:53.119Z story        quality macro skipped
+2026-10-01T12:11:53.119Z story        quality macro skipped
+2026-10-01T12:11:53.119Z story        quality macro skipped
+2026-10-01T12:11:53.119Z story        quality macro skipped
+2026-10-01T12:11:53.119Z story        quality macro skipped
+2026-10-01T12:11:53.119Z story        quality macro skipped
+2026-10-01T12:11:53.119Z story        quality macro skipped
+2026-10-01T12:11:53.119Z story        quality macro skipped
+2026-10-01T12:11:53.119Z story        quality macro skipped
+2026-10-01T12:11:53.119Z story        quality macro skipped
+2026-10-01T11:53:26.565Z audit        audit scene:time_skip msgs 14-21 scope [first_camp, guild_reputation, location, party_injuries, party_rank, reached_walls, tension_current] → 1 accepted, 0 rejected
+2026-10-01T11:53:39.842Z audit        audit scene:location msgs 15-22 scope [first_camp, guild_reputation, location, party_injuries, party_rank, reached_walls, tension_current] → 2 accepted, 0 rejected
+2026-10-01T11:56:09.341Z audit        audit cadence msgs 19-26 scope [first_camp, guild_reputation, location, party_injuries, party_rank, reached_walls, tension_current] → 2 accepted, 0 rejected
+2026-10-01T11:57:44.252Z audit        audit cadence msgs 27-31 scope [first_camp, location, party_injuries, party_rank, reached_walls, tension_current] → 2 accepted, 0 rejected
+2026-10-01T11:58:55.767Z audit        audit cue:road-to-wendhope->gen_on-the-road_1 msgs 26-33 scope [first_camp, location, party_injuries, reached_walls, tension_current] → 3 accepted, 1 rejected
+2026-10-01T11:59:02.752Z audit        audit reconcile:reached_walls,first_camp msgs 18-33 scope [first_camp, guild_reputation, location, party_injuries, party_rank, reached_walls, tension_current] → 2 accepted, 1 rejected
+2026-10-01T11:59:34.081Z audit        audit cue:road-to-wendhope->at-the-walls msgs 27-34 scope [first_camp, location, party_injuries, party_rank, reached_walls, tension_current] → 3 accepted, 1 rejected
+2026-10-01T11:59:46.000Z audit        audit cue:road-to-wendhope->gen_on-the-road_1 msgs 27-34 scope [first_camp, location, party_injuries, party_rank, reached_walls, tension_current] → 2 accepted, 1 rejected
+2026-10-01T12:00:21.228Z audit        audit cadence msgs 32-36 scope [first_camp, location, party_injuries, party_rank, reached_walls, tension_current] → 3 accepted, 1 rejected
+2026-10-01T12:00:34.736Z audit        audit cue:road-to-wendhope->gen_on-the-road_1 msgs 29-36 scope [first_camp, location, party_injuries, party_rank, reached_walls, tension_current] → 3 accepted, 1 rejected
+2026-10-01T12:02:59.486Z audit        audit cue:road-to-wendhope->at-the-walls msgs 31-38 scope [first_camp, location, party_injuries, reached_walls, tension_current] → 5 accepted, 0 rejected
+2026-10-01T12:03:06.770Z audit        audit cue:road-to-wendhope->gen_on-the-road_1 msgs 31-38 scope [first_camp, location, party_injuries, reached_walls, tension_current] → 4 accepted, 1 rejected
+2026-10-01T12:03:13.187Z audit        audit reconcile:reached_walls,first_camp msgs 18-38 scope [first_camp, guild_reputation, location, party_injuries, party_rank, reached_walls, tension_current] → 3 accepted, 0 rejected
+2026-10-01T12:07:30.286Z audit        audit scene:time_skip msgs 39-46 scope [evidence, inside_wendhope, knows_spirit, location, party_injuries, party_rank, sundown_outside, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:07:37.764Z audit        audit cue:at-the-walls->first-night msgs 43-50 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, sundown_outside, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:07:44.612Z audit        audit scene:time_skip msgs 43-50 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, sundown_outside, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:07:50.482Z audit        audit scene:time_skip msgs 43-50 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, sundown_outside, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:07:56.085Z audit        audit cue:at-the-walls->outside-at-sundown msgs 43-50 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, sundown_outside, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:08:01.550Z audit        audit scene:time_skip msgs 43-50 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, sundown_outside, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:08:08.465Z audit        audit cadence msgs 37-48 scope [evidence, inside_wendhope, knows_spirit, location, party_injuries, party_rank, sundown_outside, tension_current] → 4 accepted, 0 rejected
+2026-10-01T12:12:29.487Z session      chat null · story none · at — (boundary 0, 0 messages)
+2026-10-01T12:12:28.708Z status       No story loaded
+2026-10-01T12:12:28.771Z status       No story selected for this chat
+2026-10-01T12:12:36.875Z session      chat 2026-10-01@08h41m13s779ms · story adolion-adventurer · at Hold, Wendhope Is Closed (boundary 28, 51 messages)
+2026-10-01T12:12:39.021Z story        away recap queued
+2026-10-01T12:12:39.837Z status       Continuing Adolion: The Adventurer's Road
+2026-10-01T12:12:39.883Z story        quality macro skipped
+2026-10-01T12:12:39.883Z story        quality macro skipped
+2026-10-01T12:12:39.883Z story        quality macro skipped
+2026-10-01T12:12:39.883Z story        quality macro skipped
+2026-10-01T12:12:39.883Z story        quality macro skipped
+2026-10-01T12:12:39.883Z story        quality macro skipped
+2026-10-01T12:12:39.883Z story        quality macro skipped
+2026-10-01T12:12:39.883Z story        quality macro skipped
+2026-10-01T12:12:39.883Z story        quality macro skipped
+2026-10-01T12:12:39.883Z story        quality macro skipped
+2026-10-01T12:12:39.883Z story        quality macro skipped
+2026-10-01T12:12:39.883Z story        quality macro skipped
+2026-10-01T12:12:39.883Z story        quality macro skipped
+2026-10-01T12:12:39.984Z story        away recap shown
+2026-10-01T12:13:19.670Z flag         Away recap (away 1d) is right about where we are but too long: 8 open threads, mostly the same question reworded (approach from the ridge x2 - stale, we are at the gate; defenders' fear x2; get inside before sundown x3). 'Recently' only says 'You moved into Wendhope's Eastern Gate'; the story-so-far is cut off mid-word ('since the Gui...'); Status says 'Catching up' a day later.
+2026-10-01T12:13:25.048Z payload      8 story blocks injected (generation)
+2026-10-01T12:13:25.165Z payload      9 story blocks injected (generation)
+2026-10-01T12:13:26.202Z judge        judge lore in 395 ms
+2026-10-01T12:13:26.319Z judge        judge lore in 525 ms
+2026-10-01T12:13:26.505Z judge        judge lore in 308 ms
+2026-10-01T12:13:26.646Z judge        judge lore in 331 ms
+2026-10-01T12:13:26.749Z judge        judge lore in 246 ms
+2026-10-01T12:13:27.007Z judge        judge director in 234 ms
+2026-10-01T12:13:27.008Z talk         Adolion Narrator speaks (judge)
+2026-10-01T12:13:58.403Z payload      9 story blocks injected (generation)
+2026-10-01T12:14:01.363Z payload      9 story blocks injected (generation)
+2026-10-01T12:14:04.056Z boundary     boundary 29: nothing applied (gate)
+2026-10-01T12:14:04.444Z status       Following Hold, Wendhope Is Closed
+2026-10-01T12:14:04.782Z judge        judge director in 913 ms
+2026-10-01T12:14:04.783Z talk         silence speaks (judge)
+2026-10-01T12:14:05.649Z judge        judge typed in 1076 ms
+2026-10-01T12:14:05.765Z judge        judge scene in 985 ms
+2026-10-01T12:14:06.394Z judge        judge warden in 748 ms
+2026-10-01T12:14:06.590Z judge        judge typed in 229 ms
+2026-10-01T12:14:06.767Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:07.907Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:09.074Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:06.591Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:14:10.225Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:10.225Z delta        queued party_rank=2, location=wendhope_gate, tension_current=0.3372553751160955 for the next boundary
+2026-10-01T12:14:10.381Z judge        judge memoryVerify in 346 ms
+2026-10-01T12:14:11.476Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:11.476Z delta        queued party_rank=2, location=wendhope_gate, tension_current=0.3372553751160955 for the next boundary
+2026-10-01T12:14:10.030Z extraction   read cue:at-the-walls->outside-at-sundown msgs 45-52 → 3 accepted, 0 rejected
+2026-10-01T12:14:10.030Z delta        party_rank = 2
+2026-10-01T12:14:10.030Z delta        location = wendhope_gate
+2026-10-01T12:14:10.030Z delta        tension_current = 0.3372553751160955
+2026-10-01T12:14:10.030Z delta        queued party_rank=2, location=wendhope_gate, tension_current=0.3372553751160955 for the next boundary
+2026-10-01T12:14:12.914Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:10.030Z audit        audit cue:at-the-walls->outside-at-sundown msgs 45-52 scope [evidence, inside_wendhope, knows_spirit, location, party_injuries, sundown_outside, tension_current] → 3 accepted, 0 rejected
+2026-10-01T12:14:14.842Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:16.160Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:17.529Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:15.930Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:14:19.024Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:20.225Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:21.430Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:22.626Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:23.828Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:25.027Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:26.260Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:27.443Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:28.662Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:29.894Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:31.050Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:32.257Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:33.466Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:33.674Z payload      8 story blocks injected (generation)
+2026-10-01T12:14:33.788Z payload      9 story blocks injected (generation)
+2026-10-01T12:14:34.788Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:35.312Z judge        judge lore in 422 ms
+2026-10-01T12:14:35.337Z judge        judge lore in 428 ms
+2026-10-01T12:14:35.636Z judge        judge lore in 336 ms
+2026-10-01T12:14:35.678Z judge        judge lore in 353 ms
+2026-10-01T12:14:35.954Z judge        judge lore in 321 ms
+2026-10-01T12:14:36.004Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:36.222Z judge        judge director in 236 ms
+2026-10-01T12:14:36.223Z talk         Adolion Narrator speaks (judge)
+2026-10-01T12:14:37.253Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:38.450Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:39.253Z payload      9 story blocks injected (generation)
+2026-10-01T12:14:39.789Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:40.965Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:42.200Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:42.695Z payload      9 story blocks injected (generation)
+2026-10-01T12:14:43.446Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:44.656Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:46.301Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:47.742Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:48.956Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:50.138Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:51.283Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:52.553Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:53.726Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:54.903Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:56.049Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:57.237Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:58.466Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:14:59.660Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:00.807Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:02.042Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:03.274Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:04.461Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:05.625Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:06.771Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:07.982Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:09.150Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:10.317Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:11.476Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:12.680Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:13.922Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:15.171Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:16.776Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:18.129Z delta        queued party_rank=2 for the next boundary
+2026-10-01T12:15:18.213Z boundary     applied party_rank=2, location=wendhope_gate, tension_current=0.3372553751160955; discarded party_rank=2 (superseded)
+2026-10-01T12:15:19.538Z talk         silence speaks (judge)
+2026-10-01T12:15:19.538Z judge        judge director in 1333 ms
+2026-10-01T12:15:21.589Z judge        judge scene fell back (timeout) in 2503 ms
+2026-10-01T12:15:23.540Z judge        judge warden fell back (timeout) in 4007 ms
+2026-10-01T12:15:26.705Z story        save not confirmed
+2026-10-01T12:15:26.779Z story        save not confirmed
+2026-10-01T12:15:26.863Z story        save not confirmed
+2026-10-01T12:15:26.910Z story        save not confirmed
+2026-10-01T12:15:26.942Z story        save not confirmed
+2026-10-01T12:15:26.972Z story        save not confirmed
+2026-10-01T12:15:27.549Z story        save not confirmed
+2026-10-01T12:15:31.313Z judge        judge typed in 1072 ms
+2026-10-01T12:15:31.315Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:15:35.529Z delta        queued location=wendhope_gate, tension_current=0.38607876258126683, inside_wendhope=false, sundown_outside=false for the next boundary
+2026-10-01T12:15:36.385Z judge        judge memoryVerify in 786 ms
+2026-10-01T12:15:36.708Z delta        queued location=wendhope_gate, tension_current=0.38607876258126683, inside_wendhope=false, sundown_outside=false for the next boundary
+2026-10-01T12:15:37.886Z delta        queued location=wendhope_gate, tension_current=0.38607876258126683, inside_wendhope=false, sundown_outside=false for the next boundary
+2026-10-01T12:15:39.137Z delta        queued location=wendhope_gate, tension_current=0.38607876258126683, inside_wendhope=false, sundown_outside=false for the next boundary
+2026-10-01T12:15:35.101Z extraction   read cadence msgs 47-54 → 4 accepted, 0 rejected
+2026-10-01T12:15:35.101Z delta        location = wendhope_gate
+2026-10-01T12:15:35.101Z delta        tension_current = 0.38607876258126683
+2026-10-01T12:15:35.101Z delta        inside_wendhope = false
+2026-10-01T12:15:35.101Z delta        sundown_outside = false
+2026-10-01T12:15:35.101Z delta        queued location=wendhope_gate, tension_current=0.38607876258126683, inside_wendhope=false, sundown_outside=false for the next boundary
+2026-10-01T12:15:35.101Z audit        audit cadence msgs 47-54 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, party_rank, sundown_outside, tension_current] → 4 accepted, 0 rejected
+2026-10-01T12:15:44.007Z judge        judge typed in 0 ms
+2026-10-01T12:15:44.009Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:15:49.596Z delta        queued location=wendhope_gate, tension_current=0.4202551338068867 for the next boundary
+2026-10-01T12:15:50.137Z judge        judge memoryVerify in 1214 ms
+2026-10-01T12:15:50.791Z delta        queued location=wendhope_gate, tension_current=0.4202551338068867 for the next boundary
+2026-10-01T12:15:52.024Z delta        queued location=wendhope_gate, tension_current=0.4202551338068867 for the next boundary
+2026-10-01T12:15:53.202Z delta        queued location=wendhope_gate, tension_current=0.4202551338068867 for the next boundary
+2026-10-01T12:15:54.441Z delta        queued location=wendhope_gate, tension_current=0.4202551338068867 for the next boundary
+2026-10-01T12:15:55.627Z delta        queued location=wendhope_gate, tension_current=0.4202551338068867 for the next boundary
+2026-10-01T12:15:56.839Z delta        queued location=wendhope_gate, tension_current=0.4202551338068867 for the next boundary
+2026-10-01T12:15:58.005Z delta        queued location=wendhope_gate, tension_current=0.4202551338068867 for the next boundary
+2026-10-01T12:15:59.270Z delta        queued location=wendhope_gate, tension_current=0.4202551338068867 for the next boundary
+2026-10-01T12:15:48.920Z extraction   read cue:at-the-walls->first-night msgs 47-54 → 2 accepted, 0 rejected
+2026-10-01T12:15:48.920Z delta        location = wendhope_gate
+2026-10-01T12:15:48.920Z delta        tension_current = 0.4202551338068867
+2026-10-01T12:15:48.920Z delta        queued location=wendhope_gate, tension_current=0.4202551338068867 for the next boundary
+2026-10-01T12:15:48.920Z audit        audit cue:at-the-walls->first-night msgs 47-54 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, party_rank, sundown_outside, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:16:03.243Z judge        judge typed in 0 ms
+2026-10-01T12:16:03.247Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:16:08.083Z delta        queued location=wendhope_gate, tension_current=0.4441785936648207 for the next boundary
+2026-10-01T12:16:08.247Z judge        judge memoryVerify in 940 ms
+2026-10-01T12:16:09.302Z delta        queued location=wendhope_gate, tension_current=0.4441785936648207 for the next boundary
+2026-10-01T12:16:10.485Z delta        queued location=wendhope_gate, tension_current=0.4441785936648207 for the next boundary
+2026-10-01T12:16:07.303Z extraction   read scene:location msgs 47-54 → 2 accepted, 0 rejected
+2026-10-01T12:16:07.303Z delta        location = wendhope_gate
+2026-10-01T12:16:07.303Z delta        tension_current = 0.4441785936648207
+2026-10-01T12:16:07.303Z delta        queued location=wendhope_gate, tension_current=0.4441785936648207 for the next boundary
+2026-10-01T12:16:07.303Z audit        audit scene:location msgs 47-54 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, party_rank, sundown_outside, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:16:24.231Z judge        judge memoryPairs in 272 ms
+2026-10-01T12:16:24.262Z judge        judge memoryPairs in 304 ms
+2026-10-01T12:16:24.467Z judge        judge memoryPairs in 237 ms
+2026-10-01T12:16:24.500Z judge        judge memoryPairs in 239 ms
+2026-10-01T12:16:24.694Z judge        judge memoryPairs in 228 ms
+2026-10-01T12:16:24.725Z judge        judge memoryPairs in 226 ms
+2026-10-01T12:16:24.978Z judge        judge memoryPairs in 286 ms
+2026-10-01T12:16:24.979Z judge        judge memoryPairs in 256 ms
+2026-10-01T12:16:25.234Z judge        judge memoryPairs in 249 ms
+2026-10-01T12:16:25.236Z judge        judge memoryPairs in 251 ms
+2026-10-01T12:16:25.460Z judge        judge memoryPairs in 227 ms
+2026-10-01T12:16:25.515Z judge        judge memoryPairs in 280 ms
+2026-10-01T12:16:25.688Z judge        judge memoryPairs in 229 ms
+2026-10-01T12:16:25.783Z judge        judge memoryPairs in 269 ms
+2026-10-01T12:17:19.365Z judge        judge memoryPairs in 286 ms
+2026-10-01T12:17:19.368Z judge        judge memoryPairs in 286 ms
+2026-10-01T12:17:19.581Z judge        judge memoryPairs in 218 ms
+2026-10-01T12:17:19.623Z judge        judge memoryPairs in 256 ms
+2026-10-01T12:17:19.838Z judge        judge memoryPairs in 258 ms
+2026-10-01T12:17:19.872Z judge        judge memoryPairs in 250 ms
+2026-10-01T12:17:20.059Z judge        judge memoryPairs in 223 ms
+2026-10-01T12:17:20.140Z judge        judge memoryPairs in 269 ms
+2026-10-01T12:17:20.404Z judge        judge memoryPairs in 260 ms
+2026-10-01T12:17:20.406Z judge        judge memoryPairs in 261 ms
+2026-10-01T12:17:20.636Z judge        judge memoryPairs in 230 ms
+2026-10-01T12:17:20.670Z judge        judge memoryPairs in 267 ms
+2026-10-01T12:17:20.890Z judge        judge memoryPairs in 256 ms
+2026-10-01T12:17:20.940Z judge        judge memoryPairs in 271 ms
+2026-10-01T12:17:21.134Z judge        judge memoryPairs in 245 ms
+2026-10-01T12:17:21.156Z judge        judge memoryPairs in 217 ms
+2026-10-01T12:17:21.471Z judge        judge memoryPairs in 313 ms
+2026-10-01T12:17:21.489Z judge        judge memoryPairs in 331 ms
+2026-10-01T12:17:21.720Z judge        judge memoryPairs in 252 ms
+2026-10-01T12:17:21.762Z judge        judge memoryPairs in 274 ms
+2026-10-01T12:17:21.946Z judge        judge memoryPairs in 226 ms
+2026-10-01T12:17:22.480Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:17:41.675Z payload      7 story blocks injected (generation)
+2026-10-01T12:17:41.777Z payload      8 story blocks injected (generation)
+2026-10-01T12:17:42.785Z judge        judge lore in 405 ms
+2026-10-01T12:17:42.796Z judge        judge lore in 410 ms
+2026-10-01T12:17:43.088Z judge        judge lore in 296 ms
+2026-10-01T12:17:43.095Z judge        judge lore in 316 ms
+2026-10-01T12:17:43.334Z judge        judge lore in 248 ms
+2026-10-01T12:17:43.626Z judge        judge director in 268 ms
+2026-10-01T12:17:43.627Z talk         Dalan speaks (judge)
+2026-10-01T12:17:47.033Z payload      8 story blocks injected (generation)
+2026-10-01T12:18:14.830Z boundary     applied location=wendhope_gate, tension_current=0.4441785936648207; discarded location=wendhope_gate, tension_current=0.38607876258126683, inside_wendhope=false, sundown_outside=false, location=wendhope_gate, tension_current=0.4202551338068867 (superseded)
+2026-10-01T12:18:15.284Z payload      6 story blocks injected (generation)
+2026-10-01T12:18:15.705Z judge        judge director in 885 ms
+2026-10-01T12:18:15.706Z talk         silence speaks (judge)
+2026-10-01T12:18:17.138Z judge        judge typed in 1625 ms
+2026-10-01T12:18:17.185Z judge        judge scene in 1482 ms
+2026-10-01T12:18:22.471Z judge        judge warden fell back (timeout) in 5341 ms
+2026-10-01T12:19:26.905Z payload      7 story blocks injected (generation)
+2026-10-01T12:19:27.108Z payload      8 story blocks injected (generation)
+2026-10-01T12:19:28.514Z judge        judge lore in 405 ms
+2026-10-01T12:19:28.531Z judge        judge lore in 408 ms
+2026-10-01T12:19:28.829Z judge        judge lore in 322 ms
+2026-10-01T12:19:28.838Z judge        judge lore in 315 ms
+2026-10-01T12:19:29.081Z judge        judge lore in 253 ms
+2026-10-01T12:19:29.358Z talk         Adolion Narrator speaks (judge)
+2026-10-01T12:19:29.358Z judge        judge director in 254 ms
+2026-10-01T12:19:57.974Z payload      8 story blocks injected (generation)
+2026-10-01T12:20:01.990Z payload      8 story blocks injected (generation)
+2026-10-01T12:20:04.914Z boundary     boundary 32: nothing applied (gate)
+2026-10-01T12:20:05.861Z judge        judge director in 957 ms
+2026-10-01T12:20:05.862Z talk         silence speaks (judge)
+2026-10-01T12:20:06.789Z judge        judge typed in 1281 ms
+2026-10-01T12:20:06.814Z judge        judge scene in 955 ms
+2026-10-01T12:20:08.265Z judge        judge warden in 1479 ms
+2026-10-01T12:20:08.755Z judge        judge typed in 245 ms
+2026-10-01T12:20:08.755Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:13.736Z delta        queued inside_wendhope=true, location=wendhope, tension_current=0.46092501556537446 for the next boundary
+2026-10-01T12:20:13.862Z judge        judge memoryVerify in 321 ms
+2026-10-01T12:20:14.986Z delta        queued inside_wendhope=true, location=wendhope, tension_current=0.46092501556537446 for the next boundary
+2026-10-01T12:20:13.534Z extraction   read cue:at-the-walls->first-night msgs 51-58 → 3 accepted, 0 rejected
+2026-10-01T12:20:13.534Z delta        inside_wendhope = true
+2026-10-01T12:20:13.534Z delta        location = wendhope
+2026-10-01T12:20:13.534Z delta        tension_current = 0.46092501556537446
+2026-10-01T12:20:13.534Z delta        queued inside_wendhope=true, location=wendhope, tension_current=0.46092501556537446 for the next boundary
+2026-10-01T12:20:13.534Z audit        audit cue:at-the-walls->first-night msgs 51-58 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, party_rank, sundown_outside, tension_current] → 3 accepted, 0 rejected
+2026-10-01T12:20:15.833Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:18.267Z judge        judge typed in 0 ms
+2026-10-01T12:20:18.267Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:18.327Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:22.824Z delta        queued inside_wendhope=true, location=wendhope for the next boundary
+2026-10-01T12:20:23.199Z judge        judge curatorFilter in 674 ms
+2026-10-01T12:20:23.211Z judge        judge memoryVerify in 626 ms
+2026-10-01T12:20:24.011Z delta        queued inside_wendhope=true, location=wendhope for the next boundary
+2026-10-01T12:20:22.580Z extraction   read cue:at-the-walls->outside-at-sundown msgs 51-58 → 2 accepted, 0 rejected
+2026-10-01T12:20:22.580Z delta        inside_wendhope = true
+2026-10-01T12:20:22.580Z delta        location = wendhope
+2026-10-01T12:20:22.580Z delta        queued inside_wendhope=true, location=wendhope for the next boundary
+2026-10-01T12:20:22.580Z audit        audit cue:at-the-walls->outside-at-sundown msgs 51-58 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, party_rank, sundown_outside, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:20:23.200Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:25.697Z stagecraft   World Info curator proposed 2 change(s) at Hold, Wendhope Is Closed
+2026-10-01T12:20:26.311Z judge        judge typed in 0 ms
+2026-10-01T12:20:27.137Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:26.312Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:30.674Z extraction   read scene:judge msgs 51-58 → 2 accepted, 0 rejected
+2026-10-01T12:20:30.674Z delta        inside_wendhope = true
+2026-10-01T12:20:30.674Z delta        location = wendhope
+2026-10-01T12:20:30.674Z delta        queued inside_wendhope=true, location=wendhope for the next boundary
+2026-10-01T12:20:30.959Z judge        judge memoryVerify in 272 ms
+2026-10-01T12:20:30.674Z audit        audit scene:judge msgs 51-58 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, party_rank, sundown_outside, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:20:28.927Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:32.840Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:34.852Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:35.617Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:36.425Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:39.138Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:41.751Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:20:43.661Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:21:12.672Z session      chat null · story none · at — (boundary 0, 0 messages)
+2026-10-01T12:21:12.358Z status       No story loaded
+2026-10-01T12:21:12.428Z status       No story selected for this chat
+2026-10-01T12:21:32.864Z session      chat 2026-10-01@08h41m13s779ms · story none · at — (boundary 0, 0 messages)
+2026-10-01T12:21:12.358Z status       No story loaded
+2026-10-01T12:21:12.428Z status       No story selected for this chat
+2026-10-01T12:21:34.528Z session      chat 2026-10-01@08h41m13s779ms · story adolion-adventurer · at Hold, Wendhope Is Closed (boundary 32, 59 messages)
+2026-10-01T12:21:34.372Z status       No story selected for this chat
+2026-10-01T12:21:34.507Z story        quality macro skipped
+2026-10-01T12:21:34.507Z story        quality macro skipped
+2026-10-01T12:21:34.507Z story        quality macro skipped
+2026-10-01T12:21:34.507Z story        quality macro skipped
+2026-10-01T12:21:34.507Z story        quality macro skipped
+2026-10-01T12:21:34.507Z story        quality macro skipped
+2026-10-01T12:21:34.508Z story        quality macro skipped
+2026-10-01T12:21:34.508Z story        quality macro skipped
+2026-10-01T12:21:34.508Z story        quality macro skipped
+2026-10-01T12:21:34.508Z story        quality macro skipped
+2026-10-01T12:21:34.508Z story        quality macro skipped
+2026-10-01T12:21:34.508Z story        quality macro skipped
+2026-10-01T12:21:34.508Z story        quality macro skipped
+2026-10-01T12:21:36.000Z story        away recap not due
+2026-10-01T12:21:36.897Z status       Continuing Adolion: The Adventurer's Road
+2026-10-01T12:21:51.980Z payload      7 story blocks injected (generation)
+2026-10-01T12:21:52.051Z payload      8 story blocks injected (generation)
+2026-10-01T12:21:53.181Z judge        judge lore in 400 ms
+2026-10-01T12:21:53.198Z judge        judge lore in 403 ms
+2026-10-01T12:21:53.494Z judge        judge lore in 319 ms
+2026-10-01T12:21:53.615Z judge        judge lore in 424 ms
+2026-10-01T12:21:53.724Z judge        judge lore in 233 ms
+2026-10-01T12:21:53.994Z judge        judge director in 247 ms
+2026-10-01T12:21:53.995Z talk         Dalan speaks (judge)
+2026-10-01T12:21:56.058Z payload      8 story blocks injected (generation)
+2026-10-01T12:22:19.530Z payload      8 story blocks injected (generation)
+2026-10-01T12:22:21.768Z boundary     applied progress_toward_after-the-fog=3
+2026-10-01T12:22:22.168Z status       Following Hold, Wendhope Is Closed
+2026-10-01T12:22:22.460Z reconciliation stall re-check queued for inside_wendhope, sundown_outside
+2026-10-01T12:22:23.160Z judge        judge director in 1406 ms
+2026-10-01T12:22:23.161Z talk         Belle speaks (judge)
+2026-10-01T12:22:23.514Z judge        judge stall in 970 ms
+2026-10-01T12:22:24.248Z payload      7 story blocks injected (generation)
+2026-10-01T12:22:24.309Z judge        judge scene in 1151 ms
+2026-10-01T12:22:24.750Z payload      8 story blocks injected (generation)
+2026-10-01T12:22:24.909Z judge        judge warden in 1398 ms
+2026-10-01T12:22:25.249Z judge        judge typed in 469 ms
+2026-10-01T12:22:25.302Z judge        judge lore in 400 ms
+2026-10-01T12:22:25.577Z judge        judge lore in 333 ms
+2026-10-01T12:22:25.603Z judge        judge lore in 305 ms
+2026-10-01T12:22:25.855Z judge        judge lore in 253 ms
+2026-10-01T12:22:25.899Z judge        judge lore in 327 ms
+2026-10-01T12:22:25.250Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:22:29.181Z delta        queued inside_wendhope=true, location=wendhope for the next boundary
+2026-10-01T12:22:29.301Z judge        judge memoryVerify in 250 ms
+2026-10-01T12:22:30.348Z delta        queued inside_wendhope=true, location=wendhope for the next boundary
+2026-10-01T12:22:29.047Z extraction   read cadence msgs 53-60 → 2 accepted, 0 rejected
+2026-10-01T12:22:29.047Z delta        inside_wendhope = true
+2026-10-01T12:22:29.047Z delta        location = wendhope
+2026-10-01T12:22:29.047Z delta        queued inside_wendhope=true, location=wendhope for the next boundary
+2026-10-01T12:22:29.047Z audit        audit cadence msgs 53-60 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, party_rank, sundown_outside, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:22:32.697Z judge        judge typed in 0 ms
+2026-10-01T12:22:30.844Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:22:32.697Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:22:33.078Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:22:37.667Z delta        queued inside_wendhope=true, location=wendhope, tension_current=0.46092501556537446 for the next boundary
+2026-10-01T12:22:37.920Z judge        judge memoryVerify in 268 ms
+2026-10-01T12:22:38.867Z delta        queued inside_wendhope=true, location=wendhope, tension_current=0.46092501556537446 for the next boundary
+2026-10-01T12:22:37.640Z extraction   read cue:at-the-walls->first-night msgs 53-60 → 3 accepted, 0 rejected
+2026-10-01T12:22:37.640Z delta        inside_wendhope = true
+2026-10-01T12:22:37.640Z delta        location = wendhope
+2026-10-01T12:22:37.640Z delta        tension_current = 0.46092501556537446
+2026-10-01T12:22:37.640Z delta        queued inside_wendhope=true, location=wendhope, tension_current=0.46092501556537446 for the next boundary
+2026-10-01T12:22:37.640Z audit        audit cue:at-the-walls->first-night msgs 53-60 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, party_rank, sundown_outside, tension_current] → 3 accepted, 0 rejected
+2026-10-01T12:22:41.720Z judge        judge typed in 492 ms
+2026-10-01T12:22:41.721Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:22:46.944Z judge        judge memoryVerify in 276 ms
+2026-10-01T12:22:47.358Z delta        queued inside_wendhope=true, location=wendhope, tension_current=0.47264751089576207 for the next boundary
+2026-10-01T12:22:48.499Z delta        queued inside_wendhope=true, location=wendhope, tension_current=0.47264751089576207 for the next boundary
+2026-10-01T12:22:46.662Z extraction   read reconcile:inside_wendhope,sundown_outside msgs 47-60 → 3 accepted, 0 rejected
+2026-10-01T12:22:46.662Z delta        inside_wendhope = true
+2026-10-01T12:22:46.662Z delta        location = wendhope
+2026-10-01T12:22:46.662Z delta        tension_current = 0.47264751089576207
+2026-10-01T12:22:46.662Z delta        queued inside_wendhope=true, location=wendhope, tension_current=0.47264751089576207 for the next boundary
+2026-10-01T12:22:49.352Z reconciliation stall re-check resolved (3 evidence)
+2026-10-01T12:22:46.662Z audit        audit reconcile:inside_wendhope,sundown_outside msgs 47-60 scope [evidence, guild_reputation, inside_wendhope, knows_spirit, location, party_injuries, party_rank, sundown_outside, tension_current] → 3 accepted, 0 rejected
+2026-10-01T12:22:49.876Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:22:51.513Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:22:54.660Z model-call   director via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:22:54.905Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:22:55.044Z boundary     applied inside_wendhope=true, location=wendhope, tension_current=0.47264751089576207, progress_toward_after-the-fog=4; discarded inside_wendhope=true, location=wendhope, inside_wendhope=true, location=wendhope, tension_current=0.46092501556537446 (superseded)
+2026-10-01T12:22:55.044Z transition   at-the-walls → first-night
+2026-10-01T12:22:55.578Z talk         Adolion Narrator speaks (director)
+2026-10-01T12:22:56.163Z payload      7 story blocks injected (generation)
+2026-10-01T12:22:56.423Z payload      8 story blocks injected (generation)
+2026-10-01T12:22:56.958Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:22:59.251Z judge        judge lore fell back (timeout) in 1513 ms
+2026-10-01T12:22:59.259Z judge        judge lore fell back (timeout) in 1504 ms
+2026-10-01T12:22:59.765Z status       Moved into The Red Fog
+2026-10-01T12:23:00.581Z judge        judge lore in 274 ms
+2026-10-01T12:23:00.612Z judge        judge lore in 316 ms
+2026-10-01T12:23:00.805Z judge        judge lore in 225 ms
+2026-10-01T12:23:01.085Z judge        judge typed in 474 ms
+2026-10-01T12:23:01.089Z judge        judge scene in 286 ms
+2026-10-01T12:22:59.750Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:23:04.352Z judge        judge warden in 3269 ms
+2026-10-01T12:23:04.354Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T12:23:05.901Z judge        judge typed in 304 ms
+2026-10-01T12:23:05.901Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:23:09.962Z delta        queued location=wendhope, tension_current=0.48085325762703346 for the next boundary
+2026-10-01T12:23:10.199Z judge        judge memoryVerify in 275 ms
+2026-10-01T12:23:11.117Z delta        queued location=wendhope, tension_current=0.48085325762703346 for the next boundary
+2026-10-01T12:23:09.920Z extraction   read scene:location msgs 54-61 → 2 accepted, 0 rejected
+2026-10-01T12:23:09.920Z delta        location = wendhope
+2026-10-01T12:23:09.920Z delta        tension_current = 0.48085325762703346
+2026-10-01T12:23:09.920Z delta        queued location=wendhope, tension_current=0.48085325762703346 for the next boundary
+2026-10-01T12:23:09.920Z audit        audit scene:location msgs 54-61 scope [assault_begun, evidence, guild_reputation, knows_spirit, location, party_injuries, party_rank, survived_first_night, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:23:12.828Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:23:14.681Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:23:16.361Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:23:27.732Z boundary     applied location=wendhope, tension_current=0.48085325762703346
+2026-10-01T12:23:28.174Z status       Following The Red Fog
+2026-10-01T12:23:29.088Z judge        judge scene in 671 ms
+2026-10-01T12:23:29.129Z judge        judge typed in 714 ms
+2026-10-01T12:23:29.543Z judge        judge warden in 457 ms
+2026-10-01T12:23:49.281Z payload      7 story blocks injected (generation)
+2026-10-01T12:23:49.358Z payload      8 story blocks injected (generation)
+2026-10-01T12:23:50.293Z judge        judge lore in 439 ms
+2026-10-01T12:23:50.305Z judge        judge lore in 446 ms
+2026-10-01T12:23:50.596Z judge        judge lore in 297 ms
+2026-10-01T12:23:50.635Z judge        judge lore in 348 ms
+2026-10-01T12:23:50.820Z judge        judge lore in 225 ms
+2026-10-01T12:23:51.066Z talk         Adolion Narrator speaks (judge)
+2026-10-01T12:23:51.066Z judge        judge director in 224 ms
+2026-10-01T12:23:52.199Z payload      8 story blocks injected (generation)
+2026-10-01T12:23:53.692Z payload      8 story blocks injected (generation)
+2026-10-01T12:24:20.045Z boundary     boundary 36: nothing applied (gate)
+2026-10-01T12:24:20.241Z payload      6 story blocks injected (generation)
+2026-10-01T12:24:21.588Z judge        judge director in 1241 ms
+2026-10-01T12:24:21.592Z talk         silence speaks (judge)
+2026-10-01T12:24:21.981Z judge        judge scene in 818 ms
+2026-10-01T12:24:23.255Z judge        judge warden in 1672 ms
+2026-10-01T12:24:23.256Z stagecraft   Continuity warden flagged Adolion Narrator's reply
+2026-10-01T12:24:24.106Z judge        judge typed in 243 ms
+2026-10-01T12:24:24.106Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:24:28.691Z judge        judge memoryVerify in 293 ms
+2026-10-01T12:24:29.491Z delta        queued location=wendhope, tension_current=0.48659728033892335 for the next boundary
+2026-10-01T12:24:28.395Z extraction   read cadence msgs 61-65 → 2 accepted, 0 rejected
+2026-10-01T12:24:28.395Z delta        location = wendhope
+2026-10-01T12:24:28.395Z delta        tension_current = 0.48659728033892335
+2026-10-01T12:24:28.395Z delta        queued location=wendhope, tension_current=0.48659728033892335 for the next boundary
+2026-10-01T12:24:28.395Z audit        audit cadence msgs 61-65 scope [assault_begun, evidence, guild_reputation, knows_spirit, location, party_injuries, party_rank, survived_first_night, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:24:33.191Z judge        judge typed in 294 ms
+2026-10-01T12:24:33.191Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:24:37.976Z judge        judge memoryVerify in 272 ms
+2026-10-01T12:24:38.778Z delta        queued location=wendhope, tension_current=0.4906180962372463 for the next boundary
+2026-10-01T12:24:37.696Z extraction   read cue:first-night->the-breach msgs 58-65 → 2 accepted, 0 rejected
+2026-10-01T12:24:37.696Z delta        location = wendhope
+2026-10-01T12:24:37.696Z delta        tension_current = 0.4906180962372463
+2026-10-01T12:24:37.696Z delta        queued location=wendhope, tension_current=0.4906180962372463 for the next boundary
+2026-10-01T12:24:37.696Z audit        audit cue:first-night->the-breach msgs 58-65 scope [assault_begun, evidence, guild_reputation, knows_spirit, location, party_injuries, party_rank, survived_first_night, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:24:42.180Z judge        judge curatorFilter in 1429 ms
+2026-10-01T12:24:42.195Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:24:43.142Z stagecraft   World Info curator proposed 1 change(s) at The Red Fog
+2026-10-01T12:24:42.733Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:24:46.130Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:24:48.110Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:24:52.600Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:25:10.533Z payload      7 story blocks injected (generation)
+2026-10-01T12:25:10.622Z payload      8 story blocks injected (generation)
+2026-10-01T12:25:11.732Z judge        judge lore in 403 ms
+2026-10-01T12:25:11.752Z judge        judge lore in 417 ms
+2026-10-01T12:25:12.073Z judge        judge lore in 348 ms
+2026-10-01T12:25:12.085Z judge        judge lore in 339 ms
+2026-10-01T12:25:12.311Z judge        judge lore in 243 ms
+2026-10-01T12:25:12.572Z judge        judge director in 234 ms
+2026-10-01T12:25:12.573Z talk         Dalan speaks (judge)
+2026-10-01T12:25:15.167Z payload      8 story blocks injected (generation)
+2026-10-01T12:25:47.213Z boundary     applied location=wendhope, tension_current=0.4906180962372463; discarded location=wendhope, tension_current=0.48659728033892335 (superseded)
+2026-10-01T12:25:47.382Z talk         Adolion Narrator speaks (judge)
+2026-10-01T12:25:47.382Z judge        judge director in 403 ms
+2026-10-01T12:25:48.786Z payload      7 story blocks injected (generation)
+2026-10-01T12:25:49.196Z payload      8 story blocks injected (generation)
+2026-10-01T12:25:49.517Z judge        judge scene in 1487 ms
+2026-10-01T12:25:49.710Z judge        judge typed in 1682 ms
+2026-10-01T12:25:50.573Z judge        judge warden in 1059 ms
+2026-10-01T12:25:50.574Z stagecraft   Warden flagged Dalan's reply (house-rule)
+2026-10-01T12:25:50.584Z judge        judge typed in 875 ms
+2026-10-01T12:25:51.024Z judge        judge lore in 457 ms
+2026-10-01T12:25:51.033Z judge        judge lore in 454 ms
+2026-10-01T12:25:51.321Z judge        judge lore in 292 ms
+2026-10-01T12:25:51.380Z judge        judge lore in 362 ms
+2026-10-01T12:25:51.575Z judge        judge lore in 255 ms
+2026-10-01T12:25:50.584Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:25:55.155Z judge        judge memoryVerify in 241 ms
+2026-10-01T12:25:55.620Z delta        queued location=wendhope_wall, tension_current=0.4934326673660724 for the next boundary
+2026-10-01T12:25:56.938Z delta        queued location=wendhope_wall, tension_current=0.4934326673660724 for the next boundary
+2026-10-01T12:25:54.910Z extraction   read cue:first-night->the-breach msgs 60-67 → 2 accepted, 0 rejected
+2026-10-01T12:25:54.910Z delta        location = wendhope_wall
+2026-10-01T12:25:54.910Z delta        tension_current = 0.4934326673660724
+2026-10-01T12:25:54.910Z delta        queued location=wendhope_wall, tension_current=0.4934326673660724 for the next boundary
+2026-10-01T12:25:54.910Z audit        audit cue:first-night->the-breach msgs 60-67 scope [assault_begun, evidence, guild_reputation, knows_spirit, location, party_injuries, party_rank, survived_first_night, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:25:58.875Z judge        judge typed in 0 ms
+2026-10-01T12:25:58.875Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:26:02.763Z judge        judge memoryVerify in 278 ms
+2026-10-01T12:26:03.223Z delta        queued location=wendhope_wall, tension_current=0.4954028671562506 for the next boundary
+2026-10-01T12:26:02.483Z extraction   read cue:first-night->what-wendhope-knows msgs 60-67 → 2 accepted, 0 rejected
+2026-10-01T12:26:02.483Z delta        location = wendhope_wall
+2026-10-01T12:26:02.483Z delta        tension_current = 0.4954028671562506
+2026-10-01T12:26:02.483Z delta        queued location=wendhope_wall, tension_current=0.4954028671562506 for the next boundary
+2026-10-01T12:26:02.483Z audit        audit cue:first-night->what-wendhope-knows msgs 60-67 scope [assault_begun, evidence, guild_reputation, knows_spirit, location, party_injuries, party_rank, survived_first_night, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:26:05.135Z judge        judge typed in 0 ms
+2026-10-01T12:26:05.135Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:26:10.527Z delta        queued location=wendhope_wall, tension_current=0.49678200700937536 for the next boundary
+2026-10-01T12:26:10.227Z extraction   read scene:time_skip msgs 60-67 → 2 accepted, 0 rejected
+2026-10-01T12:26:10.227Z delta        location = wendhope_wall
+2026-10-01T12:26:10.227Z delta        tension_current = 0.49678200700937536
+2026-10-01T12:26:10.227Z delta        queued location=wendhope_wall, tension_current=0.49678200700937536 for the next boundary
+2026-10-01T12:26:10.596Z judge        judge memoryVerify in 365 ms
+2026-10-01T12:26:10.227Z audit        audit scene:time_skip msgs 60-67 scope [assault_begun, evidence, guild_reputation, knows_spirit, location, party_injuries, party_rank, survived_first_night, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:26:12.971Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:26:15.347Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:26:17.466Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:26:22.078Z boundary     applied location=wendhope_wall, tension_current=0.49678200700937536; discarded location=wendhope_wall, tension_current=0.4934326673660724, location=wendhope_wall, tension_current=0.4954028671562506 (superseded)
+2026-10-01T12:26:22.060Z model-call   director via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:26:23.765Z talk         Belle speaks (director)
+2026-10-01T12:26:24.559Z judge        judge typed in 1154 ms
+2026-10-01T12:26:24.575Z judge        judge scene in 1168 ms
+2026-10-01T12:26:24.637Z payload      8 story blocks injected (generation)
+2026-10-01T12:26:25.640Z payload      9 story blocks injected (generation)
+2026-10-01T12:26:25.945Z judge        judge typed in 1380 ms
+2026-10-01T12:26:25.985Z judge        judge warden in 1433 ms
+2026-10-01T12:26:26.510Z judge        judge lore in 570 ms
+2026-10-01T12:26:26.526Z judge        judge lore in 547 ms
+2026-10-01T12:26:26.829Z judge        judge lore in 325 ms
+2026-10-01T12:26:26.838Z judge        judge lore in 318 ms
+2026-10-01T12:26:27.106Z judge        judge lore in 280 ms
+2026-10-01T12:26:25.946Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:26:30.615Z delta        queued location=wendhope_wall, tension_current=0.4977474049065628 for the next boundary
+2026-10-01T12:26:30.691Z judge        judge memoryVerify in 478 ms
+2026-10-01T12:26:31.785Z delta        queued location=wendhope_wall, tension_current=0.4977474049065628 for the next boundary
+2026-10-01T12:26:30.210Z extraction   read cue:first-night->the-breach msgs 61-68 → 2 accepted, 0 rejected
+2026-10-01T12:26:30.210Z delta        location = wendhope_wall
+2026-10-01T12:26:30.210Z delta        tension_current = 0.4977474049065628
+2026-10-01T12:26:30.210Z delta        queued location=wendhope_wall, tension_current=0.4977474049065628 for the next boundary
+2026-10-01T12:26:30.210Z audit        audit cue:first-night->the-breach msgs 61-68 scope [assault_begun, evidence, guild_reputation, knows_spirit, location, party_injuries, party_rank, survived_first_night, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:26:35.000Z judge        judge typed in 0 ms
+2026-10-01T12:26:35.000Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:26:38.882Z judge        judge memoryVerify in 257 ms
+2026-10-01T12:26:39.483Z delta        queued location=wendhope_wall, tension_current=0.4984231834345939 for the next boundary
+2026-10-01T12:26:38.621Z extraction   read scene:location msgs 61-68 → 2 accepted, 0 rejected
+2026-10-01T12:26:38.621Z delta        location = wendhope_wall
+2026-10-01T12:26:38.621Z delta        tension_current = 0.4984231834345939
+2026-10-01T12:26:38.621Z delta        queued location=wendhope_wall, tension_current=0.4984231834345939 for the next boundary
+2026-10-01T12:26:38.621Z audit        audit scene:location msgs 61-68 scope [assault_begun, evidence, guild_reputation, knows_spirit, location, party_injuries, party_rank, survived_first_night, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:26:41.142Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:26:43.402Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:26:57.446Z boundary     applied location=wendhope_wall, tension_current=0.4984231834345939; discarded location=wendhope_wall, tension_current=0.4977474049065628 (superseded)
+2026-10-01T12:27:00.459Z judge        judge scene in 1323 ms
+2026-10-01T12:27:00.561Z judge        judge warden in 1423 ms
+2026-10-01T12:27:00.564Z stagecraft   Warden flagged Belle's reply (house-rule)
+2026-10-01T12:27:01.323Z judge        judge typed in 868 ms
+2026-10-01T12:27:01.887Z flag         Dalan's reply (msg 67) ends with a leaked bracket: '[Scene direction: The first night on Wendhope's walls. The red fog rolls in from Needlehaven. The Screechers arrive... Some die. They bubble and fade. The fog thins by dawn.]' - stage directions and spoilers (Screechers, Needlehaven, how the night ends) shown to the player in chat.
+2026-10-01T12:27:01.324Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:27:06.502Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:27:10.168Z extraction   read cadence msgs 66-69 → 2 accepted, 0 rejected
+2026-10-01T12:27:10.168Z delta        location = wendhope_wall
+2026-10-01T12:27:10.168Z delta        tension_current = 0.4238962284042157
+2026-10-01T12:27:10.168Z delta        queued location=wendhope_wall, tension_current=0.4238962284042157 for the next boundary
+2026-10-01T12:27:10.434Z judge        judge memoryVerify in 261 ms
+2026-10-01T12:27:10.168Z audit        audit cadence msgs 66-69 scope [assault_begun, evidence, guild_reputation, knows_spirit, location, party_injuries, party_rank, survived_first_night, tension_current] → 2 accepted, 0 rejected
+2026-10-01T12:27:12.434Z judge        judge typed in 268 ms
+2026-10-01T12:27:12.435Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-01T12:27:16.446Z judge        judge memoryVerify in 252 ms
+2026-10-01T12:27:17.404Z delta        queued location=wendhope_wall, tension_current=0.446727359882951 for the next boundary
+2026-10-01T12:27:16.187Z extraction   read cue:first-night->the-breach msgs 62-69 → 2 accepted, 0 rejected
+2026-10-01T12:27:16.187Z delta        location = wendhope_wall
+2026-10-01T12:27:16.187Z delta        tension_current = 0.446727359882951
+2026-10-01T12:27:16.187Z delta        queued location=wendhope_wall, tension_current=0.446727359882951 for the next boundary
+2026-10-01T12:27:16.187Z audit        audit cue:first-night->the-breach msgs 62-69 scope [assault_begun, evidence, guild_reputation, knows_spirit, location, party_injuries, party_rank, survived_first_night, tension_current] → 2 accepted, 0 rejected
+
+Stopped after 1123 events and 40 audits.

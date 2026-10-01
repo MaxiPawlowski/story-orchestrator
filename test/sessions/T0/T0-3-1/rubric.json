@@ -1,0 +1,275 @@
+{
+  "charter": "T0-3",
+  "title": "First slips",
+  "session": {
+    "dir": "test/sessions/T0/T0-3-1",
+    "lane": 3,
+    "startedAt": "2026-10-01T11:41:15.363Z",
+    "media": "full"
+  },
+  "scores": [
+    "works",
+    "annoying",
+    "broken",
+    "not-noticed"
+  ],
+  "rows": [
+    {
+      "feature": "rollback on swipe",
+      "score": "annoying",
+      "note": "[session marked INVALID only by run-header build drift: master merged d444cd7f + dist rebuilt mid-session; served bundle ceb15ac unchanged start->end] New swipe of Tobias mes 4 (the reply that moved us): story stepped back to Guild Hall and the new swipe re-earned The Road North at boundary 3 (turns.jsonl:9). Two problems: the transition chat note sat below the reply so it could not be swiped until I deleted the note (flag, turns.jsonl:4, shots/003); swiping BACK to the first version stepped back to Guild Hall and stayed there with party name/path only pending until my next turn (manual-swipe-left.json, flag turns.jsonl:12, shots/011); re-earned on next turn (turns.jsonl:13).",
+      "evidence": [
+        "turns.jsonl:9"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T12:06:05.131Z"
+    },
+    {
+      "feature": "rollback on edit",
+      "score": "works",
+      "note": "[session marked INVALID only by run-header build drift: master merged d444cd7f + dist rebuilt mid-session; served bundle ceb15ac unchanged start->end] Edited accepting line mes 1 into a refusal: rewound boundary 3->1 to The Guild Hall, path dropped (party_name kept, still named in mes 2/3), step-back notice shown (turns.jsonl:14); regenerate kept it at Guild Hall (turns.jsonl:15, shots/017). Not further back than the edit. Caveat: re-accepting afterwards never moved the story again (see findings: commit_evidence hold), and regenerate with the stale note last appended a second reply instead of replacing (flag turns.jsonl:16).",
+      "evidence": [
+        "turns.jsonl:14"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T12:06:06.005Z"
+    },
+    {
+      "feature": "rollback on delete",
+      "score": "works",
+      "note": "[session marked INVALID only by run-header build drift: master merged d444cd7f + dist rebuilt mid-session; served bundle ceb15ac unchanged start->end] Delete last reply mes 15: its 2 memory facts and pending location=north_road delta removed, chip gone, no rewind (boundary 6 kept, its deltas were read before mes 15) (turns.jsonl:22). Two in a row (mes 14 then 13): 14 no-op, 13 rewound exactly to boundary 4 (lastMessageId 12), no facts from 13 left (turns.jsonl:23-24, shots/025). Deleting the transition note never rewound (turns.jsonl:5,10). No undeleted message disappeared.",
+      "evidence": [
+        "turns.jsonl:22"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T12:06:06.996Z"
+    },
+    {
+      "feature": "step-back notice",
+      "score": "annoying",
+      "note": "[session marked INVALID only by run-header build drift: master merged d444cd7f + dist rebuilt mid-session; served bundle ceb15ac unchanged start->end] Notice 'The story stepped back to The Adventurer's Guild, Aegis City to match your edit.' + HUD 'stepped back' appear on edit (turns.jsonl:14). But it says 'your edit' after a swipe (manual-swipe-left.json) and after a delete (turns.jsonl:24), and on delete of mes 13 it fired although the checkpoint did not change (Guild Hall->Guild Hall), which reads as if something moved. On a new swipe that re-earns the move it never shows (turns.jsonl:9 notice null). The stale 'The Road North' chat note stays in chat after the step-back (mes 7, shots/017).",
+      "evidence": [
+        "turns.jsonl:24"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T12:06:08.076Z"
+    },
+    {
+      "feature": "timeline follows mutations",
+      "score": "works",
+      "note": "[session marked INVALID only by run-header build drift: master merged d444cd7f + dist rebuilt mid-session; served bundle ceb15ac unchanged start->end] Chips follow the text: chip under deleted mes 15 gone (turns.jsonl:22), chips under the regenerated Dalan/Belle replies re-rendered for the new text and memory facts for mes 13 all evidence the surviving version (turns.jsonl:26-27). Not a chip but adjacent: the transition chat note (a real ST message) is not removed when the story steps back.",
+      "evidence": [
+        "turns.jsonl:22"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-01T12:06:09.079Z"
+    }
+  ],
+  "playerClean": {
+    "at": "2026-10-01T12:05:02.498Z",
+    "ok": false,
+    "tabs": [
+      "Overview",
+      "Memory"
+    ],
+    "surfaces": [
+      "#drawer-manager",
+      "#so-hud",
+      "#story-orchestrator-settings"
+    ],
+    "selectorsChecked": 111,
+    "findings": [
+      {
+        "tab": "Overview",
+        "needle": "#drawer-manager [title] carries \"blackboard\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"quality\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"quality\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#drawer-manager [title] carries \"blackboard\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"quality\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"quality\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"World Info curator\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [title] carries \"checkpoint\""
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings [aria-label] carries \"checkpoint\""
+      },
+      {
+        "tab": "Overview",
+        "needle": "#story-orchestrator-settings: World Info curator"
+      },
+      {
+        "tab": "Memory",
+        "needle": "#story-orchestrator-settings: World Info curator"
+      }
+    ],
+    "sweep": [],
+    "recoveryControls": []
+  }
+}
