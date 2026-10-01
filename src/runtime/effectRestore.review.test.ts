@@ -189,3 +189,76 @@ describe("V15b: every checkpoint effect goes through the ledger", () => {
     expect(host.calls).toEqual(["an:clear"]);
   });
 });
+
+describe("item 7: leaving the 125-member Saga puts the whole start cast back in one group write", () => {
+  const saga = ["Domas.png", "Rydel.png", ...Array.from({ length: 117 }, (_, index) => `m${index}.png`)];
+  const sagaRows = () => saga.map((member, index) => castRow(`c${index}`, member, false, true, 0));
+
+  const sagaHarness = (writesBeforeTheLeaveIsCut: number) => {
+    const h = harness();
+    let writes = 0;
+    const batches: Array<Array<{ member: string; disabled: boolean }>> = [];
+    const applier = new EffectsApplier(testOwnership(), {
+      reads: { read: (target) => (target.kind === "cast" ? { disabled: host.group.disabled_members.includes(target.member) } : null) },
+      restore: async (row) => {
+        writes += 1;
+        if (writes > writesBeforeTheLeaveIsCut) return new Promise<boolean>(() => {});
+        h.restored.push(row);
+        host.group.disabled_members = host.group.disabled_members.filter((member) => member !== (row.target as { member: string }).member);
+        return true;
+      },
+      restoreCast: async (group, flags) => {
+        writes += 1;
+        if (writes > writesBeforeTheLeaveIsCut) return new Promise<boolean>(() => {});
+        batches.push(flags);
+        const disabled = new Set(host.group.disabled_members);
+        for (const { member, disabled: off } of flags) (off ? disabled.add(member) : disabled.delete(member));
+        host.group = { id: group, disabled_members: [...disabled] };
+        return true;
+      },
+      persist: async () => {},
+    });
+    return { applier, batches };
+  };
+
+  it("one write restores all 119, Domas and Rydel (the first two the checkpoint disabled) included, so a leave cut short after it leaves nothing behind", async () => {
+    host.group.disabled_members = [...saga];
+    const { applier, batches } = sagaHarness(1);
+    const extras = extrasFor(sagaRows());
+    const outcome = await applier.restoreEffects(extras, extras.effects.ledger, false);
+    expect(batches).toHaveLength(1);
+    expect(batches[0]).toHaveLength(119);
+    expect(outcome.reverted).toBe(119);
+    expect(host.group.disabled_members).toEqual([]);
+    expect(extras.effects.ledger.every((row) => row.status === "reverted")).toBe(true);
+  });
+
+  it("a refused row (another chat changed it) stays out of the batch; a failed batch marks every row it carried", async () => {
+    host.group.disabled_members = saga.filter((member) => member !== "Rydel.png");
+    const { applier, batches } = sagaHarness(1);
+    const extras = extrasFor(sagaRows());
+    await applier.restoreEffects(extras, extras.effects.ledger, false);
+    expect(batches[0].map((flag) => flag.member)).not.toContain("Rydel.png");
+    expect(extras.effects.ledger.find((row) => row.target.kind === "cast" && row.target.member === "Rydel.png")?.status).toBe("externally-changed");
+
+    host.group.disabled_members = [...saga];
+    const failing = new EffectsApplier(testOwnership(), {
+      reads: { read: (target) => (target.kind === "cast" ? { disabled: host.group.disabled_members.includes(target.member) } : null) },
+      restore: async () => true,
+      restoreCast: async () => false,
+      persist: async () => {},
+    });
+    const again = extrasFor(sagaRows());
+    expect((await failing.restoreEffects(again, again.effects.ledger, false)).reverted).toBe(0);
+    expect(again.effects.ledger.every((row) => row.status === "revert-failed")).toBe(true);
+  });
+
+  it("control: without a batch seam the per-row restore still runs (one write per member, newest first)", async () => {
+    host.group.disabled_members = [...saga];
+    const h = harness();
+    const extras = extrasFor(sagaRows());
+    await h.applier.restoreEffects(extras, extras.effects.ledger, false);
+    expect(h.restored).toHaveLength(119);
+    expect(h.restored.slice(-2).map((row) => (row.target as { member: string }).member)).toEqual(["Rydel.png", "Domas.png"]);
+  });
+});

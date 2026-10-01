@@ -172,6 +172,29 @@ export function restorePlan(rows: EffectLedgerRow[], reads: ReconcileReads): { s
   return { steps, refused };
 }
 
+export interface CastRestoreBatch {
+  group: string;
+  flags: Array<{ member: string; disabled: boolean }>;
+  rows: EffectLedgerRow[];
+}
+
+export function castRestoreBatches(steps: RestoreStep[], batching: boolean): { batches: CastRestoreBatch[]; rest: RestoreStep[] } {
+  if (!batching) return { batches: [], rest: steps };
+  const groups = new Map<string, { flags: Map<string, boolean>; rows: EffectLedgerRow[] }>();
+  const rest: RestoreStep[] = [];
+  for (const step of steps) {
+    const { target } = step.row;
+    const disabled = step.restoreTo?.disabled;
+    if (target.kind !== "cast" || typeof disabled !== "boolean") { rest.push(step); continue; }
+    const batch = groups.get(target.group) ?? { flags: new Map<string, boolean>(), rows: [] };
+    batch.flags.set(target.member, disabled);
+    batch.rows.push(step.row);
+    groups.set(target.group, batch);
+  }
+  const batches = [...groups].map(([group, batch]) => ({ group, flags: [...batch.flags].map(([member, disabled]) => ({ member, disabled })), rows: batch.rows }));
+  return { batches, rest };
+}
+
 /**
  * The rows a rollback from `messageId` withdraws: everything this chat applied AT or after the edited
  * message — an effect fired on that message's boundary was caused by text that no longer exists.

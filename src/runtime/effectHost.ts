@@ -1,4 +1,4 @@
-import { applyBackground, applyCharacterAN, clearCharacterAN, getCurrentBackground, setGroupMemberDisabled, readGroupMemberDisabled } from "@services/STAPI";
+import { applyBackground, applyCharacterAN, clearCharacterAN, getCurrentBackground, setGroupMemberDisabled, setGroupMemberFlags, readGroupMemberDisabled } from "@services/STAPI";
 import { reconcileLedger } from "./effectLedger";
 import { effectExtension } from "./effectExtensions";
 import { samplerOverlay } from "./samplerOverlay";
@@ -57,6 +57,10 @@ export function reconcileEffectLedger(rows: EffectLedgerRow[]): { rows: EffectLe
  * A refusal is honest rather than silent: `ok: false` leaves the row `revert-failed` with its
  * before-image, and the author sees which change would not go back.
  */
+export async function restoreCastFlags(group: string, flags: Array<{ member: string; disabled: boolean }>): Promise<boolean> {
+  return (await setGroupMemberFlags(group, flags)).ok;
+}
+
 export async function restoreEffectTarget(row: EffectLedgerRow): Promise<boolean> {
   switch (row.target.kind) {
     case "cast": {

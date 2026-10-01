@@ -99,7 +99,18 @@ const NARRATOR_TAGS: EpistemicTag[] = ["hiding", "intends", "knows"];
 
 export const NARRATOR_HEADER = "What the cast privately holds (use this to foreshadow; reveal nothing a character conceals unless the scene reveals it):";
 
-export const renderNarratorBlock = (entries: EpistemicEntry[], voices: CastVoice[], self: string): string => {
+export const NARRATOR_SELF_VOICED = "These characters speak and act for themselves on their own turns; never write their words or choices:";
+export const NARRATOR_NAMED_FIRST = "Voice anyone else the scene needs, and when the story already names someone who fits, use them rather than inventing a stranger.";
+
+const renderSelfVoiced = (voices: CastVoice[], self: string): string => {
+  const names = voices.filter((voice) => voice.selfVoiced && voice.id !== self).map((voice) => voice.name);
+  return names.length ? `${NARRATOR_SELF_VOICED} ${names.join(", ")}.\n${NARRATOR_NAMED_FIRST}` : "";
+};
+
+export const renderNarratorBlock = (entries: EpistemicEntry[], voices: CastVoice[], self: string): string =>
+  joinBlocks(renderSelfVoiced(voices, self), renderNarratorHoldings(entries, voices, self));
+
+const renderNarratorHoldings = (entries: EpistemicEntry[], voices: CastVoice[], self: string): string => {
   const active = activeEpistemic(entries);
   const lines = voices.filter((voice) => voice.id !== self).flatMap((voice) => {
     const subject = new Set([norm(voice.name), norm(voice.id)]);

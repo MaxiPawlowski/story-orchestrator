@@ -78,25 +78,34 @@ export function parseArcLine(line: string): ParsedArcSignal | null {
   return { kind: match[1].toLowerCase() === "resolved" ? "resolved" : "open", text };
 }
 
-const epistemicHidingPattern = /^\[hiding\]\s+(.+?)\s+from\s+(.+?)\s*\|\s*(.+)$/i;
-const epistemicStandardPattern = /^\[(\w+)\]\s+(.+?)\s*\|\s*(.+)$/i;
+const epistemicHidingPatterns = [
+  /^\[hiding\]\s+([^|]+?)\s+from\s+([^|]+?)\s*\|\s*(.+)$/i,
+  /^\[hiding\]\s+([^|]+?)\s*\|\s*from\s+([^|]+?)\s*\|\s*(.+)$/i,
+];
+const epistemicStandardPattern = /^\[(\w+)\]\s+([^|]+?)\s*\|\s*(.+)$/i;
+const trailingTarget = /^(.+?),\s*from\s+([^,]+?)\.?$/i;
 const isEpistemicTag = (value: string): value is EpistemicTag => (EPISTEMIC_TAGS as readonly string[]).includes(value);
 
+const hidingSignal = (subject: string, content: string, hiddenFrom = ""): ParsedEpistemicSignal | null => {
+  if (!subject.trim() || !content.trim()) return null;
+  return { tag: "hiding", subject: subject.trim(), ...(hiddenFrom.trim() ? { hiddenFrom: hiddenFrom.trim() } : {}), content: content.trim() };
+};
+
 export function parseEpistemicLine(line: string): ParsedEpistemicSignal | null {
-  const hiding = line.match(epistemicHidingPattern);
-  if (hiding) {
-    const subject = hiding[1].trim();
-    const hiddenFrom = hiding[2].trim();
-    const content = hiding[3].trim();
-    if (!subject || !hiddenFrom || !content) return null;
-    return { tag: "hiding", subject, hiddenFrom, content };
+  for (const pattern of epistemicHidingPatterns) {
+    const hiding = line.match(pattern);
+    if (hiding) return hidingSignal(hiding[1], hiding[3], hiding[2]);
   }
   const standard = line.match(epistemicStandardPattern);
   if (!standard) return null;
   const tag = standard[1].toLowerCase();
-  if (!isEpistemicTag(tag) || tag === "hiding") return null;
+  if (!isEpistemicTag(tag)) return null;
   const subject = standard[2].trim();
   const content = standard[3].trim();
+  if (tag === "hiding") {
+    const targeted = content.match(trailingTarget);
+    return targeted ? hidingSignal(subject, targeted[1], targeted[2]) : hidingSignal(subject, content);
+  }
   if (!subject || !content) return null;
   return { tag, subject, content };
 }

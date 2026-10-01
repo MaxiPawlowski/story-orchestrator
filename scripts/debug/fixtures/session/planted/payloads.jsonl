@@ -1,1 +1,1 @@
-{"index":0,"epoch":"e1","url":"/api/backends/text-completions/generate","method":"POST","draftMember":2,"capturedAt":"2026-09-30T10:06:00.000Z","body":"{\"prompt\": \"Belle speaks next.\"}","chatId":"c1","boundary":7,"lastMessageId":5}
+{"index":0,"epoch":"e1","url":"/api/backends/text-completions/generate","method":"POST","draftMember":2,"capturedAt":"2026-09-30T10:06:00.000Z","body":"{\"prompt\": \"Belle speaks next.\\nBelle:\"}","chatId":"c1","boundary":7,"lastMessageId":5}

@@ -22,4 +22,5 @@ export interface RecentMessage {
 export interface WindowAccess {
   chatLastId: () => number;
   recentWindow: () => RecentMessage[];
+  recentTurns: () => Array<RecentMessage & { isUser: boolean }>;
 }

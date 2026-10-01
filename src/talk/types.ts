@@ -11,6 +11,7 @@ export type TalkDecisionSource = "judge" | "mention" | "director" | "rules" | "f
 export interface DirectorWindowMessage {
   speaker: string;
   text: string;
+  isUser?: boolean;
 }
 
 export interface DirectorPromptInput {

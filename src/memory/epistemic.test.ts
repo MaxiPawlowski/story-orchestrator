@@ -35,6 +35,30 @@ describe("parseEpistemicLine", () => {
     });
   });
 
+  it("T1-3: keeps the [hiding] shapes the model emitted without the ` from Target` subject (journal.jsonl:64, :316, :387, :399)", () => {
+    expect(parseEpistemicLine("[hiding] Haley | Her doubt about the rumour concerning her mother, from the King and the council.")).toEqual({
+      tag: "hiding", subject: "Haley", hiddenFrom: "the King and the council", content: "Her doubt about the rumour concerning her mother",
+    });
+    expect(parseEpistemicLine("[hiding] Haley | Her fear and grief over her mother's absence and the necromancer rumours")).toEqual({
+      tag: "hiding", subject: "Haley", content: "Her fear and grief over her mother's absence and the necromancer rumours",
+    });
+    expect(parseEpistemicLine("[hiding] Haley | Her full knowledge of her mother's situation, refusing to speak further")).toEqual({
+      tag: "hiding", subject: "Haley", content: "Her full knowledge of her mother's situation, refusing to speak further",
+    });
+    expect(parseEpistemicLine("[hiding] Alexander | The true state of the front, which he denies has slipped")).toEqual({
+      tag: "hiding", subject: "Alexander", content: "The true state of the front, which he denies has slipped",
+    });
+  });
+
+  it("T1-3: a target written as its own field never leaks a pipe into the subject", () => {
+    expect(parseEpistemicLine("[hiding] Haley | From the council | Her full feelings and knowledge about her mother's absence and the rumours.")).toEqual({
+      tag: "hiding", subject: "Haley", hiddenFrom: "the council", content: "Her full feelings and knowledge about her mother's absence and the rumours.",
+    });
+    expect(parseEpistemicLine("[hiding] Haley from The Party | Her fear and uncertainty about her mother, masked by her denial.")).toEqual({
+      tag: "hiding", subject: "Haley", hiddenFrom: "The Party", content: "Her fear and uncertainty about her mother, masked by her denial.",
+    });
+  });
+
   it("rejects unknown tags and non-epistemic lines", () => {
     expect(parseEpistemicLine("[arc] some open thread | nope")).toBeNull();
     expect(parseEpistemicLine("NONE")).toBeNull();

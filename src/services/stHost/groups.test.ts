@@ -11,7 +11,7 @@ const server: { answer: "page" | "stale" | "unreadable"; stale: typeof state.gro
 jest.mock("./context", () => ({ getContext: () => ({ groupId: state.groupId, groups: state.groups, characters: [], getRequestHeaders: () => ({}) }) }));
 jest.mock("./modules", () => ({ groupChatsModule: { editGroup: async (id: string, immediately: boolean) => { edited.push({ id, immediately }); } } }));
 
-import { readGroupMemberDisabled, setGroupMemberDisabled, setGroupMembersDisabled } from "./groups";
+import { readGroupMemberDisabled, setGroupMemberDisabled, setGroupMemberFlags, setGroupMembersDisabled } from "./groups";
 
 beforeEach(() => {
   edited.length = 0;
@@ -64,5 +64,21 @@ describe("V15c: a cast write is saved now and read back, never left to ST's debo
     expect(result).toMatchObject({ ok: true, confirmed: false });
     server.answer = "page";
     expect(await setGroupMembersDisabled(["a.png"], [])).toMatchObject({ ok: true, confirmed: true });
+  });
+});
+
+describe("item 7: a cast restore puts many members back in one save", () => {
+  it("writes every flag on the recorded group with one save and one read-back", async () => {
+    state.groups[1] = { id: "recorded", members: ["luke.png", "domas.png", "rydel.png"], disabled_members: ["luke.png", "domas.png", "rydel.png"] };
+    const result = await setGroupMemberFlags("recorded", [{ member: "domas.png", disabled: false }, { member: "rydel.png", disabled: false }, { member: "luke.png", disabled: true }]);
+    expect(result).toMatchObject({ ok: true, members: 3 });
+    expect(state.groups[1].disabled_members).toEqual(["luke.png"]);
+    expect(edited.map((call) => call.id)).toEqual(["recorded"]);
+    expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("refuses a group the install no longer has", async () => {
+    expect((await setGroupMemberFlags("gone", [{ member: "a.png", disabled: true }])).ok).toBe(false);
+    expect(edited).toEqual([]);
   });
 });
