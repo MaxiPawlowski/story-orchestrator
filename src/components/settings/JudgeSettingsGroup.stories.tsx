@@ -182,8 +182,8 @@ export const ReadinessNamesWhatIsNotWorking: Story = {
     await expect(readiness?.textContent).toContain(`Prepare ahead: on, but "Heading toward (author view)" is off`);
     await expect(canvasElement.querySelector("#so-judge-use-scene-ooc")).toBeNull();
     await expect(canvasElement.querySelector("#so-judge-use-memory-rerank")).toBeNull();
-    await expect(readiness?.textContent).toContain("Stall check: on, but its rate was measured on an older fixture revision");
-    await expect(canvasElement.querySelector("#so-judge-readiness-summary")).toBeNull();
+    await expect(readiness?.textContent).not.toContain("Stall check");
+    await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("Stall check 100%");
   },
 };
 
@@ -225,6 +225,16 @@ export const ReadinessSaysARateNeedsReMeasure: Story = {
     await expect(readiness?.textContent).toContain("Check memory before storing: on, but its rate was measured on an older fixture revision");
     await expect(readiness?.textContent).toContain("needs re-measure");
     await expect(canvasElement.querySelector("#so-judge-readiness-summary")).toBeNull();
+    await expect(canvasElement.querySelector("#so-judge-recommended-config")).toBeInTheDocument();
+  },
+};
+
+export const ReadinessSilentWhenEverythingIsMeasured: Story = {
+  args: { settings: settings({ enabled: true }, { stallCheck: true, memoryVerify: true }), status: ready },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-judge-readiness")).toBeNull();
+    await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("Check memory before storing 97%");
+    await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("measured on jev-1.13.0");
     await expect(canvasElement.querySelector("#so-judge-recommended-config")).toBeInTheDocument();
   },
 };
@@ -279,6 +289,27 @@ export const ExclusiveLoreIsAuthorOnly: Story = {
   play: async ({ canvasElement }) => {
     await expect(canvasElement.querySelector("#so-judge-use-lore-exclusive")).toBeNull();
     await expect(canvasElement.querySelector("#so-judge-readiness")?.textContent ?? "").not.toContain("Exclusive lore selection");
+  },
+};
+
+export const WardenLoreIsAuthorOnly: Story = {
+  args: { settings: settings({ enabled: true }, { wardenLore: true }), status: ready },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-judge-use-warden-lore")).toBeNull();
+    await expect(canvasElement.textContent ?? "").not.toContain("Lore check (warden)");
+  },
+};
+
+export const AuthorSeesWardenLoreRow: Story = {
+  args: { settings: settings({ enabled: true }, { wardenLore: true }), status: ready, authorView: true },
+  play: async ({ args, canvasElement }) => {
+    const box = canvasElement.querySelector<HTMLInputElement>("#so-judge-use-warden-lore");
+    await expect(box?.checked).toBe(true);
+    await expect(within(canvasElement).getByText("Lore check (warden)")).toBeInTheDocument();
+    await expect(canvasElement.querySelector("#so-judge-readiness")?.textContent ?? "").not.toContain("Lore check (warden)");
+    await expect(canvasElement.querySelector("#so-judge-readiness-summary")?.textContent).toContain("Lore check (warden) 100% (p50 233 ms)");
+    await userEvent.click(required(box, "warden-lore switch"));
+    await expect(args.onChange).toHaveBeenCalledWith({ uses: { wardenLore: false } });
   },
 };
 

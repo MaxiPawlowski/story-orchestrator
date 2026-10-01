@@ -111,6 +111,7 @@
         "expansionLookahead": true,
         "agencyCheck": true,
         "houseRules": true,
+        "wardenLore": true,
         "loreExclusive": true,
         "expressions": true
       },
@@ -134,6 +135,7 @@
         "expansionLookahead": "typesafe",
         "agencyCheck": "typesafe",
         "houseRules": "typesafe",
+        "wardenLore": "typesafe",
         "loreExclusive": "typesafe",
         "expressions": "typesafe",
         "warden": "typesafe"

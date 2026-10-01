@@ -291,6 +291,30 @@ export const WardenFamiliesAwaitingReview: Story = {
   },
 };
 
+const loreNote: CuratorProposalRecord = {
+  ...familiesNote,
+  id: "warden-7-11",
+  messageId: 11,
+  reason: "lore",
+  summary: "Narrator's reply contradicts a lore entry",
+  ops: [{
+    op: { kind: "note", family: "lore", text: 'Lore: "Arryn" says Arryn has never used a bow. — keep the next reply consistent with it.', facts: [], lore: ["Arryn"], replyMessageId: 11 },
+    status: "pending",
+  }],
+};
+
+export const WardenLoreNoteAwaitingReview: Story = {
+  args: { snapshot: snapshot({ wardenEnabled: true, proposals: [loreNote] }), manager: fakeManager() },
+  play: async ({ args, canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/Warden: Narrator's reply contradicts a lore entry/)).toBeInTheDocument();
+    await expect(canvas.getByText(/lore note/)).toBeInTheDocument();
+    await expect(canvas.getByText("lore entry: Arryn")).toBeInTheDocument();
+    await userEvent.click(canvas.getByRole("button", { name: "Accept" }));
+    await expect(args.manager.setCuratorOpDecision).toHaveBeenCalledWith("warden-7-11", 0, "accepted", undefined);
+  },
+};
+
 // v2.4 plan 08 T19d: the warden card's cited message opens in the chat, best-effort when no boundary fingerprinted it.
 const jumpFromCard = fn();
 

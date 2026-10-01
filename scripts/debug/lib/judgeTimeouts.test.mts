@@ -98,6 +98,16 @@ test('J11.25 counts once per record that passed it; a fail or a missing check is
   assert.equal(j1125Passes([record('pass'), record('fail'), record(null), record('pass')]), 2);
 });
 
+test('the built lore family records its calls as use wardenLore: read as warden calls flagged wardenLore, so they stay out of the close', () => {
+  const line = { at: at(1_000), boundary: 1, messageId: 3, kind: 'judge', summary: 'judge wardenLore fell back (timeout)', detail: { use: 'wardenLore', questions: 2, stateChars: 900, latencyMs: 4000, fallback: 'timeout' }, chatId: 'c9' };
+  const [event] = eventsFromJsonl(JSON.stringify(line));
+  assert.equal(event.use, 'warden');
+  assert.equal(event.wardenLore, true);
+  const table = timeoutTable([event], 'warden');
+  assert.equal(table.calls, 0);
+  assert.equal(table.wardenLoreTimeouts, 1);
+});
+
 test('records and journal-follow lines read to the same event shape, duplicates dropped', () => {
   const line = { at: at(1_000), boundary: 1, messageId: 3, kind: 'judge', summary: 'judge warden in 500 ms', detail: { use: 'warden', model: 'jev-1.13.0', questions: 4, stateChars: 900, latencyMs: 500 }, chatId: 'c9' };
   const jsonl = [JSON.stringify(line), JSON.stringify(line), JSON.stringify({ kind: 'boundary', at: at(1) }), ''].join('\n');

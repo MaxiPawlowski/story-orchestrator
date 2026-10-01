@@ -121,6 +121,7 @@ describe("T24 readiness by model (v2.4 plan 07)", () => {
       stall: ["stallCheck"],
       critic: ["expansionCritic"],
       warden: ["warden"],
+      wardenLore: ["wardenLore"],
     });
     Object.values(RING_USE_TO_READINESS).flat().forEach((key) => expect(JUDGE_READINESS[key]).toBeDefined());
   });

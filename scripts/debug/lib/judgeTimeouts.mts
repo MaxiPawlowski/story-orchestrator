@@ -37,13 +37,13 @@ const toEvent = (raw, chatFallback: string | null): TimeoutEvent | null => {
     at: raw.at,
     chatId: typeof raw.chatId === 'string' ? raw.chatId : chatFallback,
     messageId: typeof raw.messageId === 'number' ? raw.messageId : -1,
-    use: detail.use,
+    use: detail.use === 'wardenLore' ? 'warden' : detail.use,
     stateChars: typeof detail.stateChars === 'number' ? detail.stateChars : 0,
     questions: typeof detail.questions === 'number' ? detail.questions : 0,
     latencyMs: typeof detail.latencyMs === 'number' ? detail.latencyMs : 0,
     fallback: typeof detail.fallback === 'string' ? detail.fallback : null,
     cached: detail.cached === true,
-    wardenLore: detail.wardenLore === true || detail.p?.wardenLore === true,
+    wardenLore: detail.use === 'wardenLore' || detail.wardenLore === true || detail.p?.wardenLore === true,
   };
 };
 

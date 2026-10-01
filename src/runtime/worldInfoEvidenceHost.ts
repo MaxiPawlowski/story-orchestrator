@@ -61,11 +61,12 @@ export function startLoreEvidence(deps: LoreEvidenceWiring): LoreEvidenceControl
   let firstView: ScanInput[] | null = null;
   let mirror: string | null = null;
   let watched: string[] = [];
+  let lore: string[] = [];
   const observation = observeWorldInfoScans({
     activated: (entries) => {
       if (!open) return;
       const type = deps.innermostType();
-      evidence.scanned(entries, type ?? "normal", isLoudGeneration(type));
+      evidence.scanned(entries, type ?? "normal", isLoudGeneration(type), lore);
     },
     loadedFirst: (payload) => {
       if (open) firstView = worldsOf(payload);
@@ -85,6 +86,7 @@ export function startLoreEvidence(deps: LoreEvidenceWiring): LoreEvidenceControl
       firstView = null;
       mirror = deps.mirrorBook();
       watched = storyBooks(deps.story(), mirror);
+      lore = storyBooks(deps.story(), null).filter((book) => !mirror || !sameLorebook(mirror, book));
       evidence.opened({ type });
     },
     settled: (rendered) => {

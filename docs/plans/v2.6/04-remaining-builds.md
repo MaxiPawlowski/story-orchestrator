@@ -10,7 +10,7 @@ measurement where the source plan requires one.
 | # | Item | Source | State | Blocked on | Effort |
 |---|---|---|---|---|---|
 | H | **Harness routing: build H1–H4 + Phase A** | v2.5 plan 13 | **built 2026-09-30** (H1–H4 + the agent tool bridge, §Gate record H and §Gate record agent bridge); **opencode only, no CLI logins** (W 2026-09-30): the Claude Code and Codex arms are dropped, not pending | Phase A (real models) runs in plan 15 Part B | L |
-| L7 | Lore contradiction: runtime + R4–R6 | v2.5 plan 08 | Phase A only | v2.6 02 D7 data | L |
+| L7 | Lore contradiction: runtime + R4–R6 | v2.5 plan 08 | **runtime built 2026-10-01** (§L7 warden-lore): Phase A 60/60 on the English re-measure; R4–R6 live owed | live R4–R6 in plan 15 Part B | L |
 | J3 | House rules: judge-on arm ×2; J6a player intent (B8 order) | v2.5 plan 06 | on arm failed 4/4 (timeouts); J6a not started | `f972e24d` proven (v2.6 01); B7, B8, B9 | M |
 | C1r | NPC reply residual: a non-streaming reply or late headers land in the switched-to chat | v2.5 plan 02 | **built 2026-09-30**: fixture showed both landing (2/4 red), `watchHostChatMove` stop added (§C1r) | live re-run owed to plan 10 | M |
 | C3/C4 | `requirements.ready` suppresses every effect (C3); `/cp activate` applies only the target's effects, and SP5's C4 pass rule vs shared genre text (C4) | v2.5 plan 14 | **built** 2026-09-30 (user approved (b)/(c)); §Gate record C3/C4/C12/C13 | jest; SP5 C4 rule fixed in the fixture | M |
@@ -529,3 +529,9 @@ Wizard role routed to `harness:opencode:<model>`.
 
 - `HARNESS_LIVE=1` bridge run and J14 on the bridge (Phase A / plan 10).
 - W1–W6 on `--route harness` (plan 11) now have a bridge to run against.
+
+## L7 — warden-lore: lore contradiction in the warden (built 2026-10-01)
+
+Source: v2.5 plan 08 L7. Phase A met every predeclared floor on the English re-measure (60/60; `15-judge-remeasure.md`), so the runtime is built: `judge.uses.wardenLore` (on by default, author-only, needs the continuity warden), the story-book entries that fired for the reply (text kept in memory only, never mirror or foreign books) asked in their own judge call, a `lore` note on the warden's one-turn path. Record, tests, bundle and gates: `15-review.md` §Build: warden-lore.
+
+Still owed live (plan 15 Part B): R4 latency with the use on (`so-judge timeouts` counts `wardenLore` calls apart), R6 over-steer, G-L7 J8 on/off. The combined-request arm (lore inside the warden's call) is not built; it needs R5 first.

@@ -50,6 +50,7 @@ const describe = (op: CuratorOp): string => {
   if (op.kind === "note") {
     const family = wardenFamilyOf(op);
     if (family === "agency") return `agency note${op.score !== undefined ? ` (score ${op.score.toFixed(2)})` : ""}`;
+    if (family === "lore") return "lore note";
     return family === "house-rule" ? "house-rule note" : "continuity note";
   }
   if (op.kind === "enable") return `switch on "${op.comment}"`;
@@ -128,6 +129,7 @@ const OpCard = ({ record, index, entry, manager, onOpenFact }: {
         ))
         : entry.op.facts.map((fact) => <div key={fact} data-so="warden-fact" className="opacity-80">established: {fact}</div>))}
       {isNoteOp(entry.op) && entry.op.rules?.map((rule) => <div key={rule} data-so="warden-rule" className="opacity-80">house rule: {rule}</div>)}
+      {isNoteOp(entry.op) && entry.op.lore?.map((title) => <div key={title} data-so="warden-lore" className="opacity-80">lore entry: {title}</div>)}
       {entry.status === "failed" && entry.message && <div className="so-error-text">{entry.message}</div>}
       {text !== null && (decidable ? (
         <textarea data-so="curator-text" aria-label={`Text for ${describe(entry.op)}`} className="text_pole w-full" rows={2} value={draft} onChange={(event) => setDraft(event.target.value)} />

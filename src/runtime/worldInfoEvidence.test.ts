@@ -270,3 +270,39 @@ describe("LoreEvidence ring", () => {
     expect(evidence.slotsForChat()).toEqual([]);
   });
 });
+
+describe("warden-lore content capture (v2.5 plan 08 L7)", () => {
+  const MIRROR = "Story Orchestrator - Evidence - chat-1";
+  const generate = (evidence: LoreEvidence, lastMessageId: number, scans: Array<{ entries: ScanInput[]; loud?: boolean }>, books: string[], rendered = true) => {
+    evidence.opened({ type: "normal" });
+    for (const scan of scans) evidence.scanned(scan.entries, "normal", scan.loud ?? true, books);
+    evidence.settled({ rendered, lastMessageId, story, path: ["one"], mirrorBook: MIRROR });
+  };
+
+  it("keeps the text of story-book entries that fired on a loud scan of this reply, and nothing from mirror or foreign books", () => {
+    const { evidence } = harness();
+    generate(evidence, 3, [
+      { entries: [entry(1, "CP1 Road", { content: "The road runs east." }), entry(7, "so_arin", { content: "Arin owes Mira." }, MIRROR), entry(9, "Tavern", { content: "Ale is cheap." }, "Town")] },
+      { entries: [entry(2, "CP1 Keyword", { content: "A quiet whisper." })], loud: false },
+    ], ["Ruins"]);
+    expect(evidence.firedLore(3)).toEqual([{ comment: "CP1 Road", text: "The road runs east." }]);
+  });
+
+  it("answers only for the rendered reply at that message, and forgets a reply that was swiped or deleted", () => {
+    const { evidence, mutate } = harness();
+    generate(evidence, 3, [{ entries: [entry(1, "CP1 Road", { content: "The road runs east." })] }], ["Ruins"]);
+    generate(evidence, 5, [{ entries: [entry(1, "CP1 Road", { content: "Stopped." })] }], ["Ruins"], false);
+    expect(evidence.firedLore(4)).toEqual([]);
+    expect(evidence.firedLore(5)).toEqual([]);
+    expect(evidence.firedLore(3)).toHaveLength(1);
+    mutate(3);
+    expect(evidence.firedLore(3)).toEqual([]);
+  });
+
+  it("never lets the text leave memory: the view and the persisted fired record carry no content", () => {
+    const { evidence } = harness();
+    generate(evidence, 3, [{ entries: [entry(1, "CP1 Road", { content: "The road runs east." })] }], ["Ruins"]);
+    expect(JSON.stringify(evidence.view(story, MIRROR))).not.toContain("The road runs east.");
+    expect(JSON.stringify(evidence.slotsForChat())).not.toContain("The road runs east.");
+  });
+});

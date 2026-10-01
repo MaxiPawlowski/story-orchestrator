@@ -43,10 +43,12 @@ export interface WardenFactSource {
 
 // The continuity warden's one-turn note. It never reaches a lorebook: applyAccepted
 // skips it, and only the generation-start path injects it, for one loud generation.
-export const WARDEN_NOTE_FAMILIES = ["continuity", "agency", "house-rule"] as const;
+export const WARDEN_NOTE_FAMILIES = ["continuity", "agency", "house-rule", "lore"] as const;
 export type WardenNoteFamily = (typeof WARDEN_NOTE_FAMILIES)[number];
 
-export type WardenNoteOp = { kind: "note"; text: string; facts: string[]; replyMessageId: number; sources?: WardenFactSource[]; family?: WardenNoteFamily; rules?: string[]; score?: number };
+export type WardenNoteOp = {
+  kind: "note"; text: string; facts: string[]; replyMessageId: number; sources?: WardenFactSource[]; family?: WardenNoteFamily; rules?: string[]; lore?: string[]; score?: number;
+};
 
 export type CuratorOp = WiCuratorOp | WardenNoteOp;
 

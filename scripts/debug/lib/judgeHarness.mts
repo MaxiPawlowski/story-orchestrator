@@ -112,14 +112,14 @@ export interface JudgeConfigCapture {
 }
 
 /** v2.4 plan 07 T22/T23: judge uses that ride the warden's note path and share its accept mode. */
-export const WARDEN_JUDGE_USES = ['agencyCheck', 'houseRules'];
+export const WARDEN_JUDGE_USES = ['agencyCheck', 'houseRules', 'wardenLore'];
 
 /** The settings a mode writes. An unknown use is refused: a typo would otherwise run the "on" arm with nothing on. */
 export function judgeModeSettings(before: JudgeConfigCapture, mode: JudgeMode): JudgeConfigCapture {
   const known = Object.keys(before.judge.uses);
   const unknown = mode.uses.filter((use) => use !== 'warden' && !known.includes(use));
   if (unknown.length) throw new Error(`unknown judge use(s) ${unknown.join(', ')}; this build declares ${known.join(', ')} (and warden)`);
-  const warden = mode.uses.includes('warden');
+  const warden = mode.uses.includes('warden') || mode.uses.includes('wardenLore');
   const wardenFamily = warden || WARDEN_JUDGE_USES.some((use) => mode.uses.includes(use));
   return {
     judge: { ...before.judge, enabled: mode.uses.length > 0, uses: Object.fromEntries(known.map((use) => [use, mode.uses.includes(use)])) },
