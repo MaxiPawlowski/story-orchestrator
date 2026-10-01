@@ -32,6 +32,23 @@ test('plan 14 charters: an unknown story id is refused', async () => {
   assert.ok(validateCardDoc(broken, index).some((problem) => problem.includes('"adolion-nowhere" is not in the pinned Adolion build')));
 });
 
+test('T1-5 charters: setup.members names only the story roster, and only on a card that starts past the story start', async () => {
+  const [doc, index] = await Promise.all([loadCards(), loadIndex()]);
+  const t15 = findCard(doc, 'T1-5');
+  assert.deepEqual(t15?.setup.members, { enabled: ['Kayla', 'Erevan'] });
+  const broken = clone(doc);
+  const card = broken.cards.find((entry) => entry.id === 'T1-5')!;
+  card.setup.members = { enabled: ['Kayla', 'Nobody'] };
+  const fresh = broken.cards.find((entry) => entry.id === 'T1-4')!;
+  fresh.setup.members = { enabled: ['Belle'] };
+  delete fresh.setup.startAt;
+  const problems = validateCardDoc(broken, index);
+  assert.ok(problems.some((problem) => problem.includes('setup.members "Nobody" is not on its story\'s roster')), problems.join('; '));
+  assert.ok(problems.some((problem) => problem.includes('T1-4') && problem.includes('setup.members is for a card that starts past')), problems.join('; '));
+  const planned = planStart(doc, index, t15!, { lane: 5, allowComfy: false, seed: true }, null) as any;
+  assert.deepEqual(planned.plan?.open?.members ?? planned.open?.members, { enabled: ['Kayla', 'Erevan'] });
+});
+
 test('plan 14 charters: a drive beat aiming at a checkpoint its story lacks is refused', async () => {
   const [doc, index] = await Promise.all([loadCards(), loadIndex()]);
   const broken = clone(doc);

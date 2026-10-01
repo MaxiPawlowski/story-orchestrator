@@ -229,6 +229,7 @@ export function planStart(doc: CardDoc, index: StoryIndex, card: Card, options: 
       continueChat: carried?.chatId ?? null,
       startAt: continuing ? null : card.setup.startAt ?? null,
       seed: continuing ? {} : card.setup.seed ?? {},
+      members: continuing ? null : card.setup.members ?? null,
       chats: card.setup.chats ?? 1,
       also: also ? { storyId: card.setup.also!, group: also.group } : null,
       authorView: card.setup.mode === 'author',
@@ -880,9 +881,9 @@ async function settingCommand(dirArg: string | undefined, path: string | undefin
 }
 
 async function pagePhase(phase: 'settings' | 'effective' | 'pin' | 'open' | 'end', input: string, output: string) {
-  const [{ runCli }, { evaluateInST }, navigation, { saveSettingsNow }, { renderMarkdown }, evidenceLib, pinLib, reads] = await Promise.all([
+  const [{ runCli }, { evaluateInST }, navigation, { saveSettingsNow }, { renderMarkdown }, evidenceLib, pinLib, reads, { ensureCast }] = await Promise.all([
     import('./lib/cli.mts'), import('./lib/evaluate.mts'), import('./st-navigation.mts'), import('./lib/settingsSave.mts'), import('./so-journal.mts'),
-    import('./lib/sessionEvidence.mts'), import('./lib/sessionPin.mts'), import('./lib/sessionPageReads.mts'),
+    import('./lib/sessionEvidence.mts'), import('./lib/sessionPin.mts'), import('./lib/sessionPageReads.mts'), import('./lib/sessionCast.mts'),
   ]);
   const plan = await readJson(input);
   await runCli(async (page) => {
@@ -996,6 +997,11 @@ async function pagePhase(phase: 'settings' | 'effective' | 'pin' | 'open' | 'end
             return rt.getSnapshot()?.blackboard?.[key] ?? null;
           }, { key, value });
           if (String(landed) !== String(value)) problems.push(`seed ${key}=${String(value)} did not land (blackboard ${String(landed)})`);
+        }
+        if (primary && loaded && open.members) {
+          const cast = await ensureCast(page, open.members);
+          out.cast = cast;
+          problems.push(...cast.problems.map((problem) => `members: ${problem}`));
         }
         await evaluateInST(page, (authorView: boolean) => (globalThis as any).storyOrchestratorRuntime?.setUiSettings?.({ authorView }), Boolean(open.authorView));
         await settle();

@@ -72,6 +72,7 @@ export interface Card {
     select?: 'auto' | 'manual';
     startAt?: string;
     seed?: Record<string, string | number | boolean>;
+    members?: { enabled?: string[]; disabled?: string[] };
     chats?: number;
     also?: string;
     settings?: CardSettings;
@@ -210,6 +211,11 @@ export function validateCardDoc(doc: unknown, index: StoryIndex, premises: Premi
       if (setup.seed !== undefined) {
         if (!isRecord(setup.seed)) problems.push(`${where}: setup.seed must be an object`);
         else for (const key of Object.keys(setup.seed)) if (!entry?.qualities.includes(key)) problems.push(`${where}: setup.seed "${key}" is not a quality of its story`);
+      }
+      if (setup.members !== undefined) {
+        if (!isRecord(setup.members) || Object.keys(setup.members).some((key) => !['enabled', 'disabled'].includes(key))) problems.push(`${where}: setup.members takes only enabled and disabled lists`);
+        else for (const name of [...(setup.members.enabled ?? []), ...(setup.members.disabled ?? [])]) if (!entry?.roster.includes(name)) problems.push(`${where}: setup.members "${name}" is not on its story's roster`);
+        if (setup.startAt === undefined) problems.push(`${where}: setup.members is for a card that starts past the story's start (setup.startAt)`);
       }
       if (setup.chats !== undefined && ![1, 2].includes(setup.chats)) problems.push(`${where}: setup.chats must be 1 or 2`);
       if (setup.also !== undefined && !index.stories[setup.also]) problems.push(`${where}: setup.also "${setup.also}" is not in the pinned Adolion build`);
@@ -393,6 +399,8 @@ export function renderCard(card: Card, index: StoryIndex): string {
   lines.push(`  - Persona: ${setup.persona}`);
   if (setup.select === 'manual') lines.push('  - The story is NOT pre-selected: pick it yourself from the entry points.');
   if (setup.startAt) lines.push(`  - Starts at ${checkpointLabel(entry, setup.startAt)}${entry && setup.startAt !== entry.start ? ', seeded by `so-session start`' : ''}.`);
+  if (setup.members?.enabled?.length) lines.push(`  - Enabled in the group at start (a start past the story's start runs only its own cast changes): ${setup.members.enabled.join(', ')}.`);
+  if (setup.members?.disabled?.length) lines.push(`  - Disabled in the group at start: ${setup.members.disabled.join(', ')}.`);
   if (setup.seed && Object.keys(setup.seed).length) lines.push(`  - Seeded: ${Object.entries(setup.seed).map(([key, value]) => `\`${key}\` = ${JSON.stringify(value)}`).join(', ')}.`);
   lines.push(`  - Settings: ${settingsText(setup.settings)}.`);
   for (const note of setup.notes ?? []) lines.push(`  - ${note}`);
