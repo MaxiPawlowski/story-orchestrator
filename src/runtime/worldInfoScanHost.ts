@@ -19,12 +19,14 @@ import { noteScanGate, scanGatingActive, setScanGatingActive, setScanGatingSettl
 import type { MemoryMirrorBook } from "./types";
 import type { NormalizeOutcome } from "./worldInfoNormalize";
 import { ScanGateProvider, type ScanGateChoice } from "./worldInfoScan";
+import { ScanGuard, type ScanGuardResult } from "./worldInfoScanGuard";
 
 export interface ScanGatingWiring {
   chatId: () => string | null;
   ownedChat: () => string | null;
   story: () => NormalizedStoryV2 | null;
   path: () => string[];
+  filePath: () => string[];
   mirrorBook: () => MemoryMirrorBook | null;
   exclusive: {
     useActive: () => boolean;
@@ -42,6 +44,7 @@ export interface ScanGatingDebug {
   capability: () => CapabilityReading | null;
   gate: () => ScanGateChoice;
   lastScan: () => (ScanGateStats & { owner: "story" | "no-story" }) | null;
+  lastGuard: () => ScanGuardResult | null;
   lastMirror: () => number;
   lastExclusive: () => { refusal: LoreExclusiveRefusal | null; stats: LoreExclusiveStats } | null;
   timings: () => number[];
@@ -59,6 +62,24 @@ let running: WiGating | null = null;
 export const wiGating = (): WiGating | null => running;
 
 const library = () => listStoryRecords().map((record) => record.raw);
+const libraryRevision = () => listStoryRecords().map((record) => `${record.id}@${record.version}:${record.hash}`).join(",");
+
+const startScanGuard = (deps: ScanGatingWiring) => {
+  const guard = new ScanGuard({
+    openChat: deps.chatId,
+    storyChat: deps.ownedChat,
+    story: deps.story,
+    path: deps.filePath,
+    ready: () => evaluateRequirements(deps.story(), requirementsOptions(deps.mirrorBook(), false)).ready,
+    library,
+    libraryRevision,
+  });
+  let last: ScanGuardResult | null = null;
+  const handle = installScanGating((arrays) => {
+    if (!scanGatingActive()) last = guard.apply(arrays);
+  });
+  return { handle, last: () => last };
+};
 
 /** E: what the removal dialog may offer for a library story, and the restore it runs if chosen. */
 export function removalRestore(storyId: string): { entries: number; run: () => Promise<{ restored: number; refused: string[] }> } | null {
@@ -88,6 +109,7 @@ const confirmNormalisation = (preview: NormalizePreviewBook[]) => {
 export function startScanGating(deps: ScanGatingWiring): { reassert: () => void; dispose: () => void } {
   setScanGatingActive(false);
   setScanGatingSettled(false);
+  const scanGuard = startScanGuard(deps);
   let ledger: NormalizedLedger = getGlobalSettings().worldInfo.normalized;
   let handle: ScanGatingHandle | null = null;
   let lastScan: (ScanGateStats & { owner: "story" | "no-story" }) | null = null;
@@ -105,7 +127,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     path: deps.path,
     ready: () => evaluateRequirements(deps.story(), requirementsOptions(null, true)).ready,
     library,
-    libraryRevision: () => listStoryRecords().map((record) => `${record.id}@${record.version}:${record.hash}`).join(","),
+    libraryRevision,
     ledger: () => ledger,
   });
   const mirror = createMirrorScan({
@@ -177,6 +199,7 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
     capability: () => gating.status().capability,
     gate: () => provider.choose(),
     lastScan: () => lastScan,
+    lastGuard: scanGuard.last,
     lastMirror: () => lastMirror,
     lastExclusive: () => lastExclusive,
     timings: () => [...timings],
@@ -187,8 +210,12 @@ export function startScanGating(deps: ScanGatingWiring): { reassert: () => void;
   };
   if (__SO_DEV__) globalThis.storyOrchestratorScanGating = debug;
   return {
-    reassert: () => handle?.reassert(),
+    reassert: () => {
+      scanGuard.handle.reassert();
+      handle?.reassert();
+    },
     dispose: () => {
+      scanGuard.handle.dispose();
       stopWatching();
       stopMirrorWatch?.();
       stopMirrorWatch = null;

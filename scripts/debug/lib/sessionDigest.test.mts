@@ -2,7 +2,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { resolve } from 'node:path';
 import { REPO_ROOT } from '../../lib/stRoot.mjs';
-import { ANOMALY_KINDS, digestSession, registerRows, renderFindings, judgeHealth, renderJudgeHealth } from './sessionDigest.mts';
+import { ANOMALY_KINDS, digestSession, registerRows, renderFindings, judgeHealth, renderJudgeHealth, withoutForeignRows } from './sessionDigest.mts';
 import { loadIndex, loadSessionFiles } from '../so-session.mts';
 
 const fixture = (name: string) => resolve(REPO_ROOT, 'scripts', 'debug', 'fixtures', 'session', name);
@@ -164,4 +164,42 @@ test('T1 digest: model defects recorded by the loop guard are counted per sessio
   assert.match(renderFindings(digest, 'x'), /1 turn\(s\) with a defective reply: loop 1, corrupt 0; swiped once by the loop guard: 1/);
   const clean = await loadSessionFiles(fixture('clean'), index);
   assert.deepEqual(digestSession(clean.files, clean.paths).modelDefects, { turns: 0, loop: 0, corrupt: 0, repaired: 0 });
+});
+
+test('T1-7: two chats, two stories: each chat\'s transitions are read against its own story and counted under its own chat', async () => {
+  const { files, paths } = await loadSessionFiles(fixture('planted'), await loadIndex());
+  const index = await loadIndex();
+  const row = (line: number, value: Record<string, unknown>) => ({ line, value });
+  const aegis = index.stories['adolion-aegis'];
+  const [from, to] = aegis.edges[0];
+  const journal = [
+    row(1, { at: '2026-10-01T17:33:25Z', kind: 'session', chatId: 'aegis-chat', detail: { chatId: 'aegis-chat', storyId: 'adolion-aegis', activeCheckpointId: from, boundary: 1 } }),
+    row(2, { at: '2026-10-01T17:44:00Z', kind: 'transition', chatId: 'aegis-chat', boundary: 2, summary: `${from} → ${to}` }),
+    row(3, { at: '2026-10-01T17:44:00Z', kind: 'boundary', chatId: 'aegis-chat', boundary: 2, summary: 'boundary 2' }),
+  ];
+  const digest = digestSession({ ...files, journal, session: { ...files.session, story: { kind: 'adolion', id: 'adolion-adventurer' }, playFrom: null }, story: index.stories['adolion-adventurer'], stories: index.stories }, paths);
+  assert.equal(digest.counts['unexpected-jump'], 0, 'an Aegis transition was judged against the adventurer graph');
+});
+
+test('T1-7: rows a tail recorded under a chat whose story it could not name are not that chat\'s history', async () => {
+  const row = (line: number, value: Record<string, unknown>) => ({ line, value });
+  const rows = [
+    row(1, { kind: 'session', chatId: 'b', detail: { chatId: 'b', storyId: 'adolion-aegis', boundary: 17 } }),
+    row(2, { kind: 'boundary', chatId: 'b', boundary: 17 }),
+    row(3, { kind: 'session', chatId: 'b', detail: { chatId: 'b', storyId: null, activeCheckpointId: 'road-to-wendhope', boundary: 10 } }),
+    row(4, { kind: 'boundary', chatId: 'b', boundary: 10 }),
+    row(5, { kind: 'boundary', chatId: 'a', boundary: 3 }),
+    row(6, { kind: 'session', chatId: 'b', detail: { chatId: 'b', storyId: 'adolion-aegis', boundary: 18 } }),
+    row(7, { kind: 'boundary', chatId: 'b', boundary: 18 }),
+  ];
+  assert.deepEqual(withoutForeignRows(rows).map((item) => item.line), [1, 2, 5, 6, 7]);
+});
+
+test('T1-7 recorded: the re-digested session has no phantom rollbacks or jumps and counts per chat', async () => {
+  const { files, paths } = await loadSessionFiles(resolve(REPO_ROOT, 'test', 'sessions', 'T1', 'T1-7-1'), await loadIndex());
+  const digest = digestSession(files, paths);
+  assert.equal(digest.counts.rollback, 0, 'the old digest counted 24, all of them the other story\'s boundaries');
+  assert.equal(digest.counts['unexpected-jump'], 0, 'the old digest counted 2');
+  assert.ok(Object.keys(digest.countsByChat).filter((chat) => chat.startsWith('2026-10-01@')).length === 2);
+  assert.match(renderFindings(digest, 'test/sessions/T1/T1-7-1'), /### By chat/);
 });

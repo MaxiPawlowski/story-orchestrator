@@ -704,7 +704,7 @@ export async function loadSessionFiles(dir: string, index: StoryIndex) {
   const missing = REQUIRED_CAPTURES.filter((name) => !existsSync(resolve(dir, name)));
   return {
     files: {
-      session, journal: parseJsonl(await text('journal.jsonl')), payloads: parseJsonl(await text('payloads.jsonl')), console: parseJsonl(await text('console.jsonl')), logs, chats, states, story,
+      session, journal: parseJsonl(await text('journal.jsonl')), payloads: parseJsonl(await text('payloads.jsonl')), console: parseJsonl(await text('console.jsonl')), logs, chats, states, story, stories: index.stories,
       turns: parseJsonl(await text(TURNS_FILE)), missing,
     },
     paths: { journal: 'journal.jsonl', payloads: 'payloads.jsonl', console: 'console.jsonl', logs: logPaths, turns: TURNS_FILE },

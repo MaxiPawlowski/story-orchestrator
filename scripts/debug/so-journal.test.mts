@@ -261,3 +261,23 @@ test('v2.5 plan 07 A5: the markdown export names the route of a judge call and a
   assert.match(md, /\| judge \| 1 \| 3 \| judge:typesafe:jev-1\.13\.0 \| judge scene in 250 ms \|/);
   assert.match(md, /\| extraction \| 1 \| 4 \| — \| read \|/);
 });
+
+test('T1-7: a chat switch before the load tags the departing story\'s events with ITS chat, never the newly opened one', async () => {
+  const runtime = (globalThis as any).storyOrchestratorRuntime;
+  let loaded = 'chat-a';
+  let story = 'adolion-adventurer';
+  runtime.getLoadedChatId = () => loaded;
+  runtime.getSnapshot = () => ({ storyId: story, activeCheckpointId: story === 'adolion-aegis' ? 'aegis-homecoming' : 'road-to-wendhope', boundary: 10 });
+  world.events = [event('2026-10-01T17:40:00Z', 'boundary', 'boundary 10'), event('2026-10-01T17:41:00Z', 'transition', 'guild-hall → road-to-wendhope')];
+  const lines = await runTail([
+    () => { world.chatId = 'chat-b'; world.storyId = 'adolion-aegis'; },
+    () => { loaded = 'chat-b'; story = 'adolion-aegis'; world.events = [event('2026-10-01T17:43:00Z', 'boundary', 'boundary 1')]; },
+    () => {},
+  ]);
+  const sessions = lines.filter((line) => line.kind === 'session').map((line) => [line.detail.chatId, line.detail.storyId]);
+  assert.deepEqual(sessions, [['chat-a', 'adolion-adventurer'], ['chat-b', 'adolion-aegis']]);
+  const tagged = lines.filter((line) => line.kind !== 'session').map((line) => [line.chatId, line.summary]);
+  assert.deepEqual(tagged, [
+    ['chat-a', 'boundary 10'], ['chat-a', 'guild-hall → road-to-wendhope'], ['chat-b', 'boundary 1'],
+  ], 'the adventurer journal was re-emitted under the Aegis chat id (T1-7 digest: 24 rollbacks, 2 jumps)');
+});

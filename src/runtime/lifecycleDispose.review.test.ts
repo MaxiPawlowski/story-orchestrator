@@ -21,6 +21,7 @@ import { control, must } from "../../test/findings/ledger";
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   observeSamplerPayloads: () => () => undefined,
+  installScanGating: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined, scans: () => 0 }),
   observeWorldInfoScans: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined }),
   loadedEntries: () => [],
   readProfileContextLimit: () => ({ value: 8192, source: "default", reason: "no memory model profile is selected" }),

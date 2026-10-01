@@ -2,6 +2,7 @@ import { askText } from "@extraction/index";
 import { executeSlashCommands, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName } from "@services/STAPI";
 import { log } from "@utils/log";
 import { gatedInterceptor } from "../loudGenerationGate";
+import { chatSettle } from "../chatSettle";
 import { quoteSlashArg } from "@utils/string";
 import type { JudgeRuntime } from "../judge";
 import { routedProfileId } from "../requestBudget";
@@ -36,6 +37,15 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
   ownership: runtimeManager.getOwnership(),
 });
 
+const chatLoaded = () => {
+  const open = getContext().chatId ?? null;
+  return Boolean(open) && runtimeManager.getLoadedChatId() === open;
+};
+
+const holdForChat = async () => {
+  if (await chatSettle.until(chatLoaded) === "timed-out") log.warn("a reply started while this chat's story was still loading; it went ahead after the wait");
+};
+
 export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: WindowAccess, onLoreIntercept: (type: string, aborted: boolean) => Promise<void>) => {
   live.talk = new TalkController(talkHost(live, judgeRuntime, window));
   globalThis.talkControlInterceptor = gatedInterceptor(live.loudGate, () => Boolean(getActiveGroup()), async (chat, contextSize, abort, type) => {
@@ -46,5 +56,5 @@ export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: W
     if (!aborted && Array.isArray(chat)) await runtimeManager.chapters.recall(chat, type);
     const folded = !aborted && Array.isArray(chat) ? runtimeManager.chapters.fold(chat, type, getContext().chat ?? []) : null;
     if (folded) runtimeManager.noteFolded(folded.folded);
-  }, () => log.warn("speaker direction: a second reply started while one was already being written; it was stopped so the model is asked once"));
+  }, () => log.warn("speaker direction: a second reply started while one was already being written; it was stopped so the model is asked once"), holdForChat);
 };

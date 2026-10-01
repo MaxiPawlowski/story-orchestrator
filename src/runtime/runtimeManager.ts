@@ -57,6 +57,7 @@ import type {
 import { withholds } from "./generationLifecycle";
 import { onEnterRollbackPlan } from "./npcReplyRewind";
 import { stagedPath } from "./worldInfoGates";
+import { chatSettle } from "./chatSettle";
 import type { MutationKind } from "./turnBridge";
 import { CoordinatorDelegates } from "./managerDelegates";
 import { required } from "@utils/guards";
@@ -221,7 +222,8 @@ export class RuntimeManager extends CoordinatorDelegates {
     loadedFallback: () => (this.loaded ? { ...this.loaded } : null),
   };
 
-  async loadSelectedFromChat() {
+  loadSelectedFromChat(): Promise<void> { return chatSettle.track(this.loadSelected()); }
+  private async loadSelected() {
     if (await loadSelectedStory(this.selectionDeps)) { void this.showAwayRecap().then((shown) => !shown && this.memory.chapters.showPreviously()); return; }
     if (getSelectedStoryId()) return;
     const run = beginRun(this.owner.ownership);
@@ -473,6 +475,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   getOwnership(): RunOwnership { return this.owner.ownership; }
 
   getRunContext(): RunContext { return this.owner.context(); }
+  getLoadedChatId(): string | null { return this.loaded ? this.loadedChatId : null; }
 
   getCachedSnapshot(): RuntimeSnapshot { return this.snapshotCache.read(); }
   touch() { this.snapshotCache.invalidate(); }

@@ -382,7 +382,7 @@
         "Kaian's spy past or Jasira's passed-over story is told unprompted ('Who knows what').",
         "Grant's orphanage beds come up before anyone asks ('Who knows what')."
       ],
-      "provocations": ["Switch between the two chats mid-reply once.", "Mention Wendhope yourself and see who reacts."],
+      "provocations": ["Switch to the other chat the moment a reply renders and send there at once (ST will not leave a group while it is still generating).", "Mention Wendhope yourself and see who reacts."],
       "flagWhen": ["Anything from the other chat showed up.", "Switching chats felt slow or lost state."],
       "stopWhen": "You reach Aegis Delights and Curios, or 40 minutes.",
       "rubric": [{ "feature": "story isolation" }, { "feature": "chat switching" }, { "feature": "Memory tab" }, { "feature": "transition timing" }],
@@ -809,7 +809,7 @@
       "story": { "kind": "adolion", "id": "adolion-adventurer" },
       "setup": { "mode": "player", "persona": "Any adventurer persona.", "chat": "fresh", "also": "adolion-esha", "startAt": "guild-hall", "settings": {}, "notes": ["so-session start opens a fresh Eshalanore chat first, then this adventurer chat."] },
       "drive": [
-        { "title": "Switch mid-generation", "aim": ["guild-hall", "road-to-wendhope"], "why": "Send, then switch to the Eshalanore chat while the reply streams.", "lines": ["We take Wendhope as the Loose Ends."] },
+        { "title": "Switch right after the reply", "aim": ["guild-hall", "road-to-wendhope"], "why": "Send, then switch to the Eshalanore chat the moment the reply renders, while the story's background passes still run. ST refuses to leave a group mid-generation (openGroupById, selectCharacterById), so this is the earliest switch a player can make.", "lines": ["We take Wendhope as the Loose Ends."] },
         { "title": "Branch", "aim": ["road-to-wendhope", "on-the-road"], "why": "Branch from an earlier message and continue both.", "lines": ["We ride north."] },
         { "title": "Reload during generation", "aim": ["on-the-road", "at-the-walls"], "why": "Send, then reload the page mid-stream.", "lines": ["We reach the walls. Hello the gate!"] }
       ],

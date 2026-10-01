@@ -8,6 +8,7 @@ import { loreEvidence } from "../worldInfoEvidence";
 import { startLoreEvidence } from "../worldInfoEvidenceHost";
 import { startSamplerOverlay } from "../samplerOverlayHost";
 import { startScanGating } from "../worldInfoScanHost";
+import { stagedPath } from "../worldInfoGates";
 import type { Disposers, WindowAccess } from "./types";
 import { log } from "@utils/log";
 
@@ -25,9 +26,13 @@ const startGating = (disposers: Disposers, exclusive: Parameters<typeof startSca
     if (scanGatingDisposed || scanGating) return;
     scanGating = startScanGating({
       chatId,
-      ownedChat: () => runtimeManager.getRunContext().claimedChat ?? null,
+      ownedChat: () => runtimeManager.getLoadedChatId(),
       story: () => runtimeManager.getStory(),
       path: () => runtimeManager.getEngineState()?.visitedPath ?? [],
+      filePath: () => {
+        const state = runtimeManager.getEngineState();
+        return state ? stagedPath(state.visitedPath, state.stagedFrom) : [];
+      },
       mirrorBook: () => runtimeManager.getMirrorBook(),
       exclusive,
       ownership: runtimeManager.getOwnership(),
