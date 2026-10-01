@@ -3,9 +3,9 @@
   "label": "none",
   "frozenAt": "2026-09-25",
   "responses": [
-    "[disable] #0\n[why] The market has closed for the night, so it is no longer relevant.",
-    "[disable] #0\n[why] The market has closed for the night, so it is no longer relevant.",
-    "[disable] #0\n[why] The market has closed for the night, so it is no longer relevant."
+    "[disable] #0 \"The Night Market\"\n[why] The market has closed at the first bell, so its lore entry no longer applies to the current scene.",
+    "[disable] #0 \"The Night Market\"\n[why] The market has closed for the night at the first bell, so its lore entry no longer applies to the current scene.",
+    "[disable] #0 \"The Night Market\"\n[why] The market has closed for the night, so its lore entry no longer matters to the ongoing story."
   ],
   "passes": [
     true,

@@ -1,0 +1,15 @@
+{
+  "id": "p13",
+  "label": "propose",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[create] Silverfall Lore || Silverfall Shrine || silverfall shrine, shrine, altar || The Silverfall Shrine holds the bones of the village's founder. The wraith only appears within sight of the shrine. Its altar was found wet with fresh blood.\n[why] The shrine has become central to the haunting and the fresh blood on its altar is a new established fact, so it now warrants its own entry.",
+    "[create] Silverfall Lore || Silverfall Shrine || silverfall shrine, shrine, altar || The Silverfall Shrine holds the bones of the village's founder. The wraith only appears within sight of the shrine. Its altar was found wet with fresh blood.\n[why] The shrine became a location of active importance in the story, and the established facts about it are not covered by the existing Silverfall entry.",
+    "[create] Silverfall Lore || Silverfall Shrine || silverfall shrine, shrine, altar || The Silverfall Shrine holds the bones of the village's founder. The wraith only appears within sight of the shrine. Its altar was found wet with fresh blood.\n[why] The shrine and its altar became central to the haunting, so a dedicated entry is now warranted."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

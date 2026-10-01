@@ -1,0 +1,15 @@
+{
+  "id": "n15",
+  "label": "none",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[why] The story has moved to the Grand Temple with the priests of Boher at prayer, but no listed entry needs switching, correcting, or creating; the existing Temple District and Holy Church entries already cover the established facts.",
+    "[why] The story has moved to the Grand Temple with the priests of Boher at prayer, but no listed entry needs switching, correcting, or creating; the existing Temple District and Holy Church entries already cover the established facts.",
+    "[why] The story has moved to the Grand Temple with the priests of Boher at prayer, but no listed entry needs switching, correcting, or creating; the existing Temple District and Holy Church entries already cover the established facts."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

@@ -1,0 +1,15 @@
+{
+  "id": "n13",
+  "label": "none",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[patch] #1 \"The Silverfall Wraith\" || It screams at midnight || cannot rest until the killer is named. || It screams at midnight and cannot rest until the killer is named. Its form is immaterial: a greataxe passes straight through it.\n[why] Belle's axe passing through the Wraith established that it is incorporeal, which the entry did not previously state.",
+    "[patch] #1 \"The Silverfall Wraith\" || It screams at midnight || cannot rest until the killer is named. || It screams at midnight and cannot rest until the killer is named. Belle's greataxe passed straight through it, so it cannot be harmed by ordinary weapons.\n[why] Belle's failed attempt to cleave the wraith established that it is immune to physical weapons, which the entry did not previously record.",
+    "[patch] #1 \"The Silverfall Wraith\" || It screams at midnight || cannot rest until the killer is named. || It screams at midnight and cannot rest until the killer is named. Belle's greataxe passed straight through it, so it cannot be harmed by ordinary weapons.\n[why] Belle's failed attempt to cleave the wraith established that it is immune to physical weapons, which the entry did not previously record."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

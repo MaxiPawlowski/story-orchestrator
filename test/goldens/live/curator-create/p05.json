@@ -3,9 +3,9 @@
   "label": "propose",
   "frozenAt": "2026-09-25",
   "responses": [
-    "[create] Greyfen Lore || Warden Hale || warden, hale || The warden of Greyfen Prison who accepts bribes in tobacco and keeps the master key on a chain around his neck.\n[create] Greyfen Lore || Bram || bram || An inmate who owes Warden Hale a favour.\n[why] New characters Warden Hale and Bram were introduced with established facts that warrant lore entries.",
-    "[create] Greyfen Lore || Warden Hale || warden, hale || The warden of Greyfen Prison who accepts bribes in tobacco and keeps the master key on a chain around his neck.\n[create] Greyfen Lore || Bram || bram || An inmate who owes Warden Hale a favour.\n[why] New characters Warden Hale and Bram were established in the story.",
-    "[create] Greyfen Lore || Warden Hale || warden, hale || The warden of Greyfen Prison who accepts bribes in tobacco and keeps the master key on a chain at his neck.\n[create] Greyfen Lore || Bram || bram || An inmate who owes Warden Hale a favour.\n[why] New characters Warden Hale and Bram were established in the story."
+    "[create] Greyfen Lore || Warden Hale || warden hale, hale, warden || Runs Greyfen Prison and takes bribes in tobacco. Keeps the master key on a chain at his neck.\n[why] The story established Warden Hale as a named figure with two recurring facts (bribes, master key), and no existing entry covers him.",
+    "[create] Greyfen Lore || Warden Hale || warden hale, hale, warden || Runs Greyfen Prison and takes bribes in tobacco. Keeps the master key on a chain at his neck.\n[create] Greyfen Lore || Bram's Debt || bram, favour, debt || Bram owes Warden Hale a favour.\n[why] The story established Warden Hale's role, his tobacco bribes, his neck-chain master key, and Bram's owed favour, none of which any existing entry covers.",
+    "[create] Greyfen Lore || Warden Hale || warden hale, hale, warden || Runs Greyfen Prison and takes bribes in tobacco. Keeps the master key on a chain at his neck.\n[create] Greyfen Lore || Bram's Debt || bram, favour, debt || Bram owes Warden Hale a favour.\n[why] The story established Warden Hale's role, his tobacco bribes, his neck-chain master key, and Bram's owed favour, none of which any existing entry covers."
   ],
   "passes": [
     true,

@@ -122,3 +122,82 @@ and `MEASURED_FIXTURE_REVISION` are separate maps merged into the typesafe facts
 `fixtureStale()` runs after the model check in `judgeReadiness()`; `extra.fixtureRevisions`
 overrides the current map (tests use it as "re-measured"). Rebased keying only needs to carry the
 field with the fact.
+
+## Gate record (live re-measure) — 2026-10-01, lane 4, branch `v26-judge-remeasure`
+
+Lane 4 (adolion-fresh seed, no chat open, images/sprites off, ComfyUI never contacted), judge plugin 1.3.0
+(`keySource: dotenv`), every judge run on dev bundle `6f56533e8608` (master `747561fd`), model `jev-1.13.0`
+(`modelVerdict: matched` on every run), page reloaded before each use. The staged bundle moved to
+`ceb15ac19ec0` at 11:27:36Z, after the last judge run (11:21:32Z) and the curator suite (11:26:48Z); only the
+authoring runs ran on it. Evidence: `test/measurements/v2.6-15-judge/` (`summary.json`, run headers; raw logs
+and per-run evidence under `raw/`, gitignored).
+
+### Judge, one `so-judge calibrate` per use
+
+| Readiness key(s) | Use | Right/rows | Families vs floor | p50 ms | Verdict |
+|---|---|---|---|---|---|
+| `stallCheck` | stall | 84/84 | direct 27/27, kept 57/57 | 243 | on |
+| `memoryVerify` | memory-verify | 35/36 (0.972 ≥ 0.85) | — | 236 | on |
+| `warden` | continuity | 65/67 | reply 22/23, broken 11/12, consistent 32/32 | 247 | on |
+| `expansionCritic` | critic | 134/136 | verdict 34/34, contradicts 33/34, advances 33/34, newCharacter 34/34 | 245 | on |
+| `expansionLookahead`, `lookahead` | variants | 16/16 | pick 8/8, rejected 8/8 | 270 | on |
+| `curatorFilter` | curator-filter | 16/18 | recall 10/10 (narrowed 6/8, floor 0) | 281 | on |
+| `typedExtraction` | typed | 107/129 | answered 53/54 (coverage 54/75, floor 0) | 260 | on |
+| `memoryPairs` | memory-pairs | 27/29 (0.931 ≥ 0.85) | — | 254 | on |
+| `sceneTrigger`, `sceneTracker` | scene (`--chunk 40`) | 207/214 | present 66/70, location 24/26, time 26/26, heading 51/52, break 22/22, nobreak 18/18 | 243 | on |
+| `director` | director | 22/25 (0.88 ≥ 0.85) | — | 245 | on |
+| `agencyCheck` | agency | 41/41 | writes 18/18, clean 23/23 | 241 | on |
+| `houseRules` | house-rules | 79/80 | broken 15/15, kept 11/11, untouched 53/54 | 235 | on |
+| `loreSelect` | lore | 52/58 | recall 26/30, precision 26/28 | 291 | on |
+| (spike) | warden-lore | 60/60 | contradicts 14/14, consistent 15/15, untouched 31/31 | 233 | at floor; stays unbuilt until the lead decides |
+
+Every use is at or above its predeclared floor, so **no use goes off by default**: `defaultJudgeUses()` and
+`stagecraft.wardenEnabled` are unchanged and no off-by-default list was added. `JUDGE_READINESS` carries the new
+rate and p50 per key and `MEASURED_FIXTURE_REVISION` equals `JUDGE_FIXTURE_REVISION` for all 15 keys, so every
+row reads `measured`. p50 fell from 500–1500 ms to 235–291 ms on every use (same model, same plugin path;
+cause not investigated, the rates do not depend on it). The warden-lore facts arm (optional, 26 calls) was
+not run.
+
+Scene replay golden: `calibrate-node.mts scene --record` re-recorded `test/goldens/judge/scene.json` (66 calls,
+206/214; present 66/70, location 24/26, time 26/26, heading 50/52, break 22/22, nobreak 18/18), so R22–R31 are
+covered and `scene.test.ts` holds every family at its floor with no unanswered rows.
+
+### No TypeSafe calls (DeepSeek, `deepseek 4.1 flash`, the lane's role map)
+
+- Curator create (F5): `so-curator-suite run --expect-count 22 --record`: propose 0.909 (floor 0.90), **none
+  0.788 (floor 1.00)**: NOT BUILT. Misses: p04 0/3 (no create), n01 0/3 and n12 0/3 (named-once, created),
+  n16 2/3 (roster). Model alone: proposeCreated 0.909, noneCreated 0.212. The 22 goldens replay in jest.
+- Authoring + hold-out: arms `shared-ceb15ac19ec0-r1` (validity 12/12, opShape 12/12, firstTry 8/12) and `-r2`
+  (11/12, 11/12, firstTry 9/12; a06 failed after its repair), hold-out 5/5 validity and opShape in both;
+  `verdict` = **recommended** ("both runs meet every floor and every hold-out row").
+
+### Call counts
+
+- TypeSafe: 412 measured page calls + 66 off-page (scene golden) = 478 as planned, plus **~72 discarded**: the
+  first pass ran the uses back to back and overran the plugin's 60 calls/min/user limit. Calls past the limit
+  were refused locally (`fallback=busy`, never sent upstream), but 72 answered before the refusals began, in
+  continuity (4), typed (33) and agency (35). Those runs and their goldens were thrown away and re-run 65 s
+  apart. **Total ≈ 550.**
+- DeepSeek: curator 66 (22 × 3) + authoring 46 (17 cases × 2 runs + 12 repair passes) = **112**.
+
+### Harness fixes found by the run
+
+- `so-judge calibrate --chunk <rows>` (slices 61 s apart, merged; p50 = median of the first answered row per
+  case) and a refusal to record any run with a `busy` row (`scripts/debug/lib/calibrationChunks.mts` + node test).
+- `scripts/spike/typesafe/calibrate-node.mts` imported its calibrations from `@judge/index`, which stopped
+  re-exporting them in v2.5 plan 12 (`@judge/calibration`), and its in-process plugin could not resolve the key
+  (accounts read as on off-page): every row `fallback=error`, and `--record` wrote an EMPTY golden. Now imports
+  both barrels, builds the handler with `accountsEnabled: false`, paces at ≤ 2 in flight and ≤ 60/min, and
+  refuses to record zero answers.
+- `so-role-calibration` reads `dist/manifest.json` of the checkout; a fresh worktree has none (ENOENT before any
+  call). The staged manifest was copied into the worktree's ignored `dist/`.
+
+### Gates
+
+`npm run gates -- --no-storybook`: all green. typecheck, typecheck:test, lint; test (400 suites passed, 1
+skipped; 5 212 passed, 1 skipped); build; build:dev; test:debug (740 pass); test:release (92: 90 pass, 2
+skipped); test:replay (30 of 30 killed); test:plugin (76: 73 pass, 3 skipped). **Storybook not run**: it cannot
+find stories from a worktree.
+
+`so-run-header diff` against `run-header-start.json`: 15 blocking paths, all `build.*`/`bundle.served.*` (the
+staged-bundle swap and the worktree's copied manifest); no settings, profile, judge or inventory drift.

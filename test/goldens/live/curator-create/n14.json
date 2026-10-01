@@ -1,0 +1,15 @@
+{
+  "id": "n14",
+  "label": "none",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[disable] #1 \"The Sunstone Lance\"\n[why] The lance has been lifted from the altar, so the sealed-beneath-the-altar entry no longer matches the story's state.",
+    "[patch] #1 \"The Sunstone Lance\" || A relic lance sealed beneath || altar. || A relic lance, now lifted from beneath the Sun Court's altar. It burns any undead it touches.\n[why] Arryn has removed the lance from the altar, so the entry's claim that it is still sealed there is no longer true.",
+    "[patch] #1 \"The Sunstone Lance\" || A relic lance sealed beneath || altar. || A relic lance once sealed beneath the Sun Court's altar, now lifted from its resting place. It burns any undead it touches.\n[why] Arryn has removed the lance from beneath the altar, so the entry's claim that it remains sealed is no longer true."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

@@ -106,7 +106,7 @@ describe("T24 meter (v2.4 plan 07, X23)", () => {
 describe("T24 readiness by model (v2.4 plan 07)", () => {
   it("names the model every measured row was measured on, and adds the warden's row", () => {
     for (const fact of Object.values(JUDGE_READINESS)) expect(fact.measuredOn).toBe(fact.calibration === null ? null : "jev-1.13.0");
-    expect(JUDGE_READINESS.warden).toMatchObject({ calibration: 0.9765, latencyP50Ms: 720, live: "J8.5, J8.6", measuredOn: "jev-1.13.0" });
+    expect(JUDGE_READINESS.warden).toMatchObject({ calibration: 0.9701, latencyP50Ms: 247, live: "J8.5, J8.6", measuredOn: "jev-1.13.0" });
   });
 
   it("maps every use string the call ring records to readiness rows", () => {
@@ -149,7 +149,7 @@ describe("T24 readiness by model (v2.4 plan 07)", () => {
 
   it("lists the warden only when its own switch is on, under the judge's master switch", () => {
     expect(remeasured(settings()).some((row) => row.key === "warden")).toBe(false);
-    expect(remeasured(settings(), {}, null, { warden: true }).find((row) => row.key === "warden")).toMatchObject({ enabled: true, verdict: "measured", calibration: 0.9765 });
+    expect(remeasured(settings(), {}, null, { warden: true }).find((row) => row.key === "warden")).toMatchObject({ enabled: true, verdict: "measured", calibration: 0.9701 });
     expect(remeasured(settings({ enabled: false }), {}, null, { warden: true }).find((row) => row.key === "warden")?.verdict).toBe("off");
     expect(remeasured(settings({ model: "jev-1.14.0" }), {}, null, { warden: true }).find((row) => row.key === "warden")?.verdict).toBe("unproven");
   });

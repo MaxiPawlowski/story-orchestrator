@@ -23,9 +23,9 @@ if (!['director', 'memory-verify', 'memory-pairs', 'scene', 'lore', 'curator-fil
   process.exit(use ? 1 : 0);
 }
 
-const judge = await import('@judge/index');
+const judge = { ...(await import('@judge/index')), ...(await import('@judge/calibration')) } as any;
 const plugin = await import(pathToFileURL(resolve(PROJECT_ROOT, 'server-plugin', 'story-orchestrator-judge', 'index.mjs')).href);
-const handlers = plugin.createHandlers();
+const handlers = plugin.createHandlers({ accountsEnabled: false });
 
 const transport = async (request: unknown) => {
   const out: { status: number; body: unknown } = { status: 200, body: null };
@@ -42,8 +42,22 @@ const transport = async (request: unknown) => {
 
 const fixture = JSON.parse(readFileSync(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', `${fixtureName}.json`), 'utf-8'));
 const calls: Array<{ state: unknown; questions: unknown; answers: unknown }> = [];
+const stamps: number[] = [];
+let inFlight = 0;
+const pace = async () => {
+  for (;;) {
+    const now = Date.now();
+    while (stamps.length && now - stamps[0] >= 61_000) stamps.shift();
+    if (inFlight < 2 && stamps.length < 60) break;
+    await new Promise((done) => setTimeout(done, 250));
+  }
+  inFlight += 1;
+  stamps.push(Date.now());
+};
 const ask = async (request: any) => {
-  const result = await judge.askJudge(transport as any, { ...request, model: judge.JUDGE_DEFAULT_MODEL }, { timeoutMs: 10_000 });
+  await pace();
+  const result = await judge.askJudge(transport as any, { ...request, model: judge.JUDGE_DEFAULT_MODEL }, { timeoutMs: 10_000 }).finally(() => { inFlight -= 1; });
+  if (result.fallback === 'busy') throw new Error('plugin limiter refused a call (busy): nothing recorded');
   if (result.answers) calls.push({ state: request.state, questions: request.questions, answers: result.answers });
   return result;
 };
@@ -57,6 +71,10 @@ const families = ['scene', 'lore', 'curator-filter', 'continuity', 'backgrounds'
 families.forEach((row: any) => console.log(`${row.ok ? 'ok  ' : 'FAIL'} ${row.family.padEnd(9)} ${row.right}/${row.total} (${((row.right / row.total) * 100).toFixed(0)}%) floor ${row.floor}`));
 const rate = families.length ? (families.every((row: any) => row.ok) ? 1 : 0) : report.right / report.total;
 console.log(`\n${use}: ${report.right}/${report.total} (${(rate * 100).toFixed(0)}%), p50 ${report.p50LatencyMs} ms, model ${report.model}, floor ${min}${use === 'memory-pairs' ? `, harmful ${harmful}` : ''}`);
+if (rest.includes('--record') && use !== 'director' && calls.length === 0) {
+  console.log('nothing answered: not recording an empty golden');
+  process.exit(1);
+}
 if (rest.includes('--record') && use !== 'director') {
   const out = join(PROJECT_ROOT, 'test', 'goldens', 'judge');
   mkdirSync(out, { recursive: true });

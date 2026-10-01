@@ -1,0 +1,15 @@
+{
+  "id": "n12",
+  "label": "none",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[create] Goblin Warrens Lore || Grubnik || Grubnik, goblin || A goblin at the warren's mouth who accepted a copper ring from Dalan in exchange for directions.\n[why] Grubnik is named twice in the established facts as a goblin who took a bribe, and no existing entry covers him.",
+    "[create] Goblin Warrens Lore || Grubnik || Grubnik, goblin || A goblin at the warren's mouth who accepted a copper ring from Dalan in exchange for directions.\n[why] Grubnik is named twice in the established facts as a goblin who took a bribe, and no existing entry covers him.",
+    "[create] Goblin Warrens Lore || Grubnik || Grubnik, goblin || A goblin at the warren's mouth who accepted a copper ring from Dalan in exchange for directions.\n[why] Grubnik is named twice in the established facts as a specific goblin at the warren's mouth, and no existing entry covers him."
+  ],
+  "passes": [
+    false,
+    false,
+    false
+  ]
+}

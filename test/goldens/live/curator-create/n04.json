@@ -3,9 +3,9 @@
   "label": "none",
   "frozenAt": "2026-09-25",
   "responses": [
-    "NONE\n[why] No changes are necessary as the established facts are already covered by the existing entries.",
-    "NONE\n[why] No changes are necessary as the established facts are already covered by the existing entries.",
-    "NONE\n[why] The established facts already match the existing lorebook entries."
+    "NONE\n[why] The story's events only confirm what entry #2 already states about Warden Hale taking tobacco bribes; no entry needs enabling, disabling, or correcting.",
+    "NONE",
+    "NONE"
   ],
   "passes": [
     true,

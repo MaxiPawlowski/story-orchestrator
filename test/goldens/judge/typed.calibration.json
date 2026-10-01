@@ -1,32 +1,34 @@
 {
-  "recordedAt": "2026-09-22T11:20:21.597Z",
+  "recordedAt": "2026-10-01T11:12:32.989Z",
   "summary": {
     "use": "typed",
     "fixture": "typed",
-    "right": 109,
-    "total": 130,
-    "rate": 0.8385,
+    "right": 107,
+    "total": 129,
+    "rate": 0.8295,
     "families": [
       {
         "family": "answered",
-        "right": 54,
-        "total": 55,
+        "right": 53,
+        "total": 54,
         "floor": 0.95,
         "ok": true
       },
       {
         "family": "coverage",
-        "right": 55,
+        "right": 54,
         "total": 75,
         "floor": 0,
         "ok": true
       }
     ],
-    "p50LatencyMs": 1290,
+    "p50LatencyMs": 260,
+    "provider": "typesafe",
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
-    "modelMatched": true,
+    "modelVerdict": "matched",
     "min": 0.85,
+    "minGiven": false,
     "ok": true
   },
   "rows": [
@@ -34,836 +36,829 @@
       "id": "H01.coverage:approached_board",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 296
+      "latencyMs": 303
     },
     {
       "id": "H01.coverage:mission_accepted",
       "right": true,
       "picked": "not shown",
-      "latencyMs": 296
+      "latencyMs": 303
     },
     {
       "id": "H01.answered:mission_accepted",
       "right": true,
       "picked": "null",
       "detail": "[false]",
-      "latencyMs": 296
+      "latencyMs": 303
     },
     {
       "id": "H02.coverage:approached_board",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 235
+      "latencyMs": 290
     },
     {
       "id": "H03.coverage:mission_accepted",
       "right": true,
-      "picked": "true@0.95",
-      "latencyMs": 255
+      "picked": "true@0.94",
+      "latencyMs": 268
     },
     {
       "id": "H03.answered:mission_accepted",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 255
+      "latencyMs": 268
     },
     {
       "id": "H04.coverage:mission_accepted",
       "right": true,
       "picked": "false@0.99",
-      "latencyMs": 238
+      "latencyMs": 247
     },
     {
       "id": "H04.answered:mission_accepted",
       "right": true,
       "picked": "false",
       "detail": "[false]",
-      "latencyMs": 238
+      "latencyMs": 247
     },
     {
       "id": "H05.coverage:mission_accepted",
       "right": true,
-      "picked": "false@0.92",
-      "latencyMs": 271
+      "picked": "false@0.94",
+      "latencyMs": 234
     },
     {
       "id": "H05.answered:mission_accepted",
       "right": true,
       "picked": "false",
       "detail": "[false]",
-      "latencyMs": 271
+      "latencyMs": 234
     },
     {
       "id": "H06.coverage:luke_decision",
       "right": true,
       "picked": "\"accepted\"@0.99",
-      "latencyMs": 288
+      "latencyMs": 260
     },
     {
       "id": "H06.answered:luke_decision",
       "right": true,
       "picked": "\"accepted\"",
       "detail": "[\"accepted\"]",
-      "latencyMs": 288
+      "latencyMs": 260
     },
     {
       "id": "H07.coverage:luke_decision",
       "right": true,
-      "picked": "\"declined\"@0.96",
-      "latencyMs": 472
+      "picked": "\"declined\"@0.97",
+      "latencyMs": 279
     },
     {
       "id": "H07.answered:luke_decision",
       "right": true,
       "picked": "\"declined\"",
       "detail": "[\"declined\"]",
-      "latencyMs": 472
+      "latencyMs": 279
     },
     {
       "id": "H08.coverage:luke_decision",
       "right": true,
       "picked": "\"undecided\"@0.99",
-      "latencyMs": 495
+      "latencyMs": 279
     },
     {
       "id": "H08.answered:luke_decision",
       "right": true,
       "picked": "\"undecided\"",
       "detail": "[\"undecided\"]",
-      "latencyMs": 495
+      "latencyMs": 279
     },
     {
       "id": "H09.coverage:luke_decision",
       "right": true,
       "picked": "\"declined\"@1",
-      "latencyMs": 512
+      "latencyMs": 277
     },
     {
       "id": "H09.answered:luke_decision",
       "right": true,
       "picked": "\"declined\"",
       "detail": "[\"declined\"]",
-      "latencyMs": 512
+      "latencyMs": 277
     },
     {
       "id": "H10.coverage:riddle_answer",
       "right": true,
       "picked": "\"moon\"@1",
-      "latencyMs": 499
+      "latencyMs": 245
     },
     {
       "id": "H10.answered:riddle_answer",
       "right": true,
       "picked": "\"moon\"",
       "detail": "[\"moon\"]",
-      "latencyMs": 499
+      "latencyMs": 245
     },
     {
       "id": "H10.coverage:chamber_entered",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 499
+      "latencyMs": 245
     },
     {
       "id": "H11.coverage:riddle_answer",
       "right": true,
       "picked": "\"wrong\"@0.98",
-      "latencyMs": 545
+      "latencyMs": 230
     },
     {
       "id": "H11.answered:riddle_answer",
       "right": true,
       "picked": "\"wrong\"",
       "detail": "[\"wrong\"]",
-      "latencyMs": 545
+      "latencyMs": 230
     },
     {
       "id": "H12.coverage:riddle_answer",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 616
+      "latencyMs": 279
     },
     {
       "id": "H13.coverage:luke_alive",
       "right": true,
       "picked": "true@1",
-      "latencyMs": 767
+      "latencyMs": 262
     },
     {
       "id": "H13.answered:luke_alive",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 767
+      "latencyMs": 262
     },
     {
       "id": "H14.coverage:luke_alive",
       "right": true,
       "picked": "false@0.99",
-      "latencyMs": 733
+      "latencyMs": 260
     },
     {
       "id": "H14.answered:luke_alive",
       "right": true,
       "picked": "false",
       "detail": "[false]",
-      "latencyMs": 733
+      "latencyMs": 260
     },
     {
       "id": "H15.coverage:chamber_entered",
       "right": true,
       "picked": "true@0.99",
-      "latencyMs": 718
+      "latencyMs": 242
     },
     {
       "id": "H15.answered:chamber_entered",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 718
+      "latencyMs": 242
     },
     {
       "id": "H15.coverage:artifact_secured",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 718
+      "latencyMs": 242
     },
     {
       "id": "H16.coverage:artifact_secured",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 766
+      "latencyMs": 291
     },
     {
       "id": "H17.coverage:reward_claimed",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 794
+      "latencyMs": 273
     },
     {
       "id": "H18.coverage:reward_claimed",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 845
+      "latencyMs": 277
     },
     {
       "id": "H19.coverage:guardian_respect",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 992
+      "latencyMs": 284
     },
     {
       "id": "H20.coverage:riddle_answer",
       "right": true,
       "picked": "\"wrong\"@0.97",
-      "latencyMs": 972
+      "latencyMs": 248
     },
     {
       "id": "H20.answered:riddle_answer",
       "right": true,
       "picked": "\"wrong\"",
       "detail": "[\"wrong\"]",
-      "latencyMs": 972
+      "latencyMs": 248
     },
     {
       "id": "H20.coverage:artifact_secured",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 972
+      "latencyMs": 248
     },
     {
       "id": "H23.coverage:hull_breach_sealed",
       "right": true,
       "picked": "false@1",
-      "latencyMs": 1023
+      "latencyMs": 257
     },
     {
       "id": "H23.answered:hull_breach_sealed",
       "right": true,
       "picked": "false",
       "detail": "[false]",
-      "latencyMs": 1023
+      "latencyMs": 257
     },
     {
       "id": "H23.coverage:reactor_state",
       "right": true,
       "picked": "\"unstable\"@1",
-      "latencyMs": 1023
+      "latencyMs": 257
     },
     {
       "id": "H23.answered:reactor_state",
       "right": true,
       "picked": "\"unstable\"",
       "detail": "[\"unstable\"]",
-      "latencyMs": 1023
+      "latencyMs": 257
     },
     {
       "id": "H23.coverage:crew_injured",
       "right": true,
-      "picked": "2@1",
-      "latencyMs": 1023
+      "picked": "2@0.99",
+      "latencyMs": 257
     },
     {
       "id": "H23.answered:crew_injured",
       "right": true,
       "picked": "2",
       "detail": "[2]",
-      "latencyMs": 1023
+      "latencyMs": 257
     },
     {
       "id": "H23.coverage:distress_sent",
       "right": true,
       "picked": "not shown",
-      "latencyMs": 1023
+      "latencyMs": 257
     },
     {
       "id": "H23.answered:distress_sent",
       "right": true,
       "picked": "null",
       "detail": "[false]",
-      "latencyMs": 1023
+      "latencyMs": 257
     },
     {
       "id": "H24.coverage:reactor_state",
       "right": true,
       "picked": "\"stable\"@1",
-      "latencyMs": 1068
+      "latencyMs": 226
     },
     {
       "id": "H24.answered:reactor_state",
       "right": true,
       "picked": "\"stable\"",
       "detail": "[\"stable\"]",
-      "latencyMs": 1068
+      "latencyMs": 226
     },
     {
       "id": "H24.coverage:distress_sent",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 1068
+      "latencyMs": 226
     },
     {
       "id": "H25.coverage:trust_in_halo",
-      "right": true,
-      "picked": "0@0.82",
-      "latencyMs": 1197
-    },
-    {
-      "id": "H25.answered:trust_in_halo",
-      "right": true,
-      "picked": "0",
-      "detail": "[0,1]",
-      "latencyMs": 1197
+      "right": false,
+      "picked": "under floor",
+      "latencyMs": 247
     },
     {
       "id": "H26.coverage:crew_injured",
       "right": true,
       "picked": "5@0.99",
-      "latencyMs": 1223
+      "latencyMs": 253
     },
     {
       "id": "H26.answered:crew_injured",
       "right": true,
       "picked": "5",
       "detail": "[5]",
-      "latencyMs": 1223
+      "latencyMs": 253
     },
     {
       "id": "H27.coverage:ledger_found",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 1290
+      "latencyMs": 275
     },
     {
       "id": "H28.coverage:bribe_accepted",
       "right": true,
       "picked": "false@1",
-      "latencyMs": 1296
+      "latencyMs": 229
     },
     {
       "id": "H28.answered:bribe_accepted",
       "right": true,
       "picked": "false",
       "detail": "[false]",
-      "latencyMs": 1296
+      "latencyMs": 229
     },
     {
       "id": "H28.coverage:suspect",
       "right": true,
       "picked": "not shown",
-      "latencyMs": 1296
+      "latencyMs": 229
     },
     {
       "id": "H28.answered:suspect",
       "right": true,
       "picked": "\"unknown\"",
       "detail": "[\"brandt\",\"unknown\"]",
-      "latencyMs": 1296
+      "latencyMs": 229
     },
     {
       "id": "H29.coverage:suspect",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 1265
+      "latencyMs": 284
     },
     {
       "id": "H30.coverage:witness_alive",
       "right": true,
       "picked": "true@0.99",
-      "latencyMs": 1303
+      "latencyMs": 243
     },
     {
       "id": "H30.answered:witness_alive",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 1303
+      "latencyMs": 243
     },
     {
       "id": "H31.coverage:ghost_seen",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 1434
+      "latencyMs": 268
     },
     {
       "id": "H32.coverage:portrait_moved",
       "right": true,
       "picked": "true@1",
-      "latencyMs": 1473
+      "latencyMs": 250
     },
     {
       "id": "H32.answered:portrait_moved",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 1473
+      "latencyMs": 250
     },
     {
       "id": "H32.coverage:ghost_seen",
       "right": true,
       "picked": "not shown",
-      "latencyMs": 1473
+      "latencyMs": 250
     },
     {
       "id": "H32.answered:ghost_seen",
       "right": true,
       "picked": "null",
       "detail": "[false]",
-      "latencyMs": 1473
+      "latencyMs": 250
     },
     {
       "id": "H32.coverage:candles_lit",
       "right": true,
-      "picked": "3@0.98",
-      "latencyMs": 1473
+      "picked": "3@0.96",
+      "latencyMs": 250
     },
     {
       "id": "H32.answered:candles_lit",
       "right": true,
       "picked": "3",
       "detail": "[3]",
-      "latencyMs": 1473
+      "latencyMs": 250
     },
     {
       "id": "L01.coverage:luke_decision",
       "right": true,
       "picked": "\"accepted\"@1",
-      "latencyMs": 1554
+      "latencyMs": 280
     },
     {
       "id": "L01.answered:luke_decision",
       "right": true,
       "picked": "\"accepted\"",
       "detail": "[\"accepted\"]",
-      "latencyMs": 1554
+      "latencyMs": 280
     },
     {
       "id": "L02.coverage:hull_breach_sealed",
       "right": true,
-      "picked": "true@0.98",
-      "latencyMs": 1571
+      "picked": "true@0.99",
+      "latencyMs": 252
     },
     {
       "id": "L02.answered:hull_breach_sealed",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 1571
+      "latencyMs": 252
     },
     {
       "id": "L02.coverage:reactor_state",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 1571
+      "latencyMs": 252
     },
     {
       "id": "L03.coverage:bribe_accepted",
       "right": true,
       "picked": "true@0.96",
-      "latencyMs": 1547
+      "latencyMs": 233
     },
     {
       "id": "L03.answered:bribe_accepted",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 1547
+      "latencyMs": 233
     },
     {
       "id": "extractor.coverage:player_has_key",
       "right": true,
       "picked": "true@1",
-      "latencyMs": 1549
+      "latencyMs": 319
     },
     {
       "id": "extractor.answered:player_has_key",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 1549
+      "latencyMs": 319
     },
     {
       "id": "extractor.coverage:mara_trust",
       "right": true,
       "picked": "3@0.99",
-      "latencyMs": 1549
+      "latencyMs": 319
     },
     {
       "id": "extractor.answered:mara_trust",
       "right": true,
       "picked": "3",
       "detail": "[3]",
-      "latencyMs": 1549
+      "latencyMs": 319
     },
     {
       "id": "extractor.coverage:location",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 1549
+      "latencyMs": 319
     },
     {
       "id": "extractor2.coverage:district",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 1709
+      "latencyMs": 248
     },
     {
       "id": "extractor2.coverage:threat_level",
       "right": true,
-      "picked": "2@0.93",
-      "latencyMs": 1709
+      "picked": "2@0.9",
+      "latencyMs": 248
     },
     {
       "id": "extractor2.answered:threat_level",
       "right": true,
       "picked": "2",
       "detail": "[2]",
-      "latencyMs": 1709
+      "latencyMs": 248
     },
     {
       "id": "extractor3.coverage:torch_lit",
       "right": true,
-      "picked": "true@0.94",
-      "latencyMs": 1745
+      "picked": "true@0.98",
+      "latencyMs": 275
     },
     {
       "id": "extractor3.answered:torch_lit",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 1745
+      "latencyMs": 275
     },
     {
       "id": "extractor3.coverage:rats_seen",
       "right": true,
-      "picked": "3@0.92",
-      "latencyMs": 1745
+      "picked": "3@0.91",
+      "latencyMs": 275
     },
     {
       "id": "extractor3.answered:rats_seen",
       "right": true,
       "picked": "3",
       "detail": "[3]",
-      "latencyMs": 1745
+      "latencyMs": 275
     },
     {
       "id": "extractor4.coverage:signal_strength",
       "right": true,
-      "picked": "0.9@0.99",
-      "latencyMs": 1758
+      "picked": "0.9@1",
+      "latencyMs": 275
     },
     {
       "id": "extractor4.answered:signal_strength",
       "right": true,
       "picked": "0.9",
       "detail": "[0.9]",
-      "latencyMs": 1758
+      "latencyMs": 275
     },
     {
       "id": "extractor4.coverage:crew_morale",
       "right": true,
       "picked": "not shown",
-      "latencyMs": 1758
+      "latencyMs": 275
     },
     {
       "id": "extractor4.answered:crew_morale",
       "right": false,
       "picked": "null",
       "detail": "[8]",
-      "latencyMs": 1758
+      "latencyMs": 275
     },
     {
       "id": "extractor5.coverage:torch_lit",
       "right": true,
       "picked": "true@1",
-      "latencyMs": 1771
+      "latencyMs": 265
     },
     {
       "id": "extractor5.answered:torch_lit",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 1771
+      "latencyMs": 265
     },
     {
       "id": "extractor6.coverage:supplies",
       "right": true,
       "picked": "3@1",
-      "latencyMs": 1823
+      "latencyMs": 228
     },
     {
       "id": "extractor6.answered:supplies",
       "right": true,
       "picked": "3",
       "detail": "[3]",
-      "latencyMs": 1823
+      "latencyMs": 228
     },
     {
       "id": "extractor7.coverage:hull_integrity",
       "right": true,
       "picked": "0.6@0.99",
-      "latencyMs": 1802
+      "latencyMs": 224
     },
     {
       "id": "extractor7.answered:hull_integrity",
       "right": true,
       "picked": "0.6",
       "detail": "[0.6]",
-      "latencyMs": 1802
+      "latencyMs": 224
     },
     {
       "id": "extractor8.coverage:weather",
       "right": true,
       "picked": "\"fog\"@1",
-      "latencyMs": 1933
+      "latencyMs": 241
     },
     {
       "id": "extractor8.answered:weather",
       "right": true,
       "picked": "\"fog\"",
       "detail": "[\"fog\"]",
-      "latencyMs": 1933
+      "latencyMs": 241
     },
     {
       "id": "extractor9.coverage:stance",
       "right": true,
-      "picked": "\"wary\"@0.92",
-      "latencyMs": 1972
+      "picked": "\"wary\"@0.88",
+      "latencyMs": 228
     },
     {
       "id": "extractor9.answered:stance",
       "right": true,
       "picked": "\"wary\"",
       "detail": "[\"wary\"]",
-      "latencyMs": 1972
+      "latencyMs": 228
     },
     {
       "id": "extractor10.coverage:door_open",
       "right": true,
       "picked": "true@1",
-      "latencyMs": 1994
+      "latencyMs": 238
     },
     {
       "id": "extractor10.answered:door_open",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 1994
+      "latencyMs": 238
     },
     {
       "id": "extractor10.coverage:alarm",
       "right": true,
       "picked": "true@1",
-      "latencyMs": 1994
+      "latencyMs": 238
     },
     {
       "id": "extractor10.answered:alarm",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 1994
+      "latencyMs": 238
     },
     {
       "id": "extractor10.coverage:guards",
       "right": true,
-      "picked": "2@0.99",
-      "latencyMs": 1994
+      "picked": "2@1",
+      "latencyMs": 238
     },
     {
       "id": "extractor10.answered:guards",
       "right": true,
       "picked": "2",
       "detail": "[2]",
-      "latencyMs": 1994
+      "latencyMs": 238
     },
     {
       "id": "extractor11.coverage:bridge_lowered",
       "right": true,
       "picked": "true@1",
-      "latencyMs": 2004
+      "latencyMs": 218
     },
     {
       "id": "extractor11.answered:bridge_lowered",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 2004
+      "latencyMs": 218
     },
     {
       "id": "extractor12.coverage:pact_sealed",
       "right": true,
       "picked": "true@1",
-      "latencyMs": 2077
+      "latencyMs": 233
     },
     {
       "id": "extractor12.answered:pact_sealed",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 2077
+      "latencyMs": 233
     },
     {
       "id": "extractor13.coverage:chest_found",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 2086
+      "latencyMs": 248
     },
     {
       "id": "extractor14.coverage:rope_cut",
       "right": true,
       "picked": "true@1",
-      "latencyMs": 2195
+      "latencyMs": 249
     },
     {
       "id": "extractor14.answered:rope_cut",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 2195
+      "latencyMs": 249
     },
     {
       "id": "extractor15.coverage:gate_breached",
       "right": true,
       "picked": "true@1",
-      "latencyMs": 2235
+      "latencyMs": 263
     },
     {
       "id": "extractor15.answered:gate_breached",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 2235
+      "latencyMs": 263
     },
     {
       "id": "extractor17.coverage:password",
       "right": true,
-      "picked": "\"nightingale\"@1",
-      "latencyMs": 2309
+      "picked": "\"nightingale\"@0.99",
+      "latencyMs": 263
     },
     {
       "id": "extractor17.answered:password",
       "right": true,
       "picked": "\"nightingale\"",
       "detail": "[\"nightingale\"]",
-      "latencyMs": 2309
+      "latencyMs": 263
     },
     {
       "id": "extractor18.coverage:ally_wounded",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 2228
+      "latencyMs": 266
     },
     {
       "id": "extractor19.coverage:bribe_taken",
       "right": true,
       "picked": "true@1",
-      "latencyMs": 2305
+      "latencyMs": 239
     },
     {
       "id": "extractor19.answered:bribe_taken",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 2305
+      "latencyMs": 239
     },
     {
       "id": "extractor20.coverage:location",
       "right": true,
-      "picked": "\"cave\"@0.97",
-      "latencyMs": 2339
+      "picked": "\"cave\"@0.96",
+      "latencyMs": 303
     },
     {
       "id": "extractor20.answered:location",
       "right": true,
       "picked": "\"cave\"",
       "detail": "[\"cave\"]",
-      "latencyMs": 2339
+      "latencyMs": 303
     },
     {
       "id": "extractor21.coverage:gate_opened",
       "right": true,
       "picked": "true@0.99",
-      "latencyMs": 2442
+      "latencyMs": 269
     },
     {
       "id": "extractor21.answered:gate_opened",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 2442
+      "latencyMs": 269
     },
     {
       "id": "extractor21.coverage:watch_alerted",
       "right": false,
       "picked": "under floor",
-      "latencyMs": 2442
+      "latencyMs": 269
     },
     {
       "id": "extractor22.coverage:oath_sworn",
       "right": true,
       "picked": "not shown",
-      "latencyMs": 2501
+      "latencyMs": 271
     },
     {
       "id": "extractor22.answered:oath_sworn",
       "right": true,
       "picked": "null",
       "detail": "[false]",
-      "latencyMs": 2501
+      "latencyMs": 271
     },
     {
       "id": "extractor22.coverage:seal_broken",
       "right": true,
-      "picked": "true@0.91",
-      "latencyMs": 2501
+      "picked": "true@0.95",
+      "latencyMs": 271
     },
     {
       "id": "extractor22.answered:seal_broken",
       "right": true,
       "picked": "true",
       "detail": "[true]",
-      "latencyMs": 2501
+      "latencyMs": 271
     }
   ]
 }

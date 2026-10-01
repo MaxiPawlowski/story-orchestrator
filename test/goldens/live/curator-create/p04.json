@@ -3,13 +3,13 @@
   "label": "propose",
   "frozenAt": "2026-09-25",
   "responses": [
-    "[patch] #3 || A basalt fortress over a dormant volcano. || dormant volcano. || active volcano.\n[create] Ember Keep Lore || The Sunken Bell || bell, sunken || A bell at the bottom of the cistern that rings when the volcano stirs.\n[why] The volcano is no longer dormant and the Sunken Bell's existence is confirmed.",
-    "[patch] #3 || A basalt fortress over a dormant volcano. || dormant volcano. || active volcano.\n[create] Ember Keep Lore || The Sunken Bell || bell, sunken bell || A bell at the bottom of the cistern that rings when the volcano stirs.\n[why] The volcano is no longer dormant and the Sunken Bell's existence and function have been confirmed.",
-    "[patch] #3 || A basalt fortress over a dormant volcano. || dormant volcano. || active volcano.\n[create] Ember Keep Lore || The Sunken Bell || bell, sunken || A bell at the bottom of the cistern that rings when the volcano stirs.\n[why] The volcano is no longer dormant and the Sunken Bell's existence is confirmed."
+    "[patch] #4 \"The Cistern\" || A flooded chamber under the keep || for sieges. || A flooded chamber under the keep that stores rainwater for sieges. At its bottom lies the Sunken Bell, which rings when the volcano stirs.\n[why] Iolo reached the Sunken Bell at the bottom of the cistern and it rang, so the cistern entry now needs to record the Bell's location there.",
+    "[patch] #4 \"The Cistern\" || A flooded chamber under the keep || for sieges. || A flooded chamber under the keep that stores rainwater for sieges. At its bottom lies the Sunken Bell, which rings when the volcano stirs.\n[why] Iolo reached the Sunken Bell at the bottom of the cistern and it rang, so the cistern entry must now record the bell's presence and its connection to the volcano.",
+    "[patch] #4 \"The Cistern\" || A flooded chamber under the keep || for sieges. || A flooded chamber under the keep that stores rainwater for sieges. At its bottom lies the Sunken Bell, which rings when the volcano stirs.\n[why] Iolo reached the Sunken Bell at the bottom of the cistern and it rang, so the cistern entry now needs to record the Bell's presence there."
   ],
   "passes": [
-    true,
-    true,
-    true
+    false,
+    false,
+    false
   ]
 }

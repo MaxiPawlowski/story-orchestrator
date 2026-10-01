@@ -55,6 +55,8 @@ One malformed model response correctly audited/retried = plumbing pass. Repeated
 
 **Judge calibration per provider (AS-17, 2026-10-01).** `so-judge calibrate` and `rescore` take `--provider typesafe|llama-logprob` (default `typesafe`), threaded through the harness (`storyOrchestratorJudge.probe/calibrate/calibrateLoreRelevance/rescore(…, model, provider)`); the summary records `provider`, and a llama run never reaches TypeSafe. A llama calibration's model verdict is the model that answered (`resolved`), never TypeSafe's alias check. No privacy-notice gate exists (CR-J3, user decision 2026-10-01: a configured key is consent), so a lane with a key sends judge calls as soon as the judge is on.
 
+**The plugin allows 60 calls per minute per user, and a calibration is a burst** (2026-10-01, AS-16 re-measure). Stall alone sends 47 calls in under 8 s, so two uses back to back overrun the window and the rest come back `fallback=busy` in ~5 ms (refused locally, never sent upstream). Wait 65 s between uses, and give a use over 60 calls `--chunk <rows>` (scene: `--chunk 40`, two slices 61 s apart). `calibrate` now refuses to record a run with any `busy` row. The off-page recorder (`scripts/spike/typesafe/calibrate-node.mts`) paces itself the same way and builds the handler with `accountsEnabled: false`: off-page the plugin cannot read ST's accounts flag, treats accounts as on and finds no key (every row `fallback=error`, which used to write an EMPTY golden).
+
 ## Script reference
 
 ### State & data

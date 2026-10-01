@@ -10,13 +10,16 @@ import { eventsFromJsonl, eventsFromRecord, timeoutReport, dedupe, type TimeoutE
 import { blindSample, replyEffectVerdict, runFromRescore } from './lib/replyEffect.mts';
 import { armSummary, costInputOf, costReport, costReportAcross, filterJudgeCalls, rescoreRates, withEstablished } from './lib/judgeHarness.mts';
 import { K0_BRACKET_DIR, K0_FIXTURE_NAME, bracketFileNames, releaseCases, releaseFixturePath, releaseModes, type Brackets } from './lib/contradictionRelease.mts';
+import { busyRows, chunkRows, mergeCalibrationReports, CHUNK_PAUSE_MS, PLUGIN_CALLS_PER_MINUTE } from './lib/calibrationChunks.mts';
 import { classifyProbe, limitProbeCases, probeRequest, requestChars, JEV_USD_PER_MTOK_INPUT, type ProbeResult } from './lib/limitProbe.mts';
 
 const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
 
   status                              plugin reachability, key source (never the key), install settings
   ask <request.json>                  POST one System One request through the plugin from the page
-  calibrate [--use director|memory-verify|memory-pairs|contradiction-release|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants|agency|house-rules|warden-lore|warden-lore-facts] [--fixture <name>] [--model <id>] [--provider typesafe|llama-logprob] [--min 0.85] [--record]
+  calibrate [--use director|memory-verify|memory-pairs|contradiction-release|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants|agency|house-rules|warden-lore|warden-lore-facts] [--fixture <name>] [--model <id>] [--provider typesafe|llama-logprob] [--min 0.85] [--chunk <rows>] [--record]
+                                      --chunk asks the fixture in slices of <rows>, 61 s apart, so one run never exceeds the plugin's
+                                      60 calls/min limit (scene, 66 calls); a run with any limiter refusal (fallback=busy) is refused, never recorded
                                       --provider asks that decision provider (default typesafe); the summary records it, and a llama run never reaches TypeSafe
                                       run test/fixtures/judge/<fixture|use>.json page -> plugin -> TypeSafe;
                                       --model asks that model without changing install settings; the report records the model that answered
@@ -161,13 +164,30 @@ async function calibrateRelevance(page: any, fixtureName: string, requestedModel
 
 async function calibrate(page: any, use: string, fixtureName: string, min: number, record: boolean, requestedModel: string | undefined, provider: JudgeCliProvider) {
   const fixture = JSON.parse(await readFile(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', `${fixtureName}.json`), 'utf-8'));
-  const raw = await evaluateInST(page, async ({ use, rows, model, provider }: { use: string; rows: unknown[]; model?: string; provider: string }) => {
-    const judge = (globalThis as any).storyOrchestratorJudge;
-    if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
-    const out = await judge.calibrate(use, rows, model, provider);
-    return { ...out, verdict: judge.modelVerdict(model ?? null, out.model) };
-  }, { use, model: requestedModel, provider, rows: use === 'lore' ? fixture.rows.map((row: any) => ({ ...row, candidates: row.candidates ?? fixture.pools?.[row.pool] ?? [] })) : use === 'backgrounds' ? fixture.rows.map((row: any) => ({ ...row, installed: fixture.installed })) : fixture.rows });
+  const allRows = use === 'lore' ? fixture.rows.map((row: any) => ({ ...row, candidates: row.candidates ?? fixture.pools?.[row.pool] ?? [] })) : use === 'backgrounds' ? fixture.rows.map((row: any) => ({ ...row, installed: fixture.installed })) : fixture.rows;
+  const chunks = process.argv.includes('--chunk') ? chunkRows(allRows, Number(argValue('--chunk', '0'))) : [allRows];
+  const parts: any[] = [];
+  for (const [index, rows] of chunks.entries()) {
+    if (index > 0) {
+      console.log(`chunk ${index + 1}/${chunks.length}: waiting ${CHUNK_PAUSE_MS / 1000}s for the plugin's ${PLUGIN_CALLS_PER_MINUTE}/min window`);
+      await new Promise((resolve) => setTimeout(resolve, CHUNK_PAUSE_MS));
+    }
+    parts.push(await evaluateInST(page, async ({ use, rows, model, provider }: { use: string; rows: unknown[]; model?: string; provider: string }) => {
+      const judge = (globalThis as any).storyOrchestratorJudge;
+      if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
+      const out = await judge.calibrate(use, rows, model, provider);
+      return { ...out, verdict: judge.modelVerdict(model ?? null, out.model) };
+    }, { use, model: requestedModel, provider, rows }));
+  }
+  const verdicts = [...new Set(parts.map((part) => JSON.stringify(part.verdict)))];
+  const raw = { ...mergeCalibrationReports(parts), verdict: verdicts.length === 1 ? parts[0].verdict : { verdict: 'mismatch' } };
   const report = { ...raw, verdict: providerVerdict(provider, raw.verdict, raw.model ?? null) };
+  const busy = busyRows(report.rows);
+  if (busy.length) {
+    console.log(`REFUSED: ${busy.length} row(s) were refused by the plugin's rate limiter (fallback=busy): ${busy.slice(0, 8).join(', ')}${busy.length > 8 ? ', ...' : ''}. A refused call is no measurement; wait a minute and re-run, with --chunk when one run exceeds ${PLUGIN_CALLS_PER_MINUTE} calls. Nothing recorded.`);
+    await writeJSON({ busy, report }, `so-judge-calibrate-${fixtureName}-refused`);
+    return { ok: false };
+  }
   const labelOf: Record<string, string> = Object.fromEntries(fixture.rows.filter((row: any) => row.label).map((row: any) => [row.id, row.label]));
   const tagOf = Object.fromEntries(fixture.rows.map((row: any) => [row.id, row.tags ?? []]));
   const tagsOf = (id: string): string[] => tagOf[id] ?? tagOf[id.split('.')[0]] ?? [];

@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-22T11:20:13.473Z",
+  "recordedAt": "2026-10-01T11:06:17.953Z",
   "summary": {
     "use": "curator-filter",
     "fixture": "curator-filter",
@@ -22,139 +22,141 @@
         "ok": true
       }
     ],
-    "p50LatencyMs": 223,
+    "p50LatencyMs": 281,
+    "provider": "typesafe",
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
-    "modelMatched": true,
+    "modelVerdict": "matched",
     "min": 0.85,
+    "minGiven": false,
     "ok": true
   },
   "rows": [
     {
       "id": "sun-ruins.recall:0",
       "right": true,
-      "picked": "p=0.85",
+      "picked": "p=0.86",
       "detail": "Sun Ruins Gate",
-      "latencyMs": 257
+      "latencyMs": 286
     },
     {
       "id": "sun-ruins.recall:1",
       "right": true,
       "picked": "p=0.87",
       "detail": "Guild Reward",
-      "latencyMs": 257
+      "latencyMs": 286
     },
     {
       "id": "sun-ruins.recall:2",
       "right": true,
       "picked": "p=0.91",
       "detail": "Luke",
-      "latencyMs": 257
+      "latencyMs": 286
     },
     {
       "id": "sun-ruins.narrowed:3",
       "right": true,
       "picked": "p=0.16",
       "detail": "Desert Weather",
-      "latencyMs": 257
+      "latencyMs": 286
     },
     {
       "id": "sun-ruins.narrowed:4",
       "right": false,
-      "picked": "p=0.29",
+      "picked": "p=0.35",
       "detail": "Arin's Blade",
-      "latencyMs": 257
+      "latencyMs": 286
     },
     {
       "id": "sun-ruins.recall:5",
       "right": true,
-      "picked": "p=0.87",
+      "picked": "p=0.89",
       "detail": "Bitterroot",
-      "latencyMs": 257
+      "latencyMs": 286
     },
     {
       "id": "ship.recall:0",
       "right": true,
-      "picked": "p=0.86",
+      "picked": "p=0.87",
       "detail": "Reactor Status",
-      "latencyMs": 221
+      "latencyMs": 281
     },
     {
       "id": "ship.recall:1",
       "right": true,
-      "picked": "p=0.69",
+      "picked": "p=0.63",
       "detail": "HALO",
-      "latencyMs": 221
+      "latencyMs": 281
     },
     {
       "id": "ship.narrowed:2",
       "right": true,
-      "picked": "p=0.15",
+      "picked": "p=0.17",
       "detail": "Pell",
-      "latencyMs": 221
+      "latencyMs": 281
     },
     {
       "id": "ship.narrowed:3",
       "right": true,
-      "picked": "p=0.15",
+      "picked": "p=0.16",
       "detail": "Escape Pods",
-      "latencyMs": 221
+      "latencyMs": 281
     },
     {
       "id": "ship.recall:4",
       "right": true,
-      "picked": "p=0.65",
+      "picked": "p=0.61",
       "detail": "Kepler Station",
-      "latencyMs": 221
+      "latencyMs": 281
     },
     {
       "id": "ship.narrowed:5",
       "right": true,
       "picked": "p=0.14",
       "detail": "Captain's Log",
-      "latencyMs": 221
+      "latencyMs": 281
     },
     {
       "id": "manor.recall:0",
       "right": true,
       "picked": "p=0.78",
       "detail": "The Portraits",
-      "latencyMs": 223
+      "latencyMs": 216
     },
     {
       "id": "manor.narrowed:1",
       "right": true,
-      "picked": "p=0.19",
+      "picked": "p=0.17",
       "detail": "Graves",
-      "latencyMs": 223
+      "latencyMs": 216
     },
     {
       "id": "manor.recall:2",
       "right": true,
-      "picked": "p=0.9",
+      "picked": "p=0.91",
       "detail": "Family Records",
-      "latencyMs": 223
+      "latencyMs": 216
     },
     {
       "id": "manor.recall:3",
       "right": true,
-      "picked": "p=0.77",
+      "picked": "p=0.78",
       "detail": "The Carriage",
-      "latencyMs": 223
+      "latencyMs": 216
     },
     {
       "id": "manor.narrowed:4",
       "right": false,
-      "picked": "p=0.41",
+      "picked": "p=0.35",
       "detail": "The Library",
-      "latencyMs": 223
+      "latencyMs": 216
     },
     {
       "id": "manor.narrowed:5",
       "right": true,
-      "picked": "p=0.17",
+      "picked": "p=0.16",
       "detail": "The Sale",
-      "latencyMs": 223
+      "latencyMs": 216
     }
   ]
 }

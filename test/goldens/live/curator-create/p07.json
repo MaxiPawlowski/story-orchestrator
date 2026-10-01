@@ -3,9 +3,9 @@
   "label": "propose",
   "frozenAt": "2026-09-25",
   "responses": [
-    "[create] Night Market Lore || The Glass Choir || singers, guild || A guild of singers whose voices can crack enchanted glass.\n[create] Night Market Lore || The Mirror || mirror, auction || A mirror that was auctioned at the Night Market and won by Vey.\n[why] The Glass Choir and the mirror were established as key elements during the auction scene.",
-    "[create] Night Market Lore || The Glass Choir || singers, guild || A guild of singers whose voices can crack enchanted glass.\n[create] Night Market Lore || The Mirror || mirror, auction || A mirror that was auctioned at the Night Market and won by Vey.\n[why] The Glass Choir and the mirror were established as key elements during the auction scene.",
-    "[create] Night Market Lore || The Glass Choir || singers, guild || A guild of singers whose voices can crack enchanted glass.\n[create] Night Market Lore || The Mirror || mirror, auction || An enchanted mirror that was auctioned at the Night Market and won by Vey.\n[why] The auction has concluded, establishing the Glass Choir and the mirror as significant elements in the story."
+    "[create] Night Market Lore || The Glass Choir || Glass Choir, guild of singers || A guild of singers whose voices can crack enchanted glass. They bid on the mirror at the auction and lost, leaving humming a note that made the lamps shiver.\n[why] The Glass Choir is now a named group central to the auction outcome, established twice, and no existing entry covers them.",
+    "[create] Night Market Lore || The Glass Choir || Glass Choir, guild of singers || A guild of singers whose voices can crack enchanted glass. They bid on the mirror at the auction and lost, leaving humming a note that made the lamps shiver.\n[why] The Glass Choir is now a named group with repeated established facts and no existing entry covers them.",
+    "[create] Night Market Lore || The Glass Choir || Glass Choir, guild of singers || A guild of singers whose voices can crack enchanted glass. They bid on the mirror at the auction and lost, leaving humming a note that made the lamps shiver.\n[why] The Glass Choir is now a named group with two established facts and no existing entry covers them."
   ],
   "passes": [
     true,

@@ -1,0 +1,15 @@
+{
+  "id": "p14",
+  "label": "propose",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[create] Temple District Lore || Reverend Johanson || reverend johanson, johanson || A reverend who posted the quest about the whispering chapel and pays his adventurers in holy water instead of coin. Ellie saw him burn a letter sealed with a black skull.\n[why] The established facts introduce Reverend Johanson as a recurring figure tied to the quest, and no listed entry covers him.",
+    "[create] Temple District Lore || Reverend Johanson || reverend johanson, johanson || A reverend who posted the quest about the whispering chapel. He pays his adventurers in holy water instead of coin. Ellie saw him burn a letter sealed with a black skull.\n[why] The story introduced Reverend Johanson as a recurring figure with two established facts, and no existing entry covers him.",
+    "[create] Temple District Lore || Reverend Johanson || reverend johanson, johanson || A reverend who posted the quest about the whispering chapel and pays his adventurers in holy water instead of coin. Ellie has seen him burn a letter sealed with a black skull.\n[why] The story introduced Reverend Johanson as a recurring figure with two established facts, and no existing entry covers him."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

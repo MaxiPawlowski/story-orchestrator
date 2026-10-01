@@ -3,9 +3,9 @@
   "label": "propose",
   "frozenAt": "2026-09-25",
   "responses": [
-    "[create] Salt Road Lore || The Brass Lantern || inn, Vessa || The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger.\n[create] Salt Road Lore || Vessa || river town, Vessa || A river town where the Brass Lantern is the only inn that takes strangers after dark.\n[why] The story has established the river town of Vessa and the Brass Lantern as key locations with specific details.",
-    "[create] Salt Road Lore || The Brass Lantern || inn, Vessa || The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger.\n[create] Salt Road Lore || Vessa || river town, Vessa || A river town where the Brass Lantern is the only inn that takes strangers after dark.\n[why] The story has established the river town of Vessa and the Brass Lantern as key locations with specific details.",
-    "[create] Salt Road Lore || The Brass Lantern || inn, Vessa || The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger.\n[create] Salt Road Lore || Vessa || river town, Vessa || A river town where the Brass Lantern is the only inn that takes strangers after dark.\n[why] The story has established Vessa and the Brass Lantern as key locations with specific details."
+    "[create] Salt Road Lore || The Brass Lantern || Brass Lantern, Vessa, inn || The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger.\n[why] The story has moved to the Brass Lantern in Vessa, and the established facts name it twice with no existing entry covering it.",
+    "[create] Salt Road Lore || The Brass Lantern || Brass Lantern, Vessa, inn || The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger.\n[why] The story has moved to the Brass Lantern in Vessa, and the established facts name it twice as a place with a hidden ledger, so it now needs its own entry.",
+    "[create] Salt Road Lore || The Brass Lantern || Brass Lantern, Vessa, inn || The only inn in Vessa that takes strangers after dark. Its cellar hides a smugglers' ledger.\n[why] The story has moved to the Brass Lantern in Vessa, and the established facts name it twice with no existing entry covering it."
   ],
   "passes": [
     true,

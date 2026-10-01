@@ -1,37 +1,37 @@
 {
-  "recordedAt": "2026-09-22T11:20:10.198Z",
+  "recordedAt": "2026-10-01T11:16:26.963Z",
   "summary": {
     "use": "scene",
     "fixture": "scene",
-    "right": 135,
-    "total": 144,
-    "rate": 0.9375,
+    "right": 207,
+    "total": 214,
+    "rate": 0.9673,
     "families": [
       {
         "family": "present",
-        "right": 35,
-        "total": 40,
+        "right": 66,
+        "total": 70,
         "floor": 0.9,
-        "ok": false
+        "ok": true
       },
       {
         "family": "location",
-        "right": 14,
-        "total": 16,
+        "right": 24,
+        "total": 26,
         "floor": 0.85,
         "ok": true
       },
       {
         "family": "time",
-        "right": 16,
-        "total": 16,
+        "right": 26,
+        "total": 26,
         "floor": 0.8,
         "ok": true
       },
       {
         "family": "heading",
-        "right": 30,
-        "total": 32,
+        "right": 51,
+        "total": 52,
         "floor": 0.85,
         "ok": true
       },
@@ -50,909 +50,1351 @@
         "ok": true
       }
     ],
-    "p50LatencyMs": 1512,
+    "p50LatencyMs": 243,
+    "provider": "typesafe",
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
-    "modelMatched": true,
+    "modelVerdict": "matched",
     "min": 0.85,
-    "ok": false
+    "minGiven": false,
+    "ok": true
   },
   "rows": [
     {
       "id": "R01.present:arin",
       "right": true,
-      "picked": "p=0.94",
-      "latencyMs": 302
+      "picked": "p=0.95",
+      "latencyMs": 284
     },
     {
       "id": "R01.present:ponticius",
       "right": true,
-      "picked": "p=0.4",
-      "latencyMs": 302
+      "picked": "p=0.43",
+      "latencyMs": 284
     },
     {
       "id": "R01.present:luke",
       "right": true,
       "picked": "p=0.44",
-      "latencyMs": 302
+      "latencyMs": 284
     },
     {
       "id": "R01.location",
       "right": true,
       "picked": "guild hall@1",
       "detail": "label guild hall",
-      "latencyMs": 302
+      "latencyMs": 284
     },
     {
       "id": "R01.time",
       "right": true,
       "picked": "evening@1",
       "detail": "label evening",
-      "latencyMs": 302
+      "latencyMs": 284
     },
     {
       "id": "R01.heading:r1",
       "right": true,
       "picked": "p=0.97",
-      "latencyMs": 302
+      "latencyMs": 284
     },
     {
       "id": "R01.heading:r2",
       "right": true,
       "picked": "p=0.09",
-      "latencyMs": 302
+      "latencyMs": 284
     },
     {
       "id": "R02.present:arin",
       "right": true,
       "picked": "p=0.94",
-      "latencyMs": 226
+      "latencyMs": 290
     },
     {
       "id": "R02.present:ponticius",
       "right": true,
       "picked": "p=0.9",
-      "latencyMs": 226
+      "latencyMs": 290
     },
     {
       "id": "R02.present:luke",
       "right": true,
-      "picked": "p=0.44",
-      "latencyMs": 226
+      "picked": "p=0.4",
+      "latencyMs": 290
     },
     {
       "id": "R02.location",
       "right": true,
       "picked": "guild hall@1",
       "detail": "label guild hall",
-      "latencyMs": 226
+      "latencyMs": 290
     },
     {
       "id": "R02.time",
       "right": true,
       "picked": "morning@0.99",
       "detail": "label morning",
-      "latencyMs": 226
+      "latencyMs": 290
     },
     {
       "id": "R02.heading:r1",
       "right": true,
       "picked": "p=0.91",
-      "latencyMs": 226
+      "latencyMs": 290
     },
     {
       "id": "R02.heading:r2",
-      "right": false,
-      "picked": "p=0.74",
-      "latencyMs": 226
+      "right": true,
+      "picked": "p=0.69",
+      "latencyMs": 290
     },
     {
       "id": "R03.present:arin",
       "right": true,
-      "picked": "p=0.95",
-      "latencyMs": 226
+      "picked": "p=0.97",
+      "latencyMs": 249
     },
     {
       "id": "R03.present:ponticius",
       "right": true,
       "picked": "p=0.04",
-      "latencyMs": 226
+      "latencyMs": 249
     },
     {
       "id": "R03.present:luke",
       "right": true,
       "picked": "p=0.97",
-      "latencyMs": 226
+      "latencyMs": 249
     },
     {
       "id": "R03.location",
       "right": false,
-      "picked": "desert road@0.41",
+      "picked": "desert road@0.43",
       "detail": "label town gate",
-      "latencyMs": 226
+      "latencyMs": 249
     },
     {
       "id": "R03.time",
       "right": true,
       "picked": "dawn@0.98",
       "detail": "label dawn",
-      "latencyMs": 226
+      "latencyMs": 249
     },
     {
       "id": "R03.heading:r1",
       "right": true,
       "picked": "p=0.91",
-      "latencyMs": 226
+      "latencyMs": 249
     },
     {
       "id": "R03.heading:r2",
       "right": true,
-      "picked": "p=0.08",
-      "latencyMs": 226
+      "picked": "p=0.07",
+      "latencyMs": 249
     },
     {
       "id": "R04.present:arin",
       "right": true,
-      "picked": "p=0.89",
-      "latencyMs": 247
+      "picked": "p=0.9",
+      "latencyMs": 393
     },
     {
       "id": "R04.present:ponticius",
       "right": true,
       "picked": "p=0.04",
-      "latencyMs": 247
+      "latencyMs": 393
     },
     {
       "id": "R04.present:luke",
       "right": true,
       "picked": "p=0.96",
-      "latencyMs": 247
+      "latencyMs": 393
     },
     {
       "id": "R04.location",
       "right": true,
       "picked": "desert road@1",
       "detail": "label desert road",
-      "latencyMs": 247
+      "latencyMs": 393
     },
     {
       "id": "R04.time",
       "right": true,
       "picked": "midday@0.99",
       "detail": "label midday",
-      "latencyMs": 247
+      "latencyMs": 393
     },
     {
       "id": "R04.heading:r1",
       "right": false,
-      "picked": "p=0.87",
-      "latencyMs": 247
+      "picked": "p=0.89",
+      "latencyMs": 393
     },
     {
       "id": "R04.heading:r2",
       "right": true,
-      "picked": "p=0.16",
-      "latencyMs": 247
+      "picked": "p=0.22",
+      "latencyMs": 393
     },
     {
       "id": "R07.present:captain_okafor",
       "right": true,
-      "picked": "p=0.09",
-      "latencyMs": 448
+      "picked": "p=0.08",
+      "latencyMs": 244
     },
     {
       "id": "R07.present:pell",
       "right": true,
-      "picked": "p=0.93",
-      "latencyMs": 448
+      "picked": "p=0.94",
+      "latencyMs": 244
     },
     {
       "id": "R07.location",
       "right": true,
       "picked": "engine room@1",
       "detail": "label engine room",
-      "latencyMs": 448
+      "latencyMs": 244
     },
     {
       "id": "R07.time",
       "right": true,
-      "picked": "unclear@1",
+      "picked": "unclear@0.99",
       "detail": "label unclear",
-      "latencyMs": 448
+      "latencyMs": 244
     },
     {
       "id": "R07.heading:r1",
       "right": true,
       "picked": "p=0.94",
-      "latencyMs": 448
+      "latencyMs": 244
     },
     {
       "id": "R07.heading:r2",
       "right": true,
-      "picked": "p=0.12",
-      "latencyMs": 448
+      "picked": "p=0.11",
+      "latencyMs": 244
     },
     {
       "id": "R08.present:captain_okafor",
       "right": true,
-      "picked": "p=0.94",
-      "latencyMs": 450
+      "picked": "p=0.93",
+      "latencyMs": 272
     },
     {
       "id": "R08.present:pell",
       "right": true,
       "picked": "p=0.12",
-      "latencyMs": 450
+      "latencyMs": 272
     },
     {
       "id": "R08.location",
       "right": false,
-      "picked": "elsewhere@0.75",
+      "picked": "elsewhere@0.77",
       "detail": "label bridge",
-      "latencyMs": 450
+      "latencyMs": 272
     },
     {
       "id": "R08.time",
       "right": true,
-      "picked": "night@0.95",
+      "picked": "night@0.92",
       "detail": "label night",
-      "latencyMs": 450
+      "latencyMs": 272
     },
     {
       "id": "R08.heading:r1",
       "right": true,
       "picked": "p=0.96",
-      "latencyMs": 450
+      "latencyMs": 272
     },
     {
       "id": "R08.heading:r2",
       "right": true,
       "picked": "p=0.08",
-      "latencyMs": 450
+      "latencyMs": 272
     },
     {
       "id": "R09.present:captain_okafor",
       "right": true,
       "picked": "p=0.71",
-      "latencyMs": 511
+      "latencyMs": 217
     },
     {
       "id": "R09.present:pell",
       "right": false,
-      "picked": "p=0.61",
-      "latencyMs": 511
+      "picked": "p=0.65",
+      "latencyMs": 217
     },
     {
       "id": "R09.location",
       "right": true,
-      "picked": "cargo bay@0.57",
+      "picked": "cargo bay@0.63",
       "detail": "label cargo bay",
-      "latencyMs": 511
+      "latencyMs": 217
     },
     {
       "id": "R09.time",
       "right": true,
       "picked": "unclear@0.99",
       "detail": "label unclear",
-      "latencyMs": 511
+      "latencyMs": 217
     },
     {
       "id": "R09.heading:r1",
       "right": true,
-      "picked": "p=0.96",
-      "latencyMs": 511
+      "picked": "p=0.97",
+      "latencyMs": 217
     },
     {
       "id": "R09.heading:r2",
       "right": true,
       "picked": "p=0.08",
-      "latencyMs": 511
+      "latencyMs": 217
     },
     {
       "id": "R10.present:captain_okafor",
       "right": true,
       "picked": "p=0.13",
-      "latencyMs": 500
+      "latencyMs": 254
     },
     {
       "id": "R10.present:pell",
       "right": true,
-      "picked": "p=0.15",
-      "latencyMs": 500
+      "picked": "p=0.12",
+      "latencyMs": 254
     },
     {
       "id": "R10.location",
       "right": true,
       "picked": "crew quarters@1",
       "detail": "label crew quarters",
-      "latencyMs": 500
+      "latencyMs": 254
     },
     {
       "id": "R10.time",
       "right": true,
       "picked": "night@1",
       "detail": "label night",
-      "latencyMs": 500
+      "latencyMs": 254
     },
     {
       "id": "R10.heading:r1",
       "right": true,
-      "picked": "p=0.13",
-      "latencyMs": 500
+      "picked": "p=0.15",
+      "latencyMs": 254
     },
     {
       "id": "R10.heading:r2",
       "right": true,
-      "picked": "p=0.08",
-      "latencyMs": 500
+      "picked": "p=0.09",
+      "latencyMs": 254
     },
     {
       "id": "R12.present:mae_hollis",
       "right": true,
-      "picked": "p=0.95",
-      "latencyMs": 509
+      "picked": "p=0.93",
+      "latencyMs": 236
     },
     {
       "id": "R12.present:maeve",
       "right": true,
       "picked": "p=0.95",
-      "latencyMs": 509
+      "latencyMs": 236
     },
     {
       "id": "R12.present:lt_brandt",
       "right": true,
       "picked": "p=0.06",
-      "latencyMs": 509
+      "latencyMs": 236
     },
     {
       "id": "R12.location",
       "right": true,
       "picked": "Blue Anchor nightclub@1",
       "detail": "label Blue Anchor nightclub",
-      "latencyMs": 509
+      "latencyMs": 236
     },
     {
       "id": "R12.time",
       "right": true,
-      "picked": "night@1",
+      "picked": "night@0.99",
       "detail": "label night",
-      "latencyMs": 509
+      "latencyMs": 236
     },
     {
       "id": "R12.heading:r1",
       "right": true,
       "picked": "p=0.85",
-      "latencyMs": 509
+      "latencyMs": 236
     },
     {
       "id": "R12.heading:r2",
       "right": true,
-      "picked": "p=0.27",
-      "latencyMs": 509
+      "picked": "p=0.25",
+      "latencyMs": 236
     },
     {
       "id": "R13.present:mae_hollis",
       "right": true,
       "picked": "p=0.94",
-      "latencyMs": 691
+      "latencyMs": 274
     },
     {
       "id": "R13.present:maeve",
       "right": true,
-      "picked": "p=0.07",
-      "latencyMs": 691
+      "picked": "p=0.08",
+      "latencyMs": 274
     },
     {
       "id": "R13.present:lt_brandt",
       "right": true,
-      "picked": "p=0.92",
-      "latencyMs": 691
+      "picked": "p=0.93",
+      "latencyMs": 274
     },
     {
       "id": "R13.location",
       "right": true,
       "picked": "harbor docks@1",
       "detail": "label harbor docks",
-      "latencyMs": 691
+      "latencyMs": 274
     },
     {
       "id": "R13.time",
       "right": true,
       "picked": "dawn@1",
       "detail": "label dawn",
-      "latencyMs": 691
+      "latencyMs": 274
     },
     {
       "id": "R13.heading:r1",
       "right": true,
-      "picked": "p=0.76",
-      "latencyMs": 691
+      "picked": "p=0.79",
+      "latencyMs": 274
     },
     {
       "id": "R13.heading:r2",
       "right": true,
       "picked": "p=0.17",
-      "latencyMs": 691
+      "latencyMs": 274
     },
     {
       "id": "R14.present:mae_hollis",
       "right": true,
-      "picked": "p=0.73",
-      "latencyMs": 727
+      "picked": "p=0.71",
+      "latencyMs": 218
     },
     {
       "id": "R14.present:maeve",
       "right": true,
-      "picked": "p=0.04",
-      "latencyMs": 727
+      "picked": "p=0.05",
+      "latencyMs": 218
     },
     {
       "id": "R14.present:lt_brandt",
       "right": true,
       "picked": "p=0.96",
-      "latencyMs": 727
+      "latencyMs": 218
     },
     {
       "id": "R14.location",
       "right": true,
       "picked": "police station@1",
       "detail": "label police station",
-      "latencyMs": 727
+      "latencyMs": 218
     },
     {
       "id": "R14.time",
       "right": true,
       "picked": "afternoon@0.99",
       "detail": "label afternoon",
-      "latencyMs": 727
+      "latencyMs": 218
     },
     {
       "id": "R14.heading:r1",
       "right": true,
-      "picked": "p=0.95",
-      "latencyMs": 727
+      "picked": "p=0.94",
+      "latencyMs": 218
     },
     {
       "id": "R14.heading:r2",
       "right": true,
-      "picked": "p=0.29",
-      "latencyMs": 727
+      "picked": "p=0.28",
+      "latencyMs": 218
     },
     {
       "id": "R15.present:mae_hollis",
       "right": false,
-      "picked": "p=0.65",
-      "latencyMs": 787
+      "picked": "p=0.64",
+      "latencyMs": 292
     },
     {
       "id": "R15.present:maeve",
       "right": false,
-      "picked": "p=0.46",
-      "latencyMs": 787
+      "picked": "p=0.47",
+      "latencyMs": 292
     },
     {
       "id": "R15.present:lt_brandt",
       "right": true,
       "picked": "p=0.05",
-      "latencyMs": 787
+      "latencyMs": 292
     },
     {
       "id": "R15.location",
       "right": true,
-      "picked": "Mercer Street@0.41",
+      "picked": "Mercer Street@0.39",
       "detail": "label Mercer Street",
-      "latencyMs": 787
+      "latencyMs": 292
     },
     {
       "id": "R15.time",
       "right": true,
-      "picked": "night@0.9",
+      "picked": "night@0.88",
       "detail": "label night",
-      "latencyMs": 787
+      "latencyMs": 292
     },
     {
       "id": "R15.heading:r1",
       "right": true,
       "picked": "p=0.96",
-      "latencyMs": 787
+      "latencyMs": 292
     },
     {
       "id": "R15.heading:r2",
       "right": true,
-      "picked": "p=0.22",
-      "latencyMs": 787
+      "picked": "p=0.21",
+      "latencyMs": 292
     },
     {
       "id": "R17.present:lady_ashworth",
       "right": true,
-      "picked": "p=0.09",
-      "latencyMs": 803
+      "picked": "p=0.08",
+      "latencyMs": 245
     },
     {
       "id": "R17.present:graves",
       "right": true,
-      "picked": "p=0.94",
-      "latencyMs": 803
+      "picked": "p=0.93",
+      "latencyMs": 245
     },
     {
       "id": "R17.location",
       "right": true,
-      "picked": "portrait gallery@0.65",
+      "picked": "portrait gallery@0.61",
       "detail": "label portrait gallery",
-      "latencyMs": 803
+      "latencyMs": 245
     },
     {
       "id": "R17.time",
       "right": true,
       "picked": "night@1",
       "detail": "label night",
-      "latencyMs": 803
+      "latencyMs": 245
     },
     {
       "id": "R17.heading:r1",
       "right": true,
       "picked": "p=0.95",
-      "latencyMs": 803
+      "latencyMs": 245
     },
     {
       "id": "R17.heading:r2",
       "right": true,
-      "picked": "p=0.22",
-      "latencyMs": 803
+      "picked": "p=0.2",
+      "latencyMs": 245
     },
     {
       "id": "R18.present:lady_ashworth",
       "right": true,
-      "picked": "p=0.86",
-      "latencyMs": 765
+      "picked": "p=0.85",
+      "latencyMs": 248
     },
     {
       "id": "R18.present:graves",
       "right": true,
       "picked": "p=0.09",
-      "latencyMs": 765
+      "latencyMs": 248
     },
     {
       "id": "R18.location",
       "right": true,
-      "picked": "library@0.94",
+      "picked": "library@0.93",
       "detail": "label library",
-      "latencyMs": 765
+      "latencyMs": 248
     },
     {
       "id": "R18.time",
       "right": true,
       "picked": "afternoon@0.99",
       "detail": "label afternoon",
-      "latencyMs": 765
+      "latencyMs": 248
     },
     {
       "id": "R18.heading:r1",
       "right": true,
-      "picked": "p=0.93",
-      "latencyMs": 765
+      "picked": "p=0.94",
+      "latencyMs": 248
     },
     {
       "id": "R18.heading:r2",
       "right": true,
-      "picked": "p=0.14",
-      "latencyMs": 765
+      "picked": "p=0.13",
+      "latencyMs": 248
     },
     {
       "id": "R19.present:lady_ashworth",
       "right": true,
-      "picked": "p=0.06",
-      "latencyMs": 926
+      "picked": "p=0.05",
+      "latencyMs": 237
     },
     {
       "id": "R19.present:graves",
       "right": true,
-      "picked": "p=0.94",
-      "latencyMs": 926
+      "picked": "p=0.93",
+      "latencyMs": 237
     },
     {
       "id": "R19.location",
       "right": true,
-      "picked": "kitchens@0.99",
+      "picked": "kitchens@0.98",
       "detail": "label kitchens",
-      "latencyMs": 926
+      "latencyMs": 237
     },
     {
       "id": "R19.time",
       "right": true,
-      "picked": "dawn@0.85",
+      "picked": "dawn@0.82",
       "detail": "label dawn",
-      "latencyMs": 926
+      "latencyMs": 237
     },
     {
       "id": "R19.heading:r1",
       "right": true,
-      "picked": "p=0.3",
-      "latencyMs": 926
+      "picked": "p=0.29",
+      "latencyMs": 237
     },
     {
       "id": "R19.heading:r2",
       "right": true,
       "picked": "p=0.14",
-      "latencyMs": 926
+      "latencyMs": 237
     },
     {
       "id": "R20.present:lady_ashworth",
-      "right": false,
-      "picked": "p=0.69",
-      "latencyMs": 991
+      "right": true,
+      "picked": "p=0.76",
+      "latencyMs": 241
     },
     {
       "id": "R20.present:graves",
       "right": false,
-      "picked": "p=0.65",
-      "latencyMs": 991
+      "picked": "p=0.64",
+      "latencyMs": 241
     },
     {
       "id": "R20.location",
       "right": true,
       "picked": "garden@0.91",
       "detail": "label garden",
-      "latencyMs": 991
+      "latencyMs": 241
     },
     {
       "id": "R20.time",
       "right": true,
-      "picked": "evening@0.96",
+      "picked": "evening@0.95",
       "detail": "label evening",
-      "latencyMs": 991
+      "latencyMs": 241
     },
     {
       "id": "R20.heading:r1",
       "right": true,
       "picked": "p=0.95",
-      "latencyMs": 991
+      "latencyMs": 241
     },
     {
       "id": "R20.heading:r2",
       "right": true,
       "picked": "p=0.07",
-      "latencyMs": 991
+      "latencyMs": 241
+    },
+    {
+      "id": "R22.present:ellie",
+      "right": true,
+      "picked": "p=0.87",
+      "latencyMs": 227
+    },
+    {
+      "id": "R22.present:arryn",
+      "right": true,
+      "picked": "p=0.95",
+      "latencyMs": 227
+    },
+    {
+      "id": "R22.present:dalan",
+      "right": true,
+      "picked": "p=0.06",
+      "latencyMs": 227
+    },
+    {
+      "id": "R22.location",
+      "right": true,
+      "picked": "guild hall@1",
+      "detail": "label guild hall",
+      "latencyMs": 227
+    },
+    {
+      "id": "R22.time",
+      "right": true,
+      "picked": "morning@0.99",
+      "detail": "label morning",
+      "latencyMs": 227
+    },
+    {
+      "id": "R22.heading:r1",
+      "right": true,
+      "picked": "p=0.88",
+      "latencyMs": 227
+    },
+    {
+      "id": "R22.heading:r2",
+      "right": true,
+      "picked": "p=0.5",
+      "latencyMs": 227
+    },
+    {
+      "id": "R23.present:ellie",
+      "right": true,
+      "picked": "p=0.04",
+      "latencyMs": 216
+    },
+    {
+      "id": "R23.present:arryn",
+      "right": true,
+      "picked": "p=0.9",
+      "latencyMs": 216
+    },
+    {
+      "id": "R23.present:dalan",
+      "right": true,
+      "picked": "p=0.96",
+      "latencyMs": 216
+    },
+    {
+      "id": "R23.location",
+      "right": true,
+      "picked": "Brittleforest road@1",
+      "detail": "label Brittleforest road",
+      "latencyMs": 216
+    },
+    {
+      "id": "R23.time",
+      "right": true,
+      "picked": "midday@0.97",
+      "detail": "label midday",
+      "latencyMs": 216
+    },
+    {
+      "id": "R23.heading:r1",
+      "right": true,
+      "picked": "p=0.95",
+      "latencyMs": 216
+    },
+    {
+      "id": "R23.heading:r2",
+      "right": true,
+      "picked": "p=0.04",
+      "latencyMs": 216
+    },
+    {
+      "id": "R24.present:ellie",
+      "right": true,
+      "picked": "p=0.03",
+      "latencyMs": 215
+    },
+    {
+      "id": "R24.present:arryn",
+      "right": true,
+      "picked": "p=0.98",
+      "latencyMs": 215
+    },
+    {
+      "id": "R24.present:dalan",
+      "right": true,
+      "picked": "p=0.58",
+      "latencyMs": 215
+    },
+    {
+      "id": "R24.location",
+      "right": true,
+      "picked": "goblin warren@1",
+      "detail": "label goblin warren",
+      "latencyMs": 215
+    },
+    {
+      "id": "R24.time",
+      "right": true,
+      "picked": "night@1",
+      "detail": "label night",
+      "latencyMs": 215
+    },
+    {
+      "id": "R24.heading:r1",
+      "right": true,
+      "picked": "p=0.92",
+      "latencyMs": 215
+    },
+    {
+      "id": "R24.heading:r2",
+      "right": true,
+      "picked": "p=0.12",
+      "latencyMs": 215
+    },
+    {
+      "id": "R25.present:gabriel",
+      "right": true,
+      "picked": "p=0.12",
+      "latencyMs": 245
+    },
+    {
+      "id": "R25.present:karos",
+      "right": true,
+      "picked": "p=0.93",
+      "latencyMs": 245
+    },
+    {
+      "id": "R25.present:belle",
+      "right": true,
+      "picked": "p=0.9",
+      "latencyMs": 245
+    },
+    {
+      "id": "R25.location",
+      "right": true,
+      "picked": "castle gates@0.93",
+      "detail": "label castle gates",
+      "latencyMs": 245
+    },
+    {
+      "id": "R25.time",
+      "right": true,
+      "picked": "evening@0.64",
+      "detail": "label evening",
+      "latencyMs": 245
+    },
+    {
+      "id": "R25.heading:r1",
+      "right": true,
+      "picked": "p=0.96",
+      "latencyMs": 245
+    },
+    {
+      "id": "R25.heading:r2",
+      "right": true,
+      "picked": "p=0.06",
+      "latencyMs": 245
+    },
+    {
+      "id": "R26.present:gabriel",
+      "right": true,
+      "picked": "p=0.97",
+      "latencyMs": 218
+    },
+    {
+      "id": "R26.present:karos",
+      "right": true,
+      "picked": "p=0.93",
+      "latencyMs": 218
+    },
+    {
+      "id": "R26.present:belle",
+      "right": true,
+      "picked": "p=0.94",
+      "latencyMs": 218
+    },
+    {
+      "id": "R26.location",
+      "right": true,
+      "picked": "great hall@1",
+      "detail": "label great hall",
+      "latencyMs": 218
+    },
+    {
+      "id": "R26.time",
+      "right": true,
+      "picked": "night@1",
+      "detail": "label night",
+      "latencyMs": 218
+    },
+    {
+      "id": "R26.heading:r1",
+      "right": true,
+      "picked": "p=0.9",
+      "latencyMs": 218
+    },
+    {
+      "id": "R26.heading:r2",
+      "right": true,
+      "picked": "p=0.13",
+      "latencyMs": 218
+    },
+    {
+      "id": "R27.present:gabriel",
+      "right": true,
+      "picked": "p=0.06",
+      "latencyMs": 243
+    },
+    {
+      "id": "R27.present:karos",
+      "right": true,
+      "picked": "p=0.85",
+      "latencyMs": 243
+    },
+    {
+      "id": "R27.present:belle",
+      "right": true,
+      "picked": "p=0.06",
+      "latencyMs": 243
+    },
+    {
+      "id": "R27.location",
+      "right": true,
+      "picked": "Gragow ruins@1",
+      "detail": "label Gragow ruins",
+      "latencyMs": 243
+    },
+    {
+      "id": "R27.time",
+      "right": true,
+      "picked": "afternoon@0.99",
+      "detail": "label afternoon",
+      "latencyMs": 243
+    },
+    {
+      "id": "R27.heading:r1",
+      "right": true,
+      "picked": "p=0.96",
+      "latencyMs": 243
+    },
+    {
+      "id": "R27.heading:r2",
+      "right": true,
+      "picked": "p=0.4",
+      "latencyMs": 243
+    },
+    {
+      "id": "R28.present:sister_maren",
+      "right": true,
+      "picked": "p=0.95",
+      "latencyMs": 236
+    },
+    {
+      "id": "R28.present:tobin",
+      "right": true,
+      "picked": "p=0.93",
+      "latencyMs": 236
+    },
+    {
+      "id": "R28.present:the_abbot",
+      "right": true,
+      "picked": "p=0.07",
+      "latencyMs": 236
+    },
+    {
+      "id": "R28.location",
+      "right": true,
+      "picked": "abbey courtyard@0.98",
+      "detail": "label abbey courtyard",
+      "latencyMs": 236
+    },
+    {
+      "id": "R28.time",
+      "right": true,
+      "picked": "dawn@0.99",
+      "detail": "label dawn",
+      "latencyMs": 236
+    },
+    {
+      "id": "R28.heading:r1",
+      "right": true,
+      "picked": "p=0.95",
+      "latencyMs": 236
+    },
+    {
+      "id": "R28.heading:r2",
+      "right": true,
+      "picked": "p=0.23",
+      "latencyMs": 236
+    },
+    {
+      "id": "R29.present:sister_maren",
+      "right": true,
+      "picked": "p=0.05",
+      "latencyMs": 245
+    },
+    {
+      "id": "R29.present:tobin",
+      "right": true,
+      "picked": "p=0.04",
+      "latencyMs": 245
+    },
+    {
+      "id": "R29.present:the_abbot",
+      "right": true,
+      "picked": "p=0.96",
+      "latencyMs": 245
+    },
+    {
+      "id": "R29.location",
+      "right": true,
+      "picked": "abbot's study@1",
+      "detail": "label abbot's study",
+      "latencyMs": 245
+    },
+    {
+      "id": "R29.time",
+      "right": true,
+      "picked": "evening@1",
+      "detail": "label evening",
+      "latencyMs": 245
+    },
+    {
+      "id": "R29.heading:r1",
+      "right": true,
+      "picked": "p=0.2",
+      "latencyMs": 245
+    },
+    {
+      "id": "R29.heading:r2",
+      "right": true,
+      "picked": "p=0.96",
+      "latencyMs": 245
+    },
+    {
+      "id": "R30.present:sister_maren",
+      "right": true,
+      "picked": "p=0.92",
+      "latencyMs": 223
+    },
+    {
+      "id": "R30.present:tobin",
+      "right": true,
+      "picked": "p=0.91",
+      "latencyMs": 223
+    },
+    {
+      "id": "R30.present:the_abbot",
+      "right": true,
+      "picked": "p=0.94",
+      "latencyMs": 223
+    },
+    {
+      "id": "R30.location",
+      "right": true,
+      "picked": "flooded crypt@1",
+      "detail": "label flooded crypt",
+      "latencyMs": 223
+    },
+    {
+      "id": "R30.time",
+      "right": true,
+      "picked": "night@1",
+      "detail": "label night",
+      "latencyMs": 223
+    },
+    {
+      "id": "R30.heading:r1",
+      "right": true,
+      "picked": "p=0.93",
+      "latencyMs": 223
+    },
+    {
+      "id": "R30.heading:r2",
+      "right": true,
+      "picked": "p=0.4",
+      "latencyMs": 223
+    },
+    {
+      "id": "R31.present:sister_maren",
+      "right": true,
+      "picked": "p=0.04",
+      "latencyMs": 255
+    },
+    {
+      "id": "R31.present:tobin",
+      "right": true,
+      "picked": "p=0.94",
+      "latencyMs": 255
+    },
+    {
+      "id": "R31.present:the_abbot",
+      "right": true,
+      "picked": "p=0.05",
+      "latencyMs": 255
+    },
+    {
+      "id": "R31.location",
+      "right": true,
+      "picked": "village@1",
+      "detail": "label village",
+      "latencyMs": 255
+    },
+    {
+      "id": "R31.time",
+      "right": true,
+      "picked": "morning@0.9",
+      "detail": "label morning",
+      "latencyMs": 255
+    },
+    {
+      "id": "R31.heading:r1",
+      "right": true,
+      "picked": "p=0.23",
+      "latencyMs": 255
+    },
+    {
+      "id": "R31.heading:r2",
+      "right": true,
+      "picked": "p=0.18",
+      "latencyMs": 255
     },
     {
       "id": "S01.break",
       "right": true,
-      "picked": "p=0.86 time_skip",
-      "latencyMs": 1052
+      "picked": "p=0.85 time_skip",
+      "latencyMs": 250
     },
     {
       "id": "S01t.break",
       "right": true,
-      "picked": "p=0.84 time_skip",
-      "latencyMs": 1024
+      "picked": "p=0.85 time_skip",
+      "latencyMs": 269
     },
     {
       "id": "S02.nobreak",
       "right": true,
       "picked": "p=0.08 none",
-      "latencyMs": 1047
+      "latencyMs": 218
     },
     {
       "id": "S02t.nobreak",
       "right": true,
       "picked": "p=0.1 none",
-      "latencyMs": 1157
+      "latencyMs": 254
     },
     {
       "id": "S03.break",
       "right": true,
       "picked": "p=0.9 divider",
-      "latencyMs": 1210
+      "latencyMs": 254
     },
     {
       "id": "S03t.break",
       "right": true,
-      "picked": "p=0.9 divider",
-      "latencyMs": 1249
+      "picked": "p=0.89 divider",
+      "latencyMs": 217
     },
     {
       "id": "S04.nobreak",
       "right": true,
-      "picked": "p=0.16 none",
-      "latencyMs": 1329
+      "picked": "p=0.17 none",
+      "latencyMs": 282
     },
     {
       "id": "S04t.nobreak",
       "right": true,
       "picked": "p=0.18 none",
-      "latencyMs": 1321
+      "latencyMs": 214
     },
     {
       "id": "S05.break",
       "right": true,
-      "picked": "p=0.62 time_skip",
-      "latencyMs": 1286
+      "picked": "p=0.57 time_skip",
+      "latencyMs": 248
     },
     {
       "id": "S05t.break",
       "right": true,
-      "picked": "p=0.68 time_skip",
-      "latencyMs": 1374
+      "picked": "p=0.69 time_skip",
+      "latencyMs": 231
     },
     {
       "id": "S06.break",
       "right": true,
-      "picked": "p=0.82 location",
-      "latencyMs": 1449
+      "picked": "p=0.83 location",
+      "latencyMs": 273
     },
     {
       "id": "S06t.break",
       "right": true,
-      "picked": "p=0.8 location",
-      "latencyMs": 1512
+      "picked": "p=0.79 location",
+      "latencyMs": 238
     },
     {
       "id": "S07.nobreak",
       "right": true,
       "picked": "p=0.06 none",
-      "latencyMs": 1543
+      "latencyMs": 226
     },
     {
       "id": "S07t.nobreak",
       "right": true,
       "picked": "p=0.05 none",
-      "latencyMs": 1572
+      "latencyMs": 271
     },
     {
       "id": "S08.break",
       "right": true,
-      "picked": "p=0.47 time_skip",
-      "latencyMs": 1621
+      "picked": "p=0.5 time_skip",
+      "latencyMs": 266
     },
     {
       "id": "S08t.break",
       "right": true,
-      "picked": "p=0.53 time_skip",
-      "latencyMs": 1625
+      "picked": "p=0.48 time_skip",
+      "latencyMs": 263
     },
     {
       "id": "S09.nobreak",
       "right": true,
-      "picked": "p=0.09 none",
-      "latencyMs": 1732
+      "picked": "p=0.08 none",
+      "latencyMs": 229
     },
     {
       "id": "S09t.nobreak",
       "right": true,
       "picked": "p=0.07 none",
-      "latencyMs": 1842
+      "latencyMs": 285
     },
     {
       "id": "S10.break",
       "right": true,
-      "picked": "p=0.89 location",
-      "latencyMs": 1803
+      "picked": "p=0.87 location",
+      "latencyMs": 223
     },
     {
       "id": "S10t.break",
       "right": true,
       "picked": "p=0.9 location",
-      "latencyMs": 1805
+      "latencyMs": 210
     },
     {
       "id": "S11.nobreak",
       "right": true,
-      "picked": "p=0.07 none",
-      "latencyMs": 1886
+      "picked": "p=0.06 none",
+      "latencyMs": 212
     },
     {
       "id": "S11t.nobreak",
       "right": true,
       "picked": "p=0.06 none",
-      "latencyMs": 1845
+      "latencyMs": 242
     },
     {
       "id": "S12.nobreak",
       "right": true,
       "picked": "p=0.06 none",
-      "latencyMs": 1954
+      "latencyMs": 218
     },
     {
       "id": "S12t.nobreak",
       "right": true,
       "picked": "p=0.06 none",
-      "latencyMs": 2056
+      "latencyMs": 230
     },
     {
       "id": "S13.break",
       "right": true,
-      "picked": "p=0.66 location",
-      "latencyMs": 2015
+      "picked": "p=0.7 location",
+      "latencyMs": 277
     },
     {
       "id": "S13t.break",
       "right": true,
-      "picked": "p=0.66 location",
-      "latencyMs": 2108
+      "picked": "p=0.68 location",
+      "latencyMs": 252
     },
     {
       "id": "S16.nobreak",
       "right": true,
-      "picked": "p=0.11 none",
-      "latencyMs": 2306
+      "picked": "p=0.12 none",
+      "latencyMs": 251
     },
     {
       "id": "S16t.nobreak",
       "right": true,
-      "picked": "p=0.12 none",
-      "latencyMs": 2341
+      "picked": "p=0.11 none",
+      "latencyMs": 248
     },
     {
       "id": "S17.break",
       "right": true,
-      "picked": "p=0.83 time_skip",
-      "latencyMs": 2467
+      "picked": "p=0.84 time_skip",
+      "latencyMs": 265
     },
     {
       "id": "S17t.break",
       "right": true,
-      "picked": "p=0.83 time_skip",
-      "latencyMs": 2403
+      "picked": "p=0.79 time_skip",
+      "latencyMs": 230
     },
     {
       "id": "S18.break",
       "right": true,
       "picked": "p=0.81 location",
-      "latencyMs": 2468
+      "latencyMs": 285
     },
     {
       "id": "S18t.break",
       "right": true,
-      "picked": "p=0.77 time_skip",
-      "latencyMs": 2555
+      "picked": "p=0.78 location",
+      "latencyMs": 258
     },
     {
       "id": "S19.nobreak",
       "right": true,
       "picked": "p=0.09 none",
-      "latencyMs": 2589
+      "latencyMs": 307
     },
     {
       "id": "S19t.nobreak",
       "right": true,
       "picked": "p=0.08 none",
-      "latencyMs": 2563
+      "latencyMs": 240
     },
     {
       "id": "S20.break",
       "right": true,
       "picked": "p=0.86 divider",
-      "latencyMs": 2631
+      "latencyMs": 237
     },
     {
       "id": "S20t.break",
       "right": true,
-      "picked": "p=0.83 divider",
-      "latencyMs": 2687
+      "picked": "p=0.82 divider",
+      "latencyMs": 217
     },
     {
       "id": "S21.nobreak",
       "right": true,
-      "picked": "p=0.12 none",
-      "latencyMs": 2685
+      "picked": "p=0.1 none",
+      "latencyMs": 230
     },
     {
       "id": "S21t.nobreak",
       "right": true,
-      "picked": "p=0.09 none",
-      "latencyMs": 2796
+      "picked": "p=0.1 none",
+      "latencyMs": 237
     },
     {
       "id": "S22.break",
       "right": true,
-      "picked": "p=0.81 time_skip",
-      "latencyMs": 2835
+      "picked": "p=0.82 time_skip",
+      "latencyMs": 235
     },
     {
       "id": "S22t.break",
       "right": true,
-      "picked": "p=0.75 time_skip",
-      "latencyMs": 2918
+      "picked": "p=0.74 time_skip",
+      "latencyMs": 218
     }
   ]
 }
