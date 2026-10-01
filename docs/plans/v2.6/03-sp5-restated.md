@@ -115,3 +115,16 @@ addendum 2 rule, applied on arrival as it already is before leaving). No C1–C5
 from the failed attempt was put back by hand first (both groups' `disabled_members`, the flag, the none-story removed).
 Finding kept for the worth review either way: the competing-cards note is planned before the activation's own cast
 writes, so a story switch made while a cast apply is in flight names the cast as it was.
+
+## Addendum 7 2026-10-01 16:00Z — before the third run (bars unchanged)
+
+Attempt of 15:36Z (addendum 6): C1 PASS (10/10), C2 PASS (both orders), and C5's **group half now passes** (one note,
+the 6 cards that frame chat B, = the settled cast). The C5 step still threw, on its **solo** half: `solo: []`. Probe on
+lane 2 (two throwaway Belle chats, deleted after): selecting the none-story in a fresh Belle chat writes exactly one
+note, `1 character card scenario(s) frame this chat and the story sets none`, detail `Belle` (= the expected list). The
+fixture's count is what fails: `beforeC = find().length` is read in chat C **before** a story is selected, when
+`getSessionJournal()` still returns the previous chat's events (chat B's note among them); the selection then resets the
+journal to chat C's own, and `slice(beforeC)` cuts the one new note away. Change: the solo half reads chat C's journal
+after the selection whole (`find()`, not `find().slice(beforeC)`); its pass rule (exactly one note naming `["Belle"]`) is
+unchanged. Finding for the worth review: a chat with no story shows the previous chat's journal in author view until a
+story is selected (author-only surface, not player copy). Lane state put back by hand before the re-run.
