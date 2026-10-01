@@ -389,6 +389,32 @@ export function diffInventories(left: unknown, right: unknown, path = '$'): stri
   return JSON.stringify(left) === JSON.stringify(right) ? [] : [`${path}: ${JSON.stringify(left)} vs ${JSON.stringify(right)}`];
 }
 
+export interface CastReset { group: string; id: string; was: string[]; now: string[] }
+
+export function castResetPlan(manifest: AdolionManifest, groups: Array<{ id: string; name: string; disabled_members?: unknown }>, openGroup: string | null): CastReset[] {
+  return manifest.groups.flatMap((wanted) => {
+    const found = groups.filter((group) => group.name === wanted.name);
+    if (found.length !== 1) return [];
+    const now = openGroup === wanted.name ? expectedStartDisabled(manifest, wanted) : [];
+    const was = sorted(strings(found[0].disabled_members));
+    return JSON.stringify(was) === JSON.stringify(now) ? [] : [{ group: wanted.name, id: String(found[0].id), was, now }];
+  });
+}
+
+export interface SeedReport { file?: unknown; problems?: unknown; sameAsPrevious?: unknown; commit?: unknown }
+
+export const seedSucceeded = (report: SeedReport) => Array.isArray(report.problems) && report.problems.length === 0 && report.sameAsPrevious !== false && typeof report.file === 'string';
+
+export function lastGoodSeed<T extends SeedReport>(reports: Array<{ name: string; report: T }>): { name: string; report: T } | null {
+  return [...reports].filter((entry) => /^report-.+\.json$/.test(entry.name)).sort((a, b) => b.name.localeCompare(a.name)).find((entry) => seedSucceeded(entry.report)) ?? null;
+}
+
+export function seedDrift(previous: Inventory | null, inventory: Inventory): { sameAsPrevious: boolean | null; drift: string[] | null } {
+  if (!previous) return { sameAsPrevious: null, drift: null };
+  const drift = diffInventories(previous, inventory);
+  return { sameAsPrevious: previous.commit === inventory.commit ? drift.length === 0 : null, drift };
+}
+
 const LFS_POINTER = 'version https://git-lfs';
 
 export const isLfsPointer = (head: string) => head.startsWith(LFS_POINTER);

@@ -239,3 +239,31 @@ test('T0 finding 1: player-clean fails on a raw location value or checkpoint id 
   assert.deepEqual(overview('Where you are\nThe Guild Hall\nAt Wendhope village. A well-known road; calm skies over Driftmere.'), []);
   assert.deepEqual(rawValueTokens(null), []);
 });
+
+test('T1 assert-player-clean: the recorded T1-2-1 surfaces read 46 findings under the old scope and none under the player scope', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const { playerSurfaceFindings, PLAYER_CLEAN_SCOPE } = await import('./so-ui.mts');
+  const fixture = JSON.parse(await readFile(new URL('./fixtures/player-clean-t1-2-1.json', import.meta.url), 'utf-8'));
+  const oldScope = playerSurfaceFindings(fixture.records, fixture.tokens, { textSurfaces: ['#drawer-manager', '#so-hud', '#story-orchestrator-settings'], exemptControls: [] });
+  assert.equal(oldScope.length, fixture.sessionFindings, 'control: the old scope reproduces the session');
+  assert.deepEqual(playerSurfaceFindings(fixture.records, fixture.tokens, PLAYER_CLEAN_SCOPE), []);
+});
+
+test('T1 assert-player-clean: a planted leak on a player surface still fails, and only the author-view toggle is exempt', async () => {
+  const { readFile } = await import('node:fs/promises');
+  const { playerSurfaceFindings } = await import('./so-ui.mts');
+  const fixture = JSON.parse(await readFile(new URL('./fixtures/player-clean-t1-2-1.json', import.meta.url), 'utf-8'));
+  const plant = (mutate: (record: any) => void) => {
+    const records = JSON.parse(JSON.stringify(fixture.records));
+    mutate(records[0]);
+    return playerSurfaceFindings(records, fixture.tokens).map((finding: { needle: string }) => finding.needle);
+  };
+  assert.deepEqual(plant((record) => { record.texts[1].text += '\nUnmet gates: 2'; }), ['#so-hud: Unmet gates']);
+  assert.deepEqual(plant((record) => { record.texts[0].text += '\nNext: at-the-walls'; }), ['#drawer-manager shows a raw story value "at-the-walls"']);
+  assert.deepEqual(plant((record) => { record.texts[0].text += '\nBlackboard'; }), ['Blackboard']);
+  assert.deepEqual(plant((record) => { record.attributes.push({ surface: '#drawer-manager', attr: 'title', value: 'Show the blackboard' }); }), ['#drawer-manager [title] carries "blackboard"']);
+  assert.deepEqual(plant((record) => { record.attributes.push({ surface: '#so-hud', attr: 'aria-label', value: 'Advance to the gate', controls: ['so-hud-advance'] }); }), ['#so-hud [aria-label] carries "Advance to"']);
+  assert.deepEqual(plant((record) => { record.texts.push({ surface: 'dialog[open] .popup-content', text: 'Welcome back. Steering: push the caravan north.' }); }), ['dialog[open] .popup-content: Steering:']);
+  assert.deepEqual(plant((record) => { record.texts[2].text += '\nTypeError: x is not a function'; }).length, 2, 'raw error text fails on every surface, the settings panel included');
+  assert.deepEqual(plant((record) => { record.attributes.push({ surface: '#story-orchestrator-settings', attr: 'title', value: 'Error: profile gone' }); }), ['#story-orchestrator-settings [title] shows raw error text (error prefix)']);
+});

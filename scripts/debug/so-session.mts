@@ -10,7 +10,7 @@ import {
 } from './lib/sessionCharters.mts';
 import { digestSession, parseJsonl, parseLines, registerRows, renderFindings, REQUIRED_CAPTURES, type ChatMessage } from './lib/sessionDigest.mts';
 import {
-  archiveLane, DEFAULT_LANES, dependencyRefusal, laneFor, leaseFor, leaseRefusal, outstandingDependents, planDrift, planLanes, readLease, reseedRefusal, restoreLane, rootOf, sessionsUnder, writeLease,
+  archiveLane, DEFAULT_LANES, dependencyRefusal, JUDGE_LANE_RATE_ENV, judgeRatePlan, laneFor, leaseFor, leaseRefusal, loadedJudgeRate, outstandingDependents, planDrift, planLanes, readLease, reseedRefusal, restoreLane, rootOf, runningLanes, sessionsUnder, writeLease,
   type LanePlan, type SessionOnLane,
 } from './lib/sessionLanes.mts';
 import { applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, hostSwipesProblems, loadBaseline, mediaPlan, overrideChain } from './lib/sessionBaseline.mts';
@@ -31,7 +31,9 @@ const USAGE = `Usage: node scripts/debug/so-session.mts <command> [...]
 v2.6 plan 14: one human play session per charter card, on its own adolion-fresh lane, headed.
 
   start <charterId> [--lane n] [--profile <name>] [--orchestrator <regex>] [--age <hours>]
-        [--media off|on] [--allow-comfy] [--no-seed] [--force-waiting] [--arm <label>] [--break-lease]
+        [--media off|on] [--allow-comfy] [--no-seed] [--force-waiting] [--arm <label>] [--break-lease] [--judge-rate <n>]
+      the lane's judge plugin limit (SO_JUDGE_RATE_PER_MIN) is the account rate (SO_JUDGE_ACCOUNT_RATE_PER_MIN,
+      default 90/min) split over the running lanes plus this one, 10..60/min; --judge-rate overrides it
       preflight the card (structure, the story data it exercises, the session it continues, the
       lane lease), seed the lane with adolion-fresh, write test/sessions/baseline-settings.json
       plus the card's overrides over the lane's settings (install-owned paths kept), reload and
@@ -56,7 +58,8 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
   shot <dir> <label>                         screenshot into <dir>/shots/
   age <dir> <hours>                          backdate the open chat's last session and reload it
   adopt <dir>                                record the open chat as the session's chat (wizard cards)
-  score <dir> <row|n> <works|annoying|broken|not-noticed> "<note>" --evidence <path:line|png> ...
+  score <dir> <row|n> <works|annoying|broken|not-noticed> "<note>" --evidence <path:line|png> [<path:line|png> ...]
+      (evidence: several paths after one --evidence, a repeated --evidence, or a comma list)
   score <dir> <row|n> --record "<note>" --evidence ...   (rows recorded for the user's review)
   stop [<dir>] [--stop-lane]   export every visited or created chat (full persisted runtime with engine
                                history, effect ledger and chapter store, transcript with swipes,
@@ -185,7 +188,7 @@ async function latestSession(card: Card) {
 
 export interface StartOptions {
   lane: number | null; allowComfy: boolean; seed: boolean; planned?: number | null; forceWaiting?: boolean;
-  profile?: string; orchestrator?: string; age?: number | null; media?: 'on' | 'off'; arm?: string | null; breakLease?: boolean;
+  profile?: string; orchestrator?: string; age?: number | null; media?: 'on' | 'off'; arm?: string | null; breakLease?: boolean; judgeRate?: number | null;
 }
 
 export function planStart(doc: CardDoc, index: StoryIndex, card: Card, options: StartOptions, previous: { session: any } | null, sessions: SessionOnLane[] = []) {
@@ -281,16 +284,20 @@ async function start(id: string, options: StartOptions) {
     process.exitCode = 2;
     return null;
   };
-  console.log(`[1/8] ${card.id} ${card.title} -> ${rel(dir)} on lane ${plan.lane}`);
+  const judgeRate = judgeRatePlan(plan.lane, (await runningLanes(lanesRootFor(process.env, REPO_ROOT))).filter((n) => n !== plan.lane), { requested: options.judgeRate ?? null, env: process.env });
+  const rateEnv = { [JUDGE_LANE_RATE_ENV]: String(judgeRate.perMinute) };
+  console.log(`[1/8] ${card.id} ${card.title} -> ${rel(dir)} on lane ${plan.lane}; judge ${judgeRate.perMinute}/min (${judgeRate.source}: ${judgeRate.lanes} lane(s) on a ${judgeRate.account}/min account)`);
   if (plan.seed) {
     console.log('[2/8] adolion-fresh seed (headed); images and sprites stay off');
-    await must('adolion-fresh seed', ['scripts/debug/adolion-fresh.mts', 'seed', String(plan.lane), '--headed', '--for', card.id, ...(options.breakLease ? ['--break-lease'] : [])], {}, true);
+    await must('adolion-fresh seed', ['scripts/debug/adolion-fresh.mts', 'seed', String(plan.lane), '--headed', '--for', card.id, ...(options.breakLease ? ['--break-lease'] : [])], rateEnv, true);
   } else {
     console.log('[2/8] no seed: bring the lane up headed');
     const status = existsSync(resolve(lane.debug, 'session.json')) ? await readJson(resolve(lane.debug, 'session.json')).catch(() => null) : null;
     if (status && status.headed !== true) await inLane(plan.lane, ['scripts/debug/st-session.mts', 'stop']);
-    await must('st-lanes start', ['scripts/debug/st-lanes.mts', 'start', String(plan.lane), '--headed']);
+    await must('st-lanes start', ['scripts/debug/st-lanes.mts', 'start', String(plan.lane), '--headed'], rateEnv);
   }
+  const loadedRate = loadedJudgeRate(existsSync(lane.log) ? await readFile(lane.log, 'utf-8') : '');
+  if (loadedRate !== judgeRate.perMinute) warnings.push(`the lane's judge plugin runs at ${loadedRate ?? 'an unlogged'}/min, not the planned ${judgeRate.perMinute}/min: the server was already up (st-lanes stop ${plan.lane}, then start again to apply it)`);
   const inventoryPath = resolve(lane.root, 'adolion-fresh', 'inventory-latest.json');
   const inventory = existsSync(inventoryPath) ? await readJson(inventoryPath) : null;
   const laneCommit = inventory?.commit ?? null;
@@ -340,7 +347,7 @@ async function start(id: string, options: StartOptions) {
     story: card.story, mode: card.setup.mode, startedAt: new Date().toISOString(), playFrom, stoppedAt: null,
     build: { ...servedBuild(), laneCampaign: laneCommit, indexCommit: index.commit }, pids, viewport: plan.viewport, settingsPatch: plan.patch,
     settings: { baselineVersion: baseline.version, chain: plan.chain.map((step) => step.card), effective: 'effective-settings.json' },
-    media, arm: plan.arm, logOffset: logSize(lane.log), host: effectiveRead.host,
+    media, arm: plan.arm, logOffset: logSize(lane.log), host: effectiveRead.host, judgeRate: { ...judgeRate, loaded: loadedRate },
     pin: { profile: plan.pin.profile, orchestrator: plan.pin.orchestrator, judge: plan.pin.judge, verdict: pin.verdict, probe: pin.probe, routing: pin.routing },
     age, premise: plan.open.premise,
     chatsBefore: page.chatsBefore ?? [], chats: page.chats ?? [], continues: card.setup.continues ?? null, problems: [] as string[], warnings,
@@ -635,22 +642,34 @@ async function live(cli: LiveCli) {
   return row;
 }
 
-export async function scoreCommand(dirArg: string, rest: string[], at = new Date().toISOString()) {
-  const dir = resolve(REPO_ROOT, dirArg);
-  const rubricPath = resolve(dir, 'rubric.json');
-  if (!existsSync(rubricPath)) throw new Error(`${dirArg} has no rubric.json yet: stop the session first`);
+const looksLikeEvidence = (value: string) => /^\S+$/.test(value) && /[.:/\\]/.test(value);
+
+export function parseScoreArgs(rest: string[]) {
   const record = rest.includes('--record');
   const evidence: string[] = [];
   const positional: string[] = [];
   for (let index = 0; index < rest.length; index += 1) {
-    if (rest[index] === '--evidence') { if (rest[index + 1]) evidence.push(rest[index + 1]); index += 1; continue; }
+    if (rest[index] === '--evidence') {
+      while (index + 1 < rest.length && !rest[index + 1].startsWith('--') && (looksLikeEvidence(rest[index + 1]) || rest[index + 1].includes(','))) {
+        evidence.push(...rest[index + 1].split(',').map((item) => item.trim()).filter(Boolean));
+        index += 1;
+      }
+      continue;
+    }
     if (rest[index] === '--record') continue;
     positional.push(rest[index]);
   }
   const [row, ...tail] = positional;
-  const score = record ? null : tail[0] ?? null;
-  const note = (record ? tail[0] : tail[1]) ?? '';
+  return { row: row ?? null, score: record ? null : tail[0] ?? null, note: (record ? tail[0] : tail[1]) ?? '', evidence, record, extra: tail.slice(record ? 1 : 2) };
+}
+
+export async function scoreCommand(dirArg: string, rest: string[], at = new Date().toISOString()) {
+  const dir = resolve(REPO_ROOT, dirArg);
+  const rubricPath = resolve(dir, 'rubric.json');
+  if (!existsSync(rubricPath)) throw new Error(`${dirArg} has no rubric.json yet: stop the session first`);
+  const { row, score, note, evidence, record, extra } = parseScoreArgs(rest);
   if (!row) throw new Error('score needs a row (number or feature name)');
+  if (extra.length) throw new Error(`score: unexpected argument(s) ${extra.map((item) => JSON.stringify(item)).join(' ')}; quote the note, and give evidence after --evidence (several paths, repeated --evidence or a comma list)`);
   const scored = scoreRow(await readJson(rubricPath), dir, { row, score, note, evidence, record, at });
   await writeFile(rubricPath, JSON.stringify(scored.rubric, null, 2), 'utf-8');
   return { row: scored.index, feature: scored.row.feature, score: scored.row.score, open: rubricProblems(scored.rubric) };
@@ -678,7 +697,7 @@ export async function loadSessionFiles(dir: string, index: StoryIndex) {
       session, journal: parseJsonl(await text('journal.jsonl')), payloads: parseJsonl(await text('payloads.jsonl')), console: parseJsonl(await text('console.jsonl')), logs, chats, states, story,
       turns: parseJsonl(await text(TURNS_FILE)), missing,
     },
-    paths: { journal: 'journal.jsonl', payloads: 'payloads.jsonl', console: 'console.jsonl', logs: logPaths },
+    paths: { journal: 'journal.jsonl', payloads: 'payloads.jsonl', console: 'console.jsonl', logs: logPaths, turns: TURNS_FILE },
   };
 }
 
@@ -1157,7 +1176,7 @@ async function main() {
     await start(rest[0], {
       lane: lane === null ? null : Number(lane), allowComfy: rest.includes('--allow-comfy'), seed: !rest.includes('--no-seed'), forceWaiting: rest.includes('--force-waiting'),
       profile: argValue(rest, '--profile') ?? DEFAULT_MAIN_PROFILE, orchestrator: argValue(rest, '--orchestrator') ?? DEFAULT_ORCHESTRATOR.source, age: age === null ? null : Number(age),
-      media, arm: argValue(rest, '--arm'), breakLease: rest.includes('--break-lease'),
+      media, arm: argValue(rest, '--arm'), breakLease: rest.includes('--break-lease'), judgeRate: argValue(rest, '--judge-rate') === null ? null : Number(argValue(rest, '--judge-rate')),
     });
   } else if ((LIVE_VERBS as readonly string[]).includes(command)) await live(parseLiveArgs(command as LiveVerb, rest));
   else if (command === 'setting') await settingCommand(rest[0], rest[1], rest[2]);

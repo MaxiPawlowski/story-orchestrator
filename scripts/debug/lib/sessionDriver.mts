@@ -2,7 +2,7 @@ import { mkdir } from 'node:fs/promises';
 import { relative, resolve } from 'node:path';
 import { evaluateInST } from './evaluate.mts';
 import {
-  backdateSession, flagMoment, MUTATION_VERBS, runMutation, runTurn, waitSchedulerIdle,
+  backdateSession, flagMoment, MUTATION_VERBS, runGuardedTurn, runMutation, waitSchedulerIdle,
   groupNeedle, type LiveDeps, type LiveOptions, type MutationArgs, type MutationVerb,
 } from './sessionLive.mts';
 
@@ -55,6 +55,25 @@ export async function defaultLiveDeps(): Promise<LiveDeps> {
       await page.waitForTimeout(300);
     },
     hitTest: (page, selector) => ui.hitTest(page, selector),
+    flag: (page, note) => flagMoment(page, note),
+    revealMessage: async (page, selector) => {
+      const revealed = await evaluateInST(page, (target: string) => {
+        const chat = document.getElementById('chat');
+        if (chat) chat.scrollTop = chat.scrollHeight;
+        const element = document.querySelector(target) as HTMLElement | null;
+        const message = element?.closest('.mes') as HTMLElement | null;
+        const inside = () => {
+          if (!element || !chat) return false;
+          const box = element.getBoundingClientRect();
+          const frame = chat.getBoundingClientRect();
+          return box.top >= frame.top && box.bottom <= frame.bottom;
+        };
+        if (message && !inside()) message.scrollIntoView({ block: 'end' });
+        return { found: Boolean(element), scrolledToBottom: Boolean(chat) && Math.abs(chat!.scrollHeight - chat!.clientHeight - chat!.scrollTop) <= 2, inView: inside() };
+      }, selector);
+      await page.waitForTimeout(250);
+      return revealed;
+    },
     openChat: async (page, target) => {
       const needle = groupNeedle(target);
       if (needle) {
@@ -104,7 +123,7 @@ export async function runLive(page: any, request: LiveRequest, deps: LiveDeps) {
   const ensured = await ensureChat(page, request.chat, deps);
   if (verb === 'turn') {
     if (!args.line) throw new Error('turn needs the player line');
-    return { ...(await runTurn(page, args.line, deps, request.options ?? {})), ensured };
+    return { ...(await runGuardedTurn(page, args.line, deps, request.options ?? {})), ensured };
   }
   if ((MUTATION_VERBS as readonly string[]).includes(verb)) {
     return { ...(await runMutation(page, verb as MutationVerb, { ...args, chatId: request.chat?.chatId ?? args.chatId, group: request.chat?.group ?? args.group ?? null, groupId: request.chat?.groupId ?? args.groupId ?? null }, deps, request.options ?? {})), ensured };

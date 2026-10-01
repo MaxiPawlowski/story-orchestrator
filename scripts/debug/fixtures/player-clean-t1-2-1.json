@@ -1,0 +1,328 @@
+{
+ "source": "T1-2-1 (test/sessions/T1/T1-2-1/rubric.json playerClean: 46 findings). The session recorded findings, not the DOM, so the records are rebuilt from those findings and the component source (src/index.tsx author-view label title, HelpTooltip title + \"Help: \" aria-label, settings help strings); tokens from adolion-adventurer at campaign 59e8821.",
+ "sessionFindings": 46,
+ "tokens": [
+  "adv-guild-tavern",
+  "adv-the-ice-witch",
+  "adv-who-wants-in",
+  "aegis_guild_hall",
+  "after-the-fog",
+  "at-the-walls",
+  "behind_the_seals",
+  "between-the-floors",
+  "deep_mines",
+  "driftmere",
+  "eltaronal",
+  "filwern-freed",
+  "first-night",
+  "god_eater",
+  "guild-hall",
+  "into-needlehaven",
+  "needlehaven",
+  "needlehaven_heart",
+  "north_road",
+  "on-the-road",
+  "outside-at-sundown",
+  "road-to-wendhope",
+  "the-breach",
+  "the-changed-deep",
+  "the-closed-mine",
+  "the-devourer",
+  "the-dying-forest",
+  "the-first-descent",
+  "the-lord-spirit",
+  "the-seal-breaks",
+  "the-sealed-wall",
+  "the-sheridan-steward",
+  "the-wards-hold",
+  "the_seals",
+  "upper_mines",
+  "wendhope",
+  "wendhope_gate",
+  "wendhope_wall",
+  "what-filwern-left",
+  "what-wendhope-knows"
+ ],
+ "records": [
+  {
+   "tab": "Overview",
+   "texts": [
+    {
+     "surface": "#drawer-manager",
+     "text": "The Journey North\nWhere you are\nThe Road North: the Ash Lanterns ride for Wendhope with the caravan.\nRecently\nThe party took the Wendhope posting at the guild hall.\nUp to date\nRestart story"
+    },
+    {
+     "surface": "#so-hud",
+     "text": "The Road North\nTension rising"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "text": "Story Orchestrator\nStart\nNew story (wizard)\nImport a story\nContinue\nRepair\nAuthor\nOpen Studio\nDisplay\nShow the HUD\nInline notes: Story\nModel roles\nStory reads\nScene reads\nWorld Info curator\nSpeaker direction\nSeveral characters may answer one message\nPacing\nRestart story"
+    }
+   ],
+   "attributes": [
+    {
+     "surface": "#drawer-manager",
+     "attr": "title",
+     "value": "Show gates, blackboard, scheduler and payload debugging. Spoils upcoming story branches.",
+     "controls": [
+      "so-author-view"
+     ]
+    },
+    {
+     "surface": "#drawer-manager",
+     "attr": "aria-label",
+     "value": "Story drawer tabs"
+    },
+    {
+     "surface": "#drawer-manager",
+     "attr": "aria-label",
+     "value": "Flag this moment",
+     "id": "so-flag-moment"
+    },
+    {
+     "surface": "#so-hud",
+     "attr": "title",
+     "value": "Open the story drawer",
+     "id": "so-hud"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "World Info curator",
+     "id": "so-role-profile-curator"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "Shows which upcoming checkpoints play is moving toward."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: Shows which upcoming checkpoints play is moving toward."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "Writes the generated beats one checkpoint ahead, where play is heading, before the story gets there."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: Writes the generated beats one checkpoint ahead, where play is heading, before the story gets there."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "the messages since the checkpoint began and the unmet conditions' descriptions and values"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: the messages since the checkpoint began and the unmet conditions' descriptions and values"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "Shows the World Info curator only the entries the story may have overtaken."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: Shows the World Info curator only the entries the story may have overtaken."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "up to 40 established facts, the target checkpoint's name and goal, cast names with your persona, the tension trajectory and the generated beats"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: up to 40 established facts, the target checkpoint's name and goal, cast names with your persona, the tension trajectory and the generated beats"
+    }
+   ]
+  },
+  {
+   "tab": "Memory",
+   "texts": [
+    {
+     "surface": "#drawer-manager",
+     "text": "Established facts\nThe party calls itself the Ash Lanterns.\nEllie registered the party for the Wendhope posting.\nFind a fact"
+    },
+    {
+     "surface": "#so-hud",
+     "text": "The Road North\nTension rising"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "text": "Story Orchestrator\nStart\nNew story (wizard)\nImport a story\nContinue\nRepair\nAuthor\nOpen Studio\nDisplay\nShow the HUD\nInline notes: Story\nModel roles\nStory reads\nScene reads\nWorld Info curator\nSpeaker direction\nSeveral characters may answer one message\nPacing\nRestart story"
+    }
+   ],
+   "attributes": [
+    {
+     "surface": "#drawer-manager",
+     "attr": "title",
+     "value": "Show gates, blackboard, scheduler and payload debugging. Spoils upcoming story branches.",
+     "controls": [
+      "so-author-view"
+     ]
+    },
+    {
+     "surface": "#drawer-manager",
+     "attr": "aria-label",
+     "value": "Story drawer tabs"
+    },
+    {
+     "surface": "#drawer-manager",
+     "attr": "aria-label",
+     "value": "Flag this moment",
+     "id": "so-flag-moment"
+    },
+    {
+     "surface": "#so-hud",
+     "attr": "title",
+     "value": "Open the story drawer",
+     "id": "so-hud"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "World Info curator",
+     "id": "so-role-profile-curator"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "Shows which upcoming checkpoints play is moving toward."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: Shows which upcoming checkpoints play is moving toward."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "Writes the generated beats one checkpoint ahead, where play is heading, before the story gets there."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: Writes the generated beats one checkpoint ahead, where play is heading, before the story gets there."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "the messages since the checkpoint began and the unmet conditions' descriptions and values"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: the messages since the checkpoint began and the unmet conditions' descriptions and values"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "Shows the World Info curator only the entries the story may have overtaken."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: Shows the World Info curator only the entries the story may have overtaken."
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "title",
+     "value": "up to 40 established facts, the target checkpoint's name and goal, cast names with your persona, the tension trajectory and the generated beats"
+    },
+    {
+     "surface": "#story-orchestrator-settings",
+     "attr": "aria-label",
+     "value": "Help: up to 40 established facts, the target checkpoint's name and goal, cast names with your persona, the tension trajectory and the generated beats"
+    }
+   ]
+  }
+ ]
+}
