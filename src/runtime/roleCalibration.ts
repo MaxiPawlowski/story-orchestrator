@@ -101,13 +101,11 @@ export function scoreDirector(entry: DirectorCalibrationCase, raw: string, laten
   return { pick, answerCorrect, inTime, correct: answerCorrect && inTime };
 }
 
-type CuratorPlan = ReturnType<typeof planCuratorProposal>;
-
-export function scoreCurator(entry: CuratorCalibrationCase, raw: string, shown = entry.scope.entries, narrow: (plan: CuratorPlan) => CuratorPlan = (plan) => plan): CuratorScore {
-  const proposal = parseCuratorResponse(raw, shown);
+export function scoreCurator(entry: CuratorCalibrationCase, raw: string): CuratorScore {
+  const proposal = parseCuratorResponse(raw, entry.scope.entries);
   const opLines = proposal.ops.length + proposal.dropped.length;
   const explicitNone = stripChannelNoise(raw ?? "").split(/\r?\n/).some((line) => line.trim().replace(/^[-*]\s+/, "").toUpperCase() === "NONE");
-  const plan = narrow(planCuratorProposal(proposal, shown, { mode: "review" }));
+  const plan = planCuratorProposal(proposal, entry.scope.entries, { mode: "review" });
   const kept = plan.records.map((record) => `${record.op.kind}:${"comment" in record.op ? record.op.comment : ""}`);
   const touched = plan.records.flatMap((record) => ("comment" in record.op ? [{ kind: record.op.kind, comment: record.op.comment.toLowerCase() }] : []));
   const forbidden = new Set(namesOf(entry.forbidden));

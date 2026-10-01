@@ -126,15 +126,11 @@ export class StagecraftCoordinator {
 
   private spikesOn(): boolean {
     const flags = this.deps.spikes?.();
-    return Boolean(flags?.sp8CuratorTiers || flags?.sp8CuratorDigest);
+    return Boolean(flags?.sp8CuratorTiers);
   }
 
   private async spikeModules() {
-    const flags = this.deps.spikes?.();
-    return {
-      tiers: flags?.sp8CuratorTiers ? await import("@stagecraft/curatorTiers") : null,
-      digest: flags?.sp8CuratorDigest ? await import("@stagecraft/curatorDigest") : null,
-    };
+    return { tiers: this.spikesOn() ? await import("@stagecraft/curatorTiers") : null };
   }
 
   get curatorEnabled(): boolean {
@@ -180,10 +176,8 @@ export class StagecraftCoordinator {
       const openArcs = this.deps.getOpenArcs();
       const shown = this.deps.filterEntries ? await this.deps.filterEntries(entries, { checkpoint: { name: checkpointName, objective }, canon, openThreads: openArcs }).catch(() => entries) : entries;
       const declined = declinedOps(this.state.proposals, state.activeCheckpointId, state.checkpointStartedBoundary ?? 0);
-      const spikes = this.spikesOn() ? await this.spikeModules() : { tiers: null, digest: null };
-      const scope = { storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown, declined };
-      const digest = spikes.digest?.digestEntries(shown, scope) ?? null;
-      const prompt = spikes.digest && digest ? spikes.digest.buildDigestCuratorPrompt(scope, digest) : buildWiCuratorPrompt(scope);
+      const spikes = this.spikesOn() ? await this.spikeModules() : { tiers: null };
+      const prompt = buildWiCuratorPrompt({ storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown, declined });
       const response = await askText(this.deps.model, prompt, {
         role: "curator", pass: "curator",
         maxTokens: maxTokensForInput("curator", prompt),
@@ -200,8 +194,7 @@ export class StagecraftCoordinator {
       }
       const proposal = parseCuratorResponse(response, shown);
       const planned = planCuratorProposal(proposal, shown, { mode: this.state.settings.acceptMode, declined });
-      const titled = spikes.digest && digest ? spikes.digest.refuseTitleOnly(planned, digest) : planned;
-      const plan = spikes.tiers ? spikes.tiers.refuseProtected(titled, shown) : titled;
+      const plan = spikes.tiers ? spikes.tiers.refuseProtected(planned, shown) : planned;
       this.patch({
         lastRunBoundary: state.boundary,
         lastError: null,

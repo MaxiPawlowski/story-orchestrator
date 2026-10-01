@@ -1,23 +1,17 @@
-import { askText, maxTokensForInput, parseSharedReadResponse, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
+import { askText, parseSharedReadResponse, type ExtractionReply, type ModelCall, type ModelPass, type PassRole } from "@extraction/index";
 import { buildFixtureRun, type ExtractionFixtureSpec } from "@extraction/fixtureRun";
 import type { ContextLimit, SceneArm, SceneArmSpec } from "@extraction/index";
 import { requestBudgetFor, routedProfileId } from "./requestBudget";
 import { sceneArmRunner, type SceneArmResult } from "./sceneArmRunner";
-import { loadLorebook, profileExists } from "@services/STAPI";
+import { profileExists } from "@services/STAPI";
 import { createModelCall } from "./modelCall";
 import { buildTypedPlan, readTypedDeltas } from "@judge/index";
 import { buildCreateCandidatePrompt, caseContext, caseScope, scoreCreateSample, type CreateCase, type CreateCaseSample } from "@stagecraft/createCandidate";
 import type { RuntimeManager } from "./runtimeManager";
 import {
-  runRoleCase, scoreCurator, summarizeRoleCalibration, type CalibrationCaseMap, type CalibrationRole, type CuratorCalibrationCase, type RoleCaseRecord,
+  runRoleCase, summarizeRoleCalibration, type CalibrationCaseMap, type CalibrationRole, type RoleCaseRecord,
   type RoleSummary,
 } from "./roleCalibration";
-import { buildDigestCuratorPrompt, digestEntries, refuseTitleOnly } from "@stagecraft/curatorDigest";
-import { buildWiCuratorPrompt, entriesForScope } from "@stagecraft/index";
-
-export interface DigestCaseRecord extends RoleCaseRecord<"curator"> {
-  digest: { padBook: string; entries: number; full: number; titleOnly: number; promptChars: number; fullPromptChars: number; ratio: number };
-}
 
 export interface LiveFixtureResult {
   prompt: string;
@@ -56,7 +50,6 @@ export interface LiveSuiteHandle {
   runFixture: (spec: ExtractionFixtureSpec, options?: LiveFixtureOptions) => Promise<LiveFixtureResult>;
   runCuratorCreate: (entry: CreateCase) => Promise<{ prompt: string; rawResponse: string; sample: CreateCaseSample }>;
   runRoleCase: <R extends CalibrationRole>(role: R, entry: CalibrationCaseMap[R]) => Promise<RoleCaseRecord<R>>;
-  runCuratorDigestCase: (entry: CuratorCalibrationCase, padBook: string) => Promise<DigestCaseRecord>;
   summarizeRoleCalibration: (role: CalibrationRole, records: RoleCaseRecord[], options?: { floorIds?: string[] }) => RoleSummary;
   askModel: (prompt: string, maxTokens: number, role: PassRole) => Promise<ExtractionReply>;
 }
@@ -87,7 +80,6 @@ export function registerLiveSuite(manager: RuntimeManager) {
   const handle: LiveSuiteHandle = {
     runCuratorCreate: curatorCreateRunner(manager),
     runRoleCase: (role, entry) => runRoleCase(role, entry, { profileId: manager.getExtractionSettings().profileId, model }),
-    runCuratorDigestCase: curatorDigestRunner(model),
     summarizeRoleCalibration,
     runSceneArm: sceneArmRunner(model),
     measureBudget: async (text, role = "read") => {
@@ -128,26 +120,6 @@ export function registerLiveSuite(manager: RuntimeManager) {
     },
   };
   globalThis.storyOrchestratorLiveSuite = handle;
-}
-
-export function curatorDigestRunner(model: ModelCall, load: typeof loadLorebook = loadLorebook): LiveSuiteHandle["runCuratorDigestCase"] {
-  return async (entry, padBook) => {
-    const book = await load(padBook);
-    if (!book) throw new Error(`no lorebook named "${padBook}" on this install`);
-    const scope = { ...entry.scope, entries: [...entry.scope.entries, ...entriesForScope(padBook, Object.values(book.entries ?? {}))] };
-    const digest = digestEntries(scope.entries, scope);
-    if (!digest) throw new Error(`"${padBook}" pads the case to ${scope.entries.length} entries, below the digest threshold`);
-    const prompt = buildDigestCuratorPrompt(scope, digest);
-    const fullPromptChars = buildWiCuratorPrompt(scope).length;
-    const started = Date.now();
-    const reply = await model(prompt, { role: "curator", pass: "curator", maxTokens: maxTokensForInput("curator", prompt) });
-    return {
-      role: "curator", id: entry.id, lang: entry.lang ?? "en", responses: [reply.text], finishes: [reply.finish], latencyMs: Date.now() - started,
-      score: scoreCurator(entry, reply.text, scope.entries, (plan) => refuseTitleOnly(plan, digest)),
-      digest: { padBook, entries: scope.entries.length, full: digest.full.length, titleOnly: digest.titleOnly.length, promptChars: prompt.length, fullPromptChars,
-        ratio: prompt.length / fullPromptChars },
-    };
-  };
 }
 
 // Phase A: the create op is measured before it is built. The candidate prompt and

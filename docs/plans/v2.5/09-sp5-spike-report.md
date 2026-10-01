@@ -87,7 +87,7 @@ code-health ratchets, architecture budgets and D3 green), `ST_ROOT=C:/dev/SillyT
 
 None owed now. C5's player copy, if the spike passes and is included, waits on the human sessions (rule 7, U4-style).
 
-## v2.6 Adolion re-run (plan 03, 2026-10-01) — not decided
+## v2.6 Adolion re-run (plan 03, 2026-10-01) — include (C1–C5 PASS ×1, see the C1–C5 run below)
 
 Restated: `docs/plans/v2.6/03-sp5-restated.md` (+ three addenda, each committed before its attempt). Lane 2, dev bundle
 `ceb15ac19ec0`, data `lab/scenario/` at `e1c91fb`, no model call. Records: `test/measurements/v2.6-03/sp5/summary.json`.
@@ -125,3 +125,29 @@ that relies on inherited staging (no scenario of its own) plays unstaged after a
 
 **Verdict: still pending.** Unblock: merge + stage `32527192`; fix the helper's cross-group `goto` (wait out the
 hydrate, `openGroupById`, then the chat); re-run C1, C2, C3, C5. The code stays behind its flag.
+
+### C1–C5 run (2026-10-01 15:17–16:18Z, shared slot `cc7c9153e48a`, lane 2, pin `59e8821`) — **PASS ×1**
+
+Restated addenda 5–7 (each committed before its attempt). Record `test/measurements/v2.6-03/sp5/c1235/summary.json`
+(logs in its `raw/`). No model call (dry-run captures; C3's read is scripted), 0 pod minutes.
+
+| # | Measured (attempt 3) | Result |
+|---|---|---|
+| C1 | chats A (saga, 4-checkpoint path), B (academy, Nightriver group), C (Belle, no story); A→B→C ×3 + A: **10/10** captures carry the path replay's scenario once, no other checkpoint's, none in C; C keeps its own card scenario | **PASS** |
+| C2 | order 1: user override in B, then a checkpoint write → `externally-changed` with the user's text, user text in the request once, story text 0; leave and return keeps it. Order 2: override over the story's own write in A, leave, return, restart → the user's text survives all three, guild hall's text 0 | **PASS** |
+| C3 | rollback (evidence edited away) past the harvest write: harvest row `reverted`, the held value back to the pre-harvest one (empty under C4 (c)), landfall and harvest texts 0 in the request | **PASS** |
+| C4 | A: 8 enabled, 7 card scenarios, 1 story block, 0 card texts; APPEND control carries each once per holder. B: 6 enabled, 5 card scenarios, same | **PASS** (again) |
+| C5 | none-story in B: one author note naming the 6 cards that frame B (= the settled cast); in C: one note naming `Belle`; player drawer never mentions it, `assert-player-clean` green | **PASS** |
+
+Attempts 1 and 2 stopped at C5 for fixture reasons (addenda 6, 7); attempt 3's teardown step failed on its own `goto`
+(chat C plays the none-story by then) and was finished by hand; nothing measured depends on it.
+
+## Worth review (v2.6)
+
+| | |
+|---|---|
+| Measured value | On the real campaign every story sets `effects.scenario` and every card carries its own: today a group request carries up to 7 competing card scenarios (4 distinct texts on the saga group); with the spike it carries one story block that follows the path, survives chat switches, yields to the user's own override and rolls back. C1–C5 PASS ×1 on Adolion (×2 owed to plan 10, restated §×1). |
+| Cost | Prod: the extension seam already ships (empty). `.b` moves `sp5Scenario.ts` (83 lines) + `sp5ScenarioHost.ts` (16) + `stHost/chatScenario.ts` (34) into the main entry: the dev chunk is 4 229 B, so about 2–4 KB of the 1 250 000 B budget. No coordinator lines. Prompt: negative in groups (one block replaces N card texts), ~0 in solo. Latency: one metadata save per scenario change; no model call. On a 125-member group the scenario lands after the cast writes (40–110 s per checkpoint apply) — that is the cast's cost, not this spike's. |
+| Surface | Authors: `effects.scenario` (Studio field owed with the `.b`). Players: none (rule 7). Author view: the competing-cards journal note. |
+| Caveats | (1) C4 (c): a jump target with no scenario of its own plays unstaged after `/cp activate` (user may revisit on review day). (2) The competing-cards note is planned before the activation's own cast writes, so a story switch made while a cast apply is in flight can name the cast as it was (attempt 1). (3) Outside the spike: a chat with no story shows the previous chat's session journal in author view until a story is selected (attempt 2). |
+| Call | **include → `SP5.b`** (story-owned scenario into prod + Studio field + C5's note in the author view). |

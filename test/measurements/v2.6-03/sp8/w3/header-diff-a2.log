@@ -1,0 +1,19 @@
+2026-10-01T18:05:11.868Z DIFF spikes.sp8CuratorTiers  false -> true
+2026-10-01T18:05:11.870Z WARNING: the page is running a bundle that is not the built one: served 6566f7f8e418a513 vs dist 0d2a3ab1f323bc53
+2026-10-01T18:05:11.870Z {
+2026-10-01T18:05:11.870Z   "baseline": "test/measurements/v2.6-03/sp8/w3/header-before-a2.json",
+2026-10-01T18:05:11.870Z   "label": "diff-end",
+2026-10-01T18:05:11.870Z   "allow": [],
+2026-10-01T18:05:11.870Z   "differences": 1,
+2026-10-01T18:05:11.870Z   "progress": 0,
+2026-10-01T18:05:11.870Z   "blocking": 1,
+2026-10-01T18:05:11.870Z   "blockingPaths": [
+2026-10-01T18:05:11.871Z     "spikes.sp8CuratorTiers"
+2026-10-01T18:05:11.871Z   ],
+2026-10-01T18:05:11.871Z   "servedIdentity": [],
+2026-10-01T18:05:11.871Z   "warnings": [
+2026-10-01T18:05:11.871Z     "the page is running a bundle that is not the built one: served 6566f7f8e418a513 vs dist 0d2a3ab1f323bc53"
+2026-10-01T18:05:11.871Z   ],
+2026-10-01T18:05:11.871Z   "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+2026-10-01T18:05:11.871Z   "ok": false
+2026-10-01T18:05:11.871Z }

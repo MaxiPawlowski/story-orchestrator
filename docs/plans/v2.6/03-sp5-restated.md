@@ -88,3 +88,43 @@ check changes.
 - Harness ordering: `solo_chat` opens only from the sandbox group, so the v5 fixture returns to chat A (and settles) before opening chat C (14:10Z, after the second v5 attempt stopped there; C4 A and B had passed).
 - Chat C's no-story check read the snapshot 10 ms after the solo chat opened (still the previous chat's story); it now waits up to 30 s for the runtime to follow the chat change (14:17Z).
 - Chat B: the same wait for the import's scenario row now follows the academy import too (its check ran before the apply finished, 14:20Z; it passed at 14:13Z).
+
+## Addendum 5 2026-10-01 15:15Z — the C1/C2/C3/C5 run (bars unchanged)
+
+- **Bundle:** the shared ST slot's dev build `cc7c9153e48a` (master with the hydrate fix `32527192`), served to lane 2
+  unchanged; lane 2 re-seeded from `adolion-fresh` at campaign pin `59e8821` (saga v12, academy rebuilt), lane server
+  started with `SO_JUDGE_RATE_PER_MIN=15`. No branch route on the lane browser.
+- **C4 option (c)** as in addendum 4; the two adapted expectations are unchanged.
+- **Harness, group switching:** the attempt of 14:20Z stopped in the lab helper's `goto` to chat B, while chat A's
+  125-member saga cast writes were still landing: `openGroupById`/`openGroupChat` returned and the page stayed on A.
+  The helper (run-dir copy of `test/fixtures/interop/v25-09-sp5.js`) now (1) waits for the effect ledger to settle
+  (no growth for 8 s, no `pending` row, ≤ 300 s; the same rule as addendum 2) before any switch, then (2) opens the
+  group, waits for ST's save to settle, opens the chat only once the group lists it, and repeats until the page is on
+  the target or the step's timeout. The chat-B creation step keeps `adoptsNewChat: "other-group"`. No C1–C5 check or
+  pass rule changes. Run ×1 (as C4), stories and helper from the pin.
+
+## Addendum 6 2026-10-01 15:45Z — before the re-run (bars unchanged)
+
+Attempt of 15:17Z (addendum 5): C4 setup, **C1 PASS** (10 captures, 0 failed, the group switch landed every time) and
+**C2 PASS** (order 1 and order 2), then the C5 step stopped the run, so C3 and the C5 solo half never ran. C5's group
+diagnostic named 7 cards (the 6 that frame chat B **plus Tahlia**), while the settled cast had 6. Timing: the step
+before C5 re-opens chat B, whose hydrate re-applies `nightriver-house`'s cast one member at a time (Tahlia is the last
+of the nine disables), and the none-story import came 1.3 s after the page landed, so the diagnostic read the cast with
+Tahlia not yet disabled. Change: the helper's `goto` also waits for the effect ledger to settle **after** landing (the
+addendum 2 rule, applied on arrival as it already is before leaving). No C1–C5 check or pass rule changes. Lane state
+from the failed attempt was put back by hand first (both groups' `disabled_members`, the flag, the none-story removed).
+Finding kept for the worth review either way: the competing-cards note is planned before the activation's own cast
+writes, so a story switch made while a cast apply is in flight names the cast as it was.
+
+## Addendum 7 2026-10-01 16:00Z — before the third run (bars unchanged)
+
+Attempt of 15:36Z (addendum 6): C1 PASS (10/10), C2 PASS (both orders), and C5's **group half now passes** (one note,
+the 6 cards that frame chat B, = the settled cast). The C5 step still threw, on its **solo** half: `solo: []`. Probe on
+lane 2 (two throwaway Belle chats, deleted after): selecting the none-story in a fresh Belle chat writes exactly one
+note, `1 character card scenario(s) frame this chat and the story sets none`, detail `Belle` (= the expected list). The
+fixture's count is what fails: `beforeC = find().length` is read in chat C **before** a story is selected, when
+`getSessionJournal()` still returns the previous chat's events (chat B's note among them); the selection then resets the
+journal to chat C's own, and `slice(beforeC)` cuts the one new note away. Change: the solo half reads chat C's journal
+after the selection whole (`find()`, not `find().slice(beforeC)`); its pass rule (exactly one note naming `["Belle"]`) is
+unchanged. Finding for the worth review: a chat with no story shows the previous chat's journal in author view until a
+story is selected (author-only surface, not player copy). Lane state put back by hand before the re-run.

@@ -10,7 +10,7 @@ import { saveSettingsNow } from './lib/settingsSave.mts';
 import { roleVerdict, summarizeHoldout, type RoleRun } from './lib/roleVerdict.mts';
 import { effortArmLabel, parseEffortArm, pinRoleEffort, readRoleReasoning, restoreRoleEfforts, type EffortArm } from './lib/roleEffort.mts';
 
-const USAGE = `Usage: node scripts/debug/so-role-calibration.mts run --role director|curator|authoring|synthesis [--profile <name|id>] [--effort default|off|low|medium|high] [--arm <label>] [--filter <id>] [--record] [--expect-count <n>] [--holdout] [--digest-pad <book>]
+const USAGE = `Usage: node scripts/debug/so-role-calibration.mts run --role director|curator|authoring|synthesis [--profile <name|id>] [--effort default|off|low|medium|high] [--arm <label>] [--filter <id>] [--record] [--expect-count <n>] [--holdout]
        node scripts/debug/so-role-calibration.mts verdict <report-run1.json> <report-run2.json>
 
 v2.4 plan 08 T18 per-role calibration. Runs every case of the role's fixture through the role's real
@@ -28,9 +28,6 @@ then scores it against the floors predeclared in docs/plans/v2.4/08-author-obser
   --arm <label>        golden file suffix (default: routed when --profile is given, else shared)
   --record             write test/goldens/live/role-calibration/<role>-<arm>.json (replayed in jest)
   --expect-count <n>   fail unless exactly n cases ran (the fixture's cases; hold-out rows are counted apart)
-  --digest-pad <book>  curator only (v2.5 plan 09 SP8 W4 b): pad every case with this install's lorebook (read only), prompt through
-                       the digest spike (src/stagecraft/curatorDigest.ts), refuse title-only rewrites/patches, score with today's
-                       rules and floors. The report carries each case's digest ratio. Default arm: digest.
   --holdout            authoring only (v2.5 plan 06 J1): also run test/fixtures/role-calibration/authoring-holdout.json
                        and report its validity/opShape beside the fixture score. It never enters the floors. The hold-out
                        is required: a missing hold-out file refuses the run, and an authoring verdict without hold-out scores
@@ -159,7 +156,7 @@ async function restoreRoute(page, before) {
   return after;
 }
 
-async function runCases(page, role: string, cases, digestPad: string | null = null) {
+async function runCases(page, role: string, cases) {
   const records = [];
   const incomplete = [];
   for (const entry of cases) {
@@ -167,15 +164,11 @@ async function runCases(page, role: string, cases, digestPad: string | null = nu
     let lastError = null;
     for (let attempt = 0; attempt < 3 && !outcome; attempt += 1) {
       try {
-        outcome = await evaluateInST(page, async ({ role, entry, digestPad }) => {
+        outcome = await evaluateInST(page, async ({ role, entry }) => {
           const suite = globalThis.storyOrchestratorLiveSuite;
-          if (digestPad) {
-            if (!suite?.runCuratorDigestCase) throw new Error('storyOrchestratorLiveSuite.runCuratorDigestCase not registered (a bundle without the SP8 spike, or rebuild + st-session reload)');
-            return suite.runCuratorDigestCase(entry, digestPad);
-          }
           if (!suite?.runRoleCase) throw new Error('storyOrchestratorLiveSuite.runRoleCase not registered (rebuild + st-session reload)');
           return suite.runRoleCase(role, entry);
-        }, { role, entry, digestPad });
+        }, { role, entry });
       } catch (err) {
         lastError = err instanceof Error ? err.message : String(err);
       }
@@ -196,9 +189,8 @@ async function runCases(page, role: string, cases, digestPad: string | null = nu
   return { records, incomplete };
 }
 
-async function runRole(page, { role, profile, effort = null, arm, filter, record, expectCount, holdout, digestPad = null }: { role: string; profile: string | null; effort?: EffortArm | null; arm: string; filter: string; record: boolean; expectCount: number | null; holdout: boolean; digestPad?: string | null }) {
+async function runRole(page, { role, profile, effort = null, arm, filter, record, expectCount, holdout }: { role: string; profile: string | null; effort?: EffortArm | null; arm: string; filter: string; record: boolean; expectCount: number | null; holdout: boolean }) {
   if (!ROLES.includes(role)) throw new Error(`--role must be one of ${ROLES.join(', ')}`);
-  if (digestPad && role !== 'curator') throw new Error('--digest-pad is a curator calibration option');
   const loaded = await loadCases(role);
   const cases = loaded.cases.filter((entry) => !filter || entry.id.includes(filter));
   const manifest = JSON.parse(await readFile(join(PROJECT_ROOT, 'dist/manifest.json'), 'utf-8'));
@@ -213,7 +205,7 @@ async function runRole(page, { role, profile, effort = null, arm, filter, record
   let restored = null;
   try {
     await evaluateInST(page, () => { for (const key of Object.keys(globalThis).filter((name) => name.startsWith('storyOrchestratorDebug'))) delete globalThis[key]; return true; });
-    run = await runCases(page, role, cases, digestPad);
+    run = await runCases(page, role, cases);
     if (holdoutCases) held = await runCases(page, role, holdoutCases);
     reasoning = await readRoleReasoning(page, role);
   } finally {
@@ -229,8 +221,7 @@ async function runRole(page, { role, profile, effort = null, arm, filter, record
     ...(held.incomplete.length ? [`hold-out incomplete: ${held.incomplete.map((entry) => entry.id).join(', ')}`] : []),
     ...(expectCount !== null && records.length + incomplete.length !== expectCount ? [`ran ${records.length + incomplete.length} case(s), expected ${expectCount}`] : []),
   ];
-  const armLabel = arm || effortArmLabel(digestPad ? 'digest' : profile ? 'routed' : 'shared', effort);
-  const digestRatios = digestPad ? records.map((entry) => entry.digest?.ratio).filter((value) => typeof value === 'number') : [];
+  const armLabel = arm || effortArmLabel(profile ? 'routed' : 'shared', effort);
   const report = {
     role,
     arm: armLabel,
@@ -248,7 +239,6 @@ async function runRole(page, { role, profile, effort = null, arm, filter, record
     incomplete,
     notGreen: reasons,
     records,
-    ...(digestPad ? { digestPad, digestRatio: { max: Math.max(...digestRatios), mean: digestRatios.reduce((sum, value) => sum + value, 0) / (digestRatios.length || 1) } } : {}),
     ...(holdoutSummary ? { holdout: holdoutSummary, holdoutRecords: held.records, holdoutIncomplete: held.incomplete } : {}),
   };
   await writeJSON(report, `so-role-calibration-${role}-${armLabel}`);
@@ -283,6 +273,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     record: process.argv.includes('--record'),
     expectCount: expectRaw ? Number(expectRaw) : null,
     holdout: process.argv.includes('--holdout'),
-    digestPad: argValue('--digest-pad', '') || null,
   }));
 }
