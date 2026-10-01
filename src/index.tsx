@@ -1,4 +1,6 @@
-import { lazy, Suspense, useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
+import { Lazy, LAZY_FAILED_TEXT } from "@components/Lazy";
+import { lazyRetry } from "@utils/lazyRetry";
 import {
   bindNavbarDrawerToggle, mountInlineHosts, readProfileContextLimit, readProfilePresetName, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
   type InlineHostSet,
@@ -96,6 +98,14 @@ const openWizardForRequirements = async () => {
   });
 };
 
+const studioFailed = (error: unknown) => {
+  console.warn("[Story Orchestrator] the Studio could not open", error);
+  setStudioOpen(false);
+  window.toastr?.info?.(LAZY_FAILED_TEXT, "Story Orchestrator");
+};
+
+const launch = (open: () => Promise<unknown>) => () => void open().catch(studioFailed);
+
 const wizardHost: WizardHost = {
   environment: (draft) => manager.getProvisioningEnvironment(draft),
   applyProvisioning: (op, draft) => manager.applyProvisioning(op, draft),
@@ -146,9 +156,9 @@ const inlineActions: InlineActions = {
   },
 };
 
-const StudioModal = lazy(() => import("./studio/StudioModal"));
-const InlineLayer = lazy(() => import("./components/inline/InlineLayer"));
-const ImageChatPanel = lazy(() => import("./image/ImageChatPanel"));
+const StudioModal = lazyRetry(() => import("./studio/StudioModal"));
+const InlineLayer = lazyRetry(() => import("./components/inline/InlineLayer"));
+const ImageChatPanel = lazyRetry(() => import("./image/ImageChatPanel"));
 
 const StudioHost = () => {
   const open = useSyncExternalStore(
@@ -158,7 +168,7 @@ const StudioHost = () => {
   const snapshot = useRuntimeSnapshot();
   if (!open) return null;
   return (
-    <Suspense fallback={null}>
+    <Lazy quiet onError={studioFailed}>
       <StudioModal
         onClose={() => setStudioOpen(false)}
         copilotEnabled={snapshot.copilot.enabled}
@@ -169,7 +179,7 @@ const StudioHost = () => {
         intent={studioIntent}
         replay={studioIntent?.fromChat ? readReplaySource() : null}
       />
-    </Suspense>
+    </Lazy>
   );
 };
 
@@ -197,11 +207,12 @@ const settingsHost: SettingsHost = {
   extensionVersion: EXTENSION_VERSION,
   memoryModelLimit,
   recheckMemoryModel: () => contextLimits.invalidate(),
-  openWizard: () => void openWizard(),
-  openStudio: () => void openStudio(),
-  openWizardForRequirements: () => void openWizardForRequirements(),
+  openWizard: launch(openWizard),
+  openStudio: launch(() => openStudio()),
+  openWizardForRequirements: launch(openWizardForRequirements),
   revealSetting: (id) => revealSetting(id),
   openDrawer: () => openSoDrawer(),
+  openAuthorView: () => void toggleAuthorView(true).then(openSoDrawer),
 };
 
 const SettingsRoot = () => <SettingsPanel snapshot={useRuntimeSnapshot()} manager={manager} host={settingsHost} />;
@@ -252,14 +263,14 @@ const DrawerPanel = () => {
           manager={manager}
           driver={{ context: snapshot.driver, activeNudge: snapshot.activeNudge, controller: driverController, recovery: snapshot.lastFired }}
           onOpenSettings={openStorySettings}
-          onEditStory={() => void openStudio({ fromChat: true })}
-          onFixWithWizard={() => void openWizardForRequirements()}
+          onEditStory={launch(() => openStudio({ fromChat: true }))}
+          onFixWithWizard={launch(openWizardForRequirements)}
           onOpenRepair={openRepairStep}
-          onNewStory={() => void openWizard()}
+          onNewStory={launch(openWizard)}
           onBranchFromOldest={(messageId) => void branchAtFloor(messageId)}
           onJumpToMessage={(messageId) => void jumpFromDrawer(messageId)}
           inspect={inspecting === null ? null : { messageId: inspecting, onClose: () => setInspectTarget(null), actions: inlineActions }}
-          imagePanel={<Suspense fallback={<div className="text-xs">Loading illustrations…</div>}><ImageChatPanel manager={manager} snapshot={snapshot} /></Suspense>}
+          imagePanel={<Lazy fallback={<div className="text-xs">Loading illustrations…</div>}><ImageChatPanel manager={manager} snapshot={snapshot} /></Lazy>}
         />
       )}
     </div>
@@ -358,7 +369,7 @@ const mountHud = () => {
 const InlineMount = ({ hosts }: { hosts: InlineHostSet }) => {
   const snapshot = useRuntimeSnapshot();
   if (!snapshot.ready) return null;
-  return <Suspense fallback={null}><InlineLayer view={snapshot.inline} hosts={hosts} actions={inlineActions} /></Suspense>;
+  return <Lazy quiet><InlineLayer view={snapshot.inline} hosts={hosts} actions={inlineActions} /></Lazy>;
 };
 
 const mountInline = () => {

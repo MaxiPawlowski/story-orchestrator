@@ -36,19 +36,20 @@ export interface RoleProfilesGroupProps {
   onHarness?: (role: PassRole, key: string | null) => void;
   onFallback?: (role: PassRole, profileId: string | null) => void;
   onOpen?: () => void;
+  authorView?: boolean;
 }
 
 const STATE_COPY: Record<RoleRouteView["state"], { text: string; tone: string }> = {
   fallback: { text: "", tone: "" },
   untested: { text: "not tested yet", tone: "opacity-70" },
-  ok: { text: "passed its self-test", tone: "text-green-400" },
-  missing: { text: "no longer available", tone: "text-red-300" },
-  "not-configured": { text: "cannot be used", tone: "text-red-300" },
-  "not-answering": { text: "not answering", tone: "text-yellow-300" },
-  failed: { text: "failed its self-test", tone: "text-red-300" },
-  "reasoning-exhausted": { text: "thought without answering", tone: "text-yellow-300" },
-  "not-logged-in": { text: "not logged in", tone: "text-red-300" },
-  quota: { text: "usage limit reached", tone: "text-yellow-300" },
+  ok: { text: "passed its self-test", tone: "so-success-text" },
+  missing: { text: "no longer available", tone: "so-error-text" },
+  "not-configured": { text: "cannot be used", tone: "so-error-text" },
+  "not-answering": { text: "not answering", tone: "so-warning-text" },
+  failed: { text: "failed its self-test", tone: "so-error-text" },
+  "reasoning-exhausted": { text: "thought without answering", tone: "so-warning-text" },
+  "not-logged-in": { text: "not logged in", tone: "so-error-text" },
+  quota: { text: "usage limit reached", tone: "so-warning-text" },
 };
 
 export const ROLE_EGRESS: Record<PassRole, string> = {
@@ -71,7 +72,7 @@ const meterText = (meter: RouteMeter): string =>
   `${String(meter.inputTokens)} in / ${String(meter.outputTokens)} out tokens`;
 
 export const RoleProfilesGroup = ({
-  routes, assigned, profiles, testing, onAssign, onTest, onEffort, harnesses = [], harnessRoutes = {}, meters = [], onHarness, onFallback, onOpen,
+  routes, assigned, profiles, testing, onAssign, onTest, onEffort, harnesses = [], harnessRoutes = {}, meters = [], onHarness, onFallback, onOpen, authorView = false,
 }: RoleProfilesGroupProps) => {
   const setRoles = routes.filter((route) => route.state !== "fallback").length;
   const choose = (role: PassRole, value: string) => {
@@ -97,8 +98,8 @@ export const RoleProfilesGroup = ({
           const meter = harness ? meters.find((entry) => entry.route === harness.key) : null;
           return (
             <div key={route.role} data-so="role-profile" data-role={route.role} data-state={route.state} className="flex flex-col gap-1">
-              <label className="flex flex-col gap-1">
-                <span>{route.label}</span>
+              <label htmlFor={`so-role-profile-${route.role}`}>{route.label}</label>
+              <div className="flex flex-col gap-1">
                 <select id={`so-role-profile-${route.role}`} value={value} onChange={(event) => choose(route.role, event.target.value)}>
                   <option value="">Same as memory model</option>
                   {dangling && <option value={value}>Missing profile ({value})</option>}
@@ -112,7 +113,7 @@ export const RoleProfilesGroup = ({
                     </optgroup>
                   )}
                 </select>
-              </label>
+              </div>
               {harness && (
                 <>
                   <div data-so="role-egress" className="text-xs opacity-80">
@@ -138,17 +139,19 @@ export const RoleProfilesGroup = ({
                   {REASONING_EFFORTS.map((effort) => <option key={effort} value={effort}>{effortLabel(effort)}</option>)}
                 </select>
               </label>
-              {note && <div data-so="role-reasoning-note" className="text-xs text-yellow-300">{note}</div>}
+              {note && <div data-so="role-reasoning-note" className="text-xs so-warning-text">{note}</div>}
               {route.state !== "fallback" && (
                 <div className="flex flex-wrap items-center gap-2 text-xs">
                   <button
+                    type="button"
                     data-so="role-profile-test"
+                    aria-label={`Test ${route.label}`}
                     className="menu_button"
                     disabled={testing !== null || route.state === "missing"}
                     onClick={() => onTest(route.role)}
                   >{testing === route.role ? "Testing…" : "Test"}</button>
                   <span data-so="role-profile-state" className={state.tone}>{state.text}</span>
-                  {route.state !== "untested" && route.state !== "ok" && <span className="min-w-0 opacity-80">{route.detail}</span>}
+                  {authorView && route.state !== "untested" && route.state !== "ok" && <span data-so="role-profile-detail" className="min-w-0 opacity-80">{route.detail}</span>}
                 </div>
               )}
             </div>

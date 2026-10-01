@@ -42,8 +42,14 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
 
   const whileBusy = async (work: () => Promise<unknown>) => {
     setBusy(true);
-    await work();
-    setBusy(false);
+    try {
+      await work();
+    } catch (error) {
+      log.warn("a story action failed", error);
+      window.toastr?.info?.("That did not finish. Try again, or reload SillyTavern.", "Story Orchestrator");
+    } finally {
+      setBusy(false);
+    }
   };
 
   const selectStory = async (id: string) => {
@@ -84,6 +90,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
           </select>
           <button
             id="so-restart-story"
+            type="button"
             className="menu_button fa-solid fa-rotate-left"
             aria-label="Restart story in this chat"
             title="Restart this story in this chat (clears progress and memory for it)"
@@ -92,6 +99,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
           />
           {snapshot.ui.authorView && <button
             id="so-delete-story"
+            type="button"
             className="menu_button fa-solid fa-trash-can"
             aria-label="Delete selected story from the library"
             title="Delete the selected story from the library"
@@ -110,6 +118,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
           <span>This chat keeps its progress for the {STORY_STATE_RETENTION} most recent stories; switching to a sixth drops the oldest.</span>
           <button
             id="so-export-state"
+            type="button"
             className="menu_button"
             title="Copy this chat's saved story state to the clipboard, before anything can drop it."
             onClick={() => void copyState()}
@@ -117,12 +126,12 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
         </div>}
       </div>
       {importOpen && (
-        <label id="so-entry-import" className="flex flex-col gap-1 text-sm">
-          <span>Import story (JSON)</span>
-          <textarea className="text_pole" rows={6} value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="Paste story JSON, or pick a file below" />
-          <input type="file" accept=".json,application/json" disabled={busy} onChange={(event) => { void importFile(event.target.files?.[0]); event.target.value = ""; }} />
-          <button className="menu_button self-start" disabled={busy || !importText.trim()} onClick={() => void importStory()}>Import and Load</button>
-        </label>
+        <div id="so-entry-import" className="flex flex-col gap-1 text-sm">
+          <label htmlFor="so-import-text">Import story (JSON)</label>
+          <textarea id="so-import-text" className="text_pole" rows={6} value={importText} onChange={(event) => setImportText(event.target.value)} placeholder="Paste story JSON, or pick a file below" />
+          <input type="file" aria-label="Import story from a JSON file" accept=".json,application/json" disabled={busy} onChange={(event) => { void importFile(event.target.files?.[0]); event.target.value = ""; }} />
+          <button type="button" className="menu_button self-start" disabled={busy || !importText.trim()} onClick={() => void importStory()}>Import and load</button>
+        </div>
       )}
       {snapshot.validationErrors.length > 0 && (
         <div className="text-xs text-red-400">

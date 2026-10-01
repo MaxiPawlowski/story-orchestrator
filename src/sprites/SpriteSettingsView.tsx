@@ -32,7 +32,7 @@ export function SpriteSettingsView({ settings, activation, capability, profiles,
         <span>{ACTIVATION_TEXT[activation]}</span>
         {settings.explicit && <button id="so-sprite-story-decides" type="button" className="menu_button text-xs" onClick={onStoryDecides}>Let each story decide</button>}
       </div>
-      {capability === "absent" && <div id="so-sprite-capability" className="text-xs text-yellow-300">This SillyTavern has no sprite route (/api/sprites), so no sprite can show.</div>}
+      {capability === "absent" && <div id="so-sprite-capability" className="text-xs so-warning-text">This SillyTavern has no sprite route (/api/sprites), so no sprite can show.</div>}
       <label className="flex flex-col gap-1 text-sm">
         <span>Stage</span>
         <select id="so-sprite-stage" value={settings.stage} onChange={(event) => onChange({ stage: event.target.value as StageMode })}>

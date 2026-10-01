@@ -1,6 +1,6 @@
 import type { RuntimeManager } from "@runtime/index";
 import type { InnerFanOut, RuntimeSnapshot } from "@runtime/types";
-import HelpTooltip from "@components/studio/HelpTooltip";
+import { CheckRow } from "./Field";
 
 interface GroupProps {
   snapshot: RuntimeSnapshot;
@@ -18,17 +18,13 @@ export const InnerVoiceControls = ({ snapshot, manager }: GroupProps) => {
   return (
     <div id="so-inner-voice-settings" className="flex flex-col gap-1 text-sm">
       <span>Inner voice</span>
-      <label className="flex items-center gap-2 text-xs">
-        <input id="so-inner-harvest" type="checkbox" checked={settings.harvestReasoning === true} onChange={(event) => manager.setMemorySettings({ harvestReasoning: event.target.checked })} />
-        <span>Read characters&apos; reasoning for what they intend <HelpTooltip title={HARVEST_HELP} /></span>
-      </label>
+      <CheckRow id="so-inner-harvest" className="text-xs" checked={settings.harvestReasoning === true} onChange={(on) => manager.setMemorySettings({ harvestReasoning: on })}
+        label="Read characters' reasoning for what they intend" help={HARVEST_HELP} />
       {settings.harvestReasoning === true && !settings.epistemicLedgerCapable ? (
         <div id="so-inner-harvest-idle" className="text-xs opacity-70">Idle: knowledge tracking is off for the memory model.</div>
       ) : null}
-      <label className="flex items-center gap-2 text-xs">
-        <input id="so-inner-beat" type="checkbox" checked={beat} onChange={(event) => manager.setMemorySettings({ innerBeat: event.target.checked })} />
-        <span>Prepare a private inner beat for the next speaker <HelpTooltip title={BEAT_HELP} /></span>
-      </label>
+      <CheckRow id="so-inner-beat" className="text-xs" checked={beat} onChange={(on) => manager.setMemorySettings({ innerBeat: on })}
+        label="Prepare a private inner beat for the next speaker" help={BEAT_HELP} />
       <label className="flex items-center gap-2 text-xs">
         <span>Inner beats for</span>
         <select id="so-inner-fanout" aria-label="Inner beats for" disabled={!beat} value={settings.innerFanOut ?? "lead"}

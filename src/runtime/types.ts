@@ -69,6 +69,8 @@ export interface RequirementsState {
   missingPersonas: string[];
   missingMembers: string[];
   missingLorebooks: string[];
+  /** Required members present in the group but muted there: they satisfy nothing, and Repair names them. `ready` is unaffected, so a story cast effect can still unmute them. */
+  mutedMembers?: string[];
   /** Which binding ST scans each present book through (author view). */
   satisfiedBy?: Record<string, LoreSource>;
   /** A book bound to some enabled members but not all: the members without it. */
@@ -490,6 +492,8 @@ export interface RuntimeSnapshot {
   extractionHealth?: ExtractionHealth | null;
   narrative: NarrativeStatus;
   lastRollback: RollbackNotice | null;
+  /** Display names keyed by avatar file, avatar stem and roster id, for player-facing cast lines. */
+  castNames?: Record<string, string>;
   rollbackUnavailable: RollbackUnavailable | null;
   ledger: LedgerView[];
   /** Each memory row's fate and each tier's trim, from the last injection (author view, in memory only). */

@@ -1,4 +1,4 @@
-import { nextRepairStep, REPAIR_TARGET_IDS, WI_GATING_TARGET_ID } from "./repair";
+import { nextRepairStep, REPAIR_TARGET_IDS, viewerRepairStep, WI_GATING_TARGET_ID } from "./repair";
 import { createSaveHealth } from "./saveHealth";
 import type { RuntimeSnapshot } from "./types";
 import type { WiGatingStatus } from "./worldInfoMode";
@@ -32,6 +32,7 @@ describe("nextRepairStep", () => {
       detail: "Automatic story advancement is off.",
       targetId: REPAIR_TARGET_IDS.memoryModel,
       provisionable: false,
+      player: "The story will not advance on its own until it is set up in the extension settings.",
     });
   });
 
@@ -43,6 +44,7 @@ describe("nextRepairStep", () => {
       detail: "Hidden from the model: Sun Ruins",
       targetId: null,
       provisionable: false,
+      player: null,
     });
   });
 
@@ -60,6 +62,7 @@ describe("nextRepairStep", () => {
       detail: "The selected memory model profile no longer exists",
       targetId: REPAIR_TARGET_IDS.memoryModel,
       provisionable: false,
+      player: "The story will not advance on its own until it is set up in the extension settings.",
     });
   });
 
@@ -108,6 +111,7 @@ describe("nextRepairStep", () => {
         detail: "Orphaned story-memory lorebook: Story Orchestrator - Crossing - chat-b (you chose to keep it)",
         targetId: null,
         provisionable: false,
+        player: null,
       });
     });
 
@@ -135,6 +139,7 @@ describe("v2.5 plan 01 B: a normalised entry switched on outside the story is a 
       detail: "Switched on outside the story: 1 entry in Ruins",
       targetId: WI_GATING_TARGET_ID,
       provisionable: false,
+      player: null,
     });
   });
 
@@ -177,6 +182,7 @@ describe("v2.4 plan 08 T18: a routed role that cannot answer is a Repair row", (
       detail: "The profile chosen for speaker direction no longer exists (ID: gone)",
       targetId: "so-role-profile-director",
       provisionable: false,
+      player: null,
     });
     expect(nextRepairStep(snapshotWith({ extraction: { settings: { enabled: true, profileId: null } }, roleRoutes: routes } as Partial<RuntimeSnapshot>))?.area).toBe("memory-model");
   });
@@ -217,10 +223,44 @@ describe("L2: a chat lorebook slot that displaces this chat's memory mirror (fil
       detail: "Chat lorebook: My Notes",
       targetId: null,
       provisionable: false,
+      player: null,
     });
   });
 
   it("control: with no mirror book yet there is nothing displaced, so no step", () => {
     expect(nextRepairStep(conflicted(null))).toBeNull();
+  });
+});
+
+describe("CR-U: Repair per viewer", () => {
+  const muted = { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [], mutedMembers: ["Belle"] };
+  it("names a muted member for player and author alike", () => {
+    const step = nextRepairStep(snapshotWith({ requirements: muted } as Partial<RuntimeSnapshot>));
+    expect(step).toMatchObject({ area: "cast", consequence: "Belle is muted in this group, so the story cannot give them a turn.", provisionable: false });
+    expect(viewerRepairStep(snapshotWith({ ui: { authorView: false }, requirements: muted } as unknown as Partial<RuntimeSnapshot>))?.consequence)
+      .toBe("Belle is muted in this group, so the story cannot give them a turn.");
+  });
+
+  it("a player never sees an author-only step, and gets the next player step in player words", () => {
+    const snapshot = snapshotWith({
+      ui: { authorView: false },
+      loreEvidence: { last: null, hiddenBooks: ["Sun Ruins"] },
+      requirements: { ready: false, missingPersonas: ["Rhea"], missingMembers: [], missingLorebooks: [] },
+    } as unknown as Partial<RuntimeSnapshot>);
+    expect(nextRepairStep(snapshot)?.consequence).toBe("Another extension is hiding this story's lorebook from the model.");
+    expect(viewerRepairStep(snapshot)).toMatchObject({ area: "persona", consequence: "This story is written for a different player character than the one selected." });
+    expect(viewerRepairStep(snapshotWith({ ui: { authorView: false }, loreEvidence: { last: null, hiddenBooks: ["Sun Ruins"] } } as unknown as Partial<RuntimeSnapshot>))).toBeNull();
+  });
+
+  it("player copy never carries author vocabulary", () => {
+    const author = /lorebook|curator|wizard|driver|extension'|World Info|profile|ST's/i;
+    const roles = ["read", "synthesis", "authoring", "director", "curator", "inner"] as const;
+    for (const role of roles) {
+      const step = viewerRepairStep(snapshotWith({ ui: { authorView: false }, roleRoutes: [{ role, state: "failed", detail: "boom", label: role }] } as unknown as Partial<RuntimeSnapshot>));
+      if (step) expect(step.consequence).not.toMatch(author);
+    }
+    const lore = viewerRepairStep(snapshotWith({ ui: { authorView: false }, requirements: { ready: false, missingPersonas: [], missingMembers: [], missingLorebooks: ["Wendhope"] } } as unknown as Partial<RuntimeSnapshot>));
+    expect(lore?.consequence).not.toMatch(author);
+    expect(lore?.consequence).not.toContain("Wendhope");
   });
 });

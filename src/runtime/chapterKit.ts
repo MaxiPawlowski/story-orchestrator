@@ -12,6 +12,7 @@ import { unfoldAt } from "@memory/chapterUnfold";
 import { chronicleMarkdown } from "@memory/chronicle";
 import { registerHostMacro, showChoicePopup, showTextPopup, unregisterHostMacro } from "@services/STAPI";
 import { exportState } from "./stateExport";
+import { previouslyText } from "./narrative";
 import { beginRun } from "./runToken";
 import { log } from "@utils/log";
 import type { RuntimeManager } from "./runtimeManager";
@@ -48,7 +49,7 @@ export function showPreviously(port: ChapterPort): boolean {
   if (!record || !chapterSettings(memory.settings.chapters).recap || memory.chapterRecapSeen === record.id) return false;
   port.host.patch({ chapterRecapSeen: record.id });
   void port.host.save();
-  showTextPopup(`Previously — ${record.playerTitle}\n\n${record.summary}`, { okButton: "Continue" });
+  showTextPopup(previouslyText(record.playerTitle, record.summary), { okButton: "Continue" });
   return true;
 }
 

@@ -4,7 +4,9 @@ import ScenePanel from "../ScenePanel";
 
 const extractionReady = (snapshot: RuntimeSnapshot): boolean => snapshot.extraction.settings.enabled && Boolean(snapshot.extraction.settings.profileId);
 
-const StatusDot = ({ ok }: { ok: boolean }) => <span className={`status-indicator status-${ok ? "success" : "error"}`} />;
+export const StatusDot = ({ ok, label }: { ok: boolean; label: string }) => (
+  <span role="img" aria-label={`${label}: ${ok ? "ready" : "missing"}`} className={`status-indicator status-${ok ? "success" : "error"}`} />
+);
 
 const SOURCE_LABELS: Record<LoreSource, string> = { global: "selected globally", chat: "chat lorebook", persona: "persona lorebook", character: "every member's card" };
 
@@ -33,6 +35,7 @@ const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSn
   const items = [
     { label: "Persona", missing: snapshot.requirements.missingPersonas },
     { label: "Group", missing: snapshot.requirements.missingMembers },
+    { label: "Unmuted cast", missing: snapshot.requirements.mutedMembers ?? [] },
     { label: "Lore", missing: snapshot.requirements.missingLorebooks },
   ];
   const ready = extractionReady(snapshot);
@@ -41,7 +44,7 @@ const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSn
     <div className="flex flex-col gap-1">
       {items.map((item) => (
         <div key={item.label} className="flex flex-col gap-1">
-          <div className="flex items-center gap-2"><StatusDot ok={item.missing.length === 0} /><span>{item.label}</span></div>
+          <div className="flex items-center gap-2"><StatusDot ok={item.missing.length === 0} label={item.label} /><span>{item.label}</span></div>
           {item.missing.length > 0 && <div className="text-xs opacity-80">Missing: {item.missing.join(", ")}</div>}
         </div>
       ))}
@@ -55,7 +58,7 @@ const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSn
         >Fix with wizard</button>
       )}
       <div className="flex flex-col gap-1">
-        <div className="flex items-center gap-2"><StatusDot ok={ready} /><span>Extraction</span></div>
+        <div className="flex items-center gap-2"><StatusDot ok={ready} label="Extraction" /><span>Extraction</span></div>
         {!ready && <div className="text-xs opacity-80">Off — the story will not advance on its own. Enable it and pick a model profile in settings.</div>}
       </div>
     </div>

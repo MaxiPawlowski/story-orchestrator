@@ -73,7 +73,7 @@ export function CapabilitiesGroup({ reports, facts = null, extensionVersion = ""
       )}
       {memoryModel && <div id="so-context-limit" className="text-xs opacity-80">{describeMemoryModelLimit(memoryModel)}</div>}
       {broken.map((report) => (
-        <div key={report.id} id={`so-capability-${report.id}`} className="text-xs text-yellow-300">
+        <div key={report.id} id={`so-capability-${report.id}`} className="text-xs so-warning-text">
           <span className="font-medium">{report.id}</span>
           {report.state === "error" ? " could not be checked" : " is unavailable"}: {report.detail}
         </div>

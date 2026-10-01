@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import HelpTooltip from "@components/studio/HelpTooltip";
+import { imageAutomationText, PLAYER_COPY } from "@runtime/narrative";
 import { startImage } from "./start";
 import type { ImageOverride } from "./settings";
 import { CHECKPOINTS } from "./catalog";
@@ -15,23 +16,23 @@ export default function ImageChatPanel({ manager, snapshot }: { manager: Runtime
   const override = image.override();
   const update = (patch: Partial<ImageOverride>) => {
     void image.setOverride({ ...override, ...patch }).catch((error: unknown) => {
-      window.toastr?.info?.(error instanceof Error ? error.message : "Could not save image preference");
+      console.warn("[Story Orchestrator] image preference not saved", error);
+      window.toastr?.info?.(PLAYER_COPY.imagePreferenceError);
     });
   };
   const cues = [snapshot.imageStory?.checkpoints && "checkpoint changes", snapshot.imageStory?.scenes && "confirmed scene changes"].filter(Boolean);
-  const automation = settings.automation.mode === "story" ? `This story requests art at ${cues.join(" and ") || "no moments yet"}.`
-    : settings.automation.mode === "manual" ? "Automatic images are off."
-      : settings.automation.mode === "everyN" ? `An image is requested every ${settings.automation.everyN} replies${cues.length ? ` and at ${cues.join(" and ")}` : ""}.`
-        : "The model may request an image.";
+  const automation = imageAutomationText(settings.automation.mode, cues.filter((cue): cue is string => typeof cue === "string"), settings.automation.everyN);
   return <section id="so-image-chat" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2 text-sm">
     <div className="font-medium">Illustrations <span className="opacity-60 font-normal">— this chat</span></div>
-    <div className="text-xs opacity-80">{settings.enabled ? automation : "Automatic images are off for this install."} Manual images are still available.</div>
-    <label className="flex items-center gap-2">
-      <input type="checkbox" checked={override.paused} onChange={(event) => update({ paused: event.target.checked })} />
-      Pause automatic images in this chat
+    <div className="text-xs opacity-80">{settings.enabled ? automation : PLAYER_COPY.imageInstallOff} Manual images are still available.</div>
+    <div className="flex items-center gap-2">
+      <label className="flex items-center gap-2">
+        <input type="checkbox" checked={override.paused} onChange={(event) => update({ paused: event.target.checked })} />
+        Pause automatic images in this chat
+      </label>
       <HelpTooltip title="Only this chat is paused. You can still request an image manually; other chats keep their own preference."
         href="/scripts/extensions/third-party/story-orchestrator/README.md#illustrations-and-scope" reference="Image preferences" />
-    </label>
+    </div>
     <details className="text-xs"><summary className="cursor-pointer">Chat image preferences</summary>
       <div className="flex flex-col gap-2 pt-2">
         <label className="flex flex-col gap-1">Image model <select className="text_pole" value={override.checkpoint} onChange={(event) => update({ checkpoint: event.target.value })}>
@@ -52,7 +53,7 @@ export default function ImageChatPanel({ manager, snapshot }: { manager: Runtime
       <button type="button" className="menu_button" onClick={() => void image.direct({ purpose: "background", text: "", messageId: null }).catch(() => undefined)}>Background</button>
       {state.jobs.length > 0 && <button type="button" className="menu_button" onClick={() => image.queue.cancelAll()}>Stop images</button>}
     </div>
-    <div role="status" className="text-xs opacity-80">{state.jobs.length ? state.jobs.map((job) => `${job.label}: ${job.state}`).join(" · ") : "No images waiting"}</div>
-    {state.lastError && <div role="alert" className="text-xs text-red-300">{state.lastError}</div>}
+    <div role="status" className="text-xs opacity-80">{state.jobs.length ? state.jobs.map((job) => `${job.label}: ${job.state}`).join(" · ") : PLAYER_COPY.imageNoJobs}</div>
+    {state.lastError && <div role="alert" data-so="image-error" className="text-xs so-error-text">{PLAYER_COPY.imageError}</div>}
   </section>;
 }

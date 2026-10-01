@@ -6,6 +6,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => ({ chat: [{ mes: "a" }, { mes: "b" }], chatId: "chat-a", name1: "You", extensionSettings: {}, chatMetadata: {}, characters: [] }),
   getActiveGroup: () => null,
   listGroupMembers: () => [],
+  listMutedGroupMembers: () => [],
   listGlobalLorebooks: () => [],
   readLoreBindings: () => ({ global: [], chat: null, persona: null, characters: [] }),
 }));

@@ -11,8 +11,8 @@ import { HARNESS_IDS, harnessKey, parseHarnessKey } from "@utils/harness";
 import { PASS_ROLES } from "@extraction/passRole";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
 import type { PassRole } from "@extraction/passRole";
-import HelpTooltip from "@components/studio/HelpTooltip";
 import { GroupHeader } from "./GroupHeader";
+import { CheckRow, FieldLabel } from "./Field";
 import { RoleProfilesGroup, type HarnessOption, type RoleHarnessRoute } from "./RoleProfilesGroup";
 
 type Settings = RuntimeSnapshot["extraction"]["settings"];
@@ -31,34 +31,35 @@ const AdvancedExtraction = ({ settings, manager }: { settings: Settings; manager
   <details className="text-sm">
     <summary className="cursor-pointer opacity-80">Advanced</summary>
     <div className="grid grid-cols-1 gap-2 pt-2 sm:grid-cols-2">
-      <label className="flex flex-col gap-1">
-        <span>Cadence <HelpTooltip title="Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often." /></span>
-        <input type="number" min={1} value={settings.cadence} onChange={(event) => manager.setExtractionSettings({ cadence: Math.max(1, Number(event.target.value) || 1) })} />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span>Reconcile × <HelpTooltip title="When the story stalls, widen the re-read window by this multiplier to double-check missed facts." /></span>
+      <div className="flex flex-col gap-1">
+        <FieldLabel htmlFor="so-extraction-cadence" label="Cadence" help="Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often." />
+        <input id="so-extraction-cadence" type="number" min={1} value={settings.cadence} onChange={(event) => manager.setExtractionSettings({ cadence: Math.max(1, Number(event.target.value) || 1) })} />
+      </div>
+      <div className="flex flex-col gap-1">
+        <FieldLabel htmlFor="so-extraction-reconcile" label="Reconcile ×" help="When the story stalls, widen the re-read window by this multiplier to double-check missed facts." />
         <input
+          id="so-extraction-reconcile"
           type="number"
           min={1}
           step={0.1}
           value={settings.reconciliationMultiplier}
           onChange={(event) => manager.setExtractionSettings({ reconciliationMultiplier: Math.max(1, Number(event.target.value) || 1) })}
         />
-      </label>
-      <label className="flex flex-col gap-1">
-        <span>Lag <HelpTooltip title="Skip the newest N messages when reading, in case you often re-roll replies. 0 = react to the latest message immediately." /></span>
-        <input type="number" min={0} value={settings.stabilityLag} onChange={(event) => manager.setExtractionSettings({ stabilityLag: Math.max(0, Number(event.target.value) || 0) })} />
-      </label>
+      </div>
+      <div className="flex flex-col gap-1">
+        <FieldLabel htmlFor="so-extraction-lag" label="Lag" help="Skip the newest N messages when reading, in case you often re-roll replies. 0 = react to the latest message immediately." />
+        <input id="so-extraction-lag" type="number" min={0} value={settings.stabilityLag} onChange={(event) => manager.setExtractionSettings({ stabilityLag: Math.max(0, Number(event.target.value) || 0) })} />
+      </div>
     </div>
   </details>
 );
 
 const SelfTestResult = ({ report, onApply }: { report: SelfTestReport; onApply: () => void }) => (
   <div id="so-self-test-result" className="text-xs flex flex-col gap-1">
-    {report.error && <div className="text-yellow-300">{report.error}</div>}
+    {report.error && <div className="so-warning-text">{report.error}</div>}
     {report.results.map((result) => (
       <div key={result.tier} className="flex items-start gap-2">
-        <span className={result.status === "pass" ? "text-green-400" : "text-red-300"}>{result.status === "pass" ? "PASS" : "FAIL"}</span>
+        <span className={result.status === "pass" ? "so-success-text" : "so-error-text"}>{result.status === "pass" ? "PASS" : "FAIL"}</span>
         <span className="opacity-80">{result.tier} — {result.detail}{result.got.length ? ` · got: ${result.got.slice(0, 2).join("; ")}` : ""}</span>
       </div>
     ))}
@@ -103,14 +104,19 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
     selfTestCancelled.current = false;
     setSelfTestRunning(true);
     setSelfTest(null);
-    const { runModelSelfTest } = await import("@runtime/selfTest");
-    const report = await runModelSelfTest({
-      profileId: settings.profileId,
-      model: createModelCall({ settings: () => settings, exists: profileExists, planted: false }),
-      cancelled: () => selfTestCancelled.current,
-    });
-    setSelfTest(report);
-    setSelfTestRunning(false);
+    try {
+      const { runModelSelfTest } = await import("@runtime/selfTest");
+      setSelfTest(await runModelSelfTest({
+        profileId: settings.profileId,
+        model: createModelCall({ settings: () => settings, exists: profileExists, planted: false }),
+        cancelled: () => selfTestCancelled.current,
+      }));
+    } catch (error) {
+      console.warn("[Story Orchestrator] memory model test failed", error);
+      setSelfTest({ ranAt: new Date().toISOString(), profileId: settings.profileId, results: [], error: "The test could not run. Reload SillyTavern and try again." });
+    } finally {
+      setSelfTestRunning(false);
+    }
   };
 
   const assignRole = (role: PassRole, profileId: string | null) => {
@@ -123,9 +129,14 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
   const testRole = async (role: PassRole) => {
     const route = resolveRoute(settings, role, (id) => profiles.some((profile) => profile.id === id), harnessListed);
     setTestingRole(role);
-    const { runRoleSelfTest } = await import("@runtime/roleSelfTest");
-    roleHealth.record(await runRoleSelfTest(role, { profileId: route.ok ? resolvedProfileId(route) : null }));
-    setTestingRole(null);
+    try {
+      const { runRoleSelfTest } = await import("@runtime/roleSelfTest");
+      roleHealth.record(await runRoleSelfTest(role, { profileId: route.ok ? resolvedProfileId(route) : null }));
+    } catch (error) {
+      console.warn("[Story Orchestrator] role test failed", error);
+    } finally {
+      setTestingRole(null);
+    }
   };
 
   const applySelfTestSuggestion = () => {
@@ -136,25 +147,22 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
   return (
     <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
       <GroupHeader title="Memory model" scope="install" id="so-memory-model-header" />
-      <label className="flex items-center gap-2 text-sm">
-        <input id="so-extraction-enabled" type="checkbox" checked={settings.enabled} onChange={(event) => manager.setExtractionSettings({ enabled: event.target.checked })} />
-        <span>Let the story advance on its own (shared read extraction)</span>
-      </label>
-      <label className="flex flex-col gap-1 text-sm">
-        <span>Memory LLM profile <HelpTooltip title={"This Connection Manager profile reads the chat after replies to track story progress. " +
-          "The choice affects every chat; it does not replace the main chat model."}
-          href="/scripts/extensions/third-party/story-orchestrator/README.md#quick-start" reference="Setup guide" /></span>
+      <CheckRow id="so-extraction-enabled" checked={settings.enabled} onChange={(on) => manager.setExtractionSettings({ enabled: on })}
+        label="Let the story advance on its own (shared read extraction)" />
+      <div className="flex flex-col gap-1 text-sm">
+        <FieldLabel htmlFor="so-extraction-profile" label="Memory model profile" help={"This Connection Manager profile reads the chat after replies to track story progress. " +
+          "The choice affects every chat; it does not replace the main chat model."} />
         <select id="so-extraction-profile" value={settings.profileId ?? ""} onChange={(event) => manager.setExtractionSettings({ profileId: event.target.value || null })}>
           <option value="">No profile selected</option>
           {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}{profile.model ? ` (${profile.model})` : ""}</option>)}
         </select>
-      </label>
+      </div>
       <AdvancedExtraction settings={settings} manager={manager} />
       {settings.enabled && !settings.profileId && (
-        <div id="so-not-configured" className="text-xs text-yellow-300">Not configured: pick a memory model profile above and every chat, including this one, starts advancing on its own.</div>
+        <div id="so-not-configured" className="text-xs so-warning-text">Not configured: pick a memory model profile above and every chat, including this one, starts advancing on its own.</div>
       )}
       <div className="flex flex-wrap items-center gap-2">
-        <button id="so-self-test" className="menu_button" disabled={!settings.profileId} onClick={() => void runSelfTest()}>{selfTestRunning ? "Cancel test" : "Test memory model"}</button>
+        <button id="so-self-test" type="button" className="menu_button" disabled={!settings.profileId} onClick={() => void runSelfTest()}>{selfTestRunning ? "Cancel test" : "Test memory model"}</button>
         <span className="min-w-0 text-xs opacity-70">Runs fixed scenes through the real pipeline and reports what this model can actually do.</span>
       </div>
       {selfTest && <SelfTestResult report={selfTest} onApply={applySelfTestSuggestion} />}
@@ -172,6 +180,7 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
         onHarness={setRoleHarness}
         onFallback={setRoleFallback}
         onOpen={() => setAskHarness(true)}
+        authorView={snapshot.ui.authorView}
       />
     </div>
   );

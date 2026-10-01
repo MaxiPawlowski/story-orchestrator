@@ -21,11 +21,16 @@ export interface NarrativeTransition {
 // terms, and the notice clears at the next committed boundary.
 export interface RollbackNotice {
   checkpointName: string;
+  playerName: string | null;
   at: string;
 }
 
-export const rollbackNoticeText = (notice: RollbackNotice): string =>
-  `The story stepped back to ${notice.checkpointName} to match your edit.`;
+export const playerPlaceText = (playerName: string | null | undefined): string => playerName || "an earlier scene";
+
+export const rollbackNoticeText = (notice: Pick<RollbackNotice, "playerName">): string =>
+  `The story stepped back to ${playerPlaceText(notice.playerName)} to match your edit.`;
+
+export const steppedBackText = (playerName: string | null | undefined): string => `Stepped back to ${playerPlaceText(playerName)}`;
 
 // Other half: an edit the run cannot rewind to. Not a variant of the notice above — that one
 // says the story moved, and the whole point here is that it did not. Player wording, checkpoint
@@ -168,3 +173,98 @@ export function renderNarrativeNode(status: NarrativeStatus, doc: Document, head
   root.append(body);
   return root;
 }
+
+export const PLAYER_COPY = {
+  currentScene: "Current scene",
+  openDrawer: "Open the story",
+  requirementsHeading: "This story still needs",
+  rereadButton: "Re-read from the current scene",
+  restartButton: "Restart story",
+  openSettingsButton: "Open story settings",
+  retryButton: "Try again",
+  branchContinue: "Continue from here",
+  chaptersHeading: "Your story",
+  chapterFlagTitle: "Something is wrong in this summary: flag it for the author",
+  flaggedToast: "Moment flagged for the author.",
+  memorizeError: "Memorizing the chat stopped before the end. Try again later.",
+  imageError: "The last image could not be made. Try again in a moment.",
+  imagePreferenceError: "Could not save the image preference.",
+  imageManualOff: "Automatic images are off.",
+  imageModelChooses: "The model may request an image.",
+  imageInstallOff: "Automatic images are off for this install.",
+  imageNoJobs: "No images waiting",
+  announceTransitions: "Also post a chat note when the story moves on",
+  spriteUnavailable: "This SillyTavern cannot show character sprites.",
+  spriteNoPack: "No one in this chat has a sprite pack.",
+  memoryHeading: "What the story remembers",
+  keptByYou: "kept by you",
+  sourceChanged: "the message it came from changed",
+  sceneChanged: "The scene changed",
+  storyMovedOn: "The story moved on",
+  nothingNoted: "Nothing new noted",
+} as const;
+
+export type RequirementKind = "persona" | "cast" | "lore";
+
+const REQUIREMENT_LABELS: Record<RequirementKind, string> = { persona: "Your character", cast: "The cast", lore: "The story's background lore" };
+
+export const requirementNotReadyText = (kind: RequirementKind): string => `${REQUIREMENT_LABELS[kind]} is not ready in this chat.`;
+
+export const chapterNowText = (title: string): string => `Now: ${title}`;
+
+export const chapterFlagLabel = (title: string): string => `Flag the summary of ${title}`;
+
+export const previouslyText = (title: string, summary: string): string => `Previously — ${title}\n\n${summary}`;
+
+export const chapterAnnouncementText = (number: number | string, title: string): string => `◆ Chapter ${number} — ${title}`;
+
+export const awayRecapTitle = (storyTitle: string, gap: string): string => `Welcome back — ${storyTitle} (away ${gap})`;
+
+export const pinnedOverflowText = (count: number): string =>
+  `${count} pinned ${count === 1 ? "memory" : "memories"} did not fit — unpin some to make room.`;
+
+export const memorizeProgressText = (processed: number, total: number): string => `Memorizing: ${processed}/${total}`;
+
+export const imageAutomationText = (mode: "story" | "manual" | "everyN" | string, cues: string[], everyN: number): string => {
+  if (mode === "story") return `This story requests art at ${cues.join(" and ") || "no moments yet"}.`;
+  if (mode === "manual") return PLAYER_COPY.imageManualOff;
+  if (mode === "everyN") return `An image is requested every ${everyN} replies${cues.length ? ` and at ${cues.join(" and ")}` : ""}.`;
+  return PLAYER_COPY.imageModelChooses;
+};
+
+export const spriteOnStageText = (names: string[]): string => (names.length ? `On stage: ${names.join(", ")}` : PLAYER_COPY.spriteNoPack);
+
+export const inlineTransitionText = (playerName: string | null, objective: string | null): string =>
+  (playerName ? (objective ? `${playerName}: ${objective}` : playerName) : PLAYER_COPY.storyMovedOn);
+
+export const rememberedText = (text: string): string => `Remembered: ${text}`;
+
+export const threadOpenedText = (text: string): string => `New thread: ${text}`;
+
+export const threadResolvedText = (text: string): string => `Thread resolved: ${text}`;
+
+export const loreConsultedText = (named: string[], total: number): string => {
+  if (!named.length) return `Lore consulted: ${total} ${total === 1 ? "entry" : "entries"}`;
+  const rest = total - named.length;
+  return `Lore consulted: ${named.join(", ")}${rest ? ` and ${rest} more` : ""}`;
+};
+
+export const castChangeText = (name: string, left: boolean): string => `${name} ${left ? "left" : "joined"}`;
+
+export const chosenToSpeakText = (name: string): string => `${name} was chosen to speak`;
+
+export const tensionLevelText = (level: string): string => `Tension: ${level}`;
+
+export const readNotedText = (count: number, pending: boolean): string => {
+  if (!count) return PLAYER_COPY.nothingNoted;
+  const things = `${count} thing${count === 1 ? "" : "s"}`;
+  return pending ? `${things} noted, apply next turn` : `${things} noted`;
+};
+
+export const DERIVED_PLAYER_COPY: Record<string, string> = {
+  scene_summary: "Scene summarized",
+  short_term: "Recent events condensed",
+  dedup: "Older memories folded",
+  arc_summary: "A thread was summarized",
+  canon: "The story so far was updated",
+};

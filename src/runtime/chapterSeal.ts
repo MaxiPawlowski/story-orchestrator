@@ -10,6 +10,7 @@ import {
   buildChapterRecordPrompt, buildSagaPrompt, degradedChapterRecord, parseChapterRecord, verifyChapterRecord, verifySaga, type ParsedChapterRecord,
 } from "@memory/chapterRecord";
 import { unfoldChapters } from "@memory/chapterUnfold";
+import { chapterAnnouncementText } from "./narrative";
 import { buildEraMergePrompt, CHRONICLE_RECORD_CAP, eraCandidates, fallbackEraText, parseEraLine, renderChronicle } from "@memory/chronicle";
 import type { DerivedRecord } from "@memory/derived";
 import { provenance, withOverride } from "@memory/provenance";
@@ -136,7 +137,7 @@ export class ChapterSeal {
     if (!run.stillOwns()) return record;
     this.deps.journal(`chapter sealed: ${record.playerTitle}${record.status === "degraded" ? " (without a written summary)" : ""}`, `${record.id} · messages ${range.from}-${range.to}`);
     const entered = chapterOf(story, state.activeCheckpointId);
-    if (!record.final && entered && entered.kind !== "interlude") await this.deps.announce(`◆ Chapter ${chapterNumber(story, entered.id)} — ${playerTitleOf(entered)}`);
+    if (!record.final && entered && entered.kind !== "interlude") await this.deps.announce(chapterAnnouncementText(chapterNumber(story, entered.id), playerTitleOf(entered)));
     return record;
   }
 

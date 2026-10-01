@@ -83,7 +83,7 @@ type TabEntry = { id: StudioTab; label: string };
 // anything driving this must select by the tablist, never by the role.
 const TAB_KEYS: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1 };
 
-const FOCUSABLE = "button, input, select, textarea, [tabindex]:not([tabindex='-1'])";
+export const FOCUSABLE = "a[href], summary, button, input, select, textarea, [tabindex]:not([tabindex='-1'])";
 
 const focusTrapHandler = (panelRef: React.MutableRefObject<HTMLDivElement | null>, requestClose: () => Promise<void>) => (event: React.KeyboardEvent) => {
   if (event.key === "Escape") {
@@ -123,7 +123,7 @@ const StudioHeader = ({ titleRef, onRequestClose }: HeaderProps) => {
   const errorWord = errors.length === 1 ? "error" : "errors";
   return (
     <div className="st-panel-header flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-2">
-      <span className="font-semibold whitespace-nowrap">Checkpoint Studio</span>
+      <h2 id="so-studio-heading" className="m-0 text-base font-semibold whitespace-nowrap">Checkpoint Studio</h2>
       <input
         ref={titleRef}
         className="text_pole st-input min-w-0 flex-1"
@@ -203,6 +203,9 @@ const GraphTab = ({ copilotEnabled, onSelect }: { copilotEnabled: boolean; onSel
   const isEmptyDraft = draft.qualities.length === 0 && draft.transitions.length === 0 && draft.checkpoints.length <= 1;
   return (
     <div className="flex h-full flex-col gap-3">
+      {!copilotEnabled && isEmptyDraft && (
+        <div id="so-studio-wizard-off" className="st-subpanel p-3 text-sm">The wizard is off. Turn it on under Author services in the extension settings to start from a premise.</div>
+      )}
       {copilotEnabled && isEmptyDraft && (
         <div id="so-studio-empty" className="st-subpanel flex flex-wrap items-center gap-2 p-3 text-sm">
           <span>Nothing authored yet. The wizard can take you from a one-line premise to a playable story.</span>
@@ -253,16 +256,22 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
   const panelRef = useRef<HTMLDivElement | null>(null);
   const titleRef = useRef<HTMLInputElement | null>(null);
   const dialogRef = useRef<HTMLDialogElement | null>(null);
+  const [opener] = useState(() => (typeof document !== "undefined" && document.activeElement instanceof HTMLElement ? document.activeElement : null));
 
   useEffect(() => {
     const dialog = dialogRef.current;
     if (dialog && !dialog.open) dialog.showModal();
     titleRef.current?.focus();
-  }, []);
+    return () => {
+      if (opener?.isConnected) opener.focus();
+    };
+  }, [opener]);
 
   const requestClose = async () => {
     if (useDraftStore.getState().dirty && !(await showConfirmPopup("Discard unsaved Studio changes?", { okButton: "Discard", cancelButton: "Keep editing" }))) return;
-    onClose();
+    const dialog = dialogRef.current;
+    if (dialog?.open) dialog.close();
+    else onClose();
   };
 
   const handleKeyDown = focusTrapHandler(panelRef, requestClose);
@@ -272,7 +281,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
     <dialog
       ref={dialogRef}
       id="so-studio-modal"
-      aria-label="Checkpoint Studio"
+      aria-labelledby="so-studio-heading"
       onKeyDown={handleKeyDown}
       onCancel={(event) => { event.preventDefault(); void requestClose(); }}
       // A native dialog can also be closed from outside React (`dialog.close()`, a debug script,

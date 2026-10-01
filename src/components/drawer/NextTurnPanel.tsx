@@ -48,7 +48,7 @@ const PromptBucketsLine = ({ state }: { state: PromptBucketState | undefined }) 
     <div data-so="next-turn-buckets" data-state={state.matches ? "matches" : "mismatch"} className="opacity-80">
       {promptBucketsText(state)}
       {state.oursExceedsHistory && (
-        <div data-so="next-turn-buckets-tokenizers" className="text-yellow-300">
+        <div data-so="next-turn-buckets-tokenizers" className="so-warning-text">
           Story Orchestrator&apos;s count is larger than ST&apos;s chat history: the two counts come from different tokenizers, so read ours as an estimate.
         </div>
       )}
@@ -76,7 +76,7 @@ export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: Ru
         </div>
       ) : null}
       {cost.lastGenerationBudget !== null && cost.budget !== null && cost.lastGenerationBudget !== cost.budget && (
-        <div data-so="next-turn-budget-drift" className="text-yellow-300">The last generation was handed {cost.lastGenerationBudget} tokens, not {cost.budget}: a setting changed since.</div>
+        <div data-so="next-turn-budget-drift" className="so-warning-text">The last generation was handed {cost.lastGenerationBudget} tokens, not {cost.budget}: a setting changed since.</div>
       )}
       {rows.length === 0 ? (
         <div className="opacity-70">Nothing is injected into the next reply.</div>
@@ -87,8 +87,8 @@ export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: Ru
             <span data-so="next-turn-tokens" className="opacity-60">depth {row.depth} · {row.characters} chars · {tokenText(row.tokens, row.tokenSource, row.share)}</span>
             {row.target && <span className="st-pill px-1 text-[10px]" title="Injected only for the member ST drafts">private → {row.target}</span>}
             {row.oneShot && <span className="st-pill px-1 text-[10px]">one turn</span>}
-            {row.freshness !== "live" && <span className="text-yellow-300">{row.freshness}</span>}
-            {row.fallback && <span className="text-yellow-300">fell back ({row.fallback})</span>}
+            {row.freshness !== "live" && <span className="so-warning-text">{row.freshness}</span>}
+            {row.fallback && <span className="so-warning-text">fell back ({row.fallback})</span>}
           </div>
           <div className="opacity-60">{row.owner}</div>
           <div className="whitespace-pre-wrap opacity-80">{row.preview}</div>

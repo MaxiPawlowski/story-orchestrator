@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import type { RuntimeManager } from "@runtime/runtimeManager";
 import { SpriteStage } from "./stage";
 import { VnStage } from "./VnStage";
+import { ROOT_OPTIONS } from "@utils/mountRegistry";
 
 let stage: SpriteStage | null = null;
 let dispose: (() => void) | null = null;
@@ -16,7 +17,7 @@ export function startSprites(manager: RuntimeManager): SpriteStage {
   const host = document.createElement("div");
   host.id = "so-vn-root";
   document.body.appendChild(host);
-  const root = createRoot(host);
+  const root = createRoot(host, ROOT_OPTIONS);
   root.render(<VnStage stage={current} />);
   dispose = () => {
     stop();

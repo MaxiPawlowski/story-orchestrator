@@ -130,7 +130,7 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
   deps.memory.updateInjection();
   await deps.persist();
   const checkpointName = engine.activeCheckpoint?.name ?? "an earlier point";
-  deps.notices.lastRollback = { checkpointName, at: new Date().toISOString() };
+  deps.notices.lastRollback = { checkpointName, playerName: engine.activeCheckpoint?.player_name ?? null, at: new Date().toISOString() };
   deps.setStatus(`Stepped back to ${checkpointName}`);
   deps.onApplied(messageId, window);
   deps.notify();

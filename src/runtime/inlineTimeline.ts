@@ -5,7 +5,10 @@ import type { ArcEntry, ConflictPair, DerivedRecord, MemoryEntry } from "@memory
 import type { CuratorOp, CuratorOpRecord, CuratorPassAudit, CuratorProposalRecord } from "@stagecraft/index";
 import type { LoreFiredRecord } from "./loreFired";
 import type { PipelineStatus } from "./pipeline";
-import type { RollbackNotice } from "./narrative";
+import {
+  castChangeText, chosenToSpeakText, DERIVED_PLAYER_COPY, inlineTransitionText, loreConsultedText, PLAYER_COPY, readNotedText, rememberedText, steppedBackText,
+  tensionLevelText, threadOpenedText, threadResolvedText, type RollbackNotice,
+} from "./narrative";
 import { REFUSAL_PLAYER_TEXT } from "./agencyRecovery";
 import { effectiveInlineLevel, PLAYER_LEVEL_CAP, type InlineCategory, type InlineLevel, type InlineSettings } from "./settingsModel";
 import type { EffectLedgerRow, PayloadCapture, TalkDecisionAudit, TensionHistoryRow, VerifyDrop } from "./types";
@@ -63,6 +66,7 @@ export interface InlineSources {
   agencyRecovery: boolean;
   lastRollback: RollbackNotice | null;
   saveNotice: string | null;
+  castNames?: Record<string, string>;
 }
 
 const RAW_LIMIT = 4000;
@@ -72,10 +76,10 @@ type Draft = Omit<InlineItem, "persona"> & { messageId: number };
 const value = (entry: PrimitiveValue) => String(entry);
 const plural = (count: number, word: string) => `${count} ${word}${count === 1 ? "" : "s"}`;
 const clip = (text: string) => (text.length > RAW_LIMIT ? `${text.slice(0, RAW_LIMIT)}…` : text);
-const memberName = (member: string) => member.replace(/\.(png|webp|jpe?g)$/i, "");
+const memberStem = (member: string) => member.replace(/\.(png|webp|jpe?g)$/i, "");
+const memberName = (sources: InlineSources, member: string) => sources.castNames?.[member] ?? sources.castNames?.[memberStem(member)] ?? memberStem(member);
 
 const checkpointPlayerName = (story: NormalizedStoryV2 | null, id: string) => story?.checkpointById[id]?.player_name ?? null;
-const playerNameForName = (story: NormalizedStoryV2 | null, name: string) => story?.checkpoints.find((checkpoint) => checkpoint.name === name)?.player_name ?? null;
 
 const changedKeys = (entry: BoundaryLogEntry) => {
   const before = entry.before.blackboard.values;
@@ -95,7 +99,7 @@ function progressItems(sources: InlineSources): Draft[] {
       const objective = name ? story?.checkpointById[entry.fired.to]?.player_text ?? null : null;
       drafts.push({
         id: `progress:transition:${entry.boundary}`, messageId, category: "progress", level: 1, state: "applied",
-        text: name ? (objective ? `${name}: ${objective}` : name) : "The story moved on",
+        text: inlineTransitionText(name, objective),
       });
       drafts.push({
         id: `progress:gate:${entry.boundary}`, messageId, category: "progress", level: 3, state: "applied",
@@ -123,18 +127,12 @@ const auditState = (audit: SharedReadAudit, sources: InlineSources): InlineState
 const isPlayerFact = (entry: MemoryEntry) => entry.tier === "facts" && !entry.supersededBy && !entry.foldedInto && !entry.contradicted
   && !entry.characterId && (entry.provenance?.validity ?? "live") === "live";
 
-const DERIVED_COPY: Partial<Record<DerivedRecord["kind"], string>> = {
-  scene_summary: "Scene summarized",
-  short_term: "Recent events condensed",
-  dedup: "Older memories folded",
-  arc_summary: "A thread was summarized",
-  canon: "The story so far was updated",
-};
+const DERIVED_COPY: Partial<Record<DerivedRecord["kind"], string>> = DERIVED_PLAYER_COPY;
 
 function memoryItems(sources: InlineSources): Draft[] {
   const facts = sources.memory.entries.filter(isPlayerFact).map((entry): Draft => ({
     id: `memory:fact:${entry.id}`, messageId: entry.provenance?.messageId ?? entry.messageId ?? -1, category: "memory", level: 1, state: "applied",
-    text: `Remembered: ${entry.text}`,
+    text: rememberedText(entry.text),
     detail: [entry.evidence ? `"${entry.evidence}"` : null, `${entry.provenance?.pass ?? "unknown pass"} · importance ${entry.importance} · ${entry.expiration}`].filter(Boolean).join("\n"),
     actions: [
       { kind: "pin-fact", id: entry.id, pinned: !entry.pinned },
@@ -194,8 +192,8 @@ function threadItems(sources: InlineSources): Draft[] {
     const detail = `${arc.id}${arc.pinned ? " · pinned" : ""}${arc.bridgeApplied ? " · bridge applied" : ""}${arc.summary ? `\n${arc.summary}` : ""}`;
     const thread = (kind: string, messageId: number, text: string): Draft => ({ id: `threads:${kind}:${arc.id}`, messageId, category: "threads", level: 1, state: "applied", text, detail });
     return [
-      ...(typeof arc.openedMessageId === "number" ? [thread("open", arc.openedMessageId, `New thread: ${arc.text}`)] : []),
-      ...(arc.status === "resolved" && typeof arc.resolvedMessageId === "number" ? [thread("resolved", arc.resolvedMessageId, `Thread resolved: ${arc.text}`)] : []),
+      ...(typeof arc.openedMessageId === "number" ? [thread("open", arc.openedMessageId, threadOpenedText(arc.text))] : []),
+      ...(arc.status === "resolved" && typeof arc.resolvedMessageId === "number" ? [thread("resolved", arc.resolvedMessageId, threadResolvedText(arc.text))] : []),
     ];
   });
 }
@@ -219,10 +217,7 @@ function loreItems(sources: InlineSources): Draft[] {
   const publicNames = sources.story?.display?.lore_names_public === true;
   const fired = sources.loreFired.flatMap((record): Draft[] => {
     const named = publicNames ? record.entries.filter((entry) => !entry.gated && entry.via !== "mirror" && entry.comment) : [];
-    const rest = record.entries.length - named.length;
-    const summary = named.length
-      ? `Lore consulted: ${named.map((entry) => entry.comment).join(", ")}${rest ? ` and ${rest} more` : ""}`
-      : `Lore consulted: ${record.entries.length} ${record.entries.length === 1 ? "entry" : "entries"}`;
+    const summary = loreConsultedText(named.map((entry) => entry.comment), record.entries.length);
     return [
       ...(record.entries.length
         ? [{ id: `lore:count:${record.messageId}`, messageId: record.messageId, category: "lore" as const, level: 2 as const, until: 3 as const, state: "applied" as const, text: summary }]
@@ -253,10 +248,10 @@ function castItems(sources: InlineSources): Draft[] {
   const effects = sources.effects.flatMap((row): Draft[] => {
     if (row.target.kind === "cast" && row.status !== "failed") {
       const disabled = row.after?.disabled === true;
-      return [{ id: `cast:member:${row.id}`, messageId: row.messageId, category: "cast", level: 1, state: "applied", text: `${memberName(row.target.member)} ${disabled ? "left" : "joined"}` }];
+      return [{ id: `cast:member:${row.id}`, messageId: row.messageId, category: "cast", level: 1, state: "applied", text: castChangeText(memberName(sources, row.target.member), disabled) }];
     }
     if (row.target.kind === "background" && row.status === "applied") {
-      return [{ id: `cast:background:${row.id}`, messageId: row.messageId, category: "cast", level: 1, state: "applied", text: "The scene changed" }];
+      return [{ id: `cast:background:${row.id}`, messageId: row.messageId, category: "cast", level: 1, state: "applied", text: PLAYER_COPY.sceneChanged }];
     }
     return [];
   });
@@ -265,7 +260,7 @@ function castItems(sources: InlineSources): Draft[] {
     if (!decision.chosenName || reply >= sources.chatLength) return [];
     return [{
       id: `cast:talk:${decision.at}:${decision.chainStep ?? 0}`, messageId: reply, category: "cast", level: 2, state: "applied",
-      text: `${decision.chosenName} was chosen to speak`,
+      text: chosenToSpeakText(decision.chosenName),
       detail: [
         decision.source, decision.judge ? `p ${decision.judge.confidence} (${decision.judge.via})` : null,
         decision.chainStep ? `voice ${decision.chainStep + 1}` : null, `${decision.latencyMs} ms`,
@@ -286,7 +281,7 @@ function castItems(sources: InlineSources): Draft[] {
 function pacingItems(sources: InlineSources, newest: number): Draft[] {
   const rows = sources.tensionHistory.filter((row, index, all) => index === 0 || all[index - 1].level !== row.level).map((row): Draft => ({
     id: `pacing:level:${row.messageId}`, messageId: row.messageId, category: "pacing", level: 1, state: "applied",
-    text: `Tension: ${row.level}`, detail: `smoothed ${row.smoothed.toFixed(2)}`,
+    text: tensionLevelText(row.level), detail: `smoothed ${row.smoothed.toFixed(2)}`,
   }));
   const live = sources.tension.expected !== null || sources.tension.hint
     ? [{ id: "pacing:live", messageId: newest, category: "pacing" as const, level: 3 as const, state: "live" as const,
@@ -299,7 +294,7 @@ function callItems(sources: InlineSources, newest: number): Draft[] {
   const reads = sources.audits.map((audit): Draft => {
     const state = auditState(audit, sources);
     const count = audit.acceptedDeltas.length;
-    const text = !count ? "Nothing new noted" : state === "pending" ? `${plural(count, "thing")} noted, apply next turn` : `${plural(count, "thing")} noted`;
+    const text = readNotedText(count, state === "pending");
     const detail = `${audit.reason} · messages ${audit.window.from}–${audit.window.to} · ${audit.rejected.length} rejected`;
     return { id: `calls:read:${audit.id}`, messageId: audit.window.to, category: "calls", level: 2, state, text, detail };
   });
@@ -326,13 +321,19 @@ function callItems(sources: InlineSources, newest: number): Draft[] {
   return [...reads, ...live, ...judge, ...stalls, ...payload];
 }
 
+const PLAYER_ACTIONS = new Set<InlineAction["kind"]>(["pin-fact", "exclude-fact"]);
+
+const playerItem = ({ detail: _detail, actions, ...item }: Omit<Draft, "messageId">): Omit<Draft, "messageId"> => {
+  const kept = actions?.filter((action) => PLAYER_ACTIONS.has(action.kind));
+  return kept?.length ? { ...item, actions: kept } : item;
+};
+
 const HEALTH_LIVE: Partial<Record<PipelineStatus["state"], true>> = { "stalled-rechecking": true, "not-configured": true, error: true };
 
 function healthItems(sources: InlineSources, newest: number): Draft[] {
   const drafts: Draft[] = [];
   if (sources.lastRollback) {
-    const name = playerNameForName(sources.story, sources.lastRollback.checkpointName);
-    drafts.push({ id: `health:rollback:${sources.lastRollback.at}`, messageId: newest, category: "health", level: 1, state: "applied", text: `Stepped back to ${name ?? "an earlier point"}` });
+    drafts.push({ id: `health:rollback:${sources.lastRollback.at}`, messageId: newest, category: "health", level: 1, state: "applied", text: steppedBackText(sources.lastRollback.playerName) });
   }
   if (sources.agencyRecovery) drafts.push({ id: "progress:agency", messageId: newest, category: "progress", level: 2, state: "live", text: REFUSAL_PLAYER_TEXT });
   if (HEALTH_LIVE[sources.pipeline.state]) {
@@ -353,13 +354,16 @@ export function composeInlineTimeline(sources: InlineSources): InlineView {
     ...progressItems(sources), ...memoryItems(sources), ...threadItems(sources), ...loreItems(sources),
     ...castItems(sources), ...pacingItems(sources, newest), ...callItems(sources, newest), ...healthItems(sources, newest),
   ];
+  const level = effectiveInlineLevel(sources.settings.level, sources.authorView);
   const byMessage: Record<number, InlineItem[]> = {};
   for (const { messageId, ...item } of drafts) {
     if (!Number.isFinite(messageId) || messageId < Math.max(0, oldest) || messageId > newest) continue;
-    (byMessage[messageId] ??= []).push({ ...item, persona: item.level <= PLAYER_LEVEL_CAP ? "player" : "author" });
+    if (!sources.authorView && item.level > level) continue;
+    const shown = sources.authorView ? item : playerItem(item);
+    (byMessage[messageId] ??= []).push({ ...shown, persona: item.level <= PLAYER_LEVEL_CAP ? "player" : "author" });
   }
   return {
-    level: effectiveInlineLevel(sources.settings.level, sources.authorView),
+    level,
     requested: sources.settings.level,
     window: sources.settings.window,
     categories: sources.settings.categories,

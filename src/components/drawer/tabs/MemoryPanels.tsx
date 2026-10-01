@@ -34,7 +34,7 @@ export const EffectLedgerPanel = ({ snapshot }: { snapshot: RuntimeSnapshot }) =
       {rows.map((row) => (
         <div key={row.id} data-so="effect-row" data-status={row.status} className="opacity-80 mt-1">
           <div>{describeEffectTarget(row.target)} <span className="opacity-60">· {row.effect} · {EFFECT_STATUS_COPY[row.status] ?? row.status}</span></div>
-          {row.reason && <div className="text-amber-300">{row.reason}</div>}
+          {row.reason && <div className="so-warning-text">{row.reason}</div>}
           <div className="opacity-50">boundary {row.boundary} · <MessageCitation messageId={row.messageId} /></div>
         </div>
       ))}

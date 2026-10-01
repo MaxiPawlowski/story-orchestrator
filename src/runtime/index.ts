@@ -28,6 +28,13 @@ import { getGlobalSettings } from "./settingsStore";
 import { loadInlineComposer } from "./snapshotBuilder";
 import { loadChapterKit } from "./chapterPort";
 
+export const FEATURE_FAILED_TEXT = (feature: string) => `${feature} could not load — reload SillyTavern.`;
+
+const featureFailed = (feature: string, error: unknown) => {
+  log.warn(`${feature} failed to start`, error);
+  globalThis.window?.toastr?.info?.(FEATURE_FAILED_TEXT(feature), "Story Orchestrator");
+};
+
 let started = false;
 let bridge: TurnBridge | null = null;
 let slashRegistered = false;
@@ -156,8 +163,8 @@ export function startRuntime() {
   if (__SO_DEV__) publishSpikeDebug({ refresh: refreshSpikes });
   void settingsReady().then(() => {
     if (typeof document !== "undefined" && typeof getContext().eventSource?.on === "function") {
-      void import("../image/start").then(({ startImage }) => { if (started) startImage(runtimeManager); });
-      void import("../sprites/start").then(({ startSprites }) => { if (started) startSprites(runtimeManager); });
+      void import("../image/start").then(({ startImage }) => { if (started) startImage(runtimeManager); }).catch((error: unknown) => featureFailed("Illustrations", error));
+      void import("../sprites/start").then(({ startSprites }) => { if (started) startSprites(runtimeManager); }).catch((error: unknown) => featureFailed("Sprites", error));
     }
     void refreshSpikes();
     if (runtimeManager.getSnapshot().ready) return;

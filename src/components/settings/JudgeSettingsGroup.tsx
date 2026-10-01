@@ -92,8 +92,10 @@ const JudgeUseRows = ({ settings, builtUses, authorView, wardenEnabled, onChange
               disabled={!settings.enabled || Boolean(blocked)}
               onChange={(event) => onChange({ uses: { [use]: event.target.checked } })}
             />
-            <span>{copy.label} <HelpTooltip title={`${copy.description} Sends: ${copy.sends}.`} />{blocked && <span className="text-xs opacity-60"> {blocked}</span>}</span>
+            <span>{copy.label}</span>
           </label>
+          <HelpTooltip title={`${copy.description} Sends: ${copy.sends}.`} />
+          {blocked && <span className="text-xs opacity-60">{blocked}</span>}
           <ProviderSelect
             id={`so-judge-provider-${kebab(use)}`}
             label={copy.label}
@@ -137,10 +139,10 @@ const JudgeProviderNotices = ({ settings, status, providers, onChange }: JudgePr
       }
       if (settings.noticesSeen.includes(provider)) return null;
       return (
-        <div key={provider} id={`so-judge-privacy-${provider}`} className="flex flex-wrap items-center gap-2 text-xs text-yellow-300">
+        <div key={provider} id={`so-judge-privacy-${provider}`} className="flex flex-wrap items-center gap-2 text-xs so-warning-text">
           <span>{info.notice}{providerStatus?.host && !info.remote ? ` (${providerStatus.host})` : ""}</span>
           {info.policyUrl && <a className="underline" href={info.policyUrl} target="_blank" rel="noreferrer">Privacy policy</a>}
-          <button id={`so-judge-privacy-ack-${provider}`} className="menu_button" onClick={() => onChange({ noticesSeen: [...settings.noticesSeen, provider] })}>Got it</button>
+          <button id={`so-judge-privacy-ack-${provider}`} type="button" className="menu_button" onClick={() => onChange({ noticesSeen: [...settings.noticesSeen, provider] })}>Got it</button>
         </div>
       );
     })}
@@ -170,21 +172,34 @@ export function JudgeSettingsGroup({
   const inUse = providersInUse(settings, wardenEnabled);
 
   const [keyError, setKeyError] = useState<string | null>(null);
+  const [saving, setSaving] = useState(false);
 
   const saveKey = async () => {
-    const result = await onSaveKey(key);
-    setKey("");
-    setSaved(result.ok ? "saved" : "failed");
-    setKeyError(result.ok ? null : result.reason);
-    onRefresh();
+    setSaving(true);
+    try {
+      const result = await onSaveKey(key);
+      setSaved(result.ok ? "saved" : "failed");
+      setKeyError(result.ok ? null : result.reason);
+    } catch (error) {
+      console.warn("[Story Orchestrator] judge key not saved", error);
+      setSaved("failed");
+      setKeyError(null);
+    } finally {
+      setKey("");
+      setSaving(false);
+      onRefresh();
+    }
   };
 
   return (
     <div id="so-judge" className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
-      <div className="font-medium text-sm">Judgment model <span className="opacity-60 font-normal">— install-wide, optional</span></div>
+      <div className="font-medium text-sm">Judge <span className="opacity-60 font-normal">— install-wide, optional</span></div>
       <div id="so-judge-status" className="text-xs opacity-80">{statusText(status)}</div>
-      <label className="flex flex-col gap-1 text-sm">
-        <span>TypeSafe API key <HelpTooltip title="Stored in SillyTavern's own secrets on the server. It is never shown again, never saved in extension settings, and never sent to the page." /></span>
+      <div className="flex flex-col gap-1 text-sm">
+        <div className="flex items-center gap-1">
+          <label htmlFor="so-judge-key">TypeSafe API key</label>
+          <HelpTooltip title="Stored in SillyTavern's own secrets on the server. It is never shown again, never saved in extension settings, and never sent to the page." />
+        </div>
         <div className="flex gap-2">
           <input
             id="so-judge-key"
@@ -195,22 +210,26 @@ export function JudgeSettingsGroup({
             placeholder={ready ? "Saved — paste a new key to replace it" : "Paste your key"}
             onChange={(event) => { setKey(event.target.value); setSaved("idle"); }}
           />
-          <button id="so-judge-key-save" className="menu_button" disabled={!key.trim()} onClick={() => void saveKey()}>Save</button>
+          <button id="so-judge-key-save" type="button" className="menu_button" disabled={!key.trim() || saving} onClick={() => void saveKey()}>{saving ? "Saving…" : "Save key"}</button>
         </div>
         {saved === "saved" && <span className="text-xs opacity-70">Saved to SillyTavern secrets.</span>}
-        {saved === "failed" && <span id="so-judge-key-error" className="text-xs text-yellow-300">Could not save the key: {keyError ?? "SillyTavern refused it."}</span>}
-      </label>
-      <label className="flex items-center gap-2 text-sm">
-        <input id="so-judge-enabled" type="checkbox" checked={settings.enabled} onChange={(event) => onChange({ enabled: event.target.checked })} />
-        <span>Use the judgment model <HelpTooltip title={"A second, fast model for yes/no and pick-one decisions. Every use below is off until you turn it on, and each says " +
-          "what it sends. It never receives character cards, persona text, other chats or the key."} /></span>
-      </label>
+        {saved === "failed" && <span id="so-judge-key-error" className="text-xs so-warning-text">Could not save the key: {keyError ?? "SillyTavern refused it."}</span>}
+      </div>
+      <div className="flex items-center gap-2 text-sm">
+        <label className="flex items-center gap-2">
+          <input id="so-judge-enabled" type="checkbox" checked={settings.enabled} onChange={(event) => onChange({ enabled: event.target.checked })} />
+          <span>Use the judge</span>
+        </label>
+        <HelpTooltip title={"A second, fast model for yes/no and pick-one decisions. Each use below is on by default and can be switched off on its own; each says " +
+          "what it sends. It never receives character cards, persona text, other chats or the key."} />
+      </div>
       <div className="text-xs opacity-70">When a use is on, the text it lists is sent to the provider it is routed to. Nothing is sent while this is off.</div>
       <JudgeUseRows settings={settings} builtUses={builtUses} authorView={authorView} wardenEnabled={wardenEnabled} onChange={onChange} />
       <JudgeProviderNotices settings={settings} status={status} providers={inUse} onChange={onChange} />
       {authorView && <div className="flex flex-wrap items-center gap-2 pl-4 text-sm">
-        <span>Expansion variants <HelpTooltip title={"Write this many outlines for each gap in the story and keep the best one, as the judgment model scores them. 1 writes one, " +
-          "as today. Each extra outline is another run of the story model."} /></span>
+        <span>Expansion variants</span>
+        <HelpTooltip title={"Write this many outlines for each gap in the story and keep the best one, as the judge scores them. 1 writes one, " +
+          "as today. Each extra outline is another run of the story model."} />
         <select
           id="so-judge-expansion-variants"
           aria-label="Expansion variants"
@@ -239,7 +258,7 @@ export function JudgeSettingsGroup({
       {concerns.length > 0 && (
         <div id="so-judge-readiness" className="flex flex-col gap-1 pl-4 text-xs">
           {concerns.map((row) => (
-            <div key={row.key} className="text-yellow-300">
+            <div key={row.key} className="so-warning-text">
               {labelOf(row.key)}: {concernText(row)}
               <span className="opacity-80"> — {row.recommendation}</span>
             </div>
@@ -247,8 +266,8 @@ export function JudgeSettingsGroup({
         </div>
       )}
       <div className="flex flex-wrap items-center gap-2">
-        <button id="so-judge-self-test" className="menu_button" disabled={!ready || selfTest.running} onClick={onRunSelfTest}>{selfTest.running ? "Testing…" : "Test judgment model"}</button>
-        <button id="so-judge-refresh" className="menu_button" onClick={onRefresh}>Recheck</button>
+        <button id="so-judge-self-test" type="button" className="menu_button" disabled={!ready || selfTest.running} onClick={onRunSelfTest}>{selfTest.running ? "Testing…" : "Test the judge"}</button>
+        <button id="so-judge-refresh" type="button" className="menu_button" onClick={onRefresh}>Recheck</button>
         <a
           id="so-judge-recommended-config"
           className="text-xs opacity-70 underline"
