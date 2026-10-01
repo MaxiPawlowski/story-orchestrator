@@ -13,9 +13,6 @@
     { "id": "H07", "lang": "en", "label": "distinct", "older": "Tomas is a locksmith.", "newer": "Tomas has a daughter in the capital." },
     { "id": "H08", "lang": "en", "label": "duplicate", "older": "The smugglers meet at midnight under the old mill.", "newer": "Midnight, under the old mill: that's where the smugglers gather." },
     { "id": "H09", "lang": "en", "label": "update", "older": "The bounty on Kell is 100 silver.", "newer": "The bounty on Kell was raised to 300 silver." },
-    { "id": "H10", "lang": "es", "label": "distinct", "older": "Lucía esconde la carta en el cajón del escritorio.", "newer": "Lucía esconde el dinero en el cajón del escritorio." },
-    { "id": "H11", "lang": "es", "label": "update", "older": "Andrés trabaja de noche en el puerto.", "newer": "Andrés dejó el trabajo del puerto la semana pasada." },
-    { "id": "H12", "lang": "es", "label": "duplicate", "older": "La puerta del sótano está cerrada con candado.", "newer": "Alguien puso un candado en la puerta del sótano." },
     { "id": "H13", "lang": "en", "label": "distinct", "older": "Nell's horse is lame in the left foreleg.", "newer": "Nell's mule is lame in the left foreleg." },
     { "id": "H14", "lang": "en", "label": "update", "older": "Brother Aldo is alive, imprisoned in the tower.", "newer": "Brother Aldo died in the tower last night." }
   ]

@@ -55,40 +55,6 @@
       "transitions": [{ "from": "start", "to": "vault", "priority": 1, "gate": { "q": "has_key", "op": "==", "v": true } }],
       "roster": [{ "id": "vex", "name": "Vex", "role": "The crew's lockpick" }],
       "requirements": { "members": ["Vex"], "lorebooks": ["Vault Job Lore"] }
-    },
-    "cripta": {
-      "format": 2, "id": "cal-cripta", "title": "La Cripta", "description": "Un grupo de aventureros baja a la cripta de una abadía abandonada.",
-      "qualities": [{ "key": "puerta_abierta", "type": "bool", "source": "extractor", "rubric": "¿Está abierta la puerta de la cripta?" }],
-      "checkpoints": [
-        { "id": "entrada", "name": "La entrada", "objective": "Encontrar la forma de abrir la cripta.", "type": "anchor", "start": true },
-        { "id": "cripta", "name": "La cripta", "objective": "Recuperar la reliquia.", "type": "anchor" }
-      ],
-      "transitions": [{ "from": "entrada", "to": "cripta", "priority": 1, "gate": { "q": "puerta_abierta", "op": "==", "v": true } }],
-      "roster": []
-    },
-    "cripta-open": {
-      "format": 2, "id": "cal-cripta-open", "title": "La Cripta", "description": "Un grupo de aventureros baja a la cripta de una abadía abandonada.",
-      "qualities": [{ "key": "puerta_abierta", "type": "bool", "source": "extractor", "rubric": "¿Está abierta la puerta de la cripta?" }],
-      "checkpoints": [
-        { "id": "entrada", "name": "La entrada", "objective": "Encontrar la forma de abrir la cripta.", "type": "anchor", "start": true },
-        { "id": "cripta", "name": "La cripta", "objective": "Recuperar la reliquia.", "type": "anchor" }
-      ],
-      "transitions": [],
-      "roster": []
-    },
-    "barco": {
-      "format": 2, "id": "cal-barco", "title": "El Barco Fantasma", "description": "Una tripulación aborda un barco a la deriva en plena niebla.",
-      "qualities": [
-        { "key": "abordado", "type": "bool", "source": "extractor", "rubric": "¿Ha subido la tripulación al barco a la deriva?" },
-        { "key": "diario_leido", "type": "bool", "source": "extractor", "rubric": "¿Han leído el diario del capitán?" }
-      ],
-      "checkpoints": [
-        { "id": "niebla", "name": "La niebla", "objective": "Acercarse al barco.", "type": "anchor", "start": true },
-        { "id": "cubierta", "name": "La cubierta", "objective": "Registrar el barco.", "type": "anchor" },
-        { "id": "camarote", "name": "El camarote", "objective": "Descubrir qué pasó con la tripulación.", "type": "anchor" }
-      ],
-      "transitions": [],
-      "roster": []
     }
   },
   "environment": {
@@ -111,14 +77,6 @@
     { "id": "a09", "lang": "en", "stage": "transitions", "draft": "ruins", "ask": "never", "message": "Connect the camp to the ruins when the party agrees to go, and the ruins to the inner chamber once the torch is lit.", "require": { "kind": "addTransition", "min": 2 } },
     { "id": "a10", "lang": "en", "stage": "effects", "draft": "heist", "ask": "never", "message": "Give the vault checkpoint an author's note telling the narrator that the alarm bells are ringing.", "require": { "kind": "setCheckpointEffects", "min": 1 } },
     { "id": "a11", "lang": "en", "stage": "effects", "draft": "heist", "ask": "never", "message": "Add Vex to the roster: the crew's lockpick, nervous but brilliant.", "require": { "kind": "addRosterMember", "min": 1 } },
-    { "id": "a12", "lang": "en", "stage": "provisioning", "draft": "heist-cast", "ask": "never", "message": "Create what this story still needs on this install.", "require": { "kind": "createCharacterCard", "min": 1 } },
-    { "id": "a13", "lang": "es", "stage": "qualities", "draft": "cripta", "ask": "never", "message": "Añade una cualidad booleana para saber si el grupo ha encontrado la reliquia.", "require": { "kind": "addQuality", "min": 1, "match": { "type": "bool" } } },
-    { "id": "a14", "lang": "es", "stage": "qualities", "draft": "cripta", "ask": "never", "message": "Añade una cualidad entera que cuente cuántas antorchas quedan encendidas.", "require": { "kind": "addQuality", "min": 1, "match": { "type": "int" } } },
-    { "id": "a15", "lang": "es", "stage": "checkpoints", "draft": "cripta", "ask": "never", "message": "Añade un punto de control intermedio, La escalera, entre la entrada y la cripta.", "require": { "kind": "addCheckpoint", "min": 1, "match": { "type": "intermediate" } } },
-    { "id": "a16", "lang": "es", "stage": "checkpoints", "draft": "cripta", "ask": "never", "message": "Añade un ancla final, La salida, donde el grupo escapa de la abadía con la reliquia.", "require": { "kind": "addCheckpoint", "min": 1, "match": { "type": "anchor" } } },
-    { "id": "a17", "lang": "es", "stage": "transitions", "draft": "cripta-open", "ask": "never", "message": "Conecta la entrada con la cripta cuando la puerta esté abierta.", "require": { "kind": "addTransition", "min": 1 } },
-    { "id": "a18", "lang": "es", "stage": "transitions", "draft": "barco", "ask": "never", "message": "Conecta la niebla con la cubierta cuando la tripulación haya abordado el barco, y la cubierta con el camarote cuando hayan leído el diario del capitán.", "require": { "kind": "addTransition", "min": 2 } },
-    { "id": "a19", "lang": "es", "stage": "effects", "draft": "cripta", "ask": "never", "message": "Añade una nota del autor en la cripta: el aire huele a humedad y a muerte.", "require": { "kind": "setCheckpointEffects", "min": 1 } },
-    { "id": "a20", "lang": "es", "stage": "effects", "draft": "cripta", "ask": "never", "message": "Añade al reparto a Mara, la guía del grupo, que conoce la abadía.", "require": { "kind": "addRosterMember", "min": 1 } }
+    { "id": "a12", "lang": "en", "stage": "provisioning", "draft": "heist-cast", "ask": "never", "message": "Create what this story still needs on this install.", "require": { "kind": "createCharacterCard", "min": 1 } }
   ]
 }

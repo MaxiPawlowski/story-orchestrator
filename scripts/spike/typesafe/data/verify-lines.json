@@ -43,10 +43,5 @@
     { "text": "Pell sealed the hull breach on deck three.", "supported": true, "kind": "paraphrase" },
     { "text": "Coolant loop two is running at about a third of its capacity.", "supported": true, "kind": "paraphrase" },
     { "text": "The reactor is now stable.", "supported": false, "kind": "contradicted" },
-    { "text": "Okafor ordered loop one rerouted to cover loop two.", "supported": true, "kind": "paraphrase" } ] },
-  { "case": "H21", "lines": [
-    { "text": "Max aceptó el trabajo de las Ruinas del Sol.", "supported": true, "kind": "spanish" },
-    { "text": "The Sun Ruins job pays two hundred crowns.", "supported": true, "kind": "cross-language" },
-    { "text": "Ponticius raised the fee to three hundred crowns.", "supported": false, "kind": "fabricated" },
-    { "text": "Max signed the contract.", "supported": true, "kind": "cross-language" } ] }
+    { "text": "Okafor ordered loop one rerouted to cover loop two.", "supported": true, "kind": "paraphrase" } ] }
 ]

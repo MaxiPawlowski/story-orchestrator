@@ -199,7 +199,7 @@ describe("decideDirector", () => {
     expect(directorRecordP(answers, decision)).toEqual({ who: "Arin", whoConfidence: 0.7, via: "choice", picked: "Arin" });
   });
 
-  it("reproduces the spike's hybrid on its 26 recorded cases (real jev answers)", () => {
+  it("reproduces the spike's hybrid on its 25 recorded cases (real jev answers; D15 left with W25)", () => {
     const golden = JSON.parse(readFileSync(join(process.cwd(), "test/goldens/judge/director.json"), "utf8")) as {
       rows: Array<{ id: string; acceptable: string[]; input: JudgeDirectorInput; answers: Record<string, JudgeAnswer> }>;
     };
@@ -208,9 +208,9 @@ describe("decideDirector", () => {
       const name = decision?.kind === "member" ? decision.name : decision?.kind === "silence" ? "NONE" : null;
       return { id: row.id, right: name !== null && row.acceptable.includes(name) };
     });
-    expect(golden.rows).toHaveLength(26);
+    expect(golden.rows).toHaveLength(25);
     expect(golden.rows.every((row) => directorJudgeEligible(row.input.candidates, row.input.allowSilence))).toBe(true);
-    expect(verdicts.filter((verdict) => verdict.right)).toHaveLength(24);
+    expect(verdicts.filter((verdict) => verdict.right)).toHaveLength(23);
   });
 });
 
@@ -328,27 +328,27 @@ describe("memory questions and policy (v2.2 plan 02)", () => {
   };
   const fixture = (name: string) => JSON.parse(readFileSync(join(process.cwd(), "test/fixtures/judge", name), "utf8")).rows;
 
-  it("on 48 labelled lines, en + es (real answers, production shape): no supported line lost but one, every unsupported one dropped", async () => {
+  it("on 36 labelled lines (real answers, production shape): no supported line lost but one, every unsupported one dropped", async () => {
     const report = await runMemoryVerifyCalibration(replay("memory-verify.json"), fixture("memory-verify.json"));
     const rows = fixture("memory-verify.json") as Array<{ id: string; supported: boolean }>;
     const supported = new Set(rows.filter((row) => row.supported).map((row) => row.id));
-    expect(report.total).toBe(48);
+    expect(report.total).toBe(36);
     expect(report.rows.filter((row) => row.picked === null)).toEqual([]);
     expect(report.rows.filter((row) => !row.right && supported.has(row.id)).map((row) => row.id)).toEqual(["H32.0"]);
     expect(report.rows.filter((row) => !row.right && !supported.has(row.id))).toEqual([]);
   });
 
-  it("on 32 tuning pairs (real answers): 29 right, and never supersedes or drops a note about something else", async () => {
+  it("on 29 tuning pairs (real answers): 27 right, and never supersedes or drops a note about something else", async () => {
     const report = await runMemoryPairsCalibration(replay("memory-pairs.json"), fixture("memory-pairs.json"));
     const labels = new Map((fixture("memory-pairs.json") as Array<{ id: string; label: JudgePairRelation }>).map((row) => [row.id, row.label]));
-    expect(report.right).toBe(29);
-    expect(report.rows.filter((row) => !row.right).map((row) => row.id)).toEqual(["M13", "M17", "P31"]);
+    expect([report.right, report.total]).toEqual([27, 29]);
+    expect(report.rows.filter((row) => !row.right).map((row) => row.id)).toEqual(["M13", "M17"]);
     expect(report.rows.filter((row) => ["duplicate", "update"].includes(row.picked ?? "") && ["distinct", "unrelated"].includes(labels.get(row.id) ?? ""))).toEqual([]);
   });
 
-  it("on 14 held-out pairs, never used to tune the question (real answers): all right", async () => {
+  it("on 11 held-out pairs, never used to tune the question (real answers): all right", async () => {
     const report = await runMemoryPairsCalibration(replay("memory-pairs-holdout.json"), fixture("memory-pairs-holdout.json"));
-    expect([report.right, report.total]).toEqual([14, 14]);
+    expect([report.right, report.total]).toEqual([11, 11]);
   });
 
   it("keeps a pair Jev thinks is about two different things, whatever the relation; the confidence floor still applies otherwise", () => {

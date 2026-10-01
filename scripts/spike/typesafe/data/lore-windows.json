@@ -25,14 +25,6 @@
       { "speaker": "Narrator", "text": "Three riders in red cloaks, holy symbols gleaming on their breastplates, block the road. Their leader says they hunt heresy wherever it hides." },
       { "speaker": "Max", "text": "\"You think the baron isn't the baron anymore? That something from below is wearing his skin? Then how do you drive it out?\"" }
     ] },
-    { "id": "L06", "lang": "es", "needed": [49, 48, 51, 14], "transcript": [
-      { "speaker": "Narrador", "text": "Más allá de la ciudad caída se alza un castillo gótico enorme. Dicen que sus pasillos cambian de sitio para atrapar a quien entra." },
-      { "speaker": "Max", "text": "\"¿Y su señor? He oído que es un no-muerto antiguo que ni siquiera teme al sol, y que acaba de despertar.\"" }
-    ] },
-    { "id": "L07", "lang": "es", "needed": [16, 52, 53], "transcript": [
-      { "speaker": "Aldeano", "text": "\"Anoche vinieron las pequeñas criaturas verdes, decenas de ellas. Con ellas venían brutos de más de dos metros con garrotes.\"" },
-      { "speaker": "Max", "text": "\"¿Y quién las dirigía? Algo tan organizado necesita un jefe fuerte que dé órdenes desde atrás.\"" }
-    ] },
     { "id": "L08", "lang": "en", "needed": [57, 58, 59], "transcript": [
       { "speaker": "Narrator", "text": "The alchemist unrolls a map and taps a dark mass of trees. \"The rarest ingredients grow there. So do the worst monsters in the land.\"" },
       { "speaker": "Max", "text": "\"I heard a green wyrm rules those woods, with little lizard-folk serving him. Will they let us through if we pay?\"" }
@@ -40,10 +32,6 @@
     { "id": "L09", "lang": "en", "needed": [63, 62, 61], "transcript": [
       { "speaker": "Narrator", "text": "The abandoned mansion is all cobwebs and cracked windows. In a child's bedroom upstairs, a porcelain doll turns its head to follow you." },
       { "speaker": "Max", "text": "\"The villagers said the family here was butchered by church hunters centuries ago. One daughter was never found.\"" }
-    ] },
-    { "id": "L10", "lang": "es", "needed": [27, 18], "transcript": [
-      { "speaker": "Narrador", "text": "En la barra, la camarera risueña te guiña un ojo y te sirve el mejor cóctel que has probado; dicen que también cocina de maravilla." },
-      { "speaker": "Max", "text": "\"¿Es verdad que eres la mejor amiga de la recepcionista elfa? Necesito que me presentes.\"" }
     ] }
   ]
 }

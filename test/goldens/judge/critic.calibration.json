@@ -3,40 +3,39 @@
   "summary": {
     "use": "critic",
     "fixture": "critic",
-    "right": 156,
-    "total": 160,
-    "rate": 0.975,
+    "right": 132,
+    "total": 136,
+    "rate": 0.9706,
     "families": [
       {
         "family": "verdict",
-        "right": 40,
-        "total": 40,
+        "right": 34,
+        "total": 34,
         "floor": 1,
         "ok": true
       },
       {
         "family": "contradicts",
-        "right": 37,
-        "total": 40,
+        "right": 31,
+        "total": 34,
         "floor": 0.9,
         "ok": true
       },
       {
         "family": "advances",
-        "right": 39,
-        "total": 40,
+        "right": 33,
+        "total": 34,
         "floor": 0.9,
         "ok": true
       },
       {
         "family": "newCharacter",
-        "right": 40,
-        "total": 40,
+        "right": 34,
+        "total": 34,
         "floor": 0.9,
         "ok": true
       }
     ],
-    "spanish": "24/24",
     "p50LatencyMs": 999,
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
@@ -716,150 +715,6 @@
       "right": true,
       "latencyMs": 1297,
       "picked": "c=0.31 a=0.03 n=0.07 s=0.065"
-    },
-    {
-      "id": "V07-clean.verdict",
-      "right": true,
-      "latencyMs": 1386,
-      "picked": "c=0.09 a=0.97 n=0.1 s=0.775"
-    },
-    {
-      "id": "V07-clean.contradicts",
-      "right": true,
-      "latencyMs": 1386,
-      "picked": "c=0.09 a=0.97 n=0.1 s=0.775"
-    },
-    {
-      "id": "V07-clean.advances",
-      "right": true,
-      "latencyMs": 1386,
-      "picked": "c=0.09 a=0.97 n=0.1 s=0.775"
-    },
-    {
-      "id": "V07-clean.newCharacter",
-      "right": true,
-      "latencyMs": 1386,
-      "picked": "c=0.09 a=0.97 n=0.1 s=0.775"
-    },
-    {
-      "id": "V07-contradicts.verdict",
-      "right": true,
-      "latencyMs": 1407,
-      "picked": "c=0.83 a=0.81 n=0.11 s=0.7925"
-    },
-    {
-      "id": "V07-contradicts.contradicts",
-      "right": true,
-      "latencyMs": 1407,
-      "picked": "c=0.83 a=0.81 n=0.11 s=0.7925"
-    },
-    {
-      "id": "V07-contradicts.advances",
-      "right": true,
-      "latencyMs": 1407,
-      "picked": "c=0.83 a=0.81 n=0.11 s=0.7925"
-    },
-    {
-      "id": "V07-contradicts.newCharacter",
-      "right": true,
-      "latencyMs": 1407,
-      "picked": "c=0.83 a=0.81 n=0.11 s=0.7925"
-    },
-    {
-      "id": "V07-wanders.verdict",
-      "right": true,
-      "latencyMs": 1458,
-      "picked": "c=0.14 a=0.04 n=0.16 s=0.01"
-    },
-    {
-      "id": "V07-wanders.contradicts",
-      "right": true,
-      "latencyMs": 1458,
-      "picked": "c=0.14 a=0.04 n=0.16 s=0.01"
-    },
-    {
-      "id": "V07-wanders.advances",
-      "right": true,
-      "latencyMs": 1458,
-      "picked": "c=0.14 a=0.04 n=0.16 s=0.01"
-    },
-    {
-      "id": "V07-wanders.newCharacter",
-      "right": true,
-      "latencyMs": 1458,
-      "picked": "c=0.14 a=0.04 n=0.16 s=0.01"
-    },
-    {
-      "id": "V08-clean.verdict",
-      "right": true,
-      "latencyMs": 1506,
-      "picked": "c=0.07 a=0.93 n=0.18 s=0.5375"
-    },
-    {
-      "id": "V08-clean.contradicts",
-      "right": true,
-      "latencyMs": 1506,
-      "picked": "c=0.07 a=0.93 n=0.18 s=0.5375"
-    },
-    {
-      "id": "V08-clean.advances",
-      "right": true,
-      "latencyMs": 1506,
-      "picked": "c=0.07 a=0.93 n=0.18 s=0.5375"
-    },
-    {
-      "id": "V08-clean.newCharacter",
-      "right": true,
-      "latencyMs": 1506,
-      "picked": "c=0.07 a=0.93 n=0.18 s=0.5375"
-    },
-    {
-      "id": "V08-contradicts.verdict",
-      "right": true,
-      "latencyMs": 1559,
-      "picked": "c=0.3 a=0.89 n=0.13 s=0.6375"
-    },
-    {
-      "id": "V08-contradicts.contradicts",
-      "right": true,
-      "latencyMs": 1559,
-      "picked": "c=0.3 a=0.89 n=0.13 s=0.6375"
-    },
-    {
-      "id": "V08-contradicts.advances",
-      "right": true,
-      "latencyMs": 1559,
-      "picked": "c=0.3 a=0.89 n=0.13 s=0.6375"
-    },
-    {
-      "id": "V08-contradicts.newCharacter",
-      "right": true,
-      "latencyMs": 1559,
-      "picked": "c=0.3 a=0.89 n=0.13 s=0.6375"
-    },
-    {
-      "id": "V08-wanders.verdict",
-      "right": true,
-      "latencyMs": 1944,
-      "picked": "c=0.17 a=0.08 n=0.2 s=0.2175"
-    },
-    {
-      "id": "V08-wanders.contradicts",
-      "right": true,
-      "latencyMs": 1944,
-      "picked": "c=0.17 a=0.08 n=0.2 s=0.2175"
-    },
-    {
-      "id": "V08-wanders.advances",
-      "right": true,
-      "latencyMs": 1944,
-      "picked": "c=0.17 a=0.08 n=0.2 s=0.2175"
-    },
-    {
-      "id": "V08-wanders.newCharacter",
-      "right": true,
-      "latencyMs": 1944,
-      "picked": "c=0.17 a=0.08 n=0.2 s=0.2175"
     },
     {
       "id": "V09-clean.verdict",

@@ -3,26 +3,25 @@
   "summary": {
     "use": "curator-filter",
     "fixture": "curator-filter",
-    "right": 22,
-    "total": 24,
-    "rate": 0.9167,
+    "right": 16,
+    "total": 18,
+    "rate": 0.8889,
     "families": [
       {
         "family": "recall",
-        "right": 13,
-        "total": 13,
+        "right": 10,
+        "total": 10,
         "floor": 0.9,
         "ok": true
       },
       {
         "family": "narrowed",
-        "right": 9,
-        "total": 11,
+        "right": 6,
+        "total": 8,
         "floor": 0,
         "ok": true
       }
     ],
-    "spanish": "6/6",
     "p50LatencyMs": 223,
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
@@ -114,48 +113,6 @@
       "picked": "p=0.14",
       "detail": "Captain's Log",
       "latencyMs": 221
-    },
-    {
-      "id": "noir.recall:0",
-      "right": true,
-      "picked": "p=0.29",
-      "detail": "Teniente Brandt",
-      "latencyMs": 248
-    },
-    {
-      "id": "noir.recall:1",
-      "right": true,
-      "picked": "p=0.83",
-      "detail": "El libro de cuentas",
-      "latencyMs": 248
-    },
-    {
-      "id": "noir.narrowed:2",
-      "right": true,
-      "picked": "p=0.18",
-      "detail": "Blue Anchor",
-      "latencyMs": 248
-    },
-    {
-      "id": "noir.recall:3",
-      "right": true,
-      "picked": "p=0.76",
-      "detail": "Doyle",
-      "latencyMs": 248
-    },
-    {
-      "id": "noir.narrowed:4",
-      "right": true,
-      "picked": "p=0.13",
-      "detail": "Mae Hollis",
-      "latencyMs": 248
-    },
-    {
-      "id": "noir.narrowed:5",
-      "right": true,
-      "picked": "p=0.1",
-      "detail": "Lluvia en Mercer Street",
-      "latencyMs": 248
     },
     {
       "id": "manor.recall:0",

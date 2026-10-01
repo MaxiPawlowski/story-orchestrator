@@ -59,7 +59,7 @@ export const variantPick: Experiment = {
       id: this.id,
       title: this.title,
       summary: [
-        `${rows.length} stubs × 3 chains (2 stubs in Spanish). Clean chain ranked first: ${frac(cleanFirst, rows.length)} (floor 8/10).`,
+        `${rows.length} stubs × 3 chains. Clean chain ranked first: ${frac(cleanFirst, rows.length)} (floor 8/10).`,
         `Contradicting chains rejected at contradicts ≥ 0.3: ${frac(rejected, contradicting.length)} (floor: all). Wandering chains with advances < 0.5: ${frac(wanders.filter((item) => item.advances < 0.5).length, wanders.length)}.`,
         `Judge verdict (contradicts < 0.3, advances ≥ 0.5, newCharacter < 0.5): clean chains pass ${frac(cleanChains.filter(verdictPass).length, cleanChains.length)}, defective chains pass ${frac([...contradicting, ...wanders].filter(verdictPass).length, contradicting.length + wanders.length)}.`,
       ],

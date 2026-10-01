@@ -9,7 +9,7 @@ const k0 = {
   use: 'memory-contradictions',
   rows: [
     { id: 'K01', lang: 'en', label: 'contradicts', established: 'e1', claim: 'c1', band: { jaccard: 'sameTopic' } },
-    { id: 'K02', lang: 'es', label: 'contradicts', established: 'e2', claim: 'c2', band: { jaccard: 'below' } },
+    { id: 'K02', lang: 'en', label: 'contradicts', established: 'e2', claim: 'c2', band: { jaccard: 'below' } },
     { id: 'K03', lang: 'en', label: 'agrees', established: 'e3', claim: 'c3', band: { jaccard: 'dup' } },
     { id: 'K04', lang: 'en', label: 'agrees', established: 'e4', claim: 'c4', band: { jaccard: 'below' } },
   ],
@@ -22,7 +22,7 @@ test('the default contradiction-release fixture is K0 itself, a named one is a j
 });
 
 test('cases carry only what the judge is asked and scored on', () => {
-  assert.deepEqual(releaseCases(k0)[1], { id: 'K02', lang: 'es', label: 'contradicts', established: 'e2', claim: 'c2' });
+  assert.deepEqual(releaseCases(k0)[1], { id: 'K02', lang: 'en', label: 'contradicts', established: 'e2', claim: 'c2' });
 });
 
 test('K0 without a bracket file: the Jaccard mode is the frozen band, the vectors mode is unmeasured', () => {

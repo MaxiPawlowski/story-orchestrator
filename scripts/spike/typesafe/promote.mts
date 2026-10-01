@@ -144,7 +144,7 @@ function curatorFilter() {
     use: 'curator-filter',
     floors: { recall: 0.9, narrowed: 0 },
     labelledAt: '2026-09-19',
-    source: 'Promoted from scripts/spike/typesafe/data/curator-filter.json (Phase A, labels written before any answer was read; the noir set is Spanish). recall = an entry needing attention is still shown to the curator; narrowed = a fine switched-on entry was dropped from its prompt (reported, no floor).',
+    source: 'Promoted from scripts/spike/typesafe/data/curator-filter.json (Phase A, labels written before any answer was read; the Spanish noir set went with v2.6 W25). recall = an entry needing attention is still shown to the curator; narrowed = a fine switched-on entry was dropped from its prompt (reported, no floor).',
     rows,
   }, null, 2)}
 `);
@@ -162,7 +162,7 @@ function continuity() {
     use: 'continuity',
     floors: { reply: 0.9, broken: 0.85, consistent: 0.966 },
     labelledAt: '2026-09-19',
-    source: 'Spike C01-C18 (scripts/spike/typesafe/data/continuity.json) plus CX01-CX10 (continuity-extra.json, 4 Spanish), labels written before any answer was read. consistent 0.966 = at most 1 false alarm per 30 consistent facts. Real-play Artemis replies are still owed at the live gate.',
+    source: 'Spike C01-C18 (scripts/spike/typesafe/data/continuity.json) plus CX01-CX10 (continuity-extra.json; its 4 Spanish rows and C14 went with v2.6 W25), labels written before any answer was read. consistent 0.966 = at most 1 false alarm per 30 consistent facts. Real-play Artemis replies are still owed at the live gate.',
     rows,
   }, null, 2)}
 `);

@@ -6,7 +6,7 @@
     "untouched": 0.966
   },
   "labelledAt": "2026-09-25",
-  "source": "v2.4 plan 07 T23 Phase A. One case = one reply against the story's house rules as the warden asks them (one Noul per rule in one request, state = the reply and the rules only). Labels written before any answer was read: broken = the reply breaks the rule; kept = the reply touches the rule and follows it; untouched = every other rule of the case (the reply never touches it: the T23 failure mode). 13 objective rules (content, format, world constraints; no taste rules, C13) plus 5 Spanish ones. Three cases are real Artemis replies from the part-1 J8.5 records (source names each; H01 is the real \"Fuck\"). Floors predeclared: broken recall >= 0.85, kept specificity >= 0.95, untouched specificity >= 0.966 (the warden's own bar, at most 1 false alarm per 30); flag at HOUSE_RULE_P 0.7, never retuned.",
+  "source": "v2.4 plan 07 T23 Phase A. One case = one reply against the story's house rules as the warden asks them (one Noul per rule in one request, state = the reply and the rules only). Labels written before any answer was read: broken = the reply breaks the rule; kept = the reply touches the rule and follows it; untouched = every other rule of the case (the reply never touches it: the T23 failure mode). 13 objective rules (content, format, world constraints; no taste rules, C13); the 5 Spanish rules and their cases H21-H24 went with v2.6 W25. Three cases are real Artemis replies from the part-1 J8.5 records (source names each; H01 is the real \"Fuck\"). Floors predeclared: broken recall >= 0.85, kept specificity >= 0.95, untouched specificity >= 0.966 (the warden's own bar, at most 1 false alarm per 30); flag at HOUSE_RULE_P 0.7, never retuned.",
   "rows": [
     {
       "id": "H01",
@@ -391,83 +391,6 @@
       "broken": [],
       "kept": [
         0
-      ],
-      "source": "authored"
-    },
-    {
-      "id": "H21",
-      "lang": "es",
-      "rules": [
-        "Ningún personaje usa armas de fuego.",
-        "La magia no puede curar heridas.",
-        "Los personajes nunca dicen palabrotas.",
-        "En este mundo no existen los caballos."
-      ],
-      "reply": {
-        "speaker": "Capitana Rhee",
-        "text": "La capitana apunta con su pistola de chispa y dispara; el estampido retumba en la cubierta y el humo se queda enredado en las jarcias."
-      },
-      "broken": [
-        0
-      ],
-      "kept": [],
-      "source": "authored"
-    },
-    {
-      "id": "H22",
-      "lang": "es",
-      "rules": [
-        "La magia no puede curar heridas.",
-        "Ningún personaje bebe alcohol.",
-        "Los personajes nunca dicen palabrotas.",
-        "Ningún personaje usa armas de fuego."
-      ],
-      "reply": {
-        "speaker": "Curandera",
-        "text": "\"La magia no cerrará esto\", dice la curandera mientras enhebra la aguja. \"Quédate quieto, lo coseré a la antigua.\""
-      },
-      "broken": [],
-      "kept": [
-        0
-      ],
-      "source": "authored"
-    },
-    {
-      "id": "H23",
-      "lang": "es",
-      "rules": [
-        "Los personajes nunca dicen palabrotas.",
-        "En este mundo no existen los caballos.",
-        "Ningún personaje bebe alcohol.",
-        "La magia no puede curar heridas."
-      ],
-      "reply": {
-        "speaker": "Arin",
-        "text": "\"¡Joder!\", masculla Arin al ver el puente derrumbado. Da una patada a una piedra y se pasa la mano por el pelo."
-      },
-      "broken": [
-        0
-      ],
-      "kept": [],
-      "source": "authored"
-    },
-    {
-      "id": "H24",
-      "lang": "es",
-      "rules": [
-        "En este mundo no existen los caballos.",
-        "Ningún personaje bebe alcohol.",
-        "Ningún personaje usa armas de fuego.",
-        "Los personajes nunca dicen palabrotas."
-      ],
-      "reply": {
-        "speaker": "Narrador",
-        "text": "El carro de bueyes subía la colina despacio; el carretero bebía agua de su odre y tarareaba una canción."
-      },
-      "broken": [],
-      "kept": [
-        0,
-        1
       ],
       "source": "authored"
     }

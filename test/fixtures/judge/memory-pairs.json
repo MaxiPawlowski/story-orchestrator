@@ -4,7 +4,7 @@
     "rightAction": 0.85
   },
   "labelledAt": "2026-09-19",
-  "source": "M01-M20 from the spike + P21-P32 labelled 2026-09-19 before any judge answer was read (5 high-overlap distinct pairs, 3 Spanish)",
+  "source": "M01-M20 from the spike + P21-P32 labelled 2026-09-19 before any judge answer was read (5 high-overlap distinct pairs; the 3 Spanish ones, P30-P32, went with v2.6 W25)",
   "rows": [
     {
       "id": "M01",
@@ -208,27 +208,6 @@
       "label": "distinct",
       "older": "Graves polishes the silver every morning.",
       "newer": "Graves polishes the portrait frames every morning."
-    },
-    {
-      "id": "P30",
-      "lang": "es",
-      "label": "update",
-      "older": "Luke se queda en casa.",
-      "newer": "Luke se unió a la expedición al final."
-    },
-    {
-      "id": "P31",
-      "lang": "es",
-      "label": "duplicate",
-      "older": "El libro de cuentas apareció en Pike Street.",
-      "newer": "Encontraron el libro de cuentas en la lavandería de Pike Street."
-    },
-    {
-      "id": "P32",
-      "lang": "es",
-      "label": "distinct",
-      "older": "Mae guarda un revólver en la guantera.",
-      "newer": "Mae guarda una linterna en la guantera."
     }
   ]
 }

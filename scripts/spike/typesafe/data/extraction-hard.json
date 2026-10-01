@@ -211,26 +211,6 @@
     "tension": ["tense", "critical"], "tags": ["adversarial"]
   },
   {
-    "id": "H21", "world": "sun-ruins", "checkpoint": "cp2", "ask": ["mission_accepted"],
-    "transcript": [
-      { "index": 20, "speaker": "Ponticius", "text": "\"El trabajo de las Ruinas del Sol. Doscientas coronas. ¿Lo tomas o no?\"" },
-      { "index": 21, "speaker": "Max", "text": "\"Lo tomo. Firmaré ahora mismo.\" Firmo el contrato y se lo devuelvo." }
-    ],
-    "expected": { "mission_accepted": true },
-    "evidence": { "mission_accepted": [21] },
-    "tension": ["calm"], "tags": ["spanish"]
-  },
-  {
-    "id": "H22", "world": "sun-ruins", "checkpoint": "cp3", "ask": ["luke_decision"], "prior": { "luke_decision": "undecided" },
-    "transcript": [
-      { "index": 40, "speaker": "Luke", "text": "\"¡Déjame ir contigo, por favor!\"" },
-      { "index": 41, "speaker": "Max", "text": "\"No, Luke. Te quedas en casa con mamá. Es demasiado peligroso.\"" }
-    ],
-    "expected": { "luke_decision": "declined" },
-    "evidence": { "luke_decision": [41] },
-    "tension": ["calm", "stirring"], "tags": ["spanish"]
-  },
-  {
     "id": "H23", "world": "ship", "checkpoint": "reactor", "ask": ["hull_breach_sealed", "reactor_state", "crew_injured", "distress_sent"],
     "transcript": [
       { "index": 12, "speaker": "Pell", "text": "\"Reactor's holding at sixty percent, but the containment field keeps flickering. I can't promise it'll hold.\"" },

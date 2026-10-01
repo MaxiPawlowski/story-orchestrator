@@ -93,6 +93,6 @@ describe("lore calibration (real answers, production shape)", () => {
     const data = fixture("curator-filter.json") as { floors: Record<string, number>; rows: CuratorFilterCase[] };
     const report = await runCuratorFilterCalibration(replay("curator-filter.json"), data.rows);
     const recall = judgeFamilyScores(report, data.floors).find((row) => row.family === "recall");
-    expect(recall).toMatchObject({ right: 13, total: 13 });
+    expect(recall).toMatchObject({ right: 10, total: 10 });
   });
 });

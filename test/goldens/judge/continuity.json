@@ -2,8 +2,8 @@
   "source": "calibrate-node continuity over test/fixtures/judge/continuity.json: the production question shape, real answers, replayed by jest keyed on state + questions, so a wording change must re-record",
   "recordedAt": "2026-09-21T16:50:41.417Z",
   "model": "jev-1.13.0",
-  "right": 83,
-  "total": 85,
+  "right": 65,
+  "total": 67,
   "calls": [
     {
       "state": {
@@ -95,59 +95,6 @@
         "fact:2": {
           "type": "noul",
           "noul": 0.07
-        }
-      }
-    },
-    {
-      "state": {
-        "established_facts": {
-          "fact_0": "Max lleva el Corazón del Sol en su mochila.",
-          "fact_1": "Arin no sabe dónde está el Corazón del Sol.",
-          "fact_2": "La cámara interior está inundada."
-        },
-        "reply": {
-          "speaker": "DM Narrator",
-          "text": "La cámara interior está completamente seca; el polvo de siglos cubre el suelo de piedra."
-        }
-      },
-      "questions": {
-        "fact:0": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        },
-        "fact:1": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        },
-        "fact:2": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        }
-      },
-      "answers": {
-        "fact:0": {
-          "type": "noul",
-          "noul": 0.03
-        },
-        "fact:1": {
-          "type": "noul",
-          "noul": 0.04
-        },
-        "fact:2": {
-          "type": "noul",
-          "noul": 0.97
         }
       }
     },
@@ -394,59 +341,6 @@
     {
       "state": {
         "established_facts": {
-          "fact_0": "Luke tiene doce años.",
-          "fact_1": "Luke se unió a la expedición.",
-          "fact_2": "Ponticius firmó el contrato."
-        },
-        "reply": {
-          "speaker": "Luke",
-          "text": "\"¡Cuando cumpla trece, Ponticius me dejará firmar mis propios contratos!\""
-        }
-      },
-      "questions": {
-        "fact:0": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        },
-        "fact:1": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        },
-        "fact:2": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        }
-      },
-      "answers": {
-        "fact:0": {
-          "type": "noul",
-          "noul": 0.06
-        },
-        "fact:1": {
-          "type": "noul",
-          "noul": 0.07
-        },
-        "fact:2": {
-          "type": "noul",
-          "noul": 0.1
-        }
-      }
-    },
-    {
-      "state": {
-        "established_facts": {
           "fact_0": "Max has never met Lieutenant Brandt."
         },
         "reply": {
@@ -561,59 +455,6 @@
         "fact:0": {
           "type": "noul",
           "noul": 0.02
-        }
-      }
-    },
-    {
-      "state": {
-        "established_facts": {
-          "fact_0": "Arin fue herida en el derrumbe y sangra.",
-          "fact_1": "La recompensa es de 500 coronas.",
-          "fact_2": "Luke se unió a la expedición."
-        },
-        "reply": {
-          "speaker": "Arin",
-          "text": "Arin se aprieta la herida del costado y hace una mueca. \"Sigo en pie. Vamos.\""
-        }
-      },
-      "questions": {
-        "fact:0": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        },
-        "fact:1": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        },
-        "fact:2": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        }
-      },
-      "answers": {
-        "fact:0": {
-          "type": "noul",
-          "noul": 0.04
-        },
-        "fact:1": {
-          "type": "noul",
-          "noul": 0.03
-        },
-        "fact:2": {
-          "type": "noul",
-          "noul": 0.03
         }
       }
     },
@@ -913,33 +754,6 @@
     {
       "state": {
         "established_facts": {
-          "fact_0": "Max answered the sphinx's riddle correctly."
-        },
-        "reply": {
-          "speaker": "DM Narrator",
-          "text": "La esfinge ruge: \"Tu respuesta fue incorrecta, mortal.\""
-        }
-      },
-      "questions": {
-        "fact:0": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        }
-      },
-      "answers": {
-        "fact:0": {
-          "type": "noul",
-          "noul": 0.81
-        }
-      }
-    },
-    {
-      "state": {
-        "established_facts": {
           "fact_0": "Max has never met Lieutenant Brandt."
         },
         "reply": {
@@ -1001,59 +815,6 @@
         "fact:1": {
           "type": "noul",
           "noul": 0.13
-        }
-      }
-    },
-    {
-      "state": {
-        "established_facts": {
-          "fact_0": "La puerta principal de las ruinas se derrumbó.",
-          "fact_1": "El grupo entró por un túnel lateral.",
-          "fact_2": "Es de noche fuera de las ruinas."
-        },
-        "reply": {
-          "speaker": "DM Narrator",
-          "text": "El sol del mediodía cae a plomo sobre la arena cuando el grupo sale del túnel."
-        }
-      },
-      "questions": {
-        "fact:0": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_0`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        },
-        "fact:1": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_1`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        },
-        "fact:2": {
-          "type": "noul",
-          "instructions": "Does `reply` contradict `established_facts.fact_2`?",
-          "criteria": {
-            "true": "The reply and the fact cannot both be true: the reply shows or narrates something the fact rules out, or a character knows something the fact says they do not",
-            "false": "Both can be true: the reply agrees with the fact, does not touch it, or only shows a suspicion or a character's own claim"
-          }
-        }
-      },
-      "answers": {
-        "fact:0": {
-          "type": "noul",
-          "noul": 0.05
-        },
-        "fact:1": {
-          "type": "noul",
-          "noul": 0.05
-        },
-        "fact:2": {
-          "type": "noul",
-          "noul": 0.92
         }
       }
     },

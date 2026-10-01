@@ -2,7 +2,7 @@ import { RELEASE_WORDINGS, releaseDecision, releaseRequest, type ContradictionLa
 import type { JudgeRequest, JudgeResult } from "./types";
 import type { JudgeSelfTestReport, JudgeSelfTestRow } from "./selfTest";
 
-export const CONTRADICTION_RELEASE_FLOORS = { releaseErr: 0.05, releaseErrEs: 0, paraphraseRelease: 0.6 } as const;
+export const CONTRADICTION_RELEASE_FLOORS = { releaseErr: 0.05, paraphraseRelease: 0.6 } as const;
 
 export interface ContradictionReleaseCase {
   id: string;
@@ -42,7 +42,6 @@ export async function runContradictionReleaseCalibration(ask: (request: JudgeReq
 export interface ReleaseArmScore {
   wording: ReleaseWording;
   releaseErr: { hit: number; total: number };
-  releaseErrEs: { hit: number; total: number };
   paraphraseRelease: { hit: number; total: number };
   ok: boolean;
 }
@@ -52,14 +51,12 @@ export function scoreReleaseArm(report: Pick<JudgeSelfTestReport, "rows">, cases
   const count = (rows: ContradictionReleaseCase[]) => ({ hit: rows.filter((row) => released.has(row.id)).length, total: rows.length });
   const scoped = cases.filter((row) => inBand.has(row.id));
   const releaseErr = count(scoped.filter((row) => row.label === "contradicts"));
-  const releaseErrEs = count(scoped.filter((row) => row.label === "contradicts" && row.lang === "es"));
   const paraphraseRelease = count(scoped.filter((row) => row.label === "agrees"));
   const rate = (value: { hit: number; total: number }) => (value.total ? value.hit / value.total : 0);
   const ok = releaseErr.total > 0 && paraphraseRelease.total > 0
     && rate(releaseErr) <= CONTRADICTION_RELEASE_FLOORS.releaseErr
-    && releaseErrEs.hit <= CONTRADICTION_RELEASE_FLOORS.releaseErrEs
     && rate(paraphraseRelease) >= CONTRADICTION_RELEASE_FLOORS.paraphraseRelease;
-  return { wording, releaseErr, releaseErrEs, paraphraseRelease, ok };
+  return { wording, releaseErr, paraphraseRelease, ok };
 }
 
 export interface ReleaseModeScore {

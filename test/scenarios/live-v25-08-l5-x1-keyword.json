@@ -1,5 +1,5 @@
 {
-  "_note": "v2.5 plan 08 G-L5 X1/X2, arm `keyword`, LIVE on a lane in SCAN mode with judge.enabled + loreSelect ON and loreExclusive OFF. 35 scripted turns (11 Spanish) from test/fixtures/judge/lore.json (adolion rows) + lore-relevance.json, over two stories (B = windows at 'Below the mountains', A = the rest), against a marked copy of the Adolion pool (SO-V25-08 Adolion; keys = each entry's title after ' - ', authored here). Each turn posts the window's earlier lines with /sendas and generates on its last line; the activated set is WORLD_INFO_ACTIVATED for that generation (T12's source). Predeclared, never retuned: exclusive recall >= 0.85 AND >= keyword recall - 0.05 (X1); exclusive non-needed activations per turn <= 0.7 x keyword (X2). Run both arms on one bundle, same turns: so-scenario run test/scenarios/live-v25-08-l5-x1-keyword.json --sandbox --group <group> then -x1-exclusive.json. The judge host and model are recorded by so-run-header. A miss in either run = L5 recorded not built and the flag removed before plan 10.",
+  "_note": "v2.5 plan 08 G-L5 X1/X2, arm `keyword`, LIVE on a lane in SCAN mode with judge.enabled + loreSelect ON and loreExclusive OFF. 24 scripted turns (the 11 Spanish ones went with v2.6 W25) from test/fixtures/judge/lore.json (adolion rows) + lore-relevance.json, over two stories (B = windows at 'Below the mountains', A = the rest), against a marked copy of the Adolion pool (SO-V25-08 Adolion; keys = each entry's title after ' - ', authored here). Each turn posts the window's earlier lines with /sendas and generates on its last line; the activated set is WORLD_INFO_ACTIVATED for that generation (T12's source). Predeclared, never retuned: exclusive recall >= 0.85 AND >= keyword recall - 0.05 (X1); exclusive non-needed activations per turn <= 0.7 x keyword (X2). Run both arms on one bundle, same turns: so-scenario run test/scenarios/live-v25-08-l5-x1-keyword.json --sandbox --group <group> then -x1-exclusive.json. The judge host and model are recorded by so-run-header. A miss in either run = L5 recorded not built and the flag removed before plan 10.",
   "steps": [
     {
       "inject_script": "../fixtures/interop/v25-08-lore.js"
@@ -123,34 +123,6 @@
       "log": true
     },
     {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"Más allá de la ciudad caída se alza un castillo gótico enorme. Dicen que sus pasillos cambian de sitio para atrapar a quien entra.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
-    },
-    {
-      "send_generate": {
-        "text": "\"¿Y su señor? He oído que es un no-muerto antiguo que ni siquiera teme al sol, y que acaba de despertar.\"",
-        "expectReply": true,
-        "timeoutMs": 300000
-      }
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.48\", \"SO-V25-08 Adolion.47\", \"SO-V25-08 Adolion.50\", \"SO-V25-08 Adolion.13\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L06', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
-      "log": true
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Aldeano\" raw=false compact=true ${\"\\\"Anoche vinieron las pequeñas criaturas verdes, decenas de ellas. Con ellas venían brutos de más de dos metros con garrotes.\\\"\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
-    },
-    {
-      "send_generate": {
-        "text": "\"¿Y quién las dirigía? Algo tan organizado necesita un jefe fuerte que dé órdenes desde atrás.\"",
-        "expectReply": true,
-        "timeoutMs": 300000
-      }
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.15\", \"SO-V25-08 Adolion.51\", \"SO-V25-08 Adolion.52\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L07', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
-      "log": true
-    },
-    {
       "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The alchemist unrolls a map and taps a dark mass of trees. \\\"The rarest ingredients grow there. So do the worst monsters in the land.\\\"\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
     },
     {
@@ -176,20 +148,6 @@
     },
     {
       "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.62\", \"SO-V25-08 Adolion.61\", \"SO-V25-08 Adolion.60\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L09', lang: 'en', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
-      "log": true
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"En la barra, la camarera risueña te guiña un ojo y te sirve el mejor cóctel que has probado; dicen que también cocina de maravilla.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
-    },
-    {
-      "send_generate": {
-        "text": "\"¿Es verdad que eres la mejor amiga de la recepcionista elfa? Necesito que me presentes.\"",
-        "expectReply": true,
-        "timeoutMs": 300000
-      }
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.26\", \"SO-V25-08 Adolion.17\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'L10', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
       "log": true
     },
     {
@@ -497,104 +455,6 @@
       "log": true
     },
     {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"La chica del pelo corto en dos moños lleva el registro de todo el mundo y no mira a nadie dos veces; el resto de la sala sí.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
-    },
-    {
-      "send_generate": {
-        "text": "\"¿Y tú qué ganas con saberlo todo? A mí me sirve cualquiera que recuerde las caras.\"",
-        "expectReply": true,
-        "timeoutMs": 300000
-      }
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.17\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R17', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
-      "log": true
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Arin\" raw=false compact=true ${\"\\\"No preguntes al primero que veas. Hay un herrero que lo sabe todo de esta comarca y una mujer noble que paga por enterarse la primera.\\\"\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
-    },
-    {
-      "send_generate": {
-        "text": "\"¿Nombres? Necesito nombres de gente que hable.\"",
-        "expectReply": true,
-        "timeoutMs": 300000
-      }
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.20\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R18', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
-      "log": true
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"El guardia señala el mapa con dos dedos. \\\"Ahí no. El gremio lo cerró hace años y a quien vuelve no se le paga nada.\\\"\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
-    },
-    {
-      "send_generate": {
-        "text": "\"¿Y qué hay dentro que dé tanto miedo como para prohibirlo en vez de limpiarlo?\"",
-        "expectReply": true,
-        "timeoutMs": 300000
-      }
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.14\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R19', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
-      "log": true
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"El trono está al este de todo, en la parte del continente que está en paz con los que no deberían ser sus aliados.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
-    },
-    {
-      "send_generate": {
-        "text": "\"¿Su majestad sabe que su pacto con ellos se leería mal en las parroquias?\"",
-        "expectReply": true,
-        "timeoutMs": 300000
-      }
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.49\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R20', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
-      "log": true
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"Cuelgan las tareas por letras. Las de la parte baja del alfabeto no las quiere nadie; las de arriba llevan sello de cera y nadie se ofrece.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
-    },
-    {
-      "send_generate": {
-        "text": "\"Empecemos por abajo. Todo el mundo sube la escalera desde el primer escalón.\"",
-        "expectReply": true,
-        "timeoutMs": 300000
-      }
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.4\", \"SO-V25-08 Adolion.12\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R21', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
-      "log": true
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"Lo que empuja desde fuera no tiene una forma fija: a veces manos, a veces alas, siempre con demasiados ojos.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
-    },
-    {
-      "send_generate": {
-        "text": "\"No vienen de este mundo. La sal los aguanta, pero no los hiere.\"",
-        "expectReply": true,
-        "timeoutMs": 300000
-      }
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.8\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R22', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
-      "log": true
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"En las aldea de los alrededores la llaman de todo: bruja, santa, estafadora. Todas las versiones coinciden en que cobra distinto a cada uno.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
-    },
-    {
-      "send_generate": {
-        "text": "\"Y en que a nadie le ha ido peor después. Eso ya es más de lo que puede decir el templo.\"",
-        "expectReply": true,
-        "timeoutMs": 300000
-      }
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.63\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R23', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
-      "log": true
-    },
-    {
       "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrator\" raw=false compact=true ${\"The big one left a club's worth of damage and a trail you could follow blind. The little ones did the searching, and they did it in order, room by room.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
     },
     {
@@ -609,21 +469,7 @@
       "log": true
     },
     {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; await ctx.executeSlashCommandsWithOptions(`/sendas name=\"Narrador\" raw=false compact=true ${\"Los cuadros cuelgan en fila y todos son el mismo instante: alguien a punto de dejar de estar. Los compradores ricos pagan por mirarlos.\".replace(/[|]/g, '/')}`); V.startCapture(); return true;"
-    },
-    {
-      "send_generate": {
-        "text": "\"Los rostros no están inventados. Son personas que existieron, y ninguna figura en las listas de vecinos.\"",
-        "expectReply": true,
-        "timeoutMs": 300000
-      }
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const out = V.stopCapture(); const activated = out.generations.flat(); const needed = [\"SO-V25-08 Adolion.41\", \"SO-V25-08 Adolion.42\"]; const score = V.recall(activated.filter((entry) => String(entry.world).toLowerCase() === 'so-v25-08 adolion'), needed); const exclusive = globalThis.storyOrchestratorScanGating.lastExclusive?.() ?? null; globalThis.__l5.turns.push({ id: 'R25', lang: 'es', story: 'A', ...score, exclusive }); return globalThis.__l5.turns[globalThis.__l5.turns.length - 1];",
-      "log": true
-    },
-    {
-      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const turns = globalThis.__l5.turns; const needed = turns.reduce((sum, turn) => sum + turn.needed, 0); const hit = turns.reduce((sum, turn) => sum + turn.hit, 0); const noise = turns.reduce((sum, turn) => sum + turn.noise, 0); await V.selectGlobal('SO-V25-08 Adolion', false); await V.deleteBook('SO-V25-08 Adolion'); return { arm: 'keyword', turns: turns.length, spanish: turns.filter((turn) => turn.lang === 'es').length, recall: needed ? Number((hit / needed).toFixed(4)) : null, noisePerTurn: Number((noise / Math.max(1, turns.length)).toFixed(4)), refusals: turns.map((turn) => turn.exclusive?.refusal ?? null), rows: turns };",
+      "eval": "const V = globalThis.__soV2508; if (!V) throw new Error('inject v25-08-lore.js first'); const ctx = SillyTavern.getContext(); const rt = globalThis.storyOrchestratorRuntime; const turns = globalThis.__l5.turns; const needed = turns.reduce((sum, turn) => sum + turn.needed, 0); const hit = turns.reduce((sum, turn) => sum + turn.hit, 0); const noise = turns.reduce((sum, turn) => sum + turn.noise, 0); await V.selectGlobal('SO-V25-08 Adolion', false); await V.deleteBook('SO-V25-08 Adolion'); return { arm: 'keyword', turns: turns.length, recall: needed ? Number((hit / needed).toFixed(4)) : null, noisePerTurn: Number((noise / Math.max(1, turns.length)).toFixed(4)), refusals: turns.map((turn) => turn.exclusive?.refusal ?? null), rows: turns };",
       "log": true
     }
   ]

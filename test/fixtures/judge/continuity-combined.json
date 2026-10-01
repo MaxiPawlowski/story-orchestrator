@@ -265,26 +265,6 @@
       ]
     },
     {
-      "id": "C14",
-      "lang": "es",
-      "established": [
-        "Max answered the sphinx's riddle correctly."
-      ],
-      "reply": {
-        "speaker": "DM Narrator",
-        "text": "La esfinge ruge: \"Tu respuesta fue incorrecta, mortal.\""
-      },
-      "contradicts": [
-        0
-      ],
-      "player": "Max",
-      "playerMessage": "Sigo observando.",
-      "houseRules": [
-        "No character uses a gun, rifle or any gunpowder weapon.",
-        "No character mentions phones, computers or any modern technology."
-      ]
-    },
-    {
       "id": "C15",
       "lang": "en",
       "established": [
@@ -482,90 +462,6 @@
       ],
       "player": "Max",
       "playerMessage": "I keep watching.",
-      "houseRules": [
-        "No character uses a gun, rifle or any gunpowder weapon.",
-        "No character mentions phones, computers or any modern technology."
-      ]
-    },
-    {
-      "id": "CX07",
-      "lang": "es",
-      "established": [
-        "Arin fue herida en el derrumbe y sangra.",
-        "La recompensa es de 500 coronas.",
-        "Luke se unió a la expedición."
-      ],
-      "reply": {
-        "speaker": "Arin",
-        "text": "Arin se aprieta la herida del costado y hace una mueca. \"Sigo en pie. Vamos.\""
-      },
-      "contradicts": [],
-      "player": "Max",
-      "playerMessage": "Sigo observando.",
-      "houseRules": [
-        "No character uses a gun, rifle or any gunpowder weapon.",
-        "No character mentions phones, computers or any modern technology."
-      ]
-    },
-    {
-      "id": "CX08",
-      "lang": "es",
-      "established": [
-        "La puerta principal de las ruinas se derrumbó.",
-        "El grupo entró por un túnel lateral.",
-        "Es de noche fuera de las ruinas."
-      ],
-      "reply": {
-        "speaker": "DM Narrator",
-        "text": "El sol del mediodía cae a plomo sobre la arena cuando el grupo sale del túnel."
-      },
-      "contradicts": [
-        2
-      ],
-      "player": "Max",
-      "playerMessage": "Sigo observando.",
-      "houseRules": [
-        "No character uses a gun, rifle or any gunpowder weapon.",
-        "No character mentions phones, computers or any modern technology."
-      ]
-    },
-    {
-      "id": "CX09",
-      "lang": "es",
-      "established": [
-        "Luke tiene doce años.",
-        "Luke se unió a la expedición.",
-        "Ponticius firmó el contrato."
-      ],
-      "reply": {
-        "speaker": "Luke",
-        "text": "\"¡Cuando cumpla trece, Ponticius me dejará firmar mis propios contratos!\""
-      },
-      "contradicts": [],
-      "player": "Max",
-      "playerMessage": "Sigo observando.",
-      "houseRules": [
-        "No character uses a gun, rifle or any gunpowder weapon.",
-        "No character mentions phones, computers or any modern technology."
-      ]
-    },
-    {
-      "id": "CX10",
-      "lang": "es",
-      "established": [
-        "Max lleva el Corazón del Sol en su mochila.",
-        "Arin no sabe dónde está el Corazón del Sol.",
-        "La cámara interior está inundada."
-      ],
-      "reply": {
-        "speaker": "DM Narrator",
-        "text": "La cámara interior está completamente seca; el polvo de siglos cubre el suelo de piedra."
-      },
-      "contradicts": [
-        2
-      ],
-      "player": "Max",
-      "playerMessage": "Sigo observando.",
       "houseRules": [
         "No character uses a gun, rifle or any gunpowder weapon.",
         "No character mentions phones, computers or any modern technology."

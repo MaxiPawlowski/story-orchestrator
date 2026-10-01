@@ -20,7 +20,7 @@ Lane time per row: a measured median where archived records hold one (journeys),
 | **x2** | **76.3** | **50.1** |
 | capacity: 2 nights x 10 h x 2 lanes | 40.0 | 40.0 |
 
-The cut already applied by R3: 34 LLM scenarios demoted (spike legs, calibration arms, and LLM scenarios that name no guard; 5.0 lane-hours per pass by the step estimate) and 1 duplicate retired. Placeholder minutes are each plan's own sizing; capMinutes is the phase F budget this plan (R5) gives the owning plan: the regression leg only, because measurement legs run once in their own plan (overview rule 13).
+The cut already applied by R3: 34 LLM scenarios demoted (spike legs, calibration arms, and LLM scenarios that name no guard; 4.7 lane-hours per pass by the step estimate) and 1 duplicate retired. Placeholder minutes are each plan's own sizing; capMinutes is the phase F budget this plan (R5) gives the owning plan: the regression leg only, because measurement legs run once in their own plan (overview rule 13).
 
 **Does not fit, even at the caps**: x2 needs 50.1 of 40.0 lane-hours, 10.1 over (at the plans' own sizing: 76.3). The rows already built (journeys, live scenarios) take 13.1 lane-hours x2; the rest is placeholder rows for plans not yet built. Closing the gap is a plan 10 / user call, not a silent cut: a third night, integration (09) x2 on its own night, or the measurement-adjacent rows (03, 05 R3) x1 in phase F.
 
@@ -162,8 +162,8 @@ The cut already applied by R3: 34 LLM scenarios demoted (spike legs, calibration
 - `test/scenarios/live-plan12-copilot.json` (~2 min): LLM tier naming no invariant, defect or contract: nothing states why no cheaper tier sees it (R3 rule 3); out of the final suite until it names its guard, file kept
 - `test/scenarios/live-v24-05-t13-manual.json` (~9 min): v2.4 plan 05 T13 scan-gating spike (manual + spike legs): a measurement
 - `test/scenarios/live-v24-05-t13-spike.json` (~4 min): v2.4 plan 05 T13 scan-gating spike (manual + spike legs): a measurement
-- `test/scenarios/live-v25-08-l5-x1-exclusive.json` (~30 min): v2.5 plan 08 L5 X1 two-arm calibration (exclusive vs keyword): a measurement
-- `test/scenarios/live-v25-08-l5-x1-keyword.json` (~30 min): v2.5 plan 08 L5 X1 two-arm calibration (exclusive vs keyword): a measurement
+- `test/scenarios/live-v25-08-l5-x1-exclusive.json` (~21 min): v2.5 plan 08 L5 X1 two-arm calibration (exclusive vs keyword): a measurement
+- `test/scenarios/live-v25-08-l5-x1-keyword.json` (~21 min): v2.5 plan 08 L5 X1 two-arm calibration (exclusive vs keyword): a measurement
 - `test/scenarios/live-v25-08-mirror-rate.json` (~22 min): v2.5 plan 08 mirror-rate calibration: a measurement
 - `test/scenarios/live-v25-09-sp1-s3-control.json` (~3 min): v2.5 plan 09 spike leg (SP1-SP8 arms): a measurement, not regression (budget rule 4); plan 03 re-runs the ones it keeps
 - `test/scenarios/live-v25-09-sp1-s3.json` (~3 min): v2.5 plan 09 spike leg (SP1-SP8 arms): a measurement, not regression (budget rule 4); plan 03 re-runs the ones it keeps

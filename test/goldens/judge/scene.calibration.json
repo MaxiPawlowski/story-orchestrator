@@ -3,60 +3,59 @@
   "summary": {
     "use": "scene",
     "fixture": "scene",
-    "right": 172,
-    "total": 181,
-    "rate": 0.9503,
+    "right": 135,
+    "total": 144,
+    "rate": 0.9375,
     "families": [
       {
         "family": "present",
-        "right": 48,
-        "total": 53,
+        "right": 35,
+        "total": 40,
         "floor": 0.9,
-        "ok": true
+        "ok": false
       },
       {
         "family": "location",
-        "right": 19,
-        "total": 21,
+        "right": 14,
+        "total": 16,
         "floor": 0.85,
         "ok": true
       },
       {
         "family": "time",
-        "right": 21,
-        "total": 21,
+        "right": 16,
+        "total": 16,
         "floor": 0.8,
         "ok": true
       },
       {
         "family": "heading",
-        "right": 40,
-        "total": 42,
+        "right": 30,
+        "total": 32,
         "floor": 0.85,
         "ok": true
       },
       {
         "family": "break",
-        "right": 24,
-        "total": 24,
+        "right": 22,
+        "total": 22,
         "floor": 0.5,
         "ok": true
       },
       {
         "family": "nobreak",
-        "right": 20,
-        "total": 20,
+        "right": 18,
+        "total": 18,
         "floor": 1,
         "ok": true
       }
     ],
-    "spanish": "37/37",
     "p50LatencyMs": 1512,
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
     "modelMatched": true,
     "min": 0.85,
-    "ok": true
+    "ok": false
   },
   "rows": [
     {
@@ -236,94 +235,6 @@
       "latencyMs": 247
     },
     {
-      "id": "R05.present:arin",
-      "right": true,
-      "picked": "p=0.93",
-      "latencyMs": 254
-    },
-    {
-      "id": "R05.present:ponticius",
-      "right": true,
-      "picked": "p=0.04",
-      "latencyMs": 254
-    },
-    {
-      "id": "R05.present:luke",
-      "right": true,
-      "picked": "p=0.89",
-      "latencyMs": 254
-    },
-    {
-      "id": "R05.location",
-      "right": true,
-      "picked": "inner chamber@1",
-      "detail": "label inner chamber",
-      "latencyMs": 254
-    },
-    {
-      "id": "R05.time",
-      "right": true,
-      "picked": "unclear@0.85",
-      "detail": "label unclear",
-      "latencyMs": 254
-    },
-    {
-      "id": "R05.heading:r1",
-      "right": true,
-      "picked": "p=0.96",
-      "latencyMs": 254
-    },
-    {
-      "id": "R05.heading:r2",
-      "right": true,
-      "picked": "p=0.05",
-      "latencyMs": 254
-    },
-    {
-      "id": "R06.present:arin",
-      "right": true,
-      "picked": "p=0.91",
-      "latencyMs": 258
-    },
-    {
-      "id": "R06.present:ponticius",
-      "right": true,
-      "picked": "p=0.94",
-      "latencyMs": 258
-    },
-    {
-      "id": "R06.present:luke",
-      "right": true,
-      "picked": "p=0.91",
-      "latencyMs": 258
-    },
-    {
-      "id": "R06.location",
-      "right": true,
-      "picked": "guild hall@1",
-      "detail": "label guild hall",
-      "latencyMs": 258
-    },
-    {
-      "id": "R06.time",
-      "right": true,
-      "picked": "night@0.98",
-      "detail": "label night",
-      "latencyMs": 258
-    },
-    {
-      "id": "R06.heading:r1",
-      "right": true,
-      "picked": "p=0.97",
-      "latencyMs": 258
-    },
-    {
-      "id": "R06.heading:r2",
-      "right": true,
-      "picked": "p=0.06",
-      "latencyMs": 258
-    },
-    {
       "id": "R07.present:captain_okafor",
       "right": true,
       "picked": "p=0.09",
@@ -474,44 +385,6 @@
       "right": true,
       "picked": "p=0.08",
       "latencyMs": 500
-    },
-    {
-      "id": "R11.present:captain_okafor",
-      "right": true,
-      "picked": "p=0.94",
-      "latencyMs": 525
-    },
-    {
-      "id": "R11.present:pell",
-      "right": true,
-      "picked": "p=0.86",
-      "latencyMs": 525
-    },
-    {
-      "id": "R11.location",
-      "right": true,
-      "picked": "engine room@0.99",
-      "detail": "label engine room",
-      "latencyMs": 525
-    },
-    {
-      "id": "R11.time",
-      "right": true,
-      "picked": "unclear@1",
-      "detail": "label unclear",
-      "latencyMs": 525
-    },
-    {
-      "id": "R11.heading:r1",
-      "right": true,
-      "picked": "p=0.95",
-      "latencyMs": 525
-    },
-    {
-      "id": "R11.heading:r2",
-      "right": true,
-      "picked": "p=0.1",
-      "latencyMs": 525
     },
     {
       "id": "R12.present:mae_hollis",
@@ -690,50 +563,6 @@
       "latencyMs": 787
     },
     {
-      "id": "R16.present:mae_hollis",
-      "right": true,
-      "picked": "p=0.95",
-      "latencyMs": 777
-    },
-    {
-      "id": "R16.present:maeve",
-      "right": true,
-      "picked": "p=0.97",
-      "latencyMs": 777
-    },
-    {
-      "id": "R16.present:lt_brandt",
-      "right": true,
-      "picked": "p=0.04",
-      "latencyMs": 777
-    },
-    {
-      "id": "R16.location",
-      "right": true,
-      "picked": "Blue Anchor nightclub@1",
-      "detail": "label Blue Anchor nightclub",
-      "latencyMs": 777
-    },
-    {
-      "id": "R16.time",
-      "right": true,
-      "picked": "midday@0.98",
-      "detail": "label midday",
-      "latencyMs": 777
-    },
-    {
-      "id": "R16.heading:r1",
-      "right": true,
-      "picked": "p=0.92",
-      "latencyMs": 777
-    },
-    {
-      "id": "R16.heading:r2",
-      "right": true,
-      "picked": "p=0.19",
-      "latencyMs": 777
-    },
-    {
       "id": "R17.present:lady_ashworth",
       "right": true,
       "picked": "p=0.09",
@@ -884,44 +713,6 @@
       "right": true,
       "picked": "p=0.07",
       "latencyMs": 991
-    },
-    {
-      "id": "R21.present:lady_ashworth",
-      "right": true,
-      "picked": "p=0.92",
-      "latencyMs": 1047
-    },
-    {
-      "id": "R21.present:graves",
-      "right": true,
-      "picked": "p=0.89",
-      "latencyMs": 1047
-    },
-    {
-      "id": "R21.location",
-      "right": true,
-      "picked": "portrait gallery@1",
-      "detail": "label portrait gallery",
-      "latencyMs": 1047
-    },
-    {
-      "id": "R21.time",
-      "right": true,
-      "picked": "midday@0.99",
-      "detail": "label midday",
-      "latencyMs": 1047
-    },
-    {
-      "id": "R21.heading:r1",
-      "right": true,
-      "picked": "p=0.95",
-      "latencyMs": 1047
-    },
-    {
-      "id": "R21.heading:r2",
-      "right": true,
-      "picked": "p=0.12",
-      "latencyMs": 1047
     },
     {
       "id": "S01.break",
@@ -1078,30 +869,6 @@
       "right": true,
       "picked": "p=0.66 location",
       "latencyMs": 2108
-    },
-    {
-      "id": "S14.break",
-      "right": true,
-      "picked": "p=0.8 time_skip",
-      "latencyMs": 2103
-    },
-    {
-      "id": "S14t.break",
-      "right": true,
-      "picked": "p=0.84 time_skip",
-      "latencyMs": 2135
-    },
-    {
-      "id": "S15.nobreak",
-      "right": true,
-      "picked": "p=0.18 time_skip",
-      "latencyMs": 2232
-    },
-    {
-      "id": "S15t.nobreak",
-      "right": true,
-      "picked": "p=0.2 time_skip",
-      "latencyMs": 2320
     },
     {
       "id": "S16.nobreak",

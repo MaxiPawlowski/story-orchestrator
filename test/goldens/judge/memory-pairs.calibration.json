@@ -3,10 +3,9 @@
   "summary": {
     "use": "memory-pairs",
     "fixture": "memory-pairs",
-    "right": 29,
-    "total": 32,
-    "rate": 0.9063,
-    "spanish": "2/3",
+    "right": 27,
+    "total": 29,
+    "rate": 0.931,
     "p50LatencyMs": 750,
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
@@ -217,27 +216,6 @@
       "picked": "distinct",
       "detail": "distinct@0.35 same=0.08",
       "latencyMs": 1246
-    },
-    {
-      "id": "P30",
-      "right": true,
-      "picked": "update",
-      "detail": "update@0.96 same=0.68",
-      "latencyMs": 1290
-    },
-    {
-      "id": "P31",
-      "right": false,
-      "picked": "undecided duplicate@0.43",
-      "detail": "duplicate@0.43 same=0.73",
-      "latencyMs": 1423
-    },
-    {
-      "id": "P32",
-      "right": true,
-      "picked": "distinct",
-      "detail": "update@0.83 same=0.24",
-      "latencyMs": 1444
     }
   ]
 }

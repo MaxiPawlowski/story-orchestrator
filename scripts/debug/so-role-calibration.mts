@@ -1,3 +1,4 @@
+import { existsSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -31,18 +32,21 @@ then scores it against the floors predeclared in docs/plans/v2.4/08-author-obser
                        the digest spike (src/stagecraft/curatorDigest.ts), refuse title-only rewrites/patches, score with today's
                        rules and floors. The report carries each case's digest ratio. Default arm: digest.
   --holdout            authoring only (v2.5 plan 06 J1): also run test/fixtures/role-calibration/authoring-holdout.json
-                       and report its validity/opShape beside the fixture score. It never enters the floors.
+                       and report its validity/opShape beside the fixture score. It never enters the floors. The hold-out
+                       was all Spanish and went with v2.6 W25 (English only); until an English one is labelled, --holdout
+                       refuses and the verdict requires no hold-out.
 
 verdict: the plan 06 J1 rule over two consecutive recorded reports of one role and one bundle: recommended only if
 both meet every floor; an authoring hold-out miss in either run reads 'fixture floors met; generalisation not shown'.
 Record the two runs under distinct arms (e.g. --arm shared-<bundle>-r1, -r2) so the second does not overwrite the first.
 
-Fixtures: director = test/fixtures/judge/director.json (floor over D01-D26; Spanish rows reported),
+Fixtures: director = test/fixtures/judge/director.json (floor 22 of D01-D26 minus D15, i.e. 25 rows),
 curator/authoring/synthesis = test/fixtures/role-calibration/<role>.json. Capture a run header first.`;
 
 const ROLES = ['director', 'curator', 'authoring', 'synthesis'];
 const GOLDEN_DIR = join(PROJECT_ROOT, 'test/goldens/live/role-calibration');
-const DIRECTOR_FLOOR_IDS = Array.from({ length: 26 }, (_, index) => `D${String(index + 1).padStart(2, '0')}`);
+const DIRECTOR_FLOOR_IDS = Array.from({ length: 26 }, (_, index) => `D${String(index + 1).padStart(2, '0')}`).filter((id) => id !== 'D15');
+const HOLDOUT_FIXTURE = 'test/fixtures/role-calibration/authoring-holdout.json';
 
 function argValue(name: string, fallback: string) {
   const index = process.argv.indexOf(name);
@@ -72,7 +76,6 @@ export async function loadCases(role: string) {
       floorIds: DIRECTOR_FLOOR_IDS,
       cases: fixture.rows.map((row) => ({
         id: row.id,
-        lang: row.tags.includes('spanish') ? 'es' : 'en',
         acceptable: row.acceptable,
         input: {
           storyTitle: directorTitleFor(row, spike, worlds),
@@ -99,8 +102,8 @@ export async function loadCases(role: string) {
 }
 
 export async function loadHoldout(role: string) {
-  if (role !== 'authoring') return null;
-  const holdout = await readJson('test/fixtures/role-calibration/authoring-holdout.json');
+  if (role !== 'authoring' || !existsSync(join(PROJECT_ROOT, HOLDOUT_FIXTURE))) return null;
+  const holdout = await readJson(HOLDOUT_FIXTURE);
   const fixture = await readJson(`test/fixtures/role-calibration/${holdout.draftsFrom}`);
   return {
     labelledAt: holdout.labelledAt,
@@ -112,7 +115,7 @@ export function verdictFromReports(reports) {
   const roles = [...new Set(reports.map((report) => report.role))];
   if (roles.length !== 1) throw new Error(`a verdict is for one role; got ${roles.join(', ')}`);
   const runs: RoleRun[] = reports.map((report) => ({ bundle: report.bundle, meetsFloors: report.summary?.meetsFloors ?? null, holdout: report.holdout ?? null }));
-  return roleVerdict(runs, { holdoutRequired: roles[0] === 'authoring' });
+  return roleVerdict(runs, { holdoutRequired: roles[0] === 'authoring' && existsSync(join(PROJECT_ROOT, HOLDOUT_FIXTURE)) });
 }
 
 async function setRoute(page, role: string, profile: string | null) {

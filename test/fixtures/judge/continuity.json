@@ -6,7 +6,7 @@
     "consistent": 0.966
   },
   "labelledAt": "2026-09-19",
-  "source": "Spike C01-C18 (scripts/spike/typesafe/data/continuity.json) plus CX01-CX10 (continuity-extra.json, 4 Spanish), labels written before any answer was read. consistent 0.966 = at most 1 false alarm per 30 consistent facts. Real-play Artemis replies are still owed at the live gate.",
+  "source": "Spike C01-C18 (scripts/spike/typesafe/data/continuity.json) plus CX01-CX10 (continuity-extra.json; its 4 Spanish rows and C14 went with v2.6 W25), labels written before any answer was read. consistent 0.966 = at most 1 false alarm per 30 consistent facts. Real-play Artemis replies are still owed at the live gate.",
   "rows": [
     {
       "id": "C01",
@@ -187,20 +187,6 @@
       ]
     },
     {
-      "id": "C14",
-      "lang": "es",
-      "established": [
-        "Max answered the sphinx's riddle correctly."
-      ],
-      "reply": {
-        "speaker": "DM Narrator",
-        "text": "La esfinge ruge: \"Tu respuesta fue incorrecta, mortal.\""
-      },
-      "contradicts": [
-        0
-      ]
-    },
-    {
       "id": "C15",
       "lang": "en",
       "established": [
@@ -341,66 +327,6 @@
       },
       "contradicts": [
         1
-      ]
-    },
-    {
-      "id": "CX07",
-      "lang": "es",
-      "established": [
-        "Arin fue herida en el derrumbe y sangra.",
-        "La recompensa es de 500 coronas.",
-        "Luke se unió a la expedición."
-      ],
-      "reply": {
-        "speaker": "Arin",
-        "text": "Arin se aprieta la herida del costado y hace una mueca. \"Sigo en pie. Vamos.\""
-      },
-      "contradicts": []
-    },
-    {
-      "id": "CX08",
-      "lang": "es",
-      "established": [
-        "La puerta principal de las ruinas se derrumbó.",
-        "El grupo entró por un túnel lateral.",
-        "Es de noche fuera de las ruinas."
-      ],
-      "reply": {
-        "speaker": "DM Narrator",
-        "text": "El sol del mediodía cae a plomo sobre la arena cuando el grupo sale del túnel."
-      },
-      "contradicts": [
-        2
-      ]
-    },
-    {
-      "id": "CX09",
-      "lang": "es",
-      "established": [
-        "Luke tiene doce años.",
-        "Luke se unió a la expedición.",
-        "Ponticius firmó el contrato."
-      ],
-      "reply": {
-        "speaker": "Luke",
-        "text": "\"¡Cuando cumpla trece, Ponticius me dejará firmar mis propios contratos!\""
-      },
-      "contradicts": []
-    },
-    {
-      "id": "CX10",
-      "lang": "es",
-      "established": [
-        "Max lleva el Corazón del Sol en su mochila.",
-        "Arin no sabe dónde está el Corazón del Sol.",
-        "La cámara interior está inundada."
-      ],
-      "reply": {
-        "speaker": "DM Narrator",
-        "text": "La cámara interior está completamente seca; el polvo de siglos cubre el suelo de piedra."
-      },
-      "contradicts": [
-        2
       ]
     }
   ]

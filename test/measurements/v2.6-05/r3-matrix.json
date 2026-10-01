@@ -22,13 +22,13 @@
       "latency": "p95 from the report's records[].latencyMs; off-path, bound only by the scene cadence"
     },
     "authoring": {
-      "command": "node scripts/debug/so-role-calibration.mts run --role authoring --holdout --effort <level> --arm <arm>-<level>-r<n>",
-      "floor": "v2.4 plan 08 authoring floors; hold-out reported, never in the floor",
+      "command": "node scripts/debug/so-role-calibration.mts run --role authoring --effort <level> --arm <arm>-<level>-r<n>",
+      "floor": "v2.4 plan 08 authoring floors; no hold-out since v2.6 W25 removed the all-Spanish one",
       "latency": "interactive: report p95, no bound"
     },
     "director": {
       "command": "node scripts/debug/so-role-calibration.mts run --role director --effort <level> --arm <arm>-<level>-r<n>",
-      "floor": "director accuracy over D01-D26 (v2.2 / plan 14 floor as declared in so-role-calibration)",
+      "floor": "director accuracy over D01-D26 minus D15, 22 of 25 (v2.2 / plan 14 floor as declared in so-role-calibration; D15 went with v2.6 W25)",
       "latency": "p95 <= 4000 ms (on-path before the group reply; DIRECTOR_TIMEOUT_MS is the hard bound)"
     },
     "curator": {

@@ -2,8 +2,8 @@
   "source": "calibrate-node stall over test/fixtures/judge/stall.json: the production question shape, real answers, replayed by jest keyed on state + questions, so a wording change must re-record",
   "recordedAt": "2026-09-19T15:11:10.891Z",
   "model": "jev-1.13.0",
-  "right": 88,
-  "total": 88,
+  "right": 85,
+  "total": 85,
   "calls": [
     {
       "state": {
@@ -371,42 +371,6 @@
         "leaf:1": {
           "type": "noul",
           "noul": 0.07
-        }
-      }
-    },
-    {
-      "state": {
-        "transcript": [
-          {
-            "id": "msg_20",
-            "speaker": "Ponticius",
-            "text": "\"El trabajo de las Ruinas del Sol. Doscientas coronas. ¿Lo tomas o no?\""
-          },
-          {
-            "id": "msg_21",
-            "speaker": "Max",
-            "text": "\"Lo tomo. Firmaré ahora mismo.\" Firmo el contrato y se lo devuelvo."
-          }
-        ]
-      },
-      "questions": {
-        "leaf:0": {
-          "type": "noul",
-          "instructions": "Does `transcript` show that the answer to \"Did the party accept the Sun Ruins mission from the board?\" is yes?"
-        },
-        "leaf:1": {
-          "type": "noul",
-          "instructions": "Does `transcript` show that the answer to \"Did the party accept the Sun Ruins mission from the board?\" is no?"
-        }
-      },
-      "answers": {
-        "leaf:0": {
-          "type": "noul",
-          "noul": 0.94
-        },
-        "leaf:1": {
-          "type": "noul",
-          "noul": 0.02
         }
       }
     },
@@ -1106,42 +1070,6 @@
           "noul": 0.03
         },
         "leaf:2": {
-          "type": "noul",
-          "noul": 0.03
-        }
-      }
-    },
-    {
-      "state": {
-        "transcript": [
-          {
-            "id": "msg_40",
-            "speaker": "Luke",
-            "text": "\"¡Déjame ir contigo, por favor!\""
-          },
-          {
-            "id": "msg_41",
-            "speaker": "Max",
-            "text": "\"No, Luke. Te quedas en casa con mamá. Es demasiado peligroso.\""
-          }
-        ]
-      },
-      "questions": {
-        "leaf:0": {
-          "type": "noul",
-          "instructions": "Does `transcript` show that the answer to \"Has the player decided whether to bring Luke along? accepted if they agree, declined if they refuse, otherwise undecided.\" is \"declined\"?"
-        },
-        "leaf:1": {
-          "type": "noul",
-          "instructions": "Does `transcript` show that the answer to \"Has the player decided whether to bring Luke along? accepted if they agree, declined if they refuse, otherwise undecided.\" is \"undecided\"?"
-        }
-      },
-      "answers": {
-        "leaf:0": {
-          "type": "noul",
-          "noul": 0.96
-        },
-        "leaf:1": {
           "type": "noul",
           "noul": 0.03
         }

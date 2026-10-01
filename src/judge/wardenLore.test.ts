@@ -43,14 +43,13 @@ describe("L7 warden request with the lore family (Phase A shape)", () => {
 });
 
 describe("L7 Phase A fixture and runner", () => {
-  it("warden-lore: >= 24 cases, >= 6 Spanish, >= 3 real replies from records, negation pairs, untouched replies, the predeclared floors", () => {
+  it("warden-lore: 18 cases (26 before v2.6 W25 removed the Spanish ones), >= 3 real replies from records, negation pairs, untouched replies, the predeclared floors", () => {
     const data = fixture();
     expect(data.floors).toEqual({ contradicts: 0.85, consistent: 0.966, untouched: 0.966 });
-    expect(data.rows.length).toBeGreaterThanOrEqual(24);
-    expect(data.rows.filter((row) => row.lang === "es").length).toBeGreaterThanOrEqual(6);
+    expect(data.rows).toHaveLength(18);
     expect(data.rows.filter((row) => row.source?.startsWith("record:")).length).toBeGreaterThanOrEqual(3);
     expect(data.rows.filter((row) => row.pair).length).toBeGreaterThanOrEqual(4);
-    expect(data.rows.filter((row) => !row.contradicts.length && !row.consistent.length).length).toBeGreaterThanOrEqual(3);
+    expect(data.rows.filter((row) => !row.contradicts.length && !row.consistent.length)).toHaveLength(2);
     expect(data.rows.every((row) => row.lore.length <= WARDEN_MAX_LORE && row.contradicts.every((index) => !row.consistent.includes(index) && index < row.lore.length))).toBe(true);
     expect(new Set(data.rows.map((row) => row.id)).size).toBe(data.rows.length);
   });

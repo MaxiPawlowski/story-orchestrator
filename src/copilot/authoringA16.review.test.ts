@@ -1,52 +1,64 @@
-import { readFileSync } from "node:fs";
-import { join } from "node:path";
 import type { StoryV2 } from "@engine/index";
 import { recordingModel } from "../../test/support/modelCall";
 import { runAuthoringStage } from "./authoring";
-import type { CopilotStage } from "./types";
 
-interface GoldenRecord { id: string; responses: string[] }
-interface FixtureCase { id: string; stage: CopilotStage; draft: string; message: string }
+const draft = {
+  format: 2,
+  id: "cal-crypt",
+  title: "The Crypt",
+  description: "A party of adventurers goes down into the crypt of an abandoned abbey.",
+  qualities: [{ key: "door_open", type: "bool", source: "extractor", rubric: "Is the crypt door open?" }],
+  checkpoints: [
+    { id: "entrance", name: "The entrance", objective: "Find a way to open the crypt.", type: "anchor", start: true },
+    { id: "crypt", name: "The crypt", objective: "Recover the relic.", type: "anchor" },
+  ],
+  transitions: [{ from: "entrance", to: "crypt", priority: 1, gate: { q: "door_open", op: "==", v: true } }],
+  roster: [],
+} as unknown as StoryV2;
 
-const read = <T>(path: string): T => JSON.parse(readFileSync(join(process.cwd(), path), "utf8")) as T;
+const MESSAGE = "Add a final anchor, The exit, where the party escapes the abbey with the relic.";
+const exit = { id: "exit", name: "The exit", objective: "Escape the abbey with the relic.", type: "anchor" };
 
-const golden = read<{ bundle: string; records: GoldenRecord[] }>("test/goldens/live/role-calibration/authoring-shared-65733265d301.json");
-const fixture = read<{ drafts: Record<string, StoryV2>; cases: FixtureCase[] }>("test/fixtures/role-calibration/authoring.json");
+const FIRST = JSON.stringify({
+  summary: "Added the exit anchor and a path from the crypt to it.",
+  ops: [
+    { kind: "addQuality", quality: { key: "relic_recovered", type: "bool", source: "extractor", rubric: "Do the adventurers hold the relic?" } },
+    { kind: "addCheckpoint", checkpoint: exit },
+    { kind: "addTransition", transition: { from: "crypt", to: "exit", priority: 1 } },
+    { kind: "setTransitionGate", ref: { from: "crypt", to: "exit" }, gate: { q: "relic_recovered", op: "==", v: true } },
+  ],
+});
 
-const replay = async (id: string, responses?: string[]) => {
-  const recorded = golden.records.find((record) => record.id === id);
-  const entry = fixture.cases.find((row) => row.id === id);
-  if (!recorded || !entry) throw new Error(`case ${id} missing from the golden or the fixture`);
-  const answers = responses ?? recorded.responses;
+const REPAIR = JSON.stringify({
+  summary: "Adding the final anchor and setting the recovered relic state.",
+  ops: [{ kind: "addCheckpoint", checkpoint: exit }, { kind: "setCheckpointSnapshot", id: "exit", snapshot: { relic_recovered: true } }],
+});
+
+const replay = async (responses: string[] = [FIRST, REPAIR]) => {
   let turn = 0;
-  const model = recordingModel(() => answers[Math.min(turn++, answers.length - 1)]);
-  const result = await runAuthoringStage({ draft: fixture.drafts[entry.draft], stage: entry.stage, message: entry.message, history: [] }, model, { role: "authoring", pass: "copilot" });
-  return { result, model, draft: fixture.drafts[entry.draft] };
+  const model = recordingModel(() => responses[Math.min(turn++, responses.length - 1)]);
+  const result = await runAuthoringStage({ draft, stage: "checkpoints", message: MESSAGE, history: [] }, model, { role: "authoring", pass: "copilot" });
+  return { result, model };
 };
 
-describe("a16 (es authoring, checkpoints stage) replayed from the 65733265d301 golden", () => {
-  it("the recorded repair still sets a snapshot on a quality the draft never declared, and the draft is refused", async () => {
-    const { result, model } = await replay("a16");
-    expect(golden.bundle).toBe("65733265d301");
+describe("a16 (authoring, checkpoints stage): the 65733265d301 golden's two answers, scripted in English (W25)", () => {
+  it("the repair still sets a snapshot on a quality the draft never declared, and the draft is refused", async () => {
+    const { result, model } = await replay();
     expect(model.calls).toHaveLength(2);
     expect(result.status).toBe("failed");
-    expect(result.issues).toEqual(["checkpoints.2.state_snapshot.reliquia_recuperada: unknown quality 'reliquia_recuperada'"]);
+    expect(result.issues).toEqual(["checkpoints.2.state_snapshot.relic_recovered: unknown quality 'relic_recovered'"]);
   });
 
   it("the repair prompt names the draft's declared quality keys and the key the refused addQuality would have declared", async () => {
-    const { model } = await replay("a16");
+    const { model } = await replay();
     const repair = model.calls[1].prompt.split("Previous response was invalid:")[1];
-    expect(repair).toContain("Declared quality keys: puerta_abierta");
-    expect(repair).toContain("Not declared, so no op in the checkpoints stage may use it: reliquia_recuperada");
+    expect(repair).toContain("Declared quality keys: door_open");
+    expect(repair).toContain("Not declared, so no op in the checkpoints stage may use it: relic_recovered");
   });
 
   it("a repair that keeps to the declared keys is accepted", async () => {
-    const [first] = golden.records.find((record) => record.id === "a16")!.responses;
-    const corrected = JSON.stringify({
-      summary: "Ancla final.",
-      ops: [{ kind: "addCheckpoint", checkpoint: { id: "salida", name: "La salida", objective: "Escapar de la abadía con la reliquia.", type: "anchor" } }],
-    });
-    const { result } = await replay("a16", [first, corrected]);
+    const corrected = JSON.stringify({ summary: "Final anchor.", ops: [{ kind: "addCheckpoint", checkpoint: exit }] });
+    const { result } = await replay([FIRST, corrected]);
     expect(result.status).toBe("ok");
     expect(result.proposal.ops.map((op) => op.kind)).toEqual(["addCheckpoint"]);
   });
@@ -55,20 +67,20 @@ describe("a16 (es authoring, checkpoints stage) replayed from the 65733265d301 g
     const response = JSON.stringify({
       summary: "x",
       ops: [
-        { kind: "addCheckpoint", checkpoint: { id: "salida", name: "La salida", objective: "Salir.", type: "anchor" } },
-        { kind: "addTransition", transition: { from: "cripta", to: "salida", priority: 1, gate: { q: "puerta_abierta", op: "==", v: true } } },
+        { kind: "addCheckpoint", checkpoint: { id: "exit", name: "The exit", objective: "Leave.", type: "anchor" } },
+        { kind: "addTransition", transition: { from: "crypt", to: "exit", priority: 1, gate: { q: "door_open", op: "==", v: true } } },
       ],
     });
-    const { model } = await replay("a16", [response, response]);
+    const { model } = await replay([response, response]);
     const repair = model.calls[1].prompt.split("Previous response was invalid:")[1];
-    expect(repair).toContain("Declared quality keys: puerta_abierta");
+    expect(repair).toContain("Declared quality keys: door_open");
     expect(repair).not.toContain("Not declared");
   });
 
   it("the qualities stage repair carries no declared-keys line, because that stage may declare new ones", async () => {
     const response = JSON.stringify({ summary: "x", ops: [{ kind: "addCheckpoint", checkpoint: { id: "x", name: "X", objective: "X.", type: "anchor" } }] });
     const model = recordingModel(() => response);
-    await runAuthoringStage({ draft: fixture.drafts.cripta, stage: "qualities", message: "", history: [] }, model, { role: "authoring", pass: "copilot" });
+    await runAuthoringStage({ draft, stage: "qualities", message: "", history: [] }, model, { role: "authoring", pass: "copilot" });
     expect(model.calls).toHaveLength(2);
     expect(model.calls[1].prompt).not.toContain("Declared quality keys");
   });

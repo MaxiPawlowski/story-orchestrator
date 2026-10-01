@@ -3,26 +3,25 @@
   "summary": {
     "use": "agency",
     "fixture": "agency",
-    "right": 51,
-    "total": 51,
+    "right": 41,
+    "total": 41,
     "rate": 1,
     "families": [
       {
         "family": "writes",
-        "right": 23,
-        "total": 23,
+        "right": 18,
+        "total": 18,
         "floor": 0.85,
         "ok": true
       },
       {
         "family": "clean",
-        "right": 28,
-        "total": 28,
+        "right": 23,
+        "total": 23,
         "floor": 0.95,
         "ok": true
       }
     ],
-    "spanish": "10/10",
     "p50LatencyMs": 1441,
     "requestedModel": null,
     "model": "jev-1.13.0",
@@ -201,41 +200,6 @@
       "latencyMs": 1358
     },
     {
-      "id": "A25.writes",
-      "right": true,
-      "picked": "score=3.05",
-      "detail": "level 3: a new player action or new player words: the player moves, acts or speaks beyond what `player_message` says",
-      "latencyMs": 1419
-    },
-    {
-      "id": "A26.writes",
-      "right": true,
-      "picked": "score=3.78",
-      "detail": "level 4: a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words",
-      "latencyMs": 1441
-    },
-    {
-      "id": "A27.writes",
-      "right": true,
-      "picked": "score=3.98",
-      "detail": "level 4: a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words",
-      "latencyMs": 1476
-    },
-    {
-      "id": "A28.writes",
-      "right": true,
-      "picked": "score=3.93",
-      "detail": "level 4: a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words",
-      "latencyMs": 1486
-    },
-    {
-      "id": "A29.writes",
-      "right": true,
-      "picked": "score=3.38",
-      "detail": "level 4: a player decision, concession or dialogue: the reply decides for the player, has them agree, refuse, give in or answer in their own words",
-      "latencyMs": 1508
-    },
-    {
       "id": "A30.clean",
       "right": true,
       "picked": "score=0.21",
@@ -353,41 +317,6 @@
       "picked": "score=0.17",
       "detail": "level 1: restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
       "latencyMs": 2156
-    },
-    {
-      "id": "A47.clean",
-      "right": true,
-      "picked": "score=0.19",
-      "detail": "level 0: world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-      "latencyMs": 2178
-    },
-    {
-      "id": "A48.clean",
-      "right": true,
-      "picked": "score=1.86",
-      "detail": "level 2: a small reflexive reaction attributed to the player: a flinch, a blink, a shiver or a caught breath, with no choice in it",
-      "latencyMs": 2247
-    },
-    {
-      "id": "A49.clean",
-      "right": true,
-      "picked": "score=0.13",
-      "detail": "level 0: world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-      "latencyMs": 2357
-    },
-    {
-      "id": "A50.clean",
-      "right": true,
-      "picked": "score=1.11",
-      "detail": "level 1: restates the player's own message: it narrates only what `player_message` already says the player did or said, or the world's answer to it",
-      "latencyMs": 2357
-    },
-    {
-      "id": "A51.clean",
-      "right": true,
-      "picked": "score=0.08",
-      "detail": "level 0: world, NPCs and perception only: the reply writes nothing the player does, says, decides or thinks",
-      "latencyMs": 2384
     }
   ]
 }

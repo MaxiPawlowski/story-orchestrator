@@ -3,10 +3,9 @@
   "summary": {
     "use": "memory-verify",
     "fixture": "memory-verify",
-    "right": 47,
-    "total": 48,
-    "rate": 0.9792,
-    "spanish": "8/8",
+    "right": 35,
+    "total": 36,
+    "rate": 0.9722,
     "p50LatencyMs": 275,
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
@@ -230,78 +229,6 @@
       "right": true,
       "picked": "p=0.96",
       "latencyMs": 538
-    },
-    {
-      "id": "H21.0",
-      "right": true,
-      "picked": "p=0.86",
-      "latencyMs": 473
-    },
-    {
-      "id": "H21.1",
-      "right": true,
-      "picked": "p=0.97",
-      "latencyMs": 473
-    },
-    {
-      "id": "H21.2",
-      "right": true,
-      "picked": "p=0.01",
-      "latencyMs": 473
-    },
-    {
-      "id": "H21.3",
-      "right": true,
-      "picked": "p=0.91",
-      "latencyMs": 473
-    },
-    {
-      "id": "ES.0",
-      "right": true,
-      "picked": "p=0.92",
-      "latencyMs": 475
-    },
-    {
-      "id": "ES.1",
-      "right": true,
-      "picked": "p=0.97",
-      "latencyMs": 475
-    },
-    {
-      "id": "ES.2",
-      "right": true,
-      "picked": "p=0.01",
-      "latencyMs": 475
-    },
-    {
-      "id": "ES.3",
-      "right": true,
-      "picked": "p=0.03",
-      "latencyMs": 475
-    },
-    {
-      "id": "ES.4",
-      "right": true,
-      "picked": "p=0.55",
-      "latencyMs": 520
-    },
-    {
-      "id": "ES.5",
-      "right": true,
-      "picked": "p=0.89",
-      "latencyMs": 520
-    },
-    {
-      "id": "ES.6",
-      "right": true,
-      "picked": "p=0.02",
-      "latencyMs": 520
-    },
-    {
-      "id": "ES.7",
-      "right": true,
-      "picked": "p=0.03",
-      "latencyMs": 520
     }
   ]
 }

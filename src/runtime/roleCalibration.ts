@@ -202,10 +202,12 @@ export async function runRoleCase<R extends CalibrationRole>(role: R, entry: Cal
 
 export interface MetricResult { passed: number; total: number; rate: number | null; floor: number | null; ok: boolean | null }
 export interface SliceSummary { cases: number; metrics: Record<string, MetricResult> }
-export interface RoleSummary { role: CalibrationRole; overall: SliceSummary; es: SliceSummary; meetsFloors: boolean | null }
+export interface RoleSummary { role: CalibrationRole; overall: SliceSummary; meetsFloors: boolean | null }
+
+export const DIRECTOR_FLOOR = { passed: 22, total: 25 } as const;
 
 export const ROLE_CALIBRATION_FLOORS: Record<CalibrationRole, Record<string, number>> = {
-  director: { correct: 22 / 26 },
+  director: { correct: DIRECTOR_FLOOR.passed / DIRECTOR_FLOOR.total },
   curator: { validity: 0.9, opShape: 0.85, decision: 0.7 },
   authoring: { validity: 0.9, opShape: 0.8 },
   synthesis: {},
@@ -264,12 +266,10 @@ export function summarizeRoleCalibration(role: CalibrationRole, records: RoleCas
   const { floorIds } = options;
   const floored = floorIds ? records.filter((record) => floorIds.includes(record.id)) : records;
   const overall = sliceOf(role, floored);
-  const es = sliceOf(role, records.filter((record) => record.lang === "es"));
   if (role === "director") {
-    const esMetrics = Object.fromEntries(Object.entries(es.metrics).map(([name, value]) => [name, { ...value, floor: null, ok: null }]));
-    const ok = overall.metrics.correct.passed >= 22 && overall.metrics.correct.total === 26;
-    return { role, overall: { ...overall, metrics: { ...overall.metrics, correct: { ...overall.metrics.correct, ok } } }, es: { ...es, metrics: esMetrics }, meetsFloors: ok };
+    const ok = overall.metrics.correct.passed >= DIRECTOR_FLOOR.passed && overall.metrics.correct.total === DIRECTOR_FLOOR.total;
+    return { role, overall: { ...overall, metrics: { ...overall.metrics, correct: { ...overall.metrics.correct, ok } } }, meetsFloors: ok };
   }
-  const oks = [...Object.values(overall.metrics), ...Object.values(es.metrics)].map((value) => value.ok).filter((value): value is boolean => value !== null);
-  return { role, overall, es, meetsFloors: oks.length ? oks.every(Boolean) : null };
+  const oks = Object.values(overall.metrics).map((value) => value.ok).filter((value): value is boolean => value !== null);
+  return { role, overall, meetsFloors: oks.length ? oks.every(Boolean) : null };
 }
