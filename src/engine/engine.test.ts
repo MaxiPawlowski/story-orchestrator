@@ -252,17 +252,41 @@ describe("blackboard and gates", () => {
 });
 
 describe("apply queue", () => {
-  it("applies only at drain time and discards covered stale entries", () => {
+  it("applies only at drain time and discards a value a newer covering read wrote again", () => {
     const story = parseStoryV2OrThrow(linearStory);
     const blackboard = new Blackboard(story);
     const queue = new ApplyQueue();
     queue.enqueue(entry("has_key", true, 1, 1));
     expect(blackboard.get("has_key")).toBeUndefined();
-    queue.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 1, to: 2 }, deltas: [{ q: "door_open", v: true, source: "extractor" }] });
+    queue.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 1, to: 2 }, deltas: [{ q: "has_key", v: false, source: "extractor" }, { q: "door_open", v: true, source: "extractor" }] });
     const result = queue.drainAtBoundary(blackboard);
     expect(result.discarded).toHaveLength(1);
-    expect(blackboard.get("has_key")).toBeUndefined();
+    expect(blackboard.get("has_key")).toBe(false);
     expect(blackboard.get("door_open")).toBe(true);
+  });
+
+  it("T0-1: a newer covering read that is silent on a key does not supersede it", () => {
+    const story = parseStoryV2OrThrow(linearStory);
+    const blackboard = new Blackboard(story);
+    const queue = new ApplyQueue();
+    queue.enqueue({ ...entry("has_key", true, 6, 13), deltas: [{ q: "has_key", v: true, source: "extractor" }, { q: "door_open", v: false, source: "extractor" }] });
+    queue.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 0, to: 13 }, deltas: [{ q: "door_open", v: true, source: "extractor" }] });
+    const result = queue.drainAtBoundary(blackboard);
+    expect(blackboard.get("has_key")).toBe(true);
+    expect(blackboard.get("door_open")).toBe(true);
+    expect(result.applied.map((applied) => applied.deltas.map((delta) => delta.q))).toEqual([["has_key"], ["door_open"]]);
+    expect(result.discarded.map((dropped) => dropped.deltas.map((delta) => delta.q))).toEqual([["door_open"]]);
+  });
+
+  it("splits tension levels with the tension delta they belong to", () => {
+    const queue = new ApplyQueue();
+    const blackboard = new Blackboard(parseStoryV2OrThrow(linearStory));
+    queue.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 1, to: 1 }, tensionLevels: ["tense"],
+      deltas: [{ q: "has_key", v: true, source: "extractor" }, { q: "tension_current", v: 0.5, source: "extractor" }] });
+    queue.enqueue({ source: "extractor", blackboardVersionSum: 0, turnRange: { from: 1, to: 2 }, deltas: [{ q: "has_key", v: true, source: "extractor" }] });
+    const result = queue.drainAtBoundary(blackboard);
+    expect(result.applied[0]).toMatchObject({ tensionLevels: ["tense"], deltas: [{ q: "tension_current" }] });
+    expect(result.discarded[0].tensionLevels).toBeUndefined();
   });
 });
 
