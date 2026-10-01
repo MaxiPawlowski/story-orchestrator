@@ -176,7 +176,8 @@ const chapterParts = (sources: SnapshotSources, story: NormalizedStoryV2 | null,
   const now = chapters.current && !chapters.ended ? [`Now: ${chapters.current.playerTitle}`] : [];
   const chapterLines = chapters.records.length ? [...chapters.records.map((record) => `${record.playerTitle} — ${record.short}`), ...now] : [];
   const fold = chapterKit()?.foldPreview(memory, story, sources.promptBlocks.own, sources.chat.length) ?? 0;
-  return { chapters, openThreads, chapterLines, fold };
+  const scene = state ? latestScene(memory.entries, state.lastMessageId, state.checkpointStartedBoundary) : null;
+  return { chapters, openThreads, chapterLines, fold, scene };
 };
 
 const modelCallSlices = (extras: SnapshotSources["extras"]) => ({
@@ -210,7 +211,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
   const agency = agencyFor(active);
   const agencyRecovery: AgencyRecovery | null = agencyRecoveryOf(story, state, sources.boundaryLog, extras.extraction.audits, playerTurnIds(sources.chat));
   const extractionHealth = sources.extractionHealth ?? null;
-  const { chapters, openThreads, chapterLines, fold } = chapterParts(sources, story, state);
+  const { chapters, openThreads, chapterLines, fold, scene } = chapterParts(sources, story, state);
   const pipeline = derivePipelineStatus(extras.extraction, { generating: expansionInFlight(extras.expansion) }, extractionHealth, chapters.ended, active);
   // What the next reply will carry, in ST's own assembly order. The private block is
   // attributed to the member the last talk decision drafted — in a group that is who ST will swap it
@@ -233,8 +234,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     checkpointName: active?.player_name ?? (active ? "Current scene" : null),
     objective: active?.player_text ?? null,
     publicIntro: publishedIntro(story),
-    lastTransition: playerTransition(story, sources.boundaryLog),
-    latestScene: state ? latestScene(extras.memory.entries, state.lastMessageId, state.checkpointStartedBoundary) : null,
+    lastTransition: playerTransition(story, sources.boundaryLog), latestScene: scene,
     openThreads,
     canon: sources.canon,
     chapters: chapterLines,

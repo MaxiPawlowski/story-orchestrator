@@ -73,7 +73,7 @@ export class AwayRecapController {
     if (!pending) return false;
     let timer: ReturnType<typeof setTimeout> | undefined;
     const cap = new Promise<void>((resolve) => { timer = setTimeout(resolve, capMs); });
-    await Promise.race([prepare().catch(() => undefined), cap]);
+    await Promise.race([Promise.allSettled([prepare()]), cap]);
     clearTimeout(timer);
     if (this.pending !== pending) return false;
     this.pending = { ...pending, recap: buildAwayRecap(narrative(), pending.gapMs) };
