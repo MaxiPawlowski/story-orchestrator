@@ -1,5 +1,5 @@
 {
- "commit": "e1c91fbebb47e22045c32932e750ef2f90cb015c",
+ "commit": "59e8821bfba348a4d3621d903e635073aa1b787b",
  "stories": {
   "adolion-academy": {
    "title": "Adolion: House Nightriver",
@@ -150,12 +150,12 @@
     "Tahlia"
    ],
    "features": {
-    "chapters": 0,
-    "chapterAssignments": 0,
-    "drives": 0,
-    "motives": 0,
-    "memberGuidance": 0,
-    "omniscient": 0
+    "chapters": 2,
+    "chapterAssignments": 12,
+    "drives": 14,
+    "motives": 53,
+    "memberGuidance": 12,
+    "omniscient": 1
    }
   },
   "adolion-adventurer": {
@@ -466,12 +466,12 @@
     "Riyo"
    ],
    "features": {
-    "chapters": 0,
-    "chapterAssignments": 0,
-    "drives": 0,
-    "motives": 0,
-    "memberGuidance": 0,
-    "omniscient": 0
+    "chapters": 2,
+    "chapterAssignments": 27,
+    "drives": 17,
+    "motives": 79,
+    "memberGuidance": 23,
+    "omniscient": 1
    }
   },
   "adolion-aegis": {
@@ -730,12 +730,12 @@
     "Riyo"
    ],
    "features": {
-    "chapters": 0,
-    "chapterAssignments": 0,
-    "drives": 0,
-    "motives": 0,
-    "memberGuidance": 0,
-    "omniscient": 0
+    "chapters": 2,
+    "chapterAssignments": 18,
+    "drives": 39,
+    "motives": 83,
+    "memberGuidance": 16,
+    "omniscient": 1
    }
   },
   "adolion-deep": {
@@ -995,12 +995,12 @@
     "Yuna"
    ],
    "features": {
-    "chapters": 0,
-    "chapterAssignments": 0,
-    "drives": 0,
-    "motives": 0,
-    "memberGuidance": 0,
-    "omniscient": 0
+    "chapters": 2,
+    "chapterAssignments": 21,
+    "drives": 18,
+    "motives": 174,
+    "memberGuidance": 20,
+    "omniscient": 1
    }
   },
   "adolion-east": {
@@ -1224,12 +1224,12 @@
     "Kanami"
    ],
    "features": {
-    "chapters": 0,
-    "chapterAssignments": 0,
-    "drives": 0,
-    "motives": 0,
-    "memberGuidance": 0,
-    "omniscient": 0
+    "chapters": 2,
+    "chapterAssignments": 18,
+    "drives": 25,
+    "motives": 110,
+    "memberGuidance": 17,
+    "omniscient": 1
    }
   },
   "adolion-esha": {
@@ -1399,12 +1399,12 @@
     "The Lady of the Forest"
    ],
    "features": {
-    "chapters": 0,
-    "chapterAssignments": 0,
-    "drives": 0,
-    "motives": 0,
-    "memberGuidance": 0,
-    "omniscient": 0
+    "chapters": 2,
+    "chapterAssignments": 14,
+    "drives": 6,
+    "motives": 57,
+    "memberGuidance": 13,
+    "omniscient": 1
    }
   },
   "adolion-night": {
@@ -1629,12 +1629,12 @@
     "Morrigan"
    ],
    "features": {
-    "chapters": 0,
-    "chapterAssignments": 0,
-    "drives": 0,
-    "motives": 0,
-    "memberGuidance": 0,
-    "omniscient": 0
+    "chapters": 3,
+    "chapterAssignments": 18,
+    "drives": 19,
+    "motives": 89,
+    "memberGuidance": 17,
+    "omniscient": 1
    }
   },
   "adolion-saga": {
@@ -3610,12 +3610,12 @@
     "Malach"
    ],
    "features": {
-    "chapters": 0,
-    "chapterAssignments": 0,
-    "drives": 0,
-    "motives": 0,
-    "memberGuidance": 0,
-    "omniscient": 0
+    "chapters": 12,
+    "chapterAssignments": 157,
+    "drives": 124,
+    "motives": 853,
+    "memberGuidance": 142,
+    "omniscient": 1
    }
   },
   "adolion-war": {
@@ -4047,12 +4047,12 @@
     "Erevan"
    ],
    "features": {
-    "chapters": 0,
-    "chapterAssignments": 0,
-    "drives": 0,
-    "motives": 0,
-    "memberGuidance": 0,
-    "omniscient": 0
+    "chapters": 3,
+    "chapterAssignments": 22,
+    "drives": 19,
+    "motives": 202,
+    "memberGuidance": 21,
+    "omniscient": 1
    }
   }
  },
