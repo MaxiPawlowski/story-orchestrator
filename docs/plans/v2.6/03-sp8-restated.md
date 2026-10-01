@@ -45,3 +45,13 @@ W3 attempt 1 (16:20Z) stopped in round 17 of run 1: the host disk filled (`ENOSP
 (16 ops, 5 plan-time drops, 4 of them protected-text refusals) is informational only and never enters the bar. Lane 2
 restarted, the marker book, sandbox chat, imported story and flag removed by hand. Same fixture and procedure re-run
 ×2 (`--repeat 2`); a free-space check (≥ 5 GB on C:) precedes it.
+
+## Addendum 2 2026-10-01 18:10Z — W3 second run (bars unchanged)
+
+Attempt 2 (16:49Z), served bundle **`6566f7f8e418`** (the shared slot was restaged between the lane restart and this
+attempt; the header shows the same served bundle at start and end): run 1 stopped in round 14 on a 300 s
+`send_generate` timeout (the shared pod was slow: turns of 30–160 s), so it is not measured; run 2 completed (23
+proposals, 3 refused, 0 violations). Because run 1 died before its disarm, run 2's arm recorded the tiers flag as
+already on and its disarm left it on; switched off by hand, nothing else leaked. **One more run** (×1, same fixture, same
+lane, same bundle) is the series' second; together with attempt 2 run 2 they are the two runs the bar reads. Bars and
+procedure otherwise unchanged.
