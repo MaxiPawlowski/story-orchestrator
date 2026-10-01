@@ -39,3 +39,16 @@ the fixture restores both groups' `disabled_members`. Toy jest legs: `sp5Scenari
 ## Records
 
 `test/measurements/v2.6-03/sp5/` (batch log, the `so-v25-sp5` record printed by the last step, header diff, summary).
+
+## Addendum 2026-10-01 13:00Z — procedure change before the measured run (bars unchanged)
+
+The first run (12:26Z) measured nothing: step 5 found no scenario ledger row after importing the saga. Probes on lane 2
+(`_run/sp5/scen/probe*.json`, records in `sp5/`) show a product defect outside the spike: importing `adolion-saga` into a
+new chat of the 125-member group moves the run epoch while the activate writes the cast; the hydrate that follows joins
+the lapsing apply (AS-10's coalescing door), so the ledger stays at the Author's Note plus one cast row for 300 s and the
+background, the scenario extension, the stage and onEnter never apply. The toy story on the toy group applies fine
+(1 row, scenario written). Fixed on this branch (`32527192`, failing-first case) but the staged bundle does not carry it.
+
+Change for the measured run: after `import_story` of the saga, reopen chat A (`reload {reopenChat}`), re-inject the two
+helper scripts, and wait (≤ 300 s) until the ledger holds the scenario extension row, i.e. the hydrate's own complete
+apply. Every later step, check and pass rule is unchanged. A run that still finds no row is **not measured**.
