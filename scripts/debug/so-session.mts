@@ -624,7 +624,8 @@ async function live(cli: LiveCli) {
   if (session.stoppedAt) throw new Error(`${session.dir} is stopped; start a new session to play more`);
   const viewportEnv: Record<string, string> = session.viewport ? { ST_DEBUG_VIEWPORT: session.viewport } : {};
   const chat = cli.verb === 'adopt' ? null : sessionChat(session, cli.chat);
-  const args = cli.verb === 'shot' ? { ...cli.args, seq: await nextSeq(dir) } : cli.args;
+  const switchTarget = cli.verb === 'switch-chat-mid-gen' ? (session.chats ?? []).find((known: any) => known.chatId === cli.args.to) : null;
+  const args = cli.verb === 'shot' ? { ...cli.args, seq: await nextSeq(dir) } : switchTarget ? { ...cli.args, toGroup: switchTarget.group ?? null, toGroupId: switchTarget.groupId ?? null } : cli.args;
   const gates = findCard(await loadCards(), session.charter).rubric.map((row) => row.gate).filter(Boolean);
   const tag = cli.tag?.arm && !cli.tag.gate && gates.length === 1 ? { ...cli.tag, gate: gates[0] } : cli.tag;
   if (tag?.arm && !tag.gate) throw new Error(`${session.charter} feeds ${gates.length ? gates.join(' and ') : 'no blind gate'}: name the gate with --gate`);
