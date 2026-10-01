@@ -233,6 +233,10 @@
       "status": "checked",
       "note": "AE-01 (2026-09-25): was `partial` on \"its caller checks the token before every call\", the census blind spot, since that check preceded both awaits in here. The RunGuard is now threaded in and checked immediately after the write-edge read (before `beforeHostWrite`, the write-ahead record) and immediately after the write-ahead save (before `updateWIEntryByUid`, its one host write). A lapse returns `lapsed` and records nothing: after a switch, state and save both resolve to the chat that replaced this one. A lapse after the write-ahead save leaves the departed chat's op `accepted` with its pending marker, the same row a crash before the host call leaves; nothing reconciles that marker on hydrate, and the op's next boundary in its own chat re-reads the entry and writes it (stagecraftCoordinator.test.ts, AE-01 block)."
     },
+    "src/runtime/effectHost.ts#restoreCastFlags": {
+      "status": "partial",
+      "note": "PARTIAL, same guard as restoreEffectTarget (T1 item 7): the caller's compare-and-set. `EffectsApplier.restoreEffects` folds only the cast rows whose group still holds what this chat wrote into one batch per group; refused rows never reach here. One stHost seam (`setGroupMemberFlags`, one save + read-back) whose own result is the answer, so a batch lands whole or is marked revert-failed whole."
+    },
     "src/runtime/effectHost.ts#restoreEffectTarget": {
       "status": "partial",
       "note": "PARTIAL: one inverse per effect target, and the GUARD IS THE CALLER. `EffectsApplier.restoreEffects` reads each target's current value and compares it with what this chat wrote before calling anything here, and refuses the ones that no longer hold it — so a restore that outlived its chat cannot overwrite an edit someone else made. The token would add the chat-switch case, which the leave/rollback/restart callers own; each branch here is a single stHost seam whose own result is returned as the answer."

@@ -28,7 +28,7 @@ import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
 import { runRollback, type DecodeJournal } from "./rollback";
 import { memoryActions, memoryDelegates } from "./memoryActions";
-import { readEffectTarget, reconcileEffectLedger, restoreEffectTarget } from "./effectHost";
+import { readEffectTarget, reconcileEffectLedger, restoreCastFlags, restoreEffectTarget } from "./effectHost";
 import { ChatSave } from "./chatSave";
 import { hasUnsavedChanges } from "./saveHealth";
 import { getGlobalSettings, setGlobalSettings, type SpikeSettings, type TalkChainSettings } from "./settingsStore";
@@ -148,7 +148,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   constructor() {
     super();
     this.effects = new EffectsApplier(this.owner.ownership, { reads: { read: readEffectTarget },
-        restore: restoreEffectTarget, persist: () => this.persist(),
+        restore: restoreEffectTarget, restoreCast: restoreCastFlags, persist: () => this.persist(),
         unsaved: () => hasUnsavedChanges(this.extras.saveHealth), journal: (summary, note) => this.noteRecap(summary,
         note ?? ""), roll: (key) => spikeSeams.npcRoll?.(key) ?? null });
   }

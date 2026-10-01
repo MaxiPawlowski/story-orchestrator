@@ -96,6 +96,20 @@ export async function setGroupMemberDisabled(member: string, disabled: boolean, 
   return saved.ok ? wrote({ member }) : saved;
 }
 
+/** Put several members' flags back on the RECORDED group in one save, so a restore lands whole or not at all. */
+export async function setGroupMemberFlags(groupId: string, flags: Array<{ member: string; disabled: boolean }>): Promise<WriteResult<{ members: number }>> {
+  const group = groupId ? groupById(groupId) : getActiveGroup();
+  if (!group) return couldNot(`group ${groupId || "(open)"} is not on this install`);
+  const disabled = new Set(Array.isArray(group.disabled_members) ? group.disabled_members : []);
+  for (const flag of flags) {
+    if (flag.disabled) disabled.add(flag.member);
+    else disabled.delete(flag.member);
+  }
+  group.disabled_members = [...disabled];
+  const saved = await saveGroupFlags(group);
+  return saved.ok ? wrote({ members: flags.length }) : saved;
+}
+
 /** What the RECORDED group holds for one member (the open one when none is named), or null. */
 export function readGroupMemberDisabled(member: string, groupId?: string): boolean | null {
   const group = groupId ? groupById(groupId) : getActiveGroup();

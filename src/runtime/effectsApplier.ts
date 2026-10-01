@@ -25,7 +25,7 @@ import { samplerOverlay } from "./samplerOverlay";
 import type { WriteResult } from "@utils/writeResult";
 import { renderBlackboardMemo } from "./blackboardMemo";
 import { transitionNoteText } from "./narrative";
-import { appendRow, pendingRow, restorePlan, rowsAfter, setStatus, type EffectWrite } from "./effectLedger";
+import { appendRow, castRestoreBatches, pendingRow, restorePlan, rowsAfter, setStatus, type EffectWrite } from "./effectLedger";
 import { effectExtensions, type EffectExtension, type EffectExtensionInput } from "./effectExtensions";
 import type { EffectLedgerRow, EffectTarget, RuntimeExtras, RuntimeSnapshot } from "./types";
 import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
@@ -34,7 +34,7 @@ import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { generationWatch } from "./generationWatch";
 import { recordNpcReplyFire, recordOnEnterPost } from "./npcReplyRewind";
 import { isRecord } from "@utils/guards";
-import { castInPlay } from "./castInPlay";
+import { castInPlayNote } from "./castInPlay";
 
 // What a host effect changed, read back from the host as it is NOW. Every reader is a
 // QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
@@ -159,6 +159,8 @@ export interface EffectApplierDeps {
   reads?: EffectHostReads;
   /** Puts a recorded value back. Returns whether the host agreed. */
   restore?: (row: EffectLedgerRow) => Promise<boolean>;
+  /** Puts a group's recorded member flags back in ONE write. */
+  restoreCast?: (group: string, flags: Array<{ member: string; disabled: boolean }>) => Promise<boolean>;
   /** Persist what has been recorded so far: a pending row must survive a crash to be reconciled. */
   persist?: () => Promise<void>;
   /**
@@ -377,11 +379,8 @@ export class EffectsApplier {
   private async applyCastChanges(value: unknown, extras: RuntimeExtras, scope: { checkpointId: string | null; boundary: number; messageId: number }, run: RunGuard, entering: string | null) {
     if (!isRecord(value)) return;
     const group = getActiveGroup();
-    const dropped = entering ? castInPlay(readStrings(value.disable), Array.isArray(getContext().chat) ? getContext().chat : []) : [];
-    if (dropped.length) this.deps.journal?.(
-      `cast change at "${entering}" removed ${dropped.join(", ")}, whom the play just brought in`,
-      "the authored cast_changes.disable wins; to keep a member the play recruits, gate this change on a quality the play sets",
-    );
+    const dropped = entering ? castInPlayNote(entering, readStrings(value.disable), getContext().chat) : null;
+    if (dropped) this.deps.journal?.(dropped.summary, dropped.note);
     const changes: Array<[string, boolean]> = [
       ...readStrings(value.disable).map((name): [string, boolean] => [name, true]),
       ...readStrings(value.enable).map((name): [string, boolean] => [name, false])
@@ -444,11 +443,16 @@ export class EffectsApplier {
     const { steps, refused } = restorePlan(rows.filter((row) => RESTORABLE.has(row.target.kind)), this.reads());
     for (const row of refused) extras.effects.ledger = setStatus(extras.effects.ledger, row.id, "externally-changed", { found: row.found });
     let reverted = 0;
-    for (const step of steps) {
-      const restored = await this.deps.restore(step.row).catch(() => false);
-      extras.effects.ledger = setStatus(extras.effects.ledger, step.row.id, restored ? "reverted" : "revert-failed", restored ? {} : { reason: `could not restore ${step.row.effect}` });
+    const settle = (row: EffectLedgerRow, restored: boolean) => {
+      extras.effects.ledger = setStatus(extras.effects.ledger, row.id, restored ? "reverted" : "revert-failed", restored ? {} : { reason: `could not restore ${row.effect}` });
       if (restored) reverted += 1;
+    };
+    const { batches, rest } = castRestoreBatches(steps, Boolean(this.deps.restoreCast));
+    for (const batch of batches) {
+      const restored = await this.deps.restoreCast?.(batch.group, batch.flags).catch(() => false) ?? false;
+      batch.rows.forEach((row) => settle(row, restored));
     }
+    for (const step of rest) settle(step.row, await this.deps.restore(step.row).catch(() => false));
     if (refused.length) this.deps.journal?.(`${refused.length} host change(s) were edited outside this story and left alone`);
     if (reverted) this.deps.journal?.(`restored ${reverted} host change(s)`);
     if (persist) await this.deps.persist?.();

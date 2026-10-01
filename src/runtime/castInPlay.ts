@@ -11,3 +11,11 @@ export const castInPlay = (names: string[], rows: unknown[], window = CAST_IN_PL
   return names.filter((name) => spoke.has(name.trim().toLowerCase())
     && playerWords.some((said) => [...words(name)].every((word) => said.has(word))));
 };
+
+export const castInPlayNote = (checkpoint: string, disabled: string[], rows: unknown): { summary: string; note: string } | null => {
+  const dropped = castInPlay(disabled, Array.isArray(rows) ? rows : []);
+  return dropped.length ? {
+    summary: `cast change at "${checkpoint}" removed ${dropped.join(", ")}, whom the play just brought in`,
+    note: "the authored cast_changes.disable wins; to keep a member the play recruits, gate this change on a quality the play sets",
+  } : null;
+};
