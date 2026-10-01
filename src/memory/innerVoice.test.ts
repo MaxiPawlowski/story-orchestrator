@@ -46,6 +46,37 @@ describe("intends: evidence rule (v2.6 plan 06 B, overview rule 10)", () => {
     expect(admitIntents([{ tag: "intends", subject: "Kael", content: "I should write a tense reply for the user" }], evidence)).toEqual([]);
   });
 
+  it("AS-1: drops an intent the subject never supported, though the subject spoke", () => {
+    const greeted = intentEvidence([{ speaker: "Haley", text: "Good morning.", isUser: false }], ["Max"]);
+    expect(admitIntents([{ tag: "intends", subject: "Haley", content: "murder the baron" }], greeted)).toEqual([]);
+    const unrelated = intentEvidence([{ speaker: "Haley", text: "The weather turned cold on the pass.", isUser: false }], ["Max"]);
+    expect(admitIntents([{ tag: "intends", subject: "Haley", content: "steal the crown" }], unrelated)).toEqual([]);
+  });
+
+  it("AS-1: drops an intent only the player's narration supports, though the subject spoke", () => {
+    const narrated = intentEvidence([
+      { speaker: "Max", text: "Haley sharpens her knife, meaning to murder the baron.", isUser: true },
+      { speaker: "Haley", text: "Good morning.", isUser: false },
+    ], ["Max"]);
+    expect(admitIntents([{ tag: "intends", subject: "Haley", content: "murder the baron" }], narrated)).toEqual([]);
+  });
+
+  it("AS-1: drops an intent another character only mentions, in speech or in reported speech", () => {
+    const spoken = intentEvidence([{ speaker: "Kael", text: "\"Haley means to steal the crown,\" he whispers.", isUser: false }], ["Max"]);
+    expect(admitIntents([{ tag: "intends", subject: "Haley", content: "steal the crown" }], spoken)).toEqual([]);
+    const reported = intentEvidence([{ speaker: "Kael", text: "Kael swears Haley wants the crown for herself.", isUser: false }], ["Max"]);
+    expect(admitIntents([{ tag: "intends", subject: "Haley", content: "steal the crown" }], reported)).toEqual([]);
+    const claimed = intentEvidence([{ speaker: "DM Narrator", text: "Haley clearly wants the crown.", isUser: false }], ["Max"]);
+    expect(admitIntents([{ tag: "intends", subject: "Haley", content: "steal the crown" }], claimed)).toEqual([]);
+  });
+
+  it("AS-1: keeps an intent the subject's own words or own shown action support", () => {
+    const said = intentEvidence([{ speaker: "Haley", text: "\"Tonight I take the crown.\"", isUser: false }], ["Max"]);
+    expect(admitIntents([{ tag: "intends", subject: "Haley", content: "steal the crown" }], said)).toHaveLength(1);
+    const shown = intentEvidence([{ speaker: "DM Narrator", text: "The hall empties. Haley slips toward the crown, gloves on.", isUser: false }], ["Max"]);
+    expect(admitIntents([{ tag: "intends", subject: "Haley", content: "steal the crown" }], shown)).toHaveLength(1);
+  });
+
   it("never filters the other tags, and refuses every intent without evidence", () => {
     expect(admitIntents([{ tag: "knows", subject: "Max", content: "the map" }], null)).toHaveLength(1);
     expect(admitIntents([{ tag: "intends", subject: "Kael", content: "leave before dawn" }], null)).toEqual([]);

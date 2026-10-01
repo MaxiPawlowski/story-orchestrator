@@ -5,7 +5,7 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
-import { calibrationOk, type ModelVerdict } from './lib/calibrationVerdict.mts';
+import { calibrationOk, providerVerdict, readJudgeProvider, type JudgeCliProvider, type ModelVerdict } from './lib/calibrationVerdict.mts';
 import { eventsFromJsonl, eventsFromRecord, timeoutReport, dedupe, type TimeoutEvent } from './lib/judgeTimeouts.mts';
 import { blindSample, replyEffectVerdict, runFromRescore } from './lib/replyEffect.mts';
 import { armSummary, costInputOf, costReport, costReportAcross, filterJudgeCalls, rescoreRates, withEstablished } from './lib/judgeHarness.mts';
@@ -16,7 +16,8 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
 
   status                              plugin reachability, key source (never the key), install settings
   ask <request.json>                  POST one System One request through the plugin from the page
-  calibrate [--use director|memory-verify|memory-pairs|contradiction-release|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants|agency|house-rules|warden-lore|warden-lore-facts] [--fixture <name>] [--model <id>] [--min 0.85] [--record]
+  calibrate [--use director|memory-verify|memory-pairs|contradiction-release|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants|agency|house-rules|warden-lore|warden-lore-facts] [--fixture <name>] [--model <id>] [--provider typesafe|llama-logprob] [--min 0.85] [--record]
+                                      --provider asks that decision provider (default typesafe); the summary records it, and a llama run never reaches TypeSafe
                                       run test/fixtures/judge/<fixture|use>.json page -> plugin -> TypeSafe;
                                       --model asks that model without changing install settings; the report records the model that answered
                                       and a modelVerdict (matched | resolved, with resolvedTo | mismatch | unknown; the last two exit 1);
@@ -31,7 +32,7 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
                                       unless that chat is the one open (a ring is read from the open chat, never guessed)
   cost [--chat <chatId>]              v2.4 plan 07 (X23): the open chat's judge METER (monotonic, not cut by rollback) beside the ring
                                       totals per use, what the ring no longer shows, and an estimate at the documented price
-  rescore --use continuity|agency|house-rules --records <dir|record.json,...> [--model <id>] [--facts <facts.json>]
+  rescore --use continuity|agency|house-rules --records <dir|record.json,...> [--model <id>] [--provider <id>] [--facts <facts.json>]
                                       the judge-off control column: re-ask the calibrated question over the replies each journey
                                       record captured (--judge-uses runs); prints the next-reply defect rate per arm; --facts (a JSON array)
                                       holds every arm to one declared fact set instead of each record's live facts at cleanup; agency reads each reply's
@@ -109,18 +110,19 @@ function familyScores(rows: Array<{ id: string; right: boolean }>, floors: Recor
 
 // v2.3 plan 10 (A). Its report is two metric sets, not one pass/fail list, so it prints its own way:
 // the floors bind precision@4 and the tie rate, and nDCG is reported for both arms.
-async function calibrateRelevance(page: any, fixtureName: string, requestedModel?: string) {
+async function calibrateRelevance(page: any, fixtureName: string, requestedModel: string | undefined, provider: JudgeCliProvider) {
   const loadFixture = async (name: string) => JSON.parse(await readFile(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', name.replace(/\.json$/, '') + '.json'), 'utf-8'));
   const fixture = await loadFixture(fixtureName);
   const pools: Record<string, unknown[]> = { ...(fixture.pools ?? {}) };
   if (fixture.poolsFrom) Object.assign(pools, (await loadFixture(fixture.poolsFrom)).pools ?? {});
   const rows = fixture.rows.map((row: any) => ({ ...row, candidates: row.candidates ?? pools[row.pool] ?? [] }));
-  const report = await evaluateInST(page, async ({ rows: cases, model }: { rows: unknown[]; model?: string }) => {
+  const raw = await evaluateInST(page, async ({ rows: cases, model, provider }: { rows: unknown[]; model?: string; provider: string }) => {
     const judge = (globalThis as any).storyOrchestratorJudge;
     if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
-    const out = await judge.calibrateLoreRelevance(cases, model);
+    const out = await judge.calibrateLoreRelevance(cases, model, provider);
     return { ...out, verdict: judge.modelVerdict(model ?? null, out.model) };
-  }, { rows, model: requestedModel });
+  }, { rows, model: requestedModel, provider });
+  const report = { ...raw, verdict: providerVerdict(provider, raw.verdict, raw.model ?? null) };
   const floor = fixture.floor ?? {};
   const verdict = (arm: any) => ({
     precisionAt4: arm.precisionAt4 !== null && arm.precisionAt4 >= (floor.precisionAt4 ?? 0),
@@ -137,6 +139,7 @@ async function calibrateRelevance(page: any, fixtureName: string, requestedModel
     fixture: fixtureName,
     rows: rows.length,
     labelled: rows.filter((row: any) => row.labels && Object.keys(row.labels).length).length,
+    provider,
     requestedModel: requestedModel ?? null,
     model: report.model,
     modelVerdict: report.verdict.verdict as ModelVerdict,
@@ -156,14 +159,15 @@ async function calibrateRelevance(page: any, fixtureName: string, requestedModel
   return { ok: summary.arms.every((arm: any) => arm.ok) && summary.modelVerdict !== 'mismatch' && summary.modelVerdict !== 'unknown' };
 }
 
-async function calibrate(page: any, use: string, fixtureName: string, min: number, record: boolean, requestedModel?: string) {
+async function calibrate(page: any, use: string, fixtureName: string, min: number, record: boolean, requestedModel: string | undefined, provider: JudgeCliProvider) {
   const fixture = JSON.parse(await readFile(join(PROJECT_ROOT, 'test', 'fixtures', 'judge', `${fixtureName}.json`), 'utf-8'));
-  const report = await evaluateInST(page, async ({ use, rows, model }: { use: string; rows: unknown[]; model?: string }) => {
+  const raw = await evaluateInST(page, async ({ use, rows, model, provider }: { use: string; rows: unknown[]; model?: string; provider: string }) => {
     const judge = (globalThis as any).storyOrchestratorJudge;
     if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
-    const out = await judge.calibrate(use, rows, model);
+    const out = await judge.calibrate(use, rows, model, provider);
     return { ...out, verdict: judge.modelVerdict(model ?? null, out.model) };
-  }, { use, model: requestedModel, rows: use === 'lore' ? fixture.rows.map((row: any) => ({ ...row, candidates: row.candidates ?? fixture.pools?.[row.pool] ?? [] })) : use === 'backgrounds' ? fixture.rows.map((row: any) => ({ ...row, installed: fixture.installed })) : fixture.rows });
+  }, { use, model: requestedModel, provider, rows: use === 'lore' ? fixture.rows.map((row: any) => ({ ...row, candidates: row.candidates ?? fixture.pools?.[row.pool] ?? [] })) : use === 'backgrounds' ? fixture.rows.map((row: any) => ({ ...row, installed: fixture.installed })) : fixture.rows });
+  const report = { ...raw, verdict: providerVerdict(provider, raw.verdict, raw.model ?? null) };
   const labelOf: Record<string, string> = Object.fromEntries(fixture.rows.filter((row: any) => row.label).map((row: any) => [row.id, row.label]));
   const tagOf = Object.fromEntries(fixture.rows.map((row: any) => [row.id, row.tags ?? []]));
   const tagsOf = (id: string): string[] => tagOf[id] ?? tagOf[id.split('.')[0]] ?? [];
@@ -171,7 +175,7 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
   const rate = report.total ? report.right / report.total : 0;
   const families = ['scene', 'lore', 'curator-filter', 'continuity', 'backgrounds', 'typed', 'stall', 'critic', 'variants', 'agency', 'house-rules', 'warden-lore', 'warden-lore-facts'].includes(use) ? familyScores(report.rows, fixture.floors ?? {}) : [];
   families.forEach((row) => console.log(`${row.ok ? 'ok  ' : 'FAIL'} ${row.family.padEnd(9)} ${row.right}/${row.total} floor ${row.floor}`));
-  const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), ...(families.length ? { families } : {}), p50LatencyMs: report.p50LatencyMs, requestedModel: requestedModel ?? null, model: report.model, modelVerdict: report.verdict.verdict as ModelVerdict, ...(report.verdict.resolvedTo ? { resolvedTo: report.verdict.resolvedTo } : {}), min, minGiven: process.argv.includes('--min'), ok: calibrationOk({ rate, min, minGiven: process.argv.includes('--min'), families, modelVerdict: report.verdict.verdict }) };
+  const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), ...(families.length ? { families } : {}), p50LatencyMs: report.p50LatencyMs, provider, requestedModel: requestedModel ?? null, model: report.model, modelVerdict: report.verdict.verdict as ModelVerdict, ...(report.verdict.resolvedTo ? { resolvedTo: report.verdict.resolvedTo } : {}), min, minGiven: process.argv.includes('--min'), ok: calibrationOk({ rate, min, minGiven: process.argv.includes('--min'), families, modelVerdict: report.verdict.verdict }) };
   console.log(JSON.stringify(summary, null, 2));
   await writeJSON({ summary, report }, `so-judge-calibrate-${fixtureName}`);
   if (record) {
@@ -181,18 +185,19 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
   return { ok: summary.ok };
 }
 
-async function calibrateRelease(page: any, fixtureName: string, record: boolean, requestedModel?: string) {
+async function calibrateRelease(page: any, fixtureName: string, record: boolean, requestedModel: string | undefined, provider: JudgeCliProvider) {
   const fixture = JSON.parse(await readFile(join(PROJECT_ROOT, releaseFixturePath(fixtureName)), 'utf-8'));
   const bracketNames = bracketFileNames(await readdir(join(PROJECT_ROOT, K0_BRACKET_DIR)));
   const brackets: Brackets[] = await Promise.all(bracketNames.map(async (name) => JSON.parse(await readFile(join(PROJECT_ROOT, K0_BRACKET_DIR, name), 'utf-8'))));
   const cases = releaseCases(fixture);
   const modes = releaseModes(fixture, brackets);
-  const report = await evaluateInST(page, async ({ cases, modes, model }: { cases: unknown[]; modes: Record<string, string[] | null>; model?: string }) => {
+  const raw = await evaluateInST(page, async ({ cases, modes, model, provider }: { cases: unknown[]; modes: Record<string, string[] | null>; model?: string; provider: string }) => {
     const judge = (globalThis as any).storyOrchestratorJudge;
     if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
-    const out = await judge.calibrate('contradiction-release', cases, model);
+    const out = await judge.calibrate('contradiction-release', cases, model, provider);
     return { ...out, phaseA: judge.scoreContradictionRelease(out, cases, modes), verdict: judge.modelVerdict(model ?? null, out.model) };
-  }, { cases, modes, model: requestedModel });
+  }, { cases, modes, model: requestedModel, provider });
+  const report = { ...raw, verdict: providerVerdict(provider, raw.verdict, raw.model ?? null) };
   const labelOf: Record<string, string> = Object.fromEntries(cases.map((row) => [row.id, row.label]));
   for (const row of report.rows) console.log(`${row.right ? 'ok  ' : 'MISS'} ${row.id.padEnd(6)} ${String(row.picked).padEnd(8)} ${String(row.latencyMs).padStart(5)} ms  [${labelOf[row.id.split('.')[0]] ?? ''}]${row.fallback ? `  fallback=${row.fallback}` : ''}${row.detail ? `  ${row.detail}` : ''}`);
   for (const mode of report.phaseA.modes) {
@@ -200,7 +205,7 @@ async function calibrateRelease(page: any, fixtureName: string, record: boolean,
     for (const arm of mode.arms) console.log(`${arm.ok ? 'ok  ' : 'FAIL'} ${mode.mode} (${arm.wording}) releaseErr ${arm.releaseErr.hit}/${arm.releaseErr.total} paraphrase ${arm.paraphraseRelease.hit}/${arm.paraphraseRelease.total}`);
   }
   const modelVerdict = report.verdict.verdict as ModelVerdict;
-  const summary = { use: 'contradiction-release', fixture: fixtureName, rows: cases.length, modes: Object.keys(modes), brackets: bracketNames, passing: report.phaseA.passing, p50LatencyMs: report.p50LatencyMs, requestedModel: requestedModel ?? null, model: report.model, modelVerdict, ...(report.verdict.resolvedTo ? { resolvedTo: report.verdict.resolvedTo } : {}), ok: report.phaseA.ok && modelVerdict !== 'mismatch' && modelVerdict !== 'unknown' };
+  const summary = { use: 'contradiction-release', fixture: fixtureName, rows: cases.length, modes: Object.keys(modes), brackets: bracketNames, passing: report.phaseA.passing, p50LatencyMs: report.p50LatencyMs, provider, requestedModel: requestedModel ?? null, model: report.model, modelVerdict, ...(report.verdict.resolvedTo ? { resolvedTo: report.verdict.resolvedTo } : {}), ok: report.phaseA.ok && modelVerdict !== 'mismatch' && modelVerdict !== 'unknown' };
   console.log(JSON.stringify(summary, null, 2));
   await writeJSON({ summary, report }, `so-judge-calibrate-${fixtureName}`);
   if (record) {
@@ -250,19 +255,19 @@ async function readRecords(spec: string): Promise<Array<{ file: string; record: 
   return Promise.all(files.map(async (file) => ({ file, record: JSON.parse(await readFile(file, 'utf-8')) })));
 }
 
-async function rescore(page: any, use: string, spec: string, requestedModel?: string, factsFile?: string) {
+async function rescore(page: any, use: string, spec: string, requestedModel: string | undefined, factsFile: string | undefined, provider: JudgeCliProvider) {
   const records = await readRecords(spec);
   const facts = factsFile ? JSON.parse(await readFile(factsFile, 'utf-8')) : null;
   if (facts !== null && (!Array.isArray(facts) || facts.some((fact) => typeof fact !== 'string'))) throw new Error(`--facts ${factsFile}: expected a JSON array of fact strings`);
   const rows = withEstablished(records.flatMap(({ record }) => record?.cleanup?.rescore?.rows ?? []), facts);
   if (!rows.length) throw new Error(`no captured replies in ${spec}: run the journey with --judge-uses (on) and --judge-uses off (control) first`);
-  const results = await evaluateInST(page, async ({ use, rows, model }: { use: string; rows: unknown[]; model?: string }) => {
+  const results = await evaluateInST(page, async ({ use, rows, model, provider }: { use: string; rows: unknown[]; model?: string; provider: string }) => {
     const judge = (globalThis as any).storyOrchestratorJudge;
     if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
-    return judge.rescore(use, rows, model);
-  }, { use, rows, model: requestedModel });
+    return judge.rescore(use, rows, model, provider);
+  }, { use, rows, model: requestedModel, provider });
   const rates = rescoreRates(results);
-  const summary = { use, records: records.map(({ file }) => file), ...(facts ? { factsOverride: { file: factsFile, facts } } : {}), model: results.find((row: any) => row.model)?.model ?? null, rates };
+  const summary = { use, provider, records: records.map(({ file }) => file), ...(facts ? { factsOverride: { file: factsFile, facts } } : {}), model: results.find((row: any) => row.model)?.model ?? null, rates };
   console.log(JSON.stringify(summary, null, 2));
   await writeJSON({ summary, results }, `so-judge-rescore-${use}`);
   return { ok: rates.every((rate) => rate.answered > 0) };
@@ -388,6 +393,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'c
     console.log(USAGE);
     process.exit(hasHelpFlag() ? 0 : 1);
   }
+  const provider = readJudgeProvider(process.argv.includes('--provider') ? argValue('--provider', '') : undefined);
   runCli((page) => {
     if (command === 'status') return status(page);
     if (command === 'ask') return ask(page, arg);
@@ -395,10 +401,10 @@ if (process.argv[1] === fileURLToPath(import.meta.url) && process.argv[2] === 'c
     if (command === 'calls') return calls(page, Number(argValue('--last', '20')), process.argv.includes('--use') ? argValue('--use', '') || null : null, chat);
     if (command === 'cost') return cost(page, chat);
     if (command === 'limit-probe') return limitProbe(page, process.argv.includes('--send'));
-    if (command === 'rescore') return rescore(page, argValue('--use', 'continuity'), argValue('--records', ''), process.argv.includes('--model') ? argValue('--model', '') : undefined, process.argv.includes('--facts') ? argValue('--facts', '') : undefined);
+    if (command === 'rescore') return rescore(page, argValue('--use', 'continuity'), argValue('--records', ''), process.argv.includes('--model') ? argValue('--model', '') : undefined, process.argv.includes('--facts') ? argValue('--facts', '') : undefined, provider);
     const requestedModel = process.argv.includes('--model') ? argValue('--model', '') : undefined;
-    if (argValue('--use', 'director') === 'contradiction-release') return calibrateRelease(page, argValue('--fixture', K0_FIXTURE_NAME), process.argv.includes('--record'), requestedModel);
-    if (argValue('--use', 'director') === 'lore-relevance') return calibrateRelevance(page, argValue('--fixture', 'lore-relevance'), requestedModel);
-    return calibrate(page, argValue('--use', 'director'), argValue('--fixture', argValue('--use', 'director')), Number(argValue('--min', '0.85')), process.argv.includes('--record'), requestedModel);
+    if (argValue('--use', 'director') === 'contradiction-release') return calibrateRelease(page, argValue('--fixture', K0_FIXTURE_NAME), process.argv.includes('--record'), requestedModel, provider);
+    if (argValue('--use', 'director') === 'lore-relevance') return calibrateRelevance(page, argValue('--fixture', 'lore-relevance'), requestedModel, provider);
+    return calibrate(page, argValue('--use', 'director'), argValue('--fixture', argValue('--use', 'director')), Number(argValue('--min', '0.85')), process.argv.includes('--record'), requestedModel, provider);
   });
 }

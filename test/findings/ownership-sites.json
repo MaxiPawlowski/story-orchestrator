@@ -285,10 +285,6 @@
       "status": "local",
       "note": "CR-E8 (2026-09-30): the only write after its await is the finally that clears its own inFlight flag (in-memory bookkeeping, the ChapterSeal.seal rule). The swap itself is the view unit's ChapterSeal.run, which is checked; nothing is patched before that run commits, so a lapsed re-seal leaves the old record in place."
     },
-    "src/runtime/modelCallCore.ts#createModelCallVia.call": {
-      "status": "partial",
-      "note": "CR-E14 (2026-09-30): the call log row written after the model answers. COVERED: the row is stamped at CALL START with the chat the manager has loaded and the newest message (deps.stamp), and RuntimeManager.recordModelCall keeps it only when that chat is still the loaded one (acceptModelCall); a rollback drops rows asked at or after the edited message (rollbackModelCalls in rollbackOnce). NOT a token check: the row is a log line, and an unstamped caller (the live suite) is kept. Cases: modelCallChat.review.test.ts, rollbackKit.review.test.ts."
-    },
     "src/runtime/chapterKit.ts#chapterSlash": {
       "status": "local",
       "note": "CR-E13 (2026-09-30): a slash handler. After its awaits it only builds the reply text it returns (recordsForChapter, chronicleMarkdown); the seal/unseal it awaits are censused where they write."
@@ -302,6 +298,10 @@
       "note": "v2.3 replan V3 (2026-09-23): COVERED: the host write inside is preceded by the caller's per-member run.stillOwns() (applyCastChanges loop); the mirror write after it goes to the `extras` object this checkpoint was applied to, captured, never re-read, so a switch mid-call updates the departing chat's own mirror. NOT COVERED: none beyond withLedger's own row."
     },
     "src/runtime/effectsApplier.ts#EffectsApplier.applyCheckpoint": {
+      "status": "delegate",
+      "note": "AS-10 (2026-10-01): awaits EffectsApplier.applyCheckpointNow, the coalescing door. A hydrate asked while an apply of the same checkpoint in the same chat is still running awaits that apply instead of writing the cast and staging a second time (the import duplicate); its only write after the await is the finally that clears its own in-flight marker. The host writes are applyCheckpointNow, checked."
+    },
+    "src/runtime/effectsApplier.ts#EffectsApplier.applyCheckpointNow": {
       "status": "checked",
       "note": "v2.3 plan 03: the widest write edge in the extension -- World Info flags in shared lorebook FILES, Authors Note and preset as install state, and cast_changes mutating the GROUP disabled_members, which outlives the chat. Checked before EVERY host-facing write rather than once per group of them (2026-09-22: the preset sat below the Author Note await and the background below applyCastChanges per-member awaits with no check between, so the background was the one write that could land in another chat; it now checks per member inside the loop, before the preset, and before the background). It stops rather than completing, because whatever moved the world runs its own applyCheckpoint."
     },
@@ -611,7 +611,7 @@
     },
     "src/runtime/modelCallCore.ts#createModelCallVia.call": {
       "status": "checked",
-      "note": "CR-J15: mints a token before the model await (when deps.ownership is given; the manager's model passes its own) and recordCall checks it before every telemetry write, the success note, the failure note and the harness fallback's notes alike, so a call that lands after its chat went away records nothing in the next chat's ring. Case: harnessRouting.test.ts \"CR-J15\"."
+      "note": "CR-J15: mints a token before the model await (when deps.ownership is given; the manager's model passes its own) and recordCall checks it before every telemetry write, the success note, the failure note and the harness fallback's notes alike, so a call that lands after its chat went away records nothing in the next chat's ring. Case: harnessRouting.test.ts \"CR-J15\". CR-E14 (2026-09-30) added a second layer: the row is stamped at CALL START with the loaded chat and the newest message (deps.stamp), RuntimeManager.recordModelCall keeps it only for that chat (acceptModelCall), and a rollback drops rows asked at or after the edited message (rollbackModelCalls); cases modelCallChat.review.test.ts, rollbackKit.review.test.ts. AS-9 (2026-10-01): the two CR rows had merged into one duplicate key (JSON kept the last); folded into this one, and harnessRouting.test.ts \"AS-9\" pins both layers on the harness route."
     }
   }
 }

@@ -1,8 +1,8 @@
 import {
   askJudge, createJudgeGate, modelVerdict, buildDirectorRequest, decideDirector, directorJudgeEligible,
-  directorRecordP, judgeRoute, judgeUseActive, DEFAULT_JUDGE_PROVIDER, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord,
+  directorRecordP, judgeRoute, judgeUseActive, providerCleared, DEFAULT_JUDGE_PROVIDER, DIRECTOR_TIMEOUT_MS, type JudgeAnswer, type JudgeCallRecord,
   type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeFallback, type JudgeGate, type JudgeProviderId, type JudgeRequest, type JudgeResponse,
-  type JudgeResult, type JudgeSettings, type JudgeTransport, type JudgeUseKey,
+  type JudgeResult, type JudgeServedModels, type JudgeSettings, type JudgeTransport, type JudgeUseKey,
 } from "@judge/index";
 import type { RunOwnership } from "./runToken";
 
@@ -40,6 +40,7 @@ export class JudgeRuntime {
   private readonly unbilled = new Map<string | null, JudgeCallRecord[]>();
   private readonly providerCaches = new Map<JudgeProviderId, Map<string, JudgeResponse>>();
   private availability: { key: string; at: number; status: JudgeStatusLike | null } | null = null;
+  private readonly served: JudgeServedModels = {};
   private readonly gate: JudgeGate;
 
   constructor(private readonly deps: JudgeRuntimeDeps) {
@@ -113,6 +114,10 @@ export class JudgeRuntime {
     return modelVerdict(requested ?? this.deps.getSettings().model, answered);
   }
 
+  servedModels(): JudgeServedModels {
+    return { ...this.served };
+  }
+
   private fallbackRecord(use: string, fallback: JudgeFallback, request: JudgeRequest | undefined, context: { boundary: number; messageId: number }): JudgeCallRecord {
     return {
       at: new Date((this.deps.now ?? Date.now)()).toISOString(),
@@ -138,7 +143,7 @@ export class JudgeRuntime {
     // recorded, with the other chat's boundary, in the other chat's ring — and builds its
     // cost and latency report out of these rings.
     const asked = this.deps.context();
-    const route = judgeRoute(settings, use);
+    const route = judgeRoute(settings, use, this.served);
     const provider = route.provider;
     const routed = provider === DEFAULT_JUDGE_PROVIDER ? {} : { provider };
     const refuse = (fallback: JudgeFallback): JudgeResult => ({
@@ -172,6 +177,14 @@ export class JudgeRuntime {
       ...(this.deps.now ? { now: this.deps.now } : {}),
     });
     if (result.fallback === "error") this.invalidateStatus();
+    if (provider !== DEFAULT_JUDGE_PROVIDER && result.model) {
+      this.served[provider] = result.model;
+      if (!route.keys.every((key) => providerCleared(provider, key, this.served))) {
+        const owned = token ? this.deps.ownership.check(token) : undefined;
+        if (!owned || owned.ok) this.deps.record({ ...this.fallbackRecord(use, "model-mismatch", request, asked), model: result.model, latencyMs: result.latencyMs, ...routed });
+        return { ...refuse("model-mismatch"), model: result.model, latencyMs: result.latencyMs };
+      }
+    }
     const record: JudgeCallRecord = {
       at: new Date((this.deps.now ?? Date.now)()).toISOString(),
       boundary: asked.boundary,

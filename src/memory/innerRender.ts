@@ -17,29 +17,53 @@ const META = new RegExp([
 export const isMetaCommentary = (text: string): boolean => META.test(text);
 
 export interface IntentEvidence {
-  characterText: string;
-  speakers: string[];
+  characters: Array<{ speaker: string; text: string }>;
   players: string[];
 }
 
-export const intentEvidence = (messages: Array<{ speaker: string; text: string; isUser: boolean }>, players: string[]): IntentEvidence => {
-  const characters = messages.filter((message) => !message.isUser);
-  return {
-    characterText: characters.map((message) => `${message.speaker}: ${message.text}`).join("\n").toLowerCase(),
-    speakers: characters.map((message) => norm(message.speaker)),
-    players: [...players, ...messages.filter((message) => message.isUser).map((message) => message.speaker)].map(norm).filter(Boolean),
-  };
+export const intentEvidence = (messages: Array<{ speaker: string; text: string; isUser: boolean }>, players: string[]): IntentEvidence => ({
+  characters: messages.filter((message) => !message.isUser).map((message) => ({ speaker: norm(message.speaker), text: message.text })),
+  players: [...players, ...messages.filter((message) => message.isUser).map((message) => message.speaker)].map(norm).filter(Boolean),
+});
+
+const STOP = new Set([
+  "the", "and", "for", "from", "with", "her", "his", "their", "them", "him", "she", "they", "you", "your", "that", "this", "into",
+  "onto", "before", "after", "about", "what", "when", "will", "would", "could", "should", "want", "intend", "plan", "going", "get",
+  "make", "out", "off", "own", "its", "who", "all", "any", "some", "then", "than", "there", "here", "tonight", "today", "now",
+]);
+
+const STATE_VERB = /^(wants?|intends?|plans?|means?|hopes?|wish(es)?|desires?|seems?|clearly|is going|will|would|must|surely|probably|likely)\b/;
+
+const stem = (word: string) => word.replace(/(ing|ed|es|s)$/, (suffix, offset: number) => (offset >= 3 ? "" : suffix));
+
+const contentWords = (text: string, skip: Set<string>) => new Set(
+  (text.toLowerCase().match(/[\p{L}\p{N}]+/gu) ?? []).filter((word) => word.length >= 3 && !STOP.has(word) && !skip.has(word)).map(stem),
+);
+
+const unquoted = (text: string) => text.replace(/"[^"]*"|“[^”]*”|«[^»]*»/g, " ");
+
+const sentences = (text: string) => text.split(/(?<=[.!?…])\s+|\n+/).map((sentence) => sentence.trim()).filter(Boolean);
+
+const actsAs = (sentence: string, subject: string) => {
+  const lower = sentence.toLowerCase().replace(/^[^\p{L}\p{N}]+/u, "");
+  if (!lower.startsWith(subject)) return false;
+  const rest = lower.slice(subject.length);
+  if (/^[\p{L}\p{N}]/u.test(rest)) return false;
+  return !STATE_VERB.test(rest.replace(/^[^\p{L}\p{N}]+/u, ""));
 };
 
-const escapeRegex = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-
-const names = (text: string, name: string) => new RegExp(`(^|[^\\p{L}\\p{N}])${escapeRegex(name)}($|[^\\p{L}\\p{N}])`, "u").test(text);
+const attributedText = (evidence: IntentEvidence, subject: string) => evidence.characters.flatMap((message) => (message.speaker === subject
+  ? [message.text]
+  : sentences(unquoted(message.text)).filter((sentence) => actsAs(sentence, subject))));
 
 export const admitIntents = (signals: ParsedEpistemicSignal[], evidence: IntentEvidence | null): ParsedEpistemicSignal[] => signals.filter((signal) => {
   if (signal.tag !== "intends") return true;
   const subject = norm(signal.subject);
   if (!evidence || !subject || evidence.players.includes(subject) || isMetaCommentary(signal.content)) return false;
-  return evidence.speakers.includes(subject) || names(evidence.characterText, subject);
+  const skip = new Set(subject.split(/\s+/));
+  const claimed = contentWords(signal.content, skip);
+  if (!claimed.size) return false;
+  return attributedText(evidence, subject).some((text) => [...contentWords(text, skip)].some((word) => claimed.has(word)));
 });
 
 export const capIntents = (entries: EpistemicEntry[], cap: number = INTENT_OPEN_CAP): EpistemicEntry[] => {

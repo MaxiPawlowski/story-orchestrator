@@ -143,3 +143,123 @@ describe("CR-E8: a re-seal that fails keeps the record it was replacing", () => 
     expect(h.memory().entries.every((entry) => entry.foldedInto === record!.id)).toBe(true);
   });
 });
+
+describe("AS-6: a re-seal owns unseal -> seal with one token, and never seals in another chat", () => {
+  const worlds = () => {
+    const context: RunContext = { chatId: "chat-a", storyId: "chapters-mini", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
+    const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
+    const fresh = () => ({
+      entries: [shortTerm("st1", 4)], arcs: [], ledger: [], derived: [] as DerivedRecord[], chapters: [] as ChapterRecord[], chronicle: { eras: [] },
+      shortTermSummaryEnd: -1, storyStart: 0, settings: { enabled: true, chapters: { seal: true, chronicleTokens: 700 } },
+    }) as unknown as MemoryRuntimeState;
+    const stores: Record<string, MemoryRuntimeState> = { "chat-a": fresh(), "chat-b": fresh() };
+    const onModel: Array<() => void> = [];
+    const effects: string[] = [];
+    let derivedId = 0;
+    const deps: ChapterSealDeps = {
+      getStory: () => story,
+      getState: () => later,
+      memory: () => stores[context.chatId!],
+      patch: (next) => { stores[context.chatId!] = { ...stores[context.chatId!], ...next }; effects.push(`patch:${context.chatId}`); },
+      record: (input) => {
+        derivedId += 1;
+        const memory = stores[context.chatId!];
+        stores[context.chatId!] = { ...memory, derived: [...memory.derived, { ...input, id: `d${derivedId}`, boundary: 0, messageId: input.messageId ?? 0 } as DerivedRecord] };
+        effects.push(`record:${context.chatId}`);
+      },
+      model: () => async () => { onModel.shift()?.(); return { text: "" } as never; },
+      ownership: () => ownership,
+      closeScene: async () => {},
+      sceneStart: (to) => to + 1,
+      summarizeArcs: async () => true,
+      updateInjection: () => { effects.push(`inject:${context.chatId}`); },
+      save: async () => { effects.push(`save:${context.chatId}`); },
+      roster: () => [],
+      playerName: () => "You",
+      journal: () => { effects.push(`journal:${context.chatId}`); },
+      announce: async () => { effects.push(`announce:${context.chatId}`); },
+    };
+    return { seal: new ChapterSeal(deps), stores, context, onModel, effects };
+  };
+
+  it("chat A -> B mid re-seal: B is never written, A keeps its record, and nothing lands after the switch", async () => {
+    const w = worlds();
+    const record = await w.seal.seal({ chapter: arrival, part: 1, final: false }, atWalls(10));
+    const before = { a: w.stores["chat-a"], b: w.stores["chat-b"] };
+    w.effects.length = 0;
+    w.onModel.push(() => { w.context.chatId = "chat-b"; });
+    expect(await w.seal.reseal(record!.id)).toBeNull();
+    expect(w.stores["chat-b"]).toBe(before.b);
+    expect(w.stores["chat-a"]).toBe(before.a);
+    expect(w.effects).toEqual([]);
+  });
+
+  it("a switch after the record is written (during the final saga) still writes nothing in B", async () => {
+    const w = worlds();
+    const record = await w.seal.seal({ chapter: arrival, part: 1, final: true }, atWalls(10));
+    const b = w.stores["chat-b"];
+    w.effects.length = 0;
+    w.onModel.push(() => undefined, () => undefined, () => { w.context.chatId = "chat-b"; });
+    await w.seal.reseal(record!.id);
+    expect(w.stores["chat-b"]).toBe(b);
+    expect(w.effects.filter((effect) => effect.endsWith("chat-b"))).toEqual([]);
+  });
+
+  it("control: without a switch the re-seal writes A once", async () => {
+    const w = worlds();
+    const record = await w.seal.seal({ chapter: arrival, part: 1, final: false }, atWalls(10));
+    w.effects.length = 0;
+    expect((await w.seal.reseal(record!.id))?.id).toBe(record!.id);
+    expect(w.effects.filter((effect) => effect.startsWith("patch:"))).toEqual(["patch:chat-a"]);
+  });
+
+  it("unseal reports whether the run that wrote it still owns the chat", async () => {
+    const w = worlds();
+    const record = await w.seal.seal({ chapter: arrival, part: 1, final: false }, atWalls(10));
+    const deps = (w.seal as unknown as { deps: ChapterSealDeps }).deps;
+    const save = deps.save;
+    deps.save = async () => { await save(); w.context.chatId = "chat-b"; };
+    expect(await w.seal.unseal(record!.id)).toBe(false);
+    expect(w.effects.filter((effect) => effect === "journal:chat-b")).toEqual([]);
+  });
+});
+
+describe("AS-7: unseal reverses the summary watermark, and the unsealed span is processed again", () => {
+  it("seal -> unseal -> reprocess: the fold, the watermark and the seal row are all back where they were, so a new short-term pass covers the span", async () => {
+    const h = harness();
+    const before = h.memory();
+    const record = await h.seal.seal({ chapter: arrival, part: 1, final: false }, atWalls(10));
+    expect(h.memory().shortTermSummaryEnd).toBe(10);
+    await h.seal.unseal(record!.id);
+    expect(h.memory().shortTermSummaryEnd).toBe(before.shortTermSummaryEnd);
+    expect(h.memory().entries).toEqual(before.entries);
+    expect(h.memory().derived.filter((row) => row.kind === "chapter_seal")).toEqual([]);
+    expect(h.memory().chapters).toEqual([]);
+    h.set({ entries: [...h.memory().entries, shortTerm("st2", 9)] });
+    const again = await h.seal.seal({ chapter: arrival, part: 1, final: false }, atWalls(10));
+    expect(again?.range).toEqual(record!.range);
+    expect(h.memory().entries.every((entry) => entry.foldedInto === record!.id)).toBe(true);
+    expect(h.memory().shortTermSummaryEnd).toBe(10);
+  });
+
+  it("seal -> reseal: the watermark the first seal raised is lowered and raised once, never left above the new seal's span", async () => {
+    const h = harness();
+    const record = await h.seal.seal({ chapter: arrival, part: 1, final: false }, atWalls(10));
+    h.set({ shortTermSummaryEnd: 10 });
+    const again = await h.seal.reseal(record!.id);
+    expect(again?.range).toEqual(record!.range);
+    expect(h.memory().shortTermSummaryEnd).toBe(10);
+    const seals = h.memory().derived.filter((row) => row.kind === "chapter_seal");
+    expect(seals).toHaveLength(1);
+    expect(seals[0].range).toEqual({ from: 0, to: 10 });
+  });
+
+  it("an unseal whose seal moved nothing leaves a later watermark alone", async () => {
+    const h = harness();
+    h.set({ shortTermSummaryEnd: 12 });
+    const record = await h.seal.seal({ chapter: arrival, part: 1, final: false }, atWalls(10));
+    expect(h.memory().shortTermSummaryEnd).toBe(12);
+    await h.seal.unseal(record!.id);
+    expect(h.memory().shortTermSummaryEnd).toBe(12);
+  });
+});

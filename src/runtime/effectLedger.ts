@@ -29,7 +29,34 @@ const owesRestore = (row: EffectLedgerRow) => row.status === "applied" || row.st
  * The limit trims SETTLED rows only, oldest first. A row that is applied or pending is the chat's
  * only record of a host change it still owes back; forgetting it leaks the change on leave.
  */
-export function trimLedger(rows: EffectLedgerRow[]): EffectLedgerRow[] {
+export function compactLedger(rows: EffectLedgerRow[]): EffectLedgerRow[] {
+  const out: EffectLedgerRow[] = [];
+  const lastOnTarget = new Map<string, number>();
+  for (const row of rows) {
+    if (row.status === "applied" && same(row.before, row.after)) continue;
+    const key = targetKey(row.target);
+    const at = lastOnTarget.get(key);
+    const previous = at === undefined ? null : out[at];
+    if (previous && at !== undefined && previous.status === "applied" && row.status === "applied" && previous.messageId === row.messageId
+      && previous.effect === row.effect && same(previous.after, row.before)) {
+      const merged = { ...row, before: previous.before };
+      if (same(merged.before, merged.after)) {
+        out.splice(at, 1);
+        lastOnTarget.delete(key);
+        lastOnTarget.forEach((index, other) => { if (index > at) lastOnTarget.set(other, index - 1); });
+        continue;
+      }
+      out[at] = merged;
+      continue;
+    }
+    lastOnTarget.set(key, out.length);
+    out.push(row);
+  }
+  return out;
+}
+
+export function trimLedger(input: EffectLedgerRow[]): EffectLedgerRow[] {
+  const rows = compactLedger(input);
   let excess = rows.length - EFFECT_LEDGER_LIMIT;
   if (excess <= 0) return rows;
   return rows.filter((row) => {

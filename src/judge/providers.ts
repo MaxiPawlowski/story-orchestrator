@@ -24,13 +24,14 @@ export const JUDGE_PROVIDERS: Record<JudgeProviderId, JudgeProviderInfo> = {
   typesafe: {
     label: "TypeSafe (Jev)",
     remote: true,
-    notice: "Judge on: for each use routed here, the chat excerpts it lists are sent to TypeSafe.",
+    notice: "A configured TypeSafe key is consent: while the judge is on, each use routed here sends the chat excerpts it lists to TypeSafe. "
+      + "To stop it, untick \"Use the judgment model\" or the use itself.",
     policyUrl: "https://typesafe.ai/legal/privacy-policy",
   },
   "llama-logprob": {
     label: "llama-server (log-probabilities)",
     remote: false,
-    notice: "Judge on: excerpts for uses routed here go to the configured llama-server, off this machine.",
+    notice: "A configured llama-server off this machine is consent: while the judge is on, excerpts for uses routed here go to it. To stop it, untick \"Use the judgment model\" or the use itself.",
   },
 };
 

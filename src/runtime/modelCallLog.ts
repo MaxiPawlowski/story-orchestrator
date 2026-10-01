@@ -14,6 +14,7 @@ export interface ModelCallRecord {
   ms: number;
   spawnMs?: number | null;
   usage?: CallUsage;
+  model?: string | null;
   fallbackFrom?: string;
   samplers: "applied" | "not-applied";
   chatId?: string | null;

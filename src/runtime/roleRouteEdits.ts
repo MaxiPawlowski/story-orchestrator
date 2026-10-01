@@ -1,3 +1,4 @@
+import { usageKnown } from "@extraction/modelRoute";
 import type { PassRole } from "@extraction/passRole";
 import type { HarnessId } from "@utils/harness";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
@@ -46,12 +47,13 @@ export interface RouteMeter {
   inputTokens: number;
   outputTokens: number;
   costUsd: number;
+  unknownUsage?: number;
 }
 
 export const routeMeters = (ring: readonly ModelCallRecord[]): RouteMeter[] => {
   const meters = new Map<string, RouteMeter>();
   for (const record of ring) {
-    const meter = meters.get(record.route) ?? { route: record.route, calls: 0, ok: 0, failed: 0, fallback: 0, inputTokens: 0, outputTokens: 0, costUsd: 0 };
+    const meter = meters.get(record.route) ?? { route: record.route, calls: 0, ok: 0, failed: 0, fallback: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, unknownUsage: 0 };
     meter.calls += 1;
     if (record.result === "ok") meter.ok += 1;
     else if (record.result === "fallback") meter.fallback += 1;
@@ -59,6 +61,7 @@ export const routeMeters = (ring: readonly ModelCallRecord[]): RouteMeter[] => {
     meter.inputTokens += record.usage?.input ?? 0;
     meter.outputTokens += record.usage?.output ?? 0;
     meter.costUsd += record.usage?.costUsd ?? 0;
+    if (record.result === "ok" && !usageKnown(record.usage)) meter.unknownUsage = (meter.unknownUsage ?? 0) + 1;
     meters.set(record.route, meter);
   }
   return [...meters.values()];

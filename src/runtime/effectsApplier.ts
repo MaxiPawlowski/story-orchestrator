@@ -191,6 +191,7 @@ export class EffectsApplier {
   constructor(private readonly ownership: RunOwnership, private readonly deps: EffectApplierDeps = {}) {}
 
   private appliedChat: string | null = null;
+  private applying: { key: string; done: Promise<void> } | null = null;
 
   // The one thing a transition posts into the chat itself: a compact system note naming where the
   // story moved (opt-out in settings), kept to one line.
@@ -238,6 +239,21 @@ export class EffectsApplier {
   // `path` is every checkpoint the chat entered, ending at `checkpoint`: world_info is rebuilt from it
   // each time, so a flag another chat left in a shared lorebook never survives into this one.
   async applyCheckpoint(
+    story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], gate?: number,
+  ): Promise<void> {
+    const key = `${openChatId()}|${checkpoint.id}`;
+    const running = this.applying;
+    if (mode === "hydrate" && running?.key === key) return running.done;
+    const entry = { key, done: this.applyCheckpointNow(story, checkpoint, extras, snapshot, mode, path, gate) };
+    this.applying = entry;
+    try {
+      await entry.done;
+    } finally {
+      if (this.applying === entry) this.applying = null;
+    }
+  }
+
+  private async applyCheckpointNow(
     story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], gate?: number,
   ) {
     const ready = extras.requirements.ready;

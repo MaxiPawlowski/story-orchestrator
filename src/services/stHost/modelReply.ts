@@ -10,6 +10,9 @@ export type ModelFailureKind = "lapsed" | "timeout" | "transport" | "config" | "
 export interface ReasoningMeter {
   effort: ReasoningEffort;
   applied: boolean;
+  supported?: boolean;
+  sent?: string | null;
+  observed?: boolean;
   collapsed: boolean;
   unsupported: string | null;
   budget: number;
@@ -24,7 +27,7 @@ export interface ModelUsage {
 }
 
 export type ModelReply =
-  | { ok: true; text: string; finish: ModelFinish; meter: ReasoningMeter; usage?: ModelUsage; spawnMs?: number | null }
+  | { ok: true; text: string; finish: ModelFinish; meter: ReasoningMeter; usage?: ModelUsage; model?: string | null; spawnMs?: number | null }
   | { ok: false; kind: ModelFailureKind; message: string; retryAt?: number };
 
 export interface ModelSamplers {
@@ -134,6 +137,19 @@ export function cleanTextCompletionReply(text: string, instruct: InstructSequenc
   return message;
 }
 
+const count = (value: unknown): number | null => (typeof value === "number" && Number.isFinite(value) && value >= 0 ? value : null);
+
+export function readUsage(json: unknown): ModelUsage {
+  const usage = isRecord(json) && isRecord(json.usage) ? json.usage : {};
+  return {
+    input: count(usage.prompt_tokens) ?? count(usage.input_tokens),
+    output: count(usage.completion_tokens) ?? count(usage.output_tokens),
+    costUsd: count(usage.cost),
+  };
+}
+
+export const readModel = (json: unknown): string | null => (isRecord(json) && typeof json.model === "string" && json.model.trim() ? json.model.trim() : null);
+
 export const TEXT_COMPLETION_BUDGET_KEYS = ["max_tokens", "max_new_tokens", "n_predict", "num_predict"] as const;
 
 const textCompletionBudget = (maxTokens: number): Record<string, number> => Object.fromEntries(TEXT_COMPLETION_BUDGET_KEYS.map((key) => [key, maxTokens]));
@@ -166,9 +182,12 @@ export async function requestModelReply(host: ModelRequestHost, profileId: strin
     const text = type === TEXT_COMPLETION_API ? cleanTextCompletionReply(extracted, host.instructSequences(profile?.instruct)) : extracted;
     const finish = readFinish(json);
     const read = readReasoning(json);
-    const meter: ReasoningMeter = { effort, applied: plan.applied, collapsed: plan.collapsed, unsupported: plan.unsupported, budget, chars: read.chars, tokens: read.tokens };
+    const meter: ReasoningMeter = {
+      effort, applied: plan.applied, supported: plan.supported, sent: plan.sent, observed: read.chars > 0 || (read.tokens ?? 0) > 0,
+      collapsed: plan.collapsed, unsupported: plan.unsupported, budget, chars: read.chars, tokens: read.tokens,
+    };
     if (isReasoningExhausted(text, finish, meter)) return { ok: false, kind: "reasoning-exhausted", message: reasoningExhaustedMessage(meter, finish) };
-    return { ok: true, text, finish, meter };
+    return { ok: true, text, finish, meter, usage: readUsage(json), model: readModel(json) };
   } catch (error) {
     return { ok: false, ...classifyHostFailure(error, signal) };
   }

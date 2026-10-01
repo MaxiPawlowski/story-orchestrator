@@ -53,6 +53,8 @@ Pass criteria under nondeterminism — assert pipeline behavior, never exact mod
 
 One malformed model response correctly audited/retried = plumbing pass. Repeated hard failures against a contract = real finding (prompt/contract issue) — report it, don't paper over with a mock.
 
+**Judge calibration per provider (AS-17, 2026-10-01).** `so-judge calibrate` and `rescore` take `--provider typesafe|llama-logprob` (default `typesafe`), threaded through the harness (`storyOrchestratorJudge.probe/calibrate/calibrateLoreRelevance/rescore(…, model, provider)`); the summary records `provider`, and a llama run never reaches TypeSafe. A llama calibration's model verdict is the model that answered (`resolved`), never TypeSafe's alias check. No privacy-notice gate exists (CR-J3, user decision 2026-10-01: a configured key is consent), so a lane with a key sends judge calls as soon as the judge is on.
+
 ## Script reference
 
 ### State & data

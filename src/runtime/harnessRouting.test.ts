@@ -8,7 +8,7 @@ import type { ModelRoute } from "@extraction/modelRoute";
 import type { HarnessRequest, ModelReply } from "@services/STAPI";
 import { createModelCallVia } from "./modelCallCore";
 import type { ModelCallRecord } from "./modelCallLog";
-import { appendModelCall, MODEL_CALL_LIMIT, sanitizeModelCalls } from "./modelCallLog";
+import { acceptModelCall, appendModelCall, MODEL_CALL_LIMIT, sanitizeModelCalls } from "./modelCallLog";
 import { routeMeters, withRoleEffort, withRoleFallback, withRoleHarness } from "./roleRouteEdits";
 import { resolvedProfileId, resolveRoute, sanitizeRoleRoutes, type RouteSettings } from "./passProfiles";
 import { fallbackRoute } from "./harnessFallback";
@@ -168,8 +168,8 @@ describe("H4: the call ring and the meter", () => {
 
   it("meters per route and keeps a fallback apart from a failure", () => {
     expect(routeMeters([record("h", "ok", 100), record("h", "quota", 0), record("local", "fallback", 7)])).toEqual([
-      { route: "h", calls: 2, ok: 1, failed: 1, fallback: 0, inputTokens: 100, outputTokens: 2, costUsd: 0 },
-      { route: "local", calls: 1, ok: 0, failed: 0, fallback: 1, inputTokens: 7, outputTokens: 1, costUsd: 0 },
+      { route: "h", calls: 2, ok: 1, failed: 1, fallback: 0, inputTokens: 100, outputTokens: 2, costUsd: 0, unknownUsage: 0 },
+      { route: "local", calls: 1, ok: 0, failed: 0, fallback: 1, inputTokens: 7, outputTokens: 1, costUsd: 0, unknownUsage: 0 },
     ]);
   });
 });
@@ -247,5 +247,43 @@ describe("review fixes CR-J (harness routing)", () => {
     const control = createModelCallVia(steady, { settings: () => settings, exists: exists(["memory"]), record: (record) => records.push(record), ownership, planted: false });
     await control("p", { role: "synthesis", pass: "canon" });
     expect(records.map((record) => record.result)).toEqual(["ok"]);
+  });
+});
+
+describe("AS-9: a harness call that lands after a chat switch", () => {
+  it("writes no telemetry into the chat now open, from the success path or the failure path", async () => {
+    const context = { chatId: "chat-a", epoch: 1 };
+    const ownership = {
+      mint: () => ({ chatId: context.chatId, epoch: context.epoch }) as never,
+      check: (token: never) => ((token as { epoch: number }).epoch === context.epoch ? { ok: true as const } : { ok: false as const, reason: "chat" as const }),
+    } as unknown as RunOwnership;
+    const rings: Record<string, ModelCallRecord[]> = { "chat-a": [], "chat-b": [] };
+    const record = (row: ModelCallRecord) => { rings[context.chatId] = acceptModelCall(rings[context.chatId], row, context.chatId); };
+    const switchChat = () => { context.chatId = "chat-b"; context.epoch += 1; };
+    const settings = { ...routed(), routes: withRoleFallback(routed().routes, "synthesis", null) };
+    const deps = { settings: () => settings, exists: exists(["memory"]), record, ownership, planted: false, stamp: () => ({ chatId: context.chatId, messageId: 4 }) };
+    const answered = createModelCallVia(async (_prompt, route) => {
+      expect(route?.kind).toBe("harness");
+      switchChat();
+      return { text: "ANSWER", finish: "stop" as const, usage: { input: 3, output: 2, costUsd: null } };
+    }, deps);
+    await expect(answered("p", { role: "synthesis", pass: "canon" })).resolves.toMatchObject({ text: "ANSWER" });
+    const failed = createModelCallVia(async () => {
+      switchChat();
+      throw new ModelCallError("timeout", "late", "harness:claude:sonnet");
+    }, deps);
+    await expect(failed("p", { role: "synthesis", pass: "canon" })).rejects.toThrow("late");
+    expect(rings).toEqual({ "chat-a": [], "chat-b": [] });
+  });
+
+  it("control: an unmoved chat records the harness call in its own ring", async () => {
+    const rings: ModelCallRecord[] = [];
+    const ownership = { mint: () => ({}) as never, check: () => ({ ok: true as const }) } as unknown as RunOwnership;
+    const settings = { ...routed(), routes: withRoleFallback(routed().routes, "synthesis", null) };
+    const model = createModelCallVia(async () => ({ text: "ANSWER", finish: "stop" as const }), {
+      settings: () => settings, exists: exists(["memory"]), record: (row) => rings.push(row), ownership, planted: false, stamp: () => ({ chatId: "chat-a", messageId: 4 }),
+    });
+    await model("p", { role: "synthesis", pass: "canon" });
+    expect(rings).toEqual([expect.objectContaining({ route: "harness:claude:sonnet", chatId: "chat-a", result: "ok" })]);
   });
 });

@@ -31,7 +31,8 @@ export async function viaHarness(harness: HarnessTransport, route: ModelRoute & 
   answered(Date.now() - startedAt);
   const text = stripReasoningBlocks(reply.text);
   if (!text.trim()) throw new ModelCallError("malformed", "the harness answered with no text", key);
-  return { text, finish: reply.finish, meter: reply.meter, ...(reply.usage ? { usage: reply.usage } : {}), spawnMs: reply.spawnMs ?? null };
+  const identity = { ...(reply.usage ? { usage: reply.usage } : {}), ...(reply.model !== undefined ? { model: reply.model } : {}) };
+  return { text, finish: reply.finish, meter: reply.meter, ...identity, spawnMs: reply.spawnMs ?? null };
 }
 
 /** A harness route's breaker probe spends no quota: it re-reads the plugin status (installed, offered, logged in, not quota-held). */

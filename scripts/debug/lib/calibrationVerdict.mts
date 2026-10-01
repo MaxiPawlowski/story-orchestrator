@@ -22,3 +22,17 @@ export function calibrationOk({ rate, min, minGiven, families, modelVerdict }: C
   if (!families.length) return rate >= min;
   return families.every((family) => family.ok) && (!minGiven || rate >= min);
 }
+
+export const JUDGE_CLI_PROVIDERS = ['typesafe', 'llama-logprob'] as const;
+export type JudgeCliProvider = (typeof JUDGE_CLI_PROVIDERS)[number];
+
+export function readJudgeProvider(value: string | undefined): JudgeCliProvider {
+  if (value === undefined || value === '') return 'typesafe';
+  if (!(JUDGE_CLI_PROVIDERS as readonly string[]).includes(value)) throw new Error(`unknown judge provider '${value}' (known: ${JUDGE_CLI_PROVIDERS.join(', ')})`);
+  return value as JudgeCliProvider;
+}
+
+export function providerVerdict(provider: JudgeCliProvider, typesafe: { verdict: ModelVerdict; resolvedTo?: string }, answered: string | null): { verdict: ModelVerdict; resolvedTo?: string } {
+  if (provider === 'typesafe') return typesafe;
+  return answered ? { verdict: 'resolved', resolvedTo: answered } : { verdict: 'unknown' };
+}

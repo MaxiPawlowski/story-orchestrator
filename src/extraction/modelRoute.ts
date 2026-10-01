@@ -21,6 +21,10 @@ export interface CallUsage {
   costUsd: number | null;
 }
 
+export const UNKNOWN_USAGE: CallUsage = Object.freeze({ input: null, output: null, costUsd: null });
+
+export const usageKnown = (usage: CallUsage | undefined): usage is CallUsage => usage !== undefined && (usage.input !== null || usage.output !== null || usage.costUsd !== null);
+
 export type RouteResolution = { ok: true; route: ModelRoute | null; source: "role" | "fallback" } | { ok: false; profileId: string; reason: string };
 
 export const MODEL_PASSES = [
@@ -34,6 +38,7 @@ export interface ExtractionReply {
   finish: ModelFinish;
   meter?: ReasoningMeter;
   usage?: CallUsage;
+  model?: string | null;
   spawnMs?: number | null;
 }
 

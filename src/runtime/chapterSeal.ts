@@ -328,7 +328,8 @@ export class ChapterSeal {
     this.deps.patch(unsealedView(memory, recordId));
     this.deps.updateInjection();
     await this.deps.save();
-    if (run.stillOwns()) this.deps.journal(`chapter unsealed: ${records[records.length - 1].playerTitle}`, recordId);
+    if (!run.stillOwns()) return false;
+    this.deps.journal(`chapter unsealed: ${records[records.length - 1].playerTitle}`, recordId);
     return true;
   }
 
