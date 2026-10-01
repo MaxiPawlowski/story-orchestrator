@@ -25,7 +25,7 @@ export type PassFamily = "sharedRead" | "sceneSummary" | "shortTerm" | "arcSumma
 export type ResponseBudget = { fixed: number } | { ratio: number; floor: number; cap: number };
 
 export const MAX_TOKENS_TABLE: Record<PassFamily, ResponseBudget> = {
-  sharedRead: { fixed: DEFAULT_MAX_TOKENS },
+  sharedRead: { fixed: 1024 },
   sceneSummary: { ratio: 0.25, floor: 256, cap: 1024 },
   shortTerm: { ratio: 0.25, floor: 256, cap: 1024 },
   arcSummary: { ratio: 0.25, floor: 256, cap: 1024 },

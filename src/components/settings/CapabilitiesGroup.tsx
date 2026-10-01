@@ -18,15 +18,21 @@ export interface CapabilitiesGroupProps {
 // story spoiler, so it needs no persona gate.
 export interface MemoryModelLimit {
   value: number;
-  source: "preset" | "default";
+  source: "preset" | "source" | "default";
   reason?: string;
   inputBudget: number;
 }
 
 const tokens = (value: number) => value.toLocaleString("en-US");
 
+const limitOrigin = (limit: MemoryModelLimit) => {
+  if (limit.source === "preset") return "(from its preset)";
+  if (limit.source === "source") return `(${limit.reason ?? "known for its provider"})`;
+  return `(default${limit.reason ? `: ${limit.reason}` : ""})`;
+};
+
 export const describeMemoryModelLimit = (limit: MemoryModelLimit) =>
-  `Memory model context: ${tokens(limit.value)} tokens ${limit.source === "preset" ? "(from its preset)" : `(default${limit.reason ? `: ${limit.reason}` : ""})`} · up to ` +
+  `Memory model context: ${tokens(limit.value)} tokens ${limitOrigin(limit)} · up to ` +
     `${tokens(limit.inputBudget)} per read`;
 
 export function CapabilitiesGroup({ reports, facts = null, extensionVersion = "", memoryModel = null, onRefresh, onCopy }: CapabilitiesGroupProps) {

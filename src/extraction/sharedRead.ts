@@ -8,6 +8,7 @@ import { detectDegenerate } from "./degenerate";
 import { evidenceSources } from "./evidence";
 import { parseSharedReadResponse } from "./parse";
 import { inputBudget, tailFit, type TokenCounter } from "./inputBudget";
+import { maxTokensCap } from "./callBudget";
 import { deriveScope } from "./scope";
 import type { RequestBudget } from "./tokenMeter";
 import type {
@@ -21,7 +22,7 @@ import type {
 export const MAX_DELTAS_PER_READ = 24;
 
 const CHARS_PER_TOKEN = 4;
-const DEFAULT_RESPONSE_TOKENS = 512;
+const DEFAULT_RESPONSE_TOKENS = maxTokensCap("sharedRead");
 
 export const PLAYER_ONLY_EVIDENCE = "evidence only in the player's line";
 
@@ -190,17 +191,17 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   const residual = scope.filter((entry) => !answered.has(entry.key));
   const contract = readContract(options, window, residual);
   const prompt = renderSharedReadPrompt(contract);
-  const ask = (maxTokens?: number): Promise<ExtractionReply> => (scope.length
-    ? options.model(prompt, { ...options.ask, ...(maxTokens ? { maxTokens } : {}) })
+  const ask = (maxTokens: number): Promise<ExtractionReply> => (scope.length
+    ? options.model(prompt, { ...options.ask, maxTokens })
     : Promise.resolve({ text: "NO_DELTA", finish: "stop" }));
-  let reply = await ask();
-  let parsed = parseSharedReadResponse(reply.text, options.story);
   let responseTokens = options.ask.maxTokens ?? DEFAULT_RESPONSE_TOKENS;
-  if (refusal(reply, parsed, options.ask.maxTokens)) {
-    const larger = Math.max(responseTokens, 1024);
+  let reply = await ask(responseTokens);
+  let parsed = parseSharedReadResponse(reply.text, options.story);
+  if (refusal(reply, parsed, responseTokens)) {
+    const larger = Math.max(responseTokens * 2, 1024);
     const fits = !fitted.record || fitted.record.tokens <= inputBudget(fitted.record.contextLimit, larger).input;
     if (reply.finish === "length" && fits) responseTokens = larger;
-    reply = await ask(responseTokens > (options.ask.maxTokens ?? DEFAULT_RESPONSE_TOKENS) ? responseTokens : undefined);
+    reply = await ask(responseTokens);
     parsed = parseSharedReadResponse(reply.text, options.story);
   }
   const rawResponse = reply.text;

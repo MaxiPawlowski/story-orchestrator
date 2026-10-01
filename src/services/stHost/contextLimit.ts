@@ -18,6 +18,15 @@ export function contextLimitFromPreset(selectedApi: string | undefined, presetNa
   return { value, source: "preset" };
 }
 
+export const CHAT_SOURCE_CONTEXT: Record<string, number> = {
+  deepseek: 131072,
+};
+
+export function contextLimitFromSource(source: string | undefined): ContextLimit | null {
+  const value = source ? CHAT_SOURCE_CONTEXT[source] : undefined;
+  return value ? { value, source: "source", reason: `known for ${source}; the profile names no settings preset` } : null;
+}
+
 const findProfile = (profileId: string): Record<string, unknown> | "unavailable" | null => {
   const settings = getContext().extensionSettings as Record<string, unknown>;
   const disabled = Array.isArray(settings.disabledExtensions) ? settings.disabledExtensions : [];
@@ -47,7 +56,7 @@ export function readProfileContextLimit(profileId: string | null | undefined): C
     const apiMap: HostConnectApiMap | undefined = api ? context.CONNECT_API_MAP?.[api] : undefined;
     const selected = typeof apiMap?.selected === "string" ? apiMap.selected : undefined;
     const presetName = typeof profile.preset === "string" ? profile.preset.trim() : "";
-    if (!presetName) return defaultContextLimit("the profile names no settings preset");
+    if (!presetName) return (selected === "openai" ? contextLimitFromSource(apiMap?.source ?? undefined) : null) ?? defaultContextLimit("the profile names no settings preset");
     if (!selected || !PRESET_CONTEXT_KEY[selected]) return contextLimitFromPreset(selected, presetName, undefined);
     const presets = typeof context.getPresetManager === "function" ? context.getPresetManager(selected) : null;
     if (!presets || typeof presets.getCompletionPresetByName !== "function") return defaultContextLimit(`no preset manager for ${selected}`);

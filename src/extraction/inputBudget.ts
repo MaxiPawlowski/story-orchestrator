@@ -2,7 +2,7 @@ export const DEFAULT_CONTEXT_LIMIT = 8192;
 export const INPUT_BUDGET_MARGIN = 0.1;
 export const TRUNCATION_MARKER = "[…message truncated to fit the memory model's context]";
 
-export type ContextLimitSource = "preset" | "default";
+export type ContextLimitSource = "preset" | "source" | "default";
 
 export interface ContextLimit {
   value: number;

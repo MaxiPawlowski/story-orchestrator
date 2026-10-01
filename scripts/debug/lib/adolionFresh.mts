@@ -94,7 +94,7 @@ export interface StripPlan {
   groupFiles: string[];
   groupChats: string[];
   settings: Record<string, any>;
-  removed: { stories: string[]; bindings: string[]; selected: string[] };
+  removed: { stories: string[]; bindings: string[]; selected: string[]; profiles: string[] };
   media: { image: boolean; sprites: boolean };
 }
 
@@ -106,6 +106,46 @@ export function mediaOff(root: Record<string, any>) {
   root.settings.image = { ...record(root.settings.image), enabled: false };
   root.settings.sprites = { ...record(root.settings.sprites), enabled: false, explicit: true };
   return was;
+}
+
+export const RP_PROFILE = 'Artemis RunPod RP';
+export const STALE_RP_PROFILES = ['Artemis RunPod'];
+export const NON_RP_PROFILES = ['Story Orchestrator Memory RunPod', 'Story Orchestrator Memory Unsloth', 'Image Director'];
+export const DEAD_PROFILES = ['Story Orchestrator Memory Local'];
+
+const routedProfileIds = (root: Record<string, any>) => {
+  const settings = record(root.settings);
+  const extraction = record(settings.extraction);
+  return new Set([extraction.profileId, ...Object.values(record(extraction.profiles)), record(settings.image).directorProfileId, record(settings.sprites).profileId]
+    .filter((id): id is string => typeof id === 'string' && id !== ''));
+};
+
+export function laneProfiles(settings: Record<string, any>): string[] {
+  const manager = record(record(settings.extension_settings).connectionManager);
+  if (!Array.isArray(manager.profiles)) return [];
+  const rp = manager.profiles.map(record).find((profile) => profile.name === RP_PROFILE);
+  const routed = routedProfileIds(record(record(settings.extension_settings)['story-orchestrator']));
+  const changes: string[] = [];
+  manager.profiles = manager.profiles.filter((profile: unknown) => {
+    const entry = record(profile);
+    const drop = DEAD_PROFILES.includes(entry.name) && !routed.has(entry.id) && manager.selectedProfile !== entry.id;
+    if (drop) changes.push(`${entry.name}: removed (dead endpoint ${entry['api-url'] ?? '?'}, unrouted)`);
+    return !drop;
+  });
+  for (const profile of manager.profiles.map(record)) {
+    if (STALE_RP_PROFILES.includes(profile.name) && rp) {
+      for (const key of ['instruct', 'preset', 'context', 'reasoning-template'] as const) {
+        if (rp[key] !== undefined && profile[key] !== rp[key]) { changes.push(`${profile.name}: ${key} ${profile[key] ?? '-'} -> ${rp[key]}`); profile[key] = rp[key]; }
+      }
+      if (profile.model !== undefined && rp.model === undefined) { changes.push(`${profile.name}: model ${profile.model} -> -`); delete profile.model; }
+    }
+    if (NON_RP_PROFILES.includes(profile.name) && (profile.sysprompt !== undefined || profile['sysprompt-state'] !== 'false')) {
+      changes.push(`${profile.name}: sysprompt ${profile.sysprompt ?? '-'} -> - (sysprompt-state false)`);
+      profile['sysprompt-state'] = 'false';
+      delete profile.sysprompt;
+    }
+  }
+  return changes;
 }
 
 export const mirrorName = (name: string, titles: string[]) => {
@@ -134,6 +174,7 @@ export function stripPlan(manifest: AdolionManifest, disk: LaneDisk): StripPlan 
   const settings = structuredClone(disk.settings);
   const root = record(record(settings.extension_settings)['story-orchestrator']);
   const media = mediaOff(root);
+  const profiles = laneProfiles(settings);
   const library = Array.isArray(root.v2Stories) ? root.v2Stories : [];
   const removedStories = library.filter((entry) => storyIds.has(record(entry).id)).map((entry) => String(record(entry).id));
   if (Array.isArray(root.v2Stories)) root.v2Stories = library.filter((entry) => !storyIds.has(record(entry).id));
@@ -152,7 +193,7 @@ export function stripPlan(manifest: AdolionManifest, disk: LaneDisk): StripPlan 
   }
   return {
     worlds, characters, spriteDirs, chatDirs, groupFiles: groups.map((group) => group.file), groupChats, settings,
-    removed: { stories: removedStories, bindings: removedBindings, selected: removedSelected }, media,
+    removed: { stories: removedStories, bindings: removedBindings, selected: removedSelected, profiles }, media,
   };
 }
 
