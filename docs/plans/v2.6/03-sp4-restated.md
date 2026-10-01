@@ -42,3 +42,12 @@ so the shared dev bundle could be restaged for T2. That partial run is **superse
 `sp4/raw/superseded-rolling-run1.log`). The full series (all 8 runs) re-runs on the new restaged bundle after lane 2 is
 re-seeded from `adolion-fresh` at the new campaign pin; the procedure above is otherwise unchanged, and the run header
 records the new bundle and pin.
+
+## Addendum 2 2026-10-01 19:40Z — the measured series (bars unchanged)
+
+Bundle `8319f7535e1e` (master `948e0d13`, restaged by the lead), lane 2 re-seeded from `adolion-fresh` at pin
+`884380b`; `lab/needles/` is unchanged between `59e8821` and `884380b`. The seed now applies the preset overlay to the
+narrator's profile (Gemma 4 empty thought channel + min_p first sampler order): the narrator's replies differ from the
+superseded series, which is why that series is not mixed in. The pod is shared with up to 3 T2 lanes, so turns are
+slower; a run lost to a 300 s generation timeout is a harness failure (not measured) and is re-run at the end of the
+series, stated in a further addendum first.
