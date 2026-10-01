@@ -4,7 +4,7 @@ import { parseStoryV2, parseStoryV2OrThrow, type StoryV2 } from "@engine/index";
 import type { ChapterRecord } from "@memory/types";
 import { runDiagnostics } from "../studio/diagnostics";
 import { addChapter, removeChapter, setChapterPolicy, setCheckpointChapter } from "../studio/mutations";
-import { buildChapterView, chapterNumber, chapterSettings, DEFAULT_CHAPTER_SETTINGS, sealRange, sealTarget } from "./chapters";
+import { buildChapterView, chapterNumber, chapterSettings, DEFAULT_CHAPTER_SETTINGS, jumpSeal, liveSkip, sealRange, sealTarget } from "./chapters";
 
 const raw = () => JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as StoryV2;
 const story = parseStoryV2OrThrow(raw());
@@ -54,6 +54,29 @@ describe("seal target on the chapters-mini graph", () => {
     const view = buildChapterView(story, "walls", [sealed("arrival", 3)]);
     expect(view?.current?.id).toBe("siege");
     expect(view?.records.map((item) => item.id)).toEqual(["arrival-1"]);
+  });
+});
+
+describe("/cp activate across a chapter (D2: sealed only when the author confirms)", () => {
+  it("names the chapter a jump would leave, skipping back over an interlude, and nothing inside one chapter", () => {
+    expect(jumpSeal(story, { activeCheckpointId: "market", visitedPath: ["gate", "market"] }, [], "walls")?.chapter.id).toBe("arrival");
+    expect(jumpSeal(story, { activeCheckpointId: "fire", visitedPath: ["gate", "market", "fire"] }, [], "walls")?.chapter.id).toBe("arrival");
+    expect(jumpSeal(story, { activeCheckpointId: "gate", visitedPath: ["gate"] }, [], "market")).toBeNull();
+    expect(jumpSeal(story, { activeCheckpointId: "market", visitedPath: ["gate", "market"] }, [], "nowhere")).toBeNull();
+    expect(jumpSeal(story, { activeCheckpointId: "market", visitedPath: ["gate", "market"] }, [sealed("arrival", 3)], "walls")).toBeNull();
+  });
+
+  it("a declined seal is not taken later by the automatic trigger, and a later chapter still seals", () => {
+    const path = ["gate", "market", "walls"];
+    expect(sealTarget(story, "walls", [], path)?.chapter.id).toBe("arrival");
+    expect(sealTarget(story, "walls", [], path, 3)).toBeNull();
+    expect(sealTarget(story, "dawn", [], [...path, "dawn"], 3)).toMatchObject({ chapter: { id: "siege" }, final: true });
+  });
+
+  it("a skip marker counts only while the path still reaches it", () => {
+    expect(liveSkip({ pathLength: 3, messageId: 7 }, 3)).toBe(3);
+    expect(liveSkip({ pathLength: 3, messageId: 7 }, 2)).toBeNull();
+    expect(liveSkip(null, 5)).toBeNull();
   });
 });
 

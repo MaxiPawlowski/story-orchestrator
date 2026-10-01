@@ -219,6 +219,25 @@ export const setChapterPolicy = (draft: StoryDraft, id: string, seal: ChapterSea
   }),
 });
 
+const CHAPTER_OPTIONAL = { player_title: undefined, kind: undefined, final: undefined };
+
+const definedOnly = <T extends object>(value: T): T => Object.fromEntries(Object.entries(value).filter(([, field]) => field !== undefined)) as T;
+
+export const setChapters = (draft: StoryDraft, chapters: Chapter[], assign: Record<string, string> = {}): StoryDraft => {
+  const wanted = new Set(chapters.map((chapter) => chapter.id));
+  const pruned = (draft.chapters ?? []).filter((chapter) => !wanted.has(chapter.id)).reduce((current, chapter) => removeChapter(current, chapter.id), draft);
+  const written = chapters.reduce((current, { id, seal, ...fields }) => {
+    const placed = (current.chapters ?? []).some((chapter) => chapter.id === id)
+      ? updateChapter(current, id, { ...CHAPTER_OPTIONAL, ...fields })
+      : addChapter(current, { id, ...fields });
+    return setChapterPolicy(placed, id, seal ?? {});
+  }, pruned);
+  const ordered = written.chapters
+    ? { ...written, chapters: chapters.map((chapter) => definedOnly(written.chapters?.find((entry) => entry.id === chapter.id) ?? chapter)) }
+    : written;
+  return Object.entries(assign).reduce((current, [checkpointId, chapterId]) => setCheckpointChapter(current, checkpointId, chapterId), ordered);
+};
+
 export const setStoryId = (draft: StoryDraft, id: string): StoryDraft => {
   const { id: _dropped, ...rest } = draft;
   const next = id.trim().toLowerCase();

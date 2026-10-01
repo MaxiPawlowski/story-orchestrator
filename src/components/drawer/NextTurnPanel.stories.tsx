@@ -140,6 +140,20 @@ export const ChatCompletionBucketsUnavailable: Story = {
   },
 };
 
+export const SealedChaptersFolded: Story = {
+  args: { snapshot: { ...snapshotWith(host, BUDGET), nextTurnFold: 42 } as RuntimeSnapshot },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="next-turn-fold"]')).toHaveTextContent("42 earlier messages summarized by the chronicle");
+  },
+};
+
+export const NothingFolded: Story = {
+  args: { snapshot: { ...snapshotWith(host, BUDGET), nextTurnFold: 0 } as RuntimeSnapshot },
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector('[data-so="next-turn-fold"]')).toBeNull();
+  },
+};
+
 export const TextCompletionShowsNoBuckets: Story = {
   args: { snapshot: withBuckets({ unavailable: "the main API is not Chat Completion", quiet: true }) },
   play: async ({ canvasElement }) => {

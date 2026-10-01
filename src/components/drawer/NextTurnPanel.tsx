@@ -70,6 +70,11 @@ export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: Ru
       <div className="font-medium opacity-100">Next reply ({rows.length} contributor{rows.length === 1 ? "" : "s"})</div>
       <div data-so="next-turn-cost" data-budget={cost.budget ?? "unknown"} className="opacity-80">{nextTurnCostText(cost)}</div>
       <PromptBucketsLine state={snapshot.nextTurnBuckets} />
+      {snapshot.nextTurnFold ? (
+        <div data-so="next-turn-fold" className="opacity-80">
+          {snapshot.nextTurnFold} earlier message{snapshot.nextTurnFold === 1 ? "" : "s"} summarized by the chronicle, left out of the prompt.
+        </div>
+      ) : null}
       {cost.lastGenerationBudget !== null && cost.budget !== null && cost.lastGenerationBudget !== cost.budget && (
         <div data-so="next-turn-budget-drift" className="text-yellow-300">The last generation was handed {cost.lastGenerationBudget} tokens, not {cost.budget}: a setting changed since.</div>
       )}

@@ -16,6 +16,7 @@ import {
   updateQuality,
   setLoreSelect,
   setSceneRead,
+  setChapters,
 } from "./mutations";
 
 const base = (): StoryDraft => ({
@@ -149,6 +150,32 @@ describe("setLoreSelect (v2.2 plan 04)", () => {
     expect(setLoreSelect(draft, { lorebooks: ["Story Lore"], exclusive: true }).lore_select).toEqual({ lorebooks: ["Story Lore"], exclusive: true });
     expect(setLoreSelect(draft, { lorebooks: ["Story Lore"], exclusive: false }).lore_select).toEqual({ lorebooks: ["Story Lore"] });
     expect(setLoreSelect(draft, { lorebooks: [], exclusive: true }).lore_select).toEqual({ lorebooks: [], exclusive: true });
+  });
+});
+
+describe("setChapters (v2.6 plan 07 D13, the wizard's chapter op)", () => {
+  const chaptered = (): StoryDraft => ({
+    ...base(),
+    chapters: [{ id: "one", title: "One", player_title: "Part I", seal: { keep_tail: 2 } }, { id: "two", title: "Two" }],
+    checkpoints: base().checkpoints.map((checkpoint) => ({ ...checkpoint, chapter: checkpoint.id === "start" ? "one" : "two" })),
+  });
+
+  it("replaces the whole list in the given order, fields and policy included, and assigns checkpoints", () => {
+    const next = setChapters(chaptered(), [{ id: "three", title: "Three", final: true }, { id: "one", title: "Opening", seal: { open_threads: "close" } }], { cache: "three" });
+    expect(next.chapters).toEqual([{ id: "three", title: "Three", final: true }, { id: "one", title: "Opening", seal: { open_threads: "close" } }]);
+    expect(Object.keys(next.chapters?.[1] ?? {})).toEqual(["id", "title", "seal"]);
+    expect(next.checkpoints.map((checkpoint) => checkpoint.chapter)).toEqual(["one", "three"]);
+    expect(isValidationErrorList(parseStoryV2(next))).toBe(false);
+  });
+
+  it("an empty list removes every chapter and every checkpoint's chapter", () => {
+    const next = setChapters(chaptered(), []);
+    expect(next.chapters).toBeUndefined();
+    expect(next.checkpoints.every((checkpoint) => !("chapter" in checkpoint))).toBe(true);
+  });
+
+  it("an empty assignment clears one checkpoint's chapter", () => {
+    expect(setChapters(chaptered(), chaptered().chapters ?? [], { start: "" }).checkpoints[0].chapter).toBeUndefined();
   });
 });
 

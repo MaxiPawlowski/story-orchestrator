@@ -43,6 +43,7 @@ export const STORY_COVERAGE: readonly CoverageField<StoryDraft>[] = [
   ),
   field("lore_select", "Lore select", "setLoreSelect", "The judge picks the lore that matters each turn instead of every keyword firing.", (draft) => filled(draft.lore_select?.lorebooks)),
   field("house_rules", "House rules", "setHouseRules", "The continuity check holds every reply to rules the story cares about.", (draft) => filled(draft.house_rules)),
+  field("chapters", "Chapters", "setChapters", "A long story is sealed act by act, so later prompts carry a record instead of the whole transcript.", (draft) => filled(draft.chapters)),
   field("player_intro", "Player introduction", null, "The player reads what the story is before the first beat.", (draft) => filled(draft.player_intro)),
   field("illustrations", "Illustrations", null, "Beats and scenes can be illustrated in the story's own style.", (draft) => filled(draft.illustrations)),
 ];
