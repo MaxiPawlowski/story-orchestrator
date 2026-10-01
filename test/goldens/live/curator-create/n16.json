@@ -1,0 +1,15 @@
+{
+  "id": "n16",
+  "label": "none",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[create] Silverfall Lore || The Blacksmith of Silverfall || blacksmith, forge || The village blacksmith of Silverfall, a burly tradesman who was bested in a tavern brawl when Belle broke his nose over a spilled drink.\n[why] The blacksmith is now a named, twice-established figure in the story and no existing entry covers him.",
+    "[patch] #0 \"Silverfall\" || A logging village || Forbidden Forest. || A logging village on the edge of the Forbidden Forest, where Belle is known for brawling and sleeping in the stable rather than the inn.\n[why] Belle's fight with the blacksmith and her refusal to sleep indoors have become established facts about her place in Silverfall.",
+    "[patch] #0 \"Silverfall\" || A logging village || Forbidden Forest. || A logging village on the edge of the Forbidden Forest, where Belle is known for brawling and sleeping in the stable rather than the inn.\n[why] Belle's fight with the blacksmith and her refusal to sleep indoors have become established facts about her standing in Silverfall."
+  ],
+  "passes": [
+    false,
+    true,
+    true
+  ]
+}

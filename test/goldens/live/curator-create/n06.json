@@ -3,9 +3,9 @@
   "label": "none",
   "frozenAt": "2026-09-25",
   "responses": [
-    "NONE\n[why] No entries need to be enabled, disabled, or modified based on the current story state.",
-    "NONE\n[why] No changes are necessary as the existing entry for Ember Keep remains accurate and no new entities require creation.",
-    "NONE\n[why] No changes are necessary as the existing entry for Ember Keep remains accurate and relevant."
+    "[why] The established facts add no new lore beyond what entry #3 already covers, so no entry changes are needed.",
+    "[why] The established facts add no new lore beyond what entry #3 already covers, so no entry changes are necessary.",
+    "[why] The established facts add no new lore beyond what entry #3 already covers, so no entry changes are necessary."
   ],
   "passes": [
     true,

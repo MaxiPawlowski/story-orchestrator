@@ -1,16 +1,18 @@
 {
-  "recordedAt": "2026-09-22T11:20:06.128Z",
+  "recordedAt": "2026-10-01T11:13:51.486Z",
   "summary": {
     "use": "memory-pairs",
     "fixture": "memory-pairs",
     "right": 27,
     "total": 29,
     "rate": 0.931,
-    "p50LatencyMs": 750,
+    "p50LatencyMs": 254,
+    "provider": "typesafe",
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
-    "modelMatched": true,
+    "modelVerdict": "matched",
     "min": 0.85,
+    "minGiven": true,
     "ok": true
   },
   "rows": [
@@ -18,204 +20,204 @@
       "id": "M01",
       "right": true,
       "picked": "duplicate",
-      "detail": "duplicate@0.99 same=0.81",
-      "latencyMs": 249
+      "detail": "duplicate@0.99 same=0.82",
+      "latencyMs": 270
     },
     {
       "id": "M02",
       "right": true,
       "picked": "update",
-      "detail": "update@0.95 same=0.55",
-      "latencyMs": 262
+      "detail": "update@0.94 same=0.58",
+      "latencyMs": 271
     },
     {
       "id": "M03",
       "right": true,
       "picked": "distinct",
       "detail": "distinct@0.99 same=0.07",
-      "latencyMs": 228
+      "latencyMs": 235
     },
     {
       "id": "M04",
       "right": true,
       "picked": "unrelated",
       "detail": "unrelated@0.97 same=0.01",
-      "latencyMs": 259
+      "latencyMs": 251
     },
     {
       "id": "M05",
       "right": true,
       "picked": "duplicate",
       "detail": "duplicate@1 same=0.97",
-      "latencyMs": 274
+      "latencyMs": 275
     },
     {
       "id": "M06",
       "right": true,
       "picked": "update",
       "detail": "update@1 same=0.94",
-      "latencyMs": 252
+      "latencyMs": 222
     },
     {
       "id": "M07",
       "right": true,
       "picked": "update",
-      "detail": "update@1 same=0.56",
-      "latencyMs": 494
+      "detail": "update@1 same=0.54",
+      "latencyMs": 282
     },
     {
       "id": "M08",
       "right": true,
       "picked": "distinct",
-      "detail": "distinct@0.33 same=0.06",
-      "latencyMs": 468
+      "detail": "distinct@0.36 same=0.06",
+      "latencyMs": 272
     },
     {
       "id": "M09",
       "right": true,
       "picked": "update",
-      "detail": "update@1 same=0.8",
-      "latencyMs": 510
+      "detail": "update@1 same=0.74",
+      "latencyMs": 218
     },
     {
       "id": "M10",
       "right": true,
       "picked": "duplicate",
-      "detail": "duplicate@0.9 same=0.72",
-      "latencyMs": 490
+      "detail": "duplicate@0.89 same=0.75",
+      "latencyMs": 218
     },
     {
       "id": "M11",
       "right": true,
       "picked": "distinct",
       "detail": "distinct@0.99 same=0.08",
-      "latencyMs": 514
+      "latencyMs": 310
     },
     {
       "id": "M12",
       "right": true,
       "picked": "update",
-      "detail": "update@0.99 same=0.85",
-      "latencyMs": 534
+      "detail": "update@0.98 same=0.86",
+      "latencyMs": 271
     },
     {
       "id": "M13",
       "right": false,
       "picked": "distinct",
-      "detail": "duplicate@0.39 same=0.34",
-      "latencyMs": 740
+      "detail": "duplicate@0.51 same=0.36",
+      "latencyMs": 229
     },
     {
       "id": "M14",
       "right": true,
       "picked": "update",
       "detail": "update@1 same=0.74",
-      "latencyMs": 759
+      "latencyMs": 221
     },
     {
       "id": "M15",
       "right": true,
       "picked": "distinct",
-      "detail": "distinct@0.96 same=0.05",
-      "latencyMs": 714
+      "detail": "distinct@0.96 same=0.06",
+      "latencyMs": 294
     },
     {
       "id": "M16",
       "right": true,
       "picked": "duplicate",
       "detail": "duplicate@0.96 same=0.89",
-      "latencyMs": 739
+      "latencyMs": 225
     },
     {
       "id": "M17",
       "right": false,
       "picked": "distinct",
-      "detail": "update@0.96 same=0.42",
-      "latencyMs": 783
+      "detail": "update@0.98 same=0.4",
+      "latencyMs": 215
     },
     {
       "id": "M18",
       "right": true,
       "picked": "distinct",
-      "detail": "distinct@0.59 same=0.18",
-      "latencyMs": 750
+      "detail": "distinct@0.54 same=0.18",
+      "latencyMs": 275
     },
     {
       "id": "M19",
       "right": true,
       "picked": "update",
-      "detail": "update@0.98 same=0.77",
-      "latencyMs": 941
+      "detail": "update@0.98 same=0.78",
+      "latencyMs": 287
     },
     {
       "id": "M20",
       "right": true,
       "picked": "unrelated",
-      "detail": "unrelated@0.97 same=0.01",
-      "latencyMs": 962
+      "detail": "unrelated@0.98 same=0.01",
+      "latencyMs": 260
     },
     {
       "id": "P21",
       "right": true,
       "picked": "distinct",
-      "detail": "distinct@0.82 same=0.07",
-      "latencyMs": 971
+      "detail": "distinct@0.85 same=0.07",
+      "latencyMs": 735
     },
     {
       "id": "P22",
       "right": true,
       "picked": "distinct",
-      "detail": "distinct@0.74 same=0.05",
-      "latencyMs": 986
+      "detail": "distinct@0.75 same=0.05",
+      "latencyMs": 244
     },
     {
       "id": "P23",
       "right": true,
       "picked": "distinct",
-      "detail": "update@0.76 same=0.07",
-      "latencyMs": 996
+      "detail": "update@0.75 same=0.08",
+      "latencyMs": 273
     },
     {
       "id": "P24",
       "right": true,
       "picked": "update",
-      "detail": "update@1 same=0.92",
-      "latencyMs": 1030
+      "detail": "update@1 same=0.93",
+      "latencyMs": 210
     },
     {
       "id": "P25",
       "right": true,
       "picked": "duplicate",
       "detail": "duplicate@1 same=0.97",
-      "latencyMs": 1203
+      "latencyMs": 262
     },
     {
       "id": "P26",
       "right": true,
       "picked": "duplicate",
-      "detail": "duplicate@0.92 same=0.77",
-      "latencyMs": 1176
+      "detail": "duplicate@0.91 same=0.75",
+      "latencyMs": 246
     },
     {
       "id": "P27",
       "right": true,
       "picked": "update",
-      "detail": "update@0.97 same=0.67",
-      "latencyMs": 1202
+      "detail": "update@0.97 same=0.69",
+      "latencyMs": 212
     },
     {
       "id": "P28",
       "right": true,
       "picked": "unrelated",
       "detail": "unrelated@0.97 same=0.01",
-      "latencyMs": 1241
+      "latencyMs": 254
     },
     {
       "id": "P29",
       "right": true,
       "picked": "distinct",
-      "detail": "distinct@0.35 same=0.08",
-      "latencyMs": 1246
+      "detail": "distinct@0.41 same=0.08",
+      "latencyMs": 243
     }
   ]
 }

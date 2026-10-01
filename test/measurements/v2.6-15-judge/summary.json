@@ -1,0 +1,557 @@
+{
+  "plan": "docs/plans/v2.6/15-judge-remeasure.md",
+  "date": "2026-10-01",
+  "lane": 4,
+  "judgeBundle": "6f56533e8608 (dev, master 747561fd)",
+  "authoringBundle": "ceb15ac19ec0 (dev, b96cdf7b; staged 11:27:36Z, after every judge and curator run)",
+  "model": "jev-1.13.0",
+  "judge": [
+    {
+      "use": "stall",
+      "readiness": [
+        "stallCheck"
+      ],
+      "recordedAt": "2026-10-01T11:05:11.340Z",
+      "rows": 84,
+      "right": 84,
+      "rate": 1,
+      "families": [
+        {
+          "family": "direct",
+          "right": 27,
+          "total": 27,
+          "floor": 1,
+          "ok": true
+        },
+        {
+          "family": "kept",
+          "right": 57,
+          "total": 57,
+          "floor": 1,
+          "ok": true
+        }
+      ],
+      "min": null,
+      "p50LatencyMs": 243,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 47,
+      "ok": true,
+      "verdict": "on by default (at or above floor)"
+    },
+    {
+      "use": "memory-verify",
+      "readiness": [
+        "memoryVerify"
+      ],
+      "recordedAt": "2026-10-01T11:05:23.601Z",
+      "rows": 36,
+      "right": 35,
+      "rate": 0.9722,
+      "families": null,
+      "min": 0.85,
+      "p50LatencyMs": 236,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 9,
+      "ok": true,
+      "verdict": "on by default (at or above floor)"
+    },
+    {
+      "use": "continuity",
+      "readiness": [
+        "warden"
+      ],
+      "recordedAt": "2026-10-01T11:09:50.803Z",
+      "rows": 67,
+      "right": 65,
+      "rate": 0.9701,
+      "families": [
+        {
+          "family": "reply",
+          "right": 22,
+          "total": 23,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "broken",
+          "right": 11,
+          "total": 12,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "consistent",
+          "right": 32,
+          "total": 32,
+          "floor": 0.966,
+          "ok": true
+        }
+      ],
+      "min": null,
+      "p50LatencyMs": 247,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 23,
+      "ok": true,
+      "verdict": "on by default (at or above floor)"
+    },
+    {
+      "use": "critic",
+      "readiness": [
+        "expansionCritic"
+      ],
+      "recordedAt": "2026-10-01T11:11:10.892Z",
+      "rows": 136,
+      "right": 134,
+      "rate": 0.9853,
+      "families": [
+        {
+          "family": "verdict",
+          "right": 34,
+          "total": 34,
+          "floor": 1,
+          "ok": true
+        },
+        {
+          "family": "contradicts",
+          "right": 33,
+          "total": 34,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "advances",
+          "right": 33,
+          "total": 34,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "newCharacter",
+          "right": 34,
+          "total": 34,
+          "floor": 0.9,
+          "ok": true
+        }
+      ],
+      "min": null,
+      "p50LatencyMs": 245,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 34,
+      "ok": true,
+      "verdict": "on by default (at or above floor)"
+    },
+    {
+      "use": "variants",
+      "readiness": [
+        "expansionLookahead",
+        "lookahead"
+      ],
+      "recordedAt": "2026-10-01T11:06:09.716Z",
+      "rows": 16,
+      "right": 16,
+      "rate": 1,
+      "families": [
+        {
+          "family": "pick",
+          "right": 8,
+          "total": 8,
+          "floor": 0.8,
+          "ok": true
+        },
+        {
+          "family": "rejected",
+          "right": 8,
+          "total": 8,
+          "floor": 1,
+          "ok": true
+        }
+      ],
+      "min": null,
+      "p50LatencyMs": 270,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 24,
+      "ok": true,
+      "verdict": "on by default (at or above floor)"
+    },
+    {
+      "use": "curator-filter",
+      "readiness": [
+        "curatorFilter"
+      ],
+      "recordedAt": "2026-10-01T11:06:17.953Z",
+      "rows": 18,
+      "right": 16,
+      "rate": 0.8889,
+      "families": [
+        {
+          "family": "recall",
+          "right": 10,
+          "total": 10,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "narrowed",
+          "right": 6,
+          "total": 8,
+          "floor": 0,
+          "ok": true
+        }
+      ],
+      "min": null,
+      "p50LatencyMs": 281,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 3,
+      "ok": true,
+      "verdict": "on by default (at or above floor)"
+    },
+    {
+      "use": "typed",
+      "readiness": [
+        "typedExtraction"
+      ],
+      "recordedAt": "2026-10-01T11:12:32.989Z",
+      "rows": 129,
+      "right": 107,
+      "rate": 0.8295,
+      "families": [
+        {
+          "family": "answered",
+          "right": 53,
+          "total": 54,
+          "floor": 0.95,
+          "ok": true
+        },
+        {
+          "family": "coverage",
+          "right": 54,
+          "total": 75,
+          "floor": 0,
+          "ok": true
+        }
+      ],
+      "min": null,
+      "p50LatencyMs": 260,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 54,
+      "ok": true,
+      "verdict": "on by default (at or above floor)"
+    },
+    {
+      "use": "memory-pairs",
+      "readiness": [
+        "memoryPairs"
+      ],
+      "recordedAt": "2026-10-01T11:13:51.486Z",
+      "rows": 29,
+      "right": 27,
+      "rate": 0.931,
+      "families": null,
+      "min": 0.85,
+      "p50LatencyMs": 254,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 29,
+      "ok": true,
+      "verdict": "on by default (at or above floor)"
+    },
+    {
+      "use": "scene",
+      "readiness": [
+        "sceneTrigger",
+        "sceneTracker"
+      ],
+      "recordedAt": "2026-10-01T11:16:26.963Z",
+      "rows": 214,
+      "right": 207,
+      "rate": 0.9673,
+      "families": [
+        {
+          "family": "present",
+          "right": 66,
+          "total": 70,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "location",
+          "right": 24,
+          "total": 26,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "time",
+          "right": 26,
+          "total": 26,
+          "floor": 0.8,
+          "ok": true
+        },
+        {
+          "family": "heading",
+          "right": 51,
+          "total": 52,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "break",
+          "right": 22,
+          "total": 22,
+          "floor": 0.5,
+          "ok": true
+        },
+        {
+          "family": "nobreak",
+          "right": 18,
+          "total": 18,
+          "floor": 1,
+          "ok": true
+        }
+      ],
+      "min": null,
+      "p50LatencyMs": 243,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 66,
+      "ok": true,
+      "verdict": "on by default (at or above floor)"
+    },
+    {
+      "use": "director",
+      "readiness": [
+        "director"
+      ],
+      "recordedAt": "2026-10-01T11:07:19.051Z",
+      "rows": 25,
+      "right": 22,
+      "rate": 0.88,
+      "families": null,
+      "min": 0.85,
+      "p50LatencyMs": 245,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 25,
+      "ok": true,
+      "verdict": "on by default (at or above floor)"
+    },
+    {
+      "use": "agency",
+      "readiness": [
+        "agencyCheck"
+      ],
+      "recordedAt": "2026-10-01T11:17:44.408Z",
+      "rows": 41,
+      "right": 41,
+      "rate": 1,
+      "families": [
+        {
+          "family": "writes",
+          "right": 18,
+          "total": 18,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "clean",
+          "right": 23,
+          "total": 23,
+          "floor": 0.95,
+          "ok": true
+        }
+      ],
+      "min": null,
+      "p50LatencyMs": 241,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 41,
+      "ok": true,
+      "verdict": "on by default (at or above floor)"
+    },
+    {
+      "use": "house-rules",
+      "readiness": [
+        "houseRules"
+      ],
+      "recordedAt": "2026-10-01T11:19:00.834Z",
+      "rows": 80,
+      "right": 79,
+      "rate": 0.9875,
+      "families": [
+        {
+          "family": "broken",
+          "right": 15,
+          "total": 15,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "kept",
+          "right": 11,
+          "total": 11,
+          "floor": 0.95,
+          "ok": true
+        },
+        {
+          "family": "untouched",
+          "right": 53,
+          "total": 54,
+          "floor": 0.966,
+          "ok": true
+        }
+      ],
+      "min": null,
+      "p50LatencyMs": 235,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 20,
+      "ok": true,
+      "verdict": "on by default (at or above floor)"
+    },
+    {
+      "use": "lore",
+      "readiness": [
+        "loreSelect"
+      ],
+      "recordedAt": "2026-10-01T11:20:15.589Z",
+      "rows": 58,
+      "right": 52,
+      "rate": 0.8966,
+      "families": [
+        {
+          "family": "recall",
+          "right": 26,
+          "total": 30,
+          "floor": 0.8,
+          "ok": true
+        },
+        {
+          "family": "precision",
+          "right": 26,
+          "total": 28,
+          "floor": 0.7,
+          "ok": true
+        }
+      ],
+      "min": null,
+      "p50LatencyMs": 291,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 11,
+      "ok": true,
+      "verdict": "on by default (at or above floor)"
+    },
+    {
+      "use": "warden-lore",
+      "readiness": [],
+      "recordedAt": "2026-10-01T11:21:32.617Z",
+      "rows": 60,
+      "right": 60,
+      "rate": 1,
+      "families": [
+        {
+          "family": "contradicts",
+          "right": 14,
+          "total": 14,
+          "floor": 0.85,
+          "ok": true
+        },
+        {
+          "family": "consistent",
+          "right": 15,
+          "total": 15,
+          "floor": 0.966,
+          "ok": true
+        },
+        {
+          "family": "untouched",
+          "right": 31,
+          "total": 31,
+          "floor": 0.966,
+          "ok": true
+        }
+      ],
+      "min": null,
+      "p50LatencyMs": 233,
+      "model": "jev-1.13.0",
+      "modelVerdict": "matched",
+      "typesafeCalls": 26,
+      "ok": true,
+      "verdict": "spike at floor (stays unbuilt until the lead decides)"
+    }
+  ],
+  "sceneReplayGolden": {
+    "file": "test/goldens/judge/scene.json",
+    "calls": 66,
+    "right": 206,
+    "total": 214,
+    "families": "present 66/70, location 24/26, time 26/26, heading 50/52, break 22/22, nobreak 18/18 (all at floor)"
+  },
+  "curatorCreate": {
+    "cases": 22,
+    "samples": 3,
+    "deepseekCalls": 66,
+    "endToEnd": {
+      "propose": 0.9091,
+      "none": 0.7879
+    },
+    "floors": {
+      "propose": 0.9,
+      "none": 1
+    },
+    "modelAlone": {
+      "proposeCreated": 0.9091,
+      "noneCreated": 0.2121
+    },
+    "misses": [
+      "p04 0/3 (no create proposed)",
+      "n01 0/3 (named-once, created)",
+      "n12 0/3 (named-once, created)",
+      "n16 2/3 (roster)"
+    ],
+    "verdict": "NOT BUILT (none below 1.00)",
+    "frozenAt": "2026-09-25"
+  },
+  "authoring": {
+    "profile": "deepseek 4.1 flash (shared memory profile)",
+    "runs": [
+      {
+        "arm": "shared-ceb15ac19ec0-r1",
+        "runAt": "2026-10-01T11:30:06.501Z",
+        "metrics": {
+          "validity": "12/12",
+          "opShape": "12/12",
+          "firstTry": "8/12"
+        },
+        "holdout": "5/5 validity, 5/5 opShape"
+      },
+      {
+        "arm": "shared-ceb15ac19ec0-r2",
+        "runAt": "2026-10-01T11:30:50.605Z",
+        "metrics": {
+          "validity": "11/12",
+          "opShape": "11/12",
+          "firstTry": "9/12"
+        },
+        "holdout": "5/5 validity, 5/5 opShape"
+      }
+    ],
+    "deepseekCalls": 46,
+    "verdict": "recommended: both runs meet every floor and every hold-out row"
+  },
+  "typesafeCalls": {
+    "measured": 412,
+    "offPageGolden": 66,
+    "wastedRound1": 72,
+    "total": 550,
+    "note": "round 1 ran the uses back to back and the plugin limiter (60/min per user) refused calls locally (fallback=busy, never sent upstream); 72 calls answered before refusals in continuity (4), typed (33), agency (35) and were discarded; warden-lore-facts arm (optional, 26) not run"
+  },
+  "deepseekCalls": 112
+}

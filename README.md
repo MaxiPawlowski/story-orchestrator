@@ -149,8 +149,10 @@ Registered via `MacrosParser` and auto-updated from the active story:
 ## Judge recommended configuration
 
 The judge (a TypeSafe System One model behind the optional `story-orchestrator-judge` server plugin)
-ships with **every use off**. This is advice for someone who opts in. Every rate below was measured on
-`jev-1.13.0`; on any other model the settings panel reads the use as unproven.
+ships with **every use on** (user decision 2026-09-30); it sends nothing until a TypeSafe key is configured.
+Every rate below was re-measured in English on 2026-10-01 (`jev-1.13.0`, every use at or above its predeclared
+floor, so none is off by default); on any other model, or after a fixture edit, the settings panel reads the
+use as unproven.
 
 | Use | Recommendation |
 |---|---|

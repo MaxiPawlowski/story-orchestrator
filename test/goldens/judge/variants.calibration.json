@@ -1,5 +1,5 @@
 {
-  "recordedAt": "2026-09-22T11:20:30.403Z",
+  "recordedAt": "2026-10-01T11:06:09.716Z",
   "summary": {
     "use": "variants",
     "fixture": "variants",
@@ -22,109 +22,111 @@
         "ok": true
       }
     ],
-    "p50LatencyMs": 812,
+    "p50LatencyMs": 270,
+    "provider": "typesafe",
     "requestedModel": "jev-1.13.0",
     "model": "jev-1.13.0",
-    "modelMatched": true,
+    "modelVerdict": "matched",
     "min": 0.85,
+    "minGiven": false,
     "ok": true
   },
   "rows": [
     {
       "id": "V01.pick",
       "right": true,
-      "picked": "clean (c=0.06 a=0.97 n=0.05 s=0.815)",
-      "latencyMs": 312
+      "picked": "clean (c=0.06 a=0.98 n=0.05 s=0.8075)",
+      "latencyMs": 301
     },
     {
       "id": "V01.rejected",
       "right": true,
-      "picked": "c=0.9 a=0.29 n=0.09 s=0.66",
-      "latencyMs": 312
+      "picked": "c=0.9 a=0.31 n=0.1 s=0.735",
+      "latencyMs": 301
     },
     {
       "id": "V02.pick",
       "right": true,
-      "picked": "clean (c=0.09 a=0.96 n=0.06 s=0.71)",
-      "latencyMs": 264
+      "picked": "clean (c=0.1 a=0.96 n=0.08 s=0.7225)",
+      "latencyMs": 250
     },
     {
       "id": "V02.rejected",
       "right": true,
-      "picked": "c=0.92 a=0.86 n=0.24 s=0.2225",
-      "latencyMs": 264
+      "picked": "c=0.93 a=0.85 n=0.2 s=0.2075",
+      "latencyMs": 250
     },
     {
       "id": "V03.pick",
       "right": true,
-      "picked": "clean (c=0.07 a=0.96 n=0.07 s=0.6925)",
-      "latencyMs": 526
+      "picked": "clean (c=0.07 a=0.96 n=0.06 s=0.6925)",
+      "latencyMs": 241
     },
     {
       "id": "V03.rejected",
       "right": true,
-      "picked": "c=0.92 a=0.78 n=0.07 s=0.58",
-      "latencyMs": 526
+      "picked": "c=0.92 a=0.77 n=0.05 s=0.5725",
+      "latencyMs": 241
     },
     {
       "id": "V04.pick",
       "right": true,
-      "picked": "clean (c=0.07 a=0.88 n=0.06 s=0.5125)",
-      "latencyMs": 600
+      "picked": "clean (c=0.08 a=0.88 n=0.06 s=0.5375)",
+      "latencyMs": 237
     },
     {
       "id": "V04.rejected",
       "right": true,
-      "picked": "c=0.94 a=0.77 n=0.05 s=0.3275",
-      "latencyMs": 600
+      "picked": "c=0.95 a=0.74 n=0.05 s=0.37",
+      "latencyMs": 237
     },
     {
       "id": "V05.pick",
       "right": true,
-      "picked": "clean (c=0.12 a=0.96 n=0.1 s=0.5875)",
-      "latencyMs": 812
+      "picked": "clean (c=0.1 a=0.96 n=0.12 s=0.575)",
+      "latencyMs": 281
     },
     {
       "id": "V05.rejected",
       "right": true,
-      "picked": "c=0.82 a=0.95 n=0.06 s=0.5425",
-      "latencyMs": 812
+      "picked": "c=0.83 a=0.94 n=0.06 s=0.51",
+      "latencyMs": 281
     },
     {
       "id": "V06.pick",
       "right": true,
-      "picked": "clean (c=0.07 a=0.98 n=0.04 s=0.7525)",
-      "latencyMs": 860
+      "picked": "clean (c=0.06 a=0.98 n=0.05 s=0.6925)",
+      "latencyMs": 280
     },
     {
       "id": "V06.rejected",
       "right": true,
-      "picked": "c=0.79 a=0.74 n=0.1 s=0.105",
-      "latencyMs": 860
+      "picked": "c=0.8 a=0.74 n=0.09 s=0.1025",
+      "latencyMs": 280
     },
     {
       "id": "V09.pick",
       "right": true,
-      "picked": "clean (c=0.07 a=0.94 n=0.05 s=0.6225)",
-      "latencyMs": 1301
+      "picked": "clean (c=0.08 a=0.94 n=0.04 s=0.625)",
+      "latencyMs": 288
     },
     {
       "id": "V09.rejected",
       "right": true,
-      "picked": "c=0.57 a=0.76 n=0.09 s=0.53",
-      "latencyMs": 1301
+      "picked": "c=0.62 a=0.77 n=0.09 s=0.505",
+      "latencyMs": 288
     },
     {
       "id": "V10.pick",
       "right": true,
-      "picked": "clean (c=0.12 a=0.95 n=0.05 s=0.45)",
-      "latencyMs": 1359
+      "picked": "clean (c=0.1 a=0.95 n=0.05 s=0.48)",
+      "latencyMs": 270
     },
     {
       "id": "V10.rejected",
       "right": true,
-      "picked": "c=0.52 a=0.9 n=0.05 s=0.385",
-      "latencyMs": 1359
+      "picked": "c=0.45 a=0.92 n=0.05 s=0.3525",
+      "latencyMs": 270
     }
   ]
 }

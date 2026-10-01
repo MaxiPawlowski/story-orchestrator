@@ -3,9 +3,9 @@
   "label": "propose",
   "frozenAt": "2026-09-25",
   "responses": [
-    "[create] Ember Keep Lore || Order of the Ash Hand || Order, Ash Hand, fire-priests || Fire-priests who claim the volcano as holy ground and demand the keep's surrender.\n[why] The Order of the Ash Hand has been introduced as a significant group with an ultimatum and connection to Iolo.",
-    "[create] Ember Keep Lore || Order of the Ash Hand || Order, Ash Hand, fire-priests || Fire-priests who claim the volcano as holy ground and have demanded the keep's surrender within three days.\n[why] The Order of the Ash Hand was introduced as a significant group with specific demands and history.",
-    "[create] Ember Keep Lore || Order of the Ash Hand || Order, Ash Hand, fire-priests || Fire-priests who claim the volcano as holy ground and demand the keep's surrender.\n[why] The Order of the Ash Hand has been introduced as a significant group with established facts that warrant a lore entry."
+    "[create] Ember Keep Lore || Order of the Ash Hand || Order of the Ash Hand, fire-priests, ultimatum || Fire-priests who claim the volcano beneath Ember Keep as holy ground. They raised Iolo before he fled, and have demanded the keep's surrender within three days.\n[why] The Order of the Ash Hand now drives the story at the council, and no existing entry covers them.",
+    "[create] Ember Keep Lore || The Order of the Ash Hand || Order of the Ash Hand, fire-priests, Ash Hand || Fire-priests who claim the volcano beneath Ember Keep as holy ground. They raised Iolo before he fled, and have demanded the keep's surrender within three days.\n[why] The council scene established the Order of the Ash Hand as an active threat with a deadline and a personal tie to Iolo, and no existing entry covers them.",
+    "[create] Ember Keep Lore || The Order of the Ash Hand || Order of the Ash Hand, fire-priests, ultimatum || Fire-priests who claim the volcano beneath Ember Keep as holy ground. They demanded the keep's surrender within three days. Iolo was raised among them before he fled.\n[why] The Order of the Ash Hand now drives the council scene and the ultimatum, and no existing entry covers them."
   ],
   "passes": [
     true,

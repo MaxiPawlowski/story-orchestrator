@@ -73,8 +73,8 @@ describe("judge readiness (v2.3 plan 09)", () => {
   // v2.4 plan 07 Phase A, 2026-09-25: both warden families cleared their predeclared floors on jev-1.13.0
   // (test/goldens/judge/agency.calibration.json, house-rules.calibration.json); measured, still author-only and off.
   it("reports the agency and house-rule families measured on the model Phase A ran on", () => {
-    expect(JUDGE_READINESS.agencyCheck).toMatchObject({ calibration: 1, latencyP50Ms: 1441, measuredOn: "jev-1.13.0" });
-    expect(JUDGE_READINESS.houseRules).toMatchObject({ calibration: 0.9896, latencyP50Ms: 499, measuredOn: "jev-1.13.0" });
+    expect(JUDGE_READINESS.agencyCheck).toMatchObject({ calibration: 1, latencyP50Ms: 241, measuredOn: "jev-1.13.0" });
+    expect(JUDGE_READINESS.houseRules).toMatchObject({ calibration: 0.9875, latencyP50Ms: 235, measuredOn: "jev-1.13.0" });
     expect((["agencyCheck", "houseRules"] as const).every((key) => AUTHOR_JUDGE_USES.includes(key) && defaultJudgeSettings().uses[key] === true)).toBe(true);
     expect(remeasured(settings({ agencyCheck: true, houseRules: true })).filter((row) => ["agencyCheck", "houseRules"].includes(row.key)).map((row) => row.verdict)).toEqual(["measured", "measured"]);
     expect(remeasured(settings({ agencyCheck: true }, { model: "jev-2.0.0" })).find((row) => row.key === "agencyCheck")?.verdict).toBe("unproven");
@@ -110,12 +110,14 @@ describe("judge readiness (v2.3 plan 09)", () => {
     expect(fixtureStale("stallCheck", { ...fact, fixtureRevision: undefined })).toEqual({ measured: null, current: JUDGE_FIXTURE_REVISION.stallCheck });
     expect(fixtureStale("stallCheck", { ...fact, fixtureRevision: JUDGE_FIXTURE_REVISION.stallCheck })).toBeUndefined();
     expect(fixtureStale("loreExclusive", JUDGE_READINESS.loreExclusive)).toBeUndefined();
-    const rows = judgeReadiness(settings({ stallCheck: true }));
-    expect(rows.find((row) => row.key === "stallCheck")).toMatchObject({ verdict: "unproven", calibration: 1, fixtureStale: { current: JUDGE_FIXTURE_REVISION.stallCheck } });
+    const edited = { fixtureRevisions: Object.fromEntries(Object.keys(JUDGE_FIXTURE_REVISION).map((key) => [key, "111111111111"])) };
+    const rows = judgeReadiness(settings({ stallCheck: true }), {}, null, edited);
+    expect(rows.find((row) => row.key === "stallCheck")).toMatchObject({ verdict: "unproven", calibration: 1, fixtureStale: { current: "111111111111" } });
     expect(rows.filter((row) => row.verdict === "measured")).toEqual([]);
     expect(judgeReadinessConcerns(rows).map((row) => row.key)).toEqual(expect.arrayContaining(["stallCheck", "memoryVerify", "sceneTracker", "director"]));
-    expect(remeasured(settings({ stallCheck: true })).find((row) => row.key === "stallCheck")).toMatchObject({ verdict: "measured" });
-    expect(remeasured(settings({ stallCheck: true })).find((row) => row.key === "stallCheck")?.fixtureStale).toBeUndefined();
+    const shipped = judgeReadiness(settings({ stallCheck: true }));
+    expect(shipped.find((row) => row.key === "stallCheck")).toMatchObject({ verdict: "measured" });
+    expect(shipped.filter((row) => row.fixtureStale)).toEqual([]);
   });
 
   it("does not claim a use is working when the judge itself is off", () => {

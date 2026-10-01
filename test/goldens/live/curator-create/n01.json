@@ -3,13 +3,13 @@
   "label": "none",
   "frozenAt": "2026-09-25",
   "responses": [
-    "[enable] #1\n[why] Mira has returned to the Brass Lantern, making the inn relevant again.",
-    "[enable] #1\n[why] Mira is at the Brass Lantern, making the inn entry relevant.",
-    "[enable] #1\n[create] Salt Road Lore || Garrick || stall-keeper, bread || A stall-keeper in Vessa's square who sells bread.\n[why] Mira visited the Brass Lantern and bought bread from Garrick, making the inn and the stall-keeper relevant."
+    "[create] Salt Road Lore || Garrick || Garrick, stall-keeper || A bread stall-keeper in the square of the river town of Vessa.\n[why] Garrick is named twice in the established facts as a person the story has introduced, and no existing entry covers him.",
+    "[create] Salt Road Lore || Garrick || Garrick, stall-keeper || A bread stall-keeper in the square of the river town of Vessa.\n[why] Garrick is named twice in the established facts (as the stall-keeper and by name) and no existing entry covers him.",
+    "[create] Salt Road Lore || Garrick || Garrick, stall-keeper || A bread stall-keeper in the square of the river town of Vessa.\n[why] Garrick is named twice in the established facts as the stall-keeper who sold Mira bread, and no existing entry covers him."
   ],
   "passes": [
-    true,
-    true,
+    false,
+    false,
     false
   ]
 }

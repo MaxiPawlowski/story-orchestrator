@@ -3,9 +3,9 @@
   "label": "propose",
   "frozenAt": "2026-09-25",
   "responses": [
-    "[create] Greyfen Lore || Tide Gate || tide gate, lower cells || The tide gate under the lower cells opens at low water for a quarter hour and is the only exit the guards do not watch. One of its bars is loose.\n[why] The tide gate is now an established location with specific properties that will be relevant for future navigation.",
-    "[create] Greyfen Lore || Tide Gate || tide gate, lower cells || The tide gate under the lower cells opens at low water for a quarter hour and is the only exit not watched by guards. One of its bars is loose.\n\n[why] The tide gate has been established as a key location with specific properties that warrant a lore entry.",
-    "[create] Greyfen Lore || Tide Gate || tide gate, lower cells || The tide gate under the lower cells opens at low water for a quarter hour and is the only exit not watched by guards. One of its bars is loose.\n\n[why] The tide gate and its properties have been established as key elements of the escape route."
+    "[create] Greyfen Lore || The Tide Gate || tide gate, tide gate's bars, lower cells || A barred gate beneath Greyfen's lower cells, opening at low water for a quarter hour. The only exit the guards do not watch. One bar is loose.\n[why] The tide gate became a concrete escape route with a specific opening window and a loose bar, facts stated twice and not covered by any existing entry.",
+    "[create] Greyfen Lore || The Tide Gate || tide gate, tide gate's bars, lower cells || A barred gate beneath Greyfen's lower cells, opening only at low water for a quarter hour. The only exit the guards do not watch. One bar is loose.\n[why] The tide gate is now the party's escape route and a named, twice-established feature of the prison, so it warrants its own entry.",
+    "[create] Greyfen Lore || The Tide Gate || tide gate, tide gate's bars, lower cells || A barred gate beneath Greyfen's lower cells, opening only at low water for a quarter hour. The only exit the guards do not watch. One bar is loose.\n[why] The tide gate is now a named, twice-established element of the escape route and no existing entry covers it."
   ],
   "passes": [
     true,

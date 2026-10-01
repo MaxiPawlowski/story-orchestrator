@@ -3,9 +3,9 @@
   "label": "none",
   "frozenAt": "2026-09-25",
   "responses": [
-    "[patch] #5 || Fire-priests who claim || holy ground. || Fire-priests who claim the volcano as holy ground and use fire-script for their sacred texts. ||\n[why] Iolo's ability to translate the fire-script establishes that the Order of the Ash Hand uses this specific writing system.",
-    "[patch] #5 || Fire-priests who claim || holy ground. || Fire-priests who claim the volcano as holy ground and issue ultimatums in fire-script.\n[why] The fire-priests' use of fire-script for the ultimatum is now an established detail.",
-    "[patch] #5 || Fire-priests who claim || holy ground. || Fire-priests who claim the volcano as holy ground and issue ultimatums in fire-script.\n[why] The fire-priests' use of fire-script for the ultimatum is now an established fact."
+    "[patch] #5 \"Order of the Ash Hand\" || Fire-priests who claim || holy ground. || Fire-priests who claim the volcano as holy ground. They write in a fire-script that only their own raised initiates can read.\n[why] Iolo's ability to read the priests' fire-script establishes that the Order uses a distinctive written script, which the entry did not previously mention.",
+    "[patch] #5 \"Order of the Ash Hand\" || Fire-priests who claim || holy ground. || Fire-priests who claim the volcano as holy ground. They write in fire-script, a script only their initiates can read.\n[why] Iolo's ability to read the priests' fire-script establishes that the Order uses a distinctive written script, which the entry did not previously mention.",
+    "[patch] #5 \"Order of the Ash Hand\" || Fire-priests who claim || holy ground. || Fire-priests who claim the volcano as holy ground. They write in fire-script, a script only their initiates can read.\n[why] Iolo's ability to read the priests' fire-script establishes that the Order uses a distinctive written script, which the entry did not previously mention."
   ],
   "passes": [
     true,

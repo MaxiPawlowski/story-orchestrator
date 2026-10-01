@@ -45,3 +45,4 @@ notes/
 /test/sessions/**/payloads*.jsonl
 /test/sessions/**/shots/
 /test/sessions/**/chat-full-*.json
+/test/measurements/v2.6-15-judge/raw/

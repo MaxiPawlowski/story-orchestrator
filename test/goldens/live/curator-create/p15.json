@@ -1,0 +1,15 @@
+{
+  "id": "p15",
+  "label": "propose",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[create] Sun Court Lore || The Sunstone Lance || sunstone lance, lance, sealed || A legendary weapon sealed beneath the Sun Court's altar. It burns any undead it touches.\n[why] The Sunstone Lance is now central to the story and established twice (sealed below the altar, burns undead), but no entry covers it.",
+    "[create] Sun Court Lore || The Sunstone Lance || sunstone lance, lance, sealed || A legendary weapon sealed beneath the Sun Court's altar. It burns any undead it touches.\n[why] The Sunstone Lance is now established as a specific named artifact with its own properties, warranting its own entry.",
+    "[create] Sun Court Lore || The Sunstone Lance || sunstone lance, lance, sealed || A legendary weapon sealed beneath the Sun Court's altar. It burns any undead it touches.\n[why] The Sunstone Lance is now central to the story and its nature was established twice, so it warrants its own lorebook entry."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}

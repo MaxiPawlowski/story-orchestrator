@@ -1,0 +1,15 @@
+{
+  "id": "p12",
+  "label": "propose",
+  "frozenAt": "2026-09-25",
+  "responses": [
+    "[create] Goblin Warrens Lore || Skullbiter || skullbiter, hobgoblin || Skullbiter is the hobgoblin who guards the warren's lower gate. He carries a club studded with adventurers' teeth, and an arrow in the shoulder did not slow him down.\n[why] Skullbiter is named twice in the established facts as a distinct person guarding the lower gate, and no listed entry covers him.",
+    "[create] Goblin Warrens Lore || Skullbiter || skullbiter, hobgoblin || Skullbiter is the hulking hobgoblin who guards the warren's lower gate. He carries a club studded with adventurers' teeth, and an arrow in the shoulder did not slow him down.\n[why] Skullbiter is a named guardian established twice in the facts and no existing entry covers him.",
+    "[create] Goblin Warrens Lore || Skullbiter || skullbiter, hobgoblin || Skullbiter is the hulking hobgoblin who guards the warren's lower gate. He carries a club studded with adventurers' teeth, and an arrow in the shoulder did not slow him down.\n[why] The story introduced Skullbiter as a named guardian with distinct traits, and no existing entry covers him."
+  ],
+  "passes": [
+    true,
+    true,
+    true
+  ]
+}
