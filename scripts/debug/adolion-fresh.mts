@@ -5,8 +5,8 @@ import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
 import {
-  buildInventory, buildManifest, checkInventory, diffInventories, expectedStartDisabled, installerProblems, isInstalledBook, stripPlan,
-  type AdolionManifest, type Inventory, type LaneDisk, type RuntimeReadiness,
+  buildInventory, buildManifest, checkInventory, diffInventories, expectedStartDisabled, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
+  type AdolionManifest, type Inventory, type LaneDisk, type RuntimeReadiness, type SpriteFolder, type SpritePackSource,
 } from './lib/adolionFresh.mts';
 
 const USAGE = `Usage: node scripts/debug/adolion-fresh.mts <command> [...]
@@ -16,8 +16,8 @@ campaign build. Lanes 1+ only; lane 0 is the user's.
 
   seed <lane> [--commit <sha>] [--headed] [--stop]
       stop the lane, re-seed it (st-lanes seed --fresh), strip the campaign's assets from the copy,
-      start it, run the campaign installer at the pinned commit (adolion-fresh.pin.json), create the
-      groups, select exactly the lorebooks the stories require, import the nine stories, take a
+      start it, run the campaign installer at the pinned commit (adolion-fresh.pin.json), upload the
+      sprite packs from an LFS checkout of that commit (a git worktree, uploads only), create the groups, select exactly the lorebooks the stories require, import the nine stories, take a
       so-assets baseline, then write and check the inventory (and diff it against the lane's last one)
   check <lane> [--drop-book <name>]
       re-read the inventory of a running lane and check it; --drop-book deletes that book first
@@ -27,6 +27,7 @@ campaign build. Lanes 1+ only; lane 0 is the user's.
 const PIN_FILE = resolve(REPO_ROOT, 'scripts', 'debug', 'adolion-fresh.pin.json');
 const LANES_ROOT = lanesRootFor(process.env, REPO_ROOT);
 const EXPORT_PATHS = ['build/lorebooks', 'build/cards', 'build/story', 'build/st-groups.js', 'scripts'];
+const SPRITE_PNGS = 'campaign/sprites/*/sprites/*/*.png';
 
 const lane = (n: number) => {
   const root = resolve(LANES_ROOT, String(n));
@@ -74,7 +75,46 @@ async function exportCampaign(repo: string, commit: string, target: string) {
 
 const readJson = async (path: string) => JSON.parse(await readFile(path, 'utf-8'));
 
-export async function manifestFromExport(dir: string, commit: string): Promise<AdolionManifest> {
+const spriteCheckoutDir = (work: string, commit: string) => join(work, `sprites-${commit.slice(0, 12)}`);
+
+async function prepareSpriteCheckout(repo: string, commit: string, target: string) {
+  const head = existsSync(join(target, '.git')) ? (await run('git', ['-C', target, 'rev-parse', 'HEAD'])).output.trim() : '';
+  if (head !== commit) {
+    if (existsSync(target)) await run('git', ['-C', repo, 'worktree', 'remove', '--force', target]);
+    await rm(target, { recursive: true, force: true });
+    await must('git worktree prune', 'git', ['-C', repo, 'worktree', 'prune']);
+    await must('git worktree add', 'git', ['-C', repo, 'worktree', 'add', '--detach', target, commit], { env: { GIT_LFS_SKIP_SMUDGE: '1' } });
+  }
+  await must('git lfs pull', 'git', ['-C', target, 'lfs', 'pull', `--include=${SPRITE_PNGS}`]);
+  return join(target, 'campaign', 'sprites');
+}
+
+async function readSpritePacks(spriteDir: string): Promise<SpritePackSource[]> {
+  const slugs = (await readdir(spriteDir, { withFileTypes: true })).filter((entry) => entry.isDirectory() && existsSync(join(spriteDir, entry.name, 'sets.json')));
+  const pointers: string[] = [];
+  const packs = await Promise.all(slugs.map(async ({ name: slug }) => {
+    const spec = await readJson(join(spriteDir, slug, 'sets.json'));
+    const sets = await Promise.all((Array.isArray(spec.sets) ? spec.sets : []).map(async (set: { id: string }) => {
+      const dir = join(spriteDir, slug, 'sprites', set.id);
+      const files = existsSync(dir) ? (await readdir(dir)).filter((file) => file.toLowerCase().endsWith('.png')) : [];
+      for (const file of files) if (isLfsPointer((await readFile(join(dir, file))).subarray(0, 40).toString('utf-8'))) pointers.push(`${slug}/${set.id}/${file}`);
+      return { id: String(set.id), labels: files.map((file) => file.replace(/\.png$/i, '')), neutral: files.includes('neutral.png') };
+    }));
+    return { name: String(spec.name), folder: spec.folder ? String(spec.folder) : undefined, sets };
+  }));
+  if (pointers.length) throw new Error(`${pointers.length} sprite file(s) in ${spriteDir} are Git LFS pointers, not images (first: ${pointers[0]}); run git lfs pull there`);
+  return packs;
+}
+
+async function laneSprites(user: string, packs: SpriteFolder[]): Promise<SpriteFolder[]> {
+  return Promise.all(packs.map(async (pack) => {
+    const dir = join(user, 'characters', ...pack.folder.split('/'));
+    const files = existsSync(dir) ? (await readdir(dir, { withFileTypes: true })).filter((entry) => !entry.isDirectory() && entry.name.toLowerCase().endsWith('.png')).map((entry) => entry.name.replace(/\.png$/i, '')) : [];
+    return { folder: pack.folder, labels: files };
+  }));
+}
+
+export async function manifestFromExport(dir: string, commit: string, spriteDir: string | null = null): Promise<AdolionManifest> {
   const storyDir = join(dir, 'build', 'story');
   const cardDir = join(dir, 'build', 'cards');
   const bookDir = join(dir, 'build', 'lorebooks');
@@ -84,7 +124,8 @@ export async function manifestFromExport(dir: string, commit: string): Promise<A
   })));
   const books = await Promise.all((await readdir(bookDir)).filter((file) => file.endsWith('.json')).map((file) => file.replace(/\.json$/, ''))
     .filter(isInstalledBook).map(async (name) => ({ name, data: await readJson(join(bookDir, `${name}.json`)) })));
-  return buildManifest({ commit, stories, cards, books, groupScript: await readFile(join(dir, 'build', 'st-groups.js'), 'utf-8') });
+  const sprites = spriteDir ? spriteFolders(await readSpritePacks(spriteDir), cards.map((card) => card.avatar.replace(/\.png$/i, ''))) : [];
+  return buildManifest({ commit, stories, cards, books, groupScript: await readFile(join(dir, 'build', 'st-groups.js'), 'utf-8'), sprites });
 }
 
 const listDir = async (path: string, keep: (name: string, isDir: boolean) => boolean) => {
@@ -102,6 +143,7 @@ async function readLaneDisk(user: string): Promise<LaneDisk> {
   return {
     worlds: (await listDir(join(user, 'worlds'), (name, dir) => !dir && name.endsWith('.json'))).map((name) => name.replace(/\.json$/, '')),
     characters: await listDir(join(user, 'characters'), (name, dir) => !dir && name.toLowerCase().endsWith('.png')),
+    spriteDirs: await listDir(join(user, 'characters'), (_, dir) => dir),
     chatDirs: await listDir(join(user, 'chats'), (_, dir) => dir),
     groups,
     groupChats: await listDir(join(user, 'group chats'), (name, dir) => !dir && name.endsWith('.jsonl')),
@@ -113,11 +155,12 @@ async function strip(manifest: AdolionManifest, user: string) {
   const plan = stripPlan(manifest, await readLaneDisk(user));
   for (const name of plan.worlds) await rm(join(user, 'worlds', `${name}.json`), { force: true });
   for (const avatar of plan.characters) await rm(join(user, 'characters', avatar), { force: true });
+  for (const dir of plan.spriteDirs) await rm(join(user, 'characters', dir), { recursive: true, force: true });
   for (const dir of plan.chatDirs) await rm(join(user, 'chats', dir), { recursive: true, force: true });
   for (const file of plan.groupFiles) await rm(join(user, 'groups', file), { force: true });
   for (const file of plan.groupChats) await rm(join(user, 'group chats', file), { force: true });
   await writeFile(join(user, 'settings.json'), JSON.stringify(plan.settings, null, 4), 'utf-8');
-  return { worlds: plan.worlds.length, characters: plan.characters.length, chatDirs: plan.chatDirs.length, groups: plan.groupFiles.length, groupChats: plan.groupChats.length, ...plan.removed };
+  return { worlds: plan.worlds.length, characters: plan.characters.length, spriteDirs: plan.spriteDirs.length, chatDirs: plan.chatDirs.length, groups: plan.groupFiles.length, groupChats: plan.groupChats.length, ...plan.removed };
 }
 
 async function laneInventory(manifest: AdolionManifest, user: string, exportDir: string, runtime: Record<string, RuntimeReadiness> | null, openGroup: string | null = null): Promise<Inventory> {
@@ -128,7 +171,7 @@ async function laneInventory(manifest: AdolionManifest, user: string, exportDir:
   const ledgerPath = join(exportDir, 'build', 'installed.json');
   return buildInventory(manifest, {
     commit: manifest.commit, books, characters: disk.characters, groups: disk.groups as any, settings: disk.settings,
-    ledger: existsSync(ledgerPath) ? await readJson(ledgerPath) : null, runtime, openGroup,
+    ledger: existsSync(ledgerPath) ? await readJson(ledgerPath) : null, runtime, openGroup, sprites: await laneSprites(user, manifest.sprites),
   });
 }
 
@@ -157,6 +200,7 @@ async function writeRecord(n: number, inventory: Inventory, problems: string[], 
 const summary = (inventory: Inventory) => ({
   books: inventory.books.length, cards: inventory.cards.length, groups: inventory.groups.length, stories: inventory.library.length,
   selected: inventory.selected.length, ready: Object.values(inventory.runtime ?? {}).filter((entry) => entry.ready).length,
+  spriteFolders: inventory.sprites.filter((entry) => entry.labels.length).length, sprites: inventory.sprites.reduce((total, entry) => total + entry.labels.length, 0),
 });
 
 async function seed(n: number, commitArg: string | null, headed: boolean, stopAfter: boolean) {
@@ -166,9 +210,11 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
   const pin = await readPin(commitArg);
   const paths = lane(n);
   const exportDir = join(paths.work, `campaign-${pin.commit.slice(0, 12)}`);
-  console.log(`[1/7] export campaign ${pin.commit} from ${pin.repo}`);
+  console.log(`[1/7] export campaign ${pin.commit} from ${pin.repo}, and its sprite packs (LFS worktree)`);
   await exportCampaign(pin.repo, pin.commit, exportDir);
-  const manifest = await manifestFromExport(exportDir, pin.commit);
+  const spriteDir = await prepareSpriteCheckout(pin.repo, pin.commit, spriteCheckoutDir(paths.work, pin.commit));
+  const manifest = await manifestFromExport(exportDir, pin.commit, spriteDir);
+  console.log(`      ${manifest.sprites.length} sprite folder(s), ${manifest.sprites.reduce((total, entry) => total + entry.labels.length, 0)} file(s)`);
   console.log(`[2/7] re-seed lane ${n}`);
   await lanes('stop', String(n));
   await lanes('seed', String(n), '--fresh');
@@ -182,6 +228,11 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
   const refusedLines = installerProblems(install.output);
   if (install.code !== 0 || refusedLines.length) throw new Error(`installer: exit ${install.code}; ${refusedLines.join('; ') || install.output.slice(-800)}`);
   console.log(`      ${install.output.split(/\r?\n/).filter(Boolean).length} lines, no FAIL/SKIP/WARN`);
+  const spriteInstaller = join(spriteDir, '..', '..', 'scripts', 'install_st.py');
+  const sprites = await run('python', [spriteInstaller, '--sprites'], { env: { ADOLION_ST_URL: paths.url.replace(/\/$/, ''), PYTHONIOENCODING: 'utf-8' } });
+  const spriteRefused = installerProblems(sprites.output);
+  if (sprites.code !== 0 || spriteRefused.length) throw new Error(`sprite upload: exit ${sprites.code}; ${spriteRefused.slice(0, 5).join('; ') || sprites.output.slice(-800)}`);
+  console.log(`      sprites: ${sprites.output.split(/\r?\n/).filter((line) => /sprites uploaded/.test(line)).length} folder(s) uploaded, no FAIL`);
   console.log('[5/7] reload the page, then groups, lorebook selection, story imports');
   await inLane(n, 'scripts/debug/st-session.mts', 'reload');
   const pageOut = join(paths.work, 'page-seed.json');
@@ -208,7 +259,8 @@ async function check(n: number, dropBook: string | null) {
   if (!existsSync(latest)) throw new Error(`lane ${n} has no adolion-fresh inventory: run \`adolion-fresh.mts seed ${n}\` first`);
   const commit = (await readJson(latest)).commit as string;
   const exportDir = join(paths.work, `campaign-${commit.slice(0, 12)}`);
-  const manifest = await manifestFromExport(exportDir, commit);
+  const spriteDir = join(spriteCheckoutDir(paths.work, commit), 'campaign', 'sprites');
+  const manifest = await manifestFromExport(exportDir, commit, existsSync(spriteDir) ? spriteDir : null);
   const logFrom = await logSize(paths.root);
   const pageOut = join(paths.work, 'page-check.json');
   await rm(pageOut, { force: true });

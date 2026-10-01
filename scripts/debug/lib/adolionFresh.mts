@@ -13,6 +13,7 @@ export interface ManifestStory { id: string; version: number; title: string; che
 export interface ManifestGroup { name: string; story: string; members: string[] }
 export interface ManifestCard { avatar: string; name: string }
 export interface ManifestBook { name: string; entries: number }
+export interface SpriteFolder { folder: string; labels: string[] }
 export interface AdolionManifest {
   commit: string;
   stories: ManifestStory[];
@@ -20,6 +21,7 @@ export interface AdolionManifest {
   books: ManifestBook[];
   groups: ManifestGroup[];
   requiredBooks: string[];
+  sprites: SpriteFolder[];
 }
 
 export interface ManifestInput {
@@ -28,6 +30,7 @@ export interface ManifestInput {
   cards: { avatar: string; data: unknown }[];
   books: { name: string; data: unknown }[];
   groupScript: string;
+  sprites?: SpriteFolder[];
 }
 
 const sorted = (values: Iterable<string>) => [...new Set(values)].sort((a, b) => a.localeCompare(b));
@@ -69,7 +72,8 @@ export function buildManifest(input: ManifestInput): AdolionManifest {
   const missingFixed = INSTALLER_FIXED_BOOKS.filter((name) => !books.some((book) => book.name === name));
   if (missingFixed.length) throw new Error(`the pinned build lacks the installer's fixed books: ${missingFixed.join(', ')}`);
   const groups = parseGroupScript(input.groupScript).sort((a, b) => a.story.localeCompare(b.story));
-  return { commit: input.commit, stories, cards, books, groups, requiredBooks: sorted(stories.flatMap((story) => story.lorebooks)) };
+  const sprites = (input.sprites ?? []).map((entry) => ({ folder: entry.folder, labels: sorted(entry.labels) })).sort((a, b) => a.folder.localeCompare(b.folder));
+  return { commit: input.commit, stories, cards, books, groups, requiredBooks: sorted(stories.flatMap((story) => story.lorebooks)), sprites };
 }
 
 export interface LaneGroupFile { file: string; id: string; name: string; chats: string[] }
@@ -80,10 +84,12 @@ export interface LaneDisk {
   groups: LaneGroupFile[];
   groupChats: string[];
   settings: Record<string, any>;
+  spriteDirs?: string[];
 }
 export interface StripPlan {
   worlds: string[];
   characters: string[];
+  spriteDirs: string[];
   chatDirs: string[];
   groupFiles: string[];
   groupChats: string[];
@@ -116,6 +122,8 @@ export function stripPlan(manifest: AdolionManifest, disk: LaneDisk): StripPlan 
   const worlds = disk.worlds.filter((name) => bookNames.has(name) || name.startsWith('Adolion') || isMirrorOf(name, titles));
   const avatars = new Set(manifest.cards.map((card) => card.avatar));
   const characters = disk.characters.filter((avatar) => avatars.has(avatar));
+  const spriteRoots = new Set(manifest.sprites.map((pack) => pack.folder.split('/')[0]));
+  const spriteDirs = (disk.spriteDirs ?? []).filter((dir) => spriteRoots.has(dir));
   const stems = new Set(characters.map((avatar) => avatar.replace(/\.png$/i, '')));
   const chatDirs = disk.chatDirs.filter((dir) => stems.has(dir));
   const groups = disk.groups.filter((group) => group.name.startsWith(GROUP_PREFIX));
@@ -143,7 +151,7 @@ export function stripPlan(manifest: AdolionManifest, disk: LaneDisk): StripPlan 
     settings.tag_map = Object.fromEntries(Object.entries(settings.tag_map).filter(([key]) => !avatars.has(key) && !groupIds.has(key)));
   }
   return {
-    worlds, characters, chatDirs, groupFiles: groups.map((group) => group.file), groupChats, settings,
+    worlds, characters, spriteDirs, chatDirs, groupFiles: groups.map((group) => group.file), groupChats, settings,
     removed: { stories: removedStories, bindings: removedBindings, selected: removedSelected }, media,
   };
 }
@@ -164,6 +172,7 @@ export interface Inventory {
   media: { image: boolean; sprites: boolean };
   ledger: { lorebooks: string[]; characters: string[] } | null;
   runtime: Record<string, RuntimeReadiness> | null;
+  sprites: SpriteFolder[];
   /** The group whose chat is open when the inventory is read: its story's cast is in force, every other group's was put back on leave. */
   openGroup?: string | null;
 }
@@ -192,6 +201,7 @@ export interface InventoryInput {
   ledger?: { lorebooks?: string[]; characters?: string[] } | null;
   runtime?: Record<string, RuntimeReadiness> | null;
   openGroup?: string | null;
+  sprites?: SpriteFolder[];
 }
 
 export function buildInventory(manifest: AdolionManifest, input: InventoryInput): Inventory {
@@ -220,6 +230,7 @@ export function buildInventory(manifest: AdolionManifest, input: InventoryInput)
     media: { image: record(record(root.settings).image).enabled !== false, sprites: !spritesSwitchedOff(record(root.settings).sprites) },
     ledger: input.ledger ? { lorebooks: sorted(strings(input.ledger.lorebooks)), characters: sorted(strings(input.ledger.characters)) } : null,
     runtime: input.runtime ? Object.fromEntries(Object.keys(input.runtime).sort().map((id) => [id, input.runtime![id]])) : null,
+    sprites: (input.sprites ?? []).map((entry) => ({ folder: entry.folder, labels: sorted(entry.labels) })).sort((a, b) => a.folder.localeCompare(b.folder)),
     ...(input.openGroup !== undefined ? { openGroup: input.openGroup } : {}),
   };
 }
@@ -295,6 +306,12 @@ export function checkInventory(manifest: AdolionManifest, inventory: Inventory):
     if (inventory.runtime && !live) problems.push(`story ${story.id}: no runtime requirements read`);
     else if (live && (!live.ready || live.storyId !== story.id)) problems.push(`story ${story.id} not ready (runtime, playing ${live.storyId ?? 'nothing'}): lorebooks [${live.missingLorebooks.join(', ')}] members [${live.missingMembers.join(', ')}] personas [${live.missingPersonas.join(', ')}]`);
   }
+  if (!manifest.sprites.length) problems.push('the pinned build has no sprite packs (the sprite checkout is missing or empty)');
+  for (const pack of manifest.sprites) {
+    const found = inventory.sprites.find((candidate) => candidate.folder === pack.folder);
+    const labels = setDiff(pack.labels, found?.labels ?? []);
+    if (labels.missing.length) problems.push(`sprites ${pack.folder}: ${labels.missing.length} of ${pack.labels.length} missing (${labels.missing.slice(0, 5).join(', ')})`);
+  }
   if (inventory.media.image || inventory.media.sprites) problems.push(`media generation is on in the lane (image ${inventory.media.image}, sprites ${inventory.media.sprites}): a lane must never reach the shared ComfyUI`);
   if (inventory.ledger) {
     const books = setDiff(manifest.books.map((book) => book.name), inventory.ledger.lorebooks);
@@ -316,6 +333,21 @@ export function diffInventories(left: unknown, right: unknown, path = '$'): stri
     return keys.flatMap((key) => diffInventories((left as Record<string, unknown>)[key], (right as Record<string, unknown>)[key], `${path}.${key}`));
   }
   return JSON.stringify(left) === JSON.stringify(right) ? [] : [`${path}: ${JSON.stringify(left)} vs ${JSON.stringify(right)}`];
+}
+
+const LFS_POINTER = 'version https://git-lfs';
+
+export const isLfsPointer = (head: string) => head.startsWith(LFS_POINTER);
+
+export interface SpritePackSource { name: string; folder?: string; sets: { id: string; labels: string[]; neutral: boolean }[] }
+
+export function spriteFolders(packs: SpritePackSource[], cardNames: string[]): SpriteFolder[] {
+  const names = new Set(cardNames);
+  return packs.filter((pack) => names.has(pack.name)).flatMap((pack) => {
+    const folder = pack.folder || pack.name;
+    if (!pack.sets.some((set) => set.id === 'default' && set.neutral)) return [];
+    return pack.sets.filter((set) => set.neutral).map((set) => ({ folder: set.id === 'default' ? folder : `${folder}/${set.id}`, labels: sorted(set.labels) }));
+  }).sort((a, b) => a.folder.localeCompare(b.folder));
 }
 
 export function installerProblems(output: string): string[] {
