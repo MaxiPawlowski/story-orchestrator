@@ -1,0 +1,227 @@
+{
+  "source": "test/sessions/T1/T1-5-1 runtime extras.expansion + pinnedStory adolion-night; journal.jsonl:782,798",
+  "story": {
+    "format": 2,
+    "id": "t1-5-long-night",
+    "version": 1,
+    "title": "T1-5 Long Night",
+    "description": "",
+    "qualities": [
+      {
+        "key": "night_in_kelger",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "evidence_from": "world",
+        "scope_hint": {
+          "from": "night-the-coven"
+        },
+        "rubric": "Has the party walked into the fog around Kelger Falls, the fishing town on the southern coast? Seeing the fog bank from the road does not count."
+      },
+      {
+        "key": "night_fog_broken",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "evidence_from": "world",
+        "scope_hint": {
+          "from": "night-the-kelger-falls"
+        },
+        "rubric": "Has the fog over Kelger Falls lifted for good, so that the road out leads out instead of back to the town square? A path that seems to work once, or the fog thinning, does not count."
+      },
+      {
+        "key": "night_castle_sighted",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "evidence_from": "world",
+        "scope_hint": {
+          "from": "night-the-kelger-falls"
+        },
+        "rubric": "Has Castle Dracul come into sight, its spires under a night that does not end, with the party on the road to it? A castle in a story or a dream does not count."
+      },
+      {
+        "key": "night_original_taken",
+        "type": "bool",
+        "source": "extractor",
+        "latching": true,
+        "evidence_from": "any",
+        "scope_hint": {
+          "from": "night-the-castle-dracul"
+        },
+        "rubric": "Does the party know that Dracul's own original of the Heresy, the book every copy answers to, has been carried off from Castle Dracul to Castle Bathorya? Knowing only that the copies came from Castle Dracul does not count."
+      },
+      {
+        "key": "location",
+        "type": "enum",
+        "values": [
+          "night_slums",
+          "night_studio",
+          "night_glasnoa",
+          "night_thornwood",
+          "night_thornwood_lake",
+          "night_habbot",
+          "night_evergreen_glade",
+          "night_kelger_falls",
+          "night_road",
+          "night_castle_dracul",
+          "night_astoria",
+          "night_castle_bathorya"
+        ],
+        "player_labels": {
+          "night_slums": "the Aegis slums",
+          "night_studio": "a private studio",
+          "night_glasnoa": "Glasnoa",
+          "night_thornwood": "Thornwood Forest",
+          "night_thornwood_lake": "a lake in Thornwood",
+          "night_habbot": "Habbot Village",
+          "night_evergreen_glade": "a glade in the elder wood",
+          "night_kelger_falls": "Kelger Falls",
+          "night_road": "the road north-east",
+          "night_castle_dracul": "a castle where night never ends",
+          "night_astoria": "Astoria Forest",
+          "night_castle_bathorya": "a castle near Gragow"
+        },
+        "source": "extractor",
+        "evidence_from": "world",
+        "rubric": "Where is the party right now? night_slums: the Slums of Aegis City; night_studio: the Soul Painter's private studio outside the slums; night_glasnoa: the village of Glasnoa; night_thornwood: under the trees of Thornwood Forest; night_thornwood_lake: Kayla's lake and cabin in Thornwood; night_habbot: Nalea's cabin and Habbot Village on the edge of Havensworth Forest; night_evergreen_glade: Felthorn's glade in the elder wood; night_kelger_falls: the fog-bound fishing town of Kelger Falls; night_road: the long road north-east toward the Dracul lands; night_castle_dracul: Castle Dracul; night_astoria: Astoria Forest, the Nightwolf camp and besieged Castle Frankat; night_castle_bathorya: Castle Bathorya and its grounds."
+      }
+    ],
+    "checkpoints": [
+      {
+        "id": "night-the-kelger-falls",
+        "name": "The Fog at Kelger Falls",
+        "objective": "Find the way out of Kelger Falls, and what holds the fog there.",
+        "type": "intermediate",
+        "tension_target": "critical",
+        "state_snapshot": {
+          "location": "night_kelger_falls"
+        },
+        "start": true
+      },
+      {
+        "id": "night-the-long-night",
+        "name": "The Long Night",
+        "objective": "The road north-east to the Dracul lands, following the pull of the souls: whatever the long night holds.",
+        "type": "intermediate"
+      },
+      {
+        "id": "night-the-castle-dracul",
+        "name": "Castle Dracul",
+        "objective": "Find out who is behind the Heresy, and where its original has gone.",
+        "type": "anchor",
+        "tension_target": "critical",
+        "state_snapshot": {
+          "location": "night_castle_dracul"
+        }
+      }
+    ],
+    "transitions": [
+      {
+        "from": "night-the-kelger-falls",
+        "to": "night-the-long-night",
+        "priority": 1,
+        "gate": {
+          "q": "night_fog_broken",
+          "op": "==",
+          "v": true
+        }
+      },
+      {
+        "from": "night-the-long-night",
+        "to": "night-the-castle-dracul",
+        "priority": 2,
+        "gate": {
+          "q": "progress_toward_night-the-castle-dracul",
+          "op": ">=",
+          "v": 1
+        }
+      },
+      {
+        "from": "night-the-long-night",
+        "to": "night-the-castle-dracul",
+        "priority": 1,
+        "gate": {
+          "q": "night_castle_sighted",
+          "op": "==",
+          "v": true
+        }
+      }
+    ],
+    "roster": []
+  },
+  "basis": {
+    "night_moon": false
+  },
+  "codeCheck": {
+    "ok": true,
+    "issues": [],
+    "progressTotal": 1
+  },
+  "beats": [
+    {
+      "title": "The Fog Lifts",
+      "objective": "Escape Kelger Falls and carry the truth of what held the fog out into the night, where the road to Castle Dracul begins.",
+      "guidance": "The fog is broken and Zariah's dead town is behind the party. Play the aftermath: the party walking out through the thinning mist, the last of Kelger Falls fading, and the first sign of the wider night waiting on the road. Let the cast react to what they saw and did. The world presses here: something on the road notices them leaving, or a messenger, echo, or omen arrives that points toward Castle Dracul and the Heresy. Do not decide for {{user}} that they follow it; present the pressure and the direction.",
+      "tension_target": "tense",
+      "outcomes": [
+        {
+          "label": "success",
+          "gate": {
+            "q": "night_fog_broken",
+            "op": "==",
+            "v": true
+          },
+          "deltas": [
+            {
+              "q": "location",
+              "v": "night_road"
+            },
+            {
+              "q": "night_in_kelger",
+              "v": false
+            },
+            {
+              "q": "progress_toward_night-the-castle-dracul",
+              "v": 1
+            }
+          ],
+          "progress": {
+            "anchor": "night-the-castle-dracul",
+            "amount": 1
+          }
+        }
+      ]
+    },
+    {
+      "title": "The Road to Castle Dracul",
+      "objective": "Reach Castle Dracul and learn who is behind the Heresy and where its original has gone.",
+      "guidance": "The party travels the night road toward Castle Dracul. Play the journey and the arrival: the castle rising ahead, its gates, its guards or court, and the powers within that want the party bound before dawn. The Heresy's trail leads here; let the cast uncover who is behind it and where the original has gone. The world presses: the castle does not wait, and its heirs and rivals make their offers or demands. Do not narrate {{user}} accepting any binding or bargain; present the situation and let the players choose.",
+      "tension_target": "peak",
+      "outcomes": [
+        {
+          "label": "success",
+          "gate": {
+            "q": "night_castle_sighted",
+            "op": "==",
+            "v": true
+          },
+          "deltas": [
+            {
+              "q": "location",
+              "v": "night_castle_dracul"
+            },
+            {
+              "q": "night_castle_sighted",
+              "v": true
+            },
+            {
+              "q": "night_original_taken",
+              "v": true
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
