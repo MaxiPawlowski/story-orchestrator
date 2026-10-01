@@ -104,7 +104,7 @@ The user is away until their quota returns. Their instructions, verbatim in subs
 Resume each from its worktree.
 
 **User decisions 2026-10-01:**
-- CR-J3: remote judge calls wait for the privacy notice to be acknowledged. The fallback is `unacknowledged`; defaults stay on; the tests acknowledge on each lane.
+- CR-J3 (revised by the user later on 2026-10-01): **no notice gating** — entering a key is consent to send data, and the judge can be disabled anytime; the notice says so. (Superseded first answer: remote judge calls wait for the privacy notice to be acknowledged.) The fallback is `unacknowledged`; defaults stay on; the tests acknowledge on each lane.
 - Judge floors after W25: re-measure in English. Add English cases to restore the fixture sizes, re-run those calibrations live, and switch off by default any use still below its floor.
 
 **Resume state 2026-10-01 ~03:00:** the agents hit the spend limit (it resets 03:40).
