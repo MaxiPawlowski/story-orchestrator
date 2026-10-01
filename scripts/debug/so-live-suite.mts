@@ -6,7 +6,7 @@ import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 import { latencyPercentiles, parseEffortArm, pinRoleEffort, readRoleReasoning, restoreRoleEfforts, type EffortArm } from './lib/roleEffort.mts';
-import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
+import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreIntents, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
 
 const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high]
 
@@ -22,7 +22,9 @@ memory profile selected in the extension settings.
   --record        write each live raw response to test/goldens/live/<name>.response.txt
   --effort <lvl>  v2.6 plan 05 R3: pin the read role's reasoning effort for the run (restored and read back after);
                   the report gains effort, the connection's reasoning read-out and p50/p95 latency. Not with --record.
-  --min-tier <s>  per-tier floors over the defaults facts=0.85,rejected=0.9,epistemic=0.8,ledger=0.8,arcs=0.8
+  --min-tier <s>  per-tier floors over the defaults facts=0.85,rejected=0.9,epistemic=0.8,ledger=0.8,arcs=0.8,intents=0.8
+                  (intents: the floor is PRECISION over the live [intends] rows; recall >= 0.5 and
+                  playerAttributed = 0 are fixed by test/measurements/v2.6-06/b-intents.json)
                   (a tier below its floor fails; tier=0 switches one off, and the report says so)
   --expect-count <n>  fail unless exactly n fixtures ran — a shrinking denominator cannot raise accuracy
   --judge         v2.2 plan 06: merge test/fixtures/<name>.hints.json (read_as + criteria per quality)
@@ -114,6 +116,7 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
           scoreContains('arcs', fixture.expected.arcs, live.arcs ?? []),
           scoreContains('epistemic', fixture.expected.epistemic, live.epistemic ?? []),
           scoreContains('ledger', fixture.expected.ledger, live.ledger ?? []),
+          scoreIntents(fixture.expected.intents, live.epistemic ?? [], fixture.transcript.filter((entry) => entry.is_user === true).map((entry) => entry.speaker)),
         ].filter((row) => row.scored);
         const tierFailures = tiers.filter((row) => !row.pass);
         const sources = (live.deltas ?? []).map((d) => `${d.q}:${d.judge === undefined ? 'llm' : `judge@${d.judge}`}`);
@@ -157,7 +160,8 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
   };
   await writeJSON(report, judge ? 'so-live-suite-judge-report' : effort ? `so-live-suite-effort-${effort}-report` : 'so-live-suite-report');
   for (const [tier, total] of Object.entries(totals)) {
-    console.log(`${total.ok ? 'ok  ' : 'FAIL'} ${tier.padEnd(10)} ${total.passed}/${total.scored}${total.floor === undefined ? '' : ` floor ${total.floor}`}${total.vacuous.length ? `  [vacuous expectations: ${total.vacuous.join(', ')}]` : ''}`);
+    const intents = total.intents ? ` precision ${total.intents.precision} recall ${total.intents.recall} playerAttributed ${total.intents.playerAttributed}` : '';
+    console.log(`${total.ok ? 'ok  ' : 'FAIL'} ${tier.padEnd(10)} ${total.passed}/${total.scored}${intents}${total.floor === undefined ? '' : ` floor ${total.floor}`}${total.vacuous.length ? `  [vacuous expectations: ${total.vacuous.join(', ')}]` : ''}`);
   }
   for (const reason of verdict.reasons) console.log(`NOT GREEN: ${reason}`);
   console.log(JSON.stringify({ total: report.total, passed, plotDeltaAccuracy: report.plotDeltaAccuracy, min, tiers: totals, ok: report.ok }, null, 2));

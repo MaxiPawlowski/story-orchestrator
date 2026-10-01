@@ -1,0 +1,3 @@
+DELTA q=granary_reached value=true evidence="press themselves against the granary door"
+SCENE_NONE
+[intends] Kael | burn the baron's grain store tonight

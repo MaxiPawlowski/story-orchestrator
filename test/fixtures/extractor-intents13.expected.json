@@ -1,0 +1,19 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "letter_read",
+      "v": true,
+      "evidence": "Greta reads the letter aloud"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "intents fixture: it states the delta and the intents tier only"
+  },
+  "intents": {
+    "expect": []
+  }
+}

@@ -57,3 +57,41 @@ export function suiteBudget(sections, config = {}, demoted = []) {
   const capacityHours = 2 * (config.nightHours ?? 10) * (config.lanes ?? 2);
   return { sections: summed, llmHours, cappedHours, capacityHours, fits: llmHours * 2 <= capacityHours, fitsCapped: cappedHours * 2 <= capacityHours, gapHours: Math.max(0, cappedHours * 2 - capacityHours), demotedCount: demoted.length, demotedMinutes: demoted.reduce((sum, row) => sum + (row.est ?? 0), 0) / 60 };
 }
+
+const HEADER_PAIR = 'run header before + `so-run-header.mts diff` after';
+
+export const GENERATED = {
+  journey: (id) => ({
+    command: `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group <id> ${id}`,
+    when: 'always',
+    config: 'the journey file\'s own setup; scan mode where plan 10 says so',
+    artifacts: [`journey record per run under test/journeys/records/v2.6-acceptance/${id}/`, 'engine-history-<check>.json per check (H-k)', HEADER_PAIR],
+    tier: 'T7',
+  }),
+  scenario: (asset) => ({
+    command: asset.startsWith('test/')
+      ? `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group <id> ${asset}`
+      : `node scripts/debug/st-lanes.mts batch --lanes <n> --repeat 2 --strict --group <id> <${asset}>`,
+    when: 'always',
+    config: 'the scenario file\'s own steps, --sandbox',
+    artifacts: ['st-lanes batch summary', 'scenario log per run', HEADER_PAIR],
+    tier: 'T7',
+  }),
+};
+
+const REPO_PATH = /(?:^|[\s(])((?:scripts|test|src|docs)\/[^\s;,()`'"]+\.(?:mts|mjs|ts|json|md))/g;
+
+export function suiteRowProblems(row, exists = () => true) {
+  const problems = [];
+  const text = `${row.what ?? ''} ${row.note ?? ''}`;
+  if (/placeholder/i.test(text)) problems.push(`${row.id}: still marked as a placeholder`);
+  if (typeof row.command !== 'string' || !/(?:^|\s)(?:node|npx|npm)\s/.test(row.command)) problems.push(`${row.id}: no runnable command (node/npx/npm)`);
+  if (!/^T[0-7]$/.test(String(row.tier ?? ''))) problems.push(`${row.id}: tier must be one of T0..T7, got ${JSON.stringify(row.tier)}`);
+  if (!Array.isArray(row.artifacts) || !row.artifacts.length || row.artifacts.some((item) => typeof item !== 'string' || !item.trim())) problems.push(`${row.id}: no artifact requirement`);
+  if (typeof row.when !== 'string' || !row.when.trim()) problems.push(`${row.id}: no run condition (when)`);
+  for (const [, path] of String(row.command ?? '').matchAll(REPO_PATH)) {
+    if (path.includes('<') || path.includes('*')) continue;
+    if (!exists(path)) problems.push(`${row.id}: ${path} does not exist`);
+  }
+  return problems;
+}

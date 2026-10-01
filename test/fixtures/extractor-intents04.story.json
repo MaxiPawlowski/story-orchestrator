@@ -1,0 +1,49 @@
+{
+  "format": 2,
+  "title": "The Bank Job",
+  "description": "v2.6 plan 06 B intents fixture: a character states (or does not state) an aim of its own.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "plan_agreed",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Have Max and Corvin agreed on the bank plan?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Plan the job.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Carry on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "plan_agreed",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": []
+}

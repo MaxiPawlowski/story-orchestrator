@@ -257,6 +257,18 @@
       "status": "checked",
       "note": "v2.6 plan 07 D2: one RunGuard minted over the sealed range; checked after closing the scene, after the arc summaries, after the record call (inside write), after the saga call, after the era merges, before the journal and title card. commitSeal (fold + record + derived) runs synchronously right after a check, so no await sits between the check and the store write."
     },
+    "src/runtime/chapterSeal.ts#ChapterSeal.prepare": {
+      "status": "checked",
+      "note": "AS-14 (2026-10-01, plan 07 map-reduce): one map call per chunk; the run is checked after each call, before the digest is pushed. The only write is to its own local digest list; nothing reaches the store until ChapterSeal.run commits."
+    },
+    "src/runtime/chapterSeal.ts#ChapterSeal.judgeConsequences": {
+      "status": "checked",
+      "note": "AS-14 (2026-10-01, plan 07 D2 step 5): one memoryVerify judge call per consequence; the run is checked after each, before a failure is pushed to its own local list. The judge records its own call ring (JudgeRuntime.ask, censused there); nothing here writes the store."
+    },
+    "src/runtime/chapterKit.ts#recall": {
+      "status": "checked",
+      "note": "AS-14 (2026-10-01, plan 07 D10 archive recall): the only await is the vectors band (recallBand); a RunGuard minted before it is checked immediately after, before the store is re-read, the scene-history extension prompt is written, port.recalled is set and the journal line is written. All writes are synchronous after that one check."
+    },
     "src/runtime/chapterSeal.ts#ChapterSeal.seal": {
       "status": "local",
       "note": "v2.6 plan 07: the only write after its await is the finally that clears inFlight, the unit's own in-memory bookkeeping (the CanonSynthesis.regenerateCanon rule): leaving it set because the world moved would wedge sealing for the session. The chapter writes are ChapterSeal.run's, which is checked."

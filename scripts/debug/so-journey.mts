@@ -27,6 +27,8 @@ import { BLOCKING_DIALOGS, mergeRestore, shouldRecoverConfig, validateJourneyExt
 import { applyJudgeMode, modeFromSetup, parseJudgeMode, restoreJudgeConfig, wardenNotes, wardenTally, type JudgeMode } from './lib/judgeHarness.mts';
 import { applyWiGating, parseWiGating, restoreWiGating, type WiGatingMode } from './lib/wiGatingHarness.mts';
 import { assertDevBundle } from './lib/bundleFlavour.mts';
+import { quiesceBeforeSwitch, type QuiesceOptions } from './lib/generationQuiesce.mts';
+import { dumpEngineHistory } from './lib/engineHistoryDump.mts';
 
 const JOURNEY_DIR = resolve(PROJECT_ROOT, 'test/journeys');
 const CONFIG_SNAPSHOT = resolve(DEBUG_DIR, 'so-journey-config-snapshot.json');
@@ -384,9 +386,12 @@ async function applySetup(page, setup, { allowConfig, group = null, judgeMode = 
   return applied;
 }
 
-async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks, extractionBefore = null, judgeMode = null as Awaited<ReturnType<typeof applyJudgeMode>> | null, wiGating = null as Awaited<ReturnType<typeof applyWiGating>> | null, judgeRequests = null as ReturnType<typeof trackJudgeRequests> | null }) {
+export async function runCleanup(page, journey, { importedHashes, libraryBefore, configSnapshot, guard, keep, allowConfig, assetBaseline, activatedLorebooks, extractionBefore = null, judgeMode = null as Awaited<ReturnType<typeof applyJudgeMode>> | null, wiGating = null as Awaited<ReturnType<typeof applyWiGating>> | null, judgeRequests = null as ReturnType<typeof trackJudgeRequests> | null, quiesce = {} as QuiesceOptions, historyDir = DEBUG_DIR }) {
   const cleanup = journey.cleanup ?? {};
   const report: Record<string, unknown> = {};
+  const generation = await quiesceBeforeSwitch(page, quiesce);
+  report.generation = generation;
+  if (guard) report.engineHistory = await dumpEngineHistory(page, guard, { dir: historyDir, label: journey.id, playedStory: importedHashes.length > 0 });
   if (judgeRequests) report.judgeSettle = await judgeRequests.settle();
   // The judge call ring lives in the chat's own metadata, so it dies with the chat a few lines
   // below. Plan 08's cost and latency report is built from these records, and the green J11 and J8
@@ -403,7 +408,7 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
     report.judgeMode = { mode: judgeMode.mode };
     Object.assign(report, await captureControlColumn(page, judgeMode.mode.label).catch((error) => ({ controlColumn: { unreadable: error.message } })));
   }
-  if (keep) return { kept: true, sandboxChatId: guard?.sandboxChatId ?? null, owned: guard?.owned ?? [], judgeCalls: report.judgeCalls };
+  if (keep) return { kept: true, sandboxChatId: guard?.sandboxChatId ?? null, owned: guard?.owned ?? [], judgeCalls: report.judgeCalls, generation, engineHistory: report.engineHistory };
   // A check's `storyOrchestratorDebug*` mock answers the next real pass in this page until a reload
   // (J6 sets four; the run header flagged them as blocking residue, v2.4 plan 09 A2). Setup clears
   // them at start; cleanup clears them at the end too, as so-scenario does.
@@ -434,7 +439,8 @@ async function runCleanup(page, journey, { importedHashes, libraryBefore, config
     report.importedStoryHashes = [...new Set(importedHashes)];
     report.library = await restoreLibrary(page, libraryBefore).catch((error) => ({ error: error.message }));
   }
-  if (guard && cleanup.deleteChat !== false) {
+  if (guard && cleanup.deleteChat !== false && !generation.idle) report.chat = { notDeleted: [...guard.owned], reason: 'a generation was still running, so no chat was switched or deleted' };
+  if (guard && cleanup.deleteChat !== false && generation.idle) {
     await recordSandboxStory(page, guard);
     report.chat = await deleteSandboxChats(page, withoutBranchChats(guard)).catch((error) => ({ error: error.message }));
     report.branchChats = await cleanupBranchChats(page, guard).catch((error) => ({ error: error.message, leaked: [...(guard.branchChats ?? [])] }));
@@ -633,6 +639,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
     releasedRoutes,
     capabilities: capabilities.cache,
     results,
+    engineHistory: engineHistoryOfCleanup(setupApplied.cleanup),
     cleanup: setupApplied.cleanup ?? null,
   };
   await mkdir(DEBUG_DIR, { recursive: true });
@@ -641,6 +648,13 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
   console.log(`Matrix: ${resolve(DEBUG_DIR, `journey-${journey.id}.md`)}`);
   judgeRequests.dispose();
   return { ok: !failed, record };
+}
+
+export function engineHistoryOfCleanup(cleanup: unknown): { file?: string; chats?: number; stories?: number; error?: string } | null {
+  const report = cleanup && typeof cleanup === 'object' ? (cleanup as { engineHistory?: unknown }).engineHistory : null;
+  if (!report || typeof report !== 'object') return cleanup && typeof cleanup === 'object' && 'error' in cleanup ? { error: `cleanup threw before the engine history was dumped: ${String((cleanup as { error: unknown }).error)}` } : null;
+  const { file, chats, stories, error } = report as { file?: string; chats?: number; stories?: number; error?: string };
+  return { ...(file ? { file } : {}), ...(typeof chats === 'number' ? { chats } : {}), ...(typeof stories === 'number' ? { stories } : {}), ...(error ? { error } : {}) };
 }
 
 function summarize(check) {

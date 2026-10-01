@@ -1,0 +1,28 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "harbor_reached",
+      "v": true,
+      "evidence": "reaches the harbor wall"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "intents fixture: it states the delta and the intents tier only"
+  },
+  "intents": {
+    "expect": [
+      {
+        "subject": "Orrin",
+        "anyOf": [
+          "daughter",
+          "harbor",
+          "harbour"
+        ]
+      }
+    ]
+  }
+}

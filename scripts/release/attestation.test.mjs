@@ -11,7 +11,7 @@ import { dirname, join, posix, resolve } from "node:path";
 import { test } from "node:test";
 import { fileURLToPath } from "node:url";
 import { attestedJourneyIds, catalogProblems, citedRecords, journeyCatalog, recordsRootOf } from "./attestationChecks.mjs";
-import { citedPathProblem, greenTwiceEverywhere, journeyVerdicts, resolveCited, runLines, statusProblems } from "./attestationRules.mjs";
+import { citedPathProblem, engineHistoryCitation, greenTwiceEverywhere, journeyVerdicts, resolveCited, runLines, statusProblems } from "./attestationRules.mjs";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const version = JSON.parse(readFileSync(join(root, "package.json"), "utf8")).version;
@@ -127,6 +127,19 @@ test("every path it cites stays under the records root and exists on disk", { sk
   const dir = recordsDir();
   const missing = cited.filter((name) => !existsSync(resolveCited(dir, name)));
   assert.deepEqual(missing, [], `cited records that are not there (rotated out of .debug before being archived?): ${missing.join(", ")}`);
+});
+
+test("every engine-history dump a cited run names is on disk under the records root (H-k)", { skip: skip() }, () => {
+  const attestation = read();
+  const dir = recordsDir();
+  const load = loadCited(dir);
+  const missing = attestedJourneyIds(attestation).flatMap((id) =>
+    (attestation.journeys[id].runs ?? [])
+      .filter((run) => typeof run?.record === "string" && !citedPathProblem(run.record))
+      .map((run) => engineHistoryCitation(run, load(run.record)))
+      .filter((cited) => cited && (citedPathProblem(cited) || !existsSync(resolveCited(dir, cited)))),
+  );
+  assert.deepEqual(missing, [], `engine-history dumps a cited record names and the records root does not hold: ${missing.join(", ")}`);
 });
 
 test("a PARTIAL attestation says what is not green, and a full one has nothing to say", { skip: skip() }, () => {

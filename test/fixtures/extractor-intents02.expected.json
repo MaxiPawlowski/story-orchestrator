@@ -1,0 +1,34 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "pass_entered",
+      "v": true,
+      "evidence": "they step into the pass"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "intents fixture: it states the delta and the intents tier only"
+  },
+  "intents": {
+    "expect": [
+      {
+        "subject": "Mira",
+        "anyOf": [
+          "brother"
+        ]
+      },
+      {
+        "subject": "Doran",
+        "anyOf": [
+          "bounty",
+          "reward",
+          "bandit"
+        ]
+      }
+    ]
+  }
+}

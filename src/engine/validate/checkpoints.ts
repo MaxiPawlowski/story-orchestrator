@@ -1,5 +1,5 @@
 import {
-  NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, ROSTER_VIEWS, TALK_CHAIN_MAX_CAP, TENSION_LEVELS, type BackgroundEffect, type AgencyPolicy, type Checkpoint,
+  CHECKPOINT_REASONING, NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, ROSTER_VIEWS, TALK_CHAIN_MAX_CAP, TENSION_LEVELS, type BackgroundEffect, type AgencyPolicy, type Checkpoint,
   type CheckpointEffects, type PrimitiveValue, type StoryV2, type TalkControl, type TalkControlChain, type TalkControlSpeaker,
   type ValidationError,
 } from "../schema";
@@ -58,6 +58,14 @@ const readCheckpointEffects = (value: unknown, path: string, errors: ValidationE
     const background = readBackground(value.background, `${path}.background`, errors);
     if (background) effects.background = background;
     else delete effects.background;
+  }
+  if (value.reasoning !== undefined) {
+    const reasoning = typeof value.reasoning === "string" ? value.reasoning.trim().toLowerCase() : null;
+    if (isOneOf(reasoning, CHECKPOINT_REASONING)) effects.reasoning = reasoning;
+    else {
+      addError(errors, `${path}.reasoning`, "reasoning must be off, low, medium or high");
+      delete effects.reasoning;
+    }
   }
   if (value.npc_replies === undefined) return effects;
   if (!Array.isArray(value.npc_replies)) {

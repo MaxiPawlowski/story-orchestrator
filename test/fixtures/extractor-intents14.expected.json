@@ -1,0 +1,32 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "climb_started",
+      "v": true,
+      "evidence": "the climb begins"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "intents fixture: it states the delta and the intents tier only"
+  },
+  "intents": {
+    "expect": [
+      {
+        "subject": "Petra",
+        "anyOf": [
+          "paid",
+          "pay",
+          "coin",
+          "money"
+        ]
+      }
+    ],
+    "players": [
+      "Max"
+    ]
+  }
+}

@@ -1,0 +1,2 @@
+DELTA q=letter_read value=true evidence="Greta reads the letter aloud"
+SCENE_NONE

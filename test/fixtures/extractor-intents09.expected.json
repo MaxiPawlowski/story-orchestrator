@@ -1,0 +1,22 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "soup_served",
+      "v": true,
+      "evidence": "sets two steaming bowls on the table"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "intents fixture: it states the delta and the intents tier only"
+  },
+  "intents": {
+    "expect": [],
+    "players": [
+      "Max"
+    ]
+  }
+}

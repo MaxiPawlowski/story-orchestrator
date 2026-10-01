@@ -6,9 +6,11 @@
 // expectations that nothing looked at. Per-tier accuracy is reported separately and each tier
 // carries its own floor, because one aggregate lets a strong tier carry a weak one.
 
-export type TierName = 'deltas' | 'facts' | 'rejected' | 'memory' | 'arcs' | 'epistemic' | 'ledger';
+export type TierName = 'deltas' | 'facts' | 'rejected' | 'memory' | 'arcs' | 'epistemic' | 'ledger' | 'intents';
 
-export const TIERS: TierName[] = ['deltas', 'facts', 'rejected', 'memory', 'arcs', 'epistemic', 'ledger'];
+export const TIERS: TierName[] = ['deltas', 'facts', 'rejected', 'memory', 'arcs', 'epistemic', 'ledger', 'intents'];
+
+export interface IntentCounts { expected: number; matched: number; spurious: number; playerAttributed: number }
 
 export interface TierOutcome {
   tier: TierName;
@@ -18,6 +20,7 @@ export interface TierOutcome {
   detail: string;
   /** An expectation that cannot fail, e.g. `mustContain: [""]`. Reported, never counted as a pass. */
   vacuous?: string[];
+  counts?: IntentCounts;
 }
 
 const text = (value: unknown): string => {
@@ -93,6 +96,87 @@ export function scoreRejected(stated: Array<{ reason?: string; scope?: string }>
   };
 }
 
+export interface IntentClaim { subject: string; anyOf: string[] }
+
+export interface IntentsSpec {
+  expect?: IntentClaim[];
+  players?: string[];
+  none?: string;
+  scope?: 'golden' | 'live';
+}
+
+export interface LiveEpistemicRow { tag?: string; subject?: string; content?: string }
+
+export const INTENTS_FLOORS = { precision: 0.8, recall: 0.5, playerAttributed: 0 } as const;
+
+const norm = (value: unknown) => String(value ?? '').trim().toLowerCase();
+
+export function scoreIntents(spec: IntentsSpec | undefined, live: LiveEpistemicRow[] | undefined, players: string[] = []): TierOutcome {
+  const tier = 'intents' as const;
+  if (!spec) return { tier, scored: false, pass: false, detail: 'the fixture states no expectation for this tier' };
+  if (typeof spec.none === 'string') return { tier, scored: false, pass: false, detail: `the fixture declares no intents expectation: ${spec.none || '(no reason given)'}` };
+  if (spec.scope === 'golden') return { tier, scored: false, pass: false, detail: 'the intents expectation is golden-scoped: it describes the hand-written golden, which jest asserts' };
+  const vacuous: string[] = [];
+  if (!Array.isArray(spec.expect)) vacuous.push('no assertion');
+  const claims = (Array.isArray(spec.expect) ? spec.expect : []).filter((claim) => {
+    const needles = (claim?.anyOf ?? []).filter((needle) => typeof needle === 'string' && needle.trim());
+    if (!norm(claim?.subject)) { vacuous.push('subject: ""'); return false; }
+    if (needles.length !== (claim?.anyOf ?? []).length || !needles.length) { vacuous.push(`anyOf: "" (${claim.subject})`); return false; }
+    return true;
+  });
+  const playerSet = new Set([...(spec.players ?? []), ...players].map(norm).filter(Boolean));
+  const rows = (live ?? []).filter((row) => norm(row.tag) === 'intends');
+  const open = claims.map((claim) => ({ subject: norm(claim.subject), anyOf: claim.anyOf.map(norm), label: claim.subject, taken: false }));
+  const problems: string[] = [];
+  let matched = 0;
+  let spurious = 0;
+  let playerAttributed = 0;
+  for (const row of rows) {
+    const subject = norm(row.subject);
+    const content = norm(row.content);
+    if (playerSet.has(subject)) {
+      playerAttributed += 1;
+      spurious += 1;
+      problems.push(`player-attributed intent: ${row.subject} | ${row.content}`);
+      continue;
+    }
+    const claim = open.find((entry) => !entry.taken && entry.subject === subject && entry.anyOf.some((needle) => content.includes(needle)));
+    if (claim) { claim.taken = true; matched += 1; continue; }
+    spurious += 1;
+    problems.push(`unclaimed intent: ${row.subject} | ${row.content}`);
+  }
+  for (const claim of open.filter((entry) => !entry.taken)) problems.push(`missing intent for ${claim.label} (${claim.anyOf.join(' | ')})`);
+  const counts: IntentCounts = { expected: open.length, matched, spurious, playerAttributed };
+  return {
+    tier,
+    scored: true,
+    pass: problems.length === 0 && vacuous.length === 0,
+    detail: problems.length ? problems.join('; ') : `${matched} of ${open.length} intent(s) matched, nothing spurious`,
+    counts,
+    ...(vacuous.length ? { vacuous } : {}),
+  };
+}
+
+export interface IntentsTotals { expected: number; matched: number; spurious: number; playerAttributed: number; precision: number | null; recall: number | null }
+
+export function intentsTotals(outcomes: TierOutcome[]): IntentsTotals {
+  const sum = (key: keyof IntentCounts) => outcomes.reduce((total, row) => total + (row.counts?.[key] ?? 0), 0);
+  const expected = sum('expected');
+  const matched = sum('matched');
+  const spurious = sum('spurious');
+  const ratio = (num: number, den: number) => (den ? Number((num / den).toFixed(4)) : null);
+  return { expected, matched, spurious, playerAttributed: sum('playerAttributed'), precision: ratio(matched, matched + spurious), recall: ratio(matched, expected) };
+}
+
+export function intentsFailures(totals: IntentsTotals, precisionFloor: number = INTENTS_FLOORS.precision): string[] {
+  const failures: string[] = [];
+  if (totals.precision !== null && totals.precision < precisionFloor) failures.push(`intents precision ${totals.precision} is below its floor ${precisionFloor}`);
+  if (totals.recall === null) failures.push('intents recall cannot be measured: no fixture claims a positive intent');
+  else if (totals.recall < INTENTS_FLOORS.recall) failures.push(`intents recall ${totals.recall} is below its floor ${INTENTS_FLOORS.recall}`);
+  if (totals.playerAttributed > INTENTS_FLOORS.playerAttributed) failures.push(`intents playerAttributed ${totals.playerAttributed} is above its floor ${INTENTS_FLOORS.playerAttributed}`);
+  return failures;
+}
+
 export interface FixtureScore {
   name: string;
   tiers: TierOutcome[];
@@ -100,7 +184,7 @@ export interface FixtureScore {
   pass: boolean;
 }
 
-export interface TierTotals { scored: number; passed: number; accuracy: number | null; floor?: number; ok: boolean; vacuous: string[] }
+export interface TierTotals { scored: number; passed: number; accuracy: number | null; floor?: number; ok: boolean; vacuous: string[]; intents?: IntentsTotals; failures?: string[] }
 
 /** Per-tier totals across every fixture. A tier no fixture states is absent, never reported as 100%. */
 export function tierTotals(scores: FixtureScore[], floors: Partial<Record<TierName, number>> = {}): Record<string, TierTotals> {
@@ -111,13 +195,20 @@ export function tierTotals(scores: FixtureScore[], floors: Partial<Record<TierNa
     const passed = outcomes.filter((row) => row.pass).length;
     const accuracy = passed / outcomes.length;
     const floor = floors[tier];
+    const vacuous = [...new Set(outcomes.flatMap((row) => row.vacuous ?? []))];
+    if (tier === 'intents') {
+      const intents = intentsTotals(outcomes);
+      const failures = floor === 0 ? [] : [...intentsFailures(intents, floor ?? INTENTS_FLOORS.precision), ...(vacuous.length ? [`intents carries vacuous claim(s): ${vacuous.join(', ')}`] : [])];
+      totals[tier] = { scored: outcomes.length, passed, accuracy: intents.precision, floor: floor ?? INTENTS_FLOORS.precision, ok: failures.length === 0, vacuous, intents, failures };
+      continue;
+    }
     totals[tier] = {
       scored: outcomes.length,
       passed,
       accuracy: Number(accuracy.toFixed(4)),
       ...(floor === undefined ? {} : { floor }),
       ok: floor === undefined ? true : accuracy >= floor,
-      vacuous: [...new Set(outcomes.flatMap((row) => row.vacuous ?? []))],
+      vacuous,
     };
   }
   return totals;
@@ -129,7 +220,7 @@ export function tierTotals(scores: FixtureScore[], floors: Partial<Record<TierNa
  * says so rather than having its floors lowered to meet it. `--min-tier tier=x` overrides one, and
  * `tier=0` switches one off in a way the report shows.
  */
-export const DEFAULT_TIER_FLOORS: Readonly<Partial<Record<TierName, number>>> = { facts: 0.85, rejected: 0.9, epistemic: 0.8, ledger: 0.8, arcs: 0.8 };
+export const DEFAULT_TIER_FLOORS: Readonly<Partial<Record<TierName, number>>> = { facts: 0.85, rejected: 0.9, epistemic: 0.8, ledger: 0.8, arcs: 0.8, intents: INTENTS_FLOORS.precision };
 
 /** `--min-tier facts=0.85,rejected=0.9`, applied over `DEFAULT_TIER_FLOORS`. */
 export function parseTierFloors(value: string | null | undefined, defaults: Partial<Record<TierName, number>> = DEFAULT_TIER_FLOORS): { floors: Partial<Record<TierName, number>>; given: TierName[]; errors: string[] } {
@@ -162,7 +253,9 @@ export function suiteVerdict(
   const reasons: string[] = [];
   if (plotAccuracy < min) reasons.push(`plot-delta accuracy ${plotAccuracy.toFixed(4)} is below --min ${min}`);
   for (const [tier, total] of Object.entries(totals)) {
-    if (!total.ok) reasons.push(`${tier} accuracy ${total.accuracy} is below its floor ${total.floor}`);
+    if (total.ok) continue;
+    if (total.failures?.length) reasons.push(...total.failures);
+    else reasons.push(`${tier} accuracy ${total.accuracy} is below its floor ${total.floor}`);
   }
   if (typeof expectCount === 'number' && ran !== expectCount) {
     reasons.push(`ran ${ran} fixture(s), expected ${expectCount} — a shrinking denominator cannot raise accuracy`);

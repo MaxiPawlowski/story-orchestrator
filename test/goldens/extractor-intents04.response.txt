@@ -1,0 +1,3 @@
+DELTA q=plan_agreed value=true evidence="The plan is agreed"
+SCENE_NONE
+[intends] Corvin | get his cut of the bank job up front

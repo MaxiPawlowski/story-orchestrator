@@ -1,4 +1,4 @@
-import { applySamplerOverlay, resolveSamplerOverlay, SAMPLER_OVERLAY_NEVER } from "./samplerKeys";
+import { applyReasoningOverlay, applySamplerOverlay, REASONING_OVERLAY_KEYS, resolveSamplerOverlay, SAMPLER_OVERLAY_NEVER } from "./samplerKeys";
 
 describe("sampler overlay key map (v2.4 plan 06 seed A)", () => {
   it("maps a textgen preset's setting names onto every payload key ST sends for them", () => {
@@ -30,5 +30,27 @@ describe("sampler overlay key map (v2.4 plan 06 seed A)", () => {
     const overlay = Object.fromEntries([...SAMPLER_OVERLAY_NEVER].map((key) => [key, 0]));
     expect(applySamplerOverlay(payload, { ...overlay, temperature: 0.4 }).applied).toEqual(["temperature"]);
     expect(payload).toMatchObject({ messages: [], prompt: "p", stop: [], model: "m", chat_completion_source: "custom" });
+  });
+});
+
+describe("R4 reasoning keys (v2.6 plan 05)", () => {
+  it("the reasoning keys are disjoint from the never-list and from every preset sampler", () => {
+    expect([...REASONING_OVERLAY_KEYS].filter((key) => SAMPLER_OVERLAY_NEVER.has(key))).toEqual([]);
+    const preset = Object.fromEntries([...REASONING_OVERLAY_KEYS].map((key) => [key, 1]));
+    expect(resolveSamplerOverlay(preset, "chat")).toEqual({ values: {}, unknown: [...REASONING_OVERLAY_KEYS] });
+    expect(resolveSamplerOverlay(preset, "textgen")).toEqual({ values: {}, unknown: [...REASONING_OVERLAY_KEYS] });
+  });
+
+  it("writes only reasoning keys, never a sampler or a never-key, whatever it is handed", () => {
+    const payload: Record<string, unknown> = { messages: ["m"], max_tokens: 300, temperature: 1, reasoning_effort: undefined, include_reasoning: false };
+    const handed = { ...Object.fromEntries([...SAMPLER_OVERLAY_NEVER].map((key) => [key, 0])), temperature: 0.1, reasoning_effort: "high", include_reasoning: true };
+    expect(applyReasoningOverlay(payload, handed)).toEqual({ applied: ["reasoning_effort", "include_reasoning"], skipped: [] });
+    expect(payload).toEqual({ messages: ["m"], max_tokens: 300, temperature: 1, reasoning_effort: "high", include_reasoning: true });
+  });
+
+  it("a carried key holding undefined is a slot the request built; an absent key is skipped and never added", () => {
+    const payload: Record<string, unknown> = { reasoning_effort: undefined };
+    expect(applyReasoningOverlay(payload, { reasoning_effort: "low", custom_include_body: "{}" })).toEqual({ applied: ["reasoning_effort"], skipped: ["custom_include_body"] });
+    expect(payload).toEqual({ reasoning_effort: "low" });
   });
 });

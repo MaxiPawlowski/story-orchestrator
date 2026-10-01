@@ -1,0 +1,3 @@
+DELTA q=bag_packed value=true evidence="folds two dresses into a travelling bag"
+SCENE_NONE
+[intends] Sela | leave the house for the coast road before dawn

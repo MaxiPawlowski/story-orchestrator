@@ -23,6 +23,7 @@ import { cleanupSoloChats, restoreActiveEntity, soloChat, withoutSoloChats } fro
 import { applyExtSetting, cutCommand, emitGeneration, expectOverSteer, expectStateEquals, hostDelete, injectScript, recordState, restoreExtSettings } from './lib/interopVerbs.mts';
 import { branchCreate, cleanupBranchChats, expectNextReadWindow, expectRollbackOutcome, settleReapPrompts, withoutBranchChats } from './lib/identityVerbs.mts';
 import { assertDevBundle } from './lib/bundleFlavour.mts';
+import { quiesceBeforeSwitch, type QuiesceOptions } from './lib/generationQuiesce.mts';
 
 const USAGE = `Usage: node scripts/debug/so-scenario.mts run <file.json> [--sandbox] [--keep] [--group <id|name>]
 
@@ -1007,11 +1008,13 @@ async function deleteSandboxMirrorBooks(page, guard) {
   }, { owned: [...guard.owned], titles: [...guard.storyTitles], books: [...guard.mirrorBooks] });
 }
 
-async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore: LibraryCapture | null = null) {
+async function cleanupScenario(page, importedHashes, guard, keep, libraryBefore: LibraryCapture | null = null, { quiesce = {} as QuiesceOptions } = {}) {
   if (keep) return { kept: true, sandboxChatId: guard?.sandboxChatId ?? null, owned: guard?.owned ?? [] };
-  const cleaned: Record<string, unknown> = { importedStoryHashes: [...new Set(importedHashes)] };
+  const generation = await quiesceBeforeSwitch(page, quiesce);
+  const cleaned: Record<string, unknown> = { generation, importedStoryHashes: [...new Set(importedHashes)] };
   cleaned.library = await restoreLibrary(page, libraryBefore).catch((error) => ({ error: error instanceof Error ? error.message : String(error) }));
-  if (guard) {
+  if (guard && !generation.idle) cleaned.notDeleted = [...guard.owned];
+  if (guard && generation.idle) {
     cleaned.clearedDebugResponses = await clearDebugResponses(page).catch((err) => ({ error: err instanceof Error ? err.message : String(err) }));
     await recordSandboxStory(page, guard);
     try { cleaned.soloChats = await cleanupSoloChats(page, guard); } catch (err) { cleaned.soloChats = { error: err instanceof Error ? err.message : String(err), leaked: (guard.soloChats ?? []).map((entry) => entry.chatId) }; }
@@ -1227,6 +1230,11 @@ async function runScenario(page, file, { sandbox = false, keep = false, group = 
       if (leftChats.length) {
         result.ok = false;
         result.error = `cleanup left sandbox chat(s) in the group: ${leftChats.join(', ')}`;
+      }
+      const generation = cleanup.generation as { error?: string } | undefined;
+      if (generation?.error) {
+        result.ok = false;
+        result.error = [result.error, `cleanup could not stop the generation before switching chat: ${generation.error}`].filter(Boolean).join('; ');
       }
       const library = cleanup.library as { error?: string; saved?: { error?: string } } | undefined;
       const libraryError = library?.error ?? library?.saved?.error;

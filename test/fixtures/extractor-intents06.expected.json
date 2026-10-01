@@ -1,0 +1,27 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "feast_begun",
+      "v": true,
+      "evidence": "The victory feast begins in the great hall"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "intents fixture: it states the delta and the intents tier only"
+  },
+  "intents": {
+    "expect": [
+      {
+        "subject": "Vesk",
+        "anyOf": [
+          "gate",
+          "army"
+        ]
+      }
+    ]
+  }
+}

@@ -102,7 +102,12 @@ export interface CheckpointEffects {
   cast_changes?: unknown;
   npc_replies?: NpcReplyEffect[];
   background?: BackgroundEffect;
+  reasoning?: CheckpointReasoning;
 }
+
+export const CHECKPOINT_REASONING = ["off", "low", "medium", "high"] as const;
+
+export type CheckpointReasoning = (typeof CHECKPOINT_REASONING)[number];
 
 // Deterministic stagecraft (spec addendum §Stagecraft): the checkpoint names a background and the
 // boundary switches to it. A bare string authored form normalizes into this shape at parse time.

@@ -18,6 +18,8 @@ const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const SPIKES = [
   "src/runtime/spikes/index.ts",
   "src/runtime/spikes/install.ts",
+  "src/runtime/spikes/reasoningEffect.ts",
+  "src/runtime/spikes/reasoningEffectHost.ts",
   "src/runtime/spikes/recommitEdit.ts",
   "src/runtime/spikes/sp5Scenario.ts",
   "src/runtime/spikes/sp5ScenarioHost.ts",
@@ -75,6 +77,8 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
     ["the SP10 probe", 'export { createToolTurnProbe } from "./runtime/spikes/toolTurnProbe";', "src/runtime/spikes/toolTurnProbe.ts"],
     ["the SP9 witness filter", 'export { startWitnessFilter } from "./runtime/spikes/witnessFilterHost";', "src/runtime/spikes/witnessFilterHost.ts"],
     ["the SP9 pure filter", 'import "./runtime/spikes/witnessFilter";', "src/runtime/spikes/witnessFilter.ts"],
+    ["the R4 reasoning effect host", 'export { startReasoningEffect } from "./runtime/spikes/reasoningEffectHost";', "src/runtime/spikes/reasoningEffectHost.ts"],
+    ["the R4 pure reasoning effect", 'import "./runtime/spikes/reasoningEffect";', "src/runtime/spikes/reasoningEffect.ts"],
   ])("control: a planted static import of %s from the entry fails", (_label, line, module) => {
     const planted = join(SRC, "index.tsx");
     const fs = require("fs") as typeof import("fs");

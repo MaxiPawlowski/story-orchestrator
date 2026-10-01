@@ -1,0 +1,18 @@
+[
+  {
+    "index": 20,
+    "speaker": "Max",
+    "text": "I lean over the table. \"I'm going to rob the Merchant Bank on market day. Are you in?\"",
+    "is_user": true
+  },
+  {
+    "index": 21,
+    "speaker": "Corvin",
+    "text": "\"I'm in,\" Corvin says, rolling a coin across his knuckles. \"I'll make sure the night guards look the other way. But I want my cut up front.\""
+  },
+  {
+    "index": 22,
+    "speaker": "Narrator",
+    "text": "They shake hands over the chalk map of the bank. The plan is agreed."
+  }
+]

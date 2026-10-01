@@ -33,7 +33,7 @@ const harness = (chronicleTokens = 700) => {
   const context: RunContext = { chatId: "chat-a", storyId: "chapters-mini", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(context, window), check: (token) => tokenMatches(context, token) };
   let memory = {
-    entries: [shortTerm("st1", 4)], arcs: [], ledger: [], derived: [] as DerivedRecord[], chapters: [] as ChapterRecord[], chronicle: { eras: [] },
+    entries: [shortTerm("st1", 4)], arcs: [], ledger: [], epistemic: [], derived: [] as DerivedRecord[], chapters: [] as ChapterRecord[], chronicle: { eras: [] },
     shortTermSummaryEnd: -1, storyStart: 0, settings: { enabled: true, chapters: { seal: true, chronicleTokens } },
   } as unknown as MemoryRuntimeState;
   const announced: string[] = [];

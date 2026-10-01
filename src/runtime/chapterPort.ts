@@ -45,6 +45,7 @@ export const sealAtState = (state: EngineState, override: Partial<SealAt> = {}):
 export class ChapterPort {
   private unit: Promise<ChapterSeal> | null = null;
   carried: string | null = null;
+  recalled = false;
 
   constructor(readonly host: ChapterHost) {}
 
@@ -58,6 +59,7 @@ export class ChapterPort {
   due(): SealTarget | null { return kit?.due(this.host) ?? null; }
   fold(rows: Array<{ extra?: unknown }>, type: unknown, live: readonly unknown[]) { return kit?.fold(this.host, rows, type, live) ?? null; }
   carryBridge(type: unknown) { kit?.carryBridge(this, type); }
+  async recall(chat: readonly unknown[], type: unknown): Promise<number> { return kit ? kit.recall(this, chat, type) : 0; }
   async showPreviously() { return (await loadChapterKit()).showPreviously(this); }
   commitBridge(rendered: boolean) { kit?.commitBridge(this, rendered); }
   async seal(target: SealTarget, at: SealAt) { return (await this.load()).seal(target, at); }

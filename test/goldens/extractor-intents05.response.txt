@@ -1,0 +1,3 @@
+DELTA q=tourney_entered value=true evidence="signing the roll with a flourish"
+SCENE_NONE
+[intends] Bryn | win the tourney and claim the silver spear

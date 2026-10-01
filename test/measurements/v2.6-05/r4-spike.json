@@ -1,0 +1,50 @@
+{
+  "plan": "docs/plans/v2.6/05-reasoning-control.md",
+  "step": "R4",
+  "declaredAt": "2026-10-01",
+  "question": "Does a checkpoint effects.reasoning \"high\" on the main reply make climax turns better enough to build it?",
+  "rule": "Spike: the predeclared floor decides, and a floor is never retuned (v2.5 V8). A miss is recorded as not built and the measurement kept.",
+  "floor": {
+    "preferredShare": 0.6,
+    "p95Ratio": 2,
+    "items": 20,
+    "definition": "preferredShare = items whose preferred reply is the arm / all rated items (a tie counts against the arm). p95Ratio = p95(arm reply latency) / p95(control reply latency) over the valid pairs, latency measured in-page around /trigger await=true. Pass = preferredShare >= 0.6 AND p95Ratio <= 2 AND 20 valid rated pairs."
+  },
+  "arms": {
+    "control": "the climax checkpoint with spikes.reasoningEffect off: the request carries the profile's own reasoning settings",
+    "arm": "the same checkpoint and chat with spikes.reasoningEffect on and the checkpoint declaring effects.reasoning \"high\" (CC: reasoning_effort high; custom/llama-server: custom_include_body merged with chat_template_kwargs.enable_thinking true, F4/F5)"
+  },
+  "inputs": {
+    "turns": "test/measurements/v2.6-05/r4-turns.json (20 turns, 2 Adolion stories; placeholders filled, then frozen with `so-r4-spike.mts freeze` and committed BEFORE the first generation)",
+    "build": "dev bundle (the spike is __SO_DEV__ only, src/runtime/spikes/reasoningEffect*.ts)",
+    "profile": "a Chat Completion profile; Text Completion is refused by the spike (no effort key, F6). Record which in the run header."
+  },
+  "validity": "A pair is excluded (listed in the sealed key with its reasons) when the arm request did not carry the arm value, the control request already did, the two requests went to different sources, a reply is empty or a latency is missing. Excluded turns are re-run on the same run id until 20 pairs are valid.",
+  "order": "Per turn the arm or the control goes first by a seeded coin (run.json orderSeed), because the backend's prompt cache warms on the first generation.",
+  "commands": [
+    "npm run build:dev && npm run stage -- --flavor dev",
+    "node scripts/debug/adolion-fresh.mts seed <lane>",
+    "node scripts/debug/st-lanes.mts run <lane> -- scripts/debug/st-session.mts reload",
+    "add effects.reasoning \"high\" to each climax checkpoint the turns name (Studio save on the lane; a compatible hot-swap), prepare each turn's chat so its last message is the player line before the climax reply, fill r4-turns.json",
+    "node scripts/debug/so-r4-spike.mts freeze && git add test/measurements/v2.6-05/r4-turns.json && git commit",
+    "node scripts/debug/st-lanes.mts run <lane> -- scripts/debug/so-run-header.mts capture --label v26-05-r4",
+    "for each turn: node scripts/debug/st-lanes.mts run <lane> -- scripts/debug/st-navigation.mts open-chat <chatId> (group: open-group <id> first), then node scripts/debug/st-lanes.mts run <lane> -- scripts/debug/so-r4-spike.mts run --run-id v26-05-r4 --only <turnId>",
+    "node scripts/debug/st-lanes.mts run <lane> -- scripts/debug/so-run-header.mts diff <capture.json>",
+    "node scripts/debug/so-r4-spike.mts pack --run <debug>/r4/v26-05-r4",
+    "hand <run>/human/rating-pack/r4-pack.md (or .json) to the rater with r4-ratings.template.json copied to r4-ratings.json; the sealed/ directory never goes to the rater",
+    "node scripts/debug/so-r4-spike.mts score --run <debug>/r4/v26-05-r4"
+  ],
+  "artifacts": {
+    "run": "<debug>/r4/<run-id>/run.json (turnsSha256, orderSeed)",
+    "records": "<debug>/r4/<run-id>/records.jsonl (per turn: context, both replies, latency, the captured request's reasoning keys, the spike's shot)",
+    "pack": "<debug>/r4/<run-id>/human/rating-pack/r4-pack.json + r4-pack.md + r4-ratings.template.json (shuffled, unlabelled, no ids or payload)",
+    "key": "<debug>/r4/<run-id>/sealed/r4-key.json (seed, item -> arm side, turnsSha256, packSha256, excluded pairs, latencies); never overwritten",
+    "score": "<debug>/r4/<run-id>/score.json",
+    "archive": "copy run.json, records.jsonl, the pack, the key, the ratings and score.json to test/measurements/v2.6-05/r4/ in the same commit as the verdict (the debug dir rotates); the ratings also feed human/rating-pack.json (10-acceptance blind-rating pack)"
+  },
+  "refusals": [
+    "freeze/run/pack/score: any placeholder left, not 20 turns, not 2 stories, or the file no longer hashes to frozenSha256",
+    "pack: any leak (arm label or reasoning trace in the text, extra fields, non-opaque ids, unbalanced or alternating sides, unshuffled order, the seed in the pack) or an existing sealed key",
+    "score: turns or pack changed since the key was sealed, ratings made against another pack, an unknown, duplicate, invalid or missing item"
+  ]
+}

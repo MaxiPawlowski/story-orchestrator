@@ -1,0 +1,49 @@
+{
+  "format": 2,
+  "title": "The Soup",
+  "description": "v2.6 plan 06 B intents fixture: a character states (or does not state) an aim of its own.",
+  "qualities": [
+    {
+      "key": "message_count",
+      "type": "int",
+      "source": "code",
+      "monotonic": true,
+      "rubric": "Rendered boundary count."
+    },
+    {
+      "key": "soup_served",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "rubric": "Has the soup been served?"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "start",
+      "name": "Start",
+      "objective": "Eat at the inn.",
+      "type": "anchor",
+      "start": true
+    },
+    {
+      "id": "next",
+      "name": "Next",
+      "objective": "Carry on.",
+      "type": "anchor"
+    }
+  ],
+  "transitions": [
+    {
+      "from": "start",
+      "to": "next",
+      "priority": 1,
+      "gate": {
+        "q": "soup_served",
+        "op": "==",
+        "v": true
+      }
+    }
+  ],
+  "roster": []
+}

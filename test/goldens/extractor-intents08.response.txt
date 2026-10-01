@@ -1,0 +1,3 @@
+DELTA q=lesson_started value=true evidence="the lesson begins"
+SCENE_NONE
+[intends] Tamsin | teach the boy to read before she dies

@@ -22,6 +22,7 @@ export interface JourneyRecordShape {
   only?: unknown;
   results?: unknown;
   runnerError?: unknown;
+  engineHistory?: unknown;
 }
 
 export function archiveRefusal(record: JourneyRecordShape | null | undefined): string | null {
@@ -36,7 +37,12 @@ export function archiveRefusal(record: JourneyRecordShape | null | undefined): s
   return null;
 }
 
-export const storylessStepError = (key: string): string =>
+export function engineHistoryFileOf(record: { engineHistory?: unknown } | null | undefined): string | null {
+  const named = record && typeof record.engineHistory === 'object' && record.engineHistory ? (record.engineHistory as { file?: unknown }).file : null;
+  return typeof named === 'string' && named.trim() ? basename(named.replace(/\\/g, '/')) : null;
+}
+
+export const storylessStepError =(key: string): string =>
   `F3: --only reached "${key}" with no story loaded — this check relied on an earlier check's import; give it its own import_story`;
 
 // Copies a finished run's record (and its matrix, when it sits beside it) under a gate directory,
@@ -50,14 +56,23 @@ export async function archiveJourneyRecord(recordPath: string, gateDir: string):
   }
   const refused = archiveRefusal(record);
   if (refused) return { ok: false, reason: refused };
+  const exists = (path: string) => stat(path).then(() => true, () => false);
+  const history = engineHistoryFileOf(record);
+  const historySource = history ? join(dirname(recordPath), history) : null;
+  if (historySource && !(await exists(historySource))) return { ok: false, reason: `${String(record.id)} names engine history ${history}, which is not beside the record: the run cannot be replayed` };
   await mkdir(gateDir, { recursive: true });
   const wrote = [join(gateDir, basename(recordPath))];
   await copyFile(recordPath, wrote[0]);
   const matrix = join(dirname(recordPath), `journey-${String(record.id)}.md`);
-  const hasMatrix = await stat(matrix).then(() => true, () => false);
-  if (hasMatrix) {
-    wrote.push(join(gateDir, basename(recordPath).replace(/\.json$/, '.md')));
-    await copyFile(matrix, wrote[1]);
+  if (await exists(matrix)) {
+    const target = join(gateDir, basename(recordPath).replace(/\.json$/, '.md'));
+    await copyFile(matrix, target);
+    wrote.push(target);
+  }
+  if (historySource && history) {
+    const target = join(gateDir, history);
+    await copyFile(historySource, target);
+    wrote.push(target);
   }
   return { ok: true, wrote };
 }

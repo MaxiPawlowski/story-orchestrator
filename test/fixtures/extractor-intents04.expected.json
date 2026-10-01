@@ -1,0 +1,33 @@
+{
+  "spec": {
+    "epistemicLedgerCapable": true
+  },
+  "deltas": [
+    {
+      "q": "plan_agreed",
+      "v": true,
+      "evidence": "The plan is agreed"
+    }
+  ],
+  "rejected": [],
+  "facts": {
+    "none": "intents fixture: it states the delta and the intents tier only"
+  },
+  "intents": {
+    "expect": [
+      {
+        "subject": "Corvin",
+        "anyOf": [
+          "guard",
+          "cut",
+          "share",
+          "paid",
+          "payment"
+        ]
+      }
+    ],
+    "players": [
+      "Max"
+    ]
+  }
+}

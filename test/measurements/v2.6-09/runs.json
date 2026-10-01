@@ -1,0 +1,348 @@
+{
+  "version": 1,
+  "plan": "docs/plans/v2.6/09-integration.md",
+  "review": "AS-15, docs/plans/v2.6/15-review-astra.md",
+  "tier": "T7",
+  "declaredAt": "2026-10-01",
+  "rule": "Frozen before the first run. Route inputs are read from the campaign pin and refused when their blob sha256 differs from this file. Floors (maxForcedShare, cut points, outage windows, mutation schedule) are declared here and are never retuned after a run. A run is green only when `so-integration.mts verify` exits 0 for it in BOTH columns (plan 09 gate: I1-I6 green x1 in both columns; plan 10 phase F runs them x2).",
+  "campaign": {
+    "repo": "C:/dev/adolion-campaign",
+    "pinFile": "scripts/debug/adolion-fresh.pin.json",
+    "commit": "5e2974bdfa534af1fc99b011db7c4944bf40d0df",
+    "routes": {
+      "tests/routes-adventurer.json": "d1b266fba4be0bb826c99623e61c200ab8009b2e5195c1c90cc1c4dbe2d58425",
+      "tests/routes-academy.json": "aae5a8635f11afb8c693f850520f282ccdd74adda605559c38632f42222e5125",
+      "tests/routes-saga.json": "080bed6b31d936df571aca87eb473561f86f72dbf02b742f3d838889d6433371"
+    }
+  },
+  "storyIndex": "test/sessions/adolion-stories.json",
+  "outRoot": "test/measurements/v2.6-09/out",
+  "drive": {
+    "turnsPerStep": 3,
+    "lineTemplates": [
+      "I take stock of where we are and what we know, then I act on it.",
+      "We keep moving. I want us to reach {checkpoint}.",
+      "I press on toward {checkpoint}, doing what the moment asks of me."
+    ],
+    "freeLines": [
+      "I look around and ask the others what they make of this.",
+      "I follow the lead we have and see where it goes.",
+      "I keep my voice low and ask the nearest of them what they know."
+    ],
+    "editText": "I hesitate, then say nothing for a moment.",
+    "timeoutMs": 600000,
+    "quietMs": 3000,
+    "tailReadyMs": 5000,
+    "tailDrainMs": 5000
+  },
+  "baseline": {
+    "preserve": ["extraction.profileId", "extraction.profiles", "worldInfo"],
+    "why": "AS-26: both columns start from the same settings root. Everything except the preserved routing keys and the WI gating ledger (managed only by the author's confirm) is cleared before the column patch is written, so a lane seeded from the user's install cannot leak its own configuration into either column."
+  },
+  "media": {
+    "patch": { "image": { "enabled": false }, "sprites": { "enabled": false, "explicit": true } },
+    "reason": "ComfyUI at 127.0.0.1:8188 is shared and must not be contacted (plan 15; adolion-fresh fails a seed that calls it). Images and sprites are off in BOTH columns, which also makes the defaults column deviate from the shipped image default (on).",
+    "unexercised": ["image director cue cadence (I1 read)", "sprites / VN stage (I6 field sprites reads an inactive stage)", "GPU broker cut (I5)"]
+  },
+  "columns": {
+    "on": {
+      "description": "Everything on, the configuration the user will play (plan 09 'Configuration under test').",
+      "wiGating": "scan",
+      "authorView": true,
+      "patch": {
+        "extraction": { "enabled": true },
+        "memory": { "enabled": true, "epistemicLedgerCapable": true },
+        "talk": { "enabled": true, "chain": { "enabled": true } },
+        "stagecraft": { "curatorEnabled": true, "acceptMode": "auto", "wardenEnabled": true, "wardenAcceptMode": "auto" },
+        "judge": {
+          "enabled": true,
+          "uses": {
+            "director": true, "memoryVerify": true, "memoryPairs": true, "sceneTrigger": true, "sceneTracker": true, "lookahead": true,
+            "loreSelect": true, "curatorFilter": true, "typedExtraction": true, "stallCheck": true, "expansionCritic": true,
+            "expansionLookahead": true, "agencyCheck": true, "houseRules": true, "loreExclusive": true, "expressions": true
+          }
+        },
+        "display": { "inline": { "level": 3 } }
+      },
+      "notes": {
+        "wiGating": "scan mode is switched through the product's own confirm (lib/wiGatingHarness.mts applyWiGating), never by writing worldInfo.gatingMode",
+        "commitGuard": "no switch: the commit guard runs on every commit_evidence quality (src/extraction/commitGuard.ts); I1/I3 read it from the journal",
+        "loreSelect": "judge.uses.loreSelect + judge.uses.loreExclusive; exclusive narrowing also needs scan mode, which this column sets",
+        "inlineLevel": "3 = Author; needs Author view, which `open` sets for this column"
+      },
+      "resolutions": [
+        {
+          "id": "reasoning-effort",
+          "what": "reasoning effort per role at 05 R3's recommendations",
+          "source": "docs/plans/v2.6/recommended-reasoning.md",
+          "target": "extraction.routes.<role>.route.options.effort",
+          "status": "pending",
+          "value": null,
+          "fallback": {},
+          "fallbackMeans": "every role at 'default' (no effort written)"
+        },
+        {
+          "id": "spikes-b",
+          "what": "every spike .b included by 03",
+          "source": "docs/plans/v2.6/03-spike-reevaluation.md (the include/defer/drop table)",
+          "target": "spikes.<flag>",
+          "status": "pending",
+          "value": null,
+          "fallback": {},
+          "fallbackMeans": "every spike flag off (shipped)"
+        },
+        {
+          "id": "inner-voice",
+          "what": "the inner voice (06) at the default its floors chose",
+          "source": "test/measurements/v2.6-06/c-inner-beat-spike.json (verdict)",
+          "target": "memory.innerBeat, memory.innerFanOut, memory.harvestReasoning",
+          "status": "pending",
+          "value": null,
+          "fallback": {},
+          "fallbackMeans": "inner beat and harvest absent (shipped off)"
+        },
+        {
+          "id": "chapters",
+          "what": "chapters (07) at the defaults their floors chose",
+          "source": "test/measurements/v2.6-07/recipe.json (verdict)",
+          "target": "memory.chapters",
+          "status": "pending",
+          "value": null,
+          "fallback": {},
+          "fallbackMeans": "DEFAULT_CHAPTER_SETTINGS (seal, storySoFar, fold off; recap on)"
+        }
+      ],
+      "readback": {
+        "extraction.enabled": true,
+        "memory.enabled": true,
+        "memory.epistemicLedgerCapable": true,
+        "talk.enabled": true,
+        "talk.chain.enabled": true,
+        "stagecraft.curatorEnabled": true,
+        "stagecraft.acceptMode": "auto",
+        "stagecraft.wardenEnabled": true,
+        "stagecraft.wardenAcceptMode": "auto",
+        "judge.enabled": true,
+        "judge.uses.director": true,
+        "judge.uses.memoryVerify": true,
+        "judge.uses.memoryPairs": true,
+        "judge.uses.sceneTrigger": true,
+        "judge.uses.sceneTracker": true,
+        "judge.uses.lookahead": true,
+        "judge.uses.loreSelect": true,
+        "judge.uses.curatorFilter": true,
+        "judge.uses.typedExtraction": true,
+        "judge.uses.stallCheck": true,
+        "judge.uses.expansionCritic": true,
+        "judge.uses.expansionLookahead": true,
+        "judge.uses.agencyCheck": true,
+        "judge.uses.houseRules": true,
+        "judge.uses.loreExclusive": true,
+        "judge.uses.expressions": true,
+        "display.inline.level": 3,
+        "worldInfo.gatingMode": "scan",
+        "image.enabled": false,
+        "sprites.enabled": false
+      }
+    },
+    "defaults": {
+      "description": "The shipped defaults: an empty patch over the cleared baseline, asserted by reading the effective settings back.",
+      "wiGating": "file",
+      "authorView": false,
+      "patch": {},
+      "resolutions": [],
+      "readback": {
+        "extraction.enabled": true,
+        "extraction.cadence": 3,
+        "memory.enabled": true,
+        "memory.epistemicLedgerCapable": true,
+        "memory.innerBeat": null,
+        "memory.harvestReasoning": null,
+        "talk.enabled": true,
+        "talk.chain.enabled": true,
+        "stagecraft.curatorEnabled": true,
+        "stagecraft.acceptMode": "review",
+        "stagecraft.wardenEnabled": true,
+        "stagecraft.wardenAcceptMode": "review",
+        "judge.enabled": true,
+        "judge.uses.director": true,
+        "judge.uses.loreSelect": true,
+        "judge.uses.loreExclusive": true,
+        "display.inline.level": 1,
+        "worldInfo.gatingMode": "file",
+        "spikes.sp7Chance": false,
+        "spikes.reasoningEffect": false,
+        "image.enabled": false,
+        "sprites.enabled": false
+      }
+    }
+  },
+  "services": {
+    "memory": { "urlIncludes": "/api/backends/", "bodyUrlOf": "memoryProfile", "why": "the memory model is asked through ST's backend proxy like the main reply, so the cut matches by profile: every orchestrator pass runs on the DeepSeek flash Chat Completion profile (request body chat_completion_source + model), the main reply on 'Artemis RunPod RP' (llama-server, api_server http://127.0.0.1:18080, user decision 2026-09-30). A request that matches the main profile is never cut; a lane where both profiles share source and endpoint is refused at preflight." },
+    "judge": { "urlIncludes": "/api/plugins/story-orchestrator-judge/" },
+    "gpu": { "urlIncludes": "/api/plugins/story-orchestrator-gpu/" }
+  },
+  "artifacts": {
+    "settings-readback": { "file": "settings-readback.json", "kind": "json", "what": "column patch, fallbacks used, raw + effective settings read back" },
+    "chats": { "file": "chats.json", "kind": "json", "what": "every chat the run opened or touched" },
+    "run-header-start": { "file": "run-header-start.json", "kind": "json" },
+    "run-header-end": { "file": "run-header-end.json", "kind": "json" },
+    "run-header-diff": { "file": "run-header-diff.txt", "kind": "text" },
+    "journal-tail": { "file": "journal.jsonl", "kind": "jsonl", "minRows": 1 },
+    "payloads": { "file": "payloads.jsonl", "kind": "jsonl", "minRows": 1 },
+    "turns": { "file": "turns.jsonl", "kind": "jsonl", "minRows": 1 },
+    "journal-export": { "file": "journal-{chat}.json", "kind": "json", "perChat": true },
+    "engine-history": { "file": "engine-history-{chat}.json", "kind": "json", "perChat": true },
+    "evidence": { "file": "evidence-{chat}.json", "kind": "json", "perChat": true },
+    "findings": { "file": "findings.json", "kind": "json" },
+    "reopen": { "file": "reopen.jsonl", "kind": "jsonl", "minRows": "cuts" },
+    "outages": { "file": "outages.jsonl", "kind": "jsonl", "minRows": "outages" }
+  },
+  "commonArtifacts": ["settings-readback", "chats", "run-header-start", "run-header-end", "run-header-diff", "journal-tail", "payloads", "turns", "journal-export", "engine-history", "evidence", "findings"],
+  "commands": ["seed", "start", "settings", "open", "header-capture", "play", "header-diff", "verify"],
+  "reopenFields": ["engine.activeCheckpointId", "engine.boundary", "engine.blackboard", "engine.visitedPath", "wi.gating", "wi.scanGate", "sampler", "sprites", "timeline"],
+  "runs": [
+    {
+      "id": "I1",
+      "title": "Adventurer full route",
+      "tier": "T7",
+      "story": "adolion-adventurer",
+      "group": "Adolion - The Adventurer's Road",
+      "chats": 1,
+      "columns": ["on", "defaults"],
+      "commands": ["seed", "start", "settings", "open", "header-capture", "play", "header-diff", "verify"],
+      "route": { "file": "tests/routes-adventurer.json", "name": "destroyed + slain (prepared route)", "from": 0, "to": 16, "throughExpect": "what-filwern-left" },
+      "drive": { "mode": "play-then-set", "turnsPerStep": 3, "maxForcedShare": 0.5 },
+      "cuts": [3, 8, 13],
+      "reads": [
+        { "id": "transitions", "from": "turns", "what": "each route step: played or forced, the checkpoint each turn left" },
+        { "id": "lore-evidence-flags", "from": "evidence", "what": "lore-force-lost / lore-constant-missed flags (snapshot.loreEvidence)" },
+        { "id": "memory-growth", "from": "evidence", "what": "memory rows per tier at the end vs the turn count" },
+        { "id": "warden-notes", "from": "journal-export", "what": "warden notes proposed/applied/lapsed, none fighting a steering hint" },
+        { "id": "image-cue-cadence", "from": "journal-export", "what": "UNEXERCISED: images off (media.reason); recorded, never green" },
+        { "id": "save-evidence", "from": "evidence", "what": "saveHealth never unsaved at the end; no lost save" },
+        { "id": "commit-guard", "from": "journal-export", "what": "held vs accepted commit_evidence writes" }
+      ],
+      "artifacts": ["settings-readback", "chats", "run-header-start", "run-header-end", "run-header-diff", "journal-tail", "payloads", "turns", "journal-export", "engine-history", "evidence", "findings", "reopen"]
+    },
+    {
+      "id": "I2",
+      "title": "Academy full route",
+      "tier": "T7",
+      "story": "adolion-academy",
+      "group": "Adolion - House Nightriver",
+      "chats": 1,
+      "columns": ["on", "defaults"],
+      "commands": ["seed", "start", "settings", "open", "header-capture", "play", "header-diff", "verify"],
+      "route": { "file": "tests/routes-academy.json", "name": "refuse, retake, survived, trail", "from": 0, "to": 9, "throughExpect": "house-in-daylight" },
+      "drive": { "mode": "play-then-set", "turnsPerStep": 3, "maxForcedShare": 0.5 },
+      "cuts": [1, 4, 7],
+      "reads": [
+        { "id": "epistemic-privacy", "from": "payloads", "what": "each drafted member's request carries only its own private block (read inside the block, J5.8 rule)" },
+        { "id": "ledger-bindings", "from": "evidence", "what": "bound ledger fields mirror the blackboard, no extracted [state] line for a bound field" },
+        { "id": "complication-releases", "from": "journal-export", "what": "complications released at their checkpoints" }
+      ],
+      "artifacts": ["settings-readback", "chats", "run-header-start", "run-header-end", "run-header-diff", "journal-tail", "payloads", "turns", "journal-export", "engine-history", "evidence", "findings", "reopen"]
+    },
+    {
+      "id": "I3",
+      "title": "Saga, two acts",
+      "tier": "T7",
+      "story": "adolion-saga",
+      "group": "Adolion - The Saga",
+      "chats": 1,
+      "columns": ["on", "defaults"],
+      "commands": ["seed", "start", "settings", "open", "header-capture", "play", "header-diff", "verify"],
+      "route": {
+        "file": "tests/routes-saga.json",
+        "name": "three roads taken (Deep with Ebonwing, East, Night with Dracul): the muster at three",
+        "from": 0,
+        "to": 24,
+        "throughExpect": "house-in-daylight",
+        "acts": "act 1 = the Adventurer's road (steps 0-15, ends what-filwern-left), act 2 = House Nightriver (steps 16-23, ends house-in-daylight); acts follow build/saga-map.json at the pin"
+      },
+      "drive": { "mode": "play-then-set", "turnsPerStep": 3, "maxForcedShare": 0.5 },
+      "cuts": [7, 15, 21],
+      "reads": [
+        { "id": "cast-changes", "from": "evidence", "what": "cast changes across the act boundary (effects ledger rows applied, none reverted-as-applied)" },
+        { "id": "scenario-per-act", "from": "journal-export", "what": "the scenario effect changes at the act boundary" },
+        { "id": "chained-voices", "from": "turns", "what": "multi-voice replies (generations.count > 1) and their stop on transition" },
+        { "id": "openings", "from": "turns", "what": "the act-2 opening posted once" }
+      ],
+      "artifacts": ["settings-readback", "chats", "run-header-start", "run-header-end", "run-header-diff", "journal-tail", "payloads", "turns", "journal-export", "engine-history", "evidence", "findings", "reopen"]
+    },
+    {
+      "id": "I4",
+      "title": "Mutation storm",
+      "tier": "T7",
+      "story": "adolion-academy",
+      "group": "Adolion - House Nightriver",
+      "chats": 2,
+      "columns": ["on", "defaults"],
+      "commands": ["seed", "start", "settings", "open", "header-capture", "play", "header-diff", "verify"],
+      "route": { "file": "tests/routes-academy.json", "name": "accept, won, confront", "from": 0, "to": 7, "throughExpect": "house-in-daylight" },
+      "drive": { "mode": "turns", "turns": 60, "turnsPerStep": 3, "maxForcedShare": 0.5 },
+      "mutations": [
+        { "afterTurn": 5, "verb": "swipe-new" },
+        { "afterTurn": 10, "verb": "regen" },
+        { "afterTurn": 15, "verb": "edit" },
+        { "afterTurn": 20, "verb": "delete" },
+        { "afterTurn": 25, "verb": "switch-chat-mid-gen" },
+        { "afterTurn": 30, "verb": "reload-mid-gen" },
+        { "afterTurn": 35, "verb": "swipe-new" },
+        { "afterTurn": 40, "verb": "regen" },
+        { "afterTurn": 45, "verb": "edit" },
+        { "afterTurn": 50, "verb": "delete" },
+        { "afterTurn": 55, "verb": "switch-chat-mid-gen" },
+        { "afterTurn": 60, "verb": "reload-mid-gen" }
+      ],
+      "reads": [
+        { "id": "rollback-equals-replay", "from": "engine-history", "what": "the engine history replays to the final engine state across every store and ledger (gate-replay check on engine-history-<chat>.json)" },
+        { "id": "no-cross-chat-write", "from": "engine-history", "what": "the second chat (switch target, never played) holds no boundary" },
+        { "id": "mutation-rows", "from": "turns", "what": "each mutation's rollback as recorded by runMutation" }
+      ],
+      "artifacts": ["settings-readback", "chats", "run-header-start", "run-header-end", "run-header-diff", "journal-tail", "payloads", "turns", "journal-export", "engine-history", "evidence", "findings"]
+    },
+    {
+      "id": "I5",
+      "title": "Outage mid-play",
+      "tier": "T7",
+      "story": "adolion-adventurer",
+      "group": "Adolion - The Adventurer's Road",
+      "chats": 1,
+      "columns": ["on", "defaults"],
+      "commands": ["seed", "start", "settings", "open", "header-capture", "play", "header-diff", "verify"],
+      "route": { "file": "tests/routes-adventurer.json", "name": "destroyed + slain (prepared route)", "from": 0, "to": 16, "throughExpect": "what-filwern-left" },
+      "drive": { "mode": "turns", "turns": 40, "turnsPerStep": 3, "maxForcedShare": 0.5 },
+      "outages": [
+        { "service": "memory", "fromTurn": 6, "toTurn": 9, "exercisable": true },
+        { "service": "judge", "fromTurn": 14, "toTurn": 17, "exercisable": true },
+        { "service": "memory", "fromTurn": 22, "toTurn": 25, "exercisable": true },
+        { "service": "gpu", "fromTurn": 30, "toTurn": 33, "exercisable": false, "why": "the GPU broker is only asked by image renders, which are off (media.reason); the cut is applied and recorded unexercised" }
+      ],
+      "reads": [
+        { "id": "fallbacks", "from": "outages", "what": "every cut aborted at least one request and the feature took its fallback (judge calls record fallback, reads pause/retry)" },
+        { "id": "no-stale-write", "from": "turns", "what": "no blackboard write after a window that was read inside it without a re-read" },
+        { "id": "hud-says-so", "from": "outages", "what": "pipeline state during each window is not idle (stalled/error/reading-retry)" }
+      ],
+      "artifacts": ["settings-readback", "chats", "run-header-start", "run-header-end", "run-header-diff", "journal-tail", "payloads", "turns", "journal-export", "engine-history", "evidence", "findings", "outages"]
+    },
+    {
+      "id": "I6",
+      "title": "Reload / reopen",
+      "tier": "T7",
+      "story": null,
+      "group": null,
+      "chats": 0,
+      "columns": ["on", "defaults"],
+      "commands": ["verify"],
+      "ridesOn": ["I1", "I2", "I3"],
+      "cutsPerRun": 3,
+      "how": "at each cut point of I1-I3 `play` captures the reopen state, reloads the page (cache off), reopens the same chat, captures again and appends the named-field diff to reopen.jsonl; I6 is green when all nine rows are present and every diff is empty",
+      "reads": [
+        { "id": "reopen-equals-continuous", "from": "reopen", "what": "WI path replay / enabled gated entries, sampler overlay arm, sprites/stage, timeline chips, engine state" }
+      ],
+      "artifacts": ["reopen"]
+    }
+  ]
+}
