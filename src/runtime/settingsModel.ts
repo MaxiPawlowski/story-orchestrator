@@ -70,7 +70,7 @@ export interface GlobalSettings {
 }
 
 export const SPIKE_FLAGS = [
-  "recommitEdit", "swipeBackCache", "witnessFilter", "sp5Scenario", "sp7Chance", "sp6Complications", "sp4AppendShortTerm", "sp8CuratorTiers", "sp8CuratorDigest",
+  "swipeBackCache", "sp5Scenario", "sp7Chance", "sp6Complications", "sp4AppendShortTerm", "sp8CuratorTiers", "sp8CuratorDigest",
   "reasoningEffect",
 ] as const;
 

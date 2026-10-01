@@ -19,7 +19,6 @@ import { startJudge, startScene } from "./wiring/judgeScene";
 import { startLore } from "./wiring/lore";
 import { startTalk } from "./wiring/talk";
 import { attachGenerationObservers, subscribeGenerationEvents } from "./wiring/generation";
-import { refreshSpikes, stopSpikes } from "./wiring/spikes";
 import { publishSpikeDebug } from "./spikeDebug";
 import type { Disposers, LiveParts, WindowAccess } from "./wiring/types";
 import { log } from "@utils/log";
@@ -128,7 +127,7 @@ const windowAccess = (): WindowAccess => {
 export const RUNTIME_GLOBALS = [
   "storyOrchestratorScheduler", "storyOrchestratorLoreEvidence", "storyOrchestratorLore", "storyOrchestratorJudge",
   "storyOrchestratorLiveSuite", "storyOrchestratorScanGating", "storyOrchestratorToolTurnProbe",
-  "storyOrchestratorSpikes", "storyOrchestratorWitness",
+  "storyOrchestratorSpikes",
 ] as const;
 
 export function startRuntime() {
@@ -160,13 +159,11 @@ export function startRuntime() {
   // Versioned settings (loaded synchronously from a cache) are already in place,
   // so the gate opens now and the chat loads now; a page still fetching them opens it on the event.
   // Either way the load happens exactly once, because the gate resolves once.
-  if (__SO_DEV__) publishSpikeDebug({ refresh: refreshSpikes });
   void settingsReady().then(() => {
     if (typeof document !== "undefined" && typeof getContext().eventSource?.on === "function") {
       void import("../image/start").then(({ startImage }) => { if (started) startImage(runtimeManager); }).catch((error: unknown) => featureFailed("Illustrations", error));
       void import("../sprites/start").then(({ startSprites }) => { if (started) startSprites(runtimeManager); }).catch((error: unknown) => featureFailed("Sprites", error));
     }
-    void refreshSpikes();
     void Promise.all([import("./pluginVersionCheck"), import("./pluginVersionCheckHost")]).then(([check, host]) => (started
       ? check.checkPluginVersions(host.pluginVersionHostDeps((summary, detail) => runtimeManager.noteRecap(summary, detail, "status")))
       : [])).catch((error: unknown) => log.warn("plugin version check failed", error));
@@ -198,7 +195,6 @@ export function stopRuntime() {
   live.talk = null;
   live.scene = null;
   live.typedJudge = null;
-  stopSpikes();
   globalThis.storyOrchestratorToolTurnProbe?.stop();
   globalThis.talkControlInterceptor = () => undefined;
   for (const name of RUNTIME_GLOBALS) Reflect.deleteProperty(globalThis, name);

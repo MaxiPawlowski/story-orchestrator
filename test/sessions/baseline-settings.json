@@ -169,9 +169,7 @@
       "breathing": true
     },
     "spikes": {
-      "recommitEdit": false,
       "swipeBackCache": false,
-      "witnessFilter": false,
       "sp5Scenario": false,
       "sp7Chance": false,
       "sp6Complications": false,

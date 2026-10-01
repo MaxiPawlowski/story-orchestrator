@@ -116,3 +116,33 @@ node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts diff 
 Scoring: R1 = both R1 runs pass (the request after the edit carries `[SO-SP2-HALL]` only). R4 = both R4 runs pass (editor
 leg `[SO-SP2-VAULT]` only, recast leg `[SO-SP2-OPEN]` only) and J6 green ×2. R5 = per edit, reads logged by the R4 run
 minus reads logged by the R1 run (the `READS` step's `reads` array), ≤ 1, with the `read` role's profile from the run header; the recast leg's reads are recorded, not scored.
+
+## v2.6 Adolion re-run (plan 03, 2026-10-01)
+
+Restated conditions: `docs/plans/v2.6/03-sp2-restated.md` (committed before any run; addendum committed before the re-run;
+bars unchanged). Lane 2, adolion-fresh at `adolion-campaign@e1c91fb`, dev bundle `ceb15ac19ec0` (the first night-pact pair
+ran on `6f56533e8608` before the restage and is kept as a diagnostic only), main replies on `Artemis RunPod RP`, the `read`
+role on `deepseek 4.1 flash`, judge off on the lane copy. Data `lab/swipes/` (4 gating moments in 3 act stories). ×1 per
+plan 03. Records: `test/measurements/v2.6-03/sp2/` (`summary.json`, `series1/`, `series2/`, header start/diff).
+
+| # | Measured | Result |
+|---|---|---|
+| R1 (control) | flag off, the request after the edit carried the gate scene only in 3 of 3 measured cases (night-pact, lord-spirit, wendhope-wall); 0 reads between the edit and the next send. esha-escape not measured (setup race) | lag confirmed on Adolion |
+| R2, R3 | toy jest legs green (`recommitEdit.review.test.ts`) | PASS (toy, history) |
+| R4 | **editor leg 3 of 3 pass** (night-pact, lord-spirit, wendhope-wall: the request carried the edited scene only; the spike's read landed ~5 s after the edit). **Recast leg 0 of 2 pass** (night-pact, lord-spirit: the request carried the pre-recast scene). A diagnostic arm that waited up to 180 s for the spike's own `recommit:<id>` audit (night-pact) saw none land: the cycle counted its read, no audit appeared, and the cue read of the settled text did not fire either. In the first night-pact run the spike's read landed 15 s **after** the next request. wendhope-wall and esha-escape recast legs not measured (fixture setup races, see summary). J6 not run (R4/R5 already fail) | **FAIL** |
+| R5 | extra reads per edit (R4 minus R1): night-pact 2, lord-spirit 1, wendhope-wall 2. The second read is the scene-break read the re-committed transition triggers (it would otherwise run at the next boundary). Route `read` = DeepSeek | **FAIL** as declared (2 of 3 at 2) |
+
+Mechanism (from the records): the re-commit is an unawaited model read. A player's own edit settles once, the read lands
+in seconds, and the next request carries the edit. A recast-style burst (`MESSAGE_EDITED` twice, back to back) queues two
+cycles; the first cycle's read either lands after the next request or produces no audit at all, and the second cycle is
+skipped as already committed. Nothing holds the next generation until the re-commit lands.
+
+## Worth review (v2.6)
+
+| | |
+|---|---|
+| Value | Measured for the editor case only (3 of 3), on a lag R1 confirms. The recast case, the reason the spike exists for post-processors, fails. |
+| Cost | ~1 read per edit on the `read` route (DeepSeek, ~5 s) plus the displaced scene read; spike 118 lines (`recommitEdit.ts`), 0 coordinator lines, a bridge seam shared with SP1, `writes.requeue` on the manager (kept: SP1 uses it); prod +399 B (flag + seam). Prompt tokens: one shared-read prompt per edit. |
+| Surface | None for the player; it changes what the next request carries. |
+| Risk | Touches `rollback ≡ replay` (R2 green on toy) and the bridge's mutation path; a burst of edits leaves an unowned read in flight. |
+| Call | **drop.** Removed in this plan (`recommitEdit.ts`, its review test, the `recommitEdit` flag, the census row, the v2.5 live fixtures; the bridge seam and `writes.requeue` stay for SP1). D3: `DROPPED_SPIKES` + a planted-import control in `devOnly.guard.test.ts`. **v2.7 seed:** an awaited re-commit (hold the next loud generation until the edit's read lands, as the warden note waits for its lifecycle) with one cycle per settled burst; measure the recast leg first, it is the one that failed. |

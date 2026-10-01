@@ -20,7 +20,6 @@ const SPIKES = [
   "src/runtime/spikes/install.ts",
   "src/runtime/spikes/reasoningEffect.ts",
   "src/runtime/spikes/reasoningEffectHost.ts",
-  "src/runtime/spikes/recommitEdit.ts",
   "src/runtime/spikes/sp5Scenario.ts",
   "src/runtime/spikes/sp5ScenarioHost.ts",
   "src/runtime/spikes/sp6Complications.ts",
@@ -29,10 +28,9 @@ const SPIKES = [
   "src/runtime/spikes/swipeCache.ts",
   "src/runtime/spikes/toolTurnProbe.ts",
   "src/runtime/spikes/toolTurnSummary.ts",
-  "src/runtime/spikes/witnessFilter.ts",
-  "src/runtime/spikes/witnessFilterHost.ts",
 ];
 const SPIKE_PATTERN = /^src\/runtime\/spikes\//;
+const DROPPED_SPIKES = ["src/runtime/spikes/recommitEdit.ts", "src/runtime/spikes/witnessFilter.ts", "src/runtime/spikes/witnessFilterHost.ts", "src/runtime/wiring/spikes.ts"];
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
 
 const isDevOnly = (path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path) || SPIKE_PATTERN.test(path);
@@ -75,8 +73,6 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
 
   it.each([
     ["the SP10 probe", 'export { createToolTurnProbe } from "./runtime/spikes/toolTurnProbe";', "src/runtime/spikes/toolTurnProbe.ts"],
-    ["the SP9 witness filter", 'export { startWitnessFilter } from "./runtime/spikes/witnessFilterHost";', "src/runtime/spikes/witnessFilterHost.ts"],
-    ["the SP9 pure filter", 'import "./runtime/spikes/witnessFilter";', "src/runtime/spikes/witnessFilter.ts"],
     ["the R4 reasoning effect host", 'export { startReasoningEffect } from "./runtime/spikes/reasoningEffectHost";', "src/runtime/spikes/reasoningEffectHost.ts"],
     ["the R4 pure reasoning effect", 'import "./runtime/spikes/reasoningEffect";', "src/runtime/spikes/reasoningEffect.ts"],
   ])("control: a planted static import of %s from the entry fails", (_label, line, module) => {
@@ -103,7 +99,7 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
     const runtime = join(SRC, "runtime", "index.ts");
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === runtime ? `import { installSpikes } from "./spikes";\nvoid installSpikes;\n${fs.readFileSync(path, "utf8")}` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/index.ts", "src/runtime/spikes/recommitEdit.ts", "src/runtime/spikes/swipeBack.ts", "src/runtime/spikes/swipeCache.ts"]));
+    expect(staticReach(files, read).filter(isDevOnly)).toEqual(expect.arrayContaining(["src/runtime/spikes/index.ts", "src/runtime/spikes/swipeBack.ts", "src/runtime/spikes/swipeCache.ts"]));
   });
 
   it("control: re-exporting the calibrations from the judge barrel again fails", () => {
@@ -111,6 +107,25 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
     const fs = require("fs") as typeof import("fs");
     const read = (path: string) => (path === barrel ? `${fs.readFileSync(path, "utf8")}\nexport * from "./sceneCalibration";\n` : fs.readFileSync(path, "utf8"));
     expect(staticReach(files, read).filter(isDevOnly)).toContain("src/judge/sceneCalibration.ts");
+  });
+
+  it("v2.6 plan 03: a dropped spike's modules are gone from the source tree", () => {
+    const present = new Set(files.map(rel));
+    expect(DROPPED_SPIKES.filter((path) => present.has(path))).toEqual([]);
+  });
+
+  it("control: a planted static import of a dropped spike reaches no module", () => {
+    const planted = join(SRC, "index.tsx");
+    const fs = require("fs") as typeof import("fs");
+    const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}
+import "./runtime/spikes/recommitEdit";
+import "./runtime/spikes/witnessFilter";
+import "./runtime/spikes/witnessFilterHost";
+import "./runtime/wiring/spikes";
+` : fs.readFileSync(path, "utf8"));
+    const reached = staticReach(files, read);
+    expect(reached.filter((path) => DROPPED_SPIKES.includes(path))).toEqual([]);
+    expect(reached.length).toBe(staticReach(files).length);
   });
 
   it("control: a planted static import of a plan-09 spike module fails (v2.5 plan 09 rule 2)", () => {
