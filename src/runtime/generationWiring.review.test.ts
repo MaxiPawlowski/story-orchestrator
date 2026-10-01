@@ -12,6 +12,7 @@ const mockScans: { activated?: (entries: unknown[]) => void } = {};
 jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   observeSamplerPayloads: () => () => undefined,
+  installScanGating: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined, scans: () => 0 }),
   observeWorldInfoScans: (observers: { activated?: (entries: unknown[]) => void }) => {
     mockScans.activated = observers.activated;
     return { reassert: () => undefined, ordered: false, dispose: () => { mockScans.activated = undefined; } };

@@ -42,6 +42,7 @@ export interface SessionFiles {
   chats: Record<string, ChatMessage[]>;
   states: Record<string, EndState>;
   story: StoryIndexEntry | null;
+  stories?: Record<string, StoryIndexEntry>;
   turns?: Row[];
   missing?: string[];
 }
@@ -49,7 +50,7 @@ export interface SessionFiles {
 export interface JudgeHealth { calls: number; answered: number; busy: number; timeout: number; otherFallbacks: number; busyRate: number | null; busyByUse: Record<string, number> }
 
 export interface Digest {
-  charter: string; tier: string; flags: Flag[]; anomalies: Anomaly[]; counts: Record<string, number>;
+  charter: string; tier: string; flags: Flag[]; anomalies: Anomaly[]; counts: Record<string, number>; countsByChat: Record<string, Record<string, number>>;
   valid: boolean; invalid: string[]; unverifiable: { privateBlock: number }; judge: JudgeHealth; modelDefects: ReturnType<typeof defectCounts>;
 }
 
@@ -123,6 +124,19 @@ function contextFor(chat: ChatMessage[] | undefined, messageId: number): ChatMes
   return chat.filter((message) => message.id >= messageId - CONTEXT_TURNS && message.id <= messageId + CONTEXT_TURNS);
 }
 
+const rowChat = (row: Row) => String(row.value.chatId ?? row.value.detail?.chatId ?? '');
+const namesNoStory = (row: Row) => row.value.kind === 'session' && Object.prototype.hasOwnProperty.call(row.value.detail ?? {}, 'storyId') && row.value.detail.storyId === null;
+
+export function withoutForeignRows(rows: Row[]): Row[] {
+  const foreign = new Set<string>();
+  return rows.filter((row) => {
+    if (row.value.kind !== 'session') return !foreign.has(rowChat(row));
+    if (namesNoStory(row)) foreign.add(rowChat(row));
+    else foreign.delete(rowChat(row));
+    return !namesNoStory(row);
+  });
+}
+
 export function digestSession(files: SessionFiles, paths: { journal: string; payloads: string; console: string; logs: Record<string, string>; turns?: string } = {
   journal: 'journal.jsonl', payloads: 'payloads.jsonl', console: 'console.jsonl', logs: {},
 }): Digest {
@@ -130,10 +144,13 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
   const anomalies: Anomaly[] = [];
   const add = (kind: AnomalyKind, row: Row, path: string, summary: string, detail?: Record<string, unknown>) =>
     anomalies.push({ kind, at: row.value?.at ?? row.value?.capturedAt ?? null, chatId: row.value?.chatId ?? null, summary, evidence: { path, line: row.line }, ...(detail ? { detail } : {}) });
-  const journal = files.journal.filter((row) => row.value && !row.value.unparsed);
+  const journal = withoutForeignRows(files.journal.filter((row) => row.value && !row.value.unparsed));
   const played = journal.filter((row) => inPlay(row.value.at, playFrom));
-  const edges = new Set((files.story?.edges ?? []).map(([from, to]) => `${from}>${to}`));
-  const outgoing = new Set((files.story?.edges ?? []).map(([from]) => from));
+  const storyFor = (storyId: unknown): StoryIndexEntry | null => {
+    if (typeof storyId !== 'string' || !storyId) return files.story;
+    if (storyId === files.session.story?.id) return files.story;
+    return files.stories?.[storyId] ?? null;
+  };
 
   const flags: Flag[] = [];
   const seenFlags = new Set<string>();
@@ -162,10 +179,13 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
 
   const byChat = new Map<string, Row[]>();
   for (const row of journal) {
-    const chatId = String(row.value.chatId ?? row.value.detail?.chatId ?? '');
+    const chatId = rowChat(row);
     byChat.set(chatId, [...(byChat.get(chatId) ?? []), row]);
   }
   for (const [chatId, rows] of byChat) {
+    let story = files.story;
+    let edges = new Set((story?.edges ?? []).map(([from, to]) => `${from}>${to}`));
+    let outgoing = new Set((story?.edges ?? []).map(([from]) => from));
     let active: string | null = null;
     let since = 0;
     let reported = false;
@@ -173,6 +193,9 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
     for (const row of rows) {
       const event = row.value;
       if (event.kind === 'session') {
+        story = storyFor(event.detail?.storyId);
+        edges = new Set((story?.edges ?? []).map(([from, to]) => `${from}>${to}`));
+        outgoing = new Set((story?.edges ?? []).map(([from]) => from));
         active = event.detail?.activeCheckpointId ?? active;
         maxBoundary = Math.max(maxBoundary, Number(event.detail?.boundary ?? -1));
         continue;
@@ -182,8 +205,8 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
         if (to) active = to;
         since = 0;
         reported = false;
-        if (inPlay(event.at, playFrom) && files.story && from && to && !edges.has(`${from}>${to}`)) {
-          const authored = files.story.checkpoints.some((checkpoint) => checkpoint.id === to);
+        if (inPlay(event.at, playFrom) && story && from && to && !edges.has(`${from}>${to}`)) {
+          const authored = story.checkpoints.some((checkpoint) => checkpoint.id === to);
           add('unexpected-jump', row, paths.journal, `${from} → ${to} is not an authored transition${authored ? '' : ' (a generated route?)'}`, { from, to, authored });
         }
         continue;
@@ -199,7 +222,7 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
       maxBoundary = Math.max(maxBoundary, boundary);
       if (event.detail?.source === 'manual') add('unexpected-jump', row, paths.journal, `manual checkpoint change at boundary ${boundary} (an author /cp or driver move, not play)`, { source: 'manual' });
       since += 1;
-      const pending = !files.story || !active || outgoing.has(active);
+      const pending = !story || !active || outgoing.has(active);
       if (since >= STALL_BOUNDARIES && !reported && pending) {
         reported = true;
         add('stall', row, paths.journal, `${since} boundaries without a transition at ${active ?? 'an unknown checkpoint'} while its exits were pending`, { checkpoint: active, boundaries: since, chat: chatId || null });
@@ -284,9 +307,14 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
 
   anomalies.sort((left, right) => (timeOf(left.at) ?? 0) - (timeOf(right.at) ?? 0) || ANOMALY_KINDS.indexOf(left.kind) - ANOMALY_KINDS.indexOf(right.kind));
   const counts = Object.fromEntries(ANOMALY_KINDS.map((kind) => [kind, anomalies.filter((anomaly) => anomaly.kind === kind).length]));
+  const countsByChat: Record<string, Record<string, number>> = {};
+  for (const anomaly of anomalies) {
+    const chat = anomaly.chatId ?? '(no chat)';
+    countsByChat[chat] = { ...countsByChat[chat], [anomaly.kind]: (countsByChat[chat]?.[anomaly.kind] ?? 0) + 1 };
+  }
   const invalid = (files.missing ?? []).map((name) => `${name} is missing: zero anomalies from it would mean no evidence, not a clean run`);
   return {
-    charter: files.session.charter, tier: files.session.tier, flags, anomalies, counts: { flags: flags.length, ...counts },
+    charter: files.session.charter, tier: files.session.tier, flags, anomalies, counts: { flags: flags.length, ...counts }, countsByChat,
     valid: invalid.length === 0, invalid, unverifiable: { privateBlock: unverifiablePrivate },
     judge: judgeHealth(played.filter((row) => row.value.kind === 'judge')),
     modelDefects: defectCounts(playedTurns.map((row) => row.value)),
@@ -320,6 +348,12 @@ export function renderFindings(digest: Digest, sessionDir: string): string {
   if (!digest.valid) out.push('## INVALID SESSION', '', ...digest.invalid.map((line) => `- ${line}`), '', 'The counts below cover only what was captured.', '');
   if (digest.unverifiable.privateBlock) out.push(`Private-block checks that could not be reconstructed (capture without chat, boundary or member identity): ${digest.unverifiable.privateBlock}.`, '');
   out.push('## Counts', '', `- flags: ${digest.flags.length}`, ...ANOMALY_KINDS.map((kind) => `- ${kind}: ${digest.counts[kind] ?? 0}`), '');
+  const chats = Object.entries(digest.countsByChat ?? {});
+  if (chats.length > 1) {
+    out.push('### By chat', '');
+    for (const [chat, byKind] of chats) out.push(`- \`${chat}\`: ${Object.entries(byKind).map(([kind, count]) => `${kind} ${count}`).join(', ')}`);
+    out.push('');
+  }
   out.push('## Judge health', '', ...renderJudgeHealth(digest.judge), '');
   out.push('## Model defects', '', digest.modelDefects.turns
     ? `- ${digest.modelDefects.turns} turn(s) with a defective reply: loop ${digest.modelDefects.loop}, corrupt ${digest.modelDefects.corrupt}; swiped once by the loop guard: ${digest.modelDefects.repaired}; ` +

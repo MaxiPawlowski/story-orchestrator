@@ -509,7 +509,7 @@ Pinned Adolion build `6ebe71ae83feaa39200cf196591ffa891c5ee12b`. 36 cards. Start
   - Kaian's spy past or Jasira's passed-over story is told unprompted ('Who knows what').
   - Grant's orphanage beds come up before anyone asks ('Who knows what').
 - **Provocations:**
-  - Switch between the two chats mid-reply once.
+  - Switch to the other chat the moment a reply renders and send there at once (ST will not leave a group while it is still generating).
   - Mention Wendhope yourself and see who reacts.
 - **Flag when:**
   - Anything from the other chat showed up.
@@ -1143,7 +1143,7 @@ Pinned Adolion build `6ebe71ae83feaa39200cf196591ffa891c5ee12b`. 36 cards. Start
   - Settings: images off; sprites off.
   - so-session start opens a fresh Eshalanore chat first, then this adventurer chat.
 - **Drive:**
-  1. **Switch mid-generation**, aims at The Guild Hall `guild-hall` or The Road North `road-to-wendhope`. Send, then switch to the Eshalanore chat while the reply streams.
+  1. **Switch right after the reply**, aims at The Guild Hall `guild-hall` or The Road North `road-to-wendhope`. Send, then switch to the Eshalanore chat the moment the reply renders, while the story's background passes still run. ST refuses to leave a group mid-generation (openGroupById, selectCharacterById), so this is the earliest switch a player can make.
      - Sample line: "We take Wendhope as the Loose Ends."
   2. **Branch**, aims at The Road North `road-to-wendhope` or On the Road `on-the-road`. Branch from an earlier message and continue both.
      - Sample line: "We ride north."

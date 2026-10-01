@@ -60,6 +60,9 @@ const OPTION_NOUN = /(?<![\w'])([a-z]+)\s+(?:job|posting|contract|quest|offer|wo
 const DETERMINERS = new Set(["the", "this", "that", "your", "its", "his", "her", "their", "our", "a", "an", "same", "one"]);
 const DEAL_TERM = /\b(?:fee|fees|pay|paid|price|coin|coins|gold|silver|terms|bounty|reward|rate|wage|wages|money|job|posting|contract|commission|offer)\b/i;
 const VALUE_WORD_MIN = 3;
+const OBJECT_DENIED = /\b(?:nothing|nobody|none)\b/i;
+const PROPER_NOUN = /(?<=[a-z,;]\s+)[A-Z][a-z]{2,}/g;
+const TOPIC_STOP = new Set(["the", "our", "your", "their", "for", "and", "with", "then", "into", "from", "under", "that", "this"]);
 
 const normalizeLine = (text: string): string => text.replace(/[‘’ʼ]/g, "'");
 
@@ -95,6 +98,9 @@ const wordsOf = (value: PrimitiveValue | undefined): string[] => typeof value ==
   ? value.toLowerCase().split(/[^a-z0-9]+/).filter((word) => word.length >= VALUE_WORD_MIN)
   : [];
 
+const topicWords = (text: string): string[] => text.replace(/\\[a-z]/gi, " ").toLowerCase().split(/[^a-z]+/)
+  .filter((word) => word.length >= VALUE_WORD_MIN && !TOPIC_STOP.has(word));
+
 const wordMatcher = (words: string[]): RegExp | null => words.length ? new RegExp(`\\b(?:${words.map(escapeWord).join("|")})\\b`, "gi") : null;
 
 interface Relevance {
@@ -102,6 +108,12 @@ interface Relevance {
   valueWords: Set<string>;
   intents: RegExp[];
   partners: RegExp | null;
+  topics: Set<string>;
+}
+
+interface Span {
+  from: number;
+  to: number;
 }
 
 const relevanceFor = (story: CommitStory, key: string, value: PrimitiveValue, partnerValues: PrimitiveValue[]): Relevance => {
@@ -110,10 +122,11 @@ const relevanceFor = (story: CommitStory, key: string, value: PrimitiveValue, pa
     .filter((transition) => transition.extractor_trigger && gateLeaves(transition.gate).some((leaf) => leaf.q === key))
     .map((transition) => compile(transition.extractor_trigger, "gi"))
     .filter((matcher): matcher is RegExp => Boolean(matcher));
-  return { words: wordMatcher(words), valueWords: new Set(words), intents, partners: wordMatcher(partnerValues.flatMap(wordsOf)) };
+  const topics = new Set(intents.flatMap((intent) => topicWords(intent.source)));
+  return { words: wordMatcher(words), valueWords: new Set(words), intents, partners: wordMatcher(partnerValues.flatMap(wordsOf)), topics };
 };
 
-const affirmedHit = (sentence: string, matcher: RegExp | null, verb: { from: number; to: number } | null = null): boolean =>
+const affirmedHit = (sentence: string, matcher: RegExp | null, verb: Span | null = null): boolean =>
   Boolean(matcher) && [...sentence.matchAll(matcher as RegExp)].some((hit) => {
     const from = hit.index ?? 0;
     const insideVerb = verb !== null && from >= verb.from && from + hit[0].length <= verb.to;
@@ -129,6 +142,19 @@ const namesOtherOption = (sentence: string, relevance: Relevance): boolean =>
 const isAbout = (text: string, relevance: Relevance): boolean =>
   affirmedHit(text, relevance.words) || relevance.intents.some((intent) => affirmedHit(text, intent));
 
+const verbIsIntent = (sentence: string, verb: Span, relevance: Relevance): boolean =>
+  relevance.intents.some((intent) => [...sentence.matchAll(intent)].some((hit) => {
+    const from = hit.index ?? 0;
+    return from >= verb.from && from + hit[0].length <= verb.to;
+  }));
+
+const objectIsTopic = (sentence: string, verb: Span, relevance: Relevance): boolean => {
+  if (relevance.words || !verbIsIntent(sentence, verb, relevance)) return false;
+  const object = clauseAfter(sentence, verb.to);
+  if (NEGATOR.test(object) || OBJECT_DENIED.test(object)) return false;
+  return topicWords(object).some((word) => relevance.topics.has(word));
+};
+
 const sentenceIsAbout = (text: string, index: number, length: number, relevance: Relevance, windowIsAbout: boolean): boolean => {
   const start = sentenceStart(text, index);
   const sentence = text.slice(start, index + length) + restOfSentence(text, index + length).text;
@@ -137,6 +163,7 @@ const sentenceIsAbout = (text: string, index: number, length: number, relevance:
   const verb = { from: index - start, to: index - start + length };
   if (relevance.intents.some((intent) => affirmedHit(sentence, intent, verb))) return true;
   if (!windowIsAbout) return false;
+  if (objectIsTopic(sentence, verb, relevance)) return true;
   if (DEAL_TERM.test(text.slice(start, index))) return true;
   const clause = clauseBefore(text, index) + text.slice(index, index + length) + clauseAfter(text, index + length);
   return affirmedHit(clause, relevance.partners);
@@ -173,7 +200,9 @@ const lineCommits = (line: string, matcher: RegExp, relevance: Relevance, window
 
 const playerCommits = (matcher: RegExp, relevance: Relevance, messages: readonly EvidenceMessage[]): boolean => {
   const windowIsAbout = messages.some((message) => isAbout(normalizeLine(message.text), relevance));
-  return messages.some((message) => message.isUser && lineCommits(message.text, matcher, relevance, windowIsAbout));
+  const named = messages.filter((message) => !message.isUser).flatMap((message) => normalizeLine(message.text).match(PROPER_NOUN) ?? []);
+  const read = { ...relevance, topics: new Set([...relevance.topics, ...named.map((name) => name.toLowerCase())]) };
+  return messages.some((message) => message.isUser && lineCommits(message.text, matcher, read, windowIsAbout));
 };
 
 const gatePartners = (story: CommitStory, key: string): Set<string> => new Set(story.transitions

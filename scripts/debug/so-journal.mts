@@ -109,11 +109,13 @@ export async function readFollowFrame(page, wantAudits) {
     const blob = ctx.chatMetadata?.story_orchestrator ?? null;
     const selected = blob?.selectedStoryId ?? null;
     const entry = selected && blob?.stories ? blob.stories[selected] ?? null : null;
+    const loadedChat = typeof runtime.getLoadedChatId === 'function' ? runtime.getLoadedChatId() : undefined;
     return {
       ready: true,
       chatId: ctx.chatId ?? null,
+      journalChatId: loadedChat === undefined ? ctx.chatId ?? null : loadedChat ?? ctx.chatId ?? null,
       groupId: ctx.groupId ?? null,
-      storyId: selected,
+      storyId: loadedChat === undefined ? selected : snapshot.storyId ?? null,
       activeCheckpointId: snapshot.activeCheckpointId ?? null,
       activeCheckpointName: snapshot.activeCheckpointName ?? null,
       boundary: snapshot.boundary ?? 0,
@@ -177,7 +179,8 @@ export async function followSessionJournal(page, { out = null, intervalMs = 1000
       continue;
     }
 
-    const stamp = `${frame.chatId}|${frame.storyId}`;
+    const chatId = frame.journalChatId ?? frame.chatId;
+    const stamp = `${chatId}|${frame.storyId}`;
     if (stamp !== session) {
       session = stamp;
       // Re-derivation after a switch would replay the new chat's whole history as "new"; the
@@ -187,8 +190,8 @@ export async function followSessionJournal(page, { out = null, intervalMs = 1000
         kind: 'session',
         boundary: frame.boundary,
         messageId: -1,
-        summary: `chat ${frame.chatId} · story ${frame.storyId ?? 'none'} · at ${frame.activeCheckpointName ?? frame.activeCheckpointId ?? '—'} (boundary ${frame.boundary}, ${frame.chatLength} messages)`,
-        detail: { chatId: frame.chatId, groupId: frame.groupId, storyId: frame.storyId, activeCheckpointId: frame.activeCheckpointId, boundary: frame.boundary, chatLength: frame.chatLength },
+        summary: `chat ${chatId} · story ${frame.storyId ?? 'none'} · at ${frame.activeCheckpointName ?? frame.activeCheckpointId ?? '—'} (boundary ${frame.boundary}, ${frame.chatLength} messages)`,
+        detail: { chatId, openChatId: frame.chatId, groupId: frame.groupId, storyId: frame.storyId, activeCheckpointId: frame.activeCheckpointId, boundary: frame.boundary, chatLength: frame.chatLength },
       });
     }
 
@@ -197,7 +200,7 @@ export async function followSessionJournal(page, { out = null, intervalMs = 1000
       if (seenEvents.has(key)) continue;
       seenEvents.add(key);
       if (kinds?.length && !kinds.includes(event.kind)) continue;
-      await emit({ ...event, chatId: frame.chatId });
+      await emit({ ...event, chatId });
     }
 
     for (const audit of frame.audits ?? []) {
@@ -208,7 +211,7 @@ export async function followSessionJournal(page, { out = null, intervalMs = 1000
         kind: 'audit',
         boundary: -1,
         messageId: audit.window?.to ?? -1,
-        chatId: frame.chatId,
+        chatId,
         summary: `audit ${audit.reason} msgs ${audit.window?.from}-${audit.window?.to} scope [${(audit.scope ?? []).join(', ')}] → ${(audit.acceptedDeltas ?? []).length} accepted, ${(audit.rejected ?? []).length} rejected`,
         detail: {
           reason: audit.reason,
@@ -227,7 +230,7 @@ export async function followSessionJournal(page, { out = null, intervalMs = 1000
 
     if (!announced && onReady) {
       announced = true;
-      await onReady({ chatId: frame.chatId, storyId: frame.storyId, boundary: frame.boundary });
+      await onReady({ chatId, storyId: frame.storyId, boundary: frame.boundary });
     }
     if (shouldStop?.()) break;
     await new Promise((resolveWait) => setTimeout(resolveWait, intervalMs));

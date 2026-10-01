@@ -322,7 +322,7 @@ export async function runTurn(page: any, line: string, deps: LiveDeps, options: 
 export const MUTATION_VERBS = ['swipe-new', 'regen', 'edit', 'delete', 'switch-chat-mid-gen', 'reload-mid-gen'] as const;
 export type MutationVerb = (typeof MUTATION_VERBS)[number];
 
-export interface MutationArgs { messageId?: number | 'last'; text?: string; line?: string; to?: string | null; chatId?: string; group?: string | null; groupId?: string | null }
+export interface MutationArgs { messageId?: number | 'last'; text?: string; line?: string; to?: string | null; toGroup?: string | null; toGroupId?: string | null; chatId?: string; group?: string | null; groupId?: string | null }
 
 export interface ChatTarget { chatId: string; group: string | null; groupId?: string | null }
 
@@ -506,7 +506,9 @@ async function switchMidGen(page: any, args: MutationArgs, deps: LiveDeps, optio
   const origin: ChatTarget = { chatId: String(args.chatId ?? ''), group: args.group ?? null, groupId: args.groupId ?? null };
   await deps.startSend(page, args.line);
   const observedGenerating = await deps.waitGenerating(page, 60000);
-  await deps.openChat(page, { chatId: args.to, group: args.group ?? null });
+  const otherGroup = Boolean(args.toGroup && args.toGroup !== args.group) || Boolean(args.toGroupId && args.toGroupId !== args.groupId);
+  if (otherGroup) await deps.waitIdle(page, options.timeoutMs ?? 600000);
+  await deps.openChat(page, { chatId: args.to, group: args.toGroup ?? args.group ?? null, groupId: args.toGroupId ?? (args.toGroup ? null : args.groupId ?? null) });
   await deps.waitIdle(page, options.timeoutMs ?? 600000);
   const target = await chatProbe(page);
   await deps.openChat(page, origin);
@@ -517,7 +519,8 @@ async function switchMidGen(page: any, args: MutationArgs, deps: LiveDeps, optio
     ...(back.chatId !== origin.chatId ? [`could not return to ${origin.chatId} (open: ${back.chatId})`] : []),
     ...(target.last?.isUser && target.last.text.trim() === args.line.trim() ? ['the player line reached the chat switched to'] : []),
   ];
-  return { did: { line: args.line, from: origin.chatId, to: args.to, observedGenerating, target, back }, problems };
+  const switchedAt = otherGroup ? 'after-reply' : 'mid-generation';
+  return { did: { line: args.line, from: origin.chatId, to: args.to, observedGenerating, switchedAt, target, back }, problems };
 }
 
 async function reloadMidGen(page: any, args: MutationArgs, deps: LiveDeps, options: LiveOptions) {

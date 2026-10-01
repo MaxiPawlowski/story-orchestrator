@@ -243,6 +243,37 @@ test('switch-chat-mid-gen: starts a generation, switches to the other chat and b
   assert.deepEqual(record.hostEvents.filter((event: any) => event.event === 'chat_changed').map((event: any) => event.chatId), ['chat-b', 'chat-a']);
 });
 
+test('switch-chat-mid-gen: a chat in another group is opened through its own group, the way back through the origin group', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const chats: Record<string, any[]> = { 'chat-a': fake.ctx.chat, 'chat-b': [{ name: 'Narrator', mes: 'Aegis.' }] };
+  const opened: Array<{ chatId: string; group: string | null; groupId?: string | null }> = [];
+  const openChat = async (_page: unknown, target: { chatId: string; group: string | null; groupId?: string | null }) => { opened.push(target); fake.ctx.chatId = target.chatId; fake.ctx.chat = chats[target.chatId]; };
+  const startSend = async (_page: unknown, line: string) => { fake.ctx.chat.push({ name: 'You', is_user: true, mes: line }); };
+  const record = await runMutation(fakePage(), 'switch-chat-mid-gen', { line: 'We ride.', to: 'chat-b', chatId: 'chat-a', group: 'Adolion - Between the Roads', groupId: 'g-aegis', toGroup: "Adolion - The Adventurer's Road", toGroupId: 'g-adv' }, baseDeps({ openChat, startSend }));
+  assert.equal(record.ok, true, record.problems.join('; '));
+  assert.deepEqual(opened.map((target) => [target.chatId, target.groupId ?? target.group]), [['chat-b', 'g-adv'], ['chat-a', 'g-aegis']]);
+});
+
+test('switch-chat-mid-gen: ST refuses to leave a generating group, so a switch to another group waits for the reply and goes at once', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const chats: Record<string, any[]> = { 'chat-a': fake.ctx.chat, 'chat-b': [{ name: 'Narrator', mes: 'Aegis.' }] };
+  const order: string[] = [];
+  const openChat = async (_page: unknown, target: { chatId: string }) => { order.push(`open ${target.chatId}`); fake.ctx.chatId = target.chatId; fake.ctx.chat = chats[target.chatId]; };
+  const startSend = async (_page: unknown, line: string) => { fake.ctx.chat.push({ name: 'You', is_user: true, mes: line }); };
+  const waitIdle = async () => { order.push('idle'); };
+  const crossed = await runMutation(fakePage(), 'switch-chat-mid-gen', { line: 'We ride.', to: 'chat-b', chatId: 'chat-a', group: 'Adolion - Between the Roads', groupId: 'g-aegis', toGroup: "Adolion - The Adventurer's Road", toGroupId: 'g-adv' }, baseDeps({ openChat, startSend, waitIdle }));
+  assert.equal((crossed.did as any).switchedAt, 'after-reply');
+  assert.deepEqual(order.slice(0, 2), ['idle', 'open chat-b']);
+  order.length = 0;
+  fake.ctx.chatId = 'chat-a';
+  fake.ctx.chat = chats['chat-a'];
+  const within = await runMutation(fakePage(), 'switch-chat-mid-gen', { line: 'We ride.', to: 'chat-b', chatId: 'chat-a', group: 'Adolion - Between the Roads', groupId: 'g-aegis' }, baseDeps({ openChat, startSend, waitIdle }));
+  assert.equal((within.did as any).switchedAt, 'mid-generation');
+  assert.equal(order[0], 'open chat-b');
+});
+
 test('switch-chat-mid-gen: a player line that lands in the other chat is a problem', async () => {
   const fake = fakeSt({ chat: greeting() });
   install(fake);
