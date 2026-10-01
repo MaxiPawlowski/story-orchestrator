@@ -156,8 +156,8 @@ describe("judged stall pre-check (v2.2 plan 06)", () => {
     expect(reread).toHaveBeenCalledTimes(1);
   });
 
-  it("T1-6: three re-checks the judge answered 'nothing shown' (p 0.02, 0.02, 0.08) leave no 'catching up' chip (journal.jsonl:1072-1278)", async () => {
-    const recorded = [{ boundary: 35, p: 0.02 }, { boundary: 38, p: 0.02 }, { boundary: 41, p: 0.08 }];
+  it("T1-6 / T1-5: re-checks the judge answered 'nothing shown' leave no 'catching up' chip (T1-6 journal.jsonl:1072-1278; T1-5 event 11:night_fog_broken open msgs 15-49)", async () => {
+    const recorded = [{ boundary: 35, p: 0.02 }, { boundary: 38, p: 0.02 }, { boundary: 41, p: 0.08 }, { boundary: 11, p: 0.03 }];
     for (const { boundary, p } of recorded) {
       const { manager } = await setup({ stallCheck: true }, leafAnswer(p));
       const quiet = jest.fn();
