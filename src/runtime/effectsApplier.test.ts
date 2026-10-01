@@ -454,4 +454,13 @@ describe("transition announcement leaves a trace when it is not posted (L2 J1.7)
     expect(executeSlashCommands).toHaveBeenCalledWith(expect.stringContaining("Accept the Mission"), { silent: true });
     expect(journal).not.toHaveBeenCalled();
   });
+
+  it("T0-1: a name the objective already starts with is not printed twice", async () => {
+    (executeSlashCommands as jest.Mock).mockResolvedValueOnce(true);
+    const generated = { id: "gen_on-the-road_1", name: "Travel the north road toward Wendhope", objective: "Travel the north road toward Wendhope and let the party notice what the road is missing.", type: "intermediate" } as unknown as Checkpoint;
+    await new EffectsApplier(testOwnership(), {}).announceTransition(generated, announcing());
+    const posted = String((executeSlashCommands as jest.Mock).mock.calls[0][0]);
+    expect(posted.split("Travel the north road toward Wendhope")).toHaveLength(2);
+    expect(posted).toContain("let the party notice what the road is missing.");
+  });
 });

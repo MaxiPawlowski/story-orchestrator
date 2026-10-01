@@ -164,6 +164,13 @@ describe("renderDirectorPrompt", () => {
     expect(withHandBack).toContain("SPEAKER: <Captain Mara | PLAYER>");
     expect(withHandBack).toContain("Rell should act next");
   });
+
+  it("T0-2: never hands back past a character Rell spoke to who has not answered yet", () => {
+    const base = { storyTitle: "Sun Ruins", checkpointName: "The Gate", objective: "Open the gate", candidates: [candidate("guard", "Captain Mara")], allowSilence: false, window: [] };
+    const withHandBack = renderDirectorPrompt({ ...base, handBack: true, playerName: "Rell" });
+    expect(withHandBack).toContain("A character Rell's last message spoke to who has not answered yet comes before PLAYER.");
+    expect(renderDirectorPrompt(base)).not.toContain("comes before PLAYER");
+  });
 });
 
 describe("parseDirectorResponse", () => {

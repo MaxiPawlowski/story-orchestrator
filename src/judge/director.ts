@@ -91,7 +91,7 @@ export function decideDirector(answers: Record<string, JudgeAnswer>, input: Judg
   }
   if (input.allowHandBack) {
     const handBack = noulAnswer(answers, "handback");
-    if (handBack !== null && handBack > DIRECTOR_HANDBACK) return { kind: "player", confidence: handBack, via: "composite" };
+    if (handBack !== null && handBack > DIRECTOR_HANDBACK && maxAddressed < DIRECTOR_SILENCE.maxAddressed) return { kind: "player", confidence: handBack, via: "composite" };
   }
   const leadName = input.lead ? normalize(input.lead) : null;
   const ranked = scores

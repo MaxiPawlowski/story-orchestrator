@@ -1,7 +1,7 @@
 import { DEFAULT_AGENCY, OBJECTIVE_LINE_HEADER, objectiveClause, objectiveLine, objectiveLineApplies } from "./agency";
 import { parseStoryV2, parseStoryV2OrThrow } from "./validate";
 import { isValidationErrorList, type Checkpoint, type StoryV2 } from "./schema";
-import { composeGuidanceBlock } from "@pacing/guidance";
+import { GUIDANCE_PREAMBLE, composeGuidanceBlock } from "@pacing/guidance";
 
 const checkpoint = (effects?: Checkpoint["effects"], objective = "Reach the gate."): Checkpoint => ({ id: "cp", name: "CP", objective, type: "anchor", ...(effects ? { effects } : {}) });
 const auto = { objective_block: undefined } as Pick<StoryV2, "objective_block">;
@@ -34,9 +34,9 @@ describe("objectiveLineApplies (v2.4 plan 06 T16a)", () => {
 
   it("rides the guidance block: after the guidance, alone without it, absent when it does not apply", () => {
     const guided = { ...checkpoint(), guidance: "The gate is watched." };
-    expect(composeGuidanceBlock(guided, DEFAULT_AGENCY, true)).toBe(`Scene direction: The gate is watched.\n${objectiveLine(guided, DEFAULT_AGENCY)}`);
-    expect(composeGuidanceBlock(checkpoint(), DEFAULT_AGENCY, true)).toBe(objectiveLine(checkpoint(), DEFAULT_AGENCY));
-    expect(composeGuidanceBlock(guided, DEFAULT_AGENCY, false)).toBe("Scene direction: The gate is watched.");
+    expect(composeGuidanceBlock(guided, DEFAULT_AGENCY, true)).toBe(`${GUIDANCE_PREAMBLE}\nThe gate is watched.\n${objectiveLine(guided, DEFAULT_AGENCY)}`);
+    expect(composeGuidanceBlock(checkpoint(), DEFAULT_AGENCY, true)).toBe(`${GUIDANCE_PREAMBLE}\n${objectiveLine(checkpoint(), DEFAULT_AGENCY)}`);
+    expect(composeGuidanceBlock(guided, DEFAULT_AGENCY, false)).toBe(`${GUIDANCE_PREAMBLE}\nThe gate is watched.`);
   });
 });
 

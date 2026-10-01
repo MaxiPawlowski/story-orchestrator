@@ -1,4 +1,4 @@
-import { DEFAULT_AGENCY, type AgencyPolicy, type TensionLevel } from "@engine/index";
+import { DEFAULT_AGENCY, NO_CLOSING_QUESTION_CLAUSE, type AgencyPolicy, type TensionLevel } from "@engine/index";
 import { DEFAULT_PACING_DRIFT_THRESHOLD } from "@constants/defaults";
 import { numericToLevel } from "./tension";
 
@@ -21,7 +21,7 @@ const STRONG_DRIFT_THRESHOLD = 0.5;
 // ended up moving the player along a prepared route. The policy decides whether the world presses on
 // its own or the move belongs to the player, and the default (never narrate the player's acts) adds
 // one clause to every hint for every story that does not say otherwise.
-const playerClause = (policy: AgencyPolicy) => (policy.never_narrate_player_action ? " Do not narrate the player's own words or decisions." : "");
+const playerClause = (policy: AgencyPolicy) => (policy.never_narrate_player_action ? ` Do not narrate the player's own words or decisions. ${NO_CLOSING_QUESTION_CLAUSE}` : "");
 
 const hintText = (direction: SteeringDirection, strong: boolean, level: TensionLevel, policy: AgencyPolicy): string => {
   const mine = policy.objective_kind === "player_action";
