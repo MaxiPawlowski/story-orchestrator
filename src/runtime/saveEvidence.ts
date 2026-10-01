@@ -22,6 +22,7 @@ export interface SaveObservation {
   burst?: number;
   /** The tag of the save of ours that asked for that request (null: an untagged one). */
   askedBy?: string | null;
+  busy?: boolean;
 }
 
 export interface SaveEvidenceDeps {
@@ -74,12 +75,14 @@ export async function recordSaveEvidence(deps: SaveEvidenceDeps, boundary: numbe
     const current = deps.health();
     return { health: current, unsaved: current.pendingBoundary !== null, journalSummary: null };
   }
+  const deferred = !observation.ok && !observation.lost && observation.timedOut && observation.busy === true;
   const reason = observation.ok ? null
     : observation.lost ? observation.lost
+    : deferred ? "it waited behind another save that was still running; the next save carries it"
     : observation.timedOut ? "no save request went out"
       : observation.failed ? "the save request failed before the server answered"
         : `the server answered ${String(observation.status)}`;
-  let settled = markSettled(health, boundary, observation.ok ? "applied" : "unsaved", reason, deps.now());
+  let settled = markSettled(health, boundary, observation.ok ? "applied" : deferred ? "unconfirmed" : "unsaved", reason, deps.now());
   let summary: string | null = null;
   if (observation.ok) {
     // The request answered 2xx and the server does not hold what we wrote — either an OLDER boundary
@@ -95,7 +98,7 @@ export async function recordSaveEvidence(deps: SaveEvidenceDeps, boundary: numbe
       summary = unreadable ? "save could not be verified by reading the server's copy" : "save reported success but the server holds an older state";
     }
   } else if (reason) {
-    summary = "save not confirmed";
+    summary = deferred ? "save waited behind another save" : "save not confirmed";
   }
   deps.onWrite(settled);
   if (summary) deps.journal(summary, settled.lastReason ?? reason ?? `in memory ${boundary}`, observation);

@@ -24,6 +24,15 @@ export const hostMessageId = (value: unknown): number | null => {
 
 const keyMessageId = (key: string) => Number(key.split(":")[0]);
 
+type SwipeRow = { is_user?: unknown; is_system?: unknown; swipes?: unknown; swipe_id?: unknown };
+
+export const isStoredSwipeReply = (chat: readonly unknown[] | undefined, messageId: number): boolean => {
+  const row = chat?.[messageId] as SwipeRow | undefined;
+  if (!row || row.is_user === true || row.is_system === true) return false;
+  if (!Array.isArray(row.swipes) || typeof row.swipe_id !== "number" || typeof row.swipes[row.swipe_id] !== "string") return false;
+  return (chat ?? []).slice(0, messageId).some((earlier) => (earlier as SwipeRow | undefined)?.is_user === true);
+};
+
 const continueStamp = (messageId: number): string => {
   const message = (getContext().chat as Array<{ gen_finished?: unknown; mes?: unknown }> | undefined)?.[messageId];
   const finished = message?.gen_finished;
@@ -123,9 +132,13 @@ export class TurnBridge {
     }
 
     this.lastRenderedAt = now;
+    await this.enqueueBoundary(id, true);
+  }
+
+  private async enqueueBoundary(id: number | null, afterSpeak: boolean) {
     const mine: PendingBoundary = { run: beginRun(this.manager.getOwnership()), messageId: id, ready: false };
     this.pending.push(mine);
-    await this.manager.fireAfterSpeak();
+    if (afterSpeak) await this.manager.fireAfterSpeak();
     if (!mine.run.stillOwns()) {
       this.pending = this.pending.filter((entry) => entry !== mine);
       return;
@@ -219,6 +232,7 @@ export class TurnBridge {
     }
     const edited = kind === "edit" || kind === "update";
     if (edited && this.save?.unchanged(messageId)) return;
+    const recommit = kind === "swipe" && isStoredSwipeReply(getContext().chat as unknown[] | undefined, messageId);
     const decoded = kind === "delete" ? this.decodeDelete(messageId) : null;
     if (!decoded) this.refreshIdentity();
     const drift = edited ? this.save?.firstDrift() ?? null : null;
@@ -228,10 +242,15 @@ export class TurnBridge {
       if (decoded ? keyed >= from : keyed >= from && keyed <= messageId) this.turnKeys.delete(key);
     }
     const journal = decoded ? describeDecode(decoded, messageId) : from < messageId ? movedJournal(from, messageId) : null;
-    if (await this.manager.rollbackOnEnter(kind, from)) return;
-    const replaced = journal ? null : this.seam?.(kind, messageId) ?? null;
-    if (replaced) return replaced();
-    await (journal ? this.manager.rollbackFromMessage(from, journal) : this.manager.rollbackFromMessage(from));
+    const run = beginRun(this.manager.getOwnership());
+    if (!(await this.manager.rollbackOnEnter(kind, from))) {
+      const replaced = journal ? null : this.seam?.(kind, messageId) ?? null;
+      if (replaced) return replaced();
+      await (journal ? this.manager.rollbackFromMessage(from, journal) : this.manager.rollbackFromMessage(from));
+    }
+    if (!recommit || !run.stillOwns()) return;
+    this.turnKeys.add(String(messageId));
+    await this.enqueueBoundary(messageId, false);
   }
 
   private decodeDelete(postLength: number) {

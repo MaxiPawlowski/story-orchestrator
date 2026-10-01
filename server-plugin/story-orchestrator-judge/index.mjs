@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-export const PLUGIN_VERSION = '1.3.0';
+export const PLUGIN_VERSION = '1.4.0';
 export const SECRET_KEY = 'typesafe_api_key';
 export const LLAMA_SECRET_KEY = 'so_judge_llama_key';
 export const PROVIDERS = Object.freeze({
@@ -23,6 +23,8 @@ export const PERMITTED_MODELS = Object.freeze(['jev-1.13.0', 'jev-latest', 'jev-
 export const MAX_BODY_BYTES = MAX_REQUEST_CHARS * 4;
 export const MAX_IN_FLIGHT_PER_USER = 2;
 export const MAX_CALLS_PER_MINUTE_PER_USER = 60;
+export const RATE_ENV = 'SO_JUDGE_RATE_PER_MIN';
+export const IN_FLIGHT_ENV = 'SO_JUDGE_MAX_IN_FLIGHT';
 export const PLUGIN_HEADER = 'x-so-plugin';
 const RETRY_STATUSES = new Set([429, 529]);
 const RETRY_DELAY_MS = 600;
@@ -210,7 +212,8 @@ async function callUpstream(key, payload, fetchImpl, url = apiUrl()) {
                 signal: controller.signal,
             });
             const text = await response.text();
-            last = { status: response.status, text };
+            const retryAfter = response.headers?.get?.('retry-after') ?? null;
+            last = { status: response.status, text, ...(retryAfter ? { retryAfter } : {}) };
             if (!RETRY_STATUSES.has(response.status)) return last;
         } catch (error) {
             if (error?.name === 'AbortError') return { status: 504, text: JSON.stringify({ error: 'upstream timeout' }) };
@@ -263,23 +266,44 @@ export async function readTextBody(request, limit = MAX_BODY_BYTES) {
     }
 }
 
-export function createLimiter({ maxInFlight = MAX_IN_FLIGHT_PER_USER, perMinute = MAX_CALLS_PER_MINUTE_PER_USER, now = Date.now } = {}) {
+const positiveInteger = (raw, fallback) => (typeof raw === 'string' && /^\d+$/.test(raw.trim()) && Number(raw) >= 1 ? Number(raw) : fallback);
+
+export function limitsFromEnv(env = process.env) {
+    return { maxInFlight: positiveInteger(env?.[IN_FLIGHT_ENV], MAX_IN_FLIGHT_PER_USER), perMinute: positiveInteger(env?.[RATE_ENV], MAX_CALLS_PER_MINUTE_PER_USER) };
+}
+
+const WINDOW_MS = 60_000;
+
+export function createLimiter({ maxInFlight = MAX_IN_FLIGHT_PER_USER, perMinute = MAX_CALLS_PER_MINUTE_PER_USER, now = Date.now, onRefuse = () => undefined } = {}) {
     const users = new Map();
     return (handle) => {
         const user = users.get(handle) ?? { inFlight: 0, stamps: [] };
         users.set(handle, user);
         const at = now();
-        user.stamps = user.stamps.filter((stamp) => at - stamp < 60_000);
-        if (user.inFlight >= maxInFlight) return null;
-        if (user.stamps.length >= perMinute) return null;
+        user.stamps = user.stamps.filter((stamp) => at - stamp < WINDOW_MS);
+        if (user.inFlight >= maxInFlight) {
+            onRefuse(1);
+            return null;
+        }
+        if (user.stamps.length >= perMinute) {
+            onRefuse(Math.max(1, Math.ceil((user.stamps[0] + WINDOW_MS - at) / 1000)));
+            return null;
+        }
         user.inFlight += 1;
         user.stamps.push(at);
         return () => { user.inFlight -= 1; };
     };
 }
 
+const sendUpstream = (response, upstream) => {
+    if (upstream.retryAfter) response.set?.('Retry-After', upstream.retryAfter);
+    response.status(upstream.status).type('application/json').send(upstream.text);
+};
+
 export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, accountsEnabled, env = process.env } = {}) {
-    const acquire = createLimiter({ now });
+    const limits = limitsFromEnv(env);
+    let retryAfter = 1;
+    const acquire = createLimiter({ ...limits, now, onRefuse: (seconds) => { retryAfter = seconds; } });
     const keyOptions = typeof accountsEnabled === 'boolean' ? { accountsEnabled } : {};
     const guarded = async (request, response, run) => {
         const blocked = guardRequest(request);
@@ -287,7 +311,10 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
         const read = await readTextBody(request);
         if (read.error) return response.status(read.status).json({ error: read.error });
         const release = acquire(request?.user?.profile?.handle ?? 'default-user');
-        if (!release) return response.status(429).json({ error: 'too many judge calls for this user; retry shortly' });
+        if (!release) {
+            response.set?.('Retry-After', String(retryAfter));
+            return response.status(429).json({ error: 'too many judge calls for this user; retry shortly', retryAfterSeconds: retryAfter });
+        }
         try {
             return await run({ ...request, headers: request.headers, user: request.user, body: read.body }, response);
         } finally {
@@ -301,7 +328,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             const llamaKey = llama ? await resolveKey(request, 'llama-logprob', keyOptions) : null;
             return response.json({
                 configured: Boolean(resolved), keySource: resolved?.source ?? null, model: DEFAULT_MODEL, pluginVersion: PLUGIN_VERSION,
-                limits: { maxInFlight: MAX_IN_FLIGHT_PER_USER, perMinute: MAX_CALLS_PER_MINUTE_PER_USER },
+                limits,
                 providers: {
                     typesafe: { configured: Boolean(resolved), keySource: resolved?.source ?? null, contract: PROVIDERS.typesafe.contract, local: false, host: new URL(apiUrl()).host },
                     'llama-logprob': { configured: Boolean(llama), keySource: llamaKey?.source ?? null, contract: PROVIDERS['llama-logprob'].contract, local: llama?.local ?? false, host: llama?.host ?? null },
@@ -315,7 +342,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             if (issues.length) return response.status(400).json({ error: 'invalid request', issues });
             const resolved = await resolveKey(request, 'llama-logprob', keyOptions);
             const upstream = await callUpstream(resolved?.key ?? null, payload, fetchImpl, `${endpoint.base}/completion`);
-            response.status(upstream.status).type('application/json').send(upstream.text);
+            sendUpstream(response, upstream);
         },
         async systemone(request, response) {
             const issues = validateRequest(request.body);
@@ -326,7 +353,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             if (!PERMITTED_MODELS.includes(model)) return response.status(400).json({ error: `model not permitted: ${model}`, permitted: PERMITTED_MODELS });
             const payload = { state: request.body.state, questions: request.body.questions, model };
             const upstream = await callUpstream(resolved.key, payload, fetchImpl);
-            response.status(upstream.status).type('application/json').send(upstream.text);
+            sendUpstream(response, upstream);
         },
         receive(request, response) {
             return guarded(request, response, handlers.systemone);
@@ -364,7 +391,8 @@ export async function init(router) {
     router.post('/systemone', guardRoute(handlers.receive));
     router.post('/providers/llama-logprob/completion', guardRoute(handlers.receiveLlama));
     const resolved = await resolveKey(null);
-    console.log(`[story-orchestrator-judge] loaded; key from ${resolved?.source ?? 'ST secrets (per user) or not configured'}`);
+    const limits = limitsFromEnv();
+    console.log(`[story-orchestrator-judge] loaded; key from ${resolved?.source ?? 'ST secrets (per user) or not configured'}; per user ${limits.perMinute}/min, ${limits.maxInFlight} in flight (${RATE_ENV}, ${IN_FLIGHT_ENV})`);
 }
 
 export async function exit() {

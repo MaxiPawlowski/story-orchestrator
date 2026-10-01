@@ -9,13 +9,13 @@ import { createSaveHealth, hasUnsavedChanges, SAVE_PLAYER_TEXT, saveWasLost, typ
 
 const at = "2026-09-22T00:00:00.000Z";
 
-const harness = (options: { ok: boolean; status?: number | null; timedOut?: boolean; failed?: boolean; lost?: string; serverHolds: number | null; start?: SaveHealth }) => {
+const harness = (options: { ok: boolean; status?: number | null; timedOut?: boolean; busy?: boolean; failed?: boolean; lost?: string; serverHolds: number | null; start?: SaveHealth }) => {
   const writes: SaveHealth[] = [];
   const journaled: Array<{ summary: string; note: string }> = [];
   let health: SaveHealth = options.start ?? createSaveHealth();
   const deps: SaveEvidenceDeps = {
     health: () => health,
-    observe: async () => ({ requested: !options.timedOut, status: options.status ?? (options.ok ? 200 : 500), ok: options.ok, timedOut: options.timedOut ?? false, failed: options.failed ?? false, ...(options.lost ? { lost: options.lost } : {}) }),
+    observe: async () => ({ requested: !options.timedOut, status: options.status ?? (options.ok ? 200 : 500), ok: options.ok, timedOut: options.timedOut ?? false, failed: options.failed ?? false, ...(options.busy ? { busy: true } : {}), ...(options.lost ? { lost: options.lost } : {}) }),
     readBack: (() => options.serverHolds) as unknown as SaveEvidenceDeps["readBack"],
     onWrite: (next) => { writes.push(next); health = next; },
     journal: (summary, note) => journaled.push({ summary, note }),
@@ -88,6 +88,17 @@ describe("the save's own evidence (v2.3 plan 06)", () => {
     await recordSaveEvidence(h.deps, 12);
     expect(h.health().lastReason).toMatch(/no save request went out/);
     expect(h.journaled[0].note).toMatch(/no save request went out/);
+    expect(saveWasLost(h.health())).toBe(true);
+  });
+
+  it("a save ST held back behind another save still running is pending, not lost (T0: 3-4 lanes on one machine)", async () => {
+    const h = harness({ ok: false, timedOut: true, busy: true, serverHolds: 12 });
+    const result = await recordSaveEvidence(h.deps, 12);
+    expect(h.health().lastOutcome).toBe("unconfirmed");
+    expect(saveWasLost(h.health())).toBe(false);
+    expect(hasUnsavedChanges(h.health())).toBe(true);
+    expect(result.journalSummary).not.toBe("save not confirmed");
+    expect(h.health().lastReason).toMatch(/another save/);
   });
 
   // The live recipe blocks the chat-save route, which makes the request THROW inside the page rather

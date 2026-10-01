@@ -321,7 +321,7 @@ async function start(id: string, options: StartOptions) {
   let age: any = null;
   if (plan.age) {
     const primary = (page.chats ?? []).filter((chat: any) => chat.primary).pop();
-    age = await liveInLane(plan.lane, viewportEnv, { verb: 'age', dir, chat: primary ? { chatId: primary.chatId, group: primary.group ?? null } : null, args: { hours: plan.age } });
+    age = await liveInLane(plan.lane, viewportEnv, { verb: 'age', dir, chat: primary ? { chatId: primary.chatId, group: primary.group ?? null, groupId: primary.groupId ?? null } : null, args: { hours: plan.age } });
     await appendTurn(dir, age);
     if (!age?.fired) return fail('age', startProblems({ laneCommit, indexCommit: index.commit, effective: [], pin: null, page: [], age, ageAsked: true, header: null, tails: [] }));
   }
@@ -551,14 +551,14 @@ export async function appendTurn(dir: string, record: Record<string, unknown>) {
 export const nextSeq = async (dir: string) => (existsSync(resolve(dir, TURNS_FILE)) ? (await readFile(resolve(dir, TURNS_FILE), 'utf-8')).split(/\r?\n/).filter((line) => line.trim()).length + 1 : 1);
 
 export function sessionChat(session: any, wanted: string | null): LiveChat | null {
-  const chats = (session.chats ?? []) as Array<{ chatId: string; group?: string | null; primary?: boolean }>;
+  const chats = (session.chats ?? []) as Array<{ chatId: string; group?: string | null; groupId?: string | null; primary?: boolean }>;
   if (wanted) {
     const found = chats.find((chat) => chat.chatId === wanted);
     if (!found) throw new Error(`chat ${wanted} is not one of this session's chats (${chats.map((chat) => chat.chatId).join(', ') || 'none'})`);
-    return { chatId: found.chatId, group: found.group ?? null };
+    return { chatId: found.chatId, group: found.group ?? null, groupId: found.groupId ?? null };
   }
   const primary = chats.filter((chat) => chat.primary).pop() ?? chats[chats.length - 1];
-  return primary ? { chatId: primary.chatId, group: primary.group ?? null } : null;
+  return primary ? { chatId: primary.chatId, group: primary.group ?? null, groupId: primary.groupId ?? null } : null;
 }
 
 async function liveInLane(lane: number, viewportEnv: Record<string, string>, request: LiveRequest): Promise<any> {
@@ -821,7 +821,7 @@ async function settingRecord(page: any, path: string, value: unknown) {
 
 async function liveChild(input: string, output: string) {
   const [{ runCli }, { defaultLiveDeps, runLive }, reads] = await Promise.all([import('./lib/cli.mts'), import('./lib/sessionDriver.mts'), import('./lib/sessionPageReads.mts')]);
-  const request: LiveRequest & { verb: LiveVerb | 'setting' } = await readJson(input);
+  const request: Omit<LiveRequest, 'verb'> & { verb: LiveVerb | 'setting' } = await readJson(input);
   await runCli(async (page) => {
     let record: Record<string, any>;
     try {

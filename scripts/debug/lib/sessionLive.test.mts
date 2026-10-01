@@ -1,6 +1,6 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { backdateSession, blackboardDiff, flagMoment, newJournalEvents, runMutation, runTurn, type LiveDeps } from './sessionLive.mts';
+import { backdateSession, blackboardDiff, flagMoment, groupNeedle, newJournalEvents, runMutation, runTurn, type LiveDeps } from './sessionLive.mts';
 import { clearPage, EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './sessionFakes.mts';
 
 afterEach(() => { uninstall(); delete (globalThis as any).document; });
@@ -152,9 +152,11 @@ test('reload-mid-gen: reloads during the generation, re-arms the recorder and re
   install(fake);
   let reopened: string | null = null;
   const reload = async () => { delete (globalThis as any).__soSessionRecorder; fake.ctx.chatId = null; };
-  const openChat = async (_page: unknown, target: { chatId: string }) => { reopened = target.chatId; fake.ctx.chatId = target.chatId; };
-  const record = await runMutation(fakePage(), 'reload-mid-gen', { line: 'We reach the walls.' }, baseDeps({ reload, openChat }));
+  let reopenedGroup: string | null | undefined;
+  const openChat = async (_page: unknown, target: { chatId: string; groupId?: string | null }) => { reopened = target.chatId; reopenedGroup = target.groupId; fake.ctx.chatId = target.chatId; };
+  const record = await runMutation(fakePage(), 'reload-mid-gen', { line: 'We reach the walls.', group: 'Adolion - Adventurer' }, baseDeps({ reload, openChat }));
   assert.equal(reopened, 'chat-a');
+  assert.equal(reopenedGroup, 'g1', 'the group is reopened by id: after a reload the name lookup found nothing');
   assert.equal(record.ok, true, record.problems.join('; '));
   assert.equal((record.did as any).reloaded, true);
   assert.ok((globalThis as any).__soSessionRecorder?.armed, 'the recorder is armed again after the reload');
@@ -187,14 +189,26 @@ test('flag: falls back to /story flag when the drawer cannot be driven', async (
   assert.equal(record.ok, true);
 });
 
-test('age: backdates the selected story\'s lastSessionAt, saves, reloads and reports the recap', async () => {
+const recapShown = (fake: ReturnType<typeof fakeSt>, chatId: string, at = new Date().toISOString()) => {
+  fake.state.journal = [...fake.state.journal, { at, boundary: 3, messageId: 2, kind: 'story', summary: 'away recap shown', detail: { note: `chat ${chatId}` } }];
+};
+
+test('age: backdates the selected story\'s lastSessionAt, saves, reloads the page, reopens the group by id and reads the recap from the journal', async () => {
   const fake = fakeSt({ chat: greeting() });
   install(fake);
-  fake.events.on(EVENT_TYPES.CHAT_CHANGED, () => { fake.state.recap = { title: 'Welcome back' }; });
+  const steps: string[] = [];
+  const reload = async () => { steps.push('reload'); fake.ctx.chatId = null; };
+  const openChat = async (_page: unknown, target: { chatId: string; group: string | null; groupId?: string | null }) => {
+    steps.push(`open ${target.groupId}/${target.chatId}`);
+    fake.ctx.chatId = target.chatId;
+    recapShown(fake, target.chatId);
+  };
   const before = Date.now();
-  const record = await backdateSession(fakePage(), 24);
+  const record = await backdateSession(fakePage(), 24, baseDeps({ reload, openChat }), { chatId: 'chat-a', group: 'Adolion - Adventurer', groupId: 'g1' });
+  assert.deepEqual(steps, ['reload', 'open g1/chat-a']);
   assert.equal(record.ok, true);
   assert.equal(record.fired, true);
+  assert.equal((record.recap as any)?.summary, 'away recap shown');
   assert.equal(fake.ctx.metadataSaves, 1);
   const at = Date.parse(fake.ctx.chatMetadata.story_orchestrator.stories['adolion-adventurer'].extras.lastSessionAt);
   assert.ok(before - at >= 24 * 3600000 - 1000 && before - at <= 24 * 3600000 + 5000);
@@ -205,9 +219,28 @@ test('age: a chat with no story state is refused, not silently aged', async () =
   const fake = fakeSt({ chat: greeting() });
   fake.ctx.chatMetadata = {};
   install(fake);
-  const record = await backdateSession(fakePage(), 24, { waitMs: 10 });
+  const record = await backdateSession(fakePage(), 24, baseDeps(), null, { waitMs: 10 });
   assert.equal(record.ok, false);
   assert.equal(record.fired, false);
+});
+
+test('age: the getter is not evidence (it is empty once the popup showed), and an older recap record does not count', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  recapShown(fake, 'chat-a', '2026-01-01T00:00:00.000Z');
+  fake.state.recap = null;
+  const reloads: string[] = [];
+  const quiet = await backdateSession(fakePage(), 24, baseDeps({ reload: async () => { reloads.push('reload'); }, openChat: async () => undefined }), { chatId: 'chat-a', group: null, groupId: 'g1' }, { waitMs: 10 });
+  assert.equal(quiet.fired, false, 'a recap shown before the backdate is not this one');
+  assert.deepEqual(reloads, ['reload'], 'a real page reload, not reloadCurrentChat');
+  const shown = await backdateSession(fakePage(), 24, baseDeps({ openChat: async (_page, target) => { recapShown(fake, target.chatId); } }), { chatId: 'chat-a', group: null, groupId: 'g1' }, { waitMs: 10 });
+  assert.equal(shown.fired, true, 'the popup was shown and journaled, so the getter being null does not matter');
+});
+
+test('group needle: the id wins over the name, the name is the fallback', () => {
+  assert.equal(groupNeedle({ group: 'Adolion - The Adventurer\'s Road', groupId: '1790854408906' }), '1790854408906');
+  assert.equal(groupNeedle({ group: 'Adolion - Esha', groupId: null }), 'Adolion - Esha');
+  assert.equal(groupNeedle({ group: null }), null);
 });
 
 test('pure helpers: blackboard diff and the journal multiset', () => {

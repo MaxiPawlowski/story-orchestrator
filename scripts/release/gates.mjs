@@ -13,6 +13,7 @@ export const GATE_STEPS = [
   "build",
   "build:dev",
   "test:debug",
+  "debug:typecheck",
   "test:release",
   "test:replay",
   "test:plugin",

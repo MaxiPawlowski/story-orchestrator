@@ -31,6 +31,11 @@ interface SecretsHostModule {
 
 const BUSY_STATUSES: ReadonlySet<number> = new Set([429, 529]);
 
+const retryAfterMs = (value: string | null): number | null => {
+  if (value === null || !/^\d+$/.test(value.trim())) return null;
+  return Number(value.trim()) * 1000;
+};
+
 const headers = (): Record<string, string> => (getContext() as unknown as { getRequestHeaders: () => Record<string, string> }).getRequestHeaders();
 
 export async function judgeStatus(): Promise<JudgeStatus | null> {
@@ -60,7 +65,7 @@ async function postToPlugin(path: string, body: unknown, signal?: AbortSignal): 
     body: JSON.stringify(body),
     signal,
   });
-  if (BUSY_STATUSES.has(response.status)) throw new JudgeBusyError(response.status);
+  if (BUSY_STATUSES.has(response.status)) throw new JudgeBusyError(response.status, retryAfterMs(response.headers.get("Retry-After")));
   if (!response.ok) throw new JudgePluginError(response.status);
   return await response.json() as unknown;
 }

@@ -28,11 +28,16 @@ export interface SaveObservation {
   /** The tag of the earliest save of ours this request settled (null when that save carried none).
    *  Absent when no request settled it. One request serving several saves is one save, asked for by this one. */
   askedBy?: string | null;
+  busy?: boolean;
 }
 
-const unconfirmed = (): SaveObservation => ({ requested: false, status: null, ok: false, timedOut: true, failed: false });
+const unconfirmed = (busy = false): SaveObservation => ({ requested: false, status: null, ok: false, timedOut: true, failed: false, ...(busy ? { busy: true } : {}) });
 
-interface Watch { kind: SaveKind; armedAt: number; sawRequest: boolean; chatId: string | null; tag: string | null; settle: (observation: SaveObservation) => void }
+interface Watch { kind: SaveKind; armedAt: number; sawRequest: boolean; busy: boolean; chatId: string | null; tag: string | null; settle: (observation: SaveObservation) => void }
+
+const chatSaves = { started: 0, inFlight: 0 };
+const SAVE_BUSY_POLL_MS = 100;
+const SAVE_RESEND_GRACE_MS = 250;
 
 let watching: Watch[] = [];
 let ours: typeof fetch | null = null;
@@ -147,6 +152,10 @@ async function observed(original: typeof fetch, input: RequestInfo | URL, init: 
     return refusedAnswer();
   }
   if (kind) watching.forEach((entry) => { if (entry.kind === kind && entry.armedAt < startedAt) entry.sawRequest = true; });
+  if (kind === "chat") {
+    chatSaves.started += 1;
+    chatSaves.inFlight += 1;
+  }
   try {
     const response = await original(input, init);
     if (kind && watching.length) report(kind, startedAt, answered(response.status), target);
@@ -154,6 +163,8 @@ async function observed(original: typeof fetch, input: RequestInfo | URL, init: 
   } catch (error) {
     if (kind && watching.length) report(kind, startedAt, threw(), target);
     throw error;
+  } finally {
+    if (kind === "chat") chatSaves.inFlight -= 1;
   }
 }
 
@@ -186,7 +197,7 @@ export function startSaveWatcherSurface(): () => void {
     if (ours && wrapped && globalThis.fetch === ours) globalThis.fetch = wrapped;
     ours = null;
     wrapped = null;
-    watching.slice().forEach((entry) => entry.settle(unconfirmed()));
+    watching.slice().forEach((entry) => entry.settle(unconfirmed(entry.busy)));
   };
 }
 
@@ -201,12 +212,25 @@ function watch(kind: SaveKind, timeoutMs: number, chatId: string | null = null, 
       if (settled) return;
       settled = true;
       clearTimeout(timer);
-      watching = watching.filter((entry) => entry.settle !== settle);
+      watching = watching.filter((candidate) => candidate.settle !== settle);
       resolve(observation);
     };
-    const timer = setTimeout(() => settle(unconfirmed()), timeoutMs);
-    watching.push({ kind, armedAt: clock, sawRequest: false, chatId, tag, settle });
+    const entry: Watch = { kind, armedAt: clock, sawRequest: false, busy: kind === "chat" && chatSaves.inFlight > 0, chatId, tag, settle };
+    const timer = setTimeout(() => settle(unconfirmed(entry.busy)), timeoutMs);
+    watching.push(entry);
+    if (entry.busy) void resendBehindBusy(() => settled, chatSaves.started, chatId);
   });
+}
+
+const pause = (ms: number) => new Promise<void>((resolve) => setTimeout(resolve, ms));
+
+async function resendBehindBusy(settled: () => boolean, startedAtArm: number, chatId: string | null) {
+  const due = () => !settled() && chatSaves.started === startedAtArm && (chatId === null || openChatId() === chatId);
+  while (due() && chatSaves.inFlight > 0) await pause(SAVE_BUSY_POLL_MS);
+  if (!due()) return;
+  await pause(SAVE_RESEND_GRACE_MS);
+  if (!due()) return;
+  await getContext().saveMetadata?.();
 }
 
 /**

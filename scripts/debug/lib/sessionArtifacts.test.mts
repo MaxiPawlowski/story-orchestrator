@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { REPO_ROOT } from '../../lib/stRoot.mjs';
 import {
-  artifactInventory, artifactProblems, comfyCalls, featureProblems, HARVEST_HEADER, newChats, requiredArtifacts, requiredFeatures, runtimeProblems, storyFeatures, trackChat,
+  artifactInventory, artifactProblems, comfyCalls, featureProblems, HARVEST_HEADER, newChats, requiredArtifacts, requiredFeatures, runtimeProblems, storyFeatures, trackChat, type ChatRef,
 } from './sessionArtifacts.mts';
 import { findCard, loadCards, loadIndex } from '../so-session.mts';
 
@@ -71,7 +71,7 @@ test('AS-23 runtime export: engine history, the effect ledger and the chapter st
 });
 
 test('AS-23 chat tracking: visited and created chats join the session, known ones keep their role', () => {
-  let chats = [{ chatId: 'a', group: 'G', primary: true }];
+  let chats: ChatRef[] = [{ chatId: 'a', group: 'G', primary: true }];
   chats = trackChat(chats, { chatId: 'a', storyId: 's' }, 'turn');
   assert.deepEqual(chats, [{ chatId: 'a', group: 'G', groupId: null, storyId: 's', primary: true }]);
   chats = trackChat(chats, { chatId: 'b', group: 'G', groupId: 'g1' }, 'switch-chat-mid-gen');

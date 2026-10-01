@@ -86,6 +86,34 @@ describe("one shared judge gate against the plugin's per-user limit (v2.5 batch 
     expect(status).toHaveBeenCalledTimes(1);
   });
 
+  it("a 429 naming a retry time past the backoff budget falls back at once, and the burst behind it is not sent (T0: 8 memoryPairs at one ms)", async () => {
+    let sent = 0;
+    const transport = async (): Promise<JudgeResponse> => { sent += 1; throw new JudgeBusyError(429, 40_000); };
+    const { runtime, records } = runtimeWith(transport, createJudgeGate({ retryMs: 1 }));
+    const results = await Promise.all(Array.from({ length: 8 }, (_, index) => runtime.ask("memoryPairs", buildPairRequest("a", `b${index}`))));
+    expect(results.map((result) => result.fallback)).toEqual(Array(8).fill("busy"));
+    expect(sent).toBeLessThanOrEqual(PLUGIN_MAX_IN_FLIGHT);
+    expect(records.every((record) => record.fallback === "busy")).toBe(true);
+  });
+
+  it("the cool-down ends: a call after the retry time is sent again", async () => {
+    let clock = 0;
+    let sent = 0;
+    const transport = async (): Promise<JudgeResponse> => {
+      sent += 1;
+      if (sent === 1) throw new JudgeBusyError(429, 30_000);
+      return { model: "jev-1.13.0", answers: { same_thing: { type: "noul", noul: 0.97 } } };
+    };
+    const gate = createJudgeGate({ retryMs: 1, now: () => clock });
+    const { runtime } = runtimeWith(transport, gate);
+    expect((await runtime.ask("memoryPairs", buildPairRequest("a", "b"))).fallback).toBe("busy");
+    expect((await runtime.ask("memoryPairs", buildPairRequest("a", "c"))).fallback).toBe("busy");
+    expect(sent).toBe(1);
+    clock += 30_001;
+    expect((await runtime.ask("memoryPairs", buildPairRequest("a", "d"))).fallback).toBeUndefined();
+    expect(sent).toBe(2);
+  });
+
   it("a plugin that stays busy ends in a busy fallback that never invalidates status", async () => {
     const transport = async (): Promise<JudgeResponse> => { throw new JudgeBusyError(429); };
     const { runtime, records, status } = runtimeWith(transport, createJudgeGate({ retryMs: 1 }));

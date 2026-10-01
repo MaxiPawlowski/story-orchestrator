@@ -7,6 +7,7 @@ export interface CalibrationRow {
   picked?: unknown;
   latencyMs?: number | null;
   fallback?: string;
+  detail?: string | null;
 }
 
 export interface CalibrationReport {

@@ -243,7 +243,7 @@ export interface LiveDeps {
   clickSwipeRight: (page: any, selector: string) => Promise<unknown>;
   closeOverlays: (page: any) => Promise<unknown>;
   hitTest: (page: any, selector: string) => Promise<HitTest>;
-  openChat:(page: any, target: { chatId: string; group: string | null }) => Promise<unknown>;
+  openChat: (page: any, target: ChatTarget) => Promise<unknown>;
   reload: (page: any) => Promise<unknown>;
   now: () => number;
 }
@@ -277,7 +277,11 @@ export async function runTurn(page: any, line: string, deps: LiveDeps, options: 
 export const MUTATION_VERBS = ['swipe-new', 'regen', 'edit', 'delete', 'switch-chat-mid-gen', 'reload-mid-gen'] as const;
 export type MutationVerb = (typeof MUTATION_VERBS)[number];
 
-export interface MutationArgs { messageId?: number | 'last'; text?: string; line?: string; to?: string | null; chatId?: string; group?: string | null }
+export interface MutationArgs { messageId?: number | 'last'; text?: string; line?: string; to?: string | null; chatId?: string; group?: string | null; groupId?: string | null }
+
+export interface ChatTarget { chatId: string; group: string | null; groupId?: string | null }
+
+export const groupNeedle = (target: { group?: string | null; groupId?: string | null }): string | null => target.groupId || target.group || null;
 
 export interface ReplyTarget { id: number | null; isUser: boolean; swipeId: number; swipes: number; name: string; length: number; notesAfter: Array<{ messageId: number; name: string; text: string }> }
 
@@ -447,7 +451,7 @@ async function chatProbe(page: any) {
 async function switchMidGen(page: any, args: MutationArgs, deps: LiveDeps, options: LiveOptions) {
   if (!args.line) throw new Error('switch-chat-mid-gen needs a player line to start the generation');
   if (!args.to) throw new Error('switch-chat-mid-gen needs a chat to switch to (--to <chatId>)');
-  const origin = { chatId: String(args.chatId ?? ''), group: args.group ?? null };
+  const origin: ChatTarget = { chatId: String(args.chatId ?? ''), group: args.group ?? null, groupId: args.groupId ?? null };
   await deps.startSend(page, args.line);
   const observedGenerating = await deps.waitGenerating(page, 60000);
   await deps.openChat(page, { chatId: args.to, group: args.group ?? null });
@@ -466,7 +470,7 @@ async function switchMidGen(page: any, args: MutationArgs, deps: LiveDeps, optio
 
 async function reloadMidGen(page: any, args: MutationArgs, deps: LiveDeps, options: LiveOptions) {
   if (!args.line) throw new Error('reload-mid-gen needs a player line to start the generation');
-  const origin = { chatId: String(args.chatId ?? ''), group: args.group ?? null };
+  const origin: ChatTarget = { chatId: String(args.chatId ?? ''), group: args.group ?? null, groupId: args.groupId ?? null };
   const before = await chatProbe(page);
   await deps.startSend(page, args.line);
   const observedGenerating = await deps.waitGenerating(page, 60000);
@@ -488,8 +492,8 @@ export async function runMutation(page: any, verb: MutationVerb, args: MutationA
   else if (verb === 'regen') outcome = await regen(page, deps, options);
   else if (verb === 'edit') outcome = await editLine(page, args, deps);
   else if (verb === 'delete') outcome = await deleteOne(page, args, deps);
-  else if (verb === 'switch-chat-mid-gen') outcome = await switchMidGen(page, { ...args, chatId: args.chatId ?? before.chatId ?? '' }, deps, options);
-  else if (verb === 'reload-mid-gen') outcome = await reloadMidGen(page, { ...args, chatId: args.chatId ?? before.chatId ?? '' }, deps, options);
+  else if (verb === 'switch-chat-mid-gen') outcome = await switchMidGen(page, { ...args, chatId: args.chatId ?? before.chatId ?? '', groupId: args.groupId ?? before.groupId ?? null }, deps, options);
+  else if (verb === 'reload-mid-gen') outcome = await reloadMidGen(page, { ...args, chatId: args.chatId ?? before.chatId ?? '', groupId: args.groupId ?? before.groupId ?? null }, deps, options);
   else throw new Error(`unknown mutation ${String(verb)}`);
   const actedAt = deps.now();
   const schedulerError = await settle(page, deps, options);
@@ -547,28 +551,40 @@ export async function flagMoment(page: any, note: string, { via = 'drawer', clic
   return { kind: 'flag' as const, at: new Date().toISOString(), note, via: used, fallbackReason, landed: after > before, flag: latest, drawer, problems: drawer.restored ? [] : [`the drawer was left ${endOpen ? 'open' : 'closed'} (it was ${wasOpen ? 'open' : 'closed'} before the flag)`], ok: after > before };
 }
 
-export async function backdateSession(page: any, hours: number, { waitMs = 20000 }: { waitMs?: number } = {}) {
+const readRecap = (page: any, since: string, chatId: string) => evaluateInST(page, ({ since, chatId }: { since: string; chatId: string }) => {
+  const events: any[] = (globalThis as any).storyOrchestratorRuntime?.getSessionJournal?.() ?? [];
+  const fresh = events.filter((event) => event?.kind === 'story' && typeof event.summary === 'string' && event.summary.startsWith('away recap') && Date.parse(event.at) >= Date.parse(since) && JSON.stringify(event.detail ?? '').includes(chatId));
+  const shown = fresh.filter((event) => event.summary === 'away recap shown').pop() ?? null;
+  const decision = fresh.filter((event) => event.summary === 'away recap queued' || event.summary === 'away recap not due').pop() ?? null;
+  const doc = (globalThis as any).document;
+  const popup = doc?.querySelector?.('dialog[open] .popup-content')?.textContent?.slice(0, 300) ?? null;
+  return { shown, decision, popup };
+}, { since, chatId });
+
+export async function backdateSession(page: any, hours: number, deps: Pick<LiveDeps, 'reload' | 'openChat'>, target: ChatTarget | null, { waitMs = 30000 }: { waitMs?: number } = {}) {
   if (!Number.isFinite(hours) || hours <= 0) throw new Error('--age needs a positive number of hours');
   const written = await evaluateInST(page, async (offsetMs: number) => {
     const ctx = (globalThis as any).SillyTavern.getContext();
     const blob = ctx.chatMetadata?.story_orchestrator;
     const id = blob?.selectedStoryId;
     const record = id ? blob?.stories?.[id] : null;
-    if (!record?.extras) return { ok: false, reason: 'the open chat carries no story state to backdate', chatId: ctx.chatId ?? null };
+    if (!record?.extras) return { ok: false, reason: 'the open chat carries no story state to backdate', chatId: ctx.chatId ?? null, groupId: ctx.groupId ?? null };
     const before = record.extras.lastSessionAt ?? null;
+    const writtenAt = new Date().toISOString();
     const at = new Date(Date.now() - offsetMs).toISOString();
     record.extras.lastSessionAt = at;
     await ctx.saveMetadata();
-    await ctx.reloadCurrentChat();
-    return { ok: true, chatId: ctx.chatId ?? null, storyId: id, before, at };
+    return { ok: true, chatId: ctx.chatId ?? null, groupId: ctx.groupId ?? null, storyId: id, before, at, writtenAt };
   }, Math.round(hours * 3600000));
-  if (!written.ok) return { ...written, hours, recap: null, fired: false };
+  if (!written.ok) return { ...written, hours, recap: null, decision: null, popup: null, fired: false, reopened: null };
+  const reopen: ChatTarget = { chatId: target?.chatId ?? String(written.chatId ?? ''), group: target?.group ?? null, groupId: target?.groupId ?? written.groupId ?? null };
+  await deps.reload(page);
+  await deps.openChat(page, reopen);
   const deadline = Date.now() + waitMs;
-  let recap: unknown = null;
-  while (Date.now() < deadline) {
-    recap = await evaluateInST(page, () => (globalThis as any).storyOrchestratorRuntime?.getAwayRecap?.() ?? null);
-    if (recap) break;
+  let read = await readRecap(page, String(written.writtenAt), reopen.chatId);
+  while (!read.shown && Date.now() < deadline) {
     await page.waitForTimeout(250);
+    read = await readRecap(page, String(written.writtenAt), reopen.chatId);
   }
-  return { ...written, hours, recap, fired: Boolean(recap) };
+  return { ...written, hours, recap: read.shown, decision: read.decision, popup: read.popup, fired: Boolean(read.shown), reopened: reopen };
 }

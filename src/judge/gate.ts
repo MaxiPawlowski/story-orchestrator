@@ -1,7 +1,7 @@
 import { JUDGE_BUSY_RETRY_MS, JUDGE_DEFAULT_MAX_IN_FLIGHT } from "./policy";
 
 export class JudgeBusyError extends Error {
-  constructor(readonly status: number) {
+  constructor(readonly status: number, readonly retryAfterMs: number | null = null) {
     super(`judge plugin busy (${status})`);
     this.name = "JudgeBusyError";
   }
@@ -34,6 +34,8 @@ export interface JudgeGate {
   inFlight(): number;
   queued(): number;
   backoff(attempt: number, signal?: AbortSignal): Promise<void>;
+  coolFor(ms: number): void;
+  coolingFor(): number;
 }
 
 interface Waiter {
@@ -54,9 +56,11 @@ const sleep = (ms: number, signal?: AbortSignal) => new Promise<void>((resolve, 
 
 const validCapacity = (value: number) => (Number.isFinite(value) && value >= 1 ? Math.floor(value) : JUDGE_DEFAULT_MAX_IN_FLIGHT);
 
-export function createJudgeGate(options: { capacity?: number; retryMs?: number; wait?: (ms: number, signal?: AbortSignal) => Promise<void> } = {}): JudgeGate {
+export function createJudgeGate(options: { capacity?: number; retryMs?: number; wait?: (ms: number, signal?: AbortSignal) => Promise<void>; now?: () => number } = {}): JudgeGate {
   let limit = validCapacity(options.capacity ?? JUDGE_DEFAULT_MAX_IN_FLIGHT);
   let running = 0;
+  let coolUntil = 0;
+  const now = options.now ?? Date.now;
   const waiting: Waiter[] = [];
   const wait = options.wait ?? sleep;
   const retryMs = options.retryMs ?? JUDGE_BUSY_RETRY_MS;
@@ -108,5 +112,9 @@ export function createJudgeGate(options: { capacity?: number; retryMs?: number; 
     inFlight: () => running,
     queued: () => waiting.length,
     backoff: (attempt, signal) => wait(retryMs * attempt, signal),
+    coolFor(ms) {
+      if (Number.isFinite(ms) && ms > 0) coolUntil = Math.max(coolUntil, now() + ms);
+    },
+    coolingFor: () => Math.max(0, coolUntil - now()),
   };
 }
