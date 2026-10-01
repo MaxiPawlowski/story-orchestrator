@@ -51,3 +51,9 @@ narrator's profile (Gemma 4 empty thought channel + min_p first sampler order): 
 superseded series, which is why that series is not mixed in. The pod is shared with up to 3 T2 lanes, so turns are
 slower; a run lost to a 300 s generation timeout is a harness failure (not measured) and is re-run at the end of the
 series, stated in a further addendum first.
+
+## Addendum 3 2026-10-01 22:25Z — distractor arm not run (bar unchanged)
+
+At ~80 s per turn on the shared pod (≈ 80 min per run), the lead asked to stop after the four English T3 runs (the
+bar) and to skip the distractor arm, which carries no bar, to save pod time for T3–T7. The distractor arm is recorded
+**not run**; T3 is scored on en-rolling ×2 and en-append ×2 exactly as stated above.
