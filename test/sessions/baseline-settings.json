@@ -29,7 +29,7 @@
       "hintEnabled": true
     },
     "display": {
-      "announceTransitions": true,
+      "announceTransitions": false,
       "hudEnabled": true,
       "inline": {
         "level": 1,
