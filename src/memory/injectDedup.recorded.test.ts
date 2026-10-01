@@ -65,8 +65,10 @@ describe("T1 follow-up: [Details from this session] carries no near-duplicate ro
     expect({ rows: lines.length, chars: block.length }).toEqual({ rows: 12, chars: 1445 });
   });
 
-  it("does not touch the facts tier, whose paraphrases are the conflict queue's to judge", () => {
+  it("T2-2: dedups the facts tier too, but never drops an established (locked) row", () => {
     const facts = rows([FORT_OLDER, FORT_NEWER]).map((entry) => ({ ...entry, tier: "facts" as const, type: "fact" as const }));
-    expect(buildMemoryInjection(facts, null, options).blocks.facts.split("\n")).toHaveLength(2);
+    expect(buildMemoryInjection(facts, null, options).blocks.facts.split("\n")).toEqual([FORT_NEWER]);
+    const locked = facts.map((entry, index) => (index === 0 ? { ...entry, locked: true } : entry));
+    expect(buildMemoryInjection(locked, null, options).blocks.facts.split("\n")).toEqual([FORT_OLDER]);
   });
 });

@@ -462,7 +462,7 @@
       "stopWhen": "You are in Whispers in the Halls with two conversations tested, or 60 minutes.",
       "rubric": [{ "feature": "private knowledge (epistemic)" }, { "feature": "secrets kept" }, { "feature": "Memory tab" }, { "feature": "speaker direction" }],
       "loggedAutomatically": ["every epistemic write (knows / hiding / unaware) per character", "each drafted member's prompt, with or without its private block", "judge memory checks"],
-      "knownLimits": ["The private block is per drafted member; a narrator line can still describe what the room saw.", "Images and sprites are off."]
+      "knownLimits": ["The private block is per drafted member; a narrator line can still describe what the room saw.", "The shared group transcript reaches every member, and so do ST's own Summarize and Vector Storage (chat vectors) blocks, which Story Orchestrator cannot scope; a seal or well detail in a [Summary: ...] or 'Past events' block is that known leak, not ours.", "Images and sprites are off."]
     },
     {
       "id": "T2-3",
