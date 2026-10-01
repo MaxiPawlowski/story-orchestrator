@@ -1,4 +1,4 @@
-import { DEFAULT_MAX_TOKENS } from "./callBudget";
+import { maxTokensCap } from "./callBudget";
 import { chunkMessages } from "./chunker";
 import { inputBudget } from "./inputBudget";
 import type { Preflight } from "./preflight";
@@ -26,7 +26,7 @@ const byCount = (messages: readonly ChatMessageWindowEntry[], size: number): Sha
 // is packed to the budget instead of eight messages. The whole-chat pass after them is tail-fit by the
 // shared read itself, so the plan counts it as one request of at most the budget.
 export async function planBacklog(messages: readonly ChatMessageWindowEntry[], overheadPrompt: string, budget: RequestBudget, maxMessages?: number): Promise<BacklogPlan> {
-  const limits = inputBudget(budget.contextLimit, DEFAULT_MAX_TOKENS);
+  const limits = inputBudget(budget.contextLimit, maxTokensCap("sharedRead"));
   const { meter } = budget;
   await meter.prime([overheadPrompt, ...messages.map((message) => message.text)]);
   const promptOverhead = meter.count(overheadPrompt);
