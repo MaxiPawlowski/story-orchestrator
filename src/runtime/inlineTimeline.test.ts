@@ -111,6 +111,22 @@ describe("inline timeline composer (v2.6 plan 08 D3/D4)", () => {
     expect(view.byMessage[3].find((item) => item.id.startsWith("memory:applied"))?.detail).toBe("read at message 2");
   });
 
+  it("CR-U M8: player mode never carries an item above its level, nor any author detail or author action", () => {
+    const player = composeInlineTimeline(sources(SUN, { authorView: false }));
+    const all = Object.values(player.byMessage).flat();
+    expect(all.length).toBeGreaterThan(0);
+    expect(all.every((item) => item.level <= 2)).toBe(true);
+    expect(all.some((item) => item.detail !== undefined)).toBe(false);
+    expect(all.flatMap((item) => item.actions ?? []).every((action) => action.kind === "pin-fact" || action.kind === "exclude-fact")).toBe(true);
+    const author = composeInlineTimeline(sources(SUN));
+    expect(Object.values(author.byMessage).flat().some((item) => item.level > 2)).toBe(true);
+  });
+
+  it("CR-U M1: a cast change names the character, never the avatar file", () => {
+    const view = composeInlineTimeline(sources(SUN, { castNames: { "Mira.png": "Mira Vell" } }));
+    expect(Object.values(view.byMessage).flat().map((item) => item.text)).toContain("Mira Vell joined");
+  });
+
   it("caps the level at 2 without Author view, and filters by level, category and window", () => {
     expect(effectiveInlineLevel(4, false)).toBe(2);
     expect(effectiveInlineLevel(3, true)).toBe(3);
@@ -136,7 +152,7 @@ describe("inline timeline composer (v2.6 plan 08 D3/D4)", () => {
   });
 
   it.each([["sun-ruins", SUN], ["adventurer", ADV]] as Array<[string, NormalizedStoryV2]>)("never puts a checkpoint id, a quality key or a gated entry name in player copy (%s)", (_name, story) => {
-    const view = composeInlineTimeline(sources(story, { lastRollback: { checkpointName: story.checkpoints[1].name, at: "r" }, agencyRecovery: true, saveNotice: "Changes not saved yet" }));
+    const view = composeInlineTimeline(sources(story, { lastRollback: { checkpointName: story.checkpoints[1].name, playerName: story.checkpoints[1].player_name ?? null, at: "r" }, agencyRecovery: true, saveNotice: "Changes not saved yet" }));
     const player = texts(view, 2);
     const gatedNames = [...gatedWorldInfo([story]).values()].flatMap((comments) => [...comments]);
     const forbidden = [...story.checkpoints.map((checkpoint) => checkpoint.id), ...Object.keys(story.qualityByKey), ...gatedNames, ...story.checkpoints.map((checkpoint) => checkpoint.name)];

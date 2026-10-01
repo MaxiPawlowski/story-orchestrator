@@ -1,4 +1,5 @@
 import type { ChapterView } from "@runtime/chapters";
+import { chapterFlagLabel, chapterNowText, PLAYER_COPY } from "@runtime/narrative";
 
 export interface PlayerChaptersProps {
   chapters: ChapterView;
@@ -9,7 +10,7 @@ export interface PlayerChaptersProps {
 // only flag a summary for the author; editing it is author view.
 export const PlayerChapters = ({ chapters, onFlag }: PlayerChaptersProps) => (
   <div id="so-player-chapters" className="flex flex-col gap-1">
-    <div className="font-medium">Your story</div>
+    <div className="font-medium">{PLAYER_COPY.chaptersHeading}</div>
     {chapters.records.map((record) => (
       <details key={record.id} data-so="player-chapter" className="text-sm">
         <summary className="cursor-pointer">
@@ -19,13 +20,13 @@ export const PlayerChapters = ({ chapters, onFlag }: PlayerChaptersProps) => (
         <div className="flex flex-col gap-1 pl-3 pt-1">
           <div className="whitespace-pre-wrap opacity-90">{record.summary}</div>
           {onFlag && (
-            <button type="button" data-so="player-chapter-flag" className="menu_button self-start opacity-70" aria-label={`Flag the summary of ${record.playerTitle}`}
-              title="Something is wrong in this summary: flag it for the author" onClick={() => onFlag(record.playerTitle)}>⚑</button>
+            <button type="button" data-so="player-chapter-flag" className="menu_button self-start opacity-70" aria-label={chapterFlagLabel(record.playerTitle)}
+              title={PLAYER_COPY.chapterFlagTitle} onClick={() => onFlag(record.playerTitle)}>⚑</button>
           )}
         </div>
       </details>
     ))}
-    {chapters.current && !chapters.ended && <div data-so="player-chapter-current" className="text-sm opacity-80">Now: {chapters.current.playerTitle}</div>}
+    {chapters.current && !chapters.ended && <div data-so="player-chapter-current" className="text-sm opacity-80">{chapterNowText(chapters.current.playerTitle)}</div>}
   </div>
 );
 

@@ -921,12 +921,40 @@ export const PLAYER_FORBIDDEN_SELECTORS = [
   '[data-so="next-turn-cost"]', '[data-so="next-turn-tokens"]', '[data-so="next-turn-trim"]', '[data-so="next-turn-foreign"]', '[data-so="next-turn-foreign-row"]',
   '[data-so="memory-fate"]', '[data-so="jump-to-message"]',
   // v2.5 plan 07: gate replay, the Calls list, the Chat Completion buckets and the (not built) message inspector.
-  '[data-so="gate-replay"]', '[data-so="model-calls"]', '[data-so="model-call"]', '[data-so="next-turn-buckets"]', '.so-inspect', '#so-inspector',
+  '[data-so="gate-replay"]', '[data-so="model-calls"]', '[data-so="model-call"]', '[data-so="next-turn-buckets"]', '#so-inspector',
   // v2.5 plan 08 L2: which binding ST scans each required book through, and the file-mode slot conflict.
   '[data-so="lore-satisfied-by"]', '[data-so="lore-character-gap"]', '[data-so="mirror-slot-conflict"]',
   // v2.6 plan 06: drives, motives, intents and beats are author view only until the sessions (W14).
   '#so-inner-voice', '[data-so="inner-voice-row"]', '[data-so="inner-voice-beat"]', '#so-inner-voice-settings', '#so-inner-harvest', '#so-inner-beat', '#so-inner-fanout',
+  '#so-inner-harvest-idle',
+  // CR-U (v2.6 plan 15): the author half of every v2.6 surface.
+  '#so-inline-level option[value="3"]', '#so-inline-level option[value="4"]',
+  '#so-chapter-seal', '#so-chapter-fold', '#so-chapter-story-so-far', '#so-chapter-budget', '#so-chapters',
+  '[data-so="chapters"]', '[data-so^="chapter-"]',
+  '[data-so="model-call-route"]', '[data-so="model-call-result"]',
+  '[data-so="role-profile-detail"]', '[data-so="role-egress"]', '[data-so="role-meter"]', '[data-so="role-reasoning-note"]',
+  '#so-next-turn', '[data-so^="next-turn-"]', '[data-so="payload-folded"]',
+  '[data-so="memory-lock"]', '[data-so="locked"]', '[data-so="memory-provenance"]', '[data-so="memory-evidence"]', '[data-so="memory-origin"]', '[data-so="memory-author-controls"]',
+  '[data-so="memorize-error-detail"]', '[data-so^="conflict-"]', '[data-so="quarantined"]', '[data-so="effect-ledger"]', '[data-so="effect-row"]',
+  '#so-lore-fired', '[data-so="lore-fired"]', '[data-so="lore-fired-row"]', '[data-so="lore-lost"]', '[data-so="lore-constant-missed"]', '#so-scan-gate',
+  '[data-so^="warden-"]', '[data-so^="driver-"]', '[data-so="expansion-regenerate"]',
+  '[data-so="curator-diff"]', '[data-so="curator-text"]', '[data-so="curator-last-pass"]',
+  '[data-so="repair-detail"]', '[data-so="drawer-repair-detail"]', '#so-entry-fix-with-wizard', '[data-so="wi-author-detail"]', '[data-so="engine-status"]',
+  '#so-curator-enabled', '#so-curator-accept-mode', '#so-copilot-enabled', '[data-so="self-test-error-detail"]',
 ];
+
+const ATTRIBUTE_NEEDLES = ['checkpoint', 'Checkpoint', 'quality', 'uid ', 'audit'];
+
+export function surfaceTextFindings(texts: Array<{ tab: string; surface: string; text: string }>) {
+  return texts.flatMap(({ tab, surface, text }) => PLAYER_FORBIDDEN.filter((needle) => text.includes(needle)).map((needle) => ({ tab, needle: `${surface}: ${needle}` })));
+}
+
+export function attributeFindings(values: Array<{ tab: string; surface: string; attr: string; value: string }>) {
+  return values.flatMap(({ tab, surface, attr, value }) => [
+    ...[...PLAYER_FORBIDDEN, ...ATTRIBUTE_NEEDLES].filter((needle) => value.includes(needle)).map((needle) => ({ tab, needle: `${surface} [${attr}] carries "${needle}"` })),
+    ...RAW_ERROR_MARKERS.filter(([, pattern]) => pattern.test(value)).map(([name]) => ({ tab, needle: `${surface} [${attr}] shows raw error text (${name})` })),
+  ]);
+}
 
 // v2.6 plan 08: the inline timeline's author half. Player levels (1-2) render chips, counts and player
 // copy only; details, actions, the inspector button and any level-3/4 row are author view.
@@ -1069,7 +1097,11 @@ export async function assertPlayerClean(page) {
       text: (document.querySelector(surface) as HTMLElement | null)?.innerText ?? '',
     })), PLAYER_SURFACES);
     errorTexts.push(...(surfaceTexts ?? []).map((entry) => ({ tab, ...entry })));
+    const attributes = await evaluateInST(page, (surfaces) => surfaces.flatMap((surface) => Array.from(document.querySelectorAll(`${surface}, ${surface} [title], ${surface} [aria-label]`))
+      .flatMap((node) => ['title', 'aria-label'].filter((attr) => node.hasAttribute(attr)).map((attr) => ({ surface, attr, value: node.getAttribute(attr) ?? '' })))), PLAYER_SURFACES);
+    findings.push(...attributeFindings((attributes ?? []).map((entry) => ({ tab, ...entry }))));
   }
+  findings.push(...surfaceTextFindings(errorTexts.filter((entry) => entry.surface !== '#drawer-manager')));
   findings.push(...recoveryControlFindings(recoveryControls));
   findings.push(...errorStateFindings(errorTexts));
   findings.push(...await inlinePlayerSweep(page));

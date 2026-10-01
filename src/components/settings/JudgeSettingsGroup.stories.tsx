@@ -91,11 +91,36 @@ export const SavesTheKeyAndClearsTheField: Story = {
     const field = canvasElement.querySelector<HTMLInputElement>("#so-judge-key") as HTMLInputElement;
     await expect(field.type).toBe("password");
     await userEvent.type(field, "sk-live-example");
-    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await userEvent.click(canvas.getByRole("button", { name: "Save key" }));
     await expect(args.onSaveKey).toHaveBeenCalledWith("sk-live-example");
     await expect(await canvas.findByText("Saved to SillyTavern secrets.")).toBeInTheDocument();
     await expect(field.value).toBe("");
     await expect(args.onRefresh).toHaveBeenCalled();
+  },
+};
+
+export const KeySaveFailedSaysWhy: Story = {
+  args: { onSaveKey: fn(async () => ({ ok: false as const, reason: "the secrets endpoint answered 403" })) },
+  play: async ({ args, canvasElement }) => {
+    const field = required(canvasElement.querySelector<HTMLInputElement>("#so-judge-key"), "key field");
+    await userEvent.type(field, "sk-live-example");
+    await userEvent.click(required(canvasElement.querySelector<HTMLButtonElement>("#so-judge-key-save"), "save key button"));
+    await expect(args.onSaveKey).toHaveBeenCalledWith("sk-live-example");
+    const error = await within(canvasElement).findByText(/Could not save the key/);
+    await expect(error).toHaveAttribute("id", "so-judge-key-error");
+    await expect(error).toHaveTextContent("Could not save the key: the secrets endpoint answered 403");
+    await expect(within(canvasElement).queryByText("Saved to SillyTavern secrets.")).toBeNull();
+    await expect(field.value).toBe("");
+    await expect(args.onRefresh).toHaveBeenCalled();
+  },
+};
+
+export const CheckingThePlugin: Story = {
+  args: { status: "checking" },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelector("#so-judge-status")).toHaveTextContent("Checking the judge plugin…");
+    await expect(canvas.getByRole("checkbox", { name: "Use the judge" })).toHaveAttribute("id", "so-judge-enabled");
   },
 };
 

@@ -1,4 +1,4 @@
-import { renderNarrativeNode, type NarrativeStatus } from "./narrative";
+import { awayRecapTitle, renderNarrativeNode, type NarrativeStatus } from "./narrative";
 
 export const AWAY_RECAP_MIN_MS = 8 * 60 * 60 * 1000;
 
@@ -24,7 +24,7 @@ export function shouldShowAwayRecap(lastSessionAt: string | null, now: number, m
 // Returning after a gap shows the standing player composition, not a second one written for the
 // popup: same sections, same wording — only the heading knows you were away.
 export function buildAwayRecap(narrative: NarrativeStatus, gapMs: number): AwayRecap {
-  const title = `Welcome back — ${narrative.title} (away ${formatGap(gapMs)})`;
+  const title = awayRecapTitle(narrative.title, formatGap(gapMs));
   const lines = narrative.sections.map((section) => `${section.label}\n${section.lines.join("\n")}`);
   return { title, lines, render: (doc) => renderNarrativeNode(narrative, doc, title) };
 }

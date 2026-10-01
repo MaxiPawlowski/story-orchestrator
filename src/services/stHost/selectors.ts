@@ -105,13 +105,30 @@ export function listPersonas(): string[] {
   return uniq(Object.values(personas).map((name) => trim(name)).filter(Boolean));
 }
 
-export function listGroupMembers(): string[] {
+const memberStem = (member: string) => trim(member).replace(/\.[a-z0-9]+$/i, "");
+
+const activeGroupEntry = () => {
   const { groupId, groups } = getContext();
   const activeGroupId = trim(groupId == null ? "" : String(groupId));
-  if (!activeGroupId) return [];
-  const group = groups.find((entry) => trim(entry.id) === activeGroupId);
+  if (!activeGroupId) return null;
+  return groups.find((entry) => trim(entry.id) === activeGroupId) ?? null;
+};
+
+export function listGroupMembers(): string[] {
+  const group = activeGroupEntry();
   if (!group) return [];
-  return uniq(group.members.map((member) => trim(member).replace(/\.[a-z0-9]+$/i, "")).filter(Boolean));
+  return uniq(group.members.map(memberStem).filter(Boolean));
+}
+
+export function listMutedGroupMembers(): string[] {
+  const group = activeGroupEntry();
+  if (!group) return [];
+  const disabled = new Set((group.disabled_members ?? []).map((member) => trim(member)));
+  const characters = getContext().characters ?? [];
+  return uniq(group.members.filter((member) => disabled.has(trim(member))).flatMap((member) => {
+    const name = trim(characters.find((character) => character.avatar === member)?.name ?? "");
+    return [memberStem(member), name].filter(Boolean);
+  }));
 }
 
 export function listSlashCommands(): HostSlashCommandMeta[] {

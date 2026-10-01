@@ -48,11 +48,11 @@ const LoreFired = ({ evidence }: { evidence: RuntimeSnapshot["loreEvidence"] }) 
           ))}
           {last.lost.length > 0 && <div
             data-so="lore-lost"
-            className="text-yellow-300"
+            className="so-warning-text"
           >Forced but never reached the reply: {last.lost.map((entry) => entry.comment || `${entry.world} #${entry.uid}`).join(", ")}</div>}
           {last.constantMissed.length > 0 && <div
             data-so="lore-constant-missed"
-            className="text-yellow-300"
+            className="so-warning-text"
           >Constant and enabled for this chat, but did not fire: {last.constantMissed.map((entry) => entry.comment).join(", ")}</div>}
         </>
       )}
@@ -95,7 +95,7 @@ const SamplerOverlayRow = ({ overlay }: { overlay: RuntimeSnapshot["samplerOverl
     <div data-so="next-turn-overlay" className="flex flex-col gap-0.5">
       <div className="opacity-100">Sampler overlay “{overlay.name}”: {values}</div>
       <div className="opacity-60">This checkpoint's replies only; the selected preset is untouched. {overlay.applied ? `Applied to ${overlay.applied} request(s).` : "Not applied yet."}</div>
-      {overlay.lastSkipped.length > 0 && <div className="text-yellow-300">Not in the last request: {overlay.lastSkipped.join(", ")}</div>}
+      {overlay.lastSkipped.length > 0 && <div className="so-warning-text">Not in the last request: {overlay.lastSkipped.join(", ")}</div>}
       {overlay.unknown.length > 0 && <div className="opacity-60">Not sent (not a per-request sampler): {overlay.unknown.join(", ")}</div>}
     </div>
   );

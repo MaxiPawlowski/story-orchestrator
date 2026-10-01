@@ -1,3 +1,4 @@
+import { studioFailure } from "../errorCopy";
 import React, { useEffect, useRef, useState } from "react";
 import type { StoryV2 } from "@engine/index";
 import { COPILOT_STAGES, applyOp, applyOps, isProvisioningOp, provisioningFollowUpOps, type AuthoringStageInput, type CopilotMessage, type CopilotStage, type ProposalResult } from "@copilot/index";
@@ -118,7 +119,8 @@ const WizardStepBar = ({ stage, onSelect }: { stage: CopilotStage; onSelect: (st
 };
 
 const WizardConversation = ({ history }: { history: CopilotMessage[] }) => (
-  <ul className="st-subpanel flex min-h-[80px] flex-1 flex-col gap-2 overflow-auto p-2 text-sm" aria-label="Copilot conversation">
+  <div role="log" aria-live="polite" aria-label="Wizard conversation" className="flex min-h-[80px] flex-1 flex-col">
+  <ul className="st-subpanel flex min-h-[80px] flex-1 flex-col gap-2 overflow-auto p-2 text-sm">
     {history.length === 0 ? (
       <li className="st-muted">Describe your premise, then run a stage. The wizard may ask a couple of questions before it proposes.</li>
     ) : (
@@ -130,6 +132,7 @@ const WizardConversation = ({ history }: { history: CopilotMessage[] }) => (
       ))
     )}
   </ul>
+  </div>
 );
 
 interface GrantCardsProps {
@@ -173,7 +176,7 @@ const WizardComposer = ({ label, message, busy, onChange, onRun }: { label: stri
     <textarea
       id="so-wizard-message"
       className="text_pole st-input min-h-[60px] flex-1"
-      aria-label="Copilot message"
+      aria-label="Message to the wizard"
       placeholder={`${label}: tell the wizard what you want, or ask a question.`}
       value={message}
       onChange={(event) => onChange(event.target.value)}
@@ -238,7 +241,7 @@ const useProvisioning = ({ host, mutate, applied, setApplied, setEnvironment, pe
       setEnvironment(host.environment(useDraftStore.getState().draft));
       persist({ applied: nextApplied });
     } catch (caught) {
-      setResults((previous) => ({ ...previous, [index]: { ok: false, message: caught instanceof Error ? caught.message : "Provisioning failed" } }));
+      setResults((previous) => ({ ...previous, [index]: { ok: false, message: studioFailure("Creating that asset failed", caught) } }));
     } finally {
       setBusy(null);
     }
@@ -333,7 +336,7 @@ const StagedWizard: React.FC<Props & { modeSwitch?: React.ReactNode }> = ({ enab
       setMessage("");
       persist({ history: history2, questions: stageResult.questions });
     } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Copilot request failed");
+      setError(studioFailure("The wizard request failed", caught));
       setHistory(nextHistory);
     } finally {
       setBusy(false);
@@ -369,19 +372,19 @@ const StagedWizard: React.FC<Props & { modeSwitch?: React.ReactNode }> = ({ enab
 
   if (!enabled || !runStage) {
     return (
-      <div className="st-subpanel rounded p-3 text-sm st-muted" aria-label="Copilot unavailable">
-        The authoring wizard is off or no memory LLM profile is selected. Enable it in the settings panel and pick a Connection Manager profile.
+      <div className="st-subpanel rounded p-3 text-sm st-muted" role="status" aria-label="Wizard unavailable">
+        The wizard is off or no memory model profile is selected. Turn it on under Author services in the settings panel and pick a memory model profile.
       </div>
     );
   }
 
   return (
-    <div id="so-wizard" className="flex h-full flex-col gap-3" aria-label="Story wizard">
+    <div id="so-wizard" className="flex h-full flex-col gap-3" role="region" aria-label="Story wizard">
       {modeSwitch}
       <WizardStepBar stage={stage} onSelect={selectStage} />
       <WizardConversation history={history} />
       {applied.length > 0 && (
-        <div id="so-wizard-created" className="text-[11px] st-muted" aria-label="Created in SillyTavern">Created so far: {applied.join(", ")}</div>
+        <div id="so-wizard-created" className="text-[11px] st-muted" role="status" aria-label="Created in SillyTavern">Created so far: {applied.join(", ")}</div>
       )}
       {error ? <div className="st-alert-error rounded px-3 py-2 text-sm" role="alert">{error}</div> : null}
       {questions.length > 0 && (
@@ -415,10 +418,10 @@ const AgentPane = ({ runTurn, host }: { runTurn: AgentTurnRunner; host?: WizardH
     const stored = host?.loadSession?.(sessionKey)?.agent;
     return isAgentSession(stored) ? stored : null;
   });
-  const persist = (agent: AgentSession) => {
+  const persist = (agent: AgentSession | null) => {
     if (!host?.saveSession) return;
-    const { createdLorebooks: _coordinatorOwned, ...stored } = host.loadSession?.(sessionKey) ?? newWizardSession(sessionKey);
-    host.saveSession({ ...stored, agent });
+    const { createdLorebooks: _coordinatorOwned, agent: _previous, ...stored } = host.loadSession?.(sessionKey) ?? newWizardSession(sessionKey);
+    host.saveSession(agent ? { ...stored, agent } : stored);
   };
   return <AgentWizard runTurn={runTurn} host={host} initial={initial} onPersist={persist} />;
 };
@@ -430,7 +433,7 @@ const StudioCopilot: React.FC<Props> = (props) => {
   const modeSwitch = <WizardModeSwitch mode={mode} onSelect={setMode} />;
   if (mode === "staged") return <StagedWizard {...props} modeSwitch={modeSwitch} />;
   return (
-    <div id="so-wizard" className="flex h-full flex-col gap-3" aria-label="Story wizard">
+    <div id="so-wizard" className="flex h-full flex-col gap-3" role="region" aria-label="Story wizard">
       {modeSwitch}
       <AgentPane runTurn={props.runAgentTurn} host={props.host} />
     </div>

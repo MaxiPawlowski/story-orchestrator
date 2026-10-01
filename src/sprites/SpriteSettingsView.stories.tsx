@@ -57,6 +57,6 @@ export const RouteAbsent: Story = {
   args: { capability: "absent" },
   play: async ({ canvasElement }) => {
     await expect(box(canvasElement)?.disabled).toBe(true);
-    await expect(canvasElement.querySelector("#so-sprite-capability")?.textContent).toContain("/api/sprites");
+    await expect(canvasElement.querySelector("#so-sprite-capability")?.textContent).toBe("This SillyTavern cannot show character sprites.");
   },
 };

@@ -1,4 +1,6 @@
-import { lazy, Suspense, useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { Lazy } from "@components/Lazy";
+import { lazyRetry } from "@utils/lazyRetry";
 import { capabilityReport, hostFacts, judgeStatus, writeJudgeSecret, type CapabilityReport, type HostFacts } from "@services/STAPI";
 import type { JudgeSelfTestReport } from "@judge/selfTest";
 import { getGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
@@ -8,12 +10,14 @@ import CapabilitiesGroup, { type CapabilitiesGroupProps } from "./CapabilitiesGr
 import EntryPoints from "./EntryPoints";
 import JudgeSettingsGroup, { type JudgeSettingsGroupProps, type JudgeSettingsPatch } from "./JudgeSettingsGroup";
 import { StoryGroup } from "./StoryGroup";
-import { DisplayGroup, LorebooksGroup, PacingGroup, StagecraftGroup, TalkGroup } from "./PlayGroups";
+import { authoringSettings, DisplayGroup, LorebooksGroup, PacingGroup, StagecraftGroup, TalkGroup } from "./PlayGroups";
+import { CheckRow } from "./Field";
+import { log } from "@utils/log";
 
-const ImageGroup = lazy(() => import("../../image/ImageGroup"));
-const SpriteGroup = lazy(() => import("../../sprites/SpriteGroup"));
-const GroupStoryBinding = lazy(() => import("./GroupStoryBinding"));
-const MemoryModelGroup = lazy(() => import("./MemoryModelGroup").then((module) => ({ default: module.MemoryModelGroup })));
+const ImageGroup = lazyRetry(() => import("../../image/ImageGroup"));
+const SpriteGroup = lazyRetry(() => import("../../sprites/SpriteGroup"));
+const GroupStoryBinding = lazyRetry(() => import("./GroupStoryBinding"));
+const MemoryModelGroup = lazyRetry(() => import("./MemoryModelGroup").then((module) => ({ default: module.MemoryModelGroup })));
 
 export interface SettingsHost {
   extensionVersion: string;
@@ -24,6 +28,7 @@ export interface SettingsHost {
   openWizardForRequirements: () => void;
   revealSetting: (id: string) => void;
   openDrawer: () => void;
+  openAuthorView?: () => void;
 }
 
 interface SettingsPanelProps {
@@ -53,9 +58,15 @@ const useJudgeControls = (manager: RuntimeManager) => {
     const runtime = manager.getJudge();
     if (!runtime) return;
     setSelfTest({ running: true, report: null });
-    const { runJudgeDirectorSelfTest } = await import("@judge/selfTest");
-    const report = await runJudgeDirectorSelfTest((request) => runtime.probe(request));
-    setSelfTest({ running: false, report });
+    let report: JudgeSelfTestReport | null = null;
+    try {
+      const { runJudgeDirectorSelfTest } = await import("@judge/selfTest");
+      report = await runJudgeDirectorSelfTest((request) => runtime.probe(request));
+    } catch (error) {
+      log.warn("judge self-test failed", error);
+    } finally {
+      setSelfTest({ running: false, report });
+    }
   };
 
   return { judge, status, selfTest, recheck, change, test };
@@ -104,6 +115,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             onNewStory={host.openWizard}
             onOpenStudio={host.openStudio}
             onOpenDrawer={host.openDrawer}
+            onOpenAuthorView={host.openAuthorView}
             onRevealSetting={host.revealSetting}
             onFixWithWizard={host.openWizardForRequirements}
           />
@@ -111,7 +123,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             <summary>This chat <span className="opacity-60">— select and continue a story</span></summary>
             <div className="flex flex-col gap-3 pt-2">
               <StoryGroup snapshot={snapshot} manager={manager} busy={busy} setBusy={setBusy} importOpen={importOpen} />
-              <Suspense fallback={null}><GroupStoryBinding snapshot={snapshot} busy={busy} /></Suspense>
+              <Lazy fallback={null}><GroupStoryBinding snapshot={snapshot} busy={busy} /></Lazy>
               <button type="button" className="menu_button self-start" onClick={host.openDrawer}>Open story and chat preferences</button>
             </div>
           </details>
@@ -119,19 +131,19 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             <summary>General setup <span className="opacity-60">— shared by every chat</span></summary>
             <div className="flex flex-col gap-3 pt-2">
               <p className="text-xs opacity-80">Connection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.</p>
-              <Suspense fallback={null}><MemoryModelGroup snapshot={snapshot} manager={manager} /></Suspense>
+              <Lazy fallback={null}><MemoryModelGroup snapshot={snapshot} manager={manager} /></Lazy>
               <DisplayGroup snapshot={snapshot} manager={manager} />
-              <Suspense fallback={<div className="text-xs">Loading image setup…</div>}><ImageGroup manager={manager} /></Suspense>
-              <Suspense fallback={null}><SpriteGroup manager={manager} /></Suspense>
+              <Lazy fallback={<div className="text-xs">Loading image setup…</div>}><ImageGroup manager={manager} /></Lazy>
+              <Lazy fallback={null}><SpriteGroup manager={manager} /></Lazy>
             </div>
           </details>
           <details id="so-author-services" className="so-settings-section">
             <summary>Author services <span className="opacity-60">— optional, shared by every chat</span></summary>
             <div className="flex flex-col gap-3 pt-2">
-              <label className="flex items-center gap-2 text-sm">
-                <input type="checkbox" checked={snapshot.copilot.enabled} onChange={(event) => manager.setCopilotSettings({ enabled: event.target.checked })} />
-                Enable story copilot (Studio wizard and author driver)
-              </label>
+              {authoringSettings(snapshot) && (
+                <CheckRow id="so-copilot-enabled" checked={snapshot.copilot.enabled} onChange={(on) => manager.setCopilotSettings({ enabled: on })}
+                  label="Enable the wizard (Studio wizard and author driver)" />
+              )}
               <LorebooksGroup snapshot={snapshot} manager={manager} />
               <StagecraftGroup snapshot={snapshot} manager={manager} />
               <JudgeSettingsGroup settings={judge.judge} status={judge.status} selfTest={judge.selfTest} authorView={snapshot.ui.authorView} meter={snapshot.judgeMeter}
@@ -144,7 +156,7 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             <summary>Diagnostics <span className="opacity-60">— ST capabilities and version</span></summary>
             <CapabilitiesGroup reports={hostProbe.capabilities} facts={hostProbe.facts} extensionVersion={host.extensionVersion}
               memoryModel={host.memoryModelLimit(snapshot.extraction.settings.profileId)} onRefresh={() => { host.recheckMemoryModel(); hostProbe.probe(true); }} />
-            <div className="text-xs opacity-80">{snapshot.status}</div>
+            {snapshot.ui.authorView && <div data-so="engine-status" className="text-xs opacity-80">{snapshot.status}</div>}
           </details>
         </div>
       </div>

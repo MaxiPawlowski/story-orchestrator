@@ -12,6 +12,7 @@ const base = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
     requirements: { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] },
     saveHealth: createSaveHealth(),
     ui: { authorView: true },
+    copilot: { enabled: true },
     ...overrides,
   }) as unknown as RuntimeSnapshot;
 

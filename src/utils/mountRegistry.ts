@@ -24,6 +24,10 @@ export interface MountRegistry {
 
 type Listener = { target: EventTarget; type: string; handler: EventListener; options?: AddEventListenerOptions };
 
+export const reportUncaught = (error: unknown, info?: { componentStack?: string }) => log.warn("a Story Orchestrator panel crashed", error, info?.componentStack);
+
+export const ROOT_OPTIONS = { onUncaughtError: reportUncaught, onRecoverableError: reportUncaught };
+
 const safely = (what: string, run: () => void) => {
   try {
     run();
@@ -41,7 +45,7 @@ export function createMountRegistry(): MountRegistry {
   const disposers: Array<() => void> = [];
   return {
     root(container, node) {
-      const root = createRoot(container);
+      const root = createRoot(container, ROOT_OPTIONS);
       roots.add(root);
       root.render(node);
       return root;

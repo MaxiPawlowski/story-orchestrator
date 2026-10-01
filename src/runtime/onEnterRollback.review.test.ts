@@ -19,6 +19,7 @@ jest.mock("@services/STAPI", () => ({
   enableWIEntry: async () => ({ ok: true, changed: true }),
   getActiveGroup: () => null,
   listGroupMembers: () => [],
+  listMutedGroupMembers: () => [],
   listGlobalLorebooks: () => [],
   readLoreBindings: () => ({ global: [], chat: null, persona: null, characters: [] }),
 }));

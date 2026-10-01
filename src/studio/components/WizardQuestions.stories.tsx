@@ -34,6 +34,21 @@ export const AnsweringWithChipsAndText: Story = {
   },
 };
 
+export const BusyWhileTheWizardWorks: Story = {
+  args: { busy: true },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const send = canvas.getByRole("button", { name: "Working…" });
+    await expect(send).toBeDisabled();
+    await expect(canvas.queryByRole("button", { name: "Send answers" })).toBeNull();
+    await expect(canvas.getByRole("button", { name: "You decide" })).toBeDisabled();
+    await expect(canvas.getByRole("button", { name: "Dismiss" })).toBeEnabled();
+    await userEvent.type(canvas.getByLabelText("How should it end?"), "Ambiguously.");
+    await expect(canvas.getByLabelText("How should it end?")).toHaveValue("Ambiguously.");
+    await expect(args.onAnswer).not.toHaveBeenCalled();
+  },
+};
+
 // "You decide" always proceeds: an author who does not want to answer is never stuck.
 export const YouDecideAlwaysProceeds: Story = {
   play: async ({ canvasElement, args }) => {

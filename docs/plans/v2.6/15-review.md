@@ -277,3 +277,42 @@ One command, `npm run gates -- --no-storybook`: **all green**.
 | test-storybook:ci | **skipped** (`--no-storybook`): no `.stories.tsx` or UI component changed, and the worktree's junctioned node_modules resolves the runner to the main checkout (the CR-P note above) |
 
 The first run (`npm run gates`) went red at `test`: master's new `chapterSaga.test.ts` harness had no `epistemic` slice, which the epistemic fold now reads; the harness gained `epistemic: []` and the re-run is the one above. No lanes, no model calls: every vehicle is built, none is run, and none of the measurements it serves is green.
+
+## Review fixes CR-U (UI, player leaks, a11y, mobile), 2026-10-01
+
+Scope: the CR-U UI review: player-mode leaks (H1–H6, M1–M8, the Low copy moves), curator and copilot gating, author UI / a11y / CSS / mobile items 1–4, 6–9, 12–20 and 25–30, and the `disabled_members` product gap. Item 5 (font scaling) was **not changed**, by instruction (user decision 2026-09-19 stands). Fail-first proof: `src/runtime/playerSurfaces.review.test.ts` (SSR via `renderToStaticMarkup`) fails 6 of 8 against the `e76eff73` components; the jest and story assertions below were written against the old copy first.
+
+| Finding | Fix | Test |
+|---|---|---|
+| H1/H2 HUD + rollback show author names / pipeline detail | `HUD_COPY`/`hudChipLabel` in `pipeline.ts`; chip title = `pipeline.text`, detail author-only; `lastRollback.playerName` (set in `rollback.ts`), `rollbackNoticeText`/`steppedBackText` in `narrative.ts` | `playerSurfaces.review.test.ts` H1/H2; `PlayerOverview` SteppedBack story; `inlineTimeline.test.ts` |
+| H3/H6/M2 Memory tab: raw error, evidence, provenance codes, character ids | constant `PLAYER_COPY.memorizeError`, player provenance phrase, names from `snapshot.castNames` (`buildCastNames`), evidence + author controls moved to lazy `AuthorMemory.tsx` | `playerSurfaces` H3; DrawerTabs MemorizeFailed story |
+| H5 inline levels 3/4 offered to players | player select offers ≤ 2 and shows the effective level; stored level kept | `playerSurfaces` H5; `Settings/InlineControls` stories |
+| M1/M8 inline: member ids, author detail in player items | `castNames` resolve members; player items drop `detail`, keep pin/exclude only; drafts above the effective level dropped | `inlineTimeline.test.ts` M1/M8 |
+| M3 role-route + WI gating detail | `authorView` prop on `RoleProfilesGroup`/`WorldInfoGatingGroup`; detail lazy-free author add-ons | `playerSurfaces` M3; stories |
+| M5 chapter seal/fold/story-so-far/budget | author-only; "Previously…" stays | `playerSurfaces` M5; `ChapterControls` PlayerSeesOnlyThePreviouslyToggle |
+| M6/M7/17 Repair: author consequence, lore names, wizard offered with wizard off | `repairSteps`/`viewerRepairStep` (player copy `REPAIR_PLAYER_COPY`, author detail add-on); New story / Fix with wizard disabled with `WIZARD_OFF_REASON`; "Turn on Author view" `#so-entry-author-view` | `repair.test.ts` "CR-U: Repair per viewer"; `playerSurfaces` M6/M7 |
+| Low copy moves | every player string now a function/constant in `narrative.ts` (`PLAYER_COPY`, `DERIVED_PLAYER_COPY`, chapter/away/inline/sprite/image texts) or `pipeline.ts` | covered by the tests above |
+| Curator + copilot in player settings | `authoringSettings = authorView \|\| !storyId`; `StagecraftGroup` and `#so-copilot-enabled` author-gated; engine status author-only | `Settings/PlayGroups`, `Settings/SettingsPanel` stories; `so-ui` sweep |
+| `assert-player-clean` extensions | v2.6 selectors added to `PLAYER_FORBIDDEN_SELECTORS`; `[title]`/`[aria-label]` attribute sweep; text needles on HUD + settings | `scripts/debug/so-ui.test.mts` (3 new) |
+| Muted member (`listGroupMembers` ignored `disabled_members`) | `listMutedGroupMembers` (stHost), `requirementsRead` → `mutedMembers` (present, muted, not muted by the story's own cast effect); Repair names it (`mutedMembersText`), Overview lists "Unmuted cast" | `requirements.test.ts` muted block; `repair.test.ts` |
+| 1/2 help button inside checkbox labels | `CheckRow`/`FieldLabel` (`components/settings/Field.tsx`), help outside the label, `htmlFor` labels across settings, image and judge groups | `playerSurfaces` "1/2"; exact-name stories (PlayGroups, MemoryModelGroup, JudgeSettingsGroup, StoryGroup) |
+| 3/4 a11y names | Test buttons "Test <role>", MultiSelect labels, ChaptersEditor uses checkpoint names, ReviewGrid Redo `aria-label`, status dot `role="img"`, wizard `role="log"` / regions | stories (RoleProfilesGroup, ChaptersEditor, ImageReviewGrid, StudioCopilot) |
+| 6 Studio dialog | heading `h2#so-studio-heading` + `aria-labelledby`, focus trap includes `a[href]`/`summary`, focus returns to the opener, close via `dialog.close()` | StudioModal stories (named dialog, ClosingReturnsFocusToTheOpener) |
+| 7 colour-contrast | **measured, not re-enabled**: with the rule on, 193 of 367 stories fail, every one on `color-contrast` only — the Storybook theme stub's muted ST palette, not one component. Rule stays off; needs a theme-level pass against real ST themes | Storybook run (contrast on) recorded below |
+| 8 lazy chunk failure | `lazyRetry` + `resetFailedLazies`, `Lazy` boundary with Retry; Studio/inline failures toast and reset; image/sprite imports `.catch` with a toast; roots get `onUncaughtError` | `src/utils/lazyRetry.test.ts`; `Drawer/LazyFailure` story |
+| 9 async buttons stuck busy | try/finally in self-tests, role test, judge key save, StoryGroup `whileBusy` | stories (JudgeSettingsGroup KeySaveFailedSaysWhy) |
+| 12–16 raw errors | `studioFailure` (`studio/errorCopy.ts`), constant player errors; `errorCopy` census now records `x instanceof Error ? x.message : …` | `errorCopy.guard.test.ts` CR-U 27 control; `test/findings/errorCopy.json` |
+| 18–20 naming | "Judge", "Wizard", "Memory model profile"; Copilot labels → Wizard (ProposalReview "Wizard proposal") | stories |
+| 25/29/30 CSS + mobile | theme tokens `so-warning/error/success-text` replace hard Tailwind colours; HUD wraps, chips ellipsize; `.menu_button` ellipsis + `.so-wrap-button`; responsive Studio grids; blackboard table scrolls | visual; stories |
+| 26 AgentWizard dead end after a failed call | Retry button (`#so-agent-retry`) | AgentWizard ErrorShowsTheConstantNotTheCause |
+| 30 missing stories | new: SettingsPanel, StoryGroup, PlayGroups, MemoryModelGroup, InlineControls, GroupStoryBinding, ImageGroup, ImageChatPanel, ImageReviewGrid, VnStage, InlineLayer, ScenePanel, LazyFailure; states: AgentWizard error/stopped/done, WizardQuestions busy, JudgeSettingsGroup key-save-failed/checking, StudioCopilot thrown error, StudioModal focus return | 367/367 |
+
+Decisions: a muted member does not satisfy "must be active" and Repair names it, but `requirements.ready` is unaffected, so the story's own cast effect can still unmute it (no deadlock). Curator and copilot settings are author-only once a story plays (`authorView || !storyId`). Warden and sprite stage are one switch each (no separate "off" option). Image stories live under `src/components/**` because `src/image` is outside `tsconfig.json`. `.storybook/preview.ts` gives `Settings/SettingsPanel` no extra root (it renders its own `#story-orchestrator-settings`).
+
+Not run: the live gate (no ST/LLM browser validation was done here). `so-ui assert-player-clean` was extended and unit-tested but not driven against a live page.
+
+### Gate record
+
+- Master merged (CR-P, English judge fixtures) cleanly.
+- `npm run gates`: typecheck ✓, typecheck:test ✓, lint ✓, test ✓ (386 suites passed, 1 skipped; 5031 passed, 1 skipped), build ✓ (main bundle `dist/index.js` 1,235,123 B ≤ 1,250,000), build:dev ✓, test:debug 543/543, test:release 82 pass / 2 skipped / 0 fail, test:replay 30 of 30 killed, test:plugin 73 pass / 0 fail; **test-storybook:ci RED: "No tests found"** (worktree layout, the runner resolves to the main checkout through the node_modules junction; same as CR-P).
+- Storybook run instead from the worktree: `node node_modules/storybook/bin/index.cjs build --output-dir <scratch>/sb-cru`, served with `http-server -p 6133`, `node node_modules/@storybook/test-runner/dist/test-storybook.js --url http://127.0.0.1:6133 --index-json --maxWorkers 1` → **367 passed, 367 total**. With `color-contrast` enabled: 193 failed, all contrast-only (item 7 above).

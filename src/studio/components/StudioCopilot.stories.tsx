@@ -34,9 +34,9 @@ export const ProposeAndAcceptAll: Story = {
   args: { enabled: true, runStage: stageRunner(VALID_RESPONSE) },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.type(canvas.getByLabelText("Copilot message"), "Give the party a morale stat.");
+    await userEvent.type(canvas.getByLabelText("Message to the wizard"), "Give the party a morale stat.");
     await userEvent.click(canvas.getByRole("button", { name: "Run stage" }));
-    await expect(await canvas.findByLabelText("Copilot proposal")).toBeInTheDocument();
+    await expect(await canvas.findByLabelText("Wizard proposal")).toBeInTheDocument();
     await expect(canvas.getByText(/Add quality "morale"/)).toBeInTheDocument();
     await userEvent.click(canvas.getByRole("button", { name: "Accept all" }));
     await expect(useDraftStore.getState().draft.qualities.map((quality) => quality.key)).toContain("morale");
@@ -54,11 +54,34 @@ export const WorkingWhileTheModelRuns: Story = {
   },
 };
 
+const WIZARD_FAILED = "The wizard request failed. Try again; the details are in the browser console.";
+
+export const ThrownErrorShowsTheConstant: Story = {
+  args: {
+    enabled: true,
+    runStage: async () => {
+      throw new Error("socket hang up at http://127.0.0.1:18080/v1 key=sk-secret");
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const log = canvas.getByRole("log", { name: "Wizard conversation" });
+    await expect(log).toHaveAttribute("aria-live", "polite");
+    await userEvent.type(canvas.getByLabelText("Message to the wizard"), "A heist in the sun ruins.");
+    await userEvent.click(canvas.getByRole("button", { name: "Run stage" }));
+    const alert = await canvas.findByRole("alert");
+    await expect(alert.textContent).toBe(WIZARD_FAILED);
+    await expect(alert.textContent).not.toContain("socket hang up");
+    await expect(alert.textContent).not.toContain("sk-secret");
+    await expect(canvas.getByRole("button", { name: "Run stage" })).toBeEnabled();
+  },
+};
+
 export const UnavailableWithoutAProfile: Story = {
   args: { enabled: false, runStage: stageRunner(VALID_RESPONSE) },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByLabelText("Copilot unavailable")).toBeInTheDocument();
+    await expect(canvas.getByLabelText("Wizard unavailable")).toBeInTheDocument();
     await expect(canvas.queryByRole("button", { name: "Run stage" })).toBeNull();
   },
 };
@@ -77,7 +100,7 @@ export const Disabled: Story = {
   args: { enabled: false },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByLabelText("Copilot unavailable")).toBeInTheDocument();
+    await expect(canvas.getByLabelText("Wizard unavailable")).toBeInTheDocument();
   },
 };
 
@@ -101,13 +124,13 @@ export const InterviewsBeforeProposing: Story = {
   args: { enabled: true, runStage: INTERVIEW_THEN_PROPOSAL },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.type(canvas.getByLabelText("Copilot message"), "a heist, but strange");
+    await userEvent.type(canvas.getByLabelText("Message to the wizard"), "a heist, but strange");
     await userEvent.click(canvas.getByRole("button", { name: "Run stage" }));
     await expect(await canvas.findByLabelText("Wizard questions")).toBeInTheDocument();
     await expect(canvas.getByText("Comic or grim?")).toBeInTheDocument();
     await userEvent.click(canvas.getByRole("button", { name: "grim" }));
     await userEvent.click(canvas.getByRole("button", { name: "Send answers" }));
-    await expect(await canvas.findByLabelText("Copilot proposal")).toBeInTheDocument();
+    await expect(await canvas.findByLabelText("Wizard proposal")).toBeInTheDocument();
     await expect(canvas.getByText(/Comic or grim\? → grim/)).toBeInTheDocument();
   },
 };

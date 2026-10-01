@@ -134,10 +134,11 @@ export const NotConfigured: Story = {
 };
 
 export const SteppedBack: Story = {
-  args: { snapshot: { ...snapshot(), lastRollback: { checkpointName: "Investigate the Job Board", at: "2026-08-12T10:00:00.000Z" } } as RuntimeSnapshot },
+  args: { snapshot: { ...snapshot(), lastRollback: { checkpointName: "Investigate the Job Board", playerName: "The Job Board", at: "2026-08-12T10:00:00.000Z" } } as RuntimeSnapshot },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText(/The story stepped back to the current scene/)).toBeInTheDocument();
+    await expect(canvas.getByText(/The story stepped back to The Job Board/)).toBeInTheDocument();
+    await expect(canvas.queryByText(/Investigate the Job Board/)).toBeNull();
   },
 };
 
@@ -167,7 +168,7 @@ export const MissingCast: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText("This story still needs")).toBeInTheDocument();
-    await expect(canvas.getByText(/Cast is not ready in this chat/)).toBeInTheDocument();
+    await expect(canvas.getByText(/The cast is not ready in this chat/)).toBeInTheDocument();
   },
 };
 

@@ -70,7 +70,7 @@ const QualityReadEditor: React.FC<{
           {optionsOf(quality).map((option) => {
             const criterion = asCriterion(choiceCriteria[option]);
             return (
-              <div key={option} className="grid grid-cols-[6rem_1fr_1fr] items-center gap-2">
+              <div key={option} className="grid grid-cols-1 items-center gap-2 sm:grid-cols-[6rem_1fr_1fr]">
                 <span className="truncate text-sm">{option}</span>
                 <input
                   className="text_pole st-input"

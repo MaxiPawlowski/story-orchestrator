@@ -12,6 +12,7 @@ export const BlackboardTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
     {Object.keys(snapshot.blackboard).length === 0 ? (
       <div className="text-xs opacity-70">No blackboard values yet.</div>
     ) : (
+      <div data-so="blackboard-scroll" className="overflow-x-auto">
       <table className="w-full text-xs">
         <thead><tr><th className="text-left">Key</th><th className="text-left">Value</th><th className="text-left">Source</th></tr></thead>
         <tbody>
@@ -28,6 +29,7 @@ export const BlackboardTab = ({ snapshot }: { snapshot: RuntimeSnapshot }) => (
           ))}
         </tbody>
       </table>
+      </div>
     )}
   </div>
 );

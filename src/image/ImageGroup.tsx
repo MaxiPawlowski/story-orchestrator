@@ -37,41 +37,52 @@ export default function ImageGroup({ manager }: { manager: RuntimeManager }) {
       <div className="flex flex-col gap-2 py-2">
         <p>This install provides the model and ComfyUI. Story authors choose the scenes and style; players can pause images for their chat.
           Renders wait for text and queue it while ComfyUI uses the GPU.</p>
-        <label className="flex items-center gap-2">
-          <input id="so-image-enabled" type="checkbox" checked={settings.enabled} onChange={(event) => change({ enabled: event.target.checked })} />
-          Permit automatic illustrations on this install
+        <div className="flex items-center gap-2">
+          <label className="flex items-center gap-2">
+            <input id="so-image-enabled" type="checkbox" checked={settings.enabled} onChange={(event) => change({ enabled: event.target.checked })} />
+            Permit automatic illustrations on this install
+          </label>
           <HelpTooltip title="Automatic rendering also needs an automation mode, a story requesting cues, and a chat that has not paused them. Manual images remain available."
             href="/scripts/extensions/third-party/story-orchestrator/README.md#illustrations-and-scope" reference="Illustration setup" />
-        </label>
-        <label className="flex flex-col gap-1">
-          <span>Automation for all chats <HelpTooltip title={"Story: follow each story's authored checkpoint/scene choices. " +
-            "Every N: draw every N replies and at each of the story's checkpoint/scene choices. " +
-            "Tool: let the model ask. Manual: draw only when you ask."}
-            href="/scripts/extensions/third-party/story-orchestrator/README.md#illustrations-and-scope" reference="When images appear" /></span>
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1">
+            <label htmlFor="so-image-mode">Automation for all chats</label>
+            <HelpTooltip title={"Story: follow the moments each story asks art for. " +
+              "Every N: draw every N replies and at each of those story moments. " +
+              "Tool: let the model ask. Manual: draw only when you ask."}
+              href="/scripts/extensions/third-party/story-orchestrator/README.md#illustrations-and-scope" reference="When images appear" />
+          </div>
           <select id="so-image-mode" className="text_pole" value={settings.automation.mode} onChange={(event) => change({
             automation: { ...settings.automation, mode: event.target.value as ImageSettings["automation"]["mode"] },
           })}>
             <option value="manual">Manual only</option><option value="story">Story-authored moments</option>
             <option value="everyN">Every N replies + story moments</option><option value="tool">Model requests</option>
           </select>
-        </label>
+        </div>
         {settings.automation.mode === "everyN" && <label>Every N replies
           <input type="number" min={1} max={100} className="text_pole" value={settings.automation.everyN} onChange={(event) => change({
             automation: { ...settings.automation, everyN: Math.max(1, Number(event.target.value)) },
           })} />
         </label>}
-        <label className="flex flex-col gap-1">
-          <span>Image-prompt model <HelpTooltip title={"A Connection Manager profile that turns the current scene and the story's visual direction into a ComfyUI prompt. " +
-            "This is separate from the chat model."} /></span>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1">
+            <label htmlFor="so-image-profile">Image-prompt model</label>
+            <HelpTooltip title={"A Connection Manager profile that turns the current scene and the story's visual direction into a ComfyUI prompt. " +
+              "This is separate from the chat model."} />
+          </div>
           <select id="so-image-profile" className="text_pole" value={settings.directorProfileId} onChange={(event) => change({ directorProfileId: event.target.value })}>
             <option value="">Select a Connection Manager profile</option>
             {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}</option>)}
           </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          <span>ComfyUI URL <HelpTooltip title="The address of your ComfyUI server. When text and image models share a GPU, use the local GPU broker for your text profiles." /></span>
-          <input className="text_pole" value={settings.comfyUrl} placeholder="http://127.0.0.1:8188" onChange={(event) => change({ comfyUrl: event.target.value })} />
-        </label>
+        </div>
+        <div className="flex flex-col gap-1">
+          <div className="flex items-center gap-1">
+            <label htmlFor="so-image-comfy-url">ComfyUI URL</label>
+            <HelpTooltip title="The address of your ComfyUI server. When text and image models share a GPU, use the local GPU broker for your text profiles." />
+          </div>
+          <input id="so-image-comfy-url" className="text_pole" value={settings.comfyUrl} placeholder="http://127.0.0.1:8188" onChange={(event) => change({ comfyUrl: event.target.value })} />
+        </div>
         <label className="flex items-center gap-2"><input type="checkbox" checked={settings.safeMode} onChange={(event) => change({ safeMode: event.target.checked })} />Avoid explicit imagery</label>
         <details>
           <summary>Default image routes <span className="opacity-60">— advanced</span></summary>

@@ -12,9 +12,20 @@ export interface WorldInfoGatingGroupProps {
 
 const plural = (count: number, one: string, many: string) => `${count} ${count === 1 ? one : many}`;
 
-const entryList = (entries: Array<{ lorebook: string; comment: string }>, named: boolean) => (named
-  ? entries.map((entry) => `${entry.lorebook}: ${entry.comment}`).join("; ")
-  : plural(entries.length, "entry", "entries"));
+type GatedEntry = { lorebook: string; comment: string };
+
+const entryCount = (entries: GatedEntry[]) => plural(entries.length, "entry", "entries");
+
+const WiGatingAuthorDetail = ({ status, unavailable }: { status: WiGatingStatus | null; unavailable: { detail?: string } | null }) => {
+  const named = (entries: GatedEntry[]) => entries.map((entry) => `${entry.lorebook}: ${entry.comment}`).join("; ");
+  return (
+    <div data-so="wi-author-detail" className="flex flex-col gap-1 text-xs opacity-80">
+      {unavailable?.detail && <span data-so="wi-unavailable-detail">{unavailable.detail}</span>}
+      {status?.drift.length ? <span data-so="wi-drift-entries">Switched on outside the story: {named(status.drift)}</span> : null}
+      {status?.missingKey.length ? <span data-so="wi-missing-key-entries">Cannot be switched off per chat: {named(status.missingKey)}</span> : null}
+    </div>
+  );
+};
 
 // C. Install-wide. Choosing per chat opens the confirm that normalises the story lorebooks
 // (nothing changes before it); choosing file writes asks nothing. Drift is the Repair row's target, and the
@@ -29,13 +40,13 @@ export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormali
   const fixable = [...(status?.drift ?? []), ...(status?.missingKey ?? [])];
   return (
     <div id="so-wi-gating" data-so="wi-gating" className="flex flex-col gap-1 text-sm">
-      <label className="flex flex-col gap-1">
-        <span>Lorebook gating</span>
+      <label htmlFor="so-wi-gating-mode">Lorebook gating</label>
+      <div className="flex flex-col gap-1">
         <select id="so-wi-gating-mode" value={mode} disabled={busy} onChange={(event) => onChoose(event.target.value === "scan" ? "scan" : "file")}>
           <option value="file">File writes</option>
           <option value="scan">Per chat (scan)</option>
         </select>
-      </label>
+      </div>
       <div className="text-xs opacity-70">
         {mode === "scan"
           ? "Story lorebook entries rest off in their files; each chat sees its own story's entries switched on."
@@ -55,15 +66,16 @@ export function WorldInfoGatingGroup({ status, authorView, onChoose, onRenormali
         </label>
       )}
       {unavailable && (
-        <div data-so="wi-unavailable" className="text-xs text-yellow-300">Per-chat gating is unavailable on this SillyTavern ({unavailable.detail}); lorebooks are gated by file writes.</div>
+        <div data-so="wi-unavailable" className="text-xs so-warning-text">Per-chat gating is unavailable on this SillyTavern; lorebooks are gated by file writes.</div>
       )}
       {mode === "scan" && fixable.length > 0 && (
-        <div data-so="wi-drift" className="flex flex-col gap-1 text-xs text-yellow-300">
-          {status?.drift.length ? <span>Switched on outside the story, so chats without it see {status.drift.length === 1 ? "it" : "them"}: {entryList(status.drift, authorView)}</span> : null}
-          {status?.missingKey.length ? <span>Cannot be switched off per chat: {entryList(status.missingKey, authorView)}</span> : null}
-          <button id="so-wi-renormalize" className="menu_button self-start" disabled={busy} onClick={onRenormalize}>Switch {fixable.length === 1 ? "it" : "them"} off again</button>
+        <div data-so="wi-drift" className="flex flex-col gap-1 text-xs so-warning-text">
+          {status?.drift.length ? <span>Switched on outside the story, so chats without it see {status.drift.length === 1 ? "it" : "them"}: {entryCount(status.drift)}</span> : null}
+          {status?.missingKey.length ? <span>Cannot be switched off per chat: {entryCount(status.missingKey)}</span> : null}
+          <button id="so-wi-renormalize" type="button" className="menu_button self-start" disabled={busy} onClick={onRenormalize}>Switch {fixable.length === 1 ? "it" : "them"} off again</button>
         </div>
       )}
+      {authorView && (unavailable || fixable.length > 0) && <WiGatingAuthorDetail status={status} unavailable={unavailable} />}
     </div>
   );
 }

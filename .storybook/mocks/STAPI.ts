@@ -66,6 +66,43 @@ export const showChoicePopup = async () => null;
 let settingsBurst = 0;
 export const observeNextSettingsSave = async () => ({ requested: true, status: 200, ok: true, timedOut: false, failed: false, burst: ++settingsBurst });
 export const readServerExtensionSettings = async (key: string): Promise<Record<string, unknown> | null> => JSON.parse(JSON.stringify(extensionSettings[key] ?? {}));
+export const capabilityReport = async (_options: { refresh?: boolean } = {}) => [];
+export const hostFacts = async () => ({ stVersion: "1.13.0", stCommit: null, macroEngine: "new" as const });
+export const judgeStatus = async () => null;
+export const writeJudgeSecret = async (_value: string) => ({ ok: true as const });
+export const harnessListed = () => false;
+export const refreshHarnessStatus = async () => null;
+export const isHostGenerating = () => false;
+export const subscribeToHostEvents = () => () => {};
+export const capabilityState = async () => "absent" as const;
+export const spriteVnMode = () => false;
+export const spriteReducedMotion = () => false;
+export const spriteBuiltInExpressionsActive = () => false;
+export const spriteCast = () => ({ members: [] });
+export const getScannableEntries = async () => [];
+export const registerImageSurface = () => () => {};
+export const imageComfyUrl = (url: string) => url;
+export const imageChat = () => ({
+  id: "chat-storybook",
+  groupId: "g1",
+  folder: "storybook",
+  userName: "Traveller",
+  messages: [],
+  characters: [
+    { key: "arin.png", name: "Arin", description: "", appearance: "", enabled: true },
+    { key: "companion.png", name: "Companion", description: "", appearance: "", enabled: true },
+  ],
+});
+let imageChatState: unknown = null;
+export const imageChatSettings = () => imageChatState;
+export const imageWriteChatSettings = async (value: unknown) => {
+  imageChatState = value;
+  return { ok: true as const, chatId: "chat-storybook" };
+};
+export const imageReview = (content: HTMLElement) => {
+  (document.getElementById("so-image-review-root") ?? document.body).appendChild(content);
+  return new Promise<{ ok: true; accepted: boolean }>(() => undefined);
+};
 
 export const getContext = () => ({
   saveSettingsDebounced: () => {},

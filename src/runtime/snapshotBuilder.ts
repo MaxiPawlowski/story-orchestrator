@@ -74,6 +74,7 @@ export interface SnapshotSources {
   chat: readonly unknown[];
   fingerprints: MessageFingerprints | null;
   extractionHealth?: ExtractionHealth | null;
+  characters?: ReadonlyArray<{ avatar?: string; name?: string }>;
 }
 
 export interface SnapshotPort {
@@ -91,6 +92,7 @@ export interface SnapshotPort {
   fingerprints: MessageFingerprints | null;
   promptBlocks: ExtensionPromptBlocks;
   chat: readonly unknown[];
+  characters?: ReadonlyArray<{ avatar?: string; name?: string }>;
 }
 
 export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
@@ -113,7 +115,21 @@ export const snapshotSources = (port: SnapshotPort): SnapshotSources => ({
   promptBlocks: port.promptBlocks,
   chat: port.chat,
   fingerprints: port.fingerprints,
+  characters: port.characters ?? [],
 });
+
+const stem = (value: string) => value.replace(/\.(png|webp|jpe?g)$/i, "");
+
+export const buildCastNames = (story: NormalizedStoryV2 | null, characters: ReadonlyArray<{ avatar?: string; name?: string }>): Record<string, string> => {
+  const names: Record<string, string> = {};
+  for (const character of characters) {
+    if (!character.avatar || !character.name) continue;
+    names[character.avatar] = character.name;
+    names[stem(character.avatar)] = character.name;
+  }
+  for (const member of story?.roster ?? []) names[member.id] = member.name ?? names[member.id] ?? member.id;
+  return names;
+};
 
 const lastFiredTransition = (log: BoundaryLogEntry[], story: NormalizedStoryV2 | null, activeCheckpointId: string | undefined): LastFiredTransition | null => {
   const entry = [...log].reverse().find((candidate) => candidate.fired?.to === activeCheckpointId);
@@ -132,7 +148,8 @@ export const loadInlineComposer = async () => {
   inlineComposer = (await import("./inlineTimeline")).composeInlineTimeline;
 };
 
-const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, live: { tension: RuntimeSnapshot["tension"]; pipeline: PipelineStatus; agencyRecovery: boolean }) => {
+const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, live: { tension: RuntimeSnapshot["tension"]; pipeline: PipelineStatus; agencyRecovery: boolean },
+  castNames: Record<string, string>) => {
   const { extras } = sources;
   const { memory } = extras;
   const { inline: settings, authorView } = extras.ui;
@@ -147,7 +164,7 @@ const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, l
     loreFired: extras.lore.fired, talkDecisions: extras.talk.decisions, judgeCalls: extras.judge.calls, proposals: extras.stagecraft.proposals,
     curatorPass: extras.stagecraft.lastPass, effects: extras.effects.ledger, tensionHistory: extras.tension.history,
     tension: { expected: live.tension.expected, hint: live.tension.hint?.text ?? null }, payloadCaptures: sources.payloadCaptures, pipeline: live.pipeline,
-    agencyRecovery: live.agencyRecovery, lastRollback: sources.lastRollback, saveNotice: hasUnsavedChanges(extras.saveHealth) ? SAVE_PLAYER_TEXT : null,
+    agencyRecovery: live.agencyRecovery, lastRollback: sources.lastRollback, saveNotice: hasUnsavedChanges(extras.saveHealth) ? SAVE_PLAYER_TEXT : null, castNames,
   });
 };
 
@@ -237,7 +254,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     agencyNotice: agencyRecovery ? REFUSAL_PLAYER_TEXT : null,
     objectiveKind: agency.objective_kind,
   });
-  const inline = inlineView(sources, story, { tension, pipeline, agencyRecovery: Boolean(agencyRecovery) });
+  const castNames = buildCastNames(story, sources.characters ?? []), inline = inlineView(sources, story, { tension, pipeline, agencyRecovery: Boolean(agencyRecovery) }, castNames);
   const mismatch = loaded ? null : blobMismatch();
   const unreadable = mismatch?.kind === "unreadable" ? mismatch : null;
 
@@ -319,7 +336,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     nextTurnBuckets: promptBuckets.view(nextTurnCost.ownTokens), nextTurnFold: fold,
     roleRoutes: roleHealth.view(),
     lore: extras.lore,
-    inline,
+    inline, castNames,
     ...modelCallSlices(extras),
   };
 }

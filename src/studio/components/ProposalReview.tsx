@@ -33,7 +33,7 @@ const ProposalReview: React.FC<Props> = ({
 }) => {
   if (result.status === "failed") {
     return (
-      <section className="st-subpanel flex flex-col gap-2 p-2" aria-label="Copilot proposal">
+      <section className="st-subpanel flex flex-col gap-2 p-2" aria-label="Wizard proposal">
         <div className="flex items-center gap-2">
           <span className="st-alert-error rounded px-2 py-0.5 text-[11px]">Invalid proposal</span>
           <button type="button" className="st-button secondary ml-auto" onClick={onDismiss}>Dismiss</button>
@@ -50,7 +50,7 @@ const ProposalReview: React.FC<Props> = ({
   const allAccepted = diff.items.length > 0 && diff.items.every((item) => acceptedIndices.has(item.index));
 
   return (
-    <section className="st-subpanel flex flex-col gap-2 p-2" aria-label="Copilot proposal">
+    <section className="st-subpanel flex flex-col gap-2 p-2" aria-label="Wizard proposal">
       <div className="flex items-center gap-2">
         <span className="st-pill px-2 py-0.5 text-[10px]">{result.stage}</span>
         <span className="text-sm">{result.proposal.summary || `${diff.items.length + diff.provisioning.length} change(s)`}</span>

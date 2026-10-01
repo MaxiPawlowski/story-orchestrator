@@ -1,7 +1,10 @@
-import { lazy, Suspense, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
+import { Lazy } from "@components/Lazy";
+import { lazyRetry } from "@utils/lazyRetry";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
-import { nextRepairStep } from "@runtime/repair";
+import { viewerRepairStep } from "@runtime/repair";
+import { PLAYER_COPY } from "@runtime/narrative";
 import type { DriverController, RecoveryTarget } from "./DriverPanel";
 import { MessageJumpProvider } from "./MessageCitation";
 import { OverviewTab } from "./tabs/OverviewTab";
@@ -9,16 +12,16 @@ import { MemoryTab } from "./tabs/MemoryTab";
 import { isArcTemplateName } from "@pacing/index";
 import type { InlineActions } from "../inline/InlineDetail";
 
-const DriverPanel = lazy(() => import("./DriverPanel"));
-const MessageInspector = lazy(() => import("./MessageInspector"));
-const BlackboardTab = lazy(() => import("./tabs/BlackboardTab").then((module) => ({ default: module.BlackboardTab })));
-const SchedulerTab = lazy(() => import("./tabs/SchedulerTab").then((module) => ({ default: module.SchedulerTab })));
-const PayloadTab = lazy(() => import("./tabs/PayloadTab").then((module) => ({ default: module.PayloadTab })));
+const DriverPanel = lazyRetry(() => import("./DriverPanel"));
+const MessageInspector = lazyRetry(() => import("./MessageInspector"));
+const BlackboardTab = lazyRetry(() => import("./tabs/BlackboardTab").then((module) => ({ default: module.BlackboardTab })));
+const SchedulerTab = lazyRetry(() => import("./tabs/SchedulerTab").then((module) => ({ default: module.SchedulerTab })));
+const PayloadTab = lazyRetry(() => import("./tabs/PayloadTab").then((module) => ({ default: module.PayloadTab })));
 
 const AuthorTab = ({ id, children }: { id: DrawerTabId; children: ReactNode }) => (
-  <Suspense key={id} fallback={null}>
+  <Lazy key={id} fallback={null}>
     <div data-so-tab={id}>{children}</div>
-  </Suspense>
+  </Lazy>
 );
 
 export type DrawerTabId = "overview" | "blackboard" | "memory" | "scheduler" | "payload";
@@ -65,7 +68,7 @@ const FlagControl = ({ manager }: { manager: RuntimeManager }) => {
     await manager.flagMoment(note);
     setNote("");
     setOpen(false);
-    window.toastr?.info?.("Moment flagged in the session journal.", "Story Orchestrator");
+    window.toastr?.info?.(PLAYER_COPY.flaggedToast, "Story Orchestrator");
   };
 
   if (!open) return <button
@@ -104,27 +107,33 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
   onOpenRepair?: () => void;
   onNewStory?: () => void;
 }) => {
-  const repair = nextRepairStep(snapshot);
+  const repair = viewerRepairStep(snapshot);
+  const authorView = snapshot.ui.authorView;
   return (
   <div id="so-drawer-entry-points" className="flex flex-wrap items-center gap-2 border-t border-solid border-white/10 pt-2">
     {repair && onOpenRepair && (
-      <button id="so-drawer-repair" className="menu_button" title={snapshot.ui.authorView ? repair.detail : repair.consequence} onClick={onOpenRepair}>Repair: {repair.consequence}</button>
+      <button id="so-drawer-repair" type="button" className="menu_button so-wrap-button" onClick={onOpenRepair}>Repair: {repair.consequence}</button>
     )}
-    {snapshot.ui.authorView && onNewStory && (
-      <button id="so-drawer-new-story" className="menu_button opacity-80" title="Start a new story with the wizard." onClick={onNewStory}>New story</button>
+    {authorView && repair && <span data-so="drawer-repair-detail" className="text-xs opacity-70">{repair.detail}</span>}
+    {authorView && onNewStory && (
+      <button id="so-drawer-new-story" type="button" className="menu_button opacity-80" disabled={!snapshot.copilot.enabled}
+        title={snapshot.copilot.enabled ? "Start a new story with the wizard." : "Turn on the wizard under Author services first."} onClick={onNewStory}>New story</button>
     )}
-    {snapshot.ui.authorView && onEditStory && (
-      <button id="so-edit-story" className="menu_button" title="Open this story in the Checkpoint Studio. Saving there offers to update this chat." onClick={onEditStory}>Edit story</button>
+    {authorView && onEditStory && (
+      <button id="so-edit-story" type="button" className="menu_button" onClick={onEditStory}
+        title="Open this story in the Checkpoint Studio. Saving there offers to update this chat.">Edit story</button>
     )}
     <button
       id="so-restart-story-drawer"
+      type="button"
       className="menu_button opacity-80"
       title="Start this story over in this chat. Messages stay; progress and story memory are cleared."
       onClick={() => void manager.restartStory()}
-    >Restart story</button>
-    {snapshot.ui.authorView && snapshot.storyIdentity.drifted && (
+    >{PLAYER_COPY.restartButton}</button>
+    {authorView && snapshot.storyIdentity.drifted && (
       <button
         id="so-update-story"
+        type="button"
         className="menu_button"
         title="Take the newer version from the library into this chat."
         onClick={() => void manager.applyStoryUpdate()}
@@ -153,9 +162,9 @@ export const DrawerTabs = ({
     <MessageJumpProvider value={{ enabled: authorView, index: snapshot.chatJump ?? null, onJump: onJumpToMessage ?? null }}>
     <div className="flex flex-col gap-2">
       {authorView && inspect && (
-        <Suspense fallback={null}>
+        <Lazy fallback={null}>
           <MessageInspector view={snapshot.inline} messageId={inspect.messageId} onClose={inspect.onClose} actions={inspect.actions} />
-        </Suspense>
+        </Lazy>
       )}
       <div className="flex flex-wrap items-center gap-1">
         <div className="flex flex-wrap gap-1" role="tablist" aria-label="Story Orchestrator tabs">
@@ -218,7 +227,7 @@ export const DrawerTabs = ({
           part of the player surface, whatever the copilot setting says. */}
       {snapshot.copilot.enabled && authorView && (
         <div className="border-t border-solid border-white/10 pt-2">
-          <Suspense fallback={null}>
+          <Lazy fallback={null}>
             <DriverPanel
               context={driver.context}
               checkpoints={snapshot.checkpoints}
@@ -228,7 +237,7 @@ export const DrawerTabs = ({
               agency={snapshot.agency}
               recovery={driver.recovery ?? null}
             />
-          </Suspense>
+          </Lazy>
         </div>
       )}
     </div>

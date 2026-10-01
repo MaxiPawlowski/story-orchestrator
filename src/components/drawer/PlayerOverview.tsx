@@ -1,9 +1,10 @@
-import { rollbackNoticeText, rollbackUnavailableText } from "@runtime/narrative";
+import { PLAYER_COPY, requirementNotReadyText, rollbackNoticeText, rollbackUnavailableText, type RequirementKind } from "@runtime/narrative";
 import { pipelineAction as pipelineActionText } from "@runtime/pipeline";
 import type { RuntimeSnapshot } from "@runtime/types";
-import { lazy, Suspense } from "react";
+import { Lazy } from "@components/Lazy";
+import { lazyRetry } from "@utils/lazyRetry";
 
-const PlayerChapters = lazy(() => import("./PlayerChapters"));
+const PlayerChapters = lazyRetry(() => import("./PlayerChapters"));
 
 export interface PlayerOverviewProps {
   snapshot: RuntimeSnapshot;
@@ -20,19 +21,20 @@ export interface PlayerOverviewProps {
 const ATTENTION_STATES = new Set(["stalled-rechecking", "error", "not-configured"]);
 
 const MissingRequirements = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
-  const items = [
-    { label: "Persona", missing: snapshot.requirements.missingPersonas },
-    { label: "Cast", missing: snapshot.requirements.missingMembers },
-    { label: "Lore", missing: snapshot.requirements.missingLorebooks },
-  ].filter((item) => item.missing.length > 0);
+  const all: Array<{ kind: RequirementKind; missing: string[] }> = [
+    { kind: "persona", missing: snapshot.requirements.missingPersonas },
+    { kind: "cast", missing: [...snapshot.requirements.missingMembers, ...(snapshot.requirements.mutedMembers ?? [])] },
+    { kind: "lore", missing: snapshot.requirements.missingLorebooks },
+  ];
+  const items = all.filter((item) => item.missing.length > 0);
   if (!items.length) return null;
   return (
     <div id="so-player-requirements" className="flex flex-col gap-1">
-      <div className="font-medium">This story still needs</div>
+      <div className="font-medium">{PLAYER_COPY.requirementsHeading}</div>
       {items.map((item) => (
-        <div key={item.label} className="flex items-center gap-2 text-xs">
-          <span className="status-indicator status-error" />
-           <span>{item.label} is not ready in this chat.</span>
+        <div key={item.kind} className="flex items-center gap-2 text-xs">
+          <span className="status-indicator status-error" aria-hidden="true" />
+          <span>{requirementNotReadyText(item.kind)}</span>
         </div>
       ))}
     </div>
@@ -60,7 +62,7 @@ export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, 
         section.id === "now"
           ? <NowSection key={section.id} lines={section.lines} />
           : section.id === "chapters" && snapshot.chapters?.records.length
-          ? <Suspense key={section.id} fallback={null}><PlayerChapters chapters={snapshot.chapters} onFlag={onFlagChapter} /></Suspense>
+          ? <Lazy key={section.id} fallback={null}><PlayerChapters chapters={snapshot.chapters} onFlag={onFlagChapter} /></Lazy>
           : (
             <div key={section.id} className="flex flex-col gap-1">
               <div className="font-medium">{section.label}</div>
@@ -70,7 +72,7 @@ export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, 
       ))}
       {snapshot.lastRollback && (
         <div id="so-rollback-notice" className="text-xs opacity-90">
-          {rollbackNoticeText({ ...snapshot.lastRollback, checkpointName: "the current scene" })}
+          {rollbackNoticeText(snapshot.lastRollback)}
         </div>
       )}
       {/* E1: an edit the run cannot rewind to. The player is told plainly and offered both ways out
@@ -80,12 +82,12 @@ export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, 
           <span>{rollbackUnavailableText({ ...snapshot.rollbackUnavailable, checkpointName: "the current scene" })}</span>
           {onReread && (
             <button id="so-reread-checkpoint" type="button" className="menu_button self-start" onClick={onReread}>
-              Re-read from the current scene
+              {PLAYER_COPY.rereadButton}
             </button>
           )}
           {onRestart && (
             <button id="so-rollback-restart" type="button" className="menu_button self-start" onClick={onRestart}>
-              Restart story
+              {PLAYER_COPY.restartButton}
             </button>
           )}
         </div>
@@ -96,7 +98,7 @@ export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, 
           ? <span id="so-stall-signal">{pipeline.text}</span>
           : <span>{pipeline.text}</span>}
         {pipeline.needsSetup && onOpenSettings && (
-          <button id="so-open-story-settings" type="button" className="menu_button" onClick={onOpenSettings}>Open story settings</button>
+          <button id="so-open-story-settings" type="button" className="menu_button" onClick={onOpenSettings}>{PLAYER_COPY.openSettingsButton}</button>
         )}
         {/* v2.3 plan 07. The rest of the composition's status section: the pipeline line above is this
             surface's own, and everything else the narrative put there (a save this chat could not
@@ -106,7 +108,7 @@ export const PlayerOverview = ({ snapshot, onOpenSettings, onReread, onRestart, 
             player is being asked for something. Same line, no author vocabulary. */}
         {pipelineAction && <span id="so-pipeline-action" className="opacity-80">{pipelineAction}</span>}
         {pipeline.retryable && onRetry && (
-          <button id="so-pipeline-retry" type="button" className="menu_button" onClick={onRetry}>Try again</button>
+          <button id="so-pipeline-retry" type="button" className="menu_button" onClick={onRetry}>{PLAYER_COPY.retryButton}</button>
         )}
         {statusNotes.map((line) => <span key={line} data-so="status-note">{line}</span>)}
       </div>

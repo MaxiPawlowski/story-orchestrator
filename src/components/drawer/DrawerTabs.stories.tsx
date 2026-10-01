@@ -1098,9 +1098,10 @@ export const MemorizeFailed: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
     await userEvent.click(canvas.getByRole("tab", { name: "Memory" }));
-    const error = canvas.getByText("Response not OK");
+    const error = canvas.getByText("Memorizing the chat stopped before the end. Try again later.");
     await expect(error).toHaveAttribute("id", "so-memorize-error");
-    await expect(error).toHaveClass("text-red-300");
+    await expect(error).toHaveClass("so-error-text");
+    await expect(canvas.queryByText("Response not OK")).toBeNull();
     await expect(canvasElement.querySelector("#so-memorize-note")).toBeNull();
   },
 };
@@ -1320,7 +1321,7 @@ export const PlayerSeesNoWizardFix: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await expect(canvas.getByText("Cast is not ready in this chat.")).toBeInTheDocument();
+    await expect(canvas.getByText("The cast is not ready in this chat.")).toBeInTheDocument();
     await expect(canvas.queryByText("Arin")).toBeNull();
     await expect(canvas.queryByRole("button", { name: "Fix with wizard" })).toBeNull();
   },

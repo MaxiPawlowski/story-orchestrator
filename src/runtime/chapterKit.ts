@@ -14,6 +14,7 @@ import { commitRecordBridge, markRecapSeen, pendingBridge, pushSealSkip, unfoldA
 import { chronicleMarkdown } from "@memory/chronicle";
 import { getContext, registerHostMacro, showChoicePopup, showTextPopup, unregisterHostMacro } from "@services/STAPI";
 import { exportState } from "./stateExport";
+import { previouslyText } from "./narrative";
 import { beginRun } from "./runToken";
 import { log } from "@utils/log";
 import type { RuntimeManager } from "./runtimeManager";
@@ -52,7 +53,7 @@ export function showPreviously(port: ChapterPort): boolean {
   if (!record || !chapterSettings(memory.settings.chapters).recap || record.recapSeenAt !== undefined) return false;
   port.host.patch({ chapters: markRecapSeen(memory.chapters ?? [], record.id, chatLastMessageId()) });
   void port.host.save();
-  showTextPopup(`Previously — ${record.playerTitle}\n\n${record.summary}`, { okButton: "Continue" });
+  showTextPopup(previouslyText(record.playerTitle, record.summary), { okButton: "Continue" });
   return true;
 }
 

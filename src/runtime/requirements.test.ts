@@ -63,3 +63,19 @@ describe("L2: a story's lore requirement reads the books ST will scan", () => {
     expect(state).toMatchObject({ ready: false, missingPersonas: [], missingMembers: ["Luke"] });
   });
 });
+
+describe("CR-U: a muted required member is named, not counted present", () => {
+  const cast = { members: ["Arin", "Belle"] };
+  it("a member muted in the group is listed as muted, and ready stays true so a story cast effect can still unmute them", () => {
+    const state = readRequirements(cast, { ...view({}, "Mira", ["arin", "belle"]), muted: ["belle"] }, scan);
+    expect(state).toMatchObject({ ready: true, missingMembers: [], mutedMembers: ["Belle"] });
+  });
+  it("a member this story's own cast effect muted is not a repair", () => {
+    const state = readRequirements(cast, { ...view({}, "Mira", ["arin", "belle"]), muted: ["belle"], storyMuted: ["belle"] }, scan);
+    expect(state.mutedMembers).toEqual([]);
+  });
+  it("a missing member is missing, never muted", () => {
+    const state = readRequirements(cast, { ...view({}, "Mira", ["arin"]), muted: ["belle"] }, scan);
+    expect(state).toMatchObject({ missingMembers: ["Belle"], mutedMembers: [] });
+  });
+});

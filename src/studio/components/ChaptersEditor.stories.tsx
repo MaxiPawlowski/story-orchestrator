@@ -31,7 +31,7 @@ export const NoChaptersYet: Story = {
     await expect(useDraftStore.getState().draft.chapters).toEqual([{ id: "act1", title: "act1" }]);
     await userEvent.click(canvas.getByRole("button", { name: "+ Chapter" }));
     await expect(useDraftStore.getState().draft.chapters?.map((chapter) => chapter.id)).toEqual(["act1", "chapter"]);
-    await expect(canvas.getByLabelText("Chapter of start")).toHaveValue("");
+    await expect(canvas.getByLabelText("Chapter of Approach")).toHaveValue("");
   },
 };
 
@@ -77,12 +77,12 @@ export const AssignAndRemove: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);
-    await userEvent.selectOptions(canvas.getByLabelText("Chapter of infiltrate"), "act2");
+    await userEvent.selectOptions(canvas.getByLabelText("Chapter of Infiltrate"), "act2");
     await expect(useDraftStore.getState().draft.checkpoints.find((checkpoint) => checkpoint.id === "infiltrate")?.chapter).toBe("act2");
     await userEvent.click(canvas.getByRole("button", { name: "Remove chapter act2" }));
     const draft = useDraftStore.getState().draft;
     await expect(draft.chapters?.map((chapter) => chapter.id)).toEqual(["act1"]);
     await expect(draft.checkpoints.map((checkpoint) => checkpoint.chapter)).toEqual(["act1", undefined, undefined]);
-    await expect(canvas.getByLabelText("Chapter of cache")).toHaveValue("");
+    await expect(canvas.getByLabelText("Chapter of The Cache")).toHaveValue("");
   },
 };

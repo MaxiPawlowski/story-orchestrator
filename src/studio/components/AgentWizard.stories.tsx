@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { within, userEvent, expect, fn } from "@storybook/test";
-import { advanceAgent, type AgentRoute } from "@copilot/agent/index";
+import { advanceAgent, newAgentSession, type AgentRoute } from "@copilot/agent/index";
 import { agentContext, scriptedRoute } from "@copilot/agent/testing";
 import { emptyEnvironment } from "@wizard/index";
 import AgentWizard, { type AgentTurnRunner } from "./AgentWizard";
@@ -103,6 +103,62 @@ export const CoverageListsUnusedFields: Story = {
     await userEvent.click(canvas.getByText(/Coverage/));
     await expect(canvas.getByText("House rules")).toBeInTheDocument();
     await expect(canvasElement.querySelectorAll('[data-so="coverage-row"]').length).toBeGreaterThan(3);
+  },
+};
+
+const AGENT_FAILED = "The agent call failed. Try again; the details are in the browser console.";
+
+const failingRunner: AgentTurnRunner = async () => {
+  throw new Error("ECONNRESET at 127.0.0.1:18080 token=sk-secret");
+};
+
+export const ErrorShowsTheConstantNotTheCause: Story = {
+  args: { runTurn: failingRunner, onPersist: fn() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(canvas.getByLabelText("What should the agent build"), "A heist in the sun ruins.");
+    await userEvent.click(canvas.getByRole("button", { name: "Plan it" }));
+    const alert = await canvas.findByRole("alert");
+    await expect(alert).toHaveTextContent(AGENT_FAILED);
+    await expect(alert.textContent).toBe(AGENT_FAILED);
+    await expect(alert.textContent).not.toContain("ECONNRESET");
+    await expect(alert.textContent).not.toContain("sk-secret");
+    await expect(canvas.getByRole("button", { name: "Retry" })).toBeEnabled();
+  },
+};
+
+export const StoppedOffersContinueAndNewGoal: Story = {
+  args: {
+    runTurn: scripted([PLAN]),
+    onPersist: fn(),
+    initial: { ...newAgentSession("A heist in the sun ruins."), plan: PLAN.plan, status: "stopped" },
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelector("#so-agent-status")).toHaveTextContent("Stopped");
+    await expect(canvas.getByRole("button", { name: "Continue" })).toBeEnabled();
+    await expect(canvas.queryByRole("button", { name: "Stop" })).toBeNull();
+    await expect(canvas.getByLabelText("Agreed plan")).toHaveTextContent("1. Sharpen the opening objective");
+    await userEvent.click(canvas.getByRole("button", { name: "New goal" }));
+    await expect(args.onPersist).toHaveBeenLastCalledWith(null);
+    await expect(await canvas.findByLabelText("What should the agent build")).toBeInTheDocument();
+  },
+};
+
+export const DoneSaysWhatHappensNext: Story = {
+  args: {
+    runTurn: scripted([PLAN]),
+    onPersist: fn(),
+    initial: { ...newAgentSession("A heist in the sun ruins."), plan: PLAN.plan, status: "done", summary: "Sharpened the opening beat." },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelector("#so-agent-status")).toHaveTextContent("Finished");
+    const done = canvasElement.querySelector('[data-so="agent-done"]');
+    await expect(done).toHaveTextContent("Sharpened the opening beat.");
+    await expect(done).toHaveTextContent("nothing reaches the library until you do");
+    await expect(canvas.queryByRole("button", { name: "Continue" })).toBeNull();
+    await expect(canvas.queryByLabelText("Agent change")).toBeNull();
   },
 };
 

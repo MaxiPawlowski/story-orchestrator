@@ -68,7 +68,7 @@ const proposedContent = (entry: CuratorOpRecord, op: CuratorOp): string | null =
 const DiffView = ({ before, after }: { before: string; after: string }) => (
   <div data-so="curator-diff" className="whitespace-pre-wrap opacity-90">
     {wordDiff(before, after).map((part, index) => (part.kind === "del"
-      ? <del key={index} className="text-red-300">{part.text}</del>
+      ? <del key={index} className="so-error-text">{part.text}</del>
       : part.kind === "ins" ? <ins key={index} className="text-green-300">{part.text}</ins> : <span key={index}>{part.text}</span>))}
   </div>
 );
@@ -128,7 +128,7 @@ const OpCard = ({ record, index, entry, manager, onOpenFact }: {
         ))
         : entry.op.facts.map((fact) => <div key={fact} data-so="warden-fact" className="opacity-80">established: {fact}</div>))}
       {isNoteOp(entry.op) && entry.op.rules?.map((rule) => <div key={rule} data-so="warden-rule" className="opacity-80">house rule: {rule}</div>)}
-      {entry.status === "failed" && entry.message && <div className="text-red-300">{entry.message}</div>}
+      {entry.status === "failed" && entry.message && <div className="so-error-text">{entry.message}</div>}
       {text !== null && (decidable ? (
         <textarea data-so="curator-text" aria-label={`Text for ${describe(entry.op)}`} className="text_pole w-full" rows={2} value={draft} onChange={(event) => setDraft(event.target.value)} />
       ) : (
@@ -170,7 +170,7 @@ export const StagecraftPanel = ({ snapshot, manager, onOpenFact }: { snapshot: R
           Continuity warden on · {settings.wardenAcceptMode === "auto" ? "notes go in on their own" : settings.wardenAcceptMode === "off" ? "not checking" : "notes wait for you"}
         </div>
       )}
-      {lastError && <div className="text-red-300">{lastError}</div>}
+      {lastError && <div className="so-error-text">{lastError}</div>}
       {lastPass && (
         <div data-so="curator-last-pass" title={lastPass.rawResponse || "(empty response)"} className="opacity-60">
           Last read {lastPass.reason}: {lastPass.proposed ? `${lastPass.proposed} change(s)` : "nothing to change"}

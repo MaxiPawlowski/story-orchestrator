@@ -30,7 +30,39 @@ export interface PipelineStatus {
   retryable?: true;
 }
 
-export const TRANSPORT_PLAYER_TEXT = "The memory model is not answering — the story will catch up when it does.";
+export const HUD_COPY = {
+  open: "Open the story",
+  branchChip: "branch — continue?",
+  steppedBack: "stepped back",
+  fallbackScene: "Current scene",
+} as const;
+
+const HUD_CHIP_LABELS: Partial<Record<PipelineState, string>> = {
+  "stalled-rechecking": "catching up…",
+  "not-configured": "needs setup",
+  error: "not keeping up",
+};
+
+export const hudChipLabel = (state: PipelineState, steppedBack: boolean): string | null => (steppedBack ? HUD_COPY.steppedBack : HUD_CHIP_LABELS[state] ?? null);
+
+export const hudTensionText = (level: string): string => `tension ${level}`;
+
+export const hudPendingText = (count: number): string => `${count} update${count === 1 ? "" : "s"} next turn`;
+
+export const REPAIR_PLAYER_COPY = {
+  memoryModel: "The story will not advance on its own until it is set up in the extension settings.",
+  read: "The story will not advance on its own until this is fixed.",
+  synthesis: "The story so far stops updating.",
+  cast: "The story expects people who are not in this chat, so their scenes never arrive.",
+  lore: "Background this story needs is not switched on in this chat, so it is not in play.",
+  persona: "This story is written for a different player character than the one selected.",
+  nothingMissing: "Nothing is missing.",
+} as const;
+
+export const mutedMembersText = (names: string[]): string =>
+  `${names.join(", ")} ${names.length === 1 ? "is" : "are"} muted in this group, so the story cannot give them a turn.`;
+
+export const TRANSPORT_PLAYER_TEXT ="The memory model is not answering — the story will catch up when it does.";
 
 export const pipelineAction = (status: PipelineStatus): string | null => (status.nextAction ? PIPELINE_ACTION_COPY[status.nextAction] : null);
 

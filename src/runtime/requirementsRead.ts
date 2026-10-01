@@ -5,6 +5,8 @@ import type { LoreSource, RequirementsState, SlotConflict } from "./types";
 export interface RequirementsView {
   persona: string;
   members: string[];
+  muted?: string[];
+  storyMuted?: string[];
   lore: HostLoreBindings;
 }
 
@@ -41,6 +43,7 @@ export function readRequirements(requirements: StoryRequirements | undefined, vi
   const persona = view.persona.trim().toLowerCase();
   const missingPersonas = (requirements?.personas ?? []).filter((wanted) => !persona || persona !== wanted.toLowerCase());
   const missingMembers = (requirements?.members ?? []).filter((member) => !holds(view.members, member));
+  const mutedMembers = (requirements?.members ?? []).filter((member) => holds(view.members, member) && holds(view.muted ?? [], member) && !holds(view.storyMuted ?? [], member));
   const satisfiedBy: Record<string, LoreSource> = {};
   const characterGaps: Record<string, string[]> = {};
   const missingLorebooks = (requirements?.lorebooks ?? []).filter((book) => {
@@ -54,6 +57,7 @@ export function readRequirements(requirements: StoryRequirements | undefined, vi
     missingPersonas,
     missingMembers,
     missingLorebooks,
+    mutedMembers,
     satisfiedBy,
     characterGaps,
     slotConflict,
