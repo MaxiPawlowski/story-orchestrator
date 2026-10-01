@@ -25,11 +25,14 @@ const USAGE = `Usage: node scripts/debug/so-run-header.mts <capture|diff|show> [
       Record every pinned variable of a live run. Writes .debug/run-header-<label>.json
       (or --out) and prints the header.
 
-  diff <baseline.json> [--allow <paths>] [--owned <chatIds>] [--label <name>]
+  diff <baseline.json> [--allow <paths>] [--owned <chatIds>] [--served-identity] [--label <name>]
       Capture now and compare against <baseline.json>. Exits 1 on any difference that
       --allow does not cover. chat.chatLength is play progress only on a chat the run
       owns (--owned, comma-separated): a length change on the same chat at both ends
       that is not owned is blocking (H-a: a reply landed in a chat after the run left it).
+      --served-identity: when bundle.served.sha256 is identical at both ends the code under
+      test did not change, so build.head, build.manifest.* and the bundle-mismatch warning
+      naming that served bundle are allowed (a rebuild or merge of the repo mid-run).
       --allow takes a comma-separated list of:
         chatId                     any change at that path (or any path ending in it)
         inventory.v2Stories        any change at or under that path
@@ -476,13 +479,37 @@ function matchesPath(allow: string, path: string): boolean {
 
 const matchesItem = (value: string, item: string) => value === item || value.startsWith(`${item}@`);
 
+export const SERVED_ALLOWANCE = 'served-bundle';
+export const SERVED_IDENTITY_PATHS = ['build.head', 'build.manifest'];
+const BUNDLE_MISMATCH = /^the page is running a bundle that is not the built one: served ([0-9a-f]+) vs dist [0-9a-f]+$/;
+
+export function servedBundleIdentity(before: unknown, after: unknown): string | null {
+  const shaOf = (header: unknown) => {
+    const sha = (header as { bundle?: { served?: { sha256?: unknown } } } | null)?.bundle?.served?.sha256;
+    return typeof sha === 'string' && sha.length > 0 ? sha : null;
+  };
+  const a = shaOf(before);
+  return a !== null && a === shaOf(after) ? a : null;
+}
+
+function servedIdentityCovers(difference: HeaderDifference, served: string): boolean {
+  if (SERVED_IDENTITY_PATHS.some((path) => matchesPath(path, difference.path))) return true;
+  if (difference.path !== 'warnings') return false;
+  const items = [...(difference.added ?? []), ...(difference.removed ?? [])];
+  return items.length > 0 && items.every((item) => {
+    const match = BUNDLE_MISMATCH.exec(item);
+    return Boolean(match && served.startsWith(match[1]));
+  });
+}
+
 export function diffHeaders(
   before: unknown,
   after: unknown,
   allow: string[] | AllowEntry[] = [],
-  { strictProgress = false, ownedChats = [] }: { strictProgress?: boolean; ownedChats?: string[] } = {},
+  { strictProgress = false, ownedChats = [], servedIdentity = false }: { strictProgress?: boolean; ownedChats?: string[]; servedIdentity?: boolean } = {},
 ): HeaderDifference[] {
   const foreign = foreignChatGrowth(before, after, ownedChats);
+  const served = servedIdentity ? servedBundleIdentity(before, after) : null;
   const parsed: AllowEntry[] = allow.length && typeof allow[0] === 'string'
     ? parseAllow(allow as string[]).allow
     : (allow as AllowEntry[]);
@@ -529,12 +556,16 @@ export function diffHeaders(
         }
       }
     }
+    if (!difference.allowed && served && servedIdentityCovers(difference, served)) {
+      difference.allowed = true;
+      difference.allowedBy = `${SERVED_ALLOWANCE} ${served.slice(0, 16)}`;
+    }
     differences.push(difference);
   }
   return differences;
 }
 
-function describe(difference: HeaderDifference): string {
+export function describe(difference: HeaderDifference): string {
   const mark = difference.allowed ? 'ok  ' : 'DIFF';
   if (difference.added || difference.removed) {
     const parts = [
@@ -594,7 +625,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     }
     const previous = JSON.parse(await readFile(resolve(PROJECT_ROOT, baseline as string), 'utf-8'));
     const ownedChats = (argValue(args, '--owned') ?? '').split(',').map((entry) => entry.trim()).filter(Boolean);
-    const differences = diffHeaders(previous, header, parsedAllow, { strictProgress: args.includes('--strict-progress'), ownedChats });
+    const differences = diffHeaders(previous, header, parsedAllow, { strictProgress: args.includes('--strict-progress'), ownedChats, servedIdentity: args.includes('--served-identity') });
     const blocking = differences.filter((difference) => !difference.allowed);
     for (const difference of differences) console.log(describe(difference));
     for (const warning of header.warnings ?? []) console.error(`WARNING: ${warning}`);
@@ -612,6 +643,7 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       progress: differences.filter((difference) => difference.progress).length,
       blocking: blocking.length,
       blockingPaths: blocking.map((difference) => difference.path),
+      servedIdentity: differences.filter((difference) => difference.allowedBy?.startsWith(SERVED_ALLOWANCE)).map((difference) => difference.path),
       warnings: warned,
       wrote: path,
       ok: blocking.length === 0 && !warningsBlock,

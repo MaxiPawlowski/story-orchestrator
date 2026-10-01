@@ -162,7 +162,7 @@ async function strip(manifest: AdolionManifest, user: string) {
   for (const file of plan.groupFiles) await rm(join(user, 'groups', file), { force: true });
   for (const file of plan.groupChats) await rm(join(user, 'group chats', file), { force: true });
   await writeFile(join(user, 'settings.json'), JSON.stringify(plan.settings, null, 4), 'utf-8');
-  return { worlds: plan.worlds.length, characters: plan.characters.length, spriteDirs: plan.spriteDirs.length, chatDirs: plan.chatDirs.length, groups: plan.groupFiles.length, groupChats: plan.groupChats.length, ...plan.removed };
+  return { worlds: plan.worlds.length, characters: plan.characters.length, spriteDirs: plan.spriteDirs.length, chatDirs: plan.chatDirs.length, groups: plan.groupFiles.length, groupChats: plan.groupChats.length, ...plan.removed, swipes: plan.swipes };
 }
 
 async function laneInventory(manifest: AdolionManifest, user: string, exportDir: string, runtime: Record<string, RuntimeReadiness> | null, openGroup: string | null = null): Promise<Inventory> {

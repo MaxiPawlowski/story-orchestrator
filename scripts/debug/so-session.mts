@@ -13,7 +13,7 @@ import {
   archiveLane, DEFAULT_LANES, dependencyRefusal, laneFor, leaseFor, leaseRefusal, outstandingDependents, planDrift, planLanes, readLease, reseedRefusal, restoreLane, rootOf, sessionsUnder, writeLease,
   type LanePlan, type SessionOnLane,
 } from './lib/sessionLanes.mts';
-import { applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, loadBaseline, mediaPlan, overrideChain } from './lib/sessionBaseline.mts';
+import { applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, hostSwipesProblems, loadBaseline, mediaPlan, overrideChain } from './lib/sessionBaseline.mts';
 import {
   artifactInventory, artifactProblems, comfyCalls, featureProblems, newChats, requiredArtifacts, runtimeProblems, storyFeatures, trackChat, type ChatRef,
 } from './lib/sessionArtifacts.mts';
@@ -308,7 +308,7 @@ async function start(id: string, options: StartOptions) {
   console.log('[4/8] read the effective settings back, pin the routing');
   const effectiveRun = await inLane(plan.lane, ['scripts/debug/so-session.mts', '_page', 'effective', planPath, resolve(dir, 'effective-settings.json')], viewportEnv);
   const effectiveRead = existsSync(resolve(dir, 'effective-settings.json')) ? await readJson(resolve(dir, 'effective-settings.json')) : null;
-  const effectiveIssues = effectiveRun.code !== 0 || !effectiveRead?.settings ? [`could not read the effective settings back: ${effectiveRun.output.slice(-600)}`] : effectiveProblems(expected, effectiveRead.settings, baseline.installOwned);
+  const effectiveIssues = effectiveRun.code !== 0 || !effectiveRead?.settings ? [`could not read the effective settings back: ${effectiveRun.output.slice(-600)}`] : [...effectiveProblems(expected, effectiveRead.settings, baseline.installOwned), ...hostSwipesProblems(effectiveRead.host)];
   if (effectiveIssues.length) return fail('effective-settings', effectiveIssues);
   const pinned = await inLane(plan.lane, ['scripts/debug/so-session.mts', '_page', 'pin', planPath, resolve(dir, 'page-pin.json')], viewportEnv, true);
   const pin = existsSync(resolve(dir, 'page-pin.json')) ? await readJson(resolve(dir, 'page-pin.json')) : null;
@@ -340,7 +340,7 @@ async function start(id: string, options: StartOptions) {
     story: card.story, mode: card.setup.mode, startedAt: new Date().toISOString(), playFrom, stoppedAt: null,
     build: { ...servedBuild(), laneCampaign: laneCommit, indexCommit: index.commit }, pids, viewport: plan.viewport, settingsPatch: plan.patch,
     settings: { baselineVersion: baseline.version, chain: plan.chain.map((step) => step.card), effective: 'effective-settings.json' },
-    media, arm: plan.arm, logOffset: logSize(lane.log),
+    media, arm: plan.arm, logOffset: logSize(lane.log), host: effectiveRead.host,
     pin: { profile: plan.pin.profile, orchestrator: plan.pin.orchestrator, judge: plan.pin.judge, verdict: pin.verdict, probe: pin.probe, routing: pin.routing },
     age, premise: plan.open.premise,
     chatsBefore: page.chatsBefore ?? [], chats: page.chats ?? [], continues: card.setup.continues ?? null, problems: [] as string[], warnings,
@@ -487,6 +487,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
     evidence: { files: pageEnd.files ?? [], problems: pageEnd.evidenceProblems ?? {} }, playerClean: rubric.playerClean, spend,
     tails: outcome.acks, valid: outcome.valid, invalid: outcome.invalid,
     problems: [...(session.problems ?? []), ...outcome.problems],
+    warnings: [...(session.warnings ?? []), ...outcome.warnings],
   };
   await writeFile(resolve(dir, 'session.json'), JSON.stringify(stopped, null, 2), 'utf-8');
   await writeBudget();
@@ -500,7 +501,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
   console.log(JSON.stringify({
     dir: session.dir, stoppedAt: stopped.stoppedAt, valid: outcome.valid, invalid: outcome.invalid, steps: outcome.steps, runHeaderDiff: outcome.runHeaderDiff,
     runHeaderDiffTail: outcome.runHeaderDiff.ok ? undefined : diffOutput.slice(-600), chats: stopped.chats.map((chat: any) => chat.chatId), evidence: stopped.evidence,
-    playerClean: rubric.playerClean?.ok ?? rubric.playerClean, spend, rubric: rel(rubricPath), rubricSummary: rubricSummary(rubric), packs, lease, problems: stopped.problems, laneStopped: stopLane,
+    playerClean: rubric.playerClean?.ok ?? rubric.playerClean, spend, rubric: rel(rubricPath), rubricSummary: rubricSummary(rubric), packs, lease, problems: stopped.problems, warnings: outcome.warnings, laneStopped: stopLane,
   }, null, 2));
   if (!outcome.valid) process.exitCode = 1;
   return stopped;
@@ -906,7 +907,8 @@ async function pagePhase(phase: 'settings' | 'effective' | 'pin' | 'open' | 'end
 
     if (phase === 'effective') {
       out.settings = await reads.readEffectiveSettings(page);
-      out.problems = out.settings ? effectiveProblems(plan.expected, out.settings, plan.installOwned) : ['the runtime returned no settings'];
+      out.host = await reads.readHostSwipes(page);
+      out.problems = [...(out.settings ? effectiveProblems(plan.expected, out.settings, plan.installOwned) : ['the runtime returned no settings']), ...hostSwipesProblems(out.host as { swipes: boolean | null })];
     }
 
     if (phase === 'pin') {

@@ -75,3 +75,8 @@ export function fakePage(extra: Record<string, unknown> = {}) {
   };
   return page;
 }
+
+export const clearPage = {
+  closeOverlays: async () => undefined,
+  hitTest: async (_page: unknown, selector: string) => ({ selector, found: true, clickable: true }),
+};

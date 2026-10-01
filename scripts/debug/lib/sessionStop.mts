@@ -4,7 +4,16 @@ export const HEADER_DIFF_ALLOW = 'chatId,groupId,authorView,story,group,inventor
 
 export function headerDiffArgs(baseline: string, out: string, chats: Array<{ chatId?: unknown }>): string[] {
   const owned = [...new Set(chats.map((chat) => chat.chatId).filter((id): id is string => typeof id === 'string' && id.length > 0))];
-  return ['scripts/debug/so-run-header.mts', 'diff', baseline, '--allow', HEADER_DIFF_ALLOW, ...(owned.length ? ['--owned', owned.join(',')] : []), '--allow-warnings', '--out', out];
+  return ['scripts/debug/so-run-header.mts', 'diff', baseline, '--allow', HEADER_DIFF_ALLOW, ...(owned.length ? ['--owned', owned.join(',')] : []), '--served-identity', '--allow-warnings', '--out', out];
+}
+
+const SERVED_LINE = /^ok\s+(\S+)\s.*\(allowed by served-bundle ([0-9a-f]+)\)\s*$/;
+
+export function servedIdentityWarnings(output: string): string[] {
+  const allowed = output.split(/\r?\n/).map((line) => SERVED_LINE.exec(line)).filter((match): match is RegExpExecArray => match !== null);
+  if (!allowed.length) return [];
+  const served = allowed[0][2];
+  return [`the repo build moved during the session (${allowed.map((match) => match[1]).join(', ')}) while the served bundle ${served} stayed identical: allowed, the code under test did not change`];
 }
 
 export interface StopDeps {
@@ -21,6 +30,7 @@ export interface StopOutcome {
   problems: string[];
   invalid: string[];
   runHeaderDiff: { exit: number; ok: boolean };
+  warnings: string[];
   acks: Partial<Record<TailName, TailAcks>>;
   valid: boolean;
 }
@@ -36,6 +46,7 @@ export async function stopSequence(deps: StopDeps): Promise<StopOutcome> {
   steps.push('header-diff');
   const diff = await deps.headerDiff();
   if (diff.code !== 0) invalid.push(`the run header diff failed (exit ${diff.code}): the install changed in a way the session did not declare`);
+  const warnings = servedIdentityWarnings(diff.output);
   steps.push('drain');
   await deps.requestDrain();
   const acks = await deps.waitDrained();
@@ -44,5 +55,5 @@ export async function stopSequence(deps: StopDeps): Promise<StopOutcome> {
   await deps.killTails();
   steps.push('verify');
   invalid.push(...await deps.verify());
-  return { steps, problems, invalid, runHeaderDiff: { exit: diff.code, ok: diff.code === 0 }, acks, valid: invalid.length === 0 };
+  return { steps, problems, invalid, runHeaderDiff: { exit: diff.code, ok: diff.code === 0 }, warnings, acks, valid: invalid.length === 0 };
 }

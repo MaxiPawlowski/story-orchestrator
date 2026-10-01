@@ -1,7 +1,7 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
 import { backdateSession, blackboardDiff, flagMoment, newJournalEvents, runMutation, runTurn, type LiveDeps } from './sessionLive.mts';
-import { EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './sessionFakes.mts';
+import { clearPage, EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './sessionFakes.mts';
 
 afterEach(() => { uninstall(); delete (globalThis as any).document; });
 
@@ -13,6 +13,7 @@ const baseDeps = (overrides: Partial<LiveDeps> = {}): LiveDeps => ({
   startSend: async () => undefined,
   waitGenerating: async () => true,
   clickSwipeRight: async () => undefined,
+  ...clearPage,
   openChat: async () => undefined,
   reload: async () => undefined,
   now: () => { clock += 100; return clock; },
@@ -213,4 +214,149 @@ test('pure helpers: blackboard diff and the journal multiset', () => {
   assert.deepEqual(blackboardDiff({ a: 1, b: [1] }, { a: 1, b: [1, 2], c: 'x' }).changed, { b: { from: [1], to: [1, 2] }, c: { from: null, to: 'x' } });
   const event = { at: 't', boundary: 1, messageId: 1, kind: 'k', summary: 's' };
   assert.equal(newJournalEvents([event], [event, event]).length, 1, 'a repeated identical event is still new');
+});
+
+const fakeDocument = (state: { drawerOpen: boolean; popups: number }) => ({
+  getElementById: (id: string) => (id === 'drawer-manager' ? { classList: { contains: (name: string) => name === 'openDrawer' && state.drawerOpen } } : null),
+  querySelectorAll: () => ({ length: state.popups }),
+});
+
+const transitionNote = (text = 'The Road North') => ({ name: 'Note', is_system: true, mes: `◈ ${text}`, extra: { type: 'comment' } });
+
+const replyWithNote = () => [...greeting().slice(0, 2), { name: 'Tobias', mes: 'A sensible choice.', swipes: ['A sensible choice.'], swipe_id: 0 }, transitionNote()];
+
+const swipeOn = (fake: ReturnType<typeof fakeSt>, refire: boolean) => async (_page: unknown, selector?: string) => {
+  const id = selector ? Number(/mesid="(\d+)"/.exec(selector)?.[1]) : fake.ctx.chat.length - 1;
+  const message = fake.ctx.chat[id];
+  if (fake.ctx.chat.length - 1 !== id || message.is_system) return;
+  message.swipes.push('For now.');
+  message.swipe_id = message.swipes.length - 1;
+  message.mes = 'For now.';
+  await fake.events.emit(EVENT_TYPES.MESSAGE_SWIPED, id);
+  if (refire) fake.ctx.chat.push(transitionNote());
+};
+
+const flagJournal = (fake: ReturnType<typeof fakeSt>) => async () => { fake.state.journal = [...fake.state.journal, { at: 'now', boundary: 3, messageId: 2, kind: 'flag', summary: 'flag' }]; };
+
+test('T0-3 flag: a drawer that was closed is closed again after the flag', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const drawer = { drawerOpen: false, popups: 0 };
+  (globalThis as any).document = fakeDocument(drawer);
+  const page = fakePage();
+  page.onClick = async (selector: string) => { if (selector === '#so-drawer .drawer-toggle') drawer.drawerOpen = !drawer.drawerOpen; };
+  page.onPress = flagJournal(fake);
+  const record = await flagMoment(page, 'note covers the reply');
+  assert.equal(record.ok, true);
+  assert.equal(drawer.drawerOpen, false, 'the drawer no longer covers the swipe arrow');
+  assert.deepEqual((record as any).drawer, { before: false, after: false, restored: true });
+  assert.deepEqual(page.clicks, ['#so-drawer .drawer-toggle', '#so-flag-moment', '#so-flag-note:Enter', '#so-drawer .drawer-toggle']);
+});
+
+test('T0-3 flag control: a drawer the player had open stays open', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const drawer = { drawerOpen: true, popups: 0 };
+  (globalThis as any).document = fakeDocument(drawer);
+  const page = fakePage();
+  page.onClick = async (selector: string) => { if (selector === '#so-drawer .drawer-toggle') drawer.drawerOpen = !drawer.drawerOpen; };
+  page.onPress = flagJournal(fake);
+  const record = await flagMoment(page, 'keep it open');
+  assert.equal(drawer.drawerOpen, true);
+  assert.deepEqual((record as any).drawer, { before: true, after: true, restored: true });
+  assert.deepEqual(page.clicks, ['#so-flag-moment', '#so-flag-note:Enter']);
+});
+
+test('T0-3 swipe-new: the drawer and popups are closed and the arrow hit-tested before the click', async () => {
+  const fake = fakeSt({ chat: [...greeting().slice(0, 2), { name: 'Belle', mes: 'one', swipes: ['one'], swipe_id: 0 }] });
+  install(fake);
+  const drawer = { drawerOpen: true, popups: 1 };
+  (globalThis as any).document = fakeDocument(drawer);
+  const order: string[] = [];
+  const closeOverlays = async () => { order.push('close'); drawer.drawerOpen = false; drawer.popups = 0; };
+  const hitTest = async (_page: unknown, selector: string) => { order.push(`hit ${selector}`); return { selector, found: true, clickable: !drawer.drawerOpen }; };
+  const clickSwipeRight = async (page: unknown, selector: string) => { order.push(`click ${selector}`); await swipeOn(fake, false)(page, selector); };
+  const record = await runMutation(fakePage(), 'swipe-new', {}, baseDeps({ closeOverlays, hitTest, clickSwipeRight }));
+  assert.equal(record.ok, true, record.problems.join('; '));
+  assert.deepEqual(order, ['close', 'hit #chat .mes[mesid="2"] .swipe_right', 'click #chat .mes[mesid="2"] .swipe_right']);
+  assert.deepEqual((record.did as any).overlays.after, { drawerOpen: false, popups: 0 });
+});
+
+test('T0-3 swipe-new: an arrow that is not hit-testable is never clicked, and the record says why', async () => {
+  const fake = fakeSt({ chat: [...greeting().slice(0, 2), { name: 'Belle', mes: 'one', swipes: ['one'], swipe_id: 0 }] });
+  install(fake);
+  let clicked = false;
+  const hitTest = async (_page: unknown, selector: string) => ({ selector, found: true, clickable: false, blocked: 'overlay', reason: 'a pointer would hit div.so-overview-layout' });
+  const record = await runMutation(fakePage(), 'swipe-new', {}, baseDeps({ hitTest, clickSwipeRight: async () => { clicked = true; } }));
+  assert.equal(clicked, false);
+  assert.equal(record.ok, false);
+  assert.match(record.problems[0], /not hit-testable \(overlay: a pointer would hit div\.so-overview-layout\)/);
+});
+
+test('T0-3 swipe-new: a swipe that re-fires a transition and appends a note after the reply is still a new swipe', async () => {
+  const fake = fakeSt({ chat: [...greeting().slice(0, 2), { name: 'Tobias', mes: 'A sensible choice.', swipes: ['A sensible choice.'], swipe_id: 0 }] });
+  install(fake);
+  const record = await runMutation(fakePage(), 'swipe-new', {}, baseDeps({ clickSwipeRight: swipeOn(fake, true) }));
+  assert.equal(record.ok, true, record.problems.join('; '));
+  const did = record.did as any;
+  assert.deepEqual({ id: did.messageId, before: did.swipesBefore, after: did.swipesAfter, swipeId: did.swipeIdAfter, generated: did.generated }, { id: 2, before: 1, after: 2, swipeId: 1, generated: true });
+  assert.equal(fake.ctx.chat.length, 4, 'the note the re-fired transition posted is after the reply');
+});
+
+test('T0-3 swipe-new: a transition note last is skipped, removed, and the reply that moved the story is swiped', async () => {
+  const fake = fakeSt({ chat: replyWithNote() });
+  install(fake);
+  const record = await runMutation(fakePage(), 'swipe-new', {}, baseDeps({ clickSwipeRight: swipeOn(fake, false) }));
+  assert.equal(record.ok, true, record.problems.join('; '));
+  const did = record.did as any;
+  assert.equal(did.messageId, 2);
+  assert.equal(did.speaker, 'Tobias');
+  assert.equal(did.target.skippedNotes, 1);
+  assert.deepEqual(did.target.notesRemoved.map((note: any) => note.messageId), [3]);
+  assert.equal(did.generated, true);
+  assert.deepEqual(fake.ctx.chat[2].swipes, ['A sensible choice.', 'For now.']);
+});
+
+test('T0-3 regen: a transition note last is removed first, so /regenerate replaces the reply instead of appending below the note', async () => {
+  const fake = fakeSt({ chat: replyWithNote() });
+  install(fake);
+  let lengthAtRegen = -1;
+  fake.ctx.executeSlashCommandsWithOptions = async (command: string) => { fake.ctx.slash.push(command); lengthAtRegen = fake.ctx.chat.length; fake.ctx.chat[2].mes = 'For now.'; };
+  const record = await runMutation(fakePage(), 'regen', {}, baseDeps());
+  assert.equal(record.ok, true, record.problems.join('; '));
+  assert.equal(lengthAtRegen, 3, 'the reply was the last message when /regenerate ran');
+  const did = record.did as any;
+  assert.equal(did.target?.messageId, 2);
+  assert.equal(did.target?.skippedNotes, 1);
+  assert.equal(did.lastAfter.id, 2);
+});
+
+test('T0-3 regen control: with no note the last reply is regenerated and nothing is removed', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const record = await runMutation(fakePage(), 'regen', {}, baseDeps());
+  const did = record.did as any;
+  assert.deepEqual({ id: did.target?.messageId, skipped: did.target?.skippedNotes, removed: did.target?.notesRemoved }, { id: 2, skipped: 0, removed: [] });
+  assert.equal(fake.ctx.chat.length, 3);
+});
+
+test('T0-3 delete last: a transition note last is skipped and the reply is deleted, and the record says what went', async () => {
+  const fake = fakeSt({ chat: replyWithNote() });
+  install(fake);
+  const record = await runMutation(fakePage(), 'delete', { messageId: 'last' }, baseDeps());
+  assert.equal(record.ok, true, record.problems.join('; '));
+  const did = record.did as any;
+  assert.deepEqual({ id: did.messageId, speaker: did.speaker, isNote: did.isNote, text: did.text }, { id: 2, speaker: 'Tobias', isNote: false, text: 'A sensible choice.' });
+  assert.equal(did.target?.requested, 'last');
+  assert.equal(did.target?.skippedNotes, 1);
+  assert.deepEqual(fake.ctx.chat.map((message: any) => message.name), ['Narrator', 'You', 'Note']);
+});
+
+test('T0-3 delete control: an explicit id still deletes exactly that message, note or not', async () => {
+  const fake = fakeSt({ chat: replyWithNote() });
+  install(fake);
+  const record = await runMutation(fakePage(), 'delete', { messageId: 3 }, baseDeps());
+  const did = record.did as any;
+  assert.deepEqual({ id: did.messageId, isNote: did.isNote, requested: did.target?.requested }, { id: 3, isNote: true, requested: 3 });
+  assert.equal(fake.ctx.chat.length, 3);
 });

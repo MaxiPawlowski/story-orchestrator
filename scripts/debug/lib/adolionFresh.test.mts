@@ -244,3 +244,21 @@ test('v2.6 plan 01 (Saga cast): the open group holds its start cast, and every g
   input.groups[1].disabled_members = ['Belle.png'];
   assert.deepEqual(checkInventory(manifest, buildInventory(manifest, input)), ['group Adolion - Eshalanore: cast left behind after its chat was left: disabled [Belle.png]']);
 });
+
+test('T0-3: the strip switches SillyTavern swipes on in the lane copy before the server starts, and records what it found', () => {
+  const disk = { worlds: [], characters: [], chatDirs: [], groups: [], groupChats: [], settings: { swipes: false, extension_settings: { 'story-orchestrator': { settings: {} } } } };
+  const plan = stripPlan(manifest, disk);
+  assert.equal(plan.settings.swipes, true);
+  assert.deepEqual(plan.swipes, { was: false, now: true });
+  assert.equal(disk.settings.swipes, false, 'the copy is edited, never the settings it was read from');
+  assert.deepEqual(stripPlan(manifest, { ...disk, settings: { extension_settings: {} } }).swipes, { was: true, now: true }, 'absent means ST\'s default, which is on');
+});
+
+test('T0-3: a lane with swipes off fails the inventory check; the default (absent) passes', () => {
+  const off = cleanInput();
+  off.settings.swipes = false;
+  const inventory = buildInventory(manifest, off);
+  assert.equal(inventory.swipes, false);
+  assert.ok(checkInventory(manifest, inventory).some((line) => /swipes are off in the lane/.test(line)));
+  assert.equal(buildInventory(manifest, cleanInput()).swipes, true);
+});

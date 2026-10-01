@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, loadBaseline, mediaPlan, overrideChain, pathGet,
+  applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, hostSwipesProblems, loadBaseline, mediaPlan, overrideChain, pathGet,
 } from './sessionBaseline.mts';
 import { findCard, loadCards } from '../so-session.mts';
 
@@ -56,4 +56,11 @@ test('AS-27: the no-media variant switches images off, keeps pre-rendered sprite
   assert.deepEqual(mediaPlan({ images: true, sprites: true }, 'off', 12), { variant: 'no-media', images: false, sprites: true, unexercised: ['images'], prerenderedSprites: 12 });
   assert.deepEqual(mediaPlan({ images: true, sprites: true }, 'on'), { variant: 'full', images: true, sprites: true, unexercised: [], prerenderedSprites: 0 });
   assert.deepEqual(mediaPlan({}, 'off').variant, 'full');
+});
+
+test('T0-3: start refuses a lane whose SillyTavern swipes did not read back on', () => {
+  assert.deepEqual(hostSwipesProblems({ swipes: true }), []);
+  assert.match(hostSwipesProblems({ swipes: false })[0], /swipes read back false on the lane, expected true/);
+  assert.match(hostSwipesProblems({ swipes: null })[0], /read back null/, 'an unreadable checkbox is not a pass');
+  assert.equal(hostSwipesProblems(undefined).length, 1);
 });

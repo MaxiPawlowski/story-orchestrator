@@ -240,11 +240,15 @@ export interface LiveDeps {
   waitScheduler: (page: any, timeoutMs: number, quietMs: number) => Promise<unknown>;
   startSend: (page: any, line: string) => Promise<unknown>;
   waitGenerating: (page: any, timeoutMs: number) => Promise<boolean>;
-  clickSwipeRight: (page: any) => Promise<unknown>;
-  openChat: (page: any, target: { chatId: string; group: string | null }) => Promise<unknown>;
+  clickSwipeRight: (page: any, selector: string) => Promise<unknown>;
+  closeOverlays: (page: any) => Promise<unknown>;
+  hitTest: (page: any, selector: string) => Promise<HitTest>;
+  openChat:(page: any, target: { chatId: string; group: string | null }) => Promise<unknown>;
   reload: (page: any) => Promise<unknown>;
   now: () => number;
 }
+
+export interface HitTest { selector: string; found: boolean; clickable: boolean; blocked?: string; reason?: string; topmost?: string }
 
 export interface LiveOptions { timeoutMs?: number; quietMs?: number; expectReply?: boolean }
 
@@ -275,32 +279,102 @@ export type MutationVerb = (typeof MUTATION_VERBS)[number];
 
 export interface MutationArgs { messageId?: number | 'last'; text?: string; line?: string; to?: string | null; chatId?: string; group?: string | null }
 
-const lastMessage = (page: any) => evaluateInST(page, () => {
+export interface ReplyTarget { id: number | null; isUser: boolean; swipeId: number; swipes: number; name: string; length: number; notesAfter: Array<{ messageId: number; name: string; text: string }> }
+
+const replyTarget = (page: any): Promise<ReplyTarget> => evaluateInST(page, () => {
   const chat = (globalThis as any).SillyTavern.getContext().chat ?? [];
-  const id = chat.length - 1;
-  const message = chat[id];
-  return message ? { id, isUser: Boolean(message.is_user), swipeId: Number(message.swipe_id ?? 0), swipes: Array.isArray(message.swipes) ? message.swipes.length : 1, name: String(message.name ?? '') } : null;
+  const isNote = (message: any) => Boolean(message?.is_system) || message?.extra?.type === 'comment' || Boolean(message?.extra?.isSmallSys);
+  const notesAfter: Array<{ messageId: number; name: string; text: string }> = [];
+  let id = chat.length - 1;
+  while (id >= 0 && isNote(chat[id])) {
+    notesAfter.unshift({ messageId: id, name: String(chat[id].name ?? ''), text: String(chat[id].mes ?? '').slice(0, 200) });
+    id -= 1;
+  }
+  const message = id >= 0 ? chat[id] : null;
+  if (!message) return { id: null, isUser: false, swipeId: 0, swipes: 0, name: '', length: chat.length, notesAfter };
+  return { id, isUser: Boolean(message.is_user), swipeId: Number(message.swipe_id ?? 0), swipes: Array.isArray(message.swipes) ? message.swipes.length : 1, name: String(message.name ?? ''), length: chat.length, notesAfter };
 });
 
-async function swipeNew(page: any, deps: LiveDeps, options: LiveOptions) {
-  const last = await lastMessage(page);
-  if (!last) throw new Error('the chat is empty: nothing to swipe');
-  if (last.isUser) throw new Error('the last message is the player\'s own: a new swipe needs a character reply last');
-  if (last.swipeId < last.swipes - 1) {
-    await evaluateInST(page, async ({ id, target }: { id: number; target: number }) => {
-      const ctx = (globalThis as any).SillyTavern.getContext();
-      await ctx.swipe.to(null, 'right', { source: 'swipe_picker', forceMesId: id, forceSwipeId: target, forceDuration: 0 });
-    }, { id: last.id, target: last.swipes - 1 });
+const messageAt = (page: any, id: number) => evaluateInST(page, (at: number) => {
+  const chat = (globalThis as any).SillyTavern.getContext().chat ?? [];
+  const message = chat[at];
+  return message ? { id: at, isUser: Boolean(message.is_user), swipeId: Number(message.swipe_id ?? 0), swipes: Array.isArray(message.swipes) ? message.swipes.length : 1, name: String(message.name ?? ''), last: at === chat.length - 1 } : null;
+}, id);
+
+async function removeTrailingNotes(page: any, notes: ReplyTarget['notesAfter']) {
+  if (!notes.length) return [];
+  return evaluateInST(page, async (ids: number[]) => {
+    const ctx = (globalThis as any).SillyTavern.getContext();
+    const isNote = (message: any) => Boolean(message?.is_system) || message?.extra?.type === 'comment' || Boolean(message?.extra?.isSmallSys);
+    const removed: Array<{ messageId: number; name: string; text: string }> = [];
+    for (const id of [...ids].sort((a, b) => b - a)) {
+      const message = ctx.chat?.[id];
+      if (id !== ctx.chat.length - 1 || !isNote(message)) throw new Error(`message ${id} is no longer a trailing note: refusing to delete it`);
+      removed.push({ messageId: id, name: String(message.name ?? ''), text: String(message.mes ?? '').slice(0, 200) });
+      await ctx.deleteMessage(id);
+    }
+    return removed;
+  }, notes.map((note) => note.messageId));
+}
+
+const overlayState = (page: any) => evaluateInST(page, () => {
+  const doc = (globalThis as any).document;
+  if (!doc) return { drawerOpen: false, popups: 0 };
+  return { drawerOpen: doc.getElementById?.('drawer-manager')?.classList.contains('openDrawer') ?? false, popups: doc.querySelectorAll?.('dialog[open]')?.length ?? 0 };
+});
+
+export async function clearOverlays(page: any, deps: Pick<LiveDeps, 'closeOverlays'>) {
+  const before = await overlayState(page);
+  if (before.drawerOpen || before.popups > 0) await deps.closeOverlays(page);
+  const after = await overlayState(page);
+  return { before, after, ok: !after.drawerOpen && after.popups === 0 };
+}
+
+export async function waitHittable(page: any, deps: Pick<LiveDeps, 'hitTest'>, selector: string, attempts = 8) {
+  let hit = await deps.hitTest(page, selector);
+  for (let attempt = 1; attempt < attempts && !hit.clickable; attempt += 1) {
+    await page.waitForTimeout(250);
+    hit = await deps.hitTest(page, selector);
   }
-  await deps.clickSwipeRight(page);
+  return hit;
+}
+
+const overlayProblems = (overlays: Awaited<ReturnType<typeof clearOverlays>>) => (overlays.ok ? [] : [`could not clear the page before acting (drawer open ${overlays.after.drawerOpen}, popups ${overlays.after.popups})`]);
+
+const targetRecord = (target: ReplyTarget, notesRemoved: unknown[]) => ({ messageId: target.id, speaker: target.name, isUser: target.isUser, skippedNotes: target.notesAfter.length, rule: 'last character reply; system/comment notes after it are skipped', notesRemoved });
+
+export const swipeArrow = (messageId: number) => `#chat .mes[mesid="${messageId}"] .swipe_right`;
+
+async function swipeNew(page: any, deps: LiveDeps, options: LiveOptions) {
+  const target = await replyTarget(page);
+  if (target.id === null) throw new Error('the chat has no character reply to swipe');
+  if (target.isUser) throw new Error('the last message is the player\'s own (notes aside): a new swipe needs a character reply last');
+  const overlays = await clearOverlays(page, deps);
+  const notesRemoved = await removeTrailingNotes(page, target.notesAfter);
+  if (target.swipeId < target.swipes - 1) {
+    await evaluateInST(page, async ({ id, last }: { id: number; last: number }) => {
+      const ctx = (globalThis as any).SillyTavern.getContext();
+      await ctx.swipe.to(null, 'right', { source: 'swipe_picker', forceMesId: id, forceSwipeId: last, forceDuration: 0 });
+    }, { id: target.id, last: target.swipes - 1 });
+  }
+  const selector = swipeArrow(target.id);
+  const hit = await waitHittable(page, deps, selector);
+  const base = { messageId: target.id, speaker: target.name, target: targetRecord(target, notesRemoved), overlays, hit, swipesBefore: target.swipes, swipeIdBefore: target.swipeId };
+  if (!hit.clickable) return { did: { ...base, swipesAfter: target.swipes, swipeIdAfter: null, generated: false, clicked: false }, problems: [...overlayProblems(overlays), `the swipe arrow on message ${target.id} is not hit-testable (${hit.blocked ?? 'blocked'}: ${hit.reason ?? 'unknown'}); nothing was clicked`] };
+  await deps.clickSwipeRight(page, selector);
   await deps.waitIdle(page, options.timeoutMs ?? 600000);
-  const after = await lastMessage(page);
-  const generated = Boolean(after && after.id === last.id && after.swipes > last.swipes);
-  return { did: { messageId: last.id, speaker: last.name, swipesBefore: last.swipes, swipesAfter: after?.swipes ?? null, swipeIdAfter: after?.swipeId ?? null, generated }, problems: generated ? [] : ['no new swipe was generated'] };
+  const after = await messageAt(page, target.id);
+  const generated = Boolean(after && !after.isUser && (after.swipes > target.swipes || after.swipeId >= target.swipes));
+  return {
+    did: { ...base, swipesAfter: after?.swipes ?? null, swipeIdAfter: after?.swipeId ?? null, generated, clicked: true, stillLast: after?.last ?? null },
+    problems: generated ? [] : [`no new swipe was generated on message ${target.id}`],
+  };
 }
 
 async function regen(page: any, deps: LiveDeps, options: LiveOptions) {
-  const last = await lastMessage(page);
+  const target = await replyTarget(page);
+  const overlays = await clearOverlays(page, deps);
+  const notesRemoved = await removeTrailingNotes(page, target.notesAfter);
   const result = await evaluateInST(page, async () => {
     const ctx = (globalThis as any).SillyTavern.getContext();
     try {
@@ -311,12 +385,17 @@ async function regen(page: any, deps: LiveDeps, options: LiveOptions) {
     }
   });
   await deps.waitIdle(page, options.timeoutMs ?? 600000);
-  const after = await lastMessage(page);
-  return { did: { command: '/regenerate await=true', lastBefore: last, lastAfter: after, ...result }, problems: result.ok ? [] : [`/regenerate failed: ${result.error}`] };
+  const after = target.id === null ? null : await messageAt(page, target.id);
+  const lastBefore = target.id === null ? null : { id: target.id, isUser: target.isUser, swipeId: target.swipeId, swipes: target.swipes, name: target.name };
+  return {
+    did: { command: '/regenerate await=true', target: targetRecord(target, notesRemoved), overlays, lastBefore, lastAfter: after, ...result },
+    problems: [...overlayProblems(overlays), ...(result.ok ? [] : [`/regenerate failed: ${result.error}`])],
+  };
 }
 
-async function editLine(page: any, args: MutationArgs) {
+async function editLine(page: any, args: MutationArgs, deps: LiveDeps) {
   if (!args.text) throw new Error('edit needs the new text');
+  const overlays = await clearOverlays(page, deps);
   const did = await evaluateInST(page, async ({ rawId, text }: { rawId: number | 'last'; text: string }) => {
     const ctx = (globalThis as any).SillyTavern.getContext();
     const id = rawId === 'last' ? (ctx.chat?.length ?? 0) - 1 : Number(rawId);
@@ -330,21 +409,30 @@ async function editLine(page: any, args: MutationArgs) {
     await ctx.eventSource.emit(ctx.eventTypes.MESSAGE_EDITED, id);
     return { messageId: id, isUser: Boolean(message.is_user), speaker: String(message.name ?? ''), before, after: text };
   }, { rawId: args.messageId ?? 'last', text: args.text });
-  return { did, problems: [] as string[] };
+  return { did: { ...did, overlays }, problems: overlayProblems(overlays) };
 }
 
-async function deleteOne(page: any, args: MutationArgs) {
-  const did = await evaluateInST(page, async (rawId: number | 'last') => {
+async function deleteOne(page: any, args: MutationArgs, deps: LiveDeps) {
+  const overlays = await clearOverlays(page, deps);
+  const wanted = args.messageId ?? 'last';
+  const target = wanted === 'last' ? await replyTarget(page) : null;
+  if (target && target.id === null) throw new Error('the chat has no message to delete (notes aside)');
+  const id = target ? target.id as number : Number(wanted);
+  const did = await evaluateInST(page, async (at: number) => {
     const ctx = (globalThis as any).SillyTavern.getContext();
-    const id = rawId === 'last' ? (ctx.chat?.length ?? 0) - 1 : Number(rawId);
-    const message = ctx.chat?.[id];
-    if (!Number.isInteger(id) || !message) throw new Error(`message ${rawId} not found`);
-    const removed = { messageId: id, speaker: String(message.name ?? ''), isUser: Boolean(message.is_user), text: String(message.mes ?? '') };
+    const message = ctx.chat?.[at];
+    if (!Number.isInteger(at) || !message) throw new Error(`message ${at} not found`);
+    const isNote = Boolean(message.is_system) || message.extra?.type === 'comment' || Boolean(message.extra?.isSmallSys);
+    const removed = { messageId: at, speaker: String(message.name ?? ''), isUser: Boolean(message.is_user), isNote, text: String(message.mes ?? '') };
     const lengthBefore = ctx.chat.length;
-    await ctx.deleteMessage(id);
+    await ctx.deleteMessage(at);
     return { ...removed, lengthBefore, lengthAfter: ctx.chat.length };
-  }, args.messageId ?? 'last');
-  return { did, problems: did.lengthAfter === did.lengthBefore - 1 ? [] : [`expected one message removed, chat went ${did.lengthBefore} -> ${did.lengthAfter}`] };
+  }, id);
+  const resolved = target ? { requested: 'last', ...targetRecord(target, []), rule: 'last message that is not a system/comment note' } : { requested: id };
+  return {
+    did: { ...did, target: resolved, overlays },
+    problems: [...overlayProblems(overlays), ...(did.lengthAfter === did.lengthBefore - 1 ? [] : [`expected one message removed, chat went ${did.lengthBefore} -> ${did.lengthAfter}`])],
+  };
 }
 
 async function chatProbe(page: any) {
@@ -398,8 +486,8 @@ export async function runMutation(page: any, verb: MutationVerb, args: MutationA
   let outcome: { did: Record<string, unknown>; problems: string[] };
   if (verb === 'swipe-new') outcome = await swipeNew(page, deps, options);
   else if (verb === 'regen') outcome = await regen(page, deps, options);
-  else if (verb === 'edit') outcome = await editLine(page, args);
-  else if (verb === 'delete') outcome = await deleteOne(page, args);
+  else if (verb === 'edit') outcome = await editLine(page, args, deps);
+  else if (verb === 'delete') outcome = await deleteOne(page, args, deps);
   else if (verb === 'switch-chat-mid-gen') outcome = await switchMidGen(page, { ...args, chatId: args.chatId ?? before.chatId ?? '' }, deps, options);
   else if (verb === 'reload-mid-gen') outcome = await reloadMidGen(page, { ...args, chatId: args.chatId ?? before.chatId ?? '' }, deps, options);
   else throw new Error(`unknown mutation ${String(verb)}`);
@@ -412,16 +500,20 @@ export async function runMutation(page: any, verb: MutationVerb, args: MutationA
   return composeMutation({ verb, args: { ...args }, before, after, recorder, did: outcome.did, timing: { startedAt, actedAt, settledAt, endedAt: deps.now() }, problems });
 }
 
+const DRAWER_TOGGLE = '#so-drawer .drawer-toggle';
+
+const drawerOpen = (page: any) => evaluateInST(page, () => (globalThis as any).document?.getElementById('drawer-manager')?.classList.contains('openDrawer') ?? false);
+
 export async function flagMoment(page: any, note: string, { via = 'drawer', click }: { via?: 'drawer' | 'slash'; click?: (page: any, selector: string) => Promise<void> } = {}) {
   const countFlags = () => evaluateInST(page, () => ((globalThis as any).storyOrchestratorRuntime?.getSessionJournal?.() ?? []).filter((event: any) => event.kind === 'flag').length);
+  const press = click ?? (async (target: any, selector: string) => { await target.locator(selector).first().click({ force: true, timeout: 10000 }); });
   const before = await countFlags();
+  const wasOpen = await drawerOpen(page);
   let used = via;
   let fallbackReason: string | null = null;
   if (via === 'drawer') {
     try {
-      const press = click ?? (async (target: any, selector: string) => { await target.locator(selector).first().click({ force: true, timeout: 10000 }); });
-      const opened = await evaluateInST(page, () => document.getElementById('drawer-manager')?.classList.contains('openDrawer') ?? false);
-      if (!opened) await press(page, '#so-drawer .drawer-toggle');
+      if (!wasOpen) await press(page, DRAWER_TOGGLE);
       await press(page, '#so-flag-moment');
       await page.locator('#so-flag-note').fill(note);
       await page.locator('#so-flag-note').press('Enter');
@@ -446,7 +538,13 @@ export async function flagMoment(page: any, note: string, { via = 'drawer', clic
     const events = ((globalThis as any).storyOrchestratorRuntime?.getSessionJournal?.() ?? []).filter((event: any) => event.kind === 'flag');
     return events[events.length - 1] ?? null;
   });
-  return { kind: 'flag' as const, at: new Date().toISOString(), note, via: used, fallbackReason, landed: after > before, flag: latest, ok: after > before };
+  let restoreError: string | null = null;
+  if (await drawerOpen(page) !== wasOpen) {
+    try { await press(page, DRAWER_TOGGLE); } catch (error) { restoreError = error instanceof Error ? error.message : String(error); }
+  }
+  const endOpen = await drawerOpen(page);
+  const drawer = { before: wasOpen, after: endOpen, restored: endOpen === wasOpen, ...(restoreError ? { error: restoreError } : {}) };
+  return { kind: 'flag' as const, at: new Date().toISOString(), note, via: used, fallbackReason, landed: after > before, flag: latest, drawer, problems: drawer.restored ? [] : [`the drawer was left ${endOpen ? 'open' : 'closed'} (it was ${wasOpen ? 'open' : 'closed'} before the flag)`], ok: after > before };
 }
 
 export async function backdateSession(page: any, hours: number, { waitMs = 20000 }: { waitMs?: number } = {}) {

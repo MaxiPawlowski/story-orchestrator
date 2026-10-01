@@ -96,6 +96,7 @@ export interface StripPlan {
   settings: Record<string, any>;
   removed: { stories: string[]; bindings: string[]; selected: string[]; profiles: string[] };
   media: { image: boolean; sprites: boolean };
+  swipes: { was: boolean; now: true };
 }
 
 const spritesSwitchedOff = (value: unknown) => record(value).enabled === false && record(value).explicit === true;
@@ -106,6 +107,14 @@ export function mediaOff(root: Record<string, any>) {
   root.settings.image = { ...record(root.settings.image), enabled: false };
   root.settings.sprites = { ...record(root.settings.sprites), enabled: false, explicit: true };
   return was;
+}
+
+export const hostSwipesOn = (settings: Record<string, any>) => settings.swipes !== false;
+
+export function swipesOn(settings: Record<string, any>) {
+  const was = hostSwipesOn(settings);
+  settings.swipes = true;
+  return { was, now: true as const };
 }
 
 export const RP_PROFILE = 'Artemis RunPod RP';
@@ -174,6 +183,7 @@ export function stripPlan(manifest: AdolionManifest, disk: LaneDisk): StripPlan 
   const settings = structuredClone(disk.settings);
   const root = record(record(settings.extension_settings)['story-orchestrator']);
   const media = mediaOff(root);
+  const swipes = swipesOn(settings);
   const profiles = laneProfiles(settings);
   const library = Array.isArray(root.v2Stories) ? root.v2Stories : [];
   const removedStories = library.filter((entry) => storyIds.has(record(entry).id)).map((entry) => String(record(entry).id));
@@ -193,7 +203,7 @@ export function stripPlan(manifest: AdolionManifest, disk: LaneDisk): StripPlan 
   }
   return {
     worlds, characters, spriteDirs, chatDirs, groupFiles: groups.map((group) => group.file), groupChats, settings,
-    removed: { stories: removedStories, bindings: removedBindings, selected: removedSelected, profiles }, media,
+    removed: { stories: removedStories, bindings: removedBindings, selected: removedSelected, profiles }, media, swipes,
   };
 }
 
@@ -211,6 +221,7 @@ export interface Inventory {
   selected: string[];
   extraction: Record<string, unknown> | null;
   media: { image: boolean; sprites: boolean };
+  swipes: boolean;
   ledger: { lorebooks: string[]; characters: string[] } | null;
   runtime: Record<string, RuntimeReadiness> | null;
   sprites: SpriteFolder[];
@@ -269,6 +280,7 @@ export function buildInventory(manifest: AdolionManifest, input: InventoryInput)
     selected: sorted(strings(record(record(input.settings.world_info_settings).world_info).globalSelect)),
     extraction: Object.keys(extraction).length ? canonical({ enabled: extraction.enabled, cadence: extraction.cadence, stabilityLag: extraction.stabilityLag, profileId: extraction.profileId ?? null }) as Record<string, unknown> : null,
     media: { image: record(record(root.settings).image).enabled !== false, sprites: !spritesSwitchedOff(record(root.settings).sprites) },
+    swipes: hostSwipesOn(input.settings),
     ledger: input.ledger ? { lorebooks: sorted(strings(input.ledger.lorebooks)), characters: sorted(strings(input.ledger.characters)) } : null,
     runtime: input.runtime ? Object.fromEntries(Object.keys(input.runtime).sort().map((id) => [id, input.runtime![id]])) : null,
     sprites: (input.sprites ?? []).map((entry) => ({ folder: entry.folder, labels: sorted(entry.labels) })).sort((a, b) => a.folder.localeCompare(b.folder)),
@@ -353,6 +365,7 @@ export function checkInventory(manifest: AdolionManifest, inventory: Inventory):
     const labels = setDiff(pack.labels, found?.labels ?? []);
     if (labels.missing.length) problems.push(`sprites ${pack.folder}: ${labels.missing.length} of ${pack.labels.length} missing (${labels.missing.slice(0, 5).join(', ')})`);
   }
+  if (!inventory.swipes) problems.push('SillyTavern swipes are off in the lane (settings.json swipes: false): swipe-new cannot run');
   if (inventory.media.image || inventory.media.sprites) problems.push(`media generation is on in the lane (image ${inventory.media.image}, sprites ${inventory.media.sprites}): a lane must never reach the shared ComfyUI`);
   if (inventory.ledger) {
     const books = setDiff(manifest.books.map((book) => book.name), inventory.ledger.lorebooks);
