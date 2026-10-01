@@ -232,7 +232,9 @@ export const PrivacyNoticeOncePerProviderThatLeavesTheMachine: Story = {
   args: { settings: settings({ enabled: true }, { director: true }), status: ready },
   play: async ({ args, canvasElement }) => {
     const notice = canvasElement.querySelector("#so-judge-privacy-typesafe");
-    await expect(notice?.textContent).toContain("sent to TypeSafe");
+    await expect(notice?.textContent).toContain("key is consent");
+    await expect(notice?.textContent).toContain("to TypeSafe");
+    await expect(notice?.textContent).toContain("To stop it, untick");
     await expect(notice?.querySelector("a")?.getAttribute("href")).toBe("https://typesafe.ai/legal/privacy-policy");
     await expect(canvasElement.querySelector("#so-judge-privacy-llama-logprob")).toBeNull();
     await userEvent.click(required(canvasElement.querySelector<HTMLButtonElement>("#so-judge-privacy-ack-typesafe"), "ack button"));
