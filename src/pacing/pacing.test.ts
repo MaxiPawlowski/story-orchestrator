@@ -93,13 +93,13 @@ describe("steering", () => {
     it("defaults to world pressure that presses without requiring compliance", () => {
       const text = getSteeringHint(0.1, 0.9, undefined, policy())!.text;
       expect(text).toContain("the world presses hard");
-      expect(text).not.toContain("the player's next move");
-      expect(text).toContain("Do not narrate the player's own words or decisions.");
+      expect(text).not.toContain("{{user}}'s next move");
+      expect(text).toContain("Do not narrate {{user}}'s own words or decisions.");
     });
 
     it("hands the move to the player when the objective needs the player's own act", () => {
       const escalate = getSteeringHint(0.1, 0.9, undefined, policy({ objective_kind: "player_action" }))!.text;
-      expect(escalate).toContain("put a hard choice in front of the player");
+      expect(escalate).toContain("put a hard choice in front of {{user}}");
       const ease = getSteeringHint(0.7, 0.3, undefined, policy({ objective_kind: "player_action" }))!.text;
       expect(ease).toContain("room to decide what comes next");
     });

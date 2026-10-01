@@ -186,7 +186,7 @@ describe("SP6 K2 machinery: the block rides the next loud generation only", () =
     h.seam({ kind: "closed", reason: "ended" });
     expect(h.writes).toEqual([`set ${COMPLICATION_KEY}@5: ${composeComplication(story, pendingRelease(input(h.engine)) as ComplicationRelease)}`, `clear ${COMPLICATION_KEY}`]);
     expect(h.writes[0]).toContain("A tent pole snaps in the wind.");
-    expect(h.writes[0]).toContain("Do not narrate the player's own words or decisions.");
+    expect(h.writes[0]).toContain("Do not narrate {{user}}'s own words or decisions.");
   });
 
   it("quiet and impersonate generations never carry it, and a nested quiet one lifts it until the loud one resumes", () => {

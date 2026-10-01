@@ -60,7 +60,7 @@ describe("agency policy (v2.3 plan 07, C4)", () => {
 
     const minimal = agencyClauses({ protect_player_choice: false, never_narrate_player_action: false, objective_kind: "player_action" });
     expect(minimal).toHaveLength(1);
-    expect(minimal[0]).toContain("needs the player's own act");
+    expect(minimal[0]).toContain("needs {{user}}'s own act");
     expect(renderAgencyPolicy(agencyFor(undefined)).split("\n")).toHaveLength(clauses.length);
   });
 
@@ -71,7 +71,7 @@ describe("agency policy (v2.3 plan 07, C4)", () => {
     expect(built.checkpointById.next.agency).toEqual({ player_attempts_only: true });
     expect(agencyClauses(agencyForCheckpoint(built, "next"))).toContain(PLAYER_ATTEMPTS_CLAUSE);
     expect(agencyClauses(agencyForCheckpoint(built, "start"))).not.toContain(PLAYER_ATTEMPTS_CLAUSE);
-    expect(PLAYER_ATTEMPTS_CLAUSE).toBe("The player's message states an attempt; decide its outcome from the world — it may fail.");
+    expect(PLAYER_ATTEMPTS_CLAUSE).toBe("{{user}}'s message states an attempt; decide its outcome from the world — it may fail.");
     const wrongType = parseStoryV2(story({ agency: { player_attempts_only: "yes" } }));
     expect(Array.isArray(wrongType) && wrongType.some((error) => error.path.endsWith("agency.player_attempts_only"))).toBe(true);
   });

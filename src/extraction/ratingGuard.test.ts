@@ -51,8 +51,33 @@ describe("T0-2: a monotonic rating moves only on evidence that names the level, 
     expect(applyRatingGrounding(qualities, {}, [delta("party_rank", 3, "We're a proper party, show some respect.")]).held).toHaveLength(1);
   });
 
-  it("leaves a non-monotonic rating and every other quality alone", () => {
-    const others = [delta("guild_reputation", 2, "Tobias nods at you."), { delta: { q: "location", v: "north_road", source: "extractor" }, evidence: "The road." } as ParsedDelta];
+  it("leaves every quality that is not a rating alone", () => {
+    const others = [{ delta: { q: "location", v: "north_road", source: "extractor" }, evidence: "The road." } as ParsedDelta];
     expect(applyRatingGrounding(qualities, { guild_reputation: 0 }, others)).toEqual({ accepted: others, held: [] });
+  });
+});
+
+describe("T1-2: a non-monotonic rating rises only on evidence that names the level, one level at a time (v2.6 plan 14)", () => {
+  it("holds guild_reputation 1 -> 2 read from 'The Guild will not be made a fool of'", () => {
+    const result = applyRatingGrounding(qualities, { guild_reputation: 1 }, [delta("guild_reputation", 2, "The Guild will not be made a fool of")]);
+    expect(result.accepted).toEqual([]);
+    expect(result.held[0]).toMatchObject({ key: "guild_reputation", value: "2", reason: expect.stringMatching(/reliable/) });
+  });
+
+  it("holds a first reading above the lowest level, and takes the lowest level as the floor it is", () => {
+    const declining = "I understand. I will not send a party out on a job that smells like that.";
+    expect(applyRatingGrounding(qualities, {}, [delta("guild_reputation", 2, declining)]).held).toHaveLength(1);
+    expect(applyRatingGrounding(qualities, { guild_reputation: 0 }, [delta("guild_reputation", 1, declining)]).accepted).toHaveLength(1);
+  });
+
+  it("accepts a rise whose evidence names the level", () => {
+    expect(applyRatingGrounding(qualities, { guild_reputation: 1 }, [delta("guild_reputation", 2, "Tobias calls you a reliable crew in front of the whole hall.")]).accepted).toHaveLength(1);
+  });
+
+  it("lets a non-monotonic rating fall or hold on any evidence", () => {
+    const falls = [delta("guild_reputation", 1, "Tobias nods at you.")];
+    expect(applyRatingGrounding(qualities, { guild_reputation: 2 }, falls)).toEqual({ accepted: falls, held: [] });
+    const holds = [delta("guild_reputation", 2, "Tobias nods at you.")];
+    expect(applyRatingGrounding(qualities, { guild_reputation: 2 }, holds)).toEqual({ accepted: holds, held: [] });
   });
 });
