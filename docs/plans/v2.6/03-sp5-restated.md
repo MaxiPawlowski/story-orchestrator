@@ -62,3 +62,12 @@ cast, so the fixture's checks ran before the apply finished. Change: after every
 switch back to A, wait (≤ 300 s) until the effect ledger has stopped growing for 8 s and holds no `pending` row. No check
 or pass rule changes. This is a fixture timing change; the slowness itself is a finding for the worth review (C1's
 per-chat cost on a large group).
+
+## Addendum 3 2026-10-01 13:20Z — before the third attempt (bars unchanged)
+
+Attempt 2 (13:09Z) stopped at the fixture's own bookkeeping check after `/cp activate east-landfall`: "two scenario
+writes expected, found 1 applied". A probe shows the spike wrote east-landfall's scenario (`applied`) and the guild-hall
+row is `reverted`: since v2.6 04 C4 (built 2026-09-30, after the lab fixture was written on `dc8dac54`), `/cp activate`
+releases the departing checkpoint's owned effects before it applies the target's. The held scenario equals the path
+replay's (the C1 condition). Change: that bookkeeping check counts `applied` **or** `reverted` scenario rows. No C1–C5
+check changes.
