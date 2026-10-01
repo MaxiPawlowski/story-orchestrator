@@ -153,7 +153,9 @@ lanes on the current pod.** When it does not fit, items are merged or demoted un
   (`applyLedger` → `updateInjection()`) had no test. Added one to `memoryInjectionRefresh.review.test.ts`; killed.
 - `expansion-generate-unowned`: removing the check after `generateReviewedBeats` survived, because the ownership tests
   reach only the throwing path. The spec replays the historical defect instead (a run that never lapses, as the review
-  test's own negative control does); killed. The non-throwing path's check is still reached by no test (recorded, not fixed).
+  test's own negative control does); killed. The non-throwing path's check was reached by no test; closed by plan 15
+  AS-18 (`expansionDelayedSuccess.review.test.ts`: a valid chain answering after a chat switch writes nothing; removing
+  the guard after `generateReviewedBeats` turns it red).
 - Six first-draft specs named the wrong test file; `defect-replay.mjs --discover` (runs every related test under the
   mutant and names the files that failed) found the killers.
 

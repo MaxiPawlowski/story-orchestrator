@@ -18,7 +18,7 @@ import {
   artifactInventory, artifactProblems, comfyCalls, featureProblems, newChats, requiredArtifacts, runtimeProblems, storyFeatures, trackChat, type ChatRef,
 } from './lib/sessionArtifacts.mts';
 import { ackPaths, readTailAcks, tailProblems, TAIL_FILES, TAIL_NAMES, waitFor, READY_TIMEOUT_MS, DRAIN_TIMEOUT_MS } from './lib/sessionTails.mts';
-import { stopSequence } from './lib/sessionStop.mts';
+import { headerDiffArgs, stopSequence } from './lib/sessionStop.mts';
 import { buildPack, candidatesFromTurns, packLeaks, storyCandidate, type Candidate, type Verdict } from './lib/ratingPack.mts';
 import { LIVE_VERBS, type LiveChat, type LiveRequest, type LiveVerb } from './lib/sessionDriver.mts';
 import { DEFAULT_MAIN_PROFILE, DEFAULT_ORCHESTRATOR, judgeExpectation, pinVerdict } from './lib/sessionPin.mts';
@@ -459,7 +459,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
       return { ok: end.code === 0 && Array.isArray(pageEnd.ends), problems: [...(end.code !== 0 ? [`end phase failed: ${end.output.slice(-600)}`] : []), ...(pageEnd.problems ?? [])] };
     },
     headerDiff: async () => {
-      const diff = await inLane(session.lane, ['scripts/debug/so-run-header.mts', 'diff', resolve(dir, 'run-header-start.json'), '--allow', 'chatId,chat,story,group,inventory.journal', '--allow-warnings', '--out', resolve(dir, 'run-header-end.json')], viewportEnv);
+      const diff = await inLane(session.lane, headerDiffArgs(resolve(dir, 'run-header-start.json'), resolve(dir, 'run-header-end.json'), pageEnd.chats ?? session.chats ?? []), viewportEnv);
       diffOutput = diff.output;
       await writeFile(resolve(dir, 'run-header-diff.txt'), diff.output, 'utf-8');
       return diff;
