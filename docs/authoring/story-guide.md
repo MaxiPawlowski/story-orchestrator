@@ -58,8 +58,8 @@ Fields: `roster[].id` (required), `name`, `role`, `aliases`, `view` (`schema.ts`
 
 - **What it does.** The characters this story directs. `id` is the story's handle for the character (used by motives, member guidance and macros such as `{{story_role_<id>}}`); `name` is the card name. `role` is one line of what they do in this story; speaker direction and the judge director pick by it, and the judge director runs only when every candidate has a role. `aliases` are other names the player uses ("the captain", a surname); an alias that two members share, or that is another member's name, is ignored. `view: "omniscient"` makes a narrator see every character's private rows so it can foreshadow; the default `own` sees only its own.
 - **Good.** `{ "id": "guild_rep", "name": "Tobias", "role": "guild receptionist at the quest counter: hands out postings and pays rewards", "aliases": ["Tobias Eldergreen"] }`, and one narrator with `"view": "omniscient"`.
-- **Bad.** A roster without roles; the player's own persona in the roster; two members sharing the alias "the guard".
-- **If wrong.** Without roles the judge director falls back and the rules pick the speaker (`ADAPT-v2.5.md` finding in the campaign repo). A role that describes the plot rather than the character steers the wrong person into the scene.
+- **Bad.** A roster without roles; the player's own persona in the roster; a card for the role the story gives the player (a greeting that says "You are the pawnbroker" and a roster member "The Pawnbroker"); two members sharing the alias "the guard".
+- **If wrong.** Without roles the judge director falls back and the rules pick the speaker (`ADAPT-v2.5.md` finding in the campaign repo). A role that describes the plot rather than the character steers the wrong person into the scene. A cast member who is the player speaks the player's part and then other characters' lines: the Pawnbroker card narrated the player's role and posted the Queen's Agent's line (`test/sessions/T5/T5-2-2/findings.md`). Diagnostic `roster-member-is-player` ("Another character speaks as the player: the story casts the player's own role as someone else.") flags a member whose name is the persona, or the role the description, player introduction or a scripted opener gives the player ("you are the …", "the player is a …"); the wizard's agent refuses such a card or member, reading its cards' first messages too.
 
 ### Drives and motives
 <!-- topic: drives-motives -->
@@ -200,8 +200,8 @@ Field: `effects.background`: a file name, or `{ name }` (`schema.ts` `Background
 
 - **What it does.** Switches SillyTavern's background when the beat starts, and again when the chat is reopened.
 - **Good.** `"background": "tavern day.jpg"`, a file the install has (the wizard's `lookupBackgrounds` lists them).
-- **Bad.** A background whose picture shows the twist.
-- **If wrong.** A name the install lacks does not switch anything.
+- **Bad.** A background whose picture shows the twist; a name invented for the scene (`pawnshop_interior`) that no file carries.
+- **If wrong.** A name the install lacks does not switch anything (diagnostic `background-missing`: "The scene does not change: the install has no background by that name."; checked against the install's list, with or without the file extension, when the Studio knows it).
 
 ### Cast changes
 <!-- topic: cast-changes -->
@@ -211,7 +211,7 @@ Field: `effects.cast_changes`: `{ "enable": [card names], "disable": [card names
 - **What it does.** Mutes and unmutes group members when the beat starts. Only enabled members respond. It changes the group itself, which outlives the chat, and it is restored when the chat leaves the story.
 - **Good.** The start beat disables everyone who enters later; each later beat enables the characters who enter there: sun-ruins `cp1` disables `Ponticius` and `Luke`, `cp2` enables `Ponticius`.
 - **Bad.** Disabling a companion the player has just recruited, because the beat's list was written before play.
-- **If wrong.** The authored list always wins over what happened at the table: Talis was taken along and then dropped by the next beat's disable (`14-findings.md`, T1). If play can recruit someone, gate the cast change on a quality play sets. Put every enabled character the player may address into the beat's speakers.
+- **If wrong.** The authored list always wins over what happened at the table: Talis was taken along and then dropped by the next beat's disable (`14-findings.md`, T1). If play can recruit someone, gate the cast change on a quality play sets. Put every enabled character the player may address into the beat's speakers. A name with no card on the install switches nothing (diagnostic `cast-member-no-card`: "This character never joins the scene: there is no card by that name, so it cannot be switched on and the story never reads as ready."; it also covers `requirements.members`). The wizard's agent cannot finish while a cast member has no card or the cast it created has no group (`T5-2-2`: "done" with 2 of 5 cards and Diagnostics reading "No issues").
 
 ### The opening scene
 <!-- topic: opening-scene -->
@@ -220,7 +220,7 @@ Fields: each card's `first_mes` (on the SillyTavern card), the start checkpoint'
 
 - **What it does.** In a group every card with a first message greets at once when the chat opens. A scripted `onEnter` reply with `new_chat_only: true` posts only into an empty chat, so it is the story's own opener.
 - **Good.** One narrator card with an empty first message; the start beat disables the later cast; one `new_chat_only` opener: `{ "trigger": "onEnter", "member": "Adolion Narrator", "kind": "scripted", "new_chat_only": true, "text": "You came to Aegis City to make a name with a blade…" }`.
-- **Bad.** First messages written for each character's later beat.
+- **Bad.** First messages written for each character's later beat. A greeting that addresses the player as a role ("You are the pawnbroker") while a card plays that role.
 - **If wrong.** Every member greeted at once in a fresh group and the thief was spoiled at message 0 (`test/sessions/T5/SUMMARY.md`). `new_chat_only` is accepted only on a scripted `onEnter` reply.
 
 ### NPC replies

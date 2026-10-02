@@ -5,6 +5,7 @@ import {
 import { directorEnabled } from "@talk/index";
 import { checkChapters } from "./chapterDiagnostics";
 import { checkHouseRules, checkRequirementMembers } from "./authoringDiagnostics";
+import { checkBackgrounds, checkCastCards, checkPlayerInRoster, type InstallFacts } from "./castDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -54,6 +55,9 @@ export const DIAGNOSTIC_CODES = [
   "chapter-reentry",
   "story-dead-end",
   "requirement-member-roster-id",
+  "cast-member-no-card",
+  "background-missing",
+  "roster-member-is-player",
 ] as const;
 
 // Every code says what it costs the story before it says what is technically wrong: the
@@ -98,10 +102,13 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "chapter-reentry": "Going back to an earlier chapter reopens a closed record, so the story so far repeats itself.",
   "story-dead-end": "The story stops here without an ending, so its last chapter is never written up.",
   "requirement-member-roster-id": "The story never reads as ready: it waits for a character named by a cast id, while the card has another name.",
+  "cast-member-no-card": "This character never joins the scene: there is no card by that name, so it cannot be switched on and the story never reads as ready.",
+  "background-missing": "The scene does not change: the install has no background by that name.",
+  "roster-member-is-player": "Another character speaks as the player: the story casts the player's own role as someone else.",
 };
 
 // D: what the Studio needs to know about the install, not the story.
-export interface DiagnosticsContext {
+export interface DiagnosticsContext extends InstallFacts {
   worldInfoGating?: "file" | "scan";
 }
 
@@ -519,6 +526,9 @@ const DIAGNOSTIC_CHECKS = [
   checkMotives,
   checkChapters,
   checkRequirementMembers,
+  checkCastCards,
+  checkBackgrounds,
+  checkPlayerInRoster,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

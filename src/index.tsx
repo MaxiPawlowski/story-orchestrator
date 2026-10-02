@@ -2,7 +2,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { Lazy, LAZY_FAILED_TEXT } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import {
-  bindNavbarDrawerToggle, mountInlineHosts, readProfileContextLimit, readProfilePresetName, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
+  bindNavbarDrawerToggle, currentChatOwner, getAllCharacterNames, listBackgrounds, mountInlineHosts, readProfileContextLimit, readProfilePresetName, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
   type InlineHostSet,
 } from "@services/STAPI";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
@@ -16,7 +16,8 @@ import { loadPersistedRuntime } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { jumpToMessage } from "@runtime/messageJumpHost";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
-import { chatUpdateOutcome, type ChatSaveOutcome } from "@runtime/librarySave";
+import { chatUpdateOutcome, NO_CHAT_OPEN, type ChatSaveAnswer } from "@runtime/librarySave";
+import { rekeyWizardSession } from "@runtime/wizardSessions";
 import type { StudioOpenIntent } from "./studio/StudioModal";
 import type { WizardHost } from "./studio/components/StudioCopilot";
 import { type DriverController } from "@components/drawer/DriverPanel";
@@ -64,6 +65,12 @@ const setStudioOpen = (next: boolean, intent?: StudioOpenIntent) => {
   studioListeners.forEach((listener) => listener());
 };
 
+const studioDiagnostics = () => ({
+  worldInfoGating: getGlobalSettings().worldInfo.gatingMode,
+  characterNames: getAllCharacterNames,
+  backgroundNames: listBackgrounds,
+});
+
 const openStudio = async (intent?: StudioOpenIntent) => {
   const { useDraftStore, setDiagnosticsContext } = await loadDraft();
   const snapshot = manager.getSnapshot();
@@ -76,7 +83,7 @@ const openStudio = async (intent?: StudioOpenIntent) => {
     if (source) store.loadDraft(source, active?.hash ?? null);
     else store.newDraft();
   }
-  setDiagnosticsContext({ worldInfoGating: getGlobalSettings().worldInfo.gatingMode });
+  setDiagnosticsContext(studioDiagnostics());
   setStudioOpen(true, intent);
 };
 
@@ -85,7 +92,7 @@ const openWizard = async () => {
   const { useDraftStore, setDiagnosticsContext } = await loadDraft();
   if (useDraftStore.getState().dirty && !(await showConfirmPopup("Start a new story? Your unsaved Studio draft will be discarded.", { okButton: "New story", cancelButton: "Keep editing" }))) return;
   useDraftStore.getState().newDraft();
-  setDiagnosticsContext({ worldInfoGating: getGlobalSettings().worldInfo.gatingMode });
+  setDiagnosticsContext(studioDiagnostics());
   setStudioOpen(true, { tab: "copilot", stage: "qualities" });
 };
 
@@ -114,13 +121,15 @@ const wizardHost: WizardHost = {
   readEntry: (lorebook, comment) => manager.readProvisioningEntry(lorebook, comment),
   loadSession: (key) => manager.getWizardSession(key),
   saveSession: (session) => manager.saveWizardSession(session),
+  rekeySession: (from, to) => { void rekeyWizardSession(from, to); },
 };
 
 // Saving from the chat that is playing this story is the one automatic library→chat path
 // (spec addendum §Story identity); every other chat keeps its pinned copy.
 // The chat half of one save vocabulary. The library half is the Studio's; this returns
 // only what happened HERE, so the two events never read as one sentence.
-const applySavedStory = async (record: StoryLibraryRecord): Promise<ChatSaveOutcome | null> => {
+const applySavedStory = async (record: StoryLibraryRecord): Promise<ChatSaveAnswer> => {
+  if (!currentChatOwner()) return NO_CHAT_OPEN;
   if (manager.getSnapshot().storyId !== record.id) return null;
   return chatUpdateOutcome(await manager.applyStoryUpdate(record));
 };

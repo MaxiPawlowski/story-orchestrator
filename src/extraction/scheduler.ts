@@ -75,6 +75,7 @@ export interface SchedulerHost {
     read?: ReadOwnership | null,
   ): Promise<void>;
   beginRead?(window: { from: number; to: number }): ReadOwnership;
+  readsOpenChat?(): boolean;
   onSchedulerChange(): void;
   noteLapse?(reason: string, detail: string): void;
   noteHealth?(summary: string, detail: string): void;
@@ -486,7 +487,7 @@ export class ExtractionScheduler {
     const story = this.host.getStory();
     const state = this.host.getEngineState();
     const settings = this.host.getExtractionSettings();
-    if (!story || !state || !settings.enabled) {
+    if (!story || !state || !settings.enabled || (!job.run && this.host.readsOpenChat?.() === false)) {
       this.host.onSchedulerChange();
       return;
     }

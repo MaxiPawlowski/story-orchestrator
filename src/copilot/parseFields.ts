@@ -284,7 +284,8 @@ export const readTransitionRef = (value: unknown, path: string, issues: string[]
     issues.push(`${path}: ref needs { from, to }`);
     return null;
   }
-  return { from: value.from, to: value.to, ...(typeof value.priority === "number" ? { priority: value.priority } : {}) };
+  const index = typeof value.index === "number" && Number.isInteger(value.index) && value.index >= 1 ? { index: value.index } : {};
+  return { from: value.from, to: value.to, ...(typeof value.priority === "number" ? { priority: value.priority } : {}), ...index };
 };
 
 export const readRosterMember = (value: unknown, path: string, issues: string[]): RosterMember | null => {

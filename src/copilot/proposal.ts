@@ -24,13 +24,15 @@ import {
   updateQuality,
   updateRosterMember,
   updateTransition,
+  sameTransitionKey,
 } from "../studio/mutations";
 import { stageOpIssue } from "./stages";
 import type { CopilotStage, ProposalOp, TransitionRef } from "./types";
 
 export const transitionRefMatches = (draft: StoryV2, ref: TransitionRef): number[] =>
   draft.transitions.reduce<number[]>((matches, entry, index) => {
-    if (entry.from === ref.from && entry.to === ref.to && (ref.priority === undefined || entry.priority === ref.priority)) matches.push(index);
+    const named = ref.index === undefined || ref.index === index + 1;
+    if (named && entry.from === ref.from && entry.to === ref.to && (ref.priority === undefined || entry.priority === ref.priority)) matches.push(index);
     return matches;
   }, []);
 
@@ -39,7 +41,9 @@ export const resolveTransitionRef = (draft: StoryV2, ref: TransitionRef): number
 export const ambiguousRef = (draft: StoryV2, op: ProposalOp): string | null => {
   if (op.kind !== "updateTransition" && op.kind !== "removeTransition" && op.kind !== "setTransitionGate") return null;
   const matches = transitionRefMatches(draft, op.ref);
-  return matches.length > 1 ? `transition ${op.ref.from} → ${op.ref.to} is ambiguous (${matches.length} matches; set priority to disambiguate)` : null;
+  if (matches.length < 2) return null;
+  const numbers = matches.map((index) => `#${index + 1}`).join(", ");
+  return `transition ${op.ref.from} → ${op.ref.to} is ambiguous (${matches.length} matches: readGraph ${numbers}; add "index" to the ref to name one, e.g. {"from": "${op.ref.from}", "to": "${op.ref.to}", "index": ${matches[0] + 1}})`;
 };
 
 export const isProvisioningOp = (op: ProposalOp): op is ProvisioningOp => isProvisioningKind(op.kind);
@@ -166,6 +170,10 @@ export const duplicateTarget = (draft: StoryV2, op: ProposalOp): string | null =
   if (op.kind === "addQuality" && draft.qualities.some((entry) => entry.key === op.quality.key)) return exists("quality", op.quality.key, "updateQuality", "key");
   if (op.kind === "addCheckpoint" && draft.checkpoints.some((entry) => entry.id === op.checkpoint.id)) return exists("checkpoint", op.checkpoint.id, "updateCheckpoint", "id");
   if (op.kind === "addRosterMember" && draft.roster.some((entry) => entry.id === op.member.id)) return exists("roster member", op.member.id, "updateRosterMember", "id");
+  if (op.kind === "addTransition" && draft.transitions.some((entry) => sameTransitionKey(entry, op.transition))) {
+    const { from, to, priority } = op.transition;
+    return `transition ${from} → ${to} at priority ${priority} already exists; change it with updateTransition or setTransitionGate, or give the new one another priority`;
+  }
   return null;
 };
 

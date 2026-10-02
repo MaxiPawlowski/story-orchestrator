@@ -33,7 +33,7 @@ const req = (type: AgentArgType, doc: string): AgentArgSpec => ({ type, required
 const opt = (type: AgentArgType, doc: string): AgentArgSpec => ({ type, required: false, doc });
 
 const ID = req("string", "checkpoint id");
-const REF = req("object", "{from, to, priority?} naming one transition");
+const REF = req("object", "{from, to, priority?, index?} naming one transition; index is its number in readGraph, for telling identical ones apart");
 const QUALITY = "{key, type: string|int|float|bool|enum, values?: string[], source: \"extractor\", rubric, latching?: boolean}";
 const CHECKPOINT = "{id, name, objective, type: anchor|intermediate, tension_target?, guidance?, agency?, talk_control?, convergence_threshold?}";
 const GATE = "{q, op: ==|!=|>=|<=|>|<|in, v} | {all: gate[]} | {any: gate[]} | {not: gate}";
@@ -167,6 +167,7 @@ export const MUTATIONS_WITHOUT_A_TOOL: Partial<Record<keyof Mutations, string>> 
   newQuality: "constructor; addQuality takes the full quality",
   newCheckpoint: "constructor; addCheckpoint takes the full checkpoint",
   newTransition: "constructor; addTransition takes the full transition",
+  sameTransitionKey: "predicate; addTransition uses it to refuse a duplicate",
   newRosterMember: "constructor; addRosterMember takes the full member",
   newArcBridge: "constructor; setArcBridges takes the full list",
   addArcBridge: "covered by setArcBridges",

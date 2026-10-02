@@ -34,7 +34,8 @@ export const GUIDE_TOPICS = {
     fields: "roster[].id, name, role, aliases, view",
     text: "Every character the story directs. id is the story's handle, name the card name, role one line of what they do in this story (speaker direction and the judge "
       + "director pick by it; the judge director runs only when every candidate has a role). aliases are other names players use (\"the captain\"); an alias two members "
-      + "share is ignored. view: omniscient makes a narrator see every character's private rows to foreshadow; own (default) sees only their own. Never put the player in the roster.",
+      + "share is ignored. view: omniscient makes a narrator see every character's private rows to foreshadow; own (default) sees only their own. Never put the player in the roster: "
+      + "if a greeting says \"you are the pawnbroker\", there is no Pawnbroker card.",
   },
   "drives-motives": {
     title: "Drives and motives",
@@ -129,19 +130,20 @@ export const GUIDE_TOPICS = {
     title: "Background",
     fields: "effects.background",
     text: "A SillyTavern background file the scene switches to when the beat starts: \"tavern night.jpg\" or {name}. Applied again on reopen. Use the exact file name on the "
-      + "install (lookupBackgrounds).",
+      + "install (lookupBackgrounds), or leave the background out; a name the install lacks switches nothing.",
   },
   "cast-changes": {
     title: "Cast changes",
     fields: "effects.cast_changes",
     text: "{enable: [card names], disable: [card names]} switches group members on or off when the beat starts. Disable everyone who enters later at the start beat, and "
-      + "enable each one at the beat where they enter. It changes the group itself, not just the chat.",
+      + "enable each one at the beat where they enter. It changes the group itself, not just the chat. Every name needs a card on the install.",
   },
   "opening-scene": {
     title: "The opening scene",
     fields: "first_mes, new_chat_only, cast_changes",
     text: "In a group every card with a first message greets at once. Give a first message only to characters present in the start beat, for that scene only: no secret, twist "
-      + "or later reveal. Everyone else gets none, and enters through cast_changes. A story-owned opener is a scripted onEnter npc_reply with new_chat_only, which posts only into an empty chat.",
+      + "or later reveal. Everyone else gets none, and enters through cast_changes. A story-owned opener is a scripted onEnter npc_reply with new_chat_only, which posts only into an empty chat. "
+      + "A greeting that addresses the player (\"you are the pawnbroker\") makes that role the player's: no card plays it.",
   },
   "npc-replies": {
     title: "NPC replies",
@@ -271,6 +273,9 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "chapter-reentry": "chapters",
   "story-dead-end": "chapters",
   "requirement-member-roster-id": "requirements",
+  "cast-member-no-card": "cast-changes",
+  "background-missing": "background",
+  "roster-member-is-player": "roster",
 };
 
 export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {

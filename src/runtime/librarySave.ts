@@ -34,6 +34,13 @@ export interface ChatSaveOutcome {
 
 export const chatSaveSentence = (outcome: ChatSaveOutcome): string => `${outcome.applied ? "Applied" : "Not applied"} to this chat: ${outcome.detail}.`;
 
+export const NO_CHAT_OPEN = "no-chat";
+
+export type ChatSaveAnswer = ChatSaveOutcome | typeof NO_CHAT_OPEN | null;
+
+export const chatSaveHalf = (watched: boolean, taken: ChatSaveAnswer): string =>
+  (!watched || taken === NO_CHAT_OPEN ? "" : ` ${chatSaveSentence(taken ?? { applied: false, detail: "it is playing a different story" })}`);
+
 export interface ChatUpdateResult {
   applied: boolean;
   choice: "keep" | "restart" | "cancel" | null;

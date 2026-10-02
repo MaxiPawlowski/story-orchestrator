@@ -83,6 +83,27 @@ export function saveWizardSession(session: WizardSessionUpdate): Promise<Library
   return writeSessions(next, { key: session.key, updatedAt: merged.updatedAt });
 }
 
+const union = (left: string[], right: string[]) => [...new Set([...left, ...right])];
+
+const mergeSessions = (from: WizardSessionState, onto: WizardSessionState | undefined, key: string): WizardSessionState => (onto ? {
+  ...onto,
+  history: onto.history.length ? onto.history : from.history,
+  applied: union(onto.applied, from.applied),
+  createdLorebooks: union(onto.createdLorebooks, from.createdLorebooks),
+  ...(onto.grants || from.grants ? { grants: onto.grants ?? from.grants } : {}),
+  ...(from.agent ?? onto.agent ? { agent: from.agent ?? onto.agent } : {}),
+  updatedAt: new Date().toISOString(),
+} : { ...from, key, updatedAt: new Date().toISOString() });
+
+export function rekeyWizardSession(from: string, to: string): Promise<LibrarySaveEvidence> | null {
+  const sessions = listSessions();
+  const moving = sessions.find((session) => session.key === from);
+  if (from === to || !moving) return null;
+  const merged = mergeSessions(moving, sessions.find((session) => session.key === to), to);
+  const next = [merged, ...sessions.filter((session) => session.key !== from && session.key !== to)].slice(0, SESSION_LIMIT);
+  return writeSessions(next, { key: to, updatedAt: merged.updatedAt });
+}
+
 export function clearWizardSession(key: string): Promise<LibrarySaveEvidence> {
   return writeSessions(listSessions().filter((session) => session.key !== key), { key, updatedAt: null });
 }

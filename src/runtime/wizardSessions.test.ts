@@ -1,5 +1,5 @@
 import type { WizardSessionState } from "@wizard/index";
-import { clearWizardSession, loadWizardSession, onWizardSessionSave, saveWizardSession } from "./wizardSessions";
+import { clearWizardSession, loadWizardSession, onWizardSessionSave, rekeyWizardSession, saveWizardSession } from "./wizardSessions";
 
 const settings: Record<string, unknown> = {};
 const host: { observation: Record<string, unknown>; server: Record<string, unknown> | null; saves: number; burst: number } = { observation: {}, server: null, saves: 0, burst: 0 };
@@ -115,5 +115,33 @@ describe("wizardSessions save evidence (E3)", () => {
     stop();
     saveWizardSession(session());
     expect(heard).toEqual([{ summary: "wizard session save not confirmed", label: "wizard session sun-ruins" }, { summary: "wizard session clear not confirmed", label: "wizard session sun-ruins" }]);
+  });
+});
+
+describe("T5-2-2 LOW: Save re-keys the draft's session instead of keeping two", () => {
+  const agent = { version: 1, goal: "heist" } as unknown as WizardSessionState["agent"];
+  const stored = () => (settings["story-orchestrator"] as { wizardSessions: WizardSessionState[] }).wizardSessions;
+
+  it("moves the draft-key session onto the story id, keeping the ledger and the agent transcript, and drops the draft key", () => {
+    saveWizardSession(session({ key: "draft-muqubabr-trupno", agent }));
+    saveWizardSession(session({ key: "the-hoard", applied: ["Sable"], createdLorebooks: ["Hoard"] }));
+    rekeyWizardSession("draft-muqubabr-trupno", "the-hoard");
+    expect(stored().map((entry) => entry.key)).toEqual(["the-hoard"]);
+    expect(loadWizardSession("the-hoard")).toMatchObject({ applied: ["Sable"], createdLorebooks: ["Hoard"], agent });
+  });
+
+  it("a draft with no story session yet becomes the story's session", () => {
+    saveWizardSession(session({ key: "draft-x", agent, applied: ["Mirek"] }));
+    rekeyWizardSession("draft-x", "the-hoard");
+    expect(stored().map((entry) => entry.key)).toEqual(["the-hoard"]);
+    expect(loadWizardSession("the-hoard")).toMatchObject({ key: "the-hoard", applied: ["Mirek"], agent });
+  });
+
+  it("control: the same key, or a draft key with no session, writes nothing", () => {
+    saveWizardSession(session({ key: "the-hoard" }));
+    const before = host.saves;
+    rekeyWizardSession("the-hoard", "the-hoard");
+    rekeyWizardSession("draft-none", "the-hoard");
+    expect(host.saves).toBe(before);
   });
 });

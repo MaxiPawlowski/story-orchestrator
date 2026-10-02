@@ -2,7 +2,7 @@ import { isValidationErrorList, parseStoryV2, type StoryV2 } from "@engine/index
 import { validateProvisioningOp, type ProvisioningEnvironment } from "@wizard/index";
 import { isRecord } from "@utils/guards";
 import { truncate } from "@utils/string";
-import { runDiagnostics } from "../../studio/diagnostics";
+import { runDiagnostics, type DiagnosticsContext } from "../../studio/diagnostics";
 import type { ProvisioningOp } from "@wizard/index";
 import { setChapters, setHouseRules } from "../../studio/mutations";
 import { setCheckpointMotive, setRosterDrive, setRosterView } from "../../studio/innerVoiceMutations";
@@ -12,6 +12,8 @@ import { runReadTool } from "./readTools";
 import type { AgentAudit, AgentRoute, RouteAnswer } from "./route";
 import { checkRequirementsOp } from "./requirements";
 import { checkToolCall, type ReadToolName } from "./tools";
+import { doneSummary, missingAtDone, refusedDoneLast } from "./finish";
+import { greetingClash, playerCastProblem } from "./playerCast";
 import type { AgentBudget, AgentOnlyOp, AgentOp, AgentLookup, AgentMode, AgentReply, AgentSession, AgentStep, AgentStepStatus } from "./types";
 
 export const AGENT_SESSION_VERSION = 1;
@@ -132,10 +134,13 @@ export const resumeAgent = (session: AgentSession): AgentSession =>
 export const addAuthorNote = (session: AgentSession, text: string, at = now()): AgentSession =>
   text.trim() ? { ...session, notes: [...session.notes, { role: "author", text: text.trim(), at }] } : session;
 
-export const checkDraft = (draft: StoryV2): string => {
+export const addUndoNote = (session: AgentSession, text: string, at = now()): AgentSession =>
+  text.trim() ? { ...session, notes: [...session.notes, { role: "author", text: text.trim(), at, onceAt: session.steps.length }] } : session;
+
+export const checkDraft = (draft: StoryV2, install: DiagnosticsContext = {}): string => {
   const parsed = parseStoryV2(draft);
   const errors = isValidationErrorList(parsed) ? parsed : [];
-  const diagnostics = runDiagnostics(draft).filter((diagnostic) => diagnostic.severity !== "info");
+  const diagnostics = runDiagnostics(draft, install).filter((diagnostic) => diagnostic.severity !== "info");
   const lines = [
     ...errors.map((error) => `error ${error.path}: ${error.message}`),
     ...diagnostics.map((diagnostic) => `${diagnostic.severity} ${diagnostic.code} at ${diagnostic.path}: ${diagnostic.message}`),
@@ -163,6 +168,8 @@ export interface AgentTurn {
   apply: AgentOp | null;
   audit?: AgentAudit;
 }
+
+const installOf = (context: AgentContext): DiagnosticsContext => ({ characterNames: () => context.environment.characterNames, backgroundNames: context.lookup.backgrounds });
 
 const nextStatus = (session: AgentSession, steps: AgentStep[]): AgentSession["status"] => {
   if (steps.some((step) => step.status === "pending")) return "awaiting-author";
@@ -207,10 +214,7 @@ export const executeReply = (session: AgentSession, reply: AgentReply, context: 
     const notes = [...session.notes, { role: "agent" as const, text: `Plan: ${reply.plan.join(" / ")}`, at }];
     return { session: { ...session, plan: reply.plan, status: "awaiting-plan", notes }, apply: null };
   }
-  if (reply.kind === "done") {
-    const notes = [...session.notes, { role: "agent" as const, text: reply.summary || "Done.", at }];
-    return { session: { ...session, status: "done", summary: reply.summary, notes }, apply: null };
-  }
+  if (reply.kind === "done") return finish(session, reply.summary, context, meta);
   const base = baseStep(meta, reply);
   const record = (step: Pick<AgentStep, "family" | "status" | "observation"> & Partial<AgentStep>, apply: AgentOp | null = null): AgentTurn => ({
     session: withStep(session, { ...base, firstTryValid: step.status === "refused" ? false : meta.firstTryValid, ...step }),
@@ -223,11 +227,14 @@ export const executeReply = (session: AgentSession, reply: AgentReply, context: 
     return record({ family: spec.family, status: "observed", observation: runReadTool(spec.name as ReadToolName, reply.call.args, context.draft, context.lookup) });
   }
   if (!op) return record({ family: null, status: "refused", observation: `Refused: ${spec.name}: arguments did not parse` });
+  const player = playerCastProblem(session, context.draft, op);
+  if (player) return record({ family: spec.family === "provision" ? "provision" : "edit", op, status: "refused", observation: `Refused: ${player}` });
   if (spec.family === "provision") {
     if (!isProvisionOp(op)) return record({ family: null, status: "refused", observation: `Refused: ${spec.name} is not a provisioning step` });
     const validation = validateProvisioningOp(op, context.environment);
     if (!validation.ok) return record({ family: "provision", op, status: "refused", observation: `Refused: ${validation.message}` });
-    return record({ family: "provision", op, status: "pending", observation: "Waiting for the author to confirm this asset." });
+    const clash = greetingClash(context.draft, op);
+    return record({ family: "provision", op, status: "pending", observation: `Waiting for the author to confirm this asset.${clash ? ` ${clash}` : ""}` });
   }
   const requirements = op.kind === "setRequirements" ? checkRequirementsOp(session, context.draft, op) : null;
   if (requirements?.problem) return record({ family: "edit", op, status: "refused", observation: `Refused: ${requirements.problem}` });
@@ -236,9 +243,22 @@ export const executeReply = (session: AgentSession, reply: AgentReply, context: 
   const problem = editProblem(context.draft, edit);
   if (problem) return record({ family: "edit", op: edit, status: "refused", observation: `Refused: ${problem}` });
   if (session.mode === "auto-draft") {
-    return record({ family: "edit", op: edit, status: "applied", observation: noted("Applied to the draft (auto-draft)."), check: checkDraft(applyAgentOp(context.draft, edit)) }, edit);
+    return record({ family: "edit", op: edit, status: "applied", observation: noted("Applied to the draft (auto-draft)."), check: checkDraft(applyAgentOp(context.draft, edit), installOf(context)) }, edit);
   }
   return record({ family: "edit", op: edit, status: "pending", observation: noted("Waiting for the author.") });
+};
+
+const finish = (session: AgentSession, claim: string, context: AgentContext, meta: StepMeta): AgentTurn => {
+  const at = meta.at ?? now();
+  const missing = missingAtDone(session, context.draft, context.environment);
+  if (missing.length && !refusedDoneLast(session)) {
+    const observation = `Refused: not done yet: ${missing.join("; ")}. Create what is missing, or tell the author why it should not exist, then finish again.`;
+    const step = { at, route: meta.route, call: { tool: "done", args: { summary: claim } }, family: null, status: "refused" as const, observation, firstTryValid: false, repaired: meta.repaired };
+    return { session: withStep(session, step), apply: null };
+  }
+  const summary = `${doneSummary(session, context.draft, claim)}${missing.length ? ` Still missing: ${missing.join("; ")}.` : ""}`;
+  const notes = [...session.notes, { role: "agent" as const, text: summary, at }];
+  return { session: { ...session, status: "done", summary, notes }, apply: null };
 };
 
 const updateStep = (session: AgentSession, id: number, patch: Partial<AgentStep>): AgentSession => {
@@ -281,7 +301,10 @@ export const advanceAgent = async (session: AgentSession, context: AgentContext,
   if (session.status !== "planning" && session.status !== "running") return { session, apply: null };
   if (budgetSpent(session)) return { session: { ...session, status: "budget" }, apply: null };
   const expect = session.status === "planning" ? "plan" : "step";
-  const prompt = expect === "plan" ? renderPlanPrompt(session, context.draft, context.environment, route.native) : renderStepPrompt(session, context.draft, context.environment, route.native);
+  const backgrounds = context.lookup.backgrounds();
+  const prompt = expect === "plan"
+    ? renderPlanPrompt(session, context.draft, context.environment, route.native, backgrounds)
+    : renderStepPrompt(session, context.draft, context.environment, route.native, backgrounds);
   const answer: RouteAnswer = await route.ask(prompt, expect, replyProblems);
   const charged = { ...session, budget: { ...session.budget, usedTokens: session.budget.usedTokens + answer.tokens } };
   const meta: StepMeta = { route: answer.route, firstTryValid: answer.firstTryValid, repaired: answer.repaired, at };

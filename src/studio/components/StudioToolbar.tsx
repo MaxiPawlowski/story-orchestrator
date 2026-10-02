@@ -1,11 +1,11 @@
 import React, { useRef, useState } from "react";
 import { isValidationErrorList } from "@engine/index";
 import { availableStoryId, confirmLibrarySave, saveStoryRecord } from "@runtime/storyLibrary";
-import { chatSaveSentence, librarySaveSentence, type ChatSaveOutcome, type LibrarySaveEvidence } from "@runtime/librarySave";
+import { chatSaveHalf, librarySaveSentence, type ChatSaveAnswer, type LibrarySaveEvidence } from "@runtime/librarySave";
 import type { StoryLibraryRecord } from "@runtime/types";
 import Toolbar from "@components/studio/Toolbar";
 import FeedbackAlert from "@components/studio/FeedbackAlert";
-import { useDraftStore } from "../draft";
+import { draftKeyFor, useDraftStore } from "../draft";
 import { exportDraft, importDraft } from "../io";
 import { slugifyStoryId } from "@engine/index";
 import { log } from "@utils/log";
@@ -14,7 +14,7 @@ type Feedback = { type: "success" | "error"; message: string } | null;
 
 // What the host does with a saved record. The Studio never reaches into the runtime itself: the
 // chat that is playing this story decides whether to take the update (hot-swap).
-export type StudioSaveHandler = (record: StoryLibraryRecord) => Promise<ChatSaveOutcome | null> | ChatSaveOutcome | null;
+export type StudioSaveHandler = (record: StoryLibraryRecord) => Promise<ChatSaveAnswer> | ChatSaveAnswer;
 
 const download = (filename: string, text: string) => {
   try {
@@ -32,10 +32,11 @@ const download = (filename: string, text: string) => {
 
 interface Props {
   onSaved?: StudioSaveHandler;
+  onRekeySession?: (from: string, to: string) => void;
   confirmSave?: (record: StoryLibraryRecord) => Promise<LibrarySaveEvidence>;
 }
 
-const StudioToolbar: React.FC<Props> = ({ onSaved, confirmSave = confirmLibrarySave }) => {
+const StudioToolbar: React.FC<Props> = ({ onSaved, onRekeySession, confirmSave = confirmLibrarySave }) => {
   const draft = useDraftStore((state) => state.draft);
   const dirty = useDraftStore((state) => state.dirty);
   const loadDraft = useDraftStore((state) => state.loadDraft);
@@ -56,7 +57,11 @@ const StudioToolbar: React.FC<Props> = ({ onSaved, confirmSave = confirmLibraryS
       setFeedback({ type: "error", message: `${result.length} validation error(s) block save.` });
       return;
     }
-    loadDraft({ ...current, id: result.record.id, version: result.record.version }, result.record.hash, useDraftStore.getState().draftKey);
+    const saved = { ...current, id: result.record.id, version: result.record.version };
+    const draftKey = useDraftStore.getState().draftKey;
+    const storyKey = draftKeyFor(saved);
+    if (onRekeySession && storyKey !== draftKey) onRekeySession(draftKey, storyKey);
+    loadDraft(saved, result.record.hash, onRekeySession ? storyKey : draftKey);
     // The library half says "Saved" only on evidence the server holds the record. The
     // write armed that evidence and the runtime journals it; this reads the same one.
     const evidence = confirmSave(result.record);
@@ -68,7 +73,7 @@ const StudioToolbar: React.FC<Props> = ({ onSaved, confirmSave = confirmLibraryS
       // Two events, two sentences (save vocabulary). No handler at all means no chat is
       // watching this save, which is not the same as a chat declining it.
       const taken = onSaved ? await onSaved(result.record) : null;
-      chatHalf = !onSaved ? "" : ` ${chatSaveSentence(taken ?? { applied: false, detail: "it is playing a different story" })}`;
+      chatHalf = chatSaveHalf(Boolean(onSaved), taken);
     } catch (error) {
       chatHalf = ` Not applied to this chat: ${error instanceof Error ? error.message : String(error)}`;
       chatFailed = true;

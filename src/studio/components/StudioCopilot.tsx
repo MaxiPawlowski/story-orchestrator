@@ -61,6 +61,7 @@ export interface WizardHost {
   readEntry?: (lorebook: string, comment: string) => Promise<ExistingEntry | null>;
   loadSession?: (key: string) => WizardSessionState | null;
   saveSession?: (session: WizardSessionUpdate) => void;
+  rekeySession?: (from: string, to: string) => void;
 }
 
 export type WizardMode = "staged" | "agent";

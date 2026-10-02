@@ -1,5 +1,5 @@
 import { ExtractionScheduler, probeModel, setAnsweredObserver, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
-import { listConnectionProfiles, profileExists, subscribeToHostEvents } from "@services/STAPI";
+import { currentChatOwner, listConnectionProfiles, profileExists, subscribeToHostEvents } from "@services/STAPI";
 import { setFailoverGate } from "../modelCall";
 import { breakerWatchEntries } from "../breakerWatch";
 import { runBoundaryWork } from "../boundaryWork";
@@ -26,6 +26,10 @@ const schedulerHost = (live: LiveParts): SchedulerHost => ({
   getEntities: () => runtimeManager.getEntities(),
   applyExtractionAudit: (audit, facts, memory, arcs, epistemic, ledger, read) => runtimeManager.applyExtractionAudit(audit, facts, memory, arcs, epistemic, ledger, read),
   beginRead: (window) => beginRun(runtimeManager.getOwnership(), window),
+  readsOpenChat: () => {
+    const loaded = runtimeManager.getLoadedChatId();
+    return loaded === null || currentChatOwner()?.chatId === loaded;
+  },
   onSchedulerChange: () => {
     if (live.scheduler) runtimeManager.setSchedulerSnapshot(live.scheduler.getSnapshot());
   },

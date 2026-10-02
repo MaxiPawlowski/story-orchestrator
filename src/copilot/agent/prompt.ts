@@ -29,6 +29,11 @@ const RULES = [
   ].join(" "),
   `${FIRST_MESSAGE_RULE} ${OPENING_CAST_RULE} setCheckpointEffects replaces a beat's whole effects block, so keep what is already there.`,
   [
+    "The player is the persona, never a cast member: if the premise or a greeting tells the player \"you are the pawnbroker\", there is no Pawnbroker card or roster member.",
+    "effects.background names a file from the backgrounds listed under INSTALL; when none fits, leave the background out.",
+    "Every name in cast_changes and requirements.members needs a card on the install, and a story with a cast of two or more needs its group.",
+  ].join(" "),
+  [
     "Provisioning tools create NEW SillyTavern assets and the author confirms each one.",
     "You never edit an existing card or lorebook, never touch personas, and never save the story: saving is the author's click.",
   ].join(" "),
@@ -67,10 +72,19 @@ const earlierSteps = (session: AgentSession): string[] => {
   return [`EARLIER STEPS (compact, oldest first)\n${skipped ? `… ${skipped} older step(s)\n` : ""}${shown.map(renderEarlier).join("\n")}`];
 };
 
-const renderInstall = (environment: ProvisioningEnvironment): string => [
+const BACKGROUND_LIMIT = 40;
+
+const renderBackgrounds = (backgrounds: readonly string[]): string => {
+  if (!backgrounds.length) return "backgrounds on the install: unknown (lookupBackgrounds lists them)";
+  const more = backgrounds.length > BACKGROUND_LIMIT ? `, … ${backgrounds.length - BACKGROUND_LIMIT} more (lookupBackgrounds)` : "";
+  return `backgrounds on the install: ${backgrounds.slice(0, BACKGROUND_LIMIT).join(", ")}${more}`;
+};
+
+const renderInstall = (environment: ProvisioningEnvironment, backgrounds: readonly string[]): string => [
   `characters on the install: ${environment.characterNames.length}`,
   `lorebooks on the install: ${environment.lorebookNames.length}`,
   `lorebooks this story may write into: ${environment.ownedLorebooks.join(", ") || "(none yet: create the story's own lorebook first)"}`,
+  renderBackgrounds(backgrounds),
 ].join("\n");
 
 const NATIVE_RULES = [
@@ -78,23 +92,27 @@ const NATIVE_RULES = [
   "Call the tools natively. A plan or a finished reply is one JSON object as plain text.",
 ];
 
-const header = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment, native = false): string[] => [
+const authorNotes = (session: AgentSession): string[] => session.notes.slice(1)
+  .filter((note) => note.role === "author" && (note.onceAt === undefined || note.onceAt === session.steps.length))
+  .map((note) => `- ${note.text}`);
+
+const header = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment, native = false, backgrounds: readonly string[] = []): string[] => [
   (native ? [...NATIVE_RULES, ...RULES.slice(2)] : RULES).join("\n"),
   ...(native ? [] : [`TOOLS\n${renderToolSchema()}`]),
   `GOAL\n${session.goal}`,
   `DRAFT\n${runReadTool("readStory", {}, draft, emptyLookup())}`,
   `UNUSED FIELDS\n${renderCoverage(storyCoverage(draft))}`,
-  `INSTALL (create-only)\n${renderInstall(environment)}`,
-  ...(session.notes.length > 1 ? [`AUTHOR NOTES\n${session.notes.slice(1).filter((note) => note.role === "author").map((note) => `- ${note.text}`).join("\n")}`] : []),
+  `INSTALL (create-only)\n${renderInstall(environment, backgrounds)}`,
+  ...(authorNotes(session).length ? [`AUTHOR NOTES\n${authorNotes(session).join("\n")}`] : []),
 ];
 
-export const renderPlanPrompt = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment, native = false): string => [
-  ...header(session, draft, environment, native),
+export const renderPlanPrompt = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment, native = false, backgrounds: readonly string[] = []): string => [
+  ...header(session, draft, environment, native, backgrounds),
   "REPLY NOW with the plan only: {\"plan\": [\"one step per entry, in the order you will do them\"]}",
 ].join("\n\n");
 
-export const renderStepPrompt = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment, native = false): string => [
-  ...header(session, draft, environment, native),
+export const renderStepPrompt = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment, native = false, backgrounds: readonly string[] = []): string => [
+  ...header(session, draft, environment, native, backgrounds),
   `PLAN (agreed with the author)\n${session.plan.map((step, index) => `${index + 1}. ${step}`).join("\n")}`,
   ...earlierSteps(session),
   `RECENT STEPS (newest last)\n${session.steps.slice(-RECENT_STEPS).map(renderStep).join("\n") || "(none yet)"}`,

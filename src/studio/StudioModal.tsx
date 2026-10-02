@@ -249,7 +249,7 @@ const StudioTabContent = ({ activeTab, options, copilotEnabled, runCopilotStage,
   return <GraphTab copilotEnabled={copilotEnabled} onSelect={onSelect} />;
 };
 
-const StudioFooter = ({ onSaved }: { onSaved?: StudioSaveHandler }) => {
+const StudioFooter = ({ onSaved, onRekeySession }: { onSaved?: StudioSaveHandler; onRekeySession?: (from: string, to: string) => void }) => {
   const undo = useDraftStore((state) => state.undo);
   const redo = useDraftStore((state) => state.redo);
   const canUndo = useDraftStore((state) => state.past.length > 0);
@@ -258,7 +258,7 @@ const StudioFooter = ({ onSaved }: { onSaved?: StudioSaveHandler }) => {
     <div className="st-panel-header flex flex-wrap items-center gap-2 border-t px-3 py-2">
       <button type="button" className="st-button secondary" onClick={undo} disabled={!canUndo}>Undo</button>
       <button type="button" className="st-button secondary" onClick={redo} disabled={!canRedo}>Redo</button>
-      <StudioToolbar onSaved={onSaved} />
+      <StudioToolbar onSaved={onSaved} onRekeySession={onRekeySession} />
     </div>
   );
 };
@@ -326,7 +326,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
             />
           </GateReplayContext.Provider>
         </div>
-        <StudioFooter onSaved={onSaved} />
+        <StudioFooter onSaved={onSaved} onRekeySession={wizardHost?.rekeySession} />
       </div>
     </dialog>,
     document.body,
