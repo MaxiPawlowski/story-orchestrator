@@ -11,7 +11,7 @@ const pawnbroker = (patch: Partial<StoryV2> = {}): StoryV2 => ({
   checkpoints: [
     {
       id: "start", name: "The Writ", objective: "", type: "intermediate", start: true,
-      effects: { background: "pawnshop_interior", cast_changes: { enable: ["The Queen's Agent"], disable: ["The Queen", "The Memory Broker"] } },
+      effects: { background: { name: "pawnshop_interior" }, cast_changes: { enable: ["The Queen's Agent"], disable: ["The Queen", "The Memory Broker"] } },
     },
     { id: "end", name: "The Ticket", objective: "", type: "anchor", effects: { background: { name: "royal" } } },
   ],

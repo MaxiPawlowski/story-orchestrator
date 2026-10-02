@@ -30,7 +30,7 @@ const clean: StoryV2 = {
 const installSeeded: StoryV2 = {
   ...clean,
   description: "You are the courier of the guild.",
-  checkpoints: [{ ...clean.checkpoints[0], effects: { background: "harbour_night", cast_changes: { enable: ["Ghost"] } } }, clean.checkpoints[1]],
+  checkpoints: [{ ...clean.checkpoints[0], effects: { background: { name: "harbour_night" }, cast_changes: { enable: ["Ghost"] } } }, clean.checkpoints[1]],
   roster: [{ id: "courier", name: "The Courier" }],
 };
 
