@@ -74,3 +74,54 @@ Findings (detail in `T5-5-1/findings.md`):
 - LOW: lost spaces after closing asterisks (msgs 6, 8, 11); stale driver Report; duplicate memory/epistemic rows; ST Summarize quiet run takes the thought prefix; nudge row not marked one-turn; Inner voice lists all 20 cast.
 - Thinking: 5/5 replies with parsed reasoning, 0 empty, 0 leaks, 0 character-line cuts, 3 repeated-name starts, 0 loop-guard swipes; harvest fed 2 epistemic passes that stored `[intends]` rows (Forre, Aristhide).
 - DeepSeek 24 calls, 61,688 in / 10,987 out. Judge 69 calls (1 director timeout). Main RP 6 (5 replies + 1 ST summarize).
+
+## T5-1 Wizard, premise 1 (lane 3, `test/sessions/T5/T5-1-1` INVALID, scores provisional)
+
+- **T5-1-1 (INVALID, harness/operator reason, scored provisionally):** played 2026-10-02 10:39-11:54Z on a fresh lane 3 seed (pin be0696b), served dev bundle `b644cbb7ad01` (thinking overlay default), media off, `--arm agent`, Agent mode "Review every change", local route (DeepSeek). Story `the-redline-kingdom@1`; 4 cards, 2 books (one foreign, from the provocation), group `1790938593543`, chat `2026-10-02@07h56m33s541ms` adopted. 20 player turns + 1 swipe, 4 flags.
+- **Why INVALID:** header diff clean (wizard-aware allowance worked). Only `ratingCandidates: 0`: the W6 artifact rule counts turns tagged `--arm`, and the turns were played untagged (operator slip). Stop still built the W6 candidate from `session.arm` + the draft, so the rule and the pack disagree on what the candidate is.
+- **Staged arm (T5-1-2) not run:** `start T5-1 --lane 3 --arm staged` failed closed twice at the preset-overlay check after a full reseed (page sampler order has `adaptive_p`, the seed's overlay wrote 9 keys without it; `T5-1-2/start-failed.json`); master moved to `dd48bfee` during the run. Lane 3 is now a fresh seed; the T5-1 chat survives only in the exports.
+
+| Row | Score (provisional) | Evidence (T5-1-1) |
+|---|---|---|
+| wizard interview | annoying | turns.jsonl:1, x-agent-run1.json |
+| review mode | annoying | x-agent-run1.json, shots/005-agent-done.png, wizard-drafts.json:14 |
+| provisioning | annoying | turns.jsonl:4, wizard-drafts.json:134, journal.jsonl:86, run-header-diff.txt:17 |
+| playability of the result | annoying | journal.jsonl:87, :129, :199, :356, wizard-drafts.json:283, shots/033-after-20-turns.png |
+| 11 W6 leg | recorded (user) | wizard-drafts.json:1 |
+
+Findings (detail in `T5-1-1/findings.md`):
+- HIGH (product): start `cast_changes.disable` written with roster ids; `resolveGroupMemberId` cannot match them and `applyCastChanges` skips silently (no ledger, journal or diagnostic). All three houses spoke from turn 1 against the start guidance.
+- HIGH (product, agent): the done summary claims tension/agency/talk_control on all beats and cast gating; the draft had none of them and no enable effects. The last card was `updateCheckpoint start` with `patch: {}`. A second goal fixed the enables.
+- MEDIUM: the out-of-story request was not refused: the agent proposed another story's lorebook + 2 entries (cards waited) and added it to this story's requirements.
+- MEDIUM: 71 review cards, 4 ordering refusals, duplicate drive steps; New goal still replaces the draft's agent session (first run kept only in the operator's `x-agent-run1.json`).
+- MEDIUM (thinking): 3 empty Master Ilse replies (reasoning only); the model-defect check misses empty replies.
+- MEDIUM: stalled at `flight` b12-b44 (`ink_awareness` 3 of 5).
+- LOW: no interview in the Agent route; the save toast says "playing a different story" with no chat open; drive cards preview null/null.
+- Harness: the W6 rule above; `turn` does not remind the operator to pass `--arm` on a gated card.
+- Thinking: 44 replies, reasoning on 36, empty reasoning on 8, 3 empty contents, 0 damaged starts, 0 repeated names. DeepSeek 151 calls (776k in / 64k out, 70 primary, 0 fallback), judge 258 (22 timeouts), main RP 51.
+
+## T5-3 Studio edit (lane 3, `test/sessions/T5/T5-3-1` VALID)
+
+- **T5-3-1 (VALID):** 2026-10-02 11:56-12:15Z, continued the T5-1 chat. Four saves through the Studio, each hot-swapped ("Applied to this chat"): v2 flight guidance, v3 gate `ink_awareness >= 5 -> 4` (fired from play at b46), v4 background on redline (applied at save), v5 start cast disable re-picked by name. Invalid save (retargeted transition) refused with 2 errors. 3 turns. Header diff clean with `inventory.v2Stories:~the-redline-kingdom`.
+
+| Row | Score | Evidence (T5-3-1) |
+|---|---|---|
+| checkpoint editor | works | shots/001, shots/002, journal.jsonl:528 |
+| gate editor | annoying | shots/003-gate-edit-before-save.png, journal.jsonl:529, :576 |
+| effects editor | annoying | shots/006, shots/007-start-cast-changes-editor.png, shots/008, journal.jsonl:596 |
+| diagnostics | annoying | shots/011-invalid-save-attempt.png, shots/010 |
+| hot-swap / invalidating choice | works | journal.jsonl:528, :529, :596, :597 |
+
+Findings: HIGH: the cast editor shows the wizard's id-valued disable as "3 selected" with nothing ticked, no warning. MEDIUM: the gate replay panel shows "last 0 boundaries" on a chat at b44; schema errors have no consequence line and cite `checkpoints.1` instead of names. LOW: guidance/background/cast edits journaled as "identical"; editor reselects the start checkpoint after save; truncated feedback; stale error line after Undo; the player offered as a cast member; 3 "save not confirmed" rows mid-round. Thinking: 9 replies, 9 with reasoning, 1 empty content (msg 70). DeepSeek 20 (0 fallback), judge 70 (16 busy memoryPairs at one moment, 6 timeouts), main RP 9.
+
+## T5-4 Repair (lane 3, `test/sessions/T5/T5-4-1` VALID)
+
+- **T5-4-1 (VALID):** 2026-10-02 12:16-12:23Z, continued the T5-1 chat. Broke three things with ST's own commands (member removed, member muted, book deselected), read Repair after each, ran Fix with wizard from the Repair entry and from the drawer's author panel, repaired by hand. No turns.
+
+| Row | Score | Evidence (T5-4-1) |
+|---|---|---|
+| Repair | annoying | shots/001, shots/003, shots/007, shots/011, journal.jsonl:538 |
+| Fix with wizard | broken | shots/004, shots/005, shots/006, journal.jsonl:537 |
+| disabled member (known finding) | works | shots/002, shots/010, shots/006 |
+
+Findings: HIGH: Fix with wizard's seed calls the removed member and the deselected book "do not exist yet"; the create-only stage correctly emits nothing, so it fixes none of the breaks Repair offers it for. MEDIUM: after `/member-add` the Repair row stayed (requirements stale) until a World Info change refreshed them. LOW: on reopen the background effect was refused ("write-ahead record could not be saved", `journal.jsonl:505`); no reveal control. The known "disabled member is silent" finding no longer holds: `mutedMembers`, the author panel row and Repair (once it is the worst gap) all name it. Repair always showed one step. DeepSeek 3 (0 fallback), judge 1, main RP 0.

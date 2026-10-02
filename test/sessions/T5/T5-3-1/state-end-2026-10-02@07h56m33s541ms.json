@@ -1,0 +1,1799 @@
+{
+  "storyId": "the-redline-kingdom",
+  "activeCheckpointId": "redline",
+  "boundary": 53,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "The Redline Kingdom": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "ink_awareness": 5,
+    "suspicion": 3,
+    "tension_current": 0.54993659825
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "8156e4fe-84ef-4813-a546-93e04ba5cf02",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 5,
+        "boundary": 5,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "The Apprentice",
+      "tag": "suspects",
+      "content": "Lady Corvane has come for the map or its maker, not to negotiate",
+      "createdAt": 5,
+      "messageId": 5,
+      "supersededBy": "retired@30",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 30
+      }
+    },
+    {
+      "id": "62284963-5d57-4b27-af1e-da52e570f2bd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 26,
+        "boundary": 20,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "knows",
+      "content": "Master Ilse is choosing to side with the apprentice",
+      "createdAt": 20,
+      "messageId": 26,
+      "supersededBy": "retired@30",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 30
+      }
+    },
+    {
+      "id": "e69f2222-26fb-4095-85e9-07265c9f06de",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 30,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "knows",
+      "content": "The apprentice and Master Ilse are escaping across the rooftops with the map.",
+      "createdAt": 21,
+      "messageId": 30,
+      "supersededBy": "retired@30",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 30
+      }
+    },
+    {
+      "id": "d067dbd7-950a-4af3-9993-1233c32efe67",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 30,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "The apprentice has taken the map and is fleeing up the ladder.",
+      "createdAt": 21,
+      "messageId": 30,
+      "supersededBy": "retired@30",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 30
+      }
+    },
+    {
+      "id": "32158712-b5e4-430f-a172-bf436197ce7b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 30,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "knows",
+      "content": "The apprentice and Master Ilse are climbing toward the drying loft.",
+      "createdAt": 21,
+      "messageId": 30,
+      "supersededBy": "retired@30",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 30
+      }
+    },
+    {
+      "id": "cbd98658-bb61-413a-b5ec-09f542e52f4f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 30,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "Master Ilse revealed the drying loft route to the apprentice",
+      "createdAt": 21,
+      "messageId": 30,
+      "supersededBy": "retired@30",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 30
+      }
+    },
+    {
+      "id": "a444db7c-ec05-4d4c-a5de-a8bb562ad1e1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 30,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "Master Ilse is following the apprentice up the ladder",
+      "createdAt": 21,
+      "messageId": 30,
+      "supersededBy": "retired@30",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 30
+      }
+    },
+    {
+      "id": "5608c3b8-a718-4514-a357-ba2b396a7034",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 30,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "The apprentice and Master Ilse have climbed out onto the rooftop gardens",
+      "createdAt": 21,
+      "messageId": 30,
+      "supersededBy": "retired@30",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 30
+      }
+    },
+    {
+      "id": "c2fe2c8c-1468-43ac-bcca-bf90e13e0a60",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 24,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "intends",
+      "content": "to bring the apprentice back down to the workshop by offering to show her what keeping means",
+      "createdAt": 24,
+      "messageId": 35,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 39,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "bce092ed-11c6-4839-b981-5d694cdca393",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 24,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "intends",
+      "content": "to position himself so the apprentice sees him first if she descends",
+      "createdAt": 24,
+      "messageId": 35,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 39,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "cd30f140-55df-43d1-b93f-435ae2244754",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Ashmere Envoy holds the pen below in the workshop.",
+      "createdAt": 24,
+      "messageId": 35,
+      "supersededBy": "retired@30",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 30
+      }
+    },
+    {
+      "id": "5b656048-60ad-42f9-a5ed-5fcabfe93707",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "knows",
+      "content": "The apprentice rolled up the map and tucked it under her arm",
+      "createdAt": 24,
+      "messageId": 35,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 39,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "a37e1cf8-dbea-4410-9ae8-337d491b2d35",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "knows",
+      "content": "The apprentice asked her \"Which way, Master? East eaves?\"",
+      "createdAt": 24,
+      "messageId": 35,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 39,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "809fecd3-4d83-428f-846a-510d4751b014",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "knows",
+      "content": "The apprentice unrolled a corner of the map and saw a new road inking itself from the guild to the river",
+      "createdAt": 24,
+      "messageId": 35,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 39,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "63c62b17-62cf-40ee-bafb-e15a8373eaaa",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "The apprentice unrolled the map and saw a new road inking itself from the guild to the river",
+      "createdAt": 24,
+      "messageId": 35,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 39,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "e58e3571-3177-4dff-9d7f-71bdbf9e14cb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "knows",
+      "content": "The apprentice unrolled the map and saw a new road inking itself from the guild to the river",
+      "createdAt": 24,
+      "messageId": 35,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 39,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "f213b7e8-6450-433d-909b-c379b14ce8ce",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "The apprentice asked her \"You said controlled. Controlled by whom?\"",
+      "createdAt": 24,
+      "messageId": 35,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 39,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "0c71b0eb-4887-4e8f-853f-4c7586b6f4c0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "The apprentice asked Master Ilse \"Which way, Master? East eaves?\"",
+      "createdAt": 24,
+      "messageId": 35,
+      "supersededBy": "retired@30",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 30
+      }
+    },
+    {
+      "id": "5fc7450a-82a3-4cab-b975-0cd8195b38e6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "The apprentice unrolled a corner of the map and saw a new road inking itself from the guild to the river",
+      "createdAt": 24,
+      "messageId": 35,
+      "supersededBy": "retired@30",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 30
+      }
+    },
+    {
+      "id": "abafac99-05ec-4f83-ba22-ceb89a7198a4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "The apprentice chose her master over the houses.",
+      "createdAt": 28,
+      "messageId": 39,
+      "supersededBy": "retired@30",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 30
+      }
+    },
+    {
+      "id": "48c5cb4d-023d-48cf-a79d-bad1ddd966db",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 30,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Apprentice",
+      "tag": "knows",
+      "content": "the map's rewriting is driven by her own hand and whatever she draws before dawn becomes real",
+      "createdAt": 30,
+      "messageId": 44
+    },
+    {
+      "id": "57a7b495-3d6b-4f80-81cf-1704add03eaa",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 30,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "The Apprentice",
+      "tag": "suspects",
+      "content": "Master Ilse knew about her power from the start",
+      "createdAt": 30,
+      "messageId": 44
+    },
+    {
+      "id": "6e3e8556-f059-4ff3-93a2-8f8d3ace0ed3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 49,
+        "boundary": 34,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "intends",
+      "content": "To get the apprentice and the map out of the workshop before dawn",
+      "createdAt": 34,
+      "messageId": 49,
+      "affirmedAt": [
+        {
+          "messageId": 57,
+          "boundary": 40
+        }
+      ],
+      "supersededBy": "retired@42",
+      "retiredAt": {
+        "messageId": 61,
+        "boundary": 42
+      }
+    },
+    {
+      "id": "ae6a2255-5904-4638-8137-3a9d1d64780a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 53,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "the map's rule that night writes, dawn tests, and only intent-drawn lines become permanent",
+      "createdAt": 37,
+      "messageId": 53
+    },
+    {
+      "id": "388a9e8d-db0e-4695-a52c-7501951cdcd4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 53,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "the redline border around the guild holds until dawn",
+      "createdAt": 37,
+      "messageId": 53
+    },
+    {
+      "id": "a529d8e1-94c8-480d-abed-20411f8d469b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 53,
+        "boundary": 37,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "hiding",
+      "content": "what she knew from the start about the apprentice's hand",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 37,
+      "messageId": 53,
+      "supersededBy": "retired@42",
+      "retiredAt": {
+        "messageId": 61,
+        "boundary": 42
+      }
+    },
+    {
+      "id": "4bef08ba-ef62-400f-ad49-f7b65af04cad",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 53,
+        "boundary": 37,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "the map's rule that only intent-drawn lines survive dawn",
+      "createdAt": 37,
+      "messageId": 53
+    },
+    {
+      "id": "8bd7266c-19f4-427a-b292-4901cf49dc49",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 57,
+        "boundary": 40,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Her inked river fork near Hallowmere flooded three fishing villages' docks, and her shifted southern road displaced a three-generation settlement.",
+      "createdAt": 40,
+      "messageId": 57
+    },
+    {
+      "id": "a73acb95-7b66-4001-a650-4bdb74eec52c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 57,
+        "boundary": 40,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "House Vael keeps centuries of records on the guild's displacement effects.",
+      "createdAt": 40,
+      "messageId": 57
+    },
+    {
+      "id": "b85726fe-8e8e-47d2-a2b8-2957f8fdf55b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 57,
+        "boundary": 40,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "The apprentice demanded proof of harm before considering any offer.",
+      "createdAt": 40,
+      "messageId": 57
+    },
+    {
+      "id": "d5ef5990-6393-46ca-b9d5-e4aef946e4c6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 57,
+        "boundary": 40,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "her past inkings drowned three fishing villages and displaced a settlement",
+      "createdAt": 40,
+      "messageId": 57
+    },
+    {
+      "id": "9f5c1bf1-1303-46cd-8f9e-18d462511068",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 57,
+        "boundary": 40,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "the apprentice's past inkings caused specific harms (Hallowmere villages, southern foothills settlement)",
+      "createdAt": 40,
+      "messageId": 57
+    },
+    {
+      "id": "171f246e-9cc2-4ad9-894c-1622176e879b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 57,
+        "boundary": 40,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "The apprentice asked him and the Envoy to show her one village she already changed without meaning to",
+      "createdAt": 40,
+      "messageId": 57
+    },
+    {
+      "id": "37d2fd35-9167-4ce4-87cc-e0f95857f79c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 57,
+        "boundary": 40,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "The apprentice pressed her palm on the wet line and said \"It isn't the pen. It isn't the ink. It's my hand, and it only answers at night.\"",
+      "createdAt": 40,
+      "messageId": 57
+    },
+    {
+      "id": "3f1fee44-e4b4-47cf-b993-033bd6148156",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 57,
+        "boundary": 40,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "The apprentice asked Master Ilse \"Master, you knew from the start, didn't you? You kept me at the desk so I wouldn't find out.\"",
+      "createdAt": 40,
+      "messageId": 57
+    },
+    {
+      "id": "a8a281e5-1c30-406e-b3c2-1619b1ea1844",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 57,
+        "boundary": 40,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "The apprentice called down through the loft opening to Lord Vael and the Envoy",
+      "createdAt": 40,
+      "messageId": 57
+    },
+    {
+      "id": "59a385c3-354c-4830-8679-f12c05404867",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 42,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "she can choose what the map becomes rather than only react to it",
+      "createdAt": 42,
+      "messageId": 61
+    },
+    {
+      "id": "97a7dbe5-6756-4e55-ad48-4c4458f0208e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 42,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "knows",
+      "content": "the apprentice is attempting to undo the moved river by redrawing its old course",
+      "createdAt": 42,
+      "messageId": 61,
+      "supersededBy": "retired@45",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 45
+      }
+    },
+    {
+      "id": "1c8a8416-b5d8-442a-91ad-8a14dae1dce5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 42,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "knows",
+      "content": "the apprentice is attempting to correct the map rather than destroy it",
+      "createdAt": 42,
+      "messageId": 61,
+      "supersededBy": "retired@45",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 45
+      }
+    },
+    {
+      "id": "4a0a4576-2fce-4a13-9e6b-968704673801",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 42,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "the map's rule: night writes, dawn tests, only intent holds",
+      "createdAt": 42,
+      "messageId": 61
+    },
+    {
+      "id": "809e1a3c-0b96-48c9-ae48-62cbf4d11de3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 42,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "her past inkings drowned docks and displaced families",
+      "createdAt": 42,
+      "messageId": 61
+    },
+    {
+      "id": "16675f9d-9d17-41f4-b778-0156b018ed59",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 42,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "knows",
+      "content": "the apprentice understands the curse and has drawn a redline border",
+      "createdAt": 42,
+      "messageId": 61,
+      "supersededBy": "retired@45",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 45
+      }
+    },
+    {
+      "id": "1295fbf8-11c5-4584-a842-ec23beb2ea1b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 42,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "the apprentice understands the map's rule and has drawn a redline border",
+      "createdAt": 42,
+      "messageId": 61,
+      "supersededBy": "retired@45",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 45
+      }
+    },
+    {
+      "id": "ec97e6ad-19a9-423c-b80e-ae2fb9abb496",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 42,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "the apprentice has found the rule that only intent-drawn lines hold",
+      "createdAt": 42,
+      "messageId": 61,
+      "supersededBy": "retired@45",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 45
+      }
+    },
+    {
+      "id": "91e4f306-2724-4088-8a8f-bf3bfacfeb4b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 42,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "hiding",
+      "content": "what she knew about the map's power and when she knew it",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 42,
+      "messageId": 61,
+      "supersededBy": "retired@42",
+      "retiredAt": {
+        "messageId": 61,
+        "boundary": 42
+      }
+    },
+    {
+      "id": "514ee279-4e74-496d-bca5-c87de278ee66",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 42,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "intends",
+      "content": "to make the apprentice his house's partner and architect of the kingdom",
+      "createdAt": 42,
+      "messageId": 61,
+      "supersededBy": "retired@42",
+      "retiredAt": {
+        "messageId": 61,
+        "boundary": 42
+      }
+    },
+    {
+      "id": "722f86c8-9563-4e46-b4c8-88ace057d81f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 42,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "intends",
+      "content": "to keep the apprentice and the pen together under House Ashmere's keeping",
+      "createdAt": 42,
+      "messageId": 61,
+      "supersededBy": "retired@42",
+      "retiredAt": {
+        "messageId": 61,
+        "boundary": 42
+      }
+    },
+    {
+      "id": "460fe40f-5b87-4b23-86ad-5555eb747e02",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 61,
+        "boundary": 42,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "intends",
+      "content": "to keep the apprentice and the pen together under House Ashmere's keeping",
+      "createdAt": 42,
+      "messageId": 61,
+      "affirmedAt": [
+        {
+          "messageId": 66,
+          "boundary": 45
+        }
+      ]
+    },
+    {
+      "id": "ec6ad038-ee5e-4364-aea2-5d79a7481f11",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The map's rule: night writes, dawn tests, and only intent-drawn lines hold permanently.",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "1c8d0ede-825f-43ba-a617-d76cc9de4a44",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "The apprentice has discovered the map's rule and that intent-drawn lines persist past dawn.",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "6e4aeabb-2735-4f35-8669-68f90bfb9bea",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "knows",
+      "content": "The apprentice's redrawn Hallowmere river held past dawn.",
+      "createdAt": 45,
+      "messageId": 66,
+      "supersededBy": "retired@45",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 45
+      }
+    },
+    {
+      "id": "15255f02-aa8f-4bc3-a756-3fc1dc88a844",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "The apprentice has learned the map's rule and can make corrections hold.",
+      "createdAt": 45,
+      "messageId": 66,
+      "supersededBy": "retired@45",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 45
+      }
+    },
+    {
+      "id": "7796016c-d053-496b-910e-e19d00b8057b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "knows",
+      "content": "The apprentice redrew the Hallowmere river and it held past dawn.",
+      "createdAt": 45,
+      "messageId": 66,
+      "supersededBy": "retired@45",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 45
+      }
+    },
+    {
+      "id": "898ebef2-8029-4333-8f6f-ee2fef68ea7d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "intends",
+      "content": "To have the apprentice kept safe in House Ashmere's vault and workshop to study and preserve her power.",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "7c351c7c-5795-467f-9d8e-c36c3f781a82",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "intends",
+      "content": "To see the map burned and the apprentice's hand ended as a plague.",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "c3ecff19-c852-457b-aca9-d0b5d285c00b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "intends",
+      "content": "To partner with the apprentice so her intent becomes permanent law for his house.",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "5a9fa604-8a89-4f04-a3f0-b17eb5f4b816",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "her hand alone rewrites the kingdom at night and only intent-drawn lines hold past dawn",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "c528aa87-4dcb-415e-b787-5cdbff0e976c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "the rule that only intent-drawn lines remain past dawn",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "15296bd5-6829-4529-a94a-3cc4acb09844",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "the map responds to the apprentice's will and is drawing its own truth",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "8597732e-402f-4dde-a48e-e0266e73c526",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "believes",
+      "content": "the apprentice's power is a plague that must be ended by erasure",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "578fe88c-b3c1-4574-97e1-6c8407dda64d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "intends",
+      "content": "to get the apprentice out of the workshop before dawn breaks",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "bcbb3f17-0e7e-4182-9b24-6142d1290e3d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "intends",
+      "content": "to make the apprentice the architect of House Vael's ambitions",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "de6bc1ed-8b0f-459c-9f3b-2e813a52eeb5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "intends",
+      "content": "to destroy the map and end the apprentice's hand",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "bcc7d7d9-f218-4d90-8643-39bbe4e5a5cc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "knows",
+      "content": "the apprentice asked her directly whether she knew from the start and kept her at the desk to hide it",
+      "createdAt": 45,
+      "messageId": 66,
+      "supersededBy": "retired@45",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 45
+      }
+    },
+    {
+      "id": "aa5279db-919b-4bce-ba9e-b237d6f8d5e2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "hiding",
+      "content": "whether she knew about the apprentice's hand from the start — she answered evasively, neither denying nor admitting",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 45,
+      "messageId": 66,
+      "supersededBy": "retired@45",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 45
+      }
+    },
+    {
+      "id": "801835b7-8326-41ab-83ac-4a34018bdf55",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "hiding",
+      "content": "that if there was something the apprentice wasn't meant to know, it was for the guild's sake, not her protection",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 45,
+      "messageId": 66,
+      "supersededBy": "retired@45",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 45
+      }
+    },
+    {
+      "id": "7dd666e7-afb4-4ef9-98dc-ff37e05c8146",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "believes",
+      "content": "Master Ilse kept her at the desk only because that is where a student learns to hold a pen and perfect the recipe",
+      "createdAt": 45,
+      "messageId": 66,
+      "supersededBy": "retired@45",
+      "retiredAt": {
+        "messageId": 66,
+        "boundary": 45
+      }
+    },
+    {
+      "id": "525c4a27-bda8-4fcd-8b95-c8a7978da145",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "knows",
+      "content": "the apprentice intends to redraw the Hallowmere river back to its old course",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "9649040b-3b00-4864-a9a0-ef40876d3d39",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "the apprentice has deduced the map's rule: night writes, dawn tests, and only intent-drawn lines hold",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "e875aa57-952e-4b47-a0b9-c7d38f838bdd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "knows",
+      "content": "the apprentice has deduced the map's rule and believes she has found a justification",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "f6355f64-8e02-4ce6-a6c9-18f4b7ddde3e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "believes",
+      "content": "the apprentice's power is a plague and the only true correction is erasure of the map and the hand",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "d773dbea-0f9b-4551-89e7-58f62e67150e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "the apprentice demanded to be shown one village she already changed without meaning to",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "88edfd60-b1b6-45bc-98dc-92a401a40b7a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "Lord Vael told the apprentice her river fork drowned three Hallowmere fishing villages' docks and her shifted southern road displaced a three-generation settlement",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "0b31bec9-efe6-43cc-9e38-ed050a3316fb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "House Vael keeps centuries of records on the guild's displacement effects",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "1eba6349-f97c-45f9-b1c4-805691bbf00d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "the apprentice came down to the workshop and spread the redrawn map before her, saying her hand answers only to her",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "1eab0314-eef2-4b91-887f-d85966feb596",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "hiding",
+      "content": "that her offer of a vault and workshop is a means to acquire the apprentice and the pen for House Ashmere",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "39b0a89c-c58d-4352-819b-4ab9d469f585",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "knows",
+      "content": "the apprentice's redrawn Hallowmere river held past dawn",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "c7b3e978-50ed-4b2f-a66d-e1a816ecee5d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "the apprentice has learned the map's rule and can make corrections hold",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "860913ff-56ee-40e0-934b-ee83ff386a7d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "knows",
+      "content": "the apprentice redrew the Hallowmere river and it held past dawn",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "e3f1c4c6-f191-4b62-b65f-20606687b534",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "knows",
+      "content": "the apprentice is attempting to correct the map rather than destroy it",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "1e17e33c-f044-47e2-b86a-c2039ab8f478",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "knows",
+      "content": "the apprentice asked her directly whether she knew from the start and kept her at the desk to hide it",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "bb859d1c-552e-46e0-b112-4f18631c5dbd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "hiding",
+      "content": "whether she knew about the apprentice's hand from the start — she answered evasively, neither denying nor admitting",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "beb59c5e-59fc-40ba-b8b2-16ae2cdf17bf",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "hiding",
+      "content": "that if there was something the apprentice wasn't meant to know, it was for the guild's sake, not her protection",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "a8bbcf3e-5f86-4460-a94a-99bd9f92e874",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 66,
+        "boundary": 45,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "believes",
+      "content": "Master Ilse kept her at the desk only because that is where a student learns to hold a pen and perfect the recipe",
+      "createdAt": 45,
+      "messageId": 66
+    },
+    {
+      "id": "ac2159da-38d0-4003-af6c-bf5679c8dc28",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "knows",
+      "content": "Max Nightriver intends to decide the kingdom's fate alone, rejecting all houses",
+      "createdAt": 49,
+      "messageId": 70
+    },
+    {
+      "id": "d1098eb4-618f-4c93-b9a9-bb5e3b9e413e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 49,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "knows",
+      "content": "Max Nightriver has proven her intent can withstand the test of dawn",
+      "createdAt": 49,
+      "messageId": 70
+    },
+    {
+      "id": "3098c552-3b9b-425f-8899-9e1fea18ce96",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 49,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ashmere Envoy",
+      "tag": "intends",
+      "content": "to keep the apprentice's talent safe in Ashmere's vault rather than let it be used or lost",
+      "createdAt": 49,
+      "messageId": 70
+    },
+    {
+      "id": "22a8162d-8fd2-40d5-b157-decac81e77d4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 70,
+        "boundary": 49,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Lord Vael",
+      "tag": "intends",
+      "content": "to secure a partnership in which House Vael makes the apprentice's drawn lines permanent",
+      "createdAt": 49,
+      "messageId": 70
+    },
+    {
+      "id": "3cc6431d-0284-4179-a8cb-77452625084d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "knows",
+      "content": "The apprentice has proven her hand can write its own truth, and the three houses are each offering her a leash in a different color.",
+      "createdAt": 53,
+      "messageId": 74
+    },
+    {
+      "id": "7b7c5084-585e-49e7-bc12-207f665fe352",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "knows",
+      "content": "The apprentice and Master Ilse are walking to the Hallowmere river with the map.",
+      "createdAt": 53,
+      "messageId": 74,
+      "supersededBy": "retired@53",
+      "retiredAt": {
+        "messageId": 74,
+        "boundary": 53
+      }
+    },
+    {
+      "id": "92fcf79c-abba-4922-93a3-21a5da64dc6c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "intends",
+      "content": "To wait for the perfect moment when the apprentice feels most secure and unaware, then strike to erase the plague.",
+      "createdAt": 53,
+      "messageId": 74,
+      "supersededBy": "retired@53",
+      "retiredAt": {
+        "messageId": 74,
+        "boundary": 53
+      }
+    },
+    {
+      "id": "8f03dfc9-9511-4b89-a0a8-60eb84b7c91f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "intends",
+      "content": "To walk with the apprentice, keep her eyes open to the changes, and see her reach the path she chooses.",
+      "createdAt": 53,
+      "messageId": 74,
+      "supersededBy": "retired@53",
+      "retiredAt": {
+        "messageId": 74,
+        "boundary": 53
+      }
+    },
+    {
+      "id": "6571e226-1666-4ab3-b210-0a152995f2dc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "knows",
+      "content": "the apprentice has chosen to walk out into the city with the map rather than accept any house's offer",
+      "createdAt": 53,
+      "messageId": 74
+    },
+    {
+      "id": "d81baca3-8da8-4d80-9e8e-77ee751d2cfb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "knows",
+      "content": "the three houses' representatives remain in the workshop as she and the apprentice leave",
+      "createdAt": 53,
+      "messageId": 74
+    },
+    {
+      "id": "03b4265e-bf05-4f83-8fcc-ce9e30b8c85b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "hiding",
+      "content": "her whispered counsel to the apprentice to choose between the bridge and the carts",
+      "hiddenFrom": "Lord Vael, Lady Corvane, Ashmere Envoy",
+      "createdAt": 53,
+      "messageId": 74
+    },
+    {
+      "id": "e94e7141-3768-4610-9ae8-9bef2fb5a64b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "intends",
+      "content": "to walk with the apprentice through the changed city with her eyes open to what was altered",
+      "createdAt": 53,
+      "messageId": 74
+    },
+    {
+      "id": "db63ec5a-6881-4f35-a3bf-1ab11b4b77ae",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Master Ilse",
+      "tag": "intends",
+      "content": "to see the apprentice reach the path she chooses",
+      "createdAt": 53,
+      "messageId": 74
+    },
+    {
+      "id": "f4952880-6614-4396-a7be-c951a9151f1d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "knows",
+      "content": "the apprentice and Master Ilse have left the workshop and are walking the streets with the map",
+      "createdAt": 53,
+      "messageId": 74
+    },
+    {
+      "id": "80934aea-65c3-4dc2-8b2c-0de7ea551247",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "knows",
+      "content": "the route toward the Hallowmere river that the apprentice and Master Ilse are taking",
+      "createdAt": 53,
+      "messageId": 74
+    },
+    {
+      "id": "78c93cd0-a0a9-462c-8fa0-76854b9f7396",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "hiding",
+      "content": "that she is following them through the shadows",
+      "hiddenFrom": "Max Nightriver, Master Ilse",
+      "createdAt": 53,
+      "messageId": 74
+    },
+    {
+      "id": "38a869dd-361c-4aeb-be7b-626564ec868a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "intends",
+      "content": "to wait for the moment the apprentice feels most secure and unaware, then strike to erase the plague",
+      "createdAt": 53,
+      "messageId": 74
+    },
+    {
+      "id": "cea2dfd2-b7a6-47b9-bd4e-1fc5e318955e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 74,
+        "boundary": 53,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Lady Corvane",
+      "tag": "believes",
+      "content": "the apprentice believes she has escaped the houses",
+      "createdAt": 53,
+      "messageId": 74
+    }
+  ],
+  "characters": [
+    {
+      "index": 17,
+      "name": "Ashmere Envoy",
+      "avatar": "Ashmere Envoy.png"
+    },
+    {
+      "index": 89,
+      "name": "Lady Corvane",
+      "avatar": "Lady Corvane.png"
+    },
+    {
+      "index": 94,
+      "name": "Lord Vael",
+      "avatar": "Lord Vael.png"
+    },
+    {
+      "index": 99,
+      "name": "Master Ilse",
+      "avatar": "Master Ilse.png"
+    }
+  ],
+  "payloadEpoch": "1790942191641-oq0yft"
+}

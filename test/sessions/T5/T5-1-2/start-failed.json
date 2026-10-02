@@ -1,0 +1,9 @@
+{
+  "charter": "T5-1",
+  "stage": "preset-overlay",
+  "at": "2026-10-02T12:43:03.017Z",
+  "problems": [
+    "the page runs textgen preset \"Artemis v1.1 RP\" with samplers = [\"min_p\",\"penalties\",\"dry\",\"top_n_sigma\",\"top_k\",\"typ_p\",\"xtc\",\"top_p\",\"temperature\",\"adaptive_p\"], the seed's preset overlay wrote [\"min_p\",\"penalties\",\"dry\",\"top_n_sigma\",\"top_k\",\"typ_p\",\"xtc\",\"top_p\",\"temperature\"]"
+  ],
+  "warnings": []
+}

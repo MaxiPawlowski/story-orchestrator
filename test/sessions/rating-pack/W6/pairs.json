@@ -1,0 +1,5 @@
+{
+  "gate": "W6",
+  "instructions": "Rate each pair blind: pick left, right or tie in verdicts.json and write your name as rater. Do not open .keys/.",
+  "pairs": []
+}

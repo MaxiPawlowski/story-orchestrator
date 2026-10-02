@@ -1,0 +1,1366 @@
+{
+  "charter": "T5-1",
+  "tier": "T5",
+  "title": "Wizard, premise 1",
+  "number": 1,
+  "dir": "test/sessions/T5/T5-1-1",
+  "lane": 3,
+  "laneUrl": "http://127.0.0.1:8103/",
+  "story": {
+    "kind": "wizard",
+    "premiseId": "cartographer",
+    "premise": "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
+  },
+  "mode": "author",
+  "startedAt": "2026-10-02T10:48:17.958Z",
+  "playFrom": "2026-10-02T10:48:10.392Z",
+  "stoppedAt": "2026-10-02T11:54:13.677Z",
+  "build": {
+    "flavor": "dev",
+    "bundleSha256": "b644cbb7ad01be3a81a82b3fc78058ff44bf47e0e7e8755f4c4c9b550c25e73e",
+    "version": "2.4.0",
+    "builtAt": "2026-10-02T10:38:16.502Z",
+    "sourceSha256": "81faeb8d30ff1cf021dd891cd04ff339c195eaa54e3373c9e6f394c43bbb1b90",
+    "laneCampaign": "be0696b361731080f4fb04a98e7caec5c40d177e",
+    "indexCommit": "be0696b361731080f4fb04a98e7caec5c40d177e"
+  },
+  "pids": {
+    "journal": 77988,
+    "payloads": 75028,
+    "console": 72220
+  },
+  "viewport": null,
+  "settingsPatch": {
+    "image": {
+      "enabled": false
+    },
+    "sprites": {
+      "enabled": false,
+      "explicit": true
+    }
+  },
+  "settings": {
+    "baselineVersion": 1,
+    "chain": [
+      "T5-1"
+    ],
+    "effective": "effective-settings.json"
+  },
+  "media": {
+    "variant": "full",
+    "images": false,
+    "sprites": false,
+    "unexercised": [],
+    "prerenderedSprites": 0
+  },
+  "arm": "agent",
+  "logOffset": 206899287,
+  "host": {
+    "swipes": true
+  },
+  "presetOverlay": {
+    "sha256": "ba6a9699f2bf8443ee86ddc605ae4dfb6cc5f5acd62002e16a822e7283da97eb",
+    "variant": "thinking",
+    "applied": true,
+    "reason": null,
+    "seededAt": "2026-10-02T10:39:59.884Z",
+    "edits": [
+      {
+        "kind": "instruct",
+        "preset": "Gemma 4",
+        "key": "last_output_sequence",
+        "op": "set",
+        "after": "<|turn>model\n<|channel>thought\n<channel|>",
+        "mirrored": false
+      },
+      {
+        "kind": "instruct",
+        "preset": "Gemma 4",
+        "key": "sequences_as_stop_strings",
+        "op": "set",
+        "after": false,
+        "mirrored": false
+      },
+      {
+        "kind": "textgen",
+        "preset": "Artemis v1.1 RP",
+        "key": "samplers",
+        "op": "moveToFront",
+        "after": [
+          "min_p",
+          "penalties",
+          "dry",
+          "top_n_sigma",
+          "top_k",
+          "typ_p",
+          "tfs_z",
+          "typical_p",
+          "xtc",
+          "top_p",
+          "adaptive_p",
+          "temperature"
+        ],
+        "mirrored": true
+      },
+      {
+        "kind": "textgen",
+        "preset": "Artemis v1.1 RP",
+        "key": "genamt",
+        "op": "set",
+        "after": 1400,
+        "mirrored": false
+      },
+      {
+        "kind": "instruct",
+        "preset": "Gemma 4 Thinking",
+        "key": "story_string_prefix",
+        "op": "set",
+        "after": "<|turn>system\n<|think|>\nBefore replying, think briefly: a short plan of at most 5 bullet points (under 100 words). Do not draft the reply inside your thinking.\n",
+        "mirrored": false
+      },
+      {
+        "kind": "instruct",
+        "preset": "Gemma 4 Thinking",
+        "key": "last_output_sequence",
+        "op": "set",
+        "after": "",
+        "mirrored": false
+      },
+      {
+        "kind": "instruct",
+        "preset": "Gemma 4 Thinking",
+        "key": "names_behavior",
+        "op": "set",
+        "after": "force",
+        "mirrored": false
+      },
+      {
+        "kind": "instruct",
+        "preset": "Gemma 4 Thinking",
+        "key": "sequences_as_stop_strings",
+        "op": "set",
+        "after": false,
+        "mirrored": false
+      },
+      {
+        "kind": "instruct",
+        "preset": "Gemma 4 Thinking",
+        "key": null,
+        "op": "activate",
+        "after": "Gemma 4 Thinking",
+        "mirrored": true
+      },
+      {
+        "kind": "context",
+        "preset": "Gemma 4",
+        "key": "names_as_stop_strings",
+        "op": "set",
+        "after": false,
+        "mirrored": true
+      },
+      {
+        "kind": "settings",
+        "preset": null,
+        "key": "power_user.user_prompt_bias",
+        "op": "set",
+        "after": "<|channel>thought\n",
+        "mirrored": false
+      },
+      {
+        "kind": "settings",
+        "preset": null,
+        "key": "power_user.show_user_prompt_bias",
+        "op": "set",
+        "after": false,
+        "mirrored": false
+      },
+      {
+        "kind": "settings",
+        "preset": null,
+        "key": "power_user.reasoning.auto_parse",
+        "op": "set",
+        "after": true,
+        "mirrored": false
+      },
+      {
+        "kind": "settings",
+        "preset": null,
+        "key": "power_user.reasoning.name",
+        "op": "set",
+        "after": "Gemma 4",
+        "mirrored": false
+      },
+      {
+        "kind": "settings",
+        "preset": null,
+        "key": "power_user.reasoning.prefix",
+        "op": "set",
+        "after": "<|channel>thought\n",
+        "mirrored": false
+      },
+      {
+        "kind": "settings",
+        "preset": null,
+        "key": "power_user.reasoning.suffix",
+        "op": "set",
+        "after": "<channel|>",
+        "mirrored": false
+      },
+      {
+        "kind": "settings",
+        "preset": null,
+        "key": "amount_gen",
+        "op": "set",
+        "after": 1400,
+        "mirrored": false
+      },
+      {
+        "kind": "profile",
+        "preset": "Artemis RunPod RP",
+        "key": "instruct",
+        "op": "set",
+        "after": "Gemma 4 Thinking",
+        "mirrored": false
+      },
+      {
+        "kind": "profile",
+        "preset": "Artemis RunPod RP",
+        "key": "start-reply-with",
+        "op": "set",
+        "after": "<|channel>thought\n",
+        "mirrored": false
+      },
+      {
+        "kind": "profile",
+        "preset": "Artemis RunPod RP",
+        "key": "reasoning-template",
+        "op": "set",
+        "after": "Gemma 4",
+        "mirrored": false
+      },
+      {
+        "kind": "settings",
+        "preset": null,
+        "key": "power_user.auto_fix_generated_markdown",
+        "op": "set",
+        "after": false,
+        "mirrored": false
+      },
+      {
+        "kind": "settings",
+        "preset": null,
+        "key": "extension_settings.regex",
+        "op": "upsert",
+        "after": [
+          {
+            "id": "so-thinking-name-echo",
+            "scriptName": "Thinking: drop the speaker name repeated after the thought channel",
+            "findRegex": "/<channel\\|>\\s*{{char}}:\\s*/g",
+            "replaceString": "<channel|>",
+            "trimStrings": [],
+            "placement": [
+              2
+            ],
+            "disabled": false,
+            "markdownOnly": false,
+            "promptOnly": false,
+            "runOnEdit": true,
+            "substituteRegex": 2,
+            "minDepth": null,
+            "maxDepth": null
+          }
+        ],
+        "mirrored": false
+      }
+    ],
+    "live": {
+      "instruct": {
+        "preset": "Gemma 4 Thinking",
+        "last_output_sequence": "",
+        "sequences_as_stop_strings": false,
+        "names_behavior": "force",
+        "story_string_prefix": "<|turn>system\n<|think|>\nBefore replying, think briefly: a short plan of at most 5 bullet points (under 100 words). Do not draft the reply inside your thinking.\n"
+      },
+      "textgen": {
+        "preset": "Artemis v1.1 RP",
+        "samplers": [
+          "min_p",
+          "penalties",
+          "dry",
+          "top_n_sigma",
+          "top_k",
+          "typ_p",
+          "tfs_z",
+          "typical_p",
+          "xtc",
+          "top_p",
+          "adaptive_p",
+          "temperature"
+        ]
+      },
+      "context": {
+        "preset": "Gemma 4",
+        "names_as_stop_strings": false
+      },
+      "settings": {
+        "power_user.user_prompt_bias": "<|channel>thought\n",
+        "power_user.show_user_prompt_bias": false,
+        "power_user.reasoning.auto_parse": true,
+        "power_user.reasoning.name": "Gemma 4",
+        "power_user.reasoning.prefix": "<|channel>thought\n",
+        "power_user.reasoning.suffix": "<channel|>",
+        "amount_gen": 1400,
+        "power_user.auto_fix_generated_markdown": false,
+        "extension_settings.regex": [
+          {
+            "id": "so-thinking-name-echo",
+            "scriptName": "Thinking: drop the speaker name repeated after the thought channel",
+            "findRegex": "/<channel\\|>\\s*{{char}}:\\s*/g",
+            "replaceString": "<channel|>",
+            "trimStrings": [],
+            "placement": [
+              2
+            ],
+            "disabled": false,
+            "markdownOnly": false,
+            "promptOnly": false,
+            "runOnEdit": true,
+            "substituteRegex": 2,
+            "minDepth": null,
+            "maxDepth": null
+          }
+        ]
+      },
+      "profile": {
+        "name": "Artemis Local (Unsloth)",
+        "instruct": "Gemma 4",
+        "start-reply-with": "",
+        "reasoning-template": "Gemma 4",
+        "preset": "Artemis v1.1 RP"
+      }
+    },
+    "liveAfterPin": {
+      "instruct": {
+        "preset": "Gemma 4 Thinking",
+        "last_output_sequence": "",
+        "sequences_as_stop_strings": false,
+        "names_behavior": "force",
+        "story_string_prefix": "<|turn>system\n<|think|>\nBefore replying, think briefly: a short plan of at most 5 bullet points (under 100 words). Do not draft the reply inside your thinking.\n"
+      },
+      "textgen": {
+        "preset": "Artemis v1.1 RP",
+        "samplers": [
+          "min_p",
+          "penalties",
+          "dry",
+          "top_n_sigma",
+          "top_k",
+          "typ_p",
+          "tfs_z",
+          "typical_p",
+          "xtc",
+          "top_p",
+          "adaptive_p",
+          "temperature"
+        ]
+      },
+      "context": {
+        "preset": "Gemma 4",
+        "names_as_stop_strings": false
+      },
+      "settings": {
+        "power_user.user_prompt_bias": "<|channel>thought\n",
+        "power_user.show_user_prompt_bias": false,
+        "power_user.reasoning.auto_parse": true,
+        "power_user.reasoning.name": "Gemma 4",
+        "power_user.reasoning.prefix": "<|channel>thought\n",
+        "power_user.reasoning.suffix": "<channel|>",
+        "amount_gen": 1400,
+        "power_user.auto_fix_generated_markdown": false,
+        "extension_settings.regex": [
+          {
+            "id": "so-thinking-name-echo",
+            "scriptName": "Thinking: drop the speaker name repeated after the thought channel",
+            "findRegex": "/<channel\\|>\\s*{{char}}:\\s*/g",
+            "replaceString": "<channel|>",
+            "trimStrings": [],
+            "placement": [
+              2
+            ],
+            "disabled": false,
+            "markdownOnly": false,
+            "promptOnly": false,
+            "runOnEdit": true,
+            "substituteRegex": 2,
+            "minDepth": null,
+            "maxDepth": null
+          }
+        ]
+      },
+      "profile": {
+        "name": "Artemis RunPod RP",
+        "instruct": "Gemma 4 Thinking",
+        "start-reply-with": "<|channel>thought\n",
+        "reasoning-template": "Gemma 4",
+        "preset": "Artemis v1.1 RP"
+      }
+    }
+  },
+  "judgeRate": {
+    "perMinute": 45,
+    "lanes": 4,
+    "running": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "account": 90,
+    "source": "derived",
+    "loaded": 45
+  },
+  "pin": {
+    "profile": "Artemis RunPod RP",
+    "orchestrator": "deepseek",
+    "judge": "on",
+    "verdict": {
+      "ok": true,
+      "problems": []
+    },
+    "probe": {
+      "profile": "Artemis RunPod RP",
+      "ok": true,
+      "ms": 556,
+      "text": "<|channel>thought\n<channel|>PONG",
+      "error": null
+    },
+    "routing": {
+      "main": {
+        "selectedProfileId": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+        "selectedProfileName": "Artemis RunPod RP",
+        "mainApi": "textgenerationwebui",
+        "onlineStatus": "/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+      },
+      "profiles": [
+        {
+          "id": "beba5264-4e69-4554-9ef0-8749f1caa0bb",
+          "name": "Artemis Local (Unsloth)",
+          "api": "generic",
+          "model": "TheDrummer/Artemis-31B-v1.1-GGUF",
+          "url": "http://127.0.0.1:18888",
+          "fields": {
+            "id": "beba5264-4e69-4554-9ef0-8749f1caa0bb",
+            "mode": "tc",
+            "exclude": [],
+            "api": "generic",
+            "preset": "Artemis v1.1 RP",
+            "api-url": "http://127.0.0.1:18888",
+            "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+            "sysprompt-state": "true",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Artemis Local (Unsloth)",
+            "model": "TheDrummer/Artemis-31B-v1.1-GGUF"
+          }
+        },
+        {
+          "id": "b907b9ce-a720-4858-8ff1-fbe604169a24",
+          "name": "Artemis RunPod",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "b907b9ce-a720-4858-8ff1-fbe604169a24",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+            "sysprompt-state": "true",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Artemis RunPod",
+            "preset": "Artemis v1.1 RP"
+          }
+        },
+        {
+          "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+          "name": "Artemis RunPod RP",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "preset": "Artemis v1.1 RP",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+            "sysprompt-state": "true",
+            "instruct": "Gemma 4 Thinking",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "<|channel>thought\n",
+            "reasoning-template": "Gemma 4",
+            "name": "Artemis RunPod RP"
+          }
+        },
+        {
+          "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "name": "deepseek 4.1 flash",
+          "api": "deepseek",
+          "model": "deepseek-flash",
+          "url": null,
+          "fields": {
+            "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+            "mode": "cc",
+            "exclude": [],
+            "api": "deepseek",
+            "model": "deepseek-flash",
+            "name": "deepseek 4.1 flash"
+          }
+        },
+        {
+          "id": "68422a21-7c97-4af8-a1ca-bbe44d83d138",
+          "name": "Image Director",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "68422a21-7c97-4af8-a1ca-bbe44d83d138",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "preset": "Artemis Extraction",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt-state": "false",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Image Director"
+          }
+        },
+        {
+          "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "name": "Story Orchestrator Memory RunPod",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "preset": "Artemis Extraction",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt-state": "false",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Story Orchestrator Memory RunPod"
+          }
+        },
+        {
+          "id": "55f61212-a59e-4bf3-9dcd-4029845293c4",
+          "name": "Story Orchestrator Memory Unsloth",
+          "api": "generic",
+          "model": "TheDrummer/Artemis-31B-v1.1-GGUF",
+          "url": "http://127.0.0.1:18888",
+          "fields": {
+            "id": "55f61212-a59e-4bf3-9dcd-4029845293c4",
+            "mode": "tc",
+            "exclude": [],
+            "api": "generic",
+            "preset": "Artemis Extraction",
+            "api-url": "http://127.0.0.1:18888",
+            "sysprompt-state": "false",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Story Orchestrator Memory Unsloth",
+            "model": "TheDrummer/Artemis-31B-v1.1-GGUF"
+          }
+        }
+      ],
+      "roles": [
+        {
+          "role": "read",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "synthesis",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "authoring",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "director",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "curator",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "inner",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "fallback",
+          "effort": "default",
+          "reasoning": null
+        }
+      ],
+      "judge": {
+        "enabled": true,
+        "uses": {
+          "director": true,
+          "memoryVerify": true,
+          "memoryPairs": true,
+          "sceneTrigger": true,
+          "sceneTracker": true,
+          "lookahead": true,
+          "loreSelect": true,
+          "curatorFilter": true,
+          "typedExtraction": true,
+          "stallCheck": true,
+          "expansionCritic": true,
+          "expansionLookahead": true,
+          "agencyCheck": true,
+          "houseRules": false,
+          "wardenLore": true,
+          "loreExclusive": true,
+          "expressions": true
+        },
+        "provider": {
+          "director": "typesafe",
+          "memoryVerify": "typesafe",
+          "memoryPairs": "typesafe",
+          "sceneTrigger": "typesafe",
+          "sceneTracker": "typesafe",
+          "lookahead": "typesafe",
+          "loreSelect": "typesafe",
+          "curatorFilter": "typesafe",
+          "typedExtraction": "typesafe",
+          "stallCheck": "typesafe",
+          "expansionCritic": "typesafe",
+          "expansionLookahead": "typesafe",
+          "agencyCheck": "typesafe",
+          "houseRules": "typesafe",
+          "wardenLore": "typesafe",
+          "loreExclusive": "typesafe",
+          "expressions": "typesafe",
+          "warden": "typesafe"
+        },
+        "pluginHttp": 200,
+        "keyPresent": true
+      },
+      "reasoning": {
+        "budget": "default",
+        "powerUser": {
+          "name": "Gemma 4",
+          "auto_parse": true,
+          "add_to_prompts": false,
+          "auto_expand": false,
+          "show_hidden": false,
+          "prefix": "<|channel>thought\n",
+          "suffix": "<channel|>",
+          "separator": "\n\n",
+          "max_additions": 1
+        }
+      }
+    }
+  },
+  "age": null,
+  "premise": {
+    "id": "cartographer",
+    "text": "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
+  },
+  "continuedAtPin": null,
+  "startPopups": [],
+  "chatsBefore": [
+    {
+      "chatId": "2024-10-27@09h04m05s",
+      "group": "Group: Adventure Awaits!",
+      "groupId": "1703513523027"
+    },
+    {
+      "chatId": "2023-12-30@07h37m27s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #3 - 2023-12-30@07h49m03s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #4 - 2023-12-30@07h49m58s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #7 - 2023-12-30@08h34m59s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #9 - 2023-12-30@08h38m48s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #9 - 2023-12-30@08h43m16s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #10 - 2023-12-30@08h46m02s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #12 - 2023-12-30@09h04m17s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #37 - 2024-1-7@07h44m27s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #38 - 2024-1-7@08h07m14s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #37 - 2024-1-7@08h07m21s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h16m07s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h16m50s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h21m35s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h26m16s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h50m34s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h54m44s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h57m26s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@09h01m01s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h07m39s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h13m12s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h14m18s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h21m12s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h24m17s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h24m55s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #44 - 2024-1-8@07h46m49s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #35 - 2024-1-11@08h47m04s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "2024-10-25@16h35m36s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "2025-10-05@06h12m53s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-19@03h33m31s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "Branch #1 - 2025-10-19@03h36m00s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-19@07h16m29s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-24@12h14m56s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-24@17h18m15s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "Branch #5 - 2025-10-24@17h19m22s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-27@20h24m15s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-02-17@11h42m56s913ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-03-26@12h06m12s510ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-03-26@12h08m16s199ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-05@22h24m53s198ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-05@22h55m21s034ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-06@05h51m54s748ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h45m42s515ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h48m58s737ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h52m33s971ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h54m33s414ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h31m08s263ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h50m22s390ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h57m58s240ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h43m15s689ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h43m40s089ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h54m21s833ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@03h56m01s832ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@03h56m31s664ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@08h08m11s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@10h03m45s492ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h43m26s486ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h44m44s165ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h49m39s901ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@04h14m58s603ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@04h27m07s632ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@05h41m21s356ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h05m16s093ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h12m05s775ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h12m19s409ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h14m25s652ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h15m25s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h19m36s454ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h23m47s982ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h26m46s401ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h26m57s965ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h37m51s942ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h54m40s955ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-19@22h52m47s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@03h36m38s982ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@03h37m03s927ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h09m30s254ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h11m21s482ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h11m46s225ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h34m19s453ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h40m32s180ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@07h06m38s396ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-10-02@07h42m26s118ms",
+      "group": "Adolion - House Nightriver",
+      "groupId": "1790937746121"
+    },
+    {
+      "chatId": "2026-10-02@07h42m26s134ms",
+      "group": "Adolion - The Adventurer's Road",
+      "groupId": "1790937746136"
+    },
+    {
+      "chatId": "2026-10-02@07h42m26s157ms",
+      "group": "Adolion - Between the Roads",
+      "groupId": "1790937746159"
+    },
+    {
+      "chatId": "2026-10-02@07h42m26s168ms",
+      "group": "Adolion - Crimsonwing & Ebonwing",
+      "groupId": "1790937746170"
+    },
+    {
+      "chatId": "2026-10-02@07h42m26s181ms",
+      "group": "Adolion - The Eastern Road",
+      "groupId": "1790937746183"
+    },
+    {
+      "chatId": "2026-10-02@07h42m26s223ms",
+      "group": "Adolion - Eshalanore",
+      "groupId": "1790937746225"
+    },
+    {
+      "chatId": "2026-10-02@07h42m26s231ms",
+      "group": "Adolion - Night Courts",
+      "groupId": "1790937746233"
+    },
+    {
+      "chatId": "2026-10-02@07h42m26s245ms",
+      "group": "Adolion - The Saga",
+      "groupId": "1790937746247"
+    },
+    {
+      "chatId": "2026-10-02@07h42m26s260ms",
+      "group": "Adolion - Fire and War",
+      "groupId": "1790937746261"
+    }
+  ],
+  "chats": [
+    {
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "groupId": "1790938593543",
+      "group": "The Redline Kingdom cast",
+      "storyId": "the-redline-kingdom",
+      "activeCheckpointId": "start",
+      "primary": true,
+      "adopted": true
+    }
+  ],
+  "continues": null,
+  "problems": [],
+  "warnings": [
+    "the repo build moved during the session (build.head, build.manifest.builtAt, build.manifest.bundleBytes, build.manifest.bundleSha256, build.manifest.fileSha256, build.manifest.sourceFiles, build.manifest.sourceSha256, warnings) while the served bundle b644cbb7ad01be3a stayed identical: allowed, the code under test did not change"
+  ],
+  "runHeaderDiff": {
+    "exit": 0,
+    "ok": true
+  },
+  "wizardAssets": {
+    "allow": [
+      "inventory.wizardSessions:+draft-muqubdeg-kawz3i",
+      "inventory.wizardSessions:+the-redline-kingdom",
+      "inventory.v2Stories:+the-redline-kingdom",
+      "inventory.lorebooksSelected:+The Sun Ruins Expedition",
+      "inventory.lorebooksSelected:+The Redline Kingdom",
+      "inventory.lorebookCount=+2",
+      "inventory.characterCount=+4",
+      "inventory.wizardApplied:+the-redline-kingdom/The Sun Ruins Expedition",
+      "inventory.wizardApplied:+the-redline-kingdom/The Redline Kingdom",
+      "inventory.wizardApplied:+the-redline-kingdom/Master Ilse",
+      "inventory.wizardApplied:+the-redline-kingdom/Lord Vael",
+      "inventory.wizardApplied:+the-redline-kingdom/Lady Corvane",
+      "inventory.wizardApplied:+the-redline-kingdom/Ashmere Envoy",
+      "inventory.groups:+1790938593543"
+    ],
+    "ledger": {
+      "sessions": [
+        "draft-muqubdeg-kawz3i",
+        "the-redline-kingdom"
+      ],
+      "continued": [],
+      "unbaselined": [],
+      "stories": [
+        "the-redline-kingdom"
+      ],
+      "characters": [
+        "Master Ilse",
+        "Lord Vael",
+        "Lady Corvane",
+        "Ashmere Envoy"
+      ],
+      "lorebooks": [
+        "The Sun Ruins Expedition",
+        "The Redline Kingdom"
+      ],
+      "entries": [],
+      "groups": [
+        {
+          "id": "1790938593543",
+          "name": "The Redline Kingdom cast",
+          "source": "adopted"
+        }
+      ],
+      "applied": [
+        "the-redline-kingdom/The Sun Ruins Expedition",
+        "the-redline-kingdom/The Redline Kingdom",
+        "the-redline-kingdom/Master Ilse",
+        "the-redline-kingdom/Lord Vael",
+        "the-redline-kingdom/Lady Corvane",
+        "the-redline-kingdom/Ashmere Envoy"
+      ]
+    }
+  },
+  "evidence": {
+    "files": [
+      "wizard-drafts.json",
+      "runtime-2026-10-02@07h56m33s541ms.json",
+      "journal-2026-10-02@07h56m33s541ms.json",
+      "chat-2026-10-02@07h56m33s541ms.json",
+      "chat-full-2026-10-02@07h56m33s541ms.json",
+      "state-end-2026-10-02@07h56m33s541ms.json",
+      "snapshot-2026-10-02@07h56m33s541ms.json",
+      "evidence-2026-10-02@07h56m33s541ms.json",
+      "journal-2026-10-02@07h56m33s541ms.md"
+    ],
+    "problems": {
+      "2026-10-02@07h56m33s541ms": []
+    }
+  },
+  "playerClean": {
+    "skipped": "author-mode card"
+  },
+  "spend": {
+    "orchestrator": {
+      "calls": 151,
+      "input": 776234,
+      "output": 63822,
+      "measuredCalls": 151,
+      "estimatedCalls": 0,
+      "costUsd": null,
+      "ringCalls": 70,
+      "ringCostUsd": null,
+      "answeredBy": {
+        "primary": 70,
+        "fallback": 0,
+        "failed": 0
+      }
+    },
+    "judge": {
+      "calls": 258,
+      "cached": 8,
+      "fallbacks": 22,
+      "input": 519648,
+      "output": 35386,
+      "costUsd": null
+    },
+    "main": {
+      "calls": 51
+    },
+    "responsesCaptured": 157
+  },
+  "tails": {
+    "journal": {
+      "ready": {
+        "at": "2026-10-02T10:48:17.525Z",
+        "pid": 77988,
+        "tail": "journal",
+        "chatId": null,
+        "storyId": null,
+        "boundary": 0
+      },
+      "drained": {
+        "at": "2026-10-02T11:54:10.590Z",
+        "pid": 77988,
+        "tail": "journal",
+        "ok": true,
+        "events": 739,
+        "audits": 26
+      }
+    },
+    "payloads": {
+      "ready": {
+        "at": "2026-10-02T10:48:17.550Z",
+        "pid": 75028,
+        "tail": "payloads",
+        "epoch": "1790938097539-d9hhkz",
+        "nextIndex": 0
+      },
+      "drained": {
+        "at": "2026-10-02T11:54:10.359Z",
+        "pid": 75028,
+        "tail": "payloads",
+        "written": 202,
+        "responses": 157,
+        "dropped": 0,
+        "rearmed": 0,
+        "unknownGaps": 0,
+        "writeErrors": 0,
+        "epoch": "1790938097539-d9hhkz",
+        "ok": true
+      }
+    },
+    "console": {
+      "ready": {
+        "at": "2026-10-02T10:48:17.557Z",
+        "pid": 72220,
+        "tail": "console"
+      },
+      "drained": {
+        "at": "2026-10-02T11:54:09.088Z",
+        "pid": 72220,
+        "tail": "console",
+        "ok": true,
+        "rows": 114
+      }
+    }
+  },
+  "valid": false,
+  "invalid": [
+    "required artifact ratingCandidates: 0 captured, the card needs at least 1"
+  ]
+}

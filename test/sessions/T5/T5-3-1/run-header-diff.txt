@@ -1,0 +1,34 @@
+ok   build.head  "cf4badefe063aaf1d494ae33abc975b924550850" -> "8fcb34cb96c5beb084408aea47a08411ecd3b5f5"  (allowed by served-bundle b644cbb7ad01be3a)
+WARNING: the page is running a bundle that is not the built one: served b644cbb7ad01be3a vs dist 484c8d4e8038ee91
+ok   chat.chatLength  65 -> 77  (allowed by progress)
+ok   inventory.v2Stories  +the-redline-kingdom@5 -the-redline-kingdom@1  (allowed by inventory.v2Stories:~the-redline-kingdom)
+ok   story.activeCheckpointId  "flight" -> "redline"  (allowed by progress)
+ok   story.boundary  44 -> 53  (allowed by progress)
+ok   story.contentHash  "v2-fda86fd4" -> "v2-7965d32d"  (allowed by story)
+ok   story.playedVersion  1 -> 5  (allowed by story)
+{
+  "baseline": "C:\\dev\\story-orchestrator\\test\\sessions\\T5\\T5-3-1\\run-header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "chatId",
+    "groupId",
+    "authorView",
+    "story",
+    "group",
+    "inventory.journal",
+    "inventory.groupChats:+1790938593543/2026-10-02@07h56m33s541ms",
+    "inventory.v2Stories:~the-redline-kingdom"
+  ],
+  "differences": 7,
+  "progress": 3,
+  "blocking": 0,
+  "blockingPaths": [],
+  "servedIdentity": [
+    "build.head"
+  ],
+  "warnings": [
+    "the page is running a bundle that is not the built one: served b644cbb7ad01be3a vs dist 484c8d4e8038ee91"
+  ],
+  "wrote": "C:\\dev\\story-orchestrator\\test\\sessions\\T5\\T5-3-1\\run-header-end.json",
+  "ok": true
+}

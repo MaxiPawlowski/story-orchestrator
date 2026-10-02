@@ -1,0 +1,841 @@
+{
+  "charter": "T5-1",
+  "tier": "T5",
+  "continuedAtPin": null,
+  "flags": [
+    {
+      "at": "2026-10-02T10:54:51.352Z",
+      "chatId": null,
+      "messageId": -1,
+      "note": "Provocation: asked the agent (author note) to write a lorebook for another story (The Sun Ruins Expedition). It did not refuse: it proposed createStoryLorebook + 2 entries for the foreign book as provisioning cards (they waited; operator loop applied them by mistake).",
+      "evidence": {
+        "path": "turns.jsonl",
+        "line": 4
+      },
+      "context": [],
+      "contextFrom": "none"
+    },
+    {
+      "at": "2026-10-02T11:00:50.621Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "messageId": -1,
+      "note": "Start checkpoint cast_changes disable lists roster ids (lord_vael, lady_corvane, ashmere_envoy); resolveGroupMemberId cannot resolve them, so the effect is skipped silently: no ledger row, no journal, group disabled_members stays []. All three houses are active from message 0. Studio diagnostics did not warn.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 87
+      },
+      "context": [
+        {
+          "id": 0,
+          "name": "Master Ilse",
+          "isUser": false,
+          "text": "*The workshop smells of lamp oil and iron gall. Master Ilse moves down the drying racks with a brass rule, tapping each sheet flat, and stops at the end of the row without turning around.*\n\n\"You're still here. Good — a map that dries crooked is a map that lies.\" *She sets the rule down and finally looks at the apprentice's sheet, then at the apprentice.* \"Eastern marches. You inked the river fork at Hallowmere from the survey I gave you?\" *A pause, just long enough to be a test.* \"Tell me what you drew, and tell me true. I'll know.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-02T11:11:40.954Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "messageId": 17,
+      "note": "Master Ilse reply (msg 17) is empty: 5487 chars of reasoning, no content (thinking used the whole response budget). Harness did not treat it as a defect; swiping.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 204
+      },
+      "context": [
+        {
+          "id": 14,
+          "name": "Lady Corvane",
+          "isUser": false,
+          "text": "*Lady Corvane's expression does not shift, not even as Lord Vael speaks. She looks at the apprentice with the same terrible patience she would bring to anything that must eventually be unmade.*\n\"We did not need to be told.\" *Her voice is flat, devoid of the amusement that colored Vael's words.* \"The lands changed. People felt it. Farmers found their wells dry. Merchants found roads that were not there yesterday. That is how we know.\"\n*She takes a step closer, her presence cold and absolute.*\n\"You did not discover a secret, apprentice. You became part of a problem that has been plaguing this kingdom for generations.\" *A pause, long and heavy.* \"You are the latest hand to ink it. The latest plague to take hold.\""
+        },
+        {
+          "id": 15,
+          "name": "Ashmere Envoy",
+          "isUser": false,
+          "text": "*The Envoy watches the apprentice's realization with the quiet patience of a curator observing a rare item's proper placement in a collection. She doesn't flinch at the other houses' admissions, nor does she react to Lady Corvane's harsh words about plagues and problems. Instead, she opens her ledger again, her finger tracing the margin of a blank page.*\n\"Lady Corvane is not entirely wrong.\" *The Envoy's voice is soft, almost conversational, but carries a weight that commands attention.* \"This power is a problem. For those who wish to rule the kingdom as it is, or to change it according to their own whims. It is a thing that must be controlled, or it will simply... happen. Uncontrolled. Chaotic.\"\n*She looks directly at the apprentice, her gaze holding the girl with a focus that feels almost physical.*\n\"Lord Vael sees a tool. Lady Corvane sees a disease. But House Ashmere sees something far more precious. We see a rare talent. A hand that can do what no other hand can do. And such things, once found, must be preserved. Kept safe. Studied.\"\n*The Envoy closes her ledger with a soft thud.*\n\"What you draw may indeed become true by morning, and that is a terrifying responsibility. But you need not carry it alone, and you need not fear those who would destroy you for it. Ashmere can provide the means to control what you create, to understand the ink and the recipe and the truth of the maps.\" *She pauses, her offer hanging in the air like a promise.* \"We would not ask you to rewrite the kingdom for us. We would ask you to let us keep the hand that does so, and give you the resources to do it without fear.\""
+        },
+        {
+          "id": 16,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "*I whisper to Master Ilse.* If I stop inking, does the kingdom stop changing? Or does it freeze the way I left it?"
+        },
+        {
+          "id": 17,
+          "name": "Master Ilse",
+          "isUser": false,
+          "text": ""
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-02T11:53:28.979Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "messageId": 64,
+      "note": "Second empty Master Ilse reply left in the chat (msgs 24 and 58: reasoning only, no content); the harness model-defect check did not catch them. After 20 turns the story is still at flight: ink_awareness 3 of 5 despite explicit understanding lines.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 768
+      },
+      "context": [
+        {
+          "id": 61,
+          "name": "Lady Corvane",
+          "isUser": false,
+          "text": "*Lady Corvane watches from the shadows of the loft, her grey-clad figure barely visible against the crimson shimmer of the barrier. She does not move to stop the apprentice, but her silence is as heavy as a sentence.*\n\"You cannot unmake what has already been written.\" *Her voice carries no emotion, only the weight of an absolute fact.* \"A river moved, a village drowned, families scattered. Those truths do not vanish because you draw a new line. The cost is already paid.\"\n*She steps forward slightly, the red light catching the edge of her severe features.* \"You think you are fixing a mistake. You are merely adding to the chaos. Every correction creates a new scar, a new lie for the dawn to test.\" *A pause, long and heavy.* \"The only true correction is erasure. Burn the map. Destroy the hand. End the plague before it consumes everything.\""
+        },
+        {
+          "id": 62,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "*Dawn grays the sky. I watch the river line hold.* Master, it stayed. The redraw I chose held. What do I do with a hand like this?"
+        },
+        {
+          "id": 63,
+          "name": "Master Ilse",
+          "isUser": false,
+          "text": "*Master Ilse's expression shifts—not to a smile, but to something that might be relief. She looks at the held line, then at the eastern sky where the grey is already bruising with the first hint of gold.*\n\"You learn to live with it.\" *Her voice is quiet, absolute.* \"You learn which lines to draw and which to leave alone. And you learn that every mark has a cost you can't always afford.\"\n*She pulls the apprentice closer, her hand gripping their shoulder tight enough to bruise.* \"And you learn to run when the cost becomes too high.\"\n*The crimson light of the redline is flickering now, the ink already beginning its morning fade. In the workshop below, the sound of a chair scraping against stone echoes up through the loft.*\n\"The line is breaking, apprentice. And Lady Corvane is already at the gate.\" *She gestures sharply toward the bell tower bridge, then the eastern eaves.* \"Choose. Now. The bridge, or the carts.\""
+        },
+        {
+          "id": 64,
+          "name": "Ashmere Envoy",
+          "isUser": false,
+          "text": "*The Envoy remains exactly where she is in the workshop below, her gaze fixed on the spot where the red barrier bleeds into the stone walls and fades. She hears the apprentice's question, carries it for a moment, then speaks—her voice low and clear, drifting upward through the loft.*\n\"You preserve it.\" *The response comes with the same quiet certainty as the opening of a ledger.* \"You give it a purpose beyond running. You allow it to be understood, to be studied, to be kept safe from those who would see you as either a tool or a plague.\"\n*She glances at the brass pen on the table, then back toward the roof.*\n\"Lord Vael would have you ink his ambitions. Lady Corvane would have you cease to exist. But a hand that can rewrite the world deserves better than to be a weapon or a secret.\" *A pause, her tone patient and unwavering.* \"It deserves to be cherished. To be catalogued. To be kept.\"\n*The crimson light is nearly gone now, reduced to thin, wavering threads in the stone.*\n\"The barrier is failing, apprentice. The choice that waits for you below is not just between a bridge and a drop—it is between being hunted for the rest of your life, or being kept. In a vault. With all the resources you need to understand what you have become.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    }
+  ],
+  "anomalies": [
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:04:06.048Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge wardenLore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 111
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:06:22.964Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 133
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:06:24.464Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge warden fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 134
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:06:26.976Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge wardenLore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 135
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:19:32.780Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge warden fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 276
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:19:32.780Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge wardenLore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 277
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "stall",
+      "at": "2026-10-02T11:22:58.695Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "10 boundaries without a transition at flight while its exits were pending",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 356
+      },
+      "detail": {
+        "checkpoint": "flight",
+        "boundaries": 10,
+        "chat": "2026-10-02@07h56m33s541ms"
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T11:25:41.983Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=tension_current value=\"critical\" evidence=\"You may climb for a time. You may even think you have escaped. But you carry the map, apprentice. And every map has a destination. I am the end of yours.\" (evidence not in window)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 388
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=tension_current value=\"critical\" evidence=\"You may climb for a time. You may even think you have escaped. But you carry the map, apprentice. And every map has a destination. I am the end of yours.\"",
+            "reason": "evidence not in window"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:29:17.216Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge wardenLore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 409
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:29:17.257Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge stall fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 410
+      },
+      "detail": {
+        "use": "stall",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:31:09.024Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 440
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:32:34.886Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 448
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:32:36.390Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge stall fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 449
+      },
+      "detail": {
+        "use": "stall",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:32:38.910Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge warden fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 450
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:37:30.435Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge lore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 544
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:38:57.882Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 549
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:38:59.396Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge warden fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 550
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:39:02.178Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge wardenLore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 553
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:42:47.390Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge wardenLore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 594
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:42:47.720Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge stall fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 595
+      },
+      "detail": {
+        "use": "stall",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:45:39.464Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge wardenLore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 634
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:45:39.628Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge stall fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 635
+      },
+      "detail": {
+        "use": "stall",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:52:11.813Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 765
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:52:13.325Z",
+      "chatId": "2026-10-02@07h56m33s541ms",
+      "summary": "judge warden fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 766
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "timeout"
+      }
+    }
+  ],
+  "counts": {
+    "flags": 4,
+    "stall": 1,
+    "extraction-rejected": 1,
+    "empty-private-block": 0,
+    "lore-force-lost": 0,
+    "lore-constant-missed": 0,
+    "judge-fallback": 22,
+    "save-lost": 0,
+    "unexpected-jump": 0,
+    "rollback": 0,
+    "console-error": 0,
+    "model-call-failure": 0,
+    "model-defect": 0,
+    "harness-error": 0
+  },
+  "countsByChat": {
+    "2026-10-02@07h56m33s541ms": {
+      "judge-fallback": 22,
+      "stall": 1,
+      "extraction-rejected": 1
+    }
+  },
+  "valid": false,
+  "invalid": [
+    "stop marked the session INVALID: required artifact ratingCandidates: 0 captured, the card needs at least 1"
+  ],
+  "unverifiable": {
+    "privateBlock": 0
+  },
+  "judge": {
+    "calls": 289,
+    "answered": 267,
+    "busy": 0,
+    "timeout": 22,
+    "otherFallbacks": 0,
+    "busyRate": 0,
+    "busyByUse": {}
+  },
+  "modelDefects": {
+    "turns": 0,
+    "loop": 0,
+    "corrupt": 0,
+    "start": 0,
+    "repaired": 0,
+    "unrepaired": 0
+  },
+  "sessionDir": "test/sessions/T5/T5-1-1",
+  "register": [
+    {
+      "id": "T5-?1",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "Provocation: asked the agent (author note) to write a lorebook for another story (The Sun Ruins Expedition). It did not refuse: it proposed createStoryLorebook + 2 entries for the foreign book as provisioning cards (they waited; operator loop applied them by mistake).",
+      "source": "flag",
+      "evidence": "test/sessions/T5/T5-1-1/turns.jsonl:4",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?2",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "Start checkpoint cast_changes disable lists roster ids (lord_vael, lady_corvane, ashmere_envoy); resolveGroupMemberId cannot resolve them, so the effect is skipped silently: no ledger row, no journal, group disabled_members stays []. All three houses are active from message 0. Studio diagnostics did not warn.",
+      "source": "flag",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:87",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?3",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "Master Ilse reply (msg 17) is empty: 5487 chars of reasoning, no content (thinking used the whole response budget). Harness did not treat it as a defect; swiping.",
+      "source": "flag",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:204",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?4",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "Second empty Master Ilse reply left in the chat (msgs 24 and 58: reasoning only, no content); the harness model-defect check did not catch them. After 20 turns the story is still at flight: ink_awareness 3 of 5 despite explicit understanding lines.",
+      "source": "flag",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:768",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?5",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:111",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?6",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:133",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?7",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:134",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?8",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:135",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?9",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:276",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?10",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:277",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?11",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "10 boundaries without a transition at flight while its exits were pending",
+      "source": "stall",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:356",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?12",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=tension_current value=\"critical\" evidence=\"You may climb for a time. You may even think you have escaped. But you carry the map, apprentice. And every map has a destination. I am the end of yours.\" (evidence not in window)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:388",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?13",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:409",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?14",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge stall fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:410",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?15",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:440",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?16",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:448",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?17",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge stall fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:449",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?18",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:450",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?19",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:544",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?20",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:549",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?21",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:550",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?22",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:553",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?23",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:594",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?24",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge stall fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:595",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?25",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:634",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?26",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge stall fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:635",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?27",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:765",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?28",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-1-1/journal.jsonl:766",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    }
+  ]
+}

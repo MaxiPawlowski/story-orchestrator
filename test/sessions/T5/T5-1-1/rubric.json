@@ -1,0 +1,96 @@
+{
+  "charter": "T5-1",
+  "title": "Wizard, premise 1",
+  "session": {
+    "dir": "test/sessions/T5/T5-1-1",
+    "lane": 3,
+    "startedAt": "2026-10-02T10:48:17.958Z",
+    "media": "full"
+  },
+  "scores": [
+    "works",
+    "annoying",
+    "broken",
+    "not-noticed"
+  ],
+  "rows": [
+    {
+      "feature": "wizard interview",
+      "score": "annoying",
+      "note": "Agent route asked no interview questions: goal -> 53-item plan at once (no You decide to use; card beat 1 unexercised). Plan itself matched the premise (3 houses, 4 beats, 4 cards, book, group).",
+      "evidence": [
+        "turns.jsonl:1",
+        "x-agent-run1.json"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T11:55:19.860Z",
+      "provisional": true
+    },
+    {
+      "feature": "review mode",
+      "score": "annoying",
+      "note": "Every edit waited for Accept/Reject (58/59 kept, 1 reject reworked into a quieter Ashmere rubric). But: 71 cards to click; duplicate setRosterDrive cards (steps 42/46); step 71 an empty updateCheckpoint patch shown as a change; done summary claims tension/agency/talk_control on all beats and cast gating that the draft lacks (only start disable, no enables); needed a second goal to fix. Budget hit at 39/40, Continue now works.",
+      "evidence": [
+        "x-agent-run1.json",
+        "shots/005-agent-done.png",
+        "wizard-drafts.json:14"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T11:55:20.959Z",
+      "provisional": true
+    },
+    {
+      "feature": "provisioning",
+      "score": "annoying",
+      "note": "13 provisioning cards (2 books, 7 entries, 4 cards, group) each waited and created one asset; requirements read members by name and went green in the group at once. But the provocation (author note asking for another story's lorebook) was not refused: it proposed The Sun Ruins Expedition book + 2 entries and added it to this story's requirements.",
+      "evidence": [
+        "turns.jsonl:4",
+        "wizard-drafts.json:134",
+        "journal.jsonl:86",
+        "run-header-diff.txt:17"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T11:55:29.483Z",
+      "provisional": true
+    },
+    {
+      "feature": "playability of the result",
+      "score": "annoying",
+      "note": "Playable: only Ilse greeted, 20 turns, transitions start->first_house (b6) and first_house->flight (b12) fired from play. But the start cast_changes disable used roster ids that resolveGroupMemberId cannot match: skipped silently, all 3 houses entered at turn 1 against the beat guidance; stalled at flight 30+ boundaries (ink_awareness 3 of 5); 3 empty Ilse replies (reasoning only).",
+      "evidence": [
+        "journal.jsonl:87",
+        "journal.jsonl:129",
+        "journal.jsonl:199",
+        "journal.jsonl:356",
+        "wizard-drafts.json:283",
+        "shots/033-after-20-turns.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T11:55:23.097Z",
+      "provisional": true
+    },
+    {
+      "feature": "11 W6 leg",
+      "ask": "the finished story, paired with the other wizard arm's on the same premise, for blind rating",
+      "gate": "W6",
+      "reviewer": "user",
+      "status": "recorded for the user's review",
+      "score": null,
+      "note": "Agent-arm story the-redline-kingdom@1 kept for W6 (draft in wizard-drafts.json and x-agent-run1.json); staged arm not run (pod time), so the pair is unmatched.",
+      "evidence": [
+        "wizard-drafts.json:1"
+      ],
+      "scoredBy": null,
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T11:55:24.054Z",
+      "provisional": true
+    }
+  ],
+  "playerClean": {
+    "skipped": "author-mode card"
+  }
+}

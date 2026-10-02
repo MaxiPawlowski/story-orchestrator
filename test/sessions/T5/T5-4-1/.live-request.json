@@ -1,0 +1,10 @@
+{
+  "verb": "shot",
+  "dir": "C:\\dev\\story-orchestrator\\test\\sessions\\T5\\T5-4-1",
+  "chat": null,
+  "args": {
+    "label": "repair-after-unmute",
+    "seq": 11
+  },
+  "options": {}
+}

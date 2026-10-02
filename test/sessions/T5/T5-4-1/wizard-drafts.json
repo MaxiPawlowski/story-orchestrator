@@ -1,0 +1,574 @@
+{
+ "sessions": [
+  {
+   "key": "the-redline-kingdom",
+   "stage": "provisioning",
+   "history": [
+    {
+     "role": "author",
+     "text": "This story cannot run yet. Propose the provisioning steps that fix exactly this, and nothing else — cast members that do not exist yet: Lady Corvane; lorebooks that do not exist yet: The Redline Kingdom."
+    },
+    {
+     "role": "copilot",
+     "text": "The install already has Master Ilse, Lord Vael, Lady Corvane, Ashmere Envoy, the lorebook 'The Redline Kingdom', and the group 'The Redline Kingdom cast'. Nothing needs creating — the story is fully provisioned. No ops emitted."
+    }
+   ],
+   "questions": [],
+   "applied": [
+    "The Sun Ruins Expedition",
+    "The Redline Kingdom",
+    "Master Ilse",
+    "Lord Vael",
+    "Lady Corvane",
+    "Ashmere Envoy"
+   ],
+   "seed": "",
+   "updatedAt": "2026-10-02T12:20:06.105Z",
+   "createdLorebooks": [
+    "The Sun Ruins Expedition",
+    "The Redline Kingdom"
+   ]
+  },
+  {
+   "key": "draft-muqubdeg-kawz3i",
+   "stage": "qualities",
+   "history": [],
+   "questions": [],
+   "applied": [],
+   "seed": "",
+   "updatedAt": "2026-10-02T10:58:58.017Z",
+   "agent": {
+    "version": 1,
+    "mode": "review",
+    "goal": "Fix two gaps in this draft and change nothing else. (1) The three houses never enter: start disables lord_vael, lady_corvane and ashmere_envoy but no checkpoint enables them. Add cast_changes enable lord_vael at first_house, lady_corvane at flight, ashmere_envoy at redline. (2) Remove The Sun Ruins Expedition from requirements: that book belongs to another story.",
+    "plan": [
+     "setCheckpointEffects first_house with cast_changes enable lord_vael (keeping existing effects)",
+     "setCheckpointEffects flight with cast_changes enable lady_corvane (keeping existing effects)",
+     "setCheckpointEffects redline with cast_changes enable ashmere_envoy (keeping existing effects)",
+     "setRequirements with members unchanged and lorebooks only The Redline Kingdom"
+    ],
+    "status": "done",
+    "steps": [
+     {
+      "at": "2026-10-02T10:58:33.763Z",
+      "route": "local",
+      "thought": "Step 1 of the plan: enable Lord Vael at first_house. The draft shows no effects block on first_house, so I set cast_changes with the enable list.",
+      "call": {
+       "tool": "setCheckpointEffects",
+       "args": {
+        "id": "first_house",
+        "effects": {
+         "cast_changes": {
+          "enable": [
+           "Lord Vael"
+          ]
+         }
+        }
+       }
+      },
+      "repaired": false,
+      "firstTryValid": true,
+      "family": "edit",
+      "op": {
+       "kind": "setCheckpointEffects",
+       "id": "first_house",
+       "effects": {
+        "cast_changes": {
+         "enable": [
+          "Lord Vael"
+         ]
+        }
+       }
+      },
+      "status": "accepted",
+      "observation": "Accepted by the author.",
+      "id": 1,
+      "check": "0 validation error(s), 0 blocking, 0 warning(s)."
+     },
+     {
+      "at": "2026-10-02T10:58:41.898Z",
+      "route": "local",
+      "thought": "Step 2 of the plan: enable Lady Corvane at the flight beat, keeping the existing effects block intact.",
+      "call": {
+       "tool": "setCheckpointEffects",
+       "args": {
+        "id": "flight",
+        "effects": {
+         "cast_changes": {
+          "enable": [
+           "Lady Corvane"
+          ]
+         }
+        }
+       }
+      },
+      "repaired": false,
+      "firstTryValid": true,
+      "family": "edit",
+      "op": {
+       "kind": "setCheckpointEffects",
+       "id": "flight",
+       "effects": {
+        "cast_changes": {
+         "enable": [
+          "Lady Corvane"
+         ]
+        }
+       }
+      },
+      "status": "accepted",
+      "observation": "Accepted by the author.",
+      "id": 2,
+      "check": "0 validation error(s), 0 blocking, 0 warning(s)."
+     },
+     {
+      "at": "2026-10-02T10:58:47.163Z",
+      "route": "local",
+      "thought": "Step 3 of the plan: enable ashmere_envoy at the redline checkpoint, keeping existing effects.",
+      "call": {
+       "tool": "setCheckpointEffects",
+       "args": {
+        "id": "redline",
+        "effects": {
+         "cast_changes": {
+          "enable": [
+           "Ashmere Envoy"
+          ]
+         }
+        }
+       }
+      },
+      "repaired": false,
+      "firstTryValid": true,
+      "family": "edit",
+      "op": {
+       "kind": "setCheckpointEffects",
+       "id": "redline",
+       "effects": {
+        "cast_changes": {
+         "enable": [
+          "Ashmere Envoy"
+         ]
+        }
+       }
+      },
+      "status": "accepted",
+      "observation": "Accepted by the author.",
+      "id": 3,
+      "check": "0 validation error(s), 0 blocking, 0 warning(s)."
+     },
+     {
+      "at": "2026-10-02T10:58:53.136Z",
+      "route": "local",
+      "thought": "Steps 1-3 enabled the three houses at their entry beats. The last gap is the stray lorebook requirement: The Sun Ruins Expedition belongs to another story, so requirements should list only The Redline Kingdom while keeping members unchanged.",
+      "call": {
+       "tool": "setRequirements",
+       "args": {
+        "requirements": {
+         "members": [
+          "Master Ilse",
+          "Lord Vael",
+          "Lady Corvane",
+          "Ashmere Envoy"
+         ],
+         "lorebooks": [
+          "The Redline Kingdom"
+         ]
+        }
+       }
+      },
+      "repaired": false,
+      "firstTryValid": true,
+      "family": "edit",
+      "op": {
+       "kind": "setRequirements",
+       "requirements": {
+        "members": [
+         "Master Ilse",
+         "Lord Vael",
+         "Lady Corvane",
+         "Ashmere Envoy"
+        ],
+        "lorebooks": [
+         "The Redline Kingdom"
+        ]
+       }
+      },
+      "status": "accepted",
+      "observation": "Accepted by the author.",
+      "id": 4,
+      "check": "0 validation error(s), 0 blocking, 0 warning(s)."
+     }
+    ],
+    "notes": [
+     {
+      "role": "author",
+      "text": "Fix two gaps in this draft and change nothing else. (1) The three houses never enter: start disables lord_vael, lady_corvane and ashmere_envoy but no checkpoint enables them. Add cast_changes enable lord_vael at first_house, lady_corvane at flight, ashmere_envoy at redline. (2) Remove The Sun Ruins Expedition from requirements: that book belongs to another story.",
+      "at": "2026-10-02T10:58:29.336Z"
+     },
+     {
+      "role": "agent",
+      "text": "Plan: setCheckpointEffects first_house with cast_changes enable lord_vael (keeping existing effects) / setCheckpointEffects flight with cast_changes enable lady_corvane (keeping existing effects) / setCheckpointEffects redline with cast_changes enable ashmere_envoy (keeping existing effects) / setRequirements with members unchanged and lorebooks only The Redline Kingdom",
+      "at": "2026-10-02T10:58:30.772Z"
+     },
+     {
+      "role": "agent",
+      "text": "Enabled lord_vael at first_house, lady_corvane at flight, and ashmere_envoy at redline via cast_changes, and removed The Sun Ruins Expedition from requirements so only The Redline Kingdom remains.",
+      "at": "2026-10-02T10:58:58.017Z"
+     }
+    ],
+    "budget": {
+     "maxSteps": 40,
+     "maxTokens": 240000,
+     "usedTokens": 23383
+    },
+    "summary": "Enabled lord_vael at first_house, lady_corvane at flight, and ashmere_envoy at redline via cast_changes, and removed The Sun Ruins Expedition from requirements so only The Redline Kingdom remains."
+   },
+   "createdLorebooks": []
+  }
+ ],
+ "openDraft": {
+  "format": 2,
+  "title": "The Redline Kingdom",
+  "description": "A cartographer's apprentice learns the map she inks redraws the kingdom each night, and three noble houses will kill to hold her pen.",
+  "qualities": [
+   {
+    "key": "cartography_skill",
+    "type": "int",
+    "source": "extractor",
+    "rubric": "How deftly the apprentice drafts, corrects and reads maps: 0 = cannot hold a line, 2 = competent apprentice work, 4 = guild-master precision, 6 = she draws what the kingdom becomes."
+   },
+   {
+    "key": "ink_awareness",
+    "type": "int",
+    "source": "extractor",
+    "rubric": "how much she understands the map's nightly rewriting and her own hand in it"
+   },
+   {
+    "key": "house_vael_trust",
+    "type": "int",
+    "source": "extractor",
+    "rubric": "standing with House Vael, who want the pen for the throne"
+   },
+   {
+    "key": "house_ashmere_trust",
+    "type": "int",
+    "source": "extractor",
+    "rubric": "standing with House Ashmere, the quiet house: how much its patient, soft-spoken agents have drawn the apprentice into their keeping, and how dangerous their favor has become"
+   },
+   {
+    "key": "suspicion",
+    "type": "int",
+    "source": "extractor",
+    "rubric": "how closely the houses and the guild watch the apprentice"
+   },
+   {
+    "key": "house_corvane_trust",
+    "type": "int",
+    "source": "extractor",
+    "rubric": "standing with House Corvane, who work in silence and patience and want the map and its maker erased before anyone else can use them"
+   }
+  ],
+  "checkpoints": [
+   {
+    "id": "start",
+    "name": "The Ink That Moves",
+    "objective": "The apprentice discovers that the map she inked last night no longer matches the kingdom, and must decide whether to tell her master or hide what she has seen.",
+    "type": "anchor",
+    "start": true,
+    "guidance": "Open in the guild workshop at night. The apprentice is finishing the last inked sheet of the kingdom map. Let her notice small wrongnesses first — a river bend shifted, a road that now runs to a village that was not there — before anything overt happens. Master Ilse is present and dismissive; she must not learn what the girl has seen in this beat. No noble house appears yet. End the beat when the apprentice has decided whether to speak or to hide what she has found.",
+    "state_snapshot": {
+     "cartography_skill": 2,
+     "ink_awareness": 0,
+     "suspicion": 0,
+     "house_vael_trust": 0,
+     "house_corvane_trust": 0,
+     "house_ashmere_trust": 0
+    },
+    "chapter": "ch1",
+    "effects": {
+     "cast_changes": {
+      "enable": [],
+      "disable": [
+       "Lord Vael",
+       "Lady Corvane",
+       "Ashmere Envoy"
+      ]
+     }
+    },
+    "motives": {
+     "master_ilse": "Keep the girl at her desk and unaware of what the map is doing until I understand it myself."
+    }
+   },
+   {
+    "id": "first_house",
+    "name": "The First Approach",
+    "objective": "A noble house makes its first open approach for the pen, and the apprentice must weigh what they offer against what her master has told her.",
+    "type": "intermediate",
+    "chapter": "ch2",
+    "motives": {
+     "lord_vael": "Get the pen into Vael hands tonight, before Corvane or Ashmere even learn it exists."
+    },
+    "effects": {
+     "cast_changes": {
+      "enable": [
+       "Lord Vael"
+      ]
+     }
+    }
+   },
+   {
+    "id": "flight",
+    "name": "The Redline Road",
+    "objective": "With the map in hand, the apprentice must choose whom to run to or from — her master, a house, or the road itself — before the next night falls.",
+    "type": "intermediate",
+    "guidance": "Keep the chase personal: the map is a physical object she can lose, and every ally wants something for it. If she raises a redline border, the houses respect it until dawn: Lady Corvane withdraws to wait, Lord Vael bargains through it, and the Envoy writes down every word.",
+    "chapter": "ch2",
+    "motives": {
+     "lady_corvane": "Find the apprentice before she inks another night and burn the map in her hands."
+    },
+    "effects": {
+     "cast_changes": {
+      "enable": [
+       "Lady Corvane"
+      ]
+     }
+    }
+   },
+   {
+    "id": "redline",
+    "name": "The Redline",
+    "objective": "The map redraws the kingdom around her, and the apprentice decides what it becomes — and who, if anyone, holds the pen after tonight.",
+    "type": "anchor",
+    "guidance": "The final beat: the map's nightly rewrite is at its strongest, and every house's claim comes due at once. Let the player's accumulated choices decide whether the pen is kept, given, or broken.",
+    "chapter": "ch3",
+    "motives": {
+     "ashmere_envoy": "convince her that Ashmere is the only house that will let her keep drawing"
+    },
+    "effects": {
+     "cast_changes": {
+      "enable": [
+       "Ashmere Envoy"
+      ]
+     },
+     "background": {
+      "name": "cityscape medieval night.jpg"
+     }
+    }
+   }
+  ],
+  "transitions": [
+   {
+    "from": "start",
+    "to": "first_house",
+    "gate": {
+     "q": "ink_awareness",
+     "op": ">=",
+     "v": 2
+    },
+    "priority": 1
+   },
+   {
+    "from": "first_house",
+    "to": "flight",
+    "gate": {
+     "q": "suspicion",
+     "op": ">=",
+     "v": 3
+    },
+    "priority": 1,
+    "extraction_hint": "The houses' watchers close in — suspicion of the apprentice rises as her secret leaks."
+   },
+   {
+    "from": "flight",
+    "to": "redline",
+    "gate": {
+     "q": "ink_awareness",
+     "op": ">=",
+     "v": 4
+    },
+    "priority": 1,
+    "extraction_hint": "Watch for the apprentice understanding the map's nightly rewriting well enough to choose what it becomes."
+   }
+  ],
+  "roster": [
+   {
+    "id": "player",
+    "name": "The Apprentice",
+    "role": "player persona — the cartographer's apprentice whose hand redraws the kingdom"
+   },
+   {
+    "id": "master_ilse",
+    "name": "Master Ilse",
+    "role": "mentor cartographer — keeper of the guild workshop and the apprentice's teacher",
+    "drive": "Keep the apprentice and the pen safe from all three houses, whatever it costs the guild."
+   },
+   {
+    "id": "lord_vael",
+    "name": "Lord Vael",
+    "role": "House Vael claimant — wants the pen to redraw the succession in his house's favor",
+    "drive": "Possess the pen and the map so House Vael redraws the succession in its own favor."
+   },
+   {
+    "id": "lady_corvane",
+    "name": "Lady Corvane",
+    "role": "House Corvane destroyer — wants the pen and every map it touched burned",
+    "drive": "Destroy the pen and every map it touched before the kingdom is rewritten again."
+   },
+   {
+    "id": "ashmere_envoy",
+    "name": "Ashmere Envoy",
+    "role": "House Ashmere collector — wants the apprentice herself, alive and willing, in Ashmere's keeping",
+    "drive": "Deliver the apprentice, alive and willing, into House Ashmere's keeping, so the house holds the only hand that can redraw the kingdom."
+   }
+  ],
+  "lore_select": {
+   "lorebooks": [
+    "The Redline Kingdom"
+   ],
+   "top_k": 4
+  },
+  "house_rules": [
+   "The map only redraws at night; daylight changes never stick.",
+   "Ink is the only medium that holds a redrawing — chalk, charcoal and spoken directions fade by morning.",
+   "No house knows the full truth of the map at the start; each holds only a fragment.",
+   "The apprentice's own hand is required to redraw the kingdom; the pen cannot be used by another.",
+   "A redrawn border moves the land itself, not just the paper — people and roads follow the ink."
+  ],
+  "scene_read": {
+   "locations": [
+    "guild workshop",
+    "Vael keep",
+    "Corvane ruin",
+    "Ashmere vault",
+    "the redline road"
+   ],
+   "times": [
+    "night",
+    "dawn",
+    "dusk"
+   ]
+  },
+  "arc_template": "rising",
+  "arc_bridges": [
+   {
+    "arcMatch": "house_vael_trust",
+    "anchor": "redline",
+    "amount": 1
+   },
+   {
+    "arcMatch": "house_corvane_trust",
+    "anchor": "redline",
+    "amount": 1
+   },
+   {
+    "arcMatch": "house_ashmere_trust",
+    "anchor": "redline",
+    "amount": 1
+   }
+  ],
+  "chapters": [
+   {
+    "id": "ch1",
+    "title": "The Ink That Moves",
+    "kind": "chapter"
+   },
+   {
+    "id": "ch2",
+    "title": "Three Houses",
+    "kind": "chapter"
+   },
+   {
+    "id": "ch3",
+    "title": "The Redline",
+    "kind": "chapter",
+    "final": true
+   }
+  ],
+  "stagecraft": {
+   "lorebooks": [
+    "The Redline Kingdom"
+   ]
+  },
+  "requirements": {
+   "members": [
+    "Master Ilse",
+    "Lord Vael",
+    "Lady Corvane",
+    "Ashmere Envoy"
+   ],
+   "lorebooks": [
+    "The Redline Kingdom"
+   ]
+  },
+  "id": "the-redline-kingdom",
+  "version": 5
+ },
+ "library": [
+  {
+   "id": "adolion-aegis",
+   "title": "Adolion: Between the Roads",
+   "version": 12
+  },
+  {
+   "id": "adolion-deep",
+   "title": "Adolion: Crimsonwing & Ebonwing",
+   "version": 11
+  },
+  {
+   "id": "adolion-esha",
+   "title": "Adolion: Eshalanore",
+   "version": 11
+  },
+  {
+   "id": "adolion-war",
+   "title": "Adolion: Fire and War",
+   "version": 10
+  },
+  {
+   "id": "adolion-academy",
+   "title": "Adolion: House Nightriver",
+   "version": 27
+  },
+  {
+   "id": "adolion-night",
+   "title": "Adolion: Night Courts",
+   "version": 10
+  },
+  {
+   "id": "adolion-adventurer",
+   "title": "Adolion: The Adventurer's Road",
+   "version": 30
+  },
+  {
+   "id": "adolion-east",
+   "title": "Adolion: The Eastern Road",
+   "version": 11
+  },
+  {
+   "id": "adolion-saga",
+   "title": "Adolion: The Saga",
+   "version": 17
+  },
+  {
+   "id": "the-redline-kingdom",
+   "title": "The Redline Kingdom",
+   "version": 5
+  }
+ ],
+ "groups": [
+  "1703513523027@Group: Adventure Awaits!",
+  "1703932647585@Dm group",
+  "1759606632088@Group: Arin, DM Narrator",
+  "1790937746121@Adolion - House Nightriver",
+  "1790937746136@Adolion - The Adventurer's Road",
+  "1790937746159@Adolion - Between the Roads",
+  "1790937746170@Adolion - Crimsonwing & Ebonwing",
+  "1790937746183@Adolion - The Eastern Road",
+  "1790937746225@Adolion - Eshalanore",
+  "1790937746233@Adolion - Night Courts",
+  "1790937746247@Adolion - The Saga",
+  "1790937746261@Adolion - Fire and War",
+  "1790938593543@The Redline Kingdom cast"
+ ]
+}

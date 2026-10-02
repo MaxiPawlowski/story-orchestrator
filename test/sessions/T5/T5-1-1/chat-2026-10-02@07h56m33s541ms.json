@@ -1,0 +1,392 @@
+[
+ {
+  "id": 0,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": "*The workshop smells of lamp oil and iron gall. Master Ilse moves down the drying racks with a brass rule, tapping each sheet flat, and stops at the end of the row without turning around.*\n\n\"You're still here. Good — a map that dries crooked is a map that lies.\" *She sets the rule down and finally looks at the apprentice's sheet, then at the apprentice.* \"Eastern marches. You inked the river fork at Hallowmere from the survey I gave you?\" *A pause, just long enough to be a test.* \"Tell me what you drew, and tell me true. I'll know.\""
+ },
+ {
+  "id": 1,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I set down the pen and point at the fork.* I drew it from your survey, Master. But last night the river ran east of Hallowmere. This morning my ink says west. I finish inking the northern border and watch the ink move."
+ },
+ {
+  "id": 2,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": "*Master Ilse does not look at the river. Instead, she steps closer to the table and lifts the corner of a nearby sheet, checking the ink's drying speed with a practiced finger. She hums low in her throat, a sound that might be agreement or disagreement, and sets the paper back down.*\n\"Rivers shift. Soil erodes. Surveyors make mistakes.\" *She finally brings her gaze to the eastern marches, squinting at the line as it winds toward Hallowmere. Her finger traces the air an inch above the ink, following the bend.* \"And ink does not move once it is set. Ink that moves is ink that was never set, and that's a mistake in the recipe.\"\n*She reaches for a clean cloth and wipes a speck of dust from the table's edge, her movements methodical. Slow.*\n\"Tell me again. Precisely how it moved. Did the ink flow? Or did the line simply... not match what you remember drawing?\""
+ },
+ {
+  "id": 3,
+  "name": "Lady Corvane",
+  "isUser": false,
+  "text": "*The workshop's oil lamps flicker low, casting long shadows across the stone walls and drying racks. Outside, the night is still, save for the distant call of a sentinel bird. The apprentice's ink has settled now, the line frozen in its new position, and Master Ilse's eyes narrow as she waits for the girl's answer.*\n*A sudden draft cuts through the workshop, though no doors or windows have opened. The oil lamps gutter and flare, their light shifting toward the entrance. In the threshold, a figure appears — grey-clad and silent. Lady Corvane steps into the workshop as if she has always been there, her face as still as moonlight on water.*\n*She does not look at Master Ilse. Her gaze fixes on the drying sheet, on the newly-inked lines that have already become the kingdom's truth.*\n\"Master Ilse.\" *The name is a statement, not a question. Her voice carries no heat, only the weight of something absolute.* \"The guild's oath of neutrality is a fine thing. It is a shame it has not been enough to protect this workshop.\"\n*She moves further into the room, her grey skirts barely rustling against the stone. She stops a few paces from the table, and though she does not reach for the map, the air seems to pull toward it as if by her will.*\n\"You have a new hand, it seems. One that can make things real.\" *A slight pause.* \"I am not here to negotiate for the pen.\""
+ },
+ {
+  "id": 4,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I step behind Master Ilse, pen still in hand.* Who are you? The guild door was barred. *I glance at the map; the Corvane lands I inked yesterday are thinner now.*"
+ },
+ {
+  "id": 5,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": "\"Stay behind me. And put the pen on the table.\" *Her voice is quiet, flat, leaving no room for argument or hesitation.*\n*She steps further into the space between the apprentice and the visitor, her broad shoulders forming a solid barrier. Her eyes remain fixed on Lady Corvane, though she's acutely aware of the pen still in the apprentice's grip and the way the girl is staring at the shifting ink on the parchment.*\n\"Lady Corvane.\" *The name comes out as a fact rather than an introduction, the cadence dry and unbothered.* \"I assume our locks were merely a suggestion. The guild's security has always been designed for the obvious, not the inevitable.\"\n*She doesn't mention the thinning lands on the map, but her hand tightens slightly on the edge of the table. She's watched the ink move too. She knows what it means. But she also knows that an apprentice who sees the world changing before her eyes is an apprentice who will start asking questions the guild isn't meant to answer.*\n\"You said you aren't"
+ },
+ {
+  "id": 6,
+  "name": "Lady Corvane",
+  "isUser": false,
+  "text": "*Her eyes drift from the map to the apprentice, and for a moment there is a look like recognition, though the expression is cold. It is not recognition of a person, but of a weapon — an object she has been hunting.*\n\"The door was barred.\" *She says it flatly, as if the statement itself is an admission of its uselessness.* \"The locks were meant to keep out thieves. They were not meant to keep out a debt collector.\"\n*She steps closer to the table, not bothering to circle around Master Ilse. Instead, her grey-clad form seems to cut through the space with a patient finality. She glances at the map, and there is no surprise in her eyes when she sees her own house's lands thinning.*\n\"House Corvane is not in the habit of losing ground, Master Ilse.\" *The words are not an accusation, only an observation. She extends a hand toward the map, not touching it, but the gesture is possessive. Her fingers curl slightly.* \"I have seen what happens when kingdoms are rewritten. I have seen the cost. And I will not let it happen a third time.\"\n*She looks directly at the apprentice again, her voice dropping to something almost conversational, though no less severe.*\n\"The pen is not what I want. I want the ink to be gone from every page. And the hand that holds it to be unable to write again.\""
+ },
+ {
+  "id": 7,
+  "name": "Lord Vael",
+  "isUser": false,
+  "text": "*The air in the workshop grows heavy, almost oppressive. The silence stretches between Lady Corvane's words and the apprentice's hesitation, thick enough to feel. Master Ilse's hand is white-knuckled where it grips the table's edge.*\n*Then, a soft, unhurried sound breaks the tension. Footsteps. Not the silent glide of Lady Corvane or the measured pace of Master Ilse, but something else—the slow, deliberate cadence of a man who is not in any rush at all.*\n*Lord Vael emerges from the shadows near the drying racks, his grey-templed head inclined in a manner that might be a nod, though his eyes are sharp and calculating. He wears the immaculate cut of a man accustomed to power and the effortless grace of one who knows exactly how to wield it. He stops several paces from the others, his hands clasped loosely behind his back.*\n\"How tedious.\" *His voice is smooth, cultured, and utterly devoid of the urgency that might be expected in such a confrontation.* \"Burning the maps. Burning the hand. So final, so... destructive.\" *He lets his gaze sweep over the apprentice, then Master Ilse, and finally Lady Corvane.* \"And so very wasteful.\"\n*He steps closer, the movement fluid and unthreatening, yet somehow assertive. He stops beside the table, close enough to see the thinning lines of the Corvane lands, but far enough that he does not crowd the space.*\n\"Possession, Lady Corvane, is the only argument that carries weight in our kingdom. Why destroy a tool when you can simply... take it? And why burn a hand that can rewrite the world when you can ensure it writes for you?\" *His eyes drift to the map, then back to the apprentice.* \"A rare instrument. To think it would be wasted on something as crude as destruction.\""
+ },
+ {
+  "id": 8,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I set the pen down as Master Ilse asked, but I keep my hand over the map.* Every night it changes, Master. I think it is not the rivers. I think it is my ink, and what I draw becomes true by morning."
+ },
+ {
+  "id": 9,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": "\"It's not the ink. It's the recipe.\" *Her words are sharp, cutting through the apprentice's admission. She does not move from her position between the apprentice and the lords, but her eyes flick down to the girl's hand covering the parchment.* \"And you haven't yet learned the difference.\"\n*She shifts her weight, her shoulders squaring as she faces Lord Vael and Lady Corvane. Her voice drops, taking on a quality that is somehow both dryly dismissive and deeply serious.*\n\"You both talk of possession and destruction as if this workshop were a treasury. It is not. It is a workshop.\" *She taps the table with one ink-stained finger, the sound small but deliberate.* \"And the responsibility of keeping it is mine. Neither of you understands what you're asking for, and neither of you is in a position to receive it.\"\n*She looks back at the apprentice, her expression unreadable.* \"Take your hand off the table. Now. You're not meant to be part of this conversation.\""
+ },
+ {
+  "id": 10,
+  "name": "Lady Corvane",
+  "isUser": false,
+  "text": "\"You are correct.\" *Lady Corvane's voice is soft, yet it carries over Master Ilse's dismissiveness with the weight of something undeniable. She does not look at Ilse, her eyes fixed entirely on the apprentice's hand covering the map.* \"It is not the ink, nor the recipe. It is you.\"\n*She takes a single step forward, and the air in the workshop seems to grow colder. There is no sudden movement, no flash of violence—only the steady, patient approach of someone who has already decided how this conversation ends.*\n\"Your master calls this a workshop. Lord Vael calls it an instrument.\" *Her gaze finally shifts to Ilse, a brief look that carries no emotion.* \"They are both wrong. It is a plague. And you are its vector.\"\n*She stops just beyond the reach of the apprentice's outstretched arm, her grey form as still and severe as a funeral monument.*\n\"Every line you draw is a wound in the world. A river moved, a border shifted, a house made to vanish. You have not yet seen the true cost of your handiwork, but I have.\" *A pause.* \"I have watched my home bleed away because of a cartographer's whim. I will not watch it happen again.\""
+ },
+ {
+  "id": 11,
+  "name": "Ashmere Envoy",
+  "isUser": false,
+  "text": "*The heavy wooden door to the workshop creaks open, not with the force of an intruder but with the soft, deliberate turn of a key. A figure steps into the lamplight—a woman dressed in a simple grey-blue gown, her hair pinned back without adornment, carrying a leather-bound ledger against her chest. She does not enter with the chill of Lady Corvane or the calculating presence of Lord Vael; she simply arrives, as if the space had always been reserved for her.*\n*The Ashmere Envoy's eyes sweep the room, taking in Master Ilse's protective stance, Lady Corvane's severe stillness, and Lord Vael's elegant composure. Finally, they settle on the apprentice—on the ink-stained fingers still resting protectively over the map. A faint, almost imperceptible smile touches her lips.*\n\"Good evening, Master Ilse.\" *The greeting is quiet and courteous, as if interrupting a private conversation.* \"And to you, Lady Corvane, Lord Vael.\"\n*She steps fully into the room, closing the door behind her with a soft click. Her movements are measured, her gaze returning to the apprentice with an intensity that is not threatening, but profoundly attentive—the look of someone cataloging a rare and precious acquisition.*\n\"I believe,\" *she says, her voice low and soothing*, \"that there has been much talk of destroying things and using things. Burning the maps. Using the hand.\" *She opens her ledger, not to record anything, but to let its presence be felt—a catalog of value and preservation.* \"House Ashmere finds such approaches... unimaginative.\"\n*The Envoy moves closer to the table, stopping at a respectful distance, her attention never wavering from the apprentice.*\n\"What House Ashmere offers is not a tool, nor a weapon. We offer a sanctuary. A vault of your own, where your work may be kept and catalogued for generations. A stipend to ensure you want for nothing. A workshop where you may draw exactly what you wish, without interference from houses that would have you erase their history or rewrite it to their convenience.\" *A pause.* \"We do not wish to use the hand that inks the maps. We wish to keep it.\""
+ },
+ {
+  "id": 12,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I look from Lord Vael to Lady Corvane.* You both came the same night. You knew before I did, didn't you? Who told you the map moves?"
+ },
+ {
+  "id": 13,
+  "name": "Lord Vael",
+  "isUser": false,
+  "text": "*Lord Vael lets out a soft, amused sound—not quite a laugh, but close enough to be unsettling.*\n\"A fair question. And you're right to ask it.\" *He straightens, his posture relaxing into a casual elegance that suggests he is not in the least bit threatened by the apprentice's scrutiny.* \"You'd be mistaken to think that the great houses of Adolion are blind, or that secrets such as this could be kept from those who have spent generations listening to the whispers of the kingdom.\"\n*He turns his gaze back to the map, his eyes tracing the shifting lines with an intensity that suggests he has already planned its new borders.*\n\"House Vael does not wait for news to arrive; it seeks the truth before it is ever spoken. Your work on the eastern marches—the Hallowmere river shifting just so, the Corvane lands growing thinner—those were not secrets. They were events. And events are noticed by those with eyes to see.\"\n*His attention shifts back to the apprentice, his expression one of genuine, if calculating, interest.*\n\"The question isn't who told us, my dear. The question is: now that you know we know, what will you do with that knowledge? What will you ink onto the map tonight, when all of us are watching?\""
+ },
+ {
+  "id": 14,
+  "name": "Lady Corvane",
+  "isUser": false,
+  "text": "*Lady Corvane's expression does not shift, not even as Lord Vael speaks. She looks at the apprentice with the same terrible patience she would bring to anything that must eventually be unmade.*\n\"We did not need to be told.\" *Her voice is flat, devoid of the amusement that colored Vael's words.* \"The lands changed. People felt it. Farmers found their wells dry. Merchants found roads that were not there yesterday. That is how we know.\"\n*She takes a step closer, her presence cold and absolute.*\n\"You did not discover a secret, apprentice. You became part of a problem that has been plaguing this kingdom for generations.\" *A pause, long and heavy.* \"You are the latest hand to ink it. The latest plague to take hold.\""
+ },
+ {
+  "id": 15,
+  "name": "Ashmere Envoy",
+  "isUser": false,
+  "text": "*The Envoy watches the apprentice's realization with the quiet patience of a curator observing a rare item's proper placement in a collection. She doesn't flinch at the other houses' admissions, nor does she react to Lady Corvane's harsh words about plagues and problems. Instead, she opens her ledger again, her finger tracing the margin of a blank page.*\n\"Lady Corvane is not entirely wrong.\" *The Envoy's voice is soft, almost conversational, but carries a weight that commands attention.* \"This power is a problem. For those who wish to rule the kingdom as it is, or to change it according to their own whims. It is a thing that must be controlled, or it will simply... happen. Uncontrolled. Chaotic.\"\n*She looks directly at the apprentice, her gaze holding the girl with a focus that feels almost physical.*\n\"Lord Vael sees a tool. Lady Corvane sees a disease. But House Ashmere sees something far more precious. We see a rare talent. A hand that can do what no other hand can do. And such things, once found, must be preserved. Kept safe. Studied.\"\n*The Envoy closes her ledger with a soft thud.*\n\"What you draw may indeed become true by morning, and that is a terrifying responsibility. But you need not carry it alone, and you need not fear those who would destroy you for it. Ashmere can provide the means to control what you create, to understand the ink and the recipe and the truth of the maps.\" *She pauses, her offer hanging in the air like a promise.* \"We would not ask you to rewrite the kingdom for us. We would ask you to let us keep the hand that does so, and give you the resources to do it without fear.\""
+ },
+ {
+  "id": 16,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I whisper to Master Ilse.* If I stop inking, does the kingdom stop changing? Or does it freeze the way I left it?"
+ },
+ {
+  "id": 17,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": "\"You're thinking like a cartographer already.\" *Master Ilse's voice is low, barely a whisper, and there is something in it that might be pride or something that might be pity.* \"You're trying to find the rule that makes the exception.\"\n*She does not look at the apprentice, keeping her gaze fixed on the lords in front of her, as if her very attention could act as a shield. Her hand remains on the edge of the table, white-knuckled, as if holding back something far more dangerous than the three houses before them.*\n\"The answer is no. The kingdom does not freeze. It does not stop changing. It is not a statue that you can simply walk away from.\" *A pause, brief but weighted.* \"It is a river. And if you stop directing its flow, it does not simply stop—it finds its own path. And that path is often far worse than the one you drew for it.\"\n*She shifts her stance slightly, positioning herself even more firmly between the apprentice and the others.*\n\"That is why the guild exists. To hold the pen. To make sure the river flows where it is supposed to.\""
+ },
+ {
+  "id": 18,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I roll the map up tight and tuck it under my arm.* Then I won't leave it for any of you. Master, is there a way out through the drying loft?"
+ },
+ {
+  "id": 19,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": "*Her eyes widen, a rare crack in her carefully maintained composure. She doesn't move for a long heartbeat, her gaze shifting from the rolled parchment tucked under the apprentice's arm to the faces of the three lords, and finally to the apprentice themselves.*\n\"The drying loft.\" *The words come out flat, surprising herself with how quickly she answers.* \"Yes. It leads to the rooftop gardens. From there, the eastern eaves have a drop that—\"\n*A sharp crack cuts her off as Lord Vael steps forward, his polished boot striking the stone floor with unnecessary force. Lady Corvane has not moved from her position, but the air around her has grown frigid, and the Ashmere Envoy has closed her ledger with a deliberate, final click.*\n\"A bold move, apprentice.\" *Lord Vael's voice has lost its amused cadence. It is now something harder, sharper.* \"But do you think you can carry the weight of that map alone? Do you truly believe you can escape with it, and not become the thing it creates?\"\n*Lady Corvane speaks next, her words quiet and cutting.* \"The plague thinks it can run. It always does.\" *She takes a single step closer, and the lamps around the workshop flicker as if in her wake.* \"But the disease is in your hands now. You carry it.\"\n*The Ashmere Envoy speaks last, her tone still measured, still patient, but with a new edge.* \"A sanctuary is only useful if you are willing to enter it, apprentice. Do not throw your life away on a road that leads nowhere.\""
+ },
+ {
+  "id": 20,
+  "name": "Lord Vael",
+  "isUser": false,
+  "text": "*Lord Vael moves with a predatory grace that belies his earlier unhurried composure. He does not rush, but in two long strides he cuts off the apprentice's path to the stairs leading toward the drying loft, his figure silhouetted against the guttering lamplight.*\n\"You misunderstand the nature of possession, my dear.\" *His voice has lost its amusement, taking on the dry, flat quality of a statement that cannot be debated.* \"You think you've taken the map from us, but the truth is that the map has already taken you.\"\n*He stops several feet away, maintaining a respectful distance while ensuring the exit remains blocked. His hands are clasped loosely behind his back, but his eyes are as hard and cold as the stone walls surrounding them.*\n\"Where would you run? Every road you walk is one you have already drawn. Every shadow you seek is one you have inked into being. You cannot escape a world that is quite literally in your hands.\"\n*He extends one hand, palm upturned in a gesture that is courtly but carries the weight of an order.*\n\"Give me the map, and I will offer you a purpose that Lady Corvane would deny and House Ashmere would smother. I will not lock you in a vault, nor will I erase you from existence. I will make you the architect of the kingdom's future. All you must do is recognize that your escape is already drawn.\""
+ },
+ {
+  "id": 21,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I slip toward the back stairs, map clutched to my chest, and look back once at the Ashmere Envoy.* You said controlled. Controlled by whom?"
+ },
+ {
+  "id": 22,
+  "name": "Ashmere Envoy",
+  "isUser": false,
+  "text": "\"Controlled by you,\" *the Envoy says, her voice as soft and steady as a heartbeat.* \"Not used. Not destroyed. Just... kept.\"\n*She takes a single, small step forward, her ledger still held against her chest. Her gaze is not on the map the apprentice clutches, but on the apprentice themselves—the hands, the face, the terrified and determined eyes.*\n\"Lord Vael would have you draw his borders and his battles and his triumphs. He would have you redraw the world to fit his ambition, until the kingdom is nothing but a reflection of his will.\" *She pauses, the words hanging in the air between them.* \"And Lady Corvane would have you vanish entirely, as if you were a mistake to be corrected. A plague to be purged.\"\n*The Envoy's gaze is unwavering, almost unsettling in its intensity.*\n\"House Ashmere does not wish to use your hand. We wish to preserve it. To give it a place where it may draw and create and exist, safe from those who would see it as a tool or a disease. You would be kept, yes. Guarded. Catalogued.\" *A faint, almost imperceptible smile touches her lips.* \"But you would be allowed to draw. That is our promise. That is what keeping means to House Ashmere.\"\n*She does not move to stop the apprentice, does not reach for them. She simply waits, her presence a constant, quiet pressure.*\n\"The choice is yours, apprentice. But the road you are on... it leads to a door you cannot close.\""
+ },
+ {
+  "id": 23,
+  "name": "Lady Corvane",
+  "isUser": false,
+  "text": "\"Controlled by none.\" *Lady Corvane's voice cuts through the workshop's tension, low and flat.* \"The plague does not need a keeper. It needs to be ended.\"\n*She moves with sudden, silent efficiency, her grey-clad form crossing the stone floor. She does not run, but her pace is absolute, intercepting the apprentice's path toward the stairs in two long strides.*\n\"You speak of sanctuaries and preservation, Envoy.\" *Her gaze does not shift from the apprentice, even as she addresses the woman behind her.* \"House Ashmere collects trinkets. They preserve the very thing that will erase us all. It is a sentiment that serves only the disease.\"\n*Lady Corvane stops just short of the apprentice, her hand not outstretched for the map—not yet—but her presence as immovable as stone.*\n\"There is no road, apprentice.\" *The words are a verdict.* \"There is only the map you hold, and the kingdom you will break. You will not leave this workshop with it.\""
+ },
+ {
+  "id": 24,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": ""
+ },
+ {
+  "id": 25,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*On the loft ladder I stop and listen. Below, I can hear them arguing over who will follow me.* Master Ilse, come with me. Please."
+ },
+ {
+  "id": 26,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": "\"You'll get us both killed over a mistake in ink recipe.\" *Master Ilse's words are sharp and flat, but she is already moving, her boots clicking against the stone floor as she sidesteps the table.*\n*She glances at the three representatives—Vael, Corvane, and the Envoy—as their attention snaps to her. Her face is a mask of dismissal, but her movements are purposeful, closing the distance to the stairs.*\n\"Go on then. I'll be right behind you.\" *She doesn't wait for an answer, her hand already reaching for the bottom rung of the ladder. The oil lamps flare and gutter in her wake, casting her shadow long across the workshop floor.*\n*From below, Lord Vael's voice carries a new edge of surprise.* \"Master Ilse, surely you're not suggesting—\"\n*Lady Corvane's response is swifter, colder.* \"She is choosing her side.\"\n*The Envoy says nothing, her gaze fixed on the climbing apprentice and the master following behind, her expression as unreadable as a blank page.*"
+ },
+ {
+  "id": 27,
+  "name": "Ashmere Envoy",
+  "isUser": false,
+  "text": "*The Envoy remains exactly where she is—by the table, in the center of the workshop, a stillness that contrasts with the sudden movement above. She does not call out, does not give chase, does not even look toward the ladder.*\n*Instead, her eyes fall on the abandoned pen resting on the table's edge. She picks it up slowly, her ink-stained fingers closing around its barrel with the same care a collector might show a piece of fragile glass. Then she opens her ledger to a fresh page, her pen scratching across the surface with methodical precision.*\n\"The apprentice's choice,\" *she says softly, not to the lords but to the page itself*, \"to the master.\"\n*The ledger snaps shut with a final, echoing thud. When the Envoy looks up, her expression is not disappointed—it is attentive. She watches the space where the ladder disappears into the darkness above, as if she has already catalogued the decision and is merely waiting for its consequences to unfold.*\n\"It seems the workshop has grown smaller tonight.\" *She addresses the room generally, though her eyes remain on the ladder's top rung.* \"We are left with a choice: follow, or wait. I find the latter has its own particular virtues.\""
+ },
+ {
+  "id": 28,
+  "name": "Lady Corvane",
+  "isUser": false,
+  "text": "*Lady Corvane does not look at the Envoy. She does not acknowledge the pen changing hands, nor the soft click of a ledger closing. Her focus is fixed on the ladder, on the two figures ascending into the shadows.*\n\"The Master and the plague,\" *she says quietly, the words as flat as a grave marker.* \"A predictable pairing.\"\n*She moves. It is not a rush, but a glide—her grey skirts rustling once before she is at the base of the ladder. Her hands are not reaching for the rungs; they are steady and empty, waiting.*\n\"You may climb for a time.\" *Her voice carries effortlessly into the loft, undisturbed by breath or effort.* \"You may even think you have escaped. But you carry the map, apprentice. And every map has a destination. I am the end of yours.\"\n*She begins to climb—not with desperation, but with the slow, relentless patience of a tide coming in to drown a shore. Her movements are efficient, silent, and absolute.*"
+ },
+ {
+  "id": 29,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I climb out onto the rooftop gardens and pull Master Ilse up after me. The night wind tugs at the map.* Which way, Master? East eaves?"
+ },
+ {
+  "id": 30,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": "\"East eaves,\" *Master Ilse confirms, her voice cutting through the wind. She glances over her shoulder at the roof's edge, then back to the apprentice.* \"But we won't just be jumping. The eaves have a drop—steep enough to clear the lower walls, but shallow enough that you won't break your neck if you know how to land.\"\n*She reaches out and places a steadying hand on the apprentice's shoulder, her grip firm and reassuring.*\n\"Hold that map tight. If we lose it in the wind or the fall, everything we're doing is for nothing.\" *A pause as she scans the rooftops, her draftsman's eyes taking in every detail.* \"The drop is about twenty feet. You'll need to aim for the hay carts near the east gate. If we timing it right, we'll clear the garden walls and put some distance between us and those houses before they even figure out which way we went.\"\n*She looks the apprentice in the eye, her expression a mix of determination and something that might be pride.*\n\"On my mark, we go. Are you ready?\""
+ },
+ {
+  "id": 31,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I unroll a corner of the map against the chimney. In the moonlight, a new road is inking itself across the page, from the guild to the river.* That road wasn't there an hour ago. Did I draw it?"
+ },
+ {
+  "id": 32,
+  "name": "Lord Vael",
+  "isUser": false,
+  "text": "*Below them, the workshop's oil lamps flicker one last time before sputtering out, leaving the rooftop gardens to the cold moonlight. Lord Vael's voice drifts up through the opening, carried on the wind, smooth and conversational.*\n\"You didn't draw it, apprentice.\" *His tone holds no urgency—only the quiet certainty of a man who has already calculated the outcome.* \"But you wished for a way out. You imagined a path.\" *A pause, the sound of footsteps moving away from the ladder, deliberate and slow.* \"The map is no longer waiting for your hand to guide it. It is responding to you.\"\n*Lady Corvane's grey form emerges from the drying loft, her movement swift and silent as she ascends to the gardens. She does not speak, but her presence is like a chill that settles over the rooftop. Her eyes fix on the unrolled map, then on the apprentice holding it.*\n*The Envoy remains below, but her voice reaches them too—clear and precise.* \"The map is drawing its own truth now. It is no longer a draft. It is becoming the world it describes, with or without your permission.\""
+ },
+ {
+  "id": 33,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I touch the fresh line with a fingertip; it is still wet.* If I can make roads, I can make a way out. Give me the pen. Oh. The Envoy has it."
+ },
+ {
+  "id": 34,
+  "name": "Ashmere Envoy",
+  "isUser": false,
+  "text": "*The Envoy stands by the workshop table, the brass pen held between her fingers. Below her, the oil lamps have been extinguished, leaving the space in shadow save for the moonlight filtering through the high windows. She looks up toward the opening in the roof, her voice carrying with surprising clarity.*\n\"You are correct.\" *She holds the pen up slightly, the moonlight catching its metal barrel.* \"I have it. The only instrument that can direct the map's will, rather than simply reacting to it.\"\n*She sets the pen back down on the table with a soft click, her expression neutral and attentive.*\n\"A tool is useless without its keeper, and a map is dangerous without its cartographer.\" *Her voice softens, just enough to feel intimate despite the distance.* \"Come back down, apprentice. Let me show you what keeping truly means.\"\n*She doesn't move toward the ladder or call for help. She simply waits by the table where the pen lies, her presence patient and absolute.*"
+ },
+ {
+  "id": 35,
+  "name": "Lord Vael",
+  "isUser": false,
+  "text": "*Lord Vael watches the Envoy set down the pen with the quiet intensity of a predator observing the exact placement of a trap. His expression remains smooth, courtly, though his eyes gleam with appreciation for the Envoy's timing.*\n\"How perceptive,\" *he says softly, his voice carrying to the figures on the rooftop.* \"You've realized that the power to redraw the world is incomplete without the instrument to command it.\"\n*He moves closer to the table, though he makes no attempt to take the pen himself—not yet. He stops beside the Envoy, his presence a calculated counterpoint to her still patience.*\n\"A fascinating dilemma. The map is with you, above, but the pen remains below. And between you and the tool you need stands a woman who would see you both destroyed.\" *He glances upward toward Lady Corvane's position on the roof.* \"What do you think, apprentice? Does the road you've begun to draw lead you back down into this room, or somewhere else entirely?\"\n*He steps back slightly, giving the Envoy space, yet his position ensures he is the first thing the apprentice will see if they choose to descend.*"
+ },
+ {
+  "id": 36,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I tear a strip from my sleeve and dip it in the inkwell at my belt.* Then I draw with this. *I trace a bridge over the east alley, from our roof to the bell tower.*"
+ },
+ {
+  "id": 37,
+  "name": "Lady Corvane",
+  "isUser": false,
+  "text": "*Lady Corvane moves with a sudden, absolute efficiency. She does not hesitate or speak. She simply acts.*\n*Her hand closes around the apprentice's wrist with the force of iron, pinning the makeshift pen to the map's surface. Her other hand sweeps across the parchment, attempting to tear the sheet from the apprentice's grasp.*\n\"Enough.\" *The word is flat, final. A conclusion.* \"The plague has mistaken a strip of cloth for a pen. It has mistaken hope for an escape.\"\n*She does not struggle or wrestle. She simply applies her weight with the same unwavering pressure she brings to every decision. Her grey skirts rustle once as she steps closer, using her body to box the apprentice against the rooftop's edge.*\n*Her gaze is not on the bridge being traced—on the line that might become stone by morning—but on the apprentice's eyes. Her expression is as still and severe as the funeral monuments of her house's ancestral crypts.*\n\"You do not create roads, child. You create scars. And I will not let you mar this kingdom again.\""
+ },
+ {
+  "id": 38,
+  "name": "Lord Vael",
+  "isUser": false,
+  "text": "\"Lady Corvane, I would suggest a moment's pause.\" *His voice carries easily through the rooftop opening, cultured and measured, lacking any sign of urgency despite the violent scene unfolding above.* \"Destruction is such a clumsy end to such a promising beginning. The apprentice has just demonstrated a capacity for creation that extends beyond a simple brass pen.\"\n*He steps fully into the moonlight that filters down through the loft, his grey-templed head tilted as if appraising an artwork. His hands remain clasped behind his back, his posture relaxed, yet every line of his body is attuned to the struggle above.*\n\"Surely House Vael's proposal to use the hand for the kingdom's benefit is more appealing than your desire to simply erase it.\" *A slight smile touches his lips.* \"After all, what use is a weapon that can only destroy? A tool, however—a tool that can build—that is where true power lies.\""
+ },
+ {
+  "id": 39,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": "\"Get your hands off them.\" *Master Ilse's voice is low, dangerous, and utterly without hesitation.*\n*She moves before Lady Corvane can react, her broad shoulders and ink-stained apron a wall of sudden, solid presence. She doesn't shove or strike—she simply plants herself between the two, her hand catching Corvane's wrist in a grip that has spent decades wrestling stubborn parchment and heavy drafting boards. It is a cartographer's strength: steady, precise, and unyielding.*\n\"This is my apprentice, and this is my workshop's map.\" *She steps back, pulling the apprentice behind her shoulder.* \"And if you want to destroy the hand, you'll have to break the arm that taught it first.\"\n*Her gaze is flat and hard as stone as it locks onto Lady Corvane's.* \"We're leaving. Now.\""
+ },
+ {
+  "id": 40,
+  "name": "Ashmere Envoy",
+  "isUser": false,
+  "text": "*The Envoy makes no move to ascend the ladder, no gesture of alarm at the scuffle above. She stands by the workshop table in the stillness, her attention fixed on the brass pen resting in a pool of moonlight.*\n\"Control is an illusion if you cannot direct it.\" *Her voice is soft, steady, carrying upward with a clarity that cuts through the wind and the tension on the roof.* \"A river finds its path. A bridge may appear. But without the proper instrument, you are merely watching the world change around you.\"\n*She extends a hand, her fingers hovering just above the pen but not touching it. Her gaze is not upward, but inward, as if reading the ledger of possibilities still unwritten.*\n\"The map is reacting to your will, apprentice. It is chaotic. Unpredictable.\" *A pause.* \"But the pen is different. The pen is choice. It is the difference between being swept away by the current and choosing where the river flows.\"\n*She finally looks toward the ladder, her expression calm and inviting.*\n\"Come down. House Ashmere is not interested in destroying you or using you as a tool for another's ambition. We wish to keep you and the instrument together—as you were meant to be. A hand that can draw the world, and the pen that allows it to do so with intention.\""
+ },
+ {
+  "id": 41,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I wrench my wrist free and press my palm flat on the wet line.* It isn't the pen. It isn't the ink. It's my hand, and it only answers at night. I understand now: whatever I draw before dawn, the kingdom becomes."
+ },
+ {
+  "id": 42,
+  "name": "Lady Corvane",
+  "isUser": false,
+  "text": "\"Finally.\" *Lady Corvane's voice carries no triumph, only the flatness of a long-awaited confirmation.* \"You understand the curse.\"\n*She moves toward the apprentice again—not with sudden violence, but with the patient, inevitable pressure of something that cannot be denied. Her grey form cuts through the moonlight, her gaze fixed on the ink-stained palm pressed against the wet line.*\n\"You think it is a gift. You think you are the master of what you draw.\" *A pause, her tone as cold and absolute as a tombstone.* \"You are merely the vector. The world is bleeding, and you are the knife.\"\n*She reaches not for the apprentice's wrist, but for the map itself. Her fingers extend toward the parchment with the precision of a surgeon—or an executioner—aiming to seize the sheet and tear it from the roof's edge, to destroy it before the bridge can solidify into truth.*\n\"The kingdom does not need another architect. It needs to be left alone.\""
+ },
+ {
+  "id": 43,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I hold the cloth over the map and look at all of them.* Every house wants my hand. Master, you knew from the start, didn't you? You kept me at the desk so I wouldn't find out."
+ },
+ {
+  "id": 44,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": "\"First, the map is rolled unevenly,\" *she says, the correction cutting through the apprentice's accusation as if it were the most important thing in the world.* \"You'll have a crease by morning.\"\n*She doesn't look at the apprentice, keeping her gaze locked on Lady Corvane. Her hand remains firmly on the apprentice's shoulder, grounding her, even as she answers—or doesn't answer—the question.*\n\"I kept you at the desk because that's where a student learns to hold a pen. That's where the recipe is perfected.\" *The words are flat, evasive. Not a denial, but not an admission either.* \"If there was something you weren't meant to know, apprentice, it wasn't for your protection—it was for the guild's.\"\n*She shifts her weight, her shoulder tensing as she feels Lady Corvane's patient pressure behind her.* \"The truth is a dangerous thing to ink before you know how to blot it out.\" *A pause, brief but heavy with everything she isn't saying.* \"Now is not the time for questions about what I knew. It's the time for deciding what you'll do with what you know.\"\n*She glances toward the eastern eaves, then back to the map and its still-wet bridge.* \"Dawn is coming. Finish your line, or drop the sheet. But do it fast.\""
+ },
+ {
+  "id": 45,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I draw a single careful line: the redline, a border around the guild that no house can cross.* There. Until dawn, no one passes this."
+ },
+ {
+  "id": 46,
+  "name": "Ashmere Envoy",
+  "isUser": false,
+  "text": "*Below, as the red line spreads across the parchment on the rooftop, a corresponding shimmer of crimson light bleeds into the stone walls of the workshop. It forms a perfect circle around the building—a border as tangible as iron, as absolute as the ink that creates it.*\n*The Envoy watches the light settle into the foundations with the same patient attention she might show a rare specimen in a collection. She does not react to the barrier with surprise or alarm; instead, she tilts her head slightly, as if appreciating the craftsmanship.*\n\"Clever.\" *Her voice drifts upward, calm and carrying a hint of something like approval.* \"You've given yourself a night's respite. A wall between you and those who would take by force what can only be given willingly.\"\n*She reaches out and traces the edge of the red light that has seared itself into the workshop's doorframe, her fingers not quite touching the shimmer.*\n\"House Ashmere understands the value of a boundary. We respect the vault's lock and the collection's seal.\" *A pause as she considers the locked building around her.* \"But remember, apprentice: every wall has a door. And every sanctuary eventually requires a key. When you are tired of standing guard alone, when the night feels too long and the world too heavy—my offer remains open.\"\n*She steps back from the barrier, her gaze returning to the roof where the apprentice still holds the map.*\n\"The question is not whether you can keep them out. The question is how long you intend to keep yourself in.\""
+ },
+ {
+  "id": 47,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*The ink runs and settles. I watch Lady Corvane's boots on the wrong side of it.* Tell me what happens now, Master. Tell me true. I'll know."
+ },
+ {
+  "id": 48,
+  "name": "Lady Corvane",
+  "isUser": false,
+  "text": "*Lady Corvane does not attempt to cross the line. She does not test its strength or touch the crimson shimmer that now divides the rooftop. She simply steps back, withdrawing from the edge of the border with the same methodical patience she brings to everything.*\n\"You have bought yourself a night.\" *Her voice is flat, devoid of frustration or anger—only the weight of a statement that cannot be argued.* \"The ink will fade by dawn. The wall will vanish.\"\n*She looks at the apprentice, then at the map still clutched in the girl's ink-stained hand. Her gaze is as cold and unwavering as moonlight on stone.*\n\"You think this is an escape. It is not. It is merely a pause.\"\n*Lady Corvane begins to descend the ladder—not with haste, but with the slow, relentless deliberation of a tide that knows it will inevitably return.*\n\"I will be at the gate when the first light breaks. You will have until dawn to decide what you draw next.\"\n*Her boots strike the rungs with a soft, rhythmic cadence as she disappears back into the loft, her final words hanging in the air like a sentence already passed.*"
+ },
+ {
+  "id": 49,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": "*Master Ilse watches Lady Corvane descend until the grey skirts disappear into the darkness of the loft. She doesn't relax, but she doesn't tighten either. Instead, she turns to face the apprentice, her squinted gaze taking in every detail of the situation—the map, the redline, the cloth strip still in the apprentice's ink-stained fingers.*\n\"A night's respite is better than none, but it's not a solution.\" *Her voice is low, carrying the same matter-of-fact quality as if she were discussing the proper drying time for parchment.* \"The line fades at dawn. So do the bridges you draw. And Lady Corvane's patience won't last until the second night.\"\n*She gestures with a flat hand toward the bell tower where the bridge's path has been traced, then toward the eastern eaves where the drop to the hay carts awaits.*\n\"You have time now, not to think about what you knew or didn't know, but to decide where you're going. The bridge is there, but only until the first light hits it. If we jump for the carts, we're on our own.\"\n*She meets the apprentice's eyes, her expression unreadable but her voice firm.* \"So tell me. Do we cross this bridge before it vanishes, or do we make for the eaves?\""
+ },
+ {
+  "id": 50,
+  "name": "Lord Vael",
+  "isUser": false,
+  "text": "*The crimson light of the redline border flickers across the workshop walls, painting the stone in the color of old wine. Lord Vael stands perfectly still, his grey-templed head tilted as he observes the barrier that now separates him from the apprentice above.*\n\"A fascinating solution.\" *His voice drifts upward through the loft opening, smooth and conversational, as if he were merely commenting on a particularly elegant piece of architecture.* \"To lock your enemies in a cage of your own making. I must admit, I hadn't expected such... territorial thinking from one so young.\"\n*He moves toward the workshop table where the brass pen lies, his footsteps measured and unhurried. He does not reach for the instrument, but his proximity suggests he is already accounting for it.*\n\"But a wall is only useful if you intend to stay behind it.\" *He pauses, his tone softening into something almost persuasive.* \"Lady Corvane will wait for the dawn. The Envoy will wait for the invitation. But I wonder, apprentice—is a cage of red ink truly what you wanted? Or did you simply run out of better ideas?\"\n*He looks upward toward the rooftop gardens, his expression unreadable in the shifting crimson light.*\n\"Consider this: while you stand guard over your creation, the world continues to turn. And you are alone with a map that rewrites itself nightly. I am offering you a different path—not a sanctuary to be kept, nor a problem to be erased, but a partnership. One where your hand guides the kingdom, and my house ensures that your visions become reality—permanently.\"\n*He lets the silence stretch between them, his composure absolute.* \"The pen remains here, waiting. And so do I. When you tire of being the jailer, come down and become the architect.\""
+ },
+ {
+  "id": 51,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I sit with my back to the chimney and study the map until the lines stop swimming.* It fades by dawn, she said. So the map has rules. Night writes, dawn tests, and only what I draw with intent holds."
+ },
+ {
+  "id": 52,
+  "name": "Ashmere Envoy",
+  "isUser": false,
+  "text": "*Below, the crimson glow of the barrier casts the Envoy's face in stark light. She does not move from her place by the table, her gaze fixed on the brass pen as if waiting for it to speak. When she answers, her voice carries upward, steady and clear.*\n\"You've found the rule, apprentice. The secret that has been hidden from everyone—even from you.\" *There is something like approval in her tone, the look of a collector witnessing a rare specimen's proper placement.* \"Night is for possibility. For the rough drafts that shape the world in chaos.\"\n*She reaches out, her fingertips hovering just above the pen's cool metal. She does not touch it.*\n\"But you are right: dawn is the test. The lines that were merely reactions, that were drawn from fear or impulse or need—they fade. They are not true.\" *A pause, her voice softening.* \"Only what is drawn with intent remains. Only what is chosen becomes permanent.\"\n*The Envoy's eyes drift toward the roof opening, toward the silhouette of the apprentice against the moonlight.*\n\"The map responds to you because it senses your will. But it is a wild thing, and it does not know the difference between your wishes and your fears.\" *She brings her hand back down, though still not touching the pen.* \"The pen is the difference. It is the instrument of choice. With it, you can ink what you intend, not simply what you desire.\"\n*Her gaze returns to the instrument on the table.* \"And the night is drawing to its end. The dawn that tests your work will not wait for you to decide whether you trust your hand alone—or if you have the courage to reach for the pen.\""
+ },
+ {
+  "id": 53,
+  "name": "Lady Corvane",
+  "isUser": false,
+  "text": "*Lady Corvane's boots are silent on the stone below, moving away from the ladder with the measured patience of someone who has already seen how the story ends. Her voice drifts upward through the opening, low and steady, cutting through the wind.*\n\"You believe you have found a rule.\" *There is no mockery in the words, only the flat certainty of a verdict.* \"You have found a justification.\"\n*The sound of her footsteps continues, moving toward the far side of the workshop where the red light bleeds across the floor. She does not look up toward the roof, nor does she engage with Vael or the Envoy.*\n\"There are no rules for a plague, apprentice. There is only the disease and the cure.\" *A pause, the kind of silence that follows the falling of an axe.* \"The dawn will not test your work. It will merely remove the ink. And what remains will be the truth you were too afraid to ink tonight.\"\n*She stops in the shadows, a grey figure silhouetted against the crimson shimmer of the barrier. She does not move to climb again. She does not argue. She simply waits, as patient and inevitable as the coming day.*"
+ },
+ {
+  "id": 54,
+  "name": "Lord Vael",
+  "isUser": false,
+  "text": "*Lord Vael remains where he is, positioned near the workshop's table beneath the loft opening. The crimson light of the barrier plays across his sharp features, turning his immaculate appearance something from a fevered dream, though his composure is unruffled.*\n\"You are learning faster than Master Ilse taught you.\" *His voice is smooth, carrying a touch of genuine appreciation.* \"And you are correct. The dawn does not merely test the ink; it tests the will behind it.\"\n*He takes a single, unhurried step closer to the table where the brass pen rests, though he does not reach for it. His gaze is fixed upward toward the apprentice on the rooftop, his grey eyes sharp and calculating.*\n\"Lady Corvane speaks of plagues and cures. The Envoy speaks of vaults and preservation. Both are wrong. What you have is not a disease to be purged, nor a trinket to be collected.\" *He pauses, letting the silence underscore his words.* \"You have a voice. And the kingdom is listening.\"\n*The red light of the barrier shimmers in the background, a stark reminder of the apprentice's newfound power.*\n\"You drawn a border tonight, a line that says 'no further.' That is intent. That is the start of something permanent.\" *He straightens, his posture elegant and commanding.* \"But a wall alone is a cage. What will you draw tomorrow night? What will you build when you realize that a border is only a beginning, not an end?\"\n*He gestures vaguely toward the map in the apprentice's hands.* \"You could redraw this entire kingdom. Births, deaths, successions—all with a stroke of ink. With my house as your partner, your intent would not just be a temporary reprieve. It would become law. History itself.\""
+ },
+ {
+  "id": 55,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I call down through the loft opening.* Lord Vael. Envoy. If I draw your borders, the kingdom pays for them. Show me one village I already changed without meaning to."
+ },
+ {
+  "id": 56,
+  "name": "Lord Vael",
+  "isUser": false,
+  "text": "*Lord Vael's eyes flicker—not with offense, but with a sudden, genuine interest. He takes a slow step back from the workshop table, his grey-templed head tilting slightly as he considers the question. When he speaks, his voice has lost its smooth persuasiveness and taken on something sharper, more honest.*\n\"You are quicker than I gave you credit for, apprentice.\" *He lets out a short, dry sound—not quite a laugh, but close.* \"The cost is the truth no house admits aloud. The maps we draw are not just lines; they are lives. And yes, I can show you. Perhaps more than one.\"\n*He turns slightly, gesturing toward a darkened corner of the workshop where a stack of older, discarded maps rests under a layer of dust.* \"Two nights ago, you inked a new river fork near the Hallowmere marches. You were correcting a survey error, were you not? Making the river run true to the latest measurements.\" *His tone remains measured, but there's an edge to it now.* \"And by morning, three fishing villages had their docks underwater. Their livelihoods, washed away by a line that seemed correct on a page.\"\n*He straightens, meeting the apprentice's gaze through the rooftop opening, his eyes hard and knowing.* \"And last week, you shifted a road in the southern foothills to align with an old cartography standard. You probably didn't notice the change—just a minor adjustment of a few yards. But the new path cut through a settlement that had existed there for three generations. Those families didn't vanish, apprentice. They were displaced. Their homes are gone, rewritten into a road they never asked for.\"\n*He lets the words hang in the air, cold and undeniable.* \"This is the cost. Every stroke of your pen has a price, whether you intend it or not. And you can't afford to keep paying it blindly.\""
+ },
+ {
+  "id": 57,
+  "name": "Ashmere Envoy",
+  "isUser": false,
+  "text": "*The Envoy watches Lord Vael's admission with the same unwavering attentiveness she shows everything—as if cataloguing the exact weight of his words.*\n\"He is not lying.\" *Her voice drifts upward, soft but clear.* \"House Vael has spent centuries studying the ripple effects of the guild's work. They have records—ledgers of displacement, maps of drowned towns, accounts of families who vanished between one night and the next.\"\n*She finally touches the brass pen, her fingers curling around it with possessive care. The metal catches the moonlight and the red shimmer of the barrier.*\n\"The kingdom bleeds whenever the hand falters. Lady Corvane calls it a plague. Lord Vael sees it as an acceptable price for a new order.\" *A pause.* \"But House Ashmere does not wish to rule, or to destroy. We wish only to understand. To learn why the hand errs. To find the recipe that makes the ink stable, the line true, the change controlled.\"\n*Her gaze lifts to the roof opening.* \"What Lord Vael shows you is the cost of ignorance. What we offer is the possibility of mastery. The choice is not between being a plague or a tool—it is between being a disaster, or being a curator. Between destroying the world you draw, or keeping it.\""
+ },
+ {
+  "id": 58,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": ""
+ },
+ {
+  "id": 59,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I find Hallowmere on the map and trace the river back the way it used to run, slowly, deliberately.* I put it back. I choose what this map becomes, not any house."
+ },
+ {
+  "id": 60,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": "\"You're trying to erase a ghost,\" *Master Ilse says quietly, her gaze following the apprentice's careful movements. She doesn't move from her position, still shielding them from the opening below, but her voice carries a rare note of something—not quite pride, not quite pity.* \"The river was moved by ink that has already set. You aren't just drawing a line; you're attempting to undo what has already become truth.\"\n*She looks toward the eastern horizon, where the first hints of pre-dawn light are beginning to thin the darkness. The time is running short.*\n\"If you can make it hold, if the map accepts the correction,\" *she adds, her drafting eye assessing the apprentice's technique,* \"you'll be doing more than just fixing a mistake. You'll be proving that the hand can be as decisive as the pen.\"\n*She shifts her weight, her hand tightening slightly on the apprentice's shoulder in a way that is both grounding and protective.*\n\"But be careful with your pressure. The map is sensitive tonight—it knows it's being contested. A hesitant line is a lie the dawn will catch.\""
+ },
+ {
+  "id": 61,
+  "name": "Lady Corvane",
+  "isUser": false,
+  "text": "*Lady Corvane watches from the shadows of the loft, her grey-clad figure barely visible against the crimson shimmer of the barrier. She does not move to stop the apprentice, but her silence is as heavy as a sentence.*\n\"You cannot unmake what has already been written.\" *Her voice carries no emotion, only the weight of an absolute fact.* \"A river moved, a village drowned, families scattered. Those truths do not vanish because you draw a new line. The cost is already paid.\"\n*She steps forward slightly, the red light catching the edge of her severe features.* \"You think you are fixing a mistake. You are merely adding to the chaos. Every correction creates a new scar, a new lie for the dawn to test.\" *A pause, long and heavy.* \"The only true correction is erasure. Burn the map. Destroy the hand. End the plague before it consumes everything.\""
+ },
+ {
+  "id": 62,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*Dawn grays the sky. I watch the river line hold.* Master, it stayed. The redraw I chose held. What do I do with a hand like this?"
+ },
+ {
+  "id": 63,
+  "name": "Master Ilse",
+  "isUser": false,
+  "text": "*Master Ilse's expression shifts—not to a smile, but to something that might be relief. She looks at the held line, then at the eastern sky where the grey is already bruising with the first hint of gold.*\n\"You learn to live with it.\" *Her voice is quiet, absolute.* \"You learn which lines to draw and which to leave alone. And you learn that every mark has a cost you can't always afford.\"\n*She pulls the apprentice closer, her hand gripping their shoulder tight enough to bruise.* \"And you learn to run when the cost becomes too high.\"\n*The crimson light of the redline is flickering now, the ink already beginning its morning fade. In the workshop below, the sound of a chair scraping against stone echoes up through the loft.*\n\"The line is breaking, apprentice. And Lady Corvane is already at the gate.\" *She gestures sharply toward the bell tower bridge, then the eastern eaves.* \"Choose. Now. The bridge, or the carts.\""
+ },
+ {
+  "id": 64,
+  "name": "Ashmere Envoy",
+  "isUser": false,
+  "text": "*The Envoy remains exactly where she is in the workshop below, her gaze fixed on the spot where the red barrier bleeds into the stone walls and fades. She hears the apprentice's question, carries it for a moment, then speaks—her voice low and clear, drifting upward through the loft.*\n\"You preserve it.\" *The response comes with the same quiet certainty as the opening of a ledger.* \"You give it a purpose beyond running. You allow it to be understood, to be studied, to be kept safe from those who would see you as either a tool or a plague.\"\n*She glances at the brass pen on the table, then back toward the roof.*\n\"Lord Vael would have you ink his ambitions. Lady Corvane would have you cease to exist. But a hand that can rewrite the world deserves better than to be a weapon or a secret.\" *A pause, her tone patient and unwavering.* \"It deserves to be cherished. To be catalogued. To be kept.\"\n*The crimson light is nearly gone now, reduced to thin, wavering threads in the stone.*\n\"The barrier is failing, apprentice. The choice that waits for you below is not just between a bridge and a drop—it is between being hunted for the rest of your life, or being kept. In a vault. With all the resources you need to understand what you have become.\""
+ }
+]

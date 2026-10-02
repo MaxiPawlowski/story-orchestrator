@@ -1,0 +1,29 @@
+{"at":"2026-10-02T11:56:31.652Z","type":"info","text":"console tail attached"}
+{"at":"2026-10-02T12:00:05.871Z","type":"warning","text":"Stream stats: 632 tokens, 22.87 seconds, rate: 27.64 TPS","location":"http://127.0.0.1:8103/script.js:3898"}
+{"at":"2026-10-02T12:00:12.483Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:00:26.277Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:00:26.278Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:00:50.872Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:00:51.910Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:00:51.916Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:02:12.673Z","type":"warning","text":"Stream stats: 660 tokens, 24.00 seconds, rate: 27.50 TPS","location":"http://127.0.0.1:8103/script.js:3898"}
+{"at":"2026-10-02T12:02:14.484Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:03:13.772Z","type":"warning","text":"Stream stats: 925 tokens, 33.78 seconds, rate: 27.38 TPS","location":"http://127.0.0.1:8103/script.js:3898"}
+{"at":"2026-10-02T12:04:04.939Z","type":"warning","text":"Stream stats: 732 tokens, 26.80 seconds, rate: 27.31 TPS","location":"http://127.0.0.1:8103/script.js:3898"}
+{"at":"2026-10-02T12:04:53.814Z","type":"warning","text":"Stream stats: 687 tokens, 25.16 seconds, rate: 27.30 TPS","location":"http://127.0.0.1:8103/script.js:3898"}
+{"at":"2026-10-02T12:04:57.279Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:04:58.311Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:10:18.640Z","type":"warning","text":"Stream stats: 441 tokens, 16.57 seconds, rate: 26.61 TPS","location":"http://127.0.0.1:8103/script.js:3898"}
+{"at":"2026-10-02T12:10:20.258Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:11:24.381Z","type":"warning","text":"Stream stats: 1103 tokens, 40.84 seconds, rate: 27.01 TPS","location":"http://127.0.0.1:8103/script.js:3898"}
+{"at":"2026-10-02T12:12:11.784Z","type":"warning","text":"Stream stats: 615 tokens, 22.69 seconds, rate: 27.10 TPS","location":"http://127.0.0.1:8103/script.js:3898"}
+{"at":"2026-10-02T12:13:04.581Z","type":"warning","text":"Stream stats: 587 tokens, 21.70 seconds, rate: 27.05 TPS","location":"http://127.0.0.1:8103/script.js:3898"}
+{"at":"2026-10-02T12:13:07.578Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:13:07.823Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:13:16.002Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:13:16.003Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:13:32.540Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:13:32.566Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:13:32.582Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:13:38.331Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8103/script.js:9415"}
+{"at":"2026-10-02T12:15:01.330Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8103/api/plugins/story-orchestrator-judge/systemone:0"}
