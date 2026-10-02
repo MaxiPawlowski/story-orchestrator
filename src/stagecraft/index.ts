@@ -6,3 +6,4 @@ export * from "./scope";
 export * from "./warden";
 export * from "./fuzzy";
 export * from "./writeAhead";
+export * from "./declines";

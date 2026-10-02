@@ -1,6 +1,6 @@
 import type { NormalizedStoryV2 } from "@engine/index";
 import {
-  isCheckpointGated, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, settleWriteAheads,
+  CURATOR_OP_REVERTED, isCheckpointGated, isCuratorWritable, isNoteOp, noWriteAheads, pendingWriteAheads, previewCuratorOp, settleWriteAheads,
   type CuratorOpRecord, type CuratorProposalRecord, type WiCuratorOp, type WriteAheadCounts, type WriteAheadLive,
 } from "@stagecraft/index";
 import { lorebookFileId } from "@utils/string";
@@ -14,6 +14,11 @@ const RETAINED_OP_STATUSES = new Set(["applied", "revert-failed", "externally-ed
 // entry. An op recorded without one is never name-addressed: it is refused.
 const uidTarget = (entry: CuratorOpRecord): WIEntryTarget | null =>
   entry.target?.uid !== undefined ? { lorebookFileId: entry.target.lorebookFileId, uid: entry.target.uid } : null;
+
+const reopened = (entry: CuratorOpRecord): CuratorOpRecord => ({
+  op: entry.op, status: "pending", message: CURATOR_OP_REVERTED,
+  ...(entry.before ? { before: entry.before } : {}), ...(entry.fuzzy ? { fuzzy: entry.fuzzy } : {}),
+});
 
 export interface CuratorWriterDeps {
   getStory: () => NormalizedStoryV2 | null;
@@ -108,9 +113,12 @@ export class CuratorWriter {
       return 0;
     }
     let reverted = 0;
+    let reviewed = 0;
     const settled = new Set<string>();
-    const updates: Array<{ id: string; ops: CuratorOpRecord[] }> = [];
+    const updates: Array<{ id: string; ops: CuratorOpRecord[]; source?: number }> = [];
     for (const record of affected) {
+      const source = record.provenance?.messageId;
+      const kept = source !== undefined && source < messageId;
       const ops: CuratorOpRecord[] = [];
       for (const entry of [...record.ops].reverse()) {
         if (run.lapsed()) { ops.unshift(entry); continue; }
@@ -134,18 +142,24 @@ export class CuratorWriter {
         }
         const restored = await this.restoreBefore(entry, at);
         if (restored) reverted += 1;
-        else ops.unshift({ ...entry, status: "revert-failed", message: `could not restore "${entry.op.comment}"; the entry it would restore is kept for a retry` });
+        if (restored && kept) {
+          reviewed += 1;
+          ops.unshift(reopened(entry));
+        }
+        if (!restored) ops.unshift({ ...entry, status: "revert-failed", message: `could not restore "${entry.op.comment}"; the entry it would restore is kept for a retry` });
       }
-      if (!ops.some((kept) => RETAINED_OP_STATUSES.has(kept.status))) settled.add(record.id);
-      updates.push({ id: record.id, ops });
+      const retained = ops.some((entry) => RETAINED_OP_STATUSES.has(entry.status));
+      if (!kept && !retained) settled.add(record.id);
+      updates.push({ id: record.id, ops, ...(kept && !retained ? { source } : {}) });
     }
     if (run.lapsed()) return reverted;
-    const byId = new Map(updates.map((update) => [update.id, update.ops]));
+    const byId = new Map(updates.map((update) => [update.id, update]));
     this.deps.patch({ proposals: this.deps.state().proposals.filter((record) => !settled.has(record.id)).map((record) => {
-      const ops = byId.get(record.id);
-      return ops ? { ...record, ops } : record;
+      const update = byId.get(record.id);
+      if (!update) return record;
+      return update.source === undefined ? { ...record, ops: update.ops } : { ...record, ops: update.ops, messageId: update.source, appliedAt: undefined };
     }) });
-    if (reverted) this.deps.journal(`World Info curator changes rolled back (${reverted})`);
+    if (reverted) this.deps.journal(`World Info curator changes rolled back (${reverted})${reviewed ? `; ${reviewed} back to review` : ""}`);
     await this.deps.save();
     return reverted;
   }

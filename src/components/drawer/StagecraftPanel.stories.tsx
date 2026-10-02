@@ -105,6 +105,22 @@ export const Failed: Story = {
   },
 };
 
+const revertedOp: CuratorOpRecord = {
+  ...patchOp("pending"),
+  op: { kind: "patch", lorebook: "Xentar Checkpoints", comment: "The dawn wards", anchor: "The wards hold || until dawn", replace: "The wards are ash" },
+  message: "reverted",
+};
+
+export const RevertedBackToReview: Story = {
+  args: { snapshot: snapshot({ proposals: [proposal([revertedOp])] }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/undone by a rollback — accept to write it again/)).toBeInTheDocument();
+    await expect(canvas.getByRole("textbox")).toHaveValue("The wards are ash");
+    await expect(canvas.getByRole("button", { name: "Accept" })).toBeInTheDocument();
+  },
+};
+
 export const Off: Story = {
   args: { snapshot: snapshot({ curatorEnabled: false }) },
   play: async ({ canvasElement }) => {
