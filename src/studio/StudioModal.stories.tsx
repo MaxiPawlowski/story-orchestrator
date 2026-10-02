@@ -4,6 +4,7 @@ import { fn, within, userEvent, expect, waitFor } from "@storybook/test";
 import StudioModal from "./StudioModal";
 import { seedDraft, seedEmptyDraft, sampleStory } from "./stories/fixtures";
 import { required } from "@utils/guards";
+import { emptyEnvironment } from "@wizard/index";
 
 const meta: Meta<typeof StudioModal> = {
   title: "Studio/StudioModal",
@@ -230,5 +231,24 @@ export const KeyboardOnlyAuthoring: Story = {
     } finally {
       URL.createObjectURL = original;
     }
+  },
+};
+
+export const WizardKeepsItsModeAcrossTabs: Story = {
+  args: {
+    copilotEnabled: true,
+    runCopilotStage: async () => { throw new Error("no stage runs in this story"); },
+    agentModel: async () => ({ text: "", finish: "stop" }),
+    wizardHost: { environment: () => emptyEnvironment(), applyProvisioning: async () => ({ ok: true, message: "" }) },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement.ownerDocument.body);
+    await userEvent.click(await canvas.findByRole("tab", { name: "Wizard" }));
+    await userEvent.click(await canvas.findByRole("button", { name: "Agent" }));
+    await expect(await canvas.findByLabelText("What should the agent build")).toBeInTheDocument();
+    await userEvent.click(await canvas.findByRole("tab", { name: "Graph" }));
+    await userEvent.click(await canvas.findByRole("tab", { name: "Wizard" }));
+    await expect(await canvas.findByRole("button", { name: "Agent" })).toHaveAttribute("aria-pressed", "true");
+    await expect(await canvas.findByLabelText("What should the agent build")).toBeInTheDocument();
   },
 };

@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { isValidationErrorList, parseStoryV2, type StoryV2, type ValidationError } from "@engine/index";
+import { wizardSessionKey } from "@wizard/index";
 import { runDiagnostics, type Diagnostic, type DiagnosticsContext } from "./diagnostics";
 
 export type StoryDraft = StoryV2;
@@ -15,6 +16,20 @@ export const newStoryDraft = (): StoryDraft => ({
 });
 
 const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
+
+export const freshDraftKey = (): string => `draft-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
+
+export const draftKeyFor = (draft: StoryDraft): string => (draft.id ? wizardSessionKey({ id: draft.id }) : freshDraftKey());
+
+export const changedFields = (from: StoryDraft, to: StoryDraft): string[] => {
+  const keys = [...new Set([...Object.keys(from), ...Object.keys(to)])] as Array<keyof StoryDraft>;
+  return keys.filter((key) => JSON.stringify(from[key]) !== JSON.stringify(to[key]));
+};
+
+const undoNote = (verb: "Undo" | "Redo", from: StoryDraft, to: StoryDraft): string => {
+  const fields = changedFields(from, to);
+  return `The author pressed ${verb}, which changed ${fields.length ? fields.join(", ") : "nothing visible"} in the draft behind your last steps. Read the draft again before relying on them.`;
+};
 
 const validate = (draft: StoryDraft): ValidationError[] => {
   const parsed = parseStoryV2(draft);
@@ -46,12 +61,15 @@ export interface DraftState {
   selectedCheckpointId: string | null;
   selectedTransitionIndex: number | null;
   runEpoch: number;
+  draftKey: string;
+  undone: string[];
 }
 
 export interface DraftActions {
   endRuns: () => void;
   mutate: (fn: (draft: StoryDraft) => StoryDraft, options?: { history?: boolean }) => void;
-  loadDraft: (draft: StoryDraft, sourceHash?: string | null) => void;
+  loadDraft: (draft: StoryDraft, sourceHash?: string | null, draftKey?: string) => void;
+  takeUndone: () => string[];
   newDraft: () => void;
   undo: () => void;
   redo: () => void;
@@ -62,7 +80,7 @@ export interface DraftActions {
 
 export type DraftStore = DraftState & DraftActions;
 
-const initialData = (draft: StoryDraft, baseline: StoryDraft = draft): Omit<DraftState, "runEpoch"> => ({
+const initialData = (draft: StoryDraft, baseline: StoryDraft = draft): Omit<DraftState, "runEpoch" | "draftKey" | "undone"> => ({
   draft,
   baseline: clone(baseline),
   sourceHash: null,
@@ -76,6 +94,8 @@ const initialData = (draft: StoryDraft, baseline: StoryDraft = draft): Omit<Draf
 export const useDraftStore = create<DraftStore>((set, get) => ({
   ...initialData(newStoryDraft()),
   runEpoch: 0,
+  draftKey: freshDraftKey(),
+  undone: [],
   endRuns: () => set((state) => ({ runEpoch: state.runEpoch + 1 })),
   mutate:(fn, options) => set((state) => {
     const next = fn(state.draft);
@@ -88,17 +108,26 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
       ...derive(next, state.baseline),
     };
   }),
-  loadDraft: (draft, sourceHash = null) => set((state) => ({
+  loadDraft: (draft, sourceHash = null, draftKey) => set((state) => ({
     ...initialData(draft),
     sourceHash,
     runEpoch: state.runEpoch + 1,
+    draftKey: draftKey ?? draftKeyFor(draft),
+    undone: [],
   })),
+  takeUndone: () => {
+    const { undone } = get();
+    if (undone.length) set({ undone: [] });
+    return undone;
+  },
   newDraft: () => get().loadDraft(newStoryDraft()),
   undo: () => set((state) => {
     if (!state.past.length) return {};
     const previous = state.past[state.past.length - 1];
     return {
       draft: previous,
+      runEpoch: state.runEpoch + 1,
+      undone: [...state.undone, undoNote("Undo", state.draft, previous)],
       past: state.past.slice(0, -1),
       future: [state.draft, ...state.future],
       ...clampSelection(previous, state.selectedCheckpointId, state.selectedTransitionIndex),
@@ -110,6 +139,8 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
     const [next, ...rest] = state.future;
     return {
       draft: next,
+      runEpoch: state.runEpoch + 1,
+      undone: [...state.undone, undoNote("Redo", state.draft, next)],
       past: [...state.past, state.draft],
       future: rest,
       ...clampSelection(next, state.selectedCheckpointId, state.selectedTransitionIndex),

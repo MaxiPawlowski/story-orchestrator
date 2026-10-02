@@ -4,6 +4,7 @@ import {
 } from "@engine/index";
 import { directorEnabled } from "@talk/index";
 import { checkChapters } from "./chapterDiagnostics";
+import { checkHouseRules, checkRequirementMembers } from "./authoringDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -52,6 +53,7 @@ export const DIAGNOSTIC_CODES = [
   "chapter-no-exit",
   "chapter-reentry",
   "story-dead-end",
+  "requirement-member-roster-id",
 ] as const;
 
 // Every code says what it costs the story before it says what is technically wrong: the
@@ -95,6 +97,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "chapter-no-exit": "The story stops in this chapter, but it is not marked as the last one, so it is never closed.",
   "chapter-reentry": "Going back to an earlier chapter reopens a closed record, so the story so far repeats itself.",
   "story-dead-end": "The story stops here without an ending, so its last chapter is never written up.",
+  "requirement-member-roster-id": "The story never reads as ready: it waits for a character named by a cast id, while the card has another name.",
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -456,13 +459,6 @@ const checkLoreSelect = (run: DiagnosticRun) => {
   );
 };
 
-const checkHouseRules = (run: DiagnosticRun) => {
-  const { draft, push } = run;
-  (draft.house_rules ?? []).forEach((rule, index) => {
-    if (/;|\s(and|y)\s/i.test(rule)) push("house-rule-compound", "warning", `house_rules.${index}`, `house rule ${index + 1} asks for two things at once; split it into one rule per demand`);
-  });
-};
-
 const checkSceneLocation = (run: DiagnosticRun) => {
   const { draft, push } = run;
   const locationIndex = draft.qualities.findIndex((quality) => quality.key === "location");
@@ -522,6 +518,7 @@ const DIAGNOSTIC_CHECKS = [
   checkWorldInfoGating,
   checkMotives,
   checkChapters,
+  checkRequirementMembers,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

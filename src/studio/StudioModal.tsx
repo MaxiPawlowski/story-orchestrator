@@ -11,7 +11,7 @@ import DiagnosticsPanel from "./components/DiagnosticsPanel";
 import RosterEditor from "./components/RosterEditor";
 import StoryEditor from "./components/StoryEditor";
 import StudioGraph from "./components/StudioGraph";
-import StudioCopilot, { type WizardHost } from "./components/StudioCopilot";
+import StudioCopilot, { type WizardHost, type WizardMode } from "./components/StudioCopilot";
 import type { AgentTurnRunner } from "./components/AgentWizard";
 import * as wizardAgent from "@copilot/agent/index";
 import type { ModelCall } from "@extraction/modelRoute";
@@ -195,6 +195,8 @@ interface TabContentProps {
   wizardHost?: WizardHost;
   intent?: StudioOpenIntent;
   onSelect: (tab: StudioTab) => void;
+  wizardMode: WizardMode;
+  onWizardMode: (mode: WizardMode) => void;
 }
 
 const GraphTab = ({ copilotEnabled, onSelect }: { copilotEnabled: boolean; onSelect: (tab: StudioTab) => void }) => {
@@ -218,7 +220,7 @@ const GraphTab = ({ copilotEnabled, onSelect }: { copilotEnabled: boolean; onSel
   );
 };
 
-const StudioTabContent = ({ activeTab, options, copilotEnabled, runCopilotStage, runAgentTurn, wizardHost, intent, onSelect }: TabContentProps) => {
+const StudioTabContent = ({ activeTab, options, copilotEnabled, runCopilotStage, runAgentTurn, wizardHost, intent, onSelect, wizardMode, onWizardMode }: TabContentProps) => {
   const idLocked = useDraftStore((state) => state.sourceHash !== null);
   if (activeTab === "story") {
     return <StoryEditor personaNames={options.personaNames} memberNames={options.memberNames} lorebookNames={options.lorebookNames} idLocked={idLocked} />;
@@ -229,7 +231,18 @@ const StudioTabContent = ({ activeTab, options, copilotEnabled, runCopilotStage,
   if (activeTab === "roster") return <RosterEditor memberNames={options.memberNames} />;
   if (activeTab === "diagnostics") return <DiagnosticsPanel />;
   if (activeTab === "copilot") {
-    return <StudioCopilot enabled={copilotEnabled} runStage={runCopilotStage} runAgentTurn={runAgentTurn} host={wizardHost} initialStage={intent?.stage} seedMissing={intent?.missing} />;
+    return (
+      <StudioCopilot
+        mode={wizardMode}
+        onModeChange={onWizardMode}
+        enabled={copilotEnabled}
+        runStage={runCopilotStage}
+        runAgentTurn={runAgentTurn}
+        host={wizardHost}
+        initialStage={intent?.stage}
+        seedMissing={intent?.missing}
+      />
+    );
   }
   return <GraphTab copilotEnabled={copilotEnabled} onSelect={onSelect} />;
 };
@@ -250,6 +263,7 @@ const StudioFooter = ({ onSaved }: { onSaved?: StudioSaveHandler }) => {
 
 const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopilotStage, agentModel, onSaved, hostOptions, wizardHost, intent, replay = null }) => {
   const [tab, setTab] = useState<StudioTab>(intent?.tab ?? "graph");
+  const [wizardMode, setWizardMode] = useState<WizardMode>("staged");
   const options = useMemo(() => hostOptions ?? readHostOptions(), [hostOptions]);
   const tabs = copilotEnabled ? [...BASE_TABS, { id: "copilot" as StudioTab, label: "Wizard" }] : BASE_TABS;
   const activeTab = tabs.some((entry) => entry.id === tab) ? tab : "graph";
@@ -304,6 +318,8 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
               wizardHost={wizardHost}
               intent={intent}
               onSelect={setTab}
+              wizardMode={wizardMode}
+              onWizardMode={setWizardMode}
             />
           </GateReplayContext.Provider>
         </div>

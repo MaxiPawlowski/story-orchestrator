@@ -20,7 +20,7 @@ const summarizeStory = (draft: StoryV2): string => json({
   checkpoints: draft.checkpoints.map(({ id, name, type, start, objective }) => ({ id, name, type, ...(start ? { start: true } : {}), objective })),
   transitions: draft.transitions.map((transition) => ({ from: transition.from, to: transition.to, priority: transition.priority, gate: renderGateText(transition.gate) })),
   roster: draft.roster,
-  blocks: BLOCKS.filter((key) => draft[key] !== undefined),
+  blocks: Object.fromEntries(BLOCKS.filter((key) => draft[key] !== undefined).map((key) => [key, draft[key]])),
 });
 
 const readCheckpoint = (draft: StoryV2, id: string): string => {

@@ -150,7 +150,7 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   if (lapsed()) return null;
   const candidate = host.owner?.();
   const owner = adopting && candidate?.chatId === chatId ? candidate : null;
-  if (owner?.chatId === chatId && await host.upsertWIEntry(ensured.name, OWNER_COMMENT, ownerMarkerContent(owner, new Date().toISOString())) !== "failed") {
+  if (owner?.chatId === chatId && await host.upsertWIEntry(ensured.name, OWNER_COMMENT, ownerMarkerContent(owner, new Date().toISOString(), input.title)) !== "failed") {
     if (lapsed()) return null;
     await host.disableWIEntry(ensured.name, OWNER_COMMENT);
   }
