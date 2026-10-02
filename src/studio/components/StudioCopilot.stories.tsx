@@ -1,10 +1,12 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { within, userEvent, expect } from "@storybook/test";
+import { newAgentSession } from "@copilot/agent/index";
+import { emptyEnvironment, newWizardSession } from "@wizard/index";
 import { runAuthoringStage, type AuthoringStageInput } from "@copilot/index";
 import { routedModel } from "@extraction/client";
 import StudioCopilot from "./StudioCopilot";
 import { useDraftStore } from "../draft";
-import { sampleStory, seedDraft } from "../stories/fixtures";
+import { sampleStory, seedDraft, seedEmptyDraft } from "../stories/fixtures";
 
 const VALID_RESPONSE = JSON.stringify({
   summary: "Add a morale quality.",
@@ -192,5 +194,30 @@ export const AgentModeSitsBesideTheStagedWizard: Story = {
     await userEvent.click(canvas.getByRole("button", { name: "Agent" }));
     await expect(canvas.getByLabelText("What should the agent build")).toBeInTheDocument();
     await expect(canvas.queryByRole("button", { name: "Run stage" })).toBeNull();
+  },
+};
+
+export const AgentSessionBelongsToItsDraft: Story = {
+  beforeEach: () => {
+    seedEmptyDraft();
+  },
+  args: {
+    enabled: true,
+    runStage: stageRunner(VALID_RESPONSE),
+    runAgentTurn: async (session) => ({ session, apply: null }),
+    host: {
+      environment: () => emptyEnvironment(),
+      applyProvisioning: async () => ({ ok: true, message: "" }),
+      loadSession: (key) => (key === "untitled-story"
+        ? { ...newWizardSession(key), agent: { ...newAgentSession("The previous story's first run."), status: "stopped" } }
+        : null),
+      saveSession: () => undefined,
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Agent" }));
+    await expect(canvas.getByLabelText("What should the agent build")).toBeInTheDocument();
+    await expect(canvasElement.querySelector("#so-agent-status")).toBeNull();
   },
 };

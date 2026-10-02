@@ -10,11 +10,12 @@ import { applyOp, applyOps, applyOpsChecked, diffProposal, isProvisioningOp, pro
 import { renderPlanPrompt, renderStepPrompt } from "./prompt";
 import { runReadTool } from "./readTools";
 import type { AgentAudit, AgentRoute, RouteAnswer } from "./route";
+import { checkRequirementsOp } from "./requirements";
 import { checkToolCall, type ReadToolName } from "./tools";
 import type { AgentBudget, AgentOnlyOp, AgentOp, AgentLookup, AgentMode, AgentReply, AgentSession, AgentStep, AgentStepStatus } from "./types";
 
 export const AGENT_SESSION_VERSION = 1;
-export const DEFAULT_AGENT_BUDGET: Omit<AgentBudget, "usedTokens"> = { maxSteps: 40, maxTokens: 150_000 };
+export const DEFAULT_AGENT_BUDGET: Omit<AgentBudget, "usedTokens"> = { maxSteps: 40, maxTokens: 240_000 };
 const OBSERVATION_LIMIT = 1500;
 const CHECK_LINES = 12;
 
@@ -117,8 +118,16 @@ export const setAgentMode = (session: AgentSession, mode: AgentMode): AgentSessi
 
 export const stopAgent = (session: AgentSession): AgentSession => ({ ...session, status: "stopped" });
 
+export const grantBudget = (session: AgentSession): AgentSession => {
+  if (!budgetSpent(session)) return session;
+  const { usedTokens } = session.budget;
+  return { ...session, budget: { maxSteps: session.steps.length + DEFAULT_AGENT_BUDGET.maxSteps, maxTokens: usedTokens + DEFAULT_AGENT_BUDGET.maxTokens, usedTokens } };
+};
+
+export const budgetSliceText = (): string => `${DEFAULT_AGENT_BUDGET.maxSteps} more steps, ~${Math.round(DEFAULT_AGENT_BUDGET.maxTokens / 1000)}k tokens`;
+
 export const resumeAgent = (session: AgentSession): AgentSession =>
-  session.status === "stopped" || session.status === "budget" ? { ...session, status: session.plan.length ? "running" : "planning" } : session;
+  session.status === "stopped" || session.status === "budget" ? { ...grantBudget(session), status: session.plan.length ? "running" : "planning" } : session;
 
 export const addAuthorNote = (session: AgentSession, text: string, at = now()): AgentSession =>
   text.trim() ? { ...session, notes: [...session.notes, { role: "author", text: text.trim(), at }] } : session;
@@ -220,12 +229,16 @@ export const executeReply = (session: AgentSession, reply: AgentReply, context: 
     if (!validation.ok) return record({ family: "provision", op, status: "refused", observation: `Refused: ${validation.message}` });
     return record({ family: "provision", op, status: "pending", observation: "Waiting for the author to confirm this asset." });
   }
-  const problem = editProblem(context.draft, op);
-  if (problem) return record({ family: "edit", op, status: "refused", observation: `Refused: ${problem}` });
+  const requirements = op.kind === "setRequirements" ? checkRequirementsOp(session, context.draft, op) : null;
+  if (requirements?.problem) return record({ family: "edit", op, status: "refused", observation: `Refused: ${requirements.problem}` });
+  const edit = requirements?.op ?? op;
+  const noted = (text: string) => (requirements?.note ? `${text} ${requirements.note}` : text);
+  const problem = editProblem(context.draft, edit);
+  if (problem) return record({ family: "edit", op: edit, status: "refused", observation: `Refused: ${problem}` });
   if (session.mode === "auto-draft") {
-    return record({ family: "edit", op, status: "applied", observation: "Applied to the draft (auto-draft).", check: checkDraft(applyAgentOp(context.draft, op)) }, op);
+    return record({ family: "edit", op: edit, status: "applied", observation: noted("Applied to the draft (auto-draft)."), check: checkDraft(applyAgentOp(context.draft, edit)) }, edit);
   }
-  return record({ family: "edit", op, status: "pending", observation: "Waiting for the author." });
+  return record({ family: "edit", op: edit, status: "pending", observation: noted("Waiting for the author.") });
 };
 
 const updateStep = (session: AgentSession, id: number, patch: Partial<AgentStep>): AgentSession => {

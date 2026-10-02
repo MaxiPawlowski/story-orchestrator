@@ -113,7 +113,8 @@ export const PROVISION_TOOLS = {
     doc: "Create a NEW character card on the install. Always reviewed by the author; never edits an existing card.",
     args: {
       name: req("string", "card name"), description: req("string", "card description"), role: opt("string", "role in this story"), personality: opt("string", ""),
-      scenario: opt("string", ""), first_mes: opt("string", ""), mes_example: opt("string", ""), tags: opt("array", "string[]"),
+      scenario: opt("string", ""), first_mes: opt("string", "only for the opening scene's cast, for that scene only; leave it out for anyone who enters later"),
+      mes_example: opt("string", ""), tags: opt("array", "string[]"),
     },
   },
   createStoryLorebook: { doc: "Create this story's own NEW lorebook. Always reviewed by the author.", args: { name: req("string", "lorebook name") } },

@@ -56,7 +56,7 @@ const StudioToolbar: React.FC<Props> = ({ onSaved, confirmSave = confirmLibraryS
       setFeedback({ type: "error", message: `${result.length} validation error(s) block save.` });
       return;
     }
-    loadDraft({ ...current, id: result.record.id, version: result.record.version }, result.record.hash);
+    loadDraft({ ...current, id: result.record.id, version: result.record.version }, result.record.hash, useDraftStore.getState().draftKey);
     // The library half says "Saved" only on evidence the server holds the record. The
     // write armed that evidence and the runtime journals it; this reads the same one.
     const evidence = confirmSave(result.record);

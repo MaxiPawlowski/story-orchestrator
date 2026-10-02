@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { within, userEvent, expect, fn } from "@storybook/test";
-import { advanceAgent, newAgentSession, type AgentRoute } from "@copilot/agent/index";
+import { advanceAgent, DEFAULT_AGENT_BUDGET, newAgentSession, type AgentRoute } from "@copilot/agent/index";
 import { agentContext, scriptedRoute } from "@copilot/agent/testing";
 import { emptyEnvironment } from "@wizard/index";
 import AgentWizard, { type AgentTurnRunner } from "./AgentWizard";
@@ -166,5 +166,26 @@ export const UnavailableWithoutAModel: Story = {
   args: { runTurn: undefined },
   play: async ({ canvasElement }) => {
     await expect(within(canvasElement).getByLabelText("Agent unavailable")).toBeInTheDocument();
+  },
+};
+
+export const OutOfBudgetContinueGrantsAFreshSlice: Story = {
+  args: {
+    runTurn: scripted([DONE]),
+    onPersist: fn(),
+    initial: {
+      ...newAgentSession("A heist in the sun ruins."),
+      plan: PLAN.plan,
+      status: "budget",
+      budget: { ...DEFAULT_AGENT_BUDGET, usedTokens: DEFAULT_AGENT_BUDGET.maxTokens + 100 },
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelector("#so-agent-status")).toHaveTextContent("Out of budget");
+    await expect(canvasElement.querySelector('[data-so="agent-budget-note"]')).toHaveTextContent("Continue grants a fresh budget: 40 more steps, ~240k tokens.");
+    await userEvent.click(canvas.getByRole("button", { name: "Continue" }));
+    await expect(await canvas.findByText(/Sharpened the opening beat\./)).toBeInTheDocument();
+    await expect(canvasElement.querySelector("#so-agent-status")).toHaveTextContent("Finished");
   },
 };

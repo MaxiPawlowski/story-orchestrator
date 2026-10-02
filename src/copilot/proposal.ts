@@ -160,6 +160,15 @@ export const missingTarget = (draft: StoryV2, op: ProposalOp): string | null => 
   }
 };
 
+const exists = (what: string, id: string, update: string, field: string) => `${what} "${id}" already exists; change it with ${update}, or pick a new ${field}`;
+
+export const duplicateTarget = (draft: StoryV2, op: ProposalOp): string | null => {
+  if (op.kind === "addQuality" && draft.qualities.some((entry) => entry.key === op.quality.key)) return exists("quality", op.quality.key, "updateQuality", "key");
+  if (op.kind === "addCheckpoint" && draft.checkpoints.some((entry) => entry.id === op.checkpoint.id)) return exists("checkpoint", op.checkpoint.id, "updateCheckpoint", "id");
+  if (op.kind === "addRosterMember" && draft.roster.some((entry) => entry.id === op.member.id)) return exists("roster member", op.member.id, "updateRosterMember", "id");
+  return null;
+};
+
 export const applyOpsChecked = (draft: StoryV2, ops: ProposalOp[], stage?: CopilotStage): { next: StoryV2; issues: string[]; stageIssues: string[] } => {
   const issues: string[] = [];
   const stageIssues: string[] = [];
@@ -172,6 +181,11 @@ export const applyOpsChecked = (draft: StoryV2, ops: ProposalOp[], stage?: Copil
     const missing = missingTarget(current, op);
     if (missing) {
       issues.push(`ops.${index}: ${missing} not found`);
+      return current;
+    }
+    const duplicate = duplicateTarget(current, op);
+    if (duplicate) {
+      issues.push(`ops.${index}: ${duplicate}`);
       return current;
     }
     const ambiguous = ambiguousRef(current, op);

@@ -2,7 +2,8 @@ import { studioFailure } from "../errorCopy";
 import React, { useEffect, useRef, useState } from "react";
 
 import {
-  AGENT_MODES, addAuthorNote, agentStats, applyAgentOp, applyProvisioningFollowUps, approvePlan, isProvisionOp, checkToolCall, confirmProvisioning, decideStep, driveAgent, newAgentSession,
+  AGENT_MODES, addAuthorNote, agentStats, applyAgentOp, applyProvisioningFollowUps, approvePlan, budgetSliceText, isProvisionOp, checkToolCall, confirmProvisioning, decideStep, driveAgent,
+  newAgentSession,
   opPreview, pendingStep, resumeAgent, setAgentMode, type AgentMode, type AgentOp, type AgentRunner, type AgentSession, type AgentStep,
 } from "@copilot/agent/index";
 import { emptyEnvironment } from "@wizard/index";
@@ -220,8 +221,10 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
 
   const lapsedCopy = (lapsed: string) => `The agent stopped: the draft changed under it (${lapsed}). Nothing more was written.`;
 
-  const drive = async (start: AgentSession) => {
+  const drive = async (resumed: AgentSession) => {
     if (!runTurn) return;
+    const undone = useDraftStore.getState().takeUndone();
+    const start = undone.reduce((session, note) => addAuthorNote(session, note), resumed);
     stopRequested.current = false;
     setBusy(true);
     setError(null);
@@ -304,6 +307,9 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
             {busy ? <button id="so-agent-stop" type="button" className="st-button secondary" onClick={() => { stopRequested.current = true; }}>Stop</button> : null}
             {!busy && (session.status === "stopped" || session.status === "budget") ? (
               <button id="so-agent-continue" type="button" className="st-button secondary" onClick={() => void drive(resumeAgent(session))}>Continue</button>
+            ) : null}
+            {!busy && session.status === "budget" ? (
+              <span data-so="agent-budget-note" className="st-muted">Continue grants a fresh budget: {budgetSliceText()}.</span>
             ) : null}
             {!busy && error && session.status !== "stopped" && session.status !== "budget" ? (
               <button id="so-agent-retry" type="button" className="st-button secondary" onClick={() => void drive(session)}>Retry</button>

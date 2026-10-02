@@ -15,6 +15,7 @@ export const nextId = (existing: Iterable<string>, base: string): string => {
 export const newQuality = (key: string): Quality => ({ key, type: "string", source: "extractor", rubric: "" });
 
 export const addQuality = (draft: StoryDraft, quality?: Quality): StoryDraft => {
+  if (quality?.key && draft.qualities.some((entry) => entry.key === quality.key)) return draft;
   const key = quality?.key || nextId(draft.qualities.map((entry) => entry.key), "quality");
   const value = quality ? { ...quality, key } : newQuality(key);
   return { ...draft, qualities: [...draft.qualities, value] };
@@ -33,6 +34,7 @@ export const removeQuality = (draft: StoryDraft, key: string): StoryDraft => ({
 export const newCheckpoint = (id: string): Checkpoint => ({ id, name: id, objective: "", type: "intermediate" });
 
 export const addCheckpoint = (draft: StoryDraft, checkpoint?: Checkpoint): StoryDraft => {
+  if (checkpoint?.id && draft.checkpoints.some((entry) => entry.id === checkpoint.id)) return draft;
   const id = checkpoint?.id || nextId(draft.checkpoints.map((entry) => entry.id), "checkpoint");
   const value = checkpoint ? { ...checkpoint, id } : newCheckpoint(id);
   return { ...draft, checkpoints: [...draft.checkpoints, value] };
@@ -88,6 +90,7 @@ export const setTransitionGate = (draft: StoryDraft, index: number, gate: GateNo
 export const newRosterMember = (id: string): RosterMember => ({ id });
 
 export const addRosterMember = (draft: StoryDraft, member?: RosterMember): StoryDraft => {
+  if (member?.id && draft.roster.some((entry) => entry.id === member.id)) return draft;
   const id = member?.id || nextId(draft.roster.map((entry) => entry.id), "member");
   return { ...draft, roster: [...draft.roster, member ? { ...member, id } : newRosterMember(id)] };
 };
@@ -181,6 +184,7 @@ export const setHouseRules = (draft: StoryDraft, rules: string[]): StoryDraft =>
 
 export const addChapter = (draft: StoryDraft, chapter?: Chapter): StoryDraft => {
   const chapters = draft.chapters ?? [];
+  if (chapter && chapters.some((entry) => entry.id === chapter.id)) return draft;
   const id = chapter?.id ?? nextId(chapters.map((entry) => entry.id), "chapter");
   return { ...draft, chapters: [...chapters, chapter ?? { id, title: id }] };
 };

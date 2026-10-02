@@ -46,6 +46,14 @@ const OP_GRAMMAR = [
   "setArcBridges, setRequirements, setStagecraft, setSceneRead and setLoreSelect replace the whole list — send the full intended set, never a fragment.",
 ].join("\n");
 
+export const FIRST_MESSAGE_RULE =
+  "A card's first_mes is the chat's opening, and in a group EVERY card with a first_mes greets at once when the chat opens. Write first_mes only for a character present in " +
+  "the story's opening scene (the start checkpoint), for that scene only: no secret, twist, guilt or later-beat reveal. Leave first_mes out for anyone who enters later.";
+
+export const OPENING_CAST_RULE =
+  "Only the opening cast should be present at the start: give the start checkpoint cast_changes { \"disable\": [card names of everyone who enters later] }, and enable each " +
+  "of them (cast_changes { \"enable\": [...] }) at the checkpoint where they enter.";
+
 const PROVISIONING_GRAMMAR = [
   "Provisioning ops create the SillyTavern assets this story needs. They never modify anything that already exists:",
   '  { "kind": "createCharacterCard", "name": string, "description": string, "role"?: string, "personality"?: string, "scenario"?: string, "first_mes"?: string, ' +
@@ -54,6 +62,7 @@ const PROVISIONING_GRAMMAR = [
   '  { "kind": "upsertLorebookEntry", "lorebook": string, "comment": string, "keys": string[], "content": string, "constant"?: boolean }',
   '  { "kind": "createGroup", "name": string, "members": string[] }',
   "Order matters: create a card before a group that lists it, and the story lorebook before its entries.",
+  FIRST_MESSAGE_RULE,
   "Never name an existing character, an existing lorebook or an existing group — those ops are rejected.",
   "upsertLorebookEntry may only target the story's own lorebook, never one of the user's other books.",
   "Never propose creating or changing a persona: personas are the author's own.",
@@ -83,7 +92,8 @@ const STAGE_INSTRUCTIONS: Record<CopilotStage, string> = {
       `motives may say what one member wants in that beat — drives and motives are told only to that character, never to the player), ` +
       `what the chat must provide before it can run (requirements), which lorebooks the background ` +
       `curator may edit (stagecraft — the story's own books only), the places the story happens in (sceneRead.locations — short names the scene tracker can pick from), which ` +
-        `of the story's own lorebooks lore-select may pick entries from each turn (loreSelect.lorebooks), the dramatic shape, and any thread bridges. ${stageOnlyEmitLine("effects")}`,
+        `of the story's own lorebooks lore-select may pick entries from each turn (loreSelect.lorebooks), the dramatic shape, and any thread bridges. ${OPENING_CAST_RULE} ` +
+        `${stageOnlyEmitLine("effects")}`,
   provisioning: `Stage PROVISIONING: this story's requirements name people, lore and a group that may not exist on this install yet. Propose the create steps that close ` +
     `exactly that gap — one card per cast member the story directs (each with a one-line "role": what they do in this story), the story's own lorebook plus the entries the ` +
       `story leans on, and the group that plays it. ${stageOnlyEmitLine("provisioning")} Propose nothing for assets the environment below already lists.`,

@@ -78,6 +78,7 @@ const seeded: StoryV2 = {
   roster: [{ id: "guide", name: "The Guide" }, { id: "warden", name: "The Warden" }],
   lore_select: { lorebooks: ["Unlisted Lore"] },
   house_rules: ["No guns; no swords.", "Magic cannot heal wounds."],
+  requirements: { members: ["warden"] },
 };
 
 const anchor = (id: string, chapter?: string, start = false) => ({ id, name: id, objective: "", type: "anchor" as const, ...(chapter ? { chapter } : {}), ...(start ? { start } : {}) });
