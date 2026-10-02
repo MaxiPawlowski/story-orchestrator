@@ -80,7 +80,7 @@ export const Testing: Story = {
     await userEvent.click(within(canvasElement).getByText(/Models per task/));
     await expect(canvasElement.querySelector('[data-role="synthesis"] [data-so="role-profile-test"]')?.textContent).toBe("Testing…");
     await expect(canvasElement.querySelector('[data-role="synthesis"] [data-so="role-profile-state"]')?.textContent).toBe("testing…");
-    await expect(canvasElement.querySelector('[data-role="read"] [data-so="role-profile-state"]')?.getAttribute("data-testing")).toBeNull();
+    await expect(canvasElement.querySelectorAll("[data-testing]")).toHaveLength(1);
   },
 };
 
