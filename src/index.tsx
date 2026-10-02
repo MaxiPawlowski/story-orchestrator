@@ -233,7 +233,8 @@ const toggleAuthorView = async (next: boolean) => {
 };
 
 // The player's Continue from here, and the author's branch cut at the history floor.
-const continueBranch = () => continueFromBranch({ selectStory: (storyId) => manager.selectStory(storyId), note: (summary, detail) => manager.chatSave.note(summary, detail) });
+const continueBranch = () => continueFromBranch({ selectStory: (storyId) => manager.selectStory(storyId), note: (summary, detail) => manager.chatSave.note(summary, detail),
+  markBranch: (origin) => manager.markBranch(origin) });
 const branchAtFloor = async (messageId: number) => {
   const result = await branchFromOldest(messageId);
   if (!result.ok) window.toastr?.info?.(result.reason, "Story Orchestrator");

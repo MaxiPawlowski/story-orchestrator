@@ -250,7 +250,7 @@ describe("v2.4 E5: an unadopted branch opened by the first page load", () => {
   it("control: an adopted branch reloaded keeps its binding", async () => {
     const manager = await playedParent();
     await openBranch(1);
-    await continueFromBranch({ selectStory: (id) => manager.selectStory(id), note: jest.fn() });
+    await continueFromBranch({ selectStory: (id) => manager.selectStory(id), note: jest.fn(), markBranch: jest.fn() });
     const own = "Story Orchestrator - Branch story - branch-1";
     mockContext.chatMetadata.world_info = own;
     const reloaded = reloadPage();
@@ -265,12 +265,29 @@ describe("v2.4 plan 02 §5: Continue from here", () => {
     const manager = await playedParent();
     await openBranch(1);
     const note = jest.fn();
-    await expect(continueFromBranch({ selectStory: (id) => manager.selectStory(id), note })).resolves.toBe(true);
+    await expect(continueFromBranch({ selectStory: (id) => manager.selectStory(id), note, markBranch: (origin) => manager.markBranch(origin) })).resolves.toBe(true);
     expect(blob()).toMatchObject({ chatId: "branch-1", integrity: "i-branch-1" });
     expect(lastOutcome(manager)).toMatchObject({ result: "applied", fromMessage: 2 });
     expect(manager.getEngineState()).toMatchObject({ activeCheckpointId: "start", lastMessageId: 1 });
     expect(manager.getSnapshot()).toMatchObject({ ready: true, chatIdentity: null });
     expect(note).toHaveBeenCalledWith("branch continued", expect.stringContaining("chat-a"));
+  });
+
+  it("T4-2: the parent's journal a branch inherits stays attributed to the parent (T4-2-1 journal.jsonl:1527 vs :395)", async () => {
+    const manager = await playedParent();
+    await manager.flagMoment("in the parent");
+    const inherited = manager.getSessionJournal().filter((event) => event.kind === "flag" || event.kind === "boundary");
+    expect(inherited.length).toBeGreaterThan(1);
+    await new Promise((resolve) => setTimeout(resolve, 5));
+    await openBranch(1);
+    await continueFromBranch({ selectStory: (id) => manager.selectStory(id), note: (summary, detail) => manager.chatSave.note(summary, detail), markBranch: (origin) => manager.markBranch(origin) });
+    await manager.flagMoment("in the branch");
+    const events = manager.getSessionJournal();
+    const parentFlag = events.find((event) => event.summary === "in the parent");
+    expect(parentFlag?.inheritedFrom).toBe("chat-a");
+    expect(events.filter((event) => event.kind === "boundary" && event.at <= parentFlag!.at).every((event) => event.inheritedFrom === "chat-a")).toBe(true);
+    expect(events.find((event) => event.summary === "in the branch")?.inheritedFrom).toBeUndefined();
+    expect(events.find((event) => event.summary === "branch continued")?.inheritedFrom).toBeUndefined();
   });
 
   it("a swipe-branch steps back from the first message that differs", async () => {
@@ -280,7 +297,7 @@ describe("v2.4 plan 02 §5: Continue from here", () => {
     mockContext.chatMetadata = { ...metadata, main_chat: "chat-a", integrity: "i-s" };
     mockContext.chat = [line(0), line(1), line(2, "the other swipe"), line(3)];
     await emit("CHAT_CHANGED");
-    await continueFromBranch({ selectStory: (id) => manager.selectStory(id), note: jest.fn() });
+    await continueFromBranch({ selectStory: (id) => manager.selectStory(id), note: jest.fn(), markBranch: jest.fn() });
     expect(lastOutcome(manager)).toMatchObject({ result: "applied", fromMessage: 2 });
   });
 
@@ -291,7 +308,7 @@ describe("v2.4 plan 02 §5: Continue from here", () => {
     mockContext.chatId = "imported-chat";
     mockContext.chatMetadata = { ...metadata, integrity: "i-imported" };
     const selectStory = jest.fn(async () => true);
-    await expect(continueFromBranch({ selectStory, note: jest.fn() })).resolves.toBe(false);
+    await expect(continueFromBranch({ selectStory, note: jest.fn(), markBranch: jest.fn() })).resolves.toBe(false);
     expect(selectStory).not.toHaveBeenCalled();
     expect(blob().chatId).toBe("chat-a");
     expect(manager.getSnapshot().ready).toBe(false);
@@ -314,7 +331,7 @@ describe("v2.4 plan 02 §5 (seed D out of horizon): branch from the oldest resto
     await expect(branchFromOldest(unavailable!.oldest.messageId)).resolves.toEqual({ ok: true });
     expect(executeSlashCommands).toHaveBeenCalledWith("/branch-create 1");
     await openBranch(1, "floor-branch");
-    await continueFromBranch({ selectStory: (id) => reopened.selectStory(id), note: jest.fn() });
+    await continueFromBranch({ selectStory: (id) => reopened.selectStory(id), note: jest.fn(), markBranch: jest.fn() });
     expect(reopened.getEngineState()).toMatchObject({ boundary: floor.boundary, lastMessageId: floor.lastMessageId, activeCheckpointId: floor.activeCheckpointId, blackboard: floor.blackboard });
   });
 

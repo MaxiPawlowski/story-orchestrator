@@ -31,6 +31,7 @@ export interface JournalEvent {
   kind: JournalEventKind;
   summary: string;
   detail?: Record<string, unknown>;
+  inheritedFrom?: string;
 }
 
 export interface JournalContext {
@@ -49,6 +50,7 @@ export interface JournalSources {
   modelCalls?: ModelCallRecord[];
   pending?: ApplyQueueEntry[];
   pendingSeenAt?: (key: string) => string;
+  branchedFrom?: { chatId: string; at: string };
 }
 
 const KIND_ORDER: JournalEventKind[] = [
@@ -204,7 +206,9 @@ export function buildSessionJournal(sources: JournalSources): JournalEvent[] {
       detail: { ...call },
     })),
   ];
-  return events.sort((left, right) => timeOf(left.at) - timeOf(right.at) || rank(left.kind) - rank(right.kind));
+  const branched = sources.branchedFrom;
+  const attributed = branched ? events.map((event) => (timeOf(event.at) < timeOf(branched.at) ? { ...event, inheritedFrom: branched.chatId } : event)) : events;
+  return attributed.sort((left, right) => timeOf(left.at) - timeOf(right.at) || rank(left.kind) - rank(right.kind));
 }
 
 export class SessionJournal {

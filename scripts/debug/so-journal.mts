@@ -196,11 +196,12 @@ export async function followSessionJournal(page, { out = null, intervalMs = 1000
     }
 
     for (const event of frame.events ?? []) {
-      const key = `${stamp}|${eventKey(event)}`;
+      const owner = typeof event.inheritedFrom === 'string' ? event.inheritedFrom : chatId;
+      const key = `${owner}|${frame.storyId}|${eventKey(event)}`;
       if (seenEvents.has(key)) continue;
       seenEvents.add(key);
       if (kinds?.length && !kinds.includes(event.kind)) continue;
-      await emit({ ...event, chatId });
+      await emit({ ...event, chatId: owner });
     }
 
     for (const audit of frame.audits ?? []) {

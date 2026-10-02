@@ -142,7 +142,13 @@ export interface RuntimeExtras {
   journal: JournalRecord[];
   modelCalls: ModelCallRecord[];
   lastSessionAt: string | null;
+  branchedFrom?: BranchOrigin;
   updatedAt: string;
+}
+
+export interface BranchOrigin {
+  chatId: string;
+  at: string;
 }
 
 export interface CopilotRuntimeSettings {

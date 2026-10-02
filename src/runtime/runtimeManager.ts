@@ -52,7 +52,7 @@ import {
   type StorySelectionDeps,
 } from "./storySelection";
 import type {
-  CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory,
+  BranchOrigin, CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory,
   MemoryMirrorBook, MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftSettings,
   StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings,
 } from "./types";
@@ -175,9 +175,11 @@ export class RuntimeManager extends CoordinatorDelegates {
     const { extraction, talk, judge } = this.extras;
     return this.journal.build({ boundaryLog: this.loaded ? this.engine.stateLog : [], audits: extraction.audits,
         reconciliationEvents: extraction.reconciliationEvents, talkDecisions: talk.decisions,
-        judgeCalls: judge.calls, modelCalls: this.extras.modelCalls, pending: this.loaded ? this.engine.pendingWrites : [] });
+        judgeCalls: judge.calls, modelCalls: this.extras.modelCalls, pending: this.loaded ? this.engine.pendingWrites : [],
+        ...(this.extras.branchedFrom ? { branchedFrom: this.extras.branchedFrom } : {}) });
   }
   getExtractionAudits() { return this.extras.extraction.audits; }
+  markBranch(origin: BranchOrigin) { if (this.loaded) this.extras.branchedFrom = origin; }
   async flagMoment(note = "") {
     this.journal.flag(note, this.journalContext());
     this.extras.journal = this.journal.getRecords();
