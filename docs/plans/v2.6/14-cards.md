@@ -1315,7 +1315,7 @@ Pinned Adolion build `be0696b361731080f4fb04a98e7caec5c40d177e`. 36 cards. Start
   - provisioning
   - playability of the result
   - 11 W6 leg: the finished story, paired with the other wizard arm's on the same premise, for blind rating [blind gate W6: paired, shuffled, unlabelled artifacts go to test/sessions/rating-pack/; the gate stays pending until the user rates them] (recorded for the user's review, not decided by Claude)
-- **Wizard assets:** stop allows exactly what this session's new wizard sessions created (their `applied` ledger and the library records saved under their keys): each new session, story and selected lorebook by name, and the character and lorebook counts moving by exactly the ledger's numbers. A removal or an unledgered asset still invalidates the session.
+- **Wizard assets:** stop allows exactly what this session's wizard sessions created during the run: a new session's whole `applied` ledger, and for a session that existed at start (Fix with wizard continues the story's own) only what its ledger GREW by against the start header's `inventory.wizardApplied`; plus the library records saved under a new key. Allowed by name: each session, ledger item, story, selected lorebook and group (by id: a new group the wizard's applied createGroup step or its ledger names, or the new group of a chat the session adopted that plays a story the run created), and the character and lorebook counts by exactly the ledger's numbers. A removal, an unledgered asset or an existing session without a start ledger still invalidates the session.
 - **Logged automatically:**
   - the wizard transcript and every tool call
   - created assets (the wizard ledger)
@@ -1356,7 +1356,7 @@ Pinned Adolion build `be0696b361731080f4fb04a98e7caec5c40d177e`. 36 cards. Start
   - auto-draft
   - provisioning waits
   - diagnostics
-- **Wizard assets:** stop allows exactly what this session's new wizard sessions created (their `applied` ledger and the library records saved under their keys): each new session, story and selected lorebook by name, and the character and lorebook counts moving by exactly the ledger's numbers. A removal or an unledgered asset still invalidates the session.
+- **Wizard assets:** stop allows exactly what this session's wizard sessions created during the run: a new session's whole `applied` ledger, and for a session that existed at start (Fix with wizard continues the story's own) only what its ledger GREW by against the start header's `inventory.wizardApplied`; plus the library records saved under a new key. Allowed by name: each session, ledger item, story, selected lorebook and group (by id: a new group the wizard's applied createGroup step or its ledger names, or the new group of a chat the session adopted that plays a story the run created), and the character and lorebook counts by exactly the ledger's numbers. A removal, an unledgered asset or an existing session without a start ledger still invalidates the session.
 - **Logged automatically:**
   - wizard transcripts
   - created assets
@@ -1396,6 +1396,7 @@ Pinned Adolion build `be0696b361731080f4fb04a98e7caec5c40d177e`. 36 cards. Start
   - effects editor
   - diagnostics
   - hot-swap / invalidating choice
+- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.v2Stories:~{story}`. `{story}` is the story this session's chats play, `:~` lets only its version move up (one `id@old` out, one `id@new` in); `{story-books}` are the lorebooks its wizard session created.
 - **Logged automatically:**
   - story update records
   - library in the run header diff
@@ -1434,7 +1435,8 @@ Pinned Adolion build `be0696b361731080f4fb04a98e7caec5c40d177e`. 36 cards. Start
   - Repair
   - Fix with wizard
   - disabled member (known finding)
-- **Wizard assets:** stop allows exactly what this session's new wizard sessions created (their `applied` ledger and the library records saved under their keys): each new session, story and selected lorebook by name, and the character and lorebook counts moving by exactly the ledger's numbers. A removal or an unledgered asset still invalidates the session.
+- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.v2Stories:~{story}`, `inventory.lorebooksSelected:-{story-books}`. `{story}` is the story this session's chats play, `:~` lets only its version move up (one `id@old` out, one `id@new` in); `{story-books}` are the lorebooks its wizard session created.
+- **Wizard assets:** stop allows exactly what this session's wizard sessions created during the run: a new session's whole `applied` ledger, and for a session that existed at start (Fix with wizard continues the story's own) only what its ledger GREW by against the start header's `inventory.wizardApplied`; plus the library records saved under a new key. Allowed by name: each session, ledger item, story, selected lorebook and group (by id: a new group the wizard's applied createGroup step or its ledger names, or the new group of a chat the session adopted that plays a story the run created), and the character and lorebook counts by exactly the ledger's numbers. A removal, an unledgered asset or an existing session without a start ledger still invalidates the session.
 - **Logged automatically:**
   - requirement readings
   - wizard provisioning
@@ -1585,7 +1587,7 @@ Pinned Adolion build `be0696b361731080f4fb04a98e7caec5c40d177e`. 36 cards. Start
 - **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - harness route
   - fallback visibility
-- **Wizard assets:** stop allows exactly what this session's new wizard sessions created (their `applied` ledger and the library records saved under their keys): each new session, story and selected lorebook by name, and the character and lorebook counts moving by exactly the ledger's numbers. A removal or an unledgered asset still invalidates the session.
+- **Wizard assets:** stop allows exactly what this session's wizard sessions created during the run: a new session's whole `applied` ledger, and for a session that existed at start (Fix with wizard continues the story's own) only what its ledger GREW by against the start header's `inventory.wizardApplied`; plus the library records saved under a new key. Allowed by name: each session, ledger item, story, selected lorebook and group (by id: a new group the wizard's applied createGroup step or its ledger names, or the new group of a chat the session adopted that plays a story the run created), and the character and lorebook counts by exactly the ledger's numbers. A removal, an unledgered asset or an existing session without a start ledger still invalidates the session.
 - **Logged automatically:**
   - model calls with route and result
   - wizard transcript

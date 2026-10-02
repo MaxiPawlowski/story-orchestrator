@@ -1,5 +1,5 @@
 import type { Meta, StoryObj } from "@storybook/react";
-import { within, userEvent, expect } from "@storybook/test";
+import { within, userEvent, expect, fn } from "@storybook/test";
 import { newAgentSession } from "@copilot/agent/index";
 import { emptyEnvironment, newWizardSession } from "@wizard/index";
 import { runAuthoringStage, type AuthoringStageInput } from "@copilot/index";
@@ -23,6 +23,7 @@ const stageRunner = (debugResponse: string) => (input: AuthoringStageInput) => r
 const meta: Meta<typeof StudioCopilot> = {
   title: "Studio/StudioCopilot",
   component: StudioCopilot,
+  args: { onModeChange: fn() },
   beforeEach: () => {
     seedDraft(sampleStory());
   },

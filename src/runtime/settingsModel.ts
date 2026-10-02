@@ -198,7 +198,9 @@ const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
 export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
   const defaults = defaultGlobalSettings();
   if (!isRecord(value)) return defaults;
-  const { profiles: rawProfiles, routes: rawRoutes, reasoningBudget: rawBudget, ...extraction }: Record<string, unknown> = isRecord(value.extraction) ? value.extraction : {};
+  const { profiles: rawProfiles, routes: rawRoutes, reasoningBudget: rawBudget, fallbackProfileId: rawFallback, ...extraction }: Record<string, unknown> =
+    isRecord(value.extraction) ? value.extraction : {};
+  const fallbackProfileId = typeof rawFallback === "string" ? rawFallback.trim() : "";
   const profiles = sanitizePassProfiles(rawProfiles);
   const routes = sanitizeRoleRoutes(rawRoutes);
   const reasoningBudget = sanitizeReasoningBudget(rawBudget);
@@ -219,6 +221,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       ...(profiles ? { profiles } : {}),
       ...(routes ? { routes } : {}),
       ...(reasoningBudget ? { reasoningBudget } : {}),
+      ...(fallbackProfileId ? { fallbackProfileId } : {}),
     },
     pacing: { alpha: clampAlpha(pacing.alpha), hintEnabled: pacing.hintEnabled !== false },
     display: { announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, inline: sanitizeInlineSettings(display.inline) },

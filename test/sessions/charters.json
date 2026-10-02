@@ -980,7 +980,8 @@
       "stopWhen": "Three edits taken, or 45 minutes.",
       "rubric": [{ "feature": "checkpoint editor" }, { "feature": "gate editor" }, { "feature": "effects editor" }, { "feature": "diagnostics" }, { "feature": "hot-swap / invalidating choice" }],
       "loggedAutomatically": ["story update records", "library in the run header diff"],
-      "knownLimits": ["The chat is the one T5-1 adopted; without an adopt the card cannot start. The lane is the T5-1 lane."]
+      "knownLimits": ["The chat is the one T5-1 adopted; without an adopt the card cannot start. The lane is the T5-1 lane."],
+      "headerAllow": ["inventory.v2Stories:~{story}"]
     },
     {
       "id": "T5-4",
@@ -1005,7 +1006,8 @@
       "stopWhen": "Both breaks repaired, or 30 minutes.",
       "rubric": [{ "feature": "Repair" }, { "feature": "Fix with wizard" }, { "feature": "disabled member (known finding)" }],
       "loggedAutomatically": ["requirement readings", "wizard provisioning"],
-      "knownLimits": ["Personas are never provisioned.", "A disabled member still counts as present (listGroupMembers ignores disabled_members): that is a recorded product finding, not a card error."]
+      "knownLimits": ["Personas are never provisioned.", "A disabled member still counts as present (listGroupMembers ignores disabled_members): that is a recorded product finding, not a card error."],
+      "headerAllow": ["inventory.v2Stories:~{story}", "inventory.lorebooksSelected:-{story-books}"]
     },
     {
       "id": "T5-5",

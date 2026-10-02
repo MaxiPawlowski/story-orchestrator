@@ -365,6 +365,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   rollbackSettled(): Promise<unknown> { return this.rollbackRun; }
 
   getStory(): NormalizedStoryV2 | null { return this.loaded?.story ?? null; }
+  getPendingCheckpointId(): string | null { return this.loaded ? this.engine.pendingTransition()?.to ?? null : null; }
   // What this chat is actually playing, authored form — the Studio edits this, not the library's copy.
   getPlayedStoryRaw(): unknown { return this.loaded?.record.raw ?? null; }
   getEngineState(): EngineState | null { return this.loaded ? this.engine.serialize() : null; }

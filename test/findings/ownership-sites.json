@@ -543,7 +543,7 @@
     },
     "src/runtime/talkControl.ts#TalkController.advanceChain": {
       "status": "checked",
-      "note": "v2.5 chaining: mints a run before asking the judge for the next voice and stops before triggering it if the world moved, so a chain never fires a member into another chat."
+      "note": "v2.5 chaining: mints a run before asking the judge for the next voice and stops before triggering it if the world moved, so a chain never fires a member into another chat. v2.6 T4-1-2 (2026-10-02): before asking and again after the answer it ends the chain when the scene moves (a committed transition, or one the queued writes fire at the reply's boundary) and stop_on_transition is on or the new checkpoint posts an opener, so no voice is drafted for the old scene around the opener (talkControl.test.ts, T4-1-2 describe); no new write."
     },
     "src/runtime/talkControl.ts#TalkController.decideChainSpeaker": {
       "status": "checked",
@@ -643,7 +643,7 @@
     },
     "src/runtime/modelCallCore.ts#createModelCallVia.call": {
       "status": "checked",
-      "note": "CR-J15: mints a token before the model await (when deps.ownership is given; the manager's model passes its own) and recordCall checks it before every telemetry write, the success note, the failure note and the harness fallback's notes alike, so a call that lands after its chat went away records nothing in the next chat's ring. Case: harnessRouting.test.ts \"CR-J15\". CR-E14 (2026-09-30) added a second layer: the row is stamped at CALL START with the loaded chat and the newest message (deps.stamp), RuntimeManager.recordModelCall keeps it only for that chat (acceptModelCall), and a rollback drops rows asked at or after the edited message (rollbackModelCalls); cases modelCallChat.review.test.ts, rollbackKit.review.test.ts. AS-9 (2026-10-01): the two CR rows had merged into one duplicate key (JSON kept the last); folded into this one, and harnessRouting.test.ts \"AS-9\" pins both layers on the harness route."
+      "note": "CR-J15: mints a token before the model await (when deps.ownership is given; the manager's model passes its own) and recordCall checks it before every telemetry write, the success note, the failure note and the harness fallback's notes alike, so a call that lands after its chat went away records nothing in the next chat's ring. Case: harnessRouting.test.ts \"CR-J15\". CR-E14 (2026-09-30) added a second layer: the row is stamped at CALL START with the loaded chat and the newest message (deps.stamp), RuntimeManager.recordModelCall keeps it only for that chat (acceptModelCall), and a rollback drops rows asked at or after the edited message (rollbackModelCalls); cases modelCallChat.review.test.ts, rollbackKit.review.test.ts. AS-9 (2026-10-01): the two CR rows had merged into one duplicate key (JSON kept the last); folded into this one, and harnessRouting.test.ts \"AS-9\" pins both layers on the harness route. Model fallback (2026-10-02): a profile call that times out or fails in transport is retried once on extraction.fallbackProfileId; the token is checked again before that retry (a lapsed run throws lapsed and asks nothing), and its notes go through the same token-checked recordCall. Case: modelFailover.test.ts \"re-checks the run's ownership before the fallback is asked\"."
     }
   }
 }

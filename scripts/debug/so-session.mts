@@ -19,8 +19,8 @@ import {
 } from './lib/sessionArtifacts.mts';
 import { refresherFor, settingLanded } from './lib/sessionSetting.mts';
 import { ackPaths, readTailAcks, tailProblems, TAIL_FILES, TAIL_NAMES, waitFor, READY_TIMEOUT_MS, DRAIN_TIMEOUT_MS } from './lib/sessionTails.mts';
-import { headerDiffArgs, stopSequence } from './lib/sessionStop.mts';
-import { wizardAllowance, type WizardAllowance } from './lib/sessionWizardAssets.mts';
+import { fileAllowances, headerDiffArgs, stopSequence } from './lib/sessionStop.mts';
+import { resolveHeaderAllow, storyContext, wizardAllowance, type WizardAllowance } from './lib/sessionWizardAssets.mts';
 import { buildPack, candidatesFromTurns, packLeaks, storyCandidate, type Candidate, type Verdict } from './lib/ratingPack.mts';
 import { AGENT_OPS, GOAL_AGENT_MODES, LIVE_VERBS, type AgentOp, type LiveChat, type LiveRequest, type LiveVerb } from './lib/sessionDriver.mts';
 import { BOOK_ANSWERS, type BookAnswer } from './lib/sessionDelete.mts';
@@ -100,10 +100,15 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
                                required artifacts and the ComfyUI guard, meter the spend, write
                                rubric.json, rebuild the card's blind-rating packs and the lane
                                lease. An invalid session exits 1. A card with wizardAssets
-                               allows exactly the additions its new wizard sessions' ledgers
-                               name (sessions, stories, selected books, the character and
-                               lorebook counts by the ledger's numbers), recorded as
-                               session.json wizardAssets.
+                               allows exactly the additions its wizard sessions' ledgers
+                               name: a new session's whole ledger, an existing session's
+                               growth against the start header's wizardApplied (sessions,
+                               ledger items, stories, selected books, groups by id, the
+                               character and lorebook counts by the ledger's numbers),
+                               recorded as session.json wizardAssets. headerAllow tokens
+                               {story} / {story-books} resolve to the session's story and
+                               its wizard-created books (session.json declaredChanges);
+                               entries with a comma reach the diff via run-header-allow.json.
   reverify <dir>               re-check a stopped session's required artifacts (waivers included) and rewrite valid/invalid
   digest [<dir>]               write findings.md + findings.json (flags with context, anomalies);
                                a missing capture file makes the session invalid (exit 1)
@@ -545,6 +550,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
   let pageEnd: any = {};
   let diffOutput = '';
   let wizard: WizardAllowance | null = null;
+  let declared: { allow: string[]; unresolved: string[] } = { allow: [], unresolved: [] };
   const verifyWarnings: string[] = [];
   const outcome = await stopSequence({
     endPhase: async () => {
@@ -555,8 +561,16 @@ async function stop(arg: string | undefined, stopLane: boolean) {
     headerDiff: async () => {
       const draftsPath = resolve(dir, 'wizard-drafts.json');
       const startPath = resolve(dir, 'run-header-start.json');
-      wizard = card.wizardAssets ? wizardAllowance(existsSync(startPath) ? await readJson(startPath) : null, existsSync(draftsPath) ? await readJson(draftsPath) : null, session.startedAt ?? null) : null;
-      const diff = await inLane(session.lane, headerDiffArgs(startPath, resolve(dir, 'run-header-end.json'), pageEnd.chats ?? session.chats ?? [], [...(card.headerAllow ?? []), ...(wizard?.allow ?? [])]), viewportEnv);
+      const start = existsSync(startPath) ? await readJson(startPath) : null;
+      const drafts = existsSync(draftsPath) ? await readJson(draftsPath) : null;
+      const chats = pageEnd.chats ?? session.chats ?? [];
+      wizard = card.wizardAssets ? wizardAllowance(start, drafts, session.startedAt ?? null, { end: { inventory: { groups: drafts?.groups ?? [] } }, chats }) : null;
+      declared = resolveHeaderAllow(card.headerAllow ?? [], storyContext(start, chats, drafts));
+      if (declared.unresolved.length) verifyWarnings.push(`declared install changes with nothing to name them (still blocking): ${declared.unresolved.join(', ')}`);
+      const allow = [...declared.allow, ...(wizard?.allow ?? [])];
+      const allowFile = resolve(dir, 'run-header-allow.json');
+      if (fileAllowances(allow).length) await writeFile(allowFile, JSON.stringify(fileAllowances(allow), null, 1), 'utf-8');
+      const diff = await inLane(session.lane, headerDiffArgs(startPath, resolve(dir, 'run-header-end.json'), chats, allow, allowFile), viewportEnv);
       diffOutput = diff.output;
       await writeFile(resolve(dir, 'run-header-diff.txt'), diff.output, 'utf-8');
       return diff;
@@ -581,7 +595,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
   rubric.playerClean = pageEnd.playerClean ?? (session.mode === 'player' ? { ok: false, error: 'the player surface was not checked' } : { skipped: 'author-mode card' });
   await writeFile(rubricPath, JSON.stringify(rubric, null, 2), 'utf-8');
   const stopped = {
-    ...session, stoppedAt: new Date().toISOString(), chats: pageEnd.chats ?? session.chats, runHeaderDiff: outcome.runHeaderDiff, ...(wizard ? { wizardAssets: wizard } : {}),
+    ...session, stoppedAt: new Date().toISOString(), chats: pageEnd.chats ?? session.chats, runHeaderDiff: outcome.runHeaderDiff, ...(wizard ? { wizardAssets: wizard } : {}), ...(card.headerAllow?.length ? { declaredChanges: declared } : {}),
     evidence: { files: pageEnd.files ?? [], problems: pageEnd.evidenceProblems ?? {} }, playerClean: rubric.playerClean, spend,
     tails: outcome.acks, valid: outcome.valid, invalid: outcome.invalid,
     problems: [...(session.problems ?? []), ...outcome.problems],

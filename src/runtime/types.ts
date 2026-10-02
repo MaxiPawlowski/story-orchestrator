@@ -339,6 +339,7 @@ export interface TensionRuntimeState {
 export interface ExtractionRuntimeSettings {
   enabled: boolean;
   profileId: string | null;
+  fallbackProfileId?: string | null;
   /** Install-wide per-role profiles; an unset role uses `profileId`. */
   profiles?: PassProfiles;
   routes?: RoleRoutes;

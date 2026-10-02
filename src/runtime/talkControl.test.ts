@@ -538,6 +538,83 @@ describe("chained multi-speaker turns", () => {
     expect(calls.triggered).toEqual([]);
   });
 
+  describe("T4-1-2: a transition the last voice brings ends the round before the old scene drafts another", () => {
+    const NEXT: JudgeAnswer = { kind: "member", rosterId: "sage", name: "Finn", confidence: 0.9, via: "choice" };
+    const FIRST: JudgeAnswer = { kind: "member", rosterId: "guard", name: "Mara", confidence: 0.9, via: "choice" };
+    const openers = new Set(["night-of-knives"]);
+
+    const sceneHost = (overrides: Partial<TalkControlHost>, chain = SYSTEM) => {
+      const world = { checkpointId: "the-duel", pending: null as string | null };
+      const made = makeChainHost([FIRST, NEXT], {
+        getChainConfig: () => chain,
+        getCheckpointInfo: () => ({ id: world.checkpointId, name: world.checkpointId, objective: "", storyTitle: "Saga" }),
+        getPendingCheckpointId: () => world.pending,
+        postsOpener: (id) => openers.has(id),
+        ...overrides,
+      });
+      return { ...made, world };
+    };
+
+    const openTurn = async (controller: TalkController) => {
+      controller.onWrapperStarted({ type: "normal" });
+      await controller.intercept(makeAbort().abort, "normal");
+    };
+
+    it("the boundary commits the transition while the judge decides the next voice: that voice is not drafted", async () => {
+      let asked = 0;
+      const made = sceneHost({
+        judgeDirector: async () => {
+          asked += 1;
+          if (asked === 1) return FIRST;
+          made.world.checkpointId = "night-of-knives";
+          return NEXT;
+        },
+      });
+      const controller = new TalkController(made.host);
+      await openTurn(controller);
+      await controller.onWrapperFinished();
+      expect(asked).toBe(2);
+      expect(made.calls.triggered).toEqual([]);
+    });
+
+    it("the queued writes move the scene at the reply's boundary: the chain ends before asking for another voice", async () => {
+      const judge = jest.fn(async () => NEXT).mockResolvedValueOnce(FIRST);
+      const made = sceneHost({ judgeDirector: judge });
+      const controller = new TalkController(made.host);
+      await openTurn(controller);
+      made.world.pending = "night-of-knives";
+      await controller.onWrapperFinished();
+      expect(made.calls.triggered).toEqual([]);
+      expect(judge).toHaveBeenCalledTimes(1);
+    });
+
+    it("a committed transition into a checkpoint that posts an opener ends the round even with stop_on_transition off", async () => {
+      const made = sceneHost({}, { ...SYSTEM, stopOnTransition: false });
+      const controller = new TalkController(made.host);
+      await openTurn(controller);
+      made.world.checkpointId = "night-of-knives";
+      await controller.onWrapperFinished();
+      expect(made.calls.triggered).toEqual([]);
+    });
+
+    it("control: a transition into a checkpoint with no opener keeps the chain when stop_on_transition is off", async () => {
+      const made = sceneHost({}, { ...SYSTEM, stopOnTransition: false });
+      const controller = new TalkController(made.host);
+      await openTurn(controller);
+      made.world.pending = "leevon-in-chains";
+      await controller.onWrapperFinished();
+      expect(made.calls.triggered).toEqual(["Finn"]);
+    });
+
+    it("control: no transition ahead, the next voice is drafted", async () => {
+      const made = sceneHost({});
+      const controller = new TalkController(made.host);
+      await openTurn(controller);
+      await controller.onWrapperFinished();
+      expect(made.calls.triggered).toEqual(["Finn"]);
+    });
+  });
+
   it("a scripted chain walks the sequence in order without a judge", async () => {
     const judge = jest.fn();
     const { host, calls } = makeChainHost([], {
