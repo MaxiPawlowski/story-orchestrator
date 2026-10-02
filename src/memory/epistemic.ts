@@ -2,13 +2,15 @@ import { jaccardSimilarity } from "./similarity";
 import { isLive, keepPinnedFrom, provenance as provenanceOf, type ProvenanceSource } from "./provenance";
 import { EPISTEMIC_TAGS, generateMemoryId, type EpistemicEntry, type EpistemicTag, type ParsedEpistemicSignal } from "./types";
 import { lastAffirmed } from "./innerVoice";
-import { contentWords, restatesWords } from "./words";
+import { contentWords, restatesWords, sharedCount, wordOverlap } from "./words";
 
 export const EPISTEMIC_MIN_LENGTH = 3;
 export const EPISTEMIC_DEDUP_THRESHOLD = 0.6;
 export const EPISTEMIC_CAP = 80;
 export const EPISTEMIC_SUBJECT_CAP = 12;
 export const AFFIRMATION_CAP = 32;
+const INTENT_SHARED_WORDS = 3;
+const INTENT_OVERLAP = 0.5;
 
 const PRIVATE_TAGS: EpistemicTag[] = ["knows", "suspects", "believes", "hiding", "intends"];
 
@@ -42,13 +44,21 @@ export interface ApplyEpistemicSignalsResult {
   retired: EpistemicEntry[];
 }
 
-function isDuplicate(existing: EpistemicEntry, signal: ParsedEpistemicSignal): boolean {
-  if (existing.supersededBy || existing.foldedInto) return false;
+function sameClaim(existing: EpistemicEntry, signal: ParsedEpistemicSignal): boolean {
   if (existing.tag !== signal.tag) return false;
   if (normalize(existing.subject) !== normalize(signal.subject)) return false;
   if (signal.tag === "hiding" && normalize(existing.hiddenFrom ?? "") !== normalize(signal.hiddenFrom ?? "")) return false;
-  return jaccardSimilarity(existing.content, signal.content) >= EPISTEMIC_DEDUP_THRESHOLD;
+  if (jaccardSimilarity(existing.content, signal.content) >= EPISTEMIC_DEDUP_THRESHOLD) return true;
+  if (signal.tag !== "intends") return false;
+  const stored = contentWords(existing.content);
+  const claim = contentWords(signal.content);
+  return sharedCount(stored, claim) >= INTENT_SHARED_WORDS && wordOverlap(stored, claim) >= INTENT_OVERLAP;
 }
+
+const isDuplicate = (existing: EpistemicEntry, signal: ParsedEpistemicSignal): boolean => !existing.supersededBy && !existing.foldedInto && sameClaim(existing, signal);
+
+const retiredFor = (existing: EpistemicEntry, signal: ParsedEpistemicSignal, messageId: number | undefined): boolean =>
+  Boolean(existing.retiredAt) && (typeof messageId !== "number" || messageId <= (existing.retiredAt?.messageId ?? -1)) && sameClaim(existing, signal);
 
 export function applyEpistemicSignals(
   entries: EpistemicEntry[],
@@ -78,7 +88,7 @@ export function applyEpistemicSignals(
     if (same && signal.tag === "intends" && typeof ctx.messageId === "number" && ctx.messageId > lastAffirmed(same).messageId) {
       same.affirmedAt = [...(same.affirmedAt ?? []), { messageId: ctx.messageId, boundary: ctx.boundary }].slice(-AFFIRMATION_CAP);
     }
-    if (same) continue;
+    if (same || next.some((entry) => retiredFor(entry, signal, ctx.messageId))) continue;
     added.push({
       id: generateMemoryId(),
       ...withProvenance(ctx, `epistemic:${signal.tag}`),

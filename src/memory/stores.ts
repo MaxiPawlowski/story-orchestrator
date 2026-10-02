@@ -1,5 +1,6 @@
 import { fnv1a, stableStringify } from "@runtime/hash";
 import { clearOverride, withOverride, withValidity } from "./provenance";
+import { contentWords, wordOverlap } from "./words";
 import type { MemoryEntry, MemoryExpiration, MemoryStoreState, MemoryTier, MemoryWriteLogEntry } from "./types";
 
 export interface TurnRange {
@@ -19,6 +20,21 @@ export function hashMemoryText(text: string): string {
 
 const SOURCE_GONE = new Set(["source-removed", "quarantined"]);
 
+export const SAME_QUOTE_OVERLAP = 0.6;
+
+const sourceOf = (entry: MemoryEntry): number | undefined => entry.messageId ?? entry.provenance?.messageId;
+const quoteOf = (entry: MemoryEntry): string => (entry.evidence ?? "").toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+const sameQuote = (left: string, right: string): boolean => Boolean(left && right) && (left.includes(right) || right.includes(left));
+
+const rewordsStored = (entry: MemoryEntry, stored: MemoryEntry[]): boolean => {
+  const source = sourceOf(entry);
+  const quote = quoteOf(entry);
+  if (typeof source !== "number" || !quote) return false;
+  const words = contentWords(entry.text);
+  return stored.some((other) => other.tier === entry.tier && other.characterId === entry.characterId && sourceOf(other) === source
+    && !other.supersededBy && !other.foldedInto && sameQuote(quote, quoteOf(other)) && wordOverlap(words, contentWords(other.text)) >= SAME_QUOTE_OVERLAP);
+};
+
 const sourceKey = (entry: MemoryEntry): string | null => {
   const messageId = entry.messageId ?? entry.provenance?.messageId;
   return typeof messageId === "number" ? `${groupKey(entry.tier, entry.characterId)}:${messageId}:${hashMemoryText(entry.text)}` : null;
@@ -37,7 +53,8 @@ export function addMemoryEntries(state: MemoryStoreState, entries: MemoryEntry[]
   };
   const survivors: MemoryEntry[] = [];
   const discarded: MemoryEntry[] = [];
-  entries.forEach((entry) => (excludedSet.has(hashMemoryText(entry.text)) || repeated(entry) ? discarded : survivors).push(entry));
+  const stored = state.entries.filter((entry) => !SOURCE_GONE.has(entry.provenance?.validity ?? "live"));
+  entries.forEach((entry) => (excludedSet.has(hashMemoryText(entry.text)) || repeated(entry) || rewordsStored(entry, stored) ? discarded : survivors).push(entry));
 
   const groups = new Map<string, MemoryEntry[]>();
   survivors.forEach((entry) => {
