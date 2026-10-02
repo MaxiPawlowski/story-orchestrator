@@ -375,6 +375,20 @@ export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
   } as RuntimeExtras["stagecraft"],
 });
 
+export interface RestartCarry {
+  overrides: ChatOverrides;
+  journal: RuntimeExtras["journal"];
+  from: string;
+}
+
+export const restartCarry = (extras: RuntimeExtras, from: string): RestartCarry => ({ overrides: readChatOverrides(extras), journal: [...extras.journal], from });
+
+export const restartedExtras = (carry: RestartCarry, read: () => GlobalSettings): RuntimeExtras => {
+  const extras = createExtras(read);
+  extras.journal = sanitizeJournalRecords(carry.journal);
+  return applyGlobalSettings(extras, read(), carry.overrides);
+};
+
 export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => GlobalSettings): RuntimeExtras => {
   const overrides = readChatOverrides(persisted);
   const extras = persisted ?? createExtras(read);

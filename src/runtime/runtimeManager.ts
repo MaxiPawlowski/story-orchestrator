@@ -24,7 +24,7 @@ import { coordinatorHosts } from "./coordinatorHosts";
 import { wireCoordinators } from "./managerWiring";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
-import { createExtras, hydrateExtras, TALK_DECISION_LIMIT } from "./extras";
+import { createExtras, hydrateExtras, restartCarry, restartedExtras, TALK_DECISION_LIMIT, type RestartCarry } from "./extras";
 import { SettingsControl } from "./settingsControl";
 import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
@@ -196,7 +196,8 @@ export class RuntimeManager extends CoordinatorDelegates {
   onArcsResolvedConfirmed(listener: (arcIds: string[]) => void) { this.arcResolvedListeners.add(listener); return () => { this.arcResolvedListeners.delete(listener); }; }
 
   private readonly selectionDeps: StorySelectionDeps = {
-    loadStory: (loaded, mode, persisted) => this.loadStory(loaded, mode, persisted ?? null),
+    loadStory: (loaded, mode, persisted, carry) => this.loadStory(loaded, mode, persisted ?? null, carry ?? null),
+    carryOver: () => (this.loaded ? restartCarry(this.extras, `${this.engine.activeCheckpoint?.name ?? "the story"} (boundary ${this.engine.serialize().boundary}, v${this.loaded.record.version})`) : null),
     restoreEffects: async (scope) => { await this.effects.restoreFor(this.extras, scope); },
     beginRun: () => beginRun(this.owner.ownership),
     clearStory: async (status, note) => {
@@ -512,14 +513,14 @@ export class RuntimeManager extends CoordinatorDelegates {
   getPayloadCaptures(): PayloadCapture[] { return this.journal.getCaptures(); }
   noteFolded(folded: number) { if (this.journal.noteFolded(folded)) this.notify(); }
 
-  private async loadStory(loaded: LoadedStory, mode: "activate" | "hydrate", knownPersisted: PersistedStoryRuntime | null = null) {
+  private async loadStory(loaded: LoadedStory, mode: "activate" | "hydrate", knownPersisted: PersistedStoryRuntime | null = null, carry: RestartCarry | null = null) {
     const previous = this.loaded?.story ?? null;
     this.validationErrors = [];
     this.pacing.reset();
     const persisted = mode === "hydrate" ? knownPersisted ?? loadPersistedRuntime(loaded.record.id) : null;
     const priorSessionAt = persisted?.extras?.lastSessionAt ?? null;
     this.invalidateRuns();
-    this.extras = hydrateExtras(persisted?.extras, getGlobalSettings); this.chatSave.fingerprints.load(persisted?.fingerprints);
+    this.extras = carry ? restartedExtras(carry, getGlobalSettings) : hydrateExtras(persisted?.extras, getGlobalSettings); this.chatSave.fingerprints.load(persisted?.fingerprints);
     this.status = `Opening ${loaded.story.title}`;
     this.journal.hydrate(this.extras.journal, this.status);
     this.loaded = { record: loaded.record, story: this.expansion.mergedStoryOrBase(loaded.record.raw, loaded.story) };

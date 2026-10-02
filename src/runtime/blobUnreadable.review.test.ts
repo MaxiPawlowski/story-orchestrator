@@ -96,7 +96,7 @@ describe("T11: a blob this build cannot read is read detached and never overwrit
     expect(d.setStatus).toHaveBeenCalledWith("Story not selected: this chat's saved story state was saved by another version of Story Orchestrator: Restart to replace it", expect.stringMatching(/^blob-unreadable: selecting 's1' refused, unreadable by this build \(version 4\)/));
     expect(bytes()).toBe(before);
     expect(await restartStory(d as unknown as StorySelectionDeps, null)).toBe(true);
-    expect(d.loadStory).toHaveBeenCalledWith(expect.objectContaining({ record: { id: "s1" } }), "activate");
+    expect(d.loadStory).toHaveBeenCalledWith(expect.objectContaining({ record: { id: "s1" } }), "activate", null, null);
     expect(d.setStatus).toHaveBeenLastCalledWith("Story restarted", expect.stringMatching(/^blob-unreadable: replaced on a confirmed Restart/));
   });
 

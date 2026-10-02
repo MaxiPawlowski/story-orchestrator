@@ -187,6 +187,25 @@ describe("story identity", () => {
     expect(playing.getSnapshot().storyIdentity).toMatchObject({ playedVersion: 2, drifted: false });
   });
 
+  it("T4-4: restart keeps this chat's Author view and its journal, and journals the restart (T4-4-2 x-state-A-after-restart.json:44)", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson());
+    manager.setUiSettings({ authorView: true });
+    await manager.flagMoment("before the restart");
+    await manager.setQuality("found_key", "true");
+    await manager.commitBoundary();
+    expect(manager.getSnapshot().activeCheckpointId).toBe("door");
+
+    expect(await manager.restartStory(true)).toBe(true);
+    expect(manager.getSnapshot().activeCheckpointId).toBe("start");
+    expect(manager.getSnapshot().ui.authorView).toBe(true);
+    expect(blob().stories["sun-ruins"].extras.journal.some((record) => record.kind === "flag" && record.summary === "before the restart")).toBe(true);
+    const records = manager.getSessionJournal();
+    const restarted = records.find((record) => record.summary === "Story restarted");
+    expect(restarted?.detail).toMatchObject({ note: expect.stringContaining("restarted from Door (boundary 2, v1) on v1") });
+    expect(records.indexOf(restarted!)).toBeGreaterThan(records.findIndex((record) => record.kind === "flag"));
+  });
+
   it("restart does nothing when the confirm is declined", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(storyJson());
