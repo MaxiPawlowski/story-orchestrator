@@ -1,11 +1,11 @@
-import { studioFailure } from "../errorCopy";
+import { routeFailure, studioFailure } from "../errorCopy";
 import React, { useEffect, useRef, useState } from "react";
 
 import {
   AGENT_MODES, addAuthorNote, addUndoNote,
   agentStats, applyAgentOp, applyProvisioningFollowUps, approvePlan, budgetSliceText, isProvisionOp, checkToolCall, confirmProvisioning, decideStep, driveAgent,
   newAgentSession,
-  opPreview, pendingStep, resumeAgent, setAgentMode, type AgentMode, type AgentOp, type AgentRunner, type AgentSession, type AgentStep,
+  opPreview, pendingStep, continueAgent, setAgentMode, type AgentMode, type AgentOp, type AgentRunner, type AgentSession, type AgentStep,
 } from "@copilot/agent/index";
 import { emptyEnvironment } from "@wizard/index";
 import { draftOwnership } from "../agentHost";
@@ -240,7 +240,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
       });
       if (outcome.lapsed) setError(lapsedCopy(outcome.lapsed));
     } catch (caught) {
-      setError(studioFailure("The agent call failed", caught));
+      setError(routeFailure("The agent call failed", caught));
     } finally {
       setBusy(false);
     }
@@ -306,8 +306,8 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
             <span className="st-muted">step {session.steps.length} of {session.budget.maxSteps} · ~{Math.round(session.budget.usedTokens / 1000)}k tokens</span>
             {stats ? <span className="st-muted">{stats.accepted}/{stats.proposed} changes kept</span> : null}
             {busy ? <button id="so-agent-stop" type="button" className="st-button secondary" onClick={() => { stopRequested.current = true; }}>Stop</button> : null}
-            {!busy && (session.status === "stopped" || session.status === "budget") ? (
-              <button id="so-agent-continue" type="button" className="st-button secondary" onClick={() => void drive(resumeAgent(session))}>Continue</button>
+            {!busy && (session.status === "stopped" || session.status === "budget" || session.status === "done") ? (
+              <button id="so-agent-continue" type="button" className="st-button secondary" onClick={() => void drive(continueAgent(session))}>Continue</button>
             ) : null}
             {!busy && session.status === "budget" ? (
               <span data-so="agent-budget-note" className="st-muted">Continue grants a fresh budget: {budgetSliceText()}.</span>
@@ -331,6 +331,9 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
               onReject={(reason) => decide(pending, { kind: "reject", reason })}
               onProvision={(op) => void provision(pending, op)}
             />
+          ) : null}
+          {session.status === "stopped" && session.stopReason ? (
+            <div data-so="agent-stop-reason" className="st-alert-error rounded px-2 py-1 text-sm" role="status">{session.stopReason}</div>
           ) : null}
           {session.status === "done" ? (
             <div data-so="agent-done" className="st-subpanel rounded p-2 text-sm">

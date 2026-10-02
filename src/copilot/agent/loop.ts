@@ -14,6 +14,9 @@ import { checkRequirementsOp, resolveCastOp } from "./requirements";
 import { checkToolCall, type ReadToolName } from "./tools";
 import { doneSummary, missingAtDone, refusedDoneLast } from "./finish";
 import { greetingClash, playerCastProblem } from "./playerCast";
+import { callKey, createdRefusal, rejectedRefusal } from "./rejected";
+import { draftCastNames } from "@wizard/index";
+import { stableStringify } from "@runtime/hash";
 import type { AgentBudget, AgentOnlyOp, AgentOp, AgentLookup, AgentMode, AgentReply, AgentSession, AgentStep, AgentStepStatus } from "./types";
 
 export const AGENT_SESSION_VERSION = 1;
@@ -128,8 +131,18 @@ export const grantBudget = (session: AgentSession): AgentSession => {
 
 export const budgetSliceText = (): string => `${DEFAULT_AGENT_BUDGET.maxSteps} more steps, ~${Math.round(DEFAULT_AGENT_BUDGET.maxTokens / 1000)}k tokens`;
 
-export const resumeAgent = (session: AgentSession): AgentSession =>
-  session.status === "stopped" || session.status === "budget" ? { ...grantBudget(session), status: session.plan.length ? "running" : "planning" } : session;
+export const resumeAgent = (session: AgentSession): AgentSession => {
+  if (session.status !== "stopped" && session.status !== "budget") return session;
+  return { ...grantBudget(session), stopReason: undefined, status: session.plan.length ? "running" : "planning" };
+};
+
+export const CONTINUE_NOTE = "Continue: finish the plan's remaining steps. Do not redo, re-read or re-create what earlier steps already did.";
+
+export const continueAgent = (session: AgentSession, at = now()): AgentSession => {
+  if (session.status !== "done") return resumeAgent(session);
+  const budget = budgetSpent(session) ? grantBudget(session).budget : session.budget;
+  return { ...session, budget, status: session.plan.length ? "running" : "planning", notes: [...session.notes, { role: "author", text: CONTINUE_NOTE, at }] };
+};
 
 export const addAuthorNote = (session: AgentSession, text: string, at = now()): AgentSession =>
   text.trim() ? { ...session, notes: [...session.notes, { role: "author", text: text.trim(), at }] } : session;
@@ -169,7 +182,23 @@ export interface AgentTurn {
   audit?: AgentAudit;
 }
 
-const installOf = (context: AgentContext): DiagnosticsContext => ({ characterNames: () => context.environment.characterNames, backgroundNames: context.lookup.backgrounds });
+const installOf = (context: AgentContext): DiagnosticsContext => ({
+  characterNames: () => context.environment.characterNames, backgroundNames: context.lookup.backgrounds, personaNames: () => context.environment.personaNames,
+});
+
+export const REPEAT_LIMIT = 3;
+
+const repeatedRefusal = (session: AgentSession): AgentSession => {
+  const last = session.steps.at(-1);
+  if (!last || last.status !== "refused") return session;
+  const key = callKey(last.call);
+  const same = session.steps.filter((step) => step.status === "refused" && callKey(step.call) === key);
+  if (same.length < REPEAT_LIMIT) return session;
+  const reason = last.observation.replace(/^Refused: /, "");
+  const stopReason = `Stopped: the agent sent the same refused ${last.call.tool} call ${same.length} times (steps ${same.map((step) => `#${step.id}`).join(", ")}). ` +
+    `The refusal was: ${reason} Tell the agent what to do instead in a note, then Continue.`;
+  return { ...session, status: "stopped", stopReason };
+};
 
 const nextStatus = (session: AgentSession, steps: AgentStep[]): AgentSession["status"] => {
   if (steps.some((step) => step.status === "pending")) return "awaiting-author";
@@ -210,8 +239,44 @@ const editProblem = (draft: StoryV2, op: AgentOp): string | null => {
 
 export const NO_CHANGE = "this changes nothing in the draft; send only the fields that change, or move on";
 
+const nameSet = (names: readonly string[] | undefined) => [...new Set((names ?? []).map((name) => name.trim().toLowerCase()))].sort();
+
+const sameRequirements = (draft: StoryV2, op: AgentOp): boolean => {
+  if (op.kind !== "setRequirements") return false;
+  const before = draft.requirements ?? {};
+  const after = op.requirements;
+  return (["personas", "members", "lorebooks"] as const).every((kind) => stableStringify(nameSet(before[kind])) === stableStringify(nameSet(after[kind])));
+};
+
 const unchangedProblem = (draft: StoryV2, op: AgentOp): string | null =>
-  (JSON.stringify(applyAgentOp(draft, op)) === JSON.stringify(draft) ? NO_CHANGE : null);
+  (JSON.stringify(applyAgentOp(draft, op)) === JSON.stringify(draft) || sameRequirements(draft, op) ? NO_CHANGE : null);
+
+const fold = (text: unknown) => String(text ?? "").trim().toLowerCase();
+
+const guideReread = (session: AgentSession, call: AgentStep["call"]): string | null => {
+  if (call.tool !== "readGuide") return null;
+  const topic = fold(call.args.topic);
+  const earlier = session.steps.find((step) => step.call.tool === "readGuide" && step.status === "observed" && fold(step.call.args.topic) === topic);
+  return earlier ? `"${topic}" was already read at step #${earlier.id}; its text is in your earlier steps. Act on it instead of reading it again.` : null;
+};
+
+const unchangedRead = (session: AgentSession, call: AgentStep["call"], observation: string): string | null => {
+  const key = callKey(call);
+  const earlier = [...session.steps].reverse().find((step) => step.status === "observed" && callKey(step.call) === key);
+  return earlier && earlier.observation === clip(observation)
+    ? `nothing changed since step #${earlier.id}: ${call.tool} answers exactly what it answered then. Use that answer and move on.`
+    : null;
+};
+
+const groupGap = (draft: StoryV2, op: AgentOp): string | null => {
+  if (op.kind !== "createGroup") return null;
+  const listed = new Set(op.members.map(fold));
+  const missing = draftCastNames(draft).filter((name) => !listed.has(fold(name)));
+  return missing.length
+    ? `createGroup must hold the whole cast, and it leaves out ${missing.join(", ")}. The wizard cannot add anyone to a group later: create a card for anyone ` +
+      "who has none first, then create the group with everyone."
+    : null;
+};
 
 export const executeReply = (session: AgentSession, reply: AgentReply, context: AgentContext, meta: StepMeta): AgentTurn => {
   const at = meta.at ?? now();
@@ -222,29 +287,38 @@ export const executeReply = (session: AgentSession, reply: AgentReply, context: 
   if (reply.kind === "done") return finish(session, reply.summary, context, meta);
   const base = baseStep(meta, reply);
   const record = (step: Pick<AgentStep, "family" | "status" | "observation"> & Partial<AgentStep>, apply: AgentOp | null = null): AgentTurn => ({
-    session: withStep(session, { ...base, firstTryValid: step.status === "refused" ? false : meta.firstTryValid, ...step }),
+    session: repeatedRefusal(withStep(session, { ...base, firstTryValid: step.status === "refused" ? false : meta.firstTryValid, ...step })),
     apply,
   });
   const check = checkToolCall(reply.call);
   if (!check.ok) return record({ family: null, status: "refused", observation: `Refused: ${check.message}` });
   const { spec, op } = check;
   if (spec.family === "read" || spec.family === "simulate" || spec.family === "lookup") {
-    return record({ family: spec.family, status: "observed", observation: runReadTool(spec.name as ReadToolName, reply.call.args, context.draft, context.lookup) });
+    const reread = guideReread(session, reply.call);
+    if (reread) return record({ family: spec.family, status: "refused", observation: `Refused: ${reread}` });
+    const observation = runReadTool(spec.name as ReadToolName, reply.call.args, context.draft, context.lookup);
+    const unchanged = unchangedRead(session, reply.call, observation);
+    if (unchanged) return record({ family: spec.family, status: "refused", observation: `Refused: ${unchanged}` });
+    return record({ family: spec.family, status: "observed", observation });
   }
   if (!op) return record({ family: null, status: "refused", observation: `Refused: ${spec.name}: arguments did not parse` });
   const player = playerCastProblem(session, context.draft, op);
   if (player) return record({ family: spec.family === "provision" ? "provision" : "edit", op, status: "refused", observation: `Refused: ${player}` });
   if (spec.family === "provision") {
     if (!isProvisionOp(op)) return record({ family: null, status: "refused", observation: `Refused: ${spec.name} is not a provisioning step` });
+    const rejected = rejectedRefusal(session, op) ?? createdRefusal(session, op) ?? groupGap(context.draft, op);
+    if (rejected) return record({ family: "provision", op, status: "refused", observation: `Refused: ${rejected}` });
     const validation = validateProvisioningOp(op, context.environment);
     if (!validation.ok) return record({ family: "provision", op, status: "refused", observation: `Refused: ${validation.message}` });
     const clash = greetingClash(context.draft, op);
     return record({ family: "provision", op, status: "pending", observation: `Waiting for the author to confirm this asset.${clash ? ` ${clash}` : ""}` });
   }
-  const requirements = op.kind === "setRequirements" ? checkRequirementsOp(session, context.draft, op) : null;
+  const requirements = op.kind === "setRequirements" ? checkRequirementsOp(session, context.draft, op, context.environment) : null;
   if (requirements?.problem) return record({ family: "edit", op, status: "refused", observation: `Refused: ${requirements.problem}` });
   const cast = resolveCastOp(context.draft, requirements?.op ?? op);
   const edit = cast.op;
+  const rejected = rejectedRefusal(session, op) ?? rejectedRefusal(session, edit);
+  if (rejected) return record({ family: "edit", op: edit, status: "refused", observation: `Refused: ${rejected}` });
   const note = [requirements?.note, cast.note].filter(Boolean).join(" ");
   const noted = (text: string) => (note ? `${text} ${note}` : text);
   const problem = editProblem(context.draft, edit) ?? unchangedProblem(context.draft, edit);

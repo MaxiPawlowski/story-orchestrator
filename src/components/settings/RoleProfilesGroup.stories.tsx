@@ -151,3 +151,22 @@ export const HarnessRoute: Story = {
     await expect(args.onAssign).toHaveBeenCalledWith("synthesis", "memory");
   },
 };
+
+export const HarnessFailureSaysWhyOutsideAuthorView: Story = {
+  args: {
+    authorView: false,
+    harnesses: [{ key: "harness:opencode:openai/gpt-6-astra", label: "opencode · openai/gpt-6-astra", vendor: "OpenAI" }],
+    harnessRoutes: { authoring: { key: "harness:opencode:openai/gpt-6-astra", fallback: null } },
+    routes: allFallback.map((entry) => (entry.role === "authoring"
+      ? route("authoring", "Wizard and road ahead", "failed", "harness:opencode:openai/gpt-6-astra",
+        "opencode is not offered on this install: the host owner turns it on in the harness plugin's config.json")
+      : entry)),
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByText(/Models per task/));
+    const authoring = canvasElement.querySelector('[data-role="authoring"]') as HTMLElement;
+    await expect(authoring.querySelector('[data-so="role-profile-state"]')?.textContent).toBe("failed its self-test");
+    await expect(authoring.querySelector('[data-so="role-profile-detail"]')?.textContent).toContain("config.json");
+  },
+};

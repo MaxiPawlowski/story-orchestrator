@@ -398,9 +398,36 @@ export function castResetPlan(manifest: AdolionManifest, groups: Array<{ id: str
   });
 }
 
-export interface SeedReport { file?: unknown; problems?: unknown; sameAsPrevious?: unknown; commit?: unknown }
+export interface BaselineAcceptance { at: string; by: string; reason: string; drift: unknown; replaces: string | null }
 
-export const seedSucceeded = (report: SeedReport) => Array.isArray(report.problems) && report.problems.length === 0 && report.sameAsPrevious !== false && typeof report.file === 'string';
+export interface SeedReport { file?: unknown; problems?: unknown; sameAsPrevious?: unknown; commit?: unknown; drift?: unknown; accepted?: unknown }
+
+export const seedAccepted = (report: SeedReport): boolean => {
+  const accepted = report.accepted as Partial<BaselineAcceptance> | undefined;
+  return Boolean(accepted) && typeof accepted?.reason === 'string' && accepted.reason.trim() !== '' && typeof accepted.by === 'string';
+};
+
+export const seedSucceeded = (report: SeedReport) => Array.isArray(report.problems) && report.problems.length === 0
+  && (report.sameAsPrevious !== false || seedAccepted(report)) && typeof report.file === 'string';
+
+const byNewest = <T,>(reports: Array<{ name: string; report: T }>) => [...reports].filter((entry) => /^report-.+\.json$/.test(entry.name)).sort((a, b) => b.name.localeCompare(a.name));
+
+export function acceptBaseline<T extends SeedReport>(
+  reports: Array<{ name: string; report: T }>,
+  input: { reason: string; by: string; at: string; report?: string | null },
+): { name: string; report: T & { accepted: BaselineAcceptance } } | { refused: string } {
+  if (!input.reason.trim()) return { refused: 'say why the drift is deliberate: --reason "<why>"' };
+  const ordered = byNewest(reports);
+  const target = input.report ? ordered.find((entry) => entry.name === input.report) : ordered[0];
+  if (!target) return { refused: input.report ? `no seed report ${input.report} on this lane` : 'no seed report on this lane' };
+  const problems = Array.isArray(target.report.problems) ? target.report.problems as unknown[] : null;
+  if (!problems || typeof target.report.file !== 'string') return { refused: `${target.name} is not a finished seed (no problem list or inventory file)` };
+  if (problems.length) return { refused: `${target.name} has problems (${problems.join('; ')}); a seed with problems is never a baseline` };
+  if (target.report.sameAsPrevious !== false || seedAccepted(target.report)) return { refused: `${target.name} is already the baseline; nothing to accept` };
+  const replaces = lastGoodSeed(reports.filter((entry) => entry.name !== target.name))?.name ?? null;
+  const accepted: BaselineAcceptance = { at: input.at, by: input.by, reason: input.reason.trim(), drift: target.report.drift ?? null, replaces };
+  return { name: target.name, report: { ...target.report, accepted } };
+}
 
 export function lastGoodSeed<T extends SeedReport>(reports: Array<{ name: string; report: T }>): { name: string; report: T } | null {
   return [...reports].filter((entry) => /^report-.+\.json$/.test(entry.name)).sort((a, b) => b.name.localeCompare(a.name)).find((entry) => seedSucceeded(entry.report)) ?? null;

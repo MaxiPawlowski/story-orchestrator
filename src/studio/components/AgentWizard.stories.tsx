@@ -1,6 +1,6 @@
 import type { Meta, StoryObj } from "@storybook/react";
 import { within, userEvent, expect, fn } from "@storybook/test";
-import { advanceAgent, DEFAULT_AGENT_BUDGET, newAgentSession, type AgentRoute } from "@copilot/agent/index";
+import { advanceAgent, AgentRouteUnavailable, DEFAULT_AGENT_BUDGET, newAgentSession, type AgentRoute } from "@copilot/agent/index";
 import { agentContext, scriptedRoute } from "@copilot/agent/testing";
 import { emptyEnvironment } from "@wizard/index";
 import AgentWizard, { type AgentTurnRunner } from "./AgentWizard";
@@ -157,8 +157,39 @@ export const DoneSaysWhatHappensNext: Story = {
     const done = canvasElement.querySelector('[data-so="agent-done"]');
     await expect(done).toHaveTextContent("Sharpened the opening beat.");
     await expect(done).toHaveTextContent("nothing reaches the library until you do");
-    await expect(canvas.queryByRole("button", { name: "Continue" })).toBeNull();
+    await expect(canvas.getByRole("button", { name: "Continue" })).toBeEnabled();
     await expect(canvas.queryByLabelText("Agent change")).toBeNull();
+  },
+};
+
+export const StoppedOnARepeatSaysWhy: Story = {
+  args: {
+    runTurn: scripted([PLAN]),
+    onPersist: fn(),
+    initial: {
+      ...newAgentSession("A heist in the sun ruins."), plan: PLAN.plan, status: "stopped",
+      stopReason: "Stopped: the agent sent the same refused updateCheckpoint call 3 times (steps #4, #6, #8). Tell the agent what to do instead in a note, then Continue.",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelector('[data-so="agent-stop-reason"]')).toHaveTextContent("same refused updateCheckpoint call 3 times");
+    await expect(canvas.getByRole("button", { name: "Continue" })).toBeEnabled();
+  },
+};
+
+const harnessRefused: AgentTurnRunner = async () => {
+  throw new AgentRouteUnavailable("harness", "opencode offers no agent tool bridge on this install (the plugin's config.json offers it, opencode only)");
+};
+
+export const SetupFailureShowsItsReason: Story = {
+  args: { runTurn: harnessRefused, onPersist: fn() },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.type(canvas.getByLabelText("What should the agent build"), "A heist in the sun ruins.");
+    await userEvent.click(canvas.getByRole("button", { name: "Plan it" }));
+    const alert = await canvas.findByRole("alert");
+    await expect(alert).toHaveTextContent("The agent call failed: opencode offers no agent tool bridge on this install");
   },
 };
 

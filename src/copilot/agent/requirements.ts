@@ -1,5 +1,5 @@
 import { castMemberName, resolveCastChanges, type CheckpointEffects, type StoryRequirements, type StoryV2 } from "@engine/index";
-import { isProvisioningKind, provisioningRequirements, type ProvisioningOp } from "@wizard/index";
+import { isProvisioningKind, personaRequirementProblem, provisioningRequirements, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
 import type { ProposalOp } from "../types";
 import type { AgentOp, AgentSession } from "./types";
 
@@ -49,7 +49,9 @@ const dropped = (draft: StoryV2, session: AgentSession, requirements: StoryRequi
   ];
 };
 
-export const checkRequirementsOp = (session: AgentSession, draft: StoryV2, op: RequirementsOp): RequirementsCheck => {
+export const checkRequirementsOp = (session: AgentSession, draft: StoryV2, op: RequirementsOp, environment: Pick<ProvisioningEnvironment, "personaNames">): RequirementsCheck => {
+  const persona = personaRequirementProblem(op.requirements.personas, environment);
+  if (persona) return { op, note: null, problem: persona };
   const members = op.requirements.members ?? [];
   const { next, resolved } = resolveMembers(draft, members);
   const requirements: StoryRequirements = members.length ? { ...op.requirements, members: next } : op.requirements;

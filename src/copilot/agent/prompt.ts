@@ -6,6 +6,7 @@ import { FIRST_MESSAGE_RULE, OPENING_CAST_RULE } from "../prompts";
 import { GUIDE_TOPIC_IDS } from "../guideTopics";
 import { renderCoverage, storyCoverage } from "../../studio/coverage";
 import { runReadTool } from "./readTools";
+import { createdSteps, rejectedSteps } from "./rejected";
 import { renderToolSchema } from "./tools";
 import { emptyLookup, type AgentSession, type AgentStep } from "./types";
 
@@ -72,6 +73,19 @@ const earlierSteps = (session: AgentSession): string[] => {
   return [`EARLIER STEPS (compact, oldest first)\n${skipped ? `… ${skipped} older step(s)\n` : ""}${shown.map(renderEarlier).join("\n")}`];
 };
 
+const rejectedByAuthor = (session: AgentSession): string[] => {
+  const rows = rejectedSteps(session).map((step) => {
+    const target = targetOf(step.call.args);
+    return `- #${step.id} ${step.call.tool}${target ? `(${truncate(target, 60)})` : ""}: ${step.reason ?? "no reason given"}`;
+  });
+  return rows.length ? [`REJECTED BY THE AUTHOR (never propose these again; an identical call is refused)\n${rows.join("\n")}`] : [];
+};
+
+const alreadyCreated = (session: AgentSession): string[] => {
+  const rows = createdSteps(session).map((step) => `- #${step.id} ${step.call.tool}${targetOf(step.call.args) ? `(${truncate(targetOf(step.call.args), 60)})` : ""}`);
+  return rows.length ? [`ALREADY CREATED THIS SESSION (these exist on the install now; never create them again)\n${rows.join("\n")}`] : [];
+};
+
 const BACKGROUND_LIMIT = 40;
 
 const renderBackgrounds = (backgrounds: readonly string[]): string => {
@@ -84,6 +98,8 @@ const renderInstall = (environment: ProvisioningEnvironment, backgrounds: readon
   `characters on the install: ${environment.characterNames.length}`,
   `lorebooks on the install: ${environment.lorebookNames.length}`,
   `lorebooks this story may write into: ${environment.ownedLorebooks.join(", ") || "(none yet: create the story's own lorebook first)"}`,
+  `this story's cast (a group may hold only these): ${environment.castNames.join(", ") || "(none yet: add roster members first)"}`,
+  `personas on the install (requirements.personas may name only these, and usually none): ${environment.personaNames.join(", ") || "(none)"}`,
   renderBackgrounds(backgrounds),
 ].join("\n");
 
@@ -115,6 +131,8 @@ export const renderStepPrompt = (session: AgentSession, draft: StoryV2, environm
   ...header(session, draft, environment, native, backgrounds),
   `PLAN (agreed with the author)\n${session.plan.map((step, index) => `${index + 1}. ${step}`).join("\n")}`,
   ...earlierSteps(session),
+  ...rejectedByAuthor(session),
+  ...alreadyCreated(session),
   `RECENT STEPS (newest last)\n${session.steps.slice(-RECENT_STEPS).map(renderStep).join("\n") || "(none yet)"}`,
   `Budget: step ${session.steps.length + 1} of ${session.budget.maxSteps}.`,
   native

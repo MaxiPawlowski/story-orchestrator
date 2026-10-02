@@ -28,7 +28,7 @@ export interface RepairStep {
 }
 
 export interface RepairAction {
-  kind: "add-members" | "unmute-members";
+  kind: "add-members" | "unmute-members" | "remove-personas";
   members: string[];
   label: string;
 }
@@ -188,6 +188,46 @@ export function loreRepairSteps(requirements: RuntimeSnapshot["requirements"]): 
   ];
 }
 
+const quoted = (names: string[]) => names.map((name) => `"${name}"`).join(", ");
+
+export function personaRepairSteps(requirements: RuntimeSnapshot["requirements"]): Array<RepairStep | null> {
+  const absent = requirements.absentPersonas ?? [];
+  const unselected = requirements.missingPersonas.filter((name) => !absent.includes(name));
+  return [
+    absent.length ? {
+      area: "persona",
+      consequence: `This story requires the persona ${quoted(absent)}, which does not exist on this install, so it never starts.`,
+      detail: `No persona called ${quoted(absent)} on this install. Personas are never created by the wizard: remove the requirement from the story, or create ` +
+        `${them(absent, "that persona", "those personas")} in SillyTavern's Persona Management.`,
+      targetId: null,
+      provisionable: false,
+      player: REPAIR_PLAYER_COPY.persona,
+      action: { kind: "remove-personas", members: absent, label: `Remove the ${quoted(absent)} persona requirement` },
+    } : null,
+    unselected.length ? {
+      area: "persona",
+      consequence: `This story is written for the persona ${quoted(unselected)}, and a different one is selected.`,
+      detail: `Missing persona: ${unselected.join(", ")}. Select it in Persona Management.`,
+      targetId: null,
+      provisionable: false,
+      player: REPAIR_PLAYER_COPY.persona,
+    } : null,
+  ];
+}
+
+const objectOf = (value: unknown): Record<string, unknown> | null => (value && typeof value === "object" && !Array.isArray(value) ? value as Record<string, unknown> : null);
+
+export function withoutPersonas(raw: unknown, names: string[]): Record<string, unknown> | null {
+  const story = objectOf(raw);
+  if (!story) return null;
+  const requirements = objectOf(story.requirements);
+  if (!requirements) return story;
+  const dropped = new Set(names.map((name) => name.trim().toLowerCase()));
+  const kept = (Array.isArray(requirements.personas) ? requirements.personas : []).filter((name) => typeof name !== "string" || !dropped.has(name.trim().toLowerCase()));
+  const rest = Object.fromEntries(Object.entries(requirements).filter(([key]) => key !== "personas"));
+  return { ...story, requirements: kept.length ? { ...rest, personas: kept } : rest };
+}
+
 function requirementSteps(snapshot: RuntimeSnapshot): Array<RepairStep | null> {
   const requirements = snapshot.requirements;
   if (!requirements) return [];
@@ -204,14 +244,7 @@ function requirementSteps(snapshot: RuntimeSnapshot): Array<RepairStep | null> {
       provisionable: false,
       player: null,
     } : null,
-    requirements.missingPersonas.length ? {
-      area: "persona",
-      consequence: "This story is written for a different player character than the one selected.",
-      detail: `Missing persona: ${requirements.missingPersonas.join(", ")}`,
-      targetId: null,
-      provisionable: false,
-      player: REPAIR_PLAYER_COPY.persona,
-    } : null,
+    ...personaRepairSteps(requirements),
     displaced && snapshot.memory?.wiBook ? {
       area: "lore",
       consequence: "This chat's story memory is not reaching the model, because the chat lorebook slot holds another book.",

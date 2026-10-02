@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { armRefusal, buildPack, candidatesFromTurns, gateStatus, GATE_SPECS, packLeaks, premiseKey, rowArm, sessionCandidates, storyCandidate } from './ratingPack.mts';
+import { armRefusal, buildPack, candidatesFromTurns, gateStatus, GATE_SPECS, packCandidates, packLeaks, PACK_SESSION_RULE, premiseKey, rowArm, sessionCandidates, storyCandidate } from './ratingPack.mts';
 
 const context = [{ id: 1, name: 'Kela', text: 'We march at dawn.' }, { id: 2, name: 'You', text: 'Why the hurry?' }];
 const rows = [
@@ -85,4 +85,27 @@ test('T5-1-1 arm rule: start refuses an arm the card cannot pair', () => {
   assert.equal(armRefusal(['W6'], null), null);
   assert.match(armRefusal(['W6'], 'beat')!, /not an arm of W6 \(agent, staged\)/);
   assert.match(armRefusal([], 'agent')!, /feeds no blind gate/);
+});
+
+test('T5-1 re-run: W6 pairs only VALID sessions, the latest valid one per arm and premise', () => {
+  const story = (title: string) => ({ title, description: 'd', checkpoints: [{ id: 'a', name: 'A', objective: 'o' }], roster: [] });
+  const entry = (dir: string, arm: string, valid: boolean, stoppedAt: string, title: string) => {
+    const session = { charter: 'T5-1', arm, valid, stoppedAt, story: { premiseId: 'cartographer' } };
+    return { dir, session, candidates: sessionCandidates('W6', { session, turns: [], drafts: { openDraft: story(title) }, sessionDir: dir }) };
+  };
+  const picked = packCandidates([
+    entry('T5/T5-1-1', 'agent', false, '2026-10-02T11:54:13.677Z', 'Invalid agent run'),
+    entry('T5/T5-1-2', 'staged', true, '2026-10-02T12:30:00.000Z', 'Older staged run'),
+    entry('T5/T5-1-3', 'agent', true, '2026-10-02T15:03:21.125Z', 'The Redrawn Kingdom'),
+    entry('T5/T5-1-4', 'staged', true, '2026-10-02T15:54:13.210Z', 'The Redrawing Map'),
+  ]);
+  assert.deepEqual(picked.skippedInvalid, ['T5/T5-1-1']);
+  assert.deepEqual(picked.superseded, ['T5/T5-1-2/wizard-drafts.json']);
+  assert.deepEqual(picked.candidates.map((candidate) => candidate.source).sort(), ['T5/T5-1-3/wizard-drafts.json', 'T5/T5-1-4/wizard-drafts.json']);
+  const pack = buildPack('W6', picked.candidates, 'x');
+  assert.equal(pack.pairs.length, 1);
+  assert.deepEqual(pack.key[0].sources.left === 'T5/T5-1-3/wizard-drafts.json' ? pack.key[0].sources.right : pack.key[0].sources.left, 'T5/T5-1-4/wizard-drafts.json');
+  assert.match(PACK_SESSION_RULE, /VALID/);
+  const none = packCandidates([entry('T5/T5-1-1', 'agent', false, '2026-10-02T11:54:13.677Z', 'Invalid agent run')]);
+  assert.deepEqual(none.candidates, []);
 });

@@ -166,7 +166,7 @@ export const ProvisioningCreatesAndRequires: Story = {
     initialStage: "provisioning",
     runStage: stageRunner(PROVISIONING_RESPONSE),
     host: {
-      environment: () => ({ characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [], grantedLorebooks: [] }),
+      environment: () => ({ characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [], grantedLorebooks: [], castNames: [], personaNames: [] }),
       applyProvisioning: async () => ({ ok: true, message: 'Created the character card "Arin".', created: "Arin" }),
     },
   },

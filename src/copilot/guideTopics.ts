@@ -27,7 +27,7 @@ export const GUIDE_TOPICS = {
     fields: "requirements.personas, requirements.members, requirements.lorebooks",
     text: "What the install must provide before the story's effects run: personas, group members and lorebooks, each named as SillyTavern names them. Name characters by "
       + "their CARD name, never by a roster id: \"Mara Venn\", not \"mara\". If wrong: the story never reads as ready and its effects stay deferred. A lorebook used by "
-      + "lore_select or checkpoint world_info belongs here too, or it may not be active.",
+      + "lore_select or checkpoint world_info belongs here too, or it may not be active. Name a persona only if it already exists: nothing creates one.",
   },
   roster: {
     title: "Cast",
@@ -162,7 +162,8 @@ export const GUIDE_TOPICS = {
     title: "Gates",
     fields: "transitions[].gate",
     text: "A condition over qualities: {q, op, v} with ==, !=, >=, <=, >, <, in (in takes a list), combined with {all: []}, {any: []}, {not: gate}. Declare the quality "
-      + "first, use an operator its type allows and only values it lists. Gate on what the chat will visibly show; a gate on a thought, a mood or an off-screen event never opens.",
+      + "first, use an operator its type allows and only values it lists. Gate on what the chat will visibly show; a gate on a thought, a mood or an off-screen event never opens. "
+      + "A way out that asks only what the way in already required fires at once: gate each exit on what happens in that checkpoint.",
   },
   transitions: {
     title: "Transitions",
@@ -277,6 +278,9 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "background-missing": "background",
   "roster-member-is-player": "roster",
   "cast-change-unknown-member": "cast-changes",
+  "requirement-persona-missing": "requirements",
+  "gate-open-on-arrival": "gates",
+  "cast-member-never-enabled": "cast-changes",
 };
 
 export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {

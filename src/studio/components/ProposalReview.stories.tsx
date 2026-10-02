@@ -127,7 +127,7 @@ export const ProvisioningIsReviewedPerStep: Story = {
   args: {
     result: provisioningResult,
     acceptedIndices: new Set<number>(),
-    environment: { characterNames: ["Ponticius"], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [], grantedLorebooks: [] },
+    environment: { characterNames: ["Ponticius"], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [], grantedLorebooks: [], castNames: [], personaNames: [] },
   },
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
@@ -144,7 +144,7 @@ export const ProvisioningRefusesAnExistingAsset: Story = {
   args: {
     result: provisioningResult,
     acceptedIndices: new Set<number>(),
-    environment: { characterNames: ["Arin"], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [], grantedLorebooks: [] },
+    environment: { characterNames: ["Arin"], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [], grantedLorebooks: [], castNames: [], personaNames: [] },
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

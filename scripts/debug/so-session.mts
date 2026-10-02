@@ -21,7 +21,7 @@ import { refresherFor, settingLanded } from './lib/sessionSetting.mts';
 import { ackPaths, readTailAcks, tailProblems, TAIL_FILES, TAIL_NAMES, waitFor, READY_TIMEOUT_MS, DRAIN_TIMEOUT_MS } from './lib/sessionTails.mts';
 import { fileAllowances, headerDiffArgs, stopSequence } from './lib/sessionStop.mts';
 import { resolveHeaderAllow, storyContext, wizardAllowance, type WizardAllowance } from './lib/sessionWizardAssets.mts';
-import { armRefusal, buildPack, packLeaks, sessionArmOf, sessionCandidates, type Candidate, type Verdict } from './lib/ratingPack.mts';
+import { armRefusal, buildPack, packCandidates, packLeaks, PACK_SESSION_RULE, sessionArmOf, sessionCandidates, type PackSession, type Verdict } from './lib/ratingPack.mts';
 import { AGENT_OPS, GOAL_AGENT_MODES, LIVE_VERBS, type AgentOp, type LiveChat, type LiveRequest, type LiveVerb } from './lib/sessionDriver.mts';
 import { BOOK_ANSWERS, type BookAnswer } from './lib/sessionDelete.mts';
 import { PRESET_OVERLAY_RECORD, profileProblems, replyEffortProblems, sessionOverlay, thinkingExpected } from './lib/presetOverlay.mts';
@@ -632,13 +632,14 @@ export async function buildRatingPacks(gates: readonly BlindGate[] = BLIND_GATES
   const out: Array<Record<string, unknown>> = [];
   for (const gate of gates) {
     const cards = new Set(doc.cards.filter((card) => card.rubric.some((row) => row.gate === gate)).map((card) => card.id));
-    const candidates: Candidate[] = [];
+    const entries: PackSession[] = [];
     for (const { dir, session } of sessions.filter((entry) => cards.has(entry.session.charter))) {
       const sessionDir = rel(dir);
       const turns = parseJsonl(existsSync(resolve(dir, TURNS_FILE)) ? await readFile(resolve(dir, TURNS_FILE), 'utf-8') : '');
       const drafts = existsSync(resolve(dir, 'wizard-drafts.json')) ? await readJson(resolve(dir, 'wizard-drafts.json')) : null;
-      candidates.push(...sessionCandidates(gate, { session, turns, drafts, sessionDir }));
+      entries.push({ dir: sessionDir, session, candidates: sessionCandidates(gate, { session, turns, drafts, sessionDir }) });
     }
+    const { candidates, skippedInvalid, superseded } = packCandidates(entries);
     const gateDir = resolve(root, gate);
     await mkdir(gateDir, { recursive: true });
     await mkdir(resolve(root, '.keys'), { recursive: true });
@@ -648,9 +649,10 @@ export async function buildRatingPacks(gates: readonly BlindGate[] = BLIND_GATES
     if (leaks.length) throw new Error(`rating pack ${gate} would leak its labels:\n- ${leaks.join('\n- ')}`);
     await writeFile(resolve(gateDir, 'pairs.json'), `${JSON.stringify({ gate, instructions: 'Rate each pair blind: pick left, right or tie in verdicts.json and write your name as rater. Do not open .keys/.', pairs: pack.pairs }, null, 2)}\n`, 'utf-8');
     await writeFile(resolve(gateDir, 'verdicts.json'), `${JSON.stringify({ gate, verdicts: pack.verdicts }, null, 2)}\n`, 'utf-8');
-    await writeFile(resolve(gateDir, 'status.json'), `${JSON.stringify({ ...pack.status, candidates: candidates.length, unmatched: pack.unmatched }, null, 2)}\n`, 'utf-8');
+    const sessionRule = { sessions: PACK_SESSION_RULE, skippedInvalid, superseded };
+    await writeFile(resolve(gateDir, 'status.json'), `${JSON.stringify({ ...pack.status, candidates: candidates.length, unmatched: pack.unmatched, ...sessionRule }, null, 2)}\n`, 'utf-8');
     await writeFile(resolve(root, '.keys', `${gate}.json`), `${JSON.stringify({ gate, key: pack.key }, null, 2)}\n`, 'utf-8');
-    out.push({ ...pack.status, candidates: candidates.length, unmatched: pack.unmatched });
+    out.push({ ...pack.status, candidates: candidates.length, unmatched: pack.unmatched, skippedInvalid: skippedInvalid.length, superseded: superseded.length });
   }
   return out;
 }

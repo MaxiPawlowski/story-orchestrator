@@ -23,13 +23,13 @@ const readQuestions = (value: unknown): WizardQuestion[] => {
   return capQuestions(questions);
 };
 
-export const parseProposal = (raw: string): { proposal: Proposal; issues: string[]; questions: WizardQuestion[] } => {
+export const parseProposal = (raw: string): { proposal: Proposal; issues: string[]; questions: WizardQuestion[]; unreadable?: true } => {
   const issues: string[] = [];
   let parsed: unknown;
   try {
     parsed = JSON.parse(normalizeJsonText(raw));
   } catch (error) {
-    return { proposal: { summary: "", ops: [] }, issues: [error instanceof Error ? error.message : "Invalid JSON"], questions: [] };
+    return { proposal: { summary: "", ops: [] }, issues: [error instanceof Error ? error.message : "Invalid JSON"], questions: [], unreadable: true };
   }
   if (!isRecord(parsed)) return { proposal: { summary: "", ops: [] }, issues: ["response must be a JSON object"], questions: [] };
   const summary = typeof parsed.summary === "string" ? parsed.summary : "";

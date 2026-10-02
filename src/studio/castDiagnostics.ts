@@ -2,18 +2,22 @@ import type { StoryV2 } from "@engine/index";
 import { castMemberName, isCastMember } from "@engine/index";
 import { memberIsPlayer, playerRoles, rosterMemberIsPlayer, storyPlayerTexts } from "./playerRole";
 
-type CastCode = "cast-member-no-card" | "background-missing" | "roster-member-is-player" | "cast-change-unknown-member";
+type CastCode = "cast-member-no-card" | "background-missing" | "roster-member-is-player" | "cast-change-unknown-member" | "requirement-persona-missing"
+  | "cast-member-never-enabled";
 
 export const CAST_CONSEQUENCES: Record<CastCode, string> = {
   "cast-member-no-card": "This character never joins the scene: there is no card by that name, so it cannot be switched on and the story never reads as ready.",
   "background-missing": "The scene does not change: the install has no background by that name.",
   "roster-member-is-player": "Another character speaks as the player: the story casts the player's own role as someone else.",
   "cast-change-unknown-member": "This cast change switches nobody on or off: the name matches no cast member, so whoever it meant stays as they are.",
+  "requirement-persona-missing": "The story never reads as ready, so its start effects never run: it requires a persona this install does not have, and nothing creates one.",
+  "cast-member-never-enabled": "This character stays muted for the rest of the story: a checkpoint switches them off and no checkpoint switches them back on.",
 };
 
 export interface InstallFacts {
   characterNames?: () => readonly string[];
   backgroundNames?: () => readonly string[];
+  personaNames?: () => readonly string[];
 }
 
 export interface CastRun {
@@ -46,6 +50,26 @@ export const checkCastChangeMembers = ({ draft, push }: CastRun) => {
   });
 };
 
+export const checkNeverEnabled = ({ draft, push }: CastRun) => {
+  const enabled = new Set(draft.checkpoints.flatMap((checkpoint) => strings((checkpoint.effects?.cast_changes as { enable?: unknown } | undefined)?.enable))
+    .map((name) => castMemberName(draft.roster, name).trim().toLowerCase()));
+  const reported = new Set<string>();
+  draft.checkpoints.forEach((checkpoint, index) => {
+    strings((checkpoint.effects?.cast_changes as { disable?: unknown } | undefined)?.disable).forEach((raw, position) => {
+      const name = castMemberName(draft.roster, raw);
+      const key = name.trim().toLowerCase();
+      if (!isCastMember(draft.roster, name) || enabled.has(key) || reported.has(key)) return;
+      reported.add(key);
+      push(
+        "cast-member-never-enabled",
+        "warning",
+        `checkpoints.${index}.effects.cast_changes.disable.${position}`,
+        `'${name}' is switched off here and no checkpoint switches them on again; add them to cast_changes.enable at the checkpoint where they enter`,
+      );
+    });
+  });
+};
+
 export const checkCastCards = ({ draft, context, push }: CastRun) => {
   const cards = known(context.characterNames);
   if (!cards) return;
@@ -69,6 +93,20 @@ export const checkBackgrounds = ({ draft, context, push }: CastRun) => {
     const name = backgroundName(checkpoint.effects?.background);
     if (!name || stems.has(stem(name))) return;
     push("background-missing", "warning", `checkpoints.${index}.effects.background`, `no background '${name}' on this install; pick one from its list, or leave the background out`);
+  });
+};
+
+export const checkRequiredPersonas = ({ draft, context, push }: CastRun) => {
+  const personas = known(context.personaNames);
+  if (!personas) return;
+  (draft.requirements?.personas ?? []).forEach((name, index) => {
+    if (!name.trim() || personas.has(name.trim().toLowerCase())) return;
+    push(
+      "requirement-persona-missing",
+      "warning",
+      `requirements.personas.${index}`,
+      `no persona named '${name}' on this install, and the wizard never creates personas; remove it from Requirements, or create that persona in SillyTavern`,
+    );
   });
 };
 

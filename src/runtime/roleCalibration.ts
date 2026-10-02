@@ -4,7 +4,7 @@ import { renderStagePrompt, runAuthoringStage, type CopilotStage, type ProposalO
 import { parseDirectorResponse, renderDirectorPrompt, type DirectorWindowMessage } from "@talk/index";
 import { buildWiCuratorPrompt, parseCuratorResponse, planCuratorProposal, type CuratorScope, type WiCuratorOp } from "@stagecraft/index";
 import { buildSceneSummaryPrompt } from "@memory/contract";
-import type { ProvisioningEnvironment } from "@wizard/index";
+import { draftCastNames, emptyEnvironment, type ProvisioningEnvironment } from "@wizard/index";
 import { DIRECTOR_MAX_TOKENS, DIRECTOR_TIMEOUT_MS } from "./talkControl";
 
 export type CalibrationRole = Exclude<PassRole, "read" | "inner">;
@@ -167,10 +167,13 @@ const runCurator: Runner<"curator"> = async (entry, options, clock) => {
   return { responses: [reply.text], finishes: [reply.finish], latencyMs: Math.round(clock() - started), score: scoreCurator(entry, reply.text) };
 };
 
+const replayEnvironment = (entry: { draft: StoryV2; environment?: ProvisioningEnvironment }): ProvisioningEnvironment =>
+  ({ ...emptyEnvironment(), castNames: draftCastNames(entry.draft), ...entry.environment });
+
 const runAuthoring: Runner<"authoring"> = async (entry, options, clock) => {
   const started = clock();
   const result = await runAuthoringStage(
-    { draft: entry.draft, stage: entry.stage, message: entry.message, history: [], ...(entry.environment ? { environment: entry.environment } : {}) },
+    { draft: entry.draft, stage: entry.stage, message: entry.message, history: [], ...(entry.environment ? { environment: replayEnvironment(entry) } : {}) },
     modelOf(options),
     { role: "authoring", pass: "copilot" },
   );

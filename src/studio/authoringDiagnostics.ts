@@ -1,6 +1,6 @@
 import type { StoryV2 } from "@engine/index";
 
-type AuthoringCode = "house-rule-compound" | "requirement-member-roster-id";
+type AuthoringCode = "house-rule-compound" | "requirement-member-roster-id" | "motive-member-unknown" | "motive-for-player";
 
 export interface AuthoringRun {
   draft: StoryV2;
@@ -14,6 +14,16 @@ const demandCount = (rule: string) => rule
   .split(/;|\s(?:and|y)\s/i)
   .map((clause) => clause.trim())
   .filter((clause) => DEMAND_OPENER.test(clause) || DEMAND_WORD.test(clause)).length;
+
+export const checkMotives = ({ draft, push }: AuthoringRun) => {
+  const cast = draft.roster.map((member) => member.id);
+  const players = ["player", "user", "{{user}}"].concat(draft.requirements?.personas ?? []).map((name) => name.trim().toLowerCase());
+  draft.checkpoints.forEach((checkpoint, index) => Object.keys(checkpoint.motives ?? {}).forEach((id) => {
+    if (cast.includes(id)) return;
+    const player = players.includes(id.trim().toLowerCase());
+    push(player ? "motive-for-player" : "motive-member-unknown", "warning", `checkpoints.${index}.motives.${id}`, player ? `'${id}' is the player` : `no cast member '${id}'`);
+  }));
+};
 
 export const isCompoundHouseRule = (rule: string): boolean => demandCount(rule) >= 2;
 

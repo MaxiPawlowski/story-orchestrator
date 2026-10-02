@@ -73,7 +73,7 @@ describe("readGuide", () => {
 
 describe("the wizards are told about the guide", () => {
   it("the agent rules name readGuide and every topic", () => {
-    const prompt = renderPlanPrompt({ goal: "g", notes: [], steps: [], plan: [], budget: { maxSteps: 4 } } as never, draft, { characterNames: [], lorebookNames: [], ownedLorebooks: [] } as never);
+    const prompt = renderPlanPrompt({ goal: "g", notes: [], steps: [], plan: [], budget: { maxSteps: 4 } } as never, draft, { characterNames: [], lorebookNames: [], ownedLorebooks: [], castNames: [], personaNames: [] } as never);
     expect(prompt).toContain("Consult readGuide(topic)");
     expect(GUIDE_TOPIC_IDS.filter((id) => !prompt.includes(id))).toEqual([]);
   });

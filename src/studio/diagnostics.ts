@@ -4,8 +4,9 @@ import {
 } from "@engine/index";
 import { directorEnabled } from "@talk/index";
 import { checkChapters } from "./chapterDiagnostics";
-import { checkHouseRules, checkRequirementMembers } from "./authoringDiagnostics";
-import { CAST_CONSEQUENCES, checkBackgrounds, checkCastCards, checkCastChangeMembers, checkPlayerInRoster, type InstallFacts } from "./castDiagnostics";
+import { checkHouseRules, checkMotives, checkRequirementMembers } from "./authoringDiagnostics";
+import { CAST_CONSEQUENCES, checkBackgrounds, checkCastCards, checkCastChangeMembers, checkNeverEnabled, checkPlayerInRoster, checkRequiredPersonas, type InstallFacts } from "./castDiagnostics";
+import { ARRIVAL_CONSEQUENCES, checkGateOpenOnArrival } from "./arrivalDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -59,6 +60,9 @@ export const DIAGNOSTIC_CODES = [
   "background-missing",
   "roster-member-is-player",
   "cast-change-unknown-member",
+  "requirement-persona-missing",
+  "gate-open-on-arrival",
+  "cast-member-never-enabled",
 ] as const;
 
 // Every code says what it costs the story before it says what is technically wrong: the
@@ -104,6 +108,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "story-dead-end": "The story stops here without an ending, so its last chapter is never written up.",
   "requirement-member-roster-id": "The story never reads as ready: it waits for a character named by a cast id, while the card has another name.",
   ...CAST_CONSEQUENCES,
+  ...ARRIVAL_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -495,16 +500,6 @@ const checkWorldInfoGating = (run: DiagnosticRun) => {
   }
 };
 
-const checkMotives = ({ draft, push }: DiagnosticRun) => {
-  const cast = draft.roster.map((member) => member.id);
-  const players = ["player", "user", "{{user}}"].concat(draft.requirements?.personas ?? []).map((name) => name.trim().toLowerCase());
-  draft.checkpoints.forEach((checkpoint, index) => Object.keys(checkpoint.motives ?? {}).forEach((id) => {
-    if (cast.includes(id)) return;
-    const player = players.includes(id.trim().toLowerCase());
-    push(player ? "motive-for-player" : "motive-member-unknown", "warning", `checkpoints.${index}.motives.${id}`, player ? `'${id}' is the player` : `no cast member '${id}'`);
-  }));
-};
-
 const DIAGNOSTIC_CHECKS = [
   checkGates,
   checkAnchorsReachable,
@@ -529,6 +524,9 @@ const DIAGNOSTIC_CHECKS = [
   checkCastChangeMembers,
   checkBackgrounds,
   checkPlayerInRoster,
+  checkRequiredPersonas,
+  checkGateOpenOnArrival,
+  checkNeverEnabled,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

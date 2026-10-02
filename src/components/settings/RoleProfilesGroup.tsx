@@ -151,7 +151,8 @@ export const RoleProfilesGroup = ({
                     onClick={() => onTest(route.role)}
                   >{testing === route.role ? "Testing…" : "Test"}</button>
                   <span data-so="role-profile-state" className={state.tone}>{state.text}</span>
-                  {authorView && route.state !== "untested" && route.state !== "ok" && <span data-so="role-profile-detail" className="min-w-0 opacity-80">{route.detail}</span>}
+                  {(authorView || harness) && route.state !== "untested" && route.state !== "ok" && route.detail
+                    ? <span data-so="role-profile-detail" className="min-w-0 opacity-80">{route.detail}</span> : null}
                 </div>
               )}
             </div>

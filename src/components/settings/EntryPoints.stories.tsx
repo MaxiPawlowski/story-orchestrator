@@ -125,6 +125,19 @@ export const RepairUnmutesAMember: Story = {
   },
 };
 
+export const RepairRemovesAMissingPersonaRequirement: Story = {
+  args: {
+    snapshot: base({ requirements: { ready: false, missingPersonas: ["The Apprentice"], absentPersonas: ["The Apprentice"], missingMembers: [], missingLorebooks: [] } }),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/requires the persona "The Apprentice", which does not exist on this install/)).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Fix with wizard" })).toBeNull();
+    await userEvent.click(canvas.getByRole("button", { name: 'Remove the "The Apprentice" persona requirement' }));
+    await expect(args.onRepairCast).toHaveBeenCalledWith({ kind: "remove-personas", members: ["The Apprentice"], label: 'Remove the "The Apprentice" persona requirement' });
+  },
+};
+
 export const NoStoryYet: Story = {
   args: { snapshot: base({ storyId: null, extraction: { settings: { enabled: false, profileId: null } } }) },
   play: async ({ canvasElement }) => {

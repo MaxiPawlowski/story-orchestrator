@@ -5,6 +5,7 @@ import { bookKey } from "./worldInfoMatch";
 
 export interface RequirementsView {
   persona: string;
+  personas?: string[];
   members: string[];
   muted?: string[];
   storyMuted?: string[];
@@ -63,6 +64,7 @@ export function readRequirements(requirements: StoryRequirements | undefined, vi
     missingPersonas,
     missingMembers,
     missingLorebooks,
+    absentPersonas: view.personas ? missingPersonas.filter((wanted) => !holds(view.personas ?? [], wanted)) : [],
     absentMembers: view.cards?.length ? missingMembers.filter((member) => !holds(view.cards ?? [], member)) : missingMembers,
     absentLorebooks: listed.length ? missingLorebooks.filter((book) => !listed.some((name) => bookKey(name) === bookKey(book))) : missingLorebooks,
     mutedMembers,

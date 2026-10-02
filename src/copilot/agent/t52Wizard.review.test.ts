@@ -45,8 +45,8 @@ const call = (tool: string, args: Record<string, unknown>) => ({ kind: "call" as
 
 describe("T5-2 HIGH: the agent's requirements name characters, never roster ids", () => {
   it("resolves roster ids to card names before the write, and says so (wizard-drafts.json:2486)", () => {
-    const turn = executeReply(running("auto-draft", createdSteps()), call("setRequirements", { requirements: { members: ["clerk", "thief"], lorebooks: ["The Pawnbroker of Forgotten Days"] } }), agentContext(pawnbroker()), META);
-    expect(turn.apply).toEqual({ kind: "setRequirements", requirements: { members: ["Ivet Marrow", "Sera Vantel"], lorebooks: ["The Pawnbroker of Forgotten Days"] } });
+    const turn = executeReply(running("auto-draft", createdSteps()), call("setRequirements", { requirements: { members: ["clerk", "thief", "Osric Vane"], lorebooks: ["The Pawnbroker of Forgotten Days"] } }), agentContext(pawnbroker()), META);
+    expect(turn.apply).toEqual({ kind: "setRequirements", requirements: { members: ["Ivet Marrow", "Sera Vantel", "Osric Vane"], lorebooks: ["The Pawnbroker of Forgotten Days"] } });
     const step = turn.session.steps.at(-1);
     expect(step).toMatchObject({ status: "applied", family: "edit" });
     expect(step?.observation).toContain("clerk → Ivet Marrow, thief → Sera Vantel");

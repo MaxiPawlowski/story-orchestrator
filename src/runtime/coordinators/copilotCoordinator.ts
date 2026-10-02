@@ -6,7 +6,7 @@ import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Sugge
 const authoring = () => import("@copilot/index");
 import type { ModelAsk, ModelCall } from "@extraction/index";
 import {
-  newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment,
+  draftCastNames, newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment,
   type ProvisioningOp, type ProvisioningResult, type WizardSessionState,
 } from "@wizard/index";
 import type { WIEntrySnapshot } from "@services/STAPI";
@@ -44,7 +44,7 @@ export class CopilotCoordinator {
   }
 
   async runStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> {
-    const environment = input.environment ?? (input.stage === "provisioning" ? this.getProvisioningEnvironment(input.draft) : undefined);
+    const environment = input.environment ?? (input.stage === "provisioning" || input.stage === "effects" ? this.getProvisioningEnvironment(input.draft) : undefined);
     return (await authoring()).runAuthoringStage({ ...input, environment }, this.deps.model, this.ask(debugResponse));
   }
 
@@ -68,6 +68,8 @@ export class CopilotCoordinator {
       // requirement, never the display name.
       ownedLorebooks: [...new Set([...this.sessionOwnedLorebooks(lorebookNames, draft), ...granted])],
       grantedLorebooks: granted,
+      castNames: draftCastNames(story),
+      personaNames: safe(host.listPersonas, []),
     };
   }
 
@@ -91,7 +93,7 @@ export class CopilotCoordinator {
 
   // The session's created-asset ledger, written where the asset is made. The UI keeps its own copy
   // for display; this is the one ownership is read back from.
-  private recordCreated(name: string, kind: "character" | "lorebook", draft?: StoryV2): void {
+  private recordCreated(name: string, kind: "character" | "lorebook" | "group", draft?: StoryV2): void {
     const existing = this.sessionFor(draft);
     const session = existing ?? newWizardSession(this.sessionKeyFor(draft));
     const books = session.createdLorebooks;
@@ -168,6 +170,7 @@ export class CopilotCoordinator {
       }
       if (!run.stillOwns()) return lapsed();
       const group = await host.createGroup(op.name, op.members);
+      this.recordCreated(group.name, "group", draft);
       return { ok: true, message: `Created the group "${group.name}" with ${group.members.length} member(s).`, created: group.name };
     } catch (error) {
       return { ok: false, message: error instanceof Error ? error.message : "Provisioning failed" };

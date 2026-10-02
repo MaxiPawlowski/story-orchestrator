@@ -7,7 +7,8 @@ const meta: Meta<typeof ProvisioningCard> = {
   component: ProvisioningCard,
   args: {
     onApply: fn(),
-    environment: { characterNames: ["Ponticius"], lorebookNames: ["Xentar Checkpoints"], groupNames: ["Xentar"], storyLorebooks: [], ownedLorebooks: [], grantedLorebooks: [] },
+    environment: { characterNames: ["Ponticius"], lorebookNames: ["Xentar Checkpoints"], groupNames: ["Xentar"], storyLorebooks: [], ownedLorebooks: [],
+      grantedLorebooks: [], castNames: [], personaNames: [] },
     op: { kind: "createCharacterCard", name: "Arin", description: "A guide who knows the ruins." },
   },
 };
@@ -39,6 +40,19 @@ export const RefusesToOverwriteAnExistingCharacter: Story = {
   },
 };
 
+export const RefusesAGroupMemberFromAnotherStory: Story = {
+  args: {
+    environment: { characterNames: ["Mira", "Master Orin"], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [],
+      grantedLorebooks: [], castNames: ["Master Orin"], personaNames: [] },
+    op: { kind: "createGroup", name: "The Redrawn Kingdom", members: ["Mira", "Master Orin"] },
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(await canvas.findByText(/Not in this story's cast: "Mira"/)).toBeInTheDocument();
+    await expect(canvas.getByRole("button", { name: "Create it" })).toBeDisabled();
+  },
+};
+
 export const OnlyWritesIntoTheStorysOwnLorebook: Story = {
   args: { op: { kind: "upsertLorebookEntry", lorebook: "Xentar Checkpoints", comment: "The ruins", keys: ["ruins"], content: "Sunken halls." } },
   play: async ({ canvasElement }) => {
@@ -52,7 +66,8 @@ export const OnlyWritesIntoTheStorysOwnLorebook: Story = {
 // editable, and then the author sees the existing content beside the replacement before applying.
 export const ShowsTheEntryItWouldReplace: Story = {
   args: {
-    environment: { characterNames: [], lorebookNames: ["Xentar Checkpoints"], groupNames: [], storyLorebooks: ["Xentar Checkpoints"], ownedLorebooks: ["Xentar Checkpoints"], grantedLorebooks: [] },
+    environment: { characterNames: [], lorebookNames: ["Xentar Checkpoints"], groupNames: [], storyLorebooks: ["Xentar Checkpoints"], ownedLorebooks: ["Xentar Checkpoints"],
+      grantedLorebooks: [], castNames: [], personaNames: [] },
     op: { kind: "upsertLorebookEntry", lorebook: "Xentar Checkpoints", comment: "The ruins", keys: ["ruins"], content: "Sunken halls, three days east." },
     existing: { content: "Sunken halls.", keys: ["ruins"], constant: false },
   },
@@ -67,7 +82,8 @@ export const ShowsTheEntryItWouldReplace: Story = {
 
 export const SaysWhenNothingIsThereYet: Story = {
   args: {
-    environment: { characterNames: [], lorebookNames: ["Xentar Checkpoints"], groupNames: [], storyLorebooks: ["Xentar Checkpoints"], ownedLorebooks: ["Xentar Checkpoints"], grantedLorebooks: [] },
+    environment: { characterNames: [], lorebookNames: ["Xentar Checkpoints"], groupNames: [], storyLorebooks: ["Xentar Checkpoints"], ownedLorebooks: ["Xentar Checkpoints"],
+      grantedLorebooks: [], castNames: [], personaNames: [] },
     op: { kind: "upsertLorebookEntry", lorebook: "Xentar Checkpoints", comment: "The ruins", keys: ["ruins"], content: "Sunken halls." },
     existing: null,
   },

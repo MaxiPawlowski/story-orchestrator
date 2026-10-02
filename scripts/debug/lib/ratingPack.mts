@@ -72,6 +72,30 @@ export function sessionCandidates(gate: BlindGate, input: SessionCandidateInput)
   return found.filter((candidate) => spec.arms.includes(candidate.arm));
 }
 
+export const PACK_SESSION_RULE = 'only VALID sessions count; per gate, arm and key (a premise for W6, a chat message for replies) the latest valid session wins';
+
+export interface PackSession { dir: string; session: any; candidates: Candidate[] }
+
+const sessionStamp = (entry: PackSession): string => String(entry.session?.stoppedAt ?? entry.session?.startedAt ?? '');
+
+export function packCandidates(entries: PackSession[]): { candidates: Candidate[]; skippedInvalid: string[]; superseded: string[] } {
+  const valid = entries.filter((entry) => entry.session?.valid === true);
+  const skippedInvalid = entries.filter((entry) => entry.session?.valid !== true).map((entry) => entry.dir);
+  const latest = new Map<string, { candidate: Candidate; stamp: string }>();
+  const superseded: string[] = [];
+  for (const entry of valid) {
+    const stamp = sessionStamp(entry);
+    for (const candidate of entry.candidates) {
+      const slot = `${candidate.gate}|${candidate.arm}|${candidate.key}`;
+      const held = latest.get(slot);
+      if (held && held.stamp >= stamp) { superseded.push(candidate.source); continue; }
+      if (held) superseded.push(held.candidate.source);
+      latest.set(slot, { candidate, stamp });
+    }
+  }
+  return { candidates: [...latest.values()].map((held) => held.candidate), skippedInvalid, superseded };
+}
+
 export function armRefusal(gates: readonly BlindGate[], arm: string | null | undefined): string | null {
   if (!arm) return null;
   if (!gates.length) return `--arm ${arm}: this card feeds no blind gate`;
