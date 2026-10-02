@@ -35,6 +35,7 @@ import { generationWatch } from "./generationWatch";
 import { recordNpcReplyFire, recordOnEnterPost } from "./npcReplyRewind";
 import { isRecord } from "@utils/guards";
 import { castInPlayNote } from "./castInPlay";
+import { InFlight } from "./inFlight";
 
 // What a host effect changed, read back from the host as it is NOW. Every reader is a
 // QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
@@ -188,6 +189,8 @@ export const PENDING_NOT_SAVED = "the effect was not applied: its write-ahead re
 
 export type RestoreScope = "leave" | "exit" | "restart" | { since: number };
 
+type EffectScope = { checkpointId: string | null; boundary: number; messageId: number };
+
 const openChatId = () => String(getContext().chatId ?? "");
 
 export class EffectsApplier {
@@ -196,6 +199,7 @@ export class EffectsApplier {
 
   private appliedChat: string | null = null;
   private applying: { key: string; run: RunGuard; done: Promise<void> } | null = null;
+  private readonly castWrites = new InFlight();
 
   // The one thing a transition posts into the chat itself: a compact system note naming where the
   // story moved (opt-out in settings), kept to one line.
@@ -304,9 +308,9 @@ export class EffectsApplier {
       );
     }
     if (!run.stillOwns()) return;
-    if (ready && mode === "hydrate") await this.applyCastMirror(extras, scope, run);
+    if (ready && mode === "hydrate") await this.castWrites.track(this.applyCastMirror(extras, scope, run));
     if (!run.stillOwns()) return;
-    if (ready && effects.cast_changes !== undefined) await this.applyCastChanges(effects.cast_changes, extras, scope, run, mode === "activate" ? checkpoint.name : null);
+    if (ready && effects.cast_changes !== undefined) await this.castWrites.track(this.applyCastChanges(effects.cast_changes, extras, scope, run, mode === "activate" ? checkpoint.name : null));
     // Deterministic stagecraft: idempotent, so hydrating a chat and rolling back into this
     // checkpoint both restore its background without re-triggering anything.
     // `applyCastChanges` awaits once per member, so this needs its own check: without it the
@@ -322,7 +326,7 @@ export class EffectsApplier {
     }
     for (const extension of ready ? effectExtensions() : []) {
       if (!run.stillOwns()) return;
-      await this.applyExtension(extension, { story, checkpoint, path, ledger: extras.effects.ledger, mode }, extras, scope);
+      await this.applyExtension(extension, { story, checkpoint, path, ledger: extras.effects.ledger, mode }, extras, scope, run);
     }
     if (!run.stillOwns()) return;
     this.appliedChat = openChatId();
@@ -333,7 +337,9 @@ export class EffectsApplier {
     extras.updatedAt = new Date().toISOString();
   }
 
-  private async applyExtension(extension: EffectExtension, input: EffectExtensionInput, extras: RuntimeExtras, scope: { checkpointId: string | null; boundary: number; messageId: number }) {
+  private async applyExtension(extension: EffectExtension, input: EffectExtensionInput, extras: RuntimeExtras, scope: EffectScope, run: RunGuard) {
+    await this.castWrites.settled();
+    if (!run.stillOwns()) return;
     const { step, notes } = extension.plan(input);
     for (const note of notes) this.deps.journal?.(note.summary, note.detail);
     if (!step) return;
@@ -376,7 +382,7 @@ export class EffectsApplier {
 
   // Each member the effect names is one decision about a shared group, so each is its own row: a
   // two-member change that fails on the second leaves the first recorded and restorable.
-  private async applyCastChanges(value: unknown, extras: RuntimeExtras, scope: { checkpointId: string | null; boundary: number; messageId: number }, run: RunGuard, entering: string | null) {
+  private async applyCastChanges(value: unknown, extras: RuntimeExtras, scope: EffectScope, run: RunGuard, entering: string | null) {
     if (!isRecord(value)) return;
     const group = getActiveGroup();
     const dropped = entering ? castInPlayNote(entering, readStrings(value.disable), getContext().chat) : null;
@@ -401,7 +407,7 @@ export class EffectsApplier {
     }
   }
 
-  private async applyCastMirror(extras: RuntimeExtras, scope: { checkpointId: string | null; boundary: number; messageId: number }, run: RunGuard) {
+  private async applyCastMirror(extras: RuntimeExtras, scope: EffectScope, run: RunGuard) {
     const group = getActiveGroup();
     if (!group) return;
     for (const { member, disabled } of extras.effects.cast) {
@@ -443,7 +449,7 @@ export class EffectsApplier {
     const { steps, refused } = restorePlan(rows.filter((row) => RESTORABLE.has(row.target.kind)), this.reads());
     for (const row of refused) extras.effects.ledger = setStatus(extras.effects.ledger, row.id, "externally-changed", { found: row.found });
     let reverted = 0;
-    for (const { row, restored } of await runRestoreSteps(steps, this.deps.restore, this.deps.restoreCast)) {
+    for (const { row, restored } of await this.castWrites.track(runRestoreSteps(steps, this.deps.restore, this.deps.restoreCast))) {
       extras.effects.ledger = setStatus(extras.effects.ledger, row.id, restored ? "reverted" : "revert-failed", restored ? {} : { reason: `could not restore ${row.effect}` });
       if (restored) reverted += 1;
     }

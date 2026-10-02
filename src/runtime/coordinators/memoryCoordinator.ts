@@ -29,7 +29,7 @@ import type { JudgeRuntime } from "../judge";
 import { beginRun, type RunOwnership } from "../runToken";
 import type { MemoryHosts } from "../hostPorts";
 import { playerTurnIds } from "../agencyRecovery";
-import { computeEntryTokens, tokensFor } from "../entryTokens";
+import { computeEntryTokens, fitEntryToBlock, tokensFor } from "../entryTokens";
 import { enabledCharacterNames, rosterMemberName } from "../roster";
 import { VERIFY_DROP_LIMIT, type MemoryBackfillState, type MemoryRuntimeState, type VerifyDrop } from "../types";
 import { required } from "@utils/guards";
@@ -199,6 +199,7 @@ export class MemoryCoordinator {
   async replaceShortTerm(entry: MemoryEntry, window: { from: number; to: number }, place: ShortTermPlacement = rollingShortTerm) {
     const run = beginRun(this.deps.ownership, window);
     await computeEntryTokens(this.deps.hosts.tokens, [entry]);
+    await fitEntryToBlock(this.deps.hosts.tokens, entry, this.state.settings.tierTokenBudgets.short_term);
     if (!run.stillOwns()) return;
     const limits = () => ({ rows: this.state.settings.tierBudgets.short_term, tokens: this.state.settings.tierTokenBudgets.short_term });
     const { entries, inputs } = place(this.state.entries, entry, limits);
