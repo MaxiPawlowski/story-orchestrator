@@ -1,6 +1,6 @@
 # Plan 03 — Spike re-evaluation on Adolion (SP1–SP10)
 
-**Status: APPROVED 2026-09-30; SP7, SP2, SP3, SP5, SP9 run 2026-10-01 (gate record below); SP8, SP4, SP6, SP1, SP10 not yet.** SP7 goes first (W17). The spike legs are measurements and run in
+**Status: APPROVED 2026-09-30; SP7, SP2, SP3, SP5, SP9 run 2026-10-01, SP5 C1–C5, SP8, SP3.b Phase B and SP4 run 2026-10-01/02 (gate records below); SP6, SP1, SP10 not yet.** SP7 goes first (W17). The spike legs are measurements and run in
 plan 15 Part B on the €20 RunPod budget (W28); any rater leg is recorded for the user's review (overview rule 11).
 
 v2.5 plan 09 ran all ten spikes on toy stories: two members, one room and a dozen lorebook entries. Several stalled
@@ -92,3 +92,24 @@ planted-import control in `src/runtime/devOnly.guard.test.ts`. Gates: see the br
 caveats in `14-findings.md`), `spikes.sp7Chance` removed, `engine/chance.ts` + `runtime/chance.ts` off the D3 dev-only list
 (guard case added). SP3.b: built director-only; its Phase B bar (A2 ×2, ≤ 3.30 / ≤ 2.87 per 50) is owed live and decides keep
 or drop.
+
+## Gate record (2026-10-01/02: SP5 C1–C5, SP8, SP3.b Phase B, SP4)
+
+Branch `v26-spikes-03b`, lane 2 only. Bundles: SP5 `cc7c9153e48a` (pin `59e8821`); SP8 `6566f7f8e418` (slot restaged
+between W3 attempts, stated); SP3.b and SP4 `8319f7535e1e` (master `948e0d13`, pin `884380b`, preset overlay
+`4af4006b7801`; SP4 on pod `m4dmlnzn70qgj2`). Orchestrator route `deepseek 4.1 flash` throughout; Artemis for turns.
+
+| Spike | Restated | Result | Call |
+|---|---|---|---|
+| SP5 | `03-sp5-restated.md` (+ addenda 5–7) | **C1 10/10, C2 both orders, C3, C4, C5 PASS ×1** (attempts 1–2 stopped on fixture timing/journal slice, stated) | **include** → `SP5.b` (C4 (c) caveat on jumps) |
+| SP8 | `03-sp8-restated.md` (+ addenda 1–2) | **W3 PASS ×2** on the Chronicle (23/3, 32/2 proposals/refused, 0 violations); **W4 (b) FAIL** (opShape 0.81 / 0.76) | tiers + spans **include** → `SP8.b`; digest **drop** (removed `8017879f`) |
+| SP3.b | `03-sp3-restated.md` §SP3.b (+ addendum 1) | **Phase B PASS ×2**: 2.01 and 2.87 wrong-or-null per 50 (bars 3.30 / 2.87); first attempt lost to a DeepSeek outage | **kept** (accepted in 04) |
+| SP4 | `03-sp4-restated.md` (+ addenda 1–4) | **T3 FAIL**: rolling 0.000 / 0.000, append 0.000 (k=2 append lost to an empty backend reply; k=1 decides); distractor arm not run (lead) | **drop** (removed `dc110330`) |
+
+D3: `DROPPED_SPIKES` gains `stagecraft/curatorDigest.ts` and `memory/shortTermAppend.ts` (planted-import control); the
+spike-module control now plants `curatorTiers`. Infrastructure seen: host disk full (ENOSPC, 16:40Z) killed lane 2's
+server mid-W3; DeepSeek hung for every lane ~19:50–21:32Z; the pod was replaced; one tunnel drop 00:20Z.
+
+Gates on `dc110330`: `npm run gates -- --no-storybook` **all green** — typecheck, typecheck:test, lint, test (420 suites,
+5458 passed, 1 skipped), build, build:dev, test:debug, debug:typecheck, test:release, test:replay, test:plugin.
+**Storybook skipped** (`--no-storybook`).

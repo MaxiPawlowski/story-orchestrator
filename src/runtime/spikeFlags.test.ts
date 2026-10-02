@@ -4,7 +4,6 @@ const ALL_OFF = {
   swipeBackCache: false,
   sp5Scenario: false,
   sp6Complications: false,
-  sp4AppendShortTerm: false,
   sp8CuratorTiers: false,
   reasoningEffect: false,
 };
@@ -16,9 +15,9 @@ describe("v2.5 plan 09 rule 2: every spike flag is install-wide and off by defau
   });
 
   it("takes only a literal true, so a stray value never switches a spike on", () => {
-    expect(sanitizeGlobalSettings({ spikes: { sp4AppendShortTerm: true } }).spikes).toEqual({ ...ALL_OFF, sp4AppendShortTerm: true });
-    expect(sanitizeGlobalSettings({ spikes: { sp8CuratorTiers: true, sp4AppendShortTerm: 1 } }).spikes).toEqual({ ...ALL_OFF, sp8CuratorTiers: true });
-    expect(sanitizeGlobalSettings({ spikes: { sp4AppendShortTerm: "yes" } }).spikes).toEqual(ALL_OFF);
+    expect(sanitizeGlobalSettings({ spikes: { sp6Complications: true } }).spikes).toEqual({ ...ALL_OFF, sp6Complications: true });
+    expect(sanitizeGlobalSettings({ spikes: { sp8CuratorTiers: true, sp6Complications: 1 } }).spikes).toEqual({ ...ALL_OFF, sp8CuratorTiers: true });
+    expect(sanitizeGlobalSettings({ spikes: { sp6Complications: "yes" } }).spikes).toEqual(ALL_OFF);
     expect(sanitizeGlobalSettings({ spikes: "on" }).spikes).toEqual(ALL_OFF);
   });
 });

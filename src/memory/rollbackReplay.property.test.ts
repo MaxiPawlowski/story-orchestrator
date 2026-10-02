@@ -23,7 +23,6 @@ import { pushBeat } from "./innerRender";
 import { applyLedgerSignals, buildLedgerView } from "./ledger";
 import { reverseMemoryState, type MemoryRollbackState, type SealSkip } from "./reverse";
 import { addMemoryEntries, createMemoryState, excludeEntry, hashMemoryText, rollingShortTerm, type ShortTermPlacement } from "./stores";
-import { appendShortTerm } from "./shortTermAppend";
 import type { ArcEntry, ChapterDisposition, ChapterRecord, ChronicleState, EpistemicEntry, InnerBeat, LedgerEntry, MemoryEntry } from "./types";
 import { foldChapter, foldEpistemic } from "./chapterFold";
 import { commitRecordBridge, markRecapSeen, pendingBridge, pushSealSkip, unfoldAt } from "./chapterUnfold";
@@ -224,7 +223,6 @@ const stepWith = (shape: ShortTermPlacement) => (world: World, op: Op): World =>
 };
 
 const step = stepWith(rollingShortTerm);
-const appendStep = stepWith(appendShortTerm);
 
 const rollbackTo = (world: World, messageId: number, boundary: number): World => {
   const next = reverseMemoryState(world as World & Pick<MemoryRollbackState, "storyStart">, messageId, boundary, unfoldAt);
@@ -333,22 +331,6 @@ describe("v2.6 plan 06 B: the generator reaches intents, their restatements and 
 
 describe("v2.4 T1: a middle delete through the decoder is replay without the removed message", () => {
   it.each(SEEDS)("holds for random middle deletes of one to three messages (seed %i)", (seed) => middleDeletes(seed, step));
-});
-
-describe("v2.5 plan 09 SP4 T1: rollback is replay with the append-only short_term", () => {
-  it.each(SEEDS)("holds across random sequences (seed %i)", (seed) => randomCuts(seed, appendStep));
-  it.each(SEEDS)("holds for random middle deletes of one to three messages (seed %i)", (seed) => middleDeletes(seed, appendStep));
-
-  it("control: the generator really rotates and appends, so the property is not vacuous for this shape", () => {
-    const kinds: Op["kind"][] = ["read", "read", "ledger", "epistemic", "consolidate", "exclude", "compact"];
-    const random = rng(SEEDS[0]);
-    const ops: Op[] = Array.from({ length: 60 }, (_, index) => ({ kind: kinds[Math.floor(random() * kinds.length)], messageId: index, index }));
-    const full = ops.reduce(appendStep, emptyWorld());
-    const compactions = full.derived.filter((record) => record.kind === "short_term");
-    expect(full.entries.filter((entry) => entry.tier === "short_term").length).toBe(SHORT_TERM_LIMITS.rows);
-    expect(compactions.some((record) => (record.removed ?? []).length > 0)).toBe(true);
-    expect(compactions.every((record) => record.inputs.length === 0)).toBe(true);
-  });
 });
 
 describe("v2.6 plan 07: rollback is replay across chapter seals", () => {

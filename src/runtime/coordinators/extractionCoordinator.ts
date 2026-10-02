@@ -392,14 +392,13 @@ export class ExtractionCoordinator {
     if (!this.shouldCompactShortTerm(lastId)) return;
     const window = this.deps.hosts.chat.chatWindow(memory.shortTermSummaryEnd + 1, lastId);
     if (!window.messages.length) return;
-    const append = this.deps.spikes?.().sp4AppendShortTerm ? await import("@memory/shortTermAppend") : null;
-    const previous = append ? undefined : memory.shortTermEntry();
+    const previous = memory.shortTermEntry();
     if (previous?.pinned) return;
     // This one REPLACES the rolling short-term entry, so a stale result does not merely add noise
     // — it overwrites the live summary with one describing another chat or an edited window.
     const run = beginRun(this.deps.ownership, { from: window.from, to: window.to });
     const fit = await fitShortTerm(window.messages, previous?.text ?? null, this.budget("synthesis"));
-    const prompt = append ? append.buildShortTermWindowPrompt(fit.text) : buildShortTermSummaryPrompt(previous?.text ?? null, fit.text);
+    const prompt = buildShortTermSummaryPrompt(previous?.text ?? null, fit.text);
     const summary = stripChannelNoise(await askText(this.deps.model, prompt, {
       role: "synthesis", pass: "shortTerm", maxTokens: maxTokensFor("shortTerm", fit.tokens), signal: run.signal, refuseIncomplete: true,
     }));
@@ -408,7 +407,7 @@ export class ExtractionCoordinator {
     const entry = this.newEntry({ provenance: this.provenanceFor(span, "short-term-compaction"), tier: "short_term",
         text: summary, type: "scene", importance: 2, expiration: "session", entities: [], evidence: fit.text,
         messageId: span.to });
-    await memory.replaceShortTerm(entry, span, append?.appendShortTerm);
+    await memory.replaceShortTerm(entry, span);
     memory.updateInjection();
     await this.save();
   }

@@ -51,3 +51,17 @@ narrator's profile (Gemma 4 empty thought channel + min_p first sampler order): 
 superseded series, which is why that series is not mixed in. The pod is shared with up to 3 T2 lanes, so turns are
 slower; a run lost to a 300 s generation timeout is a harness failure (not measured) and is re-run at the end of the
 series, stated in a further addendum first.
+
+## Addendum 3 2026-10-01 22:25Z — distractor arm not run (bar unchanged)
+
+At ~80 s per turn on the shared pod (≈ 80 min per run), the lead asked to stop after the four English T3 runs (the
+bar) and to skip the distractor arm, which carries no bar, to save pod time for T3–T7. The distractor arm is recorded
+**not run**; T3 is scored on en-rolling ×2 and en-append ×2 exactly as stated above.
+
+## Addendum 4 2026-10-02 02:00Z — after the series (bars unchanged)
+
+En-rolling ×2 and en-append run 1 completed; en-append run 2 stopped at turn 25 on an empty Artemis reply
+(`send_generate` with 0 characters; harness/backend, not measured). It is **not re-run**: the bar needs k = 1 **and**
+k = 2, and k = 1 already reads append 0.000 < rolling 0.000 + 0.15, so no k = 2 value can turn T3 into a PASS. One
+`/tokenize` ECONNRESET during the 00:20Z tunnel drop affected token counting only; every turn of the scored runs
+replied. A distractor-rolling log with 0 turns exists because the stop came at the item boundary (not run, addendum 3).

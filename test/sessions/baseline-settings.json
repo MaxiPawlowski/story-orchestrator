@@ -174,7 +174,6 @@
       "swipeBackCache": false,
       "sp5Scenario": false,
       "sp6Complications": false,
-      "sp4AppendShortTerm": false,
       "sp8CuratorTiers": false,
       "reasoningEffect": false
     }
