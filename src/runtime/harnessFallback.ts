@@ -20,10 +20,11 @@ export interface FallbackInput {
   exists: (profileId: string) => boolean;
   run: (route: ModelRoute) => Promise<ExtractionReply>;
   note: NoteCall;
+  fallback?: ModelRoute | null;
 }
 
 export async function answerFallback(input: FallbackInput): Promise<ExtractionReply> {
-  const fallback = fallbackRoute(input.settings, input.role, input.exists);
+  const fallback = input.fallback === undefined ? fallbackRoute(input.settings, input.role, input.exists) : input.fallback;
   if (!fallback) throw input.error;
   const startedAt = Date.now();
   let answer: ExtractionReply;

@@ -4,6 +4,7 @@ export const PROBE_MAX_TOKENS = 8;
 export const PROBE_TIMEOUT_MS = 10000;
 export const PROBE_TIMEOUT_MAX_MS = BREAKER_BACKOFF_MS[BREAKER_BACKOFF_MS.length - 1];
 export const DANGLING_PROFILE_DETAIL = "The selected memory model profile no longer exists";
+export const FAILOVER_STRIKES = 2;
 
 export type ProbeTrigger = "backoff" | "online-status" | "profile-updated" | "player";
 export type FailureClass = "lapsed" | "transport" | "config" | "exhausted" | "busy" | "bug";
@@ -23,8 +24,15 @@ export interface BreakerEntry {
 }
 
 export type ExtractionHealth =
-  | { kind: "transport"; detail: string; since: number; nextProbeAt: number; probing: boolean }
+  | { kind: "transport"; detail: string; since: number; nextProbeAt: number; probing: boolean; fallback?: string }
   | { kind: "config"; detail: string };
+
+export type FailoverFailure = "timeout" | "transport";
+
+export interface FailoverGate {
+  open(profileId: string): boolean;
+  failed(profileId: string, kind: FailoverFailure, detail: string): void;
+}
 
 export const failureClass = (error: unknown): FailureClass => {
   const kind = error instanceof Error && error.name === "ModelCallError" && "kind" in error ? error.kind : null;

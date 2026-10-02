@@ -80,9 +80,16 @@ export interface ExpansionActivity {
 export const expansionInFlight = (expansion: ExpansionRuntimeState): boolean =>
   Boolean(expansion.scheduler.inFlight) || Object.values(expansion.entries).some((entry) => entry.status === "queued" || entry.status === "generating");
 
+export const failoverDetail = (fallback: string): string => `Memory model unreachable, using ${fallback}`;
+
 export function derivePipelineStatus(
   extraction: ExtractionRuntimeState, expansion?: ExpansionActivity, health: ExtractionHealth | null = null, ended = false, active: { id: string } | null = null,
 ): PipelineStatus {
+  const status = baseStatus(extraction, expansion, health, ended, active);
+  return health?.kind === "transport" && health.fallback && !status.detail ? { ...status, detail: failoverDetail(health.fallback) } : status;
+}
+
+function baseStatus(extraction: ExtractionRuntimeState, expansion: ExpansionActivity | undefined, health: ExtractionHealth | null, ended: boolean, active: { id: string } | null): PipelineStatus {
   if (ended) return { state: "complete", text: "The story has ended. You can keep playing on in the epilogue.", detail: null, needsSetup: false, nextAction: null };
   const problem = pipelineProblem(extraction, health, active?.id ?? null);
   if (problem) return problem;
@@ -114,7 +121,7 @@ function pipelineProblem(extraction: ExtractionRuntimeState, health: ExtractionH
       nextAction: "repair",
     };
   }
-  if (health?.kind === "transport") {
+  if (health?.kind === "transport" && !health.fallback) {
     return { state: "stalled-rechecking", text: TRANSPORT_PLAYER_TEXT, detail: health.detail, needsSetup: false, nextAction: "retry", retryable: true };
   }
   const openHere = (event: { resolvedAt: string | null; checkpointId: string }) => event.resolvedAt === null && (activeCheckpointId === null || event.checkpointId === activeCheckpointId);

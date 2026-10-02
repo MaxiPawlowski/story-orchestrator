@@ -24,6 +24,7 @@ export type RoleRoutes = Partial<Record<PassRole, RoleRouteEntry>>;
 
 export interface RouteSettings {
   profileId: string | null;
+  fallbackProfileId?: string | null;
   profiles?: PassProfiles;
   routes?: RoleRoutes;
   reasoningBudget?: ReasoningBudget;

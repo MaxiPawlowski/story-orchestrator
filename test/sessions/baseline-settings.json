@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "about": "Plan 14 session baseline: every install-wide setting the product reads. so-session start writes it over the lane's settings (keeping only the installOwned paths), applies the card's overrides, reloads, and asserts what the runtime reads back. Judge on with every use (user decisions 2026-09-30 and 2026-10-01: a configured key is consent, there is no notice gate). Images off, sprites off: no lane may reach the shared ComfyUI. Reasoning harvest on (user decision 2026-10-02: the lanes run the thinking preset overlay, so replies carry reasoning).",
+  "about": "Plan 14 session baseline: every install-wide setting the product reads. so-session start writes it over the lane's settings (keeping only the installOwned paths), applies the card's overrides, reloads, and asserts what the runtime reads back. Judge on with every use (user decisions 2026-09-30 and 2026-10-01: a configured key is consent, there is no notice gate). Images off, sprites off: no lane may reach the shared ComfyUI. Reasoning harvest on (user decision 2026-10-02: the lanes run the thinking preset overlay, so replies carry reasoning). Memory model fallback = the lane profile Story Orchestrator Memory RunPod (c400ff9a, Artemis on the pod at http://127.0.0.1:18080), so a DeepSeek outage moves the orchestrator passes to the pod instead of holding them (2026-10-02).",
   "installOwned": [
     "extraction.profileId",
     "extraction.profiles",
@@ -20,6 +20,7 @@
   "settings": {
     "extraction": {
       "enabled": true,
+      "fallbackProfileId": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
       "cadence": 3,
       "reconciliationMultiplier": 1.5,
       "stabilityLag": 0

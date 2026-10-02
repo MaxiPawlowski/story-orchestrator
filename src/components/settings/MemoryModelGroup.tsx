@@ -14,6 +14,7 @@ import type { PassRole } from "@extraction/passRole";
 import { GroupHeader } from "./GroupHeader";
 import { CheckRow, FieldLabel } from "./Field";
 import { RoleProfilesGroup, type HarnessOption, type RoleHarnessRoute } from "./RoleProfilesGroup";
+import { FallbackProfileField } from "./FallbackProfileField";
 import { log } from "@utils/log";
 
 type Settings = RuntimeSnapshot["extraction"]["settings"];
@@ -165,6 +166,8 @@ export const MemoryModelGroup = ({ snapshot, manager }: { snapshot: RuntimeSnaps
           {profiles.map((profile) => <option key={profile.id} value={profile.id}>{profile.name}{profile.model ? ` (${profile.model})` : ""}</option>)}
         </select>
       </div>
+      <FallbackProfileField value={settings.fallbackProfileId ?? null} primary={settings.profileId} profiles={profiles}
+        onChange={(fallbackProfileId) => manager.setExtractionSettings({ fallbackProfileId })} />
       <AdvancedExtraction settings={settings} manager={manager} />
       {settings.enabled && !settings.profileId && (
         <div id="so-not-configured" className="text-xs so-warning-text">Not configured: pick a memory model profile above and every chat, including this one, starts advancing on its own.</div>

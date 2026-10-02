@@ -3,7 +3,9 @@ import type { ParsedArcSignal, ParsedEpistemicSignal, ParsedLedgerSignal, Parsed
 import type { ExtraGateSource, TypedJudge } from "./types";
 import { getChatWindow } from "./chatWindow";
 import { isCueReason, mergeCueReasons } from "./cues";
-import { Breaker, DANGLING_PROFILE_DETAIL, failedProfile, failedRetryAt, failureClass, probeTimeoutMs, type ExtractionHealth, type ProbeResult, type ProbeTrigger } from "./breaker";
+import { Breaker, DANGLING_PROFILE_DETAIL, failedProfile, failedRetryAt, failureClass, probeTimeoutMs } from "./breaker";
+import type { ExtractionHealth, ProbeResult, ProbeTrigger } from "./breaker";
+import { Failover, recovered, transportHealth, tripped } from "./failover";
 import { isLapse } from "./modelError";
 import { isHarnessKey } from "@utils/harness";
 import type { ModelCall } from "./modelRoute";
@@ -14,6 +16,7 @@ import type { ParsedFact, SharedReadAudit, SharedReadWindow } from "./types";
 export interface SchedulerSettings {
   enabled: boolean;
   profileId: string | null;
+  fallbackProfileId?: string | null;
   cadence: number;
   reconciliationMultiplier: number;
   stabilityLag: number;
@@ -78,6 +81,7 @@ export interface SchedulerHost {
   probeModel?(profileId: string, timeoutMs?: number): Promise<ProbeResult>;
   mutationSettled?(): Promise<unknown>;
   profileExists?(profileId: string): boolean;
+  profileName?(profileId: string): string;
   /** The route key the background lane's passes go to (synthesis); unset = the read route. */
   heavyRouteKey?(): string | null;
   epoch?: () => number;
@@ -120,6 +124,12 @@ export class ExtractionScheduler {
   private readonly probeTimers = new Map<string, ReturnType<typeof setTimeout>>();
   private readonly probing = new Map<string, Promise<boolean>>();
   private readonly answered = new Map<string, number[]>();
+  private readonly failover = new Failover({
+    isOpen: (id) => this.breaker.isOpen(id), usable: (id) => !this.profileProblems.has(id) && !this.dangling(id),
+    fallbackId: () => this.host.getExtractionSettings().fallbackProfileId ?? null, name: (id) => this.host.profileName?.(id) ?? id,
+    trip: (id, detail) => { this.trip(id, detail); this.host.onSchedulerChange(); },
+  });
+  readonly gate = this.failover.gate;
   private configProblem: string | null = null;
   private readonly profileProblems = new Map<string, string>();
   private readonly heavyQueue: SchedulerJob[] = [];
@@ -248,7 +258,7 @@ export class ExtractionScheduler {
   }
 
   breakerOpen(profileId: string | null = this.readProfile()): boolean {
-    return Boolean(profileId && this.breaker.isOpen(profileId));
+    return Boolean(profileId && this.breaker.isOpen(profileId) && !this.failover.fallbackFor(profileId));
   }
 
   /** A routed profile's own reading, for its Repair row. */
@@ -256,19 +266,17 @@ export class ExtractionScheduler {
     if (profileId === this.readProfile() && this.configProblem) return { kind: "config", detail: this.configProblem };
     const problem = this.profileProblems.get(profileId);
     if (problem) return { kind: "config", detail: problem };
-    const entry = this.breaker.entry(profileId);
-    return entry ? { kind: "transport", detail: entry.lastFailure, since: entry.openedAt, nextProbeAt: entry.nextProbeAt, probing: entry.phase === "half-open" } : null;
+    return transportHealth(this.breaker.entry(profileId), this.failover.name(profileId));
   }
 
   private runnable(queue: SchedulerJob[]): number {
-    return queue.findIndex((job) => !job.heldOn || !this.breaker.isOpen(job.heldOn));
+    return queue.findIndex((job) => !job.heldOn || !this.breakerOpen(job.heldOn));
   }
 
   health(): ExtractionHealth | null {
     if (this.configProblem) return { kind: "config", detail: this.configProblem };
     const profileId = this.host.getExtractionSettings().profileId;
-    const entry = profileId ? this.breaker.entry(profileId) : null;
-    return entry ? { kind: "transport", detail: entry.lastFailure, since: entry.openedAt, nextProbeAt: entry.nextProbeAt, probing: entry.phase === "half-open" } : null;
+    return transportHealth(profileId ? this.breaker.entry(profileId) : null, this.failover.name(profileId));
   }
 
   private dangling(profileId: string | null): boolean {
@@ -302,10 +310,11 @@ export class ExtractionScheduler {
   }
 
   noteAnswered(profileId: string, ms: number) {
+    this.failover.clear(profileId);
     this.answered.set(profileId, [...(this.answered.get(profileId) ?? []), Math.max(0, ms)].slice(-ANSWERED_SAMPLES));
     if (!this.breaker.close(profileId)) return;
     this.clearProbeTimer(profileId);
-    this.host.noteHealth?.("memory model answering again", `a model call answered in ${Math.round(ms)} ms`);
+    this.host.noteHealth?.(recovered(this.failover.name(profileId)), `a model call answered in ${Math.round(ms)} ms`);
     this.host.onSchedulerChange();
     this.pumpAll();
   }
@@ -326,7 +335,7 @@ export class ExtractionScheduler {
     if (!this.breaker.isOpen(profileId)) return result.ok;
     if (result.ok) {
       this.breaker.close(profileId);
-      this.host.noteHealth?.("memory model answering again", `probe (${trigger}) succeeded`);
+      this.host.noteHealth?.(recovered(this.failover.name(profileId)), `probe (${trigger}) succeeded`);
     } else if (result.kind === "config") {
       this.breaker.close(profileId);
       const detail = this.dangling(profileId) ? DANGLING_PROFILE_DETAIL : result.message ?? "the memory model profile cannot be used";
@@ -348,7 +357,7 @@ export class ExtractionScheduler {
 
   private trip(profileId: string, detail: string, holdUntil: number | null = null) {
     if (!this.breaker.trip(profileId, detail, Date.now(), holdUntil)) return;
-    this.host.noteHealth?.(profileId === this.readProfile() ? "memory model not answering; reads held" : `model profile ${profileId} not answering; its passes held`, detail);
+    this.host.noteHealth?.(tripped(profileId, profileId === this.readProfile(), this.failover.name(profileId)), detail);
     this.armProbe(profileId);
   }
 

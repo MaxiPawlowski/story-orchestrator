@@ -36,6 +36,24 @@ test('spend: the product\'s model-call ring supplies the cost, matched by the ro
   assert.ok(Math.abs((spend.orchestrator.costUsd ?? 0) - 0.003) < 1e-9);
 });
 
+test('spend: the ring says which profile answered each orchestrator pass, primary or the outage fallback, and the budget table shows it', () => {
+  const modelCalls = [
+    { at: '2026-10-01T10:01:00Z', route: 'ds-profile', result: 'ok' },
+    { at: '2026-10-01T10:02:00Z', route: 'ds-profile', result: 'timeout' },
+    { at: '2026-10-01T10:02:01Z', route: 'artemis-memory', result: 'fallback', fallbackFrom: 'ds-profile' },
+    { at: '2026-10-01T10:03:00Z', route: 'artemis-memory', result: 'fallback', fallbackFrom: 'ds-profile' },
+    { at: '2026-10-01T10:04:00Z', route: 'artemis-memory', result: 'ok' },
+    { at: '2026-10-01T09:00:00Z', route: 'ds-profile', result: 'ok' },
+  ];
+  const spend = meterSession({ payloads: [], modelCalls, playFrom: '2026-10-01T10:00:00Z', orchestratorRoutes: ['ds-profile'] });
+  assert.deepEqual(spend.orchestrator.answeredBy, { primary: 1, fallback: 2, failed: 1 });
+  assert.equal(spend.orchestrator.ringCalls, 4);
+  const table = renderBudgetTable([{ session: 'T9/x', lane: 1, stoppedAt: null, spend }]);
+  const lines = table.split('\n');
+  assert.ok(lines[2].endsWith('| 1 / 2 / 1 |'), lines[2]);
+  assert.ok(lines[3].endsWith('| 1 / 2 / 1 |'), lines[3]);
+});
+
 test('spend: TypeSafe judge calls are counted, cached answers and disabled fallbacks are not billed', () => {
   const judgeCalls = [
     { at: '2026-10-01T10:01:00Z', use: 'director', inputTokens: 300, outputTokens: 4, cost: 0.0003 },
