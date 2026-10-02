@@ -1,7 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, hostSwipesProblems, loadBaseline, mediaPlan, overrideChain, pathGet,
+  applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, hostImageGenerationProblems, hostSwipesProblems, loadBaseline, mediaPlan, overrideChain, pathGet,
 } from './sessionBaseline.mts';
 import { findCard, loadCards } from '../so-session.mts';
 
@@ -69,4 +69,11 @@ test('T0-3: start refuses a lane whose SillyTavern swipes did not read back on',
   assert.match(hostSwipesProblems({ swipes: false })[0], /swipes read back false on the lane, expected true/);
   assert.match(hostSwipesProblems({ swipes: null })[0], /read back null/, 'an unreadable checkbox is not a pass');
   assert.equal(hostSwipesProblems(undefined).length, 1);
+});
+
+test('T6-3-3: start refuses a lane page whose Image Generation extension is not disabled', () => {
+  assert.deepEqual(hostImageGenerationProblems({ imageGenerationDisabled: true }), []);
+  assert.match(hostImageGenerationProblems({ imageGenerationDisabled: false })[0], /Image Generation extension \(stable-diffusion\) is enabled on the lane page/);
+  assert.equal(hostImageGenerationProblems({ imageGenerationDisabled: null }).length, 1, 'an unreadable setting is not a pass');
+  assert.equal(hostImageGenerationProblems(undefined).length, 1);
 });

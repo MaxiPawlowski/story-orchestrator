@@ -413,3 +413,16 @@ test('CR-J18: agent sessions count against the harness concurrency, and the slot
     assert.equal(service.gate.counts('opencode').running, 0);
     assert.ok(await until(() => spawned.every((run) => !alive(run.pid))));
 });
+
+test('T6-3-3 MEDIUM: an agent session that ends on a usage limit with no retry time holds the harness, so the next open fails fast', async () => {
+    const limit = JSON.stringify({ type: 'error', error: { name: 'APIError', data: { message: 'usage limit reached', statusCode: 429 } } });
+    const { service, spawned } = setup({ child: scripted(limit) });
+    const opened = await service.agent.open(openRequest([{ hang: true }]));
+    assert.equal(opened.ok, true, JSON.stringify(opened));
+    const ended = await nextEvent(service, opened.sessionId);
+    assert.deepEqual([ended.kind, ended.errorKind], ['ended', 'quota']);
+    assert.ok((await service.status()).harnesses.opencode.quotaUntil > Date.now());
+    const again = await service.agent.open(openRequest([{ hang: true }]));
+    assert.deepEqual([again.ok, again.kind], [false, 'quota']);
+    assert.equal(spawned.length, 1, 'the held open never spawns');
+});

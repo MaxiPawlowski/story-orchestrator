@@ -48,7 +48,7 @@ export const createBridgeRoute = (bridge: AgentToolBridge, target: HarnessTarget
         const opened = await bridge.open({
           harness: target.harness, model: target.model, role: BRIDGE_ROLE, system: BRIDGE_SYSTEM, prompt, tools, timeoutMs: target.timeoutMs, maxOutputChars: BRIDGE_MAX_OUTPUT_CHARS,
         });
-        if (!opened.ok) throw new AgentRouteUnavailable("harness", `${opened.kind}: ${opened.message}`);
+        if (!opened.ok) throw new AgentRouteUnavailable("harness", `${opened.kind}: ${opened.message}`, opened.kind);
         sessionId = opened.sessionId;
         deadlineAt = Date.now() + target.timeoutMs;
         tokens = estimateTokens(prompt);
@@ -56,7 +56,7 @@ export const createBridgeRoute = (bridge: AgentToolBridge, target: HarnessTarget
       const event = await bridge.nextCall(sessionId, deadlineAt);
       if (event.kind === "ended") {
         sessionId = null;
-        throw new AgentRouteUnavailable("harness", `${event.errorKind}: ${event.message}`);
+        throw new AgentRouteUnavailable("harness", `${event.errorKind}: ${event.message}`, event.errorKind);
       }
       if (event.kind === "done") {
         sessionId = null;

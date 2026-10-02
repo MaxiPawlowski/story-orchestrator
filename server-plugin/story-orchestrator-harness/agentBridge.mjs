@@ -284,7 +284,7 @@ export function createAgentBridge({ config, env, helpers, host, spawnImpl, killT
             try { return !isToolEvent(JSON.parse(trimmed)); } catch { return true; }
         }).join('\n');
         const outcome = helpers.classify('opencode', { ...run, stdout: kept }, { maxOutputChars: session.maxOutputChars, now: now() });
-        if (outcome.kind === 'quota' && outcome.retryAt) host.noteQuota(session.harness, outcome.retryAt);
+        if (outcome.kind === 'quota') host.noteQuota(session.harness, outcome.retryAt ?? null);
         const event = outcome.ok ? { kind: 'done', text: outcome.text, finish: outcome.finish, usage: outcome.usage ?? null } : { kind: 'ended', errorKind: outcome.kind, message: outcome.message };
         for (const call of session.parked.values()) {
             clearTimeout(call.timer);

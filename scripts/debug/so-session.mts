@@ -13,9 +13,9 @@ import {
   archiveLane, DEFAULT_LANES, dependencyRefusal, JUDGE_LANE_RATE_ENV, judgeRateAction, judgeRatePlan, lanePinVerdict, laneFor, leaseFor, leaseRefusal, loadedJudgeRate, outstandingDependents, planDrift, planLanes, readLease, readSeedRecords, reseedRefusal, restoreLane, rootOf, runningLanes, seedRecordOf, sessionsUnder, writeLease,
   type LanePlan, type SessionOnLane,
 } from './lib/sessionLanes.mts';
-import { applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, hostSwipesProblems, loadBaseline, mediaPlan, overrideChain } from './lib/sessionBaseline.mts';
+import { applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, hostImageGenerationProblems, hostSwipesProblems, loadBaseline, mediaPlan, overrideChain } from './lib/sessionBaseline.mts';
 import {
-  artifactInventory, artifactProblems, artifactWaivers, comfyCalls, replyReasoning, featureProblems, newChats, requiredArtifacts, runtimeProblems, storyFeatures, trackChat, type ChatRef,
+  artifactInventory, artifactProblems, artifactWaivers, COMFY_REQUEST, comfyContacts, replyReasoning, featureProblems, newChats, requiredArtifacts, runtimeProblems, storyFeatures, trackChat, type ChatRef,
 } from './lib/sessionArtifacts.mts';
 import { refresherFor, settingLanded } from './lib/sessionSetting.mts';
 import { ackPaths, readTailAcks, tailProblems, TAIL_FILES, TAIL_NAMES, waitFor, READY_TIMEOUT_MS, DRAIN_TIMEOUT_MS } from './lib/sessionTails.mts';
@@ -381,7 +381,7 @@ async function start(id: string, options: StartOptions) {
   console.log('[4/8] read the effective settings back, pin the routing');
   const effectiveRun = await inLane(plan.lane, ['scripts/debug/so-session.mts', '_page', 'effective', planPath, resolve(dir, 'effective-settings.json')], viewportEnv);
   const effectiveRead = existsSync(resolve(dir, 'effective-settings.json')) ? await readJson(resolve(dir, 'effective-settings.json')) : null;
-  const effectiveIssues = effectiveRun.code !== 0 || !effectiveRead?.settings ? [`could not read the effective settings back: ${effectiveRun.output.slice(-600)}`] : [...effectiveProblems(expected, effectiveRead.settings, baseline.installOwned), ...hostSwipesProblems(effectiveRead.host)];
+  const effectiveIssues = effectiveRun.code !== 0 || !effectiveRead?.settings ? [`could not read the effective settings back: ${effectiveRun.output.slice(-600)}`] : [...effectiveProblems(expected, effectiveRead.settings, baseline.installOwned), ...hostSwipesProblems(effectiveRead.host), ...(usesComfy(media) ? [] : hostImageGenerationProblems(effectiveRead.host))];
   if (effectiveIssues.length) return fail('effective-settings', effectiveIssues);
   const overlayPath = resolve(lane.root, 'adolion-fresh', PRESET_OVERLAY_RECORD);
   const overlayRecord = existsSync(overlayPath) ? await readJson(overlayPath) : null;
@@ -532,7 +532,7 @@ async function reverify(arg: string | undefined) {
   const card = findCard(doc, session.charter);
   const verified = await verifySession(dir, session, doc, card);
   const kept = (session.invalid ?? []).filter((reason: string) => !reason.startsWith('required artifact ') && !verified.invalid.includes(reason));
-  const invalid = [...new Set([...kept, ...verified.invalid, ...await comfyGuard(session)])];
+  const invalid = [...new Set([...kept, ...verified.invalid, ...await comfyGuard(session, dir)])];
   const warnings = [...new Set([...(session.warnings ?? []), ...verified.warnings])];
   const next = { ...session, valid: invalid.length === 0, invalid, warnings, reverifiedAt: new Date().toISOString(), reverifiedFrom: { valid: session.valid, invalid: session.invalid ?? [] } };
   await writeFile(resolve(dir, 'artifacts.json'), JSON.stringify({ required: verified.required, inventory: verified.inventory, replyReasoning: verified.replyReasoning, warnings: verified.warnings }, null, 2), 'utf-8');
@@ -542,11 +542,14 @@ async function reverify(arg: string | undefined) {
   return next;
 }
 
-async function comfyGuard(session: any) {
+const usesComfy = (media: { variant?: string } | null | undefined) => media?.variant === 'full';
+
+async function comfyGuard(session: any, dir: string) {
+  if (usesComfy(session.media)) return [] as string[];
   const log = laneInfo(Number(session.lane)).log;
-  if (!existsSync(log)) return [] as string[];
-  const text = (await readFile(log)).subarray(Number(session.logOffset ?? 0)).toString('utf-8');
-  return comfyCalls(text).map((line) => `the lane contacted ComfyUI during the session: ${line.slice(0, 200)}`);
+  const server = existsSync(log) ? (await readFile(log)).subarray(Number(session.logOffset ?? 0)).toString('utf-8') : '';
+  const consoleRows = existsSync(resolve(dir, TAIL_FILES.console)) ? await readFile(resolve(dir, TAIL_FILES.console), 'utf-8') : '';
+  return comfyContacts(server, consoleRows);
 }
 
 async function stop(arg: string | undefined, stopLane: boolean) {
@@ -592,7 +595,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
       const verified = await verifySession(dir, merged, doc, card);
       verifyWarnings.push(...verified.warnings);
       await writeFile(resolve(dir, 'artifacts.json'), JSON.stringify({ required: verified.required, inventory: verified.inventory, replyReasoning: verified.replyReasoning, warnings: verified.warnings }, null, 2), 'utf-8');
-      return [...verified.invalid, ...await comfyGuard(session)];
+      return [...verified.invalid, ...await comfyGuard(session, dir)];
     },
   });
   const spend = await meterDir(dir, session);
@@ -1118,9 +1121,9 @@ async function pagePhase(phase: 'settings' | 'effective' | 'pin' | 'open' | 'end
 
     if (phase === 'effective') {
       out.settings = await reads.readEffectiveSettings(page);
-      out.host = await reads.readHostSwipes(page);
+      out.host = { ...await reads.readHostSwipes(page), ...await reads.readHostImageGeneration(page) };
       out.presets = await reads.readLivePresets(page);
-      out.problems = [...(out.settings ? effectiveProblems(plan.expected, out.settings, plan.installOwned) : ['the runtime returned no settings']), ...hostSwipesProblems(out.host as { swipes: boolean | null })];
+      out.problems = [...(out.settings ? effectiveProblems(plan.expected, out.settings, plan.installOwned) : ['the runtime returned no settings']), ...hostSwipesProblems(out.host as { swipes: boolean | null }), ...(usesComfy(plan.mediaPlan) ? [] : hostImageGenerationProblems(out.host as { imageGenerationDisabled: boolean | null }))];
     }
 
     if (phase === 'pin') {
@@ -1296,6 +1299,7 @@ async function consoleTail(outFile: string) {
       write({ type, text: message.text(), location: location?.url ? `${location.url}:${location.lineNumber}` : null });
     });
     page.on('pageerror', (error) => write({ type: 'pageerror', text: error.message, stack: error.stack ?? null }));
+    page.on('request', (request) => { if (COMFY_REQUEST.test(request.url())) write({ type: 'request', method: request.method(), url: request.url() }); });
     write({ type: 'info', text: 'console tail attached' });
     await pending;
     await tails.writeAck(tails.ackPaths(outFile).ready, { tail: 'console' });

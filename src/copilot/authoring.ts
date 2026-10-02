@@ -96,6 +96,7 @@ export async function runAuthoringStage(input: AuthoringStageInput, model: Model
   const rawResponse = first.text;
   const audit: CopilotAudit = { prompt, rawResponse, finish: first.finish };
 
+  let fellBack = first.fellBack;
   let cut = wasCut(first);
   let parsed = parseProposal(rawResponse);
   let validation = validateProposal(input.draft, parsed.proposal.ops, input.stage);
@@ -112,6 +113,7 @@ export async function runAuthoringStage(input: AuthoringStageInput, model: Model
     audit.repairPrompt = repairPrompt;
     audit.repairResponse = repairResponse;
     audit.repairFinish = repair.finish;
+    fellBack = repair.fellBack ?? fellBack;
     cut = wasCut(repair);
     parsed = parseProposal(repairResponse);
     validation = validateProposal(input.draft, parsed.proposal.ops, input.stage);
@@ -129,6 +131,7 @@ export async function runAuthoringStage(input: AuthoringStageInput, model: Model
     ...(!asked && validation.deferred.length ? { deferred: validation.deferred } : {}),
     questions: parsed.questions,
     audit,
+    ...(fellBack ? { fellBack } : {}),
   };
 }
 

@@ -1,5 +1,6 @@
 import {
   ARC_TEMPLATE_NAMES,
+  EVIDENCE_FROM,
   GATE_OPERATORS,
   NPC_REPLY_KINDS,
   NPC_REPLY_TRIGGERS,
@@ -31,8 +32,10 @@ import {
   type Transition,
   type TransitionEffects,
 } from "@engine/index";
+import { readChanceRoll } from "@engine/chance";
 import type { TransitionRef } from "./types";
 import { isRecord } from "@utils/guards";
+import { nearestKey } from "@utils/levenshtein";
 
 const isPrimitive = (value: unknown): value is PrimitiveValue => typeof value === "string" || typeof value === "number" || typeof value === "boolean";
 
@@ -89,7 +92,41 @@ const readLedgerBinding = (value: unknown): QualityLedgerBinding | undefined => 
   return { entity: value.entity, field: value.field };
 };
 
-export const readQualityPatch = (value: Record<string, unknown>): Partial<Quality> => {
+export const QUALITY_FIELDS = [
+  "key", "type", "source", "rubric", "values", "player_labels", "latching", "monotonic", "scope_hint", "ledger_binding",
+  "read_as", "criteria", "evidence_from", "commit_evidence", "roll",
+] as const;
+
+export const REQUIREMENT_FIELDS = ["personas", "members", "lorebooks"] as const;
+
+const FIELD_POINTERS: Record<string, string> = {
+  groups: "a group is not a requirement: list its cast in members, and the group that holds them is found by its members",
+};
+
+export const unknownFieldIssues = (value: Record<string, unknown>, known: readonly string[], path: string): string[] =>
+  Object.keys(value).filter((key) => !known.includes(key)).map((key) => {
+    const pointer = FIELD_POINTERS[key];
+    const near = nearestKey(key, known);
+    const hint = pointer ? ` (${pointer})` : near ? ` (did you mean "${near}"?)` : "";
+    return `${path}.${key}: unknown field "${key}"${hint}; known: ${known.join(", ")}`;
+  });
+
+const readPlayerLabels = (value: unknown): Record<string, string> | undefined => {
+  if (!isRecord(value)) return undefined;
+  const kept = Object.entries(value).filter((entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].trim().length > 0);
+  return kept.length ? Object.fromEntries(kept.map(([option, label]) => [option, label.trim()])) : undefined;
+};
+
+const qualityFieldIssues = (value: Record<string, unknown>, path: string): string[] => [
+  ...unknownFieldIssues(value, QUALITY_FIELDS, path),
+  ...(value.evidence_from !== undefined && !(EVIDENCE_FROM as readonly unknown[]).includes(value.evidence_from)
+    ? [`${path}.evidence_from: ${JSON.stringify(value.evidence_from)} is not allowed, expected any, world or party`] : []),
+  ...(value.player_labels !== undefined && !readPlayerLabels(value.player_labels) ? [`${path}.player_labels: expected an object mapping enum values to the words a player reads`] : []),
+  ...(value.roll !== undefined && !readChanceRoll(value.roll) ? [`${path}.roll: expected { sides, target }: whole numbers, at least 2 sides, a target from 1 to sides`] : []),
+];
+
+export const readQualityPatch = (value: Record<string, unknown>, path?: string, issues?: string[]): Partial<Quality> => {
+  if (path !== undefined && issues) issues.push(...qualityFieldIssues(value, path));
   const patch: Partial<Quality> = {};
   if (typeof value.key === "string") patch.key = value.key;
   if (typeof value.type === "string" && (QUALITY_TYPES as readonly string[]).includes(value.type)) patch.type = value.type as QualityType;
@@ -105,6 +142,11 @@ export const readQualityPatch = (value: Record<string, unknown>): Partial<Qualit
   if (typeof value.read_as === "string" && (QUALITY_READ_AS as readonly string[]).includes(value.read_as)) patch.read_as = value.read_as as QualityReadAs;
   if (isRecord(value.criteria)) patch.criteria = value.criteria as QualityCriteria;
   if (typeof value.commit_evidence === "string" && value.commit_evidence.trim()) patch.commit_evidence = value.commit_evidence;
+  if (typeof value.evidence_from === "string" && (EVIDENCE_FROM as readonly string[]).includes(value.evidence_from)) patch.evidence_from = value.evidence_from as Quality["evidence_from"];
+  const labels = readPlayerLabels(value.player_labels);
+  if (labels) patch.player_labels = labels;
+  const roll = readChanceRoll(value.roll);
+  if (roll) patch.roll = roll;
   return patch;
 };
 
@@ -117,7 +159,7 @@ export const readQuality = (value: unknown, path: string, issues: string[]): Qua
     issues.push(`${path}.key: required`);
     return null;
   }
-  const patch = readQualityPatch(value);
+  const patch = readQualityPatch(value, path, issues);
   return {
     key: value.key,
     type: patch.type ?? "string",
@@ -130,7 +172,10 @@ export const readQuality = (value: unknown, path: string, issues: string[]): Qua
     ...(patch.ledger_binding ? { ledger_binding: patch.ledger_binding } : {}),
     ...(patch.read_as ? { read_as: patch.read_as } : {}),
     ...(patch.read_as && patch.criteria ? { criteria: patch.criteria } : {}),
-    ...(patch.commit_evidence ? { commit_evidence: patch.commit_evidence } : {})
+    ...(patch.commit_evidence ? { commit_evidence: patch.commit_evidence } : {}),
+    ...(patch.evidence_from ? { evidence_from: patch.evidence_from } : {}),
+    ...(patch.player_labels ? { player_labels: patch.player_labels } : {}),
+    ...(patch.roll ? { roll: patch.roll } : {})
   };
 };
 
@@ -354,6 +399,7 @@ export const readRequirements = (value: unknown, path: string, issues: string[])
     return undefined;
   }
   const list = (entry: unknown) => (Array.isArray(entry) ? entry.filter((item): item is string => typeof item === "string" && item.trim().length > 0).map((item) => item.trim()) : []);
+  issues.push(...unknownFieldIssues(value, REQUIREMENT_FIELDS, path));
   const requirements: StoryRequirements = {};
   const personas = list(value.personas);
   const members = list(value.members);

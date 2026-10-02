@@ -190,7 +190,17 @@
       "rawError": false,
       "silentCatch": null,
       "verdict": "pass",
-      "reason": "T6-3: only setup copy (AgentRouteUnavailable, or a config ModelCallError naming the harness/profile fix); anything else keeps the constant studioFailure text"
+      "reason": "T6-3: only setup copy (AgentRouteUnavailable, or a config ModelCallError naming the harness/profile fix); T6-3-3 adds a quota or auth ModelCallError, whose message is the harness plugin's own classified usage-limit/login copy; anything else keeps the constant studioFailure text"
+    },
+    {
+      "site": "src/runtime/harnessFallback.ts#fellBackFrom",
+      "kind": 2,
+      "template": "input.error instanceof Error ? input.error.message : String(input.error)",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "T6-3-3: why a harness role fell back to its On failure profile (the harness plugin's classified message), shown only in the Studio wizard panes"
     },
     {
       "site": "src/index.tsx#dropPersonaRequirement",

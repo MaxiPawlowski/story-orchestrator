@@ -674,7 +674,7 @@ test('T1-6 turn 24: two looping replies in one round, the last is swiped and the
 test('T1-6 turn 24 digest: only the swiped message reads as swiped; the one left in the chat says so and is counted', () => {
   const defect = (messageId: number) => ({ kind: 'loop', messageId, speaker: 'x', sample: 's', rule: 'r' });
   const counts = defectCounts([{ modelDefects: [defect(56), defect(57)] as any, autoRepair: { swiped: true, repaired: [57], unrepaired: [{ messageId: 56 }] } as any }]);
-  assert.deepEqual(counts, { turns: 1, loop: 2, corrupt: 0, start: 0, empty: 0, repaired: 1, unrepaired: 1 });
+  assert.deepEqual(counts, { turns: 1, loop: 2, corrupt: 0, start: 0, empty: 0, leak: 0, repaired: 1, unrepaired: 1 });
 });
 
 const thinkingSend = (fake: ReturnType<typeof fakeSt>, replies: Array<[number, string, string]>) => async (_page: unknown, line: string) => {
@@ -699,7 +699,7 @@ test('T5-1-1 msg 17: a reply with reasoning and no text is an empty defect, flag
   assert.deepEqual(record.autoRepair, { flag: { ok: true }, swiped: false, repaired: [], skipped: EMPTY_NOT_SWIPED });
   assert.equal(record.ok, false);
   assert.match(record.problems.join(), /no reply text: 1 character message\(s\) came back empty \(4 .*5487 chars of reasoning\)/);
-  assert.deepEqual(defectCounts([record as any]), { turns: 1, loop: 0, corrupt: 0, start: 0, empty: 1, repaired: 0, unrepaired: 0 });
+  assert.deepEqual(defectCounts([record as any]), { turns: 1, loop: 0, corrupt: 0, start: 0, empty: 1, leak: 0, repaired: 0, unrepaired: 0 });
 });
 
 test('T5-1-1 empty: an empty reply beside a looping last reply leaves the loop guard to swipe the loop only', async () => {

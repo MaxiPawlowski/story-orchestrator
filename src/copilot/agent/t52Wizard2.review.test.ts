@@ -23,9 +23,9 @@ const heist = (): StoryV2 => ({
     { id: "the_vault", name: "The Vault", objective: "Open it.", type: "anchor" },
   ],
   transitions: [
-    { from: "start", to: "the_plan", priority: 1, gate: GATE },
+    { from: "start", to: "the_plan", priority: 1, gate: { ...GATE, v: 1 } },
     { from: "the_plan", to: "the_infiltration", priority: 1, gate: GATE },
-    { from: "the_infiltration", to: "the_vault", priority: 1, gate: GATE },
+    { from: "the_infiltration", to: "the_vault", priority: 1, gate: { ...GATE, v: 3 } },
   ],
   roster: [{ id: "sable", name: "Sable" }, { id: "mirek", name: "Mirek" }],
 });

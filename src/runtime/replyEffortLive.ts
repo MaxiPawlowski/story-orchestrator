@@ -1,4 +1,4 @@
-import { getContext } from "@services/STAPI";
+import { getContext, readReplyText, rewriteReplyText, subscribeToHostEvents } from "@services/STAPI";
 import type { GenerationLifecycle } from "./generationLifecycle";
 import { startReplyEffort } from "./replyEffortHost";
 import { runtimeManager } from "./runtimeManager";
@@ -13,4 +13,9 @@ export const startLiveReplyEffort = (generation: GenerationLifecycle): (() => vo
   story: () => runtimeManager.getStory(),
   generation: () => generation.snapshot(),
   journal: (summary, note) => runtimeManager.noteRecap(summary, note),
+  replies: {
+    observe: (handler) => subscribeToHostEvents([{ eventName: "MESSAGE_RECEIVED", handler: (messageId) => handler(Number(messageId)) }]),
+    read: (messageId) => readReplyText(messageId),
+    write: (messageId, text) => rewriteReplyText(messageId, text),
+  },
 });

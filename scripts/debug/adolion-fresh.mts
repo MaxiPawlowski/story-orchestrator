@@ -5,9 +5,10 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
 import {
-  acceptBaseline, buildInventory, buildManifest, castResetPlan, checkInventory, diffInventories, expectedStartDisabled, lastGoodSeed, seedDrift, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
+  acceptBaseline, buildInventory, buildManifest, castResetPlan, checkInventory, diffInventories, expectedStartDisabled, imageExtensionProblems, lastGoodSeed, seedDrift, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
   type AdolionManifest, type Inventory, type LaneDisk, type RuntimeReadiness, type SpriteFolder, type SpritePackSource,
 } from './lib/adolionFresh.mts';
+import { comfyCalls } from './lib/sessionArtifacts.mts';
 import { applyPresetOverlay, editLabel, PRESET_OVERLAY_RECORD, type OverlayRecord } from './lib/presetOverlay.mts';
 import { findReclaimable, gib, lastSeededLaneBytes, removeStaleSpriteWorktrees, seedSpaceNeed, seedSpaceRefusal, type SpaceFs } from './lib/seedSpace.mts';
 
@@ -210,7 +211,7 @@ async function strip(manifest: AdolionManifest, user: string) {
   for (const file of plan.groupFiles) await rm(join(user, 'groups', file), { force: true });
   for (const file of plan.groupChats) await rm(join(user, 'group chats', file), { force: true });
   await writeFile(join(user, 'settings.json'), JSON.stringify(plan.settings, null, 4), 'utf-8');
-  return { worlds: plan.worlds.length, characters: plan.characters.length, spriteDirs: plan.spriteDirs.length, chatDirs: plan.chatDirs.length, groups: plan.groupFiles.length, groupChats: plan.groupChats.length, ...plan.removed, swipes: plan.swipes };
+  return { worlds: plan.worlds.length, characters: plan.characters.length, spriteDirs: plan.spriteDirs.length, chatDirs: plan.chatDirs.length, groups: plan.groupFiles.length, groupChats: plan.groupChats.length, ...plan.removed, swipes: plan.swipes, imageExtension: plan.imageExtension };
 }
 
 async function laneInventory(manifest: AdolionManifest, user: string, exportDir: string, runtime: Record<string, RuntimeReadiness> | null, openGroup: string | null = null): Promise<Inventory> {
@@ -229,7 +230,14 @@ const logSize = async (root: string) => (existsSync(join(root, 'server.log')) ? 
 
 async function mediaCallsSince(root: string, from: number) {
   const log = await readFile(join(root, 'server.log')).catch(() => Buffer.alloc(0));
-  return log.subarray(from).toString('utf-8').split(/\r?\n/).filter((line) => /ComfyUI|:8188|\/api\/sd\//i.test(line));
+  return comfyCalls(log.subarray(from).toString('utf-8'));
+}
+
+const MEDIA_LOG_LIMIT = 'the lane server logs only FAILED image-generation calls (ECONNREFUSED while ComfyUI is down); a call ComfyUI answers leaves no line, which is why the seed disables the stable-diffusion extension and reads it back';
+
+async function imageExtensionReadBack(user: string) {
+  const problems = imageExtensionProblems(await readJson(join(user, 'settings.json')));
+  if (problems.length) throw new Error(`the lane copy's settings.json did not keep the Image Generation extension disabled; the lane was not started: ${problems.join('; ')}`);
 }
 
 async function writeRecord(n: number, inventory: Inventory, problems: string[], extra: Record<string, unknown>) {
@@ -288,6 +296,8 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
   console.log(`      stripped ${JSON.stringify(stripped)}`);
   const presets = await presetOverlay(n, noPresetOverlay, overlayVariant);
   console.log(presets.applied ? `      preset overlay ${presets.variant} ${presets.sha256.slice(0, 12)}: ${presets.edits.map((edit) => `${editLabel(edit)}${edit.changed ? '' : ' (unchanged)'}${edit.mirror ? ' +settings.json' : ''}`).join(', ')}` : `      preset overlay OFF (${presets.reason})`);
+  await imageExtensionReadBack(paths.user);
+  console.log(`      Image Generation extension (stable-diffusion) disabled in the lane copy, read back (was ${stripped.imageExtension.was ? 'enabled' : 'already disabled'})`);
   const logFrom = await logSize(paths.root);
   console.log(`[3/7] start lane ${n}`);
   await lanes('start', String(n), ...(headed ? ['--headed'] : []));
@@ -311,8 +321,8 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
   console.log('[6/7] inventory');
   const inventory = await laneInventory(manifest, paths.user, exportDir, page.runtime, page.openGroup ?? null);
   const mediaCalls = await mediaCallsSince(paths.root, logFrom);
-  const problems = [...page.problems, ...checkInventory(manifest, inventory), ...(pin.pinned ? [] : [`campaign ${pin.commit} is not the pinned commit`]),
-    ...(mediaCalls.length ? [`the lane server made ${mediaCalls.length} image-generation call(s) during the seed: ${mediaCalls[0]}`] : [])];
+  const problems = [...page.problems, ...checkInventory(manifest, inventory), ...imageExtensionProblems(await readJson(join(paths.user, 'settings.json'))), ...(pin.pinned ? [] : [`campaign ${pin.commit} is not the pinned commit`]),
+    ...(mediaCalls.length ? [`the lane server made ${mediaCalls.length} image-generation call(s) during the seed: ${mediaCalls[0]} (${MEDIA_LOG_LIMIT})`] : [])];
   const report = await writeRecord(n, inventory, problems, {
     commit: pin.commit, pinned: pin.pinned, stripped, baseline: join(paths.debug, 'adolion-fresh-asset-baseline.json'), baselineTrusted: page.baseline?.trusted ?? false,
     extraction: page.extraction, groups: page.groups, imports: page.imports, castResets: page.castResets ?? [], notes: page.notes ?? [], summary: summary(inventory),
@@ -349,7 +359,7 @@ async function check(n: number, dropBook: string | null) {
   const page = await readJson(pageOut);
   const inventory = await laneInventory(manifest, paths.user, exportDir, page.runtime, page.openGroup ?? null);
   const mediaCalls = await mediaCallsSince(paths.root, logFrom);
-  const problems = [...page.problems, ...checkInventory(manifest, inventory), ...(mediaCalls.length ? [`the lane server made ${mediaCalls.length} image-generation call(s): ${mediaCalls[0]}`] : [])];
+  const problems = [...page.problems, ...checkInventory(manifest, inventory), ...imageExtensionProblems(await readJson(join(paths.user, 'settings.json'))), ...(mediaCalls.length ? [`the lane server made ${mediaCalls.length} image-generation call(s): ${mediaCalls[0]} (${MEDIA_LOG_LIMIT})`] : [])];
   const previous = await readJson(latest);
   const drift = diffInventories(previous, inventory);
   const stamp = new Date().toISOString().replace(/[:.]/g, '-');

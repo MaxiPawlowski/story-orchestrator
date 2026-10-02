@@ -36,7 +36,7 @@ const QUALITY_OPS: Record<string, OpReader> = {
   },
   updateQuality: (value, path, issues) => {
     const key = requireString(value.key, "key", path, issues);
-    return key ? { kind: "updateQuality", key, patch: readQualityPatch(patchOf(value)) } : null;
+    return key ? { kind: "updateQuality", key, patch: readQualityPatch(patchOf(value), `${path}.patch`, issues) } : null;
   },
   removeQuality: (value, path, issues) => {
     const key = requireString(value.key, "key", path, issues);

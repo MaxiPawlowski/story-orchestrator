@@ -107,6 +107,8 @@ export interface SillyTavernContext {
   extensionPrompts?: Record<string, HostExtensionPrompt | undefined>;
   // The main API's tokenizer; on BEST_MATCH + textgen it is a backend call (tokenizers.js:443).
   getTokenCountAsync?: (text: string, padding?: number) => Promise<number>;
+  // Re-renders one message from its chat row, text and reasoning (script.js:2033, st-context.js:238).
+  updateMessageBlock?: (messageId: number, message: unknown) => void;
   [key: string]: unknown;
 }
 

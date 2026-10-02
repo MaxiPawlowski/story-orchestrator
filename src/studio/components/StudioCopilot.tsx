@@ -8,6 +8,7 @@ import {
   type WizardAnswer, type WizardQuestion, type WizardSessionState, type WizardSessionUpdate,
 } from "@wizard/index";
 import { isAgentSession, type AgentSession } from "@copilot/agent/index";
+import { fellBackText, type FellBack } from "@extraction/modelRoute";
 import { useDraftStore } from "../draft";
 import AgentWizard, { type AgentTurnRunner } from "./AgentWizard";
 import ProposalReview from "./ProposalReview";
@@ -293,6 +294,7 @@ const StagedWizard: React.FC<Props & { modeSwitch?: React.ReactNode }> = ({ enab
   const [entryPreviews, setEntryPreviews] = useEntryPreviews(host, result);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fellBack, setFellBack] = useState<FellBack | null>(null);
 
   const sessionKey = wizardSessionKey({ id: draftId, title: draftTitle });
   const restored = useRef(false);
@@ -326,11 +328,13 @@ const StagedWizard: React.FC<Props & { modeSwitch?: React.ReactNode }> = ({ enab
     if (!runStage || busy) return;
     setBusy(true);
     setError(null);
+    setFellBack(null);
     const nextHistory: CopilotMessage[] = authorText ? [...baseHistory, { role: "author", text: authorText }] : baseHistory;
     const nextEnvironment = host?.environment(useDraftStore.getState().draft) ?? environment;
     setEnvironment(nextEnvironment);
     try {
       const stageResult = await runStage({ draft: useDraftStore.getState().draft, stage, message: authorText, history: baseHistory, environment: nextEnvironment });
+      setFellBack(stageResult.fellBack ?? null);
       setAccepted(new Set());
       provisioning.setResults({});
       setEntryPreviews({});
@@ -392,6 +396,7 @@ const StagedWizard: React.FC<Props & { modeSwitch?: React.ReactNode }> = ({ enab
         <div id="so-wizard-created" className="text-[11px] st-muted" role="status" aria-label="Created in SillyTavern">Created so far: {applied.join(", ")}</div>
       )}
       {error ? <div className="st-alert-error rounded px-3 py-2 text-sm" role="alert">{error}</div> : null}
+      {fellBack ? <div data-so="wizard-fell-back" className="so-warning-text text-xs" role="status">{fellBackText(fellBack)}</div> : null}
       {questions.length > 0 && (
         <WizardQuestions questions={questions} summary={history[history.length - 1]?.text} busy={busy} onAnswer={answer} onDismiss={dismiss} />
       )}

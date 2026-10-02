@@ -1,4 +1,4 @@
-import type { ModelFinish, ReasoningMeter } from "@services/STAPI";
+import type { ModelFailureKind, ModelFinish, ReasoningMeter } from "@services/STAPI";
 import type { ReasoningEffort } from "@utils/reasoningEffort";
 import { harnessKey, parseHarnessKey, type HarnessId } from "@utils/harness";
 import { detectDegenerate } from "./degenerate";
@@ -33,6 +33,24 @@ export const MODEL_PASSES = [
 
 export type ModelPass = typeof MODEL_PASSES[number];
 
+export interface FellBack {
+  from: string;
+  fromLabel: string;
+  kind: string;
+  reason: string;
+  by: string;
+  label: string;
+  model: string | null;
+}
+
+export const routeLabel = (key: string, label: (profileId: string) => string = (id) => id): string => {
+  const harness = parseHarnessKey(key);
+  return harness ? `${harness.harness} · ${harness.model}` : label(key);
+};
+
+export const fellBackText = (fellBack: FellBack): string =>
+  `${fellBack.fromLabel} could not answer (${fellBack.reason}), so ${fellBack.label}${fellBack.model ? ` (${fellBack.model})` : ""} answered instead.`;
+
 export interface ExtractionReply {
   text: string;
   finish: ModelFinish;
@@ -40,6 +58,7 @@ export interface ExtractionReply {
   usage?: CallUsage;
   model?: string | null;
   spawnMs?: number | null;
+  fellBack?: FellBack;
 }
 
 export interface ModelAsk {
@@ -53,6 +72,7 @@ export interface ModelAsk {
   budget?: RequestBudget;
   temperature?: number;
   debugResponse?: string | null;
+  onFailure?: { kind: ModelFailureKind; reason: string };
 }
 
 export interface ModelCall {

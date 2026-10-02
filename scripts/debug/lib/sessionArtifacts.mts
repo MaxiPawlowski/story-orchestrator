@@ -154,3 +154,25 @@ export function newChats(before: ChatRef[], after: ChatRef[]): ChatRef[] {
 }
 
 export const comfyCalls = (log: string) => log.split(/\r?\n/).filter((line) => COMFY_LINE.test(line));
+
+export const COMFY_REQUEST = /\/api\/sd\/|:8188(?!\d)/i;
+
+export function comfyRequests(consoleJsonl: string): string[] {
+  return consoleJsonl.split(/\r?\n/).flatMap((line) => {
+    try {
+      const row = JSON.parse(line);
+      return isRecord(row) && row.type === 'request' && typeof row.url === 'string' && COMFY_REQUEST.test(row.url) ? [`${String(row.method ?? '?')} ${row.url}`] : [];
+    } catch {
+      return [];
+    }
+  });
+}
+
+export const COMFY_DETECTION = 'the lane server log shows only failed calls (ECONNREFUSED while ComfyUI is down); a call ComfyUI answers is seen only as the page\'s request, captured by the console tail from start step 7, so page loads before that are covered only by the disabled stable-diffusion extension';
+
+export function comfyContacts(serverLog: string, consoleJsonl: string): string[] {
+  return [
+    ...comfyCalls(serverLog).map((line) => `the lane contacted ComfyUI during the session: ${line.slice(0, 200)}`),
+    ...comfyRequests(consoleJsonl).map((request) => `the lane contacted ComfyUI during the session: the page requested ${request.slice(0, 200)} (ST logs nothing for a call ComfyUI answers; ${COMFY_DETECTION})`),
+  ];
+}

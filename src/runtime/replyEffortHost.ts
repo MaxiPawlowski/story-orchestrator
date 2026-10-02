@@ -4,9 +4,11 @@ import { listedModels, readThinkingTemplate } from "@services/stHost/llamaCpp";
 import type { ReplyEffort } from "@utils/reasoningEffort";
 import { DEFAULT_REPLY_EFFORT } from "@utils/replyEffort";
 import type { SamplerApi } from "@utils/samplerKeys";
+import type { WriteResult } from "@utils/writeResult";
 import type { GenerationLifecycleSnapshot } from "./generationLifecycle";
 import { publishSpikeDebug } from "./spikeDebug";
 import { armFor, ReplyEffortOverlay, type EffortHost, type EffortRequest, type EffortShot, type EffortView } from "./replyEffort";
+import { repairThoughtLeak, type RepairedReply } from "./thoughtLeak";
 
 export const EFFORT_SHOT_RING = 50;
 
@@ -22,6 +24,18 @@ export interface EffortDebug {
   shots: () => EffortShotRecord[];
 }
 
+export interface ReplyText extends RepairedReply {
+  isUser: boolean;
+}
+
+export interface ReplyAccess {
+  observe: (handler: (messageId: number) => void) => () => void;
+  read: (messageId: number) => ReplyText | null;
+  write: (messageId: number, text: RepairedReply) => WriteResult;
+}
+
+export const LEAK_REPAIRED = "A reply's thinking ran past its budget; the leaked planning was moved back into the thought";
+
 export interface ReplyEffortWiring {
   effort: () => ReplyEffort | undefined;
   checkpointOverride: () => boolean;
@@ -35,6 +49,7 @@ export interface ReplyEffortWiring {
   observe?: (handlers: SamplerPayloadHandlers) => () => void;
   host?: () => EffortHost;
   publish?: (debug: EffortDebug) => () => void;
+  replies?: ReplyAccess;
 }
 
 const liveHost = (): EffortHost => ({ template: readThinkingTemplate(), models: listedModels(), parse: parseHostYaml });
@@ -53,6 +68,7 @@ export function startReplyEffort(deps: ReplyEffortWiring): () => void {
   const now = deps.now ?? (() => Date.now());
   const host = deps.host ?? liveHost;
   let journaled: string | null = null;
+  let budgeted: string | null = null;
   const sync = () => {
     const fallback = deps.effort() ?? DEFAULT_REPLY_EFFORT;
     overlay.sync(armFor({ storyChat: deps.storyChat(), checkpointId: deps.checkpointId(), story: deps.story(), fallback, checkpointOverride: deps.checkpointOverride() }));
@@ -72,6 +88,8 @@ export function startReplyEffort(deps: ReplyEffortWiring): () => void {
   };
   const record = (shot: EffortShot, asked: EffortRequest, type: string | null) => {
     shots.push({ ...shot, at: now(), chatId: asked.chatId, checkpointId: asked.checkpointId, type });
+    if (shot.budget !== null && shot.set.length) budgeted = asked.chatId;
+    else if (!shot.idle && budgeted === asked.chatId) budgeted = null;
     if (shots.length > EFFORT_SHOT_RING) shots.shift();
     const key = `${asked.chatId}|${asked.checkpointId}|${outcome(shot)}`;
     if (shot.idle || key === journaled) return;
@@ -92,10 +110,22 @@ export function startReplyEffort(deps: ReplyEffortWiring): () => void {
     textgen: (payload, dryRun) => handle(payload, "textgen", null, dryRun),
     chat: (payload) => handle(payload, "chat", typeof payload.type === "string" ? payload.type : null, false),
   });
+  const repair = (messageId: number) => {
+    const access = deps.replies;
+    const template = host().template;
+    const chatId = deps.openChat();
+    if (!access || !template || !chatId || chatId !== budgeted) return;
+    const reply = access.read(messageId);
+    const fixed = reply && !reply.isUser ? repairThoughtLeak(reply.mes, reply.reasoning, template.suffix) : null;
+    if (!fixed || !access.write(messageId, fixed).ok) return;
+    deps.journal(LEAK_REPAIRED, `message ${messageId}: ${fixed.reasoning.length - (reply?.reasoning.length ?? 0)} characters moved from the reply into its thought`);
+  };
+  const unobserve = deps.replies?.observe(repair) ?? (() => undefined);
   const publish = deps.publish ?? (__SO_DEV__ ? (debug: EffortDebug) => publishSpikeDebug({ reasoningEffect: debug }) : null);
   const unpublish = publish?.({ view: sync, shots: () => shots.map((shot) => ({ ...shot, set: [...shot.set] })) }) ?? (() => undefined);
   return () => {
     stop();
+    unobserve();
     overlay.clear();
     unpublish();
   };

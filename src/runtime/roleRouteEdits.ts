@@ -50,10 +50,23 @@ export interface RouteMeter {
   unknownUsage?: number;
 }
 
+const emptyMeter = (route: string): RouteMeter => ({ route, calls: 0, ok: 0, failed: 0, fallback: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, unknownUsage: 0 });
+
+const rescued = (meters: Map<string, RouteMeter>, ring: readonly ModelCallRecord[]): void => {
+  for (const record of ring) {
+    if (!record.fallbackFrom || record.result !== "fallback") continue;
+    const from = meters.get(record.fallbackFrom) ?? emptyMeter(record.fallbackFrom);
+    if (from.failed > 0) from.failed -= 1;
+    else from.calls += 1;
+    from.fallback += 1;
+    meters.set(record.fallbackFrom, from);
+  }
+};
+
 export const routeMeters = (ring: readonly ModelCallRecord[]): RouteMeter[] => {
   const meters = new Map<string, RouteMeter>();
   for (const record of ring) {
-    const meter = meters.get(record.route) ?? { route: record.route, calls: 0, ok: 0, failed: 0, fallback: 0, inputTokens: 0, outputTokens: 0, costUsd: 0, unknownUsage: 0 };
+    const meter = meters.get(record.route) ?? emptyMeter(record.route);
     meter.calls += 1;
     if (record.result === "ok") meter.ok += 1;
     else if (record.result === "fallback") meter.fallback += 1;
@@ -64,5 +77,6 @@ export const routeMeters = (ring: readonly ModelCallRecord[]): RouteMeter[] => {
     if (record.result === "ok" && !usageKnown(record.usage)) meter.unknownUsage = (meter.unknownUsage ?? 0) + 1;
     meters.set(record.route, meter);
   }
+  rescued(meters, ring);
   return [...meters.values()];
 };

@@ -6,7 +6,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { BRIDGE_HARNESSES, createAgentBridge, validateOpen } from './agentBridge.mjs';
 
-export const PLUGIN_VERSION = '1.1.0';
+export const PLUGIN_VERSION = '1.2.0';
 export const HARNESS_IDS = Object.freeze(['claude', 'codex', 'opencode']);
 export const PLUGIN_HEADER = 'x-so-plugin';
 export const LIMITS = Object.freeze({
@@ -21,6 +21,13 @@ export const LIMITS = Object.freeze({
     loginMinMinutes: 90,
 });
 export const EFFORTS = Object.freeze(['low', 'medium', 'high']);
+export const QUOTA_HOLD_MS = 600_000;
+export const quotaHoldMs = (env = process.env) => {
+    const raw = env.SO_HARNESS_QUOTA_HOLD_MS;
+    if (raw === undefined || raw === '') return QUOTA_HOLD_MS;
+    const value = Number(raw);
+    return Number.isInteger(value) && value >= 0 ? value : QUOTA_HOLD_MS;
+};
 export const PHASE0 = Object.freeze({
     claude: 'not run: the stored login had expired (v2.5 plan 13 run 3)',
     codex: 'not run in owned homes (quota, then a stale login)',
@@ -583,7 +590,14 @@ export function createHarnessService({
 } = {}) {
     const gate = createGate(config);
     const inFlight = new Map();
-    const state = Object.fromEntries(HARNESS_IDS.map((id) => [id, { spawns: 0, quotaUntil: null, blocked: null, blockedHash: null, copyRewrites: 0, leakedHomes: 0 }]));
+    const state = Object.fromEntries(HARNESS_IDS.map((id) => [id, { spawns: 0, quotaUntil: null, quotaHeld: false, blocked: null, blockedHash: null, copyRewrites: 0, leakedHomes: 0 }]));
+    const holdMs = quotaHoldMs(env);
+    const noteQuota = (harness, retryAt) => {
+        const until = retryAt ?? (holdMs > 0 ? now() + holdMs : null);
+        if (!until) return;
+        state[harness].quotaUntil = until;
+        state[harness].quotaHeld = !retryAt;
+    };
     let probed = null;
     const cacheDir = path.join(config.tmpRoot, 'opencode-cache');
     const warmMarker = path.join(cacheDir, '.so-warm');
@@ -695,7 +709,11 @@ export function createHarnessService({
         const login = freshness(harness, request.model ?? null);
         if (!login.fresh) return { kind: 'auth', message: `${harness}: ${login.reason}` };
         if (state[harness].quotaUntil && state[harness].quotaUntil > now()) {
-            return { kind: 'quota', message: `${harness} reported its usage limit until ${new Date(state[harness].quotaUntil).toISOString()}`, retryAt: state[harness].quotaUntil };
+            const until = new Date(state[harness].quotaUntil).toISOString();
+            const message = state[harness].quotaHeld
+                ? `${harness} reported its usage limit with no retry time; calls are held until ${until} (SO_HARNESS_QUOTA_HOLD_MS)`
+                : `${harness} reported its usage limit until ${until}`;
+            return { kind: 'quota', message, retryAt: state[harness].quotaUntil };
         }
         if (harness === 'opencode' && !warming && !fsImpl.existsSync(warmMarker)) {
             return { kind: 'config', message: 'opencode\'s model cache is not warmed yet: the host owner runs the warm-up once (POST /warm, admin), which is the only call that may contact opencode\'s catalog' };
@@ -736,7 +754,7 @@ export function createHarnessService({
                 signal,
             });
             const outcome = classify(request.harness, run, { maxOutputChars: request.maxOutputChars, now: now() });
-            if (outcome.kind === 'quota' && outcome.retryAt) state[request.harness].quotaUntil = outcome.retryAt;
+            if (outcome.kind === 'quota') noteQuota(request.harness, outcome.retryAt ?? null);
             return { ...outcome, model: request.model, ms: now() - arrived, spawnMs: run.spawnMs, effortApplied: EFFORTS.includes(request.effort) };
         } catch (error) {
             return { ok: false, kind: 'config', message: `${request.harness}: the plugin could not prepare the call (${error?.code ?? error?.message ?? 'error'})` };
@@ -797,7 +815,7 @@ export function createHarnessService({
             cacheDir,
             noteSpawn: (harness) => { state[harness].spawns += 1; },
             log: (line) => log(`agent ${line}`),
-            noteQuota: (harness, retryAt) => { state[harness].quotaUntil = retryAt; },
+            noteQuota,
             noteClosed: (harness, closed) => noteClosed(harness, closed, 'an agent session'),
         },
         ...bridge,

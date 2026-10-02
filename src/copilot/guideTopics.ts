@@ -163,7 +163,7 @@ export const GUIDE_TOPICS = {
     fields: "transitions[].gate",
     text: "A condition over qualities: {q, op, v} with ==, !=, >=, <=, >, <, in (in takes a list), combined with {all: []}, {any: []}, {not: gate}. Declare the quality "
       + "first, use an operator its type allows and only values it lists. Gate on what the chat will visibly show; a gate on a thought, a mood or an off-screen event never opens. "
-      + "A way out that asks only what the way in already required fires at once: gate each exit on what happens in that checkpoint.",
+      + "A way out that asks only what the way in, or an earlier way out on the route, already required fires at once: gate each exit on what happens in that checkpoint.",
   },
   transitions: {
     title: "Transitions",

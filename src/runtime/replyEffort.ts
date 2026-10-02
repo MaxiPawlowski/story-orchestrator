@@ -8,6 +8,8 @@ import { isLoudRequest, type SamplerRequest } from "./samplerOverlay";
 
 export const REPLY_EFFORT_BUDGETS: Readonly<Record<Exclude<ReplyEffort, "high">, number>> = { off: 1, low: 128, medium: 400 };
 
+export const REASONING_BUDGET_MESSAGE = "\nTime to write the reply.\n";
+
 export const TEXTGEN_BUDGET_KEYS: readonly string[] = [
   "reasoning_budget_tokens", "reasoning_budget_start_tag", "reasoning_budget_end_tags", "reasoning_budget_message", "generation_prompt",
 ];
@@ -107,7 +109,7 @@ export function textgenPlan(payload: Record<string, unknown>, level: ReplyEffort
       reasoning_budget_tokens: budget,
       reasoning_budget_start_tag: opener.trimEnd(),
       reasoning_budget_end_tags: [template.suffix.trim()],
-      reasoning_budget_message: "",
+      reasoning_budget_message: budget > REPLY_EFFORT_BUDGETS.off ? REASONING_BUDGET_MESSAGE : "",
       generation_prompt: opener,
     },
     budget,

@@ -2,7 +2,7 @@ export { getContext, getPlayerName, parseHostYaml, registerHostMacro, unregister
 export type { HostArgMacro } from "@services/stHost/macroEngine";
 export { showTextPopup, showConfirmPopup, showChoicePopup, askConfirm } from "@services/stHost/popup";
 export { bindNavbarDrawerToggle, openGroupMemberList, toggleNavbarDrawer } from "@services/stHost/drawers";
-export { sendSystemChatMessage } from "@services/stHost/chatMessages";
+export { readReplyText, rewriteReplyText, sendSystemChatMessage, type HostReplyText } from "@services/stHost/chatMessages";
 export type { TextPopupOptions, ConfirmPopupOptions, ChoicePopupOptions, ConfirmAnswer } from "@services/stHost/popup";
 export { readExtensionPromptBlocks, readInjectedPromptBlocks } from "@services/stHost/promptInspector";
 export type { ExtensionPromptBlock, ExtensionPromptBlocks, InjectedPromptBlock } from "@services/stHost/promptInspector";

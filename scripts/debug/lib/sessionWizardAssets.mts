@@ -90,7 +90,7 @@ export function wizardAllowance(baseline: unknown, drafts: unknown, startedAt: s
   }
   const lorebooks = [...new Set(growth.flatMap((entry) => entry.books))];
   const entries = [...new Set(growth.flatMap((entry) => entry.entries))];
-  const characters = [...new Set(growth.flatMap((entry) => entry.names.filter((name) => !entry.books.includes(name) && !entry.entries.includes(name) && !staged.includes(name))))];
+  const characters = [...new Set(growth.flatMap((entry) => entry.names.filter((name) => !entry.books.includes(name) && !entry.entries.includes(name) && !staged.includes(name) && !agentNames.includes(name) && !groups.some((group) => group.name === name))))];
   const applied = growth.flatMap((entry) => entry.names.map((name) => `${entry.key}/${name}`));
   const allow = [
     ...fresh.map((session) => `inventory.wizardSessions:+${session.key}`),

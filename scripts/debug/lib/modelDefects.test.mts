@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { defectCounts, EMPTY_RULE, modelDefects } from './modelDefects.mts';
+import { defectCounts, EMPTY_RULE, LEAK_RULES, modelDefects } from './modelDefects.mts';
 
 const CLEAN = [
   'Belle leans on the counter. "Wendhope pays triple, and it pays for a reason." She taps the posting twice.',
@@ -40,7 +40,8 @@ test('T1 loop guard: defect counts per session', () => {
   const loop = { kind: 'loop' as const, messageId: 1, speaker: null, sample: 's', rule: 'r' };
   const corrupt = { ...loop, kind: 'corrupt' as const };
   const start = { ...loop, kind: 'start' as const };
-  assert.deepEqual(defectCounts([{ modelDefects: [] }, { modelDefects: [loop, corrupt], autoRepair: { swiped: true } }, { modelDefects: [corrupt, start], autoRepair: { swiped: false } }, {}]), { turns: 2, loop: 1, corrupt: 2, start: 1, empty: 0, repaired: 1, unrepaired: 0 });
+  const leak = { ...loop, kind: 'leak' as const };
+  assert.deepEqual(defectCounts([{ modelDefects: [] }, { modelDefects: [loop, corrupt], autoRepair: { swiped: true } }, { modelDefects: [corrupt, start, leak], autoRepair: { swiped: false } }, {}]), { turns: 2, loop: 1, corrupt: 2, start: 1, empty: 0, leak: 1, repaired: 1, unrepaired: 0 });
 });
 
 test('T5-5-1 damaged start: a repeated speaker prefix and a reply opening on the eaten tail of the speaker\'s name are defects', () => {
@@ -83,4 +84,29 @@ test('T5-1-1 empty: blank or whitespace text is one empty defect and nothing els
   assert.deepEqual(modelDefects([{ messageId: 17, speaker: 'Master Ilse', text: ' \n ', reasoningLength: 5487 }]).map((defect) => [defect.kind, defect.messageId, defect.sample, defect.rule]), [['empty', 17, '(no text; 5487 chars of reasoning)', EMPTY_RULE]]);
   assert.equal(modelDefects([{ messageId: 2, text: '' }])[0].sample, '(no text)');
   assert.deepEqual(modelDefects([{ messageId: 3, speaker: 'Master Ilse', text: 'She sets the rule down.', reasoningLength: 900 }]), []);
+});
+
+test('T6-3-3 leak: reasoning in the visible reply (a thought marker, a planning bullet, an orphan quote+comma opening) is a defect', () => {
+  const cases: Array<[string, string]> = [
+    ['"line", *action*\n    *   Keep the scene on the door.\n    *   No lines for the player.<channel|>*The old clerk bolts the door.* "Sit."', LEAK_RULES.marker],
+    ['*The clerk turns.* "Sit down."<|channel>thought\nplan the next beat', LEAK_RULES.marker],
+    ['Plan done.</think>*She waits.*', LEAK_RULES.marker],
+    ['"line", *The envoy\'s voice stays level.* "Consider the ledger an invitation."', LEAK_RULES.orphan],
+    ['*He nods.*\n    *   Third person.\n    *   End on a move.\n*He leaves.*', LEAK_RULES.bullets],
+  ];
+  for (const [text, rule] of cases) {
+    const found = modelDefects([{ messageId: 14, speaker: 'Master', text }]);
+    assert.deepEqual(found.filter((defect) => defect.kind === 'leak').map((defect) => [defect.messageId, defect.rule]), [[14, rule]], text);
+  }
+});
+
+test('T6-3-3 leak: controls (ordinary quotes, a comma inside the quote, action asterisks, a dash list in prose) are not leaks', () => {
+  const clean = [
+    '"Take your time," *the clerk says.* "The ink will wait."',
+    '*She sets the pen down.* "No."',
+    '"Wait." *He raises a hand.* "Listen, the bells."',
+    'The list on the wall reads:\n- bread\n- salt',
+    '*The door creaks.*\n*Rain on the shutters.*',
+  ];
+  assert.deepEqual(modelDefects(clean.map((text, index) => ({ messageId: index, speaker: 'Master', text }))), []);
 });
