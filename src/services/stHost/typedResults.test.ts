@@ -47,6 +47,8 @@ const READS: Record<string, string> = {
   spriteVnMode: "a question about the page: is ST's visual novel mode on",
   spriteReducedMotion: "a question about the user's reduced-motion setting",
   spriteBuiltInExpressionsActive: "a question about the page: is ST's own Character Expressions stage mounted",
+  spriteHint: "a one-time toast; nothing in ST changes and the settings panel states the same line",
+  spriteStripRemove: "removes OUR strip host from the chat column; nothing ST keeps",
 };
 
 // V17: the guard used to read the return type WRITTEN before `{` or `=>`, so an unannotated host write

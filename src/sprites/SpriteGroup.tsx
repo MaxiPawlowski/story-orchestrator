@@ -18,6 +18,7 @@ export default function SpriteGroup({ manager }: { manager: RuntimeManager }) {
     <SpriteSettingsView
       settings={view.settings}
       activation={view.activation}
+      waitsForVn={view.waitsForVn}
       capability={view.capability}
       profiles={listConnectionProfiles()}
       onStage={view.actors.length ? spriteOnStageText(view.actors.map((actor) => actor.name)) : ""}

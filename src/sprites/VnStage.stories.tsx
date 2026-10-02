@@ -18,6 +18,8 @@ const actor = (name: string, color: string, spotlight = false): StageActor => ({
 
 const view = (patch: Partial<StageView> = {}): StageView => ({
   visible: true,
+  placement: "vn",
+  waitsForVn: false,
   actors: [actor("Arin", "#a55"), actor("Companion", "#55a", true)],
   speaking: "Arin",
   framing: "full",
@@ -61,6 +63,17 @@ export const SoloActorHasNoFocusDimming: Story = {
     await expect(sprite).not.toHaveClass("so-speaking");
     await expect(sprite).not.toHaveClass("so-idle");
     await expect(sprite).not.toHaveClass("so-breathing");
+  },
+};
+
+export const AlwaysStripInTheChatColumn: Story = {
+  args: { stage: stage(view({ placement: "strip", actors: [actor("Arin", "#a55"), actor("Companion", "#55a"), actor("Scout", "#5a5")] })) },
+  play: async ({ canvasElement }) => {
+    const root = canvasElement.querySelector("#so-vn-stage");
+    await expect(root).toHaveAttribute("data-placement", "strip");
+    const sprites = [...canvasElement.querySelectorAll<HTMLElement>(".so-sprite")];
+    await expect(sprites).toHaveLength(3);
+    for (const sprite of sprites) await expect(sprite.style.width.endsWith("%")).toBe(true);
   },
 };
 

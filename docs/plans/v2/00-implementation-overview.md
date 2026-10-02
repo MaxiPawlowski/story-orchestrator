@@ -32,6 +32,8 @@ plus live-ST validation with SillyTavern running at `http://127.0.0.1:8000/` usi
 | Prompt injection at depth | `setExtensionPrompt` via `getContext()` | `st-context.js:40` |
 | Macros | `MacrosParser` (already wrapped in `stHost/context.ts`) | existing |
 | Roster toggle | group `disabled_members` | `public/scripts/group-chats.js` |
+| Muted members' sprites | ST's expressions VN stage skips a disabled member only when the group's `hideMutedSprites` is set; our stage never shows a disabled member unless the checkpoint's `effects.stage` names it (a story's `cast_changes` means "not in this scene") | `public/scripts/group-chats.js:1774,1881`, `extensions/expressions/index.js:212-214` |
+| Streaming text vs reasoning | `STREAM_TOKEN_RECEIVED` carries the raw generator text (thinking included, before parsing); the visible reply is `chat[messageId].mes` after the previous tick's `onProgressStreaming` ran `reasoningHandler.process` | `public/script.js:3895,3643-3693` |
 | Per-character draft hook | event `GROUP_MEMBER_DRAFTED` (`'group_member_drafted'`) | `public/scripts/events.js:59` |
 | Persona names (story requirements picker) | `getContext().powerUserSettings.personas` — `Record<avatarFile, name>` | `public/scripts/st-context.js:229`, `public/scripts/power-user.js:286` |
 | Three-way popup (v2.1 plan 05 invalidation choice) | `callGenericPopup(content, POPUP_TYPE.CONFIRM, "", { customButtons: [{text, result}] })`; results start at 2, built-ins are AFFIRMATIVE=1 / NEGATIVE=0 / CANCELLED=null | `public/scripts/popup.js:24`, `public/scripts/popup.js:288` |
