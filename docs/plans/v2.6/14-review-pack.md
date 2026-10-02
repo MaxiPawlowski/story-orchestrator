@@ -391,6 +391,8 @@ The arms run on the same bodies and counters as the A100 run. If thinking comes 
 
 **You.** Rate `model-blind-20-think`. Unless it clearly favours the control, T5–T7 run with the thinking setup and harvest on, and item 2's edit 1 is replaced by it.
 
+**Decided 2026-10-02:** lanes switch to the thinking setup now, harvest on; you rate the pack later, and the rating can overrule it.
+
 ---
 
 ## Tiers
