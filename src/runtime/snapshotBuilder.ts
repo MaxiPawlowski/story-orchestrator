@@ -18,7 +18,7 @@ import { orphanedLorebooks, reapDecisions } from "./mirrorReaper";
 import { loreEvidenceView } from "./worldInfoEvidence";
 import { samplerOverlay } from "./samplerOverlay";
 import { scanGateView, wiGatingStatus } from "./worldInfoMode";
-import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview } from "./nextTurn";
+import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview, type NextTurnSourceBlock } from "./nextTurn";
 import { promptCost } from "./promptCost";
 import { promptBuckets } from "./promptBuckets";
 import { roleHealth } from "./roleHealth";
@@ -60,6 +60,7 @@ export interface SnapshotSources {
   rollbackUnavailable: RollbackUnavailable | null;
   ledger: LedgerView[];
   memoryInjection?: MemoryInjectionView | null;
+  privateBlocks?: NextTurnSourceBlock[];
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];
@@ -230,6 +231,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     sceneFallback: lastSceneCall?.fallback ?? null,
     countOf,
     budget: cost.budget,
+    privateBlocks: sources.privateBlocks,
   });
   const nextTurnForeign = buildForeignRows(sources.promptBlocks.foreign, countOf, cost.budget);
   const nextTurnCost = buildNextTurnCost(nextTurn, nextTurnForeign, cost.budget, cost.lastGenerationBudget);

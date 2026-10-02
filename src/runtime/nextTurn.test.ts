@@ -24,6 +24,30 @@ describe("next-turn preview (v2.3 plan 09)", () => {
     expect(rows.map((row) => row.depth)).toEqual([0, 3, 6]);
   });
 
+  it("T5-5-1: in a group at rest, shows each member's staged private block, labelled per member", () => {
+    const privateBlocks = [{ ...block(INJECTION_REGISTRY.epistemic.key, 4, "Your private aims: report to me"), target: "Forre" }, { ...block(INJECTION_REGISTRY.epistemic.key, 4, "Your private aims: hold the fort"), target: "Alexander" }];
+    const rows = buildNextTurnPreview([block(INJECTION_REGISTRY.pacing.key, 2), block(INJECTION_REGISTRY.ledger.key, 5)], facts({ privateBlocks }));
+    const own = rows.filter((row) => row.key === INJECTION_REGISTRY.epistemic.key);
+    expect(own.map((row) => row.target)).toEqual(["Forre", "Alexander"]);
+    expect(own.map((row) => row.preview)).toEqual(["Your private aims: report to me", "Your private aims: hold the fort"]);
+    expect(own.every((row) => row.label.includes(row.target ?? "?"))).toBe(true);
+    expect(rows.map((row) => row.depth)).toEqual([2, 4, 4, 5]);
+  });
+
+  it("T5-5-1: while a member is drafted, the applied block is the one shown, not the staged ones", () => {
+    const privateBlocks = [{ ...block(INJECTION_REGISTRY.epistemic.key, 4, "staged"), target: "Forre" }];
+    const rows = buildNextTurnPreview([block(INJECTION_REGISTRY.epistemic.key, 4, "applied")], facts({ draftedMember: "Forre", privateBlocks }));
+    expect(rows.map((row) => [row.preview, row.target])).toEqual([["applied", "Forre"]]);
+  });
+
+  it("T5-5-1: the author nudge and the continuity note are both marked one-turn; only the note is clearable here", () => {
+    const rows = buildNextTurnPreview([block(INJECTION_REGISTRY.copilotNudge.key, 1), block(INJECTION_REGISTRY.continuityNote.key, 0), block(INJECTION_REGISTRY.pacing.key, 2)], facts());
+    expect(rows.map((row) => [row.key, row.oneTurn])).toEqual([
+      [INJECTION_REGISTRY.continuityNote.key, true], [INJECTION_REGISTRY.copilotNudge.key, true], [INJECTION_REGISTRY.pacing.key, false],
+    ]);
+    expect(clearableContributors(rows).map((row) => row.key)).toEqual([INJECTION_REGISTRY.continuityNote.key]);
+  });
+
   it("reports a block the registry does not know instead of dropping it", () => {
     const rows = buildNextTurnPreview([block("story_something_new", 7)], facts());
     expect(rows).toHaveLength(1);

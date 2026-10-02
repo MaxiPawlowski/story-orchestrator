@@ -111,6 +111,22 @@ describe("a drafted member keeps its private block until its generation closes (
   });
 });
 
+describe("T5-5-1: the next-turn preview reads each member's staged private block (journal.jsonl:206)", () => {
+  it("at rest in a group the staged block for each member is exactly what a draft of that member injects", () => {
+    const coordinator = harness();
+    const staged = coordinator.injector.readModels().privateBlocks;
+    expect(staged.map((block) => block.target)).toEqual(["Arin"]);
+    coordinator.onMemberDrafted(0);
+    expect(staged[0].value).toBe(epistemicBlock());
+  });
+
+  it("a withheld run stages nothing for the preview", () => {
+    const coordinator = harness();
+    coordinator.withholdPrivateKnowledge();
+    expect(coordinator.injector.readModels().privateBlocks).toEqual([]);
+  });
+});
+
 describe("T4-1-2: a member drafted while the group has it disabled still gets its own private block", () => {
   it("Javon: disabled at the last refresh, enabled by the checkpoint and drafted for its opener before any refresh", () => {
     const coordinator = harness();

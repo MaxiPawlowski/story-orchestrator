@@ -81,12 +81,12 @@ export const NextTurnPanel = ({ snapshot, actions, onOpenOwner }: { snapshot: Ru
       {rows.length === 0 ? (
         <div className="opacity-70">Nothing is injected into the next reply.</div>
       ) : rows.map((row) => (
-        <div key={row.key} data-so="next-turn-row" data-key={row.key} className="border-t border-solid border-white/10 pt-1">
+        <div key={`${row.key}:${row.target ?? ""}`} data-so="next-turn-row" data-key={row.key} className="border-t border-solid border-white/10 pt-1">
           <div className="flex flex-wrap items-center gap-2">
             <span className="opacity-100">{row.label}</span>
             <span data-so="next-turn-tokens" className="opacity-70">depth {row.depth} · {row.characters} chars · {tokenText(row.tokens, row.tokenSource, row.share)}</span>
             {row.target && <span className="st-pill px-1 text-[10px]" title="Injected only for the member ST drafts">private → {row.target}</span>}
-            {row.oneShot && <span className="st-pill px-1 text-[10px]">one turn</span>}
+            {row.oneTurn && <span data-so="next-turn-one-turn" className="st-pill px-1 text-[10px]">one turn</span>}
             {row.freshness !== "live" && <span className="so-warning-text">{row.freshness}</span>}
             {row.fallback && <span className="so-warning-text">fell back ({row.fallback})</span>}
           </div>
