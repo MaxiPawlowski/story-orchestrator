@@ -890,7 +890,8 @@
       "stopWhen": "Restart, a hot-swap and an invalidating keep all done, or 40 minutes.",
       "rubric": [{ "feature": "Restart" }, { "feature": "hot-swap" }, { "feature": "invalidating choice" }, { "feature": "save vocabulary" }],
       "loggedAutomatically": ["story update records (from/to version, classification, choice)", "the library in the run header diff"],
-      "knownLimits": ["Edits change the lane's library copy only."]
+      "knownLimits": ["Edits change the lane's library copy only."],
+      "headerAllow": ["inventory.v2Stories"]
     },
     {
       "id": "T5-1",

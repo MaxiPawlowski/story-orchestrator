@@ -89,6 +89,7 @@ export interface Card {
   knownLimits: string[];
   waits?: string;
   requires?: CardRequires;
+  headerAllow?: string[];
 }
 
 export interface CardDoc { version: number; pin: string; cards: Card[] }
@@ -195,6 +196,7 @@ export function validateCardDoc(doc: unknown, index: StoryIndex, premises: Premi
       else if (card.story.premise !== premise.text) problems.push(`${where}: story.premise must be the text of premise "${premise.id}" verbatim`);
     }
     if (card.waits !== undefined && !nonEmptyString(card.waits)) problems.push(`${where}: waits must say what the card waits on`);
+    if (card.headerAllow !== undefined && !stringList(card.headerAllow)) problems.push(`${where}: headerAllow must be a non-empty list of run-header paths the card changes on purpose`);
     const setup = card.setup;
     if (!isRecord(setup)) problems.push(`${where}: setup is required`);
     else {

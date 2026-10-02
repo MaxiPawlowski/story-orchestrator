@@ -523,7 +523,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
       return { ok: end.code === 0 && Array.isArray(pageEnd.ends), problems: [...(end.code !== 0 ? [`end phase failed: ${end.output.slice(-600)}`] : []), ...(pageEnd.problems ?? [])] };
     },
     headerDiff: async () => {
-      const diff = await inLane(session.lane, headerDiffArgs(resolve(dir, 'run-header-start.json'), resolve(dir, 'run-header-end.json'), pageEnd.chats ?? session.chats ?? []), viewportEnv);
+      const diff = await inLane(session.lane, headerDiffArgs(resolve(dir, 'run-header-start.json'), resolve(dir, 'run-header-end.json'), pageEnd.chats ?? session.chats ?? [], card.headerAllow ?? []), viewportEnv);
       diffOutput = diff.output;
       await writeFile(resolve(dir, 'run-header-diff.txt'), diff.output, 'utf-8');
       return diff;

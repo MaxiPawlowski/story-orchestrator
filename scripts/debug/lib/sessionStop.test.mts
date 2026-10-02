@@ -105,3 +105,19 @@ test('T0-3 stop: the session records the served-identity allowance as a warning 
   const quiet = await stopSequence(deps());
   assert.deepEqual(quiet.warnings, []);
 });
+
+test('T4-4 2026-10-02: the stop diff allows the session chats it created and the paths its card changes on purpose', () => {
+  const args = headerDiffArgs('s', 'e', [{ chatId: 'chat-a', groupId: 'g1' }, { chatId: 'chat-b', groupId: 'g1' }, { chatId: 'solo' }], ['inventory.v2Stories']);
+  const allow = args[args.indexOf('--allow') + 1].split(',');
+  assert.ok(allow.includes('inventory.groupChats:+g1/chat-b'));
+  assert.ok(!allow.some((entry) => entry.includes('solo')));
+  assert.ok(allow.includes('inventory.v2Stories'));
+  const inventory = (groupChats: string[], v2Stories: string[]) => ({ inventory: { groupChats, v2Stories } });
+  const before = inventory(['g1/chat-a'], ['adolion-adventurer@29']);
+  const after = inventory(['g1/chat-a', 'g1/chat-b'], ['adolion-adventurer@31']);
+  const blocking = (entries: string[]) => diffHeaders(before, after, entries, { ownedChats: ['chat-a', 'chat-b'] }).filter((difference) => !difference.allowed).map((difference) => difference.path);
+  assert.deepEqual(blocking(allow), []);
+  assert.deepEqual(blocking(headerDiffArgs('s', 'e', [{ chatId: 'chat-a', groupId: 'g1' }])[4].split(',')).sort(), ['inventory.groupChats', 'inventory.v2Stories']);
+  const foreign = diffHeaders(before, inventory(['g1/chat-a', 'g1/chat-z'], ['adolion-adventurer@29']), allow, { ownedChats: ['chat-a', 'chat-b'] }).filter((difference) => !difference.allowed).map((difference) => difference.path);
+  assert.deepEqual(foreign, ['inventory.groupChats']);
+});
