@@ -12,7 +12,8 @@ import { firstLines } from "./castInPlay";
 import type { MessageFingerprints } from "./fingerprints";
 import { derivePipelineStatus, expansionInFlight, playerPendingCount, type PipelineStatus } from "./pipeline";
 import { playerSaveNotice } from "./saveHealth";
-import { blobMismatch, loadPersistedRuntime, UNREADABLE_NOTICE } from "./persistence";
+import { blobMismatch, hasOpenChat, loadPersistedRuntime, UNREADABLE_NOTICE } from "./persistence";
+import { noChatView } from "./noChat";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks, reapDecisions } from "./mirrorReaper";
 import { loreEvidenceView } from "./worldInfoEvidence";
@@ -303,7 +304,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     requirements: extras.requirements,
     validationErrors: sources.validationErrors,
     library: listStoryRecords(),
-    status: sources.status,
+    status: sources.status, noChat: noChatView(hasOpenChat()),
     extraction: extras.extraction,
     expansion: extras.expansion,
     memory: extras.memory,

@@ -105,6 +105,7 @@ describe("T5-3 MEDIUM: a saved edit keeps the chat's boundary history, so the ga
       restart: async () => false,
       journal: () => undefined,
       ownership: testOwnership(),
+      chatOpen: () => true,
     };
     const outcome = await applyStoryUpdate(deps, record(edited((draft) => { draft.checkpoints[1].guidance = "Run north."; }), 2));
     expect(outcome).toMatchObject({ applied: true, classification: "compatible" });

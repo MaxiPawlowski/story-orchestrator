@@ -164,6 +164,8 @@ export async function journalSettingsWrite(
   return outcome;
 }
 
+export const savedToLibrarySentence = (record: Pick<StoryLibraryRecord, "title" | "version">) => `Saved “${record.title}” v${record.version} to the library.`;
+
 export const librarySaveSentence = (record: Pick<StoryLibraryRecord, "title" | "version">, evidence: LibrarySaveEvidence) => evidence.confirmed
-  ? `Saved “${record.title}” v${record.version} to the library.`
+  ? savedToLibrarySentence(record)
   : `Saving “${record.title}” v${record.version}… not confirmed: ${evidence.reason}.`;

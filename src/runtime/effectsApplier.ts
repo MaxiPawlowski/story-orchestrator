@@ -1,23 +1,8 @@
 import { type Checkpoint, type CheckpointEffects, type NormalizedStoryV2, type NpcReplyEffect, type NpcReplyTrigger } from "@engine/index";
 import {
-  applyBackground,
-  applyCharacterAN,
-  clearCharacterAN,
-  disableWIEntry,
-  enableWIEntry,
-  executeSlashCommands,
-  lorebookExists,
-  readSamplerPreset,
-  resolveGroupMemberId,
-  samplerApi,
-  setGroupMembersDisabled,
-  setGroupMemberFlags,
-  getActiveGroup,
-  getContext,
-  guardHostStream,
-  watchHostChatMove,
-  isHostGenerating,
-  stopHostGeneration,
+  applyBackground, applyCharacterAN, clearCharacterAN, disableWIEntry, enableWIEntry, executeSlashCommands, lorebookExists,
+  readSamplerPreset, resolveGroupMemberId, samplerApi, setGroupMembersDisabled, setGroupMemberFlags, getActiveGroup,
+  getContext, guardHostStream, watchHostChatMove, isHostGenerating, stopHostGeneration,
 } from "@services/STAPI";
 import { quoteSlashArg } from "@utils/string";
 import { resolveSamplerOverlay, type SamplerApi } from "@utils/samplerKeys";
@@ -159,6 +144,7 @@ export interface EffectApplierDeps {
 }
 
 export const PENDING_NOT_SAVED = "the effect was not applied: its write-ahead record could not be saved";
+export const NO_OPEN_CHAT = "the effect was not applied: no chat is open to own it";
 
 export type RestoreScope = "leave" | "exit" | "restart" | { since: number };
 
@@ -201,6 +187,7 @@ export class EffectsApplier {
   }
 
   private async withLedgerRows<T extends object>(extras: RuntimeExtras, writes: Array<Omit<EffectWrite, "at">>, apply: () => Promise<WriteResult<T>>): Promise<WriteResult<T>> {
+    if (!openChatId()) return { ok: false, reason: NO_OPEN_CHAT };
     const at = new Date().toISOString();
     const rows = writes.map((write) => pendingRow({ ...write, at }));
     const effect = writes[0]?.effect ?? "host";
@@ -231,6 +218,7 @@ export class EffectsApplier {
   async applyCheckpoint(
     story: NormalizedStoryV2, checkpoint: Checkpoint, extras: RuntimeExtras, snapshot: RuntimeSnapshot, mode: "activate" | "hydrate", path: string[], gate?: number,
   ): Promise<void> {
+    if (!openChatId()) return this.deps.journal?.("checkpoint effects were not applied", NO_OPEN_CHAT);
     const key = `${openChatId()}|${checkpoint.id}`;
     const running = this.applying;
     if (mode === "hydrate" && running?.key === key && running.run.stillOwns()) return running.done;

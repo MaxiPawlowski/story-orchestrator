@@ -42,6 +42,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
   const [importText, setImportText] = useState("");
   const identity = snapshot.storyIdentity;
   const playing = playingStory(snapshot);
+  const noChat = snapshot.noChat ?? null;
 
   const whileBusy = async (work: () => Promise<unknown>) => {
     setBusy(true);
@@ -87,7 +88,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
       <div className="flex flex-col gap-1 text-sm">
         <label htmlFor="story-library-select">Story for this chat</label>
         <div className="flex items-center gap-2">
-          <select id="story-library-select" className="flex-1" value={snapshot.storyId ?? ""} disabled={busy} onChange={(event) => void selectStory(event.target.value)}>
+          <select id="story-library-select" className="flex-1" value={snapshot.storyId ?? ""} disabled={busy || Boolean(noChat)} onChange={(event) => void selectStory(event.target.value)}>
             <option value="">Select a story</option>
             {playing && !playing.inLibrary && <option value={playing.id}>{`${playing.title} (pinned copy, not in the library)`}</option>}
             {snapshot.library.map((story) => <option key={story.id} value={story.id}>{story.title}</option>)}
@@ -111,6 +112,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
             onClick={() => void deleteStory()}
           />}
         </div>
+        {noChat && <div id="so-no-chat" role="status" className="text-xs opacity-90">{noChat.notice}</div>}
         {snapshot.storyId && (
           <div id="so-story-identity" className="text-xs opacity-70">
             Playing your pinned copy{identity.playedVersion ? ` (v${identity.playedVersion})` : ""}.
@@ -137,7 +139,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
             placeholder="Paste story JSON, or pick a file below" />
           <input type="file" aria-label="Import story from a JSON file" accept=".json,application/json" disabled={busy}
             onChange={(event) => { void importFile(event.target.files?.[0]); event.target.value = ""; }} />
-          <button type="button" className="menu_button self-start" disabled={busy || !importText.trim()} onClick={() => void importStory()}>Import and load</button>
+          <button type="button" className="menu_button self-start" disabled={busy || !importText.trim()} onClick={() => void importStory()}>{noChat ? "Save to library" : "Import and load"}</button>
         </div>
       )}
       {snapshot.validationErrors.length > 0 && (
