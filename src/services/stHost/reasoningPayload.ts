@@ -60,9 +60,11 @@ function customPlan(route: ReasoningRoute, effort: "off" | ReasoningLevel): Reas
 }
 
 function deepseekPlan(effort: "off" | ReasoningLevel): ReasoningPlan {
-  if (effort === "off") return { payload: { include_reasoning: false }, applied: true, thinks: false, collapsed: false, unsupported: null, requested: effort, supported: true, sent: "thinking=disabled" };
+  const thinks = effort !== "off";
   const value = effort === "low" ? "low" : "high";
-  return { payload: { reasoning_effort: value, include_reasoning: true }, applied: true, thinks: true, collapsed: effort === "medium", unsupported: null, requested: effort, supported: true, sent: value };
+  const payload = thinks ? { reasoning_effort: value, include_reasoning: true } : { include_reasoning: false };
+  const sent = thinks ? value : "thinking=disabled";
+  return { payload, applied: true, thinks, collapsed: effort === "medium", unsupported: null, requested: effort, supported: true, sent };
 }
 
 function chatPlan(route: ReasoningRoute, effort: "off" | ReasoningLevel): ReasoningPlan {
