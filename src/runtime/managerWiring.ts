@@ -166,6 +166,7 @@ export function wireCoordinators(port: ManagerPort) {
   };
   const storyUpdateDeps: StoryUpdateDeps = {
     ...port.storyUpdate, getLoaded: () => port.loaded(), getState: () => (port.loaded() ? engine.serialize() : null),
+    getHistory: () => (port.loaded() ? engine.serializeHistory() : null),
     mergeStory: (raw, base) => expansion.mergedStoryOrBase(raw, base), ownership: lifecycle.ownership,
   };
   return { memory, expansion, extraction, pacing, stagecraft, copilot, inner, rollbackDeps, storyUpdateDeps };

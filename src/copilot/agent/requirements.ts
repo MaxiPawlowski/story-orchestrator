@@ -1,4 +1,4 @@
-import type { StoryRequirements, StoryV2 } from "@engine/index";
+import { castMemberName, resolveCastChanges, type CheckpointEffects, type StoryRequirements, type StoryV2 } from "@engine/index";
 import { isProvisioningKind, provisioningRequirements, type ProvisioningOp } from "@wizard/index";
 import type { ProposalOp } from "../types";
 import type { AgentOp, AgentSession } from "./types";
@@ -18,9 +18,8 @@ const fold = (text: string) => text.trim().toLowerCase();
 const holds = (list: string[] | undefined, value: string) => (list ?? []).some((entry) => fold(entry) === fold(value));
 
 export const rosterNameForId = (draft: StoryV2, member: string): string | null => {
-  if (draft.roster.some((entry) => entry.name && fold(entry.name) === fold(member))) return null;
-  const byId = draft.roster.find((entry) => fold(entry.id) === fold(member));
-  return byId?.name && fold(byId.name) !== fold(member) ? byId.name : null;
+  const name = castMemberName(draft.roster, member);
+  return fold(name) === fold(member) ? null : name;
 };
 
 export const createdBySession = (session: AgentSession): { members: string[]; lorebooks: string[] } => session.steps
@@ -68,5 +67,29 @@ export const checkRequirementsOp = (session: AgentSession, draft: StoryV2, op: R
     op: resolved.length ? { kind: "setRequirements", requirements } : op,
     note: resolved.length ? `Requirements name characters by card name, so roster ids were resolved: ${resolved.join(", ")}.` : null,
     problem: null,
+  };
+};
+
+const effectsOf = (op: AgentOp): CheckpointEffects | undefined => {
+  if (op.kind === "setCheckpointEffects") return op.effects;
+  if (op.kind === "addCheckpoint") return op.checkpoint.effects;
+  if (op.kind === "updateCheckpoint") return op.patch.effects;
+  return undefined;
+};
+
+const withEffects = (op: AgentOp, effects: CheckpointEffects): AgentOp => {
+  if (op.kind === "setCheckpointEffects") return { ...op, effects };
+  if (op.kind === "addCheckpoint") return { ...op, checkpoint: { ...op.checkpoint, effects } };
+  if (op.kind === "updateCheckpoint") return { ...op, patch: { ...op.patch, effects } };
+  return op;
+};
+
+export const resolveCastOp = (draft: StoryV2, op: AgentOp): { op: AgentOp; note: string | null } => {
+  const effects = effectsOf(op);
+  const resolved = effects?.cast_changes === undefined ? null : resolveCastChanges(draft.roster, effects.cast_changes);
+  if (!effects || !resolved?.resolved.length) return { op, note: null };
+  return {
+    op: withEffects(op, { ...effects, cast_changes: resolved.changes }),
+    note: `cast_changes name characters by card name, so roster ids were resolved: ${resolved.resolved.join(", ")}.`,
   };
 };

@@ -6,6 +6,7 @@ import type { JudgeSelfTestReport } from "@judge/selfTest";
 import { getGlobalSettings, setJudgeSettings } from "@runtime/settingsStore";
 import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
+import type { RepairAction } from "@runtime/repair";
 import CapabilitiesGroup, { type CapabilitiesGroupProps } from "./CapabilitiesGroup";
 import EntryPoints from "./EntryPoints";
 import type { JudgeSettingsGroupProps, JudgeSettingsPatch } from "./JudgeSettingsGroup";
@@ -28,6 +29,8 @@ export interface SettingsHost {
   openStudio: () => void;
   openWizardForRequirements: () => void;
   revealSetting: (id: string) => void;
+  repairCast?: (action: RepairAction) => void;
+  openGroup?: () => void;
   openDrawer: () => void;
   openAuthorView?: () => void;
 }
@@ -119,6 +122,8 @@ const SettingsPanel = ({ snapshot, manager, host }: SettingsPanelProps) => {
             onOpenAuthorView={host.openAuthorView}
             onRevealSetting={host.revealSetting}
             onFixWithWizard={host.openWizardForRequirements}
+            onRepairCast={host.repairCast}
+            onOpenGroup={host.openGroup}
           />
           <details id="so-current-chat" className="so-settings-section" open>
             <summary>This chat <span className="opacity-70">— select and continue a story</span></summary>

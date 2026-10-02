@@ -1,6 +1,6 @@
 import { getChatWindow } from "@extraction/index";
 import {
-  clearStoryExtensionPrompt, getContext, noteHostSettingsLoaded, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents,
+  clearStoryExtensionPrompt, getContext, noteHostSettingsLoaded, onGroupEdited, setStoryExtensionPrompt, settingsReady, startSaveWatcherSurface, subscribeToHostEvents,
 } from "@services/STAPI";
 import { registerRuntimeMacros } from "./macros";
 import { startMirrorReaper } from "./mirrorReaperHost";
@@ -98,7 +98,7 @@ const startWatches = () => {
   bridge = new TurnBridge(runtimeManager, runtimeManager.chatSave);
   bridge.start();
   if (__SO_DEV__) void import("./spikes").then(({ installSpikes }) => { if (started && bridge) runtimeDisposers.push(installSpikes(bridge, runtimeManager)); });
-  const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents);
+  const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents, undefined, [onGroupEdited]);
   requirementsWatch.start();
   runtimeDisposers.push(() => requirementsWatch.stop());
   runtimeDisposers.push(startMirrorReaper(() => runtimeManager.notify()));

@@ -35,7 +35,9 @@ const GateReplayPanel: React.FC<{ index: number }> = ({ index }) => {
   const cut = result.divergesAt ?? (result.manualAt !== null ? result.manualAt : null);
   const summary = result.firstHold
     ? `Would first hold at ${at(result.firstHold)}`
-    : `Never held in the last ${result.window.boundaries} boundaries`;
+    : result.window.boundaries
+      ? `Never held in the last ${result.window.boundaries} boundaries`
+      : "This chat keeps no boundary history to replay yet";
   const recorded = result.recordedFire ? `recorded: fired at boundary ${result.recordedFire.boundary}` : "recorded: did not fire";
   const shown = result.rows.filter((row) => row.atSource || row.recordedFire || row.manual);
 

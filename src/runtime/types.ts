@@ -70,6 +70,8 @@ export interface RequirementsState {
   missingPersonas: string[];
   missingMembers: string[];
   missingLorebooks: string[];
+  absentMembers?: string[];
+  absentLorebooks?: string[];
   /** Required members present in the group but muted there: they satisfy nothing, and Repair names them. `ready` is unaffected, so a story cast effect can still unmute them. */
   mutedMembers?: string[];
   /** Which binding ST scans each present book through (author view). */

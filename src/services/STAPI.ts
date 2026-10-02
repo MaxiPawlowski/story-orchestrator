@@ -1,7 +1,7 @@
 export { getContext, getPlayerName, parseHostYaml, registerHostMacro, unregisterHostMacro } from "@services/stHost/context";
 export type { HostArgMacro } from "@services/stHost/macroEngine";
 export { showTextPopup, showConfirmPopup, showChoicePopup, askConfirm } from "@services/stHost/popup";
-export { bindNavbarDrawerToggle, toggleNavbarDrawer } from "@services/stHost/drawers";
+export { bindNavbarDrawerToggle, openGroupMemberList, toggleNavbarDrawer } from "@services/stHost/drawers";
 export { sendSystemChatMessage } from "@services/stHost/chatMessages";
 export type { TextPopupOptions, ConfirmPopupOptions, ChoicePopupOptions, ConfirmAnswer } from "@services/stHost/popup";
 export { readExtensionPromptBlocks, readInjectedPromptBlocks } from "@services/stHost/promptInspector";
@@ -40,7 +40,7 @@ export {
 } from "@services/stHost/characters";
 export { executeSlashCommands } from "@services/stHost/slashCommands";
 export {
-  observeNextSave, observeNextSettingsSave, saveOpenChat, installSaveWatcher, startSaveWatcherSurface, readServerBoundary,
+  observeNextSave, observeNextSettingsSave, onGroupEdited, saveOpenChat, installSaveWatcher, startSaveWatcherSurface, readServerBoundary,
   readServerExtensionSettings, saveWatcherStats, boundaryInBlob, SAVE_OBSERVE_MS, type SaveObservation,
 } from "@services/stHost/persistence";
 export { applyCharacterAN, clearCharacterAN } from "@services/stHost/authorNotes";
@@ -68,7 +68,7 @@ export {
   listSlashCommands,
 } from "@services/stHost/selectors";
 export type { HostLoreBindings, HostSlashCommandMeta } from "@services/stHost/selectors";
-export { getActiveGroup, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, setGroupMemberFlags, readGroupMemberDisabled } from "@services/stHost/groups";
+export { addGroupMembers, getActiveGroup, resolveGroupMemberId, setGroupMembersDisabled, setGroupMemberDisabled, setGroupMemberFlags, readGroupMemberDisabled } from "@services/stHost/groups";
 export { guardHostStream, watchHostChatMove, hostSystemUserName, isHostGenerating, stopHostGeneration, willAddUserMessage } from "@services/stHost/generation";
 export { forceActivateEntries, getScannableEntries, type HostScannableEntry } from "@services/stHost/worldInfoActivate";
 export { readLorebookEntries, setLorebookEntriesDisabled } from "@services/stHost/worldInfoFiles";

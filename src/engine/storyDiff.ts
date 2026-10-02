@@ -1,4 +1,4 @@
-import { keptStagedFrom, type EngineState } from "./engine";
+import { keptStagedFrom, type EngineHistory, type EngineState } from "./engine";
 import type { NormalizedStoryV2, PrimitiveValue, Transition } from "./schema";
 import { qualityAccepts } from "./blackboard";
 import { gateLeaves } from "./gates";
@@ -20,6 +20,9 @@ export type StoryDiffCode =
   | "quality-source-changed-live"
   | "quality-evidence-changed"
   | "checkpoint-agency-changed"
+  | "checkpoint-changed"
+  | "roster-member-changed"
+  | "quality-changed"
   | "checkpoint-added"
   | "checkpoint-removed"
   | "checkpoint-removed-visited"
@@ -75,6 +78,16 @@ const transitionKeys = (transitions: Transition[]): Map<string, Transition> => {
 };
 
 const sameValue = (left: unknown, right: unknown) => JSON.stringify(left ?? null) === JSON.stringify(right ?? null);
+
+const changedFields = (before: object, after: object, skip: readonly string[]): string[] => {
+  const left = before as Record<string, unknown>;
+  const right = after as Record<string, unknown>;
+  return [...new Set([...Object.keys(left), ...Object.keys(right)])]
+    .filter((key) => !skip.includes(key) && !sameValue(left[key], right[key]))
+    .flatMap((key) => (key === "effects" ? changedFields(left.effects ?? {}, right.effects ?? {}, []).map((field) => `effects.${field}`) : [key]));
+};
+
+const QUALITY_DIFFED = ["key", "type", "values", "evidence_from", "latching", "source"] as const;
 
 const rosterRefs = (story: NormalizedStoryV2): Set<string> => {
   const refs = new Set<string>();
@@ -162,6 +175,8 @@ const diffQualities = (ctx: DiffContext) => {
       `${path}.evidence_from`,
       `Which lines can prove “${quality.key}” changed; it applies from the next read, and values already held stay.`,
     );
+    const reworded = changedFields(quality, after, QUALITY_DIFFED);
+    if (reworded.length) push("compatible", "quality-changed", path, `How “${quality.key}” is read changed (${reworded.join(", ")}); it applies from the next read.`);
     if (!ctx.droppedQualityKeys.has(quality.key) && ctx.live(quality.key)) {
       if (!quality.latching && after.latching) push("compatible", "quality-latch-enabled-live", path, `“${quality.key}” now locks once set; the value this chat holds locks on its next write.`);
       if (quality.latching && !after.latching && ctx.latched[quality.key]) {
@@ -203,6 +218,12 @@ const diffCheckpoints = (ctx: DiffContext) => {
       `checkpoints.${checkpoint.id}.agency`,
       `How “${checkpoint.name}” treats the player's choices changed; it applies from the next turn.`,
     );
+  });
+
+  previous.checkpoints.forEach((checkpoint) => {
+    const after = next.checkpointById[checkpoint.id];
+    const fields = after ? changedFields(checkpoint, after, ["agency"]) : [];
+    if (fields.length) push("compatible", "checkpoint-changed", `checkpoints.${checkpoint.id}`, `“${after?.name ?? checkpoint.name}” changed (${fields.join(", ")}); it applies from the next turn.`);
   });
 
   next.checkpoints.filter((checkpoint) => !previous.checkpointById[checkpoint.id]).forEach((checkpoint) => {
@@ -274,7 +295,12 @@ const diffRoster = (ctx: DiffContext) => {
   const referenced = rosterRefs(previous);
   previous.roster.forEach((member) => {
     const refs = [member.id, member.name ?? member.id].map((ref) => ref.trim().toLowerCase());
-    if (refs.some((ref) => nextRoster.has(ref))) return;
+    if (refs.some((ref) => nextRoster.has(ref))) {
+      const after = next.roster.find((entry) => entry.id === member.id);
+      const fields = after ? changedFields(member, after, []) : [];
+      if (fields.length) push("compatible", "roster-member-changed", `roster.${member.id}`, `${after?.name ?? member.id} changed (${fields.join(", ")}).`);
+      return;
+    }
     const stillDirected = refs.some((ref) => referenced.has(ref));
     push("compatible", "roster-member-removed", `roster.${member.id}`, stillDirected
       ? `${member.name ?? member.id} left the cast but is still named by a checkpoint; direction falls back to the rest of the cast.`
@@ -348,4 +374,10 @@ export function pruneEngineState(state: EngineState, next: NormalizedStoryV2, di
     visitedPath: visitedPath.at(-1) !== activeCheckpointId ? [...visitedPath, activeCheckpointId] : visitedPath,
     blackboard: { values: keep(state.blackboard.values), versions: keep(state.blackboard.versions), latched },
   };
+}
+
+export function pruneEngineHistory(history: EngineHistory | null, next: NormalizedStoryV2, diff: StoryDiffResult): EngineHistory | null {
+  if (!history || diff.reanchorTo) return null;
+  const prune = (state: EngineState) => pruneEngineState(state, next, diff);
+  return { ...history, base: prune(history.base), log: history.log.map((entry) => ({ ...entry, before: prune(entry.before), after: prune(entry.after) })) };
 }

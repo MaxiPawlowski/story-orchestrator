@@ -1,4 +1,4 @@
-import { isValidationErrorList, type EngineState, type NormalizedStoryV2 } from "@engine/index";
+import { isValidationErrorList, type EngineHistory, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import type { StoryDiffResult } from "@engine/storyDiff";
 import { showChoicePopup } from "@services/STAPI";
 import { findStoryRecord, loadStoryRecord } from "./storyLibrary";
@@ -23,10 +23,11 @@ export interface StoryUpdateOutcome {
 export interface StoryUpdateDeps {
   getLoaded: () => LoadedStory | null;
   getState: () => EngineState | null;
+  getHistory?: () => EngineHistory | null;
   // The played graph, expansions merged in — diffing the authored base would read every generated
   // beat as removed (and could report the ACTIVE checkpoint as gone).
   mergeStory: (raw: unknown, base: NormalizedStoryV2) => NormalizedStoryV2;
-  swapStory: (loaded: LoadedStory, state: EngineState | null, reanchored: boolean) => Promise<void>;
+  swapStory: (loaded: LoadedStory, state: EngineState | null, reanchored: boolean, history?: EngineHistory | null) => Promise<void>;
   restart: () => Promise<boolean>;
   journal: (outcome: StoryUpdateOutcome) => void;
   ownership: RunOwnership;
@@ -113,7 +114,7 @@ export async function applyStoryUpdate(deps: StoryUpdateDeps, target?: StoryLibr
   const storyDiff = await loadStoryDiff();
   if (!storyDiff) return emptyOutcome("the story comparison could not load; reload SillyTavern and save again");
   if (!loading.stillOwns()) return emptyOutcome(`story update discarded: ${loading.lapsedDetail()}`);
-  const { diffStories, pruneEngineState } = storyDiff;
+  const { diffStories, pruneEngineHistory, pruneEngineState } = storyDiff;
   const loaded = deps.getLoaded();
   if (!loaded) return emptyOutcome("no story is loaded in this chat");
   const record = target ?? findStoryRecord(loaded.record.id);
@@ -167,7 +168,8 @@ export async function applyStoryUpdate(deps: StoryUpdateDeps, target?: StoryLibr
     return outcome;
   }
 
-  await deps.swapStory({ record, story: next }, state ? pruneEngineState(state, next, diff) : null, Boolean(diff.reanchorTo));
+  const history = state ? pruneEngineHistory(deps.getHistory?.() ?? null, next, diff) : null;
+  await deps.swapStory({ record, story: next }, state ? pruneEngineState(state, next, diff) : null, Boolean(diff.reanchorTo), history);
   const outcome = { ...base, applied: true, choice };
   deps.journal(outcome);
   return outcome;

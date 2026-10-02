@@ -119,7 +119,8 @@ const activeGroupEntry = () => {
 export function listGroupMembers(): string[] {
   const group = activeGroupEntry();
   if (!group) return [];
-  return uniq(group.members.map(memberStem).filter(Boolean));
+  const characters = getContext().characters ?? [];
+  return uniq(group.members.flatMap((member) => [memberStem(member), trim(characters.find((character) => character.avatar === member)?.name ?? "")]).filter(Boolean));
 }
 
 export function listMutedGroupMembers(): string[] {

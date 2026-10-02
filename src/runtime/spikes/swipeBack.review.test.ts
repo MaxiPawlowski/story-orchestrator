@@ -171,12 +171,12 @@ describe("v2.5 plan 09 SP1 S2: no stale hit", () => {
     const { world, spike } = await armed("spike", { cache: mutantCache(part) });
     await world.play(script);
     const id = spikeContext.chat.length - 1;
+    await world.newSwipe(id, "stone path");
     const next = { ...JSON.parse(SPIKE_STORY), version: 2, description: "v2: same graph, new words." };
     await world.manager.importStory(JSON.stringify(next));
     const update = await world.manager.applyStoryUpdate();
     await world.settle();
     const played = chatStore.read()?.playedVersion;
-    await world.newSwipe(id, "stone path");
     await world.swipeTo(id, 0);
     const hits = spike.stats.hits;
     world.close();

@@ -8,6 +8,7 @@ export interface RequirementsView {
   members: string[];
   muted?: string[];
   storyMuted?: string[];
+  cards?: string[];
   lore: HostLoreBindings;
 }
 
@@ -56,11 +57,14 @@ export function readRequirements(requirements: StoryRequirements | undefined, vi
     else if (found.unbound.length) characterGaps[book] = found.unbound;
     return found.source === null;
   });
+  const listed = view.lore.listed ?? [];
   return {
     ready: missingPersonas.length === 0 && missingMembers.length === 0 && missingLorebooks.length === 0,
     missingPersonas,
     missingMembers,
     missingLorebooks,
+    absentMembers: view.cards?.length ? missingMembers.filter((member) => !holds(view.cards ?? [], member)) : missingMembers,
+    absentLorebooks: listed.length ? missingLorebooks.filter((book) => !listed.some((name) => bookKey(name) === bookKey(book))) : missingLorebooks,
     mutedMembers,
     satisfiedBy,
     characterGaps,

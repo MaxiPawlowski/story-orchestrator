@@ -49,8 +49,23 @@ const stats = { wraps: 0, reports: 0, refused: 0 };
 // and the request is already being reported.
 const minted = new WeakSet<object>();
 
+const urlOf = (input: unknown): unknown => (typeof input === "string" ? input : input instanceof URL ? input.href : (input as { url?: unknown } | undefined)?.url);
+
+const GROUP_EDIT_PATH = "/api/groups/edit";
+const groupEditListeners = new Set<() => void>();
+const isGroupEdit = (input: unknown) => {
+  const url = urlOf(input);
+  return typeof url === "string" && url.includes(GROUP_EDIT_PATH);
+};
+
+export function onGroupEdited(listener: () => void): () => void {
+  installSaveWatcher();
+  groupEditListeners.add(listener);
+  return () => { groupEditListeners.delete(listener); };
+}
+
 const saveKindOf = (input: unknown): SaveKind | null => {
-  const url = typeof input === "string" ? input : input instanceof URL ? input.href : (input as { url?: unknown } | undefined)?.url;
+  const url = urlOf(input);
   if (typeof url !== "string") return null;
   return (Object.keys(SAVE_PATHS) as SaveKind[]).find((kind) => SAVE_PATHS[kind].some((path) => url.includes(path))) ?? null;
 };
@@ -159,6 +174,7 @@ async function observed(original: typeof fetch, input: RequestInfo | URL, init: 
   try {
     const response = await original(input, init);
     if (kind && watching.length) report(kind, startedAt, answered(response.status), target);
+    if (response.ok && isGroupEdit(input)) groupEditListeners.forEach((listener) => listener());
     return response;
   } catch (error) {
     if (kind && watching.length) report(kind, startedAt, threw(), target);

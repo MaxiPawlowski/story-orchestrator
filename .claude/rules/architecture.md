@@ -7,6 +7,7 @@ src/
     schema.ts                # format-2 types
     agency.ts                # v2.3 plan 07: AgencyPolicy + DEFAULT_AGENCY + the prompt clauses
     validate.ts              # normalization/validation, graph indexes (requirements normalize to {personas,members,lorebooks})
+    castNames.ts             # T5-1 (pure): the ONE cast resolver: a roster id resolves to the member's card name (cast_changes at apply, requirements.members, agent tools, Studio cast editor)
     storyDiff.ts             # v2.1 plan 05 (pure): diffStories(prev,next,state) -> compatible|invalidating + pruneEngineState
     blackboard.ts            # typed values, versions, latching, monotonic checks
     gates.ts / transitions.ts / convergence.ts
@@ -51,7 +52,7 @@ src/
     agencyRecovery.ts        # v2.3 plan 07 (pure): the refusal a boundary log shows — two gate boundaries with nothing fired at a checkpoint that declares exits
     pipeline.ts              # v2.1 plan 04 (pure): derived working/reading/stalled-rechecking/idle/not-configured/error signal
     nextTurn.ts              # v2.3 plan 09 (pure): the author's next-turn preview — INJECTION_REGISTRY + the blocks ST holds, in ST's assembly order
-    repair.ts                # v2.3 plan 09 (pure): the ONE missing step (memory model -> cast -> lore -> persona -> save), consequence before detail
+    repair.ts                # v2.3 plan 09 (pure): the ONE missing step (memory model -> cast -> lore -> persona -> save), consequence before detail; T5-4: a missing member/book whose card/book EXISTS is not provisionable (`absentMembers`/`absentLorebooks` vs `missing*`), it carries a one-click `action` (add-members / unmute-members, run by `castRepair.ts` through `stHost/groups.addGroupMembers` / `setGroupMembersDisabled`) and `opensGroup` (`stHost/drawers.openGroupMemberList`); "Fix with wizard" is seeded only with `provisionableMissing`
     saveHealth.ts            # v2.3 plan 06 (pure): SaveHealth + hasUnsavedChanges (the pending-boundary reading)
     stateExport.ts           # v2.3 plan 05: the author's copy of a chat's story state — clipboard, or the console and a toast when it refuses
     chatSave.ts              # v2.3 V26: the save chokepoint (persist refuses another chat's write, observes the save, `landed()`); the manager delegates to it

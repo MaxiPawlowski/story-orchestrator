@@ -19,7 +19,10 @@ const base = (overrides: Record<string, unknown> = {}): RuntimeSnapshot =>
 const meta: Meta<typeof EntryPoints> = {
   title: "Settings/EntryPoints",
   component: EntryPoints,
-  args: { snapshot: base(), busy: false, importOpen: false, onToggleImport: fn(), onNewStory: fn(), onOpenStudio: fn(), onOpenDrawer: fn(), onRevealSetting: fn(), onFixWithWizard: fn() },
+  args: {
+    snapshot: base(), busy: false, importOpen: false, onToggleImport: fn(), onNewStory: fn(), onOpenStudio: fn(), onOpenDrawer: fn(), onRevealSetting: fn(),
+    onFixWithWizard: fn(), onRepairCast: fn(), onOpenGroup: fn(),
+  },
 };
 
 export default meta;
@@ -85,13 +88,40 @@ export const RepairOffersTheWizardForACast: Story = {
   play: async ({ canvasElement, args }) => {
     const canvas = within(canvasElement);
     await expect(canvas.getByText(/people who are not in this chat/)).toBeInTheDocument();
-    await expect(canvas.getByText("Missing from the group: Belle, Dalan")).toBeInTheDocument();
+    await expect(canvas.getByText("No card on this install: Belle, Dalan")).toBeInTheDocument();
     // The cast is the step, not the lore behind it.
     await expect(canvasElement.querySelector("[data-so='repair-step']")).toHaveAttribute("data-area", "cast");
     await userEvent.click(canvas.getByRole("button", { name: "Fix with wizard" }));
     await expect(args.onFixWithWizard).toHaveBeenCalled();
     // A persona blocks the story and the wizard cannot create one, so it offers no such button.
     await expect(canvas.queryByRole("button", { name: "Show me the setting" })).toBeNull();
+  },
+};
+
+export const RepairAddsAnExistingMemberBack: Story = {
+  args: {
+    snapshot: base({ requirements: { ready: false, missingPersonas: [], missingMembers: ["Lady Corvane"], absentMembers: [], missingLorebooks: [] } }),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/Not in the group: Lady Corvane\. The card exists/)).toBeInTheDocument();
+    await expect(canvas.queryByRole("button", { name: "Fix with wizard" })).toBeNull();
+    await userEvent.click(canvas.getByRole("button", { name: "Add Lady Corvane back to the group" }));
+    await expect(args.onRepairCast).toHaveBeenCalledWith({ kind: "add-members", members: ["Lady Corvane"], label: "Add Lady Corvane back to the group" });
+    await userEvent.click(canvas.getByRole("button", { name: "Show me the group" }));
+    await expect(args.onOpenGroup).toHaveBeenCalled();
+  },
+};
+
+export const RepairUnmutesAMember: Story = {
+  args: {
+    snapshot: base({ requirements: { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [], mutedMembers: ["Lord Vael"] } }),
+  },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Unmute Lord Vael" }));
+    await expect(args.onRepairCast).toHaveBeenCalledWith({ kind: "unmute-members", members: ["Lord Vael"], label: "Unmute Lord Vael" });
+    await expect(canvas.queryByRole("button", { name: "Fix with wizard" })).toBeNull();
   },
 };
 

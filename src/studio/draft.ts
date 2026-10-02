@@ -68,7 +68,7 @@ export interface DraftState {
 export interface DraftActions {
   endRuns: () => void;
   mutate: (fn: (draft: StoryDraft) => StoryDraft, options?: { history?: boolean }) => void;
-  loadDraft: (draft: StoryDraft, sourceHash?: string | null, draftKey?: string) => void;
+  loadDraft: (draft: StoryDraft, sourceHash?: string | null, draftKey?: string, options?: { keepSelection?: boolean }) => void;
   takeUndone: () => string[];
   newDraft: () => void;
   undo: () => void;
@@ -108,8 +108,9 @@ export const useDraftStore = create<DraftStore>((set, get) => ({
       ...derive(next, state.baseline),
     };
   }),
-  loadDraft: (draft, sourceHash = null, draftKey) => set((state) => ({
+  loadDraft: (draft, sourceHash = null, draftKey, options) => set((state) => ({
     ...initialData(draft),
+    ...(options?.keepSelection ? clampSelection(draft, state.selectedCheckpointId, state.selectedTransitionIndex) : {}),
     sourceHash,
     runEpoch: state.runEpoch + 1,
     draftKey: draftKey ?? draftKeyFor(draft),

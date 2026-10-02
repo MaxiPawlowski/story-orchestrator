@@ -1,7 +1,15 @@
 import type { StoryV2 } from "@engine/index";
-import { memberIsPlayer, playerRoles, storyPlayerTexts } from "./playerRole";
+import { castMemberName, isCastMember } from "@engine/index";
+import { memberIsPlayer, playerRoles, rosterMemberIsPlayer, storyPlayerTexts } from "./playerRole";
 
-type CastCode = "cast-member-no-card" | "background-missing" | "roster-member-is-player";
+type CastCode = "cast-member-no-card" | "background-missing" | "roster-member-is-player" | "cast-change-unknown-member";
+
+export const CAST_CONSEQUENCES: Record<CastCode, string> = {
+  "cast-member-no-card": "This character never joins the scene: there is no card by that name, so it cannot be switched on and the story never reads as ready.",
+  "background-missing": "The scene does not change: the install has no background by that name.",
+  "roster-member-is-player": "Another character speaks as the player: the story casts the player's own role as someone else.",
+  "cast-change-unknown-member": "This cast change switches nobody on or off: the name matches no cast member, so whoever it meant stays as they are.",
+};
 
 export interface InstallFacts {
   characterNames?: () => readonly string[];
@@ -21,14 +29,22 @@ const known = (read: (() => readonly string[]) | undefined): Set<string> | null 
 
 const strings = (value: unknown): string[] => (Array.isArray(value) ? value.filter((entry): entry is string => typeof entry === "string") : []);
 
+const castChangeNames = (draft: StoryV2): Array<{ name: string; path: string }> => draft.checkpoints.flatMap((checkpoint, index) => {
+  const changes = checkpoint.effects?.cast_changes as { enable?: unknown; disable?: unknown } | undefined;
+  return (["enable", "disable"] as const).flatMap((side) =>
+    strings(changes?.[side]).map((name, position) => ({ name, path: `checkpoints.${index}.effects.cast_changes.${side}.${position}` })));
+});
+
 const castNames = (draft: StoryV2): Array<{ name: string; path: string }> => [
-  ...draft.checkpoints.flatMap((checkpoint, index) => {
-    const changes = checkpoint.effects?.cast_changes as { enable?: unknown; disable?: unknown } | undefined;
-    return (["enable", "disable"] as const).flatMap((side) =>
-      strings(changes?.[side]).map((name, position) => ({ name, path: `checkpoints.${index}.effects.cast_changes.${side}.${position}` })));
-  }),
+  ...castChangeNames(draft),
   ...(draft.requirements?.members ?? []).map((name, position) => ({ name, path: `requirements.members.${position}` })),
-];
+].map((entry) => ({ ...entry, name: castMemberName(draft.roster, entry.name) }));
+
+export const checkCastChangeMembers = ({ draft, push }: CastRun) => {
+  castChangeNames(draft).filter(({ name }) => !isCastMember(draft.roster, name)).forEach(({ name, path }) => {
+    push("cast-change-unknown-member", "warning", path, `'${name}' is not in the cast: no cast member has that name or id`);
+  });
+};
 
 export const checkCastCards = ({ draft, context, push }: CastRun) => {
   const cards = known(context.characterNames);
@@ -61,8 +77,8 @@ export const checkPlayerInRoster = ({ draft, push }: CastRun) => {
   const personas = draft.requirements?.personas ?? [];
   draft.roster.forEach((member, index) => {
     const match = memberIsPlayer(member, roles, personas);
-    if (!match) return;
-    const how = match.persona ? "it is the player's persona" : `the story addresses the player as '${match.role}'`;
+    if (!match && !rosterMemberIsPlayer(member, draft)) return;
+    const how = !match ? "it is marked as the player" : match.persona ? "it is the player's persona" : `the story addresses the player as '${match.role}'`;
     push("roster-member-is-player", "warning", `roster.${index}`, `'${member.name ?? member.id}' is the player (${how}); the player is never a cast member, so remove it`);
   });
 };

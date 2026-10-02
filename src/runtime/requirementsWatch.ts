@@ -50,24 +50,36 @@ export async function refreshRequirementsNow(host: RequirementsHost, run: RunGua
 
 type Subscribe = (entries: Array<{ eventName: string; handler: () => void }>) => () => void;
 
+export type RequirementsSource = (handler: () => void) => () => void;
+
 export class RequirementsWatch {
   private timer: ReturnType<typeof setTimeout> | null = null;
   private run: RunGuard | null = null;
   private unsubscribe: (() => void) | null = null;
   private last: Promise<RequirementsRefresh> | null = null;
 
-  constructor(private readonly host: RequirementsHost, private readonly subscribe: Subscribe, private readonly delayMs = REQUIREMENTS_DEBOUNCE_MS) {}
+  constructor(
+    private readonly host: RequirementsHost,
+    private readonly subscribe: Subscribe,
+    private readonly delayMs = REQUIREMENTS_DEBOUNCE_MS,
+    private readonly sources: RequirementsSource[] = [],
+  ) {}
 
   start() {
     if (this.unsubscribe) return;
     const handler = () => this.schedule();
-    this.unsubscribe = this.subscribe([
+    const stops = this.sources.map((source) => source(handler));
+    const events = this.subscribe([
       { eventName: "PERSONA_CHANGED", handler },
       { eventName: "GROUP_UPDATED", handler },
       { eventName: "WORLDINFO_SETTINGS_UPDATED", handler },
       { eventName: "CHARACTER_EDITED", handler },
       { eventName: "GENERATION_STARTED", handler },
     ]);
+    this.unsubscribe = () => {
+      events();
+      stops.forEach((stop) => stop());
+    };
   }
 
   stop() {

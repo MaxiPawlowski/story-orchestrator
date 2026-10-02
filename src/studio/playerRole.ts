@@ -35,3 +35,10 @@ export const memberIsPlayer = (member: Pick<RosterMember, "id" | "name">, roles:
   const role = roles.find((entry) => names.includes(entry));
   return role ? { role, persona: false } : null;
 };
+
+const PLAYER_ROLE = /^\s*(?:the\s+)?player\b|\bplayer[ -](?:persona|character)\b/i;
+
+export const rosterMemberIsPlayer = (member: RosterMember, draft: StoryV2): boolean =>
+  memberIsPlayer(member, playerRoles(storyPlayerTexts(draft)), draft.requirements?.personas ?? []) !== null
+  || foldName(member.id) === "player"
+  || PLAYER_ROLE.test(member.role ?? "");

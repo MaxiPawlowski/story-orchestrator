@@ -3,7 +3,7 @@ import { appendJudgeCall, type JudgeCallRecord, type SceneReadRecord } from "@ju
 import type { JudgeRuntime } from "./judge";
 import { acceptModelCall, type ModelCallRecord } from "./modelCallLog";
 import {
-  StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryLogEntry, type BoundaryResult, type EngineState,
+  StoryEngine, type RollbackOutcome, type ApplyQueueEntry, type BoundaryContext, type BoundaryLogEntry, type BoundaryResult, type EngineHistory, type EngineState,
   type NormalizedStoryV2, type NormalizedTransition, type TalkControl, type ValidationError,
 } from "@engine/index";
 import {
@@ -41,7 +41,7 @@ import { applyStoryUpdate, type StoryUpdateOutcome } from "./storyUpdate";
 import { parseQualityValue } from "./values";
 import { SessionJournal, type JournalEvent, type JournalRecordKind } from "./journal";
 import { evaluateRequirements, requirementsOptions } from "./requirements";
-import type { RequirementsHost } from "./requirementsWatch";
+import { refreshRequirementsNow, type RequirementsHost } from "./requirementsWatch";
 import { getMetadataBlob, getSelectedStoryId, loadPersistedRuntime, setSelectedStoryId } from "./persistence";
 import { findStoryRecord } from "./storyLibrary";
 import { settingsRoot } from "./settingsRoot";
@@ -134,7 +134,7 @@ export class RuntimeManager extends CoordinatorDelegates {
       notices: this.notices, onApplied: (messageId, window) => this.rollbackListeners.forEach((listener) => listener(messageId, window)),
     },
     storyUpdate: {
-      swapStory: (loaded, state, reanchored) => this.swapStory(loaded, state, reanchored), restart: () => this.restartStory(true),
+      swapStory: (loaded, state, reanchored, history) => this.swapStory(loaded, state, reanchored, history), restart: () => this.restartStory(true),
       journal: (outcome) => {
         this.lastStoryUpdate = outcome;
         this.journal.record("story",
@@ -548,13 +548,13 @@ export class RuntimeManager extends CoordinatorDelegates {
   async applyStoryUpdate(record?: StoryLibraryRecord): Promise<StoryUpdateOutcome> { return applyStoryUpdate(this.co.storyUpdateDeps, record); }
   getLastStoryUpdate(): StoryUpdateOutcome | null { return this.lastStoryUpdate; }
 
-  private async swapStory(loaded: LoadedStory, state: EngineState | null, reanchored: boolean) {
+  private async swapStory(loaded: LoadedStory, state: EngineState | null, reanchored: boolean, history: EngineHistory | null = null) {
     const previous = this.loaded?.story ?? null;
     this.loaded = loaded;
     this.loadedChatId = this.owner.claimedChat();
     const run = beginRun(this.owner.ownership);
     this.engine.loadStory(loaded.story);
-    if (state) this.engine.hydrate(state);
+    if (state) this.engine.hydrate(state, history);
     this.expansion.pruneRemovedQualities(loaded.story);
     this.refreshRequirements();
     this.expansion.revalidateInserted();
@@ -614,5 +614,6 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.refreshRequirements();
     return this.loaded ? { before, after: this.extras.requirements.ready, behind: this.extras.lastAppliedCheckpointId !== this.engine.activeCheckpoint.id } : null;
   } };
+  refreshRequirementsNow() { return refreshRequirementsNow(this.requirementsHost); }
 }
 export const runtimeManager = new RuntimeManager();

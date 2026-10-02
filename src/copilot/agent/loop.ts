@@ -10,7 +10,7 @@ import { applyOp, applyOps, applyOpsChecked, diffProposal, isProvisioningOp, pro
 import { renderPlanPrompt, renderStepPrompt } from "./prompt";
 import { runReadTool } from "./readTools";
 import type { AgentAudit, AgentRoute, RouteAnswer } from "./route";
-import { checkRequirementsOp } from "./requirements";
+import { checkRequirementsOp, resolveCastOp } from "./requirements";
 import { checkToolCall, type ReadToolName } from "./tools";
 import { doneSummary, missingAtDone, refusedDoneLast } from "./finish";
 import { greetingClash, playerCastProblem } from "./playerCast";
@@ -208,6 +208,11 @@ const editProblem = (draft: StoryV2, op: AgentOp): string | null => {
   return issue ? issue.replace(/^ops\.0: /, "") : null;
 };
 
+export const NO_CHANGE = "this changes nothing in the draft; send only the fields that change, or move on";
+
+const unchangedProblem = (draft: StoryV2, op: AgentOp): string | null =>
+  (JSON.stringify(applyAgentOp(draft, op)) === JSON.stringify(draft) ? NO_CHANGE : null);
+
 export const executeReply = (session: AgentSession, reply: AgentReply, context: AgentContext, meta: StepMeta): AgentTurn => {
   const at = meta.at ?? now();
   if (reply.kind === "plan") {
@@ -238,9 +243,11 @@ export const executeReply = (session: AgentSession, reply: AgentReply, context: 
   }
   const requirements = op.kind === "setRequirements" ? checkRequirementsOp(session, context.draft, op) : null;
   if (requirements?.problem) return record({ family: "edit", op, status: "refused", observation: `Refused: ${requirements.problem}` });
-  const edit = requirements?.op ?? op;
-  const noted = (text: string) => (requirements?.note ? `${text} ${requirements.note}` : text);
-  const problem = editProblem(context.draft, edit);
+  const cast = resolveCastOp(context.draft, requirements?.op ?? op);
+  const edit = cast.op;
+  const note = [requirements?.note, cast.note].filter(Boolean).join(" ");
+  const noted = (text: string) => (note ? `${text} ${note}` : text);
+  const problem = editProblem(context.draft, edit) ?? unchangedProblem(context.draft, edit);
   if (problem) return record({ family: "edit", op: edit, status: "refused", observation: `Refused: ${problem}` });
   if (session.mode === "auto-draft") {
     const check = checkDraft(applyAgentOp(context.draft, edit), installOf(context));
@@ -321,7 +328,18 @@ export interface OpPreview {
   after: unknown;
 }
 
+const fieldPath = (root: unknown, fields: string[]): unknown => fields.reduce<unknown>((value, field) => (isRecord(value) ? value[field] ?? null : null), root);
+
+const entityPath = (draft: StoryV2, entity: string): unknown => {
+  const [collection, id, ...fields] = entity.split(".");
+  if (collection === "roster") return fieldPath(draft.roster.find((entry) => entry.id === id) ?? null, fields);
+  if (collection === "checkpoints") return fieldPath(draft.checkpoints.find((entry) => entry.id === id) ?? null, fields);
+  return undefined;
+};
+
 const entityOf = (draft: StoryV2, entity: string): unknown => {
+  const dotted = entityPath(draft, entity);
+  if (dotted !== undefined) return dotted;
   const [kind, ...rest] = entity.split(":");
   const key = rest.join(":");
   if (kind === "quality") return draft.qualities.find((entry) => entry.key === key) ?? null;
