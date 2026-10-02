@@ -1,0 +1,55 @@
+{
+  "$source": "test/sessions/T4/T4-2-2: journal.jsonl:928-938 (the parent reopened from Branch #1; load 05:51:59.927 -> 'Continuing' 05:52:09.322), journal.jsonl:930 (generation started, payload captured 05:52:04.235), payloads.jsonl:119 (request sent 05:52:08.650, draftMemberName Giada, msg 16), runtime-2026-10-02@02h40m10s079ms.json stories.adolion-adventurer.extras.effects.cast (the 15-member cast mirror), journal.jsonl:513-544 (a same-group hydrate 05:49:16 -> 05:49:33)",
+  "hydrate": {
+    "loadStartedAt": "2026-10-02T05:51:59.927Z",
+    "generationStartedAt": "2026-10-02T05:52:04.235Z",
+    "requestSentAt": "2026-10-02T05:52:08.650Z",
+    "continuingAt": "2026-10-02T05:52:09.322Z"
+  },
+  "groupId": "1790919206079",
+  "castMirror": [
+    { "member": "Domas.png", "disabled": true },
+    { "member": "Rydel.png", "disabled": true },
+    { "member": "Fiana.png", "disabled": true },
+    { "member": "Talis.png", "disabled": true },
+    { "member": "Alida.png", "disabled": true },
+    { "member": "Tatiana.png", "disabled": true },
+    { "member": "Kashina.png", "disabled": true },
+    { "member": "Alder.png", "disabled": true },
+    { "member": "Gustall.png", "disabled": true },
+    { "member": "Naomi.png", "disabled": true },
+    { "member": "Giada.png", "disabled": true },
+    { "member": "Riyo.png", "disabled": true },
+    { "member": "Tobias.png", "disabled": true },
+    { "member": "Ellie.png", "disabled": true },
+    { "member": "Vallie.png", "disabled": true }
+  ],
+  "readCursor": {
+    "$source": "runtime-2026-10-02@02h40m10s079ms.json engineHistory.log (boundaries 1-7, the log before the 05:46:08 switch) and extras.extraction.audits created before it; journal.jsonl:382-400 (first_camp queued twice), :415 (back at 05:46:14, 10 messages), :443/:459 (boundaries 8, 9 apply nothing), :468 (cadence 8-12 re-reads it), :491 (applied at boundary 10)",
+    "appliedRanges": [
+      { "boundary": 2, "from": 0, "to": 0 },
+      { "boundary": 2, "from": 0, "to": 0 },
+      { "boundary": 4, "from": 0, "to": 4 },
+      { "boundary": 5, "from": 0, "to": 5 },
+      { "boundary": 7, "from": 0, "to": 7 },
+      { "boundary": 7, "from": 5, "to": 7 }
+    ],
+    "audits": [
+      { "id": "3c8ff443", "reason": "cue:guild-hall->adv-guild-tavern", "window": { "from": 0, "to": 0 }, "accepted": 6 },
+      { "id": "7827710f", "reason": "scene:time_skip", "window": { "from": 0, "to": 0 }, "accepted": 5 },
+      { "id": "688d1198", "reason": "cadence", "window": { "from": 1, "to": 4 }, "accepted": 4 },
+      { "id": "ee6f340e", "reason": "cue:guild-hall->road-to-wendhope", "window": { "from": 0, "to": 4 }, "accepted": 7 },
+      { "id": "45a513d4", "reason": "cue:road-to-wendhope->at-the-walls", "window": { "from": 0, "to": 5 }, "accepted": 4 },
+      { "id": "ae4c1195", "reason": "scene:cast", "window": { "from": 0, "to": 5 }, "accepted": 4 },
+      { "id": "4d66712a", "reason": "scene:location", "window": { "from": 0, "to": 7 }, "accepted": 1 },
+      { "id": "c7e9955f", "reason": "scene:judge", "window": { "from": 0, "to": 7 }, "accepted": 1 },
+      { "id": "9ce869ea", "reason": "cadence", "window": { "from": 5, "to": 7 }, "accepted": 1 },
+      { "id": "7465ee5b", "reason": "cue:road-to-wendhope->on-the-road", "window": { "from": 2, "to": 9 }, "accepted": 4 },
+      { "id": "fdb8e36a", "reason": "scene:judge", "window": { "from": 2, "to": 9 }, "accepted": 4 }
+    ],
+    "returnedAt": { "boundary": 7, "lastMessageId": 9 },
+    "cadence": 3,
+    "stabilityLag": 0,
+    "firstCampEvidenceMessage": 9
+  }
+}

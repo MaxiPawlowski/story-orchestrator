@@ -24,6 +24,15 @@ jest.mock("@services/STAPI", () => ({
     host.group.disabled_members = [...flags];
     return { ok: true, group: "g1" };
   },
+  setGroupMemberFlags: async (_group: string, flags: Array<{ member: string; disabled: boolean }>) => {
+    const disabled = new Set(host.group.disabled_members);
+    for (const flag of flags) {
+      if (flag.disabled) disabled.add(flag.member);
+      else disabled.delete(flag.member);
+    }
+    host.group.disabled_members = [...disabled];
+    return { ok: true, members: flags.length };
+  },
 }));
 
 import { EffectsApplier } from "./effectsApplier";

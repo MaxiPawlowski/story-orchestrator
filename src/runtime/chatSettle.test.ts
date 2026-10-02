@@ -14,18 +14,19 @@ const deferred = () => {
 
 describe("ChatSettle: a reply waits for the chat it is written in (T1-7, v2.6 plan 15)", () => {
   it("goes ahead at once when no chat load is in flight", async () => {
-    await expect(new ChatSettle(fakeClock()).until(() => false)).resolves.toBe("settled");
+    await expect(new ChatSettle(fakeClock()).until()).resolves.toBe("settled");
   });
 
-  it("waits while a load is in flight and the story is not this chat's, and goes ahead once it is", async () => {
+  it("the load's own speech goes ahead at once while the load is in flight", async () => {
     const settle = new ChatSettle(fakeClock());
     const load = deferred();
     void settle.track(load.promise);
-    let owned = false;
-    let polls = 0;
-    const outcome = await settle.until(() => { polls += 1; if (polls === 3) owned = true; return owned; });
-    expect(outcome).toBe("owned");
-    expect(polls).toBe(3);
+    const speech = deferred();
+    const speaking = settle.speak(() => speech.promise);
+    await expect(settle.until()).resolves.toBe("owned");
+    speech.resolve();
+    await speaking;
+    expect(settle.speaking()).toBe(false);
     load.resolve();
   });
 
@@ -33,7 +34,7 @@ describe("ChatSettle: a reply waits for the chat it is written in (T1-7, v2.6 pl
     const settle = new ChatSettle(fakeClock());
     const load = deferred();
     const tracked = settle.track(load.promise);
-    const waiting = settle.until(() => false);
+    const waiting = settle.until();
     load.resolve();
     await tracked;
     await expect(waiting).resolves.toBe("settled");
@@ -42,7 +43,7 @@ describe("ChatSettle: a reply waits for the chat it is written in (T1-7, v2.6 pl
   it("gives up after the timeout so a stuck load never blocks the chat", async () => {
     const settle = new ChatSettle(fakeClock());
     void settle.track(new Promise<void>(() => undefined));
-    await expect(settle.until(() => false, CHAT_SETTLE_POLL_MS * 5)).resolves.toBe("timed-out");
+    await expect(settle.until(CHAT_SETTLE_POLL_MS * 5)).resolves.toBe("timed-out");
   });
 
   it("a failed load still counts as finished", async () => {

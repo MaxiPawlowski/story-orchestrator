@@ -35,7 +35,7 @@ import { ChatSave } from "./chatSave";
 import { hasUnsavedChanges } from "./saveHealth";
 import { getGlobalSettings, setGlobalSettings, type SpikeSettings, type TalkChainSettings } from "./settingsStore";
 import { buildPossibleTransitions } from "./snapshot";
-import { buildRuntimeSnapshot, snapshotSources } from "./snapshotBuilder";
+import { buildRuntimeSnapshot, CHAT_LOADING_STATUS, snapshotSources } from "./snapshotBuilder";
 import { SnapshotCache } from "./snapshotCache";
 import { applyStoryUpdate, type StoryUpdateOutcome } from "./storyUpdate";
 import { parseQualityValue } from "./values";
@@ -95,7 +95,7 @@ export class RuntimeManager extends CoordinatorDelegates {
   noteRecap(summary: string, detail: string, kind: JournalRecordKind = "story") { this.journal.record(kind, summary, this.journalContext(), detail); this.extras.journal = this.journal.getRecords(); }
   private readonly effects: EffectsApplier;
   private readonly listeners = new Set<() => void>();
-  private readonly snapshotCache = new SnapshotCache<RuntimeSnapshot>(() => this.getSnapshot());
+  private readonly snapshotCache = new SnapshotCache<RuntimeSnapshot>(() => this.getSnapshot(Boolean(this.loaded) && this.loadedChatId !== String(getContext().chatId ?? "")));
   private readonly boundaryListeners = new Set<(result: BoundaryResult) => void>();
   private readonly rollbackListeners = new Set<(messageId: number, window: SharedReadWindow) => void>();
   private readonly sceneBreakListeners = new Set<(audit: SharedReadAudit, collect?: SchedulerJob[]) => void>();
@@ -489,12 +489,11 @@ export class RuntimeManager extends CoordinatorDelegates {
   getCachedSnapshot(): RuntimeSnapshot { return this.snapshotCache.read(); }
   touch() { this.snapshotCache.invalidate(); }
 
-  getSnapshot(): RuntimeSnapshot {
+  getSnapshot(elsewhere = false): RuntimeSnapshot {
     return buildRuntimeSnapshot(snapshotSources({
-      ...this.co, loaded: this.loaded, engine: this.engine, extras: this.extras, validationErrors: this.validationErrors, status: this.status,
+      ...this.co, loaded: elsewhere ? null : this.loaded, engine: this.engine, extras: elsewhere ? createExtras(getGlobalSettings) : this.extras,
+      validationErrors: this.validationErrors, status: elsewhere ? CHAT_LOADING_STATUS : this.status,
       notices: this.notices, payloadCaptures: this.journal.getCaptures(), extractionHealth: this.scheduler?.health() ?? null,
-      // A live in-memory read of ST's own extension prompts: cheap, and the only honest answer to
-      // "what will the next reply carry" (a capture answers what the LAST one carried).
       promptBlocks: readExtensionPromptBlocks(), chat: getContext().chat ?? [], fingerprints: this.chatSave.fingerprints.current,
       characters: getContext().characters ?? [],
     }));
@@ -530,7 +529,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     // The history travels WITH the state: `hydrate` clears the log before restoring what it is handed.
     const saved = mode === "hydrate" ? persisted?.engineState ?? null : null;
     if (saved) this.engine.hydrate(saved, persisted?.engineHistory ?? null); else this.memory.markStoryStart();
-    this.reconcileEffectLedger();
+    this.reconcileEffectLedger(); this.notify();
     await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), saved ? "hydrate" : "activate",
       stagedPath(this.engine.checkpointPath, this.engine.serialize().stagedFrom));
     // A superseded load stops here: its tail used to retitle the newer load, release ITS gated lore and

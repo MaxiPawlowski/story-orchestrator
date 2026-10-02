@@ -10,6 +10,25 @@ import { EFFECT_LEDGER_LIMIT, type EffectLedgerRow, type EffectLedgerStatus, typ
 // `pending` by a crash is not a mystery: the host either holds `after` (the write landed), `before`
 // (it never did) or neither (something else wrote). `reconcile` is that decision, kept pure here.
 
+// `disabled_members` lives on the GROUP, shared by every chat that opens it, so a
+// checkpoint's cast change outlives the chat that made it: one story's staging would otherwise decide
+// another story's cast. Each member an effect names is its own ledger row, carrying the flag the
+// group held BEFORE, and the chat keeps its own `extras.effects.cast` mirror — what this chat plays
+// is never read back from the group.
+export const castFlag = (group: { disabled_members?: string[] }, member: string) => ({ disabled: (group.disabled_members ?? []).includes(member) });
+
+export const rollbackCastMirror = (mirror: { member: string; disabled: boolean }[], reverted: EffectLedgerRow[]) => {
+  let next = [...mirror];
+  for (const row of [...reverted].reverse()) {
+    if (row.target.kind !== "cast") continue;
+    const member = row.target.member;
+    const before = typeof row.before?.disabled === "boolean" ? row.before.disabled : null;
+    next = next.filter((entry) => entry.member !== member);
+    if (before !== null) next.push({ member, disabled: before });
+  }
+  return next;
+};
+
 export interface EffectWrite {
   effect: string;
   target: EffectTarget;

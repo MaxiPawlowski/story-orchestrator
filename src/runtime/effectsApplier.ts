@@ -11,6 +11,7 @@ import {
   resolveGroupMemberId,
   samplerApi,
   setGroupMembersDisabled,
+  setGroupMemberFlags,
   getActiveGroup,
   getContext,
   guardHostStream,
@@ -25,7 +26,7 @@ import { samplerOverlay } from "./samplerOverlay";
 import type { WriteResult } from "@utils/writeResult";
 import { renderBlackboardMemo } from "./blackboardMemo";
 import { transitionNoteText } from "./narrative";
-import { appendRow, pendingRow, restorePlan, rowsAfter, runRestoreSteps, setStatus, type EffectWrite } from "./effectLedger";
+import { appendRow, castFlag, pendingRow, restorePlan, rollbackCastMirror, rowsAfter, runRestoreSteps, setStatus, type EffectWrite } from "./effectLedger";
 import { effectExtensions, type EffectExtension, type EffectExtensionInput } from "./effectExtensions";
 import type { EffectLedgerRow, EffectTarget, RuntimeExtras, RuntimeSnapshot } from "./types";
 import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoGates";
@@ -36,6 +37,7 @@ import { npcReplyMayFire, recordNpcReplyFire, recordOnEnterPost } from "./npcRep
 import { isRecord } from "@utils/guards";
 import { castInPlayNote } from "./castInPlay";
 import { InFlight } from "./inFlight";
+import { chatSettle } from "./chatSettle";
 
 // What a host effect changed, read back from the host as it is NOW. Every reader is a
 // QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
@@ -43,18 +45,6 @@ import { InFlight } from "./inFlight";
 export interface EffectHostReads {
   read: (target: EffectTarget) => Record<string, unknown> | null;
 }
-
-export const rollbackCastMirror = (mirror: { member: string; disabled: boolean }[], reverted: EffectLedgerRow[]) => {
-  let next = [...mirror];
-  for (const row of [...reverted].reverse()) {
-    if (row.target.kind !== "cast") continue;
-    const member = row.target.member;
-    const before = typeof row.before?.disabled === "boolean" ? row.before.disabled : null;
-    next = next.filter((entry) => entry.member !== member);
-    if (before !== null) next.push({ member, disabled: before });
-  }
-  return next;
-};
 
 // The targets a restore can put back. a preset is a per-request sampler overlay
 // that writes nothing to the host, so it has nothing to restore and is not "left in place" either.
@@ -132,13 +122,6 @@ export const replayWorldInfoFiles = async (library: unknown[], story: Normalized
   if (!story || !path) return released;
   return [...released, ...(await applyWorldInfo(worldInfoPlan(story, path), run))];
 };
-
-// `disabled_members` lives on the GROUP, shared by every chat that opens it, so a
-// checkpoint's cast change outlives the chat that made it: one story's staging would otherwise decide
-// another story's cast. Each member an effect names is its own ledger row, carrying the flag the
-// group held BEFORE, and the chat keeps its own `extras.effects.cast` mirror — what this chat plays
-// is never read back from the group.
-const castFlag = (group: { disabled_members?: string[] }, member: string) => ({ disabled: (group.disabled_members ?? []).includes(member) });
 
 const fireReply = async (reply: NpcReplyEffect) => {
   if (reply.kind === "scripted") {
@@ -223,13 +206,22 @@ export class EffectsApplier {
   // a `pending` row that hydrate reconciles against the host's own value, so a write that landed
   // without being recorded is still known to have landed — and one that never landed is known to
   // have nothing to restore.
-  private async withLedger<T extends object>(extras: RuntimeExtras, write: Omit<EffectWrite, "at">, apply: () => Promise<WriteResult<T>>): Promise<WriteResult<T>> {
-    const row = pendingRow({ ...write, at: new Date().toISOString() });
-    extras.effects.ledger = appendRow(extras.effects.ledger, row);
+  private withLedger<T extends object>(extras: RuntimeExtras, write: Omit<EffectWrite, "at">, apply: () => Promise<WriteResult<T>>): Promise<WriteResult<T>> {
+    return this.withLedgerRows(extras, [write], apply);
+  }
+
+  private async withLedgerRows<T extends object>(extras: RuntimeExtras, writes: Array<Omit<EffectWrite, "at">>, apply: () => Promise<WriteResult<T>>): Promise<WriteResult<T>> {
+    const at = new Date().toISOString();
+    const rows = writes.map((write) => pendingRow({ ...write, at }));
+    const effect = writes[0]?.effect ?? "host";
+    const settle = (status: "applied" | "failed", detail: { reason?: string }) => {
+      for (const row of rows) extras.effects.ledger = setStatus(extras.effects.ledger, row.id, status, detail);
+    };
+    for (const row of rows) extras.effects.ledger = appendRow(extras.effects.ledger, row);
     await this.deps.persist?.();
     if (this.deps.unsaved?.()) {
-      extras.effects.ledger = setStatus(extras.effects.ledger, row.id, "failed", { reason: PENDING_NOT_SAVED });
-      this.deps.journal?.(`${write.effect} effect was not applied`, PENDING_NOT_SAVED);
+      settle("failed", { reason: PENDING_NOT_SAVED });
+      this.deps.journal?.(`${effect} effect was not applied`, PENDING_NOT_SAVED);
       return { ok: false, reason: PENDING_NOT_SAVED };
     }
     let result: WriteResult<T>;
@@ -238,9 +230,9 @@ export class EffectsApplier {
     } catch (error) {
       result = { ok: false, reason: error instanceof Error ? error.message : "the host refused the write" };
     }
-    extras.effects.ledger = setStatus(extras.effects.ledger, row.id, result.ok ? "applied" : "failed", result.ok ? {} : { reason: result.reason });
+    settle(result.ok ? "applied" : "failed", result.ok ? {} : { reason: result.reason });
     await this.deps.persist?.();
-    if (!result.ok) this.deps.journal?.(`${write.effect} effect could not be applied`, result.reason);
+    if (!result.ok) this.deps.journal?.(`${effect} effect could not be applied`, result.reason);
     return result;
   }
 
@@ -409,17 +401,15 @@ export class EffectsApplier {
 
   private async applyCastMirror(extras: RuntimeExtras, scope: EffectScope, run: RunGuard) {
     const group = getActiveGroup();
-    if (!group) return;
-    for (const { member, disabled } of extras.effects.cast) {
-      if (!run.stillOwns()) return;
-      const before = castFlag(group, member);
-      if (before.disabled === disabled) continue;
-      await this.withLedger(
-        extras,
-        { ...scope, effect: "cast", target: { kind: "cast", group: String(group.id ?? ""), member }, before, after: { disabled } },
-        async () => setGroupMembersDisabled(disabled ? [] : [member], disabled ? [member] : []),
-      );
-    }
+    if (!group || !run.stillOwns()) return;
+    const groupId = String(group.id ?? "");
+    const flags = extras.effects.cast.filter(({ member, disabled }) => castFlag(group, member).disabled !== disabled);
+    if (!flags.length) return;
+    await this.withLedgerRows(
+      extras,
+      flags.map(({ member, disabled }) => ({ ...scope, effect: "cast", target: { kind: "cast" as const, group: groupId, member }, before: castFlag(group, member), after: { disabled } })),
+      async () => setGroupMemberFlags(groupId, flags),
+    );
   }
 
   async restoreFor(extras: RuntimeExtras, scope: RestoreScope): Promise<{ reverted: number; refused: number }> {
@@ -531,7 +521,7 @@ export class EffectsApplier {
       extras.firedNpcRepliesAt = extras.firedNpcRepliesAt ?? {};
       recordNpcReplyFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key, lastMessageId());
       this.speaking += 1;
-      try { await this.speak(reply); }
+      try { await chatSettle.speak(() => this.speak(reply)); }
       finally { this.speaking -= 1; }
       spoken += 1;
       if (!run.stillOwns()) return spoken;

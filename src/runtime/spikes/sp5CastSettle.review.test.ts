@@ -32,6 +32,21 @@ jest.mock("@services/STAPI", () => ({
     }
     return new Promise((resolve) => pending.push(() => { land(); resolve({ ok: true }); }));
   },
+  setGroupMemberFlags: (_group: string, flags: Array<{ member: string; disabled: boolean }>) => {
+    const land = () => {
+      const disabled = new Set(world.group.disabled_members);
+      for (const flag of flags) {
+        if (flag.disabled) disabled.add(flag.member);
+        else disabled.delete(flag.member);
+      }
+      world.group.disabled_members = [...disabled];
+    };
+    if (!holdCastWrites) {
+      land();
+      return Promise.resolve({ ok: true });
+    }
+    return new Promise((resolve) => pending.push(() => { land(); resolve({ ok: true }); }));
+  },
   getCurrentBackground: () => ({ name: "" }),
   readGroupMemberDisabled: () => null,
   setGroupMemberDisabled: async () => ({ ok: true }),
