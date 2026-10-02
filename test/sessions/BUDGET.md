@@ -39,8 +39,10 @@ Budget: EUR 20 granted 2026-09-30 (about USD 21.6 at 1.08), stop at about EUR 19
 Baseline: RunPod account spend 2026-10-01 before this work = USD 0.05 (storage only); 2026-09-29..30 spend (USD 14.40) was earlier sessions' and is not counted.
 Reused resource: network volume `x9gi6f1rig` (comfy-pod, EU-RO-1, 50 GB, holds the Artemis GGUF); storage billing is pre-existing and not counted.
 
+RunPod billing check 2026-10-02 04:30Z: this work's pods total USD 15.28 (5mmoei8glfi1gu 7.55, jlur25ufnngbia 3.43, m4dmlnzn70qgj2 4.30); left about USD 5.2 of the USD 20.5 stop line.
+
 | Date | Pod | GPU | $/h | Hours | Cost | Note |
 |---|---|---|---|---|---|---|
 | 2026-10-01 | 5mmoei8glfi1gu llm-pod-4500-so26 (created this work, started 11:01:27Z) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | stopped (EXITED, idle auto-stop ~21:27Z during the DeepSeek outage) after 10.44 h | ~$7.52 | Artemis 31B Q4_K_M, ctx 196608, parallel 4, kv-unified; IDLE_MINUTES 90 |
-| 2026-10-01 | m4dmlnzn70qgj2 llm-pod-4500-so26-b (created this work, started 21:32:53Z; replaces 5mmoei8glfi1gu, whose host had no free GPU after the idle stop; the old pod terminated) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | running | | same env, IDLE_MINUTES 60 |
+| 2026-10-01 | m4dmlnzn70qgj2 llm-pod-4500-so26-b (created this work, started 21:32:53Z; replaces 5mmoei8glfi1gu, whose host had no free GPU after the idle stop; the old pod terminated) | RTX PRO 4500 Blackwell, EU-RO-1 | 0.72 | stopped (EXITED, idle auto-stop after T3, ~04:00Z) | $4.30 (RunPod billing) | same env, IDLE_MINUTES 60 |
 | 2026-10-01 | jlur25ufnngbia llm-pod-a100-so26-flags (created this work, started 15:18:15Z) | A100 SXM 80GB, EU-RO-1 | 1.59 | stopped (EXITED) after 129 min | ~$3.42 | server-flag A/B for Artemis loops/word-dropping (no RTX PRO 4500 free); IDLE_MINUTES 45, MAX_UPTIME 6 |
