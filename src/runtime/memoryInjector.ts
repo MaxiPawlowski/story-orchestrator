@@ -146,7 +146,7 @@ export class MemoryInjector {
     if (voiced && !innerRender()) void loadInnerRender().then(() => this.update());
     if (capable || voiced) {
       const knowledge = this.knowledge();
-      for (const id of enabledCharacterIds(story, this.hosts.roster)) {
+      for (const id of this.stagedIds(story)) {
         const names = namesForRosterId(story, id);
         const withheld = withheldEntryIds(this.state.entries, secrets, names);
         const memory = capable ? buildMemoryInjectionBlocks(this.state.entries, id, { ...options, withheld }) : null;
@@ -164,6 +164,12 @@ export class MemoryInjector {
     } else {
       clearEpistemicInjection(this.hosts.prompt);
     }
+  }
+
+  private stagedIds(story: NormalizedStoryV2): string[] {
+    const ids = enabledCharacterIds(story, this.hosts.roster);
+    const drafted = this.draft?.rosterId;
+    return drafted && !ids.includes(drafted) ? [...ids, drafted] : ids;
   }
 
   private ledgerFocusNames(story: NormalizedStoryV2): string[] {
@@ -224,6 +230,10 @@ export class MemoryInjector {
     const story = this.deps.getStory();
     if (!story || !this.stagedPrivate.size) return;
     const rosterId = this.draftedRosterId(chId);
+    if (rosterId && !this.stagedPrivate.has(rosterId)) {
+      this.draft = { storyId: storyKey(story), rosterId };
+      this.update();
+    }
     const staged = rosterId ? this.stagedPrivate.get(rosterId) : undefined;
     if (!rosterId || !staged) {
       this.draft = { storyId: storyKey(story), rosterId: null };

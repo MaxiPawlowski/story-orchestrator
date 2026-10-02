@@ -7,6 +7,7 @@ import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunTo
 const prompts = new Map<string, string>();
 const MEMBERS = ["Arin", "Ponticius"];
 const SECRET = "the north road is washed out";
+let disabled: string[] = [];
 
 const stapi = {
   settingsAreLoaded: () => true,
@@ -14,7 +15,7 @@ const stapi = {
   observeNextSave: async () => ({ requested: true, status: 200, ok: true, timedOut: false }),
   readServerBoundary: async () => null,
   getContext: () => ({ chat: [{ name: "Ponticius", mes: "Hold the gate." }], chatId: "chat-a", extensionSettings: {}, chatMetadata: {} }),
-  getActiveGroup: () => ({ members: ["arin.png", "ponticius.png"], disabled_members: [] }),
+  getActiveGroup: () => ({ members: ["arin.png", "ponticius.png"], disabled_members: disabled }),
   resolveGroupMemberId: (name: string) => `${name.toLowerCase()}.png`,
   hostSystemUserName: "SillyTavern System",
   getCharacterNameById: (id: number) => MEMBERS[id],
@@ -35,6 +36,7 @@ const story = {
 
 function harness() {
   prompts.clear();
+  disabled = [];
   const current: RunContext = { chatId: "chat-a", storyId: "s1", playedVersion: 1, sessionEpoch: 1, windowRevision: 0, lowestMutatedMessageId: null };
   const ownership: RunOwnership = { mint: (window = null) => mintToken(current, window), check: (token: RunToken) => tokenMatches(current, token) };
   let memoryState = {
@@ -105,6 +107,36 @@ describe("a drafted member keeps its private block until its generation closes (
     coordinator.releasePrivateInjection();
     expect(epistemicBlock()).not.toContain(SECRET);
     coordinator.updateInjection();
+    expect(epistemicBlock()).not.toContain(SECRET);
+  });
+});
+
+describe("T4-1-2: a member drafted while the group has it disabled still gets its own private block", () => {
+  it("Javon: disabled at the last refresh, enabled by the checkpoint and drafted for its opener before any refresh", () => {
+    const coordinator = harness();
+    disabled = ["arin.png"];
+    coordinator.updateInjection();
+    disabled = [];
+    coordinator.onMemberDrafted(0);
+    expect(epistemicBlock()).toContain(SECRET);
+  });
+
+  it("Merryn: drafted, then disabled by the next checkpoint's cast change while her reply is still being written", () => {
+    const coordinator = harness();
+    coordinator.onMemberDrafted(0);
+    disabled = ["arin.png"];
+    coordinator.updateInjection();
+    expect(epistemicBlock()).toContain(SECRET);
+  });
+
+  it("control: once the draft is released a disabled member's block is not staged or injected", () => {
+    const coordinator = harness();
+    coordinator.onMemberDrafted(0);
+    disabled = ["arin.png"];
+    coordinator.releasePrivateInjection();
+    coordinator.updateInjection();
+    expect(epistemicBlock()).not.toContain(SECRET);
+    coordinator.onMemberDrafted(1);
     expect(epistemicBlock()).not.toContain(SECRET);
   });
 });

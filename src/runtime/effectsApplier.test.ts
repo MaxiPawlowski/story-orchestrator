@@ -217,6 +217,37 @@ describe("sceneBreak replies (T1-1 runaway)", () => {
     await breakAt(25);
     expect(executeSlashCommands).toHaveBeenCalledTimes(3);
   });
+
+  it("T4-1-2 Welden: a line still in the chat after the reply before it is deleted is not posted again when the story re-enters", async () => {
+    const applier = new EffectsApplier(testOwnership());
+    const extras = { ...makeExtras(), firedNpcRepliesAt: {} } as RuntimeExtras;
+    const checkpoint = checkpointWith([{ ...dusk, maxTriggers: 1, text: "Welden crosses the heir's path." }]);
+    chatUpTo(4);
+    await applier.fireNpcReplies(checkpoint, extras, "sceneBreak", 4);
+    expect(executeSlashCommands).toHaveBeenCalledTimes(1);
+    rewindNpcReplies(extras.firedNpcReplies, extras.firedNpcRepliesAt, 4, { kind: "delete", removed: 1 });
+    chatUpTo(6);
+    await applier.fireNpcReplies(checkpoint, extras, "sceneBreak", 6);
+    expect(executeSlashCommands).toHaveBeenCalledTimes(1);
+    rewindNpcReplies(extras.firedNpcReplies, extras.firedNpcRepliesAt, 4, { kind: "delete", removed: 1 });
+    chatUpTo(14);
+    await applier.fireNpcReplies(checkpoint, extras, "sceneBreak", 14);
+    expect(executeSlashCommands).toHaveBeenCalledTimes(2);
+  });
+
+  it("T4-1-2 Trial: a line of the checkpoint the queued writes are leaving is held and stays unspent; control: with nothing leaving it posts", async () => {
+    const journal = jest.fn();
+    const applier = new EffectsApplier(testOwnership(), { journal });
+    const extras = { ...makeExtras(), firedNpcRepliesAt: {} } as RuntimeExtras;
+    const checkpoint = checkpointWith([{ ...dusk, text: "The Trial is a day closer." }]);
+    chatUpTo(34);
+    expect(await applier.fireActiveReplies(checkpoint, extras, "sceneBreak", "the-duel", 34)).toBe(0);
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+    expect(extras.firedNpcReplies).toEqual({});
+    expect(journal).toHaveBeenCalledWith(expect.stringContaining("sceneBreak line"), expect.stringContaining("the-duel"));
+    expect(await applier.fireActiveReplies(checkpoint, extras, "sceneBreak", null, 34)).toBe(1);
+    expect(executeSlashCommands).toHaveBeenCalledTimes(1);
+  });
 });
 
 describe("authored new-chat opening", () => {

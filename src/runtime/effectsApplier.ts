@@ -33,7 +33,7 @@ import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoG
 import { worldInfoFilesHeld } from "./worldInfoMode";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { generationWatch } from "./generationWatch";
-import { npcReplyMayFire, recordNpcReplyFire, recordOnEnterPost } from "./npcReplyRewind";
+import { heldLine, npcReplyMayFire, recordNpcReplyFire, recordOnEnterPost, type ActiveTrigger } from "./npcReplyRewind";
 import { isRecord } from "@utils/guards";
 import { castInPlayNote } from "./castInPlay";
 import { InFlight } from "./inFlight";
@@ -489,6 +489,13 @@ export class EffectsApplier {
   async removeOnEnterPost(post: { first: number; last: number }, run: RunGuard) {
     if (post.last < post.first || lastMessageId() !== post.last || !run.stillOwns()) return;
     if (!(await executeSlashCommands(`/cut ${post.first}-${post.last}`, { silent: true }))) this.deps.journal?.("the scene opener was not removed", "the /cut that removes it was refused");
+  }
+
+  async fireActiveReplies(checkpoint: Checkpoint, extras: RuntimeExtras, trigger: ActiveTrigger, leaving: string | null, breakAt?: number, aliases: string[] = []) {
+    if (!leaving) return this.fireNpcReplies(checkpoint, extras, trigger, breakAt, aliases);
+    const held = heldLine(readNpcReplies(checkpoint.effects), trigger, checkpoint.name || checkpoint.id, leaving);
+    if (held) this.deps.journal?.(...held);
+    return 0;
   }
 
   async fireNpcReplies(
