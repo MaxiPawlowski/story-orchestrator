@@ -227,6 +227,7 @@ export const PLAYER_COPY = {
   announceTransitions: "Also post a chat note when the story moves on",
   spriteUnavailable: "This SillyTavern cannot show character sprites.",
   spriteNoPack: "No one in this chat has a sprite pack.",
+  spriteNeedsVn: "The stage shows in Visual Novel mode: type /vn in the chat box, or set \"Show the stage\" to Always.",
   memoryHeading: "What the story remembers",
   keptByYou: "kept by you",
   sourceChanged: "the message it came from changed",

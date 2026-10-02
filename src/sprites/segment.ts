@@ -1,3 +1,5 @@
+import { stripReasoningBlocks } from "@extraction/parse";
+
 export interface Segment {
   start: number;
   end: number;
@@ -48,4 +50,11 @@ export function segmentText(text: string, maxChars: number, final: boolean): Seg
     }
   }
   return out.filter((segment) => segment.text.length > 0);
+}
+
+const STREAMING_PLACEHOLDER = "...";
+
+export function visibleReply(text: string): string {
+  const visible = stripReasoningBlocks(text).trim();
+  return visible === STREAMING_PLACEHOLDER ? "" : visible;
 }

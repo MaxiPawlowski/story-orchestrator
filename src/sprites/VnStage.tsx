@@ -98,7 +98,7 @@ function Sprite({ actor, index, count, speaking, focus, breathing, crossfadeMs, 
   const imageStyle: React.CSSProperties | undefined = framed ? { height: `${slice.scale * share * 100}%`, top: `${-slice.offset * share * 100}%` } : undefined;
   return (
     <div className={classes} data-name={actor.name} data-label={actor.label} data-set={actor.set}
-      style={{ left: `${left}%`, width: `${width}vw`, zIndex: speaking ? 3 : actor.spotlight ? 2 : 1, "--so-breath-delay": `${-(index * 1.3) % 4}s`, "--so-fade": `${fade}ms` } as React.CSSProperties}>
+      style={{ left: `${left}%`, width: `${width}%`, zIndex: speaking ? 3 : actor.spotlight ? 2 : 1, "--so-breath-delay": `${-(index * 1.3) % 4}s`, "--so-fade": `${fade}ms` } as React.CSSProperties}>
       <div className="so-sprite-breath">
         {layers.map((layer, position) => (
           <img key={layer.key} src={layer.src} alt={`${actor.name} (${actor.label})`} draggable={false} style={imageStyle}
@@ -116,7 +116,7 @@ export function VnStage({ stage }: { stage: SpriteStage }) {
   if (!view.visible) return null;
   const { settings } = view;
   return (
-    <div id="so-vn-stage" aria-hidden="true" data-framing={view.framing}>
+    <div id="so-vn-stage" aria-hidden="true" data-framing={view.framing} data-placement={view.placement}>
       {view.actors.map((actor, index) => (
         <Sprite key={actor.avatar} actor={actor} index={index} count={view.actors.length} speaking={view.speaking === actor.name}
           framing={view.framing === "close" && view.actors.length > 1 && !actor.spotlight ? "thigh" : view.framing} share={share}

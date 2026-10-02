@@ -668,6 +668,14 @@
     "src/runtime/modelCallCore.ts#createModelCallVia.call": {
       "status": "checked",
       "note": "CR-J15: mints a token before the model await (when deps.ownership is given; the manager's model passes its own) and recordCall checks it before every telemetry write, the success note, the failure note and the harness fallback's notes alike, so a call that lands after its chat went away records nothing in the next chat's ring. Case: harnessRouting.test.ts \"CR-J15\". CR-E14 (2026-09-30) added a second layer: the row is stamped at CALL START with the loaded chat and the newest message (deps.stamp), RuntimeManager.recordModelCall keeps it only for that chat (acceptModelCall), and a rollback drops rows asked at or after the edited message (rollbackModelCalls); cases modelCallChat.review.test.ts, rollbackKit.review.test.ts. AS-9 (2026-10-01): the two CR rows had merged into one duplicate key (JSON kept the last); folded into this one, and harnessRouting.test.ts \"AS-9\" pins both layers on the harness route. Model fallback (2026-10-02): a profile call that times out or fails in transport is retried once on extraction.fallbackProfileId; the token is checked again before that retry (a lapsed run throws lapsed and asks nothing), and its notes go through the same token-checked recordCall. Case: modelFailover.test.ts \"re-checks the run's ownership before the fallback is asked\"."
+    },
+    "src/sprites/stage.ts#SpriteStage.reload": {
+      "status": "partial",
+      "note": "Sprite stage fix wave (2026-10-02; src/sprites joined the census): reloads the cast, sprite packs and stream after awaiting capabilityState and each spriteList. COVERED: a load ticket (++this.loading) checked after every await, so a newer reload (CHAT_CHANGED, GROUP_UPDATED, CHARACTER_EDITED) supersedes an older one before it writes. NOT COVERED: no RunToken; everything it writes is in-memory view state rebuilt from the open chat on every load, nothing reaches chat metadata, settings or another chat."
+    },
+    "src/sprites/stage.ts#SpriteStage.rendered": {
+      "status": "checked",
+      "note": "Sprite stage fix wave (2026-10-02): mints a run over the rendered message's own window ({from: id, to: id}) before classifying and checks it immediately before spriteWriteExpressions, so a chat change, story reload or an edit/swipe/delete at or below the message refuses the store; the host write also refuses another chat and a message whose text changed. The stream/apply writes after the await are in-memory display, done only while that message's stream is still the current one. Cases: stage.test.ts \"stores the reads for the message they belong to when the next member is drafted before classification ends\", \"does not store them when the run lapsed (the message was edited, or the chat changed)\"."
     }
   }
 }

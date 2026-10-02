@@ -6,12 +6,24 @@
   overflow: hidden;
 }
 
-#so-vn-root #so-vn-stage {
+#so-stage-strip {
+  position: relative;
+  flex: 0 0 auto;
+  height: clamp(140px, 28vh, 340px);
+  pointer-events: none;
+  overflow: hidden;
+}
+
+#so-stage-strip:empty {
+  display: none;
+}
+
+:is(#so-vn-root, #so-stage-strip) #so-vn-stage {
   position: absolute;
   inset: 0;
 }
 
-#so-vn-root .so-sprite {
+:is(#so-vn-root, #so-stage-strip) .so-sprite {
   position: absolute;
   bottom: 0;
   height: 92%;
@@ -21,29 +33,29 @@
   mask-image: linear-gradient(to bottom, #000 78%, transparent 100%);
 }
 
-#so-vn-root .so-sprite.so-speaking {
+:is(#so-vn-root, #so-stage-strip) .so-sprite.so-speaking {
   transform: translateX(-50%) scale(1.04);
   transform-origin: 50% 100%;
   filter: none;
 }
 
-#so-vn-root .so-sprite.so-idle {
+:is(#so-vn-root, #so-stage-strip) .so-sprite.so-idle {
   filter: brightness(0.55) saturate(0.8);
 }
 
-#so-vn-root .so-sprite-breath {
+:is(#so-vn-root, #so-stage-strip) .so-sprite-breath {
   position: relative;
   width: 100%;
   height: 100%;
   transform-origin: 50% 100%;
 }
 
-#so-vn-root .so-breathing .so-sprite-breath {
+:is(#so-vn-root, #so-stage-strip) .so-breathing .so-sprite-breath {
   animation: so-breathe 4s ease-in-out infinite;
   animation-delay: var(--so-breath-delay, 0s);
 }
 
-#so-vn-root .so-sprite img {
+:is(#so-vn-root, #so-stage-strip) .so-sprite img {
   position: absolute;
   inset: 0;
   width: 100%;
@@ -53,7 +65,7 @@
   user-select: none;
 }
 
-#so-vn-root .so-sprite.so-framed img {
+:is(#so-vn-root, #so-stage-strip) .so-sprite.so-framed img {
   inset: auto;
   left: 50%;
   width: auto;
@@ -62,15 +74,15 @@
   transform: translateX(-50%);
 }
 
-#so-vn-root .so-sprite.so-spotlight:not(.so-idle) {
+:is(#so-vn-root, #so-stage-strip) .so-sprite.so-spotlight:not(.so-idle) {
   filter: drop-shadow(0 0 12px rgba(255, 240, 200, 0.35));
 }
 
-#so-vn-root .so-sprite img.so-sprite-top {
+:is(#so-vn-root, #so-stage-strip) .so-sprite img.so-sprite-top {
   animation: so-fade-in var(--so-fade, 250ms) ease forwards;
 }
 
-#so-vn-root .so-sprite img.so-sprite-under {
+:is(#so-vn-root, #so-stage-strip) .so-sprite img.so-sprite-under {
   opacity: 1;
 }
 
@@ -85,8 +97,8 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  #so-vn-root .so-breathing .so-sprite-breath { animation: none; }
-  #so-vn-root .so-sprite img.so-sprite-top { animation-duration: 0ms; }
+  :is(#so-vn-root, #so-stage-strip) .so-breathing .so-sprite-breath { animation: none; }
+  :is(#so-vn-root, #so-stage-strip) .so-sprite img.so-sprite-top { animation-duration: 0ms; }
 }
 
 @media (max-width: 768px) {

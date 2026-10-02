@@ -9,6 +9,7 @@ const meta: Meta<typeof SpriteSettingsView> = {
   args: {
     settings: defaultSpriteSettings(),
     activation: "off",
+    waitsForVn: false,
     capability: "present",
     profiles: [{ id: "p1", name: "Artemis" }],
     onStage: "",
@@ -41,6 +42,21 @@ export const StoryTurnsItOn: Story = {
     await expect(canvasElement.querySelector("#so-sprite-activation")?.textContent).toContain("its story directs a stage");
     await userEvent.click(box(canvasElement) as HTMLInputElement);
     await expect(args.onSwitch).toHaveBeenCalledWith(false);
+  },
+};
+
+export const WaitsForVisualNovelMode: Story = {
+  args: { activation: "story", waitsForVn: true, onStage: "On stage: Belle" },
+  play: async ({ canvasElement }) => {
+    await expect(box(canvasElement)?.checked).toBe(true);
+    await expect(canvasElement.querySelector("#so-sprite-vn-hint")?.textContent).toContain("/vn");
+  },
+};
+
+export const NoStoryStageSaysHowToGetOne: Story = {
+  play: async ({ canvasElement }) => {
+    await expect(canvasElement.querySelector("#so-sprite-vn-hint")).toBeNull();
+    await expect(canvasElement.querySelector("#so-sprite-activation")?.textContent).toContain("Update or Restart");
   },
 };
 

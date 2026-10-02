@@ -1,11 +1,11 @@
-import { segmentText } from "./segment";
+import { segmentText, visibleReply } from "./segment";
 import { keywordSet, placeSet, readSpriteProfile, readSpriteSets, resolveSprite, spriteIndex } from "./profile";
 import {
   buildExpressionRequest, classifyExpressions, expressionGrammar, localLabel, parseExpressionLines, readExpressionAnswers, NARRATION, type ExpressionInput,
 } from "./classify";
 import { defaultSpriteSettings, sanitizeSpriteSettings } from "./settings";
 import { spriteActivation, spritesActive, storyDirectsStage, storySpriteChoice, userSpriteChoice } from "./activation";
-import { directionKeys, figureBox, frameSlice, isSpotlit, memberDirection, readStageDirection } from "./direction";
+import { directionKeys, directsCast, figureBox, frameSlice, isSpotlit, memberDirection, readStageDirection, standsOnStage } from "./direction";
 import type { JudgeAnswer } from "@judge/types";
 
 const REPLY = "Belle laughs and slams her tankard down. \"Ha! You call that a punch?\"\n\nThen her face falls. \"He didn't make it back, did he?\" She stares at the fire.";
@@ -208,5 +208,42 @@ describe("stage direction", () => {
     pixels[(2 * width + 0) * 4 + 3] = 255;
     expect(figureBox(pixels, width, height)).toEqual({ top: 0.25, bottom: 0.75 });
     expect(figureBox(new Array(16).fill(0), 2, 2)).toBeNull();
+  });
+});
+
+describe("who stands on stage", () => {
+  const actor = (name: string, patch: { muted?: boolean; speaking?: boolean } = {}) => ({ keys: directionKeys(name), muted: false, speaking: false, ...patch });
+
+  it("a direction that only frames, spotlights or hides keeps everyone else", () => {
+    const framing = readStageDirection({ framing: "thigh", spotlight: "Natalia", cast: { Kane: { hidden: true } } });
+    expect(directsCast(framing)).toBe(false);
+    expect(standsOnStage(actor("Leevon"), framing)).toBe(true);
+    expect(standsOnStage(actor("Kane", { speaking: true }), framing)).toBe(false);
+  });
+
+  it("a named cast keeps the named, the spotlit and the speaker", () => {
+    const direction = readStageDirection({ spotlight: "Natalia", cast: { Leevon: { face: "smirk" } } });
+    expect(directsCast(direction)).toBe(true);
+    expect(standsOnStage(actor("Natalia"), direction)).toBe(true);
+    expect(standsOnStage(actor("Leevon"), direction)).toBe(true);
+    expect(standsOnStage(actor("Kane"), direction)).toBe(false);
+    expect(standsOnStage(actor("Kane", { speaking: true }), direction)).toBe(true);
+  });
+
+  it("a muted member stands only when the direction names it, speaking or not", () => {
+    const direction = readStageDirection({ spotlight: "Natalia", cast: { Leevon: { face: "smirk" } } });
+    expect(standsOnStage(actor("Leevon", { muted: true }), direction)).toBe(true);
+    expect(standsOnStage(actor("Natalia", { muted: true }), direction)).toBe(true);
+    expect(standsOnStage(actor("Kane", { muted: true, speaking: true }), direction)).toBe(false);
+    expect(standsOnStage(actor("Kane", { muted: true, speaking: true }), null)).toBe(false);
+  });
+});
+
+describe("visible reply", () => {
+  it("drops leading thinking in every shipped form and the streaming placeholder", () => {
+    expect(visibleReply("<think>plan</think>\n\n*She waves.*")).toBe("*She waves.*");
+    expect(visibleReply("<|channel>thought\nplan<channel|>*She waves.*")).toBe("*She waves.*");
+    expect(visibleReply("<think>still planning")).toBe("");
+    expect(visibleReply("...")).toBe("");
   });
 });

@@ -72,6 +72,23 @@ export function isSpotlit(direction: StageDirection | null, keys: readonly strin
   return Boolean(direction?.spotlight && keys.includes(direction.spotlight));
 }
 
+export interface Standing {
+  keys: readonly string[];
+  muted: boolean;
+  speaking: boolean;
+}
+
+export const directsCast = (direction: StageDirection | null): boolean =>
+  Boolean(direction && Object.values(direction.cast).some((entry) => !entry.hidden));
+
+export function standsOnStage(actor: Standing, direction: StageDirection | null): boolean {
+  const directed = memberDirection(direction, actor.keys);
+  if (directed.hidden) return false;
+  const named = Object.keys(directed).length > 0 || isSpotlit(direction, actor.keys);
+  if (actor.muted) return named;
+  return !directsCast(direction) || named || actor.speaking;
+}
+
 export function frameSlice(framing: Framing, box: FigureBox | null): Slice {
   if (framing === "full" || !box || box.bottom <= box.top) return { scale: 1, offset: 0 };
   const top = Math.max(0, box.top - HEADROOM);

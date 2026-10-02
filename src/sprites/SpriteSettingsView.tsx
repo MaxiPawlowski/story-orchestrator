@@ -5,6 +5,7 @@ import type { SpriteActivation, SpriteSettings, StageMode } from "./settings";
 export interface SpriteSettingsViewProps {
   settings: SpriteSettings;
   activation: SpriteActivation;
+  waitsForVn: boolean;
   capability: CapabilityState | "checking";
   profiles: ReadonlyArray<{ id: string; name: string }>;
   onStage: string;
@@ -17,10 +18,10 @@ const ACTIVATION_TEXT: Record<SpriteActivation, string> = {
   "user-on": "On in every chat: you switched it on.",
   "user-off": "Off in every chat: you switched it off, so a story that directs a stage does not turn it on.",
   story: "On for this chat: its story directs a stage. Switch it off to keep sprites off everywhere.",
-  off: "Off: this chat's story directs no stage. A story that does turns sprites on for its chats.",
+  off: "Off: this chat's story directs no stage. If a newer version of the story adds one, take it with Update or Restart in the Story Orchestrator drawer.",
 };
 
-export function SpriteSettingsView({ settings, activation, capability, profiles, onStage, onChange, onSwitch, onStoryDecides }: SpriteSettingsViewProps) {
+export function SpriteSettingsView({ settings, activation, waitsForVn, capability, profiles, onStage, onChange, onSwitch, onStoryDecides }: SpriteSettingsViewProps) {
   const on = (activation === "user-on" || activation === "story") && settings.stage !== "off";
   const stage = settings.stage === "off" ? "vn" : settings.stage;
   const toggle = (next: boolean) => {
@@ -38,6 +39,7 @@ export function SpriteSettingsView({ settings, activation, capability, profiles,
         <span>{ACTIVATION_TEXT[activation]}</span>
         {settings.explicit && <button id="so-sprite-story-decides" type="button" className="menu_button text-xs" onClick={onStoryDecides}>Let each story decide</button>}
       </div>
+      {on && waitsForVn && <div id="so-sprite-vn-hint" className="text-xs so-warning-text">{PLAYER_COPY.spriteNeedsVn}</div>}
       {capability === "absent" && <div id="so-sprite-capability" className="text-xs so-warning-text">{PLAYER_COPY.spriteUnavailable}</div>}
       <label htmlFor="so-sprite-stage" className="text-sm">Show the stage</label>
       <select id="so-sprite-stage" value={stage} disabled={!on} onChange={(event) => onChange({ stage: event.target.value as StageMode })}>
