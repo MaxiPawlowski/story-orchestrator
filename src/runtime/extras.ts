@@ -14,6 +14,7 @@ import { JUDGED_READ_LIMIT, VERIFY_DROP_LIMIT } from "./types";
 import { trimLedger } from "./effectLedger";
 import { createSaveHealth } from "./saveHealth";
 import { sanitizeOnEnterPosts } from "./npcReplyRewind";
+import { sanitizeDeferredOpener } from "./openerDeferral";
 import type {
   CopilotRuntimeSettings, EffectLedgerRow, EffectsRuntimeState, ExtractionRuntimeState, MemoryMirrorBook,
   MemoryRuntimeState, PacingSettings, RuntimeExtras, SaveHealth, StagecraftRuntimeState, TalkRuntimeState,
@@ -414,5 +415,10 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.firedNpcReplies = extras.firedNpcReplies && typeof extras.firedNpcReplies === "object" ? extras.firedNpcReplies : {};
   extras.firedNpcRepliesAt = extras.firedNpcRepliesAt && typeof extras.firedNpcRepliesAt === "object" ? extras.firedNpcRepliesAt : {};
   if (extras.onEnterPosts !== undefined) extras.onEnterPosts = sanitizeOnEnterPosts(extras.onEnterPosts);
+  if (extras.deferredOpener !== undefined) {
+    const deferred = sanitizeDeferredOpener(extras.deferredOpener);
+    if (deferred) extras.deferredOpener = deferred;
+    else delete extras.deferredOpener;
+  }
   return applyGlobalSettings(extras, read(), overrides);
 };

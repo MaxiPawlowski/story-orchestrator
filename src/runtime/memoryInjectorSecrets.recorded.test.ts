@@ -122,3 +122,14 @@ describe("T2-2: a held secret stays out of the shared tiers of every member it i
     expect(shared()).not.toMatch(SEALS);
   });
 });
+
+describe("T6-4: the snapshot learns a secret is held, so the Summarize warning can name the leak", () => {
+  it("holds one in the group chat whose store keeps the seals from Natalia", () => {
+    expect(harness(true).injector.readModels().secretsHeld).toBe(true);
+  });
+
+  it("control: a solo chat holds none, and neither does a group before any secret was written", () => {
+    expect(harness(false).injector.readModels().secretsHeld).toBe(false);
+    expect(harness(true, 0).injector.readModels().secretsHeld).toBe(false);
+  });
+});

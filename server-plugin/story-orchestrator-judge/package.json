@@ -1,6 +1,6 @@
 {
   "name": "story-orchestrator-judge",
-  "version": "1.5.0",
+  "version": "1.6.0",
   "description": "SillyTavern server plugin: server-side proxy from Story Orchestrator to its judge providers (TypeSafe System One, llama-server log-probabilities), so keys never reach the page.",
   "type": "module",
   "main": "index.mjs",

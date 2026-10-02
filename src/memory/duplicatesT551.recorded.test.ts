@@ -52,11 +52,12 @@ const OPTIONAL = "The commission is optional — he said \"We'll think about it\
 const OPPORTUNITY = "The commission is an \"opportunity\" rather than an order — he treated it as negotiable.";
 
 describe("T5-5-1 duplicate epistemic rows (evidence-*.json epistemic slice)", () => {
-  it("a belief the same pass retires is not stored again from that pass (6a7e08f2 -> ea52913d, c9dc26ee -> c5a47074)", () => {
+  it("a belief the same pass retires and restates is neither copied (6a7e08f2 -> ea52913d, c9dc26ee -> c5a47074) nor lost (T6-4: the restatement keeps the stored row)", () => {
     const stored = [row("6a7e", "Max Nightriver", "believes", OPTIONAL, 8, 9), row("c9dc", "Max Nightriver", "believes", OPPORTUNITY, 8, 9)];
     const applied = applyEpistemicSignals(stored, [sig("believes", "Max Nightriver", OPTIONAL), sig("believes", "Max Nightriver", OPPORTUNITY)], { boundary: 9, messageId: 11 }, ["6a7e", "c9dc"]);
     expect(applied.added).toEqual([]);
-    expect(applied.retired.map((entry) => entry.id)).toEqual(["6a7e", "c9dc"]);
+    expect(applied.retired).toEqual([]);
+    expect(applied.entries.filter((entry) => !entry.supersededBy).map((entry) => entry.id)).toEqual(["6a7e", "c9dc"]);
   });
 
   it("a later read of the same messages does not bring a retired belief back; a newer message may", () => {

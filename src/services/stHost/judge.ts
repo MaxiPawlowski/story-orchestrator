@@ -58,10 +58,10 @@ export async function judgeStatus(): Promise<JudgeStatus | null> {
   }
 }
 
-async function postToPlugin(path: string, body: unknown, signal?: AbortSignal): Promise<unknown> {
+async function postToPlugin(path: string, body: unknown, signal?: AbortSignal, use?: string): Promise<unknown> {
   const response = await fetch(`${JUDGE_PLUGIN_BASE}${path}`, {
     method: "POST",
-    headers: { ...headers(), "Content-Type": "text/plain;charset=UTF-8", "X-SO-Plugin": "1" },
+    headers: { ...headers(), "Content-Type": "text/plain;charset=UTF-8", "X-SO-Plugin": "1", ...(use ? { "X-SO-Judge-Use": use } : {}) },
     body: JSON.stringify(body),
     signal,
   });
@@ -79,14 +79,14 @@ export const judgeTransport: JudgeTransport = async (request: JudgeRequest, opti
   options.signal?.addEventListener("abort", onEpochAbort);
   if (options.signal?.aborted) controller.abort();
   try {
-    return await postToPlugin("/systemone", request, controller.signal) as JudgeResponse;
+    return await postToPlugin("/systemone", request, controller.signal, options.use) as JudgeResponse;
   } finally {
     clearTimeout(timer);
     options.signal?.removeEventListener("abort", onEpochAbort);
   }
 };
 
-export const judgeLlamaComplete: LlamaComplete = (body, options) => postToPlugin("/providers/llama-logprob/completion", body, options.signal);
+export const judgeLlamaComplete: LlamaComplete = (body, options) => postToPlugin("/providers/llama-logprob/completion", body, options.signal, options.use);
 
 export async function writeJudgeSecret(value: string): Promise<WriteResult> {
   const trimmed = value.trim();

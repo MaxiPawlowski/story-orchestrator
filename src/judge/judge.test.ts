@@ -94,6 +94,12 @@ describe("askJudge", () => {
     expect(await askJudge(transport, request(), { timeoutMs: 1000 })).toMatchObject({ answers: null, fallback: "too-large", cached: false });
   });
 
+  it("T6-4: hands the use to the transport, so the plugin can count served calls per use", async () => {
+    const transport = jest.fn<ReturnType<JudgeTransport>, Parameters<JudgeTransport>>().mockResolvedValue(respond(answers));
+    await askJudge(transport, request(), { timeoutMs: 1000, use: "warden" });
+    expect(transport.mock.calls[0][1]).toEqual({ timeoutMs: 1000, use: "warden" });
+  });
+
   it("returns answers and the answering model, and serves a repeat from the cache", async () => {
     const transport = jest.fn<ReturnType<JudgeTransport>, Parameters<JudgeTransport>>().mockResolvedValue(respond(answers));
     const cache = new Map<string, JudgeResponse>();

@@ -83,7 +83,7 @@ export interface JudgeResponse {
  * `custom.signal` (shared.js:423-424, pass-through :463/:483; 1.18.0 :420), so extraction is
  * abortable at the host but not wired. Corrected
  */
-export type JudgeTransport = (request: JudgeRequest, options: { timeoutMs: number; signal?: AbortSignal }) => Promise<JudgeResponse>;
+export type JudgeTransport = (request: JudgeRequest, options: { timeoutMs: number; signal?: AbortSignal; use?: string }) => Promise<JudgeResponse>;
 
 /**
  * `cancelled` is distinct from `timeout` on purpose. Both arrive as an AbortError,

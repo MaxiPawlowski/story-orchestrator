@@ -80,8 +80,9 @@ export class MemoryInjector {
   }
 
   /** The read-models the snapshot takes from the injector, fates from the same update that wrote the blocks. */
-  readModels(): { ledger: LedgerView[]; memoryInjection: MemoryInjectionView | null; privateBlocks: StagedPrivateBlock[] } {
-    return { ledger: this.ledgerView(), memoryInjection: this.lastInjection, privateBlocks: this.stagedBlocks() };
+  readModels(): { ledger: LedgerView[]; memoryInjection: MemoryInjectionView | null; privateBlocks: StagedPrivateBlock[]; secretsHeld: boolean } {
+    const story = this.deps.getStory();
+    return { ledger: this.ledgerView(), memoryInjection: this.lastInjection, privateBlocks: this.stagedBlocks(), secretsHeld: Boolean(story && this.secrets(story).length) };
   }
 
   private stagedBlocks(): StagedPrivateBlock[] {

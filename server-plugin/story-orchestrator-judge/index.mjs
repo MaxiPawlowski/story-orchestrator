@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-export const PLUGIN_VERSION = '1.5.0';
+export const PLUGIN_VERSION = '1.6.0';
 export const SECRET_KEY = 'typesafe_api_key';
 export const LLAMA_SECRET_KEY = 'so_judge_llama_key';
 export const PROVIDERS = Object.freeze({
@@ -437,6 +437,13 @@ export function createLimiter({
     };
 }
 
+export const JUDGE_USE_HEADER = 'x-so-judge-use';
+
+export const judgeUseOf = (request) => {
+    const raw = request?.headers?.[JUDGE_USE_HEADER];
+    return typeof raw === 'string' && /^[a-z][a-z0-9-]{0,39}$/i.test(raw) ? raw : 'unlabelled';
+};
+
 const sendUpstream = (response, upstream) => {
     if (upstream.retryAfter) response.set?.('Retry-After', upstream.retryAfter);
     response.status(upstream.status).type('application/json').send(upstream.text);
@@ -446,6 +453,13 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
     const limits = limitsFromEnv(env);
     let retryAfter = 1;
     const refusals = { since: new Date(now()).toISOString(), local: 0, upstreamBusyAnswers: 0, upstreamRefused: 0, lastUpstream: null };
+    const served = { since: refusals.since, total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {} };
+    const countServed = (provider, request) => {
+        const use = judgeUseOf(request);
+        served.total += 1;
+        served.byProvider[provider] += 1;
+        served.byUse[use] = (served.byUse[use] ?? 0) + 1;
+    };
     const adaptive = { typesafe: createAdaptiveRate({ now }), 'llama-logprob': createAdaptiveRate({ now }) };
     const onRefuse = (seconds) => { retryAfter = seconds; };
     const acquire = {
@@ -489,6 +503,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
                 limits,
                 adaptive: { typesafe: adaptive.typesafe.state(), 'llama-logprob': adaptive['llama-logprob'].state() },
                 refusals: { ...refusals },
+                served: { ...served, byProvider: { ...served.byProvider }, byUse: { ...served.byUse } },
                 providers: {
                     typesafe: { configured: Boolean(resolved), keySource: resolved?.source ?? null, contract: PROVIDERS.typesafe.contract, local: false, host: new URL(apiUrl()).host },
                     'llama-logprob': { configured: Boolean(llama), keySource: llamaKey?.source ?? null, contract: PROVIDERS['llama-logprob'].contract, local: llama?.local ?? false, host: llama?.host ?? null },
@@ -501,6 +516,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             const { issues, payload } = validateLlamaBody(request.body);
             if (issues.length) return response.status(400).json({ error: 'invalid request', issues });
             const resolved = await resolveKey(request, 'llama-logprob', keyOptions);
+            countServed('llama-logprob', request);
             const upstream = await callUpstream(resolved?.key ?? null, payload, fetchImpl, `${endpoint.base}/completion`, upstreamOptions('llama-logprob'));
             countUpstream('llama-logprob', upstream);
             sendUpstream(response, upstream);
@@ -515,6 +531,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             const model = typeof request.body.model === 'string' && request.body.model.trim() ? request.body.model.trim() : DEFAULT_MODEL;
             if (!PERMITTED_MODELS.includes(model)) return response.status(400).json({ error: `model not permitted: ${model}`, permitted: PERMITTED_MODELS });
             const payload = { state: request.body.state, questions: request.body.questions, model };
+            countServed('typesafe', request);
             const upstream = await callUpstream(resolved.key, payload, fetchImpl, apiUrl(), upstreamOptions('typesafe'));
             countUpstream('typesafe', upstream);
             sendUpstream(response, upstream);

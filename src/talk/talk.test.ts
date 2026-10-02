@@ -83,6 +83,22 @@ describe("narrowByMention", () => {
   it("returns empty when nobody is mentioned", () => {
     expect(narrowByMention(candidates, "The wind howls outside.")).toEqual([]);
   });
+
+  it("T6-4: skips a member the line keeps out of it (journal.jsonl:17, 'Natalia must not hear it.' drafted Natalia)", () => {
+    const house = buildCandidates({}, [{ id: "maid", name: "Shiya" }, { id: "sister", name: "Natalia" }], ["maid", "sister"]);
+    expect(narrowByMention(house, "Shiya, a word in private. The seals under this house are failing. Natalia must not hear it.")).toEqual([candidate("maid", "Shiya")]);
+    expect(narrowByMention(candidates, "Finn, keep this from Mara.")).toEqual([candidate("sage", "Elder Finn")]);
+    expect(narrowByMention(candidates, "Don't tell Captain Mara, Finn.")).toEqual([candidate("sage", "Elder Finn")]);
+    expect(narrowByMention(candidates, "Finn, we go without Mara.")).toEqual([candidate("sage", "Elder Finn")]);
+    expect(narrowByMention(candidates, "Finn — Mara can’t know about this.")).toEqual([candidate("sage", "Elder Finn")]);
+    expect(narrowByMention(candidates, "Mara must never find out.")).toEqual([]);
+  });
+
+  it("control: a negation that does not keep the member out still mentions them", () => {
+    expect(narrowByMention(candidates, "Mara, you must not hear this from anyone else.")).toEqual([candidate("guard", "Captain Mara")]);
+    expect(narrowByMention(candidates, "Mara must not leave the gate.")).toEqual([candidate("guard", "Captain Mara")]);
+    expect(narrowByMention(candidates, "Keep watch, Mara. Finn must not hear it.")).toEqual([candidate("guard", "Captain Mara")]);
+  });
 });
 
 describe("chooseByRules", () => {

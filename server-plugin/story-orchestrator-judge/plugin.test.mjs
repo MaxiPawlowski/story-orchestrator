@@ -86,6 +86,7 @@ test('status reports the key source, never the key', async () => {
         limits: { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: 480, accountPerMinute: 1200, tokensPerSecond: 100_000, accountTokensPerSecond: 250_000 },
         adaptive: { typesafe: { factor: 1, coolingMs: 0, busyAnswers: 0 }, 'llama-logprob': { factor: 1, coolingMs: 0, busyAnswers: 0 } },
         refusals: { since: '1970-01-01T00:00:00.000Z', local: 0, upstreamBusyAnswers: 0, upstreamRefused: 0, lastUpstream: null },
+        served: { since: '1970-01-01T00:00:00.000Z', total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {} },
         providers: {
             typesafe: { configured: true, keySource: 'env', contract: 'native', local: false, host: 'api.typesafe.ai' },
             'llama-logprob': { configured: false, keySource: null, contract: 'logprob', local: false, host: null },
@@ -594,4 +595,24 @@ test('CR-J4: when SillyTavern\'s account setting cannot be read, the key rule fa
     assert.equal(await plugin.userAccountsEnabled({ load: async () => ({ getConfigValue: () => false }), log: (line) => logged.push(line) }), false, 'control: a readable "off" stays off');
     process.env.TYPESAFE_API_KEY = 'sk-env-must-not-leak';
     assert.equal(await plugin.resolveKey({}, 'typesafe'), null, 'in this checkout there is no ST util.js, so env is not used');
+});
+
+test('T6-4: /status counts every call forwarded to a provider, per provider and per use, so a judge-off session can prove zero', async () => {
+    process.env.TYPESAFE_API_KEY = 'sk-test-served';
+    const fetchImpl = async () => new Response('{"model":"jev","answers":{}}', { status: 200 });
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, now: () => 0, log: () => undefined });
+    const idle = fakeResponse();
+    await handlers.status({}, idle.res);
+    assert.deepEqual(idle.out.body.served, { since: '1970-01-01T00:00:00.000Z', total: 0, byProvider: { typesafe: 0, 'llama-logprob': 0 }, byUse: {} });
+    for (const use of ['director', 'director', 'warden']) await handlers.receive(pageRequest(question, { headers: { 'x-so-judge-use': use } }), fakeResponse().res);
+    await handlers.receive(pageRequest(question), fakeResponse().res);
+    await handlers.receive(pageRequest(question, { headers: { 'x-so-judge-use': 'bad use!' } }), fakeResponse().res);
+    const refused = fakeResponse();
+    await handlers.receive(pageRequest({ state: {}, questions: {} }, { headers: { 'x-so-judge-use': 'director' } }), refused.res);
+    assert.equal(refused.out.statusCode, 400);
+    const status = fakeResponse();
+    await handlers.status({}, status.res);
+    assert.deepEqual(status.out.body.served, {
+        since: '1970-01-01T00:00:00.000Z', total: 5, byProvider: { typesafe: 5, 'llama-logprob': 0 }, byUse: { director: 2, warden: 1, unlabelled: 2 },
+    });
 });

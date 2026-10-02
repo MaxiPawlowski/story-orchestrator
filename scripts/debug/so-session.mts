@@ -598,7 +598,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
   const spend = await meterDir(dir, session);
   const rubricPath = resolve(dir, 'rubric.json');
   const unexercised: MediaKind[] = session.media?.unexercised ?? [];
-  const rubric = existsSync(rubricPath) ? await readJson(rubricPath) : rubricTemplate(card, { dir: session.dir, lane: session.lane, startedAt: session.startedAt, media: session.media?.variant ?? 'full' }, unexercised);
+  const rubric = existsSync(rubricPath) ? await readJson(rubricPath) : rubricTemplate(card, { dir: session.dir, lane: session.lane, startedAt: session.startedAt, media: session.media?.variant ?? 'unknown' }, unexercised);
   rubric.playerClean = pageEnd.playerClean ?? (session.mode === 'player' ? { ok: false, error: 'the player surface was not checked' } : { skipped: 'author-mode card' });
   await writeFile(rubricPath, JSON.stringify(rubric, null, 2), 'utf-8');
   const stopped = {

@@ -60,15 +60,15 @@ export function overrideChain(doc: CardDoc, card: Card): Array<{ card: string; s
   return chain;
 }
 
-export interface MediaPlan { variant: 'full' | 'no-media'; images: boolean; sprites: boolean; unexercised: MediaKind[]; prerenderedSprites: number }
+export interface MediaPlan { variant: 'full' | 'no-media' | 'none'; images: boolean; sprites: boolean; unexercised: MediaKind[]; prerenderedSprites: number }
 
 export function mediaPlan(settings: CardSettings, media: 'on' | 'off', prerenderedSprites = 0): MediaPlan {
   const askedImages = settings.images === true;
   const askedSprites = settings.sprites === true;
-  if (media === 'on') return { variant: 'full', images: askedImages, sprites: askedSprites, unexercised: [], prerenderedSprites };
+  if (media === 'on') return { variant: askedImages || askedSprites ? 'full' : 'none', images: askedImages, sprites: askedSprites, unexercised: [], prerenderedSprites };
   const sprites = askedSprites && prerenderedSprites > 0;
   const unexercised: MediaKind[] = [...(askedImages ? ['images' as const] : []), ...(askedSprites && !sprites ? ['sprites' as const] : [])];
-  return { variant: askedImages || askedSprites ? 'no-media' : 'full', images: false, sprites, unexercised, prerenderedSprites };
+  return { variant: askedImages || askedSprites ? 'no-media' : 'none', images: false, sprites, unexercised, prerenderedSprites };
 }
 
 export function effectiveSettings(baseline: Baseline, chain: Array<{ settings: CardSettings }>, media: MediaPlan): Record<string, any> {

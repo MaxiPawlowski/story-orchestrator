@@ -2,7 +2,7 @@ import { movesParty, readsWorldEvidence, TENSION_CURRENT_KEY, type EngineState, 
 import { fnv1a, stableStringify } from "@runtime/hash";
 import type { ExtractionReply, ModelAsk, ModelCall } from "./modelRoute";
 import { getCanonLite } from "./canonLite";
-import { hashContract, PLAYER_MARK, readContext, renderPlayerOnlyReask, renderSharedReadPrompt } from "./contract";
+import { hashContract, PLAYER_MARK, readContext, renderPlayerOnlyReask, renderSharedReadPrompt, runningTotals } from "./contract";
 import type { ParsedMemoryLine } from "@memory/index";
 import { detectDegenerate } from "./degenerate";
 import { evidenceSources } from "./evidence";
@@ -141,6 +141,7 @@ const readContract = (options: RunSharedReadOptions, window: SharedReadWindow, q
   entities: options.entities ?? [],
   ...readContext(options.story, options.state.activeCheckpointId),
   ...(options.deltasOnly ? { deltasOnly: true } : {}),
+  counted: runningTotals(qualities, options.state.blackboard.values),
 });
 
 export function rosterCharacterId(roster: NormalizedStoryV2["roster"], raw: string | undefined): string | undefined {

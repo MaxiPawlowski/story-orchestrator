@@ -56,6 +56,19 @@ test("v2.5 plan 12 PS-J 2/6: the transport posts text/plain with the plugin head
   expect(JSON.parse(String(seen[0].body))).toEqual(request);
 });
 
+test("T6-4: the transport names the judge use for the plugin's served counter, and sends no header when there is none", async () => {
+  const seen: RequestInit[] = [];
+  globalThis.fetch = jest.fn(async (_input: RequestInfo | URL, init?: RequestInit) => {
+    seen.push(init ?? {});
+    return new Response(JSON.stringify({ model: "jev-1.13.0", answers: {} }), { status: 200 });
+  }) as typeof fetch;
+  await judgeTransport(request, { timeoutMs: 5000, use: "director" });
+  await judgeTransport(request, { timeoutMs: 5000 });
+  expect((seen[0].headers as Record<string, string>)["X-SO-Judge-Use"]).toBe("director");
+  expect((seen[1].headers as Record<string, string>)["X-SO-Judge-Use"]).toBeUndefined();
+  expect(JSON.parse(String(seen[0].body))).toEqual(request);
+});
+
 test("CR-J12: a plugin error status reaches the client as a typed error, so the fallback can name it", async () => {
   for (const status of [504, 409, 401]) {
     globalThis.fetch = jest.fn(async () => new Response(JSON.stringify({ error: "x" }), { status })) as typeof fetch;
