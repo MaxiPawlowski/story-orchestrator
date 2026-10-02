@@ -395,6 +395,8 @@ The arms run on the same bodies and counters as the A100 run. If thinking comes 
 
 **Decided 2026-10-02:** lanes switch to the thinking setup now, harvest on; you rate the pack later, and the rating can overrule it.
 
+**Applied to your install 2026-10-02 (through ST's UI, with your permission):** instruct Gemma 4 Thinking (Sequences as Stop Strings off) on the three Artemis profiles with Start Reply With `<|channel>thought` + newline and reasoning template Gemma 4; instruct Gemma 4 (memory profiles) gets the empty thought channel and Sequences as Stop Strings off; context Gemma 4 Names as Stop Strings off; Auto-fix Markdown off; Artemis v1.1 RP: `min_p` first, response 1400; global regex "Thinking: drop the speaker name repeated after the thought channel"; memory-model fallback = Story Orchestrator Memory Unsloth. Selected profile unchanged (Artemis Local (Unsloth)). The reply thinking budget (default medium, 400) arrives with the next staged build.
+
 **Decided 2026-10-02: reasoning-effort A/B** after the thinking switch merges (about 1 pod-hour): thinking budgets about 128 / 400 / unlimited on Text Completion in groups; empty replies, damage, loops; whether `thinking_budget_tokens` reaches a Text Completion request at all; whether the checkpoint `effects.reasoning` overlay lands on the request; replies into a blind pack.
 
 ---
