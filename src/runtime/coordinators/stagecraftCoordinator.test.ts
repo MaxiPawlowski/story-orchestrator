@@ -391,6 +391,22 @@ describe("StagecraftCoordinator", () => {
     expect(read().declines?.map((decline) => decline.op.comment)).toEqual(["The ferryman"]);
   });
 
+  it("T4-1: a proposal still in review whose reply is deleted, swiped or rolled back past is withdrawn and journaled (wi-11-18, wi-7-7, wi-3-2)", async () => {
+    const state = engineState(11, 18);
+    const { coordinator, read, journal } = harness({ state });
+    respond("[rewrite] The bridge || The bridge is gone.\n[enable] The ferryman");
+    const { record } = await coordinator.runCuratorPass();
+    await coordinator.setOpDecision(record!.id, 1, "accepted");
+    expect(await coordinator.revertAppliedSince(19)).toBe(0);
+    expect(read().proposals.map((proposal) => proposal.id)).toEqual([record!.id]);
+    expect(await coordinator.revertAppliedSince(18)).toBe(0);
+    expect(read().proposals).toEqual([]);
+    expect(journal).toContain("World Info curator proposal withdrawn (2 change(s)): the reply it was read from was changed or removed");
+    Object.assign(state, { boundary: 12, lastMessageId: 19 });
+    expect(await coordinator.applyAccepted()).toBe(0);
+    expect(updateWIEntryByUid).not.toHaveBeenCalled();
+  });
+
   it("two passes at one boundary are two records: accepting the second never un-declines the first", async () => {
     const { coordinator, read } = harness();
     respond("[rewrite] The bridge || The bridge is gone.");
