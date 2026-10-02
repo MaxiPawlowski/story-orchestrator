@@ -43,18 +43,20 @@ Captures (the "verify by" column above) need a live ST + backend and run with R3
 | F5 | **Open (needs the pod).** llama-server switches thinking with `chat_template_kwargs.enable_thinking` (gotcha 2026-09-25). No per-request budget key is assumed | gotchas.md | custom: `off` = `enable_thinking:false`; `low`/`medium`/`high` = `enable_thinking:true`, flagged `collapsed` (UI: "only switches thinking on or off"). R3's artemis-cc arm re-checks with a curl |
 | F6 | **Holds.** `text-completions.js` has no reasoning handling at all (grep: 0 hits) | `src/endpoints/backends/text-completions.js` | every level on a TC profile is `unsupported`: nothing is sent, no budget is added, the row says so. No prefill lever is built (no family measured) |
 | F7 | **Holds.** With `extractData:false` the raw JSON comes back; reasoning sits in `choices[0].message.reasoning_content` (custom/llama, DeepSeek), `.reasoning` (OpenRouter), Claude `content[].thinking`, Gemini `parts[].thought`; tokens in `usage.completion_tokens_details.reasoning_tokens` / `usageMetadata.thoughtsTokenCount` | `reasoning.js:121-140`, `custom-request.js:462-488` | `readReasoning` meters chars (+ tokens when present); the answer stays `content` only |
+| F8 | **Holds (added 2026-10-02, user decision: DeepSeek is R3's hosted arm).** ST's DeepSeek branch sends `thinking: {type: include_reasoning ? 'enabled' : 'disabled'}` and forwards `reasoning_effort` only when `include_reasoning` is true; the client mapping (`getReasoningEffort`) is bypassed by our override (F2). DeepSeek's API takes `reasoning_effort` `none`/`low`/`high`/`max` (default `high`), maps `minimal`→`low` and `medium`/`xhigh`→`high`; model ids `deepseek-flash`, `deepseek-v4-pro`, both thinking by default | `chat-completions.js:1122-1124, 1137` (ST `7c3994196`); `openai.js:2571-2583`; https://api-docs.deepseek.com/api/create-chat-completion (`thinking`, `reasoning_effort`, read 2026-10-02) | `deepseekPlan`: `off` = `include_reasoning: false` (thinking disabled, no effort sent); `low` = `reasoning_effort: "low"`; `medium` = `"high"`, flagged `collapsed` (the API has no medium; UI: "has no medium level: it runs as high"); `high` = `"high"`. `max` has no level. No model gate: both listed models think. Capture with R3 |
 
 **OpenRouter (W23):** `bodyParams.reasoning = { exclude: !include_reasoning }` and `reasoning.effort = reasoning_effort` verbatim
 (`chat-completions.js:2301-2350`). The client maps `min` to `none` for OpenRouter (`openai.js:2619`), so `none` is accepted.
 
 **Mapping as built (`src/services/stHost/reasoningPayload.ts`).** Kept to the sources this install plays on plus the ones
 whose server branch takes the level verbatim; the rest say "not mapped" instead of guessing (the bundle budget, §Gate record,
-also argued for a short table). DeepSeek (`low`/`high` only, `chat-completions.js:1122`) and `koboldcpp/*` behind `custom`
-(`:2604`) are verified and deliberately left unmapped until a profile needs them.
+also argued for a short table). `koboldcpp/*` behind `custom` (`:2604`) is verified and deliberately left unmapped until a profile
+needs it. DeepSeek was mapped 2026-10-02 (F8) when it became R3's hosted arm.
 
 | Source | `off` | `low` / `medium` / `high` |
 |---|---|---|
 | `openrouter` | `reasoning_effort: "none"`, reasoning excluded | the level, `include_reasoning: true` |
+| `deepseek` | `include_reasoning: false` (ST sends `thinking: disabled`, drops the effort) | `low` = `reasoning_effort: "low"`; `medium` and `high` = `"high"` (medium collapsed: DeepSeek maps it to high), `include_reasoning: true` (F8) |
 | `custom` (llama-server etc.) | `custom_include_body` merged with `chat_template_kwargs.enable_thinking: false` | `enable_thinking: true` (collapsed: one "on" level) |
 | `makersuite`, `vertexai` | `reasoning_effort: "min"` (Flash budget 0; Pro keeps its minimum, `prompt-converters.js:1182`) | the level |
 | `openai`, `azure_openai`, `claude`, `xai` | **unsupported** | the level (the server maps or drops it per model: OpenAI only for reasoning models, Claude via `calculateClaudeBudgetTokens` as a fraction of `max_tokens` with a 1024 floor) |
@@ -276,7 +278,8 @@ failure (`client.test`), effort dropped from the route (`reasoningControl.test`)
 - The per-profile capability probe (`stHost/capabilities.ts` shape) and the `CapabilitiesGroup` read-out are NOT built: the
   answer comes from the mapping plus the per-call meter on the role row, which needs no extra call. Add the probe only if
   R3 shows a source whose acceptance the mapping cannot predict.
-- Mapping is narrower than the R0 survey (DeepSeek, `koboldcpp/*`, and six OpenAI-shaped sources read "not mapped").
+- Mapping is narrower than the R0 survey (`koboldcpp/*` and six OpenAI-shaped sources read "not mapped"; DeepSeek was
+  mapped 2026-10-02, F8).
 - `inner` role not added (plan 06 owns it; effort/budget attach automatically).
 - Journal: the exhaustion reaches the journal through the scheduler's existing `noteHealth` ("extraction failed: <reason>"),
   no new journal kind. Off-path passes outside the scheduler (curator, synthesis, director) surface it on the role row only.

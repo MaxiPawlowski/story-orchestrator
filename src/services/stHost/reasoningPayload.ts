@@ -59,9 +59,16 @@ function customPlan(route: ReasoningRoute, effort: "off" | ReasoningLevel): Reas
   return { payload, applied: true, thinks, collapsed: thinks, unsupported: null, requested: effort, supported: true, sent: `enable_thinking=${thinks}` };
 }
 
+function deepseekPlan(effort: "off" | ReasoningLevel): ReasoningPlan {
+  if (effort === "off") return { payload: { include_reasoning: false }, applied: true, thinks: false, collapsed: false, unsupported: null, requested: effort, supported: true, sent: "thinking=disabled" };
+  const value = effort === "low" ? "low" : "high";
+  return { payload: { reasoning_effort: value, include_reasoning: true }, applied: true, thinks: true, collapsed: effort === "medium", unsupported: null, requested: effort, supported: true, sent: value };
+}
+
 function chatPlan(route: ReasoningRoute, effort: "off" | ReasoningLevel): ReasoningPlan {
   const source = route.source ?? "";
   if (source === "custom") return customPlan(route, effort);
+  if (source === "deepseek") return deepseekPlan(effort);
   if (source !== "openrouter" && !LEVEL_SOURCES.has(source)) return refuse(effort, `${source || "this source"} is not mapped`);
   const model = route.model ?? "";
   const can = capability(source, model);

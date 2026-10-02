@@ -96,6 +96,10 @@ export const ReasoningEffort: Story = {
         const reasoning = { effort: "medium" as const, applied: true, collapsed: true, unsupported: null, budget: 2048, chars: 812, tokens: null };
         return { ...route("synthesis", "Summaries and canon", "fallback", "memory", "Same as memory model", "medium"), reasoning };
       }
+      if (entry.role === "authoring") {
+        const reasoning = { effort: "medium" as const, applied: true, collapsed: true, sent: "high", unsupported: null, budget: 2048, chars: 0, tokens: null };
+        return { ...route("authoring", "Wizard and road ahead", "fallback", "memory", "Same as memory model", "medium"), reasoning };
+      }
       if (entry.role === "director") return route("director", "Speaker direction", "reasoning-exhausted", "memory", exhausted, "high");
       return entry;
     }),
@@ -107,6 +111,7 @@ export const ReasoningEffort: Story = {
     await expect((read.querySelector("#so-role-effort-read") as HTMLSelectElement).value).toBe("off");
     await expect(read.querySelector('[data-so="role-reasoning-note"]')?.textContent).toContain("Not applied");
     await expect(canvasElement.querySelector('[data-role="synthesis"] [data-so="role-reasoning-note"]')?.textContent).toContain("only switches thinking on or off");
+    await expect(canvasElement.querySelector('[data-role="authoring"] [data-so="role-reasoning-note"]')?.textContent).toContain("has no medium level: it runs as high");
     await expect(canvasElement.querySelector('[data-role="curator"] [data-so="role-reasoning-note"]')).toBeNull();
     const director = canvasElement.querySelector('[data-role="director"]') as HTMLElement;
     await expect(director.dataset.state).toBe("reasoning-exhausted");

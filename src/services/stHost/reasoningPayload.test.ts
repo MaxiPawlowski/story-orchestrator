@@ -28,7 +28,16 @@ describe("reasoningPayload: one effort per route kind (v2.6 plan 05 R1, host fac
     expect(reasoningPayload(chat("claude", { model: "claude-sonnet-4-5" }), "high")).toMatchObject({ payload: { reasoning_effort: "high" }, applied: true });
     expect(reasoningPayload(chat("claude", { model: "claude-sonnet-4-5" }), "off")).toMatchObject({ payload: {}, applied: false, unsupported: "claude cannot switch it off" });
     expect(reasoningPayload(chat("makersuite", { model: "gemini-2.5-flash" }), "off")).toMatchObject({ payload: { reasoning_effort: "min" }, applied: true, thinks: false });
-    expect(reasoningPayload(chat("deepseek"), "medium")).toMatchObject({ payload: {}, applied: false, unsupported: "deepseek is not mapped" });
+  });
+
+  it("DeepSeek: off disables thinking, low and high ride reasoning_effort, medium collapses into high (chat-completions.js:1121-1137; api-docs create-chat-completion)", () => {
+    const route = chat("deepseek", { model: "deepseek-flash" });
+    const off = reasoningPayload(route, "off");
+    expect(off).toMatchObject({ applied: true, thinks: false, collapsed: false, unsupported: null, sent: "thinking=disabled" });
+    expect(off.payload).toEqual({ include_reasoning: false });
+    expect(reasoningPayload(route, "low")).toMatchObject({ payload: { reasoning_effort: "low", include_reasoning: true }, applied: true, thinks: true, collapsed: false, sent: "low" });
+    expect(reasoningPayload(route, "medium")).toMatchObject({ payload: { reasoning_effort: "high", include_reasoning: true }, applied: true, thinks: true, collapsed: true, sent: "high" });
+    expect(reasoningPayload(route, "high")).toMatchObject({ payload: { reasoning_effort: "high", include_reasoning: true }, applied: true, thinks: true, collapsed: false, sent: "high" });
   });
 
   it("Text Completion and unknown sources are unsupported and send nothing", () => {
