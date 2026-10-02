@@ -16,8 +16,9 @@ export const CRITERIA_TEXT: Record<Criterion, string> = {
 export interface Turn { role: string; text: string }
 export interface ContextTurn { who: string; text: string }
 export interface Excerpt { speaker: string; situation: string[]; context: ContextTurn[] }
-export interface ReplyRow { arm: string; body: string; text: string; stop_type?: string }
-export interface PackTurn { id: string; speaker: string; situation: string[]; context: ContextTurn[]; replies: Record<Letter, { text: string; cutOff: boolean }> }
+export interface ReplyRow { arm: string; body: string; text: string; stop_type?: string; reasoning?: string | null }
+export interface PackTurn { id: string; speaker: string; situation: string[]; context: ContextTurn[]; replies: Record<Letter, PackReply> }
+export interface PackReply { text: string; cutOff: boolean; reasoning?: string }
 export interface Pack { format: 1; criteria: typeof CRITERIA; turns: PackTurn[] }
 export interface SealedKey { format: 1; seed: string; configs: string[]; turns: Record<string, { source: string; letters: Record<Letter, string> }> }
 
@@ -87,7 +88,8 @@ export function buildModelPack(input: { seed: string; bodies: Array<{ body: stri
     const excerpt = contextExcerpt(prompt);
     const replies = Object.fromEntries(LETTERS.map((letter) => {
       const row = rows.find((candidate) => candidate.arm === letters[letter])!;
-      return [letter, { text: row.text.trim(), cutOff: row.stop_type === 'limit' }];
+      const reasoning = row.reasoning?.trim();
+      return [letter, { text: row.text.trim(), cutOff: row.stop_type === 'limit', ...(reasoning ? { reasoning } : {}) }];
     })) as PackTurn['replies'];
     turns.push({ id, ...excerpt, replies });
     keyTurns[id] = { source: body, letters };
@@ -95,7 +97,7 @@ export function buildModelPack(input: { seed: string; bodies: Array<{ body: stri
   return { pack: { format: 1, criteria: CRITERIA, turns }, key: { format: 1, seed: input.seed, configs, turns: keyTurns } };
 }
 
-const LEAK_WORDS = /\bBL\d\b|cydonia|artemis|mistral|gemma|\bv1\.[12]\b|min_p|<\|channel>|<channel\|>|\[\/?INST\]|<\/s>|\bb\d\d-|replies\.jsonl|configs\.json|so-lanes/i;
+const LEAK_WORDS = /\bBL\d\b|\bTP\d\b|cydonia|artemis|mistral|gemma|skyfall|magistral|<\/?think>|\[\/?THINK\]|\bv1\.[12]\b|min_p|<\|channel>|<channel\|>|\[\/?INST\]|<\/s>|\bb\d\d-|replies\.jsonl|configs\.json|so-lanes/i;
 
 export function modelPackLeaks(pack: Pack, key: SealedKey): string[] {
   const leaks: string[] = [];
@@ -106,8 +108,10 @@ export function modelPackLeaks(pack: Pack, key: SealedKey): string[] {
     if (JSON.stringify(Object.keys(turn).sort()) !== JSON.stringify(['context', 'id', 'replies', 'situation', 'speaker'])) leaks.push(`${turn.id}: carries fields beyond the excerpt and replies`);
     for (const letter of LETTERS) {
       const reply = turn.replies[letter];
-      if (!reply || JSON.stringify(Object.keys(reply).sort()) !== JSON.stringify(['cutOff', 'text'])) leaks.push(`${turn.id} ${letter}: a reply carries more than its text`);
+      const keys = reply ? JSON.stringify(Object.keys(reply).sort()) : '';
+      if (!reply || (keys !== JSON.stringify(['cutOff', 'text']) && keys !== JSON.stringify(['cutOff', 'reasoning', 'text']))) leaks.push(`${turn.id} ${letter}: a reply carries more than its text and reasoning`);
       else if (LEAK_WORDS.test(reply.text)) leaks.push(`${turn.id} ${letter}: the reply text carries a config or template marker`);
+      else if (reply.reasoning && LEAK_WORDS.test(reply.reasoning)) leaks.push(`${turn.id} ${letter}: the reasoning carries a config or template marker`);
     }
     if (LEAK_WORDS.test(JSON.stringify({ situation: turn.situation, context: turn.context, speaker: turn.speaker }))) leaks.push(`${turn.id}: the context carries a config or template marker`);
   }
@@ -126,6 +130,7 @@ export function renderPackMarkdown(pack: Pack): string {
     for (const letter of LETTERS) {
       const reply = turn.replies[letter];
       out.push(`### ${turn.id} ${letter}`, '', '```text', reply.text, '```', ...(reply.cutOff ? ['', '*(cut off at the length limit)*'] : []), '');
+      if (reply.reasoning) out.push('<details><summary>Reasoning written before this reply (not rated)</summary>', '', '```text', reply.reasoning, '```', '', '</details>', '');
     }
     out.push('---', '');
   }

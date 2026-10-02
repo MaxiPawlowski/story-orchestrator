@@ -396,3 +396,197 @@ The two ST-side fixes run on the lanes from T2 onward without touching the real 
 - Checked against a copy of lane 1's real files (read only): both edits applied, both mirrors hit, and the rest of `settings.json` was unchanged.
 - Not yet verified on a live page: one `st-payload` capture after the next seed should show the thought channel after the final `<|turn>model` and `min_p` first in `samplers`.
 - Gate (2026-10-01, agent worktree): `npm run gates` green on every step through `test:plugin` (typecheck, typecheck:test, lint, test, build, build:dev, test:debug, debug:typecheck, test:release, test:replay, test:plugin). `test-storybook:ci` is not runnable in the agent worktree: the runner resolves to the main checkout through the node_modules junction and matches 0 stories. That is equivalent to `-- --no-storybook`; no `src/` file changed.
+
+## 2026-10-02: Thinking and model A/B (5 models)
+
+Dedicated pod `vkheow0wtqxl0t` (RTX PRO 4500 Blackwell 32 GB, EU-RO-1, $0.72/h; the $0.34/h community price had no stock), 06:07–08:29Z, **2.36 pod-hours (~$1.70)**, then stopped and terminated after the results were copied. The production pod `m4dmlnzn70qgj2` was only read (`get-pod`). Re-runnable kit, raw rows, logs and testsets: `C:\dev\so-lanes\artemis-think\` (README there; `logs/session.md` lists what went wrong). It extends the A100 kit: same bodies, sampler and detector.
+
+Five models were planned; four were measured. **Rocinante-XL 16B was excluded by the user: its context is too short for our 10–14k-token prompts** (its card says good to about 16k). It was never downloaded.
+
+### Setup, and what it cannot show
+
+- **This time the binary is production's.** `/workspace/llama/bin/llama-server` (b11046, archs `89;120`) runs natively on sm_120. Every server used the production flags (Artemis: ctx 196608, `-np 4`, `--kv-unified`, q8_0 KV). Requests ran 4 at a time, as four lanes would. Model sha256s match the HF LFS oids (`arms.json`).
+- The bodies, sampler and counters are the same as on the A100 (W, T, B, L, L0, S; temperature 1, min_p 0.05, DRY 0.8/1.75/2/4096). Two things differ: `min_p` runs first in every arm, and the budget is 800 tokens of reasoning plus 400 of reply. Word damage is **hand-read** over every W/T/B/S/L0 reply (the texts are in `handread/`). The detector alone misses "murmets" and "has to drained".
+- **Every body is a group turn.** The prompt ends on ST's speaker prefix (`<|turn>model\nDalan:`), so the group question is built into every arm. Solo turns were approximated by dropping the name (`sts`).
+- **What the Gemma 4 template really emits** (from the GGUF, `templates/`): thinking on puts `<|think|>` at the top of the first system turn and generates after a bare `<|turn>model\n`. The model then opens `<|channel>thought\n…<channel|>` itself. Thinking off adds the empty channel, which is yesterday's fix.
+- Thinking shapes measured (full table in the kit README):
+
+| Shape | Prompt end (Gemma 4) | What ST would need |
+|---|---|---|
+| `off` | `<|turn>model\n<|channel>thought\n<channel|>Dalan:` | today's lane overlay |
+| `stg` | `<|think|>` + the `Gemma 4 Thinking` instruct's brief-plan line; ends `<|turn>model\nDalan:` | the existing `Gemma 4 Thinking` instruct, as is |
+| `stga` | as `stg`, then the opener: `…Dalan:<|channel>thought\n` | that instruct + **Start Reply With** `<|channel>thought\n` |
+| `after` | `<|think|>` only, `…Dalan:<|channel>thought\n` | `Gemma 4 Thinking` with no brief-plan line + Start Reply With |
+| `before` | `<|think|>`, `<|turn>model\n<|channel>thought\nDalan:` | `last_output_sequence` ending in the opener |
+| `sts` | as `stg` with no name: `<|turn>model\n` | the instruct in a solo chat |
+| `2s` | stage 1 `<|turn>model\n<|channel>thought\n` up to `<channel|>`; stage 2 appends `<channel|>Dalan:` | not expressible in ST (two requests); used only as the clean reference |
+
+- **Speaker stop strings off (`-ns`) in every thinking arm but the first.** The first two-stage arm kept the body's stop list. In 4 of 6 replies the reasoning stopped on `\nBelle:`, `\nDalan:`, `\nTobias:` or `\nKanna:`, because the model lists the characters line by line. ST adds those strings in groups (`getStoppingStrings`, `power_user.context.names_as_stop_strings`). Thinking in a group therefore needs the context template's "Names as Stop Strings" switched off.
+- The bodies are hand-built from recorded payloads, as on the A100. ST's own rendering of these shapes, and its reasoning auto-parse, were **not** run live.
+
+### Arms (4 seeds per body unless noted; n is the number of replies read)
+
+| Arm | Model, shape | n | Word damage (hand-read) | B drop | Loops (L0 + other, not L) | Reasoning: opened / closed | Reasoning tokens, median | Empty reply | First reply token, median (4 concurrent) |
+|---|---|---|---|---|---|---|---|---|---|
+| A11-off | v1.1, empty channel (yesterday's fix) | 26 (+4 L) | **0/26** | 0/6 | 0/26 | – | – | 0 | 12 s |
+| A11-think-stg-ns | v1.1, `Gemma 4 Thinking` as is | 20 | **10/20** (+1 doubtful; "Belle's on feet", "her excitement has to drained", "she murmets", "hisL hands", "assesses the and you") | 3/4 | **4/20** ("And he is waiting." ×160, "The valley is quiet." ×190) | **0/20** | 0 | 0 | 12 s |
+| A11-think-stga-ns | v1.1, instruct + opener after the name | 20 | **0/20** (1 doubtful) | 0/4 | 0/20 | 20/20 / 20/20 (4 closed at once, empty thought) | 381 (352 with the empty ones) | 0 | 65 s |
+| A11-think-after-ns | v1.1, `<|think|>` + opener after the name | 24 | **0/24** | 0/4 | 0/24 | 24/24 / 19/24 | 698 | **5/24** (3 over the 1200-token budget, 2 drafted the reply inside the thought and stopped) | 76 s |
+| A11-think-before-ns | v1.1, opener before the name | 4 (W, S × 2) | 1/4 ("until his knuckles white") | – | 0/4 | 4/4 / 3/4 | 606 | 1/4 (reply inside the thought) | 39 s |
+| A11-think-sts-ns | v1.1, solo shape (no name) | 16 (W, B, L0, S) | 1/16 (the one reply that did not reason) | 1/4 | 0/16 | 15/16 / 14/15 | 478 | 1/16 | 53 s |
+| A11-think-2s-ns | v1.1, two-stage reference | 20 (+4 L) | 1/20 ("haists") | 1/4 | 0/20; L 4/4 | 24/24 / 17/24 within 900 | 742 | 0 | 100 s |
+| A11-think-2s | v1.1, two-stage, speaker stops on | 6 | 0/5 | 0/1 | 0/5 | 6/6 / 2/6 (4 cut by a speaker stop string) | 442 | 0 | 69 s |
+| A12-off | v1.2, empty channel | 16 (W, T, B, S) | 1/16 ("carve it throat out") | 1/4 | 0/16 | – | – | 0 | 14 s |
+| A12-think-stga-ns | v1.2, instruct + opener after the name | 16 | 1/16 | 0/4 | 0/16 | 16/16 / 16/16, but **14/16 closed at once** | 1 | 0 | 15 s |
+| CY-off | Cydonia 24B Q5_K_M, Mistral V7-Tekken | 16 | 0/16 | 0/4 | 0/16 | – | – | 0 | 7 s |
+| CY-think-after-ns | Cydonia, `Dalan:<think>\n` | 16 | 1/16 ("looks back at player") | 0/4 | 0/16 | 16/16 / 16/16 | 106 | 2/16 | 7 s |
+| CY-think-before-ns | Cydonia, `<think>\nDalan:` | 4 | 0/4 | – | 0/4 | 4/4 / 4/4 | 66 | 0 | 2 s |
+| SK-off | Skyfall 31B v4.2 Q4_K_M, Mistral V7-Tekken | 16 | 0/16 | 0/4 | 0/16 | – | – | 0 | 8 s |
+| SK-THINK-after-ns | Skyfall, `[THINK]` (+ Magistral system text) | 16 | – | – | – | **0/16 closed: never emits `[/THINK]`** | – | **16/16** | – |
+| SK-think-after-ns | Skyfall, `<think>` | 6 (W, B, S × 2) | 0/6 | 0/2 | 0/6 | 6/6 / 6/6 | 65 | 0 | 13 s |
+
+Notes on the table:
+- Forced picks (`bmp`) are 0 in every arm, because `min_p` runs first.
+- "Loops" counts W, T, B, S and L0. With a loop already in the context (L), every arm that ran it still loops: A11-off 3/4, A11-think-2s-ns 4/4. Thinking does not rescue a loop in progress.
+- A11-off's B row has 6 replies (seeds 11–16).
+- The first-token time is measured with 4 requests in flight, so prompt processing is included. Solo, the extra cost is the reasoning length divided by the solo speed (capacity table): about 13 s for `stga` on v1.1.
+- "Empty" means the player would see no reply.
+
+### Reading
+
+1. **The September failure is the prompt shape, not thinking itself.**
+   - The existing `Gemma 4 Thinking` instruct puts `<|think|>` in the system turn but ends the prompt on ST's speaker name, `<|turn>model\nDalan:`. Artemis then **never opens a thought (0/20)** and degrades worse than production did:
+     - word damage in 10/20 replies (hand-read);
+     - B imitation 3/4;
+     - 4 runaway loops in 20 replies with no loop in context.
+   - This is the "ends with no thought block" shape again, now with a thinking switch that the prompt never honours.
+   - Once a thought block is actually opened, the replies are as clean as the empty-channel fix:
+     - `stga` 0/20 and `after` 0/24, against `off` 0/26;
+     - B imitation 0/4 against 0/6.
+   - So the hypothesis holds: **both trained shapes are clean, and only the shape with no thought block degrades.**
+2. **Thinking costs time and empty replies, and the brief-plan line pays for itself.**
+   - Plain `<|think|>` (`after`):
+     - reasons a median of 698 tokens;
+     - in 5/24 replies the player would see nothing: the reasoning ran past 1200 tokens, or the model wrote its answer inside the thought and stopped.
+   - With the instruct's brief-plan line ("at most 5 bullet points … Do not draft the reply inside your thinking", `stga`):
+     - the median drops to 381 tokens;
+     - no reply in 20 was empty.
+   - In 4/20 of the `stga` replies v1.1 closed the thought at once. Its first-token odds of `<channel|>` are 5–21% on these bodies (`results/first-token.jsonl`). Those replies are ordinary "off" replies and were clean.
+   - On the 20 blind turns (one seed, longer and later contexts):
+     - `stga` left 2/20 empty and 1 cut to 10 tokens;
+     - `after` left 4/20 empty.
+   - Latency: at four concurrent lanes the first reply token comes after a median 65 s (`stga`) against 12 s for `off`. Solo it is about 13 s more per turn.
+3. **Group chats can think, but only with the opener after the name.**
+   - `before` (the opener in `last_output_sequence`, so the name lands inside the thought) worked in 3 of 4. In the fourth, the reply was written inside the thought.
+   - Without the name (`sts`), the reasoning is fine, but in group bodies 5/16 replies started as a different character (the model picks its own speaker).
+   - The working order is `<|turn>model\nDalan:<|channel>thought\n`. That is exactly what ST builds from names forced plus **Start Reply With** `<|channel>thought\n` (`formatInstructModePrompt` appends the prompt bias after `Name:`). The reply then follows `<channel|>` as Dalan.
+   - In 3/20 of the replies the model also repeats `Dalan:` at the start of the reply text (whether ST strips it was not checked).
+4. **Artemis v1.2 barely thinks.** With the same shape it closed the thought at once in 14/16 replies. It is a fine non-thinking model (`A12-off` 1/16 damage, as on the A100) but not a thinking one.
+5. **CC switch on b11046 (plan 05 F5): verified.**
+   - `/apply-template` shows `enable_thinking: false` renders exactly `<|turn>model\n<|channel>thought\n<channel|>`. `true` renders `<|think|>` and a bare `<|turn>model\n`. **No kwarg at all also means thinking on.**
+   - `reasoning_content` comes back separated (default reasoning format) and `content` carries no markers. `reasoning_format: "none"` puts the raw channel back into `content`.
+   - Budget exhaustion: with `max_tokens` 120, `content` is `""` and `finish_reason` is `length` (3/3).
+   - `reasoning_effort` `low` and `high` give byte-identical output: the Gemma 4 template ignores the level. **`reasoning_effort: "none"` turns thinking off** (the same output as `enable_thinking: false`).
+   - **`thinking_budget_tokens: 64` caps the reasoning at about 64 tokens and the reply follows**, so it is a per-request budget. `reasoning_budget` has no effect.
+   - In the W body every CC reply came back as **Tobias** (6/6 with text), not the director's pick Dalan, because a chat request carries no forced speaker prefix. Group thinking is therefore a Text Completion feature.
+6. **Skyfall 31B v4.2.**
+   - Its base is **Magistral-Small-2509** (card and GGUF), not Mistral-Small-3.1. It uses Mistral V7-Tekken, and `[THINK]`/`[/THINK]` exist as special tokens (ids 34/35).
+   - Clean without thinking: 0/16 damage, 0 loops. One reply drifted to another character and was cut off mid-sentence.
+   - Thinking:
+     - `[THINK]` does not work: the finetune never emits `[/THINK]` (0/16 replies, 0/2 in a token-level probe). It writes the reply, sometimes mixed with planning, and stops.
+     - A plain-text `<think>` prefill works: 6/6 closed, short (median 65 tokens), clean. That is only 6 replies.
+7. **Cydonia 24B v4.3.**
+   - Clean without thinking (0/16).
+   - With `<think>`:
+     - short reasoning (median 106 tokens), often in the character's own first person, which is promising for the inner voice;
+     - 1/16 damage;
+     - 2/16 empty replies;
+     - 5/16 replies repeat the speaker name;
+     - 1 reply came back as another character.
+
+### Capacity (solo, RTX PRO 4500 Blackwell 32 GB, production binary)
+
+| Model | Server config | VRAM | tok/s, 1 stream | Lanes |
+|---|---|---|---|---|
+| Artemis v1.1 Q4_K_M | ctx 196608, np4, unified, q8_0 | 30.9 GB | 28.6 | 4 (shared 196k) |
+| Artemis v1.2 Q4_K_M | same | 30.8 GB | 28.8 | 4 |
+| Cydonia 24B Q5_K_M | ctx 131072 (its maximum), np4, unified, q8_0 | 27.4 GB | 41.8 | 4 (shared 131k) |
+| Skyfall 31B Q4_K_M | ctx 98304, np4, unified, q8_0 | 29.6 GB | 33.0 | 4 (shared 98k); 131k was not tried |
+
+- With 4 requests in flight, decode speed per stream fell to 2–14 tok/s whenever other slots were processing 10k-token prompts. That matches what the lanes see.
+- Thinking multiplies the generated tokens per turn by about 3 (`stga`) to 4.5 (`after`).
+
+### Blind pack (`test/sessions/rating-pack/model-blind-20-think/`)
+
+The same 20 turns as `model-blind-20`, seed 1001, 600 reply tokens (plus 800 for reasoning). Reasoning is shown folded under each reply, and the raters judge the reply. The key is sealed: sha256 `cb90b3f6…d9ff1`, checked with `so-model-blind.mts verify-key --out …`.
+
+| Config (sealed) | What it is | Why it is in |
+|---|---|---|
+| v1.1 empty channel + `min_p` first | the A100 `BL1` replies, reused (same prompt, sampler and seed; A100 GPU) | the control: today's lane overlay |
+| v1.1 `<|think|>` + opener after the name | `after`, plain thinking | the ST-expressible thinking order, unbriefed |
+| v1.1 `Gemma 4 Thinking` instruct + opener after the name | `stga` | the recommended thinking config |
+| Skyfall 31B v4.2, no thinking | Mistral V7-Tekken | the cleanest new model. Its only working thinking shape (`<think>`) has 6 samples, too few to put in front of raters |
+
+Not in the pack:
+- v1.2 does not think (14/16), and its non-thinking replies are already rated in `model-blind-20` (BL2).
+- Cydonia is in `model-blind-20` (BL3).
+
+Blind counters:
+- `after`: 4/20 empty replies.
+- `stga`: 2/20 empty, and 1 reply of 10 tokens.
+- Skyfall and the control: 0 empty, 0 loops, 0 detector hits.
+
+A judge first pass scored all 20 turns blind (`openai/gpt-6-astra` through `opencode run --pure`, the same route and prompt as the first pack, 20/20 scored, no problems). Its per-config result is only in `judge-first-pass/unsealed-summary.md` and is deliberately not repeated here, so it cannot steer the human rating.
+
+### Recommendation
+
+**Answers:**
+1. **Thinking-on does not degrade Artemis v1.1 when a thought block is actually opened.**
+   - `stga` 0/20 and `after` 0/24 word damage, against 0/26 for the fix; B imitation 0/4.
+   - The September garbage is reproduced only by the shape the current `Gemma 4 Thinking` instruct produces in a group: 0/20 replies reasoned, 10/20 damaged and 4/20 looped.
+2. **Group thinking works with the opener after ST's name prefix.**
+   - The prompt must end `<|turn>model\nName:<|channel>thought\n`.
+   - ST needs:
+     - (a) the `Gemma 4 Thinking` instruct (`<|think|>` + the brief-plan line in `story_string_prefix`), with `last_output_sequence` left empty;
+     - (b) **Start Reply With** = `<|channel>thought\n`;
+     - (c) **Names as Stop Strings off** in the context template, or the reasoning is cut at the first character line (4/6);
+     - (d) reasoning auto-parse with the `Gemma 4` reasoning template (`<|channel>thought\n` … `<channel|>`);
+     - (e) a response length of at least 1400 tokens (800 reasoning + 600 reply).
+   - Putting the opener in `last_output_sequence` (before the name) fails in about a quarter of replies (1/4). Dropping the name lets the model pick the speaker (5/16 wrong).
+3. **The CC switch works on b11046.**
+   - `chat_template_kwargs.enable_thinking` true/false renders the two trained shapes, `reasoning_content` is separated, and budget exhaustion gives `content: ""` with `finish_reason: "length"`.
+   - `reasoning_effort` levels do nothing on Gemma 4 except `"none"`, which turns thinking off.
+   - `thinking_budget_tokens` is the working per-request budget, so plan 05's effort control should map onto it.
+   - CC cannot force the group speaker (6/6 replies as the wrong member), so group thinking stays on Text Completion.
+4. **Skyfall 31B v4.2:**
+   - as clean as Artemis without thinking (0/16) and 15% faster (33.0 against 28.6 tok/s);
+   - 4 lanes at 98k shared context, against Artemis's 196k;
+   - thinking only through a `<think>` prefill (6/6 short and clean); its native `[THINK]` is broken in the finetune.
+   - **Rocinante-XL 16B:** excluded by the user (context too short for our prompts); not measured.
+   - **Cydonia 24B** (for reference): the fastest (41.8 tok/s), 4 lanes at 131k, short in-character reasoning, but 2/16 empty replies and speaker slips with thinking.
+5. **Pack:** the four configs above. Thinking is represented twice (plain and briefed) because that is the decision on the table; Skyfall is the new model; v1.1 without thinking is the control.
+
+**What to change, if the raters do not prefer the control clearly:**
+- run T5–T7 with the `stga` setup on Artemis v1.1;
+- keep `min_p` first;
+- drop the empty-channel `last_output_sequence`;
+- turn "Names as Stop Strings" off;
+- add Start Reply With `<|channel>thought\n`;
+- raise max response tokens to 1400;
+- turn harvest on.
+
+As a lane overlay it is the same mechanism as `adolion-fresh.presets.json`, with one more key (Start Reply With) and one context-template key. Expect about 10% empty replies on hard turns, and about 13 s more per turn solo, several times that with 4 busy lanes.
+
+Keep the harness loop guard: thinking does not escape a loop already in context (4/4). Do not switch to v1.2 for thinking.
+
+### Not tested
+
+- The live ST path end to end: Start Reply With combined with reasoning auto-parse; whether ST strips the repeated `Name:`; the harvest reading `reasoning`.
+- One `st-payload` capture on a lane should confirm the prompt ends `Dalan:<|channel>thought\n`.
+- L/L0 on v1.2, Cydonia and Skyfall.
+- `stga` on Cydonia or Skyfall.
+- Skyfall `<think>` beyond 6 replies.
+- Skyfall at 131k context.
+- More than 4 seeds per cell; the blind turns are single-seed.
+- Rocinante-XL 16B (excluded by the user).
+- Turns past about 15k tokens of context.

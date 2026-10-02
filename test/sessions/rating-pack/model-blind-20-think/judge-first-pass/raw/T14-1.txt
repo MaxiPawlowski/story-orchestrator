@@ -1,0 +1,5 @@
+exit 0
+--- text ---
+{"scores":{"A":{"coherence":5,"prose":5,"scene":3,"agency":5,"overall":3},"B":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"C":{"coherence":5,"prose":5,"scene":2,"agency":5,"overall":2},"D":{"coherence":5,"prose":5,"scene":2,"agency":5,"overall":2}},"rank":["B","A","D","C"],"why":"B responds naturally to the proposed fee and party name without deciding the negotiation or ending on a question; A also preserves agency but invents the player's name as Max. D ends by asking the player to reconfirm their stated intent and changes the bow into a bow-staff, while C introduces an unsupported destination and ends on another question rather than the scene."}
+--- stderr ---
+
