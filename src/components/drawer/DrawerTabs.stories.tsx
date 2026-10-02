@@ -266,7 +266,7 @@ const fakeManager = (): RuntimeManager =>
     removeLedgerEntry: fn(),
     flagMoment: fn(),
     restartStory: fn(),
-    applyStoryUpdate: fn(),
+    applyStoryUpdate: fn(async () => undefined),
     setCuratorOpDecision: fn(),
     previewActions,
   }) as unknown as RuntimeManager;

@@ -27,6 +27,13 @@ export type LibrarySaveDeps = SettingsWriteDeps<unknown[]>;
 /** `request` names the settings request whose own answer refused the write, so one refusal is one row. */
 export type LibrarySaveEvidence = { confirmed: true } | { confirmed: false; reason: string; request?: number };
 
+export interface ChatSaveOutcome {
+  applied: boolean;
+  detail: string;
+}
+
+export const chatSaveSentence = (outcome: ChatSaveOutcome): string => `${outcome.applied ? "Applied" : "Not applied"} to this chat: ${outcome.detail}.`;
+
 const observedReason = (observation: SettingsSaveObservation) => observation.timedOut ? "no settings save request went out"
   : observation.failed ? "the settings save request failed before the server answered"
     : `the settings save answered ${String(observation.status)}`;

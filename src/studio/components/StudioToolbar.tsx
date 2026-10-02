@@ -1,7 +1,7 @@
 import React, { useRef, useState } from "react";
 import { isValidationErrorList } from "@engine/index";
 import { availableStoryId, confirmLibrarySave, saveStoryRecord } from "@runtime/storyLibrary";
-import { librarySaveSentence, type LibrarySaveEvidence } from "@runtime/librarySave";
+import { chatSaveSentence, librarySaveSentence, type ChatSaveOutcome, type LibrarySaveEvidence } from "@runtime/librarySave";
 import type { StoryLibraryRecord } from "@runtime/types";
 import Toolbar from "@components/studio/Toolbar";
 import FeedbackAlert from "@components/studio/FeedbackAlert";
@@ -14,7 +14,7 @@ type Feedback = { type: "success" | "error"; message: string } | null;
 
 // What the host does with a saved record. The Studio never reaches into the runtime itself: the
 // chat that is playing this story decides whether to take the update (hot-swap).
-export type StudioSaveHandler = (record: StoryLibraryRecord) => Promise<string | null> | string | null;
+export type StudioSaveHandler = (record: StoryLibraryRecord) => Promise<ChatSaveOutcome | null> | ChatSaveOutcome | null;
 
 const download = (filename: string, text: string) => {
   try {
@@ -67,8 +67,8 @@ const StudioToolbar: React.FC<Props> = ({ onSaved, confirmSave = confirmLibraryS
     try {
       // Two events, two sentences (save vocabulary). No handler at all means no chat is
       // watching this save, which is not the same as a chat declining it.
-      const applied = onSaved ? await onSaved(result.record) : null;
-      chatHalf = !onSaved ? "" : applied ? ` Applied to this chat: ${applied}.` : " Not applied to this chat: it is playing a different story.";
+      const taken = onSaved ? await onSaved(result.record) : null;
+      chatHalf = !onSaved ? "" : ` ${chatSaveSentence(taken ?? { applied: false, detail: "it is playing a different story" })}`;
     } catch (error) {
       chatHalf = ` Not applied to this chat: ${error instanceof Error ? error.message : String(error)}`;
       chatFailed = true;

@@ -1,5 +1,5 @@
 import { parseStoryV2OrThrow, StoryEngine, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
-import { applyStoryUpdate, describeStoryUpdate, renderStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from "./storyUpdate";
+import { applyStoryUpdate, chatUpdateSentence, describeStoryUpdate, renderStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from "./storyUpdate";
 import { diffStories } from "@engine/storyDiff";
 import type { LoadedStory, StoryLibraryRecord } from "./types";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "./runToken";
@@ -303,7 +303,27 @@ describe("describeStoryUpdate", () => {
     // v2.3 plan 09: one save vocabulary — the library half is already done when this pops up.
     expect(text).toContain("Your edit is already saved to the library.");
     expect(text).toContain("1 other change is applied to this chat as it stands.");
-    expect(text).toContain("Cancel applies nothing — this chat keeps playing the version it started with.");
+    expect(text).toContain("Cancel applies nothing — this chat keeps playing v1, the version it is playing now. Either way the library keeps your edit.");
+  });
+
+  it("T4-4: taken from the drawer in a chat that made no edit, the popup names the library's version, not an edit (T4-4-2 x-drive-1790920434406-update.json)", () => {
+    const before = parseStoryV2OrThrow(storyV1());
+    const next = storyV1();
+    next.qualities = next.qualities.filter((quality) => quality.key !== "mood");
+    const diff = diffStories(before, parseStoryV2OrThrow(next), playedState(before));
+    const text = renderStoryUpdate(describeStoryUpdate("Hot swap", diff, 30, 31, "update"), fakeDoc().doc).textContent ?? "";
+    expect(text).not.toContain("Your edit");
+    expect(text).toContain("The library holds v31 of this story.");
+    expect(text).toContain("this chat keeps playing v30, the version it is playing now.");
+  });
+
+  it("T4-4: Cancel is never reported as applied, and each outcome is one sentence (T4-4-2 x-drive-1790920351290-save.json:55)", () => {
+    const outcome = (over: Partial<StoryUpdateOutcome>): StoryUpdateOutcome => ({ applied: false, classification: "invalidating", choice: null, fromVersion: 30, toVersion: 31, storyId: "s", dropped: [], at: "", ...over });
+    expect(chatUpdateSentence(outcome({ choice: "cancel", reason: "author kept this chat on its pinned version" }))).toBe("Not applied to this chat: this chat keeps playing v30.");
+    expect(chatUpdateSentence(outcome({ applied: true, choice: "keep", classification: "compatible" }))).toBe("Applied to this chat: this chat is playing the new version now.");
+    expect(chatUpdateSentence(outcome({ applied: true, choice: "restart" }))).toBe("Applied to this chat: this chat restarted on the new version.");
+    expect(chatUpdateSentence(outcome({ choice: "restart", reason: "restart declined" }))).toBe("Not applied to this chat: restart declined.");
+    expect(chatUpdateSentence(undefined)).toBeNull();
   });
 
   // R7. The title comes from an imported story and the message from a diff over it, so neither is

@@ -3,6 +3,7 @@ import type { StoryDiffResult } from "@engine/storyDiff";
 import { showChoicePopup } from "@services/STAPI";
 import { findStoryRecord, loadStoryRecord } from "./storyLibrary";
 import type { LoadedStory, StoryLibraryRecord } from "./types";
+import { chatSaveSentence, type ChatSaveOutcome } from "./librarySave";
 import { beginRun, type RunOwnership } from "./runToken";
 import { log } from "@utils/log";
 
@@ -34,22 +35,26 @@ export interface StoryUpdateDeps {
 
 const versionLabel = (from: number | null, to: number | null) => (from !== null && to !== null && from !== to ? ` (v${from} → v${to})` : "");
 
+export type StoryUpdateSource = "save" | "update";
+
 export interface StoryUpdateDescription {
   title: string;
   from: number | null;
   to: number | null;
   invalidating: string[];
   keptCount: number;
+  source: StoryUpdateSource;
 }
 
 // Author-facing, not player-facing: this popup only ever appears because the author just saved an
 // edit from this chat.: it returns a description, not markup — the title of an
 // imported story and a diff message are both text somebody else wrote, and the host assigns popup
 // content to innerHTML (popup.js:534).
-export const describeStoryUpdate = (title: string, diff: StoryDiffResult, from: number | null, to: number | null): StoryUpdateDescription => ({
+export const describeStoryUpdate = (title: string, diff: StoryDiffResult, from: number | null, to: number | null, source: StoryUpdateSource = "save"): StoryUpdateDescription => ({
   title,
   from,
   to,
+  source,
   invalidating: diff.entries.filter((entry) => entry.kind === "invalidating").map((entry) => entry.message),
   keptCount: diff.entries.filter((entry) => entry.kind === "compatible").length,
 });
@@ -63,7 +68,9 @@ export const renderStoryUpdate = (description: StoryUpdateDescription, doc: Docu
   root.append(heading);
   // One save vocabulary. "Saved to the library" and "applied to this chat" are two
   // different events with different owners, and this popup is where they are most easily confused.
-  para("Your edit is already saved to the library. What is left to decide is whether this chat takes it:");
+  para(description.source === "save"
+    ? "Your edit is already saved to the library. What is left to decide is whether this chat takes it:"
+    : `The library holds ${description.to !== null ? `v${description.to}` : "a newer version"} of this story. What is left to decide is whether this chat takes it:`);
   const list = doc.createElement("ul");
   description.invalidating.forEach((message) => { const item = doc.createElement("li"); item.append(doc.createTextNode(message)); list.append(item); });
   root.append(list);
@@ -71,9 +78,21 @@ export const renderStoryUpdate = (description: StoryUpdateDescription, doc: Docu
   if (description.keptCount) para(description.keptCount === 1
     ? "1 other change is applied to this chat as it stands."
     : `${description.keptCount} other changes are applied to this chat as they stand.`);
-  para("Keep playing applies the edit and drops only what no longer fits. Restart story applies it and clears this chat's progress. Cancel applies nothing — this chat keeps " +
-    "playing the version it started with. Either way the library keeps your edit.");
+  const update = description.source === "save" ? "the edit" : "it";
+  para(`Keep playing applies ${update} and drops only what no longer fits. Restart story applies ${update} and clears this chat's progress. Cancel applies nothing — this chat keeps ` +
+    `playing ${description.from !== null ? `v${description.from}, the version it is playing now` : "the version it is playing now"}.${description.source === "save" ? " Either way the library keeps your edit." : ""}`);
   return root;
+};
+
+export const chatUpdateOutcome = (outcome: StoryUpdateOutcome): ChatSaveOutcome | null => {
+  if (outcome.applied) return { applied: true, detail: outcome.choice === "restart" ? "this chat restarted on the new version" : "this chat is playing the new version now" };
+  if (outcome.choice === "cancel") return { applied: false, detail: outcome.fromVersion !== null ? `this chat keeps playing v${outcome.fromVersion}` : "this chat keeps the version it is playing" };
+  return outcome.reason ? { applied: false, detail: outcome.reason } : null;
+};
+
+export const chatUpdateSentence = (outcome: StoryUpdateOutcome | null | undefined): string | null => {
+  const taken = outcome ? chatUpdateOutcome(outcome) : null;
+  return taken ? chatSaveSentence(taken) : null;
 };
 
 export const emptyOutcome = (reason: string): StoryUpdateOutcome => ({
@@ -137,7 +156,7 @@ export async function applyStoryUpdate(deps: StoryUpdateDeps, target?: StoryLibr
   let choice: StoryUpdateChoice = "keep";
   if (diff.classification === "invalidating") {
     const run = beginRun(deps.ownership);
-    const description = describeStoryUpdate(record.title, diff, loaded.record.version, record.version);
+    const description = describeStoryUpdate(record.title, diff, loaded.record.version, record.version, target ? "save" : "update");
     choice = (await showChoicePopup<StoryUpdateChoice>((doc) => renderStoryUpdate(description, doc), {
       okButton: { id: "keep", label: "Keep playing" },
       choices: [{ id: "restart", label: "Restart story" }],
