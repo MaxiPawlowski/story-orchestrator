@@ -56,3 +56,4 @@ notes/
 # This public repo keeps only the charters, index, tier summaries and spend log.
 /test/sessions/T*/T*-*/
 /test/sessions/rating-pack/
+/test/sessions/media-check/
