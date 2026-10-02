@@ -1,0 +1,106 @@
+{
+ "spike": "SP4",
+ "date": "2026-10-01/02",
+ "lane": 2,
+ "bundle": "8319f7535e1e",
+ "pin": "884380b",
+ "overlay": "4af4006b7801",
+ "pod": "m4dmlnzn70qgj2 (Artemis 31B Q4_K_M, shared with T2 lanes)",
+ "routes": {
+  "narrator": "Artemis RunPod RP",
+  "synthesis": "deepseek 4.1 flash"
+ },
+ "runs": {
+  "append-run1": {
+   "arm": "append",
+   "corpus": "adolion-en",
+   "turns": 60,
+   "present": [],
+   "share": 0,
+   "strict": [],
+   "shareStrict": 0,
+   "echoed": [
+    "N02",
+    "N03",
+    "N04",
+    "N06",
+    "N07",
+    "N08",
+    "N12"
+   ],
+   "clean": [],
+   "shareClean": 0,
+   "shortTermRows": 1,
+   "blockChars": 0,
+   "t4max": 291
+  },
+  "append-run2": {
+   "notMeasured": "79/188 send_generate FAIL send_generate: reported ok:false",
+   "turnsDone": 24
+  },
+  "distractor-rolling-run1": {
+   "notMeasured": "no score",
+   "turnsDone": 0
+  },
+  "rolling-run1": {
+   "arm": "rolling",
+   "corpus": "adolion-en",
+   "turns": 60,
+   "present": [],
+   "share": 0,
+   "strict": [],
+   "shareStrict": 0,
+   "echoed": [
+    "N02",
+    "N03",
+    "N04",
+    "N06",
+    "N07",
+    "N10",
+    "N12"
+   ],
+   "clean": [],
+   "shareClean": 0,
+   "shortTermRows": 1,
+   "blockChars": 1149,
+   "t4max": 296
+  },
+  "rolling-run2": {
+   "arm": "rolling",
+   "corpus": "adolion-en",
+   "turns": 60,
+   "present": [],
+   "share": 0,
+   "strict": [],
+   "shareStrict": 0,
+   "echoed": [
+    "N03",
+    "N05",
+    "N06",
+    "N07",
+    "N08",
+    "N10",
+    "N12"
+   ],
+   "clean": [],
+   "shareClean": 0,
+   "shortTermRows": 1,
+   "blockChars": 0,
+   "t4max": 261
+  }
+ },
+ "T3": {
+  "k1": {
+   "rolling": 0,
+   "append": 0,
+   "bar": "append >= rolling + 0.15",
+   "pass": false
+  },
+  "k2": {
+   "rolling": 0,
+   "append": null,
+   "note": "append run 2 lost to an empty Artemis reply at turn 25 (harness); not re-run because k=1 already fails the bar, which needs k=1 AND k=2"
+  },
+  "verdict": "FAIL"
+ }
+}

@@ -1,6 +1,6 @@
 # v2.5 plan 09 — SP4 append-only short_term spike report
 
-**Verdict: pending (T3 live).** T1, T2 and T4 PASS deterministically; T3 has not run. The conditions are the plan's table
+**Verdict (v2.6, Adolion): FAIL (T3), dropped and removed; see the v2.6 section at the end.** Earlier: pending (T3 live). T1, T2 and T4 PASS deterministically; T3 has not run. The conditions are the plan's table
 (`09-research-spikes.md` §SP4) and are **never retuned**. The procedures below were written before any run and committed in
 `096e6812` (rule 1); the first deterministic run happened in the working tree just before that commit and changed nothing in them.
 Two jest *controls* were added after that first run (a tight-context detection control for `uncovered`, and the removal of an
@@ -81,3 +81,30 @@ lane seed has it). Model-heavy (60 generations plus the extraction reads and 5 s
 ## Worth review (rule 8)
 
 Pending the live legs.
+
+## v2.6 Adolion re-run (plan 03, 2026-10-01/02) — **FAIL, dropped**
+
+Restated: `docs/plans/v2.6/03-sp4-restated.md` (+ addenda 1–4). Lane 2 (adolion-fresh at `884380b`, overlay
+`4af4006b7801`), served bundle `8319f7535e1e`, pod `m4dmlnzn70qgj2` (Artemis 31B, shared with T2 lanes), `synthesis` →
+`deepseek 4.1 flash`. Corpus `lab/needles/` (60 dense Act III turns, 12 needles that later checkpoints need). Record
+`test/measurements/v2.6-03/sp4/summary.json`.
+
+| Run | share (bar column) | strict | clean | short_term rows / block chars at turn 60 | T4 max |
+|---|---|---|---|---|---|
+| rolling k=1 | **0.000** | 0.000 | 0.000 | 1 / 1149 | 296 |
+| rolling k=2 | **0.000** | 0.000 | 0.000 | 1 / 0 | 261 |
+| append k=1 | **0.000** | 0.000 | 0.000 | 1 / 0 | 291 |
+| append k=2 | not measured (empty backend reply, turn 25; addendum 4) | | | | |
+
+T3: k = 1, 0.000 < 0.000 + 0.15 → **FAIL** (the bar needs k = 1 and k = 2). T4 ≤ 300 at every boundary in every
+scored run. On dense Adolion play no needle survives 60 turns in either shape; each run's narrator re-named 7 of 12
+needles after message 23 (`echoed`), which is retention by the transcript, not by short_term. Informational: the append
+run ended with one short_term row and an empty injected block at the score point, as did rolling k=2.
+
+## Worth review (v2.6)
+
+| | |
+|---|---|
+| Measured value | none: 0/12 needles retained in both shapes on the real campaign (v2.5 toy: 0.083–0.25); T2 already showed today's rolling shape is window-local |
+| Cost avoided | dev chunk + placement hook in `extractionCoordinator.runShortTermCompaction`; a window-only prompt variant |
+| Call | **drop.** Removed: `src/memory/shortTermAppend.ts`, its locality spike test and coordinator review test, the append describe of `rollbackReplay.property.test.ts`, `spikes.sp4AppendShortTerm`, the toy T3 scenarios and their generator. The `ShortTermPlacement` seam stays (the rolling shape uses it). D3: `shortTermAppend.ts` on `DROPPED_SPIKES` with the planted-import control; the spike-module control now plants `curatorTiers`. |

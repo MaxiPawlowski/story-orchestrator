@@ -1,7 +1,7 @@
 import { join } from "path";
 import { SRC, buildGraph, prodFiles, reachableFrom, rel } from "../../test/support/codeHealth";
 
-const PLAN_09_SPIKES = ["src/memory/shortTermAppend.ts", "src/stagecraft/curatorTiers.ts"];
+const PLAN_09_SPIKES = ["src/stagecraft/curatorTiers.ts"];
 
 const DEV_ONLY = [
   "src/runtime/liveSuite.ts",
@@ -30,7 +30,7 @@ const SPIKES = [
 const SPIKE_PATTERN = /^src\/runtime\/spikes\//;
 const DROPPED_SPIKES = [
   "src/runtime/spikes/recommitEdit.ts", "src/runtime/spikes/witnessFilter.ts", "src/runtime/spikes/witnessFilterHost.ts", "src/runtime/wiring/spikes.ts",
-  "src/stagecraft/curatorDigest.ts",
+  "src/stagecraft/curatorDigest.ts", "src/memory/shortTermAppend.ts",
 ];
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
 
@@ -58,10 +58,10 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
   });
 
   it("control: a planted static import of a spike module fails", () => {
-    const store = join(SRC, "memory", "index.ts");
+    const store = join(SRC, "stagecraft", "index.ts");
     const fs = require("fs") as typeof import("fs");
-    const read = (path: string) => (path === store ? `${fs.readFileSync(path, "utf8")}\nexport * from "./shortTermAppend";\n` : fs.readFileSync(path, "utf8"));
-    expect(staticReach(files, read).filter((path) => PLAN_09_SPIKES.includes(path))).toContain("src/memory/shortTermAppend.ts");
+    const read = (path: string) => (path === store ? `${fs.readFileSync(path, "utf8")}\nexport * from "./curatorTiers";\n` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter((path) => PLAN_09_SPIKES.includes(path))).toContain("src/stagecraft/curatorTiers.ts");
   });
 
   it("every listed dev-only module exists, so the list cannot rot into a vacuous pass", () => {
@@ -124,6 +124,7 @@ import "./runtime/spikes/witnessFilter";
 import "./runtime/spikes/witnessFilterHost";
 import "./runtime/wiring/spikes";
 import "./stagecraft/curatorDigest";
+import "./memory/shortTermAppend";
 ` : fs.readFileSync(path, "utf8"));
     const reached = staticReach(files, read);
     expect(reached.filter((path) => DROPPED_SPIKES.includes(path))).toEqual([]);

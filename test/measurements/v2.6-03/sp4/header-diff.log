@@ -1,0 +1,31 @@
+2026-10-02T01:36:42.391Z DIFF build.head  "b941bb65ef132b39d63665d51aee871c3cc739ac" -> "d8f83b5a624657c5ee344b8979260133b29db689"
+2026-10-02T01:36:42.392Z WARNING: the page is running a bundle that is not the built one: served 8319f7535e1eb265 vs dist 62fd0def87b715ad
+2026-10-02T01:36:42.392Z DIFF chat.chatId  "2026-09-20@07h06m38s396ms" -> "DM Narrator - 2025-10-05@06h07m28s"
+2026-10-02T01:36:42.392Z DIFF chat.groupId  "1759606632088" -> null
+2026-10-02T01:36:42.392Z DIFF group.members  -Arin.png -DM Narrator.png -Luke.png -Ponticius.png
+2026-10-02T01:36:42.392Z DIFF group.name  "Group: Arin, DM Narrator" -> null
+2026-10-02T01:36:42.392Z DIFF inventory.groupChats  +1759606632088/2026-10-01@22h36m07s249ms
+2026-10-02T01:36:42.392Z DIFF spikes.sp4AppendShortTerm  false -> true
+2026-10-02T01:36:42.392Z {
+2026-10-02T01:36:42.393Z   "baseline": "test/measurements/v2.6-03/sp4/header-before.json",
+2026-10-02T01:36:42.393Z   "label": "diff-end",
+2026-10-02T01:36:42.393Z   "allow": [],
+2026-10-02T01:36:42.393Z   "differences": 7,
+2026-10-02T01:36:42.393Z   "progress": 0,
+2026-10-02T01:36:42.393Z   "blocking": 7,
+2026-10-02T01:36:42.393Z   "blockingPaths": [
+2026-10-02T01:36:42.393Z     "build.head",
+2026-10-02T01:36:42.393Z     "chat.chatId",
+2026-10-02T01:36:42.393Z     "chat.groupId",
+2026-10-02T01:36:42.393Z     "group.members",
+2026-10-02T01:36:42.393Z     "group.name",
+2026-10-02T01:36:42.393Z     "inventory.groupChats",
+2026-10-02T01:36:42.393Z     "spikes.sp4AppendShortTerm"
+2026-10-02T01:36:42.393Z   ],
+2026-10-02T01:36:42.393Z   "servedIdentity": [],
+2026-10-02T01:36:42.393Z   "warnings": [
+2026-10-02T01:36:42.393Z     "the page is running a bundle that is not the built one: served 8319f7535e1eb265 vs dist 62fd0def87b715ad"
+2026-10-02T01:36:42.393Z   ],
+2026-10-02T01:36:42.393Z   "wrote": "C:\\dev\\so-lanes\\2\\debug\\run-header-diff-end.json",
+2026-10-02T01:36:42.393Z   "ok": false
+2026-10-02T01:36:42.393Z }
