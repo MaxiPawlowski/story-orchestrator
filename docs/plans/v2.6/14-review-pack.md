@@ -15,6 +15,7 @@
 | 7 | **Campaign rewrites** I made from the findings: guidance stated as pressure not outcome (13 checkpoints), no closing "What do you do?", location `player_labels`, beat-title scene names (96), narrowed triggers, Spanish commit phrases removed | Skim the diff; veto anything | campaign `59e8821` |
 | 8 | **Judge per-lane rate** set from an assumed 90/min account budget (TypeSafe documents none); since the T1-6 fix wave each lane gets 2x its even share (4 lanes: 45/min), because T1-4..7 together used at most 56/min and no lane log shows a TypeSafe 429 | Tell me your real TypeSafe limit if you know it | `14-findings.md` T1-6 fix wave |
 | 9 | **House-rules judge OFF by default** (first exception to rule 5): re-measured on the campaign's `{{user}}` wording, below floor (broken 0.667 vs 0.85, untouched 0.959 vs 0.966); the judge cannot see the world book | Confirm off; v2.7 seed to give it lore context | `test/fixtures/judge/adolion-house-rules.json`, `v2.7-seeds.md` |
+| 10 | **The preset fix and inner voice conflict**: the empty thought channel (item 2, edit 1) stops Artemis from reasoning, so the inner-voice harvest (`memory.harvestReasoning`) gets nothing (T3-3 under the overlay: 0 of 85 replies had reasoning). Pick one per install: the overlay (fewer loops/dropped words) or thinking on (inner voice, loop risk); or a per-story choice (v2.7 seed) | Decide | `test/sessions/T3/T3-3-1`, T3-3 re-run without the overlay |
 
 ## Tiers
 
