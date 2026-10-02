@@ -143,3 +143,6 @@ export const getContext = () => ({
     },
   },
 });
+export const imageModel = () => null;
+export const reserveGpu = async () => ({ ok: true as const });
+export const releaseGpu = async () => undefined;
