@@ -79,8 +79,10 @@ export const renderStoryUpdate = (description: StoryUpdateDescription, doc: Docu
     ? "1 other change is applied to this chat as it stands."
     : `${description.keptCount} other changes are applied to this chat as they stand.`);
   const update = description.source === "save" ? "the edit" : "it";
-  para(`Keep playing applies ${update} and drops only what no longer fits. Restart story applies ${update} and clears this chat's progress. Cancel applies nothing — this chat keeps ` +
-    `playing ${description.from !== null ? `v${description.from}, the version it is playing now` : "the version it is playing now"}.${description.source === "save" ? " Either way the library keeps your edit." : ""}`);
+  const playing = description.from !== null ? `v${description.from}, the version it is playing now` : "the version it is playing now";
+  const kept = description.source === "save" ? " Either way the library keeps your edit." : "";
+  para(`Keep playing applies ${update} and drops only what no longer fits. Restart story applies ${update} and clears this chat's progress. ` +
+    `Cancel applies nothing — this chat keeps playing ${playing}.${kept}`);
   return root;
 };
 

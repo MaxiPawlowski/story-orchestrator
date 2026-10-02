@@ -152,7 +152,8 @@ export async function restartStory(deps: StorySelectionDeps, currentId: string |
   const next = fromLibrary && !isValidationErrorList(fromLibrary) ? fromLibrary : fallback;
   if (!next) return false;
   await deps.loadStory(next, "activate", null, carry);
-  deps.setStatus("Story restarted", note ?? `restarted${carry ? ` from ${carry.from}` : ""} on v${next.record.version}: the chat keeps its messages; checkpoint progress, blackboard and story memory were cleared`);
+  const cleared = "the chat keeps its messages; checkpoint progress, blackboard and story memory were cleared";
+  deps.setStatus("Story restarted", note ?? `restarted${carry ? ` from ${carry.from}` : ""} on v${next.record.version}: ${cleared}`);
   return true;
 }
 

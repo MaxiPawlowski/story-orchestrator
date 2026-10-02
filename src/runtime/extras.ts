@@ -381,7 +381,9 @@ export interface RestartCarry {
   from: string;
 }
 
-export const restartCarry = (extras: RuntimeExtras, from: string): RestartCarry => ({ overrides: readChatOverrides(extras), journal: [...extras.journal], from });
+export const restartCarry = (extras: RuntimeExtras, checkpoint: string | undefined, boundary: number, version: number): RestartCarry => ({
+  overrides: readChatOverrides(extras), journal: [...extras.journal], from: `${checkpoint ?? "the story"} (boundary ${boundary}, v${version})`,
+});
 
 export const restartedExtras = (carry: RestartCarry, read: () => GlobalSettings): RuntimeExtras => {
   const extras = createExtras(read);

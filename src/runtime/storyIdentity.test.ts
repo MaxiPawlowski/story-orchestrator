@@ -106,6 +106,17 @@ describe("story identity", () => {
     expect(listStoryRecords().map((record) => [record.id, record.version])).toEqual([["quest-for-the-sun-ruins", 2]]);
   });
 
+  it("T4-4: a save that moves the version stores that version in the story itself, and saving the stored copy again moves nothing (T4-4-1 v30 vs raw 29)", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson());
+    await manager.importStory(storyJson({ description: "Rewritten." }));
+    const [record] = listStoryRecords();
+    expect(record.version).toBe(2);
+    expect(record.raw.version).toBe(2);
+    await manager.importStory(JSON.stringify(record.raw));
+    expect(listStoryRecords().map((entry) => [entry.version, entry.raw.version, entry.hash])).toEqual([[2, 2, record.hash]]);
+  });
+
   it("control: a different title is a second record, and an id-carrying import keeps its id", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(storyJson({ id: undefined }));

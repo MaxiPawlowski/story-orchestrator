@@ -51,6 +51,12 @@ export function reconcileEffectLedger(rows: EffectLedgerRow[]): { rows: EffectLe
   return { rows: next, notes: outcomes.map(({ row, outcome }) => `host change "${row.effect}" was ${outcome} when this chat reloaded`) };
 }
 
+export function reconcileEffectLedgerInto(effects: { ledger: EffectLedgerRow[] }, note: (text: string) => void): void {
+  const { rows, notes } = reconcileEffectLedger(effects.ledger);
+  effects.ledger = rows;
+  notes.forEach((text) => note(text));
+}
+
 /**
  * Put a recorded value back, for the targets this chat's effects own.
  *

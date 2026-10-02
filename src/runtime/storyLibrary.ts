@@ -77,7 +77,6 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
   if (isValidationErrorList(parsed)) return parsed;
   const body = storyObject(raw);
   if (!body) return [{ path: "$", message: "a story is a JSON object" }];
-  const hash = hashStory(raw);
   // Identity is authored (`id`), never derived from content. A story without one takes its title's
   // slug, so re-importing it updates the same record rather than forking one.
   const id = parsed.id ?? slugifyStoryId(parsed.title);
@@ -85,14 +84,16 @@ export function saveStoryRecord(raw: unknown): LoadedStory | RuntimeSnapshot["va
   const existing = records.find((record) => record.id === id) ?? null;
   // Same identity, new content: the library record is *updated*, never forked. A version the
   // author did not raise still moves, so a chat can tell its pinned copy is behind.
-  const version = existing && existing.hash !== hash && parsed.version <= existing.version ? existing.version + 1 : parsed.version;
+  const changed = existing ? hashStory({ ...body, id, version: existing.version }) !== existing.hash && hashStory(raw) !== existing.hash : false;
+  const version = existing && parsed.version <= existing.version ? existing.version + (changed ? 1 : 0) : parsed.version;
+  const stored = { ...body, id, version };
   const record: StoryLibraryRecord = {
     id,
     version,
-    hash,
+    hash: hashStory(stored),
     title: parsed.title,
     description: parsed.description,
-    raw: { ...body, id },
+    raw: stored,
     importedAt: existing?.importedAt ?? new Date().toISOString(),
     updatedAt: new Date().toISOString(),
   };

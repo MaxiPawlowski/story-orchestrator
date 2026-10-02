@@ -1,5 +1,6 @@
 import { applyGlobalSettings } from "./extras";
 import { getGlobalSettings, setGlobalSettings } from "./settingsStore";
+import type { TalkChainSettings } from "./settingsModel";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, RuntimeExtras, StagecraftSettings, UiRuntimeSettings } from "./types";
 
 export interface SettingsControlDeps {
@@ -37,6 +38,19 @@ export class SettingsControl {
   copilot(settings: Partial<CopilotRuntimeSettings>) {
     setGlobalSettings({ copilot: settings });
     this.refresh(() => { if (!getGlobalSettings().copilot.enabled) this.deps.clearNudge(); });
+  }
+
+  talk(enabled: boolean, scope: "chat" | "global") {
+    if (scope === "global") setGlobalSettings({ talk: { enabled } });
+    const extras = this.deps.extras();
+    extras.talk = { ...extras.talk, enabled };
+    void this.deps.persist();
+    this.deps.notify();
+  }
+
+  talkChain(chain: Partial<TalkChainSettings>) {
+    setGlobalSettings({ talk: { chain: { ...getGlobalSettings().talk.chain, ...chain } } });
+    this.deps.notify();
   }
 
   ui(settings: Partial<UiRuntimeSettings>) {
