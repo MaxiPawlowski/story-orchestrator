@@ -39,10 +39,26 @@ export const buildCandidates = (control: TalkControl, roster: RosterMember[], en
   return candidates;
 };
 
+const NEGATED_MODAL = "(?:must|should|could|would|can|may|will|shall|need|is to|are to|has to|have to)\\s*(?:not|never)"
+  + "|mustn't|shouldn't|couldn't|wouldn't|can't|cannot|won't|needn't|doesn't|don't|never";
+const PERCEIVE = "(?:hear|know|see|learn|find out|notice|overhear|listen|be told|read|discover|suspect|realise|realize|catch wind)";
+const EXCLUDED_AFTER = new RegExp(`^(?:'s)?\\s+(?:${NEGATED_MODAL})\\s+(?:ever\\s+)?${PERCEIVE}`, "i");
+const EXCLUDED_BEFORE = new RegExp("\\b(?:without|except|but not|not even|keep(?:s|ing)?(?:\\s+\\w+){0,3}\\s+(?:away\\s+)?from|hid(?:e|es|ing)(?:\\s+\\w+){0,3}\\s+from"
+  + "|(?:don't|do not|never|not|won't)\\s+tell|not a word to|out of earshot of|behind)\\s+(?:\\w+\\s+)?$", "i");
+
+const escapeWord = (word: string) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+const excluded = (clause: string, at: number, length: number): boolean =>
+  EXCLUDED_BEFORE.test(clause.slice(0, at)) || EXCLUDED_AFTER.test(clause.slice(at + length));
+
+const addressedIn = (clause: string, word: string): boolean =>
+  [...clause.matchAll(new RegExp(`\\b${escapeWord(word)}\\b`, "g"))].some((match) => !excluded(clause, match.index ?? 0, word.length));
+
 export const narrowByMention = (candidates: TalkCandidate[], text: string): TalkCandidate[] => {
   const words = new Set(extractWords(text));
   if (!words.size) return [];
-  return candidates.filter((candidate) => extractWords(candidate.name).some((word) => words.has(word)));
+  const clauses = text.toLowerCase().replace(/\u2019/g, "'").split(/[.!?;:\n]+/);
+  return candidates.filter((candidate) => extractWords(candidate.name).some((word) => words.has(word) && clauses.some((clause) => addressedIn(clause, word))));
 };
 
 export const latestPlayerLine = (window: DirectorWindowMessage[], playerName: string): number => {

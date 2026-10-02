@@ -1,7 +1,7 @@
 import { readsWorldEvidence, TENSION_CURRENT_KEY, TENSION_FRESH_MESSAGES, TENSION_LEVELS, type NormalizedStoryV2, type TensionLevel } from "@engine/index";
 import { renderMemoryContractAddendum } from "@memory/contract";
 import { fnv1a, stableStringify } from "@runtime/hash";
-import type { SharedReadContract } from "./types";
+import type { ScopedQuality, SharedReadContract } from "./types";
 
 const TENSION_SCALE: Record<TensionLevel, string> = {
   calm: "safety, rest, or routine; no active threat",
@@ -30,8 +30,17 @@ const renderType = (contract: SharedReadContract) => contract.qualities.map(({ q
   }
   const allowed = quality.values?.length ? ` Allowed values: ${quality.values.join(", ")}.` : "";
   const world = quality.evidence_from === "party" ? ` ${PARTY_EVIDENCE_RULE}` : quality.evidence_from === "world" ? ` ${WORLD_EVIDENCE_RULE}` : "";
-  return `- ${quality.key}: type=${quality.type}; ${quality.rubric}${allowed}${hintText}${world}`;
+  const counted = contract.counted?.[quality.key];
+  return `- ${quality.key}: type=${quality.type}; ${quality.rubric}${allowed}${hintText}${world}${typeof counted === "number" ? ` ${runningTotalRule(counted)}` : ""}`;
 }).join("\n");
+
+export const runningTotalRule = (counted: number): string =>
+  `Current value: ${counted}, a running total for the whole story that already counts what earlier messages showed. ` +
+  `Write the new total, never less than ${counted}: ${counted} plus what this transcript shows that the total cannot already include. If nothing new, write no DELTA for it.`;
+
+export const runningTotals = (qualities: readonly ScopedQuality[], values: Readonly<Record<string, unknown>>): Record<string, number> =>
+  Object.fromEntries(qualities.filter(({ quality }) => quality.monotonic && quality.type === "int" && typeof values[quality.key] === "number")
+    .map(({ quality }) => [quality.key, values[quality.key] as number]));
 
 export const marksPlayerLines = (contract: Pick<SharedReadContract, "qualities">): boolean => contract.qualities.some(({ quality }) => readsWorldEvidence(quality));
 
@@ -115,5 +124,6 @@ export function hashContract(contract: SharedReadContract): string {
     ...(contract.window.form ? { windowForm: contract.window.form } : {}),
     ...(marksPlayerLines(contract) ? { playerLines: true } : {}),
     ...(contract.deltasOnly ? { deltasOnly: true } : {}),
+    ...(contract.counted && Object.keys(contract.counted).length ? { counted: contract.counted } : {}),
   }));
 }

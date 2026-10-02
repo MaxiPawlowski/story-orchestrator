@@ -54,6 +54,7 @@ export interface SharedReadContract {
   checkpoint?: { name: string; objective: string };
   cast?: ReadCastMember[];
   deltasOnly?: boolean;
+  counted?: Record<string, number>;
 }
 
 export interface ReadCastMember {

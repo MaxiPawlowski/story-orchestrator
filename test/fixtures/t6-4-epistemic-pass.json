@@ -1,0 +1,203 @@
+{
+  "source": "test/sessions/T6/T6-4-1: payloads.jsonl:22 (epistemic pass prompt at boundary 5, msg 6, existing rows [1]-[10]; createdAt/messageId from the shared reads at payloads.jsonl:5, :10, :18), payloads.jsonl:25 (its reply); memory rows with messageId <= 6 from runtime-*.json",
+  "pass": {
+    "boundary": 5,
+    "messageId": 6,
+    "response": "[knows] Shiya | Max told her privately the seals under the house are failing.\n[hiding] Shiya from Natalia | The failing seals beneath the Nightriver Estate.\n[hiding] Max Nightriver from Natalia | The failing seals beneath the Nightriver Estate.\n[believes] Natalia | Shiya's claim that she and Max were merely discussing Mid-Year Ball arrangements.\n[hiding] Shiya from Natalia | That she was discussing anything other than ball arrangements.\n[knows] Natalia | Max whispered her name and said she must not hear something.\n[suspects] Natalia | That Max and Shiya are concealing something important from her.\n[intends] Natalia | To find out what secret requires the staff's help and her exclusion.\n[intends] Shiya | To address the compromised seals immediately before whatever they hold back gets in.\n[intends] Max Nightriver | To go to Father's study.\n[knows] Max Nightriver | Shiya has felt a thrumming in the foundation late at night.\n[retire] 1\n[retire] 2\n[retire] 3\n[retire] 4\n[retire] 5\n[retire] 6\n[retire] 7\n[retire] 8\n[retire] 9\n[retire] 10"
+  },
+  "epistemic": [
+    {
+      "id": "e1",
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "The seals under the Nightriver Estate are failing.",
+      "createdAt": 2,
+      "messageId": 2
+    },
+    {
+      "id": "e2",
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Shiya has felt a thrumming in the foundation late at night.",
+      "createdAt": 2,
+      "messageId": 2
+    },
+    {
+      "id": "e3",
+      "subject": "Max Nightriver",
+      "tag": "hiding",
+      "content": "The seals under the house are failing.",
+      "createdAt": 2,
+      "messageId": 2,
+      "hiddenFrom": "Natalia"
+    },
+    {
+      "id": "e4",
+      "subject": "Shiya",
+      "tag": "hiding",
+      "content": "The seals under the house are failing.",
+      "createdAt": 2,
+      "messageId": 2,
+      "hiddenFrom": "Natalia"
+    },
+    {
+      "id": "e5",
+      "subject": "Shiya",
+      "tag": "intends",
+      "content": "Address the compromised seals immediately before whatever they hold back gets in.",
+      "createdAt": 2,
+      "messageId": 2
+    },
+    {
+      "id": "e6",
+      "subject": "Natalia",
+      "tag": "knows",
+      "content": "Her name was being whispered by her brother and Shiya, and they are keeping a secret from her",
+      "createdAt": 3,
+      "messageId": 3
+    },
+    {
+      "id": "e7",
+      "subject": "Natalia",
+      "tag": "suspects",
+      "content": "That her brother and the staff are concealing something important from her",
+      "createdAt": 3,
+      "messageId": 3
+    },
+    {
+      "id": "e8",
+      "subject": "Natalia",
+      "tag": "intends",
+      "content": "To find out what secret requires the staff's help and her exclusion",
+      "createdAt": 3,
+      "messageId": 3
+    },
+    {
+      "id": "e9",
+      "subject": "Max Nightriver and Shiya",
+      "tag": "hiding",
+      "content": "The failing seals beneath the Nightriver Estate.",
+      "createdAt": 5,
+      "messageId": 6,
+      "hiddenFrom": "Natalia"
+    },
+    {
+      "id": "e10",
+      "subject": "Natalia",
+      "tag": "suspects",
+      "content": "That Max and Shiya are concealing something important from her.",
+      "createdAt": 5,
+      "messageId": 6
+    }
+  ],
+  "memory": [
+    {
+      "id": "a070416a-771a-4fee-badd-dacf9683d748",
+      "tier": "facts",
+      "type": "fact",
+      "text": "The seals beneath the Nightriver Estate are failing.",
+      "importance": 3,
+      "expiration": "permanent",
+      "messageId": 1,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 1,
+        "boundary": 2,
+        "pass": "shared-read",
+        "validity": "live"
+      },
+      "entities": [],
+      "createdAt": 2
+    },
+    {
+      "id": "f843bd9b-887e-4655-b02b-c44bc49aed23",
+      "tier": "facts",
+      "type": "fact",
+      "text": "Shiya has felt a thrumming in the estate's foundation late at night.",
+      "importance": 2,
+      "expiration": "permanent",
+      "messageId": 2,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 2,
+        "pass": "shared-read",
+        "validity": "live"
+      },
+      "entities": [],
+      "createdAt": 2
+    },
+    {
+      "id": "1c870f9f-0af4-4cd4-832e-535dc8009e2e",
+      "tier": "facts",
+      "type": "fact",
+      "text": "Shiya agrees to keep the failing seals secret from Natalia.",
+      "importance": 2,
+      "expiration": "permanent",
+      "messageId": 2,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 2,
+        "pass": "shared-read",
+        "validity": "live"
+      },
+      "entities": [],
+      "createdAt": 2
+    },
+    {
+      "id": "151dab19-4889-4993-a704-4c5d56966907",
+      "tier": "facts",
+      "type": "fact",
+      "text": "Natalia overheard Max and Shiya whispering her name and confronted them.",
+      "importance": 2,
+      "expiration": "permanent",
+      "messageId": 3,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 3,
+        "boundary": 5,
+        "pass": "shared-read",
+        "validity": "live"
+      },
+      "entities": [],
+      "createdAt": 5
+    },
+    {
+      "id": "f7fc522d-962f-4586-8f09-1aeb29faab95",
+      "tier": "facts",
+      "type": "fact",
+      "text": "Shiya lied to Natalia, claiming the private talk was about Mid-Year Ball arrangements.",
+      "importance": 2,
+      "expiration": "permanent",
+      "messageId": 4,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 5,
+        "pass": "shared-read",
+        "validity": "live"
+      },
+      "entities": [],
+      "createdAt": 5
+    },
+    {
+      "id": "3b18cd5b-9ea9-4ed5-8c40-ac52ee587d8f",
+      "tier": "scene_history",
+      "type": "scene",
+      "text": "Max Nightriver warned Shiya that the household seals were failing and that Natalia must not find out, but Natalia overheard them in the corridor and confronted the pair with frost spreading at her feet. Shiya deflected with a lie about the Mid-Year Ball, and Max Nightriver left for Father's study, where Lord Javon called him to enter. The scene carried a tense, secretive, and cold emotional tone.",
+      "importance": 2,
+      "expiration": "permanent",
+      "messageId": 6,
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 5,
+        "pass": "scene-summary",
+        "validity": "live"
+      },
+      "entities": [],
+      "createdAt": 5
+    }
+  ]
+}

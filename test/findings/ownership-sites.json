@@ -581,6 +581,14 @@
       "status": "checked",
       "note": "v2.6 plan 04 C12: fires the non-opening onEnter replies of a transition (fireNpcReplies checks before and after each reply) and then records the messages they posted as the transition's own (`extras.onEnterPosts`), only while the run minted at entry still owns the world, so a reply that outlived its chat never files a post into another chat's extras (onEnterRollback.review.test.ts)."
     },
+    "src/runtime/effectsApplier.ts#EffectsApplier.releaseOpener": {
+      "status": "delegate",
+      "note": "T6-4: a checkpoint opener held because the last reply asked the player something is released at the first afterSpeak after the player answers. It drops the held record synchronously, before any await, and awaits EffectsApplier.fireOnEnter, which owns the run check before it files the posts (openerDeferral.recorded.test.ts)."
+    },
+    "src/runtime/effectsApplier.ts#EffectsApplier.fireActiveReplies": {
+      "status": "delegate",
+      "note": "T6-4: awaits EffectsApplier.releaseOpener first, then returns EffectsApplier.fireNpcReplies, which mints its own run and checks it before and after every reply; it writes nothing itself."
+    },
     "src/runtime/runtimeManager.ts#RuntimeManager.fireSceneBreakReplies": {
       "status": "delegate",
       "note": "v2.6 plan 04 C12: the scene-break hook became an async arrow because fireNpcReplies now returns how many replies it spoke; it awaits EffectsApplier.fireNpcReplies, which owns the check, and writes nothing itself."

@@ -14,8 +14,9 @@ const normalize = (name: string): string => name.trim().toLowerCase();
 
 const stripNames = (text: string, names: ReadonlySet<string>): Set<string> => new Set([...contentWords(text)].filter((word) => !names.has(word)));
 
-const targets = (entry: EpistemicEntry): string[] =>
-  (entry.hiddenFrom ?? "").split(/,|\band\b/i).map(normalize).filter((name) => name !== "" && !EVERYONE.test(name));
+const people = (names: string): string[] => names.split(/,|\band\b/i).map(normalize).filter((name) => name !== "" && !EVERYONE.test(name));
+
+const targets = (entry: EpistemicEntry): string[] => people(entry.hiddenFrom ?? "");
 
 export function heldSecrets(epistemic: readonly EpistemicEntry[], names: readonly string[]): HeldSecret[] {
   const active = activeEpistemic([...epistemic]);
@@ -27,7 +28,7 @@ export function heldSecrets(epistemic: readonly EpistemicEntry[], names: readonl
     const echoes = active.filter((entry) => entry !== secret && entry.tag !== "unaware" && !barred.has(normalize(entry.subject))
       && restatesWords(words, stripNames(entry.content, named)));
     const knowers = new Set(echoes.map((entry) => normalize(entry.subject)));
-    if (secret.tag === "hiding") knowers.add(normalize(secret.subject));
+    if (secret.tag === "hiding") [normalize(secret.subject), ...people(secret.subject)].forEach((name) => knowers.add(name));
     const phrasings = [words, ...echoes.map((entry) => stripNames(entry.content, named)).filter((echo) => echo.size >= RESTATE_MIN_SHARED_WORDS)];
     return [{ phrasings, knowers, onlyFrom: secret.tag === "unaware" ? barred : null }];
   });

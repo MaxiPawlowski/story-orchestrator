@@ -1,0 +1,36 @@
+{
+  "source": "test/sessions/T6/T6-4-1/chat-full-2026-10-02@12h47m22s751ms.json messages 29-33: Natalia's confrontation (31) and the narrator voicing her (32), then the-duel's scripted onEnter herald (33) posted before the player answered",
+  "persona": "Max Nightriver",
+  "rows": [
+    {
+      "index": 29,
+      "name": "Adolion Narrator",
+      "is_user": false,
+      "mes": "*The library's hush is broken by a sudden, sharp sound—the heavy thud of a book falling from the shelf. In the silence that follows, the smell of old paper and dust seems to thicken.*\n*A knock comes at the library door—three measured, authoritative raps that could only belong to a member of the household staff or a knight.*\n*The door creaks open just an inch, and a servant's voice calls out quietly.* \"My lord. Lady Natalia requests your presence in the drawing room. She says it's urgent.\""
+    },
+    {
+      "index": 30,
+      "name": "Max Nightriver",
+      "is_user": true,
+      "mes": "*I go to the drawing room.* You asked for me, Natalia. What is so urgent?"
+    },
+    {
+      "index": 31,
+      "name": "Natalia",
+      "is_user": false,
+      "mes": "\"You're not going to lie to me again.\" *Natalia stands by the drawing room table, her expression cold and resolute. A single piece of parchment lies across the polished surface—her betrothal contract.* \"I found this in Father's correspondence while he was occupied with his late-night visitor.\"\n*Her pale finger taps the bottom of the document, where a distinct golden-winged seal is pressed into the wax beside her father's signature—the mark of House Valtara.* \"Tell me what this means, Max. Because if you and Father are keeping secrets about my betrothal, and about whatever's happening with those seals beneath this house, I deserve to know.\"\n*Frost crystals bloom slowly across the tabletop, radiating from where her other hand rests.* \"And don't tell me it's about the ball. I'm through with that excuse.\""
+    },
+    {
+      "index": 32,
+      "name": "Adolion Narrator",
+      "is_user": false,
+      "mes": "*The drawing room is cold—colder than it should be. Frost creeps outward from Natalia's hand across the mahogany table, white and delicate as spiderwebs. The parchment doesn't flutter; it lies heavy and still, the golden wax of the Valtara seal catching the late afternoon light.*\n\"The Duchess visited last night,\" *Natalia says, her voice flat and hard as stone.* \"And this morning, Father signed these papers. All within twelve hours.\" *Her green eyes lock onto Max's, searching for a crack in the heir's composure.* \"And you and Shiya were whispering about seals before any of this. Connect the dots for me, brother, or I'll start connecting them myself. And I promise you, I won't like where they lead.\"\n*The chill in the room deepens, and a thin layer of ice now coats the edges of the table.* \"The truth. Now.\""
+    },
+    {
+      "index": 33,
+      "name": "Adolion Narrator",
+      "is_user": false,
+      "mes": "The day of the Trial. A herald's voice rolls over the packed dueling ground. \"By the King's law, General Polis Leevon, accused of treason, claims the Trial by Combat. Let the Crown's second step forward.\""
+    }
+  ]
+}

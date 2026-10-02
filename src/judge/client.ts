@@ -19,6 +19,7 @@ export interface AskJudgeOptions {
   now?: () => number;
   cache?: Map<string, JudgeResponse>;
   gate?: JudgeGate;
+  use?: string;
 }
 
 const raceTimeout = <T,>(promise: Promise<T>, ms: number): Promise<T> => new Promise((resolve, reject) => {
@@ -54,7 +55,7 @@ const isTimeout = (error: unknown) => error instanceof JudgeTimeoutError || (err
 
 async function sendThroughGate(transport: JudgeTransport, request: JudgeRequest, options: AskJudgeOptions, sent: (at: number) => void): Promise<JudgeResponse> {
   const now = options.now ?? Date.now;
-  const signal = options.signal ? { signal: options.signal } : {};
+  const signal = { ...(options.signal ? { signal: options.signal } : {}), ...(options.use ? { use: options.use } : {}) };
   for (let attempt = 0; ; attempt += 1) {
     const release = options.gate ? await options.gate.acquire(options.signal) : () => undefined;
     try {

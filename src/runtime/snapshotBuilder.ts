@@ -19,6 +19,7 @@ import { loreEvidenceView } from "./worldInfoEvidence";
 import { samplerOverlay } from "./samplerOverlay";
 import { scanGateView, wiGatingStatus } from "./worldInfoMode";
 import { globalStoryLore } from "./storyLore";
+import { secretLeaks } from "./transcriptCopiers";
 import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview, type NextTurnSourceBlock } from "./nextTurn";
 import { promptCost } from "./promptCost";
 import { promptBuckets } from "./promptBuckets";
@@ -62,6 +63,7 @@ export interface SnapshotSources {
   ledger: LedgerView[];
   memoryInjection?: MemoryInjectionView | null;
   privateBlocks?: NextTurnSourceBlock[];
+  secretsHeld?: boolean;
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];
@@ -274,8 +276,8 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && loadPersistedRuntime(loaded.record.id))),
     blobUnreadable: unreadable ? { foundVersion: unreadable.foundVersion, notice: UNREADABLE_NOTICE } : null,
     orphanedLorebooks: orphanedLorebooks(), reapDecisions: reapDecisions(), globalStoryLore: globalStoryLore(),
-    chatIdentity: loaded ? null : readChatIdentity(),
-    storyTitle: story?.title ?? null,
+    secretLeaks: secretLeaks(Boolean(loaded && sources.secretsHeld), sources.promptBlocks.foreign),
+    chatIdentity: loaded ? null : readChatIdentity(), storyTitle: story?.title ?? null,
     storyDescription: story?.description ?? null,
     publicStoryIntro: publishedIntro(story),
     imageStory: story?.illustrations ? { checkpoints: story.illustrations.checkpoints === true, scenes: story.illustrations.scenes === true } : null,

@@ -39,6 +39,7 @@ import { castInPlayNote } from "./castInPlay";
 import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE, holdsBackground, planCastChanges } from "./castEffect";
 import { InFlight } from "./inFlight";
 import { chatSettle } from "./chatSettle";
+import { heldOpenerLine, holdOpener, openerRelease } from "./openerDeferral";
 
 // What a host effect changed, read back from the host as it is NOW. Every reader is a
 // QUESTION with an honest "cannot tell", so a reconcile never guesses: a target whose value cannot be
@@ -56,10 +57,7 @@ const JUMP_RELEASED = new Set<EffectTarget["kind"]>(["an", "background", "extens
 
 export const OVERLAY_UNSUPPORTED_REASON = "a checkpoint preset applies on Text Completion and Chat Completion connections only; this connection uses another API";
 
-const readNpcReplies = (effects: CheckpointEffects | undefined): NpcReplyEffect[] => {
-  const value = effects?.npc_replies;
-  return Array.isArray(value) ? value : [];
-};
+const readNpcReplies = (effects: CheckpointEffects | undefined): NpcReplyEffect[] => (Array.isArray(effects?.npc_replies) ? effects.npc_replies : []);
 
 // What the authored note resolves to, so the ledger can record it before the host is touched.
 const authorNoteText = (value: unknown, snapshot: RuntimeSnapshot): string | null => {
@@ -121,19 +119,14 @@ export const replayWorldInfoFiles = async (library: unknown[], story: Normalized
 };
 
 const fireReply = async (reply: NpcReplyEffect) => {
-  if (reply.kind === "scripted") {
-    const text = reply.text ?? reply.instruction ?? "";
-    if (!text.trim()) return;
-    await executeSlashCommands(`/sendas name=${quoteSlashArg(reply.member)} raw=false ${quoteSlashArg(text)}`, { silent: false });
-    return;
-  }
-  await executeSlashCommands(`/trigger await=true ${quoteSlashArg(reply.member)}`, { silent: false });
+  const text = reply.text ?? reply.instruction ?? "";
+  if (reply.kind !== "scripted") await executeSlashCommands(`/trigger await=true ${quoteSlashArg(reply.member)}`, { silent: false });
+  else if (text.trim()) await executeSlashCommands(`/sendas name=${quoteSlashArg(reply.member)} raw=false ${quoteSlashArg(text)}`, { silent: false });
 };
 
-const lastMessageId = () => {
-  const chat = Array.isArray(getContext().chat) ? getContext().chat : [];
-  return chat.length - 1;
-};
+const hostChat = (): unknown[] => (Array.isArray(getContext().chat) ? getContext().chat : []);
+
+const lastMessageId = () => hostChat().length - 1;
 
 export interface EffectApplierDeps {
   /** The host as it is now, for the ledger's questions. */
@@ -447,9 +440,7 @@ export class EffectsApplier {
     return { reverted, refused: refused.length };
   }
 
-  private reads(): EffectHostReads {
-    return this.deps.reads ?? { read: () => null };
-  }
+  private reads(): EffectHostReads { return this.deps.reads ?? { read: () => null }; }
 
   private async speak(reply: NpcReplyEffect) {
     if (reply.kind === "scripted") return fireReply(reply);
@@ -475,7 +466,12 @@ export class EffectsApplier {
     }
   }
 
-  private async fireOnEnter(checkpoint: Checkpoint, extras: RuntimeExtras, gate?: number) {
+  private async fireOnEnter(checkpoint: Checkpoint, extras: RuntimeExtras, gate?: number, deferrable = true) {
+    const held = deferrable ? holdOpener(checkpoint, hostChat(), String(getContext().name1 ?? ""), gate) : null;
+    if (held) {
+      extras.deferredOpener = held;
+      return this.deps.journal?.(...heldOpenerLine(checkpoint, held));
+    }
     const run = beginRun(this.ownership);
     const first = Math.max(gate ?? 0, lastMessageId()) + 1;
     const spoken = await this.fireNpcReplies(checkpoint, extras, "onEnter", undefined, [], (reply) => reply.new_chat_only !== true);
@@ -489,7 +485,14 @@ export class EffectsApplier {
     if (!(await executeSlashCommands(`/cut ${post.first}-${post.last}`, { silent: true }))) this.deps.journal?.("the scene opener was not removed", "the /cut that removes it was refused");
   }
 
+  private async releaseOpener(checkpoint: Checkpoint, extras: RuntimeExtras) {
+    const next = openerRelease(extras.deferredOpener, checkpoint.id, hostChat());
+    if (next.kind !== "wait") delete extras.deferredOpener;
+    if (next.kind === "fire") await this.fireOnEnter(checkpoint, extras, next.gate, false);
+  }
+
   async fireActiveReplies(checkpoint: Checkpoint, extras: RuntimeExtras, trigger: ActiveTrigger, leaving: string | null, breakAt?: number, aliases: string[] = []) {
+    if (!leaving && trigger === "afterSpeak") await this.releaseOpener(checkpoint, extras);
     if (!leaving) return this.fireNpcReplies(checkpoint, extras, trigger, breakAt, aliases);
     const held = heldLine(readNpcReplies(checkpoint.effects), trigger, checkpoint.name || checkpoint.id, leaving);
     if (held) this.deps.journal?.(...held);

@@ -15,7 +15,7 @@ export interface LlamaCompletionBody {
   post_sampling_probs: boolean;
 }
 
-export type LlamaComplete = (body: LlamaCompletionBody, options: { signal?: AbortSignal }) => Promise<unknown>;
+export type LlamaComplete = (body: LlamaCompletionBody, options: { signal?: AbortSignal; use?: string }) => Promise<unknown>;
 
 export interface LlamaLogprobOptions {
   wrap?: (prompt: string) => string;
@@ -136,7 +136,8 @@ export function createLlamaLogprobTransport(complete: LlamaComplete, options: Ll
       const labels = questionLabels(question);
       if (!labels) continue;
       if (call.signal?.aborted) throw Object.assign(new Error("aborted"), { name: "AbortError" });
-      const response = await complete(llamaCompletionBody(wrap(buildLlamaPrompt(request.state, question))), call.signal ? { signal: call.signal } : {});
+      const options = { ...(call.signal ? { signal: call.signal } : {}), ...(call.use ? { use: call.use } : {}) };
+      const response = await complete(llamaCompletionBody(wrap(buildLlamaPrompt(request.state, question))), options);
       model = model ?? modelOf(response);
       addUsage(usage, response);
       const candidates = readTopCandidates(response);

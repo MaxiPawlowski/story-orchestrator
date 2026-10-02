@@ -9,6 +9,7 @@ import type {
 import type { ChapterSettings, ChapterView } from "./chapters";
 import type { SealSkip } from "@memory/reverse";
 import type { OnEnterPost } from "./npcReplyRewind";
+import type { DeferredOpener } from "./openerDeferral";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
 import type { CuratorDecline, CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
@@ -123,6 +124,7 @@ export interface RuntimeExtras {
   firedNpcReplies: Record<string, number>;
   firedNpcRepliesAt: Record<string, number[]>;
   onEnterPosts?: OnEnterPost[];
+  deferredOpener?: DeferredOpener;
   requirements: RequirementsState;
   lastAppliedCheckpointId: string | null;
   lastSelfInjectionMessageId: number | null;
@@ -483,6 +485,7 @@ export interface RuntimeSnapshot {
   /** Lorebook gating mode, ledger summary and drift (install-wide). */
   wiGating?: WiGatingStatus | null;
   globalStoryLore?: string[];
+  secretLeaks?: string[];
   /** The sampler overlay this checkpoint put on its replies, or null. */
   samplerOverlay?: SamplerOverlayView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without

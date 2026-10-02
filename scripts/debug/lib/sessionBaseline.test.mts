@@ -55,7 +55,13 @@ test('AS-27: the no-media variant switches images off, keeps pre-rendered sprite
   assert.deepEqual(mediaPlan({ images: true, sprites: true }, 'off'), { variant: 'no-media', images: false, sprites: false, unexercised: ['images', 'sprites'], prerenderedSprites: 0 });
   assert.deepEqual(mediaPlan({ images: true, sprites: true }, 'off', 12), { variant: 'no-media', images: false, sprites: true, unexercised: ['images'], prerenderedSprites: 12 });
   assert.deepEqual(mediaPlan({ images: true, sprites: true }, 'on'), { variant: 'full', images: true, sprites: true, unexercised: [], prerenderedSprites: 0 });
-  assert.deepEqual(mediaPlan({}, 'off').variant, 'full');
+  assert.deepEqual(mediaPlan({}, 'off').variant, 'none');
+});
+
+test('T6-4: a card that asks for no media records variant none, not full, whatever --media says', () => {
+  assert.deepEqual(mediaPlan({}, 'off'), { variant: 'none', images: false, sprites: false, unexercised: [], prerenderedSprites: 0 });
+  assert.deepEqual(mediaPlan({ images: false, sprites: false }, 'on'), { variant: 'none', images: false, sprites: false, unexercised: [], prerenderedSprites: 0 });
+  assert.equal(mediaPlan({ images: true }, 'on').variant, 'full');
 });
 
 test('T0-3: start refuses a lane whose SillyTavern swipes did not read back on', () => {

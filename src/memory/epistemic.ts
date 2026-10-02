@@ -60,6 +60,15 @@ const isDuplicate = (existing: EpistemicEntry, signal: ParsedEpistemicSignal): b
 const retiredFor = (existing: EpistemicEntry, signal: ParsedEpistemicSignal, messageId: number | undefined): boolean =>
   Boolean(existing.retiredAt) && (typeof messageId !== "number" || messageId <= (existing.retiredAt?.messageId ?? -1)) && sameClaim(existing, signal);
 
+const subjectsOf = (subject: string): string[] => [normalize(subject), ...subject.split(/,|\band\b/i).map(normalize).filter(Boolean)];
+
+const restatedBy = (existing: EpistemicEntry, signal: ParsedEpistemicSignal): boolean =>
+  existing.tag === signal.tag && subjectsOf(existing.subject).includes(normalize(signal.subject))
+  && (existing.tag !== "hiding" || normalize(existing.hiddenFrom ?? "") === normalize(signal.hiddenFrom ?? ""))
+  && (sameClaim(existing, signal) || restatesWords(contentWords(existing.content), contentWords(signal.content)));
+
+const unretirable = (entry: EpistemicEntry, signals: ParsedEpistemicSignal[]): boolean => signals.some((signal) => restatedBy(entry, signal));
+
 export function applyEpistemicSignals(
   entries: EpistemicEntry[],
   signals: ParsedEpistemicSignal[],
@@ -69,8 +78,10 @@ export function applyEpistemicSignals(
   const retireSet = new Set(retireIds);
   const marker = `retired@${ctx.boundary}`;
   const retired: EpistemicEntry[] = [];
+  const kept: EpistemicEntry[] = [];
   const next = entries.map((entry) => {
-    if (retireSet.has(entry.id) && !entry.supersededBy) {
+    if (retireSet.has(entry.id) && !entry.supersededBy && unretirable(entry, signals)) kept.push(entry);
+    else if (retireSet.has(entry.id) && !entry.supersededBy) {
       const superseded = { ...entry, supersededBy: marker, retiredAt: { messageId: ctx.messageId ?? entry.messageId ?? 0, boundary: ctx.boundary } };
       retired.push(superseded);
       return superseded;
@@ -88,7 +99,7 @@ export function applyEpistemicSignals(
     if (same && signal.tag === "intends" && typeof ctx.messageId === "number" && ctx.messageId > lastAffirmed(same).messageId) {
       same.affirmedAt = [...(same.affirmedAt ?? []), { messageId: ctx.messageId, boundary: ctx.boundary }].slice(-AFFIRMATION_CAP);
     }
-    if (same || next.some((entry) => retiredFor(entry, signal, ctx.messageId))) continue;
+    if (same || kept.some((entry) => restatedBy(entry, signal)) || next.some((entry) => retiredFor(entry, signal, ctx.messageId))) continue;
     added.push({
       id: generateMemoryId(),
       ...withProvenance(ctx, `epistemic:${signal.tag}`),

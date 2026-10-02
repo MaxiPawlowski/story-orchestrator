@@ -9,7 +9,7 @@ import { mutedMembersText, REPAIR_PLAYER_COPY } from "./pipeline";
 // panel all have to point at the same one. So it is derived once, here, worst-first — and the plain
 // consequence comes before the technical line, because "the story will not advance" is the part a
 // player can act on.
-export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter";
+export type RepairArea = "memory-model" | "model-role" | "cast" | "lore" | "persona" | "save" | "chapter" | "privacy";
 
 export interface RepairStep {
   area: RepairArea;
@@ -223,9 +223,24 @@ function requirementSteps(snapshot: RuntimeSnapshot): Array<RepairStep | null> {
   ];
 }
 
+export function secretLeakStep(snapshot: RuntimeSnapshot): RepairStep | null {
+  const leaks = snapshot.secretLeaks ?? [];
+  if (!leaks.length) return null;
+  return {
+    area: "privacy",
+    consequence: "A character can learn what was kept from them: another extension puts the whole chat, secrets included, into every character's prompt.",
+    detail: `On in this chat: ${leaks.join(", ")}. Story Orchestrator keeps private knowledge out of its own blocks but cannot filter these. `
+      + `Switch ${leaks.length === 1 ? "it" : "them"} off for this chat to keep secrets.`,
+    targetId: null,
+    provisionable: false,
+    player: null,
+  };
+}
+
 function laterSteps(snapshot: RuntimeSnapshot): Array<RepairStep | null> {
   const degraded = (snapshot.memory?.chapters ?? []).find((record) => record.status === "degraded");
   return [
+    secretLeakStep(snapshot),
     snapshot.saveHealth && hasUnsavedChanges(snapshot.saveHealth)
       ? { area: "save", consequence: "Your last turn is not saved on the server yet.", detail: SAVE_PLAYER_TEXT, targetId: null, provisionable: false, player: playerSaveNotice(snapshot.saveHealth) }
       : null,

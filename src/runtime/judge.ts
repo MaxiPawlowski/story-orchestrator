@@ -106,7 +106,7 @@ export class JudgeRuntime {
       return Promise.resolve({ ...sizes, answers: null, model: null, latencyMs: 0, fallback: "unavailable", cached: false });
     }
     const outgoing = provider === DEFAULT_JUDGE_PROVIDER ? { ...request, model } : request;
-    return askJudge(transport, outgoing, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS), gate: this.gate });
+    return askJudge(transport, outgoing, { timeoutMs: Math.max(settings.timeoutMs, JUDGE_PROBE_TIMEOUT_MS), gate: this.gate, use: "probe" });
   }
 
   // So-judge reads the verdict here, so the harness and the page share one map.
@@ -171,6 +171,7 @@ export class JudgeRuntime {
       timeoutMs: options.timeoutMs ?? settings.timeoutMs,
       cache: this.cacheFor(provider),
       gate: this.gate,
+      use,
       // A story load, restart or chat change cancels this request in flight rather
       // than paying for an answer the token check below will refuse anyway.
       ...(this.deps.ownership.signal ? { signal: this.deps.ownership.signal() } : {}),
