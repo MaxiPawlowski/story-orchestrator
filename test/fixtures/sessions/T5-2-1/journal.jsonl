@@ -1,0 +1,27 @@
+{"at": "2026-10-02T07:59:52.919Z", "kind": "session", "boundary": 0, "messageId": -1, "summary": "session", "detail": {"chatId": null, "storyId": null, "activeCheckpointId": null, "boundary": 0}}
+{"at": "2026-10-02T08:03:05.359Z", "boundary": 0, "messageId": -1, "kind": "flag", "chatId": null, "summary": "flag note 1", "detail": {"note": "flag note 1"}}
+{"at": "2026-10-02T08:03:20.319Z", "boundary": 0, "messageId": -1, "kind": "flag", "chatId": null, "summary": "flag note 2", "detail": {"note": "flag note 2"}}
+{"at": "2026-10-02T08:04:14.515Z", "boundary": 0, "messageId": -1, "kind": "flag", "chatId": null, "summary": "flag note 3", "detail": {"note": "flag note 3"}}
+{"at": "2026-10-02T08:12:43.174Z", "boundary": 0, "messageId": -1, "kind": "flag", "chatId": null, "summary": "flag note 4", "detail": {"note": "flag note 4"}}
+{"at": "2026-10-02T08:23:47.814Z", "kind": "session", "boundary": 0, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-02@05h10m03s963ms", "storyId": null, "activeCheckpointId": null, "boundary": 0}}
+{"at": "2026-10-02T08:24:09.272Z", "kind": "session", "boundary": 0, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-02@05h10m03s963ms", "storyId": "the-pawnbroker-of-forgotten-days", "activeCheckpointId": "start", "boundary": 0}}
+{"at": "2026-10-02T08:24:49.441Z", "boundary": 0, "messageId": -1, "kind": "flag", "chatId": "2026-10-02@05h10m03s963ms", "summary": "flag note 5", "detail": {"note": "flag note 5"}}
+{"at": "2026-10-02T08:27:30.377Z", "kind": "boundary", "chatId": "2026-10-02@05h10m03s963ms", "boundary": 1, "messageId": 5, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:27:30.518Z", "kind": "boundary", "chatId": "2026-10-02@05h10m03s963ms", "boundary": 2, "messageId": 6, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:29:28.792Z", "kind": "boundary", "chatId": "2026-10-02@05h10m03s963ms", "boundary": 3, "messageId": 8, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:29:29.147Z", "kind": "boundary", "chatId": "2026-10-02@05h10m03s963ms", "boundary": 4, "messageId": 9, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:29:29.651Z", "kind": "boundary", "chatId": "2026-10-02@05h10m03s963ms", "boundary": 5, "messageId": 10, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:29:36.293Z", "kind": "boundary", "chatId": "2026-10-02@05h10m03s963ms", "boundary": 6, "messageId": 11, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:30:49.092Z", "kind": "session", "boundary": 0, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-02@05h20m15s843ms", "storyId": null, "activeCheckpointId": null, "boundary": 0}}
+{"at": "2026-10-02T08:31:00.342Z", "kind": "session", "boundary": 0, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-02@05h20m15s843ms", "storyId": "the-hoard-of-the-unflown", "activeCheckpointId": "start", "boundary": 0}}
+{"at": "2026-10-02T08:33:16.416Z", "kind": "boundary", "chatId": "2026-10-02@05h20m15s843ms", "boundary": 1, "messageId": 6, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:33:16.659Z", "kind": "boundary", "chatId": "2026-10-02@05h20m15s843ms", "boundary": 2, "messageId": 7, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:33:17.009Z", "kind": "boundary", "chatId": "2026-10-02@05h20m15s843ms", "boundary": 3, "messageId": 8, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:33:17.173Z", "kind": "boundary", "chatId": "2026-10-02@05h20m15s843ms", "boundary": 4, "messageId": 9, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:35:32.793Z", "kind": "boundary", "chatId": "2026-10-02@05h20m15s843ms", "boundary": 5, "messageId": 11, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:35:32.793Z", "kind": "transition", "chatId": "2026-10-02@05h20m15s843ms", "boundary": 5, "messageId": 11, "summary": "start \u2192 summons", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:35:37.453Z", "kind": "boundary", "chatId": "2026-10-02@05h20m15s843ms", "boundary": 6, "messageId": 12, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:35:37.642Z", "kind": "boundary", "chatId": "2026-10-02@05h20m15s843ms", "boundary": 7, "messageId": 13, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:35:37.834Z", "kind": "boundary", "chatId": "2026-10-02@05h20m15s843ms", "boundary": 8, "messageId": 14, "summary": "boundary", "detail": {"source": "gate"}}
+{"at": "2026-10-02T08:36:10.961Z", "kind": "session", "boundary": 6, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-02@05h10m03s963ms", "storyId": "the-pawnbroker-of-forgotten-days", "activeCheckpointId": "start", "boundary": 6}}
+{"at": "2026-10-02T08:36:20.329Z", "kind": "session", "boundary": 8, "messageId": -1, "summary": "session", "detail": {"chatId": "2026-10-02@05h20m15s843ms", "storyId": "the-hoard-of-the-unflown", "activeCheckpointId": "summons", "boundary": 8}}

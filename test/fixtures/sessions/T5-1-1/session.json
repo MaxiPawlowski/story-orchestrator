@@ -1,0 +1,18 @@
+{
+  "charter": "T5-1",
+  "tier": "T5",
+  "arm": "agent",
+  "story": {
+    "kind": "wizard",
+    "premiseId": "cartographer",
+    "premise": "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
+  },
+  "premise": {
+    "id": "cartographer",
+    "text": "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
+  },
+  "playFrom": "2026-10-02T10:48:10.392Z",
+  "startedAt": "2026-10-02T10:48:17.958Z",
+  "valid": false,
+  "chats": []
+}

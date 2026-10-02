@@ -1,0 +1,57 @@
+{
+  "sessions": [
+    {
+      "key": "draft-muqubdeg-kawz3i",
+      "updatedAt": "2026-10-02T10:58:58.017Z",
+      "applied": [],
+      "createdLorebooks": [],
+      "agent": {
+        "steps": []
+      }
+    },
+    {
+      "key": "the-redline-kingdom",
+      "updatedAt": "2026-10-02T10:56:27.549Z",
+      "applied": [
+        "The Sun Ruins Expedition",
+        "The Redline Kingdom",
+        "Master Ilse",
+        "Lord Vael",
+        "Lady Corvane",
+        "Ashmere Envoy"
+      ],
+      "createdLorebooks": [
+        "The Sun Ruins Expedition",
+        "The Redline Kingdom"
+      ]
+    }
+  ],
+  "library": [],
+  "openDraft": {
+    "title": "Wizard draft",
+    "description": "",
+    "checkpoints": [
+      {
+        "id": "cp-1",
+        "name": "Checkpoint 1",
+        "objective": ""
+      },
+      {
+        "id": "cp-2",
+        "name": "Checkpoint 2",
+        "objective": ""
+      },
+      {
+        "id": "cp-3",
+        "name": "Checkpoint 3",
+        "objective": ""
+      },
+      {
+        "id": "cp-4",
+        "name": "Checkpoint 4",
+        "objective": ""
+      }
+    ],
+    "roster": []
+  }
+}

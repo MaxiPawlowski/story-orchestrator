@@ -1,0 +1,53 @@
+{
+  "label": "diff-end",
+  "story": {
+    "id": "the-hoard-of-the-unflown",
+    "title": "The Hoard of the Unflown",
+    "playedVersion": 1,
+    "contentHash": "v2-a35af530",
+    "activeCheckpointId": "summons",
+    "boundary": 8
+  },
+  "inventory": {
+    "v2Stories": [
+      "adolion-academy@27",
+      "adolion-adventurer@30",
+      "adolion-aegis@12",
+      "adolion-deep@11",
+      "adolion-east@11",
+      "adolion-esha@11",
+      "adolion-night@10",
+      "adolion-saga@17",
+      "adolion-war@10",
+      "the-hoard-of-the-unflown@1",
+      "the-pawnbroker-of-forgotten-days@2"
+    ],
+    "wizardSessions": [
+      "0",
+      "1",
+      "2"
+    ],
+    "lorebookCount": 26,
+    "characterCount": 172,
+    "lorebooksSelected": [
+      "The Hoard of the Unflown \u2014 Lore",
+      "The Pawnbroker of Forgotten Days",
+      "book-01",
+      "book-02",
+      "book-03",
+      "book-04",
+      "book-05",
+      "book-06",
+      "book-07",
+      "book-08",
+      "book-09",
+      "book-10",
+      "book-11",
+      "book-12",
+      "book-13",
+      "book-14",
+      "book-15",
+      "book-16"
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+{
+  "charter": "T5-2",
+  "tier": "T5",
+  "story": {
+    "kind": "wizard",
+    "premiseId": "memory-pawn",
+    "premise": "In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood."
+  },
+  "playFrom": "2026-10-02T07:59:48.378Z",
+  "startedAt": "2026-10-02T07:59:53.394Z",
+  "valid": false,
+  "chats": [
+    {
+      "chatId": "2026-10-02@05h10m03s963ms",
+      "groupId": "1790928603964",
+      "group": "The Pawnbroker of Forgotten Days",
+      "storyId": "the-pawnbroker-of-forgotten-days",
+      "activeCheckpointId": null,
+      "primary": false,
+      "adopted": true
+    },
+    {
+      "chatId": "2026-10-02@05h20m15s843ms",
+      "groupId": "1790929215846",
+      "group": "The Hoard of the Unflown \u2014 Crew",
+      "storyId": "the-hoard-of-the-unflown",
+      "activeCheckpointId": null,
+      "primary": true,
+      "adopted": true
+    }
+  ]
+}
