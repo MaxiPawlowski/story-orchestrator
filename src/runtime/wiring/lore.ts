@@ -2,7 +2,6 @@ import { forceActivateEntries, getContext, getScannableEntries, settingsReady, w
 import { LoreSelector } from "../loreSelect";
 import type { JudgeRuntime } from "../judge";
 import { runtimeManager } from "../runtimeManager";
-import { getGlobalSettings } from "../settingsStore";
 import { isQuietType, withholds, type GenerationLifecycle } from "../generationLifecycle";
 import { loreEvidence } from "../worldInfoEvidence";
 import { startLoreEvidence } from "../worldInfoEvidenceHost";
