@@ -6,7 +6,8 @@ SillyTavern extension running format-2 authored stories as deterministic checkpo
 
 1. Spec: `docs/plans/v2/story-orchestrator-spec-v2.md`
 2. `docs/plans/v2/00-implementation-overview.md` — canonical build rules, gate protocol, verified ST host facts, plan sequence
-3. Current plan doc + **Gate records** of all prior plans (tail sections — as-built truth and deviations)
+3. Author's guide to format-2 stories: `docs/authoring/story-guide.md` (compact twin `src/copilot/guideTopics.ts`, drift-tested; the wizard reads it via `readGuide`)
+4. Current plan doc + **Gate records** of all prior plans (tail sections — as-built truth and deviations)
 
 ## Status
 

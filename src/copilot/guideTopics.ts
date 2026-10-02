@@ -277,7 +277,7 @@ export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> =
   qualities: ["quality-rubric", "latching", "chance-roll"],
   checkpoints: ["checkpoints", "objective-agency"],
   transitions: ["gates", "transitions"],
-  effects: ["opening-scene", "cast-changes", "drives-motives", "requirements", "stagecraft"],
+  effects: ["opening-scene", "drives-motives", "requirements"],
   provisioning: ["opening-scene", "requirements"],
 };
 
