@@ -7,6 +7,7 @@ import { sampleStory, seedDraft } from "../stories/fixtures";
 const meta: Meta<typeof StudioToolbar> = {
   title: "Studio/StudioToolbar",
   component: StudioToolbar,
+  args: { onRekeySession: fn() },
   beforeEach: () => {
     seedDraft(sampleStory());
   },
@@ -24,6 +25,16 @@ export const SaveToLibrary: Story = {
     // A story saved without an authored id gets one derived from its title, so the next save
     // updates the same record instead of forking a new one (finding U2).
     await expect(useDraftStore.getState().draft.id).toMatch(/^the-ruins-heist/);
+  },
+};
+
+export const SaveRekeysTheWizardSession: Story = {
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    const draftKey = useDraftStore.getState().draftKey;
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await waitFor(() => expect(args.onRekeySession).toHaveBeenCalledWith(draftKey, expect.stringMatching(/^the-ruins-heist/)));
+    await waitFor(() => expect(useDraftStore.getState().draftKey).toMatch(/^the-ruins-heist/));
   },
 };
 
