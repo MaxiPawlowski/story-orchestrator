@@ -1,13 +1,13 @@
 import { createHash } from 'node:crypto';
 import type { BlindGate } from './sessionCharters.mts';
 
-export interface GateSpec { plan: string; title: string; pairsNeeded: number; arms: [string, string]; question: string }
+export interface GateSpec { plan: string; title: string; pairsNeeded: number; arms: [string, string]; question: string; unit: 'reply' | 'story' }
 
 export const GATE_SPECS: Record<BlindGate, GateSpec> = {
-  C3: { plan: '06', title: 'inner voice quality', pairsNeeded: 30, arms: ['beat', 'plain'], question: 'Which reply plays its character better at this moment?' },
-  R4: { plan: '05', title: 'checkpoint reasoning at climaxes', pairsNeeded: 20, arms: ['reasoning', 'plain'], question: 'Which climax reply is the better scene?' },
-  'Q-M': { plan: '07', title: 'chapter memory', pairsNeeded: 20, arms: ['chaptered', 'plain'], question: 'Which reply remembers the earlier chapter correctly?' },
-  W6: { plan: '11', title: 'agentic wizard vs staged wizard', pairsNeeded: 10, arms: ['agent', 'staged'], question: 'Which story would you rather play?' },
+  C3: { plan: '06', title: 'inner voice quality', pairsNeeded: 30, arms: ['beat', 'plain'], question: 'Which reply plays its character better at this moment?', unit: 'reply' },
+  R4: { plan: '05', title: 'checkpoint reasoning at climaxes', pairsNeeded: 20, arms: ['reasoning', 'plain'], question: 'Which climax reply is the better scene?', unit: 'reply' },
+  'Q-M': { plan: '07', title: 'chapter memory', pairsNeeded: 20, arms: ['chaptered', 'plain'], question: 'Which reply remembers the earlier chapter correctly?', unit: 'reply' },
+  W6: { plan: '11', title: 'agentic wizard vs staged wizard', pairsNeeded: 10, arms: ['agent', 'staged'], question: 'Which story would you rather play?', unit: 'story' },
 };
 
 export interface ContextLine { name: string; text: string }
@@ -18,11 +18,22 @@ export interface Verdict { id: string; preferred: 'left' | 'right' | 'tie' | nul
 
 const tail = (lines: ContextLine[], before = 6) => lines.slice(-before);
 
-export function candidatesFromTurns(gate: BlindGate, rows: Array<{ line: number; value: any }>, sessionDir: string): Candidate[] {
+const ARMED_ROW = (value: any) => value?.kind === 'turn' || (value?.kind === 'mutation' && (value.verb === 'swipe-new' || value.verb === 'regen'));
+
+export const sessionArmOf = (session: any): string | null => (typeof session?.arm === 'string' && session.arm ? session.arm : null);
+
+export function rowArm(value: any, sessionArm: string | null = null): string | null {
+  if (!ARMED_ROW(value)) return null;
+  if (sessionArm) return sessionArm;
+  return typeof value.arm === 'string' && value.arm ? value.arm : null;
+}
+
+export function candidatesFromTurns(gate: BlindGate, rows: Array<{ line: number; value: any }>, sessionDir: string, sessionArm: string | null = null): Candidate[] {
   const out: Candidate[] = [];
   for (const { line, value } of rows) {
-    if (!value || value.ok === false || typeof value.arm !== 'string' || !value.arm) continue;
-    if ((value.gate ?? gate) !== gate) continue;
+    const arm = rowArm(value, sessionArm);
+    if (!value || value.ok === false || !arm) continue;
+    if (!sessionArm && (value.gate ?? gate) !== gate) continue;
     const chatId = value.chatId ?? value.observe?.chatId ?? null;
     const reply = value.kind === 'turn'
       ? { id: value.replies?.[0]?.messageId, text: (value.replies ?? []).map((item: any) => item.text).join('\n\n') }
@@ -32,7 +43,7 @@ export function candidatesFromTurns(gate: BlindGate, rows: Array<{ line: number;
       })();
     if (!chatId || !Number.isInteger(reply.id) || !reply.text.trim()) continue;
     const context = tail(((value.observe?.context ?? []) as any[]).filter((message) => Number(message.id) < reply.id).map((message) => ({ name: String(message.name ?? ''), text: String(message.text ?? '') })));
-    out.push({ gate, arm: value.arm, key: `${chatId}:${reply.id}`, context, text: reply.text, source: `${sessionDir}/turns.jsonl:${line}` });
+    out.push({ gate, arm, key: `${chatId}:${reply.id}`, context, text: reply.text, source: `${sessionDir}/turns.jsonl:${line}` });
   }
   return out;
 }
@@ -46,6 +57,26 @@ export function storyCandidate(gate: BlindGate, arm: string, key: string, story:
     `Cast: ${(story.roster ?? []).map((member: any) => member.name ?? member.id).join(', ')}`,
   ];
   return { gate, arm, key, context: [], text: lines.filter(Boolean).join('\n'), source };
+}
+
+export const premiseKey = (session: any): string => String(session?.story?.premiseId ?? session?.premise?.id ?? session?.charter ?? '');
+
+export interface SessionCandidateInput { session: any; turns: Array<{ line: number; value: any }>; drafts: any; sessionDir: string }
+
+export function sessionCandidates(gate: BlindGate, input: SessionCandidateInput): Candidate[] {
+  const spec = GATE_SPECS[gate];
+  const arm = sessionArmOf(input.session);
+  const found = spec.unit === 'story'
+    ? (arm ? [storyCandidate(gate, arm, premiseKey(input.session), input.drafts?.openDraft ?? null, `${input.sessionDir}/wizard-drafts.json`)].filter((item): item is Candidate => Boolean(item)) : [])
+    : candidatesFromTurns(gate, input.turns, input.sessionDir, arm);
+  return found.filter((candidate) => spec.arms.includes(candidate.arm));
+}
+
+export function armRefusal(gates: readonly BlindGate[], arm: string | null | undefined): string | null {
+  if (!arm) return null;
+  if (!gates.length) return `--arm ${arm}: this card feeds no blind gate`;
+  const known = [...new Set(gates.flatMap((gate) => GATE_SPECS[gate].arms))];
+  return known.includes(arm) ? null : `--arm ${arm} is not an arm of ${gates.join(', ')} (${known.join(', ')})`;
 }
 
 export function seededRandom(seed: string) {

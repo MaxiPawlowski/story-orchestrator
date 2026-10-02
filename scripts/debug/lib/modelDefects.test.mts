@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { defectCounts, modelDefects } from './modelDefects.mts';
+import { defectCounts, EMPTY_RULE, modelDefects } from './modelDefects.mts';
 
 const CLEAN = [
   'Belle leans on the counter. "Wendhope pays triple, and it pays for a reason." She taps the posting twice.',
@@ -40,7 +40,7 @@ test('T1 loop guard: defect counts per session', () => {
   const loop = { kind: 'loop' as const, messageId: 1, speaker: null, sample: 's', rule: 'r' };
   const corrupt = { ...loop, kind: 'corrupt' as const };
   const start = { ...loop, kind: 'start' as const };
-  assert.deepEqual(defectCounts([{ modelDefects: [] }, { modelDefects: [loop, corrupt], autoRepair: { swiped: true } }, { modelDefects: [corrupt, start], autoRepair: { swiped: false } }, {}]), { turns: 2, loop: 1, corrupt: 2, start: 1, repaired: 1, unrepaired: 0 });
+  assert.deepEqual(defectCounts([{ modelDefects: [] }, { modelDefects: [loop, corrupt], autoRepair: { swiped: true } }, { modelDefects: [corrupt, start], autoRepair: { swiped: false } }, {}]), { turns: 2, loop: 1, corrupt: 2, start: 1, empty: 0, repaired: 1, unrepaired: 0 });
 });
 
 test('T5-5-1 damaged start: a repeated speaker prefix and a reply opening on the eaten tail of the speaker\'s name are defects', () => {
@@ -77,4 +77,10 @@ test('T4-3-3 loop guard: a word repeated across an apostrophe is not a doubled w
   const replies = ["I'll tell you you're an idiot.", "She said it's its own reward."];
   assert.deepEqual(modelDefects(replies.map((text, index) => ({ messageId: index, text }))), []);
   assert.deepEqual(modelDefects([{ messageId: 9, text: 'He walked and and stopped.' }]).map((defect) => defect.rule), ['doubled word']);
+});
+
+test('T5-1-1 empty: blank or whitespace text is one empty defect and nothing else; text with reasoning beside it is not', () => {
+  assert.deepEqual(modelDefects([{ messageId: 17, speaker: 'Master Ilse', text: ' \n ', reasoningLength: 5487 }]).map((defect) => [defect.kind, defect.messageId, defect.sample, defect.rule]), [['empty', 17, '(no text; 5487 chars of reasoning)', EMPTY_RULE]]);
+  assert.equal(modelDefects([{ messageId: 2, text: '' }])[0].sample, '(no text)');
+  assert.deepEqual(modelDefects([{ messageId: 3, speaker: 'Master Ilse', text: 'She sets the rule down.', reasoningLength: 900 }]), []);
 });

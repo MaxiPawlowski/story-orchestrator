@@ -21,7 +21,7 @@ import { refresherFor, settingLanded } from './lib/sessionSetting.mts';
 import { ackPaths, readTailAcks, tailProblems, TAIL_FILES, TAIL_NAMES, waitFor, READY_TIMEOUT_MS, DRAIN_TIMEOUT_MS } from './lib/sessionTails.mts';
 import { fileAllowances, headerDiffArgs, stopSequence } from './lib/sessionStop.mts';
 import { resolveHeaderAllow, storyContext, wizardAllowance, type WizardAllowance } from './lib/sessionWizardAssets.mts';
-import { buildPack, candidatesFromTurns, packLeaks, storyCandidate, type Candidate, type Verdict } from './lib/ratingPack.mts';
+import { armRefusal, buildPack, packLeaks, sessionArmOf, sessionCandidates, type Candidate, type Verdict } from './lib/ratingPack.mts';
 import { AGENT_OPS, GOAL_AGENT_MODES, LIVE_VERBS, type AgentOp, type LiveChat, type LiveRequest, type LiveVerb } from './lib/sessionDriver.mts';
 import { BOOK_ANSWERS, type BookAnswer } from './lib/sessionDelete.mts';
 import { PRESET_OVERLAY_RECORD, profileProblems, replyEffortProblems, sessionOverlay, thinkingExpected } from './lib/presetOverlay.mts';
@@ -52,7 +52,9 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
       recap, header, tails) fails the start with exit 2 and start-failed.json. --media off (the
       default) is the recorded no-media variant: images off, sprites only when the lane holds
       pre-rendered ones; the card's image/sprite rubric rows are marked unexercised. --media on
-      needs --allow-comfy. --arm tags the session for a blind-rating pack (W6 wizard arms).
+      needs --allow-comfy. --arm makes the session one arm of its card's blind gate (refused when the
+      gate has no such arm): every turn, swipe-new and regen of the session belongs to it, and stop
+      counts rating candidates the way the rating pack is built (W6: the wizard story, by premise).
       The lane's preset-overlay record (adolion-fresh seed) is copied into session.json with the
       instruct/context/sampler/reasoning/Start Reply With/response-length values the page runs, before
       and after the main profile is selected; a page that disagrees with an applied overlay fails the
@@ -63,7 +65,8 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
       one real turn on the open chat (refused when it is not one of the session's chats; --chat names
       another): send, wait for the reply(ies) and the scheduler, append to turns.jsonl with the
       chat it landed in, the transcript revision (transcripts.jsonl, swipes included) and, with
-      --arm, the rating arm (swipe-new and regen take --arm too)
+      --arm, the rating arm (swipe-new and regen take --arm too; in an armed session the session's
+      arm applies untagged, and a different --arm is refused)
   swipe-new <dir> | regen <dir> | edit <dir> <mesid|last> "<text>" | delete <dir> <mesid|last>
   switch-chat-mid-gen <dir> "<line>" --to <chatId> | reload-mid-gen <dir> "<line>"
       mutations: each records what it did and the rollback the product performed in turns.jsonl
@@ -237,6 +240,8 @@ export function planStart(doc: CardDoc, index: StoryIndex, card: Card, options: 
   const media = options.media ?? 'off';
   const refusal = comfyRefusal(card, options.allowComfy, media);
   if (refusal) return { refused: refusal } as const;
+  const badArm = armRefusal(cardGates(card), options.arm);
+  if (badArm) return { refused: `${card.id}: ${badArm}` } as const;
   if (card.waits && !options.forceWaiting) return { refused: `${card.id} waits: ${card.waits} Start it with --force-waiting only once that exists.` } as const;
   const continuing = card.setup.chat === 'continue';
   if (continuing && !previous) return { refused: `${card.id} continues ${card.setup.continues}, and no ${card.setup.continues} session exists yet: play that one first.` } as const;
@@ -507,12 +512,14 @@ export async function verifySession(dir: string, session: any, doc: CardDoc, car
     invalid.push(...runtimeProblems(chat.chatId, runtimes[chat.chatId], { story: playsStory || Boolean(chat.adopted), chapters: Boolean(required.chapterRecords) }));
   }
   const drafts = existsSync(resolve(dir, 'wizard-drafts.json')) ? await readJson(resolve(dir, 'wizard-drafts.json')) : null;
+  const turnRows = existsSync(resolve(dir, TURNS_FILE)) ? parseJsonl(await readFile(resolve(dir, TURNS_FILE), 'utf-8')) : [];
   const inventory = artifactInventory({
-    turns: await readJsonl(resolve(dir, TURNS_FILE)),
+    turns: turnRows.map((row) => row.value),
     payloads: await readJsonl(resolve(dir, TAIL_FILES.payloads)),
     runtimes,
     shots: existsSync(resolve(dir, 'shots')) ? (await readdir(resolve(dir, 'shots'))).filter((name) => name.endsWith('.png')).length : 0,
     wizardDrafts: (drafts?.sessions?.length ?? 0) + (drafts?.openDraft?.checkpoints?.length ? 1 : 0),
+    ratingCandidates: ratingCandidateCount(card, session, turnRows, drafts, rel(dir)),
   });
   invalid.push(...artifactProblems(required, inventory));
   return { invalid, inventory, required, warnings, replyReasoning: reasoningCount };
@@ -628,13 +635,9 @@ export async function buildRatingPacks(gates: readonly BlindGate[] = BLIND_GATES
     const candidates: Candidate[] = [];
     for (const { dir, session } of sessions.filter((entry) => cards.has(entry.session.charter))) {
       const sessionDir = rel(dir);
-      candidates.push(...candidatesFromTurns(gate, parseJsonl(existsSync(resolve(dir, TURNS_FILE)) ? await readFile(resolve(dir, TURNS_FILE), 'utf-8') : ''), sessionDir));
-      if (gate === 'W6' && session.arm && existsSync(resolve(dir, 'wizard-drafts.json'))) {
-        const drafts = await readJson(resolve(dir, 'wizard-drafts.json'));
-        const story = drafts.openDraft ?? null;
-        const candidate = storyCandidate(gate, String(session.arm), String(session.premise?.id ?? session.charter), story, `${sessionDir}/wizard-drafts.json`);
-        if (candidate) candidates.push(candidate);
-      }
+      const turns = parseJsonl(existsSync(resolve(dir, TURNS_FILE)) ? await readFile(resolve(dir, TURNS_FILE), 'utf-8') : '');
+      const drafts = existsSync(resolve(dir, 'wizard-drafts.json')) ? await readJson(resolve(dir, 'wizard-drafts.json')) : null;
+      candidates.push(...sessionCandidates(gate, { session, turns, drafts, sessionDir }));
     }
     const gateDir = resolve(root, gate);
     await mkdir(gateDir, { recursive: true });
@@ -705,6 +708,21 @@ export interface LiveCli { verb: LiveVerb; dir: string | undefined; args: LiveRe
 
 export const ARM_VERBS: readonly string[] = ['turn', 'swipe-new', 'regen'];
 
+export const cardGates = (card: Card): BlindGate[] => [...new Set(card.rubric.map((row) => row.gate).filter((gate): gate is BlindGate => Boolean(gate)))];
+
+export function ratingCandidateCount(card: Card, session: any, turns: Array<{ line: number; value: any }>, drafts: any, sessionDir: string): number {
+  return cardGates(card).reduce((sum, gate) => sum + sessionCandidates(gate, { session, turns, drafts, sessionDir }).length, 0);
+}
+
+export function liveTag(session: any, cli: Pick<LiveCli, 'verb' | 'tag'>, gates: readonly BlindGate[]): LiveCli['tag'] {
+  const sessionArm = sessionArmOf(session);
+  if (sessionArm && cli.tag?.arm && cli.tag.arm !== sessionArm) throw new Error(`${session.dir ?? session.charter} is the ${sessionArm} arm (set at start); a turn cannot be tagged ${cli.tag.arm}`);
+  const arm = cli.tag?.arm ?? (sessionArm && ARM_VERBS.includes(cli.verb) ? sessionArm : undefined);
+  const gate = cli.tag?.gate ?? (arm && gates.length === 1 ? gates[0] : undefined);
+  if (arm && !gate) throw new Error(`${session.charter} feeds ${gates.length ? gates.join(' and ') : 'no blind gate'}: name the gate with --gate`);
+  return arm || gate ? { ...(arm ? { arm } : {}), ...(gate ? { gate } : {}) } : undefined;
+}
+
 export function parseLiveArgs(verb: LiveVerb, rest: string[]): LiveCli {
   const flags = new Set(['--chat', '--timeout-ms', '--to', '--via', '--quiet-ms', '--arm', '--gate', '--book', '--mode']);
   const positional: string[] = [];
@@ -773,9 +791,7 @@ async function live(cli: LiveCli) {
   const chat = liveTarget(session, cli.verb, cli.chat);
   const switchTarget = cli.verb === 'switch-chat-mid-gen' ? (session.chats ?? []).find((known: any) => known.chatId === cli.args.to) : null;
   const args = cli.verb === 'shot' ? { ...cli.args, seq: await nextSeq(dir) } : switchTarget ? { ...cli.args, toGroup: switchTarget.group ?? null, toGroupId: switchTarget.groupId ?? null } : cli.args;
-  const gates = findCard(await loadCards(), session.charter).rubric.map((row) => row.gate).filter(Boolean);
-  const tag = cli.tag?.arm && !cli.tag.gate && gates.length === 1 ? { ...cli.tag, gate: gates[0] } : cli.tag;
-  if (tag?.arm && !tag.gate) throw new Error(`${session.charter} feeds ${gates.length ? gates.join(' and ') : 'no blind gate'}: name the gate with --gate`);
+  const tag = liveTag(session, cli, cardGates(findCard(await loadCards(), session.charter)));
   const sessionChats = sessionChatsOf(session, cli.verb, cli.chat);
   const record = await liveInLane(session.lane, viewportEnv, { verb: cli.verb, dir, chat, ...(sessionChats ? { sessionChats } : {}), args, options: cli.options, ...(tag ? { tag } : {}) });
   const row = await appendTurn(dir, record);

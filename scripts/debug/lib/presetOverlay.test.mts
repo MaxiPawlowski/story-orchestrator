@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { applyPresetOverlay, overlayProblems, overlaySha256, PRESET_OVERLAY_PATH, presetFile, profileProblems, replyEffortProblems, sessionOverlay, thinkingExpected, THINKING_REPLY_EFFORT, THINKING_VARIANT, type OverlayFs, type OverlayRecord } from './presetOverlay.mts';
+import { applyPresetOverlay, listAgrees, overlayProblems, overlaySha256, PRESET_OVERLAY_PATH, presetFile, profileProblems, replyEffortProblems, sessionOverlay, thinkingExpected, THINKING_REPLY_EFFORT, THINKING_VARIANT, type OverlayFs, type OverlayRecord } from './presetOverlay.mts';
 
 const USER = join('X:', 'lanes', '3', 'data', 'default-user');
 const OVERLAY = join('X:', 'repo', 'adolion-fresh.presets.json');
@@ -359,4 +359,38 @@ test('reply effort: the session baseline selects medium, and a thinking lane tha
   assert.deepEqual(replyEffortProblems(thinking, { extraction: { replyEffort: 'low' } }, { extraction: { replyEffort: 'low' } }), []);
   assert.deepEqual(replyEffortProblems({ applied: true, variant: 'fix' }, expected, { extraction: { replyEffort: 'high' } }), []);
   assert.deepEqual(replyEffortProblems({ applied: false, variant: THINKING_VARIANT }, expected, { extraction: { replyEffort: 'off' } }), []);
+});
+
+const RESAVED = ['min_p', 'penalties', 'dry', 'top_n_sigma', 'top_k', 'typ_p', 'xtc', 'top_p', 'temperature'];
+const ST_LOADED = [...RESAVED, 'adaptive_p'];
+
+test('T5-1-2 samplers: a preset file re-saved without adaptive_p and a settings.json copy with it are written as ONE list, and the page ST normalises passes', async () => {
+  const fs = fakeFs(lane({
+    [presetFile(USER, 'textgen', 'Artemis v1.1 RP')]: JSON.stringify({ temp: 1, genamt: 600, samplers: RESAVED }, null, 4),
+    [SETTINGS]: JSON.stringify({ ...JSON.parse(lane()[SETTINGS]!), textgenerationwebui_settings: { preset: 'Artemis v1.1 RP', samplers: ST_LOADED } }, null, 4),
+  }));
+  const record = await applyPresetOverlay(USER, fs, { overlayPath: OVERLAY, variant: 'fix', now: at });
+  assert.deepEqual(json(fs, presetFile(USER, 'textgen', 'Artemis v1.1 RP')).samplers, RESAVED);
+  assert.deepEqual(json(fs, SETTINGS).textgenerationwebui_settings.samplers, RESAVED, 'every copy the page can load from holds the same list');
+  const live = (samplers: string[]) => ({ instruct: { preset: 'Gemma 4', last_output_sequence: THOUGHT }, textgen: { preset: 'Artemis v1.1 RP', samplers } });
+  const loaded = sessionOverlay(record, live(ST_LOADED));
+  assert.deepEqual(loaded.problems, []);
+  assert.equal(loaded.warnings.length, 1);
+  assert.match(loaded.warnings[0], /\["adaptive_p"\].*ST inserts its default samplers/);
+  assert.deepEqual(sessionOverlay(record, live(RESAVED)).warnings, []);
+  assert.match(sessionOverlay(record, live(['penalties', 'min_p', ...RESAVED.slice(2)])).problems.join(), /does not keep the order/);
+  assert.match(sessionOverlay(record, live(['min_p', 'dry', 'penalties', ...RESAVED.slice(3)])).problems.join(), /does not keep the order/);
+  assert.match(sessionOverlay(record, live(RESAVED.slice(1))).problems.join(), /does not keep the order/);
+});
+
+test('T5-1-2 samplers: the lane-3 record seeded before the fix (file 9 entries, mirror 10) no longer fails the page it actually ran', () => {
+  const record: OverlayRecord = {
+    overlay: OVERLAY, sha256: 'x', variant: 'thinking', applied: true, reason: null, at: at(), problems: [],
+    edits: [{ kind: 'textgen', preset: 'Artemis v1.1 RP', key: 'samplers', op: 'moveToFront', file: presetFile(USER, 'textgen', 'Artemis v1.1 RP'), before: RESAVED, after: RESAVED, changed: true, mirror: { path: 'textgenerationwebui_settings.samplers', before: ST_LOADED, after: ST_LOADED } }],
+  };
+  const page = { instruct: null, textgen: { preset: 'Artemis v1.1 RP', samplers: ST_LOADED } };
+  assert.deepEqual(sessionOverlay(record, page).problems, []);
+  assert.deepEqual(sessionOverlay(record, page).warnings, []);
+  assert.equal(listAgrees(ST_LOADED, RESAVED, RESAVED), true);
+  assert.equal(listAgrees(['temperature', ...RESAVED.slice(0, -1)], RESAVED, RESAVED), false);
 });

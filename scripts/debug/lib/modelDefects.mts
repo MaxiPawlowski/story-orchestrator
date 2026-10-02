@@ -1,4 +1,4 @@
-export type ModelDefectKind = 'loop' | 'corrupt' | 'start';
+export type ModelDefectKind = 'loop' | 'corrupt' | 'start' | 'empty';
 export interface ModelDefect { kind: ModelDefectKind; messageId: number | null; speaker: string | null; sample: string; rule: string }
 
 export const LOOP_SEGMENT_REPEATS = 3;
@@ -62,9 +62,15 @@ function damagedStartIn(text: string, speaker: string | null | undefined): { sam
   return parts.some((part) => part.toLowerCase().endsWith(fragment.toLowerCase())) ? { sample, rule: 'truncated speaker name' } : null;
 }
 
-export function modelDefects(replies: Array<{ messageId?: number | null; speaker?: string | null; text: string }>): ModelDefect[] {
+export const EMPTY_RULE = 'empty reply: no text left once the reasoning was parsed out';
+
+export function modelDefects(replies: Array<{ messageId?: number | null; speaker?: string | null; text: string; reasoningLength?: number | null }>): ModelDefect[] {
   return replies.flatMap((reply) => {
     const found: ModelDefect[] = [];
+    if (!String(reply.text ?? '').trim()) {
+      const sample = Number(reply.reasoningLength) > 0 ? `(no text; ${Number(reply.reasoningLength)} chars of reasoning)` : '(no text)';
+      return [{ kind: 'empty' as const, messageId: reply.messageId ?? null, speaker: reply.speaker ?? null, sample, rule: EMPTY_RULE }];
+    }
     const start = damagedStartIn(reply.text, reply.speaker);
     if (start) found.push({ kind: 'start', messageId: reply.messageId ?? null, speaker: reply.speaker ?? null, ...start });
     const loop = loopIn(reply.text);
@@ -76,7 +82,7 @@ export function modelDefects(replies: Array<{ messageId?: number | null; speaker
 }
 
 export function defectCounts(records: Array<{ modelDefects?: ModelDefect[]; autoRepair?: { swiped?: boolean; unrepaired?: unknown[] } | null }>) {
-  const counts = { turns: 0, loop: 0, corrupt: 0, start: 0, repaired: 0, unrepaired: 0 };
+  const counts = { turns: 0, loop: 0, corrupt: 0, start: 0, empty: 0, repaired: 0, unrepaired: 0 };
   for (const record of records) {
     const defects = Array.isArray(record?.modelDefects) ? record.modelDefects : [];
     if (!defects.length) continue;
@@ -84,6 +90,7 @@ export function defectCounts(records: Array<{ modelDefects?: ModelDefect[]; auto
     counts.loop += defects.filter((defect) => defect.kind === 'loop').length;
     counts.corrupt += defects.filter((defect) => defect.kind === 'corrupt').length;
     counts.start += defects.filter((defect) => defect.kind === 'start').length;
+    counts.empty += defects.filter((defect) => defect.kind === 'empty').length;
     if (record.autoRepair?.swiped) counts.repaired += 1;
     counts.unrepaired += Array.isArray(record.autoRepair?.unrepaired) ? record.autoRepair.unrepaired.length : 0;
   }

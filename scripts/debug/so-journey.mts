@@ -9,6 +9,7 @@ import { beginSandboxSession, closeUnpinnedDrawers, deleteSandboxChats, openGrou
 
 type SandboxGuard = Awaited<ReturnType<typeof beginSandboxSession>>['guard'];
 import { executeSlashCommand } from './st-actions.mts';
+import { journeyStoryRefs, splitJourneyLorebooks, storyListedBooks } from './lib/journeyLore.mts';
 import { deleteSandboxMirrorBooks, recordSandboxStory, releaseBlockedRoutes, runSteps } from './so-scenario.mts';
 import { validateFixture } from './lib/scenarioSchema.mts';
 import { readExtractionSettings, restoreExtractionSettings } from './lib/extractionSettings.mts';
@@ -211,17 +212,25 @@ function capabilityProbe(page, capabilities) {
   };
 }
 
-// A story's `requirements.lorebooks` is satisfied only by the *globally selected* set, which is
-// install-wide and which no journey used to establish — so J1.5/J3/J7 passed on whatever happened to
-// be selected and failed the moment another session changed it (2026-09-20). The run activates what
-// the story needs and cleanup deactivates exactly what it turned on, leaving the install as found.
-async function activateLorebooks(page, names: string[]) {
-  const wanted = (names ?? []).filter((name) => typeof name === 'string' && name.trim());
-  if (!wanted.length) return { activated: [], alreadyActive: [], missing: [] };
+async function journeyListedBooks(page, journey) {
+  const refs = journeyStoryRefs(journey);
+  const files = await Promise.all(refs.files.map((file) => readJSON(resolve(JOURNEY_DIR, file)).catch(() => null)));
+  const library = refs.selected.length ? await evaluateInST(page, (ids: string[]) => {
+    const records = (globalThis as any).SillyTavern.getContext().extensionSettings?.['story-orchestrator']?.v2Stories ?? [];
+    return records.filter((record: any) => ids.includes(record?.id)).map((record: any) => record.raw ?? null);
+  }, refs.selected) : [];
+  return storyListedBooks([...files, ...refs.inline, ...library]);
+}
+
+async function activateLorebooks(page, names: string[], journey = null) {
+  const split = splitJourneyLorebooks(names, journey ? await journeyListedBooks(page, journey) : []);
+  const all = [...split.global, ...split.storyScoped];
+  const wanted = split.global;
+  if (!all.length) return { activated: [], alreadyActive: [], missing: [], storyScoped: [] };
   // Refresh the server's list first: an empty or stale `world_names` right after a chat change is
   // "unknown", not "the book does not exist", and skipping on it silently produced a J1.5 failure
   // that looked like a product regression (2026-09-20).
-  const state = await evaluateInST(page, async ({ wanted }) => {
+  const state = await evaluateInST(page, async ({ wanted, all }) => {
     const mod = await import(/* webpackIgnore: true */ '/scripts/world-info.js' as string) as {
       selected_world_info?: string[];
       updateWorldInfoList?: () => Promise<void>;
@@ -233,10 +242,10 @@ async function activateLorebooks(page, names: string[]) {
     return {
       known: known.length,
       alreadyActive: wanted.filter((name: string) => selected.includes(name)),
-      missing: known.length ? wanted.filter((name: string) => !known.includes(name)) : [],
+      missing: known.length ? all.filter((name: string) => !known.includes(name)) : [],
       listUnavailable: known.length === 0,
     };
-  }, { wanted });
+  }, { wanted, all });
   if (state.listUnavailable) throw new Error('setup.activateLorebooks: ST listed no lorebooks at all, so the install state is unknown — refusing to guess');
   if (state.missing.length) throw new Error(`setup.activateLorebooks: this install has no lorebook named ${state.missing.join(', ')}`);
   const toActivate = wanted.filter((name) => !state.alreadyActive.includes(name));
@@ -248,7 +257,7 @@ async function activateLorebooks(page, names: string[]) {
     return { notSelected: wanted.filter((name: string) => !selected.includes(name)) };
   }, { wanted });
   if (after.notSelected.length) throw new Error(`setup.activateLorebooks: ${after.notSelected.join(', ')} did not become active after /world state=on`);
-  return { activated: toActivate, alreadyActive: state.alreadyActive, missing: [] };
+  return { activated: toActivate, alreadyActive: state.alreadyActive, missing: [], storyScoped: split.storyScoped };
 }
 
 async function deactivateLorebooks(page, names: string[]) {
@@ -283,8 +292,8 @@ async function configureExtraction(page, setup) {
   return { ...selected, settings };
 }
 
-async function applySetup(page, setup, { allowConfig, group = null, judgeMode = null as JudgeMode | null, wiGating = null as WiGatingMode | null }) {
-  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; extractionDeclared?: unknown; judge?: unknown; judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>>; wiGating?: Awaited<ReturnType<typeof applyWiGating>>; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; extensionSettings?: unknown[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
+async function applySetup(page, setup, { allowConfig, journey = null, group = null, judgeMode = null as JudgeMode | null, wiGating = null as WiGatingMode | null }) {
+  const applied: { configSnapshot: unknown; chat: unknown; guard?: SandboxGuard | null; extraction?: unknown; extractionBefore?: unknown; extractionDeclared?: unknown; judge?: unknown; judgeMode?: Awaited<ReturnType<typeof applyJudgeMode>>; wiGating?: Awaited<ReturnType<typeof applyWiGating>>; lorebooks?: { activated: string[]; alreadyActive: string[]; missing: string[]; storyScoped: string[] }; dialogs?: unknown; libraryBefore?: LibraryCapture; recoveredConfig?: unknown; extensionSettings?: unknown[]; cleanup?: unknown } = { configSnapshot: null, chat: null, guard: null };
   // Unconditional, and before anything else can write them (S11).
   applied.extractionBefore = await readExtractionSettings(page);
   console.log(`extraction before this run: ${JSON.stringify(applied.extractionBefore)}`);
@@ -378,7 +387,7 @@ async function applySetup(page, setup, { allowConfig, group = null, judgeMode = 
     });
   }
   if (setup.configureExtraction) applied.extraction = await configureExtraction(page, setup);
-  if (Array.isArray(setup.activateLorebooks)) applied.lorebooks = await activateLorebooks(page, setup.activateLorebooks);
+  if (Array.isArray(setup.activateLorebooks)) applied.lorebooks = await activateLorebooks(page, setup.activateLorebooks, journey);
   if (Array.isArray(setup.extensionSettings)) {
     applied.extensionSettings = [];
     for (const spec of setup.extensionSettings) applied.extensionSettings.push(await applyExtSetting(page, spec));
@@ -549,7 +558,7 @@ export async function runJourney(page, idOrFile, { strict = false, keep = false,
       await mkdir(DEBUG_DIR, { recursive: true });
       await writeFile(ASSET_BASELINE, JSON.stringify(assetBaseline, null, 2), 'utf-8');
       if (!assetBaseline.trusted) console.log(`Asset baseline UNTRUSTED (${assetBaseline.untrusted.join('; ')}) — cleanup falls back to marker-only scope.`);
-      setupApplied = await applySetup(page, journey.setup ?? {}, { allowConfig, group, judgeMode: judgeMode ?? modeFromSetup(journey.setup), wiGating });
+      setupApplied = await applySetup(page, journey.setup ?? {}, { allowConfig, journey, group, judgeMode: judgeMode ?? modeFromSetup(journey.setup), wiGating });
       // `reconcileExpected` lives in lib/journeyTallies.mts so it is unit-tested without a browser.
       const record = (summary, outcome, detail, extra = {}) => results.push({ ...reconcileExpected(summary, outcome, detail ?? ''), ...extra });
 

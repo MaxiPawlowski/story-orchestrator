@@ -179,7 +179,7 @@ export function planOverlay(edits: OverlayEdit[], user: string, files: Record<st
     const holder = nextSettings ? walk(nextSettings, MIRROR[edit.kind]) : null;
     if (isRecord(holder) && holder.preset === edit.preset && edit.key! in holder) {
       const mirrorBefore = holder[edit.key!];
-      const mirrored = applyEdit(edit, mirrorBefore);
+      const mirrored = edit.op === 'moveToFront' ? { after: result.after } : applyEdit(edit, mirrorBefore);
       if ('problem' in mirrored) { problems.push(`settings.json (active ${edit.kind} preset): ${mirrored.problem}`); continue; }
       holder[edit.key!] = mirrored.after;
       settingsChanged = true;
@@ -274,6 +274,26 @@ export function replyEffortProblems(overlay: { applied?: boolean; variant?: stri
   return got === want ? [] : [`the thinking overlay runs with reply effort ${JSON.stringify(got)}, expected "${want}" (budget 400 is the measured default for group narration, 15-model-config 2026-10-02)`];
 }
 
+const writtenCopies = (edit: EditChange): Array<{ where: string; list: unknown[] }> => [
+  ...(Array.isArray(edit.after) ? [{ where: edit.file, list: edit.after }] : []),
+  ...(edit.mirror && Array.isArray(edit.mirror.after) ? [{ where: `settings.json ${edit.mirror.path}`, list: edit.mirror.after }] : []),
+];
+
+export function listAgrees(page: unknown, written: unknown[], moved: unknown): boolean {
+  if (!Array.isArray(page)) return false;
+  const front = Array.isArray(moved) ? moved[0] : undefined;
+  return (front === undefined || page[0] === front) && same(page.filter((entry) => written.includes(entry)), written);
+}
+
+function liveWarning(edit: EditChange, live: LivePresets | null): string | null {
+  if (edit.op !== 'moveToFront' || !isPresetKind(edit.kind)) return null;
+  const holder = live?.[edit.kind] ?? null;
+  if (!holder || holder.preset !== edit.preset || !Array.isArray(holder[edit.key!])) return null;
+  const written = new Set(writtenCopies(edit).flatMap((copy) => copy.list));
+  const added = (holder[edit.key!] as unknown[]).filter((entry) => !written.has(entry));
+  return added.length ? `${edit.preset}.${edit.key}: the page also lists ${JSON.stringify(added)}, which no copy the overlay wrote holds (ST inserts its default samplers missing from a loaded list); the order the overlay wrote holds` : null;
+}
+
 function liveProblem(edit: EditChange, live: LivePresets | null): string | null {
   const shown = (value: unknown) => JSON.stringify(value);
   if (edit.kind === 'settings') {
@@ -300,6 +320,10 @@ function liveProblem(edit: EditChange, live: LivePresets | null): string | null 
   }
   if (!holder || holder.preset !== edit.preset || !(edit.key! in holder)) return null;
   const value = holder[edit.key!];
+  if (edit.op === 'moveToFront') {
+    const disagree = writtenCopies(edit).filter((copy) => !listAgrees(value, copy.list, edit.after));
+    return disagree.length ? `the page runs ${edit.kind} preset "${edit.preset}" with ${edit.key} = ${shown(value)}, which does not keep the order the seed's preset overlay wrote to ${disagree.map((copy) => `${copy.where} ${shown(copy.list)}`).join(' and ')}` : null;
+  }
   return same(value, edit.after) ? null : `the page runs ${edit.kind} preset "${edit.preset}" with ${edit.key} = ${shown(value)}, the seed's preset overlay wrote ${shown(edit.after)}`;
 }
 
@@ -324,5 +348,6 @@ export function sessionOverlay(record: OverlayRecord | null, live: LivePresets |
   };
   if (!record.applied) return { overlay, problems: [], warnings: [`the lane was seeded with the preset overlay off (${record.reason ?? 'no reason recorded'})`] };
   const problems = record.edits.map((edit) => liveProblem(edit, live)).filter((line): line is string => Boolean(line));
-  return { overlay, problems, warnings: [] };
+  const warnings = record.edits.map((edit) => liveWarning(edit, live)).filter((line): line is string => Boolean(line));
+  return { overlay, problems, warnings };
 }
