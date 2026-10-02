@@ -41,6 +41,8 @@ export interface ProvisioningEnvironment {
   // The subset of `ownedLorebooks` the author allowed rather than the wizard created. A created
   // book has no business being revocable from here; a granted one is the author's to take back.
   grantedLorebooks: string[];
+  castNames: string[];
+  personaNames: string[];
 }
 
 export interface ProvisioningResult {

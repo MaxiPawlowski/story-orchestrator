@@ -2,18 +2,20 @@ import type { StoryV2 } from "@engine/index";
 import { castMemberName, isCastMember } from "@engine/index";
 import { memberIsPlayer, playerRoles, rosterMemberIsPlayer, storyPlayerTexts } from "./playerRole";
 
-type CastCode = "cast-member-no-card" | "background-missing" | "roster-member-is-player" | "cast-change-unknown-member";
+type CastCode = "cast-member-no-card" | "background-missing" | "roster-member-is-player" | "cast-change-unknown-member" | "requirement-persona-missing";
 
 export const CAST_CONSEQUENCES: Record<CastCode, string> = {
   "cast-member-no-card": "This character never joins the scene: there is no card by that name, so it cannot be switched on and the story never reads as ready.",
   "background-missing": "The scene does not change: the install has no background by that name.",
   "roster-member-is-player": "Another character speaks as the player: the story casts the player's own role as someone else.",
   "cast-change-unknown-member": "This cast change switches nobody on or off: the name matches no cast member, so whoever it meant stays as they are.",
+  "requirement-persona-missing": "The story never reads as ready, so its start effects never run: it requires a persona this install does not have, and nothing creates one.",
 };
 
 export interface InstallFacts {
   characterNames?: () => readonly string[];
   backgroundNames?: () => readonly string[];
+  personaNames?: () => readonly string[];
 }
 
 export interface CastRun {
@@ -69,6 +71,20 @@ export const checkBackgrounds = ({ draft, context, push }: CastRun) => {
     const name = backgroundName(checkpoint.effects?.background);
     if (!name || stems.has(stem(name))) return;
     push("background-missing", "warning", `checkpoints.${index}.effects.background`, `no background '${name}' on this install; pick one from its list, or leave the background out`);
+  });
+};
+
+export const checkRequiredPersonas = ({ draft, context, push }: CastRun) => {
+  const personas = known(context.personaNames);
+  if (!personas) return;
+  (draft.requirements?.personas ?? []).forEach((name, index) => {
+    if (!name.trim() || personas.has(name.trim().toLowerCase())) return;
+    push(
+      "requirement-persona-missing",
+      "warning",
+      `requirements.personas.${index}`,
+      `no persona named '${name}' on this install, and the wizard never creates personas; remove it from Requirements, or create that persona in SillyTavern`,
+    );
   });
 };
 

@@ -173,6 +173,16 @@
       "reason": "popup copy; interpolates counts only"
     },
     {
+      "site": "src/index.tsx#dropPersonaRequirement",
+      "kind": 1,
+      "template": "`Remove the persona requirement ${named} from this story? The story is saved to the library and this chat takes the change.`",
+      "surface": "author",
+      "rawError": false,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "T5-1-4 Repair confirm: names the authored persona requirement, no error text"
+    },
+    {
       "site": "src/index.tsx#openStudio",
       "kind": 1,
       "template": "\"You have an unsaved Studio draft for this story. Resume it?\"",

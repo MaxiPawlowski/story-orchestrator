@@ -1,5 +1,7 @@
 import { PROVISIONING_OP_KINDS, type ProvisioningEnvironment, type ProvisioningOp, type ProvisioningOpKind } from "./types";
 import { lorebookFileId } from "@utils/string";
+import { nearestKey } from "@utils/levenshtein";
+import { castCardName, castMemberNames, type StoryV2 } from "@engine/index";
 
 const norm = (value: string) => value.trim().toLowerCase();
 const has = (values: string[], wanted: string) => values.some((value) => norm(value) === norm(wanted));
@@ -7,9 +9,26 @@ const has = (values: string[], wanted: string) => values.some((value) => norm(va
 // `world_names` lists file ids and a title with `:` or `?` is filed under its sanitised form.
 const hasFile = (values: string[], wanted: string) => values.some((value) => norm(lorebookFileId(value)) === norm(lorebookFileId(wanted)));
 
+export const unknownPersonas = (personas: readonly string[] | undefined, environment: Pick<ProvisioningEnvironment, "personaNames">): string[] =>
+  (personas ?? []).filter((name) => name.trim() && !has(environment.personaNames, name));
+
+export const personaRequirementProblem = (personas: readonly string[] | undefined, environment: Pick<ProvisioningEnvironment, "personaNames">): string | null => {
+  const unknown = unknownPersonas(personas, environment);
+  if (!unknown.length) return null;
+  const listed = environment.personaNames.length ? `Personas on this install: ${environment.personaNames.join(", ")}.` : "This install lists no persona.";
+  return `requirements.personas names ${unknown.map((name) => `"${name}"`).join(", ")}, which ${unknown.length === 1 ? "is not a persona" : "are not personas"} on this install. ` +
+    "Personas are the author's own and are never created by the wizard, so a story that requires a missing one never starts: leave personas out, or name an existing one. " +
+    listed;
+};
+
+export const draftCastNames = (story: Pick<StoryV2, "roster" | "requirements"> | null | undefined): string[] =>
+  (story ? castMemberNames(story.roster ?? [], [...(story.roster ?? []).map(castCardName), ...(story.requirements?.members ?? [])]) : []);
+
 export const isProvisioningKind = (kind: string): kind is ProvisioningOpKind => (PROVISIONING_OP_KINDS as readonly string[]).includes(kind);
 
-export const emptyEnvironment = (): ProvisioningEnvironment => ({ characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [], grantedLorebooks: [] });
+export const emptyEnvironment = (): ProvisioningEnvironment => ({
+  characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [], ownedLorebooks: [], grantedLorebooks: [], castNames: [], personaNames: [],
+});
 
 export interface ProvisioningValidation {
   ok: boolean;
@@ -18,6 +37,16 @@ export interface ProvisioningValidation {
 
 const OK: ProvisioningValidation = { ok: true, message: "" };
 const fail = (message: string): ProvisioningValidation => ({ ok: false, message });
+
+const outsideCast = (members: string[], cast: string[]): string => {
+  if (!cast.length) return `This story has no cast yet, so its group cannot hold ${members.map((member) => `"${member}"`).join(", ")}. Add the cast to the roster first.`;
+  const named = members.map((member) => {
+    const near = nearestKey(member, cast);
+    return near ? `"${member}" (did you mean "${near}"?)` : `"${member}"`;
+  });
+  return `Not in this story's cast: ${named.join(", ")}. A story's group holds only its own cast (${cast.join(", ")}), never another story's card: ` +
+    "add them to the roster first, or leave them out.";
+};
 
 // The create-only invariant is enforced here, not in the prompt (spec addendum §Story wizard): an op
 // naming something that already exists is rejected with a message the author can act on. The single
@@ -61,6 +90,8 @@ export function validateProvisioningOp(op: ProvisioningOp, environment: Provisio
       if (!op.name.trim()) return fail("A group needs a name.");
       if (has(environment.groupNames, op.name)) return fail(`A group called "${op.name}" already exists — select it instead of creating a second one.`);
       if (!op.members.length) return fail(`"${op.name}" has no members.`);
+      const foreign = op.members.filter((member) => !has(environment.castNames, member));
+      if (foreign.length) return fail(outsideCast(foreign, environment.castNames));
       const missing = op.members.filter((member) => !has(environment.characterNames, member));
       if (missing.length) return fail(`These cast members do not exist yet: ${missing.join(", ")}. Create their cards first.`);
       return OK;
@@ -75,7 +106,7 @@ export function validateProvisioningOp(op: ProvisioningOp, environment: Provisio
 export function advanceEnvironment(environment: ProvisioningEnvironment, op: ProvisioningOp): ProvisioningEnvironment {
   switch (op.kind) {
     case "createCharacterCard":
-      return { ...environment, characterNames: [...environment.characterNames, op.name] };
+      return { ...environment, characterNames: [...environment.characterNames, op.name], castNames: [...environment.castNames, op.name] };
     case "createStoryLorebook":
       return {
         ...environment,

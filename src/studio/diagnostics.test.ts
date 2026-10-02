@@ -34,6 +34,16 @@ const installSeeded: StoryV2 = {
   roster: [{ id: "courier", name: "The Courier" }],
 };
 
+const arrivalSeeded: StoryV2 = {
+  ...clean,
+  checkpoints: [clean.checkpoints[0], { id: "road", name: "Road", objective: "", type: "intermediate" }, clean.checkpoints[1]],
+  transitions: [
+    { from: "start", to: "road", priority: 0, gate: { q: "trust", op: ">=", v: 2 } },
+    { from: "road", to: "cache", priority: 0, gate: { q: "trust", op: ">=", v: 1 } },
+  ],
+  requirements: { personas: ["The Apprentice"] },
+};
+
 const seeded: StoryV2 = {
   format: 2,
   title: "seeded",
@@ -110,6 +120,7 @@ describe("runDiagnostics", () => {
       ...runDiagnostics({ ...clean, lore_select: { lorebooks: [], exclusive: true } }),
       ...runDiagnostics(chaptered),
       ...runDiagnostics(installSeeded, { characterNames: () => ["Tobias"], backgroundNames: () => ["tavern day.jpg"] }),
+      ...runDiagnostics(arrivalSeeded, { personaNames: () => ["Traveller"] }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

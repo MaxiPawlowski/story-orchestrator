@@ -112,6 +112,14 @@ const renderEnvironment = (environment?: WizardEnvironmentView): string => {
   ].join("\n");
 };
 
+const renderPersonas = (environment?: WizardEnvironmentView): string => {
+  if (!environment) return "";
+  return [
+    `Personas on this install: ${environment.personaNames.join(", ") || "(none)"}.`,
+    "Personas are the author's own and nothing creates one: leave requirements.personas out unless the author names one of these.",
+  ].join("\n");
+};
+
 const renderHistory = (history: CopilotMessage[]): string =>
   history.length ? `Conversation so far:\n${history.map((message) => `${message.role}: ${message.text}`).join("\n")}` : "";
 
@@ -127,6 +135,7 @@ export const renderStagePrompt = (stage: CopilotStage, draft: StoryV2, message: 
     "Stay consistent with the current draft — reference existing ids, do not duplicate them.",
     `Current draft (JSON):\n${JSON.stringify(draft)}`,
     renderEnvironment(stage === "provisioning" ? environment : undefined),
+    stage === "effects" ? renderPersonas(environment) : "",
     renderHistory(history),
     message ? `Author: ${message}` : "",
     "Respond with the JSON object only.",

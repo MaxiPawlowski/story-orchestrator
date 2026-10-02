@@ -2,7 +2,7 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { Lazy, LAZY_FAILED_TEXT } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import {
-  addGroupMembers, bindNavbarDrawerToggle, currentChatOwner, getAllCharacterNames, listBackgrounds, mountInlineHosts, openGroupMemberList,
+  addGroupMembers, bindNavbarDrawerToggle, currentChatOwner, getAllCharacterNames, listBackgrounds, listPersonas, mountInlineHosts, openGroupMemberList,
   readProfileContextLimit, readProfilePresetName, setGroupMembersDisabled, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
   type InlineHostSet,
 } from "@services/STAPI";
@@ -20,7 +20,9 @@ import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import { chatUpdateOutcome, NO_CHAT_OPEN, type ChatSaveAnswer } from "@runtime/librarySave";
 import { rekeyWizardSession } from "@runtime/wizardSessions";
 import { runCastRepair } from "@runtime/castRepair";
-import { provisionableMissing, type RepairAction } from "@runtime/repair";
+import { provisionableMissing, withoutPersonas, type RepairAction } from "@runtime/repair";
+import { saveStoryRecord } from "@runtime/storyLibrary";
+import type { WriteResult } from "@utils/writeResult";
 import type { StudioOpenIntent } from "./studio/StudioModal";
 import type { WizardHost } from "./studio/components/StudioCopilot";
 import { type DriverController } from "@components/drawer/DriverPanel";
@@ -72,6 +74,7 @@ const studioDiagnostics = () => ({
   worldInfoGating: getGlobalSettings().worldInfo.gatingMode,
   characterNames: getAllCharacterNames,
   backgroundNames: listBackgrounds,
+  personaNames: listPersonas,
 });
 
 const openStudio = async (intent?: StudioOpenIntent) => {
@@ -110,10 +113,27 @@ const openWizardForRequirements = async () => {
   });
 };
 
+const dropPersonaRequirement = async (names: string[]): Promise<WriteResult<object>> => {
+  const snapshot = manager.getSnapshot();
+  const active = snapshot.library.find((story) => story.id === snapshot.storyId);
+  const next = withoutPersonas(active?.raw ?? manager.getPlayedStoryRaw(), names);
+  if (!next) return { ok: false, reason: "No story is playing in this chat." };
+  const named = names.map((name) => `"${name}"`).join(", ");
+  const confirmed = await showConfirmPopup(`Remove the persona requirement ${named} from this story? The story is saved to the library and this chat takes the change.`, {
+    okButton: "Remove it", cancelButton: "Keep it",
+  });
+  if (!confirmed) return { ok: false, reason: `The story still requires ${named}.` };
+  const saved = saveStoryRecord(next);
+  if (Array.isArray(saved)) return { ok: false, reason: "The story could not be saved without that requirement; edit it in the Studio's Story tab." };
+  const outcome = await manager.applyStoryUpdate(saved.record);
+  return outcome.applied ? { ok: true } : { ok: false, reason: chatUpdateOutcome(outcome)?.detail ?? "The library has the change; this chat did not take it." };
+};
+
 const repairCast = async (action: RepairAction) => {
   const result = await runCastRepair(action, {
     add: addGroupMembers,
     unmute: (names) => setGroupMembersDisabled(names, []),
+    dropPersonas: dropPersonaRequirement,
     refresh: () => manager.refreshRequirementsNow(),
     journal: (summary, detail) => manager.chatSave.note(summary, detail),
     ownership: manager.requirementsHost.ownership,

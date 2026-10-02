@@ -6,7 +6,7 @@ import type { CopilotMessage, CopilotStage, DriverContext, ProposalResult, Sugge
 const authoring = () => import("@copilot/index");
 import type { ModelAsk, ModelCall } from "@extraction/index";
 import {
-  newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment,
+  draftCastNames, newWizardSession, recordGrant, validateProvisioningOp, wizardSessionKey, type ProvisioningEnvironment,
   type ProvisioningOp, type ProvisioningResult, type WizardSessionState,
 } from "@wizard/index";
 import type { WIEntrySnapshot } from "@services/STAPI";
@@ -44,7 +44,7 @@ export class CopilotCoordinator {
   }
 
   async runStage(input: { draft: StoryV2; stage: CopilotStage; message: string; history: CopilotMessage[]; environment?: ProvisioningEnvironment }, debugResponse?: string): Promise<ProposalResult> {
-    const environment = input.environment ?? (input.stage === "provisioning" ? this.getProvisioningEnvironment(input.draft) : undefined);
+    const environment = input.environment ?? (input.stage === "provisioning" || input.stage === "effects" ? this.getProvisioningEnvironment(input.draft) : undefined);
     return (await authoring()).runAuthoringStage({ ...input, environment }, this.deps.model, this.ask(debugResponse));
   }
 
@@ -68,6 +68,8 @@ export class CopilotCoordinator {
       // requirement, never the display name.
       ownedLorebooks: [...new Set([...this.sessionOwnedLorebooks(lorebookNames, draft), ...granted])],
       grantedLorebooks: granted,
+      castNames: draftCastNames(story),
+      personaNames: safe(host.listPersonas, []),
     };
   }
 

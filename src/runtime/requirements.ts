@@ -1,5 +1,5 @@
 import { castMemberNames, type NormalizedStoryV2 } from "@engine/index";
-import { getAllCharacterNames, getContext, listGroupMembers, listMutedGroupMembers, readLoreBindings } from "@services/STAPI";
+import { getAllCharacterNames, getContext, listGroupMembers, listMutedGroupMembers, listPersonas, readLoreBindings } from "@services/STAPI";
 import { readRequirements, type RequirementsOptions } from "./requirementsRead";
 import type { MemoryMirrorBook, RequirementsState } from "./types";
 import { scanGatingActive } from "./worldInfoMode";
@@ -18,6 +18,7 @@ export function evaluateRequirements(story: NormalizedStoryV2 | null, options: R
   const members = Boolean(requirements?.members?.length);
   return readRequirements(requirements, {
     persona,
+    ...(requirements?.personas?.length ? { personas: listPersonas() } : {}),
     members: members ? listGroupMembers() : [],
     muted: members ? listMutedGroupMembers() : [],
     storyMuted,

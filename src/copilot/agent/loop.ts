@@ -14,6 +14,7 @@ import { checkRequirementsOp, resolveCastOp } from "./requirements";
 import { checkToolCall, type ReadToolName } from "./tools";
 import { doneSummary, missingAtDone, refusedDoneLast } from "./finish";
 import { greetingClash, playerCastProblem } from "./playerCast";
+import { rejectedRefusal } from "./rejected";
 import type { AgentBudget, AgentOnlyOp, AgentOp, AgentLookup, AgentMode, AgentReply, AgentSession, AgentStep, AgentStepStatus } from "./types";
 
 export const AGENT_SESSION_VERSION = 1;
@@ -169,7 +170,9 @@ export interface AgentTurn {
   audit?: AgentAudit;
 }
 
-const installOf = (context: AgentContext): DiagnosticsContext => ({ characterNames: () => context.environment.characterNames, backgroundNames: context.lookup.backgrounds });
+const installOf = (context: AgentContext): DiagnosticsContext => ({
+  characterNames: () => context.environment.characterNames, backgroundNames: context.lookup.backgrounds, personaNames: () => context.environment.personaNames,
+});
 
 const nextStatus = (session: AgentSession, steps: AgentStep[]): AgentSession["status"] => {
   if (steps.some((step) => step.status === "pending")) return "awaiting-author";
@@ -236,15 +239,19 @@ export const executeReply = (session: AgentSession, reply: AgentReply, context: 
   if (player) return record({ family: spec.family === "provision" ? "provision" : "edit", op, status: "refused", observation: `Refused: ${player}` });
   if (spec.family === "provision") {
     if (!isProvisionOp(op)) return record({ family: null, status: "refused", observation: `Refused: ${spec.name} is not a provisioning step` });
+    const rejected = rejectedRefusal(session, op);
+    if (rejected) return record({ family: "provision", op, status: "refused", observation: `Refused: ${rejected}` });
     const validation = validateProvisioningOp(op, context.environment);
     if (!validation.ok) return record({ family: "provision", op, status: "refused", observation: `Refused: ${validation.message}` });
     const clash = greetingClash(context.draft, op);
     return record({ family: "provision", op, status: "pending", observation: `Waiting for the author to confirm this asset.${clash ? ` ${clash}` : ""}` });
   }
-  const requirements = op.kind === "setRequirements" ? checkRequirementsOp(session, context.draft, op) : null;
+  const requirements = op.kind === "setRequirements" ? checkRequirementsOp(session, context.draft, op, context.environment) : null;
   if (requirements?.problem) return record({ family: "edit", op, status: "refused", observation: `Refused: ${requirements.problem}` });
   const cast = resolveCastOp(context.draft, requirements?.op ?? op);
   const edit = cast.op;
+  const rejected = rejectedRefusal(session, op) ?? rejectedRefusal(session, edit);
+  if (rejected) return record({ family: "edit", op: edit, status: "refused", observation: `Refused: ${rejected}` });
   const note = [requirements?.note, cast.note].filter(Boolean).join(" ");
   const noted = (text: string) => (note ? `${text} ${note}` : text);
   const problem = editProblem(context.draft, edit) ?? unchangedProblem(context.draft, edit);

@@ -1,11 +1,11 @@
 import { spawn } from 'node:child_process';
 import { existsSync } from 'node:fs';
-import { lstat, mkdir, readdir, readFile, rm, statfs, writeFile } from 'node:fs/promises';
+import { appendFile, lstat, mkdir, readdir, readFile, rm, statfs, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { lanesRootFor, REPO_ROOT } from '../lib/stRoot.mjs';
 import {
-  buildInventory, buildManifest, castResetPlan, checkInventory, diffInventories, expectedStartDisabled, lastGoodSeed, seedDrift, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
+  acceptBaseline, buildInventory, buildManifest, castResetPlan, checkInventory, diffInventories, expectedStartDisabled, lastGoodSeed, seedDrift, installerProblems, isInstalledBook, isLfsPointer, spriteFolders, stripPlan,
   type AdolionManifest, type Inventory, type LaneDisk, type RuntimeReadiness, type SpriteFolder, type SpritePackSource,
 } from './lib/adolionFresh.mts';
 import { applyPresetOverlay, editLabel, PRESET_OVERLAY_RECORD, type OverlayRecord } from './lib/presetOverlay.mts';
@@ -33,7 +33,11 @@ campaign build. Lanes 1+ only; lane 0 is the user's.
   check <lane> [--drop-book <name>]
       re-read the inventory of a running lane and check it; --drop-book deletes that book first
       (the planted-missing-book negative control)
-  diff <a.json> <b.json>    compare two inventories, exit 1 on any difference`;
+  diff <a.json> <b.json>    compare two inventories, exit 1 on any difference
+  accept-baseline <lane> --reason "<why>" [--by <who>] [--report <report-*.json>]
+      re-accept the newest (or the named) drifted seed as this lane's baseline after a deliberate seeding
+      change; refused for a seed with problems. Writes \`accepted {at, by, reason, drift, replaces}\` into
+      that report and appends the same record to baseline-acceptances.jsonl in the lane's adolion-fresh dir`;
 
 const PIN_FILE = resolve(REPO_ROOT, 'scripts', 'debug', 'adolion-fresh.pin.json');
 const LANES_ROOT = lanesRootFor(process.env, REPO_ROOT);
@@ -318,6 +322,18 @@ async function seed(n: number, commitArg: string | null, headed: boolean, stopAf
   return report;
 }
 
+async function acceptLaneBaseline(n: number, reason: string, by: string, reportName: string | null) {
+  const { work } = lane(n);
+  const reports = existsSync(work)
+    ? await Promise.all((await readdir(work)).filter((name) => /^report-.+\.json$/.test(name)).map(async (name) => ({ name, report: await readJson(join(work, name)).catch(() => ({})) })))
+    : [];
+  const verdict = acceptBaseline(reports, { reason, by, at: new Date().toISOString(), report: reportName });
+  if ('refused' in verdict) return { lane: n, problems: [`accept-baseline refused: ${verdict.refused}`] };
+  await writeFile(join(work, verdict.name), JSON.stringify(verdict.report, null, 2), 'utf-8');
+  await appendFile(join(work, 'baseline-acceptances.jsonl'), `${JSON.stringify({ lane: n, report: verdict.name, ...verdict.report.accepted })}\n`, 'utf-8');
+  return { lane: n, problems: [], accepted: { report: verdict.name, ...verdict.report.accepted } };
+}
+
 async function check(n: number, dropBook: string | null) {
   const paths = lane(n);
   const latest = join(paths.work, 'inventory-latest.json');
@@ -565,12 +581,18 @@ async function main() {
     report = await seed(n, argValue(rest, '--commit'), rest.includes('--headed'), rest.includes('--stop'), rest.includes('--no-preset-overlay'), argValue(rest, '--preset-overlay'));
   }
   else if (command === 'check') report = await check(laneArg(rest[0]), argValue(rest, '--drop-book'));
+  else if (command === 'accept-baseline') {
+    report = await acceptLaneBaseline(laneArg(rest[0]), argValue(rest, '--reason') ?? '', argValue(rest, '--by') ?? process.env.USERNAME ?? process.env.USER ?? 'unknown', argValue(rest, '--report'));
+  }
   else if (command === 'diff') {
     const drift = diffInventories(await readJson(resolve(rest[0])), await readJson(resolve(rest[1])));
     report = { problems: drift, identical: drift.length === 0 };
   } else { console.log(USAGE); process.exitCode = 2; return; }
   const { drift, driftFromSeed, ...shown } = report as Record<string, unknown>;
   console.log(JSON.stringify({ ...shown, driftCount: Array.isArray(drift) ? drift.length : Array.isArray(driftFromSeed) ? (driftFromSeed as unknown[]).length : undefined, drift: Array.isArray(drift) ? (drift as string[]).slice(0, 20) : Array.isArray(driftFromSeed) ? (driftFromSeed as string[]).slice(0, 20) : undefined }, null, 2));
+  if ((report as { sameAsPrevious?: boolean }).sameAsPrevious === false) {
+    console.error('the seed drifted from the lane\'s last good seed; if the change is deliberate, accept it: adolion-fresh.mts accept-baseline <lane> --reason "<why>"');
+  }
   if (report.problems.length || (report as { sameAsPrevious?: boolean }).sameAsPrevious === false) process.exitCode = 1;
 }
 

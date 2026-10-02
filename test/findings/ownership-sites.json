@@ -19,7 +19,7 @@
     },
     "src/runtime/castRepair.ts#runCastRepair": {
       "status": "checked",
-      "note": "v2.6 T5-4 fix wave (2026-10-02): the Repair one-click fix. Mints its RunToken before the group write (add or unmute, the author's own action on the open group) and checks it before the journal note and the requirements re-read; the re-read is refreshRequirementsNow, which takes its own token."
+      "note": "v2.6 T5-4 fix wave (2026-10-02): the Repair one-click fix. Mints its RunToken before the write (add or unmute on the open group, or, since the T5-1 re-run, the author-confirmed removal of a persona requirement through the library save and applyStoryUpdate, which takes its own token) and checks it before the journal note and the requirements re-read; the re-read is refreshRequirementsNow, which takes its own token."
     },
     "src/runtime/effectLedger.ts#runRestoreSteps": {
       "status": "local",

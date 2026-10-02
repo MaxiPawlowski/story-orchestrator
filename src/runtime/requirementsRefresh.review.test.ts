@@ -11,6 +11,7 @@ jest.mock("@services/STAPI", () => ({
   getContext: () => globalThis.__requirementsTestContext,
   listGroupMembers: () => [],
   listMutedGroupMembers: () => [],
+  listPersonas: () => ["Mira", "Traveller"],
   listGlobalLorebooks: () => [],
   readLoreBindings: () => ({ global: [], chat: null, persona: null, characters: [] }),
 }));

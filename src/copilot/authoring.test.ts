@@ -71,7 +71,7 @@ describe("runAuthoringStage", () => {
     const result = await runAuthoringStage(
       {
         draft: baseDraft(), stage: "provisioning", message: "", history: [],
-        environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] } as Partial<ProvisioningEnvironment> as ProvisioningEnvironment,
+        environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [], castNames: [], personaNames: [] } as Partial<ProvisioningEnvironment> as ProvisioningEnvironment,
       },
       plantedModel, {
         role: "authoring", pass: "copilot",
@@ -135,7 +135,7 @@ describe("runAuthoringStage", () => {
         stage: "provisioning",
         message: "",
         history: [],
-        environment: { characterNames: ["Arin"], lorebookNames: [], groupNames: [], storyLorebooks: [] } as Partial<ProvisioningEnvironment> as ProvisioningEnvironment,
+        environment: { characterNames: ["Arin"], lorebookNames: [], groupNames: [], storyLorebooks: [], castNames: [], personaNames: [] } as Partial<ProvisioningEnvironment> as ProvisioningEnvironment,
       },
       plantedModel, { role: "authoring", pass: "copilot", debugResponse: JSON.stringify({ summary: "", ops: [{ kind: "createCharacterCard", name: "Arin", description: "A guide." }] }) },
     );
@@ -151,7 +151,7 @@ describe("runAuthoringStage", () => {
         stage: "provisioning",
         message: "",
         history: [],
-        environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [] } as Partial<ProvisioningEnvironment> as ProvisioningEnvironment,
+        environment: { characterNames: [], lorebookNames: [], groupNames: [], storyLorebooks: [], castNames: [], personaNames: [] } as Partial<ProvisioningEnvironment> as ProvisioningEnvironment,
       },
       plantedModel, {
         role: "authoring", pass: "copilot",
