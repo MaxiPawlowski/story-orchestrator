@@ -349,9 +349,9 @@
       "status": "partial",
       "note": "v2.3 replan V3 (2026-09-23): restore runs BECAUSE the world moved (leave/exit/restart/rollback), so a token would refuse exactly the work it exists for. COVERED: host writes go through restoreEffects' compare-and-set; the mirror write targets the captured departing `extras`; appliedChat is reset only when this chat's effects are gone. NOT COVERED: two restores racing each other are ordered by the ledger status, not by a token."
     },
-    "src/runtime/effectsApplier.ts#EffectsApplier.withLedger": {
+    "src/runtime/effectsApplier.ts#EffectsApplier.withLedgerRows": {
       "status": "delegate",
-      "note": "v2.3 plan 06: the write-ahead wrapper every recorded host effect goes through. It awaits ChatSave.persist (through the manager's persist delegate), which owns the check; its other writes are the ledger row it appends and the status it sets, both THIS chat's own in-memory state, patched before the first await — so a token minted here would be compared against the world it was just minted from, which is the reason `MemoryCoordinator.commit` gives."
+      "note": "v2.3 plan 06: the write-ahead wrapper every recorded host effect goes through. It awaits ChatSave.persist (through the manager's persist delegate), which owns the check; its other writes are the ledger row it appends and the status it sets, both THIS chat's own in-memory state, patched before the first await — so a token minted here would be compared against the world it was just minted from, which is the reason `MemoryCoordinator.commit` gives. T4-2 wave (2026-10-02): renamed from withLedger, which now delegates here with one write; the cast mirror passes one row per member and one host write (`setGroupMemberFlags`), so the rows are appended, persisted and settled together."
     },
     "src/runtime/effectsApplier.ts#applyWorldInfo": {
       "status": "checked",

@@ -105,6 +105,7 @@ export const cadenceWindowFrom = (cursor: number | null, stableTo: number): numb
 export const ANSWERED_SAMPLES = 8;
 
 export const REREAD_LAPSED_REASON = "reread:lapsed";
+export const RESUME_DROPPED_REASON = "resume:dropped";
 export const REREAD_SETTLE_MAX_MS = 10_000;
 
 const overlaps = (left: { from: number; to: number }, right: { from: number; to: number }) => left.from <= right.to && right.from <= left.to;
@@ -432,6 +433,15 @@ export class ExtractionScheduler {
       }
     }
     void this.pumpHeavy();
+  }
+
+  resumeDroppedRead(droppedTo: number | null, lastMessageId: number) {
+    const settings = this.host.getExtractionSettings();
+    if (droppedTo === null || !settings.enabled) return;
+    const stableTo = lastMessageId - Math.max(0, settings.stabilityLag ?? 1);
+    if (stableTo < 0) return;
+    this.schedule({ priority: 1, reason: RESUME_DROPPED_REASON, window: getChatWindow(cadenceWindowFrom(this.cursor(), stableTo), stableTo) });
+    this.cadenceTo = stableTo;
   }
 
   nextReadWindow(lastMessageId: number): NextReadWindow | null {

@@ -1103,7 +1103,7 @@
       "reason": "author or console surface: raw error kept for diagnosis"
     },
     {
-      "site": "src/runtime/effectsApplier.ts#EffectsApplier.withLedger",
+      "site": "src/runtime/effectsApplier.ts#EffectsApplier.withLedgerRows",
       "kind": 2,
       "template": "error instanceof Error ? error.message : \"the host refused the write\"",
       "surface": "author",

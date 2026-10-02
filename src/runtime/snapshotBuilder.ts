@@ -138,6 +138,8 @@ const lastFiredTransition = (log: BoundaryLogEntry[], story: NormalizedStoryV2 |
   };
 };
 
+export const CHAT_LOADING_STATUS = "Loading this chat's story";
+
 let inlineComposer: ((sources: InlineSources) => InlineView) | null = null;
 
 export const loadInlineComposer = async () => {

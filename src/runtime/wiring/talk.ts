@@ -2,7 +2,7 @@ import { askText } from "@extraction/index";
 import { executeSlashCommands, getActiveCharacterId, getActiveGroup, getCharacterNameById, getContext, getPlayerName } from "@services/STAPI";
 import { log } from "@utils/log";
 import { gatedInterceptor } from "../loudGenerationGate";
-import { chatSettle } from "../chatSettle";
+import { CHAT_SETTLE_TIMEOUT_MS, chatSettle } from "../chatSettle";
 import { quoteSlashArg } from "@utils/string";
 import type { JudgeRuntime } from "../judge";
 import { routedProfileId } from "../requestBudget";
@@ -37,13 +37,11 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
   ownership: runtimeManager.getOwnership(),
 });
 
-const chatLoaded = () => {
-  const open = getContext().chatId ?? null;
-  return Boolean(open) && runtimeManager.getLoadedChatId() === open;
-};
-
 const holdForChat = async () => {
-  if (await chatSettle.until(chatLoaded) === "timed-out") log.warn("a reply started while this chat's story was still loading; it went ahead after the wait");
+  if (await chatSettle.until() !== "timed-out") return;
+  log.warn("a reply started while this chat's story was still loading; it went ahead after the wait");
+  const waited = `${CHAT_SETTLE_TIMEOUT_MS / 1000} s`;
+  runtimeManager.noteRecap("a reply went ahead before this chat's story finished loading", `the load was still running after ${waited}, so cast and speaker direction may not have applied`);
 };
 
 export const startTalk = (live: LiveParts, judgeRuntime: JudgeRuntime, window: WindowAccess, onLoreIntercept: (type: string, aborted: boolean) => Promise<void>) => {

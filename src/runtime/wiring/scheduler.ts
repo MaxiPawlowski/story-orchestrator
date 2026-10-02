@@ -5,6 +5,7 @@ import { runBoundaryWork } from "../boundaryWork";
 import { requestBudget, routedProfileId } from "../requestBudget";
 import { runtimeManager } from "../runtimeManager";
 import { beginRun } from "../runToken";
+import { droppedReadEnd } from "@extraction/readCursor";
 import type { Disposers, LiveParts } from "./types";
 
 const schedulerHost = (live: LiveParts): SchedulerHost => ({
@@ -67,4 +68,16 @@ export const startScheduler = (live: LiveParts, disposers: Disposers) => {
     live.scheduler?.schedule({ priority: 4, reason: `arc-summary:${arcIds.length}`, run: async () => { await runtimeManager.runArcSummaryPass(arcIds); } });
   }));
   disposers.push(runtimeManager.onEpochChanged(() => live.scheduler?.clearForNewWorld()));
+  disposers.push(runtimeManager.subscribe(resumeDroppedReads(live)));
+};
+
+export const resumeDroppedReads = (live: LiveParts) => {
+  let resumed: number | null = null;
+  return () => {
+    const epoch = runtimeManager.getRunContext().sessionEpoch;
+    const state = runtimeManager.getEngineState();
+    if (epoch === resumed || !state || !runtimeManager.getLoadedChatId()) return;
+    resumed = epoch;
+    live.scheduler?.resumeDroppedRead(droppedReadEnd(runtimeManager.getReadCursorSeed(), runtimeManager.getExtractionAudits()), state.lastMessageId);
+  };
 };

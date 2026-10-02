@@ -212,7 +212,9 @@ export class TurnBridge {
     this.reset();
     this.refreshIdentity();
     this.loadedChat = null;
-    await this.manager.loadSelectedFromChat();
+    const loading = this.manager.loadSelectedFromChat();
+    this.manager.notify();
+    await loading;
     this.loadedChat = currentChat();
     if (change.kind === "diverged" && this.loadedChat?.chatId === change.chatId && this.manager.getRunContext().claimedChat === change.chatId) this.save?.note("reload-diverged", change.detail);
     await unbindBranchMirror(beginRun(this.manager.getOwnership()));
