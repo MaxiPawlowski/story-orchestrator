@@ -14,6 +14,9 @@ const TENSION_SCALE: Record<TensionLevel, string> = {
 export const WORLD_EVIDENCE_RULE = "Evidence must quote a line the player did not write.";
 export const PARTY_EVIDENCE_RULE = "Evidence may quote the player's own line only where the player moves themselves or the party; anything else must quote a line the player did not write.";
 export const PLAYER_MARK = " (player)";
+export const PLAYER_ONLY_REASK = "Each reading below quoted only the player's own line, marked (player). The player's line says what they mean to do; it cannot show "
+  + "that the world changed. Answer again for these qualities only: write the DELTA with evidence copied word for word from a line not marked (player) that "
+  + "shows it happened. If no such line shows it, output NO_DELTA.";
 
 const renderType = (contract: SharedReadContract) => contract.qualities.map(({ quality, hints }) => {
   const hintText = hints.length ? ` Hints: ${hints.join(" | ")}` : "";
@@ -92,6 +95,11 @@ export function renderSharedReadPrompt(contract: SharedReadContract): string {
     "",
     "Output:",
   ].join("\n");
+}
+
+export function renderPlayerOnlyReask(contract: SharedReadContract, lines: readonly string[]): string {
+  const prompt = renderSharedReadPrompt({ ...contract, deltasOnly: true });
+  return `${prompt.slice(0, prompt.lastIndexOf("\nOutput:"))}\n${PLAYER_ONLY_REASK}\n${lines.join("\n")}\n\nOutput:`;
 }
 
 export function hashContract(contract: SharedReadContract): string {

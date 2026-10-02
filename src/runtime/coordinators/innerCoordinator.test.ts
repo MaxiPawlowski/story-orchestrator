@@ -3,7 +3,7 @@ import type { InnerBeat } from "@memory/index";
 import { ModelCallError } from "@extraction/modelError";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 import { RunOwner } from "../runOwner";
-import { createInnerBeatHost } from "../innerBeatHost";
+import { createInnerBeatHost, INNER_DRAFT_WAIT_MS } from "../innerBeatHost";
 import { INNER_CALLS_PER_TURN, InnerCoordinator, type InnerCoordinatorDeps } from "./innerCoordinator";
 
 const story = {
@@ -232,9 +232,102 @@ describe("the beat at draft (host)", () => {
     expect(journal).toHaveBeenLastCalledWith("Inner beat stale for ponticius", expect.any(String));
   });
 
+  it("a beat built on a later reply of the same player turn is still fresh for a member drafted later in the round", async () => {
+    const { deps, rows } = harness();
+    const host = createInnerBeatHost({ ...deps, enabled: () => true, memberName: (id) => id });
+    rows.push({ name: "Max", mes: "Go on.", is_user: true }, { name: "Luke", mes: "Me first." });
+    await host.run();
+    expect(host.beatFor("ponticius")).toBe("Stall them at the door.");
+  });
+
   it("switched off: never loads the pass and never adds a beat", async () => {
     const { deps } = harness();
     const host = createInnerBeatHost({ ...deps, enabled: () => false, memberName: (id) => id });
     expect(host.beatFor("ponticius")).toBe("");
+  });
+});
+
+describe("the beat follows the drafted member (T3-1 fix wave)", () => {
+  const drafted = () => harness({ rows: [{ name: "Arin", mes: "Not yet." }, { name: "Max", mes: "Open it.", is_user: true }], answers: ["BEAT: Count the guards.", "BEAT: second"] });
+
+  it("a member the boundary pass did not guess gets one beat at draft, built on the player's line, without a repair", async () => {
+    const { deps, prompts, beats } = drafted();
+    expect(await new InnerCoordinator(deps).ensureFor("luke")).toBe(true);
+    expect(prompts).toHaveLength(1);
+    expect(prompts[0]).toContain("Open it.");
+    expect(beats()).toEqual([expect.objectContaining({ memberId: "luke", basedOnMessageId: 1, beat: "Count the guards." })]);
+  });
+
+  it("asks nothing when a fresh beat exists, and at most once per member per turn", async () => {
+    const { deps, prompts } = harness({ rows: [{ name: "Arin", mes: "Not yet." }, { name: "Max", mes: "Open it.", is_user: true }], answers: ["no format"] });
+    const coordinator = new InnerCoordinator(deps);
+    expect(await coordinator.ensureFor("luke")).toBe(false);
+    expect(await coordinator.ensureFor("luke")).toBe(false);
+    expect(prompts).toHaveLength(1);
+    const fresh = drafted();
+    const once = new InnerCoordinator(fresh.deps);
+    await once.ensureFor("luke");
+    await once.ensureFor("luke");
+    expect(fresh.prompts).toHaveLength(1);
+  });
+
+  it("waits for the boundary pass already asking for the same member instead of asking twice", async () => {
+    let release: (value: string) => void = () => {};
+    const held = new Promise<string>((resolve) => { release = resolve; });
+    const { deps, prompts, rows } = harness({ answers: [held] });
+    const coordinator = new InnerCoordinator(deps);
+    const running = coordinator.run();
+    rows.push({ name: "Max", mes: "Now.", is_user: true });
+    const ensured = coordinator.ensureFor("ponticius");
+    release("BEAT: Stall them.");
+    await running;
+    expect(await ensured).toBe(true);
+    expect(prompts).toHaveLength(1);
+  });
+
+  it("a swipe of the member's own reply builds on the message before it, never on the reply being replaced", async () => {
+    const { deps, beats } = harness({ rows: [{ name: "Max", mes: "Open it.", is_user: true }, { name: "Luke", mes: "Swiped away." }] });
+    await new InnerCoordinator(deps).ensureFor("luke");
+    expect(beats()?.[0]).toMatchObject({ memberId: "luke", basedOnMessageId: 0 });
+  });
+
+  it("writes nothing when the chat changed while the draft-time call was out", async () => {
+    let release: (value: string) => void = () => {};
+    const held = new Promise<string>((resolve) => { release = resolve; });
+    const { deps, current, beats } = harness({ rows: [{ name: "Max", mes: "Open it.", is_user: true }], answers: [held] });
+    const ensured = new InnerCoordinator(deps).ensureFor("luke");
+    current.chatId = "chat-b";
+    release("BEAT: Stall them.");
+    expect(await ensured).toBe(false);
+    expect(beats()).toBeUndefined();
+  });
+
+  it("the host waits at most INNER_DRAFT_WAIT_MS at draft; a late beat still lands for the swipe after", async () => {
+    jest.useFakeTimers();
+    try {
+      let release: (value: string) => void = () => {};
+      const held = new Promise<string>((resolve) => { release = resolve; });
+      const { deps, beats } = harness({ rows: [{ name: "Max", mes: "Open it.", is_user: true }], answers: [held] });
+      const host = createInnerBeatHost({ ...deps, enabled: () => true, memberName: (id) => id });
+      let done = false;
+      const prepared = host.prepare("luke").then(() => { done = true; });
+      await jest.advanceTimersByTimeAsync(INNER_DRAFT_WAIT_MS);
+      await prepared;
+      expect(done).toBe(true);
+      expect(host.beatFor("luke")).toBe("");
+      release("BEAT: Late.");
+      await jest.advanceTimersByTimeAsync(0);
+      expect(beats()?.[0]).toMatchObject({ memberId: "luke", beat: "Late." });
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
+  it("does nothing outside a group or when the beat is switched off", async () => {
+    const solo = harness({ group: false });
+    await createInnerBeatHost({ ...solo.deps, enabled: () => true, memberName: (id) => id }).prepare("luke");
+    const off = harness();
+    await createInnerBeatHost({ ...off.deps, enabled: () => false, memberName: (id) => id }).prepare("luke");
+    expect([...solo.prompts, ...off.prompts]).toEqual([]);
   });
 });

@@ -121,6 +121,7 @@ export interface SharedReadAudit {
   trimmedFrom?: number;
   truncated?: number[];
   windowForm?: WindowForm;
+  reask?: { keys: string[]; rawResponse: string; accepted: string[] };
 }
 
 export interface ReadBudgetRecord {

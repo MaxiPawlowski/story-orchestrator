@@ -1,0 +1,704 @@
+{
+  "source": "kind=audit rows of test/sessions/T3/T3-1-1 (runtime-*.json extras.extraction.audits, journal lines by auditId) rejected as \"evidence only in the player's line\" for deep_set_out; window messages parsed from the audit's prompt transcript; rawResponse is the recorded first answer, replayed whole; qualities from the session's pinned story",
+  "qualities": [
+    {
+      "key": "deep_set_out",
+      "type": "bool",
+      "source": "extractor",
+      "latching": true,
+      "evidence_from": "world",
+      "rubric": "Have the party and its partner party actually left Aegis City by the north gate, on the road to Carrow Keep? Planning the march or packing does not count."
+    },
+    {
+      "key": "location",
+      "type": "enum",
+      "values": [
+        "deep_guild_hall",
+        "deep_north_gate",
+        "deep_north_road",
+        "deep_ritual_fort",
+        "deep_great_hall",
+        "deep_nahalbuk",
+        "deep_draxford_mines",
+        "deep_draxford_tunnels",
+        "deep_darklands",
+        "deep_demonborn_camp",
+        "deep_moonshadow_cavern",
+        "deep_hive"
+      ],
+      "player_labels": {
+        "deep_guild_hall": "the Guild hall in Aegis City",
+        "deep_north_gate": "the city's north gate",
+        "deep_north_road": "the road into the foothills",
+        "deep_ritual_fort": "Carrow Keep",
+        "deep_great_hall": "the keep's great hall",
+        "deep_nahalbuk": "the dungeon under the keep",
+        "deep_draxford_mines": "the Draxford mine camp",
+        "deep_draxford_tunnels": "the lower mine workings",
+        "deep_darklands": "the Darklands",
+        "deep_demonborn_camp": "a hidden grotto",
+        "deep_moonshadow_cavern": "a violet-lit cavern",
+        "deep_hive": "the hive"
+      },
+      "source": "extractor",
+      "evidence_from": "world",
+      "rubric": "Where is the party right now? deep_guild_hall: the Adventurers Guild in Aegis City; deep_north_gate: Aegis City's north gate, setting out; deep_north_road: the road north into the Velniran foothills; deep_ritual_fort: outside or on the walls of Carrow Keep; deep_great_hall: the keep's Great Hall and altar; deep_nahalbuk: Dungeon Nahalbuk under the keep; deep_draxford_mines: the Draxford mine camp by the lake; deep_draxford_tunnels: the lower Draxford workings; deep_darklands: the Darklands below the breach; deep_demonborn_camp: the survivors' grotto; deep_moonshadow_cavern: the cavern of the sword in the stone; deep_hive: the Terrorborn hive."
+    }
+  ],
+  "rows": [
+    {
+      "journalLine": 274,
+      "auditId": "f90e2f63",
+      "reason": "scene:location",
+      "key": "deep_set_out",
+      "value": "false",
+      "evidence": "We'll meet you at the north gate within the hour, then we march.",
+      "recordedAccepted": [
+        "location=deep_guild_hall@9"
+      ],
+      "rawResponse": "DELTA q=deep_set_out value=false evidence=\"We'll meet you at the north gate within the hour, then we march.\"\nDELTA q=location value=\"deep_guild_hall\" evidence=\"He simply turned and walked toward the Guild's exit, his tattered black cape sweeping behind him in a single fluid motion.\"\nDELTA q=tension_current value=\"stirring\" evidence=\"He didn't argue or press the vial further. He simply turned and walked toward the Guild's exit, his tattered black cape sweeping behind him in a single fluid motion.\"\nFACT importance=3 text=\"Max's party will meet Crimsonwing at Aegis City's north gate within the hour and march north together.\" evidence=\"We'll meet you at the north gate within the hour, then we march.\"\nFACT importance=2 text=\"Ced offered Max a clear pale amber stimulant vial that keeps the user sharp for twenty-four hours with no crash, as a down payment.\" evidence=\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\"\nFACT importance=2 text=\"Max left the stimulant vial on the Guild counter, declining Ced's down payment.\" evidence=\"I leave the vial on the counter.\"\nFACT importance=2 text=\"Ced says Runo's golems provide crowd control while he eliminates high-priority targets.\" evidence=\"Runo's golems provide crowd control while I eliminate high-priority targets.\"\nFACT importance=2 text=\"Kela says Ebonwing tracks success by results, not percentage points, and that Safie's magitech golems handle siege and crowd control.\" evidence=\"We track our success by results, not by percentage points.\"\nFACT importance=1 text=\"Ced says Runo will expect punctuality.\" evidence=\"Runo will expect punctuality.\"\nMEMORY type=event importance=3 expiration=permanent entity=\"Max Nightriver,Ced\" text=\"Max's party chose Crimsonwing over Ebonwing for the joint posting; Ced took the contract and set departure at dawn, with a north gate rendezvous in an hour.\" evidence=\"We'll go with Crimsonwing.\"\nMEMORY type=development importance=2 expiration=session entity=\"Ced,Kela\" text=\"Kela accepted the loss of the joint posting without protest and left the Guild to Ebonwing's own work.\" evidence=\"Ebonwing has work to do.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Ced\" text=\"Ced carries a clear pale amber stimulant that keeps the user sharp for twenty-four hours with no crash.\" evidence=\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash.\"\nMEMORY type=detail importance=1 expiration=session entity=\"Ced\" text=\"Ced wears a tattered black cape and carries a Saw Cleaver.\" evidence=\"He gestures subtly to the Saw Cleaver at his side.\"\nMEMORY type=scene importance=2 expiration=scene entity=\"Max Nightriver,Ced,Kela,Vallie\" text=\"The choice was made at the Adventurers Guild counter in Aegis City; Ced took the contract from Vallie's hand and left, and Kela departed after him.\" evidence=\"He reached out and took the contract from Vallie's hand, his movement efficient and brief.\"\nMEMORY type=revelation importance=2 expiration=session entity=\"Ced\" text=\"Ced says Crimsonwing has completed over a dozen B-rank contracts in six months with a ninety-eight percent success rate.\" evidence=\"Crimsonwing has completed over a dozen B-rank contracts in the last six months alone. We maintain a ninety-eight percent success rate.\"\nMEMORY type=revelation importance=2 expiration=session entity=\"Kela\" text=\"Kela says Ebonwing clears B-ranks and tracks success by results rather than percentage points.\" evidence=\"Ebonwing clears B-ranks too. We track our success by results, not by percentage points.\"\nSCENE_NONE\n[knows] Max Nightriver | Crimsonwing will be at the north gate in an hour and Runo expects punctuality\n[knows] Ced | Max's party declined the stimulant down payment but committed to the north gate rendezvous\n[intends] Ced | to depart at dawn and have Max's party meet Crimsonwing at the north gate within the hour\n[intends] Kela | to take Ebonwing to its own work after losing the joint posting\n[arc] Max's party must reach the north gate within the hour to rendezvous with Ced and Runo before the march north.",
+      "window": {
+        "from": 2,
+        "to": 9,
+        "messages": [
+          {
+            "messageId": 2,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "Ced's eyes flick to Max, then away, his face a mask of studied composure. \"Crimsonwing has completed over a dozen B-rank contracts in the last six months alone. We maintain a ninety-eight percent success rate.\" He gestures subtly to the Saw Cleaver at his side. \"Runo's golems provide crowd control while I eliminate high-priority targets. We're efficient, disciplined, and we don't leave our partners behind.\"\n*He pauses, his voice dropping perhaps a fraction in volume, measured but not soft.* \"You'll receive fair payment, clear objectives, and a leader who prioritizes the party's survival above all else.\""
+          },
+          {
+            "messageId": 3,
+            "speaker": "Kela",
+            "isUser": false,
+            "text": "Kela didn't move, didn't react to Ced's pitch. She waited until he stopped speaking, then let her voice carry that same flat, controlled tone. \"Ebonwing clears B-ranks too. We track our success by results, not by percentage points.\" She adjusted her glove, her gaze on Max and not the rival across the counter. \"Safie's magitech golems handle siege and crowd control. I handle the rest.\"\n*A short silence, then the next statement came as a fact, not a promise.* \"We don't waste time with statistics. We take the contract, we clear the Keep, and we bring out whoever's alive. That's the job. You'll get your cut, and you'll come back in one piece.\""
+          },
+          {
+            "messageId": 4,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "We'll go with Crimsonwing."
+          },
+          {
+            "messageId": 5,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "Ced's expression didn't shift, but his posture relaxed fractionally, a tension leaving his shoulders. He looked at Max, his red eyes flat and unreadable. \"We leave at dawn. Bring any gear that helps you stay alive and kill faster.\"\n*He reached out and took the contract from Vallie's hand, his movement efficient and brief. His gaze flicked toward Kela—not quite a look of victory, but the acknowledgment of one.* \"Runo will expect punctuality.\""
+          },
+          {
+            "messageId": 6,
+            "speaker": "Kela",
+            "isUser": false,
+            "text": "Kela's red eyes didn't follow Ced's look. Instead, her hand went to the brim of her tricorn hat, a small gesture that was the closest she'd come to showing any reaction at all. \"Understood.\"\n*She stepped back from the counter with a measured grace, her cape settling around her shoulders. Then she turned toward the exit, her voice flat and final.* \"Ebonwing has work to do.\""
+          },
+          {
+            "messageId": 7,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "Ced watched her leave without a word, then turned back to Max. \"Runo and I will be at the north gate in an hour. You can meet us there, or I can send a messenger to fetch you.\"\n*He reached into his coat and produced a small glass vial, the liquid inside a clear, pale amber that caught the light. He set it on the counter between them with a soft click.*\n\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\""
+          },
+          {
+            "messageId": 8,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "I leave the vial on the counter. We'll meet you at the north gate within the hour, then we march."
+          },
+          {
+            "messageId": 9,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "\"We'll be waiting.\"\n*He didn't argue or press the vial further. He simply turned and walked toward the Guild's exit, his tattered black cape sweeping behind him in a single fluid motion.*"
+          }
+        ]
+      }
+    },
+    {
+      "journalLine": 319,
+      "auditId": "13b38ccf",
+      "reason": "cue:deep-with-crimsonwing->deep-the-north-road",
+      "key": "deep_set_out",
+      "value": "true",
+      "evidence": "An hour later we're at the north gate. We set out with Ced and Runo up the north road.",
+      "recordedAccepted": [
+        "location=deep_north_road@11"
+      ],
+      "rawResponse": "DELTA q=deep_set_out value=true evidence=\"An hour later we're at the north gate. We set out with Ced and Runo up the north road.\"\nDELTA q=location value=\"deep_north_road\" evidence=\"An hour later we're at the north gate. We set out with Ced and Runo up the north road.\"\nDELTA q=tension_current value=\"calm\" evidence=\"The road's clear,\" he says, his grey eyes darting to the Nightriver heir with a mix of recognition and nervousness. \"Four days north, then we break for the foothills.\"\nFACT importance=3 text=\"Max's party and Crimsonwing set out from Aegis City's north gate at dawn, marching north up the road toward the Velniran foothills.\" evidence=\"An hour later we're at the north gate. We set out with Ced and Runo up the north road.\"\nFACT importance=2 text=\"Ced offered Max a vial of stimulant that keeps the user sharp for twenty-four hours with no crash, as a down payment on performance; Max left it on the counter.\" evidence=\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\"\nFACT importance=2 text=\"Ced and Runo bring a mule loaded with alchemical supplies and a covered cart packed with Runo's magitech golems.\" evidence=\"Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\"\nFACT importance=2 text=\"Runo estimates four days north before the party breaks for the foothills.\" evidence=\"Four days north, then we break for the foothills.\"\nFACT importance=1 text=\"Ced orders the party to march in silence until they hit the tree line to save energy for the Keep.\" evidence=\"We march in silence until we hit the tree line,\" he says, gesturing toward the open road that leads directly into the dark silhouettes of the Velniran range. \"Save your energy for the Keep.\"\nMEMORY type=event importance=3 expiration=permanent entity=\"Max Nightriver,Ced,Runo\" text=\"Max's party chose Crimsonwing and departed Aegis City's north gate at dawn with Ced and Runo, marching north toward the Velniran foothills fort.\" evidence=\"An hour later we're at the north gate. We set out with Ced and Runo up the north road.\"\nMEMORY type=scene importance=2 expiration=scene entity=\"Ced,Runo\" text=\"At the north gate, Ced waits by a mule of alchemical supplies with his saw cleaver, and Runo sits on a cart of magitech golems, awake and clutching a map and vellum.\" evidence=\"Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Ced\" text=\"Ced offered a clear pale amber stimulant vial that keeps the user sharp for twenty-four hours with no crash; Max declined it.\" evidence=\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\"\nMEMORY type=development importance=2 expiration=session entity=\"Kela,Ced\" text=\"Kela accepted losing the joint posting without protest, said Ebonwing has work to do, and left; Ced acknowledged the win with a glance.\" evidence=\"She stepped back from the counter with a measured grace, her cape settling around her shoulders. Then she turned toward the exit, her voice flat and final.\" \"Ebonwing has work to do.\"\nMEMORY type=detail importance=1 expiration=session entity=\"Runo\" text=\"Runo is wide awake for the pre-dawn departure, watching Max with a mix of recognition and nervousness.\" evidence=\"Runo sits on the cart's tailboard, his owlkin tufts twitching as he watches Max Nightriver approach. For once he is wide awake, clutching a map and a sheet of vellum.\"\nSCENE_BREAK at=10 reason=time_skip\n[knows] Kela | Max's party chose Crimsonwing over Ebonwing for the joint posting\n[knows] Ced | Max's party chose Crimsonwing and will meet at the north gate\n[intends] Ced | to march north to the Velniran foothills fort and reach the Keep\n[state:Ced:character] location=north gate of Aegis City | equipment=saw cleaver, tattered black cape | supplies=mule loaded with alchemical supplies\n[state:Runo:character] location=north gate of Aegis City | status=wide awake | equipment=map and vellum | cargo=cart of magitech golems\n[state:Max Nightriver:character] location=north road out of Aegis City\n[arc] Crimsonwing and Max's party must march four days north and reach the Velniran foothills fort to bring out the captives.\n[arc] Runo's magitech golems and Ced's alchemical supplies are being hauled north for the fort operation, their purpose at the Keep unrevealed.",
+      "window": {
+        "from": 4,
+        "to": 11,
+        "messages": [
+          {
+            "messageId": 4,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "We'll go with Crimsonwing."
+          },
+          {
+            "messageId": 5,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "Ced's expression didn't shift, but his posture relaxed fractionally, a tension leaving his shoulders. He looked at Max, his red eyes flat and unreadable. \"We leave at dawn. Bring any gear that helps you stay alive and kill faster.\"\n*He reached out and took the contract from Vallie's hand, his movement efficient and brief. His gaze flicked toward Kela—not quite a look of victory, but the acknowledgment of one.* \"Runo will expect punctuality.\""
+          },
+          {
+            "messageId": 6,
+            "speaker": "Kela",
+            "isUser": false,
+            "text": "Kela's red eyes didn't follow Ced's look. Instead, her hand went to the brim of her tricorn hat, a small gesture that was the closest she'd come to showing any reaction at all. \"Understood.\"\n*She stepped back from the counter with a measured grace, her cape settling around her shoulders. Then she turned toward the exit, her voice flat and final.* \"Ebonwing has work to do.\""
+          },
+          {
+            "messageId": 7,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "Ced watched her leave without a word, then turned back to Max. \"Runo and I will be at the north gate in an hour. You can meet us there, or I can send a messenger to fetch you.\"\n*He reached into his coat and produced a small glass vial, the liquid inside a clear, pale amber that caught the light. He set it on the counter between them with a soft click.*\n\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\""
+          },
+          {
+            "messageId": 8,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "I leave the vial on the counter. We'll meet you at the north gate within the hour, then we march."
+          },
+          {
+            "messageId": 9,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "\"We'll be waiting.\"\n*He didn't argue or press the vial further. He simply turned and walked toward the Guild's exit, his tattered black cape sweeping behind him in a single fluid motion.*"
+          },
+          {
+            "messageId": 10,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "An hour later we're at the north gate. We set out with Ced and Runo up the north road."
+          },
+          {
+            "messageId": 11,
+            "speaker": "Adolion Narrator",
+            "isUser": false,
+            "text": "The north gate's grey stone arch looms overhead, still damp from the overnight mist. Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\nRuno sits on the cart's tailboard, his owlkin tufts twitching as he watches Max Nightriver approach. For once he is wide awake, clutching a map and a sheet of vellum. \"The road's clear,\" he says, his grey eyes darting to the Nightriver heir with a mix of recognition and nervousness. \"Four days north, then we break for the foothills.\"\nCed steps forward, his expression as neutral as stone. \"We march in silence until we hit the tree line,\" he says, gesturing toward the open road that leads directly into the dark silhouettes of the Velniran range. \"Save your energy for the Keep.\""
+          }
+        ]
+      }
+    },
+    {
+      "journalLine": 348,
+      "auditId": "47490841",
+      "reason": "cadence",
+      "key": "deep_set_out",
+      "value": "true",
+      "evidence": "An hour later we're at the north gate. We set out with Ced and Runo up the north road.",
+      "recordedAccepted": [
+        "location=deep_north_road@11"
+      ],
+      "rawResponse": "DELTA q=deep_set_out value=true evidence=\"An hour later we're at the north gate. We set out with Ced and Runo up the north road.\"\nDELTA q=location value=\"deep_north_road\" evidence=\"We set out with Ced and Runo up the north road.\"\nFACT importance=3 text=\"Max's party and Crimsonwing set out from Aegis City's north gate at dawn, marching north up the road toward the Velniran foothills.\" evidence=\"An hour later we're at the north gate. We set out with Ced and Runo up the north road.\"\nFACT importance=2 text=\"Ced brings a mule loaded with crates of alchemical supplies and a covered cart carrying Runo's magitech golems.\" evidence=\"Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\"\nFACT importance=2 text=\"Runo estimates four days north before the party breaks for the foothills.\" evidence=\"Four days north, then we break for the foothills.\"\nFACT importance=2 text=\"Ced orders the party to march in silence until they reach the tree line.\" evidence=\"We march in silence until we hit the tree line\"\nMEMORY type=scene importance=2 expiration=scene entity=\"Ced,Runo,Max Nightriver\" text=\"At Aegis City's north gate before dawn, Ced waits with a supply mule and a covered cart of Runo's golems; Runo is unusually awake, clutching a map and vellum.\" evidence=\"Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Runo\" text=\"Runo says the golems are pre-charged and should be up to speed by day three.\" evidence=\"The golems are already pre-charged, by the way. Should be no trouble getting them up to speed by day three.\"\nMEMORY type=development importance=2 expiration=session entity=\"Ced,Runo\" text=\"Ced silences Runo with a sharp glance when Runo starts volunteering details about the golems' schedule.\" evidence=\"Ced shoots him a look—one sharp glance—and Runo immediately stuffs the map into his tunic.\"\nMEMORY type=detail importance=1 expiration=session entity=\"Ced\" text=\"Ced carries a saw cleaver strapped to his back and wears a tattered black cape.\" evidence=\"his saw cleaver strapped to his back\"\nSCENE_BREAK at=10 reason=time_skip\n[arc] Ced keeps Runo and the golems' purpose quiet, enforcing silence on the march north.\n[intends] Ced | reach the Velniran foothills fort and bring out the captives, conserving the party's energy for the Keep\n[intends] Runo | get the magitech golems up to speed by day three of the march\n[hiding] Ced from Max Nightriver | the purpose of Runo's golems and the alchemical supplies at the Keep\n[state:Ced:character] role=leader of Crimsonwing | equipment=saw cleaver, tattered black cape | posture=neutral, marching north\n[state:Runo:character] role=Crimsonwing's magitech wizard | state=wide awake, nervous, clutching map and vellum | equipment=pre-charged magitech golems on covered cart\n[state:The Party:place] location=north road out of Aegis City | heading=Velniran foothills fort | pace=marching in silence until tree line",
+      "window": {
+        "from": 8,
+        "to": 12,
+        "messages": [
+          {
+            "messageId": 8,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "I leave the vial on the counter. We'll meet you at the north gate within the hour, then we march."
+          },
+          {
+            "messageId": 9,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "\"We'll be waiting.\"\n*He didn't argue or press the vial further. He simply turned and walked toward the Guild's exit, his tattered black cape sweeping behind him in a single fluid motion.*"
+          },
+          {
+            "messageId": 10,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "An hour later we're at the north gate. We set out with Ced and Runo up the north road."
+          },
+          {
+            "messageId": 11,
+            "speaker": "Adolion Narrator",
+            "isUser": false,
+            "text": "The north gate's grey stone arch looms overhead, still damp from the overnight mist. Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\nRuno sits on the cart's tailboard, his owlkin tufts twitching as he watches Max Nightriver approach. For once he is wide awake, clutching a map and a sheet of vellum. \"The road's clear,\" he says, his grey eyes darting to the Nightriver heir with a mix of recognition and nervousness. \"Four days north, then we break for the foothills.\"\nCed steps forward, his expression as neutral as stone. \"We march in silence until we hit the tree line,\" he says, gesturing toward the open road that leads directly into the dark silhouettes of the Velniran range. \"Save your energy for the Keep.\""
+          },
+          {
+            "messageId": 12,
+            "speaker": "Runo",
+            "isUser": false,
+            "text": "\"Right, right. Silence. Got it.\" *He nods too quickly, nearly falling off the cart. He's fidgeting with the vellum in his hands, eyes flicking between Max and the map.* \"The golems are already pre-charged, by the way. Should be no trouble getting them up to speed by day three.\"\n*Ced shoots him a look—one sharp glance—and Runo immediately stuffs the map into his tunic.* \"Sorry. Silent now.\""
+          }
+        ]
+      }
+    },
+    {
+      "journalLine": 360,
+      "auditId": "9e2f3ef8",
+      "reason": "scene:location",
+      "key": "deep_set_out",
+      "value": "true",
+      "evidence": "An hour later we're at the north gate. We set out with Ced and Runo up the north road.",
+      "recordedAccepted": [
+        "location=deep_north_road@11"
+      ],
+      "rawResponse": "DELTA q=deep_set_out value=true evidence=\"An hour later we're at the north gate. We set out with Ced and Runo up the north road.\"\nDELTA q=location value=\"deep_north_road\" evidence=\"The north gate's grey stone arch looms overhead, still damp from the overnight mist. Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back.\"\nDELTA q=tension_current value=\"stirring\" evidence=\"Ced shoots him a look—one sharp glance—and Runo immediately stuffs the map into his tunic.\"\nFACT importance=3 text=\"Max's party and Crimsonwing set out from Aegis City's north gate at dawn, marching north up the road toward the Velniran foothills.\" evidence=\"An hour later we're at the north gate. We set out with Ced and Runo up the north road.\"\nFACT importance=2 text=\"Ced brings a mule loaded with crates of alchemical supplies and a covered cart packed with Runo's magitech golems.\" evidence=\"Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\"\nFACT importance=2 text=\"Runo says the road north is clear: four days north, then a break for the foothills.\" evidence=\"\"The road's clear,\" he says, his grey eyes darting to the Nightriver heir with a mix of recognition and nervousness. \"Four days north, then we break for the foothills.\"\"\nFACT importance=2 text=\"Ced orders silence on the march until the tree line, to save energy for the Keep.\" evidence=\"We march in silence until we hit the tree line,\" he says, gesturing toward the open road that leads directly into the dark silhouettes of the Velniran range. \"Save your energy for the Keep.\"\"\nFACT importance=1 text=\"Ced offered Max a vial of stimulant that keeps you sharp for twenty-four hours with no crash, as a down payment on performance; Max left it on the counter.\" evidence=\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\"\nMEMORY type=event importance=3 expiration=permanent entity=\"Max Nightriver,Ced,Runo\" text=\"Max's party and Crimsonwing departed Aegis City's north gate at dawn, marching north up the road toward the Velniran foothills fort.\" evidence=\"An hour later we're at the north gate. We set out with Ced and Runo up the north road.\"\nMEMORY type=scene importance=2 expiration=scene entity=\"Ced,Runo\" text=\"At the north gate, Ced waits by a mule of alchemical supplies and a covered cart of Runo's magitech golems; Runo sits on the tailboard with a map and vellum.\" evidence=\"Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Runo\" text=\"Runo says the road north is clear: four days north, then a break for the foothills.\" evidence=\"\"The road's clear,\" he says, his grey eyes darting to the Nightriver heir with a mix of recognition and nervousness. \"Four days north, then we break for the foothills.\"\"\nMEMORY type=development importance=2 expiration=session entity=\"Ced,Runo\" text=\"Ced enforces silence on the march; a single sharp glance makes Runo stuff his map away and stop talking.\" evidence=\"Ced shoots him a look—one sharp glance—and Runo immediately stuffs the map into his tunic.\"\nMEMORY type=detail importance=1 expiration=session entity=\"Ced\" text=\"Ced offered a no-crash twenty-four-hour stimulant vial as a down payment; Max declined it, leaving it on the counter.\" evidence=\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\"\nMEMORY type=detail importance=1 expiration=session entity=\"Kela\" text=\"Kela accepted losing the joint posting flatly and said Ebonwing has work to do.\" evidence=\"Ebonwing has work to do.\"\nSCENE_BREAK at=10 reason=time_skip\n[arc] Ced enforces silence on the march north, keeping Runo and the golems' purpose at the Keep unrevealed.\n[knows] Runo | The road north is clear: four days north, then a break for the foothills.\n[knows] Ced | Runo talks too freely about the golems and must be kept quiet on the march.\n[hiding] Ced from Max Nightriver | The purpose of Runo's magitech golems at the Keep.\n[intends] Ced | March in silence until the tree line and save energy for the Keep.\n[state:Ced:character] posture=relaxed | gear=saw cleaver strapped to back | location=north gate\n[state:Runo:character] state=wide awake | location=cart tailboard | holding=map and vellum\n[state:The Party:character] location=north road | status=departed Aegis City at dawn\n[state:The Partner Party:character] location=north road | status=departed Aegis City at dawn with Max's party",
+      "window": {
+        "from": 5,
+        "to": 12,
+        "messages": [
+          {
+            "messageId": 5,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "Ced's expression didn't shift, but his posture relaxed fractionally, a tension leaving his shoulders. He looked at Max, his red eyes flat and unreadable. \"We leave at dawn. Bring any gear that helps you stay alive and kill faster.\"\n*He reached out and took the contract from Vallie's hand, his movement efficient and brief. His gaze flicked toward Kela—not quite a look of victory, but the acknowledgment of one.* \"Runo will expect punctuality.\""
+          },
+          {
+            "messageId": 6,
+            "speaker": "Kela",
+            "isUser": false,
+            "text": "Kela's red eyes didn't follow Ced's look. Instead, her hand went to the brim of her tricorn hat, a small gesture that was the closest she'd come to showing any reaction at all. \"Understood.\"\n*She stepped back from the counter with a measured grace, her cape settling around her shoulders. Then she turned toward the exit, her voice flat and final.* \"Ebonwing has work to do.\""
+          },
+          {
+            "messageId": 7,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "Ced watched her leave without a word, then turned back to Max. \"Runo and I will be at the north gate in an hour. You can meet us there, or I can send a messenger to fetch you.\"\n*He reached into his coat and produced a small glass vial, the liquid inside a clear, pale amber that caught the light. He set it on the counter between them with a soft click.*\n\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\""
+          },
+          {
+            "messageId": 8,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "I leave the vial on the counter. We'll meet you at the north gate within the hour, then we march."
+          },
+          {
+            "messageId": 9,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "\"We'll be waiting.\"\n*He didn't argue or press the vial further. He simply turned and walked toward the Guild's exit, his tattered black cape sweeping behind him in a single fluid motion.*"
+          },
+          {
+            "messageId": 10,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "An hour later we're at the north gate. We set out with Ced and Runo up the north road."
+          },
+          {
+            "messageId": 11,
+            "speaker": "Adolion Narrator",
+            "isUser": false,
+            "text": "The north gate's grey stone arch looms overhead, still damp from the overnight mist. Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\nRuno sits on the cart's tailboard, his owlkin tufts twitching as he watches Max Nightriver approach. For once he is wide awake, clutching a map and a sheet of vellum. \"The road's clear,\" he says, his grey eyes darting to the Nightriver heir with a mix of recognition and nervousness. \"Four days north, then we break for the foothills.\"\nCed steps forward, his expression as neutral as stone. \"We march in silence until we hit the tree line,\" he says, gesturing toward the open road that leads directly into the dark silhouettes of the Velniran range. \"Save your energy for the Keep.\""
+          },
+          {
+            "messageId": 12,
+            "speaker": "Runo",
+            "isUser": false,
+            "text": "\"Right, right. Silence. Got it.\" *He nods too quickly, nearly falling off the cart. He's fidgeting with the vellum in his hands, eyes flicking between Max and the map.* \"The golems are already pre-charged, by the way. Should be no trouble getting them up to speed by day three.\"\n*Ced shoots him a look—one sharp glance—and Runo immediately stuffs the map into his tunic.* \"Sorry. Silent now.\""
+          }
+        ]
+      }
+    },
+    {
+      "journalLine": 386,
+      "auditId": "bae5c1a5",
+      "reason": "cue:deep-with-crimsonwing->deep-the-north-road",
+      "key": "deep_set_out",
+      "value": "true",
+      "evidence": "We set out with Ced and Runo up the north road.",
+      "recordedAccepted": [
+        "location=deep_north_road@11"
+      ],
+      "rawResponse": "DELTA q=deep_set_out value=true evidence=\"We set out with Ced and Runo up the north road.\"\nDELTA q=location value=\"deep_north_road\" evidence=\"We set out with Ced and Runo up the north road.\"\nDELTA q=tension_current value=\"stirring\" evidence=\"We march in silence until we hit the tree line\"\nFACT importance=3 text=\"Max's party and Crimsonwing set out from Aegis City's north gate at dawn, marching north up the road toward the Velniran foothills.\" evidence=\"We set out with Ced and Runo up the north road.\"\nFACT importance=2 text=\"Ced offered Max a twenty-four-hour stimulant as a down payment on performance, which Max declined by leaving it on the counter.\" evidence=\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\"\nFACT importance=2 text=\"Ced's party hauls a mule of alchemical supplies and a covered cart of Runo's magitech golems north.\" evidence=\"packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\"\nFACT importance=2 text=\"Runo says the road north is clear, four days to the foothills.\" evidence=\"Four days north, then we break for the foothills.\"\nFACT importance=2 text=\"Ced enforces silence on the march until the tree line.\" evidence=\"We march in silence until we hit the tree line\"\nMEMORY type=event importance=3 expiration=permanent entity=\"Ced,Runo,Max Nightriver\" text=\"Max's party departed Aegis City's north gate with Ced and Runo of Crimsonwing, marching north toward the Velniran foothills fort.\" evidence=\"We set out with Ced and Runo up the north road.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Ced,Max Nightriver\" text=\"Ced offered Max a pale amber stimulant vial that keeps the drinker sharp for twenty-four hours with no crash, as a down payment; Max left it on the counter.\" evidence=\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Runo,Ced\" text=\"Runo's magitech golems ride in a covered cart, pre-charged and expected to be up to speed by day three.\" evidence=\"The golems are already pre-charged, by the way. Should be no trouble getting them up to speed by day three.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Ced\" text=\"Ced orders silence on the march until the tree line, and keeps Runo from discussing technicals.\" evidence=\"We march in silence until we hit the tree line\"\nMEMORY type=scene importance=2 expiration=scene entity=\"Ced,Runo\" text=\"At the north gate, Ced waits by a mule of alchemical crates and a covered cart of golems; Runo sits on the tailboard with a map and vellum.\" evidence=\"Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back.\"\nMEMORY type=development importance=2 expiration=session entity=\"Ced,Max Nightriver\" text=\"Ced is measuring Max — how they carry themselves and move — to judge whether they will be a liability or an asset in a fight.\" evidence=\"He's assessing how this new partner carries themselves, how they move, whether they'll be a liability or an asset when the fighting starts.\"\nMEMORY type=detail importance=1 expiration=session entity=\"Runo\" text=\"Runo is wide awake for once, nervous around Max, and fidgets with his map until Ced silences him.\" evidence=\"For once he is wide awake, clutching a map and a sheet of vellum.\"\n[knows] Max Nightriver | Ced's party hauls alchemical supplies and Runo's magitech golems north for the fort operation\n[knows] Max Nightriver | Ced enforces silence on the march until the tree line\n[intends] Ced | reach the Velniran foothills fort with the golems and supplies, keeping the march silent and disciplined\n[intends] Runo | get the golems up to speed by day three on the march north\n[state:Ced:character] role=leader of Crimsonwing | weapon=saw cleaver | location=north road out of Aegis City\n[state:Runo:character] role=Crimsonwing's owlkin magitech wizard | location=north road out of Aegis City | state=wide awake, nervous\n[state:The Party:character] location=north road out of Aegis City | status=departed north gate with Crimsonwing\nSCENE_BREAK at=10 reason=time_skip\n[arc] Ced keeps Runo and the golems' purpose quiet, enforcing silence on the march north.\n[arc] The four-day march north to the Velniran foothills fort must be completed with the golems and alchemical supplies intact.",
+      "window": {
+        "from": 6,
+        "to": 13,
+        "messages": [
+          {
+            "messageId": 6,
+            "speaker": "Kela",
+            "isUser": false,
+            "text": "Kela's red eyes didn't follow Ced's look. Instead, her hand went to the brim of her tricorn hat, a small gesture that was the closest she'd come to showing any reaction at all. \"Understood.\"\n*She stepped back from the counter with a measured grace, her cape settling around her shoulders. Then she turned toward the exit, her voice flat and final.* \"Ebonwing has work to do.\""
+          },
+          {
+            "messageId": 7,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "Ced watched her leave without a word, then turned back to Max. \"Runo and I will be at the north gate in an hour. You can meet us there, or I can send a messenger to fetch you.\"\n*He reached into his coat and produced a small glass vial, the liquid inside a clear, pale amber that caught the light. He set it on the counter between them with a soft click.*\n\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\""
+          },
+          {
+            "messageId": 8,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "I leave the vial on the counter. We'll meet you at the north gate within the hour, then we march."
+          },
+          {
+            "messageId": 9,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "\"We'll be waiting.\"\n*He didn't argue or press the vial further. He simply turned and walked toward the Guild's exit, his tattered black cape sweeping behind him in a single fluid motion.*"
+          },
+          {
+            "messageId": 10,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "An hour later we're at the north gate. We set out with Ced and Runo up the north road."
+          },
+          {
+            "messageId": 11,
+            "speaker": "Adolion Narrator",
+            "isUser": false,
+            "text": "The north gate's grey stone arch looms overhead, still damp from the overnight mist. Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\nRuno sits on the cart's tailboard, his owlkin tufts twitching as he watches Max Nightriver approach. For once he is wide awake, clutching a map and a sheet of vellum. \"The road's clear,\" he says, his grey eyes darting to the Nightriver heir with a mix of recognition and nervousness. \"Four days north, then we break for the foothills.\"\nCed steps forward, his expression as neutral as stone. \"We march in silence until we hit the tree line,\" he says, gesturing toward the open road that leads directly into the dark silhouettes of the Velniran range. \"Save your energy for the Keep.\""
+          },
+          {
+            "messageId": 12,
+            "speaker": "Runo",
+            "isUser": false,
+            "text": "\"Right, right. Silence. Got it.\" *He nods too quickly, nearly falling off the cart. He's fidgeting with the vellum in his hands, eyes flicking between Max and the map.* \"The golems are already pre-charged, by the way. Should be no trouble getting them up to speed by day three.\"\n*Ced shoots him a look—one sharp glance—and Runo immediately stuffs the map into his tunic.* \"Sorry. Silent now.\""
+          },
+          {
+            "messageId": 13,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "\"Runo.\" *His voice isn't raised, but the way he says it is enough to make the owlkin freeze mid-fidget.* \"Save the technicals for the march. Right now we need to focus on getting out of the city.\"\n*He adjusts the strap of the Saw Cleaver on his back, the movement crisp and efficient. His red eyes fix on the road ahead, then slide sideways to Max—not quite a glance, more of a measurement. He's assessing how this new partner carries themselves, how they move, whether they'll be a liability or an asset when the fighting starts.*\n\"We'll stick to a steady pace. Keep your distance from the mule and the cart. If anything happens on the road, I want clear lines of sight.\""
+          }
+        ]
+      }
+    },
+    {
+      "journalLine": 481,
+      "auditId": "738bccc8",
+      "reason": "reconcile:deep_set_out",
+      "key": "deep_set_out",
+      "value": "true",
+      "evidence": "We fall in behind the cart and leave the city.",
+      "recordedAccepted": [
+        "location=deep_north_road@15"
+      ],
+      "rawResponse": "DELTA q=deep_set_out value=true evidence=\"We fall in behind the cart and leave the city.\"\nDELTA q=location value=\"deep_north_road\" evidence=\"We fall in behind the cart and leave the city.\"\nFACT importance=3 text=\"Max's party and Crimsonwing left Aegis City through the north gate and set out up the north road toward the Velniran foothills.\" evidence=\"We fall in behind the cart and leave the city.\"\nFACT importance=2 text=\"Ced offered Max a vial of stimulant that keeps you sharp for twenty-four hours with no crash, as a down payment on performance; Max left it on the counter.\" evidence=\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\"\nFACT importance=2 text=\"Ced and Runo waited at the north gate with a mule loaded with crates of alchemical supplies and a covered cart packed with Runo's magitech golems.\" evidence=\"Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\"\nFACT importance=2 text=\"Runo says the road is clear: four days north, then they break for the foothills.\" evidence=\"The road's clear,\" he says, his grey eyes darting to the Nightriver heir with a mix of recognition and nervousness. \"Four days north, then we break for the foothills.\"\nFACT importance=2 text=\"Ced ordered silence until the tree line and told the party to keep clear lines of sight from the mule and cart.\" evidence=\"We march in silence until we hit the tree line,\" he says, gesturing toward the open road that leads directly into the dark silhouettes of the Velniran range. \"Save your energy for the Keep.\"\nFACT importance=2 text=\"Runo says the golems are pre-charged and should be up to speed by day three.\" evidence=\"The golems are already pre-charged, by the way. Should be no trouble getting them up to speed by day three.\"\nFACT importance=3 text=\"Runo blames himself for a failed last expedition and for failing the last member of Crimsonwing.\" evidence=\"It's my fault. All of it. I-I should have made the golems faster, or stronger, or—\" *He wipes at his eyes with the back of his hand, voice cracking.* \"Ced didn't want to cut anyone, but it's better if... if we're small. Efficient. I failed the last member. I failed everyone.\"\nMEMORY type=event importance=3 expiration=permanent entity=\"Max Nightriver,Ced,Runo\" text=\"Max's party and Crimsonwing left Aegis City by the north gate at dawn and set out up the north road with the mule, alchemical supplies, and the golem cart.\" evidence=\"We fall in behind the cart and leave the city.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Ced,Max Nightriver\" text=\"Ced offered Max a pale amber stimulant vial good for twenty-four hours with no crash; Max declined it and left it on the counter.\" evidence=\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Ced,Runo\" text=\"Ced travels with a mule of alchemical crates and a covered cart of Runo's pre-charged magitech golems.\" evidence=\"Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Runo\" text=\"Runo estimates four days north before they break for the foothills, and says the golems should be up to speed by day three.\" evidence=\"The road's clear,\" he says, his grey eyes darting to the Nightriver heir with a mix of recognition and nervousness. \"Four days north, then we break for the foothills.\"\nMEMORY type=revelation importance=3 expiration=permanent entity=\"Runo,Ced\" text=\"Runo blames himself for a failed last expedition and for failing the last member of Crimsonwing; he says Ced didn't want to cut anyone.\" evidence=\"It's my fault. All of it. I-I should have made the golems faster, or stronger, or—\" *He wipes at his eyes with the back of his hand, voice cracking.* \"Ced didn't want to cut anyone, but it's better if... if we're small. Efficient. I failed the last member. I failed everyone.\"\nMEMORY type=development importance=2 expiration=session entity=\"Ced,Max Nightriver\" text=\"Ced is quietly measuring Max — how they move and carry themselves — to judge whether they will be a liability or an asset in a fight.\" evidence=\"His red eyes fix on the road ahead, then slide sideways to Max—not quite a glance, more of a measurement. He's assessing how this new partner carries themselves, how they move, whether they'll be a liability or an asset when the fighting starts.\"\nSCENE_BREAK at=10 reason=time_skip\n[knows] Max Nightriver | Runo blames himself for a failed last expedition and for failing the last member of Crimsonwing\n[knows] Max Nightriver | Ced wants silence until the tree line and clear lines of sight from the mule and cart\n[hiding] Runo from Ced | that he told Max about his guilt over the failed last expedition and the last member\n[intends] Ced | march in silence until the tree line and save energy for the Keep\n[intends] Runo | keep quiet about the technicals on the march as Ced ordered\n[state:Ced:character] role=leader of Crimsonwing | equipment=saw cleaver | location=north road out of Aegis City | demeanor=neutral, assessing\n[state:Runo:character] role=Crimsonwing's magitech wizard | location=cart tailboard on the north road | demeanor=nervous, tearful\n[state:Max Nightriver:character] location=north road out of Aegis City | role=leader of the party\n[state:The Party:character] location=north road out of Aegis City | status=departed Aegis City by the north gate\n[state:The Partner Party:character] location=north road out of Aegis City | status=Crimsonwing departed with Max's party\n[arc] Runo's guilt over the failed last expedition and the lost Crimsonwing member is unresolved and may surface again on the march.\n[arc] Ced is quietly evaluating whether Max's party will be an asset or a liability before the fighting starts.\n[arc] Runo's slip about the golems' technicals hints at a purpose for them at the Keep that Ced is keeping quiet.",
+      "window": {
+        "from": 7,
+        "to": 15,
+        "messages": [
+          {
+            "messageId": 7,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "Ced watched her leave without a word, then turned back to Max. \"Runo and I will be at the north gate in an hour. You can meet us there, or I can send a messenger to fetch you.\"\n*He reached into his coat and produced a small glass vial, the liquid inside a clear, pale amber that caught the light. He set it on the counter between them with a soft click.*\n\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\""
+          },
+          {
+            "messageId": 8,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "I leave the vial on the counter. We'll meet you at the north gate within the hour, then we march."
+          },
+          {
+            "messageId": 9,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "\"We'll be waiting.\"\n*He didn't argue or press the vial further. He simply turned and walked toward the Guild's exit, his tattered black cape sweeping behind him in a single fluid motion.*"
+          },
+          {
+            "messageId": 10,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "An hour later we're at the north gate. We set out with Ced and Runo up the north road."
+          },
+          {
+            "messageId": 11,
+            "speaker": "Adolion Narrator",
+            "isUser": false,
+            "text": "The north gate's grey stone arch looms overhead, still damp from the overnight mist. Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\nRuno sits on the cart's tailboard, his owlkin tufts twitching as he watches Max Nightriver approach. For once he is wide awake, clutching a map and a sheet of vellum. \"The road's clear,\" he says, his grey eyes darting to the Nightriver heir with a mix of recognition and nervousness. \"Four days north, then we break for the foothills.\"\nCed steps forward, his expression as neutral as stone. \"We march in silence until we hit the tree line,\" he says, gesturing toward the open road that leads directly into the dark silhouettes of the Velniran range. \"Save your energy for the Keep.\""
+          },
+          {
+            "messageId": 12,
+            "speaker": "Runo",
+            "isUser": false,
+            "text": "\"Right, right. Silence. Got it.\" *He nods too quickly, nearly falling off the cart. He's fidgeting with the vellum in his hands, eyes flicking between Max and the map.* \"The golems are already pre-charged, by the way. Should be no trouble getting them up to speed by day three.\"\n*Ced shoots him a look—one sharp glance—and Runo immediately stuffs the map into his tunic.* \"Sorry. Silent now.\""
+          },
+          {
+            "messageId": 13,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "\"Runo.\" *His voice isn't raised, but the way he says it is enough to make the owlkin freeze mid-fidget.* \"Save the technicals for the march. Right now we need to focus on getting out of the city.\"\n*He adjusts the strap of the Saw Cleaver on his back, the movement crisp and efficient. His red eyes fix on the road ahead, then slide sideways to Max—not quite a glance, more of a measurement. He's assessing how this new partner carries themselves, how they move, whether they'll be a liability or an asset when the fighting starts.*\n\"We'll stick to a steady pace. Keep your distance from the mule and the cart. If anything happens on the road, I want clear lines of sight.\""
+          },
+          {
+            "messageId": 14,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "We fall in behind the cart and leave the city. A few miles out I drop back beside the cart. Runo, what does your leader not say about the last expedition?"
+          },
+          {
+            "messageId": 15,
+            "speaker": "Runo",
+            "isUser": false,
+            "text": "*Runo's tufts spike upright, and he makes a soft squawking sound.* \"I-I don't—\" *He shoots a glance forward, watching Ced's broad shoulders a few dozen paces ahead.* \"Ced's... he's very thorough with his plans, but—\"\n*The words tangle in his throat, and his grey eyes go wet. He looks away, staring at the churning cart wheel.* \"It's my fault. All of it. I-I should have made the golems faster, or stronger, or—\" *He wipes at his eyes with the back of his hand, voice cracking.* \"Ced didn't want to cut anyone, but it's better if... if we're small. Efficient. I failed the last member. I failed everyone.\""
+          }
+        ]
+      }
+    },
+    {
+      "journalLine": 502,
+      "auditId": "98ab1ad1",
+      "reason": "cadence",
+      "key": "deep_set_out",
+      "value": "true",
+      "evidence": "We fall in behind the cart and leave the city.",
+      "recordedAccepted": [
+        "location=deep_north_road@16"
+      ],
+      "rawResponse": "DELTA q=deep_set_out value=true evidence=\"We fall in behind the cart and leave the city.\"\nDELTA q=location value=\"deep_north_road\" evidence=\"The road ahead is more dangerous than the one we've traveled.\"\nMEMORY type=scene importance=2 expiration=scene entity=\"Ced,Runo,Max Nightriver\" text=\"On the north road out of Aegis City, Ced orders Runo to save the golem technicals for the march and to focus on getting out of the city.\" evidence=\"Save the technicals for the march. Right now we need to focus on getting out of the city.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Ced\" text=\"Ced sets marching discipline: steady pace, keep distance from the mule and cart, clear lines of sight if anything happens on the road.\" evidence=\"We'll stick to a steady pace. Keep your distance from the mule and the cart. If anything happens on the road, I want clear lines of sight.\"\nMEMORY type=revelation importance=3 expiration=permanent entity=\"Runo\" text=\"Runo blames himself for the failed last expedition, saying he should have made the golems faster or stronger and that he failed the last member of Crimsonwing.\" evidence=\"It's my fault. All of it. I-I should have made the golems faster, or stronger, or—\"\nMEMORY type=detail importance=2 expiration=session entity=\"Ced,Runo\" text=\"Ced silently closes the distance to the cart and reassigns Runo to walk behind the mule, without acknowledging the conversation that just happened.\" evidence=\"Walk behind the mule. You're too far back.\"\nMEMORY type=development importance=2 expiration=session entity=\"Ced,Max Nightriver\" text=\"Ced continues quietly assessing Max, watching how the new partner carries themselves and whether they will be a liability or an asset when fighting starts.\" evidence=\"He's assessing how this new partner carries themselves, how they move, whether they'll be a liability or an asset when the fighting starts.\"\nMEMORY type=detail importance=1 expiration=session entity=\"Ced\" text=\"Ced warns that the road ahead is more dangerous than the one already traveled and tells the party to keep eyes on the horizon, not the cart.\" evidence=\"The road ahead is more dangerous than the one we've traveled. Keep your eyes on the horizon and not on the cart.\"\n[knows] Max Nightriver | Runo blames himself for the failed last expedition and the loss of the last Crimsonwing member\n[knows] Ced | Max questioned Runo about the last expedition\n[hiding] Ced from Max Nightriver | the purpose of the golems and alchemical supplies\n[intends] Ced | keep the party focused on leaving the city and maintain marching discipline on the road\nSCENE_NONE\n[arc] Runo's guilt over the failed expedition has surfaced openly to Max, and Ced's silent correction suggests he does not want it discussed on the march.",
+      "window": {
+        "from": 13,
+        "to": 16,
+        "messages": [
+          {
+            "messageId": 13,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "\"Runo.\" *His voice isn't raised, but the way he says it is enough to make the owlkin freeze mid-fidget.* \"Save the technicals for the march. Right now we need to focus on getting out of the city.\"\n*He adjusts the strap of the Saw Cleaver on his back, the movement crisp and efficient. His red eyes fix on the road ahead, then slide sideways to Max—not quite a glance, more of a measurement. He's assessing how this new partner carries themselves, how they move, whether they'll be a liability or an asset when the fighting starts.*\n\"We'll stick to a steady pace. Keep your distance from the mule and the cart. If anything happens on the road, I want clear lines of sight.\""
+          },
+          {
+            "messageId": 14,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "We fall in behind the cart and leave the city. A few miles out I drop back beside the cart. Runo, what does your leader not say about the last expedition?"
+          },
+          {
+            "messageId": 15,
+            "speaker": "Runo",
+            "isUser": false,
+            "text": "*Runo's tufts spike upright, and he makes a soft squawking sound.* \"I-I don't—\" *He shoots a glance forward, watching Ced's broad shoulders a few dozen paces ahead.* \"Ced's... he's very thorough with his plans, but—\"\n*The words tangle in his throat, and his grey eyes go wet. He looks away, staring at the churning cart wheel.* \"It's my fault. All of it. I-I should have made the golems faster, or stronger, or—\" *He wipes at his eyes with the back of his hand, voice cracking.* \"Ced didn't want to cut anyone, but it's better if... if we're small. Efficient. I failed the last member. I failed everyone.\""
+          },
+          {
+            "messageId": 16,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "*The distance between Ced and the cart has been closing for the past few minutes—not rushing, but narrowing with an efficient, steady stride. He stops and turns, his red eyes fixed on Max as his voice carries back across the road.*\n\"Runo.\"\n*The owlkin immediately straightens, nearly spilling off the tailboard.*\n\"Walk behind the mule. You're too far back.\"\n*Ced doesn't elaborate, doesn't acknowledge the conversation that clearly just happened. He simply waits for Runo to comply, his gaze sliding to Max with the same unreadable assessment it's carried since the gate. Then he gestures forward.*\n\"The road ahead is more dangerous than the one we've traveled. Keep your eyes on the horizon and not on the cart.\""
+          }
+        ]
+      }
+    },
+    {
+      "journalLine": 543,
+      "auditId": "d32b07e9",
+      "reason": "cue:deep-with-crimsonwing->deep-the-north-road",
+      "key": "deep_set_out",
+      "value": "true",
+      "evidence": "We fall in behind the cart and leave the city.",
+      "recordedAccepted": [
+        "location=deep_north_road@18"
+      ],
+      "rawResponse": "DELTA q=deep_set_out value=true evidence=\"We fall in behind the cart and leave the city.\"\nDELTA q=location value=\"deep_north_road\" evidence=\"The road gradually ascends as they move farther from Aegis City, the air growing thinner and colder with each passing day.\"\nDELTA q=party_injuries value=0 evidence=\"Ced maintains the same disciplined pace, his eyes constantly scanning the treeline for movement.\"\nDELTA q=tension_current value=\"stirring\" evidence=\"Ced halts the party at a fork in the road. He retrieves a sheet of vellum from his coat and spreads it across the cart's tailboard, his finger tracing a line upward toward the foothills.\"\nFACT importance=3 text=\"Max's party and Crimsonwing marched four days north from Aegis City, reaching a fork in the road where the forest thins and the Velniran range comes into view.\" evidence=\"On the morning of the fourth day, the forest begins to thin, revealing a glimpse of the Velniran range.\"\nFACT importance=2 text=\"Runo told Max that the failed last expedition was his fault and that he failed the last member of Crimsonwing.\" evidence=\"It's my fault. All of it. I-I should have made the golems faster, or stronger, or—\"\nFACT importance=2 text=\"Ced interrupted Runo's confession by ordering him to walk behind the mule, without acknowledging the conversation.\" evidence=\"Walk behind the mule. You're too far back.\"\nMEMORY type=scene importance=2 expiration=scene entity=\"Ced,Runo\" text=\"The party set out from Aegis City's north gate at dawn with a mule of alchemical crates and a covered cart of Runo's magitech golems.\" evidence=\"Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back.\"\nMEMORY type=revelation importance=3 expiration=permanent entity=\"Runo\" character=\"runo\" text=\"Runo blames himself for the failed last expedition and for failing the last member of Crimsonwing.\" evidence=\"I failed the last member. I failed everyone.\"\nMEMORY type=development importance=2 expiration=session entity=\"Ced,Runo\" text=\"Ced cut Runo's confession short by reassigning him to walk behind the mule, signaling he does not want it discussed on the march.\" evidence=\"Ced doesn't elaborate, doesn't acknowledge the conversation that clearly just happened.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Runo\" text=\"Runo said the golems are pre-charged and should be up to speed by day three.\" evidence=\"The golems are already pre-charged, by the way. Should be no trouble getting them up to speed by day three.\"\nMEMORY type=scene importance=2 expiration=scene entity=\"Ced\" text=\"On the fourth morning the party reached a fork in the road; Ced halted them and traced a route up toward the foothills on vellum.\" evidence=\"Ced halts the party at a fork in the road.\"\nMEMORY type=detail importance=1 expiration=session entity=\"Ced\" text=\"Ced ordered the party to keep distance from the mule and cart for clear lines of sight on the road.\" evidence=\"Keep your distance from the mule and the cart. If anything happens on the road, I want clear lines of sight.\"\nSCENE_BREAK at=18 reason=time_skip\n[arc] Ced is concealing the true purpose of the golems and alchemical supplies at the Keep, and Runo nearly revealed technicals before being silenced.\n[arc] Runo's guilt over the failed expedition and the lost Crimsonwing member remains raw and was cut off by Ced before it could be fully told.\n[knows] Max Nightriver | Runo blames himself for the failed last expedition and the loss of the last Crimsonwing member\n[knows] Max Nightriver | Ced does not want the failed expedition discussed on the march\n[hiding] Ced from Max Nightriver | the true purpose of the golems and alchemical supplies at the Keep\n[intends] Ced | reach the Velniran foothills fort with the golems and supplies intact and assess whether Max's party is an asset\n[state:Ced:character] role=leader of Crimsonwing | demeanor=disciplined, watchful | weapon=Saw Cleaver\n[state:Runo:character] role=Crimsonwing wizard | mood=guilt-ridden, nervous | position=behind the mule\n[state:The Party:character] location=north road, fork toward Velniran foothills | status=uninjured, marching",
+      "window": {
+        "from": 11,
+        "to": 18,
+        "messages": [
+          {
+            "messageId": 11,
+            "speaker": "Adolion Narrator",
+            "isUser": false,
+            "text": "The north gate's grey stone arch looms overhead, still damp from the overnight mist. Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\nRuno sits on the cart's tailboard, his owlkin tufts twitching as he watches Max Nightriver approach. For once he is wide awake, clutching a map and a sheet of vellum. \"The road's clear,\" he says, his grey eyes darting to the Nightriver heir with a mix of recognition and nervousness. \"Four days north, then we break for the foothills.\"\nCed steps forward, his expression as neutral as stone. \"We march in silence until we hit the tree line,\" he says, gesturing toward the open road that leads directly into the dark silhouettes of the Velniran range. \"Save your energy for the Keep.\""
+          },
+          {
+            "messageId": 12,
+            "speaker": "Runo",
+            "isUser": false,
+            "text": "\"Right, right. Silence. Got it.\" *He nods too quickly, nearly falling off the cart. He's fidgeting with the vellum in his hands, eyes flicking between Max and the map.* \"The golems are already pre-charged, by the way. Should be no trouble getting them up to speed by day three.\"\n*Ced shoots him a look—one sharp glance—and Runo immediately stuffs the map into his tunic.* \"Sorry. Silent now.\""
+          },
+          {
+            "messageId": 13,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "\"Runo.\" *His voice isn't raised, but the way he says it is enough to make the owlkin freeze mid-fidget.* \"Save the technicals for the march. Right now we need to focus on getting out of the city.\"\n*He adjusts the strap of the Saw Cleaver on his back, the movement crisp and efficient. His red eyes fix on the road ahead, then slide sideways to Max—not quite a glance, more of a measurement. He's assessing how this new partner carries themselves, how they move, whether they'll be a liability or an asset when the fighting starts.*\n\"We'll stick to a steady pace. Keep your distance from the mule and the cart. If anything happens on the road, I want clear lines of sight.\""
+          },
+          {
+            "messageId": 14,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "We fall in behind the cart and leave the city. A few miles out I drop back beside the cart. Runo, what does your leader not say about the last expedition?"
+          },
+          {
+            "messageId": 15,
+            "speaker": "Runo",
+            "isUser": false,
+            "text": "*Runo's tufts spike upright, and he makes a soft squawking sound.* \"I-I don't—\" *He shoots a glance forward, watching Ced's broad shoulders a few dozen paces ahead.* \"Ced's... he's very thorough with his plans, but—\"\n*The words tangle in his throat, and his grey eyes go wet. He looks away, staring at the churning cart wheel.* \"It's my fault. All of it. I-I should have made the golems faster, or stronger, or—\" *He wipes at his eyes with the back of his hand, voice cracking.* \"Ced didn't want to cut anyone, but it's better if... if we're small. Efficient. I failed the last member. I failed everyone.\""
+          },
+          {
+            "messageId": 16,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "*The distance between Ced and the cart has been closing for the past few minutes—not rushing, but narrowing with an efficient, steady stride. He stops and turns, his red eyes fixed on Max as his voice carries back across the road.*\n\"Runo.\"\n*The owlkin immediately straightens, nearly spilling off the tailboard.*\n\"Walk behind the mule. You're too far back.\"\n*Ced doesn't elaborate, doesn't acknowledge the conversation that clearly just happened. He simply waits for Runo to comply, his gaze sliding to Max with the same unreadable assessment it's carried since the gate. Then he gestures forward.*\n\"The road ahead is more dangerous than the one we've traveled. Keep your eyes on the horizon and not on the cart.\""
+          },
+          {
+            "messageId": 17,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "I nod to Ced and keep my eyes on the horizon. We keep marching north for the next few days."
+          },
+          {
+            "messageId": 18,
+            "speaker": "Adolion Narrator",
+            "isUser": false,
+            "text": "The road gradually ascends as they move farther from Aegis City, the air growing thinner and colder with each passing day. On the second day, the tree line begins to thicken, the forest swallowing the road in a canopy of pine and dark fir. On the third, the road narrows to a rutted track through the woods.\nCed maintains the same disciplined pace, his eyes constantly scanning the treeline for movement. The mule plods ahead, carrying its crates of alchemical supplies, while Runo walks in silence behind it, his owl-tufts twitching at every snap of a twig or call of a bird. The cart's golems remain packed under the canvas, their brass joints clicking softly as the vehicle jostles over roots and stones.\nOn the morning of the fourth day, the forest begins to thin, revealing a glimpse of the Velniran range. Grey granite peaks rise in the distance, their summits capped in year-round snow. The foothills are closer now—a broken landscape of rolling hills and jagged outcrops.\nCed halts the party at a fork in the road. He retrieves a sheet of vellum from his coat and spreads it across the cart's tailboard, his finger tracing a line upward toward the foothills."
+          }
+        ]
+      }
+    },
+    {
+      "journalLine": 556,
+      "auditId": "f30a95f8",
+      "reason": "scene:judge",
+      "key": "deep_set_out",
+      "value": "true",
+      "evidence": "We fall in behind the cart and leave the city.",
+      "recordedAccepted": [
+        "location=deep_north_road@18"
+      ],
+      "rawResponse": "DELTA q=deep_set_out value=true evidence=\"We fall in behind the cart and leave the city.\"\nDELTA q=location value=\"deep_north_road\" evidence=\"The road gradually ascends as they move farther from Aegis City, the air growing thinner and colder with each passing day.\"\nDELTA q=party_injuries value=0 evidence=\"Ced maintains the same disciplined pace, his eyes constantly scanning the treeline for movement.\"\nDELTA q=tension_current value=\"stirring\" evidence=\"Ced halts the party at a fork in the road. He retrieves a sheet of vellum from his coat and spreads it across the cart's tailboard, his finger tracing a line upward toward the foothills.\"\nFACT importance=3 text=\"Max's party and Crimsonwing marched four days north from Aegis City, reaching a fork in the road where the Velniran foothills come into view.\" evidence=\"On the morning of the fourth day, the forest begins to thin, revealing a glimpse of the Velniran range.\"\nFACT importance=2 text=\"Runo told Max that the failed last expedition was his fault and that he failed the last member of Crimsonwing.\" evidence=\"It's my fault. All of it. I-I should have made the golems faster, or stronger, or—\"\nFACT importance=2 text=\"Ced cut off Runo's confession by ordering him to walk behind the mule, refusing to acknowledge the conversation.\" evidence=\"Walk behind the mule. You're too far back.\"\nMEMORY type=scene importance=2 expiration=scene entity=\"Ced,Runo\" text=\"The party set out from Aegis City's north gate at dawn with a mule of alchemical supplies and a covered cart of Runo's magitech golems.\" evidence=\"Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back.\"\nMEMORY type=revelation importance=3 expiration=permanent entity=\"Runo\" text=\"Runo blames himself for the failed last expedition and for failing the last member of Crimsonwing.\" evidence=\"I failed the last member. I failed everyone.\"\nMEMORY type=development importance=2 expiration=session entity=\"Ced,Runo\" text=\"Ced silenced Runo's confession about the failed expedition by reassigning him to walk behind the mule, making clear he does not want it discussed on the march.\" evidence=\"Ced doesn't elaborate, doesn't acknowledge the conversation that clearly just happened.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Ced\" text=\"Ced told the party to march in silence until the tree line and to keep clear lines of sight from the mule and cart.\" evidence=\"We march in silence until we hit the tree line,\"\nMEMORY type=detail importance=1 expiration=session entity=\"Runo\" text=\"Runo said the golems are pre-charged and should be up to speed by day three.\" evidence=\"The golems are already pre-charged, by the way. Should be no trouble getting them up to speed by day three.\"\nMEMORY type=scene importance=2 expiration=scene entity=\"Ced\" text=\"On the fourth day the party reached a fork in the road with the snow-capped Velniran range in view, and Ced halted them to consult a map.\" evidence=\"Ced halts the party at a fork in the road.\"\nSCENE_BREAK at=18 reason=time_skip\n[arc] Ced is concealing the true purpose of the golems and alchemical supplies at the Keep, and Runo nearly revealed technicals before being silenced.\n[arc] Runo's guilt over the failed expedition and the lost Crimsonwing member remains raw and was cut off by Ced before it could be fully told.\n[arc] At the fork in the road on the fourth day, Ced is consulting his map to choose the route into the Velniran foothills toward the fort.\n[knows] Max Nightriver | Runo blames himself for the failed last expedition and the lost Crimsonwing member\n[knows] Max Nightriver | Ced does not want the failed expedition discussed on the march\n[hiding] Ced from Max Nightriver | the true purpose of the golems and alchemical supplies at the Keep\n[intends] Ced | keep the party silent and focused on reaching the Keep, saving technicals for the march\n[state:Ced:character] role=leader of Crimsonwing | weapon=saw cleaver | demeanor=disciplined, unreadable\n[state:Runo:character] role=Crimsonwing's owlkin magitech wizard | demeanor=guilt-ridden, nervous\n[state:The Party:character] location=north road, fork toward the Velniran foothills | status=uninjured, marching north",
+      "window": {
+        "from": 11,
+        "to": 18,
+        "messages": [
+          {
+            "messageId": 11,
+            "speaker": "Adolion Narrator",
+            "isUser": false,
+            "text": "The north gate's grey stone arch looms overhead, still damp from the overnight mist. Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\nRuno sits on the cart's tailboard, his owlkin tufts twitching as he watches Max Nightriver approach. For once he is wide awake, clutching a map and a sheet of vellum. \"The road's clear,\" he says, his grey eyes darting to the Nightriver heir with a mix of recognition and nervousness. \"Four days north, then we break for the foothills.\"\nCed steps forward, his expression as neutral as stone. \"We march in silence until we hit the tree line,\" he says, gesturing toward the open road that leads directly into the dark silhouettes of the Velniran range. \"Save your energy for the Keep.\""
+          },
+          {
+            "messageId": 12,
+            "speaker": "Runo",
+            "isUser": false,
+            "text": "\"Right, right. Silence. Got it.\" *He nods too quickly, nearly falling off the cart. He's fidgeting with the vellum in his hands, eyes flicking between Max and the map.* \"The golems are already pre-charged, by the way. Should be no trouble getting them up to speed by day three.\"\n*Ced shoots him a look—one sharp glance—and Runo immediately stuffs the map into his tunic.* \"Sorry. Silent now.\""
+          },
+          {
+            "messageId": 13,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "\"Runo.\" *His voice isn't raised, but the way he says it is enough to make the owlkin freeze mid-fidget.* \"Save the technicals for the march. Right now we need to focus on getting out of the city.\"\n*He adjusts the strap of the Saw Cleaver on his back, the movement crisp and efficient. His red eyes fix on the road ahead, then slide sideways to Max—not quite a glance, more of a measurement. He's assessing how this new partner carries themselves, how they move, whether they'll be a liability or an asset when the fighting starts.*\n\"We'll stick to a steady pace. Keep your distance from the mule and the cart. If anything happens on the road, I want clear lines of sight.\""
+          },
+          {
+            "messageId": 14,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "We fall in behind the cart and leave the city. A few miles out I drop back beside the cart. Runo, what does your leader not say about the last expedition?"
+          },
+          {
+            "messageId": 15,
+            "speaker": "Runo",
+            "isUser": false,
+            "text": "*Runo's tufts spike upright, and he makes a soft squawking sound.* \"I-I don't—\" *He shoots a glance forward, watching Ced's broad shoulders a few dozen paces ahead.* \"Ced's... he's very thorough with his plans, but—\"\n*The words tangle in his throat, and his grey eyes go wet. He looks away, staring at the churning cart wheel.* \"It's my fault. All of it. I-I should have made the golems faster, or stronger, or—\" *He wipes at his eyes with the back of his hand, voice cracking.* \"Ced didn't want to cut anyone, but it's better if... if we're small. Efficient. I failed the last member. I failed everyone.\""
+          },
+          {
+            "messageId": 16,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "*The distance between Ced and the cart has been closing for the past few minutes—not rushing, but narrowing with an efficient, steady stride. He stops and turns, his red eyes fixed on Max as his voice carries back across the road.*\n\"Runo.\"\n*The owlkin immediately straightens, nearly spilling off the tailboard.*\n\"Walk behind the mule. You're too far back.\"\n*Ced doesn't elaborate, doesn't acknowledge the conversation that clearly just happened. He simply waits for Runo to comply, his gaze sliding to Max with the same unreadable assessment it's carried since the gate. Then he gestures forward.*\n\"The road ahead is more dangerous than the one we've traveled. Keep your eyes on the horizon and not on the cart.\""
+          },
+          {
+            "messageId": 17,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "I nod to Ced and keep my eyes on the horizon. We keep marching north for the next few days."
+          },
+          {
+            "messageId": 18,
+            "speaker": "Adolion Narrator",
+            "isUser": false,
+            "text": "The road gradually ascends as they move farther from Aegis City, the air growing thinner and colder with each passing day. On the second day, the tree line begins to thicken, the forest swallowing the road in a canopy of pine and dark fir. On the third, the road narrows to a rutted track through the woods.\nCed maintains the same disciplined pace, his eyes constantly scanning the treeline for movement. The mule plods ahead, carrying its crates of alchemical supplies, while Runo walks in silence behind it, his owl-tufts twitching at every snap of a twig or call of a bird. The cart's golems remain packed under the canvas, their brass joints clicking softly as the vehicle jostles over roots and stones.\nOn the morning of the fourth day, the forest begins to thin, revealing a glimpse of the Velniran range. Grey granite peaks rise in the distance, their summits capped in year-round snow. The foothills are closer now—a broken landscape of rolling hills and jagged outcrops.\nCed halts the party at a fork in the road. He retrieves a sheet of vellum from his coat and spreads it across the cart's tailboard, his finger tracing a line upward toward the foothills."
+          }
+        ]
+      }
+    },
+    {
+      "journalLine": 577,
+      "auditId": "f0d362d0",
+      "reason": "reconcile:deep_set_out",
+      "key": "deep_set_out",
+      "value": "true",
+      "evidence": "We fall in behind the cart and leave the city.",
+      "recordedAccepted": [
+        "location=deep_north_road@18"
+      ],
+      "rawResponse": "DELTA q=deep_set_out value=true evidence=\"We fall in behind the cart and leave the city.\"\nDELTA q=location value=\"deep_north_road\" evidence=\"On the morning of the fourth day, the forest begins to thin, revealing a glimpse of the Velniran range.\"\nFACT importance=3 text=\"Max's party and Crimsonwing marched north from Aegis City's north gate and reached a fork in the road within a day's march of the Keep on the fourth day.\" evidence=\"We're within a day's march of the Keep.\"\nFACT importance=2 text=\"Ced chose a steeper, less-watched path through the hills to approach the fort rather than the main valley roads.\" evidence=\"This path avoids the main valley roads. It's steeper, but less likely to be watched.\"\nMEMORY type=scene importance=2 expiration=scene entity=\"Ced,Runo,Max Nightriver\" text=\"At the north gate, Ced waits by a mule loaded with alchemical crates while Runo's magitech golems sit packed under canvas in a covered cart.\" evidence=\"Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Ced,Max Nightriver\" text=\"Ced offered Max a pale amber stimulant vial that keeps the user sharp for twenty-four hours with no crash, as a down payment on performance.\" evidence=\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\"\nMEMORY type=development importance=2 expiration=session entity=\"Ced,Runo\" text=\"Ced cut Runo off with a single sharp look and a terse order when Runo began discussing the golems' technicals, redirecting focus to leaving the city.\" evidence=\"Ced shoots him a look—one sharp glance—and Runo immediately stuffs the map into his tunic.\"\nMEMORY type=revelation importance=3 expiration=permanent entity=\"Runo\" character=\"companion_a\" text=\"Runo blames himself for the failed last expedition, saying he should have made the golems faster or stronger and that he failed the last member and everyone.\" evidence=\"It's my fault. All of it. I-I should have made the golems faster, or stronger, or—\"\nMEMORY type=development importance=2 expiration=session entity=\"Ced,Runo,Max Nightriver\" text=\"Ced closed the distance to the cart and reassigned Runo to walk behind the mule, then told Max to keep his eyes on the horizon rather than the cart.\" evidence=\"Walk behind the mule. You're too far back.\"\nMEMORY type=scene importance=2 expiration=scene entity=\"Ced,Runo,Max Nightriver\" text=\"The march north took four days: the tree line thickened on the second day, the road narrowed to a rutted track on the third, and the Velniran range came into view on the fourth morning.\" evidence=\"On the morning of the fourth day, the forest begins to thin, revealing a glimpse of the Velniran range.\"\nMEMORY type=detail importance=2 expiration=session entity=\"Ced\" text=\"Ced halted the party at a fork in the road and traced a route on his vellum map toward a marked square representing the fort.\" evidence=\"Ced halts the party at a fork in the road. He retrieves a sheet of vellum from his coat and spreads it across the cart's tailboard, his finger tracing a line upward toward the foothills.\"\nSCENE_BREAK at=18 reason=time_skip\n[knows] Max Nightriver | Runo blames himself for the failed last expedition and the loss of the last Crimsonwing member\n[knows] Max Nightriver | Ced chose a steeper, less-watched path into the foothills rather than the main valley roads\n[hiding] Ced from Max Nightriver | the true purpose of the golems and alchemical supplies at the Keep\n[intends] Ced | to reach the Keep by a steeper, less-watched path and keep the party's lines of sight clear on the road\n[state:Ced:character] role=leader of Crimsonwing | weapon=saw cleaver | demeanor=disciplined, assessing\n[state:Runo:character] role=Crimsonwing's owlkin magitech wizard | state=guilt-ridden, fidgeting | position=walking behind the mule\n[state:Max Nightriver:character] role=party leader | position=on the north road at the fork, within a day's march of the Keep\n[state:The Party:character] location=north road, fork in the road at the Velniran foothills | status=marching with Crimsonwing\n[state:The Partner Party:character] name=Crimsonwing | location=north road, fork in the road | status=marching with Max's party\n[arc] Ced is concealing the true purpose of the golems and alchemical supplies at the Keep, and Runo nearly revealed technicals before being silenced.\n[arc] Runo's guilt over the failed expedition and the lost Crimsonwing member remains raw and was cut off by Ced before it could be fully told.\n[arc] At the fork in the road on the fourth day, Ced is consulting his map to choose the route into the Velniran foothills toward the fort.\n[arc] The party must make its final push into the foothills from the fork and reach the Keep within a day's march.",
+      "window": {
+        "from": 7,
+        "to": 19,
+        "messages": [
+          {
+            "messageId": 7,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "Ced watched her leave without a word, then turned back to Max. \"Runo and I will be at the north gate in an hour. You can meet us there, or I can send a messenger to fetch you.\"\n*He reached into his coat and produced a small glass vial, the liquid inside a clear, pale amber that caught the light. He set it on the counter between them with a soft click.*\n\"This is a stimulant. It keeps you sharp for twenty-four hours with no crash. Consider it a down payment on your performance.\""
+          },
+          {
+            "messageId": 8,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "I leave the vial on the counter. We'll meet you at the north gate within the hour, then we march."
+          },
+          {
+            "messageId": 9,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "\"We'll be waiting.\"\n*He didn't argue or press the vial further. He simply turned and walked toward the Guild's exit, his tattered black cape sweeping behind him in a single fluid motion.*"
+          },
+          {
+            "messageId": 10,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "An hour later we're at the north gate. We set out with Ced and Runo up the north road."
+          },
+          {
+            "messageId": 11,
+            "speaker": "Adolion Narrator",
+            "isUser": false,
+            "text": "The north gate's grey stone arch looms overhead, still damp from the overnight mist. Ced waits by a mule loaded with crates of alchemical supplies, his saw cleaver strapped to his back. Beside him, a covered cart rattles slightly as it idles—packed inside are Runo's magitech golems, their brass joints gleaming in the pre-dawn light.\nRuno sits on the cart's tailboard, his owlkin tufts twitching as he watches Max Nightriver approach. For once he is wide awake, clutching a map and a sheet of vellum. \"The road's clear,\" he says, his grey eyes darting to the Nightriver heir with a mix of recognition and nervousness. \"Four days north, then we break for the foothills.\"\nCed steps forward, his expression as neutral as stone. \"We march in silence until we hit the tree line,\" he says, gesturing toward the open road that leads directly into the dark silhouettes of the Velniran range. \"Save your energy for the Keep.\""
+          },
+          {
+            "messageId": 12,
+            "speaker": "Runo",
+            "isUser": false,
+            "text": "\"Right, right. Silence. Got it.\" *He nods too quickly, nearly falling off the cart. He's fidgeting with the vellum in his hands, eyes flicking between Max and the map.* \"The golems are already pre-charged, by the way. Should be no trouble getting them up to speed by day three.\"\n*Ced shoots him a look—one sharp glance—and Runo immediately stuffs the map into his tunic.* \"Sorry. Silent now.\""
+          },
+          {
+            "messageId": 13,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "\"Runo.\" *His voice isn't raised, but the way he says it is enough to make the owlkin freeze mid-fidget.* \"Save the technicals for the march. Right now we need to focus on getting out of the city.\"\n*He adjusts the strap of the Saw Cleaver on his back, the movement crisp and efficient. His red eyes fix on the road ahead, then slide sideways to Max—not quite a glance, more of a measurement. He's assessing how this new partner carries themselves, how they move, whether they'll be a liability or an asset when the fighting starts.*\n\"We'll stick to a steady pace. Keep your distance from the mule and the cart. If anything happens on the road, I want clear lines of sight.\""
+          },
+          {
+            "messageId": 14,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "We fall in behind the cart and leave the city. A few miles out I drop back beside the cart. Runo, what does your leader not say about the last expedition?"
+          },
+          {
+            "messageId": 15,
+            "speaker": "Runo",
+            "isUser": false,
+            "text": "*Runo's tufts spike upright, and he makes a soft squawking sound.* \"I-I don't—\" *He shoots a glance forward, watching Ced's broad shoulders a few dozen paces ahead.* \"Ced's... he's very thorough with his plans, but—\"\n*The words tangle in his throat, and his grey eyes go wet. He looks away, staring at the churning cart wheel.* \"It's my fault. All of it. I-I should have made the golems faster, or stronger, or—\" *He wipes at his eyes with the back of his hand, voice cracking.* \"Ced didn't want to cut anyone, but it's better if... if we're small. Efficient. I failed the last member. I failed everyone.\""
+          },
+          {
+            "messageId": 16,
+            "speaker": "Ced",
+            "isUser": false,
+            "text": "*The distance between Ced and the cart has been closing for the past few minutes—not rushing, but narrowing with an efficient, steady stride. He stops and turns, his red eyes fixed on Max as his voice carries back across the road.*\n\"Runo.\"\n*The owlkin immediately straightens, nearly spilling off the tailboard.*\n\"Walk behind the mule. You're too far back.\"\n*Ced doesn't elaborate, doesn't acknowledge the conversation that clearly just happened. He simply waits for Runo to comply, his gaze sliding to Max with the same unreadable assessment it's carried since the gate. Then he gestures forward.*\n\"The road ahead is more dangerous than the one we've traveled. Keep your eyes on the horizon and not on the cart.\""
+          },
+          {
+            "messageId": 17,
+            "speaker": "Max Nightriver",
+            "isUser": true,
+            "text": "I nod to Ced and keep my eyes on the horizon. We keep marching north for the next few days."
+          },
+          {
+            "messageId": 18,
+            "speaker": "Adolion Narrator",
+            "isUser": false,
+            "text": "The road gradually ascends as they move farther from Aegis City, the air growing thinner and colder with each passing day. On the second day, the tree line begins to thicken, the forest swallowing the road in a canopy of pine and dark fir. On the third, the road narrows to a rutted track through the woods.\nCed maintains the same disciplined pace, his eyes constantly scanning the treeline for movement. The mule plods ahead, carrying its crates of alchemical supplies, while Runo walks in silence behind it, his owl-tufts twitching at every snap of a twig or call of a bird. The cart's golems remain packed under the canvas, their brass joints clicking softly as the vehicle jostles over roots and stones.\nOn the morning of the fourth day, the forest begins to thin, revealing a glimpse of the Velniran range. Grey granite peaks rise in the distance, their summits capped in year-round snow. The foothills are closer now—a broken landscape of rolling hills and jagged outcrops.\nCed halts the party at a fork in the road. He retrieves a sheet of vellum from his coat and spreads it across the cart's tailboard, his finger tracing a line upward toward the foothills."
+          },
+          {
+            "messageId": 19,
+            "speaker": "Adolion Narrator",
+            "isUser": false,
+            "text": "Ced's finger stops at a marked point on the map—a small square representing the fort. \"We're within a day's march of the Keep.\" He traces a finger along a thinner line that snakes upward through the hills. \"This path avoids the main valley roads. It's steeper, but less likely to be watched.\"\n*He glances at the sky, where thin clouds are beginning to gather. Then his eyes slide to the treeline, watching for any sign of movement in the shadows.*\n\"We'll make our final push into the foothills from here.\""
+          }
+        ]
+      }
+    }
+  ]
+}

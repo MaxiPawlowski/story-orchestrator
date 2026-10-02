@@ -156,11 +156,16 @@ export interface BeatAnchor {
   chatId: string | null;
   checkpointId: string | null;
   basedOn: number;
+  upTo?: number;
 }
 
+export const turnAnchor = (chatId: string | null, checkpointId: string | null, rows: unknown[]): BeatAnchor =>
+  ({ chatId, checkpointId, basedOn: beatAnchorId(rows), upTo: rows.length - 1 });
+
 export const freshBeat = (beats: InnerBeat[] | undefined, memberId: string, anchor: BeatAnchor): InnerBeat | null =>
-  [...(beats ?? [])].reverse().find((beat) => beat.memberId === memberId && beat.chatId === anchor.chatId && beat.checkpointId === anchor.checkpointId
-    && beat.basedOnMessageId === anchor.basedOn) ?? null;
+  (beats ?? []).filter((beat) => beat.memberId === memberId && beat.chatId === anchor.chatId && beat.checkpointId === anchor.checkpointId
+    && beat.basedOnMessageId >= anchor.basedOn && beat.basedOnMessageId <= (anchor.upTo ?? anchor.basedOn))
+    .reduce<InnerBeat | null>((newest, beat) => (newest && newest.basedOnMessageId > beat.basedOnMessageId ? newest : beat), null);
 
 export const pushBeat = (beats: InnerBeat[] | undefined, beat: InnerBeat): InnerBeat[] =>
   [...(beats ?? []).filter((entry) => !(entry.memberId === beat.memberId && entry.chatId === beat.chatId && entry.basedOnMessageId === beat.basedOnMessageId)), beat]
@@ -186,7 +191,7 @@ export interface BeatPorts {
 }
 
 export const takeBeat = (rosterId: string, ports: BeatPorts): string => {
-  const anchor = { chatId: ports.chatId, checkpointId: ports.checkpointId, basedOn: beatAnchorId(ports.rows) };
+  const anchor = turnAnchor(ports.chatId, ports.checkpointId, ports.rows);
   const beat = freshBeat(ports.beats, rosterId, anchor);
   if (!beat) {
     const held = ports.beats.some((entry) => entry.memberId === rosterId && entry.chatId === anchor.chatId);

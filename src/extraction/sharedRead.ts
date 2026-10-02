@@ -2,7 +2,7 @@ import { movesParty, readsWorldEvidence, TENSION_CURRENT_KEY, type EngineState, 
 import { fnv1a, stableStringify } from "@runtime/hash";
 import type { ExtractionReply, ModelAsk, ModelCall } from "./modelRoute";
 import { getCanonLite } from "./canonLite";
-import { hashContract, PLAYER_MARK, readContext, renderSharedReadPrompt } from "./contract";
+import { hashContract, PLAYER_MARK, readContext, renderPlayerOnlyReask, renderSharedReadPrompt } from "./contract";
 import type { ParsedMemoryLine } from "@memory/index";
 import { detectDegenerate } from "./degenerate";
 import { evidenceSources } from "./evidence";
@@ -25,6 +25,7 @@ const CHARS_PER_TOKEN = 4;
 const DEFAULT_RESPONSE_TOKENS = maxTokensCap("sharedRead");
 
 export const PLAYER_ONLY_EVIDENCE = "evidence only in the player's line";
+export const NOT_CONFIRMED = "the re-asked reading did not confirm the player's line from a later reply";
 
 const PARTY_MOVE = /\b(i|we|us|let's)\b[^.!?]*\b(go|goes|going|head|heading|walk|climb|ride|enter|descend|leave|return|follow|cross|step|move|travel|set out|make camp|stand)\b/i;
 
@@ -57,6 +58,7 @@ const screenDeltas = (parsed: ParsedSharedRead, residual: readonly ScopedQuality
   const byKey = new Map(residual.map((entry) => [entry.key, entry.quality]));
   const accepted: ParsedDelta[] = [];
   const rejected: Array<{ line: string; reason: string }> = [];
+  const playerOnly: Array<{ key: string; value: ParsedDelta["delta"]["v"]; line: string; said: number }> = [];
   for (const entry of parsed.deltas) {
     if (answered.has(entry.delta.q)) continue;
     const line = entry.line ?? describeDelta(entry);
@@ -73,15 +75,22 @@ const screenDeltas = (parsed: ParsedSharedRead, residual: readonly ScopedQuality
     const worldSources = sources.filter((id) => window.messages.some((message) => message.messageId === id && !message.isUser));
     if (readsWorldEvidence(quality) && !worldSources.length) {
       const answer = movesParty({ ...quality, key: entry.delta.q }) ? answeredMove(entry.evidence, sources, window) : undefined;
-      if (answer === undefined) rejected.push({ line, reason: PLAYER_ONLY_EVIDENCE });
-      else accepted.push({ ...entry, messageId: answer });
+      if (answer === undefined) {
+        rejected.push({ line, reason: PLAYER_ONLY_EVIDENCE });
+        playerOnly.push({ key: entry.delta.q, value: entry.delta.v, line, said: Math.max(...sources) });
+      } else accepted.push({ ...entry, messageId: answer });
       continue;
     }
     const attributable = readsWorldEvidence(quality) ? worldSources : sources;
     accepted.push({ ...entry, messageId: entry.delta.q === TENSION_CURRENT_KEY ? attributable[attributable.length - 1] : attributable[0] });
   }
-  return { accepted, rejected };
+  return { accepted, rejected, playerOnly };
 };
+
+type Screened = ReturnType<typeof screenDeltas>;
+
+const answeredLater = (screened: Screened, window: SharedReadWindow): Screened["playerOnly"] => screened.playerOnly.filter((entry) =>
+  !screened.accepted.some((delta) => delta.delta.q === entry.key) && window.messages.some((message) => !message.isUser && message.messageId > entry.said));
 
 const attributed = <T extends { evidence: string; messageId?: number }>(line: T, window: SharedReadWindow): T => {
   const [first] = evidenceSources(line.evidence, window.messages);
@@ -182,6 +191,24 @@ export async function fitReadWindow(window: SharedReadWindow, overheadPrompt: st
   };
 }
 
+async function reaskPlayerOnly(
+  options: RunSharedReadOptions, contract: SharedReadContract, residual: readonly ScopedQuality[], answered: Set<string>,
+  pending: Screened["playerOnly"], maxTokens: number,
+) {
+  const keys = [...new Set(pending.map((entry) => entry.key))];
+  const qualities = residual.filter((entry) => keys.includes(entry.key));
+  const prompt = renderPlayerOnlyReask({ ...contract, qualities }, pending.map((entry) => entry.line));
+  const reply = await options.model(prompt, { ...options.ask, maxTokens });
+  const parsed = parseSharedReadResponse(reply.text, options.story);
+  const refused = refusal(reply, parsed, maxTokens);
+  if (refused) return { keys, rawResponse: reply.text, accepted: [], rejected: [{ line: reply.text.slice(0, 500), reason: refused }] };
+  const screened = screenDeltas(parsed, qualities, answered, contract.window);
+  const confirms = (entry: ParsedDelta) =>
+    pending.some((claim) => claim.key === entry.delta.q && claim.value === entry.delta.v && (entry.messageId ?? -1) > claim.said);
+  const unconfirmed = screened.accepted.filter((entry) => !confirms(entry)).map((entry) => ({ line: entry.line ?? describeDelta(entry), reason: NOT_CONFIRMED }));
+  return { keys, rawResponse: reply.text, accepted: screened.accepted.filter(confirms), rejected: [...parsed.rejected, ...screened.rejected, ...unconfirmed] };
+}
+
 export async function runSharedRead(options: RunSharedReadOptions): Promise<SharedReadResult> {
   const scope = scopeOf(options);
   const fitted = await fitReadWindow(sharedReadWindow(options), sharedReadOverhead(options), options.ask.budget, options.ask.maxTokens ?? DEFAULT_RESPONSE_TOKENS);
@@ -217,7 +244,12 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
   }
   const rawResponse = reply.text;
   const refused = refusal(reply, parsed, responseTokens);
-  const screened = refused ? { accepted: [], rejected: [{ line: rawResponse.slice(0, 500), reason: refused }] } : screenDeltas(parsed, residual, answered, window);
+  const first: Screened = refused
+    ? { accepted: [], rejected: [{ line: rawResponse.slice(0, 500), reason: refused }], playerOnly: [] }
+    : screenDeltas(parsed, residual, answered, window);
+  const pending = answeredLater(first, window);
+  const reask = pending.length ? await reaskPlayerOnly(options, contract, residual, answered, pending, responseTokens) : null;
+  const screened = reask ? { accepted: [...first.accepted, ...reask.accepted], rejected: [...first.rejected, ...reask.rejected] } : first;
   const audit: SharedReadAudit = {
     id: createId({ prompt, rawResponse, at: Date.now() }),
     createdAt: new Date().toISOString(),
@@ -237,6 +269,7 @@ export async function runSharedRead(options: RunSharedReadOptions): Promise<Shar
     ...(fitted.trimmedFrom !== null ? { trimmedFrom: fitted.trimmedFrom } : {}),
     ...(fitted.truncated.length ? { truncated: fitted.truncated } : {}),
     ...(window.form ? { windowForm: window.form } : {}),
+    ...(reask ? { reask: { keys: reask.keys, rawResponse: reask.rawResponse, accepted: reask.accepted.map((entry) => entry.delta.q) } } : {}),
   };
   // A refused response is refused whole: the lines that survived a truncation are not more
   // trustworthy than the ones that did not, and the fact/memory/arc lines have no bound of their own.

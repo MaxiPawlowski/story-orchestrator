@@ -9,7 +9,7 @@ import {
   type HostSubscriptionEntry,
 } from "@services/STAPI";
 import { runtimeManager } from "../runtimeManager";
-import type { GenerationIntent, GenerationLifecycle } from "../generationLifecycle";
+import { withholds, type GenerationIntent, type GenerationLifecycle } from "../generationLifecycle";
 import { generationWatch } from "../generationWatch";
 import { promptCost } from "../promptCost";
 import { attachPromptBuckets } from "../promptBucketsHost";
@@ -92,8 +92,16 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
     apply(generation.started(args, chatLastId() + 1));
     await lore.onGenerationStarted(typeof args[0] === "string" ? args[0] : undefined, args[1] as Record<string, unknown> | undefined, args[2] === true);
   };
+  const wrapper = { type: null as unknown };
   const entries: HostSubscriptionEntry[] = [
-    { eventName: "GROUP_MEMBER_DRAFTED", handler: (characterId) => { generation.drafted(characterId); runtimeManager.onMemberDrafted(characterId as number | [number]); } },
+    {
+      eventName: "GROUP_MEMBER_DRAFTED",
+      handler: async (characterId) => {
+        generation.drafted(characterId);
+        if (!withholds(wrapper.type)) await runtimeManager.prepareDraftedBeat(characterId as number | [number]).catch(() => undefined);
+        runtimeManager.onMemberDrafted(characterId as number | [number]);
+      },
+    },
     { eventName: "GENERATION_STARTED", handler: onStarted },
     { eventName: "MESSAGE_SENT", handler: () => lore.onMessageSent() },
     { eventName: "GENERATION_ENDED", handler: (...args: unknown[]) => { live.loudGate.release(); apply(generation.ended(args)); } },
@@ -101,8 +109,17 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
     { eventName: "MESSAGE_RECEIVED", handler: (messageId, type) => { live.loudGate.release(); apply(generation.rendered(messageId, type)); } },
     { eventName: "CHARACTER_MESSAGE_RENDERED", handler: (messageId, type) => { live.loudGate.release(); apply(generation.rendered(messageId, type)); } },
     { eventName: "CHAT_CHANGED", handler: () => { live.loudGate.release(); apply(generation.chatChanged()); } },
-    { eventName: "GROUP_WRAPPER_STARTED", handler: (payload) => live.talk?.onWrapperStarted(payload as Record<string, unknown> | undefined) },
-    { eventName: "GROUP_WRAPPER_FINISHED", handler: () => { live.loudGate.release(); apply(generation.wrapperFinished()); void live.talk?.onWrapperFinished(); } },
+    {
+      eventName: "GROUP_WRAPPER_STARTED",
+      handler: (payload) => {
+        wrapper.type = (payload as Record<string, unknown> | undefined)?.type ?? null;
+        live.talk?.onWrapperStarted(payload as Record<string, unknown> | undefined);
+      },
+    },
+    {
+      eventName: "GROUP_WRAPPER_FINISHED",
+      handler: () => { wrapper.type = null; live.loudGate.release(); apply(generation.wrapperFinished()); void live.talk?.onWrapperFinished(); },
+    },
     { eventName: EXTENSION_SETTINGS_LOADED_EVENT, handler: () => { noteHostSettingsLoaded(); startupLoad(); } },
   ];
   return subscribeToHostEvents(entries);

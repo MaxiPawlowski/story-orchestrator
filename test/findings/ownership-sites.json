@@ -193,6 +193,18 @@
       "status": "checked",
       "note": "v2.6 plan 06 C: mints over the reply the beat reads (window = that message) before the first inner call and checks after EACH call, inside the per-candidate loop, immediately before the ring write; the persist after the loop is gated on the same check (innerCoordinator.test.ts)."
     },
+    "src/runtime/coordinators/innerCoordinator.ts#InnerCoordinator.write": {
+      "status": "checked",
+      "note": "v2.6 T3-1 fix wave (2026-10-02): the one beat write, shared by run() and ensureFor() through build(), which only registers it as in flight. Takes the caller's RunGuard (minted over the message the beat reads) and checks it after the inner call, immediately before the ring write (innerCoordinator.test.ts)."
+    },
+    "src/runtime/coordinators/innerCoordinator.ts#InnerCoordinator.ensureFor": {
+      "status": "local",
+      "note": "v2.6 T3-1 fix wave (2026-10-02): after awaiting an in-flight beat for the same member it writes only its own in-memory per-turn set of members already asked at draft time (a dedupe, never persisted or chat state); the beat itself is written by InnerCoordinator.build under a RunGuard minted here."
+    },
+    "src/runtime/innerBeatHost.ts#within": {
+      "status": "local",
+      "note": "v2.6 T3-1 fix wave (2026-10-02): the draft-time deadline. After the race it only clears its own timer; it writes no store, chat or host state."
+    },
     "src/runtime/coordinators/sceneCoordinator.ts#SceneCoordinator.run": {
       "status": "checked",
       "note": "v2.3 plan 03 (C1, the scene surface). The pre-existing getLastMessageId check only asks whether the chat moved ON; it passes unchanged across a chat switch or story swap landing on the same message index."
