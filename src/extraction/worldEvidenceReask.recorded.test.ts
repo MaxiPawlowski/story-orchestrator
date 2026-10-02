@@ -1,6 +1,7 @@
 import { recordingModel } from "../../test/support/modelCall";
 import * as recorded from "../../test/fixtures/t3-1-world-evidence.recorded.json";
 import * as earlier from "../../test/fixtures/player-evidence.recorded.json";
+import * as thornwood from "../../test/fixtures/t3-3-world-evidence.recorded.json";
 import { StoryEngine, parseStoryV2OrThrow, type PrimitiveValue, type Quality, type StoryV2 } from "@engine/index";
 import { PLAYER_ONLY_REASK } from "./contract";
 import { NOT_CONFIRMED, PLAYER_ONLY_EVIDENCE, runSharedRead } from "./sharedRead";
@@ -103,6 +104,61 @@ describe("T3-1: deep_set_out stalled 6 turns on the player's own line (journal.j
     const other = await replay(T3_QUALITIES, row, row.rawResponse, () => `DELTA q=deep_set_out value=false evidence="${MARCH}"`);
     expect(other.accepted.filter((entry) => entry.startsWith("deep_set_out"))).toEqual([]);
     expect(other.rejected).toEqual([PLAYER_ONLY_EVIDENCE, NOT_CONFIRMED]);
+  });
+});
+
+type T33Row = Row & { session: string; rawResponse: string };
+
+describe("T3-3: the Thornwood stall (3-4 turns lost at Kayla's door)", () => {
+  const T33_QUALITIES = thornwood.qualities as unknown as Quality[];
+  const reads = [...new Map((thornwood.rows as unknown as T33Row[]).map((row) => [`${row.session}:${row.journalLine}`, row])).values()];
+  const rejectedKeys = (read: T33Row) => (thornwood.rows as unknown as T33Row[])
+    .filter((row) => row.session === read.session && row.journalLine === read.journalLine).map((row) => row.key).sort();
+  const firstSentence = (text: string) => text.replace(/^\*/, "").split(/(?<=[.!?])\s/)[0].replace(/[*"]/g, "").trim();
+  const answerAfter = (read: T33Row, key: string) => {
+    const claim = (thornwood.rows as unknown as T33Row[]).find((row) => row.session === read.session && row.journalLine === read.journalLine && row.key === key)!;
+    const reply = read.window.messages.find((message) => !message.isUser && message.messageId > said(claim))!;
+    return { claim, reply, line: delta(claim, firstSentence(reply.text)) };
+  };
+
+  it("15 recorded reads on location / night_in_thornwood (T3-3-1: 6, T3-3-2: 9) replay with the same player-only rejections", async () => {
+    expect(reads.map((read) => `${read.session}:${read.journalLine}`)).toEqual([
+      "T3-3-1:573", "T3-3-1:616", "T3-3-1:629", "T3-3-1:668", "T3-3-1:676", "T3-3-1:770",
+      "T3-3-2:766", "T3-3-2:774", "T3-3-2:807", "T3-3-2:844", "T3-3-2:882", "T3-3-2:894", "T3-3-2:926", "T3-3-2:976", "T3-3-2:990",
+    ]);
+    for (const read of reads) {
+      const keys = rejectedKeys(read);
+      const story = storyOf(T33_QUALITIES, "night_in_thornwood", true);
+      const engine = new StoryEngine();
+      engine.loadStory(story);
+      const model = recordingModel(() => (model.calls.length === 1 ? read.rawResponse : "NO_DELTA"));
+      const scope = T33_QUALITIES.map((quality) => ({ key: quality.key, quality: story.qualityByKey[quality.key], hints: [] }));
+      const { audit } = await runSharedRead({ story, state: engine.serialize(), priority: 0, reason: "replay", window: windowOf(read), scope, model, ask: { role: "read", pass: "read" } });
+      const playerOnly = audit.rejected.filter((entry) => entry.reason === PLAYER_ONLY_EVIDENCE).map((entry) => /q=(\S+)/.exec(entry.line)![1]).sort();
+      expect({ read: `${read.session}:${read.journalLine}`, playerOnly, reasked: audit.reask?.keys.sort() })
+        .toEqual({ read: `${read.session}:${read.journalLine}`, playerOnly: keys, reasked: keys });
+    }
+  });
+
+  it("each is confirmed when the re-ask quotes the reply that answered the move, attributed to that reply", async () => {
+    for (const read of reads) {
+      for (const key of rejectedKeys(read)) {
+        const { claim, reply, line } = answerAfter(read, key);
+        const out = await replay(T33_QUALITIES, claim, read.rawResponse, () => line);
+        expect({ read: `${read.session}:${read.journalLine}`, key, accepted: out.accepted.filter((entry) => entry.startsWith(`${key}=`)) })
+          .toEqual({ read: `${read.session}:${read.journalLine}`, key, accepted: [`${key}=${claim.value}@${reply.messageId}`] });
+      }
+    }
+  });
+
+  it("and stays rejected when the re-ask quotes the player's line again", async () => {
+    for (const read of reads) {
+      for (const key of rejectedKeys(read)) {
+        const { claim } = answerAfter(read, key);
+        const out = await replay(T33_QUALITIES, claim, read.rawResponse, () => delta(claim, claim.evidence));
+        expect(out.accepted.filter((entry) => entry.startsWith(`${key}=`))).toEqual([]);
+      }
+    }
   });
 });
 

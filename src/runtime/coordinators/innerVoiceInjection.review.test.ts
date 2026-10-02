@@ -210,6 +210,28 @@ describe("the inner beat at draft time (v2.6 plan 06 C)", () => {
     expect(block()).not.toContain("Stall Ponticius");
   });
 
+  it("T3-3: a beat that restates a secret held from the drafted member is dropped at draft, the concealer's own is kept", () => {
+    const told: InnerBeat = { chatId: "chat-a", memberId: "ponticius", basedOnMessageId: 0, checkpointId: "cp1", beat: "Ask Arin outright whether she already has the vault key", at: "t" };
+    const own: InnerBeat = { ...told, memberId: "arin", beat: "Keep the vault key out of sight until Ponticius signs" };
+    const steer: InnerBeat = { ...told, memberId: "narrator", beat: "Let the guard notice that Arin already has the vault key" };
+    const { coordinator } = harness({ beats: [told, own, steer] });
+    coordinator.applyEpistemic([{ tag: "hiding", subject: "Arin", hiddenFrom: "Ponticius", content: "she already has the vault key" }], 1, [], { from: 0, to: 1 });
+    coordinator.onMemberDrafted(1);
+    expect(block()).not.toContain("vault key");
+    coordinator.onMemberDrafted(2);
+    expect(block()).not.toContain("Let the guard notice");
+    coordinator.onMemberDrafted(0);
+    expect(block()).toContain("- Your intent this turn: Keep the vault key out of sight until Ponticius signs");
+  });
+
+  it("control: with no secret held, the same beat reaches its member", () => {
+    const told: InnerBeat = { chatId: "chat-a", memberId: "ponticius", basedOnMessageId: 0, checkpointId: "cp1", beat: "Ask Arin outright whether she already has the vault key", at: "t" };
+    const { coordinator } = harness({ beats: [told] });
+    coordinator.updateInjection();
+    coordinator.onMemberDrafted(1);
+    expect(block()).toContain("- Your intent this turn: Ask Arin outright whether she already has the vault key");
+  });
+
   it("survives a mid-draft refresh", () => {
     const { coordinator } = harness({ beats: [beat] });
     coordinator.updateInjection();

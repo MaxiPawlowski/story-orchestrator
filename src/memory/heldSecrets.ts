@@ -38,7 +38,7 @@ const allowed = (secret: HeldSecret, names: readonly string[]): boolean =>
     ? names.length > 0 && !names.some((name) => secret.onlyFrom?.has(name))
     : names.some((name) => secret.knowers.has(name)));
 
-const keptFrom = (text: string, secrets: readonly HeldSecret[], member: readonly string[] | null): boolean => {
+export const keptFrom = (text: string, secrets: readonly HeldSecret[], member: readonly string[] | null): boolean => {
   const names = member?.map(normalize) ?? [];
   const words = contentWords(text);
   return secrets.some((secret) => !allowed(secret, names) && secret.phrasings.some((phrasing) => restatesWords(phrasing, words)));
