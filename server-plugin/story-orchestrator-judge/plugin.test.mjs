@@ -40,13 +40,34 @@ test('validateRequest mirrors the API limits', () => {
 });
 
 test('T25: the token guard mirrors the page: state + longest question over the documented limit minus 10% is refused, never truncated', () => {
-    assert.equal(plugin.MAX_ESTIMATED_TOKENS, 29491);
+    assert.equal(plugin.MAX_ESTIMATED_TOKENS, 28800);
     const over = { ...question, state: { text: 'a '.repeat(55_000) } };
     assert.ok(JSON.stringify(over).length < plugin.MAX_REQUEST_CHARS);
-    assert.deepEqual(plugin.validateRequest(over), [`request is over 29491 estimated tokens (${plugin.estimateTokens(over)})`]);
+    assert.deepEqual(plugin.validateRequest(over), [`request is over 28800 estimated tokens (${plugin.estimateTokens(over)})`]);
     assert.deepEqual(plugin.validateRequest({ ...question, state: { text: 'x'.repeat(100_000) } }), []);
     const questions = Object.fromEntries(Array.from({ length: 40 }, (_, index) => [`fact:${index}`, { type: 'noul', instructions: `fact ${index} ${'detail '.repeat(120)}` }]));
     assert.deepEqual(plugin.validateRequest({ state: { text: 'x'.repeat(95_000) }, questions }), []);
+});
+
+test('2026-10-02 limits: the whole request is held to 64,000 tokens minus 10%, refused 413 as too large before any upstream call', async () => {
+    assert.equal(plugin.MAX_ESTIMATED_TOTAL_TOKENS, 57600);
+    const questions = Object.fromEntries(Array.from({ length: 40 }, (_, index) => [`fact:${index}`, { type: 'noul', instructions: `fact ${index} ${'x'.repeat(4_000)}` }]));
+    const wide = { state: { text: 'y'.repeat(60_000) }, questions };
+    assert.ok(plugin.estimateTokens(wide) <= plugin.MAX_ESTIMATED_TOKENS, 'state + the longest question alone fits');
+    assert.deepEqual(plugin.validateRequest(wide), [`request is over 57600 estimated tokens in total (${plugin.estimateTotalTokens(wide)})`]);
+    assert.deepEqual(plugin.shapeIssues(wide), []);
+    process.env.TYPESAFE_API_KEY = 'sk-test-too-large';
+    let called = 0;
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl: async () => { called += 1; return new Response('{}', { status: 200 }); } });
+    const { res, out } = fakeResponse();
+    await handlers.systemone({ body: wide }, res);
+    assert.equal(out.statusCode, 413);
+    assert.equal(out.body.tooLarge, true);
+    assert.equal(called, 0);
+    const fits = fakeResponse();
+    await handlers.systemone({ body: { state: { text: 'y'.repeat(60_000) }, questions: Object.fromEntries(Object.entries(questions).slice(0, 20)) } }, fits.res);
+    assert.equal(fits.out.statusCode, 200, 'control: half the questions fit');
+    assert.equal(called, 1);
 });
 
 test('info satisfies the ST loader contract', () => {
@@ -62,7 +83,8 @@ test('status reports the key source, never the key', async () => {
     await plugin.createHandlers({ accountsEnabled: false, env: {}, now: () => 0 }).status({}, res);
     assert.deepEqual(out.body, {
         configured: true, keySource: 'env', model: plugin.DEFAULT_MODEL, pluginVersion: plugin.PLUGIN_VERSION,
-        limits: { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: plugin.MAX_CALLS_PER_MINUTE_PER_USER },
+        limits: { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: 480, accountPerMinute: 1200, tokensPerSecond: 100_000, accountTokensPerSecond: 250_000 },
+        adaptive: { typesafe: { factor: 1, coolingMs: 0, busyAnswers: 0 }, 'llama-logprob': { factor: 1, coolingMs: 0, busyAnswers: 0 } },
         refusals: { since: '1970-01-01T00:00:00.000Z', local: 0, upstreamBusyAnswers: 0, upstreamRefused: 0, lastUpstream: null },
         providers: {
             typesafe: { configured: true, keySource: 'env', contract: 'native', local: false, host: 'api.typesafe.ai' },
@@ -208,7 +230,7 @@ test('PS-J 3: per user at most 2 in flight and 60 a minute; a burst queues up to
     process.env.TYPESAFE_API_KEY = 'sk-test-rate';
     const { calls, fetchImpl } = countingFetch();
     let clock = 0;
-    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, now: () => clock });
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, now: () => clock, env: { SO_JUDGE_RATE_PER_MIN: '60' } });
     const burst = await Promise.all(Array.from({ length: 20 }, async () => { const out = fakeResponse(); await handlers.receive(pageRequest(question), out.res); return out.out.statusCode; }));
     assert.equal(calls.peak, 2);
     assert.equal(burst.filter((code) => code === 200).length, 2 + plugin.MAX_QUEUED_PER_USER);
@@ -231,8 +253,8 @@ test('PS-J 3: per user at most 2 in flight and 60 a minute; a burst queues up to
 });
 
 test('T0: the per-minute limit and in-flight cap come from the env, so N lanes can share one TypeSafe account', async () => {
-    assert.deepEqual(plugin.limitsFromEnv({}), { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: plugin.MAX_CALLS_PER_MINUTE_PER_USER });
-    assert.deepEqual(plugin.limitsFromEnv({ SO_JUDGE_RATE_PER_MIN: '15', SO_JUDGE_MAX_IN_FLIGHT: '1' }), { maxInFlight: 1, perMinute: 15 });
+    assert.deepEqual(plugin.limitsFromEnv({}), { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: plugin.MAX_CALLS_PER_MINUTE_PER_USER, accountPerMinute: 1200, tokensPerSecond: 100_000, accountTokensPerSecond: 250_000 });
+    assert.deepEqual(plugin.limitsFromEnv({ SO_JUDGE_RATE_PER_MIN: '15', SO_JUDGE_MAX_IN_FLIGHT: '1' }), { maxInFlight: 1, perMinute: 15, accountPerMinute: 1200, tokensPerSecond: 100_000, accountTokensPerSecond: 250_000 });
     for (const bad of ['0', '-3', 'many', '2.5', '']) assert.equal(plugin.limitsFromEnv({ SO_JUDGE_RATE_PER_MIN: bad }).perMinute, plugin.MAX_CALLS_PER_MINUTE_PER_USER, bad);
     process.env.TYPESAFE_API_KEY = 'sk-test-env-rate';
     const { calls, fetchImpl } = countingFetch();
@@ -252,7 +274,7 @@ test('T0: the per-minute limit and in-flight cap come from the env, so N lanes c
     assert.equal(calls.total, 3);
     const status = fakeResponse();
     await handlers.status({}, status.res);
-    assert.deepEqual(status.out.body.limits, { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: 3 });
+    assert.deepEqual(status.out.body.limits, { maxInFlight: plugin.MAX_IN_FLIGHT_PER_USER, perMinute: 3, accountPerMinute: 1200, tokensPerSecond: 100_000, accountTokensPerSecond: 250_000 });
 });
 
 test('T1-6: a call queued behind two in flight waits for a slot, and is refused only when none frees within the wait', async () => {
@@ -284,22 +306,137 @@ test('T1-6: a queued call woken into a full minute passes the slot on rather tha
     assert.equal(await b, null, 'the third call in a minute is refused by the window');
 });
 
-test('T0: an upstream 429 passes its Retry-After to the page', async () => {
+test('T0: an upstream 429 passes its Retry-After to the page, is not retried inside it, and holds every later call until it passes', async () => {
     process.env.TYPESAFE_API_KEY = 'sk-test-upstream-429';
-    const fetchImpl = async () => new Response('{"error":"rate limited"}', { status: 429, headers: { 'Retry-After': '20' } });
+    let upstreamCalls = 0;
+    const fetchImpl = async () => {
+        upstreamCalls += 1;
+        return upstreamCalls === 1 ? new Response('{"error":"rate limited"}', { status: 429, headers: { 'Retry-After': '20' } }) : new Response('{"model":"jev","answers":{}}', { status: 200 });
+    };
     const { res, out } = fakeResponse();
     const logged = [];
-    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, now: () => 0, log: (line) => logged.push(line) });
+    let clock = 0;
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, now: () => clock, log: (line) => logged.push(line) });
     await handlers.receive(pageRequest(question), res);
     assert.equal(out.statusCode, 429);
     assert.equal(out.headers?.['retry-after'], '20');
+    assert.equal(upstreamCalls, 1, 'a Retry-After past the retry delay is honoured, not retried at 600 ms');
     const status = fakeResponse();
     await handlers.status({}, status.res);
     assert.deepEqual(status.out.body.refusals, {
-        since: '1970-01-01T00:00:00.000Z', local: 0, upstreamBusyAnswers: 2, upstreamRefused: 1,
+        since: '1970-01-01T00:00:00.000Z', local: 0, upstreamBusyAnswers: 1, upstreamRefused: 1,
         lastUpstream: { at: '1970-01-01T00:00:00.000Z', provider: 'typesafe', status: 429, retryAfter: '20' },
     });
-    assert.deepEqual(logged, ['typesafe answered 429 after one retry (Retry-After 20); passed to the page']);
+    assert.deepEqual(status.out.body.adaptive.typesafe, { factor: 0.5, coolingMs: 20_000, busyAnswers: 1 });
+    assert.deepEqual(status.out.body.adaptive['llama-logprob'], { factor: 1, coolingMs: 0, busyAnswers: 0 }, 'control: the other provider is not held');
+    assert.deepEqual(logged, ['typesafe answered 429 and was not retried (Retry-After 20); passed to the page; rate held at 50% of the limit']);
+    clock = 5_000;
+    const held = fakeResponse();
+    await handlers.receive(pageRequest(question, { handle: 'bob' }), held.res);
+    assert.equal(held.out.statusCode, 429, 'the account is cooling, so every user is held');
+    assert.equal(held.out.headers?.['retry-after'], '15');
+    assert.equal(upstreamCalls, 1);
+    clock = 20_001;
+    const after = fakeResponse();
+    await handlers.receive(pageRequest(question, { handle: 'bob' }), after.res);
+    assert.equal(after.out.statusCode, 200, 'the cool-down ends at the Retry-After');
+    assert.equal(upstreamCalls, 2);
+});
+
+test('2026-10-02 limits: the documented 1,200/min account is the ceiling across users, and each user\'s default share is 2 x 1,200 / 5 = 480/min', async () => {
+    assert.equal(plugin.ACCOUNT_RATE_PER_MIN, 1200);
+    assert.equal(plugin.ACCOUNT_TOKENS_PER_SECOND, 250_000);
+    assert.equal(plugin.MAX_CALLS_PER_MINUTE_PER_USER, 480);
+    assert.equal(plugin.MAX_TOKENS_PER_SECOND_PER_USER, 100_000);
+    assert.equal(plugin.limitsFromEnv({ SO_JUDGE_ACCOUNT_RATE_PER_MIN: '600' }).perMinute, 240, 'the share follows the account override');
+    assert.equal(plugin.limitsFromEnv({ SO_JUDGE_ACCOUNT_RATE_PER_MIN: '600', SO_JUDGE_RATE_PER_MIN: '50' }).perMinute, 50, 'the per-user override still wins');
+    assert.equal(plugin.limitsFromEnv({ SO_JUDGE_ACCOUNT_TOKENS_PER_SEC: '50000' }).tokensPerSecond, 20_000);
+    let clock = 0;
+    const acquire = plugin.createLimiter({ maxInFlight: 1, now: () => clock });
+    const granted = {};
+    for (const user of ['a', 'b', 'c']) {
+        granted[user] = 0;
+        for (let index = 0; index < 500; index += 1) {
+            const release = await acquire(user, 10);
+            if (!release) continue;
+            granted[user] += 1;
+            release();
+            clock += 1;
+        }
+    }
+    assert.deepEqual(granted, { a: 480, b: 480, c: 240 }, 'per user 480, and the account stops the third user at 1,200');
+    clock = 60_000;
+    assert.equal(typeof (await acquire('c', 10)), 'function', 'the account window slides');
+});
+
+test('2026-10-02 limits: input tokens per second are a guard too, estimated from the request size, and a lone request over the budget still passes', async () => {
+    let clock = 0;
+    const acquire = plugin.createLimiter({ tokensPerSecond: 1_000, accountTokensPerSecond: 1_500, maxInFlight: 8, now: () => clock });
+    assert.equal(typeof (await acquire('u', 600)), 'function');
+    assert.equal(await acquire('u', 600), null, 'over the user\'s tokens in this second');
+    assert.equal(typeof (await acquire('v', 800)), 'function', 'another user has its own share');
+    assert.equal(await acquire('w', 200), null, 'the account second is spent (600 + 800 + 200 > 1,500)');
+    clock = 1_000;
+    assert.equal(typeof (await acquire('u', 5_000)), 'function', 'alone in its window, an oversized request is not starved');
+    assert.equal(plugin.estimateInputTokens({ state: { text: 'x'.repeat(3_488) } }), Math.ceil(JSON.stringify({ state: { text: 'x'.repeat(3_488) } }).length / 3.488));
+});
+
+test('2026-10-02 limits: a 429 halves the rate (floor 10%), and the rate recovers linearly after a 30 s hold, so a limit TypeSafe changes is followed both ways', async () => {
+    let clock = 0;
+    const adaptive = plugin.createAdaptiveRate({ now: () => clock });
+    assert.equal(adaptive.factor(), 1);
+    adaptive.busy(null);
+    assert.equal(adaptive.factor(), 0.5);
+    assert.equal(adaptive.coolingMs(), 0, 'no Retry-After, no cool-down');
+    adaptive.busy(null);
+    assert.equal(adaptive.factor(), 0.25);
+    for (let index = 0; index < 5; index += 1) adaptive.busy(null);
+    assert.equal(adaptive.factor(), plugin.BACKOFF_FLOOR);
+    clock = 30_000;
+    assert.equal(adaptive.factor(), plugin.BACKOFF_FLOOR, 'held for 30 s');
+    clock = 90_000;
+    assert.equal(adaptive.factor(), 0.6);
+    clock = 200_000;
+    assert.equal(adaptive.factor(), 1, 'fully recovered');
+
+    clock = 0;
+    const limited = plugin.createAdaptiveRate({ now: () => clock });
+    const acquire = plugin.createLimiter({ perMinute: 10, maxInFlight: 1, now: () => clock, adaptive: limited });
+    const run = async () => {
+        let granted = 0;
+        for (let index = 0; index < 12; index += 1) {
+            const release = await acquire('u');
+            if (release) { granted += 1; release(); }
+        }
+        return granted;
+    };
+    limited.busy(null);
+    assert.equal(await run(), 5, 'half of 10 a minute after a 429');
+    clock = 61_000;
+    assert.equal(await run(), 7, 'recovering: 0.5 + 31/120 of 10');
+    clock = 300_000;
+    assert.equal(await run(), 10, 'recovered');
+});
+
+test('2026-10-02 limits: Retry-After is read in seconds or as an HTTP date, capped at five minutes, and a short one is retried once inside the plugin', async () => {
+    assert.equal(plugin.parseRetryAfter('20', 0), 20_000);
+    assert.equal(plugin.parseRetryAfter(new Date(45_000).toUTCString(), 0), 45_000);
+    assert.equal(plugin.parseRetryAfter('86400', 0), plugin.MAX_COOL_MS);
+    for (const bad of [null, '', 'soon', '-3']) assert.equal(plugin.parseRetryAfter(bad, 0), null, String(bad));
+    process.env.TYPESAFE_API_KEY = 'sk-test-short-retry';
+    let upstreamCalls = 0;
+    const fetchImpl = async () => {
+        upstreamCalls += 1;
+        return upstreamCalls === 1 ? new Response('{"error":"busy"}', { status: 429, headers: { 'Retry-After': '0' } }) : new Response('{"model":"jev","answers":{}}', { status: 200 });
+    };
+    const handlers = plugin.createHandlers({ accountsEnabled: false, fetchImpl, now: () => 0, log: () => undefined });
+    const { res, out } = fakeResponse();
+    await handlers.receive(pageRequest(question), res);
+    assert.equal(out.statusCode, 200);
+    assert.equal(upstreamCalls, 2);
+    const status = fakeResponse();
+    await handlers.status({}, status.res);
+    assert.equal(status.out.body.adaptive.typesafe.factor, 0.5, 'a 429 the retry absorbed still lowers the rate');
 });
 
 test('T1: /status tells our own limiter\'s 429s from TypeSafe\'s, and a 429 the retry absorbed is counted but not refused', async () => {

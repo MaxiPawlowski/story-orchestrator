@@ -23,9 +23,11 @@ export class JudgePluginError extends Error {
   }
 }
 
-const PLUGIN_FALLBACKS: Readonly<Record<number, "timeout" | "unavailable" | "auth">> = { 504: "timeout", 409: "unavailable", 401: "auth" };
+type PluginFallback = "timeout" | "unavailable" | "auth" | "too-large";
 
-export const pluginFallback = (error: unknown): "timeout" | "unavailable" | "auth" | null => (error instanceof JudgePluginError ? PLUGIN_FALLBACKS[error.status] ?? null : null);
+const PLUGIN_FALLBACKS: Readonly<Record<number, PluginFallback>> = { 504: "timeout", 409: "unavailable", 401: "auth", 413: "too-large" };
+
+export const pluginFallback = (error: unknown): PluginFallback | null => (error instanceof JudgePluginError ? PLUGIN_FALLBACKS[error.status] ?? null : null);
 
 export interface JudgeGate {
   acquire(signal?: AbortSignal): Promise<() => void>;

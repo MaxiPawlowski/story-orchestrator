@@ -260,11 +260,11 @@ export function laneFor(plan: LanePlan | null, cardId: string): number | null {
   return plan?.assignments.find((row) => row.card === cardId)?.lane ?? null;
 }
 
-export const JUDGE_ACCOUNT_RATE_PER_MIN = 90;
+export const JUDGE_ACCOUNT_RATE_PER_MIN = 1_200;
 export const JUDGE_ACCOUNT_RATE_ENV = 'SO_JUDGE_ACCOUNT_RATE_PER_MIN';
 export const JUDGE_LANE_RATE_ENV = 'SO_JUDGE_RATE_PER_MIN';
 export const JUDGE_LANE_RATE_MIN = 10;
-export const JUDGE_LANE_RATE_MAX = 60;
+export const JUDGE_LANE_RATE_MAX = 480;
 export const JUDGE_LANE_OVERCOMMIT = 2;
 
 export interface JudgeRate { perMinute: number; lanes: number; running: number[]; account: number; source: 'arg' | 'derived' }

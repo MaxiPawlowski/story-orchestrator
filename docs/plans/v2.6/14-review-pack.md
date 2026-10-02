@@ -32,7 +32,7 @@ Item 3 is applied with ST stopped by `C:\dev\so-lanes\backups\apply-review-item3
 | 5 | Chance rolls ship with two caveats | confirm the caveats are intended | 2 min |
 | 6 | `/cp activate` jumps play the target unstaged | keep (c) or revisit (b) | 2 min |
 | 7 | Campaign rewrites (4 rounds) | skim; veto anything | 15 min |
-| 8 | Judge per-lane rate is built on an assumed 90/min | tell me your real TypeSafe limit, if you know it | 1 min |
+| 8 | Judge per-lane rate is built on an assumed 90/min | decided 2026-10-02: your documented limits replace it | done |
 | 9 | House-rules judge off by default; option (c) built and re-measured 2026-10-02: broken 18/18, still below the untouched floor (165/172), stays off | nothing; read the result | 1 min |
 | 10 | Inner voice harvest cannot work with Artemis on this setup | choose a direction; optionally fund a 1 h A/B | 5 min |
 
@@ -298,6 +298,22 @@ git -C C:\dev\adolion-campaign diff 59e8821^1 e6226f4 --stat
 **Recommendation.** Keep the setting unless you know the real limit. On a single-user install (yours) the whole 90/min goes to one user, so the setting matters only when lanes run in parallel.
 
 **You.** If you know your TypeSafe rate limit, tell me and I will set it.
+
+**Decided 2026-10-02.** You supplied TypeSafe's documented limits:
+
+| Limit | Documented | What the plugin does now |
+|---|---|---|
+| Account requests | 1,200/min (20/s sustained) | Ceiling per plugin (`SO_JUDGE_ACCOUNT_RATE_PER_MIN`). Was an assumed 90/min. |
+| Account input tokens | 250,000/s | Ceiling per plugin (`SO_JUDGE_ACCOUNT_TOKENS_PER_SEC`), counted from the request size at 3.488 chars/token. A lone request larger than the budget still passes. |
+| Per request | 32,000 tokens for state + the longest question, 64,000 in total | Checked before sending, on the page and in the plugin, each minus 10%. Never truncated: the judge takes the consumer's fallback with reason `too-large`, recorded in the calls ring and not metered; the plugin answers 413. |
+| Questions per request, output tokens | not documented / unmetered | Nothing new. |
+
+What changed:
+- **Per user (each lane is one user):** 2 × the account / 5 expected users = **480/min** and 100,000 tokens/s. Five lanes at once can ask for twice the account, because lanes burst at different times (T1-4..7 combined used at most 56/min). At 2 calls in flight and about 250 ms per call, one user cannot pass about 480/min anyway. `SO_JUDGE_RATE_PER_MIN` still overrides it. `so-session start` now plans 1,200 × 2 / lanes, capped at 480 (up to 5 lanes: 480 each).
+- **Adaptive, because TypeSafe can change these limits without notice:** a real TypeSafe 429 halves the plugin's effective rate (floor 10%). A `Retry-After` holds every call for that long (capped at 5 min); the plugin no longer retries at 600 ms when the header asks for longer. After a 30 s hold, the rate recovers linearly, back to full about two minutes after a single 429. `/status` shows `adaptive` (factor, cool-down, 429 count). The page already honours `Retry-After` and falls back `busy` meanwhile.
+- **Size:** TypeSafe's 32,000 replaces our 32,768. The 64,000 total is new and replaces the old 140,000-character request cap.
+
+**Size headroom, measured** (8,841 unique judge calls in the T0–T5 session evidence, read-only): the largest TypeSafe-metered input was **16,066 tokens** (`lore`, 64 questions in one chunk). Next were `scene` (15,958, 133 questions) and `typed` (11,901). The largest state was 25,891 characters (`memoryVerify`, `typed` and `stall` transcripts), about 7,400 estimated tokens. So no recorded call came within 25% of the 64,000 total or the 32,000 state + question budget. `houseRules` is off, so it has no recorded calls; with item 9 (c) context its cap adds about 1.65k tokens. `too-large` exists so that a future oversized request (a very long transcript window, a large lore pool) falls back visibly instead of failing as `invalid` or being cut.
 
 ---
 

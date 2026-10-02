@@ -1,12 +1,14 @@
 export const JUDGE_MAX_CHOICE_OPTIONS = 255;
-export const JUDGE_MAX_REQUEST_CHARS = 140_000;
-// Docs.typesafe.ai/models caps `state` + the longest question at 32k tokens;
+// TypeSafe documents 32,000 tokens for `state` + the longest question and 64,000 for the whole request;
 // the live probe found the API refuses past its limit (400 max_tokens_exceeded), never truncates.
 // The ratio is the lowest natural-language one it measured (Spanish 3.488, English 4.525 chars per token).
-export const JUDGE_TOKEN_LIMIT = 32_768;
+export const JUDGE_TOKEN_LIMIT = 32_000;
+export const JUDGE_TOTAL_TOKEN_LIMIT = 64_000;
 export const JUDGE_TOKEN_MARGIN = 0.1;
 export const JUDGE_MAX_ESTIMATED_TOKENS = Math.floor(JUDGE_TOKEN_LIMIT * (1 - JUDGE_TOKEN_MARGIN));
+export const JUDGE_MAX_ESTIMATED_TOTAL_TOKENS = Math.floor(JUDGE_TOTAL_TOKEN_LIMIT * (1 - JUDGE_TOKEN_MARGIN));
 export const JUDGE_CHARS_PER_TOKEN = 3.488;
+export const JUDGE_MAX_REQUEST_CHARS = Math.floor(JUDGE_MAX_ESTIMATED_TOTAL_TOKENS * JUDGE_CHARS_PER_TOKEN);
 
 export interface JudgeCriterion {
   what: string;
@@ -91,7 +93,7 @@ export type JudgeTransport = (request: JudgeRequest, options: { timeoutMs: numbe
  */
 export type JudgeFallback =
   | "disabled" | "unavailable" | "timeout" | "cancelled" | "error" | "invalid" | "no-roles" | "no-seam" | "busy" | "uncalibrated" | "auth"
-  | "model-mismatch";
+  | "model-mismatch" | "too-large";
 
 export interface JudgeCallRecord {
   at: string;

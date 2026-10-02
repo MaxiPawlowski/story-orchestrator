@@ -38,8 +38,8 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
         [--media off|on] [--allow-comfy] [--no-seed] [--force-waiting] [--arm <label>] [--break-lease] [--judge-rate <n>]
         [--preset-overlay <variant>] [--no-preset-overlay]
       the lane's judge plugin limit (SO_JUDGE_RATE_PER_MIN) is the account rate (SO_JUDGE_ACCOUNT_RATE_PER_MIN,
-      default 90/min) x2 split over the running lanes plus this one, 10..60/min (lanes burst at different
-      times: T1-4..7 combined used at most 56/min of 90); --judge-rate overrides it. A lane already up at another
+      default 1,200/min, TypeSafe's documented limit) x2 split over the running lanes plus this one, 10..480/min
+      (lanes burst at different times); the plugin lowers it on a real TypeSafe 429; --judge-rate overrides it. A lane already up at another
       limit is restarted when no session runs on it; while one does, start refuses
       preflight the card (structure, the story data it exercises, the session it continues, the
       lane lease), seed the lane with adolion-fresh, write test/sessions/baseline-settings.json

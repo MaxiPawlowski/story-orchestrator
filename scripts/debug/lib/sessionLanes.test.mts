@@ -180,13 +180,13 @@ test('pin bump: seed records are read from the lane\'s adolion-fresh dir, a brok
   assert.deepEqual(await readSeedRecords(join(dir, 'missing')), []);
 });
 
-test('T1 judge rate: the account rate is split over the running lanes plus this one, bounded 10..60, and an explicit rate wins', async () => {
-  assert.equal(JUDGE_ACCOUNT_RATE_PER_MIN, 90);
-  assert.deepEqual([1, 2, 3, 4, 5, 20].map((lanes) => laneJudgeRate(lanes)), [60, 60, 60, 45, 36, 10]);
-  assert.deepEqual(judgeRatePlan(3, [1, 4]), { perMinute: 60, lanes: 3, running: [1, 3, 4], account: 90, source: 'derived' });
-  assert.equal(judgeRatePlan(3, [3]).perMinute, 60, 'the lane itself is counted once');
+test('T1 judge rate: the account rate (TypeSafe\'s documented 1,200/min, 2026-10-02) is split x2 over the running lanes plus this one, bounded 10..480 (the plugin\'s own per-user default), and an explicit rate wins', async () => {
+  assert.equal(JUDGE_ACCOUNT_RATE_PER_MIN, 1200);
+  assert.deepEqual([1, 2, 3, 4, 5, 6, 20].map((lanes) => laneJudgeRate(lanes)), [480, 480, 480, 480, 480, 400, 120]);
+  assert.deepEqual(judgeRatePlan(3, [1, 4]), { perMinute: 480, lanes: 3, running: [1, 3, 4], account: 1200, source: 'derived' });
+  assert.equal(judgeRatePlan(7, [1, 2, 3, 4, 5, 6]).perMinute, 342, 'the lane itself is counted once: 2400 / 7');
   assert.equal(judgeRatePlan(3, [1, 4], { env: { SO_JUDGE_ACCOUNT_RATE_PER_MIN: '60' } }).perMinute, 40);
-  assert.deepEqual(judgeRatePlan(3, [1, 4], { requested: 15 }), { perMinute: 15, lanes: 3, running: [1, 3, 4], account: 90, source: 'arg' });
+  assert.deepEqual(judgeRatePlan(3, [1, 4], { requested: 15 }), { perMinute: 15, lanes: 3, running: [1, 3, 4], account: 1200, source: 'arg' });
   assert.equal(judgeRatePlan(3, [1, 4], { requested: 'many' }).source, 'derived');
   const log = '[story-orchestrator-judge] loaded; key from dotenv\n[story-orchestrator-judge] loaded; key from dotenv; per user 15/min, 2 in flight (SO_JUDGE_RATE_PER_MIN, SO_JUDGE_MAX_IN_FLIGHT)\nnoise\n[story-orchestrator-judge] loaded; key from dotenv; per user 30/min, 2 in flight (SO_JUDGE_RATE_PER_MIN, SO_JUDGE_MAX_IN_FLIGHT)\n';
   assert.equal(loadedJudgeRate(log), 30, 'the last load wins');

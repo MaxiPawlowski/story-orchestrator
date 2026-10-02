@@ -3,7 +3,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
-export const PLUGIN_VERSION = '1.4.0';
+export const PLUGIN_VERSION = '1.5.0';
 export const SECRET_KEY = 'typesafe_api_key';
 export const LLAMA_SECRET_KEY = 'so_judge_llama_key';
 export const PROVIDERS = Object.freeze({
@@ -13,20 +13,38 @@ export const PROVIDERS = Object.freeze({
 export const LLAMA_LIMITS = Object.freeze({ maxPredict: 4, maxProbs: 50, maxPromptChars: 140_000 });
 export const DEFAULT_MODEL = 'jev-1.13.0';
 export const MAX_CHOICE_OPTIONS = 255;
-export const MAX_REQUEST_CHARS = 140_000;
-// Mirrors src/judge/types.ts (v2.4 plan 07 T25): the documented 32k state + longest-question limit minus 10%,
-// estimated at the lowest measured natural-language ratio. Past it the API refuses; this refuses first.
-export const MAX_ESTIMATED_TOKENS = Math.floor(32_768 * 0.9);
+// Mirrors src/judge/types.ts: TypeSafe documents 32,000 tokens for state + the longest question and 64,000 for the
+// whole request; both minus 10%, estimated at the lowest measured natural-language ratio. Past either
+// the API refuses; this refuses first, with 413, and never truncates.
+export const TOKEN_LIMIT = 32_000;
+export const TOTAL_TOKEN_LIMIT = 64_000;
+export const TOKEN_MARGIN = 0.1;
+export const MAX_ESTIMATED_TOKENS = Math.floor(TOKEN_LIMIT * (1 - TOKEN_MARGIN));
+export const MAX_ESTIMATED_TOTAL_TOKENS = Math.floor(TOTAL_TOKEN_LIMIT * (1 - TOKEN_MARGIN));
 export const CHARS_PER_TOKEN = 3.488;
+export const MAX_REQUEST_CHARS = Math.floor(MAX_ESTIMATED_TOTAL_TOKENS * CHARS_PER_TOKEN);
 export const UPSTREAM_TIMEOUT_MS = 10_000;
 export const PERMITTED_MODELS = Object.freeze(['jev-1.13.0', 'jev-latest', 'jev-preview']);
 export const MAX_BODY_BYTES = MAX_REQUEST_CHARS * 4;
 export const MAX_IN_FLIGHT_PER_USER = 2;
 export const MAX_QUEUED_PER_USER = 16;
 export const QUEUE_WAIT_MS = 2_000;
-export const MAX_CALLS_PER_MINUTE_PER_USER = 60;
+export const ACCOUNT_RATE_PER_MIN = 1_200;
+export const ACCOUNT_TOKENS_PER_SECOND = 250_000;
+export const EXPECTED_USERS = 5;
+export const USER_BURST = 2;
+export const userShare = (account) => Math.max(1, Math.floor((account * USER_BURST) / EXPECTED_USERS));
+export const MAX_CALLS_PER_MINUTE_PER_USER = userShare(ACCOUNT_RATE_PER_MIN);
+export const MAX_TOKENS_PER_SECOND_PER_USER = userShare(ACCOUNT_TOKENS_PER_SECOND);
 export const RATE_ENV = 'SO_JUDGE_RATE_PER_MIN';
+export const ACCOUNT_RATE_ENV = 'SO_JUDGE_ACCOUNT_RATE_PER_MIN';
+export const ACCOUNT_TOKENS_ENV = 'SO_JUDGE_ACCOUNT_TOKENS_PER_SEC';
 export const IN_FLIGHT_ENV = 'SO_JUDGE_MAX_IN_FLIGHT';
+export const BACKOFF_FACTOR = 0.5;
+export const BACKOFF_FLOOR = 0.1;
+export const RECOVER_HOLD_MS = 30_000;
+export const RECOVER_MS = 120_000;
+export const MAX_COOL_MS = 300_000;
 export const PLUGIN_HEADER = 'x-so-plugin';
 const RETRY_STATUSES = new Set([429, 529]);
 const RETRY_DELAY_MS = 600;
@@ -168,7 +186,27 @@ export function estimateTokens(body) {
     return Math.ceil((JSON.stringify(body?.state ?? {}).length + longest) / CHARS_PER_TOKEN);
 }
 
+export function estimateTotalTokens(body) {
+    return Math.ceil(JSON.stringify({ state: body?.state ?? {}, questions: body?.questions ?? {} }).length / CHARS_PER_TOKEN);
+}
+
+export const estimateInputTokens = (body) => Math.ceil((JSON.stringify(body ?? {}) ?? '').length / CHARS_PER_TOKEN);
+
+export function sizeIssues(body) {
+    if (!isRecord(body)) return [];
+    const issues = [];
+    const tokens = estimateTokens(body);
+    if (tokens > MAX_ESTIMATED_TOKENS) issues.push(`request is over ${MAX_ESTIMATED_TOKENS} estimated tokens (${tokens})`);
+    const total = estimateTotalTokens(body);
+    if (total > MAX_ESTIMATED_TOTAL_TOKENS) issues.push(`request is over ${MAX_ESTIMATED_TOTAL_TOKENS} estimated tokens in total (${total})`);
+    return issues;
+}
+
 export function validateRequest(body) {
+    return [...shapeIssues(body), ...sizeIssues(body)];
+}
+
+export function shapeIssues(body) {
     const issues = [];
     if (!isRecord(body)) return ['body must be a JSON object'];
     if (!isRecord(body.state)) issues.push('state must be an object');
@@ -193,15 +231,41 @@ export function validateRequest(body) {
             issues.push(`${id}: unknown type`);
         }
     }
-    if (JSON.stringify(body).length > MAX_REQUEST_CHARS) issues.push(`request is over ${MAX_REQUEST_CHARS} chars`);
-    const tokens = estimateTokens(body);
-    if (tokens > MAX_ESTIMATED_TOKENS) issues.push(`request is over ${MAX_ESTIMATED_TOKENS} estimated tokens (${tokens})`);
     return issues;
 }
 
 const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
-async function callUpstream(key, payload, fetchImpl, url = apiUrl()) {
+export function parseRetryAfter(value, at = Date.now()) {
+    if (typeof value !== 'string' || !value.trim()) return null;
+    const raw = value.trim();
+    if (/^\d+$/.test(raw)) return Math.min(MAX_COOL_MS, Number(raw) * 1000);
+    const date = /[a-z]/i.test(raw) ? Date.parse(raw) : NaN;
+    if (!Number.isFinite(date)) return null;
+    return Math.min(MAX_COOL_MS, Math.max(0, date - at));
+}
+
+export function createAdaptiveRate({ now = Date.now, factor: backoff = BACKOFF_FACTOR, floor = BACKOFF_FLOOR, holdMs = RECOVER_HOLD_MS, recoverMs = RECOVER_MS } = {}) {
+    let base = 1;
+    let since = -Infinity;
+    let coolUntil = 0;
+    let busyAnswers = 0;
+    const factor = () => Math.min(1, base + Math.max(0, now() - since - holdMs) / recoverMs);
+    const coolingMs = () => Math.max(0, coolUntil - now());
+    return {
+        factor,
+        coolingMs,
+        busy(retryAfterMs = null) {
+            base = Math.max(floor, factor() * backoff);
+            since = now();
+            busyAnswers += 1;
+            if (Number.isFinite(retryAfterMs) && retryAfterMs > 0) coolUntil = Math.max(coolUntil, now() + retryAfterMs);
+        },
+        state: () => ({ factor: Math.round(factor() * 1000) / 1000, coolingMs: coolingMs(), busyAnswers }),
+    };
+}
+
+async function callUpstream(key, payload, fetchImpl, url = apiUrl(), { onBusy = () => undefined, now = Date.now } = {}) {
     let last = null;
     for (let attempt = 0; attempt < 2; attempt += 1) {
         const controller = new AbortController();
@@ -215,16 +279,20 @@ async function callUpstream(key, payload, fetchImpl, url = apiUrl()) {
             });
             const text = await response.text();
             const retryAfter = response.headers?.get?.('retry-after') ?? null;
-            const busyAnswers = (last?.busyAnswers ?? 0) + (RETRY_STATUSES.has(response.status) ? 1 : 0);
-            last = { status: response.status, text, busyAnswers, ...(retryAfter ? { retryAfter } : {}) };
-            if (!RETRY_STATUSES.has(response.status)) return last;
+            const busy = RETRY_STATUSES.has(response.status);
+            const busyAnswers = (last?.busyAnswers ?? 0) + (busy ? 1 : 0);
+            last = { status: response.status, text, busyAnswers, retried: attempt > 0, ...(retryAfter ? { retryAfter } : {}) };
+            if (!busy) return last;
+            const waitMs = parseRetryAfter(retryAfter, now());
+            onBusy(waitMs);
+            if (waitMs !== null && waitMs > RETRY_DELAY_MS) return last;
         } catch (error) {
             if (error?.name === 'AbortError') return { status: 504, text: JSON.stringify({ error: 'upstream timeout' }) };
             last = { status: 502, text: JSON.stringify({ error: 'upstream unreachable' }) };
         } finally {
             clearTimeout(timer);
         }
-        await sleep(RETRY_DELAY_MS);
+        if (attempt === 0) await sleep(RETRY_DELAY_MS);
     }
     return last;
 }
@@ -272,25 +340,68 @@ export async function readTextBody(request, limit = MAX_BODY_BYTES) {
 const positiveInteger = (raw, fallback) => (typeof raw === 'string' && /^\d+$/.test(raw.trim()) && Number(raw) >= 1 ? Number(raw) : fallback);
 
 export function limitsFromEnv(env = process.env) {
-    return { maxInFlight: positiveInteger(env?.[IN_FLIGHT_ENV], MAX_IN_FLIGHT_PER_USER), perMinute: positiveInteger(env?.[RATE_ENV], MAX_CALLS_PER_MINUTE_PER_USER) };
+    const accountPerMinute = positiveInteger(env?.[ACCOUNT_RATE_ENV], ACCOUNT_RATE_PER_MIN);
+    const accountTokensPerSecond = positiveInteger(env?.[ACCOUNT_TOKENS_ENV], ACCOUNT_TOKENS_PER_SECOND);
+    return {
+        maxInFlight: positiveInteger(env?.[IN_FLIGHT_ENV], MAX_IN_FLIGHT_PER_USER),
+        perMinute: positiveInteger(env?.[RATE_ENV], userShare(accountPerMinute)),
+        accountPerMinute,
+        tokensPerSecond: userShare(accountTokensPerSecond),
+        accountTokensPerSecond,
+    };
 }
 
 const WINDOW_MS = 60_000;
+const TOKEN_WINDOW_MS = 1_000;
+
+const callWait = (stamps, limit, at) => (stamps.length >= limit ? stamps[stamps.length - limit] + WINDOW_MS - at : 0);
+
+const tokenWait = (spent, limit, cost, at) => {
+    let used = spent.reduce((sum, entry) => sum + entry.cost, 0);
+    if (!spent.length || used + cost <= limit) return 0;
+    for (const entry of spent) {
+        used -= entry.cost;
+        if (used + cost <= limit) return entry.at + TOKEN_WINDOW_MS - at;
+    }
+    return spent[spent.length - 1].at + TOKEN_WINDOW_MS - at;
+};
+
+const prune = (bucket, at) => {
+    bucket.stamps = bucket.stamps.filter((stamp) => at - stamp < WINDOW_MS);
+    bucket.spent = bucket.spent.filter((entry) => at - entry.at < TOKEN_WINDOW_MS);
+};
 
 export function createLimiter({
-    maxInFlight = MAX_IN_FLIGHT_PER_USER, perMinute = MAX_CALLS_PER_MINUTE_PER_USER, maxQueued = MAX_QUEUED_PER_USER, queueWaitMs = QUEUE_WAIT_MS,
-    now = Date.now, onRefuse = () => undefined,
+    maxInFlight = MAX_IN_FLIGHT_PER_USER, perMinute = MAX_CALLS_PER_MINUTE_PER_USER, accountPerMinute = ACCOUNT_RATE_PER_MIN,
+    tokensPerSecond = MAX_TOKENS_PER_SECOND_PER_USER, accountTokensPerSecond = ACCOUNT_TOKENS_PER_SECOND,
+    maxQueued = MAX_QUEUED_PER_USER, queueWaitMs = QUEUE_WAIT_MS, now = Date.now, onRefuse = () => undefined, adaptive = createAdaptiveRate({ now }),
 } = {}) {
     const users = new Map();
-    const take = (user) => {
+    const account = { stamps: [], spent: [] };
+    const take = (user, cost) => {
         const at = now();
-        user.stamps = user.stamps.filter((stamp) => at - stamp < WINDOW_MS);
-        if (user.stamps.length >= perMinute) {
-            onRefuse(Math.max(1, Math.ceil((user.stamps[0] + WINDOW_MS - at) / 1000)));
+        const cooling = adaptive.coolingMs();
+        if (cooling > 0) {
+            onRefuse(Math.max(1, Math.ceil(cooling / 1000)));
+            return null;
+        }
+        const factor = adaptive.factor();
+        const scaled = (limit) => Math.max(1, Math.floor(limit * factor));
+        prune(user, at);
+        prune(account, at);
+        const wait = Math.max(
+            callWait(user.stamps, scaled(perMinute), at), callWait(account.stamps, scaled(accountPerMinute), at),
+            tokenWait(user.spent, scaled(tokensPerSecond), cost, at), tokenWait(account.spent, scaled(accountTokensPerSecond), cost, at),
+        );
+        if (wait > 0) {
+            onRefuse(Math.max(1, Math.ceil(wait / 1000)));
             return null;
         }
         user.inFlight += 1;
-        user.stamps.push(at);
+        for (const bucket of [user, account]) {
+            bucket.stamps.push(at);
+            bucket.spent.push({ at, cost });
+        }
         let released = false;
         return () => {
             if (released) return;
@@ -299,10 +410,10 @@ export function createLimiter({
             user.waiting.shift()?.();
         };
     };
-    return async (handle) => {
-        const user = users.get(handle) ?? { inFlight: 0, stamps: [], waiting: [] };
+    return async (handle, cost = 0) => {
+        const user = users.get(handle) ?? { inFlight: 0, stamps: [], spent: [], waiting: [] };
         users.set(handle, user);
-        if (user.inFlight < maxInFlight && !user.waiting.length) return take(user);
+        if (user.inFlight < maxInFlight && !user.waiting.length) return take(user, cost);
         if (user.waiting.length >= maxQueued) {
             onRefuse(1);
             return null;
@@ -320,7 +431,7 @@ export function createLimiter({
             onRefuse(1);
             return null;
         }
-        const release = take(user);
+        const release = take(user, cost);
         if (!release) user.waiting.shift()?.();
         return release;
     };
@@ -335,21 +446,28 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
     const limits = limitsFromEnv(env);
     let retryAfter = 1;
     const refusals = { since: new Date(now()).toISOString(), local: 0, upstreamBusyAnswers: 0, upstreamRefused: 0, lastUpstream: null };
-    const acquire = createLimiter({ ...limits, now, onRefuse: (seconds) => { retryAfter = seconds; } });
+    const adaptive = { typesafe: createAdaptiveRate({ now }), 'llama-logprob': createAdaptiveRate({ now }) };
+    const onRefuse = (seconds) => { retryAfter = seconds; };
+    const acquire = {
+        typesafe: createLimiter({ ...limits, now, onRefuse, adaptive: adaptive.typesafe }),
+        'llama-logprob': createLimiter({ ...limits, now, onRefuse, adaptive: adaptive['llama-logprob'] }),
+    };
+    const upstreamOptions = (provider) => ({ now, onBusy: (waitMs) => adaptive[provider].busy(waitMs) });
     const countUpstream = (provider, upstream) => {
         refusals.upstreamBusyAnswers += upstream?.busyAnswers ?? 0;
         if (!RETRY_STATUSES.has(upstream?.status)) return;
         refusals.upstreamRefused += 1;
         refusals.lastUpstream = { at: new Date(now()).toISOString(), provider, status: upstream.status, retryAfter: upstream.retryAfter ?? null };
-        log(`${provider} answered ${upstream.status} after one retry (Retry-After ${upstream.retryAfter ?? 'none'}); passed to the page`);
+        const percent = Math.round(adaptive[provider].factor() * 100);
+        log(`${provider} answered ${upstream.status} ${upstream.retried ? 'after one retry' : 'and was not retried'} (Retry-After ${upstream.retryAfter ?? 'none'}); passed to the page; rate held at ${percent}% of the limit`);
     };
     const keyOptions = typeof accountsEnabled === 'boolean' ? { accountsEnabled } : {};
-    const guarded = async (request, response, run) => {
+    const guarded = async (request, response, run, provider) => {
         const blocked = guardRequest(request);
         if (blocked) return response.status(blocked.status).json({ error: blocked.error });
         const read = await readTextBody(request);
         if (read.error) return response.status(read.status).json({ error: read.error });
-        const release = await acquire(request?.user?.profile?.handle ?? 'default-user');
+        const release = await acquire[provider](request?.user?.profile?.handle ?? 'default-user', estimateInputTokens(read.body));
         if (!release) {
             refusals.local += 1;
             response.set?.('Retry-After', String(retryAfter));
@@ -369,6 +487,7 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             return response.json({
                 configured: Boolean(resolved), keySource: resolved?.source ?? null, model: DEFAULT_MODEL, pluginVersion: PLUGIN_VERSION,
                 limits,
+                adaptive: { typesafe: adaptive.typesafe.state(), 'llama-logprob': adaptive['llama-logprob'].state() },
                 refusals: { ...refusals },
                 providers: {
                     typesafe: { configured: Boolean(resolved), keySource: resolved?.source ?? null, contract: PROVIDERS.typesafe.contract, local: false, host: new URL(apiUrl()).host },
@@ -382,27 +501,29 @@ export function createHandlers({ fetchImpl = globalThis.fetch, now = Date.now, a
             const { issues, payload } = validateLlamaBody(request.body);
             if (issues.length) return response.status(400).json({ error: 'invalid request', issues });
             const resolved = await resolveKey(request, 'llama-logprob', keyOptions);
-            const upstream = await callUpstream(resolved?.key ?? null, payload, fetchImpl, `${endpoint.base}/completion`);
+            const upstream = await callUpstream(resolved?.key ?? null, payload, fetchImpl, `${endpoint.base}/completion`, upstreamOptions('llama-logprob'));
             countUpstream('llama-logprob', upstream);
             sendUpstream(response, upstream);
         },
         async systemone(request, response) {
-            const issues = validateRequest(request.body);
+            const issues = shapeIssues(request.body);
             if (issues.length) return response.status(400).json({ error: 'invalid request', issues });
+            const oversize = sizeIssues(request.body);
+            if (oversize.length) return response.status(413).json({ error: 'request too large', tooLarge: true, issues: oversize });
             const resolved = await resolveKey(request, 'typesafe', keyOptions);
             if (!resolved) return response.status(409).json({ configured: false, error: 'no TypeSafe API key configured' });
             const model = typeof request.body.model === 'string' && request.body.model.trim() ? request.body.model.trim() : DEFAULT_MODEL;
             if (!PERMITTED_MODELS.includes(model)) return response.status(400).json({ error: `model not permitted: ${model}`, permitted: PERMITTED_MODELS });
             const payload = { state: request.body.state, questions: request.body.questions, model };
-            const upstream = await callUpstream(resolved.key, payload, fetchImpl);
+            const upstream = await callUpstream(resolved.key, payload, fetchImpl, apiUrl(), upstreamOptions('typesafe'));
             countUpstream('typesafe', upstream);
             sendUpstream(response, upstream);
         },
         receive(request, response) {
-            return guarded(request, response, handlers.systemone);
+            return guarded(request, response, handlers.systemone, 'typesafe');
         },
         receiveLlama(request, response) {
-            return guarded(request, response, handlers.llamaCompletion);
+            return guarded(request, response, handlers.llamaCompletion, 'llama-logprob');
         },
     };
     return handlers;
@@ -435,7 +556,7 @@ export async function init(router) {
     router.post('/providers/llama-logprob/completion', guardRoute(handlers.receiveLlama));
     const resolved = await resolveKey(null);
     const limits = limitsFromEnv();
-    console.log(`[story-orchestrator-judge] loaded; key from ${resolved?.source ?? 'ST secrets (per user) or not configured'}; per user ${limits.perMinute}/min, ${limits.maxInFlight} in flight (${RATE_ENV}, ${IN_FLIGHT_ENV})`);
+    console.log(`[story-orchestrator-judge] loaded; key from ${resolved?.source ?? 'ST secrets (per user) or not configured'}; per user ${limits.perMinute}/min, ${limits.maxInFlight} in flight (${RATE_ENV}, ${IN_FLIGHT_ENV}); account ${limits.accountPerMinute}/min, ${limits.accountTokensPerSecond} input tokens/s (${ACCOUNT_RATE_ENV}, ${ACCOUNT_TOKENS_ENV}), per user ${limits.tokensPerSecond} tokens/s; lowered on a TypeSafe 429`);
 }
 
 export async function exit() {
