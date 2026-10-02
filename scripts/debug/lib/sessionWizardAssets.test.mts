@@ -404,3 +404,34 @@ test('T5-2-1 evidence through the whole stop allowance: nothing blocks, and with
   const stray = { ...after, inventory: { ...after.inventory, groups: [...after.inventory.groups, '1790930000000@Stray'].sort() } };
   assert.deepEqual(run(before, stray, stray.inventory.groups).blocking, ['inventory.groups']);
 });
+
+test('T6-3-3: a group the agent created is never counted as a character, so 4 cards allow characterCount +4, not +5', () => {
+  const STORY_ID = 'the-red-ink';
+  const start = { inventory: { v2Stories: ['adolion-war@10'], wizardSessions: [], wizardApplied: [], lorebooksSelected: [], lorebookCount: 24, characterCount: 163, groups: ['17897@Adolion - War'], groupChats: [] } };
+  const cast = ['House Agent', 'House Scholar-Envoy', 'House Enforcer', 'Master Cartographer'];
+  const session = {
+    key: STORY_ID, updatedAt: LATER,
+    applied: ['Red Ink — Lore', 'Red Ink — Lore/The Map', ...cast, 'Red Ink — Cast'],
+    createdLorebooks: ['Red Ink — Lore'],
+    agent: { steps: [{ status: 'applied', at: LATER, op: { kind: 'createGroup', name: 'Red Ink — Cast' }, call: { tool: 'createGroup' }, observation: 'Created the group "Red Ink — Cast" with 4 member(s).' }] },
+  };
+  const drafts = { sessions: [session], library: [{ id: STORY_ID, version: 1 }] };
+  const end = {
+    inventory: {
+      v2Stories: ['adolion-war@10', `${STORY_ID}@1`], wizardSessions: [STORY_ID],
+      wizardApplied: session.applied.map((name) => `${STORY_ID}/${name}`).sort(),
+      lorebooksSelected: ['Red Ink — Lore'], lorebookCount: 25, characterCount: 167,
+      groups: ['17897@Adolion - War', '1790974874340@Red Ink — Cast'], groupChats: ['1790974874340/red-chat'],
+    },
+  };
+  const { wizard, allow } = stopAllow(start, end, drafts, {}, [{ chatId: 'red-chat', groupId: '1790974874340', storyId: STORY_ID, adopted: true }]);
+  assert.deepEqual(wizard.ledger.characters, cast);
+  assert.deepEqual(wizard.ledger.lorebooks, ['Red Ink — Lore']);
+  assert.deepEqual(wizard.ledger.entries, ['Red Ink — Lore/The Map']);
+  assert.deepEqual(wizard.ledger.groups, [{ id: '1790974874340', name: 'Red Ink — Cast', source: 'agent' }]);
+  assert.ok(allow.includes('inventory.characterCount=+4'));
+  assert.ok(!allow.includes('inventory.characterCount=+5'));
+  assert.deepEqual(blocking(start, end, allow), []);
+  const noGroupsHeader = wizardAllowance({ inventory: { ...start.inventory, groups: undefined } }, drafts, AT).ledger;
+  assert.deepEqual(noGroupsHeader.characters, cast, 'an agent group stays out of the cards when the header predates inventory.groups');
+});
