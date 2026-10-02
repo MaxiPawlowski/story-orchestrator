@@ -115,7 +115,7 @@ export const REREAD_SETTLE_MAX_MS = 10_000;
 
 const overlaps = (left: { from: number; to: number }, right: { from: number; to: number }) => left.from <= right.to && right.from <= left.to;
 
-const isWindowlessCue = (job: SchedulerJob): boolean => job.priority === 0 && !job.run && !job.window && isCueReason(job.reason);
+const isWindowlessCue = (job: SchedulerJob) => job.priority === 0 && !job.run && !job.window && isCueReason(job.reason);
 
 const errorText = (error: unknown, fallback: string): string => (error instanceof Error ? error.message : fallback);
 

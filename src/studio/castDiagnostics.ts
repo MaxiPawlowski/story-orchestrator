@@ -15,8 +15,7 @@ export interface CastRun {
 }
 
 const known = (read: (() => readonly string[]) | undefined): Set<string> | null => {
-  let names: readonly string[] = [];
-  try { names = read?.() ?? []; } catch { names = []; }
+  const names = read?.() ?? [];
   return names.length ? new Set(names.map((name) => name.trim().toLowerCase())) : null;
 };
 
