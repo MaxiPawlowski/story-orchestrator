@@ -57,10 +57,12 @@ export const localRoute = (model: ModelCall, ask: ModelAsk): AgentRoute => ({
 });
 
 export class AgentRouteUnavailable extends Error {
-  constructor(readonly route: AgentRouteId, reason: string) {
+  constructor(readonly route: AgentRouteId, reason: string, readonly kind: string | null = null) {
     super(reason);
   }
 }
+
+export const HARNESS_FALLBACK_KINDS: ReadonlySet<string> = new Set(["auth", "quota", "transport", "timeout"]);
 
 export type AgentBridgeEvent =
   | { kind: "call"; callId: string; tool: string; args: Record<string, unknown> }
@@ -86,4 +88,5 @@ export interface HarnessTransport {
   bridge?: AgentToolBridge;
   target?: HarnessTarget;
   refusal?: string;
+  fallback?: boolean;
 }

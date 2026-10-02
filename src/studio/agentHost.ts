@@ -37,10 +37,12 @@ const reasonFor = (harness: string, model: string, row: HarnessRow | undefined):
 };
 
 export async function resolveAgentHarness(deps: AgentHarnessDeps = hostDeps): Promise<HarnessTransport | null> {
-  const routed = roleHarness(deps.settings(), "authoring");
+  const settings = deps.settings();
+  const routed = roleHarness(settings, "authoring");
   if (!routed) return null;
+  const fallback = Boolean(settings.routes?.authoring?.onFailure?.profileId);
   const status = await deps.status();
   const reason = status ? reasonFor(routed.harness, routed.model, status.harnesses[routed.harness]) : NO_STATUS;
   if (reason) return { refusal: agentHarnessRefusal(routed.harness, routed.model, reason) };
-  return { bridge: await deps.bridge(), target: { harness: routed.harness, model: routed.model, timeoutMs: AGENT_BRIDGE_TIMEOUT_MS } };
+  return { bridge: await deps.bridge(), target: { harness: routed.harness, model: routed.model, timeoutMs: AGENT_BRIDGE_TIMEOUT_MS }, fallback };
 }

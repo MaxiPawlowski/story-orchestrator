@@ -14,7 +14,7 @@ import type {
   Transition,
   ValidationError,
 } from "@engine/index";
-import type { ExtractionReply } from "@extraction/modelRoute";
+import type { ExtractionReply, FellBack } from "@extraction/modelRoute";
 import type { ProvisioningOp, WizardQuestion } from "@wizard/index";
 import type { Diagnostic } from "../studio/diagnostics";
 
@@ -87,6 +87,7 @@ export interface ProposalResult {
   deferred?: string[];
   questions: WizardQuestion[];
   audit: CopilotAudit;
+  fellBack?: FellBack;
 }
 
 export interface Suggestion {

@@ -2,7 +2,7 @@ import { callExtractionReply } from "@extraction/client";
 import type { FailoverGate } from "@extraction/breaker";
 import type { ModelCall } from "@extraction/modelRoute";
 import type { PassRole } from "@extraction/passRole";
-import { harnessListed } from "@services/STAPI";
+import { harnessListed, listConnectionProfiles } from "@services/STAPI";
 import { createModelCallVia, type ModelCallDeps, type RoleCallObservation } from "./modelCallCore";
 import { modelCallLog, type ModelCallRecord } from "./modelCallLog";
 import { roleHealth } from "./roleHealth";
@@ -26,4 +26,5 @@ export const createModelCall = (deps: ModelCallDeps): ModelCall => createModelCa
   observe: (role: PassRole, call: RoleCallObservation) => roleHealth.noteCall(role, call),
   record: (record: ModelCallRecord) => modelCallLog.note(record),
   listed: harnessListed,
+  label: (profileId: string) => listConnectionProfiles().find((profile) => profile.id === profileId)?.name ?? profileId,
 }, deps));

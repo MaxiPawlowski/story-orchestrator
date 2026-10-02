@@ -124,6 +124,23 @@ export const ErrorShowsTheConstantNotTheCause: Story = {
     await expect(alert.textContent).not.toContain("ECONNRESET");
     await expect(alert.textContent).not.toContain("sk-secret");
     await expect(canvas.getByRole("button", { name: "Retry" })).toBeEnabled();
+    await expect(canvasElement.querySelector("#so-agent-status")).toHaveTextContent("Failed");
+  },
+};
+
+export const FallbackSaysWhichModelAnswered: Story = {
+  args: {
+    runTurn: scripted([PLAN]),
+    onPersist: fn(),
+    initial: {
+      ...newAgentSession("A heist in the sun ruins."), plan: PLAN.plan, status: "awaiting-plan",
+      fallback: "opencode · openai/gpt-6-astra-fast could not answer (quota: opencode reports its usage limit), so deepseek 4.1 flash answered instead.",
+    },
+  },
+  play: async ({ canvasElement }) => {
+    const notice = canvasElement.querySelector('[data-so="agent-fell-back"]');
+    await expect(notice).toHaveTextContent("could not answer (quota: opencode reports its usage limit)");
+    await expect(notice).toHaveTextContent("deepseek 4.1 flash answered instead");
   },
 };
 

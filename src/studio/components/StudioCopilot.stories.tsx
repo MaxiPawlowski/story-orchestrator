@@ -57,6 +57,23 @@ export const WorkingWhileTheModelRuns: Story = {
   },
 };
 
+const FELL_BACK = {
+  from: "harness:opencode:openai/gpt-6-astra-fast", fromLabel: "opencode · openai/gpt-6-astra-fast", kind: "quota", reason: "opencode reports its usage limit",
+  by: "deepseek", label: "deepseek 4.1 flash", model: "deepseek-v4-flash",
+};
+
+export const FallbackSaysWhichModelAnswered: Story = {
+  args: { enabled: true, runStage: async (input: AuthoringStageInput) => ({ ...(await stageRunner(VALID_RESPONSE)(input)), fellBack: FELL_BACK }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await userEvent.click(canvas.getByRole("button", { name: "Run stage" }));
+    await expect(await canvas.findByLabelText("Wizard proposal")).toBeInTheDocument();
+    const notice = canvasElement.querySelector('[data-so="wizard-fell-back"]');
+    await expect(notice).toHaveTextContent("could not answer (opencode reports its usage limit)");
+    await expect(notice).toHaveTextContent("deepseek 4.1 flash (deepseek-v4-flash) answered instead");
+  },
+};
+
 const WIZARD_FAILED = "The wizard request failed. Try again; the details are in the browser console.";
 
 export const ThrownErrorShowsTheConstant: Story = {

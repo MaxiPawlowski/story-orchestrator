@@ -90,7 +90,7 @@ const emitting = (stdout, code = 1) => (child) => {
 };
 const hanging = () => undefined;
 
-function setup({ harness = 'claude', offer = true, expiresAt = NOW + 5 * HOUR, script = answering(harness), extraConfig = {}, warm = true } = {}) {
+function setup({ harness = 'claude', offer = true, expiresAt = NOW + 5 * HOUR, script = answering(harness), extraConfig = {}, warm = true, extraEnv = {} } = {}) {
     const root = tempRoot();
     const loginFile = path.join(root, 'real-login.json');
     fs.writeFileSync(loginFile, JSON.stringify(LOGINS[harness](expiresAt)));
@@ -103,7 +103,7 @@ function setup({ harness = 'claude', offer = true, expiresAt = NOW + 5 * HOUR, s
         ? (() => { versionCalls.push(bin2); const c = new EventEmitter(); c.pid = 1; c.stdout = new EventEmitter(); c.stderr = new EventEmitter(); c.stdin = { on() {}, end() { setImmediate(() => { c.stdout.emit('data', Buffer.from('9.9.9')); c.emit('close', 0); }); } }; return c; })()
         : processes.spawnImpl(bin2, argv, options));
     const lines = [];
-    const service = plugin.createHarnessService({ config, env: { PATH: '', ANTHROPIC_API_KEY: 'sk-canary', ANTHROPIC_AUTH_TOKEN: 'canary', SO_SECRET_CANARY: 'x', HTTPS_PROXY: 'http://proxy:1' }, home: root, spawnImpl: versions, killTree: processes.killTree, now: () => NOW, log: (line) => lines.push(line) });
+    const service = plugin.createHarnessService({ config, env: { PATH: '', ANTHROPIC_API_KEY: 'sk-canary', ANTHROPIC_AUTH_TOKEN: 'canary', SO_SECRET_CANARY: 'x', HTTPS_PROXY: 'http://proxy:1', ...extraEnv }, home: root, spawnImpl: versions, killTree: processes.killTree, now: () => NOW, log: (line) => lines.push(line) });
     if (warm && harness === 'opencode') {
         fs.mkdirSync(path.join(config.tmpRoot, 'opencode-cache'), { recursive: true });
         fs.writeFileSync(path.join(config.tmpRoot, 'opencode-cache', '.so-warm'), 'x');
@@ -564,4 +564,31 @@ test('CR-J17: status and the probes touch only offered harnesses; an unoffered C
     assert.match(status.harnesses.codex.problem, /not offered/);
     assert.equal((await service.complete(request('claude'))).kind, 'config');
     assert.equal((await service.complete(request('codex', { requestId: 'r2' }))).kind, 'config');
+});
+
+test('T6-3-3 MEDIUM: a usage limit with no retry time holds the harness for the cool-down, failing fast with the reason', async () => {
+    const limit = JSON.stringify({ type: 'error', error: { name: 'APIError', data: { message: 'usage limit reached', statusCode: 429 } } });
+    const { service, processes } = setup({ harness: 'opencode', script: emitting(limit) });
+    const first = await service.complete(request('opencode'));
+    assert.deepEqual([first.kind, first.retryAt ?? null], ['quota', null]);
+    const second = await service.complete(request('opencode', { requestId: 'r2' }));
+    assert.equal(second.kind, 'quota');
+    assert.match(second.message, /no retry time/);
+    assert.equal(second.retryAt, NOW + plugin.QUOTA_HOLD_MS);
+    assert.equal(processes.calls.length, 1, 'the held call never spawns');
+    assert.equal((await service.status()).harnesses.opencode.quotaUntil, NOW + plugin.QUOTA_HOLD_MS);
+    assert.equal(plugin.QUOTA_HOLD_MS, 600_000);
+});
+
+test('T6-3-3 MEDIUM: SO_HARNESS_QUOTA_HOLD_MS sets the cool-down, and 0 turns it off', async () => {
+    const limit = JSON.stringify({ type: 'error', error: { name: 'APIError', data: { message: 'usage limit reached', statusCode: 429 } } });
+    const short = setup({ harness: 'opencode', script: emitting(limit), extraEnv: { SO_HARNESS_QUOTA_HOLD_MS: '60000' } });
+    await short.service.complete(request('opencode'));
+    assert.equal((await short.service.status()).harnesses.opencode.quotaUntil, NOW + 60_000);
+    const off = setup({ harness: 'opencode', script: emitting(limit), extraEnv: { SO_HARNESS_QUOTA_HOLD_MS: '0' } });
+    await off.service.complete(request('opencode'));
+    await off.service.complete(request('opencode', { requestId: 'r2' }));
+    assert.equal(off.processes.calls.length, 2);
+    assert.equal((await off.service.status()).harnesses.opencode.quotaUntil, null);
+    assert.equal(plugin.quotaHoldMs({ SO_HARNESS_QUOTA_HOLD_MS: 'soon' }), plugin.QUOTA_HOLD_MS);
 });

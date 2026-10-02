@@ -66,6 +66,7 @@ export interface AgentSession {
   budget: AgentBudget;
   summary?: string;
   stopReason?: string;
+  fallback?: string;
 }
 
 export type AgentReply =

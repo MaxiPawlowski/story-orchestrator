@@ -61,6 +61,9 @@ export const ROLE_EGRESS: Record<PassRole, string> = {
   inner: "The inner voice sends the drafted character's private knowledge and the recent turns, before that character speaks",
 };
 
+export const TESTING_TEXT = "testing…";
+export const TESTING_HARNESS_TEXT = "testing… a harness can take a minute or more";
+
 const reasoningNote = (route: RoleRouteView): string | null => {
   if (route.effort === "default" || !route.reasoning) return null;
   if (route.reasoning.unsupported) return `Not applied: ${route.reasoning.unsupported}.`;
@@ -152,8 +155,10 @@ export const RoleProfilesGroup = ({
                     disabled={testing !== null || route.state === "missing"}
                     onClick={() => onTest(route.role)}
                   >{testing === route.role ? "Testing…" : "Test"}</button>
-                  <span data-so="role-profile-state" className={state.tone}>{state.text}</span>
-                  {(authorView || harness) && route.state !== "untested" && route.state !== "ok" && route.detail
+                  {testing === route.role
+                    ? <span data-so="role-profile-state" data-testing="true" className="opacity-70">{harness ? TESTING_HARNESS_TEXT : TESTING_TEXT}</span>
+                    : <span data-so="role-profile-state" className={state.tone}>{state.text}</span>}
+                  {testing !== route.role && (authorView || harness) && route.state !== "untested" && route.state !== "ok" && route.detail
                     ? <span data-so="role-profile-detail" className="min-w-0 opacity-80">{route.detail}</span> : null}
                 </div>
               )}

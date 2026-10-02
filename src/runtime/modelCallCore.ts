@@ -38,6 +38,7 @@ export interface ModelCallDeps {
   ownership?: RunOwnership;
   stamp?: () => { chatId: string | null; messageId: number };
   gate?: FailoverGate;
+  label?: (profileId: string) => string;
 }
 
 type Effort = NonNullable<ModelRoute["effort"]>;
@@ -95,6 +96,11 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
         spawnMs: answer && answer.spawnMs, fallbackFrom, ...stamp,
       });
     };
+    const fallBack = async (error: unknown, from: ModelRoute, fixed?: ModelRoute | null) => (await import("./harnessFallback")).answerFallback({
+      error, route: from, settings, role: ask.role, exists: deps.exists, run: (next) => reply(prompt, next, options), note: recordCall, label: deps.label,
+      ...(fixed !== undefined ? { fallback: fixed } : {}),
+    });
+    if (ask.onFailure && route) return fallBack(new ModelCallError(ask.onFailure.kind, ask.onFailure.reason, routeKey(route)), route);
     const startedAt = Date.now();
     try {
       const answer = await reply(prompt, used, options);
@@ -109,10 +115,7 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
       noteFailover(gate, used, kind, error);
       if (!retries(used, kind, diverted, fallback, gate)) throw error;
       if (used.kind === "profile" && token && deps.ownership && !deps.ownership.check(token).ok) throw new ModelCallError("lapsed", LAPSED_BEFORE_FALLBACK, routeKey(used));
-      return (await import("./harnessFallback")).answerFallback({
-        error, route: used, settings, role: ask.role, exists: deps.exists, run: (next) => reply(prompt, next, options), note: recordCall,
-        ...(used.kind === "profile" ? { fallback } : {}),
-      });
+      return fallBack(error, used, used.kind === "profile" ? fallback : undefined);
     }
   };
   call.planted = planted;

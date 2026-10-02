@@ -38,6 +38,8 @@ const STATUS_TEXT: Record<AgentSession["status"], string> = {
   budget: "Out of budget",
 };
 
+const FAILED_TEXT = "Failed";
+
 const pretty = (value: unknown) => JSON.stringify(value, null, 2);
 
 const Coverage = () => {
@@ -299,7 +301,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
       {!session ? <Start busy={busy} onStart={(goal, mode) => void drive(newAgentSession(goal, mode))} /> : (
         <>
           <div className="flex flex-wrap items-center gap-2 text-xs">
-            <span id="so-agent-status" role="status" className="st-pill px-2 py-0.5" data-status={session.status}>{busy ? "Working…" : STATUS_TEXT[session.status]}</span>
+            <span id="so-agent-status" role="status" className="st-pill px-2 py-0.5" data-status={session.status}>{busy ? "Working…" : error ? FAILED_TEXT : STATUS_TEXT[session.status]}</span>
             <select aria-label="Agent mode" className="text_pole st-input" value={session.mode} disabled={busy} onChange={(event) => commit(setAgentMode(session, event.target.value as AgentMode))}>
               {AGENT_MODES.map((entry) => <option key={entry} value={entry}>{MODE_LABELS[entry]}</option>)}
             </select>
@@ -317,6 +319,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
             ) : null}
             {!busy && session.status !== "awaiting-author" ? <button id="so-agent-new-goal" type="button" className="st-button secondary" onClick={newGoal}>New goal</button> : null}
           </div>
+          {session.fallback ? <div data-so="agent-fell-back" className="so-warning-text text-xs" role="status">{session.fallback}</div> : null}
           {session.status === "awaiting-plan" ? <PlanEditor session={session} busy={busy} onGo={(plan) => void drive(approvePlan(session, plan))} /> : null}
           {session.plan.length && session.status !== "awaiting-plan" ? (
             <ol className="text-xs" aria-label="Agreed plan">{session.plan.map((step, index) => <li key={index}>{`${index + 1}. ${step}`}</li>)}</ol>

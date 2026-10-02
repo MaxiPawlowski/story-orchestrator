@@ -1,6 +1,6 @@
 import { ModelCallError } from "@extraction/modelError";
-import type { ExtractionReply, ModelRoute } from "@extraction/modelRoute";
-import { routeKey } from "@extraction/modelRoute";
+import type { ExtractionReply, FellBack, ModelRoute } from "@extraction/modelRoute";
+import { routeKey, routeLabel } from "@extraction/modelRoute";
 import type { PassRole } from "@extraction/passRole";
 import type { NoteCall } from "./modelCallCore";
 import { roleEffort, roleHarness, type RouteSettings } from "./passProfiles";
@@ -21,7 +21,22 @@ export interface FallbackInput {
   run: (route: ModelRoute) => Promise<ExtractionReply>;
   note: NoteCall;
   fallback?: ModelRoute | null;
+  label?: (profileId: string) => string;
 }
+
+const fellBackFrom = (input: FallbackInput, fallback: ModelRoute, answer: ExtractionReply): FellBack => {
+  const label = input.label ?? ((id: string) => id);
+  const by = routeKey(fallback);
+  return {
+    from: routeKey(input.route),
+    fromLabel: routeLabel(routeKey(input.route), label),
+    kind: input.error instanceof ModelCallError ? input.error.kind : "transport",
+    reason: input.error instanceof Error ? input.error.message : String(input.error),
+    by,
+    label: routeLabel(by, label),
+    model: answer.model ?? null,
+  };
+};
 
 export async function answerFallback(input: FallbackInput): Promise<ExtractionReply> {
   const fallback = input.fallback === undefined ? fallbackRoute(input.settings, input.role, input.exists) : input.fallback;
@@ -35,5 +50,5 @@ export async function answerFallback(input: FallbackInput): Promise<ExtractionRe
     throw error;
   }
   input.note(fallback, startedAt, "fallback", answer, routeKey(input.route));
-  return answer;
+  return { ...answer, fellBack: fellBackFrom(input, fallback, answer) };
 }
