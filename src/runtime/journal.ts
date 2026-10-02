@@ -48,6 +48,7 @@ export interface JournalSources {
   judgeCalls?: JudgeCallRecord[];
   modelCalls?: ModelCallRecord[];
   pending?: ApplyQueueEntry[];
+  pendingSeenAt?: (key: string) => string;
 }
 
 const KIND_ORDER: JournalEventKind[] = [
@@ -115,15 +116,17 @@ const extractionEvents = (audits: SharedReadAudit[]): JournalEvent[] => audits.f
 
 // Writes waiting for the next boundary. They carry no timestamp of their own, so each is placed at
 // the read that produced it, or at build time when that read is no longer in the ring.
-const pendingEvents = (pending: ApplyQueueEntry[], audits: SharedReadAudit[], now: string): JournalEvent[] => pending.map((entry) => {
+const pendingEvents = (pending: ApplyQueueEntry[], audits: SharedReadAudit[], seenAt: (key: string) => string): JournalEvent[] => pending.map((entry) => {
   const read = audits.find((audit) => audit.id === entry.origin);
+  const summary = `queued ${writeText(entry).join(", ")} for the next boundary`;
+  const origin = entry.origin ?? entry.source;
   return {
-    at: read?.createdAt ?? now,
+    at: read?.createdAt ?? seenAt(`${origin}|${entry.turnRange?.to ?? -1}|${summary}`),
     boundary: -1,
     messageId: entry.turnRange?.to ?? -1,
     kind: "delta" as const,
-    summary: `queued ${writeText(entry).join(", ")} for the next boundary`,
-    detail: { state: "queued", origin: entry.origin ?? entry.source },
+    summary,
+    detail: { state: "queued", origin },
   };
 });
 
@@ -161,7 +164,7 @@ export function buildSessionJournal(sources: JournalSources): JournalEvent[] {
     })),
     ...boundaryEvents(sources.boundaryLog),
     ...extractionEvents(sources.audits),
-    ...pendingEvents(sources.pending ?? [], sources.audits, new Date().toISOString()),
+    ...pendingEvents(sources.pending ?? [], sources.audits, sources.pendingSeenAt ?? (() => new Date().toISOString())),
     ...reconciliationEvents(sources.reconciliationEvents),
     ...sources.payloadCaptures.map((capture) => ({
       at: capture.at,
@@ -208,11 +211,13 @@ export class SessionJournal {
   private records: JournalRecord[] = [];
   private captures: PayloadCapture[] = [];
   private lastStatus: string | null = null;
+  private pendingSeen = new Map<string, string>();
 
   hydrate(records: unknown, status: string | null = null) {
     this.records = sanitizeJournalRecords(records);
     this.lastStatus = status;
     this.captures = [];
+    this.pendingSeen = new Map();
   }
 
   getRecords(): JournalRecord[] {
@@ -263,8 +268,16 @@ export class SessionJournal {
     return true;
   }
 
-  build(sources: Omit<JournalSources, "records" | "payloadCaptures">): JournalEvent[] {
-    return buildSessionJournal({ ...sources, records: this.records, payloadCaptures: this.captures });
+  build(sources: Omit<JournalSources, "records" | "payloadCaptures" | "pendingSeenAt">): JournalEvent[] {
+    const seen = new Map<string, string>();
+    const pendingSeenAt = (key: string) => {
+      const at = this.pendingSeen.get(key) ?? seen.get(key) ?? new Date().toISOString();
+      seen.set(key, at);
+      return at;
+    };
+    const events = buildSessionJournal({ ...sources, records: this.records, payloadCaptures: this.captures, pendingSeenAt });
+    this.pendingSeen = seen;
+    return events;
   }
 
   private push(record: JournalRecord) {
