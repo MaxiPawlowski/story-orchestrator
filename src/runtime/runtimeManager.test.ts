@@ -1771,6 +1771,34 @@ describe("V5: opening a chat whose saved state is stamped for another chat", () 
   });
 });
 
+describe("SP5 follow-up 3: the session journal belongs to the open chat", () => {
+  beforeEach(() => resetHost());
+
+  it("a chat with no story shows an empty journal, not the previous chat's", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    await manager.flagMoment("flagged in chat A");
+    expect(JSON.stringify(manager.getSessionJournal())).toContain("flagged in chat A");
+    mockContext.chatId = "chat-b";
+    mockContext.chatMetadata = {};
+    await manager.loadSelectedFromChat();
+    expect(manager.getSnapshot().storyId).toBeNull();
+    expect(manager.getSessionJournal()).toEqual([]);
+  });
+
+  it("a note about the open chat lands in its own journal, without the previous chat's", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(JSON.stringify(story));
+    await manager.flagMoment("flagged in chat A");
+    mockContext.chatId = "chat-b";
+    mockContext.chatMetadata = { story_orchestrator: { version: BLOB_VERSION, chatId: "chat-elsewhere", selectedStoryId: "s1", stories: {} } };
+    await manager.loadSelectedFromChat();
+    const journal = JSON.stringify(manager.getSessionJournal());
+    expect(journal).toContain("blob-chat-mismatch: stamped for chat-elsewhere");
+    expect(journal).not.toContain("flagged in chat A");
+  });
+});
+
 describe("V3: an exit that a newer load overtakes leaves the newer load alone", () => {
   beforeEach(() => resetHost());
 

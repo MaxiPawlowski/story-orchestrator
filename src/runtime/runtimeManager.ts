@@ -200,7 +200,6 @@ export class RuntimeManager extends CoordinatorDelegates {
     restoreEffects: async (scope) => { await this.effects.restoreFor(this.extras, scope); },
     beginRun: () => beginRun(this.owner.ownership),
     clearStory: async (status, note) => {
-      if (note) this.journal.record("story", status, this.journalContext(), note);
       const previous = this.loaded?.story ?? null;
       this.loaded = null;
       this.loadedChatId = null;
@@ -209,6 +208,8 @@ export class RuntimeManager extends CoordinatorDelegates {
       await this.effects.restoreFor(this.extras, "exit");
       if (!run.stillOwns()) return;
       this.extras = createExtras(getGlobalSettings);
+      this.journal.hydrate(this.extras.journal, status);
+      if (note) this.noteRecap(status, note);
       this.pacing.reset();
       this.pacing.updateSteering();
       clearAllMemoryInjection(coordinatorHosts.prompt);

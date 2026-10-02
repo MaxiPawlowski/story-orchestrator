@@ -29,6 +29,17 @@ export function blockTokens(entry: MemoryEntry): number {
   return entryTokens(entry) + BLOCK_OVERHEAD_TOKENS;
 }
 
+const SENTENCE_END = /[.!?]["'”’)]?(?=\s|$)/g;
+
+export function fitTextToTokens(text: string, tokens: number, budget: number): string {
+  if (tokens <= budget) return text;
+  const head = text.slice(0, Math.floor((text.length * budget) / tokens));
+  const ends = [...head.matchAll(SENTENCE_END)].map((match) => (match.index ?? 0) + match[0].length);
+  const sentence = ends.at(-1) ?? 0;
+  const word = head.lastIndexOf(" ");
+  return head.slice(0, sentence >= head.length / 2 ? sentence : word > 0 ? word : head.length).trim();
+}
+
 export function selectWithinBudget(
   entries: MemoryEntry[],
   tokenBudget: number,
