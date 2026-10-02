@@ -69,3 +69,69 @@ Findings:
   - Seed drift (`$.selected 16 vs 0`) as T6-4.
   - No so-session/so-ui verb to accept agent review cards or apply agent provisioning cards (an operator loop was used, `x-accept-loop.js`).
 - Spend: DeepSeek 273 calls, 1,679,980 in / 42,628 out, all primary. Judge 51 (4 timeouts). Main RP 12 (10 loud + 2 ST Summarize). Pod about 25 min of play. Assets left on lane 1's copy.
+
+## T6-3 re-run (lane 1, `test/sessions/T6/T6-3-3` INVALID (harness allowance), harness route blocked by opencode quota)
+
+- **T6-3-2 (left as is):** interrupted by the host restart at 20:02Z after 16 agent steps. It had already hit "quota: opencode reports its usage limit" at 19:48Z.
+- **T6-3-3:** played 2026-10-02 20:25-21:21Z on lane 1. Served bundle `5b74e2aafe0b` (dev, master `1d8b575d`). Harness plugin 1.1.0: opencode offered, warm, `agentBridge:true`. Media off. Author mode.
+  - Start deviation: the seed failed its ComfyUI guard on 8 refused `GET :8188/object_info`. These come from ST's built-in Image Generation, which loads its ComfyUI lists on every page load. ComfyUI was down, so nothing was reached. I disabled `stable-diffusion` in lane 1's copy, ran `adolion-fresh check 1` (clean), then `start --no-seed`.
+  - Why INVALID: the stop diff blocked only on `inventory.characterCount 163 -> 167` against an allowance of +5. That is a harness bug: the allowance counts the agent-created group as a character. Every other change was allowed by name. Scores are `--provisional`.
+
+| Row | Score (provisional) | Evidence (T6-3-3) |
+|---|---|---|
+| harness route | not-noticed (not exercised: opencode account quota) | turns.jsonl:4, shots/001-role-test-quota.png, shots/003-harness-plan-quota.png, lane server.log |
+| fallback visibility | annoying | turns.jsonl:10, shots/009-stepbystep-after.png, shots/x03-role-row-after-fallback.png |
+
+Live checks (detail in `T6-3-3/findings.md` "Live checks"):
+- Harness:
+  - The panel offers opencode.
+  - The role Test states the reason ("opencode reports its usage limit", after 75-89 s).
+  - The tool bridge opened twice: `agent {calls:0, kind:quota}`. No call was parked or answered, and nothing was written.
+  - Agent entry: visible error, no fallback. It ignores the role's On failure.
+  - Step by step: fell back to DeepSeek twice with no notice in the pane. The role meter showed "0 fell back".
+  - `quotaUntil` stays null, so every call waits about 80 s again.
+- Fix wave (local route):
+  - 133 steps, 108 first-try valid, 3 Continues.
+  - 4 guide repeats refused. No re-creates.
+  - The 3x repeated refusal stopped the run with a reason.
+  - The group was created after the 4th card and holds the whole cast; the ledger records it.
+  - 11 provisioning cards waited and were applied one by one.
+  - Saved with diagnostics "No issues".
+- Play (11 turns):
+  - 17/17 loud TC requests carry budget 400.
+  - Book met by `story`; `lorebooksSelected` [] at both ends.
+  - Empty replies 0/17.
+  - 2/17 reasoning leaks.
+  - Muted members stayed silent until enabled.
+
+Findings:
+- HIGH (product, play): visible reasoning leaks in 2 of 17 replies.
+  - Msg 14 opens with the thought's tail plus `<channel|>`; its reasoning was cut at about 400 tokens.
+  - Msg 17 opens `"speech", *...` (`journal.jsonl:257`, `:297`).
+- HIGH (wizard story/diagnostics): offer, archive, raid and choice each passed straight through, and the finale came at turn 9.
+  - `gate-open-on-arrival` stayed silent because it checks only the entering edge.
+  - Offer's exit was met two edges earlier. Raid and choice read `pen_control`, which was already `apprentice_held` at boundary 1.
+- MEDIUM (product, agent):
+  - `updateQuality` drops `evidence_from` (`src/copilot/parseFields.ts:92-108`). So the step the `quality-outcome-player-evidence` note recommends is refused as "changes nothing", which stopped the run.
+  - `setRequirements.groups` is dropped the same way.
+- MEDIUM (product, routing):
+  - Step by step falls back to On failure with no notice, and the meter undercounts.
+  - The Agent entry (bridge) ignores On failure.
+  - A quota with no retry time is retried at full cost on every call.
+- LOW:
+  - The status pill stays "Planning" after a failed agent call.
+  - The role Test shows no "testing" state during a 75-89 s call.
+  - The Scholar-Envoy speaks under the House Agent's name (msg 26).
+  - Agent calls with no chat open are not in the model-call ring.
+- Harness:
+  - characterCount allowance bug (`scripts/debug/lib/sessionWizardAssets.mts`: `characters` does not exclude `agentNames`).
+  - The ComfyUI guard sees ST Image Generation's load-time probes only when ComfyUI is down. Lanes keep `sd.source = comfy`, so every lane page load contacts 127.0.0.1:8188.
+  - The digest's model-defect detector missed both leaks.
+- Spend:
+  - DeepSeek 167 calls, 1,090,526 in / 40,808 out.
+  - Judge 78 (2 timeouts).
+  - Main RP 19 (17 loud + 2 ST Summarize).
+  - opencode 5 spawns, all quota.
+- Open:
+  - The harness-vs-local question is still unanswered. It needs the opencode usage limit to reset, then T6-3-4 with the allowance fixed.
+  - Assets are left in lane 1's copy; lane 1 is stopped.
