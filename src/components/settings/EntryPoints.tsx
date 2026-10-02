@@ -1,6 +1,7 @@
 import type { RuntimeSnapshot } from "@runtime/types";
 import { viewerRepairStep, type RepairStep } from "@runtime/repair";
 import { REPAIR_PLAYER_COPY } from "@runtime/pipeline";
+import { playingLine, playingStory } from "@runtime/playingStory";
 
 export interface EntryPointsProps {
   snapshot: RuntimeSnapshot;
@@ -48,7 +49,7 @@ const RepairAuthorDetail = ({ repair, wizardOn, onFixWithWizard }: { repair: Rep
 
 export default function EntryPoints({ snapshot, busy, importOpen, onToggleImport, onNewStory, onOpenStudio, onOpenDrawer, onOpenAuthorView, onRevealSetting, onFixWithWizard }: EntryPointsProps) {
   const repair = viewerRepairStep(snapshot);
-  const playing = snapshot.storyId ? snapshot.library.find((story) => story.id === snapshot.storyId) ?? null : null;
+  const playing = playingStory(snapshot);
   const wizardOn = snapshot.copilot.enabled;
 
   return (
@@ -71,7 +72,7 @@ export default function EntryPoints({ snapshot, busy, importOpen, onToggleImport
       </Row>
       <Row title="Continue">
         <div id="so-entry-continue" className="text-xs opacity-80">
-          {playing ? `Playing "${playing.title}".` : "No story is playing in this chat yet."}
+          {playingLine(playing)}
         </div>
         <div className="flex flex-wrap items-center gap-2">
           <button type="button" className="menu_button" disabled={busy} onClick={() => onRevealSetting("story-library-select")}>Choose a story</button>

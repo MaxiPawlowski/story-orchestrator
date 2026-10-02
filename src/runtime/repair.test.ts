@@ -101,18 +101,23 @@ describe("nextRepairStep", () => {
   });
 
   describe("v2.4 T14: an orphaned story-memory lorebook", () => {
-    const orphan = { name: "Story Orchestrator - Crossing - chat-b", chatId: "chat-b", reason: "declined" as const, detail: "you chose to keep it" };
+    const orphan = { name: "Story Orchestrator - Crossing - chat-b", chatId: "chat-b", reason: "delete-failed" as const, detail: "the host refused", label: 'the "Crossing" chat started 2026-10-02 01:58' };
 
-    it("is a lore row naming the book, and never offers the wizard", () => {
+    it("is a lore row naming the chat first and the book last, and never offers the wizard", () => {
       const step = nextRepairStep(snapshotWith({ orphanedLorebooks: [orphan] } as Partial<RuntimeSnapshot>));
       expect(step).toEqual({
         area: "lore",
         consequence: "A deleted chat left its story memory behind in a lorebook.",
-        detail: "Orphaned story-memory lorebook: Story Orchestrator - Crossing - chat-b (you chose to keep it)",
+        detail: 'The "Crossing" chat started 2026-10-02 01:58: the host refused. Lorebook: Story Orchestrator - Crossing - chat-b',
         targetId: null,
         provisionable: false,
         player: null,
       });
+    });
+
+    it("reads a row recorded without a label as a deleted chat (T4-3)", () => {
+      const step = nextRepairStep(snapshotWith({ orphanedLorebooks: [{ ...orphan, label: undefined }] } as Partial<RuntimeSnapshot>));
+      expect(step?.detail).toBe("A deleted chat: the host refused. Lorebook: Story Orchestrator - Crossing - chat-b");
     });
 
     it("comes last, after anything the story in play is missing", () => {

@@ -83,7 +83,7 @@ function orphanedLorebookStep(snapshot: RuntimeSnapshot): RepairStep | null {
   return {
     area: "lore",
     consequence: "A deleted chat left its story memory behind in a lorebook.",
-    detail: `Orphaned story-memory lorebook: ${orphans.map((orphan) => `${orphan.name} (${orphan.detail})`).join("; ")}`,
+    detail: orphans.map((orphan) => `${orphan.label ? `${orphan.label[0].toUpperCase()}${orphan.label.slice(1)}` : "A deleted chat"}: ${orphan.detail}. Lorebook: ${orphan.name}`).join("; "),
     targetId: null,
     provisionable: false,
     player: null,

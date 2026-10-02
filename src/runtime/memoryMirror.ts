@@ -12,7 +12,7 @@ export interface MemoryMirrorHost {
   getChatId: () => string | null;
   ensureLorebook: (name: string) => Promise<{ name: string; created: boolean } | null>;
   loadLorebook: (name: string) => Promise<Lorebook | null>;
-  upsertWIEntry: (lorebook: string, comment: string, content: string, keys?: string[]) => Promise<WIUpsertResult>;
+  upsertWIEntry: (lorebook: string, comment: string, content: string, keys?: string[], options?: { live?: boolean }) => Promise<WIUpsertResult>;
   disableWIEntry: (lorebook: string, comments: string | string[]) => Promise<WriteResult<{ changed: boolean }>>;
   bindChatLorebook: (name: string, replaceable?: string[]) => ChatLorebookBinding;
   scanActive?: () => boolean;
@@ -74,13 +74,13 @@ const skippedSync = (result: MemoryMirrorResult, skipped: MemoryMirrorSummary["s
   return result;
 };
 
-async function leftoverComments(host: MemoryMirrorHost, lorebook: string, live: Set<string>): Promise<string[]> {
-  const data = await host.loadLorebook(lorebook);
-  return Object.values(data?.entries ?? {})
-    .filter((entry) => entry.disable !== true)
-    .map((entry) => entry.comment?.trim() ?? "")
-    .filter((comment) => comment.startsWith(COMMENT_PREFIX) && !live.has(comment));
-}
+const bookComments = (data: Lorebook | null, disabled: boolean): string[] => Object.values(data?.entries ?? {})
+  .filter((entry) => (entry.disable === true) === disabled)
+  .map((entry) => entry.comment?.trim() ?? "")
+  .filter((comment) => comment.startsWith(COMMENT_PREFIX));
+
+const sameWrites = (left: Record<string, string>, right: Record<string, string>) =>
+  Object.keys(left).length === Object.keys(right).length && Object.entries(left).every(([comment, hash]) => right[comment] === hash);
 
 // Adopting a book (first write in this chat, a branch, a restart, or the book deleted under us)
 // starts from nothing: earlier `wiWrites` describe another book or entries that are gone, and any
@@ -111,8 +111,10 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   const liveComments = new Set(live.map(mirrorComment));
   const writes = adopting ? {} : { ...input.writes };
 
+  const data = ensured.created ? null : await host.loadLorebook(ensured.name);
+  const switchedOff = new Set(bookComments(data, true).filter((comment) => liveComments.has(comment)));
   const stale = adopting
-    ? (ensured.created ? [] : await leftoverComments(host, ensured.name, liveComments))
+    ? bookComments(data, false).filter((comment) => !liveComments.has(comment))
     : Object.keys(writes).filter((comment) => !liveComments.has(comment));
   if (lapsed()) return null;
   if (stale.length) {
@@ -128,12 +130,12 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
   for (const entry of live) {
     const comment = mirrorComment(entry);
     const hash = hashMemoryText(entry.text);
-    if (writes[comment] === hash) {
+    if (writes[comment] === hash && !switchedOff.has(comment)) {
       summary.unchanged += 1;
       continue;
     }
     if (lapsed()) return null;
-    const result = await host.upsertWIEntry(ensured.name, comment, entry.text, entry.entities);
+    const result = await host.upsertWIEntry(ensured.name, comment, entry.text, entry.entities, { live: true });
     if (result === "failed") continue;
     writes[comment] = hash;
     if (result === "created") summary.created += 1;
@@ -160,7 +162,7 @@ export async function syncMemoryMirror(input: MemoryMirrorInput, host: MemoryMir
     const released = await host.unbindChatLorebook?.(ensured.name);
     if (released?.ok) summary.binding = "released";
   } else if (adopting) summary.binding = host.bindChatLorebook(ensured.name, input.book ? [input.book.name] : []);
-  const changed = adopting || summary.created > 0 || summary.updated > 0 || summary.disabled > 0;
+  const changed = adopting || summary.created > 0 || summary.updated > 0 || summary.disabled > 0 || !sameWrites(writes, input.writes);
   log.debug("memory mirror sync", summary);
   return { summary, book: { name: ensured.name, chatId }, writes, changed };
 }

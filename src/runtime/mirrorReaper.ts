@@ -1,4 +1,4 @@
-import type { ChatOwner, ChatPresence } from "@services/STAPI";
+import type { ChatOwner, ChatPresence, ConfirmAnswer } from "@services/STAPI";
 import { lorebookFileId } from "@utils/string";
 import type { WriteResult } from "@utils/writeResult";
 import { beginRun, mintToken, tokenMatches, type RunContext, type RunGuard, type RunOwnership } from "./runToken";
@@ -47,13 +47,29 @@ export function reapCandidates(books: string[], chatId: string): string[] {
   return books.filter((book) => book.startsWith(MIRROR_BOOK_PREFIX) && book.endsWith(suffix));
 }
 
-export type OrphanReason = "no-marker" | "unverifiable" | "declined" | "lapsed" | "delete-failed";
+const CHAT_STAMP = /^(?:(.*\S)\s+-\s+)?(\d{4})-(\d{2})-(\d{2})@(\d{2})h(\d{2})m/;
+
+export function deletedChatLabel(book: string, chatId: string): string {
+  const fileId = lorebookFileId(chatId);
+  const suffix = ` - ${fileId}`;
+  const title = fileId && book.startsWith(MIRROR_BOOK_PREFIX) && book.endsWith(suffix) ? book.slice(MIRROR_BOOK_PREFIX.length, book.length - suffix.length).trim() : "";
+  const stamp = CHAT_STAMP.exec(chatId.trim());
+  if (!stamp) return `${title ? `the "${title}" chat` : "the chat"} "${chatId}"`;
+  const [, name, year, month, day, hour, minute] = stamp;
+  return `${title ? `the "${title}" chat` : "a chat"}${name ? ` with ${name}` : ""} started ${year}-${month}-${day} ${hour}:${minute}`;
+}
+
+export const reapQuestion = (book: string, chatId: string): string =>
+  `You deleted ${deletedChatLabel(book, chatId)}. Its story memory is still kept in a lorebook. Delete that lorebook too? This cannot be undone.`;
+
+export type OrphanReason = "no-marker" | "unverifiable" | "lapsed" | "delete-failed";
 
 export interface OrphanedLorebook {
   name: string;
   chatId: string;
   reason: OrphanReason;
   detail: string;
+  label?: string;
 }
 
 /**
@@ -104,14 +120,15 @@ export interface MirrorReaperDeps {
   /** The `so-owner` entry's content, or null when the book has none. */
   readMarker: (book: string) => Promise<string | null>;
   probeChat: (owner: Pick<ChatOwner, "chatId" | "groupId" | "avatar">) => Promise<ChatPresence>;
-  confirm: (book: string, chatId: string) => Promise<boolean>;
+  confirm: (book: string, chatId: string) => Promise<ConfirmAnswer>;
   deleteLorebook: (name: string) => Promise<WriteResult<{ name: string }>>;
   notify: () => void;
+  journal?: (summary: string, note: string) => void;
   ownership: RunOwnership;
   registry?: OrphanRegistry;
 }
 
-export type ReapResult = "deleted" | "gone" | "not-ours" | "chat-present" | OrphanReason;
+export type ReapResult = "deleted" | "gone" | "not-ours" | "chat-present" | "declined" | "dismissed" | OrphanReason;
 
 export interface ReapOutcome {
   book: string;
@@ -143,10 +160,25 @@ export class MirrorReaper {
     return outcomes;
   }
 
+  private journal(summary: string, book: string, chatId: string) {
+    this.deps.journal?.(summary, `lorebook "${book}", chat "${chatId}"`);
+  }
+
   private orphan(book: string, chatId: string, reason: OrphanReason, detail: string): ReapOutcome {
-    this.registry.note({ name: book, chatId, reason, detail });
+    const label = deletedChatLabel(book, chatId);
+    this.registry.note({ name: book, chatId, reason, detail, label });
+    this.journal(`Left the story-memory lorebook of ${label}: ${detail}.`, book, chatId);
     this.deps.notify();
     return { book, result: reason };
+  }
+
+  private kept(book: string, chatId: string, answer: "declined" | "dismissed"): ReapOutcome {
+    const label = deletedChatLabel(book, chatId);
+    this.journal(answer === "declined"
+      ? `Kept the story-memory lorebook of ${label}.`
+      : `Kept the story-memory lorebook of ${label}: the question was closed without an answer.`, book, chatId);
+    if (this.registry.forget(book)) this.deps.notify();
+    return { book, result: answer };
   }
 
   // Deleted elsewhere while a read or the question was open (by hand, or a harness cleanup): nothing is
@@ -166,14 +198,15 @@ export class MirrorReaper {
     const presence = await this.deps.probeChat(marker);
     if (presence === "present") return { book, result: "chat-present" };
     if (presence !== "absent") return this.orphan(book, chatId, "unverifiable", "the chat's deletion could not be confirmed");
-    const accepted = await this.deps.confirm(book, chatId);
+    const answer = await this.deps.confirm(book, chatId);
     const goneAfterConfirm = this.gone(book);
     if (goneAfterConfirm) return goneAfterConfirm;
-    if (!accepted) return this.orphan(book, chatId, "declined", "you chose to keep it");
+    if (answer !== "confirmed") return this.kept(book, chatId, answer);
     if (!run.stillOwns()) return this.orphan(book, chatId, "lapsed", "the extension stopped before it could be deleted");
     const deleted = await this.deps.deleteLorebook(book);
     if (!deleted.ok) return this.orphan(book, chatId, "delete-failed", deleted.reason);
     this.registry.forget(book);
+    this.journal(`Deleted the story-memory lorebook of ${deletedChatLabel(book, chatId)}.`, book, chatId);
     this.deps.notify();
     return { book, result: "deleted" };
   }

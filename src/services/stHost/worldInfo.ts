@@ -253,7 +253,7 @@ const listGlobalSelect = (): string[] => (getWorldInfoSettings() as { world_info
 
 // Writes only into a book that exists. Whether a missing book should be created is the caller's
 // call (`ensureLorebook`): a raw save lands on disk with no `world_names` refresh and no activation.
-export async function upsertWIEntry(lorebook: string, comment: string, content: string, keys: string[] = [], options: { constant?: boolean } = {}): Promise<WIUpsertResult> {
+export async function upsertWIEntry(lorebook: string, comment: string, content: string, keys: string[] = [], options: { constant?: boolean; live?: boolean } = {}): Promise<WIUpsertResult> {
   if (!comment) return "failed";
   const book = await loadExisting(lorebook);
   if (!book) {
@@ -262,7 +262,8 @@ export async function upsertWIEntry(lorebook: string, comment: string, content: 
   }
   const { name, data } = book;
   const existing = Object.values(data.entries).find((entry) => entry.comment?.trim() === comment);
-  if (existing && String(existing.content ?? "").trim() === content.trim() && options.constant === undefined) return "unchanged";
+  const switchedOff = options.live === true && existing?.disable === true;
+  if (existing && String(existing.content ?? "").trim() === content.trim() && options.constant === undefined && !switchedOff) return "unchanged";
 
   const target = existing ?? (worldInfoModule.createWorldInfoEntry(name, data) as LoreEntry | undefined);
   if (!target) return "failed";

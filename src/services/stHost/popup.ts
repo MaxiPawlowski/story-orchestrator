@@ -4,7 +4,7 @@ import { log } from "@utils/log";
 interface PopupHost {
   callGenericPopup?: (content: string | HTMLElement, type: number, inputValue?: string, popupOptions?: Record<string, unknown>) => Promise<unknown>;
   POPUP_TYPE?: { CONFIRM?: number; TEXT?: number };
-  POPUP_RESULT?: { AFFIRMATIVE?: number };
+  POPUP_RESULT?: { AFFIRMATIVE?: number; NEGATIVE?: number };
 }
 
 const popupHost = (): PopupHost | undefined => getContext() as unknown as PopupHost | undefined;
@@ -17,23 +17,40 @@ export interface TextPopupOptions {
 export interface ConfirmPopupOptions {
   okButton?: string;
   cancelButton?: string;
+  safeDefault?: boolean;
 }
 
-export async function showConfirmPopup(content: PopupContent, options: ConfirmPopupOptions = {}): Promise<boolean> {
+export type ConfirmAnswer = "confirmed" | "declined" | "dismissed";
+
+const defaultResultFor = (context: PopupHost, safeDefault: boolean | undefined) =>
+  (safeDefault ? { defaultResult: context.POPUP_RESULT?.NEGATIVE ?? 0 } : {});
+
+export async function askConfirm(content: PopupContent, options: ConfirmPopupOptions = {}): Promise<ConfirmAnswer> {
   const context = popupHost();
   if (typeof context?.callGenericPopup !== "function") {
-    return window.confirm(plainText(content));
+    return window.confirm(plainText(content)) ? "confirmed" : "declined";
   }
   const type = context.POPUP_TYPE?.CONFIRM ?? 2;
   const affirmative = context.POPUP_RESULT?.AFFIRMATIVE ?? 1;
-  const result = await context.callGenericPopup(asContentNode(content), type, "", { okButton: options.okButton ?? "OK", cancelButton: options.cancelButton ?? "Cancel" });
-  return result === affirmative;
+  const negative = context.POPUP_RESULT?.NEGATIVE ?? 0;
+  const result = await context.callGenericPopup(asContentNode(content), type, "", {
+    okButton: options.okButton ?? "OK",
+    cancelButton: options.cancelButton ?? "Cancel",
+    ...defaultResultFor(context, options.safeDefault),
+  });
+  if (result === affirmative) return "confirmed";
+  return result === negative ? "declined" : "dismissed";
+}
+
+export async function showConfirmPopup(content: PopupContent, options: ConfirmPopupOptions = {}): Promise<boolean> {
+  return (await askConfirm(content, options)) === "confirmed";
 }
 
 export interface ChoicePopupOptions<T extends string> {
   okButton: { id: T; label: string };
   cancelButton?: string;
   choices?: Array<{ id: T; label: string }>;
+  safeDefault?: boolean;
 }
 
 // A caller that needs markup builds it from the document it is handed, so what
@@ -67,6 +84,7 @@ export async function showChoicePopup<T extends string>(content: PopupContent, o
     cancelButton: options.cancelButton ?? "Cancel",
     customButtons: choices.map((choice, index) => ({ text: choice.label, result: index + 2 })),
     allowVerticalScrolling: true,
+    ...defaultResultFor(context, options.safeDefault),
   });
   if (result === affirmative) return options.okButton.id;
   return typeof result === "number" && result >= 2 ? choices[result - 2]?.id ?? null : null;
