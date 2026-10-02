@@ -39,7 +39,38 @@ test('T1 loop guard: word-merge damage is corrupt (glued function words, bad con
 test('T1 loop guard: defect counts per session', () => {
   const loop = { kind: 'loop' as const, messageId: 1, speaker: null, sample: 's', rule: 'r' };
   const corrupt = { ...loop, kind: 'corrupt' as const };
-  assert.deepEqual(defectCounts([{ modelDefects: [] }, { modelDefects: [loop, corrupt], autoRepair: { swiped: true } }, { modelDefects: [corrupt], autoRepair: { swiped: false } }, {}]), { turns: 2, loop: 1, corrupt: 2, repaired: 1, unrepaired: 0 });
+  const start = { ...loop, kind: 'start' as const };
+  assert.deepEqual(defectCounts([{ modelDefects: [] }, { modelDefects: [loop, corrupt], autoRepair: { swiped: true } }, { modelDefects: [corrupt, start], autoRepair: { swiped: false } }, {}]), { turns: 2, loop: 1, corrupt: 2, start: 1, repaired: 1, unrepaired: 0 });
+});
+
+test('T5-5-1 damaged start: a repeated speaker prefix and a reply opening on the eaten tail of the speaker\'s name are defects', () => {
+  const t551: Array<[number, string, string]> = [
+    [4, 'Forre: *Forre glances at the token, then up at Max Nightriver, his emerald eyes sharp and appraising.* "My father\'s dagger," *he says.*', 'repeated speaker prefix'],
+    [6, 'rre\'s eyebrow arches, a faint smile playing at his lips that doesn\'t quite reach his emerald eyes.*\n"How quaint."', 'truncated speaker name'],
+    [8, 're: "A wise decision."*He produces a piece of parchment from his doublet.', 'truncated speaker name'],
+  ];
+  for (const [messageId, text, rule] of t551) {
+    assert.deepEqual(modelDefects([{ messageId, speaker: 'Forre', text }]).map((defect) => [defect.kind, defect.messageId, defect.speaker, defect.rule]), [['start', messageId, 'Forre', rule]], text);
+  }
+  assert.deepEqual(modelDefects([{ messageId: 3, speaker: 'Adolion Narrator', text: '  Adolion Narrator : The tent smells of wool.' }]).map((defect) => defect.rule), ['repeated speaker prefix']);
+  assert.deepEqual(modelDefects([{ messageId: 3, speaker: 'Adolion Narrator', text: 'tor\'s voice carries over the guns.' }]).map((defect) => defect.rule), ['truncated speaker name']);
+  assert.match(modelDefects([{ messageId: 6, speaker: 'Forre', text: t551[1][1] }])[0].sample, /^rre's eyebrow arches/);
+});
+
+test('T5-5-1 damaged start: controls (clean starts, other names, possessives, a speaker-less reply) are not defects', () => {
+  const clean: Array<[string, string]> = [
+    ['Forre', '*Forre glances at the token.* "My father\'s dagger."'],
+    ['Forre', 'Forre\'s smile thins, the expression not reaching his eyes.'],
+    ['Forre', '"Take your time," *Forre says.*\nForre: a line later in the reply is not the start'],
+    ['Forre', 'Alexander: "No." The king answers first.'],
+    ['Forre', 'rest is for the weary, he thinks.'],
+    ['Forre', 'reaching the map, he stops: the token has moved.'],
+    ['Alexander', '"The Cursefire Regiment holds Greywater with a grip of iron."'],
+    ['Kanna', 'Anna\'s letter lies on the table.'],
+    ['Adolion Narrator', '*The command tent smells of old leather and unwashed wool.*'],
+  ];
+  assert.deepEqual(modelDefects(clean.map(([speaker, text], index) => ({ messageId: index, speaker, text }))), []);
+  assert.deepEqual(modelDefects([{ messageId: 1, text: 'Forre: no speaker given, nothing to compare.' }, { messageId: 2, speaker: null, text: 're: "A wise decision."' }]), []);
 });
 
 test('T4-3-3 loop guard: a word repeated across an apostrophe is not a doubled word', () => {

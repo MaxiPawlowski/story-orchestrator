@@ -123,9 +123,11 @@ The unchanged instruct ends the prompt on `Dalan:` and never opens a thought: th
 2. **Start Reply With** = `<|channel>thought` + newline (it lands after ST's `Name:` prefix).
 3. "Names as Stop Strings" off (on, it cut the reasoning at the first character line in 4/6), and "Sequences as Stop Strings" off (edit 3).
 4. Reasoning auto-parse on, Gemma 4 reasoning template; max response at least 1400 tokens.
-5. Edit 2 (`min_p` first) stands either way.
+5. **Auto-fix Markdown off** (User Settings). On, ST's streaming cleanup eats the first characters of replies with `*` narration (T5-5-1: `rre's eyebrow arches`, `re: "A wise decision."`).
+6. A global regex script (Extensions > Regex), placement AI Output, not "Alter Chat Display"/"Alter Outgoing Prompt", Find Regex `/<channel\|>\s*{{char}}:\s*/g`, Replace With `<channel|>`, macros in Find Regex "Escaped". It drops the speaker name the model repeats after the thought (4/12 Forre replies); ST's own name trim cannot see it behind the opener.
+7. Edit 2 (`min_p` first) stands either way.
 
-Not yet verified end to end in ST: Start Reply With + auto-parse, whether ST strips a repeated `Dalan:` (3/20 replies start with it), and the harvest. The first T5 session with this setup checks one payload capture before play.
+Verified end to end on lane 2 (2026-10-02, `15-model-config.md` §T5-5-1): 13 replies with text across Forre, Alexander and the narrator, 0 damaged starts, 0 repeated names, reasoning parsed in 15/15; 2/15 spent the whole budget in the thought. The harvest was verified in T5-5-1.
 
 **Options.**
 - (a) Apply all three edits. This is my recommendation.

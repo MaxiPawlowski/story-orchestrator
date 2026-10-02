@@ -674,7 +674,7 @@ test('T1-6 turn 24: two looping replies in one round, the last is swiped and the
 test('T1-6 turn 24 digest: only the swiped message reads as swiped; the one left in the chat says so and is counted', () => {
   const defect = (messageId: number) => ({ kind: 'loop', messageId, speaker: 'x', sample: 's', rule: 'r' });
   const counts = defectCounts([{ modelDefects: [defect(56), defect(57)] as any, autoRepair: { swiped: true, repaired: [57], unrepaired: [{ messageId: 56 }] } as any }]);
-  assert.deepEqual(counts, { turns: 1, loop: 2, corrupt: 0, repaired: 1, unrepaired: 1 });
+  assert.deepEqual(counts, { turns: 1, loop: 2, corrupt: 0, start: 0, repaired: 1, unrepaired: 1 });
 });
 
 test('T1 loop guard: control, a clean round is neither flagged nor swiped', async () => {

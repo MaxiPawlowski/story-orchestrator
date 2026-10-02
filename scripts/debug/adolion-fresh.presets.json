@@ -12,7 +12,7 @@
       ]
     },
     "thinking": {
-      "about": "2026-10-02 thinking A/B, arm stga (user decision 2026-10-02; the blind pack model-blind-20-think may overrule it): the Gemma 4 Thinking instruct (<|think|> + the brief-plan line in story_string_prefix, last_output_sequence empty, names forced, no sequence stop strings) with Start Reply With <|channel>thought\\n, so a group prompt ends <|turn>model\\nName:<|channel>thought\\n. Names as Stop Strings off in context Gemma 4 (the reasoning lists characters line by line and was cut at the first one in 4/6). Reasoning auto-parse with the Gemma 4 template. Response length 1400 (800 reasoning + 600 reply). The selected main profile Artemis RunPod RP carries the same instruct, Start Reply With and reasoning template, because applying a profile overwrites them. min_p first stays. Instruct Gemma 4 keeps the empty-channel fix for the profiles that still use it (memory/extraction).",
+      "about": "2026-10-02 thinking A/B, arm stga (user decision 2026-10-02; the blind pack model-blind-20-think may overrule it): the Gemma 4 Thinking instruct (<|think|> + the brief-plan line in story_string_prefix, last_output_sequence empty, names forced, no sequence stop strings) with Start Reply With <|channel>thought\\n, so a group prompt ends <|turn>model\\nName:<|channel>thought\\n. Names as Stop Strings off in context Gemma 4 (the reasoning lists characters line by line and was cut at the first one in 4/6). Reasoning auto-parse with the Gemma 4 template. Response length 1400 (800 reasoning + 600 reply). The selected main profile Artemis RunPod RP carries the same instruct, Start Reply With and reasoning template, because applying a profile overwrites them. min_p first stays. Instruct Gemma 4 keeps the empty-channel fix for the profiles that still use it (memory/extraction). T5-5-1 fix (2026-10-02): Auto-fix Markdown off, because ST runs fixMarkdown over the whole streamed text (reasoning included) and the stream parser cuts the reply at an index it fixed once, so a reply asterisk that re-pairs the reasoning's bullet asterisks shifts the cut and eats the reply's first characters; and a global AI-output regex drops the speaker name the model repeats after <channel|>, because with the opener in Start Reply With ST's own name trim never sees the reply start.",
       "edits": [
         { "kind": "instruct", "preset": "Gemma 4", "key": "last_output_sequence", "op": "set", "value": "<|turn>model\n<|channel>thought\n<channel|>" },
         { "kind": "instruct", "preset": "Gemma 4", "key": "sequences_as_stop_strings", "op": "set", "value": false },
@@ -33,7 +33,16 @@
         { "kind": "settings", "key": "amount_gen", "op": "set", "value": 1400 },
         { "kind": "profile", "preset": "Artemis RunPod RP", "key": "instruct", "op": "set", "value": "Gemma 4 Thinking" },
         { "kind": "profile", "preset": "Artemis RunPod RP", "key": "start-reply-with", "op": "set", "value": "<|channel>thought\n" },
-        { "kind": "profile", "preset": "Artemis RunPod RP", "key": "reasoning-template", "op": "set", "value": "Gemma 4" }
+        { "kind": "profile", "preset": "Artemis RunPod RP", "key": "reasoning-template", "op": "set", "value": "Gemma 4" },
+        { "kind": "settings", "key": "power_user.auto_fix_generated_markdown", "op": "set", "value": false },
+        {
+          "kind": "settings", "key": "extension_settings.regex", "op": "upsert", "match": "id",
+          "value": {
+            "id": "so-thinking-name-echo", "scriptName": "Thinking: drop the speaker name repeated after the thought channel",
+            "findRegex": "/<channel\\|>\\s*{{char}}:\\s*/g", "replaceString": "<channel|>", "trimStrings": [], "placement": [2],
+            "disabled": false, "markdownOnly": false, "promptOnly": false, "runOnEdit": true, "substituteRegex": 2, "minDepth": null, "maxDepth": null
+          }
+        }
       ]
     }
   }
