@@ -1,0 +1,1601 @@
+Following the session journal → C:\dev\story-orchestrator\test\sessions\T4\T4-1-2\journal.jsonl every 1000 ms. Ctrl-C to stop.
+2026-10-02T08:00:49.325Z session      chat 2026-10-02@04h59m59s914ms · story adolion-saga · at What Filwern Left (boundary 2, 1 messages)
+2026-10-02T08:00:00.425Z boundary     boundary 1: nothing applied (gate)
+2026-10-02T08:00:05.634Z story        restored 1 host change(s)
+2026-10-02T08:00:05.844Z boundary     boundary 2: nothing applied (manual)
+2026-10-02T08:00:41.263Z status       Now at What Filwern Left
+2026-10-02T08:00:41.447Z story        away recap not due
+2026-10-02T08:00:41.893Z status       Started Adolion: The Saga
+2026-10-02T08:00:42.607Z status       Following What Filwern Left
+2026-10-02T08:00:43.323Z judge        judge typed in 589 ms
+2026-10-02T08:00:43.439Z judge        judge scene in 522 ms
+2026-10-02T08:00:43.736Z judge        judge typed in 413 ms
+2026-10-02T08:00:43.737Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:00:44.589Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:00:46.444Z extraction   read cue:guild-hall->adv-guild-tavern msgs 0-0 → 0 accepted, 0 rejected
+2026-10-02T08:00:46.957Z judge        judge memoryVerify in 510 ms
+2026-10-02T08:00:48.690Z judge        judge typed in 0 ms
+2026-10-02T08:00:46.444Z audit        audit cue:guild-hall->adv-guild-tavern msgs 0-0 scope [guild_reputation, location, party_rank, saga_called_home, tension_current] → 0 accepted, 0 rejected
+2026-10-02T08:00:48.691Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:00:51.919Z judge        judge memoryVerify in 328 ms
+2026-10-02T08:00:52.407Z delta        queued location=aegis_guild_hall, tension_current=0 for the next boundary
+2026-10-02T08:00:51.589Z extraction   read scene:location msgs 0-0 → 2 accepted, 0 rejected
+2026-10-02T08:00:51.589Z delta        location = aegis_guild_hall
+2026-10-02T08:00:51.589Z delta        tension_current = 0
+2026-10-02T08:00:51.589Z delta        queued location=aegis_guild_hall, tension_current=0 for the next boundary
+2026-10-02T08:00:51.589Z audit        audit scene:location msgs 0-0 scope [guild_reputation, location, party_rank, saga_called_home, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:01:11.813Z payload      5 story blocks injected (generation)
+2026-10-02T08:01:11.926Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:12.907Z status       Inner beat stale for Adolion Narrator
+2026-10-02T08:01:12.909Z payload      6 story blocks injected (generation)
+2026-10-02T08:01:13.726Z judge        judge lore in 373 ms
+2026-10-02T08:01:13.795Z judge        judge lore in 447 ms
+2026-10-02T08:01:14.044Z judge        judge lore in 322 ms
+2026-10-02T08:01:14.081Z judge        judge lore in 289 ms
+2026-10-02T08:01:14.280Z judge        judge lore in 237 ms
+2026-10-02T08:01:14.587Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:01:14.587Z judge        judge director in 254 ms
+2026-10-02T08:01:38.742Z status       Inner beat stale for Adolion Narrator
+2026-10-02T08:01:39.573Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:41.321Z status       Inner beat used for Dalan
+2026-10-02T08:01:41.343Z payload      6 story blocks injected (generation)
+2026-10-02T08:01:41.666Z status       Inner beat used for Belle
+2026-10-02T08:01:41.703Z payload      6 story blocks injected (generation)
+2026-10-02T08:01:42.093Z boundary     applied location=aegis_guild_hall, tension_current=0
+2026-10-02T08:01:42.399Z talk         silence speaks (judge)
+2026-10-02T08:01:42.399Z judge        judge director in 337 ms
+2026-10-02T08:01:44.298Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:45.306Z judge        judge scene in 797 ms
+2026-10-02T08:01:45.324Z judge        judge warden in 497 ms
+2026-10-02T08:01:45.626Z judge        judge wardenLore in 321 ms
+2026-10-02T08:01:45.856Z judge        judge typed in 232 ms
+2026-10-02T08:01:45.856Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:50.131Z judge        judge memoryVerify in 389 ms
+2026-10-02T08:01:50.257Z delta        queued location=driftmere, saga_called_home=true, tension_current=0.075 for the next boundary
+2026-10-02T08:01:49.741Z extraction   read cadence msgs 1-2 → 3 accepted, 0 rejected
+2026-10-02T08:01:49.741Z delta        location = driftmere
+2026-10-02T08:01:49.741Z delta        saga_called_home = true
+2026-10-02T08:01:49.741Z delta        tension_current = 0.075
+2026-10-02T08:01:49.741Z delta        queued location=driftmere, saga_called_home=true, tension_current=0.075 for the next boundary
+2026-10-02T08:01:49.741Z audit        audit cadence msgs 1-2 scope [guild_reputation, location, party_injuries, party_rank, saga_called_home, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:01:52.807Z judge        judge curatorFilter in 921 ms
+2026-10-02T08:01:53.129Z judge        judge typed in 306 ms
+2026-10-02T08:01:52.809Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:54.401Z stagecraft   World Info curator proposed 3 change(s) at What Filwern Left
+2026-10-02T08:01:53.130Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:56.797Z judge        judge memoryVerify in 238 ms
+2026-10-02T08:01:57.310Z delta        queued location=nightriver_estate, saga_called_home=true, tension_current=0.075 for the next boundary
+2026-10-02T08:01:56.557Z extraction   read cue:what-filwern-left->nightriver-house msgs 0-2 → 3 accepted, 0 rejected
+2026-10-02T08:01:56.557Z delta        location = nightriver_estate
+2026-10-02T08:01:56.557Z delta        saga_called_home = true
+2026-10-02T08:01:56.557Z delta        tension_current = 0.075
+2026-10-02T08:01:56.557Z delta        queued location=nightriver_estate, saga_called_home=true, tension_current=0.075 for the next boundary
+2026-10-02T08:01:56.557Z audit        audit cue:what-filwern-left->nightriver-house msgs 0-2 scope [guild_reputation, location, party_injuries, party_rank, saga_called_home, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:01:58.854Z judge        judge typed in 0 ms
+2026-10-02T08:01:58.855Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:02:02.889Z delta        queued location=nightriver_estate, saga_called_home=true, tension_current=0.075 for the next boundary
+2026-10-02T08:02:02.782Z extraction   read scene:cast msgs 0-2 → 3 accepted, 0 rejected
+2026-10-02T08:02:02.782Z delta        location = nightriver_estate
+2026-10-02T08:02:02.782Z delta        saga_called_home = true
+2026-10-02T08:02:02.782Z delta        tension_current = 0.075
+2026-10-02T08:02:02.782Z delta        queued location=nightriver_estate, saga_called_home=true, tension_current=0.075 for the next boundary
+2026-10-02T08:02:03.080Z judge        judge memoryVerify in 297 ms
+2026-10-02T08:02:02.782Z audit        audit scene:cast msgs 0-2 scope [guild_reputation, location, party_injuries, party_rank, saga_called_home, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:02:04.178Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:02:05.689Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:02:08.870Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:02:10.877Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:02:12.585Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:02:27.831Z payload      6 story blocks injected (generation)
+2026-10-02T08:02:27.862Z status       Inner beat used for Dalan
+2026-10-02T08:02:27.878Z payload      7 story blocks injected (generation)
+2026-10-02T08:02:28.641Z judge        judge lore in 399 ms
+2026-10-02T08:02:28.652Z judge        judge lore in 414 ms
+2026-10-02T08:02:29.755Z judge        judge lore in 1118 ms
+2026-10-02T08:02:30.002Z judge        judge lore in 248 ms
+2026-10-02T08:02:30.031Z judge        judge lore in 1383 ms
+2026-10-02T08:02:30.289Z judge        judge director in 226 ms
+2026-10-02T08:02:30.290Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:02:30.583Z status       Inner beat used for Dalan
+2026-10-02T08:02:31.183Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:02:32.282Z status       Inner beat unused
+2026-10-02T08:02:32.282Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:02:32.299Z payload      7 story blocks injected (generation)
+2026-10-02T08:02:53.050Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:02:54.132Z boundary     applied location=nightriver_estate, saga_called_home=true, tension_current=0.075; discarded location=driftmere, saga_called_home=true, tension_current=0.075, location=nightriver_estate, saga_called_home=true, tension_current=0.075 (superseded)
+2026-10-02T08:02:54.132Z transition   what-filwern-left → nightriver-house
+2026-10-02T08:02:54.725Z talk         silence speaks (judge)
+2026-10-02T08:02:54.725Z judge        judge director in 552 ms
+2026-10-02T08:03:01.263Z status       Moved into Home to Nightriver
+2026-10-02T08:03:01.472Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:03:02.296Z judge        judge typed in 813 ms
+2026-10-02T08:03:02.298Z judge        judge scene in 814 ms
+2026-10-02T08:03:02.712Z judge        judge wardenLore in 415 ms
+2026-10-02T08:03:02.714Z judge        judge warden in 419 ms
+2026-10-02T08:03:02.702Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:03:04.382Z story        NPC reply Adolion Narrator (sceneBreak) fired by its roll
+2026-10-02T08:03:04.730Z boundary     boundary 5: nothing applied (gate)
+2026-10-02T08:03:05.332Z status       Following Home to Nightriver
+2026-10-02T08:03:06.071Z judge        judge typed in 600 ms
+2026-10-02T08:03:06.111Z judge        judge scene in 639 ms
+2026-10-02T08:03:05.456Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:03:06.744Z judge        judge warden in 674 ms
+2026-10-02T08:03:06.903Z status       Inner beat unused
+2026-10-02T08:03:05.820Z model-call   chapterSeal via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:03:12.341Z judge        judge memoryVerify in 268 ms
+2026-10-02T08:03:12.560Z judge        judge memoryVerify in 218 ms
+2026-10-02T08:03:12.800Z judge        judge memoryVerify in 239 ms
+2026-10-02T08:03:13.037Z judge        judge memoryVerify in 237 ms
+2026-10-02T08:03:13.293Z judge        judge memoryVerify in 255 ms
+2026-10-02T08:03:13.528Z judge        judge memoryVerify in 235 ms
+2026-10-02T08:03:13.981Z chapter      chapter sealed: Wendhope and Driftmere
+2026-10-02T08:03:15.469Z judge        judge typed in 222 ms
+2026-10-02T08:03:15.469Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:03:19.297Z judge        judge memoryVerify in 247 ms
+2026-10-02T08:03:19.338Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:03:19.045Z extraction   read scene:cast msgs 0-5 → 1 accepted, 0 rejected
+2026-10-02T08:03:19.045Z delta        location = nightriver_estate
+2026-10-02T08:03:19.045Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:03:19.045Z audit        audit scene:cast msgs 0-5 scope [acad_path, guild_reputation, heir_injuries, location, party_injuries, party_rank, tension_current] → 1 accepted, 0 rejected
+2026-10-02T08:03:22.021Z judge        judge typed in 0 ms
+2026-10-02T08:03:22.021Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:03:26.801Z judge        judge memoryVerify in 252 ms
+2026-10-02T08:03:27.252Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:03:26.546Z extraction   read scene:judge msgs 0-5 → 1 accepted, 0 rejected
+2026-10-02T08:03:26.546Z delta        location = nightriver_estate
+2026-10-02T08:03:26.546Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:03:26.546Z audit        audit scene:judge msgs 0-5 scope [acad_path, guild_reputation, heir_injuries, location, party_injuries, party_rank, tension_current] → 1 accepted, 0 rejected
+2026-10-02T08:03:29.018Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:03:31.054Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:04:09.160Z story        restored 8 host change(s)
+2026-10-02T08:04:10.939Z status       Stepped back to What Filwern Left
+2026-10-02T08:04:11.802Z judge        judge typed in 266 ms
+2026-10-02T08:04:11.803Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:04:15.955Z judge        judge memoryVerify in 219 ms
+2026-10-02T08:04:16.155Z delta        queued location=nightriver_estate, saga_called_home=true, tension_current=0.075 for the next boundary
+2026-10-02T08:04:15.734Z extraction   read rollback:4 msgs 0-4 → 3 accepted, 0 rejected
+2026-10-02T08:04:15.734Z delta        location = nightriver_estate
+2026-10-02T08:04:15.734Z delta        saga_called_home = true
+2026-10-02T08:04:15.734Z delta        tension_current = 0.075
+2026-10-02T08:04:15.734Z delta        queued location=nightriver_estate, saga_called_home=true, tension_current=0.075 for the next boundary
+2026-10-02T08:04:15.734Z audit        audit rollback:4 msgs 0-4 scope [guild_reputation, location, party_injuries, party_rank, saga_called_home, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:04:17.820Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:04:19.651Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:04:21.082Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:04:53.415Z payload      7 story blocks injected (generation)
+2026-10-02T08:04:53.462Z status       Inner beat used for Belle
+2026-10-02T08:04:53.490Z payload      8 story blocks injected (generation)
+2026-10-02T08:04:54.289Z judge        judge lore in 384 ms
+2026-10-02T08:04:54.304Z judge        judge lore in 394 ms
+2026-10-02T08:04:54.619Z judge        judge lore in 335 ms
+2026-10-02T08:04:54.622Z judge        judge lore in 322 ms
+2026-10-02T08:04:54.923Z judge        judge lore in 304 ms
+2026-10-02T08:04:55.208Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:04:55.208Z judge        judge director in 238 ms
+2026-10-02T08:04:55.772Z status       Inner beat stale for Belle
+2026-10-02T08:04:55.785Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:04:56.999Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:04:57.012Z payload      8 story blocks injected (generation)
+2026-10-02T08:05:20.680Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:05:21.616Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:22.826Z status       Inner beat used for Dalan
+2026-10-02T08:05:22.855Z payload      8 story blocks injected (generation)
+2026-10-02T08:05:24.375Z boundary     applied location=nightriver_estate, saga_called_home=true, tension_current=0.075
+2026-10-02T08:05:24.375Z transition   what-filwern-left → nightriver-house
+2026-10-02T08:05:24.887Z talk         silence speaks (judge)
+2026-10-02T08:05:24.887Z judge        judge director in 559 ms
+2026-10-02T08:05:31.259Z status       Moved into Home to Nightriver
+2026-10-02T08:05:31.474Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:32.658Z judge        judge typed in 1172 ms
+2026-10-02T08:05:32.661Z judge        judge scene in 1174 ms
+2026-10-02T08:05:33.337Z judge        judge wardenLore in 677 ms
+2026-10-02T08:05:33.345Z judge        judge warden in 688 ms
+2026-10-02T08:05:33.722Z judge        judge typed in 386 ms
+2026-10-02T08:05:33.723Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:38.097Z judge        judge memoryVerify in 291 ms
+2026-10-02T08:05:38.220Z delta        queued location=nightriver_estate, tension_current=0.1275 for the next boundary
+2026-10-02T08:05:37.804Z extraction   read cue:nightriver-house->fathers-summons msgs 0-6 → 2 accepted, 0 rejected
+2026-10-02T08:05:37.804Z delta        location = nightriver_estate
+2026-10-02T08:05:37.804Z delta        tension_current = 0.1275
+2026-10-02T08:05:37.804Z delta        queued location=nightriver_estate, tension_current=0.1275 for the next boundary
+2026-10-02T08:05:37.804Z audit        audit cue:nightriver-house->fathers-summons msgs 0-6 scope [acad_path, guild_reputation, heir_injuries, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:05:41.106Z judge        judge typed in 0 ms
+2026-10-02T08:05:41.107Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:45.008Z judge        judge memoryVerify in 255 ms
+2026-10-02T08:05:45.248Z delta        queued location=nightriver_estate, tension_current=0.1275 for the next boundary
+2026-10-02T08:05:44.751Z extraction   read scene:judge msgs 0-6 → 2 accepted, 0 rejected
+2026-10-02T08:05:44.751Z delta        location = nightriver_estate
+2026-10-02T08:05:44.751Z delta        tension_current = 0.1275
+2026-10-02T08:05:44.751Z delta        queued location=nightriver_estate, tension_current=0.1275 for the next boundary
+2026-10-02T08:05:44.751Z audit        audit scene:judge msgs 0-6 scope [acad_path, guild_reputation, heir_injuries, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:05:47.271Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:48.830Z story        NPC reply Adolion Narrator (sceneBreak) fired by its roll
+2026-10-02T08:05:49.199Z boundary     applied location=nightriver_estate, tension_current=0.1275; discarded location=nightriver_estate, tension_current=0.1275 (superseded)
+2026-10-02T08:05:49.842Z status       Following Home to Nightriver
+2026-10-02T08:05:49.913Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:50.529Z judge        judge typed in 610 ms
+2026-10-02T08:05:50.532Z judge        judge scene in 612 ms
+2026-10-02T08:05:50.904Z judge        judge warden in 376 ms
+2026-10-02T08:05:51.069Z status       Inner beat unused
+2026-10-02T08:05:50.208Z model-call   chapterSeal via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:55.712Z judge        judge memoryVerify in 315 ms
+2026-10-02T08:05:55.989Z judge        judge memoryVerify in 276 ms
+2026-10-02T08:05:56.243Z judge        judge memoryVerify in 254 ms
+2026-10-02T08:05:56.480Z judge        judge memoryVerify in 236 ms
+2026-10-02T08:05:56.784Z judge        judge memoryVerify in 304 ms
+2026-10-02T08:05:57.010Z judge        judge memoryVerify in 226 ms
+2026-10-02T08:05:57.559Z chapter      chapter sealed: Wendhope and Driftmere
+2026-10-02T08:05:57.662Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:06:00.128Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:06:33.068Z payload      7 story blocks injected (generation)
+2026-10-02T08:06:33.110Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:06:33.909Z status       Inner beat used for Leila
+2026-10-02T08:06:33.922Z payload      8 story blocks injected (generation)
+2026-10-02T08:06:34.805Z judge        judge lore in 382 ms
+2026-10-02T08:06:34.851Z judge        judge lore in 417 ms
+2026-10-02T08:06:35.119Z judge        judge lore in 319 ms
+2026-10-02T08:06:35.155Z judge        judge lore in 308 ms
+2026-10-02T08:06:35.344Z judge        judge lore in 227 ms
+2026-10-02T08:06:35.614Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:06:35.614Z judge        judge director in 225 ms
+2026-10-02T08:06:36.334Z status       Inner beat used for Leila
+2026-10-02T08:06:36.650Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:06:36.663Z payload      8 story blocks injected (generation)
+2026-10-02T08:06:59.292Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:07:00.464Z boundary     boundary 6: nothing applied (gate)
+2026-10-02T08:07:00.839Z payload      5 story blocks injected (generation)
+2026-10-02T08:07:01.258Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:07:01.675Z talk         silence speaks (judge)
+2026-10-02T08:07:01.675Z judge        judge director in 1472 ms
+2026-10-02T08:07:01.637Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:07:02.921Z judge        judge warden in 1248 ms
+2026-10-02T08:07:02.922Z judge        judge scene in 1268 ms
+2026-10-02T08:07:03.829Z judge        judge wardenLore in 909 ms
+2026-10-02T08:07:04.159Z judge        judge typed in 336 ms
+2026-10-02T08:07:04.160Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:07:08.785Z judge        judge memoryVerify in 258 ms
+2026-10-02T08:07:09.514Z delta        queued location=nightriver_estate, acad_path=witch_king, tension_current=0.16425 for the next boundary
+2026-10-02T08:07:08.525Z extraction   read cadence msgs 3-9 → 3 accepted, 0 rejected
+2026-10-02T08:07:08.525Z delta        location = nightriver_estate
+2026-10-02T08:07:08.525Z delta        acad_path = witch_king
+2026-10-02T08:07:08.525Z delta        tension_current = 0.16425
+2026-10-02T08:07:08.525Z delta        queued location=nightriver_estate, acad_path=witch_king, tension_current=0.16425 for the next boundary
+2026-10-02T08:07:08.525Z audit        audit cadence msgs 3-9 scope [acad_path, heir_injuries, location, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:07:12.425Z judge        judge typed in 229 ms
+2026-10-02T08:07:12.425Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:07:18.199Z judge        judge memoryVerify in 298 ms
+2026-10-02T08:07:18.771Z delta        queued location=javon_study, acad_path=witch_king, tension_current=0.16425 for the next boundary
+2026-10-02T08:07:17.898Z extraction   read cue:nightriver-house->fathers-summons msgs 2-9 → 3 accepted, 0 rejected
+2026-10-02T08:07:17.898Z delta        location = javon_study
+2026-10-02T08:07:17.898Z delta        acad_path = witch_king
+2026-10-02T08:07:17.898Z delta        tension_current = 0.16425
+2026-10-02T08:07:17.898Z delta        queued location=javon_study, acad_path=witch_king, tension_current=0.16425 for the next boundary
+2026-10-02T08:07:17.898Z audit        audit cue:nightriver-house->fathers-summons msgs 2-9 scope [acad_path, heir_injuries, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:07:23.379Z judge        judge typed in 0 ms
+2026-10-02T08:07:23.379Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:07:29.261Z delta        queued location=javon_study, acad_path=witch_king, tension_current=0.16425 for the next boundary
+2026-10-02T08:07:29.332Z judge        judge memoryVerify in 293 ms
+2026-10-02T08:07:29.035Z extraction   read scene:judge msgs 2-9 → 3 accepted, 0 rejected
+2026-10-02T08:07:29.035Z delta        location = javon_study
+2026-10-02T08:07:29.035Z delta        acad_path = witch_king
+2026-10-02T08:07:29.035Z delta        tension_current = 0.16425
+2026-10-02T08:07:29.035Z delta        queued location=javon_study, acad_path=witch_king, tension_current=0.16425 for the next boundary
+2026-10-02T08:07:29.035Z audit        audit scene:judge msgs 2-9 scope [acad_path, heir_injuries, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:07:32.200Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:07:34.216Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:07:37.333Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:07:39.560Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:07:41.172Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:07:57.105Z payload      8 story blocks injected (generation)
+2026-10-02T08:07:57.196Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:07:58.364Z status       Inner beat used for Ronan
+2026-10-02T08:07:58.376Z payload      9 story blocks injected (generation)
+2026-10-02T08:07:59.369Z judge        judge lore in 368 ms
+2026-10-02T08:07:59.425Z judge        judge lore in 434 ms
+2026-10-02T08:07:59.699Z judge        judge lore in 334 ms
+2026-10-02T08:07:59.759Z judge        judge lore in 338 ms
+2026-10-02T08:07:59.944Z judge        judge lore in 246 ms
+2026-10-02T08:08:00.235Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:08:00.235Z judge        judge director in 260 ms
+2026-10-02T08:08:01.204Z status       Inner beat used for Ronan
+2026-10-02T08:08:01.607Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:08:01.621Z payload      9 story blocks injected (generation)
+2026-10-02T08:08:28.645Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:08:30.154Z boundary     applied location=javon_study, acad_path=witch_king, tension_current=0.16425; discarded location=nightriver_estate, acad_path=witch_king, tension_current=0.16425, location=javon_study, acad_path=witch_king, tension_current=0.16425 (superseded)
+2026-10-02T08:08:30.154Z transition   nightriver-house → fathers-summons
+2026-10-02T08:08:30.281Z talk         silence speaks (judge)
+2026-10-02T08:08:30.281Z judge        judge director in 509 ms
+2026-10-02T08:08:33.596Z payload      8 story blocks injected (generation)
+2026-10-02T08:08:33.736Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:08:34.711Z payload      8 story blocks injected (generation)
+2026-10-02T08:08:35.270Z judge        judge lore in 447 ms
+2026-10-02T08:08:35.496Z judge        judge lore in 668 ms
+2026-10-02T08:08:35.623Z judge        judge lore in 358 ms
+2026-10-02T08:08:35.821Z judge        judge lore in 330 ms
+2026-10-02T08:08:35.861Z judge        judge lore in 239 ms
+2026-10-02T08:08:36.582Z chapter      recalled 2 archived memories
+2026-10-02T08:08:58.049Z status       Inner beat used for Javon
+2026-10-02T08:09:00.004Z status       Moved into Father's Summons
+2026-10-02T08:09:00.605Z boundary     boundary 8: nothing applied (gate)
+2026-10-02T08:09:01.463Z status       Following Father's Summons
+2026-10-02T08:09:00.586Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:01.579Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:02.189Z judge        judge typed in 751 ms
+2026-10-02T08:09:02.191Z judge        judge scene in 750 ms
+2026-10-02T08:09:03.320Z judge        judge warden in 1133 ms
+2026-10-02T08:09:03.322Z judge        judge wardenLore in 1132 ms
+2026-10-02T08:09:03.573Z judge        judge curatorFilter in 254 ms
+2026-10-02T08:09:03.732Z judge        judge typed in 411 ms
+2026-10-02T08:09:04.250Z judge        judge typed in 678 ms
+2026-10-02T08:09:03.574Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:05.546Z stagecraft   World Info curator proposed 3 change(s) at Father's Summons
+2026-10-02T08:09:04.251Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:07.358Z judge        judge memoryVerify in 224 ms
+2026-10-02T08:09:07.861Z delta        queued location=javon_study, tension_current=0.189975 for the next boundary
+2026-10-02T08:09:07.133Z extraction   read cue:fathers-summons->natalia-named msgs 4-11 → 2 accepted, 0 rejected
+2026-10-02T08:09:07.133Z delta        location = javon_study
+2026-10-02T08:09:07.133Z delta        tension_current = 0.189975
+2026-10-02T08:09:07.133Z delta        queued location=javon_study, tension_current=0.189975 for the next boundary
+2026-10-02T08:09:07.133Z audit        audit cue:fathers-summons->natalia-named msgs 4-11 scope [acad_evidence, duel_refused, heir_injuries, heir_is_second, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:09:10.866Z judge        judge typed in 333 ms
+2026-10-02T08:09:10.866Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:14.839Z judge        judge memoryVerify in 242 ms
+2026-10-02T08:09:15.121Z delta        queued location=javon_study, tension_current=0.2829825 for the next boundary
+2026-10-02T08:09:14.595Z extraction   read scene:cast msgs 5-12 → 2 accepted, 0 rejected
+2026-10-02T08:09:14.595Z delta        location = javon_study
+2026-10-02T08:09:14.595Z delta        tension_current = 0.2829825
+2026-10-02T08:09:14.595Z delta        queued location=javon_study, tension_current=0.2829825 for the next boundary
+2026-10-02T08:09:14.595Z audit        audit scene:cast msgs 5-12 scope [acad_evidence, duel_refused, heir_injuries, heir_is_second, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:09:17.189Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:19.733Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:39.173Z story        the scene opener of "fathers-summons" was deleted
+2026-10-02T08:09:39.174Z stagecraft   World Info curator proposal withdrawn (3 change(s)): the reply it was read from was changed or removed
+2026-10-02T08:09:39.705Z story        restored 1 host change(s)
+2026-10-02T08:09:41.483Z status       Stepped back to Home to Nightriver
+2026-10-02T08:09:42.746Z judge        judge typed in 320 ms
+2026-10-02T08:09:42.746Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:47.614Z judge        judge memoryVerify in 253 ms
+2026-10-02T08:09:47.718Z delta        queued location=javon_study, acad_path=witch_king, tension_current=0.23925 for the next boundary
+2026-10-02T08:09:47.359Z extraction   read rollback:11 msgs 6-11 → 3 accepted, 0 rejected
+2026-10-02T08:09:47.359Z delta        location = javon_study
+2026-10-02T08:09:47.359Z delta        acad_path = witch_king
+2026-10-02T08:09:47.359Z delta        tension_current = 0.23925
+2026-10-02T08:09:47.359Z delta        queued location=javon_study, acad_path=witch_king, tension_current=0.23925 for the next boundary
+2026-10-02T08:09:47.359Z audit        audit rollback:11 msgs 6-11 scope [acad_path, heir_injuries, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:09:52.762Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:54.773Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:56.451Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:05.943Z payload      7 story blocks injected (generation)
+2026-10-02T08:10:06.038Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:10:06.051Z payload      8 story blocks injected (generation)
+2026-10-02T08:10:39.030Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:10:40.319Z boundary     boundary 7: nothing applied (gate)
+2026-10-02T08:10:40.861Z status       Following Home to Nightriver
+2026-10-02T08:10:42.123Z judge        judge typed in 649 ms
+2026-10-02T08:10:42.632Z judge        judge scene in 1155 ms
+2026-10-02T08:10:43.042Z judge        judge wardenLore in 412 ms
+2026-10-02T08:10:43.043Z judge        judge warden in 923 ms
+2026-10-02T08:10:43.424Z judge        judge typed in 383 ms
+2026-10-02T08:10:43.425Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:48.468Z judge        judge memoryVerify in 280 ms
+2026-10-02T08:10:48.937Z delta        queued location=javon_study, acad_path=witch_king, tension_current=0.23925 for the next boundary
+2026-10-02T08:10:48.185Z extraction   read cue:nightriver-house->fathers-summons msgs 4-11 → 3 accepted, 0 rejected
+2026-10-02T08:10:48.185Z delta        location = javon_study
+2026-10-02T08:10:48.185Z delta        acad_path = witch_king
+2026-10-02T08:10:48.185Z delta        tension_current = 0.23925
+2026-10-02T08:10:48.185Z delta        queued location=javon_study, acad_path=witch_king, tension_current=0.23925 for the next boundary
+2026-10-02T08:10:48.185Z audit        audit cue:nightriver-house->fathers-summons msgs 4-11 scope [acad_path, heir_injuries, location, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:10:53.214Z judge        judge typed in 0 ms
+2026-10-02T08:10:50.750Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:53.314Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:53.215Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:58.002Z judge        judge memoryVerify in 325 ms
+2026-10-02T08:10:58.361Z delta        queued location=javon_study, acad_path=witch_king, tension_current=0.23925 for the next boundary
+2026-10-02T08:10:57.675Z extraction   read scene:cast msgs 4-11 → 3 accepted, 0 rejected
+2026-10-02T08:10:57.675Z delta        location = javon_study
+2026-10-02T08:10:57.675Z delta        acad_path = witch_king
+2026-10-02T08:10:57.675Z delta        tension_current = 0.23925
+2026-10-02T08:10:57.675Z delta        queued location=javon_study, acad_path=witch_king, tension_current=0.23925 for the next boundary
+2026-10-02T08:10:57.675Z audit        audit scene:cast msgs 4-11 scope [acad_path, heir_injuries, location, party_injuries, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:11:00.349Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:11:02.536Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:11:21.621Z payload      8 story blocks injected (generation)
+2026-10-02T08:11:21.695Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:11:21.708Z payload      9 story blocks injected (generation)
+2026-10-02T08:11:22.585Z judge        judge lore in 369 ms
+2026-10-02T08:11:22.663Z judge        judge lore in 443 ms
+2026-10-02T08:11:22.903Z judge        judge lore in 322 ms
+2026-10-02T08:11:22.970Z judge        judge lore in 312 ms
+2026-10-02T08:11:23.168Z judge        judge lore in 266 ms
+2026-10-02T08:11:23.434Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:11:23.434Z judge        judge director in 234 ms
+2026-10-02T08:11:56.618Z status       Inner beat stale for Adolion Narrator
+2026-10-02T08:11:57.854Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:11:59.394Z status       Inner beat used for Natalia
+2026-10-02T08:11:59.412Z payload      9 story blocks injected (generation)
+2026-10-02T08:12:01.224Z boundary     applied location=javon_study, acad_path=witch_king, tension_current=0.23925; discarded location=javon_study, acad_path=witch_king, tension_current=0.23925 (superseded)
+2026-10-02T08:12:01.224Z transition   nightriver-house → fathers-summons
+2026-10-02T08:12:01.743Z talk         silence speaks (judge)
+2026-10-02T08:12:01.743Z judge        judge director in 491 ms
+2026-10-02T08:12:03.839Z payload      8 story blocks injected (generation)
+2026-10-02T08:12:03.913Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:12:05.204Z payload      8 story blocks injected (generation)
+2026-10-02T08:12:05.583Z judge        judge lore in 326 ms
+2026-10-02T08:12:05.624Z judge        judge lore in 363 ms
+2026-10-02T08:12:05.887Z judge        judge lore in 308 ms
+2026-10-02T08:12:05.918Z judge        judge lore in 298 ms
+2026-10-02T08:12:06.116Z judge        judge lore in 231 ms
+2026-10-02T08:12:06.647Z chapter      recalled 2 archived memories
+2026-10-02T08:12:45.674Z status       Inner beat used for Javon
+2026-10-02T08:12:47.818Z status       Moved into Father's Summons
+2026-10-02T08:12:48.181Z boundary     boundary 9: nothing applied (gate)
+2026-10-02T08:12:49.040Z status       Following Father's Summons
+2026-10-02T08:12:49.912Z judge        judge typed in 1731 ms
+2026-10-02T08:12:49.917Z judge        judge scene in 1735 ms
+2026-10-02T08:12:48.157Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:12:51.222Z judge        judge wardenLore in 1306 ms
+2026-10-02T08:12:51.224Z judge        judge warden in 1315 ms
+2026-10-02T08:12:49.398Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:12:51.491Z judge        judge typed in 233 ms
+2026-10-02T08:12:51.492Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:12:56.887Z judge        judge memoryVerify in 250 ms
+2026-10-02T08:12:57.267Z delta        queued location=javon_study, duel_refused=true, heir_is_second=false, tension_current=0.39247499999999996 for the next boundary
+2026-10-02T08:12:56.634Z extraction   read cue:fathers-summons->whispers,fathers-summons->natalia-named msgs 6-13 → 4 accepted, 0 rejected
+2026-10-02T08:12:56.634Z delta        location = javon_study
+2026-10-02T08:12:56.634Z delta        duel_refused = true
+2026-10-02T08:12:56.634Z delta        heir_is_second = false
+2026-10-02T08:12:56.634Z delta        tension_current = 0.39247499999999996
+2026-10-02T08:12:56.634Z delta        queued location=javon_study, duel_refused=true, heir_is_second=false, tension_current=0.39247499999999996 for the next boundary
+2026-10-02T08:12:56.634Z audit        audit cue:fathers-summons->whispers,fathers-summons->natalia-named msgs 6-13 scope [acad_evidence, duel_refused, heir_injuries, heir_is_second, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T08:13:01.700Z judge        judge typed in 347 ms
+2026-10-02T08:13:01.700Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:06.555Z judge        judge memoryVerify in 269 ms
+2026-10-02T08:13:07.021Z delta        queued location=javon_study, duel_refused=true, heir_is_second=false, tension_current=0.4997324999999999 for the next boundary
+2026-10-02T08:13:06.283Z extraction   read scene:cast msgs 7-14 → 4 accepted, 0 rejected
+2026-10-02T08:13:06.283Z delta        location = javon_study
+2026-10-02T08:13:06.283Z delta        duel_refused = true
+2026-10-02T08:13:06.283Z delta        heir_is_second = false
+2026-10-02T08:13:06.283Z delta        tension_current = 0.4997324999999999
+2026-10-02T08:13:06.283Z delta        queued location=javon_study, duel_refused=true, heir_is_second=false, tension_current=0.4997324999999999 for the next boundary
+2026-10-02T08:13:06.283Z audit        audit scene:cast msgs 7-14 scope [acad_evidence, duel_refused, heir_injuries, heir_is_second, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T08:13:09.681Z judge        judge typed in 0 ms
+2026-10-02T08:13:09.682Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:15.518Z delta        queued location=javon_study, duel_refused=true, heir_is_second=false, tension_current=0.4997324999999999 for the next boundary
+2026-10-02T08:13:15.827Z judge        judge memoryVerify in 356 ms
+2026-10-02T08:13:15.468Z extraction   read cue:fathers-summons->whispers,fathers-summons->natalia-named msgs 7-14 → 4 accepted, 0 rejected
+2026-10-02T08:13:15.468Z delta        location = javon_study
+2026-10-02T08:13:15.468Z delta        duel_refused = true
+2026-10-02T08:13:15.468Z delta        heir_is_second = false
+2026-10-02T08:13:15.468Z delta        tension_current = 0.4997324999999999
+2026-10-02T08:13:15.468Z delta        queued location=javon_study, duel_refused=true, heir_is_second=false, tension_current=0.4997324999999999 for the next boundary
+2026-10-02T08:13:15.468Z audit        audit cue:fathers-summons->whispers,fathers-summons->natalia-named msgs 7-14 scope [acad_evidence, duel_refused, heir_injuries, heir_is_second, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T08:13:19.801Z judge        judge typed in 534 ms
+2026-10-02T08:13:19.802Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:24.552Z delta        queued location=javon_study, tension_current=0.4997324999999999 for the next boundary
+2026-10-02T08:13:24.743Z judge        judge memoryVerify in 292 ms
+2026-10-02T08:13:24.449Z extraction   read cadence msgs 10-14 → 2 accepted, 0 rejected
+2026-10-02T08:13:24.449Z delta        location = javon_study
+2026-10-02T08:13:24.449Z delta        tension_current = 0.4997324999999999
+2026-10-02T08:13:24.449Z delta        queued location=javon_study, tension_current=0.4997324999999999 for the next boundary
+2026-10-02T08:13:24.449Z audit        audit cadence msgs 10-14 scope [acad_evidence, duel_refused, heir_injuries, heir_is_second, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:13:27.337Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:29.911Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:59.924Z story        restored 1 host change(s)
+2026-10-02T08:14:02.304Z status       Stepped back to Home to Nightriver
+2026-10-02T08:14:03.734Z judge        judge typed in 268 ms
+2026-10-02T08:14:03.734Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:14:10.243Z judge        judge memoryVerify in 291 ms
+2026-10-02T08:14:11.990Z delta        queued location=javon_study, acad_path=witch_king, tension_current=0.31425 for the next boundary
+2026-10-02T08:14:09.946Z extraction   read rollback:12 msgs 6-14 → 3 accepted, 0 rejected
+2026-10-02T08:14:09.946Z delta        location = javon_study
+2026-10-02T08:14:09.946Z delta        acad_path = witch_king
+2026-10-02T08:14:09.946Z delta        tension_current = 0.31425
+2026-10-02T08:14:09.946Z delta        queued location=javon_study, acad_path=witch_king, tension_current=0.31425 for the next boundary
+2026-10-02T08:14:09.946Z audit        audit rollback:12 msgs 6-14 scope [acad_path, heir_injuries, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:14:16.714Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:14:19.151Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:14:21.550Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:14:51.010Z flag         after editing msg 12 (oath) away: direct oath rows gone, but the scene summary re-read at boundary 7 still says 'When Max invoked an oath sworn on his mother's grave' (inferred from Javon's untouched reply msg 14). Borderline must-not: fact from an edited-away line
+2026-10-02T08:15:00.443Z payload      7 story blocks injected (generation)
+2026-10-02T08:15:00.533Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:01.772Z status       Inner beat used for Shiya
+2026-10-02T08:15:01.786Z payload      8 story blocks injected (generation)
+2026-10-02T08:15:02.667Z judge        judge lore in 352 ms
+2026-10-02T08:15:02.681Z judge        judge lore in 361 ms
+2026-10-02T08:15:02.966Z judge        judge lore in 290 ms
+2026-10-02T08:15:02.968Z judge        judge lore in 306 ms
+2026-10-02T08:15:03.224Z judge        judge lore in 259 ms
+2026-10-02T08:15:03.491Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:15:03.491Z judge        judge director in 239 ms
+2026-10-02T08:15:05.863Z status       Inner beat used for Shiya
+2026-10-02T08:15:05.886Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:07.320Z status       Inner beat used for Leila
+2026-10-02T08:15:07.334Z payload      8 story blocks injected (generation)
+2026-10-02T08:15:09.330Z status       Inner beat used for Leila
+2026-10-02T08:15:09.360Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:10.384Z status       Inner beat used for Natalia
+2026-10-02T08:15:10.396Z payload      8 story blocks injected (generation)
+2026-10-02T08:15:12.265Z status       Inner beat used for Natalia
+2026-10-02T08:15:12.688Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:14.031Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:15:14.047Z payload      8 story blocks injected (generation)
+2026-10-02T08:15:46.467Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:15:47.642Z talk         Shiya speaks (mention)
+2026-10-02T08:15:48.144Z boundary     applied location=javon_study, acad_path=witch_king, tension_current=0.31425
+2026-10-02T08:15:48.144Z transition   nightriver-house → fathers-summons
+2026-10-02T08:15:48.724Z payload      7 story blocks injected (generation)
+2026-10-02T08:15:48.864Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:51.576Z status       Inner beat used for Shiya
+2026-10-02T08:15:51.591Z payload      8 story blocks injected (generation)
+2026-10-02T08:15:51.995Z status       Moved into Father's Summons
+2026-10-02T08:15:53.161Z judge        judge lore in 492 ms
+2026-10-02T08:15:53.188Z judge        judge lore in 507 ms
+2026-10-02T08:15:52.264Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:53.496Z judge        judge lore in 340 ms
+2026-10-02T08:15:53.514Z judge        judge lore in 329 ms
+2026-10-02T08:15:53.764Z judge        judge typed in 251 ms
+2026-10-02T08:15:53.773Z judge        judge lore in 278 ms
+2026-10-02T08:15:54.154Z judge        judge warden in 384 ms
+2026-10-02T08:15:54.353Z judge        judge scene in 594 ms
+2026-10-02T08:15:54.450Z chapter      recalled 2 archived memories
+2026-10-02T08:15:55.144Z judge        judge wardenLore in 990 ms
+2026-10-02T08:15:55.145Z judge        judge typed in 793 ms
+2026-10-02T08:15:55.146Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:16:00.236Z judge        judge memoryVerify in 253 ms
+2026-10-02T08:16:00.812Z delta        queued heir_is_second=true, location=javon_study for the next boundary
+2026-10-02T08:15:59.980Z extraction   read cue:fathers-summons->whispers,fathers-summons->natalia-named msgs 9-16 → 2 accepted, 0 rejected
+2026-10-02T08:15:59.980Z delta        heir_is_second = true
+2026-10-02T08:15:59.980Z delta        location = javon_study
+2026-10-02T08:15:59.980Z delta        queued heir_is_second=true, location=javon_study for the next boundary
+2026-10-02T08:15:59.980Z audit        audit cue:fathers-summons->whispers,fathers-summons->natalia-named msgs 9-16 scope [acad_evidence, duel_refused, heir_injuries, heir_is_second, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:16:22.193Z status       Inner beat used for Shiya
+2026-10-02T08:16:23.605Z boundary     applied heir_is_second=true, location=javon_study
+2026-10-02T08:16:23.605Z transition   fathers-summons → whispers
+2026-10-02T08:16:26.969Z status       Moved into Whispers in the Halls
+2026-10-02T08:16:27.295Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:16:28.194Z judge        judge warden in 872 ms
+2026-10-02T08:16:28.208Z judge        judge scene in 892 ms
+2026-10-02T08:16:28.411Z status       Inner beat unused
+2026-10-02T08:16:28.446Z judge        judge wardenLore in 254 ms
+2026-10-02T08:16:28.936Z judge        judge typed in 544 ms
+2026-10-02T08:16:28.937Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:16:34.335Z judge        judge memoryVerify in 280 ms
+2026-10-02T08:16:34.826Z delta        queued location=javon_study for the next boundary
+2026-10-02T08:16:34.052Z extraction   read scene:cast msgs 10-17 → 2 accepted, 0 rejected
+2026-10-02T08:16:34.052Z delta        location = javon_study
+2026-10-02T08:16:34.052Z delta        tension_current = 0.75
+2026-10-02T08:16:34.052Z delta        queued location=javon_study for the next boundary
+2026-10-02T08:16:34.052Z audit        audit scene:cast msgs 10-17 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:16:51.539Z payload      8 story blocks injected (generation)
+2026-10-02T08:16:51.637Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:16:52.941Z status       Inner beat used for Shiya
+2026-10-02T08:16:52.954Z payload      9 story blocks injected (generation)
+2026-10-02T08:16:54.068Z judge        judge lore in 401 ms
+2026-10-02T08:16:54.081Z judge        judge lore in 423 ms
+2026-10-02T08:16:54.399Z judge        judge lore in 338 ms
+2026-10-02T08:16:54.407Z judge        judge lore in 332 ms
+2026-10-02T08:16:54.650Z judge        judge lore in 254 ms
+2026-10-02T08:16:54.949Z talk         Shiya speaks (judge)
+2026-10-02T08:16:54.949Z judge        judge director in 247 ms
+2026-10-02T08:17:24.681Z status       Inner beat stale for Shiya
+2026-10-02T08:17:26.066Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:17:27.152Z status       Inner beat used for Natalia
+2026-10-02T08:17:27.170Z payload      9 story blocks injected (generation)
+2026-10-02T08:17:28.453Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:17:29.607Z status       Inner beat used for Ronan
+2026-10-02T08:17:29.637Z payload      9 story blocks injected (generation)
+2026-10-02T08:17:30.837Z boundary     applied location=javon_study
+2026-10-02T08:17:31.449Z status       Following Whispers in the Halls
+2026-10-02T08:17:32.053Z judge        judge director in 1229 ms
+2026-10-02T08:17:32.054Z talk         silence speaks (judge)
+2026-10-02T08:17:34.559Z judge        judge scene fell back (timeout) in 2510 ms
+2026-10-02T08:17:36.668Z judge        judge typed fell back (timeout) in 5017 ms
+2026-10-02T08:17:38.559Z judge        judge warden fell back (timeout) in 4002 ms
+2026-10-02T08:17:31.640Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:17:39.236Z judge        judge wardenLore in 2569 ms
+2026-10-02T08:17:40.059Z story        save waited behind another save
+2026-10-02T08:17:40.215Z status       Inner beat unused
+2026-10-02T08:17:40.225Z judge        judge typed in 599 ms
+2026-10-02T08:17:40.225Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:17:46.038Z delta        queued location=javon_study for the next boundary
+2026-10-02T08:17:46.881Z judge        judge memoryVerify in 1505 ms
+2026-10-02T08:17:45.374Z extraction   read cue:whispers->the-duel msgs 12-19 → 2 accepted, 0 rejected
+2026-10-02T08:17:45.374Z delta        location = javon_study
+2026-10-02T08:17:45.374Z delta        tension_current = 0.5
+2026-10-02T08:17:45.374Z delta        queued location=javon_study for the next boundary
+2026-10-02T08:17:45.374Z audit        audit cue:whispers->the-duel msgs 12-19 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:17:54.824Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:18:33.691Z judge        judge memoryPairs in 271 ms
+2026-10-02T08:18:33.702Z judge        judge memoryPairs in 283 ms
+2026-10-02T08:18:33.912Z judge        judge memoryPairs in 211 ms
+2026-10-02T08:18:33.940Z judge        judge memoryPairs in 249 ms
+2026-10-02T08:18:34.136Z judge        judge memoryPairs in 224 ms
+2026-10-02T08:18:34.158Z judge        judge memoryPairs in 218 ms
+2026-10-02T08:18:34.350Z judge        judge memoryPairs in 214 ms
+2026-10-02T08:18:34.386Z judge        judge memoryPairs in 229 ms
+2026-10-02T08:18:34.605Z judge        judge memoryPairs in 216 ms
+2026-10-02T08:18:34.611Z judge        judge memoryPairs in 223 ms
+2026-10-02T08:18:34.823Z judge        judge memoryPairs in 219 ms
+2026-10-02T08:18:34.834Z judge        judge memoryPairs in 224 ms
+2026-10-02T08:18:35.060Z judge        judge memoryPairs in 227 ms
+2026-10-02T08:18:35.077Z judge        judge memoryPairs in 255 ms
+2026-10-02T08:18:35.274Z judge        judge memoryPairs in 215 ms
+2026-10-02T08:18:35.311Z judge        judge memoryPairs in 234 ms
+2026-10-02T08:18:35.528Z judge        judge memoryPairs in 215 ms
+2026-10-02T08:18:35.642Z judge        judge memoryPairs in 329 ms
+2026-10-02T08:18:35.740Z judge        judge memoryPairs in 213 ms
+2026-10-02T08:18:35.854Z judge        judge memoryPairs in 213 ms
+2026-10-02T08:18:35.961Z judge        judge memoryPairs in 223 ms
+2026-10-02T08:18:36.113Z judge        judge memoryPairs in 259 ms
+2026-10-02T08:18:36.214Z judge        judge memoryPairs in 253 ms
+2026-10-02T08:18:36.330Z judge        judge memoryPairs in 218 ms
+2026-10-02T08:18:36.545Z judge        judge memoryPairs in 213 ms
+2026-10-02T08:18:36.641Z judge        judge memoryPairs in 310 ms
+2026-10-02T08:18:36.759Z judge        judge memoryPairs in 215 ms
+2026-10-02T08:18:36.869Z judge        judge memoryPairs in 229 ms
+2026-10-02T08:18:37.080Z judge        judge memoryPairs in 322 ms
+2026-10-02T08:18:37.174Z judge        judge memoryPairs in 305 ms
+2026-10-02T08:18:37.309Z judge        judge memoryPairs in 229 ms
+2026-10-02T08:18:37.433Z judge        judge memoryPairs in 259 ms
+2026-10-02T08:19:18.522Z judge        judge memoryPairs in 257 ms
+2026-10-02T08:19:18.543Z judge        judge memoryPairs in 277 ms
+2026-10-02T08:19:18.736Z judge        judge memoryPairs in 215 ms
+2026-10-02T08:19:18.762Z judge        judge memoryPairs in 220 ms
+2026-10-02T08:19:18.955Z judge        judge memoryPairs in 220 ms
+2026-10-02T08:19:18.979Z judge        judge memoryPairs in 218 ms
+2026-10-02T08:19:19.171Z judge        judge memoryPairs in 217 ms
+2026-10-02T08:19:19.234Z judge        judge memoryPairs in 255 ms
+2026-10-02T08:19:19.491Z judge        judge memoryPairs in 256 ms
+2026-10-02T08:19:19.493Z judge        judge memoryPairs in 257 ms
+2026-10-02T08:19:19.755Z judge        judge memoryPairs in 264 ms
+2026-10-02T08:19:19.768Z judge        judge memoryPairs in 276 ms
+2026-10-02T08:19:20.006Z judge        judge memoryPairs in 252 ms
+2026-10-02T08:19:20.034Z judge        judge memoryPairs in 267 ms
+2026-10-02T08:19:20.268Z judge        judge memoryPairs in 263 ms
+2026-10-02T08:19:20.269Z judge        judge memoryPairs in 236 ms
+2026-10-02T08:19:20.495Z judge        judge memoryPairs in 224 ms
+2026-10-02T08:19:20.501Z judge        judge memoryPairs in 229 ms
+2026-10-02T08:19:20.696Z judge        judge memoryPairs in 201 ms
+2026-10-02T08:19:20.733Z judge        judge memoryPairs in 233 ms
+2026-10-02T08:19:20.980Z judge        judge memoryPairs in 285 ms
+2026-10-02T08:19:20.987Z judge        judge memoryPairs in 254 ms
+2026-10-02T08:19:21.213Z judge        judge memoryPairs in 227 ms
+2026-10-02T08:19:21.251Z judge        judge memoryPairs in 272 ms
+2026-10-02T08:19:21.478Z judge        judge memoryPairs in 226 ms
+2026-10-02T08:19:21.488Z judge        judge memoryPairs in 235 ms
+2026-10-02T08:19:21.700Z judge        judge memoryPairs in 224 ms
+2026-10-02T08:19:21.703Z judge        judge memoryPairs fell back (busy) in 3 ms
+2026-10-02T08:19:21.703Z judge        judge memoryPairs fell back (busy) in 451 ms
+2026-10-02T08:19:21.703Z judge        judge memoryPairs fell back (busy) in 451 ms
+2026-10-02T08:19:21.703Z judge        judge memoryPairs fell back (busy) in 451 ms
+2026-10-02T08:19:21.765Z judge        judge memoryPairs in 278 ms
+2026-10-02T08:19:22.514Z model-call   supersession via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:19:24.056Z delta        queued location=javon_study for the next boundary
+2026-10-02T08:19:23.770Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:19:50.644Z payload      8 story blocks injected (generation)
+2026-10-02T08:19:50.728Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:19:52.177Z status       Inner beat used for Shiya
+2026-10-02T08:19:52.195Z payload      9 story blocks injected (generation)
+2026-10-02T08:19:53.225Z judge        judge lore in 387 ms
+2026-10-02T08:19:53.284Z judge        judge lore in 457 ms
+2026-10-02T08:19:53.547Z judge        judge lore in 326 ms
+2026-10-02T08:19:53.634Z judge        judge lore in 355 ms
+2026-10-02T08:19:53.880Z judge        judge lore in 334 ms
+2026-10-02T08:19:54.158Z talk         Shiya speaks (judge)
+2026-10-02T08:19:54.158Z judge        judge director in 247 ms
+2026-10-02T08:20:14.695Z status       Inner beat stale for Shiya
+2026-10-02T08:20:15.854Z status       Inner beat used for Natalia
+2026-10-02T08:20:15.876Z payload      9 story blocks injected (generation)
+2026-10-02T08:20:17.266Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:20:18.644Z status       Inner beat unusable
+2026-10-02T08:20:18.644Z status       No inner beat for Welden
+2026-10-02T08:20:18.664Z payload      9 story blocks injected (generation)
+2026-10-02T08:20:19.980Z status       Inner beat used for Ronan
+2026-10-02T08:20:20.011Z payload      9 story blocks injected (generation)
+2026-10-02T08:20:21.395Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:20:22.718Z status       Inner beat used for Leila
+2026-10-02T08:20:22.753Z payload      9 story blocks injected (generation)
+2026-10-02T08:20:24.325Z talk         Natalia speaks (mention)
+2026-10-02T08:20:24.392Z boundary     applied location=javon_study; discarded location=javon_study (superseded)
+2026-10-02T08:20:25.738Z payload      8 story blocks injected (generation)
+2026-10-02T08:20:26.169Z status       Inner beat used for Natalia
+2026-10-02T08:20:26.188Z payload      9 story blocks injected (generation)
+2026-10-02T08:20:25.679Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:20:26.814Z judge        judge typed in 1127 ms
+2026-10-02T08:20:26.817Z judge        judge scene in 1129 ms
+2026-10-02T08:20:27.434Z status       Inner beat unused
+2026-10-02T08:20:27.451Z judge        judge wardenLore in 635 ms
+2026-10-02T08:20:27.461Z judge        judge warden in 649 ms
+2026-10-02T08:20:27.962Z judge        judge lore in 505 ms
+2026-10-02T08:20:27.973Z judge        judge lore in 527 ms
+2026-10-02T08:20:28.287Z judge        judge lore in 330 ms
+2026-10-02T08:20:28.354Z judge        judge lore in 386 ms
+2026-10-02T08:20:28.506Z judge        judge lore in 220 ms
+2026-10-02T08:20:28.823Z judge        judge typed in 471 ms
+2026-10-02T08:20:28.823Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:20:35.106Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:20:35.146Z judge        judge memoryVerify in 294 ms
+2026-10-02T08:20:34.849Z extraction   read cue:whispers->the-duel msgs 14-21 → 2 accepted, 0 rejected
+2026-10-02T08:20:34.849Z delta        location = nightriver_estate
+2026-10-02T08:20:34.849Z delta        tension_current = 0.5
+2026-10-02T08:20:34.849Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:20:34.849Z audit        audit cue:whispers->the-duel msgs 14-21 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:20:48.502Z status       Inner beat used for Natalia
+2026-10-02T08:20:49.731Z boundary     applied location=nightriver_estate
+2026-10-02T08:20:50.623Z payload      7 story blocks injected (generation)
+2026-10-02T08:20:51.123Z status       Inner beat used for Natalia
+2026-10-02T08:20:51.152Z talk         silence speaks (judge)
+2026-10-02T08:20:51.152Z judge        judge director in 1427 ms
+2026-10-02T08:20:51.038Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:20:52.447Z judge        judge scene in 1392 ms
+2026-10-02T08:20:52.530Z judge        judge warden in 1380 ms
+2026-10-02T08:20:52.542Z status       Inner beat unused
+2026-10-02T08:20:54.379Z judge        judge wardenLore in 1933 ms
+2026-10-02T08:20:54.453Z judge        judge typed in 280 ms
+2026-10-02T08:20:54.453Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:20:58.710Z judge        judge memoryVerify in 280 ms
+2026-10-02T08:20:59.524Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:20:58.427Z extraction   read cadence msgs 15-22 → 2 accepted, 0 rejected
+2026-10-02T08:20:58.427Z delta        location = nightriver_estate
+2026-10-02T08:20:58.427Z delta        tension_current = 0.5
+2026-10-02T08:20:58.427Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:20:58.427Z audit        audit cadence msgs 15-22 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:21:02.295Z judge        judge typed in 0 ms
+2026-10-02T08:21:02.296Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:07.403Z judge        judge memoryVerify in 308 ms
+2026-10-02T08:21:08.189Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:21:07.093Z extraction   read scene:location msgs 15-22 → 1 accepted, 0 rejected
+2026-10-02T08:21:07.093Z delta        location = nightriver_estate
+2026-10-02T08:21:07.093Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:21:07.093Z audit        audit scene:location msgs 15-22 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_rank, tension_current] → 1 accepted, 0 rejected
+2026-10-02T08:21:34.755Z payload      8 story blocks injected (generation)
+2026-10-02T08:21:34.897Z status       Inner beat used for Leila
+2026-10-02T08:21:34.915Z payload      9 story blocks injected (generation)
+2026-10-02T08:21:35.866Z judge        judge lore in 386 ms
+2026-10-02T08:21:35.942Z judge        judge lore in 466 ms
+2026-10-02T08:21:36.208Z judge        judge lore in 347 ms
+2026-10-02T08:21:36.276Z judge        judge lore in 338 ms
+2026-10-02T08:21:36.457Z judge        judge lore in 251 ms
+2026-10-02T08:21:36.704Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:21:36.704Z judge        judge director in 218 ms
+2026-10-02T08:21:38.109Z status       Inner beat stale for Leila
+2026-10-02T08:21:38.120Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:39.189Z status       Inner beat used for Ronan
+2026-10-02T08:21:39.204Z payload      9 story blocks injected (generation)
+2026-10-02T08:21:40.466Z status       Inner beat used for Ronan
+2026-10-02T08:21:40.815Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:21:40.831Z payload      9 story blocks injected (generation)
+2026-10-02T08:22:10.845Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:22:12.518Z boundary     applied location=nightriver_estate; discarded location=nightriver_estate (superseded)
+2026-10-02T08:22:14.269Z judge        judge director in 1420 ms
+2026-10-02T08:22:14.270Z talk         silence speaks (judge)
+2026-10-02T08:22:15.420Z judge        judge typed in 1656 ms
+2026-10-02T08:22:15.432Z judge        judge scene in 1175 ms
+2026-10-02T08:22:13.735Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:17.450Z judge        judge wardenLore in 2020 ms
+2026-10-02T08:22:17.453Z judge        judge warden in 2036 ms
+2026-10-02T08:22:17.702Z judge        judge typed in 254 ms
+2026-10-02T08:22:17.703Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:21.813Z judge        judge memoryVerify in 279 ms
+2026-10-02T08:22:22.247Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:22:21.532Z extraction   read cue:whispers->the-duel msgs 17-24 → 1 accepted, 0 rejected
+2026-10-02T08:22:21.532Z delta        location = nightriver_estate
+2026-10-02T08:22:21.532Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:22:21.532Z audit        audit cue:whispers->the-duel msgs 17-24 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_rank, tension_current] → 1 accepted, 0 rejected
+2026-10-02T08:22:25.529Z judge        judge typed in 0 ms
+2026-10-02T08:22:25.561Z judge        judge curatorFilter in 1014 ms
+2026-10-02T08:22:25.562Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:27.226Z stagecraft   World Info curator proposed 1 change(s) at Whispers in the Halls
+2026-10-02T08:22:25.529Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:29.983Z judge        judge memoryVerify in 307 ms
+2026-10-02T08:22:30.226Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:22:29.675Z extraction   read scene:judge msgs 17-24 → 1 accepted, 0 rejected
+2026-10-02T08:22:29.675Z delta        location = nightriver_estate
+2026-10-02T08:22:29.675Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:22:29.675Z audit        audit scene:judge msgs 17-24 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_rank, tension_current] → 1 accepted, 0 rejected
+2026-10-02T08:22:31.676Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:34.346Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:51.352Z stagecraft   World Info curator proposal withdrawn (1 change(s)): the reply it was read from was changed or removed
+2026-10-02T08:23:08.002Z payload      7 story blocks injected (generation)
+2026-10-02T08:23:08.105Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:23:09.392Z status       Inner beat used for Natalia
+2026-10-02T08:23:09.407Z payload      8 story blocks injected (generation)
+2026-10-02T08:23:10.287Z judge        judge lore in 341 ms
+2026-10-02T08:23:10.317Z judge        judge lore in 367 ms
+2026-10-02T08:23:10.626Z judge        judge lore in 344 ms
+2026-10-02T08:23:10.629Z judge        judge lore in 316 ms
+2026-10-02T08:23:10.862Z judge        judge lore in 237 ms
+2026-10-02T08:23:11.126Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:23:11.126Z judge        judge director in 235 ms
+2026-10-02T08:23:12.101Z status       Inner beat used for Natalia
+2026-10-02T08:23:12.135Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:23:13.360Z status       Inner beat used for Leila
+2026-10-02T08:23:13.376Z payload      8 story blocks injected (generation)
+2026-10-02T08:23:14.018Z status       Inner beat used for Leila
+2026-10-02T08:23:14.047Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:23:15.080Z status       Inner beat used for Welden
+2026-10-02T08:23:15.094Z payload      8 story blocks injected (generation)
+2026-10-02T08:23:15.749Z status       Inner beat used for Welden
+2026-10-02T08:23:15.763Z status       Inner beat used for Ronan
+2026-10-02T08:23:15.778Z payload      8 story blocks injected (generation)
+2026-10-02T08:23:16.513Z status       Inner beat used for Ronan
+2026-10-02T08:23:16.847Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:23:16.863Z payload      8 story blocks injected (generation)
+2026-10-02T08:23:38.814Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:23:40.058Z talk         Natalia speaks (mention)
+2026-10-02T08:23:40.171Z boundary     boundary 14: nothing applied (gate)
+2026-10-02T08:23:41.786Z payload      7 story blocks injected (generation)
+2026-10-02T08:23:42.364Z status       Inner beat used for Natalia
+2026-10-02T08:23:42.382Z payload      8 story blocks injected (generation)
+2026-10-02T08:23:41.753Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:23:44.301Z judge        judge typed in 1781 ms
+2026-10-02T08:23:44.306Z judge        judge scene in 1783 ms
+2026-10-02T08:23:45.015Z judge        judge wardenLore in 711 ms
+2026-10-02T08:23:45.026Z judge        judge warden in 728 ms
+2026-10-02T08:23:45.317Z judge        judge lore in 307 ms
+2026-10-02T08:23:45.336Z judge        judge lore in 314 ms
+2026-10-02T08:23:45.636Z judge        judge lore in 304 ms
+2026-10-02T08:23:45.662Z judge        judge lore in 349 ms
+2026-10-02T08:23:45.872Z judge        judge lore in 238 ms
+2026-10-02T08:23:46.179Z judge        judge typed in 518 ms
+2026-10-02T08:23:46.180Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:23:50.771Z judge        judge memoryVerify in 264 ms
+2026-10-02T08:23:51.063Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:23:50.505Z extraction   read cue:whispers->the-duel msgs 18-25 → 1 accepted, 0 rejected
+2026-10-02T08:23:50.505Z delta        location = nightriver_estate
+2026-10-02T08:23:50.505Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:23:50.505Z audit        audit cue:whispers->the-duel msgs 18-25 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, tension_current] → 1 accepted, 0 rejected
+2026-10-02T08:23:55.056Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:23:58.730Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:24:01.692Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:24:11.292Z boundary     applied location=nightriver_estate
+2026-10-02T08:24:11.473Z talk         Shiya speaks (judge)
+2026-10-02T08:24:11.473Z judge        judge director in 373 ms
+2026-10-02T08:24:12.026Z payload      8 story blocks injected (generation)
+2026-10-02T08:24:13.078Z boundary     boundary 16: nothing applied (gate)
+2026-10-02T08:24:12.822Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:24:14.639Z judge        judge warden in 1557 ms
+2026-10-02T08:24:14.641Z judge        judge scene in 1563 ms
+2026-10-02T08:24:14.749Z status       Inner beat used for Shiya
+2026-10-02T08:24:14.765Z payload      9 story blocks injected (generation)
+2026-10-02T08:24:14.870Z judge        judge wardenLore in 232 ms
+2026-10-02T08:24:14.884Z judge        judge typed in 244 ms
+2026-10-02T08:24:15.102Z judge        judge typed in 233 ms
+2026-10-02T08:24:15.700Z judge        judge lore in 820 ms
+2026-10-02T08:24:15.708Z judge        judge lore in 609 ms
+2026-10-02T08:24:16.015Z judge        judge lore in 310 ms
+2026-10-02T08:24:16.016Z judge        judge lore in 319 ms
+2026-10-02T08:24:16.236Z judge        judge lore in 222 ms
+2026-10-02T08:24:14.884Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:24:18.814Z judge        judge memoryVerify in 230 ms
+2026-10-02T08:24:19.270Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:24:18.583Z extraction   read cadence msgs 23-26 → 1 accepted, 0 rejected
+2026-10-02T08:24:18.583Z delta        location = nightriver_estate
+2026-10-02T08:24:18.583Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:24:18.583Z audit        audit cadence msgs 23-26 scope [acad_at_ball, acad_evidence, duel_begun, location, party_rank, tension_current] → 1 accepted, 0 rejected
+2026-10-02T08:24:22.639Z judge        judge typed in 244 ms
+2026-10-02T08:24:22.640Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:24:27.887Z judge        judge memoryVerify in 258 ms
+2026-10-02T08:24:28.283Z delta        queued location=nightriver_estate, tension_current=0.36997499999999994 for the next boundary
+2026-10-02T08:24:27.621Z extraction   read cue:whispers->the-duel msgs 20-27 → 2 accepted, 0 rejected
+2026-10-02T08:24:27.621Z delta        location = nightriver_estate
+2026-10-02T08:24:27.621Z delta        tension_current = 0.36997499999999994
+2026-10-02T08:24:27.621Z delta        queued location=nightriver_estate, tension_current=0.36997499999999994 for the next boundary
+2026-10-02T08:24:27.621Z audit        audit cue:whispers->the-duel msgs 20-27 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:24:35.587Z status       Inner beat used for Shiya
+2026-10-02T08:24:36.949Z boundary     applied location=nightriver_estate, tension_current=0.36997499999999994; discarded location=nightriver_estate (superseded)
+2026-10-02T08:24:38.166Z judge        judge scene in 420 ms
+2026-10-02T08:24:38.419Z judge        judge typed in 674 ms
+2026-10-02T08:24:38.449Z judge        judge warden in 285 ms
+2026-10-02T08:24:39.073Z judge        judge wardenLore in 655 ms
+2026-10-02T08:24:49.625Z payload      8 story blocks injected (generation)
+2026-10-02T08:24:49.750Z status       Inner beat used for Natalia
+2026-10-02T08:24:49.770Z payload      9 story blocks injected (generation)
+2026-10-02T08:24:50.903Z judge        judge lore in 368 ms
+2026-10-02T08:24:50.912Z judge        judge lore in 393 ms
+2026-10-02T08:24:51.224Z judge        judge lore in 325 ms
+2026-10-02T08:24:51.249Z judge        judge lore in 341 ms
+2026-10-02T08:24:51.472Z judge        judge lore in 250 ms
+2026-10-02T08:24:51.737Z talk         Natalia speaks (judge)
+2026-10-02T08:24:51.737Z judge        judge director in 239 ms
+2026-10-02T08:25:10.662Z status       Inner beat stale for Natalia
+2026-10-02T08:25:12.028Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:25:13.360Z status       Inner beat used for Welden
+2026-10-02T08:25:13.378Z payload      9 story blocks injected (generation)
+2026-10-02T08:25:14.857Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:25:15.835Z status       Inner beat used for Ronan
+2026-10-02T08:25:15.873Z payload      9 story blocks injected (generation)
+2026-10-02T08:25:17.322Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:25:18.599Z status       Inner beat used for Leila
+2026-10-02T08:25:18.636Z payload      9 story blocks injected (generation)
+2026-10-02T08:25:20.257Z boundary     boundary 18: nothing applied (gate)
+2026-10-02T08:25:20.498Z talk         Shiya speaks (judge)
+2026-10-02T08:25:20.498Z judge        judge director in 254 ms
+2026-10-02T08:25:20.946Z reconciliation stall re-check queued for acad_evidence, duel_begun, acad_at_ball
+2026-10-02T08:25:22.038Z judge        judge stall in 1005 ms
+2026-10-02T08:25:22.530Z payload      8 story blocks injected (generation)
+2026-10-02T08:25:22.585Z judge        judge scene in 1551 ms
+2026-10-02T08:25:21.025Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:25:23.351Z status       Inner beat unused
+2026-10-02T08:25:23.358Z judge        judge warden in 1322 ms
+2026-10-02T08:25:23.359Z judge        judge wardenLore in 775 ms
+2026-10-02T08:25:23.216Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:25:24.329Z judge        judge typed in 944 ms
+2026-10-02T08:25:24.344Z status       Inner beat used for Shiya
+2026-10-02T08:25:24.363Z payload      9 story blocks injected (generation)
+2026-10-02T08:25:24.743Z judge        judge lore in 303 ms
+2026-10-02T08:25:24.817Z judge        judge lore in 373 ms
+2026-10-02T08:25:25.034Z judge        judge lore in 297 ms
+2026-10-02T08:25:25.120Z judge        judge lore in 307 ms
+2026-10-02T08:25:25.295Z judge        judge lore in 263 ms
+2026-10-02T08:25:24.329Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:25:28.058Z judge        judge memoryVerify in 254 ms
+2026-10-02T08:25:28.066Z delta        queued location=nightriver_estate, tension_current=0.4089824999999999 for the next boundary
+2026-10-02T08:25:27.802Z extraction   read cadence msgs 27-30 → 2 accepted, 0 rejected
+2026-10-02T08:25:27.802Z delta        location = nightriver_estate
+2026-10-02T08:25:27.802Z delta        tension_current = 0.4089824999999999
+2026-10-02T08:25:27.802Z delta        queued location=nightriver_estate, tension_current=0.4089824999999999 for the next boundary
+2026-10-02T08:25:27.802Z audit        audit cadence msgs 27-30 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:25:31.235Z judge        judge typed in 243 ms
+2026-10-02T08:25:31.235Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:25:36.510Z judge        judge memoryVerify in 283 ms
+2026-10-02T08:25:36.996Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:25:36.223Z extraction   read cue:whispers->the-duel msgs 23-30 → 1 accepted, 1 rejected
+2026-10-02T08:25:36.223Z delta        location = nightriver_estate
+2026-10-02T08:25:36.223Z delta        queued location=nightriver_estate for the next boundary
+2026-10-02T08:25:36.223Z audit        audit cue:whispers->the-duel msgs 23-30 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_injuries, party_rank, tension_current] → 1 accepted, 1 rejected
+2026-10-02T08:25:40.669Z judge        judge typed in 247 ms
+2026-10-02T08:25:40.670Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:25:46.928Z judge        judge memoryVerify in 467 ms
+2026-10-02T08:25:47.111Z delta        queued location=nightriver_estate, tension_current=0.4089824999999999 for the next boundary
+2026-10-02T08:25:46.457Z extraction   read reconcile:acad_evidence,duel_begun,acad_at_ball msgs 18-30 → 2 accepted, 0 rejected
+2026-10-02T08:25:46.457Z delta        location = nightriver_estate
+2026-10-02T08:25:46.457Z delta        tension_current = 0.4089824999999999
+2026-10-02T08:25:46.457Z delta        queued location=nightriver_estate, tension_current=0.4089824999999999 for the next boundary
+2026-10-02T08:25:50.425Z reconciliation stall re-check resolved (2 evidence)
+2026-10-02T08:25:46.457Z audit        audit reconcile:acad_evidence,duel_begun,acad_at_ball msgs 18-30 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:25:52.112Z status       Inner beat used for Shiya
+2026-10-02T08:25:53.942Z boundary     applied location=nightriver_estate, tension_current=0.4089824999999999; discarded location=nightriver_estate, tension_current=0.4089824999999999, location=nightriver_estate (superseded)
+2026-10-02T08:25:54.144Z payload      7 story blocks injected (generation)
+2026-10-02T08:25:54.234Z judge        judge curatorFilter in 889 ms
+2026-10-02T08:25:54.291Z status       Inner beat used for Shiya
+2026-10-02T08:25:54.665Z talk         silence speaks (judge)
+2026-10-02T08:25:54.665Z judge        judge director in 1206 ms
+2026-10-02T08:25:56.277Z judge        judge typed in 902 ms
+2026-10-02T08:25:56.281Z judge        judge scene in 905 ms
+2026-10-02T08:25:54.235Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:25:56.890Z stagecraft   World Info curator proposed 3 change(s) at Whispers in the Halls
+2026-10-02T08:25:55.863Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:25:58.278Z judge        judge wardenLore in 1998 ms
+2026-10-02T08:25:58.739Z judge        judge warden in 2464 ms
+2026-10-02T08:25:59.801Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:26:04.255Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:26:08.294Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:26:44.422Z stagecraft   World Info curator proposal withdrawn (3 change(s)): the reply it was read from was changed or removed
+2026-10-02T08:26:49.123Z judge        judge typed in 290 ms
+2026-10-02T08:26:49.124Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:26:55.612Z judge        judge memoryVerify in 297 ms
+2026-10-02T08:26:55.919Z delta        queued location=nightriver_estate, tension_current=0.36997499999999994 for the next boundary
+2026-10-02T08:26:55.303Z extraction   read rollback:27 msgs 17-31 → 2 accepted, 0 rejected
+2026-10-02T08:26:55.303Z delta        location = nightriver_estate
+2026-10-02T08:26:55.303Z delta        tension_current = 0.36997499999999994
+2026-10-02T08:26:55.303Z delta        queued location=nightriver_estate, tension_current=0.36997499999999994 for the next boundary
+2026-10-02T08:26:55.303Z audit        audit rollback:27 msgs 17-31 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:27:22.377Z payload      7 story blocks injected (generation)
+2026-10-02T08:27:22.476Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:27:23.732Z status       Inner beat used for Natalia
+2026-10-02T08:27:23.747Z payload      8 story blocks injected (generation)
+2026-10-02T08:27:24.773Z judge        judge lore in 402 ms
+2026-10-02T08:27:24.789Z judge        judge lore in 423 ms
+2026-10-02T08:27:25.074Z judge        judge lore in 309 ms
+2026-10-02T08:27:25.081Z judge        judge lore in 299 ms
+2026-10-02T08:27:25.295Z judge        judge lore in 223 ms
+2026-10-02T08:27:25.668Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:27:25.668Z judge        judge director in 339 ms
+2026-10-02T08:27:27.468Z status       Inner beat used for Natalia
+2026-10-02T08:27:27.491Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:27:28.741Z status       Inner beat used for Shiya
+2026-10-02T08:27:28.757Z payload      8 story blocks injected (generation)
+2026-10-02T08:27:30.574Z status       Inner beat used for Shiya
+2026-10-02T08:27:30.599Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:27:31.708Z status       Inner beat used for Welden
+2026-10-02T08:27:31.724Z payload      8 story blocks injected (generation)
+2026-10-02T08:27:33.448Z status       Inner beat used for Welden
+2026-10-02T08:27:33.821Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:27:34.879Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:27:34.895Z payload      8 story blocks injected (generation)
+2026-10-02T08:28:14.351Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:28:15.921Z talk         Natalia speaks (mention)
+2026-10-02T08:28:16.132Z boundary     applied location=nightriver_estate, tension_current=0.36997499999999994
+2026-10-02T08:28:18.089Z payload      7 story blocks injected (generation)
+2026-10-02T08:28:18.700Z status       Inner beat used for Natalia
+2026-10-02T08:28:18.719Z payload      8 story blocks injected (generation)
+2026-10-02T08:28:17.876Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:28:21.065Z judge        judge typed in 2144 ms
+2026-10-02T08:28:21.071Z judge        judge scene in 2147 ms
+2026-10-02T08:28:21.968Z judge        judge wardenLore in 899 ms
+2026-10-02T08:28:22.384Z judge        judge warden in 1322 ms
+2026-10-02T08:28:22.413Z judge        judge lore in 450 ms
+2026-10-02T08:28:22.689Z judge        judge lore in 309 ms
+2026-10-02T08:28:22.698Z judge        judge lore in 289 ms
+2026-10-02T08:28:22.938Z judge        judge lore in 242 ms
+2026-10-02T08:28:22.980Z judge        judge lore in 295 ms
+2026-10-02T08:28:23.325Z judge        judge typed in 388 ms
+2026-10-02T08:28:23.326Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:28:29.576Z judge        judge memoryVerify in 267 ms
+2026-10-02T08:28:30.207Z delta        queued location=war_throne_room, duel_begun=true, tension_current=0.4839824999999999 for the next boundary
+2026-10-02T08:28:29.306Z extraction   read cue:whispers->the-duel,whispers->acad-mid-year-ball msgs 26-33 → 3 accepted, 0 rejected
+2026-10-02T08:28:29.306Z delta        location = war_throne_room
+2026-10-02T08:28:29.306Z delta        duel_begun = true
+2026-10-02T08:28:29.306Z delta        tension_current = 0.4839824999999999
+2026-10-02T08:28:29.306Z delta        queued location=war_throne_room, duel_begun=true, tension_current=0.4839824999999999 for the next boundary
+2026-10-02T08:28:29.306Z audit        audit cue:whispers->the-duel,whispers->acad-mid-year-ball msgs 26-33 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:28:34.685Z judge        judge typed in 0 ms
+2026-10-02T08:28:34.686Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:28:40.017Z judge        judge memoryVerify in 280 ms
+2026-10-02T08:28:40.331Z delta        queued location=war_throne_room, duel_begun=true, tension_current=0.4839824999999999 for the next boundary
+2026-10-02T08:28:39.733Z extraction   read scene:judge msgs 26-33 → 3 accepted, 0 rejected
+2026-10-02T08:28:39.733Z delta        location = war_throne_room
+2026-10-02T08:28:39.733Z delta        duel_begun = true
+2026-10-02T08:28:39.733Z delta        tension_current = 0.4839824999999999
+2026-10-02T08:28:39.733Z delta        queued location=war_throne_room, duel_begun=true, tension_current=0.4839824999999999 for the next boundary
+2026-10-02T08:28:39.733Z audit        audit scene:judge msgs 26-33 scope [acad_at_ball, acad_evidence, duel_begun, heir_injuries, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:28:43.443Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:28:46.450Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:28:51.007Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:28:55.161Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:28:59.434Z boundary     applied location=war_throne_room, duel_begun=true, tension_current=0.4839824999999999; discarded location=war_throne_room, duel_begun=true, tension_current=0.4839824999999999 (superseded)
+2026-10-02T08:28:59.434Z transition   whispers → the-duel
+2026-10-02T08:28:57.578Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:29:00.814Z judge        judge director fell back (timeout) in 1513 ms
+2026-10-02T08:29:00.815Z model-call   director via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:29:02.828Z talk         silence speaks (director)
+2026-10-02T08:29:10.573Z status       Moved into Trial by Combat
+2026-10-02T08:29:11.245Z boundary     boundary 18: nothing applied (gate)
+2026-10-02T08:29:12.541Z status       Following Trial by Combat
+2026-10-02T08:29:12.829Z boundary     boundary 19: nothing applied (gate)
+2026-10-02T08:29:11.222Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:29:13.620Z judge        judge typed in 2374 ms
+2026-10-02T08:29:13.642Z judge        judge scene in 2395 ms
+2026-10-02T08:29:14.579Z judge        judge scene in 0 ms
+2026-10-02T08:29:15.320Z judge        judge wardenLore in 1679 ms
+2026-10-02T08:29:15.356Z judge        judge warden in 1738 ms
+2026-10-02T08:29:16.025Z judge        judge typed in 708 ms
+2026-10-02T08:29:16.056Z judge        judge typed in 701 ms
+2026-10-02T08:29:16.025Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:29:20.337Z delta        queued location=war_throne_room, tension_current=0.5637877499999999 for the next boundary
+2026-10-02T08:29:20.476Z judge        judge memoryVerify in 284 ms
+2026-10-02T08:29:20.184Z extraction   read scene:cast msgs 28-35 → 2 accepted, 0 rejected
+2026-10-02T08:29:20.184Z delta        location = war_throne_room
+2026-10-02T08:29:20.184Z delta        tension_current = 0.5637877499999999
+2026-10-02T08:29:20.184Z delta        queued location=war_throne_room, tension_current=0.5637877499999999 for the next boundary
+2026-10-02T08:29:20.184Z audit        audit scene:cast msgs 28-35 scope [duel_outcome, heir_injuries, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:29:27.082Z judge        judge typed in 507 ms
+2026-10-02T08:29:27.083Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:29:32.355Z judge        judge memoryVerify in 264 ms
+2026-10-02T08:29:33.264Z delta        queued location=dueling_ground, tension_current=0.6196514249999999 for the next boundary
+2026-10-02T08:29:32.085Z extraction   read scene:judge msgs 29-36 → 2 accepted, 0 rejected
+2026-10-02T08:29:32.085Z delta        location = dueling_ground
+2026-10-02T08:29:32.085Z delta        tension_current = 0.6196514249999999
+2026-10-02T08:29:32.085Z delta        queued location=dueling_ground, tension_current=0.6196514249999999 for the next boundary
+2026-10-02T08:29:32.085Z audit        audit scene:judge msgs 29-36 scope [duel_outcome, heir_injuries, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:29:37.555Z judge        judge typed in 407 ms
+2026-10-02T08:29:37.556Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:29:42.684Z judge        judge memoryVerify in 281 ms
+2026-10-02T08:29:42.905Z delta        queued location=war_throne_room for the next boundary
+2026-10-02T08:29:42.400Z extraction   read cadence msgs 31-34 → 2 accepted, 0 rejected
+2026-10-02T08:29:42.400Z delta        location = war_throne_room
+2026-10-02T08:29:42.400Z delta        tension_current = 0.75
+2026-10-02T08:29:42.400Z delta        queued location=war_throne_room for the next boundary
+2026-10-02T08:29:42.400Z audit        audit cadence msgs 31-34 scope [duel_outcome, heir_injuries, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:29:45.722Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:29:48.316Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:29:52.499Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:29:55.393Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:30:00.407Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:30:22.648Z flag         scripted line re-posted after a step back: 'The Trial is a day closer...' (msg 26) posted again as msg 35 at the duel after the edit-of-27 rollback 19->15; also Welden opener posted twice (msgs 4 and 7) after the delete-of-4 rollback
+2026-10-02T08:30:37.516Z payload      8 story blocks injected (generation)
+2026-10-02T08:30:37.757Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:30:38.656Z status       Inner beat used for Shiya
+2026-10-02T08:30:38.676Z payload      9 story blocks injected (generation)
+2026-10-02T08:30:40.294Z judge        judge lore in 382 ms
+2026-10-02T08:30:40.311Z judge        judge lore in 414 ms
+2026-10-02T08:30:40.653Z judge        judge lore in 347 ms
+2026-10-02T08:30:40.672Z judge        judge lore in 386 ms
+2026-10-02T08:30:40.988Z judge        judge lore in 337 ms
+2026-10-02T08:30:41.397Z judge        judge director in 362 ms
+2026-10-02T08:30:41.398Z talk         Merryn speaks (judge)
+2026-10-02T08:30:42.928Z status       Inner beat used for Shiya
+2026-10-02T08:30:42.976Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:30:44.017Z status       Inner beat unused
+2026-10-02T08:30:44.017Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:30:44.045Z payload      9 story blocks injected (generation)
+2026-10-02T08:30:45.040Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:30:45.402Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:30:46.505Z status       Inner beat used for Merryn
+2026-10-02T08:30:46.520Z payload      9 story blocks injected (generation)
+2026-10-02T08:31:16.419Z status       Inner beat used for Merryn
+2026-10-02T08:31:18.116Z boundary     applied location=war_throne_room, tension_current=0.5637877499999999, location=dueling_ground, tension_current=0.6196514249999999; discarded location=war_throne_room (superseded)
+2026-10-02T08:31:19.558Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:31:19.558Z judge        judge director in 1449 ms
+2026-10-02T08:31:20.405Z payload      8 story blocks injected (generation)
+2026-10-02T08:31:22.072Z judge        judge scene fell back (timeout) in 2519 ms
+2026-10-02T08:31:24.552Z judge        judge typed fell back (timeout) in 5005 ms
+2026-10-02T08:31:26.070Z judge        judge warden fell back (timeout) in 4001 ms
+2026-10-02T08:31:26.934Z story        save not confirmed
+2026-10-02T08:31:27.075Z story        save not confirmed
+2026-10-02T08:31:27.170Z story        save not confirmed
+2026-10-02T08:31:27.266Z story        save not confirmed
+2026-10-02T08:31:27.343Z story        save not confirmed
+2026-10-02T08:31:27.564Z story        save not confirmed
+2026-10-02T08:31:19.528Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:31:28.160Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:31:28.183Z payload      9 story blocks injected (generation)
+2026-10-02T08:31:28.551Z judge        judge wardenLore fell back (timeout) in 4001 ms
+2026-10-02T08:31:29.108Z judge        judge lore in 517 ms
+2026-10-02T08:31:29.116Z judge        judge lore in 530 ms
+2026-10-02T08:31:29.576Z judge        judge lore in 473 ms
+2026-10-02T08:31:29.582Z judge        judge lore in 470 ms
+2026-10-02T08:31:30.284Z judge        judge lore in 709 ms
+2026-10-02T08:31:30.592Z judge        judge typed in 1011 ms
+2026-10-02T08:31:30.592Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:31:37.882Z delta        queued location=dueling_ground, tension_current=0.7337559974999999 for the next boundary
+2026-10-02T08:31:38.826Z judge        judge memoryVerify in 1184 ms
+2026-10-02T08:31:37.639Z extraction   read scene:location msgs 31-38 → 2 accepted, 0 rejected
+2026-10-02T08:31:37.639Z delta        location = dueling_ground
+2026-10-02T08:31:37.639Z delta        tension_current = 0.7337559974999999
+2026-10-02T08:31:37.639Z delta        queued location=dueling_ground, tension_current=0.7337559974999999 for the next boundary
+2026-10-02T08:31:37.639Z audit        audit scene:location msgs 31-38 scope [duel_outcome, heir_injuries, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:31:47.179Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:31:52.241Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:31:55.472Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:32:05.350Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:32:17.942Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:32:19.704Z boundary     applied location=dueling_ground, tension_current=0.7337559974999999
+2026-10-02T08:32:20.939Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:32:21.638Z talk         Ronan speaks (judge)
+2026-10-02T08:32:21.638Z judge        judge director in 1027 ms
+2026-10-02T08:32:22.448Z judge        judge scene in 1480 ms
+2026-10-02T08:32:22.665Z status       Inner beat unused
+2026-10-02T08:32:22.754Z payload      8 story blocks injected (generation)
+2026-10-02T08:32:23.574Z judge        judge warden in 1939 ms
+2026-10-02T08:32:23.856Z status       Inner beat used for Ronan
+2026-10-02T08:32:23.873Z payload      9 story blocks injected (generation)
+2026-10-02T08:32:24.068Z judge        judge wardenLore in 1622 ms
+2026-10-02T08:32:24.069Z stagecraft   Warden flagged Adolion Narrator's reply (lore)
+2026-10-02T08:32:25.087Z judge        judge typed in 1515 ms
+2026-10-02T08:32:25.130Z judge        judge lore in 1066 ms
+2026-10-02T08:32:25.544Z judge        judge lore in 463 ms
+2026-10-02T08:32:25.550Z judge        judge lore in 427 ms
+2026-10-02T08:32:26.143Z judge        judge lore in 594 ms
+2026-10-02T08:32:26.240Z judge        judge lore in 700 ms
+2026-10-02T08:32:25.088Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:32:30.222Z judge        judge memoryVerify in 452 ms
+2026-10-02T08:32:30.885Z delta        queued location=dueling_ground, tension_current=0.7386291982499998 for the next boundary
+2026-10-02T08:32:29.768Z extraction   read cadence msgs 35-39 → 2 accepted, 0 rejected
+2026-10-02T08:32:29.768Z delta        location = dueling_ground
+2026-10-02T08:32:29.768Z delta        tension_current = 0.7386291982499998
+2026-10-02T08:32:29.768Z delta        queued location=dueling_ground, tension_current=0.7386291982499998 for the next boundary
+2026-10-02T08:32:29.768Z audit        audit cadence msgs 35-39 scope [duel_outcome, heir_injuries, location, party_injuries, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:32:35.603Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:32:38.784Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:32:39.906Z judge        judge memoryPairs in 504 ms
+2026-10-02T08:32:39.907Z judge        judge memoryPairs in 506 ms
+2026-10-02T08:32:40.126Z judge        judge memoryPairs in 220 ms
+2026-10-02T08:32:40.151Z judge        judge memoryPairs in 246 ms
+2026-10-02T08:32:40.350Z judge        judge memoryPairs in 225 ms
+2026-10-02T08:32:40.382Z judge        judge memoryPairs in 232 ms
+2026-10-02T08:32:40.661Z judge        judge memoryPairs in 311 ms
+2026-10-02T08:32:40.665Z judge        judge memoryPairs in 284 ms
+2026-10-02T08:32:40.906Z judge        judge memoryPairs in 239 ms
+2026-10-02T08:32:40.913Z judge        judge memoryPairs in 245 ms
+2026-10-02T08:32:41.142Z judge        judge memoryPairs in 229 ms
+2026-10-02T08:32:41.145Z judge        judge memoryPairs in 239 ms
+2026-10-02T08:32:41.373Z judge        judge memoryPairs in 232 ms
+2026-10-02T08:32:41.374Z judge        judge memoryPairs in 230 ms
+2026-10-02T08:32:41.608Z judge        judge memoryPairs in 236 ms
+2026-10-02T08:32:41.624Z judge        judge memoryPairs in 251 ms
+2026-10-02T08:32:41.850Z judge        judge memoryPairs in 224 ms
+2026-10-02T08:32:41.864Z judge        judge memoryPairs in 239 ms
+2026-10-02T08:32:40.639Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:32:42.089Z judge        judge memoryPairs in 240 ms
+2026-10-02T08:32:42.115Z judge        judge memoryPairs in 252 ms
+2026-10-02T08:32:42.628Z judge        judge memoryPairs in 540 ms
+2026-10-02T08:32:42.629Z judge        judge memoryPairs in 514 ms
+2026-10-02T08:32:43.424Z judge        judge memoryPairs in 795 ms
+2026-10-02T08:32:43.424Z judge        judge memoryPairs in 797 ms
+2026-10-02T08:32:44.257Z judge        judge memoryPairs in 831 ms
+2026-10-02T08:32:44.258Z judge        judge memoryPairs in 832 ms
+2026-10-02T08:32:44.501Z judge        judge memoryPairs in 243 ms
+2026-10-02T08:32:44.525Z judge        judge memoryPairs in 269 ms
+2026-10-02T08:32:44.715Z judge        judge memoryPairs in 214 ms
+2026-10-02T08:32:44.775Z judge        judge memoryPairs in 251 ms
+2026-10-02T08:32:44.926Z judge        judge memoryPairs in 212 ms
+2026-10-02T08:32:45.015Z judge        judge memoryPairs in 241 ms
+2026-10-02T08:33:11.517Z status       Inner beat used for Ronan
+2026-10-02T08:33:13.239Z boundary     applied location=dueling_ground, tension_current=0.7386291982499998
+2026-10-02T08:33:15.589Z judge        judge typed in 1356 ms
+2026-10-02T08:33:16.392Z judge        judge scene in 2157 ms
+2026-10-02T08:33:16.490Z judge        judge warden in 904 ms
+2026-10-02T08:33:16.813Z judge        judge wardenLore in 422 ms
+2026-10-02T08:33:31.656Z judge        judge memoryPairs in 277 ms
+2026-10-02T08:33:31.671Z judge        judge memoryPairs in 294 ms
+2026-10-02T08:33:31.877Z judge        judge memoryPairs in 222 ms
+2026-10-02T08:33:31.889Z judge        judge memoryPairs in 219 ms
+2026-10-02T08:33:32.139Z judge        judge memoryPairs in 263 ms
+2026-10-02T08:33:32.236Z judge        judge memoryPairs in 348 ms
+2026-10-02T08:33:32.361Z judge        judge memoryPairs in 223 ms
+2026-10-02T08:33:32.455Z judge        judge memoryPairs in 219 ms
+2026-10-02T08:33:32.458Z judge        judge memoryPairs in 0 ms
+2026-10-02T08:33:32.694Z judge        judge memoryPairs in 237 ms
+2026-10-02T08:33:32.697Z judge        judge memoryPairs in 239 ms
+2026-10-02T08:33:32.916Z judge        judge memoryPairs in 220 ms
+2026-10-02T08:33:32.921Z judge        judge memoryPairs in 228 ms
+2026-10-02T08:33:33.127Z judge        judge memoryPairs in 206 ms
+2026-10-02T08:33:33.153Z judge        judge memoryPairs in 239 ms
+2026-10-02T08:33:33.423Z judge        judge memoryPairs in 297 ms
+2026-10-02T08:33:33.642Z judge        judge memoryPairs in 218 ms
+2026-10-02T08:33:33.643Z judge        judge memoryPairs in 218 ms
+2026-10-02T08:33:33.866Z judge        judge memoryPairs in 223 ms
+2026-10-02T08:33:33.900Z judge        judge memoryPairs in 259 ms
+2026-10-02T08:33:34.091Z judge        judge memoryPairs in 225 ms
+2026-10-02T08:33:34.131Z judge        judge memoryPairs in 231 ms
+2026-10-02T08:33:34.311Z judge        judge memoryPairs in 220 ms
+2026-10-02T08:33:34.366Z judge        judge memoryPairs in 235 ms
+2026-10-02T08:33:34.372Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-02T08:33:34.372Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-02T08:33:34.372Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-02T08:33:34.372Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-02T08:33:34.372Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-02T08:33:34.372Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-02T08:33:34.372Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-02T08:33:34.599Z judge        judge memoryPairs in 232 ms
+2026-10-02T08:33:35.472Z model-call   supersession via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:33:36.401Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:33:54.527Z payload      8 story blocks injected (generation)
+2026-10-02T08:33:54.614Z status       Inner beat used for Shiya
+2026-10-02T08:33:54.630Z payload      9 story blocks injected (generation)
+2026-10-02T08:33:55.793Z judge        judge lore in 442 ms
+2026-10-02T08:33:55.808Z judge        judge lore in 462 ms
+2026-10-02T08:33:56.092Z judge        judge lore in 304 ms
+2026-10-02T08:33:56.117Z judge        judge lore in 314 ms
+2026-10-02T08:33:56.396Z judge        judge lore in 305 ms
+2026-10-02T08:33:56.665Z judge        judge director in 226 ms
+2026-10-02T08:33:56.666Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:33:58.156Z status       Inner beat stale for Shiya
+2026-10-02T08:33:58.169Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:33:58.974Z status       Inner beat used for Ronan
+2026-10-02T08:33:59.006Z payload      9 story blocks injected (generation)
+2026-10-02T08:34:00.455Z status       Inner beat used for Ronan
+2026-10-02T08:34:00.487Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:34:01.666Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:34:01.686Z payload      9 story blocks injected (generation)
+2026-10-02T08:34:44.138Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:34:45.758Z boundary     boundary 23: nothing applied (gate)
+2026-10-02T08:34:47.814Z talk         Merryn speaks (judge)
+2026-10-02T08:34:47.814Z judge        judge director in 1282 ms
+2026-10-02T08:34:48.523Z judge        judge typed in 1529 ms
+2026-10-02T08:34:48.714Z payload      8 story blocks injected (generation)
+2026-10-02T08:34:46.956Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:34:49.101Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:34:49.812Z judge        judge scene in 2005 ms
+2026-10-02T08:34:50.379Z judge        judge warden in 1858 ms
+2026-10-02T08:34:50.448Z judge        judge wardenLore in 637 ms
+2026-10-02T08:34:50.449Z stagecraft   Continuity warden flagged Adolion Narrator's reply
+2026-10-02T08:34:50.450Z status       Inner beat used for Merryn
+2026-10-02T08:34:50.470Z payload      9 story blocks injected (generation)
+2026-10-02T08:34:51.426Z judge        judge typed in 1049 ms
+2026-10-02T08:34:51.469Z judge        judge lore in 898 ms
+2026-10-02T08:34:51.804Z judge        judge lore in 341 ms
+2026-10-02T08:34:51.814Z judge        judge lore in 393 ms
+2026-10-02T08:34:52.074Z judge        judge lore in 262 ms
+2026-10-02T08:34:52.151Z judge        judge lore in 352 ms
+2026-10-02T08:34:51.427Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:34:56.767Z judge        judge memoryVerify in 283 ms
+2026-10-02T08:34:57.291Z delta        queued location=dueling_ground, duel_outcome=won, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:34:56.482Z extraction   read cue:the-duel->night-of-knives msgs 35-42 → 3 accepted, 0 rejected
+2026-10-02T08:34:56.482Z delta        location = dueling_ground
+2026-10-02T08:34:56.482Z delta        duel_outcome = won
+2026-10-02T08:34:56.482Z delta        tension_current = 0.7420404387749998
+2026-10-02T08:34:56.482Z delta        queued location=dueling_ground, duel_outcome=won, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:34:56.482Z audit        audit cue:the-duel->night-of-knives msgs 35-42 scope [duel_outcome, heir_injuries, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:34:59.579Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:35:03.042Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:35:03.180Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:35:05.103Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:35:06.013Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:35:08.249Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:35:11.035Z judge        judge curatorFilter in 1027 ms
+2026-10-02T08:35:11.035Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:35:12.849Z stagecraft   World Info curator proposed 2 change(s) at Trial by Combat
+2026-10-02T08:35:30.005Z status       Inner beat used for Merryn
+2026-10-02T08:35:31.524Z boundary     applied location=dueling_ground, duel_outcome=won, tension_current=0.7420404387749998
+2026-10-02T08:35:31.524Z transition   the-duel → night-of-knives
+2026-10-02T08:35:31.649Z payload      7 story blocks injected (generation)
+2026-10-02T08:35:31.863Z status       Inner beat stale for Merryn
+2026-10-02T08:35:32.782Z talk         Ronan speaks (judge)
+2026-10-02T08:35:32.782Z judge        judge director in 1266 ms
+2026-10-02T08:35:39.778Z status       Moved into The Night of Knives
+2026-10-02T08:35:40.140Z boundary     boundary 25: nothing applied (gate)
+2026-10-02T08:35:41.221Z status       Following The Night of Knives
+2026-10-02T08:35:41.441Z judge        judge typed in 1301 ms
+2026-10-02T08:35:41.443Z judge        judge scene in 1302 ms
+2026-10-02T08:35:42.356Z judge        judge wardenLore in 914 ms
+2026-10-02T08:35:42.359Z judge        judge warden in 919 ms
+2026-10-02T08:35:42.597Z judge        judge typed in 242 ms
+2026-10-02T08:35:42.663Z judge        judge typed in 305 ms
+2026-10-02T08:35:42.663Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:35:48.938Z judge        judge memoryVerify in 297 ms
+2026-10-02T08:35:49.173Z delta        queued ambush_survived=false, heir_injuries=0, javon_exposed=false, location=dueling_ground, party_injuries=0, tension_current=0.7444283071424999 for the next boundary
+2026-10-02T08:35:48.633Z extraction   read cue:night-of-knives->leevon-in-chains msgs 36-43 → 6 accepted, 0 rejected
+2026-10-02T08:35:48.633Z delta        ambush_survived = false
+2026-10-02T08:35:48.633Z delta        heir_injuries = 0
+2026-10-02T08:35:48.633Z delta        javon_exposed = false
+2026-10-02T08:35:48.633Z delta        location = dueling_ground
+2026-10-02T08:35:48.633Z delta        party_injuries = 0
+2026-10-02T08:35:48.633Z delta        tension_current = 0.7444283071424999
+2026-10-02T08:35:48.633Z delta        queued ambush_survived=false, heir_injuries=0, javon_exposed=false, location=dueling_ground, party_injuries=0, tension_current=0.7444283071424999 for the next boundary
+2026-10-02T08:35:48.633Z audit        audit cue:night-of-knives->leevon-in-chains msgs 36-43 scope [ambush_survived, heir_injuries, javon_exposed, location, party_injuries, party_rank, tension_current] → 6 accepted, 0 rejected
+2026-10-02T08:35:51.912Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:35:54.794Z judge        judge typed in 299 ms
+2026-10-02T08:35:54.365Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:35:54.794Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:00.359Z judge        judge memoryVerify in 286 ms
+2026-10-02T08:36:00.698Z delta        queued location=nightriver_estate, tension_current=0.5960998149997498 for the next boundary
+2026-10-02T08:36:00.067Z extraction   read scene:cast msgs 37-44 → 2 accepted, 0 rejected
+2026-10-02T08:36:00.067Z delta        location = nightriver_estate
+2026-10-02T08:36:00.067Z delta        tension_current = 0.5960998149997498
+2026-10-02T08:36:00.067Z delta        queued location=nightriver_estate, tension_current=0.5960998149997498 for the next boundary
+2026-10-02T08:36:00.067Z audit        audit scene:cast msgs 37-44 scope [ambush_survived, heir_injuries, javon_exposed, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:36:02.452Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:06.107Z judge        judge typed in 0 ms
+2026-10-02T08:36:05.437Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:06.108Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:12.132Z judge        judge memoryVerify in 766 ms
+2026-10-02T08:36:12.399Z delta        queued location=nightriver_estate, tension_current=0.5960998149997498 for the next boundary
+2026-10-02T08:36:11.363Z extraction   read scene:judge msgs 37-44 → 2 accepted, 0 rejected
+2026-10-02T08:36:11.363Z delta        location = nightriver_estate
+2026-10-02T08:36:11.363Z delta        tension_current = 0.5960998149997498
+2026-10-02T08:36:11.363Z delta        queued location=nightriver_estate, tension_current=0.5960998149997498 for the next boundary
+2026-10-02T08:36:11.363Z audit        audit scene:judge msgs 37-44 scope [ambush_survived, heir_injuries, javon_exposed, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:36:14.091Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:15.712Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:18.245Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:17.320Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:40.447Z story        the scene opener of "night-of-knives" was deleted
+2026-10-02T08:36:40.537Z story        restored 3 host change(s)
+2026-10-02T08:36:43.456Z status       Stepped back to Trial by Combat
+2026-10-02T08:36:44.678Z judge        judge typed in 438 ms
+2026-10-02T08:36:44.678Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:49.597Z delta        queued duel_outcome=won, location=dueling_ground, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:36:49.705Z judge        judge memoryVerify in 280 ms
+2026-10-02T08:36:49.418Z extraction   read rollback:43 msgs 35-43 → 3 accepted, 0 rejected
+2026-10-02T08:36:49.418Z delta        duel_outcome = won
+2026-10-02T08:36:49.418Z delta        location = dueling_ground
+2026-10-02T08:36:49.418Z delta        tension_current = 0.7420404387749998
+2026-10-02T08:36:49.418Z delta        queued duel_outcome=won, location=dueling_ground, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:36:49.418Z audit        audit rollback:43 msgs 35-43 scope [duel_outcome, heir_injuries, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:36:51.495Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:53.278Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:53.786Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:55.533Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:58.371Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:37:09.522Z payload      7 story blocks injected (generation)
+2026-10-02T08:37:09.681Z status       Inner beat used for Merryn
+2026-10-02T08:37:09.715Z payload      8 story blocks injected (generation)
+2026-10-02T08:37:10.818Z judge        judge lore in 372 ms
+2026-10-02T08:37:10.866Z judge        judge lore in 426 ms
+2026-10-02T08:37:11.109Z judge        judge lore in 297 ms
+2026-10-02T08:37:11.152Z judge        judge lore in 292 ms
+2026-10-02T08:37:11.354Z judge        judge lore in 246 ms
+2026-10-02T08:37:45.716Z status       Inner beat used for Merryn
+2026-10-02T08:37:47.218Z boundary     boundary 24: nothing applied (gate)
+2026-10-02T08:37:47.925Z status       Following Trial by Combat
+2026-10-02T08:37:49.488Z judge        judge warden in 1148 ms
+2026-10-02T08:37:49.489Z judge        judge scene in 1153 ms
+2026-10-02T08:37:50.641Z judge        judge wardenLore in 1154 ms
+2026-10-02T08:37:50.642Z judge        judge typed in 322 ms
+2026-10-02T08:37:50.642Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:37:54.870Z delta        queued duel_outcome=won, location=dueling_ground, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:37:54.992Z judge        judge memoryVerify in 251 ms
+2026-10-02T08:37:54.740Z extraction   read cadence msgs 40-43 → 3 accepted, 0 rejected
+2026-10-02T08:37:54.740Z delta        duel_outcome = won
+2026-10-02T08:37:54.740Z delta        location = dueling_ground
+2026-10-02T08:37:54.740Z delta        tension_current = 0.7420404387749998
+2026-10-02T08:37:54.740Z delta        queued duel_outcome=won, location=dueling_ground, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:37:54.740Z audit        audit cadence msgs 40-43 scope [duel_outcome, heir_injuries, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:37:56.714Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:37:59.217Z judge        judge typed in 240 ms
+2026-10-02T08:37:59.014Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:37:59.218Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:38:04.852Z judge        judge memoryVerify in 590 ms
+2026-10-02T08:38:05.594Z delta        queued duel_outcome=won, heir_injuries=0, location=dueling_ground, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:38:04.259Z extraction   read cue:the-duel->night-of-knives msgs 36-43 → 4 accepted, 0 rejected
+2026-10-02T08:38:04.259Z delta        duel_outcome = won
+2026-10-02T08:38:04.259Z delta        heir_injuries = 0
+2026-10-02T08:38:04.259Z delta        location = dueling_ground
+2026-10-02T08:38:04.259Z delta        tension_current = 0.7420404387749998
+2026-10-02T08:38:04.259Z delta        queued duel_outcome=won, heir_injuries=0, location=dueling_ground, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:38:04.259Z audit        audit cue:the-duel->night-of-knives msgs 36-43 scope [duel_outcome, heir_injuries, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T08:38:07.625Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:38:09.985Z judge        judge typed in 0 ms
+2026-10-02T08:38:10.019Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:38:09.986Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:38:16.364Z judge        judge memoryVerify in 267 ms
+2026-10-02T08:38:16.876Z delta        queued duel_outcome=won, heir_injuries=0, location=dueling_ground, party_injuries=0, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:38:16.094Z extraction   read scene:cast msgs 36-43 → 5 accepted, 0 rejected
+2026-10-02T08:38:16.094Z delta        duel_outcome = won
+2026-10-02T08:38:16.094Z delta        heir_injuries = 0
+2026-10-02T08:38:16.094Z delta        location = dueling_ground
+2026-10-02T08:38:16.094Z delta        party_injuries = 0
+2026-10-02T08:38:16.094Z delta        tension_current = 0.7420404387749998
+2026-10-02T08:38:16.094Z delta        queued duel_outcome=won, heir_injuries=0, location=dueling_ground, party_injuries=0, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:38:16.094Z audit        audit scene:cast msgs 36-43 scope [duel_outcome, heir_injuries, location, party_injuries, party_rank, tension_current] → 5 accepted, 0 rejected
+2026-10-02T08:38:19.593Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:38:21.288Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:38:32.346Z payload      8 story blocks injected (generation)
+2026-10-02T08:38:32.470Z status       Inner beat used for Merryn
+2026-10-02T08:38:32.486Z payload      8 story blocks injected (generation)
+2026-10-02T08:39:06.568Z status       Inner beat used for Merryn
+2026-10-02T08:39:08.155Z boundary     boundary 25: nothing applied (gate)
+2026-10-02T08:39:09.202Z reconciliation stall re-check queued for duel_outcome
+2026-10-02T08:39:11.183Z judge        judge stall in 1359 ms
+2026-10-02T08:39:11.205Z judge        judge typed in 1384 ms
+2026-10-02T08:39:12.750Z judge        judge warden in 1546 ms
+2026-10-02T08:39:13.173Z judge        judge scene in 1995 ms
+2026-10-02T08:39:13.322Z judge        judge wardenLore in 573 ms
+2026-10-02T08:39:13.439Z judge        judge typed in 268 ms
+2026-10-02T08:39:13.440Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:39:18.677Z judge        judge memoryVerify in 412 ms
+2026-10-02T08:39:19.351Z delta        queued duel_outcome=won, heir_injuries=0, location=dueling_ground, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:39:18.263Z extraction   read cue:the-duel->night-of-knives msgs 36-43 → 4 accepted, 0 rejected
+2026-10-02T08:39:18.263Z delta        duel_outcome = won
+2026-10-02T08:39:18.263Z delta        heir_injuries = 0
+2026-10-02T08:39:18.263Z delta        location = dueling_ground
+2026-10-02T08:39:18.263Z delta        tension_current = 0.7420404387749998
+2026-10-02T08:39:18.263Z delta        queued duel_outcome=won, heir_injuries=0, location=dueling_ground, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:39:18.263Z audit        audit cue:the-duel->night-of-knives msgs 36-43 scope [duel_outcome, heir_injuries, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T08:39:20.168Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:39:22.337Z judge        judge typed in 0 ms
+2026-10-02T08:39:22.338Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:39:22.375Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:39:27.915Z delta        queued duel_outcome=won, heir_injuries=0, location=dueling_ground, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:39:28.166Z judge        judge memoryVerify in 790 ms
+2026-10-02T08:39:27.372Z extraction   read reconcile:duel_outcome msgs 36-43 → 4 accepted, 0 rejected
+2026-10-02T08:39:27.372Z delta        duel_outcome = won
+2026-10-02T08:39:27.372Z delta        heir_injuries = 0
+2026-10-02T08:39:27.372Z delta        location = dueling_ground
+2026-10-02T08:39:27.372Z delta        tension_current = 0.7420404387749998
+2026-10-02T08:39:27.372Z delta        queued duel_outcome=won, heir_injuries=0, location=dueling_ground, tension_current=0.7420404387749998 for the next boundary
+2026-10-02T08:39:29.947Z reconciliation stall re-check resolved (4 evidence)
+2026-10-02T08:39:27.372Z audit        audit reconcile:duel_outcome msgs 36-43 scope [duel_outcome, heir_injuries, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T08:39:30.264Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:39:32.176Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:40:47.826Z payload      8 story blocks injected (generation)
+2026-10-02T08:40:47.924Z status       Inner beat used for Merryn
+2026-10-02T08:40:47.942Z payload      9 story blocks injected (generation)
+2026-10-02T08:40:49.138Z judge        judge lore in 437 ms
+2026-10-02T08:40:49.194Z judge        judge lore in 483 ms
+2026-10-02T08:40:49.460Z judge        judge lore in 326 ms
+2026-10-02T08:40:49.516Z judge        judge lore in 329 ms
+2026-10-02T08:40:49.773Z judge        judge lore in 314 ms
+2026-10-02T08:40:50.032Z talk         Adolion Narrator speaks (judge)
+2026-10-02T08:40:50.032Z judge        judge director in 230 ms
+2026-10-02T08:40:51.630Z status       Inner beat stale for Merryn
+2026-10-02T08:40:51.642Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:40:52.992Z status       Inner beat used for Natalia
+2026-10-02T08:40:53.008Z payload      9 story blocks injected (generation)
+2026-10-02T08:40:54.545Z status       Inner beat used for Natalia
+2026-10-02T08:40:54.570Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:40:56.093Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:40:56.110Z payload      9 story blocks injected (generation)
+2026-10-02T08:41:39.909Z status       Inner beat used for Adolion Narrator
+2026-10-02T08:41:41.781Z boundary     applied duel_outcome=won, heir_injuries=0, location=dueling_ground, tension_current=0.7420404387749998; discarded duel_outcome=won, heir_injuries=0, location=dueling_ground, tension_current=0.7420404387749998 (superseded)
+2026-10-02T08:41:41.781Z transition   the-duel → night-of-knives
+2026-10-02T08:41:42.925Z talk         Merryn speaks (judge)
+2026-10-02T08:41:42.925Z judge        judge director in 1168 ms
+2026-10-02T08:41:44.381Z payload      8 story blocks injected (generation)
+2026-10-02T08:41:44.583Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:41:45.847Z status       Inner beat used for Merryn
+2026-10-02T08:41:45.881Z payload      9 story blocks injected (generation)
+2026-10-02T08:41:47.645Z judge        judge lore in 1106 ms
+2026-10-02T08:41:47.658Z judge        judge lore in 1113 ms
+2026-10-02T08:41:48.317Z judge        judge lore in 678 ms
+2026-10-02T08:41:48.318Z judge        judge lore in 667 ms
+2026-10-02T08:41:49.739Z judge        judge lore in 1424 ms
+2026-10-02T08:41:52.611Z status       Moved into The Night of Knives
+2026-10-02T08:41:52.860Z boundary     boundary 27: nothing applied (gate)
+2026-10-02T08:41:54.058Z status       Following The Night of Knives
+2026-10-02T08:41:52.850Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:41:55.360Z judge        judge typed in 1326 ms
+2026-10-02T08:41:55.363Z judge        judge scene in 1325 ms
+2026-10-02T08:41:54.228Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:41:56.653Z judge        judge wardenLore in 1291 ms
+2026-10-02T08:41:56.657Z judge        judge warden in 1299 ms
+2026-10-02T08:41:56.658Z stagecraft   Warden flagged Adolion Narrator's reply (lore)
+2026-10-02T08:41:57.436Z judge        judge typed in 784 ms
+2026-10-02T08:41:57.437Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:03.069Z delta        queued ambush_survived=false, heir_injuries=0, javon_exposed=false, location=dueling_ground, party_injuries=0, tension_current=0.7444283071424999 for the next boundary
+2026-10-02T08:42:03.152Z judge        judge memoryVerify in 269 ms
+2026-10-02T08:42:02.874Z extraction   read cue:night-of-knives->leevon-in-chains msgs 38-45 → 6 accepted, 0 rejected
+2026-10-02T08:42:02.874Z delta        ambush_survived = false
+2026-10-02T08:42:02.874Z delta        heir_injuries = 0
+2026-10-02T08:42:02.874Z delta        javon_exposed = false
+2026-10-02T08:42:02.874Z delta        location = dueling_ground
+2026-10-02T08:42:02.874Z delta        party_injuries = 0
+2026-10-02T08:42:02.874Z delta        tension_current = 0.7444283071424999
+2026-10-02T08:42:02.874Z delta        queued ambush_survived=false, heir_injuries=0, javon_exposed=false, location=dueling_ground, party_injuries=0, tension_current=0.7444283071424999 for the next boundary
+2026-10-02T08:42:02.874Z audit        audit cue:night-of-knives->leevon-in-chains msgs 38-45 scope [ambush_survived, heir_injuries, javon_exposed, location, party_injuries, party_rank, tension_current] → 6 accepted, 0 rejected
+2026-10-02T08:42:07.051Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:08.609Z judge        judge typed in 287 ms
+2026-10-02T08:42:08.940Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:08.609Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:13.470Z judge        judge memoryVerify in 249 ms
+2026-10-02T08:42:14.068Z delta        queued location=nightriver_estate, tension_current=0.5960998149997498 for the next boundary
+2026-10-02T08:42:10.600Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:13.219Z extraction   read scene:cast msgs 39-46 → 2 accepted, 0 rejected
+2026-10-02T08:42:13.219Z delta        location = nightriver_estate
+2026-10-02T08:42:13.219Z delta        tension_current = 0.5960998149997498
+2026-10-02T08:42:13.219Z delta        queued location=nightriver_estate, tension_current=0.5960998149997498 for the next boundary
+2026-10-02T08:42:13.219Z audit        audit scene:cast msgs 39-46 scope [ambush_survived, heir_injuries, javon_exposed, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:42:19.630Z judge        judge typed in 0 ms
+2026-10-02T08:42:16.152Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:19.752Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:19.631Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:25.171Z delta        queued ambush_survived=false, heir_injuries=0, location=nightriver_estate, tension_current=0.5960998149997498 for the next boundary
+2026-10-02T08:42:25.772Z judge        judge curatorFilter in 1133 ms
+2026-10-02T08:42:25.792Z judge        judge memoryVerify in 630 ms
+2026-10-02T08:42:25.157Z extraction   read scene:judge msgs 39-46 → 4 accepted, 0 rejected
+2026-10-02T08:42:25.157Z delta        ambush_survived = false
+2026-10-02T08:42:25.157Z delta        heir_injuries = 0
+2026-10-02T08:42:25.157Z delta        location = nightriver_estate
+2026-10-02T08:42:25.157Z delta        tension_current = 0.5960998149997498
+2026-10-02T08:42:25.157Z delta        queued ambush_survived=false, heir_injuries=0, location=nightriver_estate, tension_current=0.5960998149997498 for the next boundary
+2026-10-02T08:42:25.157Z audit        audit scene:judge msgs 39-46 scope [ambush_survived, heir_injuries, javon_exposed, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T08:42:25.773Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:29.418Z judge        judge typed in 1134 ms
+2026-10-02T08:42:29.418Z stagecraft   World Info curator proposed 4 change(s) at The Night of Knives
+2026-10-02T08:42:29.419Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:34.257Z judge        judge memoryVerify in 282 ms
+2026-10-02T08:42:35.081Z delta        queued ambush_survived=false, heir_injuries=0, javon_exposed=false, location=nightriver_estate, party_injuries=0, tension_current=0.5960998149997498 for the next boundary
+2026-10-02T08:42:33.973Z extraction   read cadence msgs 44-46 → 6 accepted, 0 rejected
+2026-10-02T08:42:33.973Z delta        ambush_survived = false
+2026-10-02T08:42:33.973Z delta        heir_injuries = 0
+2026-10-02T08:42:33.973Z delta        javon_exposed = false
+2026-10-02T08:42:33.973Z delta        location = nightriver_estate
+2026-10-02T08:42:33.973Z delta        party_injuries = 0
+2026-10-02T08:42:33.973Z delta        tension_current = 0.5960998149997498
+2026-10-02T08:42:33.973Z delta        queued ambush_survived=false, heir_injuries=0, javon_exposed=false, location=nightriver_estate, party_injuries=0, tension_current=0.5960998149997498 for the next boundary
+2026-10-02T08:42:33.973Z audit        audit cadence msgs 44-46 scope [ambush_survived, heir_injuries, javon_exposed, location, party_injuries, party_rank, tension_current] → 6 accepted, 0 rejected
+2026-10-02T08:42:40.063Z boundary     applied ambush_survived=false, heir_injuries=0, javon_exposed=false, location=dueling_ground, party_injuries=0, tension_current=0.7444283071424999, ambush_survived=false, heir_injuries=0, location=nightriver_estate, tension_current=0.5960998149997498, ambush_survived=false, heir_injuries=0, javon_exposed=false, location=nightriver_estate, party_injuries=0, tension_current=0.5960998149997498; discarded location=nightriver_estate, tension_current=0.5960998149997498 (superseded)
+2026-10-02T08:42:38.221Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:42.415Z judge        judge scene in 1324 ms
+2026-10-02T08:42:42.448Z judge        judge typed in 1358 ms
+2026-10-02T08:42:43.473Z judge        judge warden in 1059 ms
+2026-10-02T08:42:41.844Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:46.977Z judge        judge typed in 583 ms
+2026-10-02T08:42:46.978Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:52.024Z delta        queued ambush_survived=false, location=nightriver_estate, tension_current=0.4922698704998249 for the next boundary
+2026-10-02T08:42:52.213Z judge        judge memoryVerify in 272 ms
+2026-10-02T08:42:51.938Z extraction   read cue:night-of-knives->leevon-in-chains msgs 40-47 → 3 accepted, 0 rejected
+2026-10-02T08:42:51.938Z delta        ambush_survived = false
+2026-10-02T08:42:51.938Z delta        location = nightriver_estate
+2026-10-02T08:42:51.938Z delta        tension_current = 0.4922698704998249
+2026-10-02T08:42:51.938Z delta        queued ambush_survived=false, location=nightriver_estate, tension_current=0.4922698704998249 for the next boundary
+2026-10-02T08:42:51.938Z audit        audit cue:night-of-knives->leevon-in-chains msgs 40-47 scope [ambush_survived, heir_injuries, javon_exposed, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:42:55.658Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:56.894Z judge        judge typed in 0 ms
+2026-10-02T08:42:56.933Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:42:56.896Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:43:02.716Z judge        judge memoryVerify in 700 ms
+2026-10-02T08:43:03.165Z delta        queued ambush_survived=false, location=nightriver_estate, tension_current=0.4922698704998249 for the next boundary
+2026-10-02T08:43:02.012Z extraction   read scene:location msgs 40-47 → 3 accepted, 0 rejected
+2026-10-02T08:43:02.012Z delta        ambush_survived = false
+2026-10-02T08:43:02.012Z delta        location = nightriver_estate
+2026-10-02T08:43:02.012Z delta        tension_current = 0.4922698704998249
+2026-10-02T08:43:02.012Z delta        queued ambush_survived=false, location=nightriver_estate, tension_current=0.4922698704998249 for the next boundary
+2026-10-02T08:43:02.012Z audit        audit scene:location msgs 40-47 scope [ambush_survived, heir_injuries, javon_exposed, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T08:43:04.977Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:43:07.702Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+
+Stopped after 1536 events and 61 audits.

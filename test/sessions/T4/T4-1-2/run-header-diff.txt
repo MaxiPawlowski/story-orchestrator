@@ -1,0 +1,31 @@
+ok   build.head  "7b93a6cc14e54f9b913ff4c277efb5dc1f25626e" -> "3d48f49aa376ab263d279e959e0b4278a3eb2880"  (allowed by served-bundle d6737acda880c18b)
+WARNING: the page is running a bundle that is not the built one: served d6737acda880c18b vs dist 75e3142cde9ba9dc
+ok   chat.chatLength  1 -> 48  (allowed by progress)
+ok   group.disabledMembers  +Belle.png +Dalan.png +Riyo.png -Leila.png -Natalia.png -Ronan.png -Shiya.png  (allowed by group)
+ok   story.activeCheckpointId  "what-filwern-left" -> "night-of-knives"  (allowed by progress)
+ok   story.boundary  2 -> 28  (allowed by progress)
+{
+  "baseline": "C:\\dev\\story-orchestrator\\test\\sessions\\T4\\T4-1-2\\run-header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "chatId",
+    "groupId",
+    "authorView",
+    "story",
+    "group",
+    "inventory.journal",
+    "inventory.groupChats:+1790927660387/2026-10-02@04h59m59s914ms"
+  ],
+  "differences": 5,
+  "progress": 3,
+  "blocking": 0,
+  "blockingPaths": [],
+  "servedIdentity": [
+    "build.head"
+  ],
+  "warnings": [
+    "the page is running a bundle that is not the built one: served d6737acda880c18b vs dist 75e3142cde9ba9dc"
+  ],
+  "wrote": "C:\\dev\\story-orchestrator\\test\\sessions\\T4\\T4-1-2\\run-header-end.json",
+  "ok": true
+}

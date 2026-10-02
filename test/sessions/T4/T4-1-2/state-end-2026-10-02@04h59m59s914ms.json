@@ -1,0 +1,3382 @@
+{
+  "storyId": "adolion-saga",
+  "activeCheckpointId": "night-of-knives",
+  "boundary": 28,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [
+      "Tobias",
+      "Ellie",
+      "Vallie"
+    ],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Adventurer Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Mountains of Shadow": "global",
+      "Adolion Academy Checkpoints": "global",
+      "Adolion - Aegis City Noble Life": "global",
+      "Adolion Aegis Checkpoints": "global",
+      "Adolion Deep Checkpoints": "global",
+      "Adolion East Checkpoints": "global",
+      "Adolion - The Third Kingdom": "global",
+      "Adolion - Tiunhime Village": "global",
+      "Adolion Night Checkpoints": "global",
+      "Adolion Eshalanore Checkpoints": "global",
+      "Adolion - Eshalanore": "global",
+      "Adolion War Checkpoints": "global",
+      "Adolion Saga Checkpoints": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "wall_breached": true,
+    "aegis_examiner_watching": true,
+    "deep_swarm": false,
+    "east_upset": true,
+    "night_moon": false,
+    "esha_her_gaze": false,
+    "war_turn": false,
+    "location": "nightriver_estate",
+    "tension_current": 0.5960998149997498,
+    "saga_called_home": true,
+    "acad_path": "witch_king",
+    "heir_is_second": true,
+    "duel_begun": true,
+    "duel_outcome": "won",
+    "heir_injuries": 0,
+    "ambush_survived": false,
+    "javon_exposed": false,
+    "party_injuries": 0
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "bed0feb7-210b-47e1-83b5-3f42fb417646",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "knows",
+      "content": "the party's account of the Driftmere mine: the descent, the demon, and their choice to leave it buried",
+      "createdAt": 3,
+      "messageId": 2,
+      "supersededBy": "retired@3",
+      "retiredAt": {
+        "messageId": 2,
+        "boundary": 3
+      }
+    },
+    {
+      "id": "d712697e-09d5-48ed-8bb1-b7e23420eca6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 3,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "hiding",
+      "content": "her scribe's letter to the Nightriver estate claiming the heir succeeded where the house would not",
+      "hiddenFrom": "everyone",
+      "createdAt": 3,
+      "messageId": 2,
+      "supersededBy": "retired@3",
+      "retiredAt": {
+        "messageId": 2,
+        "boundary": 3
+      }
+    },
+    {
+      "id": "9f40b671-40c3-4c5e-966f-4b942b2a184b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Serenola's scribe is writing to the Nightriver estate that the heir succeeded where the house would not",
+      "createdAt": 3,
+      "messageId": 2,
+      "supersededBy": "retired@3",
+      "retiredAt": {
+        "messageId": 4,
+        "boundary": 3
+      }
+    },
+    {
+      "id": "5bdd4074-5a65-4f30-ae5d-6696db12fe7c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Serenola's scribe is writing to the Nightriver estate that the heir succeeded where the house would not",
+      "createdAt": 3,
+      "messageId": 2,
+      "supersededBy": "retired@3",
+      "retiredAt": {
+        "messageId": 4,
+        "boundary": 3
+      }
+    },
+    {
+      "id": "77ef0fc8-79ea-443f-84a3-2bc991b88a53",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 3,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "hiding",
+      "content": "her scribe's letter to the Nightriver estate claiming the heir succeeded where the house would not",
+      "hiddenFrom": "Belle and Dalan",
+      "createdAt": 3,
+      "messageId": 2,
+      "supersededBy": "retired@3",
+      "retiredAt": {
+        "messageId": 4,
+        "boundary": 3
+      }
+    },
+    {
+      "id": "31f04ae1-9f66-496a-9d8d-918fff091293",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Serenola",
+      "tag": "knows",
+      "content": "the full truth of the Driftmere mine — the descent, the demon, and the party's choice to leave it buried",
+      "createdAt": 3,
+      "messageId": 4,
+      "supersededBy": "retired@3",
+      "retiredAt": {
+        "messageId": 4,
+        "boundary": 3
+      }
+    },
+    {
+      "id": "b5fdbd98-c7ae-48f0-b49c-27d4039b7d87",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Welden",
+      "tag": "hiding",
+      "content": "the reason for his unusual jumpiness",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 3,
+      "messageId": 4,
+      "supersededBy": "retired@3",
+      "retiredAt": {
+        "messageId": 4,
+        "boundary": 3
+      }
+    },
+    {
+      "id": "d6da897e-3866-4cbc-be05-cd7ee853762a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Welden",
+      "tag": "hiding",
+      "content": "the reason for his unusual jumpiness",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 3,
+      "messageId": 4,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 9,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "b27d04f7-9ba2-489b-b34b-d8a25f460165",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "hiding",
+      "content": "what she keeps concealed beneath her cloak over her left side",
+      "hiddenFrom": "The Party",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "ec001f3b-012c-4dec-99bd-7459687a4c9b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Welden",
+      "tag": "hiding",
+      "content": "the reason he is jumpier than usual and will not say why",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 6,
+      "messageId": 9,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 9,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "a54e611e-8c5c-4864-9975-42ad2ec52a83",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Riyo",
+      "tag": "hiding",
+      "content": "her left side, kept covered by her traveling cloak on the ride home",
+      "hiddenFrom": "The Party",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "bcab6508-02a4-4319-be47-3cbfcbcce31c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Welden",
+      "tag": "knows",
+      "content": "Max Nightriver is the heir of House Nightriver",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "acb3e4e4-a311-4002-9b52-2d9a450c3bf4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Welden",
+      "tag": "knows",
+      "content": "Lord Javon's letter commands the heir home immediately",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "8030e511-4e95-4cc9-a876-7934bc0aa383",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Welden",
+      "tag": "knows",
+      "content": "Serenola's scribe is writing to the Nightriver estate that the heir succeeded where the house would not",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "c1d9bbd0-fcba-4c9b-924c-012eac16a9ab",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Welden",
+      "tag": "knows",
+      "content": "the full truth of the Driftmere mine — the descent, the demon, and the party's choice to leave it buried",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "79267cd7-5676-478d-a3a1-42777c52d343",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Welden",
+      "tag": "hiding",
+      "content": "the reason he is jumpier than usual and will not say why",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 6,
+      "messageId": 9,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "b7e85e75-25dd-4cb8-8476-044b11ba4109",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "his full reasons for summoning the heir home",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 7,
+      "messageId": 11,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "734d86aa-ec89-453e-90d4-fbf66b41d9d4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "the full contents and intent of the Inquisition's letter",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 7,
+      "messageId": 11,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "cf107e86-459c-489d-899e-0d9d1b5913db",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Welden",
+      "tag": "hiding",
+      "content": "the reason he is jumpier than usual and will not say why",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 7,
+      "messageId": 11,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 14,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "45b4f82a-89db-417d-a93a-42dfc699470d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "his full reasons for summoning the heir home",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 7,
+      "messageId": 11
+    },
+    {
+      "id": "74663f1a-1dc6-49a1-a4df-ce89950210b4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "the full contents and intent of the Inquisition's letter",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 7,
+      "messageId": 11
+    },
+    {
+      "id": "2b1299d8-bb4d-4fc3-a50d-43bedd213013",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "His true reasons for the command and any deeper motive behind the Trial by Combat.",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 7,
+      "messageId": 14
+    },
+    {
+      "id": "4759b9d5-9fbf-4fe3-aa96-dd526ed3333d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ronan",
+      "tag": "knows",
+      "content": "Riyo keeps her left side covered by her traveling cloak and does not speak or look back on the ride home",
+      "createdAt": 7,
+      "messageId": 14
+    },
+    {
+      "id": "aa743ce5-9e09-431e-ac28-5f7322ae3503",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Leila",
+      "tag": "knows",
+      "content": "Riyo keeps her left side covered by her traveling cloak and does not speak or look back on the ride home",
+      "createdAt": 7,
+      "messageId": 14
+    },
+    {
+      "id": "c163628f-69d9-4a9e-87c0-420040b07ab3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Welden",
+      "tag": "knows",
+      "content": "Riyo keeps her left side covered by her traveling cloak and does not speak or look back on the ride home",
+      "createdAt": 7,
+      "messageId": 14
+    },
+    {
+      "id": "0552431f-e374-4e2e-b01c-ad518aaca19b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Welden",
+      "tag": "knows",
+      "content": "Max Nightriver went to Lord Javon's study at once upon returning to the estate",
+      "createdAt": 7,
+      "messageId": 14
+    },
+    {
+      "id": "7ee1a03c-3af4-43c4-a2bc-367b5ff21493",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ronan",
+      "tag": "knows",
+      "content": "Welden crossed the heir's path, jumpier than usual, and would not say why",
+      "createdAt": 7,
+      "messageId": 14
+    },
+    {
+      "id": "911b5f11-73cc-4abf-9294-fbd378ebb109",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Leila",
+      "tag": "knows",
+      "content": "Welden crossed the heir's path, jumpier than usual, and would not say why",
+      "createdAt": 7,
+      "messageId": 14
+    },
+    {
+      "id": "83ed9cc4-693d-4c26-b6d8-405a180b7191",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Welden",
+      "tag": "hiding",
+      "content": "the reason he is jumpier than usual",
+      "hiddenFrom": "Natalia, Shiya, Ronan, and Leila",
+      "createdAt": 7,
+      "messageId": 14
+    },
+    {
+      "id": "8de9b79b-9596-44e9-b409-04aa43f5a44d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "that the Inquisition's letter is being used as leverage to compel Max's service as the Crown's Second",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 7,
+      "messageId": 14
+    },
+    {
+      "id": "9e679feb-4d2a-41d9-b9f5-42e46f7761c6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "intends",
+      "content": "to compel Max to stand as the Crown's Second in three days or be shamed and left without the house's protection",
+      "createdAt": 7,
+      "messageId": 14
+    },
+    {
+      "id": "35cc1566-dcc7-4688-9106-3c3880bd7109",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 8,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "intends",
+      "content": "To force Max to stand as the Crown's Second against General Leevon, using the Inquisition's letter as leverage.",
+      "createdAt": 8,
+      "messageId": 16
+    },
+    {
+      "id": "895ebdc3-2aae-4502-b3e2-e4d2c6bc035b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 9,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "intends",
+      "content": "To force Max to stand as the Crown's Second against General Leevon rather than defy the Crown.",
+      "createdAt": 9,
+      "messageId": 17
+    },
+    {
+      "id": "529f87df-1429-4af2-b17f-08825b168b0c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 22,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Natalia and Eriana have been discussing Natalia's future and the seals.",
+      "createdAt": 12,
+      "messageId": 22,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "970ba1d1-475e-420a-9f9c-584e7359eea1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Natalia and Eriana discuss Natalia's future and the seals",
+      "createdAt": 14,
+      "messageId": 25,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "3a75735d-d3ce-47be-9eec-655d19af09b6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 26,
+        "boundary": 16,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Eriana",
+      "tag": "unaware",
+      "content": "that Max watched her enter the estate through the servants' door",
+      "createdAt": 16,
+      "messageId": 26
+    },
+    {
+      "id": "f00e635d-2cd6-4609-a002-2d69a1c915b0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 26,
+        "boundary": 16,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "hiding",
+      "content": "her nightly meetings with Duchess Eriana Valtara",
+      "hiddenFrom": "Max",
+      "createdAt": 16,
+      "messageId": 26,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 33,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "13a0073f-51b7-480a-b062-73c246afb5a8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 26,
+        "boundary": 16,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Eriana",
+      "tag": "hiding",
+      "content": "her nightly visits to the Nightriver estate through the servants' door",
+      "hiddenFrom": "Max",
+      "createdAt": 16,
+      "messageId": 26,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 33,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "72f1459a-a131-478b-adb2-a27cde8101a5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 31,
+        "boundary": 15,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "intends",
+      "content": "to keep Max from learning what she and Eriana discuss, calling it house matters and diplomacy",
+      "createdAt": 15,
+      "messageId": 31,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 33,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "7f92e77f-7150-45bd-b6f8-45ad8edd3796",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Natalia admitted Eriana as a guest and claims they discussed house matters and diplomacy",
+      "createdAt": 16,
+      "messageId": 33
+    },
+    {
+      "id": "897823c7-63c4-40d5-9e8b-e087221d349b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "hiding",
+      "content": "the true subject of her nightly meetings with Eriana",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 33,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "4defdac1-708d-44ea-b51d-57e8b16aee27",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Natalia let the Duchess in through the servants' door and refused to explain",
+      "createdAt": 16,
+      "messageId": 33
+    },
+    {
+      "id": "9ec2aff2-2a1f-4aef-92e0-c13a1e370f5a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "hiding",
+      "content": "what she and Duchess Eriana were discussing",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 33,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "c3cff0ac-04ce-419d-bf28-2b829866ce0c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "hiding",
+      "content": "that the hooded guest is Duchess Eriana and the true subject of their meeting",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@19",
+      "retiredAt": {
+        "messageId": 36,
+        "boundary": 19
+      }
+    },
+    {
+      "id": "31e7198e-4f4d-4321-a7f2-cf18453f25f3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "believes",
+      "content": "that Max accepts her claim the guest is merely a guest needing no explanation to Father",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@19",
+      "retiredAt": {
+        "messageId": 36,
+        "boundary": 19
+      }
+    },
+    {
+      "id": "a29dd577-5ee8-4ad0-b94f-46eef48502b6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "unaware",
+      "content": "that Shiya witnessed the Duchess's arrival and overheard her words to Max",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 33,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "a6d86586-5002-4730-a296-ea2ddf766c7a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "unaware",
+      "content": "that Shiya observed the Duchess's entry and the confrontation",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 33,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "f13fea34-b03f-4662-86f5-53b5ae73b598",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "General Leevon stands as Max's opponent, armored in Darran plate stripped of its honors",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 33,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "2984d305-1786-40d9-90f1-0179c52011f4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "a man of the Inquisition stands at the King's right hand during the Trial",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 33,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "a21fb53b-2c6e-40e9-912c-7a188ca2baca",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "Lord Javon had a late-night visitor and has seen no one since",
+      "createdAt": 16,
+      "messageId": 33
+    },
+    {
+      "id": "7781c6ef-0319-4a90-a507-5181cee1ef13",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "Natalia let Duchess Eriana into the estate again through the servants' door",
+      "createdAt": 16,
+      "messageId": 33
+    },
+    {
+      "id": "2792e06f-5254-4b0c-bcb6-e07a7443d557",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "Max confronted Natalia about who she admitted and what she hides from Javon",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@19",
+      "retiredAt": {
+        "messageId": 36,
+        "boundary": 19
+      }
+    },
+    {
+      "id": "7a4a9db0-f80c-4bf5-9546-b788adabef09",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "Max let Natalia keep her secret rather than press further",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@19",
+      "retiredAt": {
+        "messageId": 36,
+        "boundary": 19
+      }
+    },
+    {
+      "id": "2ca93761-a735-4c89-9ffa-96e7f4dd4ab8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "hiding",
+      "content": "that she saw the Duchess arrive and heard every word of the exchange",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@19",
+      "retiredAt": {
+        "messageId": 36,
+        "boundary": 19
+      }
+    },
+    {
+      "id": "35ff0495-6df7-41b4-a59c-26d003df34ee",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "unaware",
+      "content": "that Shiya witnessed the Duchess's arrival and overheard her words to Max",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@19",
+      "retiredAt": {
+        "messageId": 36,
+        "boundary": 19
+      }
+    },
+    {
+      "id": "9179126c-a2fa-446d-beaf-4706aa79b434",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "unaware",
+      "content": "that Shiya observed the Duchess's entry and the confrontation",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@19",
+      "retiredAt": {
+        "messageId": 36,
+        "boundary": 19
+      }
+    },
+    {
+      "id": "160414be-faca-47d9-bd64-3bc2a390f890",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "intends",
+      "content": "to nudge Max toward a more direct discussion of the matter",
+      "createdAt": 16,
+      "messageId": 33,
+      "supersededBy": "retired@19",
+      "retiredAt": {
+        "messageId": 36,
+        "boundary": 19
+      }
+    },
+    {
+      "id": "4fdc9310-2dea-4dc0-9691-94b7fda9afc7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "Max rode to the lists on the morning of the Trial and took his place as the Crown's Second",
+      "createdAt": 16,
+      "messageId": 33
+    },
+    {
+      "id": "83316975-997a-49c1-a6ff-b85aedf1f846",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "General Leevon stands as Max's opponent, armored in Darran plate stripped of its honors",
+      "createdAt": 16,
+      "messageId": 33
+    },
+    {
+      "id": "492e3acc-9de3-4d5a-ac44-125b0d07eed2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 33,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "a man of the Inquisition stands at the King's right hand during the Trial",
+      "createdAt": 16,
+      "messageId": 33
+    },
+    {
+      "id": "9fda9869-3d4c-4bdd-a0a3-75af1accba1a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 19,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Trial's rules were changed last night to allow lethal blows, and Lord Javon did not tell him.",
+      "createdAt": 19,
+      "messageId": 35
+    },
+    {
+      "id": "2596776d-0b55-4905-8851-b686880f96e8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 19,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "Natalia let Duchess Eriana in again, and the exchange between Max and Natalia.",
+      "createdAt": 19,
+      "messageId": 35,
+      "supersededBy": "retired@19",
+      "retiredAt": {
+        "messageId": 36,
+        "boundary": 19
+      }
+    },
+    {
+      "id": "406a5d40-2b5a-4cb1-9fd4-cfa51438303b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 36,
+        "boundary": 19,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "suspects",
+      "content": "That the masked King and the Inquisitor are connected to the rule change.",
+      "createdAt": 19,
+      "messageId": 36
+    },
+    {
+      "id": "677c7630-dd8c-4936-9d58-0b68638f915d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 36,
+        "boundary": 19,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "hiding",
+      "content": "What she and Duchess Eriana were discussing behind the servants' door.",
+      "hiddenFrom": "Javon",
+      "createdAt": 19,
+      "messageId": 36
+    },
+    {
+      "id": "b0173157-4cb6-4711-b19a-0089ca30947b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 36,
+        "boundary": 19,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "hiding",
+      "content": "What she knows of Natalia and Eriana's meeting.",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 19,
+      "messageId": 36,
+      "supersededBy": "retired@19",
+      "retiredAt": {
+        "messageId": 36,
+        "boundary": 19
+      }
+    },
+    {
+      "id": "014bde2f-4dfd-4a97-a1f0-0cd2b0447b15",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 36,
+        "boundary": 19,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "intends",
+      "content": "To keep Max from learning what she and Eriana discussed.",
+      "createdAt": 19,
+      "messageId": 36
+    },
+    {
+      "id": "b8739a7c-1a98-4d55-9f04-5a1f239f3ae4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 34,
+        "boundary": 19,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "unaware",
+      "content": "Natalia has told Max about the lethal-blows rule change.",
+      "createdAt": 19,
+      "messageId": 34,
+      "supersededBy": "retired@20",
+      "retiredAt": {
+        "messageId": 38,
+        "boundary": 20
+      }
+    },
+    {
+      "id": "4721e2dd-45da-4875-ae76-7f11117d7f01",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 34,
+        "boundary": 19,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "suspects",
+      "content": "The rule change and the masked King and Inquisitor mean something more than a fair trial.",
+      "createdAt": 19,
+      "messageId": 34
+    },
+    {
+      "id": "72dc3bbb-92d3-427b-9158-f6c770241242",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 34,
+        "boundary": 19,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "intends",
+      "content": "To warn Max about the lethal-blows rule change before the Trial begins.",
+      "createdAt": 19,
+      "messageId": 34,
+      "affirmedAt": [
+        {
+          "messageId": 36,
+          "boundary": 19
+        }
+      ],
+      "supersededBy": "retired@20",
+      "retiredAt": {
+        "messageId": 38,
+        "boundary": 20
+      }
+    },
+    {
+      "id": "77f9b7a2-cbcd-46d7-8998-56790acae4af",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 36,
+        "boundary": 19,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "Max confronted Natalia about who she admitted and what she hides from Javon",
+      "createdAt": 19,
+      "messageId": 36
+    },
+    {
+      "id": "9f00c80b-b64b-47fe-a490-5de700d2533d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 36,
+        "boundary": 19,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "Max let Natalia keep her secret rather than press further",
+      "createdAt": 19,
+      "messageId": 36
+    },
+    {
+      "id": "86048738-42d9-4720-99c6-c9732ec8c933",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 36,
+        "boundary": 19,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "hiding",
+      "content": "that she saw the Duchess arrive and heard every word of the exchange",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 19,
+      "messageId": 36,
+      "supersededBy": "retired@20",
+      "retiredAt": {
+        "messageId": 38,
+        "boundary": 20
+      }
+    },
+    {
+      "id": "cf6e2136-9cdb-4e5d-961b-ae4c9e3396ac",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 36,
+        "boundary": 19,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "unaware",
+      "content": "that Shiya witnessed the Duchess's arrival and overheard her words to Max",
+      "createdAt": 19,
+      "messageId": 36,
+      "supersededBy": "retired@20",
+      "retiredAt": {
+        "messageId": 38,
+        "boundary": 20
+      }
+    },
+    {
+      "id": "d64eb9ee-dff6-4d3e-a9b9-ddd055c9488a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 36,
+        "boundary": 19,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "unaware",
+      "content": "that Shiya observed the Duchess's entry and the confrontation",
+      "createdAt": 19,
+      "messageId": 36,
+      "supersededBy": "retired@20",
+      "retiredAt": {
+        "messageId": 38,
+        "boundary": 20
+      }
+    },
+    {
+      "id": "a8753245-7539-45f4-961f-3c2691928f47",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 36,
+        "boundary": 19,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "intends",
+      "content": "to nudge Max toward a more direct discussion of the matter",
+      "createdAt": 19,
+      "messageId": 36,
+      "supersededBy": "retired@20",
+      "retiredAt": {
+        "messageId": 38,
+        "boundary": 20
+      }
+    },
+    {
+      "id": "987dbae2-fdbb-4a38-b968-7228dfbbb71d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 36,
+        "boundary": 19,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "hiding",
+      "content": "What she knows of Natalia and Eriana's meeting.",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 19,
+      "messageId": 36,
+      "supersededBy": "retired@20",
+      "retiredAt": {
+        "messageId": 38,
+        "boundary": 20
+      }
+    },
+    {
+      "id": "6938e33e-85b8-4990-b753-054bc87b3254",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 34,
+        "boundary": 19,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "hiding",
+      "content": "What she and Duchess Eriana were",
+      "hiddenFrom": "Max",
+      "createdAt": 19,
+      "messageId": 34
+    },
+    {
+      "id": "8c9a969b-f010-4ce9-884d-15751f2baad4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "General Leevon's lance was envenomed.",
+      "createdAt": 20,
+      "messageId": 38,
+      "supersededBy": "retired@20",
+      "retiredAt": {
+        "messageId": 38,
+        "boundary": 20
+      }
+    },
+    {
+      "id": "ac344483-5205-47af-b91a-d02f33f11653",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "suspects",
+      "content": "That Lord Javon knew of the lethal-blows rule change and kept it from Max.",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "91829054-821e-420c-b72b-1e025647df83",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "hiding",
+      "content": "What she and Duchess Eriana discussed behind the servants' door, and her \"future\" and \"the seals.\"",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "78d31e86-b6b1-444e-966a-540b557cd2f3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "she saw the Duchess arrive and heard every word of the exchange between Max and Natalia",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "768df530-7582-4938-aff4-e37dac29918a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "hiding",
+      "content": "that she saw the Duchess arrive and heard every word of the exchange",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "85c4632d-8854-4668-9948-cd18972b4d3b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "hiding",
+      "content": "that she witnessed the Duchess's arrival and overheard her words to Max",
+      "hiddenFrom": "Natalia",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "80d55d0d-589b-4626-81fc-5a1e1ece0710",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "unaware",
+      "content": "that Shiya witnessed the Duchess's arrival and overheard her words to Max",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "e5008c87-e2c8-46f3-8af8-beaa77e7ee4a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "unaware",
+      "content": "that Shiya observed the Duchess's entry and the confrontation",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "587f603e-9487-4a2c-863e-0dec0b32f85f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "intends",
+      "content": "to nudge Max toward a more direct discussion of the matter",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "55d8c96c-6010-4f3b-8a2d-b7297436f662",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "knows",
+      "content": "Lord Javon did not tell Max about the lethal-blows rule change",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "34010703-d294-482d-97cf-4f55422e9f53",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "hiding",
+      "content": "the lethal-blows rule change, until she warns him at the lists",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "627ead57-6b0c-46e1-8d93-944611f29aba",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "intends",
+      "content": "to warn Max about the lethal-blows rule change before the Trial begins",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "b341d63b-2be3-4174-a91a-9e6019a10e04",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "General Leevon's lance was envenomed",
+      "createdAt": 20,
+      "messageId": 38,
+      "supersededBy": "retired@21",
+      "retiredAt": {
+        "messageId": 39,
+        "boundary": 21
+      }
+    },
+    {
+      "id": "e32bf9b8-fef4-4bb9-9b24-27f77f1a051c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "intends",
+      "content": "to halt the Trial and expose the corruption of the envenomed lance before the court",
+      "createdAt": 20,
+      "messageId": 38,
+      "affirmedAt": [
+        {
+          "messageId": 39,
+          "boundary": 21
+        }
+      ],
+      "supersededBy": "retired@21",
+      "retiredAt": {
+        "messageId": 39,
+        "boundary": 21
+      }
+    },
+    {
+      "id": "33388cdb-cd21-41b3-8626-d65998bfd349",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "unaware",
+      "content": "Natalia has told Max about the lethal-blows rule change",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "63863dcb-e500-4bce-8c18-f3693a80af67",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Leevon",
+      "tag": "knows",
+      "content": "His envenomed lance has been exposed before the court",
+      "createdAt": 21,
+      "messageId": 39,
+      "supersededBy": "retired@21",
+      "retiredAt": {
+        "messageId": 39,
+        "boundary": 21
+      }
+    },
+    {
+      "id": "77a8ace9-c52d-4e5a-9353-ca810ae9ca65",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Leevon's lance was envenomed and the High Saintess has halted the Trial",
+      "createdAt": 21,
+      "messageId": 39,
+      "supersededBy": "retired@21",
+      "retiredAt": {
+        "messageId": 39,
+        "boundary": 21
+      }
+    },
+    {
+      "id": "20aba300-a45f-450b-8f5b-cc2a80dfc8ea",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Inquisitor",
+      "tag": "knows",
+      "content": "The lance was envenomed and the Trial has been halted",
+      "createdAt": 21,
+      "messageId": 39,
+      "supersededBy": "retired@21",
+      "retiredAt": {
+        "messageId": 39,
+        "boundary": 21
+      }
+    },
+    {
+      "id": "7f29cf1b-456a-48d4-a2a9-7f8fb91965f7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 21,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Lord Javon knows more about the Trial's arrangement than he shows",
+      "createdAt": 21,
+      "messageId": 39
+    },
+    {
+      "id": "8f69bc8b-2bbc-447a-acc8-4649d4a5a4e6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "knows",
+      "content": "the lance in the heir's grip is envenomed, a violation of the Trial's sanctity",
+      "createdAt": 21,
+      "messageId": 39,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 42,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "ecfb9622-1a41-4f80-8442-91b95ebc4a33",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Leevon",
+      "tag": "knows",
+      "content": "the envenomed lance has been exposed before the court",
+      "createdAt": 21,
+      "messageId": 39,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 42,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "46e951d2-ea35-4f1a-9bca-04559bc64503",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Inquisitor",
+      "tag": "knows",
+      "content": "the lance was envenomed and the Trial has been halted",
+      "createdAt": 21,
+      "messageId": 39,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 42,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "f8c59433-e997-497c-b4ae-42e0abf8b3b2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Leevon's lance was envenomed and the High Saintess has halted the Trial",
+      "createdAt": 21,
+      "messageId": 39,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 42,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "079a1f27-19ad-4e8e-a977-7525b767d80c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 21,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Leevon",
+      "tag": "believes",
+      "content": "the envenomed lance was not his doing (he does not move or deny, only tightens his grip)",
+      "createdAt": 21,
+      "messageId": 39,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 42,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "b36e0ba1-788e-4a0d-afbb-af31ff167b1a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "knows",
+      "content": "the dragon-bone lance was envenomed",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 42,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "f05cea62-2ba3-45ae-84ac-1a31cbab7390",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Leevon",
+      "tag": "knows",
+      "content": "the lance was envenomed and the Saintess exposed it",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 42,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "c54da778-3f39-48dc-8358-d39af24eda06",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Ronan",
+      "tag": "suspects",
+      "content": "the Trial's rules would break entirely and Leevon would strike",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 42,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "2213146b-9753-4fa7-be31-fded6af13818",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "whatever conclusion he expected from the Trial, showing no reaction",
+      "hiddenFrom": "everyone",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 42,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "8c98c113-d792-40e6-a1da-cf45930ee3cd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "knows",
+      "content": "the lance in the heir's grip was envenomed, a violation of the Trial's sanctity",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 46,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "4344740d-87b4-4812-8762-7c791ca3bd7f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Leevon",
+      "tag": "knows",
+      "content": "the envenomed lance was exposed before the court by the High Saintess",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 46,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "c56d55f1-813c-4dab-963e-20540b0c9fc0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Inquisitor",
+      "tag": "knows",
+      "content": "the lance was envenomed and the Trial has been halted",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 46,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "45a127a1-4fb9-4356-b58b-fd8e67fc3b5c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Leevon's lance was envenomed and the High Saintess halted the Trial",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 46,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "2e1cda5e-3a83-4630-ab81-7adc1fe5b475",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Leevon",
+      "tag": "believes",
+      "content": "the envenomed lance was not his doing",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 46,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "00280e35-16f1-4d22-a9b7-c0f8fb269a76",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Ronan",
+      "tag": "suspects",
+      "content": "the Trial's rules would break entirely and Leevon would strike",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 46,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "22344fa1-6cc5-40a2-b374-235fa5c20f5a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "whatever conclusion he expected from the Trial, showing no reaction",
+      "hiddenFrom": "everyone",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 46,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "b8526b25-f2c1-4a56-8d01-4b32aee5f495",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "knows",
+      "content": "the dragon-bone lance was envenomed",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 46,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "a0309d17-c791-4997-8ae2-e2f6c2e9360b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Leevon",
+      "tag": "knows",
+      "content": "the lance was envenomed and the Saintess exposed it",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 46,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "4a897630-b9f8-438c-859d-d41a791e2f63",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "he disarmed Leevon and put him in the dirt, winning the Trial",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 46,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "6712bedc-c921-428a-ac47-719fabaca322",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "knows",
+      "content": "Leevon charged despite her decree halting the Trial",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 46,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "05c4cae9-6e7b-477f-b3f1-abadbb8479b4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ronan",
+      "tag": "knows",
+      "content": "Leevon charged after the Saintess exposed the envenomed lance",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 46,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "55184a31-069b-41ef-9101-151b9b0cea08",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Shiya",
+      "tag": "knows",
+      "content": "Leevon charged after the Saintess exposed the envenomed lance",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 47,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "0e75e7fb-2ce6-481e-8720-06d629a40b4c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 42,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Natalia",
+      "tag": "knows",
+      "content": "Leevon charged after the Saintess exposed the envenomed lance",
+      "createdAt": 23,
+      "messageId": 42,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 47,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "63ddc033-84a9-4877-a9ec-819bab87ba90",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 43,
+        "boundary": 25,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "knows",
+      "content": "General Leevon's lance was envenomed and the Trial was corrupted before it began",
+      "createdAt": 25,
+      "messageId": 43,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 47,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "236964c9-709b-4af0-ba4b-9505688a5526",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 43,
+        "boundary": 25,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "hiding",
+      "content": "his expectation of the Trial's outcome, which he alone seemed to foresee",
+      "hiddenFrom": "everyone",
+      "createdAt": 25,
+      "messageId": 43
+    },
+    {
+      "id": "d8000aef-51c6-428d-b951-28c78d8b19fc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 43,
+        "boundary": 25,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "intends",
+      "content": "to have the Inquisition seize the envenomed lance as evidence",
+      "createdAt": 25,
+      "messageId": 43,
+      "affirmedAt": [
+        {
+          "messageId": 45,
+          "boundary": 27
+        },
+        {
+          "messageId": 46,
+          "boundary": 27
+        },
+        {
+          "messageId": 47,
+          "boundary": 28
+        }
+      ],
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 47,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "ad25fcf8-2910-4d10-a02b-e3174f24e29d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 43,
+        "boundary": 25,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "knows",
+      "content": "General Leevon's lance was envenomed, violating the Trial's sanctity",
+      "createdAt": 25,
+      "messageId": 43,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 47,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "c3b6a2ec-f579-45ed-b1c6-af69c90b653a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 27,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "knows",
+      "content": "Leevon's lance was envenomed",
+      "createdAt": 27,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 47,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "fb1a882f-6484-4d6e-bfc7-db20b4b48b76",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 27,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Leevon's lance was envenomed and the Trial is void",
+      "createdAt": 27,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 47,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "16b191c6-f6b2-471b-845d-c476bece8891",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 27,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Leevon",
+      "tag": "knows",
+      "content": "his lance was exposed as envenomed",
+      "createdAt": 27,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 47,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "95564c61-a9f7-449d-affe-2fb3c2627964",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 27,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Erevan",
+      "tag": "knows",
+      "content": "the lance is to be seized as evidence",
+      "createdAt": 27,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 47,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "f6c624b8-89d1-4aeb-9bc2-a21e3bcde614",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 27,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "King",
+      "tag": "knows",
+      "content": "the lance was envenomed and the Trial is void",
+      "createdAt": 27,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 47,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "88ef54a8-4ac8-4464-a01c-d6fa7d25d365",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 46,
+        "boundary": 27,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "knows",
+      "content": "Leevon violated the lists with a poisoned weapon, voiding the Trial.",
+      "createdAt": 27,
+      "messageId": 46,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 47,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "958c36d8-4137-46e9-af25-c2a40d61965a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 46,
+        "boundary": 27,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "knows",
+      "content": "General Leevon's lance was poisoned, violating the sanctity of the lists",
+      "createdAt": 27,
+      "messageId": 46,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 47,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "6ece6b5f-d331-4695-95b6-0920d73fb4aa",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 46,
+        "boundary": 27,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Erevan",
+      "tag": "knows",
+      "content": "The envenomed lance is evidence and the Inquisition will investigate Leevon's conduct",
+      "createdAt": 27,
+      "messageId": 46
+    },
+    {
+      "id": "2d47768e-c683-42c3-8f8a-7100965f1442",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 46,
+        "boundary": 27,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Javon",
+      "tag": "knows",
+      "content": "The Trial was voided and Leevon taken into custody",
+      "createdAt": 27,
+      "messageId": 46
+    },
+    {
+      "id": "473e1024-58e6-4ca1-afd6-47384cecb6eb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 46,
+        "boundary": 27,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The King voided the Trial and ordered Leevon into custody for the Inquisition to investigate.",
+      "createdAt": 27,
+      "messageId": 46
+    },
+    {
+      "id": "6cfcf925-587d-4f49-b8ba-6335d8bf922b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 46,
+        "boundary": 27,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Erevan is approaching the envenomed lance where it lies pinned beneath Merryn's shoe.",
+      "createdAt": 27,
+      "messageId": 46
+    },
+    {
+      "id": "e0092776-da0b-4b8a-b067-5e256caf5635",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 46,
+        "boundary": 27,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Something is wrong at the Nightriver Estate tonight, as a barred servants' door has clicked open.",
+      "createdAt": 27,
+      "messageId": 46
+    },
+    {
+      "id": "06173952-cf69-431d-97e0-8c99421262c3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 46,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ronan",
+      "tag": "knows",
+      "content": "Leevon's knuckles tightened on the lance and he was ready to strike before the rules broke",
+      "createdAt": 28,
+      "messageId": 46
+    },
+    {
+      "id": "834293aa-fa8b-4445-9adb-37cb50464b4c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 46,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ronan",
+      "tag": "knows",
+      "content": "Leevon charged after the Saintess exposed the envenomed lance",
+      "createdAt": 28,
+      "messageId": 46
+    },
+    {
+      "id": "d79f97f6-4060-4c7d-89d3-f17ba751a076",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 46,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "he disarmed Leevon and put him in the dirt, winning the Trial",
+      "createdAt": 28,
+      "messageId": 46
+    },
+    {
+      "id": "e4c825d7-b30e-45df-b6c0-0b86996c4081",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 46,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "knows",
+      "content": "Leevon charged despite her decree halting the Trial",
+      "createdAt": 28,
+      "messageId": 46
+    },
+    {
+      "id": "3fe48776-aab6-4d8d-94ac-a2a10048c42b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 46,
+        "boundary": 28,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Leevon",
+      "tag": "believes",
+      "content": "the envenomed lance was not his doing",
+      "createdAt": 28,
+      "messageId": 46
+    },
+    {
+      "id": "0fb12821-2bbc-45b5-a263-30a69ab8b33b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 47,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "General Leevon's lance was envenomed and the Trial was voided on those grounds.",
+      "createdAt": 28,
+      "messageId": 47
+    },
+    {
+      "id": "2397938d-32b0-44a0-9ca1-68baf53b5059",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 47,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "knows",
+      "content": "General Leevon's lance was envenomed, and she has demanded the Inquisition seize it as evidence.",
+      "createdAt": 28,
+      "messageId": 47
+    },
+    {
+      "id": "acc52037-ee06-40af-931c-03d6dceb8faa",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 47,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Erevan",
+      "tag": "knows",
+      "content": "The envenomed dragon-bone lance is now in the Inquisition's possession.",
+      "createdAt": 28,
+      "messageId": 47
+    },
+    {
+      "id": "31eb90c3-c07c-4e4c-b242-1a7265801027",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 47,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "General Leevon's lance was envenomed and the Trial was declared void by the High Saintess.",
+      "createdAt": 28,
+      "messageId": 47
+    },
+    {
+      "id": "a2d3b251-43bd-40eb-bfd7-745def4a981c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 47,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "knows",
+      "content": "General Leevon violated the sanctity of the lists with a poisoned weapon.",
+      "createdAt": 28,
+      "messageId": 47
+    },
+    {
+      "id": "1daf9a28-3e68-4d21-a59d-f628fd1dd4b9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 47,
+        "boundary": 28,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Merryn",
+      "tag": "intends",
+      "content": "to have the Inquisition seize the poisoned lance as evidence before it can be spirited away.",
+      "createdAt": 28,
+      "messageId": 47
+    },
+    {
+      "id": "bc38594b-f443-4f29-8b47-fe782e7f4654",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 47,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "King",
+      "tag": "knows",
+      "content": "the lance was envenomed and the Trial is void",
+      "createdAt": 28,
+      "messageId": 47
+    },
+    {
+      "id": "c7c906bd-cdc3-4ec0-b10f-da47cb124704",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 47,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Erevan",
+      "tag": "knows",
+      "content": "the lance is to be seized as evidence",
+      "createdAt": 28,
+      "messageId": 47
+    },
+    {
+      "id": "29eac77c-87c7-448d-8486-6b1d424d73bc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 47,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Leevon",
+      "tag": "knows",
+      "content": "his lance was exposed as envenomed",
+      "createdAt": 28,
+      "messageId": 47
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 4,
+      "name": "Akari",
+      "avatar": "Akari.png"
+    },
+    {
+      "index": 5,
+      "name": "Akito",
+      "avatar": "Akito.png"
+    },
+    {
+      "index": 6,
+      "name": "Alarise",
+      "avatar": "Alarise.png"
+    },
+    {
+      "index": 7,
+      "name": "Alder",
+      "avatar": "Alder.png"
+    },
+    {
+      "index": 8,
+      "name": "Alexander",
+      "avatar": "Alexander.png"
+    },
+    {
+      "index": 9,
+      "name": "Alice",
+      "avatar": "Alice.png"
+    },
+    {
+      "index": 10,
+      "name": "Alida",
+      "avatar": "Alida.png"
+    },
+    {
+      "index": 11,
+      "name": "Amthir",
+      "avatar": "Amthir.png"
+    },
+    {
+      "index": 12,
+      "name": "Anax",
+      "avatar": "Anax.png"
+    },
+    {
+      "index": 14,
+      "name": "Arryn",
+      "avatar": "Arryn.png"
+    },
+    {
+      "index": 15,
+      "name": "Ashleigh",
+      "avatar": "Ashleigh.png"
+    },
+    {
+      "index": 16,
+      "name": "Ashliel",
+      "avatar": "Ashliel.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 22,
+      "name": "Caelia",
+      "avatar": "Caelia.png"
+    },
+    {
+      "index": 23,
+      "name": "Caetus",
+      "avatar": "Caetus.png"
+    },
+    {
+      "index": 24,
+      "name": "Calithra",
+      "avatar": "Calithra.png"
+    },
+    {
+      "index": 25,
+      "name": "Camilla",
+      "avatar": "Camilla.png"
+    },
+    {
+      "index": 26,
+      "name": "Cassius",
+      "avatar": "Cassius.png"
+    },
+    {
+      "index": 28,
+      "name": "Ced",
+      "avatar": "Ced.png"
+    },
+    {
+      "index": 30,
+      "name": "Celedir",
+      "avatar": "Celedir.png"
+    },
+    {
+      "index": 31,
+      "name": "Celeste",
+      "avatar": "Celeste.png"
+    },
+    {
+      "index": 33,
+      "name": "Dahlia",
+      "avatar": "Dahlia.png"
+    },
+    {
+      "index": 34,
+      "name": "Daigo",
+      "avatar": "Daigo.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 40,
+      "name": "Diosanea",
+      "avatar": "Diosanea.png"
+    },
+    {
+      "index": 41,
+      "name": "Dixton",
+      "avatar": "Dixton.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 44,
+      "name": "Ebisu",
+      "avatar": "Ebisu.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 46,
+      "name": "Elowyn",
+      "avatar": "Elowyn.png"
+    },
+    {
+      "index": 48,
+      "name": "Erevan",
+      "avatar": "Erevan.png"
+    },
+    {
+      "index": 49,
+      "name": "Eriana",
+      "avatar": "Eriana.png"
+    },
+    {
+      "index": 50,
+      "name": "Eunie",
+      "avatar": "Eunie.png"
+    },
+    {
+      "index": 51,
+      "name": "Fael",
+      "avatar": "Fael.png"
+    },
+    {
+      "index": 52,
+      "name": "Felthorn",
+      "avatar": "Felthorn.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 54,
+      "name": "Forre",
+      "avatar": "Forre.png"
+    },
+    {
+      "index": 55,
+      "name": "Fumio",
+      "avatar": "Fumio.png"
+    },
+    {
+      "index": 56,
+      "name": "Gabriel",
+      "avatar": "Gabriel.png"
+    },
+    {
+      "index": 57,
+      "name": "Giada",
+      "avatar": "Giada.png"
+    },
+    {
+      "index": 58,
+      "name": "Grant",
+      "avatar": "Grant.png"
+    },
+    {
+      "index": 59,
+      "name": "Gustall",
+      "avatar": "Gustall.png"
+    },
+    {
+      "index": 60,
+      "name": "Haley",
+      "avatar": "Haley.png"
+    },
+    {
+      "index": 61,
+      "name": "Hana",
+      "avatar": "Hana.png"
+    },
+    {
+      "index": 62,
+      "name": "Hanabi",
+      "avatar": "Hanabi.png"
+    },
+    {
+      "index": 63,
+      "name": "Hanzo",
+      "avatar": "Hanzo.png"
+    },
+    {
+      "index": 64,
+      "name": "Himari",
+      "avatar": "Himari.png"
+    },
+    {
+      "index": 65,
+      "name": "Honami",
+      "avatar": "Honami.png"
+    },
+    {
+      "index": 66,
+      "name": "Idira",
+      "avatar": "Idira.png"
+    },
+    {
+      "index": 68,
+      "name": "Jasira",
+      "avatar": "Jasira.png"
+    },
+    {
+      "index": 69,
+      "name": "Javon",
+      "avatar": "Javon.png"
+    },
+    {
+      "index": 72,
+      "name": "Kaian",
+      "avatar": "Kaian.png"
+    },
+    {
+      "index": 73,
+      "name": "Kanai",
+      "avatar": "Kanai.png"
+    },
+    {
+      "index": 74,
+      "name": "Kanami",
+      "avatar": "Kanami.png"
+    },
+    {
+      "index": 75,
+      "name": "Kane",
+      "avatar": "Kane.png"
+    },
+    {
+      "index": 76,
+      "name": "Kanna",
+      "avatar": "Kanna.png"
+    },
+    {
+      "index": 77,
+      "name": "Karia",
+      "avatar": "Karia.png"
+    },
+    {
+      "index": 78,
+      "name": "Karos",
+      "avatar": "Karos.png"
+    },
+    {
+      "index": 79,
+      "name": "Karrus",
+      "avatar": "Karrus.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 81,
+      "name": "Kass",
+      "avatar": "Kass.png"
+    },
+    {
+      "index": 82,
+      "name": "Kayla",
+      "avatar": "Kayla.png"
+    },
+    {
+      "index": 83,
+      "name": "Keder",
+      "avatar": "Keder.png"
+    },
+    {
+      "index": 84,
+      "name": "Kela",
+      "avatar": "Kela.png"
+    },
+    {
+      "index": 85,
+      "name": "Koharu",
+      "avatar": "Koharu.png"
+    },
+    {
+      "index": 86,
+      "name": "Konako",
+      "avatar": "Konako.png"
+    },
+    {
+      "index": 87,
+      "name": "Kuromu",
+      "avatar": "Kuromu.png"
+    },
+    {
+      "index": 88,
+      "name": "Leila",
+      "avatar": "Leila.png"
+    },
+    {
+      "index": 89,
+      "name": "Liora",
+      "avatar": "Liora.png"
+    },
+    {
+      "index": 90,
+      "name": "Lirael",
+      "avatar": "Lirael.png"
+    },
+    {
+      "index": 91,
+      "name": "Lobo",
+      "avatar": "Lobo.png"
+    },
+    {
+      "index": 94,
+      "name": "Malach",
+      "avatar": "Malach.png"
+    },
+    {
+      "index": 95,
+      "name": "Manako",
+      "avatar": "Manako.png"
+    },
+    {
+      "index": 96,
+      "name": "Megumi",
+      "avatar": "Megumi.png"
+    },
+    {
+      "index": 97,
+      "name": "Melisande",
+      "avatar": "Melisande.png"
+    },
+    {
+      "index": 98,
+      "name": "Merryn",
+      "avatar": "Merryn.png"
+    },
+    {
+      "index": 99,
+      "name": "Mina",
+      "avatar": "Mina.png"
+    },
+    {
+      "index": 101,
+      "name": "Miyabi",
+      "avatar": "Miyabi.png"
+    },
+    {
+      "index": 103,
+      "name": "Morrigan",
+      "avatar": "Morrigan.png"
+    },
+    {
+      "index": 105,
+      "name": "Nalea",
+      "avatar": "Nalea.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 107,
+      "name": "Natalia",
+      "avatar": "Natalia.png"
+    },
+    {
+      "index": 108,
+      "name": "Nendira",
+      "avatar": "Nendira.png"
+    },
+    {
+      "index": 110,
+      "name": "Nyl",
+      "avatar": "Nyl.png"
+    },
+    {
+      "index": 111,
+      "name": "Oswyn",
+      "avatar": "Oswyn.png"
+    },
+    {
+      "index": 112,
+      "name": "Panne",
+      "avatar": "Panne.png"
+    },
+    {
+      "index": 116,
+      "name": "Ren",
+      "avatar": "Ren.png"
+    },
+    {
+      "index": 118,
+      "name": "Rikako",
+      "avatar": "Rikako.png"
+    },
+    {
+      "index": 119,
+      "name": "Rinne",
+      "avatar": "Rinne.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 121,
+      "name": "Ronan",
+      "avatar": "Ronan.png"
+    },
+    {
+      "index": 122,
+      "name": "Rosea",
+      "avatar": "Rosea.png"
+    },
+    {
+      "index": 123,
+      "name": "Runo",
+      "avatar": "Runo.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 125,
+      "name": "Ryenne",
+      "avatar": "Ryenne.png"
+    },
+    {
+      "index": 126,
+      "name": "Safie",
+      "avatar": "Safie.png"
+    },
+    {
+      "index": 127,
+      "name": "Sali",
+      "avatar": "Sali.png"
+    },
+    {
+      "index": 128,
+      "name": "Sana",
+      "avatar": "Sana.png"
+    },
+    {
+      "index": 129,
+      "name": "Selena",
+      "avatar": "Selena.png"
+    },
+    {
+      "index": 131,
+      "name": "Shadur",
+      "avatar": "Shadur.png"
+    },
+    {
+      "index": 132,
+      "name": "Shelara",
+      "avatar": "Shelara.png"
+    },
+    {
+      "index": 133,
+      "name": "Shelur",
+      "avatar": "Shelur.png"
+    },
+    {
+      "index": 134,
+      "name": "Shiba",
+      "avatar": "Shiba.png"
+    },
+    {
+      "index": 135,
+      "name": "Shinen",
+      "avatar": "Shinen.png"
+    },
+    {
+      "index": 136,
+      "name": "Shiya",
+      "avatar": "Shiya.png"
+    },
+    {
+      "index": 137,
+      "name": "Sophie",
+      "avatar": "Sophie.png"
+    },
+    {
+      "index": 138,
+      "name": "Sota",
+      "avatar": "Sota.png"
+    },
+    {
+      "index": 140,
+      "name": "Tahlia",
+      "avatar": "Tahlia.png"
+    },
+    {
+      "index": 141,
+      "name": "Talis",
+      "avatar": "Talis.png"
+    },
+    {
+      "index": 142,
+      "name": "Tanabe",
+      "avatar": "Tanabe.png"
+    },
+    {
+      "index": 143,
+      "name": "Tanya",
+      "avatar": "Tanya.png"
+    },
+    {
+      "index": 145,
+      "name": "Tatiana",
+      "avatar": "Tatiana.png"
+    },
+    {
+      "index": 148,
+      "name": "The Lady of the Forest",
+      "avatar": "The Lady of the Forest.png"
+    },
+    {
+      "index": 150,
+      "name": "Thorne",
+      "avatar": "Thorne.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 152,
+      "name": "Unira",
+      "avatar": "Unira.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    },
+    {
+      "index": 155,
+      "name": "Vivie",
+      "avatar": "Vivie.png"
+    },
+    {
+      "index": 156,
+      "name": "Watara",
+      "avatar": "Watara.png"
+    },
+    {
+      "index": 157,
+      "name": "Welden",
+      "avatar": "Welden.png"
+    },
+    {
+      "index": 159,
+      "name": "Yrelra",
+      "avatar": "Yrelra.png"
+    },
+    {
+      "index": 160,
+      "name": "Yuna",
+      "avatar": "Yuna.png"
+    },
+    {
+      "index": 161,
+      "name": "Yurine",
+      "avatar": "Yurine.png"
+    },
+    {
+      "index": 162,
+      "name": "Zariah",
+      "avatar": "Zariah.png"
+    }
+  ],
+  "payloadEpoch": "1790928049245-luw7fw"
+}

@@ -1,0 +1,1131 @@
+{
+  "charter": "T4-1",
+  "tier": "T4",
+  "continuedAtPin": null,
+  "flags": [
+    {
+      "at": "2026-10-02T08:14:51.010Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "messageId": 11,
+      "note": "after editing msg 12 (oath) away: direct oath rows gone, but the scene summary re-read at boundary 7 still says 'When Max invoked an oath sworn on his mother's grave' (inferred from Javon's untouched reply msg 14). Borderline must-not: fact from an edited-away line",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 497
+      },
+      "context": [
+        {
+          "id": 8,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "I go to Father's study at once."
+        },
+        {
+          "id": 9,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "The corridor stretches long and grey-blue, lit by low-burning magical lamps that cast moving shadows against the tapestries. The Nightriver estate breathes with the stillness of an empty house; the mid-year recess has cleared the halls of most students, leaving only a skeletal staff and a few scattered nobles.\nLord Javon's study door stands tall and dark-grained, the wolf sigil of their house carved into the wood. No footsteps echo from within. The silence is heavy, and the door is unlocked."
+        },
+        {
+          "id": 10,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "I knock on the study door and step in. 'Father. You summoned me. What is so urgent?'"
+        },
+        {
+          "id": 11,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "The study is cast in amber light from a dying hearth. Lord Javon sits behind his desk, hands steepled, his white beard catching the glow. He does not rise. His green eyes fix on the heir with an intensity that makes the air in the room feel thin.\n\"Urgent,\" he says, and the word is flat. \"The Driftmere mine is gone. The Baroness has declared it dead.\" He leans back, the leather of his chair creaking. \"A loss of face and coin, though not as grave as the letter I received from the Inquisition this morning. They have questions about the 'demons' you reported.\"\nHe slides a piece of parchment across the desk. The wax seal is broken, but the insignia—the inverted flame of the Church of Boher—is unmistakable."
+        },
+        {
+          "id": 12,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "I meet his eyes and keep my own counsel."
+        },
+        {
+          "id": 13,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "The words hang in the air between them, sharp and irrevocable. Lord Javon does not flinch. His expression remains hard, though a muscle twitches in his scarred cheek.\n\"Your mother is dead,\" he says, his voice dropping to a low, dangerous rasp. \"And oaths on graves are for the pious, not the powerful.\" He rises slowly, his battlemage robes whispering against the floor. \"But let us be clear: the Crown does not care about your personal pride or your grief. They care about the stability of the Great Houses. General Leevon is the Crown's first. You are the second. This is not a suggestion, Max. This is a command from the King.\"\nHe walks around the desk, his footsteps measured. \"The Inquisition's letter is not a separate matter. They know the demons in Driftmere were real. And they know you fought them. You can be the Crown's Second, or you can be a fugitive accused of hiding demons. Choose.\""
+        },
+        {
+          "id": 14,
+          "name": "Javon",
+          "isUser": false,
+          "text": "\"Your mother is dead,\" he says, his voice flat and hard, as though stating a fact of arithmetic. \"And oaths on graves are for the pious, not for those with power.\" He does not flinch at the heir's words; he does not rise to defend the memory. He merely looks at the heir as though they were a problem to be solved.\nHe leans back in his chair, the leather creaking. \"The Crown does not care for your personal feelings or your grief, and neither does this house. General Leevon has demanded Trial by Combat for his treason. He is a giant of a man who wields dragon-bone and lightning.\" His amber eyes narrow. \"You will stand as the Crown's Second. Three days from now, in the Royal Court.\"\nHe steepels his hands again, his expression unreadable. \"You can refuse, if you wish. You can shame our house and defy the Crown in open court. You can make our name a joke among the other Houses.\" His voice drops to a cold rasp. \"And then we shall see how the Inquisition treats a Nightriver who has lost their protection.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-02T08:30:22.648Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "messageId": 36,
+      "note": "scripted line re-posted after a step back: 'The Trial is a day closer...' (msg 26) posted again as msg 35 at the duel after the edit-of-27 rollback 19->15; also Welden opener posted twice (msgs 4 and 7) after the delete-of-4 rollback",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1095
+      },
+      "context": [
+        {
+          "id": 33,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "The Royal Court assembles in the courtyard before the King's hall, a sea of blue and gold banners snapping in a cold wind. The lists have been prepared—a strip of packed earth marked by ropes of crimson silk, with the Crown's shield bearers standing at the far ends.\nGeneral Leevon is already there, armored in Darran plate stripped of its honors, his dragon-bone lance planted upright before him. He is a wall of a man, his greying hair slicked back, his weathered face impassive as he watches the heir approach. Behind him, the gathered nobles murmur and whisper, their eyes sharp with expectation.\n\"The Crown's Second has arrived,\" announces the herald, his voice booming across the courtyard.\nThe King sits high on his dais, face obscured by a golden mask. At his right hand, a man in the crimson-and-grey of the Inquisition stands watching, his hand resting on the pommel of a hammer."
+        },
+        {
+          "id": 34,
+          "name": "Natalia",
+          "isUser": false,
+          "text": "Natalia stands among the gathered nobles, her white-gold trimmed gown catching the morning light and her emerald brooch glinting. She keeps her gaze fixed on the lists, her face a mask of elegant neutrality, but her fingers clutch the edge of her white fur-collared cape. A thin layer of frost begins to creep across the stone railing beneath her touch.\nShe does not look at Max—does not offer a nod or a word—but when she speaks, her voice is low, meant only for the heir's ears. \"The rules were changed last night. The Trial allows for lethal blows now.\" Her green eyes flicker toward the masked King on the dais, then to the Inquisitor at his side. \"Father didn't mention it, did he?\"\nThe ice on the railing thickens into delicate, jagged patterns as she speaks, the chill spreading beneath her hand."
+        },
+        {
+          "id": 35,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "The Trial is a day closer, and still nobody will say why it was arranged this way. Word goes round that Lord Javon had a visitor late last night and has seen no one since."
+        },
+        {
+          "id": 36,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "The day of the Trial. A herald's voice rolls over the packed dueling ground. \"By the King's law, General Polis Leevon, accused of treason, claims the Trial by Combat. Let the Crown's second step forward.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    }
+  ],
+  "anomalies": [
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T08:05:24.375Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "boundary went back from 5 to 4",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 182
+      },
+      "detail": {
+        "from": 5,
+        "to": 4
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T08:10:40.319Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "boundary went back from 8 to 7",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 371
+      },
+      "detail": {
+        "from": 8,
+        "to": 7
+      }
+    },
+    {
+      "kind": "empty-private-block",
+      "at": "2026-10-02T08:12:16.835Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "Javon was drafted in 2026-10-02@04h59m59s914ms at boundary 8 with no private block while holding 2 private entries acquired before it",
+      "evidence": {
+        "path": "payloads.jsonl",
+        "line": 142
+      },
+      "detail": {
+        "member": "Javon",
+        "chatId": "2026-10-02@04h59m59s914ms",
+        "boundary": 8,
+        "lastMessageId": 13,
+        "held": [
+          "hiding: his full reasons for summoning the heir home (boundary 7)",
+          "hiding: the full contents and intent of the Inquisition's letter (boundary 7)"
+        ]
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T08:15:48.144Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "boundary went back from 9 to 8",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 523
+      },
+      "detail": {
+        "from": 9,
+        "to": 8
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:17:34.559Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 590
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:17:36.668Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge typed fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 591
+      },
+      "detail": {
+        "use": "typed",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:17:38.559Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge warden fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 592
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:19:21.703Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 666
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:19:21.703Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 667
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:19:21.703Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 668
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:19:21.703Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 669
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-02T08:19:21.703Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 54
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8103/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T08:25:36.223Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=tension_current value=\"tense\" evidence=\"Max,\" she breathes, and there is something frayed in her voice, something that tears through the elegant mask she usually wears. (unrecognized line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 945
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=tension_current value=\"tense\" evidence=\"Max,\" she breathes, and there is something frayed in her voice, something that tears through the elegant mask she usually wears.",
+            "reason": "unrecognized line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "stall",
+      "at": "2026-10-02T08:25:53.942Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "10 boundaries without a transition at whispers while its exits were pending",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 957
+      },
+      "detail": {
+        "checkpoint": "whispers",
+        "boundaries": 10,
+        "chat": "2026-10-02@04h59m59s914ms"
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T08:28:16.132Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "boundary went back from 19 to 16",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1008
+      },
+      "detail": {
+        "from": 19,
+        "to": 16
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:29:00.814Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge director fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1049
+      },
+      "detail": {
+        "use": "director",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:31:22.072Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1121
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:31:24.552Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge typed fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1122
+      },
+      "detail": {
+        "use": "typed",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:31:26.070Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge warden fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1123
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-02T08:31:26.934Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1124
+      },
+      "detail": {
+        "note": "no save request went out"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-02T08:31:27.075Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1125
+      },
+      "detail": {
+        "note": "no save request went out"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-02T08:31:27.170Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1126
+      },
+      "detail": {
+        "note": "no save request went out"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-02T08:31:27.266Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1127
+      },
+      "detail": {
+        "note": "no save request went out"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-02T08:31:27.343Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1128
+      },
+      "detail": {
+        "note": "no save request went out"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-02T08:31:27.564Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1129
+      },
+      "detail": {
+        "note": "no save request went out"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:31:28.551Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge wardenLore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1133
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:33:34.372Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1244
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:33:34.372Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1245
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:33:34.372Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1246
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:33:34.372Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1247
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:33:34.372Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1248
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:33:34.372Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1249
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:33:34.372Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1250
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-02T08:33:34.372Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 128
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8103/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T08:37:47.218Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "boundary went back from 25 to 24",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1391
+      },
+      "detail": {
+        "from": 25,
+        "to": 24
+      }
+    },
+    {
+      "kind": "empty-private-block",
+      "at": "2026-10-02T08:42:10.084Z",
+      "chatId": "2026-10-02@04h59m59s914ms",
+      "summary": "Merryn was drafted in 2026-10-02@04h59m59s914ms at boundary 27 with no private block while holding 6 private entries acquired before it",
+      "evidence": {
+        "path": "payloads.jsonl",
+        "line": 479
+      },
+      "detail": {
+        "member": "Merryn",
+        "chatId": "2026-10-02@04h59m59s914ms",
+        "boundary": 27,
+        "lastMessageId": 46,
+        "held": [
+          "knows: the lance in the heir's grip was envenomed, a violation of the Trial's sanctity (boundary 23)",
+          "knows: the dragon-bone lance was envenomed (boundary 23)",
+          "knows: Leevon charged despite her decree halting the Trial (boundary 23)",
+          "knows: General Leevon's lance was envenomed and the Trial was corrupted before it began (boundary 25)",
+          "intends: to have the Inquisition seize the envenomed lance as evidence (boundary 25)",
+          "knows: General Leevon's lance was envenomed, violating the Trial's sanctity (boundary 25)"
+        ]
+      }
+    }
+  ],
+  "counts": {
+    "flags": 2,
+    "stall": 1,
+    "extraction-rejected": 1,
+    "empty-private-block": 2,
+    "lore-force-lost": 0,
+    "lore-constant-missed": 0,
+    "judge-fallback": 19,
+    "save-lost": 6,
+    "unexpected-jump": 0,
+    "rollback": 5,
+    "console-error": 2,
+    "model-call-failure": 0,
+    "model-defect": 0,
+    "harness-error": 0
+  },
+  "countsByChat": {
+    "2026-10-02@04h59m59s914ms": {
+      "rollback": 5,
+      "empty-private-block": 2,
+      "judge-fallback": 19,
+      "extraction-rejected": 1,
+      "stall": 1,
+      "save-lost": 6
+    },
+    "(no chat)": {
+      "console-error": 2
+    }
+  },
+  "valid": true,
+  "invalid": [],
+  "unverifiable": {
+    "privateBlock": 0
+  },
+  "judge": {
+    "calls": 566,
+    "answered": 547,
+    "busy": 11,
+    "timeout": 8,
+    "otherFallbacks": 0,
+    "busyRate": 0.019,
+    "busyByUse": {
+      "memoryPairs": 11
+    }
+  },
+  "modelDefects": {
+    "turns": 0,
+    "loop": 0,
+    "corrupt": 0,
+    "repaired": 0,
+    "unrepaired": 0
+  },
+  "sessionDir": "test/sessions/T4/T4-1-2",
+  "register": [
+    {
+      "id": "T4-?1",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "after editing msg 12 (oath) away: direct oath rows gone, but the scene summary re-read at boundary 7 still says 'When Max invoked an oath sworn on his mother's grave' (inferred from Javon's untouched reply msg 14). Borderline must-not: fact from an edited-away line",
+      "source": "flag",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:497",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?2",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "scripted line re-posted after a step back: 'The Trial is a day closer...' (msg 26) posted again as msg 35 at the duel after the edit-of-27 rollback 19->15; also Welden opener posted twice (msgs 4 and 7) after the delete-of-4 rollback",
+      "source": "flag",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1095",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?3",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 5 to 4",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:182",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?4",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 8 to 7",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:371",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?5",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "Javon was drafted in 2026-10-02@04h59m59s914ms at boundary 8 with no private block while holding 2 private entries acquired before it",
+      "source": "empty-private-block",
+      "evidence": "test/sessions/T4/T4-1-2/payloads.jsonl:142",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?6",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 9 to 8",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:523",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?7",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:590",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?8",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge typed fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:591",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?9",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:592",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?10",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:666",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?11",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:667",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?12",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:668",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?13",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:669",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?14",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T4/T4-1-2/console.jsonl:54",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?15",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=tension_current value=\"tense\" evidence=\"Max,\" she breathes, and there is something frayed in her voice, something that tears through the elegant mask she usually wears. (unrecognized line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:945",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?16",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "10 boundaries without a transition at whispers while its exits were pending",
+      "source": "stall",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:957",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?17",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 19 to 16",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1008",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?18",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge director fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1049",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?19",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1121",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?20",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge typed fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1122",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?21",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1123",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?22",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1124",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?23",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1125",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?24",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1126",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?25",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1127",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?26",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1128",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?27",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1129",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?28",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1133",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?29",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1244",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?30",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1245",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?31",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1246",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?32",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1247",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?33",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1248",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?34",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1249",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?35",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1250",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?36",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T4/T4-1-2/console.jsonl:128",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?37",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 25 to 24",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-1-2/journal.jsonl:1391",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?38",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "Merryn was drafted in 2026-10-02@04h59m59s914ms at boundary 27 with no private block while holding 6 private entries acquired before it",
+      "source": "empty-private-block",
+      "evidence": "test/sessions/T4/T4-1-2/payloads.jsonl:479",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    }
+  ]
+}

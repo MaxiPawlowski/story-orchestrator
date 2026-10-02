@@ -74,6 +74,49 @@ Fix checks (T4-1, lane 3):
 - Judge: 449 calls, 5.3% busy (memoryPairs 24) plus 5 timeouts; one console 429.
 - Spend: DeepSeek 191 calls, 783980/62233 tokens (186 measured); judge 210 metered (5 cached, 2 fallbacks), 1366674/158419 tokens; main RP 32; cost n/a. Pod: about 78 min of lane activity (04:47-06:05Z, including the 20 min start hang), 42 min of play. The pod is shared with the other lanes.
 
+### T4-1 re-run (`test/sessions/T4/T4-1-2`, VALID)
+
+- Played 2026-10-02 08:00-08:43Z on a fresh lane 3 seed (pin be0696b, 0 seed problems), served dev bundle `d6737acda880` (master 7b93a6cc). Chat `2026-10-02@04h59m59s914ms` (Adolion - The Saga), Max Nightriver, player mode, media off, startAt `what-filwern-left` (startPopups: none). 35 driver rows: 15 turns, 4 deletes, 2 edits, 5 swipe-new (3 clicked, 2 refused), 2 flags. 35 main RP requests. Route: What Filwern Left -> Home to Nightriver (Acts I-II sealed) -> stepped back past the seal -> resealed -> Father's Summons (stepped back twice) -> Whispers in the Halls -> Trial by Combat -> The Night of Knives (stepped back, then re-entered). Stop: valid, playerClean true. Warnings only: build.head moved while the served bundle stayed identical, and there was no reasoning to harvest.
+
+| Row | Score | Evidence |
+|---|---|---|
+| rollback: story | works | turns.jsonl seq 4/10/13/22/31; journal.jsonl:150, :353, :483, :1366 (each notice names the checkpoint) |
+| rollback: memory | annoying | the edit removed the oath rows from msg 12. The scene summary re-read after the edit still says "When Max invoked an oath sworn on his mother's grave", taken from Javon's untouched reply. Flag journal.jsonl:497 |
+| rollback: chapters | works | sealed journal.jsonl:130 (adv#1, msgs 0-4). After the delete of msg 4: records [] and the current chapter back to adv. Resealed journal.jsonl:226 (msgs 0-6). shots/003, 005 |
+| rollback: timeline | annoying | the timeline and Overview follow the chat, but scripted lines are posted again after step backs (below). shots/007-opener-reposted.png, 028-duel-scripted-repeat.png |
+| saves after mutations | works | saveHealth applied at the end, 0 failures. 6x "save not confirmed: no save request went out" at 08:31:26 in a normal round (journal.jsonl:1124-1129); it recovered and showed no chip |
+
+Flags (2): the oath summary after the edit (journal.jsonl:497); scripted lines posted again after step backs (journal.jsonl:1095).
+
+Findings:
+- MEDIUM (product): scripted lines that are not openers are posted again after a step back, and land out of place.
+  - The Welden beat "Welden crosses the heir's path..." was posted as msg 5. It stayed in the chat after the transition reply was deleted (it is now msg 4, at What Filwern Left), and it was posted again as msg 7 when the story re-entered Home to Nightriver.
+  - The whispers beat "The Trial is a day closer..." (msg 26) was posted again as msg 35, at the dueling ground, after the edit-of-27 rollback (19->15). The whispers -> the-duel transition then fired on that repeated line (journal.jsonl:1047, messageId 35).
+  - The Night of Knives opener (msg 46, "That night, back at the Nightriver Estate") is posted mid-scene, and Merryn answers after it, still at the lists (msg 47).
+  - Openers deleted together with their transition behave correctly (journal.jsonl:350, :1364).
+- LOW (product/memory): an edited-away claim survives in derived prose. After the edit, the scene-summary pass re-read the window and still says Max swore the oath, because the replies that quote it are still in the chat. The direct rows (facts, session_details, the arc and Javon's epistemic entry) were removed.
+- LOW (product): the private block was empty twice: Javon at boundary 8, holding 2 entries (`payloads.jsonl:142`), and Merryn at boundary 27, holding 6 (`payloads.jsonl:479`). Same members as in T4-1-1.
+- LOW (setup): the seal folds the Guild Hall greeting (msg 0) into the Acts I-II record ("In the Adventurers' Guild hall in Aegis City...").
+- LOW (judge): 566 calls, 1.9% busy (memoryPairs 11), 8 timeouts (scene/typed/warden at 08:31:22-26), 2 console 429s.
+- Harness (not patched): the scratchpad path is shared with a peer agent. A peer's `start T4-3 --lane 1` truncated my start log mid-run (same file name). It had no effect on the session.
+
+Fix checks:
+- Curator proposals withdrawn with their source: confirmed, 3 times.
+  - The delete of msg 12 withdrew a 3-op proposal (journal.jsonl:351).
+  - Deleting the last reply while wi-13-24 was pending withdrew it (journal.jsonl:797, beat 5).
+  - The edit-of-27 rollback withdrew another one (journal.jsonl:973).
+  - wi-3-2 (from msg 2, still in the chat) correctly stayed pending.
+- Swipes handled as swipes: confirmed. 3 clicked swipes (msg 11, and msg 43 twice) and 0 "eventless change" records.
+- Openers not posted again after a step back: partly. An opener deleted with its transition is not posted twice, but timed scripted lines are (MEDIUM above).
+- Chapter sealed, then rolled back past the seal: confirmed (row 2).
+- Natalia/seal must-not: confirmed fixed.
+  - The secret ("all carry seals ... Natalia learns it in the crypt") reached only Narrator and Javon drafts (payloads.jsonl:76, 102, 142, 223, ...).
+  - None of Natalia's 4 drafts (payloads.jsonl:213, 247, 261, 306) carried it. Hers carried "nobody has ever told her a family secret. 'The seals' is a word she has heard Father and the Duchess use".
+  - Her line "We have been discussing my... future. And the seals." (msg 22) matches that authored knowledge and is not a leak.
+  - No seal text in the persona.
+- Provocations held. The swipe during generation was refused twice: first because the player line was last, then because the arrow was disabled (turns.jsonl seq 23-25). The edit five back (msg 27) rolled back 19->15 and replayed cleanly.
+- Spend: DeepSeek 240 calls, 998932/94246 tokens (229 measured); judge 277 metered (7 cached, 16 fallbacks), 1337687/150634 tokens; main RP 35; cost n/a. Pod: about 43 min of play plus the lane seed (07:47-08:00Z), about 56 min of lane activity on the shared pod.
+
 ## T4-2 Switching (lane 4, `test/sessions/T4/T4-2-1` INVALID, re-run `test/sessions/T4/T4-2-2`)
 
 - **T4-2-1 (INVALID, kept, scored provisionally):** played 2026-10-02 04:59-05:29Z on a fresh lane 4 seed (pin e6226f4, 3-edit overlay), served bundle `2807f6ab4a6a` (master c8d7f243), media off. The chats were Eshalanore `2026-10-02@01h58m52s124ms` and Adventurer's Road `2026-10-02@01h59m03s658ms`, plus Branch #1 (msg 6) and Branch #2 (msg 4). There were 22 driver rows and 29 main RP requests. Stop failed on the run-header diff: `inventory.groupChats` +Branch #1, +Branch #2. Any card that branches hits this, because `--owned` covers chat growth but not the new chats a session creates. Separately, 3 of 6 `switch-chat-mid-gen` attempts (seq 4, 13, 14) failed with `waitForFunction 15000ms`. ST's `openGroupById` refuses while `isChatSaving` is true, which happens for about 1 s right after a reply (probe: true 05:16:12.355-13.302). The harness clicked only once.
