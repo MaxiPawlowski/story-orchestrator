@@ -1,5 +1,6 @@
 import type { StoryV2 } from "@engine/index";
 import { emptyEnvironment } from "@wizard/index";
+import { missingAtDone } from "./finish";
 import { approvePlan, executeReply, newAgentSession, NO_CHANGE, type StepMeta } from "./loop";
 import { agentContext } from "./testing";
 import { checkToolCall } from "./tools";
@@ -59,5 +60,18 @@ describe("T6-3-3 MEDIUM: setRequirements refuses a field it does not have", () =
   it("refuses a typo with did-you-mean", () => {
     const check = checkToolCall({ tool: "setRequirements", args: { requirements: { lorebook: ["Lore"] } } });
     expect(!check.ok && check.message).toContain('did you mean "lorebooks"');
+  });
+});
+
+describe("T6-3-3 HIGH: the done check names a checkpoint the story passes straight through", () => {
+  it("lists the pass-through exit so the first done is refused with it, and the summary keeps it", () => {
+    const draft = map();
+    draft.checkpoints = [...draft.checkpoints, { id: "choice", name: "Choice", objective: "Choose.", type: "anchor" }];
+    draft.transitions = [...draft.transitions, { from: "raid", to: "choice", priority: 1, gate: { q: "pen_control", op: "in", v: ["contested", "apprentice_held"] } }];
+    const missing = missingAtDone(running(), draft, emptyEnvironment());
+    expect(missing).toHaveLength(1);
+    expect(missing[0]).toContain("'raid' is passed straight through");
+    expect(missing[0]).toContain("gate-open-on-arrival at transitions.1.gate");
+    expect(missingAtDone(running(), map(), emptyEnvironment())).toEqual([]);
   });
 });

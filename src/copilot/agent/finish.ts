@@ -1,5 +1,6 @@
 import type { Checkpoint, StoryV2 } from "@engine/index";
 import { draftCastNames, isProvisioningKind, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
+import { passThroughExits } from "../../studio/arrivalDiagnostics";
 import type { AgentSession, AgentStepStatus } from "./types";
 
 const fold = (text: string) => text.trim().toLowerCase();
@@ -42,6 +43,10 @@ const groupGaps = (session: AgentSession, draft: StoryV2): string[] => provision
     : [];
 });
 
+const passedThrough = (draft: StoryV2): string[] => passThroughExits(draft).map(({ index, exit }) =>
+  `'${exit.from}' is passed straight through (gate-open-on-arrival at transitions.${index}.gate): its way out to '${exit.to}' is already open when the story arrives, ` +
+  "so gate it on something that happens in that checkpoint");
+
 export const missingAtDone = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment): string[] => {
   const declined = provisioned(session, "rejected");
   return [
@@ -49,6 +54,7 @@ export const missingAtDone = (session: AgentSession, draft: StoryV2, environment
     ...missingCards(draft, environment, namesOf(declined, "createCharacterCard")),
     ...missingBooks(draft, environment, namesOf(declined, "createStoryLorebook")),
     ...(wantsGroup(session, draft, environment) ? ["no group for the cast (createGroup with every card)"] : []),
+    ...passedThrough(draft),
   ];
 };
 
