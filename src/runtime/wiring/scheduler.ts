@@ -1,5 +1,6 @@
 import { ExtractionScheduler, probeModel, setAnsweredObserver, type SchedulerHost, type SchedulerJob, type SchedulerSettings } from "@extraction/index";
-import { profileExists, subscribeToHostEvents } from "@services/STAPI";
+import { listConnectionProfiles, profileExists, subscribeToHostEvents } from "@services/STAPI";
+import { setFailoverGate } from "../modelCall";
 import { breakerWatchEntries } from "../breakerWatch";
 import { runBoundaryWork } from "../boundaryWork";
 import { requestBudget, routedProfileId } from "../requestBudget";
@@ -32,6 +33,7 @@ const schedulerHost = (live: LiveParts): SchedulerHost => ({
   noteHealth: (summary, detail) => runtimeManager.noteRecap(summary, detail),
   probeModel,
   profileExists,
+  profileName: (id) => listConnectionProfiles().find((profile) => profile.id === id)?.name ?? id,
   heavyRouteKey: () => routedProfileId("synthesis"),
   mutationSettled: () => runtimeManager.rollbackSettled(),
   epoch: () => runtimeManager.getRunContext().sessionEpoch,
@@ -55,6 +57,7 @@ export const startScheduler = (live: LiveParts, disposers: Disposers) => {
   disposers.push(setAnsweredObserver((call) => live.scheduler?.noteAnswered(call.profileId, call.ms)));
   live.scheduler = new ExtractionScheduler(schedulerHost(live));
   runtimeManager.attachScheduler(live.scheduler);
+  disposers.push(setFailoverGate(live.scheduler.gate));
   disposers.push(() => { live.scheduler?.dispose(); runtimeManager.attachScheduler(null); });
   disposers.push(subscribeToHostEvents(breakerWatchEntries(() => live.scheduler, () => routedProfileId("read"))));
   disposers.push(runtimeManager.onBoundary((result) => {

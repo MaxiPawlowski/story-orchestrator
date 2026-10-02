@@ -1,4 +1,5 @@
 import { ModelCallError } from "@extraction/modelError";
+import type { FailoverFailure, FailoverGate } from "@extraction/breaker";
 import type { PassRole } from "@extraction/passRole";
 import type { ReasoningMeter } from "@services/STAPI";
 import { routeKey, UNKNOWN_USAGE, type ExtractionReply, type ModelCall, type ModelPass, type ModelRoute } from "@extraction/modelRoute";
@@ -36,6 +37,7 @@ export interface ModelCallDeps {
   record?: (record: ModelCallRecord) => void;
   ownership?: RunOwnership;
   stamp?: () => { chatId: string | null; messageId: number };
+  gate?: FailoverGate;
 }
 
 type Effort = NonNullable<ModelRoute["effort"]>;
@@ -48,6 +50,21 @@ export type NoteCall = (route: ModelRoute, startedAt: number, result: ModelCallR
 
 const OBSERVED = ["reasoning-exhausted", "auth", "quota"];
 const FALLBACK_KINDS = ["auth", "quota", "transport", "timeout"];
+const FAILOVER_KINDS = ["transport", "timeout"];
+const LAPSED_BEFORE_FALLBACK = "the call's chat went away before the fallback could answer";
+
+const divert = (route: ModelRoute | null, fallback: ModelRoute | null, gate: FailoverGate | undefined): boolean =>
+  Boolean(route && fallback && gate && gate.open(routeKey(route)) && !gate.open(routeKey(fallback)));
+
+const retries = (used: ModelRoute, kind: string, diverted: boolean, fallback: ModelRoute | null, gate: FailoverGate | undefined): boolean =>
+  (used.kind === "harness" ? FALLBACK_KINDS.includes(kind) : !diverted && FAILOVER_KINDS.includes(kind) && fallback !== null && !gate?.open(routeKey(fallback)));
+
+const noteFailover = (gate: FailoverGate | undefined, used: ModelRoute, kind: string, error: unknown) => {
+  if (gate && used.kind === "profile" && FAILOVER_KINDS.includes(kind)) gate.failed(used.profileId, kind as FailoverFailure, (error as Error).message);
+};
+
+export const failoverRoute = (route: ModelRoute | null, fallbackId: string | null | undefined, exists: (profileId: string) => boolean): ModelRoute | null =>
+  (route?.kind === "profile" && fallbackId && fallbackId !== route.profileId && exists(fallbackId) ? { ...route, profileId: fallbackId } : null);
 
 export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): ModelCall => {
   const planted = deps.planted === false ? () => null : debugResponseFor;
@@ -58,7 +75,12 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
     const resolution = resolveRoute(settings, ask.role, deps.exists, deps.listed);
     if (!resolution.ok) throw new ModelCallError("config", resolution.reason, resolution.profileId);
     const route = resolution.route;
-    const observe = deps.observe && route ? deps.observe.bind(null, ask.role) : null;
+    const fallback = failoverRoute(route, settings.fallbackProfileId, deps.exists);
+    const gate = deps.gate;
+    const diverted = divert(route, fallback, gate);
+    const used = diverted ? fallback : route;
+    const from = diverted && route ? routeKey(route) : undefined;
+    const observe = deps.observe && route && !diverted ? deps.observe.bind(null, ask.role) : null;
     const seen = { profileId: route ? routeKey(route) : "", effort: route?.effort ?? "default" };
     const options = {
       maxTokens: ask.maxTokens, temperature: ask.temperature, signal: ask.signal, timeoutScale: ask.timeoutScale, budgetKind: ask.budgetKind, reasoningBudget: settings.reasoningBudget, role: ask.role,
@@ -75,17 +97,22 @@ export const createModelCallVia = (reply: RouteReply, deps: ModelCallDeps): Mode
     };
     const startedAt = Date.now();
     try {
-      const answer = await reply(prompt, route, options);
-      if (route) recordCall(route, startedAt, "ok", answer);
+      const answer = await reply(prompt, used, options);
+      if (used) recordCall(used, startedAt, diverted ? "fallback" : "ok", answer, from);
       if (observe) observe(Object.assign({ outcome: "answered" as const, meter: answer.meter ?? null }, seen));
       return answer;
     } catch (error) {
       const kind = error instanceof ModelCallError ? error.kind : null;
-      if (!route || !kind) throw error;
-      recordCall(route, startedAt, kind);
+      if (!used || !kind) throw error;
+      recordCall(used, startedAt, kind, undefined, from);
       if (observe && OBSERVED.includes(kind)) observe(Object.assign({ outcome: kind as "auth", detail: (error as Error).message }, seen));
-      if (route.kind === "profile" || !FALLBACK_KINDS.includes(kind)) throw error;
-      return (await import("./harnessFallback")).answerFallback({ error, route, settings, role: ask.role, exists: deps.exists, run: (used) => reply(prompt, used, options), note: recordCall });
+      noteFailover(gate, used, kind, error);
+      if (!retries(used, kind, diverted, fallback, gate)) throw error;
+      if (used.kind === "profile" && token && deps.ownership && !deps.ownership.check(token).ok) throw new ModelCallError("lapsed", LAPSED_BEFORE_FALLBACK, routeKey(used));
+      return (await import("./harnessFallback")).answerFallback({
+        error, route: used, settings, role: ask.role, exists: deps.exists, run: (next) => reply(prompt, next, options), note: recordCall,
+        ...(used.kind === "profile" ? { fallback } : {}),
+      });
     }
   };
   call.planted = planted;

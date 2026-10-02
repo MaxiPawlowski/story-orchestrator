@@ -3,9 +3,10 @@ import type { Row } from './sessionDigest.mts';
 export const ORCHESTRATOR_PATTERN = /deepseek/i;
 export const CHARS_PER_TOKEN = 4;
 
+export interface AnsweredBy { primary: number; fallback: number; failed: number }
 export interface SpendBucket { calls: number; input: number; output: number; measuredCalls: number; estimatedCalls: number; costUsd: number | null }
 export interface SessionSpend {
-  orchestrator: SpendBucket & { ringCalls: number; ringCostUsd: number | null };
+  orchestrator: SpendBucket & { ringCalls: number; ringCostUsd: number | null; answeredBy?: AnsweredBy };
   judge: { calls: number; cached: number; fallbacks: number; input: number; output: number; costUsd: number | null };
   main: { calls: number };
   responsesCaptured: number;
@@ -51,7 +52,9 @@ export function meterSession({ payloads, modelCalls = [], judgeCalls = [], playF
   const from = timeOf(playFrom);
   const responses = new Map<string, Record<string, any>>();
   for (const row of payloads) if (row.value?.kind === 'response') responses.set(`${row.value.epoch}|${row.value.requestIndex}`, row.value);
-  const orchestrator = { calls: 0, input: 0, output: 0, measuredCalls: 0, estimatedCalls: 0, costUsd: null as number | null, ringCalls: 0, ringCostUsd: null as number | null };
+  const answeredBy: AnsweredBy = { primary: 0, fallback: 0, failed: 0 };
+  const orchestrator = { calls: 0, input: 0, output: 0, measuredCalls: 0, estimatedCalls: 0, costUsd: null as number | null, ringCalls: 0, ringCostUsd: null as number | null, answeredBy };
+  const ours = (route: unknown) => route !== undefined && route !== null && (orchestratorRoutes.includes(String(route)) || pattern.test(String(route)));
   let mainCalls = 0;
   for (const row of payloads) {
     const entry = row.value;
@@ -72,8 +75,11 @@ export function meterSession({ payloads, modelCalls = [], judgeCalls = [], playF
     }
   }
   for (const call of modelCalls) {
-    if (!call || !inPlay(call.at, from) || !(orchestratorRoutes.includes(String(call.route)) || pattern.test(String(call.route ?? '')))) continue;
+    if (!call || !inPlay(call.at, from) || !(ours(call.route) || ours(call.fallbackFrom))) continue;
     orchestrator.ringCalls += 1;
+    if (call.fallbackFrom && (call.result === 'fallback' || call.result === 'ok')) answeredBy.fallback += 1;
+    else if (call.result === 'ok') answeredBy.primary += 1;
+    else answeredBy.failed += 1;
     orchestrator.ringCostUsd = addCost(orchestrator.ringCostUsd, call.usage?.costUsd);
   }
   orchestrator.costUsd = orchestrator.ringCostUsd;
@@ -97,26 +103,29 @@ export const BUDGET_END = '<!-- sessions:end -->';
 
 const usd = (value: number | null) => (value === null ? 'n/a' : `$${value.toFixed(4)}`);
 
+const answered = (by: AnsweredBy | undefined) => (by ? `${by.primary} / ${by.fallback} / ${by.failed}` : 'n/a');
+
 export function renderBudgetTable(rows: BudgetRow[]): string {
   const lines = [
-    '| Session | Lane | Stopped | DeepSeek calls | DeepSeek tokens in/out | measured / estimated | DeepSeek cost | Judge calls (cached) | Judge tokens in/out | Judge cost | Main RP requests |',
-    '|---|---|---|---|---|---|---|---|---|---|---|',
+    '| Session | Lane | Stopped | DeepSeek calls | DeepSeek tokens in/out | measured / estimated | DeepSeek cost | Judge calls (cached) | Judge tokens in/out | Judge cost | Main RP requests | Passes primary / fallback / failed |',
+    '|---|---|---|---|---|---|---|---|---|---|---|---|',
   ];
-  const total = { calls: 0, input: 0, output: 0, cost: null as number | null, judge: 0, jin: 0, jout: 0, jcost: null as number | null, main: 0 };
+  const total = { calls: 0, input: 0, output: 0, cost: null as number | null, judge: 0, jin: 0, jout: 0, jcost: null as number | null, main: 0, by: { primary: 0, fallback: 0, failed: 0 } as AnsweredBy };
   for (const row of [...rows].sort((a, b) => a.session.localeCompare(b.session))) {
     const { orchestrator: o, judge: j, main } = row.spend;
-    lines.push(`| \`${row.session}\` | ${row.lane} | ${row.stoppedAt ?? 'running'} | ${o.calls} | ${o.input} / ${o.output} | ${o.measuredCalls} / ${o.estimatedCalls} | ${usd(o.costUsd)} | ${j.calls} (${j.cached}) | ${j.input} / ${j.output} | ${usd(j.costUsd)} | ${main.calls} |`);
+    lines.push(`| \`${row.session}\` | ${row.lane} | ${row.stoppedAt ?? 'running'} | ${o.calls} | ${o.input} / ${o.output} | ${o.measuredCalls} / ${o.estimatedCalls} | ${usd(o.costUsd)} | ${j.calls} (${j.cached}) | ${j.input} / ${j.output} | ${usd(j.costUsd)} | ${main.calls} | ${answered(o.answeredBy)} |`);
     total.calls += o.calls; total.input += o.input; total.output += o.output; total.cost = o.costUsd === null ? total.cost : (total.cost ?? 0) + o.costUsd;
     total.judge += j.calls; total.jin += j.input; total.jout += j.output; total.jcost = j.costUsd === null ? total.jcost : (total.jcost ?? 0) + j.costUsd; total.main += main.calls;
+    for (const key of ['primary', 'fallback', 'failed'] as const) total.by[key] += o.answeredBy?.[key] ?? 0;
   }
-  lines.push(`| **Total** | | | ${total.calls} | ${total.input} / ${total.output} | | ${usd(total.cost)} | ${total.judge} | ${total.jin} / ${total.jout} | ${usd(total.jcost)} | ${total.main} |`);
+  lines.push(`| **Total** | | | ${total.calls} | ${total.input} / ${total.output} | | ${usd(total.cost)} | ${total.judge} | ${total.jin} / ${total.jout} | ${usd(total.jcost)} | ${total.main} | ${answered(total.by)} |`);
   return lines.join('\n');
 }
 
 export const BUDGET_TEMPLATE = [
   '# Plan 14 autonomous run: spend',
   '',
-  'DeepSeek (orchestrator passes) and TypeSafe judge spend per session, written by `so-session stop` and `so-session budget`. Token counts are measured from the provider\'s `usage` where the response was captured, otherwise estimated at 4 characters per token (the measured / estimated column says which). Cost is what the product\'s model-call and judge rings recorded; `n/a` means no cost was reported.',
+  'DeepSeek (orchestrator passes) and TypeSafe judge spend per session, written by `so-session stop` and `so-session budget`. "Passes primary / fallback / failed" counts the orchestrator model-call ring: answered by the memory model, answered by the fallback profile during an outage, or failed. Token counts are measured from the provider\'s `usage` where the response was captured, otherwise estimated at 4 characters per token (the measured / estimated column says which). Cost is what the product\'s model-call and judge rings recorded; `n/a` means no cost was reported.',
   '',
   '## Sessions',
   '',
