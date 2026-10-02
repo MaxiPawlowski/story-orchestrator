@@ -1,0 +1,279 @@
+{
+  "storyId": "the-hoard-of-the-unflown",
+  "activeCheckpointId": "summons",
+  "boundary": 8,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "The Hoard of the Unflown — Lore": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "crew_cohesion": 5,
+    "dragon_revealed": true,
+    "dragon_trust": 3,
+    "heist_progress": 1,
+    "hoard_recovered": 0,
+    "knight_heat": 0,
+    "tension_current": 0.5
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "62c843b3-f0a2-4a7f-a293-860cac906e91",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 4,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Ser Aldric",
+      "tag": "unaware",
+      "content": "Vaelrith is alive and has hired thieves to reclaim its hoard",
+      "createdAt": 4,
+      "messageId": 8
+    },
+    {
+      "id": "1b689305-b269-4e71-89ab-830a940c77e0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Marlow",
+      "tag": "intends",
+      "content": "to take the whole job but extract the full truth about the Deep Vault first",
+      "createdAt": 4,
+      "messageId": 8,
+      "supersededBy": "retired@4",
+      "retiredAt": {
+        "messageId": 8,
+        "boundary": 4
+      }
+    },
+    {
+      "id": "8b693e84-3f20-4cb3-9efc-719127c56ac4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Quill",
+      "tag": "intends",
+      "content": "to learn what actually guards the Deep Vault before committing",
+      "createdAt": 4,
+      "messageId": 8,
+      "supersededBy": "retired@4",
+      "retiredAt": {
+        "messageId": 8,
+        "boundary": 4
+      }
+    },
+    {
+      "id": "52c8f361-5cb9-4aae-8a49-960a586e08a3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ser Aldric",
+      "tag": "knows",
+      "content": "the vault inspection was scheduled for noon",
+      "createdAt": 4,
+      "messageId": 8
+    },
+    {
+      "id": "ef63b25e-a6da-49be-8b9f-4f98e5eda1d5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 4,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Ser Aldric",
+      "tag": "believes",
+      "content": "the person entering his office is the one who missed the noon vault inspection",
+      "createdAt": 4,
+      "messageId": 8
+    },
+    {
+      "id": "1dd47f47-ebcf-488b-960c-b35e8d63a564",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 4,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Marlow",
+      "tag": "hiding",
+      "content": "that he wants the full truth about the Deep Vault before committing, and will charge a premium for it",
+      "hiddenFrom": "Vaelrith",
+      "createdAt": 4,
+      "messageId": 8
+    },
+    {
+      "id": "e9cb03c8-bbf9-4a94-bc37-2503953c92e0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 4,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Quill",
+      "tag": "hiding",
+      "content": "that she doubts the job's value and is probing for the real guardian before committing",
+      "hiddenFrom": "Vaelrith",
+      "createdAt": 4,
+      "messageId": 8
+    },
+    {
+      "id": "308a0dc3-30ed-4bd8-97fd-ec8a41d10d9e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Marlow",
+      "tag": "intends",
+      "content": "to extract the truth about what is in the Deep Vault, not the half-truth given to others",
+      "createdAt": 4,
+      "messageId": 8
+    },
+    {
+      "id": "3bd18c16-56eb-4818-a377-1c8e64ff6107",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Quill",
+      "tag": "intends",
+      "content": "to learn what actually guards the Deep Vault before committing",
+      "createdAt": 4,
+      "messageId": 8
+    },
+    {
+      "id": "b5995fed-e517-4e39-a8e6-ce327b6531ba",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 4,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Quill",
+      "tag": "suspects",
+      "content": "that Vaelrith is concealing the true nature of the vault's guardian",
+      "createdAt": 4,
+      "messageId": 8
+    },
+    {
+      "id": "0e1b7b50-96d7-4720-88c9-5ae434b512a6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 4,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Vaelrith",
+      "tag": "unaware",
+      "content": "that Quill and Marlow each intend to withhold commitment until they learn the vault's true secret",
+      "createdAt": 4,
+      "messageId": 8
+    },
+    {
+      "id": "42ef0a7d-94f7-4fb5-94a6-5cb1ab60b416",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 8,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Quill",
+      "tag": "intends",
+      "content": "To map every entrance, guard rotation, and exit before anyone enters the stronghold.",
+      "createdAt": 8,
+      "messageId": 12
+    },
+    {
+      "id": "00b84721-fa87-4329-9e4b-b73aaf92bac9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 8,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Marlow",
+      "tag": "intends",
+      "content": "To obtain the stronghold's layout, guard shifts, and roster by dawn.",
+      "createdAt": 8,
+      "messageId": 12
+    },
+    {
+      "id": "7c76c960-361e-4712-87bc-121054e7d8c2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 8,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Brannoc",
+      "tag": "intends",
+      "content": "To learn whose life the oath-lock costs before committing.",
+      "createdAt": 8,
+      "messageId": 12
+    }
+  ],
+  "characters": [
+    {
+      "index": 21,
+      "name": "Brannoc",
+      "avatar": "Brannoc.png"
+    },
+    {
+      "index": 98,
+      "name": "Marlow",
+      "avatar": "Marlow.png"
+    },
+    {
+      "index": 119,
+      "name": "Quill",
+      "avatar": "Quill.png"
+    },
+    {
+      "index": 137,
+      "name": "Ser Aldric",
+      "avatar": "Ser Aldric.png"
+    },
+    {
+      "index": 161,
+      "name": "Vaelrith, the Unflown",
+      "avatar": "Vaelrith, the Unflown.png"
+    }
+  ],
+  "payloadEpoch": "1790927992882-yzpq97"
+}

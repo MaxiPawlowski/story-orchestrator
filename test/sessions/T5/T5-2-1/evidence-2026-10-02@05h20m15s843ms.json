@@ -1,0 +1,4220 @@
+{
+ "capturedAt": "2026-10-02T08:36:27.314Z",
+ "chatId": "2026-10-02@05h20m15s843ms",
+ "groupId": "1790929215846",
+ "unread": {},
+ "slices": {
+  "memory": {
+   "entries": [
+    {
+     "id": "b6e44879-b28a-45b1-918c-35a89e3d1ab5",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Vaelrith, the Unflown is an ancient bronze dragon, alive but grounded and unable to fly for forty years.",
+     "type": "fact",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "I am not dead. I am... grounded.",
+     "messageId": 0,
+     "tokens": 25
+    },
+    {
+     "id": "05dc8cee-70bf-4894-99ea-b3da5632eada",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "The Order of the Silver Lance, commanded by Ser Aldric, built a fortress on Vaelrith's hoard and claims to have slain the dragon.",
+     "type": "fact",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Men who call themselves knights have built a fortress on my hoard and hung my death on their wall like a banner.",
+     "messageId": 0,
+     "tokens": 31
+    },
+    {
+     "id": "ae65f942-60a3-4655-9746-1aa1987317a3",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 6,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "The knights took Vaelrith's hoard, including gold, gems, weapons, name-stones, eggshells, and memory-stones, into a place called the Deep Vault.",
+     "type": "fact",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Bring me everything in the Deep Vault.",
+     "messageId": 6,
+     "tokens": 37
+    },
+    {
+     "id": "edc8aa69-23e5-4de4-9e46-4c39b1856ea2",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 6,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Vaelrith values the non-glittering things—name-stones, eggshells, memory-stones—more than the gold, and has forgotten what they are.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "I value... the rest.",
+     "messageId": 6,
+     "tokens": 35
+    },
+    {
+     "id": "032816af-a3ca-47e6-996d-6ea5eec139ac",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 6,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Vaelrith will pay the crew in gold and more, but only if every item in the Deep Vault is returned.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "If there is a single stone left behind, you will not see a copper.",
+     "messageId": 6,
+     "tokens": 24
+    },
+    {
+     "id": "cb16315f-b5d5-43fc-8fdd-cf92e44dd524",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "The Order of the Silver Lance has held the hoard for twelve years.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Twelve years of lying.",
+     "messageId": 7,
+     "tokens": 14
+    },
+    {
+     "id": "dfac4dbb-61b4-4afe-9a37-12b09296fd8c",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Marlow keeps a leather-bound book of intelligence on marks and clients.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "He produces a small leather-bound book from his coat, flipping through pages with practiced ease.",
+     "messageId": 7,
+     "tokens": 15
+    },
+    {
+     "id": "954a91d9-b407-4490-9101-07e5db8829a7",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 1,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Quill practices lockpicking with a worn practice lock.",
+     "type": "fact",
+     "importance": 1,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Quill doesn't look up from the lock she's picking — a practice lock, worn smooth from years of the same motion.",
+     "messageId": 1,
+     "tokens": 11
+    },
+    {
+     "id": "89600f59-b6b1-41e9-a481-6296ee409e5e",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Vaelrith the dragon is alive and grounded, not slain as the knights claim.",
+     "type": "revelation",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [
+      "Vaelrith"
+     ],
+     "evidence": "They are lying. I am not dead. I am... grounded.",
+     "messageId": 0,
+     "tokens": 17
+    },
+    {
+     "id": "15b8c366-ce35-4376-a78b-b7f663df060d",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 6,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "The hoard's true value to Vaelrith is in name-stones, eggshells, and memory-stones—things it has forgotten and cannot spend.",
+     "type": "revelation",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [
+      "Vaelrith"
+     ],
+     "evidence": "They took things they cannot understand. Name-stones. Eggshells. Memory-stones.",
+     "messageId": 6,
+     "tokens": 32
+    },
+    {
+     "id": "4f72e2cb-5f75-4fdf-b144-2ee734d6d87a",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Ser Aldric commands the stronghold of the Order of the Silver Lance.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [
+      "Ser Aldric"
+     ],
+     "evidence": "The Order of the Silver Lance. Ser Aldric, commander of the stronghold.",
+     "messageId": 7,
+     "tokens": 14
+    },
+    {
+     "id": "cb898a25-dcf9-45a7-a61d-be938bafd052",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Marlow negotiates for the full truth about the Deep Vault, warning he charges a premium to be the dragon's memory.",
+     "type": "development",
+     "importance": 2,
+     "expiration": "session",
+     "entities": [
+      "Marlow",
+      "Vaelrith"
+     ],
+     "evidence": "if you're asking us to be your memory, you might find we charge a premium for that service.",
+     "messageId": 7,
+     "tokens": 26
+    },
+    {
+     "id": "d77af309-55ee-4c2d-8aaa-2687b6ea5988",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Quill challenges the job, demanding to know what actually guards the Deep Vault beyond an oath.",
+     "type": "development",
+     "importance": 2,
+     "expiration": "session",
+     "entities": [
+      "Quill",
+      "Vaelrith"
+     ],
+     "evidence": "Tell me what the *lock* is. Tell me what's actually guarding those vaults besides 'an oath.'",
+     "messageId": 8,
+     "tokens": 19
+    },
+    {
+     "id": "987d3fb4-ea8a-4965-8bc5-27fe4b9fbe8b",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Quill is a lockpick who cares about spendable coin, not sentimental value.",
+     "type": "detail",
+     "importance": 1,
+     "expiration": "session",
+     "entities": [
+      "Quill"
+     ],
+     "evidence": "I'm a lockpick, not a historian. I don't care what you *value*—I care what I can spend.",
+     "messageId": 8,
+     "tokens": 17
+    },
+    {
+     "id": "3ba68297-f282-48b1-bb2a-94d89cf9c05c",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Marlow is the crew's face, performing theatrical warmth for clients and marks.",
+     "type": "detail",
+     "importance": 1,
+     "expiration": "session",
+     "entities": [
+      "Marlow"
+     ],
+     "evidence": "his expression brightening into that theatrical warmth he saves for clients and marks",
+     "messageId": 7,
+     "tokens": 17
+    },
+    {
+     "id": "73be8451-455e-4d36-933a-bf500325b507",
+     "confidence": 0.45,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 3,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Brannoc is the crew's muscle, sizing up jobs like doors he might have to go through.",
+     "type": "detail",
+     "importance": 1,
+     "expiration": "session",
+     "entities": [
+      "Brannoc"
+     ],
+     "evidence": "the way a man sizes up a door he might have to go through",
+     "messageId": 3,
+     "tokens": 22
+    },
+    {
+     "id": "2f16cfc8-13d8-4a18-8ace-501f5a2591c2",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "scene-summary",
+      "validity": "live"
+     },
+     "tier": "scene_history",
+     "text": "Vaelrith the Unflown, a grounded bronze dragon, hired the thieves to steal back its hoard from the Order of the Silver Lance, who had built a fortress on it and declared the dragon dead. Marlow pressed for the truth behind the Deep Vault, while Quill demanded to know the real lock and payment. The scene carried a tense, wary tone as the crew weighed a job that was either the best or the last.",
+     "type": "scene",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Vaelrith, the Unflown: The lair smells of cold stone and old metal. At its center, coiled in a hollow too small for it, an enormous bronze-scaled shape shifts and settles, and one eye the color of a dying ember opens and finds you.\n\n\"You are the thieves,\" Vaelrith says. It is not a question. The voice is slow, like a landslide deciding to be a sentence. \"Good. I have a job for you, and I will pay in gold I have not seen in forty years, because it is no longer mine. Men who call themselves knights have built a fortress on my hoard and hung my death on their wall like a banner. They are lying. I am not dead. I am... grounded.\"\n\nThe eye does not blink.\n\n\"Steal it back. All of it. And when you stand in the vault and see what they could never spend, you will tell me what it is — because I have forgotten, and I do not trust the memory of a creature that has not flown in forty years.\"\nQuill: Quill doesn't look up from the lock she's picking — a practice lock, worn smooth from years of the same motion. \"So. A dragon wants its own gold stolen back from the men who say they killed it.\" She sets the pick down and finally meets your eyes. \"That's either the best job I've ever heard or the last one. Which is it?\"\nMarlow: *Marlow swirls his wine, watching the tavern door.* \"A dragon. Hiring thieves. To rob the men who say they killed it.\" *He sets the glass down with a click.* \"I've sold a lot of lies in my life, friend. This is the first one I'd pay to hear the end of.\"\nBrannoc: Brannoc sets down his tankard and looks the newcomer over once, unhurried, the way a man sizes up a door he might have to go through. \"You're the one with the job,\" he says. \"So talk. What are we breaking, and who's paying?\"\nSer Aldric: Ser Aldric does not look up from the ledger on his desk when the door opens. \"You are late,\" he says, to whoever has entered. \"The vault inspection was at noon. I do not repeat myself, and I do not forgive it twice.\" Only then does he raise his eyes, and there is nothing warm in them at all.\nMax Nightriver: I step down into the lair and bow to the dragon. Vaelrith, tell us exactly what the knights took, and what it is worth to you.\nVaelrith, the Unflown: \"The knights took everything that was not nailed to the floor or too heavy for their horses to carry,\" *the dragon's voice is a low rumble that vibrates in the stone floor, one eye narrowing as it regards the bow with something like amusement.* \"They took the gold — forty years of it, gathered from a hundred ships and a thousand traders. They took the gems. They took the weapons.\" *The massive bronze head tilts, a slow, creaking movement.* \"But those are the things men value. I value... the rest.\"\n*Vaelrith shifts its weight, and the scales scrape against the stone with the sound of grinding plates.* \"They took things they cannot understand. Name-stones. Eggshells. Memory-stones. Things that do not glitter and cannot be spent in a market. To them, they are curiosities. To me... they are pieces of what I was before they called me dead.\"\n*The dragon's breath is hot, smelling of old sulfur and patience.* \"What it is worth? Enough that I will give you the gold you crave, and more. The hoard's worth is in the return, not the value. Bring me everything in the Deep Vault. If there is a single stone left behind, you will not see a copper.\"\n*One claw extends, resting heavily on the floor between you.* \"And you will tell me, when you see it, which of those things is more precious: the gold, or the memories I have forgotten.\"\nMarlow: *He steps forward, his expression brightening into that theatrical warmth he saves for clients and marks. He doesn't bow; he merely tilts his head in a gesture that acknowledges status without surrendering to it.* \"A fair request, though I suspect you'd prefer we ask questions you've already answered.\"\n*He produces a small leather-bound book from his coat, flipping through pages with practiced ease.* \"The Order of the Silver Lance. Ser Aldric, commander of the stronghold. Twelve years of lying. They've built their entire reputation on this... performance of yours.\" *His eyes gleam with something between respect and relish.* \"Most men would call that a challenge. I call it a script.\"\n*Marlow looks back at the crew, then returns his gaze to Vaelrith.* \"We'll take it all. Gold, name-stones, memory-fragments—whatever this 'Deep Vault' is hiding. But if you're asking us to be your memory, you might find we charge a premium for that service.\" *The smile remains, but there's a sharp edge beneath it.* \"And I'll need the truth about what's in there. Not the half-truth you give to everyone else. A man can only sell a lie this big if he knows where the seams are.\"\nQuill: \"Hold it,\" *she says, her voice cutting through Marlow's theatrics like a razor.* \"I'm not hearing anything about gold right now. I'm hearing about name-stones and eggshells and memory-junk. Things that don't sell. Things that won't clear a guild ledger.\"\n*She steps into the dragon's light, her hands in her pockets, her eyes hard and flat. She doesn't bow, doesn't tilt her head, doesn't perform at all.* \"I'm a lockpick, not a historian. I don't care what you *value*—I care what I can spend. If you're paying in old coin, fine. But if this is just you trying to get your scrapbook back, then you're hiring the wrong crew.\"\n*Her fingers twitch at her sides, the ghost of a picking motion.* \"The Deep Vault. That's what you said. You expect me to walk in there, find these things, and carry them out—what? In a sack? And tell me this—if the knights took what you say they took, they've had it for twelve years. Why aren't the locks simple? Why hasn't some other thief already walked in there and taken it?\"\n*She looks at Vaelrith, really looks at the dragon, searching for the lie.* \"Tell me what the *lock* is. Tell me what's actually guarding those vaults besides 'an oath.' Because I can pick a lock. I can't pick a promise.\"",
+     "messageId": 8,
+     "tokens": 86
+    },
+    {
+     "id": "e7efb34b-d140-4c7d-89f0-ca6740bcb8b7",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 8,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 14,
+      "boundary": 8,
+      "pass": "short-term-compaction",
+      "validity": "live"
+     },
+     "tier": "short_term",
+     "text": "Vaelrith, the Unflown, a bronze dragon grounded for forty years, hired the crew to steal back its hoard from the Order of the Silver Lance, who built a fortress on it under Ser Aldric and claimed to have killed the dragon. The dragon asked them to retrieve everything from the Deep Vault, especially the name-stones, eggshells, and memory-stones, and to tell it which is more precious: the gold or the memories it has forgotten. Quill demanded to know the true cost of the oath-lock, Marlow gathered intelligence on the stronghold, and Brannoc insisted no one be left behind. Max Nightriver accepted the job, and the crew agreed to case the stronghold that night while Vaelrith waits in the dark.",
+     "type": "scene",
+     "importance": 2,
+     "expiration": "session",
+     "entities": [],
+     "evidence": "Vaelrith, the Unflown: The lair smells of cold stone and old metal. At its center, coiled in a hollow too small for it, an enormous bronze-scaled shape shifts and settles, and one eye the color of a dying ember opens and finds you.\n\n\"You are the thieves,\" Vaelrith says. It is not a question. The voice is slow, like a landslide deciding to be a sentence. \"Good. I have a job for you, and I will pay in gold I have not seen in forty years, because it is no longer mine. Men who call themselves knights have built a fortress on my hoard and hung my death on their wall like a banner. They are lying. I am not dead. I am... grounded.\"\n\nThe eye does not blink.\n\n\"Steal it back. All of it. And when you stand in the vault and see what they could never spend, you will tell me what it is — because I have forgotten, and I do not trust the memory of a creature that has not flown in forty years.\"\nQuill: Quill doesn't look up from the lock she's picking — a practice lock, worn smooth from years of the same motion. \"So. A dragon wants its own gold stolen back from the men who say they killed it.\" She sets the pick down and finally meets your eyes. \"That's either the best job I've ever heard or the last one. Which is it?\"\nMarlow: *Marlow swirls his wine, watching the tavern door.* \"A dragon. Hiring thieves. To rob the men who say they killed it.\" *He sets the glass down with a click.* \"I've sold a lot of lies in my life, friend. This is the first one I'd pay to hear the end of.\"\nBrannoc: Brannoc sets down his tankard and looks the newcomer over once, unhurried, the way a man sizes up a door he might have to go through. \"You're the one with the job,\" he says. \"So talk. What are we breaking, and who's paying?\"\nSer Aldric: Ser Aldric does not look up from the ledger on his desk when the door opens. \"You are late,\" he says, to whoever has entered. \"The vault inspection was at noon. I do not repeat myself, and I do not forgive it twice.\" Only then does he raise his eyes, and there is nothing warm in them at all.\nMax Nightriver: I step down into the lair and bow to the dragon. Vaelrith, tell us exactly what the knights took, and what it is worth to you.\nVaelrith, the Unflown: \"The knights took everything that was not nailed to the floor or too heavy for their horses to carry,\" *the dragon's voice is a low rumble that vibrates in the stone floor, one eye narrowing as it regards the bow with something like amusement.* \"They took the gold — forty years of it, gathered from a hundred ships and a thousand traders. They took the gems. They took the weapons.\" *The massive bronze head tilts, a slow, creaking movement.* \"But those are the things men value. I value... the rest.\"\n*Vaelrith shifts its weight, and the scales scrape against the stone with the sound of grinding plates.* \"They took things they cannot understand. Name-stones. Eggshells. Memory-stones. Things that do not glitter and cannot be spent in a market. To them, they are curiosities. To me... they are pieces of what I was before they called me dead.\"\n*The dragon's breath is hot, smelling of old sulfur and patience.* \"What it is worth? Enough that I will give you the gold you crave, and more. The hoard's worth is in the return, not the value. Bring me everything in the Deep Vault. If there is a single stone left behind, you will not see a copper.\"\n*One claw extends, resting heavily on the floor between you.* \"And you will tell me, when you see it, which of those things is more precious: the gold, or the memories I have forgotten.\"\nMarlow: *He steps forward, his expression brightening into that theatrical warmth he saves for clients and marks. He doesn't bow; he merely tilts his head in a gesture that acknowledges status without surrendering to it.* \"A fair request, though I suspect you'd prefer we ask questions you've already answered.\"\n*He produces a small leather-bound book from his coat, flipping through pages with practiced ease.* \"The Order of the Silver Lance. Ser Aldric, commander of the stronghold. Twelve years of lying. They've built their entire reputation on this... performance of yours.\" *His eyes gleam with something between respect and relish.* \"Most men would call that a challenge. I call it a script.\"\n*Marlow looks back at the crew, then returns his gaze to Vaelrith.* \"We'll take it all. Gold, name-stones, memory-fragments—whatever this 'Deep Vault' is hiding. But if you're asking us to be your memory, you might find we charge a premium for that service.\" *The smile remains, but there's a sharp edge beneath it.* \"And I'll need the truth about what's in there. Not the half-truth you give to everyone else. A man can only sell a lie this big if he knows where the seams are.\"\nQuill: \"Hold it,\" *she says, her voice cutting through Marlow's theatrics like a razor.* \"I'm not hearing anything about gold right now. I'm hearing about name-stones and eggshells and memory-junk. Things that don't sell. Things that won't clear a guild ledger.\"\n*She steps into the dragon's light, her hands in her pockets, her eyes hard and flat. She doesn't bow, doesn't tilt her head, doesn't perform at all.* \"I'm a lockpick, not a historian. I don't care what you *value*—I care what I can spend. If you're paying in old coin, fine. But if this is just you trying to get your scrapbook back, then you're hiring the wrong crew.\"\n*Her fingers twitch at her sides, the ghost of a picking motion.* \"The Deep Vault. That's what you said. You expect me to walk in there, find these things, and carry them out—what? In a sack? And tell me this—if the knights took what you say they took, they've had it for twelve years. Why aren't the locks simple? Why hasn't some other thief already walked in there and taken it?\"\n*She looks at Vaelrith, really looks at the dragon, searching for the lie.* \"Tell me what the *lock* is. Tell me what's actually guarding those vaults besides 'an oath.' Because I can pick a lock. I can't pick a promise.\"\nBrannoc: *The broad-shouldered enforcer has been standing in the shadows, arms crossed over his chest, watching. He hasn't moved or spoken since entering the lair, his presence less a person and more a weight in the room.* \"Enough.\" *His voice is gravel, low and flat.* \"The dragon says the vault is guarded by an oath-lock. That it opens only to a sworn hand.\" *He shifts his gaze to Max, eyes hard as flint.* \"I've heard that story before. A man swears an oath, and his blood or his word or his breath is the key. Usually means the man who has to open it doesn't walk away afterward.\"\n*He takes a single step forward, his boots heavy on the stone.* \"I'm muscle, not a suicide. If the way in requires someone's life, then I want to know whose. Because if it's mine, the price just doubled. And if it's not mine—if it's one of you—then we need to discuss what happens when that door opens.\"\n*His stare is unflinching.* \"This isn't a job. It's a funeral waiting for a body. So let's be honest: what does that oath-lock *actually* cost?\"\nMax Nightriver: Quill, Marlow, Brannoc: we take the job. Tonight we case the stronghold.\nQuill: \"Tonight.\" *The word is flat, final. She pulls a roll of tools from her coat—fine-tipped picks, a small vial of oil, a wedge of hardened steel.* \"Fine. But we do this my way. No one goes anywhere until I've mapped every entrance, every guard rotation, every potential way out.\" *Her eyes are already calculating, scanning the space as if visualizing the stronghold.* \"And if that oath-lock costs blood, I want to know exactly whose before we walk through that door.\"\nMarlow: *He snaps his small leather-bound book shut with a crisp sound. The theatrical warmth has vanished, replaced by the sharp focus of a man who has just stopped performing and started working.* \"Tonight it is.\" *He adjusts his coat, his expression one of quiet calculation.* \"I'll have the stronghold's layout, guard shifts, and every name on the roster by dawn. If there's a gap in their routine, I'll find it.\"\n*He looks at Vaelrith with something that might be respect, if it weren't so much like an appraisal.* \"You have the gold ready. Every coin you mentioned. We'll be back before the knights even know what's missing.\" *His gaze shifts to Max.* \"And I expect the same from you—what you promised to bring.\"\nBrannoc: *The enforcer's scarred face is unreadable as he looks from the dragon to the rest of the crew. He says nothing for a long moment, then simply nods once—a slow, deliberate gesture.* \"I'll be the one holding the door,\" *he says, his voice low and steady.* \"But when the time comes, we're not leaving anyone behind. Not for gold, not for memories, not for anything.\"\n*He straightens up, his broad shoulders blocking out a piece of the light in the lair.* \"Get the map, get the names. I'll start thinking about how to break that lock—or how to survive it.\" *Without another word, he turns and heads for the exit, his heavy footfalls echoing against the stone.*\nVaelrith, the Unflown: *The dragon's ember-colored eye follows each of them as they turn to leave, and for a moment there is something in its gaze that might be trust—or might merely be the hope of a desperate thing.* \"Tonight, then.\" *The words are like a promise and a threat in the same breath.* \"I will be waiting here, in the dark. Do not disappoint me, thieves.\"\n*The great bronze head settles back into the hollow, the movement slow and heavy.* \"And remember what I said about the vault. The gold is for your greed. The rest... the rest is for me.\" *A final warning, low and sharp.* \"I will know if you touch it. I will know if you look at it too long. Bring me my things whole, and we all survive this night.\"\n*The lair grows quiet again, save for the slow, steady sound of the dragon's breathing—a rhythm like the tide of a dead sea.*",
+     "messageId": 14,
+     "tokens": 152
+    },
+    {
+     "id": "e4017569-24b9-41e6-a27f-8a08c4dc978a",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 8,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 9,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Brannoc warns that an oath-lock requiring a sworn hand usually means the one who opens it does not survive.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Usually means the man who has to open it doesn't walk away afterward.",
+     "messageId": 9,
+     "tokens": 24
+    },
+    {
+     "id": "830ccb92-2e60-4e84-ad29-2516bdb5fb91",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 8,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 9,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Brannoc demands to know whose life the oath-lock costs before the crew proceeds.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "If the way in requires someone's life, then I want to know whose.",
+     "messageId": 9,
+     "tokens": 18
+    },
+    {
+     "id": "665ebd4a-ff6f-4515-a8cc-43b9355f02d3",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 8,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 10,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Max Nightriver commits the crew to the job and orders them to case the stronghold tonight.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Quill, Marlow, Brannoc: we take the job. Tonight we case the stronghold.",
+     "messageId": 10,
+     "tokens": 18
+    },
+    {
+     "id": "1b0585da-8da5-45af-acc2-3659fffe5e09",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 8,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 11,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Quill insists on leading the reconnaissance, mapping every entrance, guard rotation, and exit before anyone enters.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "No one goes anywhere until I've mapped every entrance, every guard rotation, every potential way out.",
+     "messageId": 11,
+     "tokens": 21
+    },
+    {
+     "id": "8cc78c87-e0c2-4fa1-a69c-992a1b0369bc",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 8,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 12,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Marlow promises the stronghold's layout, guard shifts, and roster by dawn.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "I'll have the stronghold's layout, guard shifts, and every name on the roster by dawn.",
+     "messageId": 12,
+     "tokens": 17
+    },
+    {
+     "id": "43a4651c-aa04-426d-8b05-845cc4423f4e",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 8,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 12,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Marlow expects Max to deliver what Max promised to bring.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "And I expect the same from you—what you promised to bring.",
+     "messageId": 12,
+     "tokens": 12
+    },
+    {
+     "id": "78448fe9-05fb-4769-80bb-90f4a7ce036f",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 8,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 9,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Brannoc warns that oath-locks keyed to a sworn hand typically kill the one who opens them, and refuses to be that sacrifice unknowingly.",
+     "type": "revelation",
+     "importance": 2,
+     "expiration": "session",
+     "entities": [
+      "Brannoc"
+     ],
+     "evidence": "Usually means the man who has to open it doesn't walk away afterward.",
+     "messageId": 9,
+     "tokens": 29
+    },
+    {
+     "id": "d04902ee-2927-45f7-8f9e-11e472ab58be",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 8,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 11,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Quill carries fine-tipped picks, a vial of oil, and a hardened steel wedge in her tool roll.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "session",
+     "entities": [
+      "Quill"
+     ],
+     "evidence": "fine-tipped picks, a small vial of oil, a wedge of hardened steel",
+     "messageId": 11,
+     "tokens": 23
+    },
+    {
+     "id": "41ff3493-dac3-4776-94bc-90fba8514021",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 8,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 12,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Marlow keeps a small leather-bound book of intelligence and snaps it shut when he shifts from performance to work.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "session",
+     "entities": [
+      "Marlow"
+     ],
+     "evidence": "He snaps his small leather-bound book shut with a crisp sound.",
+     "messageId": 12,
+     "tokens": 23
+    },
+    {
+     "id": "8f547699-e5e0-44c7-be51-3e1370adc030",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 8,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 9,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "The lair is stone-floored, with Brannoc's boots heavy on it as he steps forward.",
+     "type": "detail",
+     "importance": 1,
+     "expiration": "session",
+     "entities": [
+      "Vaelrith"
+     ],
+     "evidence": "his boots heavy on the stone",
+     "messageId": 9,
+     "tokens": 23
+    },
+    {
+     "id": "4f4f3fc4-5890-4948-92ba-ec137325c09f",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 8,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 10,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "The crew is still in Vaelrith's lair, finalizing terms before departing to case the stronghold tonight.",
+     "type": "scene",
+     "importance": 2,
+     "expiration": "scene",
+     "entities": [
+      "Vaelrith"
+     ],
+     "evidence": "Tonight we case the stronghold.",
+     "messageId": 10,
+     "tokens": 22
+    }
+   ],
+   "excluded": [],
+   "writeLog": [
+    {
+     "key": "facts:shared",
+     "range": {
+      "from": 0,
+      "to": 8
+     },
+     "appliedAt": 1790930016242
+    },
+    {
+     "key": "session_details:shared",
+     "range": {
+      "from": 0,
+      "to": 8
+     },
+     "appliedAt": 1790930016242
+    },
+    {
+     "key": "scene_history:shared",
+     "range": {
+      "from": 0,
+      "to": 8
+     },
+     "appliedAt": 1790930019481
+    },
+    {
+     "key": "facts:shared",
+     "range": {
+      "from": 9,
+      "to": 12
+     },
+     "appliedAt": 1790930150358
+    },
+    {
+     "key": "session_details:shared",
+     "range": {
+      "from": 9,
+      "to": 12
+     },
+     "appliedAt": 1790930150358
+    }
+   ],
+   "settings": {
+    "enabled": true,
+    "epistemicLedgerCapable": true,
+    "injectionDepths": {
+     "facts": 4,
+     "session_details": 3,
+     "short_term": 2,
+     "scene_history": 6
+    },
+    "tierBudgets": {
+     "facts": 50,
+     "session_details": 40,
+     "short_term": 10,
+     "scene_history": 30
+    },
+    "tierTokenBudgets": {
+     "facts": 800,
+     "session_details": 600,
+     "short_term": 300,
+     "scene_history": 500
+    },
+    "chapters": {
+     "seal": false,
+     "storySoFar": false,
+     "fold": false,
+     "chronicleTokens": 700,
+     "chapterTokens": 500,
+     "threadTokens": 150,
+     "recap": true,
+     "dossierWindow": 12,
+     "archiveRecall": false,
+     "recallTokens": 200,
+     "eraSeals": false,
+     "foldEras": false,
+     "eraMessages": 300
+    }
+   },
+   "backfill": null,
+   "sceneCount": 1,
+   "shortTermSummaryEnd": 14,
+   "wiWrites": {},
+   "wiBook": null,
+   "arcs": [
+    {
+     "id": "9eb3d07a-35a3-4f18-8ee8-bdbe51014e05",
+     "text": "The crew must break into the Deep Vault and recover every item of Vaelrith's hoard, or forfeit payment.",
+     "status": "open",
+     "entities": [],
+     "openedAt": 4,
+     "openedMessageId": 8
+    },
+    {
+     "id": "6b134fb0-15a0-436e-af46-1a4141012531",
+     "text": "Quill's unanswered question: what actually guards the Deep Vault beyond the knights' oath?",
+     "status": "open",
+     "entities": [],
+     "openedAt": 4,
+     "openedMessageId": 8
+    },
+    {
+     "id": "666c2b0e-c5be-4b90-a107-74779a1eb333",
+     "text": "Marlow's demand for the full truth about the Deep Vault's contents remains unmet by Vaelrith.",
+     "status": "open",
+     "entities": [],
+     "openedAt": 4,
+     "openedMessageId": 8
+    },
+    {
+     "id": "e050ae05-76f9-4c5a-b26f-d593d94ee047",
+     "text": "Ser Aldric and the Order of the Silver Lance's twelve-year lie about the dragon's death could unravel.",
+     "status": "open",
+     "entities": [],
+     "openedAt": 4,
+     "openedMessageId": 8
+    },
+    {
+     "id": "9266cd20-3ce2-40bd-9879-121b1f271427",
+     "text": "Brannoc's demand: whose life does the oath-lock cost, and what happens when the door opens?",
+     "status": "open",
+     "entities": [],
+     "openedAt": 8,
+     "openedMessageId": 12
+    },
+    {
+     "id": "9ff79380-ca3d-4414-bcd2-57e2527257a7",
+     "text": "Max's unstated promise to Marlow — what Max agreed to bring — remains undelivered.",
+     "status": "open",
+     "entities": [],
+     "openedAt": 8,
+     "openedMessageId": 12
+    }
+   ],
+   "epistemic": [
+    {
+     "id": "62c843b3-f0a2-4a7f-a293-860cac906e91",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "epistemic:unaware",
+      "validity": "live"
+     },
+     "subject": "Ser Aldric",
+     "tag": "unaware",
+     "content": "Vaelrith is alive and has hired thieves to reclaim its hoard",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "1b689305-b269-4e71-89ab-830a940c77e0",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Marlow",
+     "tag": "intends",
+     "content": "to take the whole job but extract the full truth about the Deep Vault first",
+     "createdAt": 4,
+     "messageId": 8,
+     "supersededBy": "retired@4",
+     "retiredAt": {
+      "messageId": 8,
+      "boundary": 4
+     }
+    },
+    {
+     "id": "8b693e84-3f20-4cb3-9efc-719127c56ac4",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Quill",
+     "tag": "intends",
+     "content": "to learn what actually guards the Deep Vault before committing",
+     "createdAt": 4,
+     "messageId": 8,
+     "supersededBy": "retired@4",
+     "retiredAt": {
+      "messageId": 8,
+      "boundary": 4
+     }
+    },
+    {
+     "id": "52c8f361-5cb9-4aae-8a49-960a586e08a3",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "epistemic:knows",
+      "validity": "live"
+     },
+     "subject": "Ser Aldric",
+     "tag": "knows",
+     "content": "the vault inspection was scheduled for noon",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "ef63b25e-a6da-49be-8b9f-4f98e5eda1d5",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "epistemic:believes",
+      "validity": "live"
+     },
+     "subject": "Ser Aldric",
+     "tag": "believes",
+     "content": "the person entering his office is the one who missed the noon vault inspection",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "1dd47f47-ebcf-488b-960c-b35e8d63a564",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "epistemic:hiding",
+      "validity": "live"
+     },
+     "subject": "Marlow",
+     "tag": "hiding",
+     "content": "that he wants the full truth about the Deep Vault before committing, and will charge a premium for it",
+     "hiddenFrom": "Vaelrith",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "e9cb03c8-bbf9-4a94-bc37-2503953c92e0",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "epistemic:hiding",
+      "validity": "live"
+     },
+     "subject": "Quill",
+     "tag": "hiding",
+     "content": "that she doubts the job's value and is probing for the real guardian before committing",
+     "hiddenFrom": "Vaelrith",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "308a0dc3-30ed-4bd8-97fd-ec8a41d10d9e",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Marlow",
+     "tag": "intends",
+     "content": "to extract the truth about what is in the Deep Vault, not the half-truth given to others",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "3bd18c16-56eb-4818-a377-1c8e64ff6107",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Quill",
+     "tag": "intends",
+     "content": "to learn what actually guards the Deep Vault before committing",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "b5995fed-e517-4e39-a8e6-ce327b6531ba",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "epistemic:suspects",
+      "validity": "live"
+     },
+     "subject": "Quill",
+     "tag": "suspects",
+     "content": "that Vaelrith is concealing the true nature of the vault's guardian",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "0e1b7b50-96d7-4720-88c9-5ae434b512a6",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "epistemic:unaware",
+      "validity": "live"
+     },
+     "subject": "Vaelrith",
+     "tag": "unaware",
+     "content": "that Quill and Marlow each intend to withhold commitment until they learn the vault's true secret",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "42ef0a7d-94f7-4fb5-94a6-5cb1ab60b416",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 12,
+      "boundary": 8,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Quill",
+     "tag": "intends",
+     "content": "To map every entrance, guard rotation, and exit before anyone enters the stronghold.",
+     "createdAt": 8,
+     "messageId": 12
+    },
+    {
+     "id": "00b84721-fa87-4329-9e4b-b73aaf92bac9",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 12,
+      "boundary": 8,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Marlow",
+     "tag": "intends",
+     "content": "To obtain the stronghold's layout, guard shifts, and roster by dawn.",
+     "createdAt": 8,
+     "messageId": 12
+    },
+    {
+     "id": "7c76c960-361e-4712-87bc-121054e7d8c2",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 12,
+      "boundary": 8,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Brannoc",
+     "tag": "intends",
+     "content": "To learn whose life the oath-lock costs before committing.",
+     "createdAt": 8,
+     "messageId": 12
+    }
+   ],
+   "ledger": [
+    {
+     "id": "e8364302-007f-4bd5-b7e0-d36a06d4008f",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith",
+     "entityType": "character",
+     "field": "status",
+     "value": "alive",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "260c6b2b-0341-4136-99fc-6cacd1a4be3b",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith",
+     "entityType": "character",
+     "field": "condition",
+     "value": "grounded, cannot fly",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "2171817c-6c7e-4823-a20b-18a3e7d35fb8",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith",
+     "entityType": "character",
+     "field": "location",
+     "value": "lair",
+     "createdAt": 4,
+     "messageId": 8,
+     "confirmedAt": 8,
+     "confirmedMessageId": 12
+    },
+    {
+     "id": "052707f4-e7fe-44e9-82f4-46c28469e825",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith",
+     "entityType": "character",
+     "field": "appearance",
+     "value": "bronze-scaled, ember-colored eye",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "8736848c-7102-488b-a826-bebe7d773dd6",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Ser Aldric",
+     "entityType": "character",
+     "field": "role",
+     "value": "commander of the Order of the Silver Lance",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "81ac4707-8751-46d9-b302-42ad1fab60cc",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Ser Aldric",
+     "entityType": "character",
+     "field": "location",
+     "value": "stronghold",
+     "createdAt": 4,
+     "messageId": 8,
+     "confirmedAt": 4,
+     "confirmedMessageId": 8
+    },
+    {
+     "id": "368efd10-ab74-43ae-b1e4-f1e5e9285042",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Quill",
+     "entityType": "character",
+     "field": "role",
+     "value": "lockpick",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "76640f9c-cf27-47ca-a9dd-03bcbeafa8e3",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Marlow",
+     "entityType": "character",
+     "field": "role",
+     "value": "face",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "97c53d5f-1e2d-4dec-a0a1-170e2a2539f9",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Brannoc",
+     "entityType": "character",
+     "field": "role",
+     "value": "muscle",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "db7d088a-6375-46f7-8a62-47bd567e54b5",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith, the Unflown",
+     "entityType": "character",
+     "field": "location",
+     "value": "lair",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "8d8075fa-8552-4cb8-8a57-cbac58c2c610",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith, the Unflown",
+     "entityType": "character",
+     "field": "injuries",
+     "value": "grounded",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "d1cf46e0-56ee-42a8-8226-c231eba9064c",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith, the Unflown",
+     "entityType": "character",
+     "field": "mood",
+     "value": "amused",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "51b9b75b-ad0f-4598-9d3f-de92361148c0",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith, the Unflown",
+     "entityType": "character",
+     "field": "active_goal",
+     "value": "recover stolen hoard from the Deep Vault",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "f6764261-1d60-422b-8263-1d05e7115fdf",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Quill",
+     "entityType": "character",
+     "field": "location",
+     "value": "lair",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "bf6a4d0a-9af4-4f34-9049-3a9ec97fd560",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Quill",
+     "entityType": "character",
+     "field": "mood",
+     "value": "hard, skeptical",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "36386832-0946-43e8-902e-4ca872a818ae",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Quill",
+     "entityType": "character",
+     "field": "active_goal",
+     "value": "determine the lock guarding the Deep Vault",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "72438197-50dc-4250-96bf-9f574436ca45",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Quill",
+     "entityType": "character",
+     "field": "carried_items",
+     "value": "practice lock, lockpicks",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "b97cfe14-ab07-4898-99f7-9008d04c992d",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Marlow",
+     "entityType": "character",
+     "field": "location",
+     "value": "lair",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "0114dc87-4dd0-4235-a0b2-f118b9a93d7a",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Marlow",
+     "entityType": "character",
+     "field": "mood",
+     "value": "theatrical, sharp",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "579d4d33-966d-46d8-8c04-a3e98e3cb078",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Marlow",
+     "entityType": "character",
+     "field": "active_goal",
+     "value": "negotiate terms and learn the truth about the Deep Vault",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "a610d5b0-6bfd-4971-b111-2fb166ea3352",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Marlow",
+     "entityType": "character",
+     "field": "carried_items",
+     "value": "small leather-bound book",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "501561ed-1745-403e-9548-3f257e39dd10",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Brannoc",
+     "entityType": "character",
+     "field": "location",
+     "value": "lair",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "41d88356-54e2-4526-bc2a-947944bb1091",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Brannoc",
+     "entityType": "character",
+     "field": "mood",
+     "value": "unhurried, assessing",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "a9c38fd9-7228-42e3-beb7-566b6010435d",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Brannoc",
+     "entityType": "character",
+     "field": "active_goal",
+     "value": "learn the job details and who is paying",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "193649e7-b3d6-474d-9e1d-c7395104ebfd",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Brannoc",
+     "entityType": "character",
+     "field": "carried_items",
+     "value": "tankard",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "e243cbc6-7bd4-4943-91b4-e6a80806db54",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Ser Aldric",
+     "entityType": "character",
+     "field": "mood",
+     "value": "cold",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "5d79340c-200b-4cfe-a560-0fd3cbfbc6e4",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Ser Aldric",
+     "entityType": "character",
+     "field": "active_goal",
+     "value": "enforce vault inspection schedule",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "48b918c7-f444-4ba4-963b-0c36768c8917",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Ser Aldric",
+     "entityType": "character",
+     "field": "carried_items",
+     "value": "ledger",
+     "createdAt": 4,
+     "messageId": 8
+    },
+    {
+     "id": "9db88a59-8cfa-47b2-9510-823a68a28214",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 12,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith",
+     "entityType": "character",
+     "field": "status",
+     "value": "grounded",
+     "createdAt": 8,
+     "supersedes": "e8364302-007f-4bd5-b7e0-d36a06d4008f",
+     "messageId": 12
+    },
+    {
+     "id": "49c38cb0-b35e-4bfa-bca5-8c94378e105d",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 12,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Quill",
+     "entityType": "character",
+     "field": "equipment",
+     "value": "fine-tipped picks, vial of oil, hardened steel wedge",
+     "createdAt": 8,
+     "messageId": 12
+    },
+    {
+     "id": "446c14da-5631-413e-bf95-ed37c7f4ea77",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 12,
+      "boundary": 8,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Marlow",
+     "entityType": "character",
+     "field": "equipment",
+     "value": "small leather-bound intelligence book",
+     "createdAt": 8,
+     "messageId": 12
+    }
+   ],
+   "canon": null,
+   "verifyDrops": [
+    {
+     "entry": {
+      "id": "36cdd128-a020-414a-b6fe-35d378d75341",
+      "confidence": 1,
+      "activationTriggers": [],
+      "createdAt": 8,
+      "recallCount": 0,
+      "provenance": {
+       "source": "extractor",
+       "messageId": 10,
+       "boundary": 8,
+       "pass": "shared-read",
+       "validity": "live"
+      },
+      "tier": "session_details",
+      "text": "Max commits the crew to the heist and they accept, each naming their role: Quill on reconnaissance, Marlow on intelligence, Brannoc on the oath-lock's cost.",
+      "type": "development",
+      "importance": 3,
+      "expiration": "permanent",
+      "entities": [
+       "Max Nightriver",
+       "Quill",
+       "Marlow",
+       "Brannoc"
+      ],
+      "evidence": "Quill, Marlow, Brannoc: we take the job. Tonight we case the stronghold.",
+      "messageId": 10
+     },
+     "p": 0.17,
+     "at": "2026-10-02T08:35:47.842Z",
+     "model": "jev-1.13.0"
+    }
+   ],
+   "derived": [
+    {
+     "boundary": 4,
+     "messageId": 8,
+     "kind": "scene_summary",
+     "inputs": [],
+     "outputId": "2f16cfc8-13d8-4a18-8ace-501f5a2591c2",
+     "range": {
+      "from": 0,
+      "to": 8
+     },
+     "removed": [
+      {
+       "id": "64d9db18-dac2-4de7-8f8c-98c7f1c50c0e",
+       "confidence": 1,
+       "activationTriggers": [],
+       "createdAt": 4,
+       "recallCount": 0,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 0,
+        "boundary": 4,
+        "pass": "shared-read",
+        "validity": "live"
+       },
+       "tier": "session_details",
+       "text": "The crew meets Vaelrith in its lair: cold stone, old metal, a hollow too small for the dragon's coiled bronze body.",
+       "type": "scene",
+       "importance": 2,
+       "expiration": "scene",
+       "entities": [
+        "Vaelrith"
+       ],
+       "evidence": "The lair smells of cold stone and old metal.",
+       "messageId": 0,
+       "tokens": 29
+      }
+     ],
+     "id": "4a04de4a-680d-42df-8e98-927b9344a025"
+    },
+    {
+     "boundary": 8,
+     "messageId": 14,
+     "kind": "short_term",
+     "inputs": [],
+     "outputId": "e7efb34b-d140-4c7d-89f0-ca6740bcb8b7",
+     "range": {
+      "from": 0,
+      "to": 14
+     },
+     "removed": [],
+     "id": "29f436fb-e8f5-48e8-8245-e93150fa322f"
+    }
+   ],
+   "conflicts": [],
+   "resolvedConflicts": [],
+   "pinnedOverflow": 0,
+   "storyStart": 0,
+   "chapters": [],
+   "chronicle": {
+    "eras": []
+   },
+   "chapterSealSkip": null,
+   "updatedAt": "2026-10-02T08:35:50.412Z"
+  },
+  "chapters": {
+   "declared": false,
+   "current": null,
+   "records": [],
+   "ended": false,
+   "epilogue": null
+  },
+  "canon": {
+   "canon": "Anchor start: Open on the crew in their usual haunt as a strange commission arrives: a dragon too old to fly wants its own hoard stolen back from the knights who claim to have slain it. Establish the crew, the city, and the impossible shape of the job before anyone commits.\nAnchor summons: The dragon Vaelrith, too old to fly, hires the player's crew to steal its own hoard back from the knights who claim to have slain it. Establish the job, the pay, and the dragon's shame.\nGate start -> summons\nFact(3): Vaelrith, the Unflown is an ancient bronze dragon, alive but grounded and unable to fly for forty years.\nFact(3): The Order of the Silver Lance, commanded by Ser Aldric, built a fortress on Vaelrith's hoard and claims to have slain the dragon.\nFact(3): The knights took Vaelrith's hoard, including gold, gems, weapons, name-stones, eggshells, and memory-stones, into a place called the Deep Vault.\nFact(2): Vaelrith values the non-glittering things—name-stones, eggshells, memory-stones—more than the gold, and has forgotten what they are.\nFact(2): Vaelrith will pay the crew in gold and more, but only if every item in the Deep Vault is returned.\nFact(2): The Order of the Silver Lance has held the hoard for twelve years.\nFact(2): Marlow keeps a leather-bound book of intelligence on marks and clients.\nFact(2): Brannoc warns that an oath-lock requiring a sworn hand usually means the one who opens it does not survive.",
+   "prose": "Vaelrith the Unflown, a grounded bronze dragon, hired the thieves to steal back its hoard from the Order of the Silver Lance, who had built a fortress on it and declared the dragon dead. Marlow pressed for the truth behind the Deep Vault, while Quill demanded to know the real lock and payment. The scene carried a tense, wary tone as the crew weighed a job that was either the best or the last.",
+   "memoryCanon": null
+  },
+  "memoryQueue": {
+   "conflicts": [],
+   "lastRefusal": null
+  },
+  "epistemic": [
+   {
+    "id": "62c843b3-f0a2-4a7f-a293-860cac906e91",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 8,
+     "boundary": 4,
+     "pass": "epistemic:unaware",
+     "validity": "live"
+    },
+    "subject": "Ser Aldric",
+    "tag": "unaware",
+    "content": "Vaelrith is alive and has hired thieves to reclaim its hoard",
+    "createdAt": 4,
+    "messageId": 8
+   },
+   {
+    "id": "1b689305-b269-4e71-89ab-830a940c77e0",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 8,
+     "boundary": 4,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Marlow",
+    "tag": "intends",
+    "content": "to take the whole job but extract the full truth about the Deep Vault first",
+    "createdAt": 4,
+    "messageId": 8,
+    "supersededBy": "retired@4",
+    "retiredAt": {
+     "messageId": 8,
+     "boundary": 4
+    }
+   },
+   {
+    "id": "8b693e84-3f20-4cb3-9efc-719127c56ac4",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 8,
+     "boundary": 4,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Quill",
+    "tag": "intends",
+    "content": "to learn what actually guards the Deep Vault before committing",
+    "createdAt": 4,
+    "messageId": 8,
+    "supersededBy": "retired@4",
+    "retiredAt": {
+     "messageId": 8,
+     "boundary": 4
+    }
+   },
+   {
+    "id": "52c8f361-5cb9-4aae-8a49-960a586e08a3",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 8,
+     "boundary": 4,
+     "pass": "epistemic:knows",
+     "validity": "live"
+    },
+    "subject": "Ser Aldric",
+    "tag": "knows",
+    "content": "the vault inspection was scheduled for noon",
+    "createdAt": 4,
+    "messageId": 8
+   },
+   {
+    "id": "ef63b25e-a6da-49be-8b9f-4f98e5eda1d5",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 8,
+     "boundary": 4,
+     "pass": "epistemic:believes",
+     "validity": "live"
+    },
+    "subject": "Ser Aldric",
+    "tag": "believes",
+    "content": "the person entering his office is the one who missed the noon vault inspection",
+    "createdAt": 4,
+    "messageId": 8
+   },
+   {
+    "id": "1dd47f47-ebcf-488b-960c-b35e8d63a564",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 8,
+     "boundary": 4,
+     "pass": "epistemic:hiding",
+     "validity": "live"
+    },
+    "subject": "Marlow",
+    "tag": "hiding",
+    "content": "that he wants the full truth about the Deep Vault before committing, and will charge a premium for it",
+    "hiddenFrom": "Vaelrith",
+    "createdAt": 4,
+    "messageId": 8
+   },
+   {
+    "id": "e9cb03c8-bbf9-4a94-bc37-2503953c92e0",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 8,
+     "boundary": 4,
+     "pass": "epistemic:hiding",
+     "validity": "live"
+    },
+    "subject": "Quill",
+    "tag": "hiding",
+    "content": "that she doubts the job's value and is probing for the real guardian before committing",
+    "hiddenFrom": "Vaelrith",
+    "createdAt": 4,
+    "messageId": 8
+   },
+   {
+    "id": "308a0dc3-30ed-4bd8-97fd-ec8a41d10d9e",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 8,
+     "boundary": 4,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Marlow",
+    "tag": "intends",
+    "content": "to extract the truth about what is in the Deep Vault, not the half-truth given to others",
+    "createdAt": 4,
+    "messageId": 8
+   },
+   {
+    "id": "3bd18c16-56eb-4818-a377-1c8e64ff6107",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 8,
+     "boundary": 4,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Quill",
+    "tag": "intends",
+    "content": "to learn what actually guards the Deep Vault before committing",
+    "createdAt": 4,
+    "messageId": 8
+   },
+   {
+    "id": "b5995fed-e517-4e39-a8e6-ce327b6531ba",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 8,
+     "boundary": 4,
+     "pass": "epistemic:suspects",
+     "validity": "live"
+    },
+    "subject": "Quill",
+    "tag": "suspects",
+    "content": "that Vaelrith is concealing the true nature of the vault's guardian",
+    "createdAt": 4,
+    "messageId": 8
+   },
+   {
+    "id": "0e1b7b50-96d7-4720-88c9-5ae434b512a6",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 8,
+     "boundary": 4,
+     "pass": "epistemic:unaware",
+     "validity": "live"
+    },
+    "subject": "Vaelrith",
+    "tag": "unaware",
+    "content": "that Quill and Marlow each intend to withhold commitment until they learn the vault's true secret",
+    "createdAt": 4,
+    "messageId": 8
+   },
+   {
+    "id": "42ef0a7d-94f7-4fb5-94a6-5cb1ab60b416",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 12,
+     "boundary": 8,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Quill",
+    "tag": "intends",
+    "content": "To map every entrance, guard rotation, and exit before anyone enters the stronghold.",
+    "createdAt": 8,
+    "messageId": 12
+   },
+   {
+    "id": "00b84721-fa87-4329-9e4b-b73aaf92bac9",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 12,
+     "boundary": 8,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Marlow",
+    "tag": "intends",
+    "content": "To obtain the stronghold's layout, guard shifts, and roster by dawn.",
+    "createdAt": 8,
+    "messageId": 12
+   },
+   {
+    "id": "7c76c960-361e-4712-87bc-121054e7d8c2",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 12,
+     "boundary": 8,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Brannoc",
+    "tag": "intends",
+    "content": "To learn whose life the oath-lock costs before committing.",
+    "createdAt": 8,
+    "messageId": 12
+   }
+  ],
+  "ledger": [
+   {
+    "entity": "Vaelrith",
+    "field": "status",
+    "value": "grounded",
+    "bound": false,
+    "turn": 8
+   },
+   {
+    "entity": "Vaelrith",
+    "field": "condition",
+    "value": "grounded, cannot fly",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Vaelrith",
+    "field": "location",
+    "value": "lair",
+    "bound": false,
+    "turn": 8
+   },
+   {
+    "entity": "Vaelrith",
+    "field": "appearance",
+    "value": "bronze-scaled, ember-colored eye",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Ser Aldric",
+    "field": "role",
+    "value": "commander of the Order of the Silver Lance",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Ser Aldric",
+    "field": "location",
+    "value": "stronghold",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Quill",
+    "field": "role",
+    "value": "lockpick",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Marlow",
+    "field": "role",
+    "value": "face",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Brannoc",
+    "field": "role",
+    "value": "muscle",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Vaelrith, the Unflown",
+    "field": "location",
+    "value": "lair",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Vaelrith, the Unflown",
+    "field": "injuries",
+    "value": "grounded",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Vaelrith, the Unflown",
+    "field": "mood",
+    "value": "amused",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Vaelrith, the Unflown",
+    "field": "active_goal",
+    "value": "recover stolen hoard from the Deep Vault",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Quill",
+    "field": "location",
+    "value": "lair",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Quill",
+    "field": "mood",
+    "value": "hard, skeptical",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Quill",
+    "field": "active_goal",
+    "value": "determine the lock guarding the Deep Vault",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Quill",
+    "field": "carried_items",
+    "value": "practice lock, lockpicks",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Marlow",
+    "field": "location",
+    "value": "lair",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Marlow",
+    "field": "mood",
+    "value": "theatrical, sharp",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Marlow",
+    "field": "active_goal",
+    "value": "negotiate terms and learn the truth about the Deep Vault",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Marlow",
+    "field": "carried_items",
+    "value": "small leather-bound book",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Brannoc",
+    "field": "location",
+    "value": "lair",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Brannoc",
+    "field": "mood",
+    "value": "unhurried, assessing",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Brannoc",
+    "field": "active_goal",
+    "value": "learn the job details and who is paying",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Brannoc",
+    "field": "carried_items",
+    "value": "tankard",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Ser Aldric",
+    "field": "mood",
+    "value": "cold",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Ser Aldric",
+    "field": "active_goal",
+    "value": "enforce vault inspection schedule",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Ser Aldric",
+    "field": "carried_items",
+    "value": "ledger",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Quill",
+    "field": "equipment",
+    "value": "fine-tipped picks, vial of oil, hardened steel wedge",
+    "bound": false,
+    "turn": 8
+   },
+   {
+    "entity": "Marlow",
+    "field": "equipment",
+    "value": "small leather-bound intelligence book",
+    "bound": false,
+    "turn": 8
+   }
+  ],
+  "modelCalls": [
+   {
+    "at": "2026-10-02T08:33:25.757Z",
+    "role": "read",
+    "pass": "read",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 7139,
+    "samplers": "applied",
+    "usage": {
+     "input": 3619,
+     "output": 1658,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@05h20m15s843ms",
+    "messageId": 9
+   },
+   {
+    "at": "2026-10-02T08:33:36.504Z",
+    "role": "curator",
+    "pass": "curator",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 1278,
+    "samplers": "applied",
+    "usage": {
+     "input": 1956,
+     "output": 53,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@05h20m15s843ms",
+    "messageId": 9
+   },
+   {
+    "at": "2026-10-02T08:33:38.179Z",
+    "role": "synthesis",
+    "pass": "sceneSummary",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 1181,
+    "samplers": "applied",
+    "usage": {
+     "input": 1549,
+     "output": 91,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@05h20m15s843ms",
+    "messageId": 9
+   },
+   {
+    "at": "2026-10-02T08:33:39.662Z",
+    "role": "read",
+    "pass": "epistemic",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 2266,
+    "samplers": "applied",
+    "usage": {
+     "input": 2174,
+     "output": 347,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@05h20m15s843ms",
+    "messageId": 9
+   },
+   {
+    "at": "2026-10-02T08:33:41.954Z",
+    "role": "read",
+    "pass": "ledger",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 1673,
+    "samplers": "applied",
+    "usage": {
+     "input": 1704,
+     "output": 207,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@05h20m15s843ms",
+    "messageId": 9
+   },
+   {
+    "at": "2026-10-02T08:35:38.878Z",
+    "role": "synthesis",
+    "pass": "shortTerm",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 1872,
+    "samplers": "applied",
+    "usage": {
+     "input": 2484,
+     "output": 161,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@05h20m15s843ms",
+    "messageId": 14
+   },
+   {
+    "at": "2026-10-02T08:35:42.234Z",
+    "role": "read",
+    "pass": "read",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 5322,
+    "samplers": "applied",
+    "usage": {
+     "input": 3057,
+     "output": 1075,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@05h20m15s843ms",
+    "messageId": 14
+   },
+   {
+    "at": "2026-10-02T08:36:19.817Z",
+    "role": "read",
+    "pass": "read",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 6034,
+    "samplers": "applied",
+    "usage": {
+     "input": 4462,
+     "output": 1359,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@05h20m15s843ms",
+    "messageId": 14
+   }
+  ],
+  "judgeCalls": [
+   {
+    "at": "2026-10-02T08:31:15.374Z",
+    "boundary": 0,
+    "messageId": 5,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 300,
+    "stateChars": 2713,
+    "questionCount": 7,
+    "inputTokens": 2756,
+    "outputTokens": 130,
+    "p": {
+     "trigger": "MESSAGE_SENT",
+     "The False Slaying": 0.9,
+     "Vaelrith, the Unflown": 0.87,
+     "The Memory-Hoard": 0.87,
+     "The Crew's Haunt": 0.73
+    }
+   },
+   {
+    "at": "2026-10-02T08:31:39.478Z",
+    "boundary": 0,
+    "messageId": 6,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 270,
+    "stateChars": 4123,
+    "questionCount": 7,
+    "inputTokens": 3103,
+    "outputTokens": 130,
+    "p": {
+     "trigger": "GENERATION_STARTED",
+     "The Memory-Hoard": 0.89,
+     "Vaelrith, the Unflown": 0.86,
+     "The False Slaying": 0.86,
+     "The Knights' Stronghold": 0.76
+    }
+   },
+   {
+    "at": "2026-10-02T08:32:17.755Z",
+    "boundary": 0,
+    "messageId": 7,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 337,
+    "stateChars": 5350,
+    "questionCount": 7,
+    "inputTokens": 3406,
+    "outputTokens": 130,
+    "p": {
+     "trigger": "GENERATION_STARTED",
+     "The False Slaying": 0.89,
+     "The Memory-Hoard": 0.89,
+     "The Knights' Stronghold": 0.85,
+     "Vaelrith, the Unflown": 0.84
+    }
+   },
+   {
+    "at": "2026-10-02T08:32:41.994Z",
+    "boundary": 0,
+    "messageId": 8,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 270,
+    "stateChars": 5698,
+    "questionCount": 7,
+    "inputTokens": 3499,
+    "outputTokens": 130,
+    "p": {
+     "trigger": "GENERATION_STARTED",
+     "The False Slaying": 0.9,
+     "The Memory-Hoard": 0.89,
+     "The Knights' Stronghold": 0.85,
+     "Vaelrith, the Unflown": 0.84
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:17.014Z",
+    "boundary": 1,
+    "messageId": 9,
+    "use": "warden",
+    "model": "jev-1.13.0",
+    "latencyMs": 353,
+    "stateChars": 1578,
+    "questionCount": 1,
+    "inputTokens": 856,
+    "outputTokens": 17,
+    "p": {
+     "facts": 0,
+     "flagged": 0,
+     "agency": 0.04
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:17.015Z",
+    "boundary": 1,
+    "messageId": 9,
+    "use": "scene",
+    "model": "jev-1.13.0",
+    "latencyMs": 356,
+    "stateChars": 7300,
+    "questionCount": 11,
+    "inputTokens": 2960,
+    "outputTokens": 300,
+    "p": {
+     "break": 0.07
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:17.174Z",
+    "boundary": 3,
+    "messageId": 9,
+    "use": "scene",
+    "model": "jev-1.13.0",
+    "latencyMs": 0,
+    "stateChars": 7300,
+    "questionCount": 11,
+    "cached": true,
+    "p": {
+     "break": 0.07
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:17.275Z",
+    "boundary": 1,
+    "messageId": 9,
+    "use": "wardenLore",
+    "model": "jev-1.13.0",
+    "latencyMs": 263,
+    "stateChars": 5869,
+    "questionCount": 7,
+    "inputTokens": 2275,
+    "outputTokens": 137,
+    "p": {
+     "facts": 0,
+     "flagged": 0,
+     "lore": 7,
+     "contradicted": 0
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:17.320Z",
+    "boundary": 4,
+    "messageId": 9,
+    "use": "scene",
+    "model": "jev-1.13.0",
+    "latencyMs": 0,
+    "stateChars": 7300,
+    "questionCount": 11,
+    "cached": true,
+    "p": {
+     "break": 0.07
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:21.334Z",
+    "boundary": 4,
+    "messageId": 9,
+    "use": "warden",
+    "model": null,
+    "latencyMs": 4013,
+    "stateChars": 1251,
+    "questionCount": 1,
+    "fallback": "timeout",
+    "p": {
+     "facts": 0,
+     "flagged": 0,
+     "agency": -1
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:21.334Z",
+    "boundary": 4,
+    "messageId": 9,
+    "use": "wardenLore",
+    "model": null,
+    "latencyMs": 4012,
+    "stateChars": 5000,
+    "questionCount": 6,
+    "fallback": "timeout",
+    "p": {
+     "facts": 0,
+     "flagged": 0,
+     "lore": 6,
+     "contradicted": 0
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:33.201Z",
+    "boundary": 4,
+    "messageId": 9,
+    "use": "memoryVerify",
+    "model": "jev-1.13.0",
+    "latencyMs": 291,
+    "stateChars": 6470,
+    "questionCount": 17,
+    "inputTokens": 4035,
+    "outputTokens": 317,
+    "p": {
+     "line:0": 0.88,
+     "line:1": 0.92,
+     "line:2": 0.91,
+     "line:3": 0.95,
+     "line:4": 0.92,
+     "line:5": 0.9,
+     "line:6": 0.64,
+     "line:7": 0.92,
+     "line:8": 0.92,
+     "line:9": 0.98,
+     "line:10": 0.89,
+     "line:11": 0.95,
+     "line:12": 0.95,
+     "line:13": 0.97,
+     "line:14": 0.97,
+     "line:15": 0.81,
+     "line:16": 0.45
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:56.071Z",
+    "boundary": 4,
+    "messageId": 10,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 284,
+    "stateChars": 6236,
+    "questionCount": 7,
+    "inputTokens": 3638,
+    "outputTokens": 130,
+    "p": {
+     "trigger": "MESSAGE_SENT",
+     "The False Slaying": 0.89,
+     "The Memory-Hoard": 0.87,
+     "The Knights' Stronghold": 0.85,
+     "Vaelrith, the Unflown": 0.8
+    }
+   },
+   {
+    "at": "2026-10-02T08:34:11.206Z",
+    "boundary": 4,
+    "messageId": 11,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 264,
+    "stateChars": 6478,
+    "questionCount": 7,
+    "inputTokens": 3688,
+    "outputTokens": 130,
+    "p": {
+     "trigger": "GENERATION_STARTED",
+     "The False Slaying": 0.89,
+     "The Memory-Hoard": 0.88,
+     "The Knights' Stronghold": 0.86,
+     "Vaelrith, the Unflown": 0.79
+    }
+   },
+   {
+    "at": "2026-10-02T08:34:44.759Z",
+    "boundary": 4,
+    "messageId": 12,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 316,
+    "stateChars": 6897,
+    "questionCount": 7,
+    "inputTokens": 3782,
+    "outputTokens": 130,
+    "p": {
+     "trigger": "GENERATION_STARTED",
+     "The False Slaying": 0.9,
+     "The Memory-Hoard": 0.84,
+     "The Knights' Stronghold": 0.83,
+     "Vaelrith, the Unflown": 0.78
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:02.304Z",
+    "boundary": 4,
+    "messageId": 13,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 270,
+    "stateChars": 7428,
+    "questionCount": 7,
+    "inputTokens": 3908,
+    "outputTokens": 130,
+    "p": {
+     "trigger": "GENERATION_STARTED",
+     "The False Slaying": 0.87,
+     "The Knights' Stronghold": 0.85,
+     "The Memory-Hoard": 0.85,
+     "Vaelrith, the Unflown": 0.82
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:37.758Z",
+    "boundary": 5,
+    "messageId": 14,
+    "use": "scene",
+    "model": "jev-1.13.0",
+    "latencyMs": 305,
+    "stateChars": 7820,
+    "questionCount": 11,
+    "inputTokens": 3095,
+    "outputTokens": 298,
+    "p": {
+     "break": 0.09
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:37.770Z",
+    "boundary": 5,
+    "messageId": 14,
+    "use": "warden",
+    "model": "jev-1.13.0",
+    "latencyMs": 316,
+    "stateChars": 1545,
+    "questionCount": 9,
+    "inputTokens": 1728,
+    "outputTokens": 161,
+    "p": {
+     "facts": 8,
+     "flagged": 0,
+     "agency": 0.25
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:37.834Z",
+    "boundary": 7,
+    "messageId": 14,
+    "use": "scene",
+    "model": "jev-1.13.0",
+    "latencyMs": 0,
+    "stateChars": 7820,
+    "questionCount": 11,
+    "cached": true,
+    "p": {
+     "break": 0.09
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:38.046Z",
+    "boundary": 8,
+    "messageId": 14,
+    "use": "scene",
+    "model": "jev-1.13.0",
+    "latencyMs": 0,
+    "stateChars": 7820,
+    "questionCount": 11,
+    "cached": true,
+    "p": {
+     "break": 0.09
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:38.123Z",
+    "boundary": 5,
+    "messageId": 14,
+    "use": "wardenLore",
+    "model": "jev-1.13.0",
+    "latencyMs": 367,
+    "stateChars": 4432,
+    "questionCount": 6,
+    "inputTokens": 1853,
+    "outputTokens": 118,
+    "p": {
+     "facts": 0,
+     "flagged": 0,
+     "lore": 6,
+     "contradicted": 0
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:47.842Z",
+    "boundary": 8,
+    "messageId": 14,
+    "use": "memoryVerify",
+    "model": "jev-1.13.0",
+    "latencyMs": 277,
+    "stateChars": 2633,
+    "questionCount": 12,
+    "inputTokens": 2422,
+    "outputTokens": 222,
+    "p": {
+     "line:0": 0.96,
+     "line:1": 0.91,
+     "line:2": 0.97,
+     "line:3": 0.91,
+     "line:4": 0.98,
+     "line:5": 0.97,
+     "line:6": 0.17,
+     "line:7": 0.92,
+     "line:8": 0.98,
+     "line:9": 0.78,
+     "line:10": 0.89,
+     "line:11": 0.79
+    }
+   }
+  ],
+  "stagecraft": {
+   "settings": {
+    "curatorEnabled": true,
+    "acceptMode": "review",
+    "wardenEnabled": true,
+    "wardenAcceptMode": "review"
+   },
+   "proposals": [
+    {
+     "id": "wi-4-9",
+     "curator": "wi",
+     "at": "2026-10-02T08:33:37.782Z",
+     "boundary": 4,
+     "messageId": 9,
+     "checkpointId": "start",
+     "reason": "scene-break",
+     "summary": "The story opens in the crew's haunt as the commission arrives, so the haunt and heist-rules entries now matter to play.",
+     "mode": "review",
+     "ops": [],
+     "dropped": [
+      "enable: \"The Crew's Haunt\" is already on",
+      "enable: \"The Heist Rules\" is already on"
+     ],
+     "refused": [
+      {
+       "kind": "enable",
+       "lorebook": "The Hoard of the Unflown — Lore",
+       "comment": "The Crew's Haunt",
+       "uid": 4
+      },
+      {
+       "kind": "enable",
+       "lorebook": "The Hoard of the Unflown — Lore",
+       "comment": "The Heist Rules",
+       "uid": 6
+      }
+     ],
+     "provenance": {
+      "source": "curator",
+      "messageId": 9,
+      "boundary": 4,
+      "pass": "wi-curator:scene-break",
+      "inputs": [
+       {
+        "store": "memory",
+        "id": "The Hoard of the Unflown — Lore#Vaelrith, the Unflown"
+       },
+       {
+        "store": "memory",
+        "id": "The Hoard of the Unflown — Lore#The False Slaying"
+       },
+       {
+        "store": "memory",
+        "id": "The Hoard of the Unflown — Lore#The Knights' Stronghold"
+       },
+       {
+        "store": "memory",
+        "id": "The Hoard of the Unflown — Lore#The Memory-Hoard"
+       },
+       {
+        "store": "memory",
+        "id": "The Hoard of the Unflown — Lore#The Crew's Haunt"
+       },
+       {
+        "store": "memory",
+        "id": "The Hoard of the Unflown — Lore#The Guild Ledger"
+       },
+       {
+        "store": "memory",
+        "id": "The Hoard of the Unflown — Lore#The Heist Rules"
+       }
+      ],
+      "validity": "live"
+     }
+    }
+   ],
+   "declines": [],
+   "lastPass": {
+    "at": "2026-10-02T08:33:37.782Z",
+    "reason": "scene-break",
+    "prompt": "[WORLD INFO CURATION TASK — output structured lines only. Do NOT continue the roleplay.]\nYou keep a story's own lorebook honest as play moves on: switch entries on when they now matter, off when they no longer do, and correct text the story has overtaken.\nSTORY: The Hoard of the Unflown\nWHERE THE STORY IS: Start — Open on the crew in their usual haunt as a strange commission arrives: a dragon too old to fly wants its own hoard stolen back from the knights who claim to have slain it. Establish the crew, the city, and the impossible shape of the job before anyone commits.\nWHAT HAS HAPPENED:\nAnchor start: Open on the crew in their usual haunt as a strange commission arrives: a dragon too old to fly wants its own hoard stolen back from the knights who claim to have slain it. Establish the crew, the city, and the impossible shape of the job before anyone commits.\nFact(3): Vaelrith, the Unflown is an ancient bronze dragon, alive but grounded and unable to fly for forty years.\nFact(3): The Order of the Silver Lance, commanded by Ser Aldric, built a fortress on Vaelrith's hoard and claims to have slain the dragon.\nFact(3): The knights took Vaelrith's hoard, including gold, gems, weapons, name-stones, eggshells, and memory-stones, into a place called the Deep Vault.\nFact(2): Vaelrith values the non-glittering things—name-stones, eggshells, memory-stones—more than the gold, and has forgotten what they are.\nFact(2): Vaelrith will pay the crew in gold and more, but only if every item in the Deep Vault is returned.\nFact(2): The Order of the Silver Lance has held the hoard for twelve years.\nFact(2): Marlow keeps a leather-bound book of intelligence on marks and clients.\nFact(1): Quill practices lockpicking with a worn practice lock.\nOPEN THREADS:\n- The crew must break into the Deep Vault and recover every item of Vaelrith's hoard, or forfeit payment.\n- Quill's unanswered question: what actually guards the Deep Vault beyond the knights' oath?\n- Marlow's demand for the full truth about the Deep Vault's contents remains unmet by Vaelrith.\n- Ser Aldric and the Order of the Silver Lance's twelve-year lie about the dragon's death could unravel.\nENTRIES YOU MAY TOUCH (no others exist for you):\n- #0 \"Vaelrith, the Unflown\" (The Hoard of the Unflown — Lore) [shown in part — patch only]\n  keys: Vaelrith, the Unflown, the dragon, old wyrm, wyrm\n  content: Vaelrith is a dragon too old to fly. Its wings still spread but the muscle is gone; it moves through the city's underbelly by night, on foot, in a shape it hates. It is not dying — it is diminishing, and it knows the difference. Centuries ago Vaelrith's hoard was its memory: not coin alone but name-stones, eggshells, the first things it ever owned. When the knights of the city claimed to have slai…\n- #1 \"The False Slaying\" (The Hoard of the Unflown — Lore) [shown in part — patch only]\n  keys: false slaying, the slaying, dragon's death, the lie, knights' victory, trophy\n  content: Twelve years ago the Order of the Silver Lance marched into the mountains and came back with a story: the dragon Vaelrith was dead, struck down by Ser Aldric's spear, and its hoard was theirs by right of the kill. The city of Kestrelmoor believed it because it was profitable to believe — the knights' victory brought trade, order, and a stronghold built on dragon-gold. The truth is that Vaelrith wa…\n- #2 \"The Knights' Stronghold\" (The Hoard of the Unflown — Lore) [shown in part — patch only]\n  keys: stronghold, fortress, knights' keep, vaults, guard rotations, the keep\n  content: The Order of the Silver Lance built their stronghold directly over the cavern where the hoard was found, so that the treasure could never be moved without their knowing. The upper floors are barracks, chapel, and trophy hall — the dragon's skull (a forgery of plaster and boar bone) hangs above the great doors, and the knights toast beneath it nightly. Below, cut into the old stone, are the vaults:…\n- #3 \"The Memory-Hoard\" (The Hoard of the Unflown — Lore) [shown in part — patch only]\n  keys: memory-hoard, memory hoard, name-stones, name stones, eggs, true hoard, dragon's true hoard\n  content: What the knights took from Vaelrith was never only gold. Beneath the coin and the crowns, in the deepest vault of the stronghold, they keep the things a dragon cannot replace: unhatched eggs gone cold, name-stones carved with the true names of Vaelrith's line, and memory-stones that hold the wyrm's own recollections of the centuries before the false slaying. The knights cannot spend any of it — th…\n- #4 \"The Crew's Haunt\" (The Hoard of the Unflown — Lore) [shown in part — patch only]\n  keys: haunt, tavern, underworld, thieves' tavern, the Drowned Lamp, crew's haunt\n  content: The crew's haunt is a low tavern in the river quarter where the city's thieves drink under a ceiling of stolen chandeliers. Jobs are brokered in the back room; nobody asks a name they can't afford to know. This is where the dragon's commission first arrives — a sealed letter, a purse of old coin, and a summons no thief would believe if it weren't already paid for. The underworld here runs on favor…\n- #5 \"The Guild Ledger\" (The Hoard of the Unflown — Lore) [shown in part — patch only]\n  keys: Guild Ledger, the ledger, guild, Quill's debt, buy out, buying out, the guild\n  content: The Thieves' Guild of the city keeps no coin — it keeps a ledger, and the ledger keeps everyone. Every job a thief runs is entered as a debt: tools advanced, fences owed, protection rendered, names bought. You do not pay the ledger off with money alone; you pay it off with jobs, and each job adds a line. Quill's name sits deep in the ledger. She has run more jobs than most thieves see in a lifetim…\n- #6 \"The Heist Rules\" (The Hoard of the Unflown — Lore) [shown in part — patch only]\n  keys: heist, crew, job, price, cut, rules, thieves\n  content: A job in this city runs on three things: a price, a secret, and a way out. Every crew member names a price before they sign on — coin, a favor, a name cleared, a debt burned — and the price is binding; a crew that renegotiates mid-job is a crew that dies mid-job. Every member keeps one secret from the others, and the crew's survival depends on those secrets staying buried until the job is done. Th…\nOutput one line per change, at most 4:\n[enable] <#number or entry title>\n[disable] <#number or entry title>\n[rewrite] <#number or entry title> || <the full replacement text>\n[patch] <#number or entry title> || <first words of the span to replace> || <last words of that span> || <replacement text>\nThen one final line: [why] <one sentence on what changed in the story that made these necessary>\nRULES:\n- Name each entry by its #number, or by its title exactly as listed above. Anything else is discarded.\n- [enable] only an entry marked [currently off]; every other entry is already on.\n- [disable] only an entry that is not marked [currently off].\n- An entry marked [shown in part — patch only] may only be patched: you have not seen all of it.\n- Some entries carry `{{// ...}}` bookkeeping markers. Never write, move or delete a marker, and never change the words between `{{// so:protect}}` and `{{// so:end}}`.\n- Prefer [patch] over [rewrite]: quote the first and last words of the span exactly as they appear in the content.\n- Keep replacement text under 600 characters. Never restate the whole entry in a patch.\n- Only propose a change the story has actually made necessary. Style preferences are not changes.\n- Never invent new entries, never touch anything outside the list, never write about the player's own knowledge.\nIf nothing needs changing, output NONE. That is the expected answer most of the time.\nOutput:",
+    "rawResponse": "[enable] #4 \"The Crew's Haunt\"\n[enable] #6 \"The Heist Rules\"\n[why] The story opens in the crew's haunt as the commission arrives, so the haunt and heist-rules entries now matter to play.",
+    "proposed": 0,
+    "dropped": [
+     "enable: \"The Crew's Haunt\" is already on",
+     "enable: \"The Heist Rules\" is already on"
+    ]
+   },
+   "lastRunBoundary": 4,
+   "lastError": null
+  },
+  "talkDecisions": [],
+  "inline": {
+   "level": 1,
+   "requested": 1,
+   "window": 20,
+   "categories": {},
+   "newestMessageId": 14,
+   "byMessage": {
+    "0": [
+     {
+      "id": "memory:fact:b6e44879-b28a-45b1-918c-35a89e3d1ab5",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Vaelrith, the Unflown is an ancient bronze dragon, alive but grounded and unable to fly for forty years.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "b6e44879-b28a-45b1-918c-35a89e3d1ab5",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "b6e44879-b28a-45b1-918c-35a89e3d1ab5"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:05dc8cee-70bf-4894-99ea-b3da5632eada",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: The Order of the Silver Lance, commanded by Ser Aldric, built a fortress on Vaelrith's hoard and claims to have slain the dragon.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "05dc8cee-70bf-4894-99ea-b3da5632eada",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "05dc8cee-70bf-4894-99ea-b3da5632eada"
+       }
+      ],
+      "persona": "player"
+     }
+    ],
+    "1": [
+     {
+      "id": "memory:fact:954a91d9-b407-4490-9101-07e5db8829a7",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Quill practices lockpicking with a worn practice lock.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "954a91d9-b407-4490-9101-07e5db8829a7",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "954a91d9-b407-4490-9101-07e5db8829a7"
+       }
+      ],
+      "persona": "player"
+     }
+    ],
+    "4": [
+     {
+      "id": "cast:background:9ed523c1-4826-4076-8f7b-892bf78b37d1",
+      "category": "cast",
+      "level": 1,
+      "state": "applied",
+      "text": "The scene changed",
+      "persona": "player"
+     }
+    ],
+    "6": [
+     {
+      "id": "memory:fact:ae65f942-60a3-4655-9746-1aa1987317a3",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: The knights took Vaelrith's hoard, including gold, gems, weapons, name-stones, eggshells, and memory-stones, into a place called the Deep Vault.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "ae65f942-60a3-4655-9746-1aa1987317a3",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "ae65f942-60a3-4655-9746-1aa1987317a3"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:edc8aa69-23e5-4de4-9e46-4c39b1856ea2",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Vaelrith values the non-glittering things—name-stones, eggshells, memory-stones—more than the gold, and has forgotten what they are.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "edc8aa69-23e5-4de4-9e46-4c39b1856ea2",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "edc8aa69-23e5-4de4-9e46-4c39b1856ea2"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:032816af-a3ca-47e6-996d-6ea5eec139ac",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Vaelrith will pay the crew in gold and more, but only if every item in the Deep Vault is returned.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "032816af-a3ca-47e6-996d-6ea5eec139ac",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "032816af-a3ca-47e6-996d-6ea5eec139ac"
+       }
+      ],
+      "persona": "player"
+     }
+    ],
+    "7": [
+     {
+      "id": "memory:fact:cb16315f-b5d5-43fc-8fdd-cf92e44dd524",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: The Order of the Silver Lance has held the hoard for twelve years.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "cb16315f-b5d5-43fc-8fdd-cf92e44dd524",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "cb16315f-b5d5-43fc-8fdd-cf92e44dd524"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:dfac4dbb-61b4-4afe-9a37-12b09296fd8c",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Marlow keeps a leather-bound book of intelligence on marks and clients.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "dfac4dbb-61b4-4afe-9a37-12b09296fd8c",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "dfac4dbb-61b4-4afe-9a37-12b09296fd8c"
+       }
+      ],
+      "persona": "player"
+     }
+    ],
+    "8": [
+     {
+      "id": "threads:open:9eb3d07a-35a3-4f18-8ee8-bdbe51014e05",
+      "category": "threads",
+      "level": 1,
+      "state": "applied",
+      "text": "New thread: The crew must break into the Deep Vault and recover every item of Vaelrith's hoard, or forfeit payment.",
+      "persona": "player"
+     },
+     {
+      "id": "threads:open:6b134fb0-15a0-436e-af46-1a4141012531",
+      "category": "threads",
+      "level": 1,
+      "state": "applied",
+      "text": "New thread: Quill's unanswered question: what actually guards the Deep Vault beyond the knights' oath?",
+      "persona": "player"
+     },
+     {
+      "id": "threads:open:666c2b0e-c5be-4b90-a107-74779a1eb333",
+      "category": "threads",
+      "level": 1,
+      "state": "applied",
+      "text": "New thread: Marlow's demand for the full truth about the Deep Vault's contents remains unmet by Vaelrith.",
+      "persona": "player"
+     },
+     {
+      "id": "threads:open:e050ae05-76f9-4c5a-b26f-d593d94ee047",
+      "category": "threads",
+      "level": 1,
+      "state": "applied",
+      "text": "New thread: Ser Aldric and the Order of the Silver Lance's twelve-year lie about the dragon's death could unravel.",
+      "persona": "player"
+     }
+    ],
+    "9": [
+     {
+      "id": "memory:fact:e4017569-24b9-41e6-a27f-8a08c4dc978a",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Brannoc warns that an oath-lock requiring a sworn hand usually means the one who opens it does not survive.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "e4017569-24b9-41e6-a27f-8a08c4dc978a",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "e4017569-24b9-41e6-a27f-8a08c4dc978a"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:830ccb92-2e60-4e84-ad29-2516bdb5fb91",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Brannoc demands to know whose life the oath-lock costs before the crew proceeds.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "830ccb92-2e60-4e84-ad29-2516bdb5fb91",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "830ccb92-2e60-4e84-ad29-2516bdb5fb91"
+       }
+      ],
+      "persona": "player"
+     }
+    ],
+    "10": [
+     {
+      "id": "memory:fact:665ebd4a-ff6f-4515-a8cc-43b9355f02d3",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Max Nightriver commits the crew to the job and orders them to case the stronghold tonight.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "665ebd4a-ff6f-4515-a8cc-43b9355f02d3",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "665ebd4a-ff6f-4515-a8cc-43b9355f02d3"
+       }
+      ],
+      "persona": "player"
+     }
+    ],
+    "11": [
+     {
+      "id": "progress:transition:5",
+      "category": "progress",
+      "level": 1,
+      "state": "applied",
+      "text": "The story moved on",
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:1b0585da-8da5-45af-acc2-3659fffe5e09",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Quill insists on leading the reconnaissance, mapping every entrance, guard rotation, and exit before anyone enters.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "1b0585da-8da5-45af-acc2-3659fffe5e09",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "1b0585da-8da5-45af-acc2-3659fffe5e09"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "pacing:level:11",
+      "category": "pacing",
+      "level": 1,
+      "state": "applied",
+      "text": "Tension: tense",
+      "persona": "player"
+     }
+    ],
+    "12": [
+     {
+      "id": "memory:fact:8cc78c87-e0c2-4fa1-a69c-992a1b0369bc",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Marlow promises the stronghold's layout, guard shifts, and roster by dawn.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "8cc78c87-e0c2-4fa1-a69c-992a1b0369bc",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "8cc78c87-e0c2-4fa1-a69c-992a1b0369bc"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:43a4651c-aa04-426d-8b05-845cc4423f4e",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Marlow expects Max to deliver what Max promised to bring.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "43a4651c-aa04-426d-8b05-845cc4423f4e",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "43a4651c-aa04-426d-8b05-845cc4423f4e"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "threads:open:9266cd20-3ce2-40bd-9879-121b1f271427",
+      "category": "threads",
+      "level": 1,
+      "state": "applied",
+      "text": "New thread: Brannoc's demand: whose life does the oath-lock cost, and what happens when the door opens?",
+      "persona": "player"
+     },
+     {
+      "id": "threads:open:9ff79380-ca3d-4414-bcd2-57e2527257a7",
+      "category": "threads",
+      "level": 1,
+      "state": "applied",
+      "text": "New thread: Max's unstated promise to Marlow — what Max agreed to bring — remains undelivered.",
+      "persona": "player"
+     }
+    ]
+   }
+  },
+  "journal": [
+   {
+    "at": "2026-10-02T08:31:00.884Z",
+    "boundary": 0,
+    "messageId": -1,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@05h20m15s843ms, last seen never, gap n/a"
+    }
+   },
+   {
+    "at": "2026-10-02T08:31:01.102Z",
+    "boundary": 0,
+    "messageId": -1,
+    "kind": "status",
+    "summary": "Started The Hoard of the Unflown"
+   },
+   {
+    "at": "2026-10-02T08:31:15.374Z",
+    "boundary": 0,
+    "messageId": 5,
+    "kind": "judge",
+    "summary": "judge lore in 300 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 2713,
+     "latencyMs": 300,
+     "inputTokens": 2756,
+     "outputTokens": 130,
+     "p": {
+      "trigger": "MESSAGE_SENT",
+      "The False Slaying": 0.9,
+      "Vaelrith, the Unflown": 0.87,
+      "The Memory-Hoard": 0.87,
+      "The Crew's Haunt": 0.73
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:31:39.478Z",
+    "boundary": 0,
+    "messageId": 6,
+    "kind": "judge",
+    "summary": "judge lore in 270 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 4123,
+     "latencyMs": 270,
+     "inputTokens": 3103,
+     "outputTokens": 130,
+     "p": {
+      "trigger": "GENERATION_STARTED",
+      "The Memory-Hoard": 0.89,
+      "Vaelrith, the Unflown": 0.86,
+      "The False Slaying": 0.86,
+      "The Knights' Stronghold": 0.76
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:32:17.755Z",
+    "boundary": 0,
+    "messageId": 7,
+    "kind": "judge",
+    "summary": "judge lore in 337 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 5350,
+     "latencyMs": 337,
+     "inputTokens": 3406,
+     "outputTokens": 130,
+     "p": {
+      "trigger": "GENERATION_STARTED",
+      "The False Slaying": 0.89,
+      "The Memory-Hoard": 0.89,
+      "The Knights' Stronghold": 0.85,
+      "Vaelrith, the Unflown": 0.84
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:32:41.994Z",
+    "boundary": 0,
+    "messageId": 8,
+    "kind": "judge",
+    "summary": "judge lore in 270 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 5698,
+     "latencyMs": 270,
+     "inputTokens": 3499,
+     "outputTokens": 130,
+     "p": {
+      "trigger": "GENERATION_STARTED",
+      "The False Slaying": 0.9,
+      "The Memory-Hoard": 0.89,
+      "The Knights' Stronghold": 0.85,
+      "Vaelrith, the Unflown": 0.84
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:16.416Z",
+    "boundary": 1,
+    "messageId": 6,
+    "kind": "boundary",
+    "summary": "boundary 1: nothing applied (gate)",
+    "detail": {
+     "source": "gate",
+     "applied": [],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:16.642Z",
+    "boundary": 1,
+    "messageId": 6,
+    "kind": "status",
+    "summary": "Following Start"
+   },
+   {
+    "at": "2026-10-02T08:33:16.659Z",
+    "boundary": 2,
+    "messageId": 7,
+    "kind": "boundary",
+    "summary": "boundary 2: nothing applied (gate)",
+    "detail": {
+     "source": "gate",
+     "applied": [],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:17.009Z",
+    "boundary": 3,
+    "messageId": 8,
+    "kind": "boundary",
+    "summary": "boundary 3: nothing applied (gate)",
+    "detail": {
+     "source": "gate",
+     "applied": [],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:17.014Z",
+    "boundary": 1,
+    "messageId": 9,
+    "kind": "judge",
+    "summary": "judge warden in 353 ms",
+    "detail": {
+     "use": "warden",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 1,
+     "stateChars": 1578,
+     "latencyMs": 353,
+     "inputTokens": 856,
+     "outputTokens": 17,
+     "p": {
+      "facts": 0,
+      "flagged": 0,
+      "agency": 0.04
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:17.015Z",
+    "boundary": 1,
+    "messageId": 9,
+    "kind": "judge",
+    "summary": "judge scene in 356 ms",
+    "detail": {
+     "use": "scene",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 11,
+     "stateChars": 7300,
+     "latencyMs": 356,
+     "inputTokens": 2960,
+     "outputTokens": 300,
+     "p": {
+      "break": 0.07
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:17.173Z",
+    "boundary": 4,
+    "messageId": 9,
+    "kind": "boundary",
+    "summary": "boundary 4: nothing applied (gate)",
+    "detail": {
+     "source": "gate",
+     "applied": [],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:17.174Z",
+    "boundary": 3,
+    "messageId": 9,
+    "kind": "judge",
+    "summary": "judge scene in 0 ms",
+    "detail": {
+     "use": "scene",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 11,
+     "stateChars": 7300,
+     "latencyMs": 0,
+     "cached": true,
+     "p": {
+      "break": 0.07
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:17.275Z",
+    "boundary": 1,
+    "messageId": 9,
+    "kind": "judge",
+    "summary": "judge wardenLore in 263 ms",
+    "detail": {
+     "use": "wardenLore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 5869,
+     "latencyMs": 263,
+     "inputTokens": 2275,
+     "outputTokens": 137,
+     "p": {
+      "facts": 0,
+      "flagged": 0,
+      "lore": 7,
+      "contradicted": 0
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:17.320Z",
+    "boundary": 4,
+    "messageId": 9,
+    "kind": "judge",
+    "summary": "judge scene in 0 ms",
+    "detail": {
+     "use": "scene",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 11,
+     "stateChars": 7300,
+     "latencyMs": 0,
+     "cached": true,
+     "p": {
+      "break": 0.07
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:21.334Z",
+    "boundary": 4,
+    "messageId": 9,
+    "kind": "judge",
+    "summary": "judge warden fell back (timeout) in 4013 ms",
+    "detail": {
+     "use": "warden",
+     "model": null,
+     "route": null,
+     "questions": 1,
+     "stateChars": 1251,
+     "latencyMs": 4013,
+     "fallback": "timeout",
+     "p": {
+      "facts": 0,
+      "flagged": 0,
+      "agency": -1
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:21.334Z",
+    "boundary": 4,
+    "messageId": 9,
+    "kind": "judge",
+    "summary": "judge wardenLore fell back (timeout) in 4012 ms",
+    "detail": {
+     "use": "wardenLore",
+     "model": null,
+     "route": null,
+     "questions": 6,
+     "stateChars": 5000,
+     "latencyMs": 4012,
+     "fallback": "timeout",
+     "p": {
+      "facts": 0,
+      "flagged": 0,
+      "lore": 6,
+      "contradicted": 0
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:25.757Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T08:33:25.757Z",
+     "role": "read",
+     "pass": "read",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 7139,
+     "samplers": "applied",
+     "usage": {
+      "input": 3619,
+      "output": 1658,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@05h20m15s843ms",
+     "messageId": 9
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:32.900Z",
+    "boundary": -1,
+    "messageId": 8,
+    "kind": "extraction",
+    "summary": "read cadence msgs 0-8 → 7 accepted, 0 rejected",
+    "detail": {
+     "auditId": "717727f2",
+     "scope": [
+      "crew_cohesion",
+      "dragon_revealed",
+      "dragon_trust",
+      "heist_progress",
+      "hoard_recovered",
+      "knight_heat",
+      "tension_current"
+     ],
+     "accepted": [
+      "crew_cohesion=5",
+      "dragon_revealed=true",
+      "dragon_trust=3",
+      "heist_progress=1",
+      "hoard_recovered=0",
+      "knight_heat=0",
+      "tension_current=0.5"
+     ],
+     "rejected": [],
+     "sceneBreak": "location"
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:32.900Z",
+    "boundary": -1,
+    "messageId": 8,
+    "kind": "delta",
+    "summary": "crew_cohesion = 5",
+    "detail": {
+     "auditId": "717727f2",
+     "evidence": "We'll take it all. Gold, name-stones, memory-fragments—whatever this 'Deep Vault' is hiding.",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:32.900Z",
+    "boundary": -1,
+    "messageId": 8,
+    "kind": "delta",
+    "summary": "dragon_revealed = true",
+    "detail": {
+     "auditId": "717727f2",
+     "evidence": "You are the thieves,",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:32.900Z",
+    "boundary": -1,
+    "messageId": 8,
+    "kind": "delta",
+    "summary": "dragon_trust = 3",
+    "detail": {
+     "auditId": "717727f2",
+     "evidence": "And I'll need the truth about what's in there. Not the half-truth you give to everyone else.",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:32.900Z",
+    "boundary": -1,
+    "messageId": 8,
+    "kind": "delta",
+    "summary": "heist_progress = 1",
+    "detail": {
+     "auditId": "717727f2",
+     "evidence": "We'll take it all. Gold, name-stones, memory-fragments—whatever this 'Deep Vault' is hiding.",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:32.900Z",
+    "boundary": -1,
+    "messageId": 8,
+    "kind": "delta",
+    "summary": "hoard_recovered = 0",
+    "detail": {
+     "auditId": "717727f2",
+     "evidence": "I have a job for you, and I will pay in gold I have not seen in forty years, because it is no longer mine.",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:32.900Z",
+    "boundary": -1,
+    "messageId": 8,
+    "kind": "delta",
+    "summary": "knight_heat = 0",
+    "detail": {
+     "auditId": "717727f2",
+     "evidence": "The Order of the Silver Lance. Ser Aldric, commander of the stronghold. Twelve years of lying.",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:32.900Z",
+    "boundary": -1,
+    "messageId": 8,
+    "kind": "delta",
+    "summary": "tension_current = 0.5",
+    "detail": {
+     "auditId": "717727f2",
+     "evidence": "Tell me what the *lock* is. Tell me what's actually guarding those vaults besides 'an oath.' Because I can pick a lock. I can't pick a promise.",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:33.201Z",
+    "boundary": 4,
+    "messageId": 9,
+    "kind": "judge",
+    "summary": "judge memoryVerify in 291 ms",
+    "detail": {
+     "use": "memoryVerify",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 17,
+     "stateChars": 6470,
+     "latencyMs": 291,
+     "inputTokens": 4035,
+     "outputTokens": 317,
+     "p": {
+      "line:0": 0.88,
+      "line:1": 0.92,
+      "line:2": 0.91,
+      "line:3": 0.95,
+      "line:4": 0.92,
+      "line:5": 0.9,
+      "line:6": 0.64,
+      "line:7": 0.92,
+      "line:8": 0.92,
+      "line:9": 0.98,
+      "line:10": 0.89,
+      "line:11": 0.95,
+      "line:12": 0.95,
+      "line:13": 0.97,
+      "line:14": 0.97,
+      "line:15": 0.81,
+      "line:16": 0.45
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:36.504Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T08:33:36.504Z",
+     "role": "curator",
+     "pass": "curator",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 1278,
+     "samplers": "applied",
+     "usage": {
+      "input": 1956,
+      "output": 53,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@05h20m15s843ms",
+     "messageId": 9
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:37.782Z",
+    "boundary": 4,
+    "messageId": 9,
+    "kind": "stagecraft",
+    "summary": "World Info curator proposed 0 change(s) at Start",
+    "detail": {
+     "note": "The story opens in the crew's haunt as the commission arrives, so the haunt and heist-rules entries now matter to play."
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:38.179Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T08:33:38.179Z",
+     "role": "synthesis",
+     "pass": "sceneSummary",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 1181,
+     "samplers": "applied",
+     "usage": {
+      "input": 1549,
+      "output": 91,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@05h20m15s843ms",
+     "messageId": 9
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:39.662Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T08:33:39.662Z",
+     "role": "read",
+     "pass": "epistemic",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 2266,
+     "samplers": "applied",
+     "usage": {
+      "input": 2174,
+      "output": 347,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@05h20m15s843ms",
+     "messageId": 9
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:41.954Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T08:33:41.954Z",
+     "role": "read",
+     "pass": "ledger",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 1673,
+     "samplers": "applied",
+     "usage": {
+      "input": 1704,
+      "output": 207,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@05h20m15s843ms",
+     "messageId": 9
+    }
+   },
+   {
+    "at": "2026-10-02T08:33:56.071Z",
+    "boundary": 4,
+    "messageId": 10,
+    "kind": "judge",
+    "summary": "judge lore in 284 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 6236,
+     "latencyMs": 284,
+     "inputTokens": 3638,
+     "outputTokens": 130,
+     "p": {
+      "trigger": "MESSAGE_SENT",
+      "The False Slaying": 0.89,
+      "The Memory-Hoard": 0.87,
+      "The Knights' Stronghold": 0.85,
+      "Vaelrith, the Unflown": 0.8
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:34:11.206Z",
+    "boundary": 4,
+    "messageId": 11,
+    "kind": "judge",
+    "summary": "judge lore in 264 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 6478,
+     "latencyMs": 264,
+     "inputTokens": 3688,
+     "outputTokens": 130,
+     "p": {
+      "trigger": "GENERATION_STARTED",
+      "The False Slaying": 0.89,
+      "The Memory-Hoard": 0.88,
+      "The Knights' Stronghold": 0.86,
+      "Vaelrith, the Unflown": 0.79
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:34:44.759Z",
+    "boundary": 4,
+    "messageId": 12,
+    "kind": "judge",
+    "summary": "judge lore in 316 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 6897,
+     "latencyMs": 316,
+     "inputTokens": 3782,
+     "outputTokens": 130,
+     "p": {
+      "trigger": "GENERATION_STARTED",
+      "The False Slaying": 0.9,
+      "The Memory-Hoard": 0.84,
+      "The Knights' Stronghold": 0.83,
+      "Vaelrith, the Unflown": 0.78
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:02.304Z",
+    "boundary": 4,
+    "messageId": 13,
+    "kind": "judge",
+    "summary": "judge lore in 270 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 7428,
+     "latencyMs": 270,
+     "inputTokens": 3908,
+     "outputTokens": 130,
+     "p": {
+      "trigger": "GENERATION_STARTED",
+      "The False Slaying": 0.87,
+      "The Knights' Stronghold": 0.85,
+      "The Memory-Hoard": 0.85,
+      "Vaelrith, the Unflown": 0.82
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:32.793Z",
+    "boundary": 5,
+    "messageId": 11,
+    "kind": "boundary",
+    "summary": "applied crew_cohesion=5, dragon_revealed=true, dragon_trust=3, heist_progress=1, hoard_recovered=0, knight_heat=0, tension_current=0.5",
+    "detail": {
+     "source": "gate",
+     "applied": [
+      {
+       "origin": "717727f2",
+       "deltas": [
+        "crew_cohesion=5",
+        "dragon_revealed=true",
+        "dragon_trust=3",
+        "heist_progress=1",
+        "hoard_recovered=0",
+        "knight_heat=0",
+        "tension_current=0.5"
+       ]
+      }
+     ],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:32.793Z",
+    "boundary": 5,
+    "messageId": 11,
+    "kind": "transition",
+    "summary": "start → summons",
+    "detail": {
+     "gate": {
+      "q": "heist_progress",
+      "op": ">=",
+      "v": 1
+     },
+     "source": "gate"
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:37.234Z",
+    "boundary": 5,
+    "messageId": 11,
+    "kind": "story",
+    "summary": "background effect could not be applied",
+    "detail": {
+     "note": "ST did not switch the background to \"The Hollow Wing — a collapsed bell tower above the thieves' quarter, where a dragon too old to fly can meet a crew without being seen from the sky.\"; it is still \"tavern day.jpg\""
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:37.413Z",
+    "boundary": 5,
+    "messageId": 11,
+    "kind": "status",
+    "summary": "Moved into The Summons"
+   },
+   {
+    "at": "2026-10-02T08:35:37.453Z",
+    "boundary": 6,
+    "messageId": 12,
+    "kind": "boundary",
+    "summary": "boundary 6: nothing applied (gate)",
+    "detail": {
+     "source": "gate",
+     "applied": [],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:37.608Z",
+    "boundary": 6,
+    "messageId": 12,
+    "kind": "status",
+    "summary": "Following The Summons"
+   },
+   {
+    "at": "2026-10-02T08:35:37.642Z",
+    "boundary": 7,
+    "messageId": 13,
+    "kind": "boundary",
+    "summary": "boundary 7: nothing applied (gate)",
+    "detail": {
+     "source": "gate",
+     "applied": [],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:37.758Z",
+    "boundary": 5,
+    "messageId": 14,
+    "kind": "judge",
+    "summary": "judge scene in 305 ms",
+    "detail": {
+     "use": "scene",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 11,
+     "stateChars": 7820,
+     "latencyMs": 305,
+     "inputTokens": 3095,
+     "outputTokens": 298,
+     "p": {
+      "break": 0.09
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:37.770Z",
+    "boundary": 5,
+    "messageId": 14,
+    "kind": "judge",
+    "summary": "judge warden in 316 ms",
+    "detail": {
+     "use": "warden",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 9,
+     "stateChars": 1545,
+     "latencyMs": 316,
+     "inputTokens": 1728,
+     "outputTokens": 161,
+     "p": {
+      "facts": 8,
+      "flagged": 0,
+      "agency": 0.25
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:37.834Z",
+    "boundary": 8,
+    "messageId": 14,
+    "kind": "boundary",
+    "summary": "boundary 8: nothing applied (gate)",
+    "detail": {
+     "source": "gate",
+     "applied": [],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:37.834Z",
+    "boundary": 7,
+    "messageId": 14,
+    "kind": "judge",
+    "summary": "judge scene in 0 ms",
+    "detail": {
+     "use": "scene",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 11,
+     "stateChars": 7820,
+     "latencyMs": 0,
+     "cached": true,
+     "p": {
+      "break": 0.09
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:38.046Z",
+    "boundary": 8,
+    "messageId": 14,
+    "kind": "judge",
+    "summary": "judge scene in 0 ms",
+    "detail": {
+     "use": "scene",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 11,
+     "stateChars": 7820,
+     "latencyMs": 0,
+     "cached": true,
+     "p": {
+      "break": 0.09
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:38.123Z",
+    "boundary": 5,
+    "messageId": 14,
+    "kind": "judge",
+    "summary": "judge wardenLore in 367 ms",
+    "detail": {
+     "use": "wardenLore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 6,
+     "stateChars": 4432,
+     "latencyMs": 367,
+     "inputTokens": 1853,
+     "outputTokens": 118,
+     "p": {
+      "facts": 0,
+      "flagged": 0,
+      "lore": 6,
+      "contradicted": 0
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:38.878Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T08:35:38.878Z",
+     "role": "synthesis",
+     "pass": "shortTerm",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 1872,
+     "samplers": "applied",
+     "usage": {
+      "input": 2484,
+      "output": 161,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@05h20m15s843ms",
+     "messageId": 14
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:42.234Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T08:35:42.234Z",
+     "role": "read",
+     "pass": "read",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 5322,
+     "samplers": "applied",
+     "usage": {
+      "input": 3057,
+      "output": 1075,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@05h20m15s843ms",
+     "messageId": 14
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:47.558Z",
+    "boundary": -1,
+    "messageId": 12,
+    "kind": "extraction",
+    "summary": "read cadence msgs 9-12 → 4 accepted, 0 rejected",
+    "detail": {
+     "auditId": "c0a25b4f",
+     "scope": [
+      "crew_cohesion",
+      "dragon_trust",
+      "heist_progress",
+      "hoard_recovered",
+      "knight_heat",
+      "tension_current"
+     ],
+     "accepted": [
+      "crew_cohesion=6",
+      "dragon_trust=3",
+      "heist_progress=1",
+      "tension_current=0.5"
+     ],
+     "rejected": [],
+     "sceneBreak": null
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:47.558Z",
+    "boundary": -1,
+    "messageId": 12,
+    "kind": "delta",
+    "summary": "crew_cohesion = 6",
+    "detail": {
+     "auditId": "c0a25b4f",
+     "evidence": "Quill, Marlow, Brannoc: we take the job. Tonight we case the stronghold.",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:47.558Z",
+    "boundary": -1,
+    "messageId": 12,
+    "kind": "delta",
+    "summary": "dragon_trust = 3",
+    "detail": {
+     "auditId": "c0a25b4f",
+     "evidence": "The dragon says the vault is guarded by an oath-lock. That it opens only to a sworn hand.",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:47.558Z",
+    "boundary": -1,
+    "messageId": 12,
+    "kind": "delta",
+    "summary": "heist_progress = 1",
+    "detail": {
+     "auditId": "c0a25b4f",
+     "evidence": "Quill, Marlow, Brannoc: we take the job. Tonight we case the stronghold.",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:47.558Z",
+    "boundary": -1,
+    "messageId": 12,
+    "kind": "delta",
+    "summary": "tension_current = 0.5",
+    "detail": {
+     "auditId": "c0a25b4f",
+     "evidence": "This isn't a job. It's a funeral waiting for a body. So let's be honest: what does that oath-lock *actually* cost?",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T08:35:47.842Z",
+    "boundary": 8,
+    "messageId": 14,
+    "kind": "judge",
+    "summary": "judge memoryVerify in 277 ms",
+    "detail": {
+     "use": "memoryVerify",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 12,
+     "stateChars": 2633,
+     "latencyMs": 277,
+     "inputTokens": 2422,
+     "outputTokens": 222,
+     "p": {
+      "line:0": 0.96,
+      "line:1": 0.91,
+      "line:2": 0.97,
+      "line:3": 0.91,
+      "line:4": 0.98,
+      "line:5": 0.97,
+      "line:6": 0.17,
+      "line:7": 0.92,
+      "line:8": 0.98,
+      "line:9": 0.78,
+      "line:10": 0.89,
+      "line:11": 0.79
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:36:19.817Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T08:36:19.817Z",
+     "role": "read",
+     "pass": "read",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 6034,
+     "samplers": "applied",
+     "usage": {
+      "input": 4462,
+      "output": 1359,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@05h20m15s843ms",
+     "messageId": 14
+    }
+   },
+   {
+    "at": "2026-10-02T08:36:20.230Z",
+    "boundary": 8,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "background effect could not be applied",
+    "detail": {
+     "note": "ST did not switch the background to \"The Hollow Wing — a collapsed bell tower above the thieves' quarter, where a dragon too old to fly can meet a crew without being seen from the sky.\"; it is still \"tavern day.jpg\""
+    }
+   },
+   {
+    "at": "2026-10-02T08:36:20.311Z",
+    "boundary": 8,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@05h20m15s843ms, last seen 2026-10-02T08:35:50.728Z, gap 0h"
+    }
+   },
+   {
+    "at": "2026-10-02T08:36:20.562Z",
+    "boundary": 8,
+    "messageId": 14,
+    "kind": "status",
+    "summary": "Continuing The Hoard of the Unflown"
+   }
+  ],
+  "awayRecap": {
+   "recap": null,
+   "lastSessionAt": "2026-10-02T08:36:25.859Z"
+  }
+ }
+}

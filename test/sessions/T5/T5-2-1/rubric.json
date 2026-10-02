@@ -1,0 +1,66 @@
+{
+  "charter": "T5-2",
+  "title": "Wizard, premises 2 and 3",
+  "session": {
+    "dir": "test/sessions/T5/T5-2-1",
+    "lane": 4,
+    "startedAt": "2026-10-02T07:59:53.394Z",
+    "media": "full"
+  },
+  "scores": [
+    "works",
+    "annoying",
+    "broken",
+    "not-noticed"
+  ],
+  "rows": [
+    {
+      "feature": "auto-draft",
+      "score": "annoying",
+      "note": "PROVISIONAL (session INVALID). Edits land straight in the draft, fast (~26 steps/min, 25/25 and 19/19 kept), but every run stops 'Out of budget' at step 26-28 of 40 (150k-token cap), Continue is dead after budget (usedTokens not reset), each story needed 3-4 New goals. P2 run 1 wasted 10 steps churning the placeholder start checkpoint (addCheckpoint duplicates an id, removeCheckpoint removes both); 6 steps on a house-rule-compound loop; P2 setRequirements wrote roster ids -> story not ready in its own group. Undo works on the draft (one Undo removed the lorebook follow-up from requirements/stagecraft/lore-select), the created book stays, agent never noticed",
+      "evidence": [
+        "shots/002-p2-out-of-budget.png",
+        "shots/005-p2-continue-dead.png",
+        "x-p2-steps8-14.json",
+        "x-p2-undo-before.json",
+        "x-p2-undo-after.json",
+        "wizard-drafts.json:2486"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T08:37:33.112Z"
+    },
+    {
+      "feature": "provisioning waits",
+      "score": "works",
+      "note": "PROVISIONAL (session INVALID). All 25 provisioning cards (2 lorebooks, 12 entries, 9 cards, 2 groups) waited in auto-draft; inventory counts moved only after each Create it (chars 163->172, books 24->26, groups 12->14). One card at a time, no bulk path. Two stories' assets are distinct, nothing overwritten",
+      "evidence": [
+        "x-watch-p2.log:15",
+        "x-watch-p2.log:16",
+        "x-applied-p2.log:10",
+        "shots/007-p2-lorebook-card-waiting.png",
+        "x-applied-p3.log:56"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T08:37:33.929Z"
+    },
+    {
+      "feature": "diagnostics",
+      "score": "annoying",
+      "note": "PROVISIONAL (session INVALID). Consequence-first copy works; P3 'No issues - ready to save'. P2 saved with 5 house-rule-compound warnings on one-fact world rules the agent could not satisfy in 6 steps, and NO diagnostic for requirements.members holding roster ids (clerk/collector/queen/thief): story 1 read clean except those warnings yet was not ready in the group the wizard made (Repair caught it only at play time)",
+      "evidence": [
+        "x-p2-diagnostics.json",
+        "x-p3-diagnostics.json",
+        "shots/016-p2-not-ready-in-own-group.png",
+        "wizard-drafts.json:2486"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T08:37:34.799Z"
+    }
+  ],
+  "playerClean": {
+    "skipped": "author-mode card"
+  }
+}

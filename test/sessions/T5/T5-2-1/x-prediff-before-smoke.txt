@@ -1,0 +1,36 @@
+2026-10-02T08:23:16.004Z DIFF inventory.characterCount  163 -> 172
+2026-10-02T08:23:16.007Z WARNING: the page is running a bundle that is not the built one: served d6737acda880c18b vs dist 75e3142cde9ba9dc
+2026-10-02T08:23:16.007Z DIFF inventory.groupChats  +1790928603964/2026-10-02@05h10m03s963ms +1790929215846/2026-10-02@05h20m15s843ms
+2026-10-02T08:23:16.007Z DIFF inventory.lorebookCount  24 -> 26
+2026-10-02T08:23:16.007Z DIFF inventory.lorebooksSelected  +The Hoard of the Unflown — Lore +The Pawnbroker of Forgotten Days
+2026-10-02T08:23:16.007Z DIFF inventory.v2Stories  +the-hoard-of-the-unflown@1 +the-pawnbroker-of-forgotten-days@1
+2026-10-02T08:23:16.007Z DIFF inventory.wizardSessions  +0 +1 +2
+2026-10-02T08:23:16.007Z {
+2026-10-02T08:23:16.008Z   "baseline": "test/sessions/T5/T5-2-1/run-header-start.json",
+2026-10-02T08:23:16.008Z   "label": "diff-end",
+2026-10-02T08:23:16.009Z   "allow": [
+2026-10-02T08:23:16.009Z     "chatId",
+2026-10-02T08:23:16.009Z     "groupId",
+2026-10-02T08:23:16.009Z     "authorView",
+2026-10-02T08:23:16.009Z     "story",
+2026-10-02T08:23:16.009Z     "group",
+2026-10-02T08:23:16.009Z     "inventory.journal"
+2026-10-02T08:23:16.009Z   ],
+2026-10-02T08:23:16.009Z   "differences": 6,
+2026-10-02T08:23:16.009Z   "progress": 0,
+2026-10-02T08:23:16.009Z   "blocking": 6,
+2026-10-02T08:23:16.009Z   "blockingPaths": [
+2026-10-02T08:23:16.009Z     "inventory.characterCount",
+2026-10-02T08:23:16.009Z     "inventory.groupChats",
+2026-10-02T08:23:16.009Z     "inventory.lorebookCount",
+2026-10-02T08:23:16.009Z     "inventory.lorebooksSelected",
+2026-10-02T08:23:16.009Z     "inventory.v2Stories",
+2026-10-02T08:23:16.009Z     "inventory.wizardSessions"
+2026-10-02T08:23:16.009Z   ],
+2026-10-02T08:23:16.009Z   "servedIdentity": [],
+2026-10-02T08:23:16.009Z   "warnings": [
+2026-10-02T08:23:16.009Z     "the page is running a bundle that is not the built one: served d6737acda880c18b vs dist 75e3142cde9ba9dc"
+2026-10-02T08:23:16.009Z   ],
+2026-10-02T08:23:16.009Z   "wrote": "C:\\Users\\ROLAPO~1\\AppData\\Local\\Temp\\claude\\C--dev-story-orchestrator\\f9942451-aaac-4d40-9017-bcceb30a7939\\scratchpad\\prediff.json",
+2026-10-02T08:23:16.009Z   "ok": false
+2026-10-02T08:23:16.009Z }

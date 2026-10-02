@@ -1,0 +1,186 @@
+{
+  "charter": "T5-2",
+  "tier": "T5",
+  "continuedAtPin": null,
+  "flags": [
+    {
+      "at": "2026-10-02T08:24:49.441Z",
+      "chatId": "2026-10-02@05h10m03s963ms",
+      "messageId": -1,
+      "note": "Pawnbroker story selected in the group the wizard created: requirements NOT ready, missingMembers clerk/collector/queen/thief - the agent's setRequirements wrote roster ids instead of character names (overwriting the card follow-ups), Diagnostics never warned, Repair says the story expects people not in this chat although all 4 cards are in the group",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 200
+      },
+      "context": [
+        {
+          "id": 0,
+          "name": "Ivet Marrow",
+          "isUser": false,
+          "text": "Ivet sets the sealed writ on the counter and keeps her hand flat on it, as if it might otherwise crawl away. \"Guild seal, crown paper, and a debt record that doesn't balance,\" she says. \"Twenty years, pawned out of the palace itself. Whoever wrote this ticket knew exactly what they were doing.\" She looks up. \"Tell me we're not taking it.\""
+        },
+        {
+          "id": 1,
+          "name": "Osric Vane",
+          "isUser": false,
+          "text": "The vault door is already open when you arrive, which is Osric's way of saying he knew you were coming. He stands among the shelves of sealed phials, one of them held up to the lamplight, turning it slowly.\n\n\"The queen's fourth winter,\" he says, without turning around. \"Snow on the palace roof. A dog she was not supposed to keep. Her mother's voice, which she has not heard in thirty years and will never hear again unless someone pays me.\" He sets the phial down with a soft click. \"You are the pawnbroker the crown sent. I have been expecting you since the writ was sealed. Sit. Let us discuss what a childhood is worth.\""
+        },
+        {
+          "id": 2,
+          "name": "Queen Alaric Vess",
+          "isUser": false,
+          "text": "The queen does not rise when you are shown in. She sits at a table laid with two cups and no wine, and a single sealed writ — your writ, returned to her hand.\n\n\"You are the pawnbroker,\" she says. \"Then you know what I am missing better than I do. Twenty years. I have the dates, the tutors' names, the inventory of my own nursery. I have no memory of any of it.\"\n\nShe turns the writ over once, slowly.\n\n\"Everyone at this court has told me what I was like as a girl. They are all lying, or they are all remembering someone else. I want to know which.\" Her eyes come up. \"Ask me what you need to ask. But understand — whatever you find, I will be the one who decides what it is worth.\""
+        },
+        {
+          "id": 3,
+          "name": "Sera Vantel",
+          "isUser": false,
+          "text": "The door opens only as far as the chain allows. A woman's face appears in the gap — calm, tired, unsurprised. \"You found the ticket,\" Sera says. \"I wondered how long it would take. Come in, then. But I'll ask you one thing first, and I'll know if you lie: who sent you — the crown, or the Guild?\""
+        }
+      ],
+      "contextFrom": "event-time"
+    }
+  ],
+  "anomalies": [
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:29:33.613Z",
+      "chatId": "2026-10-02@05h10m03s963ms",
+      "summary": "judge wardenLore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 230
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:33:21.334Z",
+      "chatId": "2026-10-02@05h20m15s843ms",
+      "summary": "judge warden fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 313
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T08:33:21.334Z",
+      "chatId": "2026-10-02@05h20m15s843ms",
+      "summary": "judge wardenLore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 314
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "timeout"
+      }
+    }
+  ],
+  "counts": {
+    "flags": 1,
+    "stall": 0,
+    "extraction-rejected": 0,
+    "empty-private-block": 0,
+    "lore-force-lost": 0,
+    "lore-constant-missed": 0,
+    "judge-fallback": 3,
+    "save-lost": 0,
+    "unexpected-jump": 0,
+    "rollback": 0,
+    "console-error": 0,
+    "model-call-failure": 0,
+    "model-defect": 0,
+    "harness-error": 0
+  },
+  "countsByChat": {
+    "2026-10-02@05h10m03s963ms": {
+      "judge-fallback": 1
+    },
+    "2026-10-02@05h20m15s843ms": {
+      "judge-fallback": 2
+    }
+  },
+  "valid": false,
+  "invalid": [
+    "stop marked the session INVALID: the run header diff failed (exit 1): the install changed in a way the session did not declare"
+  ],
+  "unverifiable": {
+    "privateBlock": 0
+  },
+  "judge": {
+    "calls": 44,
+    "answered": 41,
+    "busy": 0,
+    "timeout": 3,
+    "otherFallbacks": 0,
+    "busyRate": 0,
+    "busyByUse": {}
+  },
+  "modelDefects": {
+    "turns": 0,
+    "loop": 0,
+    "corrupt": 0,
+    "repaired": 0,
+    "unrepaired": 0
+  },
+  "sessionDir": "test/sessions/T5/T5-2-1",
+  "register": [
+    {
+      "id": "T5-?1",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "Pawnbroker story selected in the group the wizard created: requirements NOT ready, missingMembers clerk/collector/queen/thief - the agent's setRequirements wrote roster ids instead of character names (overwriting the card follow-ups), Diagnostics never warned, Repair says the story expects people not in this chat although all 4 cards are in the group",
+      "source": "flag",
+      "evidence": "test/sessions/T5/T5-2-1/journal.jsonl:200",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?2",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-2-1/journal.jsonl:230",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?3",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-2-1/journal.jsonl:313",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?4",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-2-1/journal.jsonl:314",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    }
+  ]
+}

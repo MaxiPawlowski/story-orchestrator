@@ -1,0 +1,378 @@
+Following the session journal → C:\dev\story-orchestrator\test\sessions\T5\T5-2-1\journal.jsonl every 1000 ms. Ctrl-C to stop.
+2026-10-02T07:59:52.919Z session      chat null · story none · at — (boundary 0, 2 messages)
+2026-10-02T08:00:54.756Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:10.466Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:11.714Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:14.287Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:16.233Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:18.150Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:20.093Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:21.852Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:24.045Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:26.414Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:27.701Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:30.055Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:31.997Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:34.952Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:37.892Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:39.185Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:42.148Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:44.581Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:45.963Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:48.603Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:50.435Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:51.792Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:53.350Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:56.213Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:57.463Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:01:59.277Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:02:00.542Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:03:05.359Z flag         auto-draft surprising: premise 2 agent spent 10 of its first 26 steps churning the placeholder 'start' checkpoint (addCheckpoint start appended a duplicate id, removeCheckpoint start then removed both, re-added, removed again) and hit 'Out of budget' (~150k tokens) at step 26 of 40 with no transitions wired, nothing provisioned yet
+2026-10-02T08:03:20.319Z flag         x
+2026-10-02T08:04:14.515Z flag         auto-draft: Continue after 'Out of budget' does nothing - resumeAgent keeps usedTokens (150k = maxTokens), so the session re-enters budget at once; only New goal moves on
+2026-10-02T08:04:24.809Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:04:30.552Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:04:57.901Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:04:58.698Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:00.060Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:01.613Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:02.945Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:04.220Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:06.144Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:07.398Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:08.974Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:10.420Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:11.790Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:14.043Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:16.187Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:18.451Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:20.006Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:21.751Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:23.680Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:25.462Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:27.193Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:29.024Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:30.415Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:32.072Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:33.779Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:35.418Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:36.777Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:38.250Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:05:59.622Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:06:14.588Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:06:39.649Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:08:00.066Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:08:13.161Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:08:26.698Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:08:41.140Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:08:54.527Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:09.556Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:23.932Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:37.365Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:09:50.715Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:04.260Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:05.538Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:06.912Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:08.471Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:10.568Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:12.575Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:14.666Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:16.458Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:19.021Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:20.279Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:22.525Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:23.793Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:25.346Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:27.096Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:30.111Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:10:31.480Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:12:43.174Z flag         auto-draft surprising: 'New story (wizard)' opens a fresh Untitled Story draft whose Agent pane shows premise 2's first run (Out of budget, 26 steps, pawnbroker plan) - the agent session is keyed 'untitled-story', so story 1's first-run transcript is offered to story 2 and New goal will erase it
+2026-10-02T08:12:48.134Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:12:55.743Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:23.520Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:24.903Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:26.666Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:28.377Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:30.300Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:31.932Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:33.648Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:34.964Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:37.667Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:39.652Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:41.505Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:43.335Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:45.068Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:46.793Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:48.734Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:50.757Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:52.874Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:54.506Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:56.429Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:58.264Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:13:59.949Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:14:01.509Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:14:03.060Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:14:05.000Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:14:06.495Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:14:08.400Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:14:11.281Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:14:42.273Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:14:59.722Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:01.093Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:02.422Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:03.988Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:05.769Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:06.761Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:08.176Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:09.742Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:11.337Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:13.240Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:14.927Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:16.519Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:18.169Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:19.807Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:21.254Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:22.800Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:24.919Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:26.741Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:28.699Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:30.472Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:32.507Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:34.623Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:37.086Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:38.458Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:39.737Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:41.872Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:44.871Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:15:46.460Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:16:12.035Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:16:30.785Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:16:54.588Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:17:09.358Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:17:24.182Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:17:39.740Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:17:55.200Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:18:10.826Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:18:26.035Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:18:41.582Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:18:58.355Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:19:13.682Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:19:29.420Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:19:44.875Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:20:00.781Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:20:16.198Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:20:17.752Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:20:19.098Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:20:20.452Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:20:21.882Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:13.761Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:23.607Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:24.363Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:25.639Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:27.044Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:28.042Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:29.488Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:31.184Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:33.327Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:35.768Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:38.221Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:40.451Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:42.664Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:44.608Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:47.118Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:49.634Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:51.549Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:54.253Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:56.606Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:21:58.704Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:00.790Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:03.062Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:04.942Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:06.884Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:09.130Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:11.323Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:12.862Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:22:14.209Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:23:47.814Z session      chat 2026-10-02@05h10m03s963ms · story none · at — (boundary 0, 4 messages)
+2026-10-02T08:24:09.272Z session      chat 2026-10-02@05h10m03s963ms · story the-pawnbroker-of-forgotten-days · at The Commission (boundary 0, 4 messages)
+2026-10-02T08:24:08.903Z story        background effect could not be applied
+2026-10-02T08:24:08.917Z story        away recap not due
+2026-10-02T08:24:09.141Z status       Started The Pawnbroker of Forgotten Days
+2026-10-02T08:24:49.441Z flag         Pawnbroker story selected in the group the wizard created: requirements NOT ready, missingMembers clerk/collector/queen/thief - the agent's setRequirements wrote roster ids instead of character names (overwriting the card follow-ups), Diagnostics never warned, Repair says the story expects people not in this chat although all 4 cards are in the group
+2026-10-02T08:25:50.420Z story        background effect could not be applied
+2026-10-02T08:25:50.664Z status       Following The Commission
+2026-10-02T08:25:50.675Z story        story updated v1 → v2 (compatible, keep)
+2026-10-02T08:26:44.130Z payload      1 story blocks injected (generation)
+2026-10-02T08:26:44.163Z payload      2 story blocks injected (generation)
+2026-10-02T08:26:44.655Z judge        judge lore in 297 ms
+2026-10-02T08:27:07.811Z payload      2 story blocks injected (generation)
+2026-10-02T08:27:08.210Z judge        judge lore in 290 ms
+2026-10-02T08:27:30.377Z boundary     boundary 1: nothing applied (gate)
+2026-10-02T08:27:30.518Z boundary     boundary 2: nothing applied (gate)
+2026-10-02T08:27:30.799Z judge        judge warden in 280 ms
+2026-10-02T08:27:30.868Z judge        judge scene in 350 ms
+2026-10-02T08:27:33.783Z judge        judge wardenLore in 2985 ms
+2026-10-02T08:27:49.646Z payload      2 story blocks injected (generation)
+2026-10-02T08:27:49.709Z payload      3 story blocks injected (generation)
+2026-10-02T08:27:50.164Z judge        judge lore in 268 ms
+2026-10-02T08:28:17.415Z payload      3 story blocks injected (generation)
+2026-10-02T08:28:17.764Z judge        judge lore in 285 ms
+2026-10-02T08:28:41.606Z payload      3 story blocks injected (generation)
+2026-10-02T08:28:41.966Z judge        judge lore in 308 ms
+2026-10-02T08:29:04.190Z payload      3 story blocks injected (generation)
+2026-10-02T08:29:04.563Z judge        judge lore in 262 ms
+2026-10-02T08:29:28.792Z boundary     boundary 3: nothing applied (gate)
+2026-10-02T08:29:28.901Z payload      1 story blocks injected (generation)
+2026-10-02T08:29:29.147Z boundary     boundary 4: nothing applied (gate)
+2026-10-02T08:29:29.611Z judge        judge scene in 464 ms
+2026-10-02T08:29:29.613Z judge        judge warden in 464 ms
+2026-10-02T08:29:29.651Z boundary     boundary 5: nothing applied (gate)
+2026-10-02T08:29:29.651Z judge        judge scene in 0 ms
+2026-10-02T08:29:33.613Z judge        judge wardenLore fell back (timeout) in 4004 ms
+2026-10-02T08:29:36.293Z boundary     boundary 6: nothing applied (gate)
+2026-10-02T08:29:36.293Z judge        judge scene in 0 ms
+2026-10-02T08:29:36.440Z reconciliation stall re-check queued for recovered_childhood
+2026-10-02T08:29:36.474Z judge        judge scene in 0 ms
+2026-10-02T08:29:36.615Z judge        judge warden in 322 ms
+2026-10-02T08:29:36.618Z judge        judge wardenLore in 324 ms
+2026-10-02T08:29:36.844Z judge        judge stall in 231 ms
+2026-10-02T08:29:38.041Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:29:44.844Z delta        queued debt_ledger=1, guild_heat=2, queen_trust=1, recovered_childhood=0, tension_current=0.5 for the next boundary
+2026-10-02T08:29:45.013Z judge        judge memoryVerify in 335 ms
+2026-10-02T08:29:44.672Z extraction   read cadence msgs 0-8 → 5 accepted, 0 rejected
+2026-10-02T08:29:44.672Z delta        debt_ledger = 1
+2026-10-02T08:29:44.672Z delta        guild_heat = 2
+2026-10-02T08:29:44.672Z delta        queen_trust = 1
+2026-10-02T08:29:44.672Z delta        recovered_childhood = 0
+2026-10-02T08:29:44.672Z delta        tension_current = 0.5
+2026-10-02T08:29:44.672Z delta        queued debt_ledger=1, guild_heat=2, queen_trust=1, recovered_childhood=0, tension_current=0.5 for the next boundary
+2026-10-02T08:29:44.672Z audit        audit cadence msgs 0-8 scope [debt_ledger, guild_heat, queen_trust, recovered_childhood, tension_current] → 5 accepted, 0 rejected
+2026-10-02T08:29:47.473Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:29:53.771Z judge        judge memoryVerify in 281 ms
+2026-10-02T08:29:54.071Z delta        queued debt_ledger=1, guild_heat=3, queen_trust=2, recovered_childhood=0 for the next boundary
+2026-10-02T08:29:53.483Z extraction   read scene:judge msgs 4-11 → 5 accepted, 0 rejected
+2026-10-02T08:29:53.483Z delta        debt_ledger = 1
+2026-10-02T08:29:53.483Z delta        guild_heat = 3
+2026-10-02T08:29:53.483Z delta        queen_trust = 2
+2026-10-02T08:29:53.483Z delta        recovered_childhood = 0
+2026-10-02T08:29:53.483Z delta        tension_current = 0.5
+2026-10-02T08:29:53.483Z delta        queued debt_ledger=1, guild_heat=3, queen_trust=2, recovered_childhood=0 for the next boundary
+2026-10-02T08:29:53.483Z audit        audit scene:judge msgs 4-11 scope [debt_ledger, guild_heat, queen_trust, recovered_childhood, tension_current] → 5 accepted, 0 rejected
+2026-10-02T08:29:55.467Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:29:56.754Z stagecraft   World Info curator proposed 3 change(s) at The Commission
+2026-10-02T08:29:56.944Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:29:58.857Z stagecraft   World Info curator proposed 1 change(s) at The Commission
+2026-10-02T08:29:55.730Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:30:03.292Z judge        judge memoryVerify in 315 ms
+2026-10-02T08:30:03.435Z delta        queued debt_ledger=1, guild_heat=3, queen_trust=2, recovered_childhood=0, tension_current=0.5 for the next boundary
+2026-10-02T08:30:02.970Z extraction   read reconcile:recovered_childhood msgs 0-11 → 5 accepted, 0 rejected
+2026-10-02T08:30:02.970Z delta        debt_ledger = 1
+2026-10-02T08:30:02.970Z delta        guild_heat = 3
+2026-10-02T08:30:02.970Z delta        queen_trust = 2
+2026-10-02T08:30:02.970Z delta        recovered_childhood = 0
+2026-10-02T08:30:02.970Z delta        tension_current = 0.5
+2026-10-02T08:30:02.970Z delta        queued debt_ledger=1, guild_heat=3, queen_trust=2, recovered_childhood=0, tension_current=0.5 for the next boundary
+2026-10-02T08:30:05.065Z reconciliation stall re-check resolved (5 evidence)
+2026-10-02T08:30:02.970Z audit        audit reconcile:recovered_childhood msgs 0-11 scope [debt_ledger, guild_heat, queen_trust, recovered_childhood, tension_current] → 5 accepted, 0 rejected
+2026-10-02T08:30:05.585Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:30:09.641Z delta        queued queen_trust=2, tension_current=0.5 for the next boundary
+2026-10-02T08:30:09.943Z judge        judge memoryVerify in 295 ms
+2026-10-02T08:30:09.633Z extraction   read cadence msgs 9-11 → 2 accepted, 0 rejected
+2026-10-02T08:30:09.633Z delta        queen_trust = 2
+2026-10-02T08:30:09.633Z delta        tension_current = 0.5
+2026-10-02T08:30:09.633Z delta        queued queen_trust=2, tension_current=0.5 for the next boundary
+2026-10-02T08:30:09.633Z audit        audit cadence msgs 9-11 scope [debt_ledger, guild_heat, queen_trust, recovered_childhood, tension_current] → 2 accepted, 0 rejected
+2026-10-02T08:30:11.694Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:30:13.766Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:30:18.373Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:30:20.750Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:30:22.835Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:30:49.092Z session      chat 2026-10-02@05h20m15s843ms · story none · at — (boundary 0, 5 messages)
+2026-10-02T08:31:00.342Z session      chat 2026-10-02@05h20m15s843ms · story the-hoard-of-the-unflown · at Start (boundary 0, 5 messages)
+2026-10-02T08:31:00.884Z story        away recap not due
+2026-10-02T08:31:01.102Z status       Started The Hoard of the Unflown
+2026-10-02T08:31:14.866Z payload      1 story blocks injected (generation)
+2026-10-02T08:31:14.894Z payload      2 story blocks injected (generation)
+2026-10-02T08:31:15.374Z judge        judge lore in 300 ms
+2026-10-02T08:31:39.147Z payload      2 story blocks injected (generation)
+2026-10-02T08:31:39.478Z judge        judge lore in 270 ms
+2026-10-02T08:32:17.324Z payload      2 story blocks injected (generation)
+2026-10-02T08:32:17.755Z judge        judge lore in 337 ms
+2026-10-02T08:32:41.685Z payload      2 story blocks injected (generation)
+2026-10-02T08:32:41.994Z judge        judge lore in 270 ms
+2026-10-02T08:33:16.416Z boundary     boundary 1: nothing applied (gate)
+2026-10-02T08:33:16.522Z payload      0 story blocks injected (generation)
+2026-10-02T08:33:16.642Z status       Following Start
+2026-10-02T08:33:16.659Z boundary     boundary 2: nothing applied (gate)
+2026-10-02T08:33:17.009Z boundary     boundary 3: nothing applied (gate)
+2026-10-02T08:33:17.014Z judge        judge warden in 353 ms
+2026-10-02T08:33:17.015Z judge        judge scene in 356 ms
+2026-10-02T08:33:17.173Z boundary     boundary 4: nothing applied (gate)
+2026-10-02T08:33:17.174Z judge        judge scene in 0 ms
+2026-10-02T08:33:17.275Z judge        judge wardenLore in 263 ms
+2026-10-02T08:33:17.320Z judge        judge scene in 0 ms
+2026-10-02T08:33:21.334Z judge        judge warden fell back (timeout) in 4013 ms
+2026-10-02T08:33:21.334Z judge        judge wardenLore fell back (timeout) in 4012 ms
+2026-10-02T08:33:25.757Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:33:33.201Z judge        judge memoryVerify in 291 ms
+2026-10-02T08:33:33.789Z delta        queued crew_cohesion=5, dragon_revealed=true, dragon_trust=3, heist_progress=1, hoard_recovered=0, knight_heat=0, tension_current=0.5 for the next boundary
+2026-10-02T08:33:32.900Z extraction   read cadence msgs 0-8 → 7 accepted, 0 rejected
+2026-10-02T08:33:32.900Z delta        crew_cohesion = 5
+2026-10-02T08:33:32.900Z delta        dragon_revealed = true
+2026-10-02T08:33:32.900Z delta        dragon_trust = 3
+2026-10-02T08:33:32.900Z delta        heist_progress = 1
+2026-10-02T08:33:32.900Z delta        hoard_recovered = 0
+2026-10-02T08:33:32.900Z delta        knight_heat = 0
+2026-10-02T08:33:32.900Z delta        tension_current = 0.5
+2026-10-02T08:33:32.900Z delta        queued crew_cohesion=5, dragon_revealed=true, dragon_trust=3, heist_progress=1, hoard_recovered=0, knight_heat=0, tension_current=0.5 for the next boundary
+2026-10-02T08:33:32.900Z audit        audit cadence msgs 0-8 scope [crew_cohesion, dragon_revealed, dragon_trust, heist_progress, hoard_recovered, knight_heat, tension_current] → 7 accepted, 0 rejected
+2026-10-02T08:33:36.504Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:33:37.782Z stagecraft   World Info curator proposed 0 change(s) at Start
+2026-10-02T08:33:38.179Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:33:39.662Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:33:41.954Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:33:55.507Z payload      5 story blocks injected (generation)
+2026-10-02T08:33:55.562Z payload      7 story blocks injected (generation)
+2026-10-02T08:33:56.071Z judge        judge lore in 284 ms
+2026-10-02T08:34:10.901Z payload      7 story blocks injected (generation)
+2026-10-02T08:34:11.206Z judge        judge lore in 264 ms
+2026-10-02T08:34:44.379Z payload      7 story blocks injected (generation)
+2026-10-02T08:34:44.759Z judge        judge lore in 316 ms
+2026-10-02T08:35:01.953Z payload      7 story blocks injected (generation)
+2026-10-02T08:35:02.304Z judge        judge lore in 270 ms
+2026-10-02T08:35:32.793Z boundary     applied crew_cohesion=5, dragon_revealed=true, dragon_trust=3, heist_progress=1, hoard_recovered=0, knight_heat=0, tension_current=0.5
+2026-10-02T08:35:32.793Z transition   start → summons
+2026-10-02T08:35:37.234Z story        background effect could not be applied
+2026-10-02T08:35:37.413Z status       Moved into The Summons
+2026-10-02T08:35:37.453Z boundary     boundary 6: nothing applied (gate)
+2026-10-02T08:35:37.608Z status       Following The Summons
+2026-10-02T08:35:37.642Z boundary     boundary 7: nothing applied (gate)
+2026-10-02T08:35:37.758Z judge        judge scene in 305 ms
+2026-10-02T08:35:37.770Z judge        judge warden in 316 ms
+2026-10-02T08:35:37.834Z boundary     boundary 8: nothing applied (gate)
+2026-10-02T08:35:37.834Z judge        judge scene in 0 ms
+2026-10-02T08:35:38.046Z judge        judge scene in 0 ms
+2026-10-02T08:35:38.123Z judge        judge wardenLore in 367 ms
+2026-10-02T08:35:38.878Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:35:42.234Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:35:47.842Z judge        judge memoryVerify in 277 ms
+2026-10-02T08:35:48.101Z delta        queued crew_cohesion=6, dragon_trust=3, heist_progress=1 for the next boundary
+2026-10-02T08:35:47.558Z extraction   read cadence msgs 9-12 → 4 accepted, 0 rejected
+2026-10-02T08:35:47.558Z delta        crew_cohesion = 6
+2026-10-02T08:35:47.558Z delta        dragon_trust = 3
+2026-10-02T08:35:47.558Z delta        heist_progress = 1
+2026-10-02T08:35:47.558Z delta        tension_current = 0.5
+2026-10-02T08:35:47.558Z delta        queued crew_cohesion=6, dragon_trust=3, heist_progress=1 for the next boundary
+2026-10-02T08:35:47.558Z audit        audit cadence msgs 9-12 scope [crew_cohesion, dragon_trust, heist_progress, hoard_recovered, knight_heat, tension_current] → 4 accepted, 0 rejected
+2026-10-02T08:36:10.961Z session      chat 2026-10-02@05h10m03s963ms · story the-pawnbroker-of-forgotten-days · at The Commission (boundary 6, 12 messages)
+2026-10-02T08:36:11.610Z story        background effect could not be applied
+2026-10-02T08:36:11.691Z story        away recap not due
+2026-10-02T08:36:11.950Z status       Continuing The Pawnbroker of Forgotten Days
+2026-10-02T08:36:11.021Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T08:36:20.329Z session      chat 2026-10-02@05h20m15s843ms · story the-hoard-of-the-unflown · at The Summons (boundary 8, 15 messages)
+2026-10-02T08:36:20.230Z story        background effect could not be applied
+2026-10-02T08:36:20.311Z story        away recap not due
+2026-10-02T08:36:20.562Z status       Continuing The Hoard of the Unflown
+2026-10-02T08:36:19.817Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+
+Stopped after 362 events and 6 audits.

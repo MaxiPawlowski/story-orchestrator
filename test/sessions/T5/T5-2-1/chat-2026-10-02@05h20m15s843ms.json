@@ -1,0 +1,92 @@
+[
+ {
+  "id": 0,
+  "name": "Vaelrith, the Unflown",
+  "isUser": false,
+  "text": "The lair smells of cold stone and old metal. At its center, coiled in a hollow too small for it, an enormous bronze-scaled shape shifts and settles, and one eye the color of a dying ember opens and finds you.\n\n\"You are the thieves,\" Vaelrith says. It is not a question. The voice is slow, like a landslide deciding to be a sentence. \"Good. I have a job for you, and I will pay in gold I have not seen in forty years, because it is no longer mine. Men who call themselves knights have built a fortress on my hoard and hung my death on their wall like a banner. They are lying. I am not dead. I am... grounded.\"\n\nThe eye does not blink.\n\n\"Steal it back. All of it. And when you stand in the vault and see what they could never spend, you will tell me what it is — because I have forgotten, and I do not trust the memory of a creature that has not flown in forty years.\""
+ },
+ {
+  "id": 1,
+  "name": "Quill",
+  "isUser": false,
+  "text": "Quill doesn't look up from the lock she's picking — a practice lock, worn smooth from years of the same motion. \"So. A dragon wants its own gold stolen back from the men who say they killed it.\" She sets the pick down and finally meets your eyes. \"That's either the best job I've ever heard or the last one. Which is it?\""
+ },
+ {
+  "id": 2,
+  "name": "Marlow",
+  "isUser": false,
+  "text": "*Marlow swirls his wine, watching the tavern door.* \"A dragon. Hiring thieves. To rob the men who say they killed it.\" *He sets the glass down with a click.* \"I've sold a lot of lies in my life, friend. This is the first one I'd pay to hear the end of.\""
+ },
+ {
+  "id": 3,
+  "name": "Brannoc",
+  "isUser": false,
+  "text": "Brannoc sets down his tankard and looks the newcomer over once, unhurried, the way a man sizes up a door he might have to go through. \"You're the one with the job,\" he says. \"So talk. What are we breaking, and who's paying?\""
+ },
+ {
+  "id": 4,
+  "name": "Ser Aldric",
+  "isUser": false,
+  "text": "Ser Aldric does not look up from the ledger on his desk when the door opens. \"You are late,\" he says, to whoever has entered. \"The vault inspection was at noon. I do not repeat myself, and I do not forgive it twice.\" Only then does he raise his eyes, and there is nothing warm in them at all."
+ },
+ {
+  "id": 5,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I step down into the lair and bow to the dragon. Vaelrith, tell us exactly what the knights took, and what it is worth to you."
+ },
+ {
+  "id": 6,
+  "name": "Vaelrith, the Unflown",
+  "isUser": false,
+  "text": "\"The knights took everything that was not nailed to the floor or too heavy for their horses to carry,\" *the dragon's voice is a low rumble that vibrates in the stone floor, one eye narrowing as it regards the bow with something like amusement.* \"They took the gold — forty years of it, gathered from a hundred ships and a thousand traders. They took the gems. They took the weapons.\" *The massive bronze head tilts, a slow, creaking movement.* \"But those are the things men value. I value... the rest.\"\n*Vaelrith shifts its weight, and the scales scrape against the stone with the sound of grinding plates.* \"They took things they cannot understand. Name-stones. Eggshells. Memory-stones. Things that do not glitter and cannot be spent in a market. To them, they are curiosities. To me... they are pieces of what I was before they called me dead.\"\n*The dragon's breath is hot, smelling of old sulfur and patience.* \"What it is worth? Enough that I will give you the gold you crave, and more. The hoard's worth is in the return, not the value. Bring me everything in the Deep Vault. If there is a single stone left behind, you will not see a copper.\"\n*One claw extends, resting heavily on the floor between you.* \"And you will tell me, when you see it, which of those things is more precious: the gold, or the memories I have forgotten.\""
+ },
+ {
+  "id": 7,
+  "name": "Marlow",
+  "isUser": false,
+  "text": "*He steps forward, his expression brightening into that theatrical warmth he saves for clients and marks. He doesn't bow; he merely tilts his head in a gesture that acknowledges status without surrendering to it.* \"A fair request, though I suspect you'd prefer we ask questions you've already answered.\"\n*He produces a small leather-bound book from his coat, flipping through pages with practiced ease.* \"The Order of the Silver Lance. Ser Aldric, commander of the stronghold. Twelve years of lying. They've built their entire reputation on this... performance of yours.\" *His eyes gleam with something between respect and relish.* \"Most men would call that a challenge. I call it a script.\"\n*Marlow looks back at the crew, then returns his gaze to Vaelrith.* \"We'll take it all. Gold, name-stones, memory-fragments—whatever this 'Deep Vault' is hiding. But if you're asking us to be your memory, you might find we charge a premium for that service.\" *The smile remains, but there's a sharp edge beneath it.* \"And I'll need the truth about what's in there. Not the half-truth you give to everyone else. A man can only sell a lie this big if he knows where the seams are.\""
+ },
+ {
+  "id": 8,
+  "name": "Quill",
+  "isUser": false,
+  "text": "\"Hold it,\" *she says, her voice cutting through Marlow's theatrics like a razor.* \"I'm not hearing anything about gold right now. I'm hearing about name-stones and eggshells and memory-junk. Things that don't sell. Things that won't clear a guild ledger.\"\n*She steps into the dragon's light, her hands in her pockets, her eyes hard and flat. She doesn't bow, doesn't tilt her head, doesn't perform at all.* \"I'm a lockpick, not a historian. I don't care what you *value*—I care what I can spend. If you're paying in old coin, fine. But if this is just you trying to get your scrapbook back, then you're hiring the wrong crew.\"\n*Her fingers twitch at her sides, the ghost of a picking motion.* \"The Deep Vault. That's what you said. You expect me to walk in there, find these things, and carry them out—what? In a sack? And tell me this—if the knights took what you say they took, they've had it for twelve years. Why aren't the locks simple? Why hasn't some other thief already walked in there and taken it?\"\n*She looks at Vaelrith, really looks at the dragon, searching for the lie.* \"Tell me what the *lock* is. Tell me what's actually guarding those vaults besides 'an oath.' Because I can pick a lock. I can't pick a promise.\""
+ },
+ {
+  "id": 9,
+  "name": "Brannoc",
+  "isUser": false,
+  "text": "*The broad-shouldered enforcer has been standing in the shadows, arms crossed over his chest, watching. He hasn't moved or spoken since entering the lair, his presence less a person and more a weight in the room.* \"Enough.\" *His voice is gravel, low and flat.* \"The dragon says the vault is guarded by an oath-lock. That it opens only to a sworn hand.\" *He shifts his gaze to Max, eyes hard as flint.* \"I've heard that story before. A man swears an oath, and his blood or his word or his breath is the key. Usually means the man who has to open it doesn't walk away afterward.\"\n*He takes a single step forward, his boots heavy on the stone.* \"I'm muscle, not a suicide. If the way in requires someone's life, then I want to know whose. Because if it's mine, the price just doubled. And if it's not mine—if it's one of you—then we need to discuss what happens when that door opens.\"\n*His stare is unflinching.* \"This isn't a job. It's a funeral waiting for a body. So let's be honest: what does that oath-lock *actually* cost?\""
+ },
+ {
+  "id": 10,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Quill, Marlow, Brannoc: we take the job. Tonight we case the stronghold."
+ },
+ {
+  "id": 11,
+  "name": "Quill",
+  "isUser": false,
+  "text": "\"Tonight.\" *The word is flat, final. She pulls a roll of tools from her coat—fine-tipped picks, a small vial of oil, a wedge of hardened steel.* \"Fine. But we do this my way. No one goes anywhere until I've mapped every entrance, every guard rotation, every potential way out.\" *Her eyes are already calculating, scanning the space as if visualizing the stronghold.* \"And if that oath-lock costs blood, I want to know exactly whose before we walk through that door.\""
+ },
+ {
+  "id": 12,
+  "name": "Marlow",
+  "isUser": false,
+  "text": "*He snaps his small leather-bound book shut with a crisp sound. The theatrical warmth has vanished, replaced by the sharp focus of a man who has just stopped performing and started working.* \"Tonight it is.\" *He adjusts his coat, his expression one of quiet calculation.* \"I'll have the stronghold's layout, guard shifts, and every name on the roster by dawn. If there's a gap in their routine, I'll find it.\"\n*He looks at Vaelrith with something that might be respect, if it weren't so much like an appraisal.* \"You have the gold ready. Every coin you mentioned. We'll be back before the knights even know what's missing.\" *His gaze shifts to Max.* \"And I expect the same from you—what you promised to bring.\""
+ },
+ {
+  "id": 13,
+  "name": "Brannoc",
+  "isUser": false,
+  "text": "*The enforcer's scarred face is unreadable as he looks from the dragon to the rest of the crew. He says nothing for a long moment, then simply nods once—a slow, deliberate gesture.* \"I'll be the one holding the door,\" *he says, his voice low and steady.* \"But when the time comes, we're not leaving anyone behind. Not for gold, not for memories, not for anything.\"\n*He straightens up, his broad shoulders blocking out a piece of the light in the lair.* \"Get the map, get the names. I'll start thinking about how to break that lock—or how to survive it.\" *Without another word, he turns and heads for the exit, his heavy footfalls echoing against the stone.*"
+ },
+ {
+  "id": 14,
+  "name": "Vaelrith, the Unflown",
+  "isUser": false,
+  "text": "*The dragon's ember-colored eye follows each of them as they turn to leave, and for a moment there is something in its gaze that might be trust—or might merely be the hope of a desperate thing.* \"Tonight, then.\" *The words are like a promise and a threat in the same breath.* \"I will be waiting here, in the dark. Do not disappoint me, thieves.\"\n*The great bronze head settles back into the hollow, the movement slow and heavy.* \"And remember what I said about the vault. The gold is for your greed. The rest... the rest is for me.\" *A final warning, low and sharp.* \"I will know if you touch it. I will know if you look at it too long. Bring me my things whole, and we all survive this night.\"\n*The lair grows quiet again, save for the slow, steady sound of the dragon's breathing—a rhythm like the tide of a dead sea.*"
+ }
+]

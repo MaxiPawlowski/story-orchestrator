@@ -1,0 +1,350 @@
+{
+  "label": "diff-end",
+  "capturedAt": "2026-10-02T08:36:29.796Z",
+  "build": {
+    "head": "8c57188cbd44a5cde749afafd8a916c1ece2022e",
+    "dirty": true,
+    "manifest": {
+      "version": "2.4.0",
+      "flavor": "prod",
+      "commit": null,
+      "sourceSha256": "b9542e6f9f6b81b72284ec224e9ababc7827d40649fc23141637cdd13a03b7b5",
+      "sourceFiles": 544,
+      "bundleSha256": "75e3142cde9ba9dc7a0f20a05f544aaa002e8e365fca887d2c8515e340b2081b",
+      "bundleBytes": 1237858,
+      "hostVersion": "1.19.0",
+      "builtAt": "2026-10-02T07:34:42.556Z",
+      "fileSha256": "10fee210fb6c18e0"
+    }
+  },
+  "campaign": {
+    "pinCommit": "be0696b361731080f4fb04a98e7caec5c40d177e",
+    "pinBranch": "master",
+    "installed": {
+      "commit": "be0696b361731080f4fb04a98e7caec5c40d177e",
+      "sha256": "b6ed792df11edc9e"
+    }
+  },
+  "warnings": [
+    "the page is running a bundle that is not the built one: served d6737acda880c18b vs dist 75e3142cde9ba9dc"
+  ],
+  "settings": {
+    "schema": 1
+  },
+  "bundle": {
+    "served": {
+      "http": 200,
+      "sha256": "d6737acda880c18ba1c6dd1f853faf55ac12a5d8935f1e7045a927f950fa0c89",
+      "bytes": 1276645
+    }
+  },
+  "host": {
+    "stVersion": "1.19.0 (7c3994196)",
+    "mainApi": "textgenerationwebui",
+    "onlineStatus": "/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf",
+    "macroEngine": "experimental"
+  },
+  "profiles": {
+    "selected": "Artemis RunPod RP [llamacpp]",
+    "extraction": "deepseek 4.1 flash [deepseek deepseek-flash]",
+    "urls": [
+      "Artemis Local (Unsloth) [generic] -> http://127.0.0.1:18888",
+      "Artemis RunPod RP [llamacpp] -> http://127.0.0.1:18080",
+      "Artemis RunPod [llamacpp] -> http://127.0.0.1:18080",
+      "Image Director [llamacpp] -> http://127.0.0.1:18080",
+      "Story Orchestrator Memory RunPod [llamacpp] -> http://127.0.0.1:18080",
+      "Story Orchestrator Memory Unsloth [generic] -> http://127.0.0.1:18888",
+      "deepseek 4.1 flash [deepseek] -> (no api-url)"
+    ]
+  },
+  "judge": {
+    "pluginHttp": 200,
+    "pluginConfigured": true,
+    "enabled": true,
+    "model": "jev-1.13.0",
+    "timeoutMs": 1500,
+    "uses": {
+      "director": true,
+      "memoryVerify": true,
+      "memoryPairs": true,
+      "sceneTrigger": true,
+      "sceneTracker": true,
+      "lookahead": true,
+      "loreSelect": true,
+      "curatorFilter": true,
+      "typedExtraction": true,
+      "stallCheck": true,
+      "expansionCritic": true,
+      "expansionLookahead": true,
+      "agencyCheck": true,
+      "houseRules": false,
+      "wardenLore": true,
+      "loreExclusive": true,
+      "expressions": true
+    },
+    "expansion": {
+      "variants": 1,
+      "temperature": 0.7,
+      "pick": "code"
+    }
+  },
+  "stagecraft": {
+    "curatorEnabled": true,
+    "acceptMode": "review",
+    "wardenEnabled": true,
+    "wardenAcceptMode": "review"
+  },
+  "extraction": {
+    "enabled": true,
+    "cadence": 3,
+    "stabilityLag": 0,
+    "reconciliationMultiplier": 1.5,
+    "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "profiles": {
+      "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+    }
+  },
+  "spikes": {
+    "swipeBackCache": false,
+    "sp5Scenario": false,
+    "sp6Complications": false,
+    "sp8CuratorTiers": false,
+    "reasoningEffect": false
+  },
+  "display": {
+    "announceTransitions": false,
+    "hudEnabled": true,
+    "talkEnabled": true
+  },
+  "chat": {
+    "groupId": "1790929215846",
+    "chatId": "2026-10-02@05h20m15s843ms",
+    "chatLength": 15,
+    "authorView": false
+  },
+  "story": {
+    "id": "the-hoard-of-the-unflown",
+    "title": "The Hoard of the Unflown",
+    "playedVersion": 1,
+    "contentHash": "v2-a35af530",
+    "activeCheckpointId": "summons",
+    "boundary": 8
+  },
+  "group": {
+    "name": "The Hoard of the Unflown — Crew",
+    "members": [
+      "Brannoc.png",
+      "Marlow.png",
+      "Quill.png",
+      "Ser Aldric.png",
+      "Vaelrith, the Unflown.png"
+    ],
+    "disabledMembers": []
+  },
+  "inventory": {
+    "v2Stories": [
+      "adolion-academy@27",
+      "adolion-adventurer@30",
+      "adolion-aegis@12",
+      "adolion-deep@11",
+      "adolion-east@11",
+      "adolion-esha@11",
+      "adolion-night@10",
+      "adolion-saga@17",
+      "adolion-war@10",
+      "the-hoard-of-the-unflown@1",
+      "the-pawnbroker-of-forgotten-days@2"
+    ],
+    "wizardSessions": [
+      "0",
+      "1",
+      "2"
+    ],
+    "debugGlobals": [],
+    "lorebooksSelected": [
+      "Adolion - Aegis City Noble Life",
+      "Adolion - Eshalanore",
+      "Adolion - Mountains of Shadow",
+      "Adolion - The Third Kingdom",
+      "Adolion - Tiunhime Village",
+      "Adolion Academy Checkpoints",
+      "Adolion Adventurer Checkpoints",
+      "Adolion Aegis Checkpoints",
+      "Adolion Chronicle",
+      "Adolion Deep Checkpoints",
+      "Adolion East Checkpoints",
+      "Adolion Eshalanore Checkpoints",
+      "Adolion Night Checkpoints",
+      "Adolion Saga Checkpoints",
+      "Adolion War Checkpoints",
+      "Adolion World",
+      "The Hoard of the Unflown — Lore",
+      "The Pawnbroker of Forgotten Days"
+    ],
+    "lorebookCount": 26,
+    "characterCount": 172,
+    "groupChats": [
+      "1703513523027/2024-10-27@09h04m05s",
+      "1703932647585/2023-12-30@07h37m27s",
+      "1703932647585/2024-10-25@16h35m36s",
+      "1703932647585/Branch #10 - 2023-12-30@08h46m02s",
+      "1703932647585/Branch #12 - 2023-12-30@09h04m17s",
+      "1703932647585/Branch #3 - 2023-12-30@07h49m03s",
+      "1703932647585/Branch #35 - 2024-1-11@08h47m04s",
+      "1703932647585/Branch #37 - 2024-1-7@07h44m27s",
+      "1703932647585/Branch #37 - 2024-1-7@08h07m21s",
+      "1703932647585/Branch #38 - 2024-1-7@08h07m14s",
+      "1703932647585/Branch #39 - 2024-1-7@09h01m01s",
+      "1703932647585/Branch #39 - 2024-1-7@11h07m39s",
+      "1703932647585/Branch #39 - 2024-1-7@11h13m12s",
+      "1703932647585/Branch #39 - 2024-1-7@11h14m18s",
+      "1703932647585/Branch #39 - 2024-1-7@11h21m12s",
+      "1703932647585/Branch #39 - 2024-1-7@11h24m17s",
+      "1703932647585/Branch #39 - 2024-1-7@11h24m55s",
+      "1703932647585/Branch #4 - 2023-12-30@07h49m58s",
+      "1703932647585/Branch #40 - 2024-1-7@08h16m07s",
+      "1703932647585/Branch #40 - 2024-1-7@08h16m50s",
+      "1703932647585/Branch #40 - 2024-1-7@08h21m35s",
+      "1703932647585/Branch #40 - 2024-1-7@08h26m16s",
+      "1703932647585/Branch #40 - 2024-1-7@08h50m34s",
+      "1703932647585/Branch #40 - 2024-1-7@08h54m44s",
+      "1703932647585/Branch #40 - 2024-1-7@08h57m26s",
+      "1703932647585/Branch #44 - 2024-1-8@07h46m49s",
+      "1703932647585/Branch #7 - 2023-12-30@08h34m59s",
+      "1703932647585/Branch #9 - 2023-12-30@08h38m48s",
+      "1703932647585/Branch #9 - 2023-12-30@08h43m16s",
+      "1759606632088/2025-10-05@06h12m53s",
+      "1759606632088/2025-10-19@03h33m31s",
+      "1759606632088/2025-10-19@07h16m29s",
+      "1759606632088/2025-10-24@12h14m56s",
+      "1759606632088/2025-10-24@17h18m15s",
+      "1759606632088/2025-10-27@20h24m15s",
+      "1759606632088/2026-02-17@11h42m56s913ms",
+      "1759606632088/2026-03-26@12h06m12s510ms",
+      "1759606632088/2026-03-26@12h08m16s199ms",
+      "1759606632088/2026-07-05@22h24m53s198ms",
+      "1759606632088/2026-07-05@22h55m21s034ms",
+      "1759606632088/2026-07-06@05h51m54s748ms",
+      "1759606632088/2026-08-11@20h45m42s515ms",
+      "1759606632088/2026-08-11@20h48m58s737ms",
+      "1759606632088/2026-08-11@20h52m33s971ms",
+      "1759606632088/2026-08-11@20h54m33s414ms",
+      "1759606632088/2026-08-11@21h31m08s263ms",
+      "1759606632088/2026-08-11@21h50m22s390ms",
+      "1759606632088/2026-08-11@21h57m58s240ms",
+      "1759606632088/2026-08-12@02h43m15s689ms",
+      "1759606632088/2026-08-12@02h43m40s089ms",
+      "1759606632088/2026-08-12@02h54m21s833ms",
+      "1759606632088/2026-08-12@03h56m01s832ms",
+      "1759606632088/2026-08-12@03h56m31s664ms",
+      "1759606632088/2026-08-12@08h08m11s460ms",
+      "1759606632088/2026-08-12@10h03m45s492ms",
+      "1759606632088/2026-08-12@11h43m26s486ms",
+      "1759606632088/2026-08-12@11h44m44s165ms",
+      "1759606632088/2026-08-12@11h49m39s901ms",
+      "1759606632088/2026-08-13@04h14m58s603ms",
+      "1759606632088/2026-08-13@04h27m07s632ms",
+      "1759606632088/2026-08-13@05h41m21s356ms",
+      "1759606632088/2026-08-13@06h05m16s093ms",
+      "1759606632088/2026-08-13@06h12m05s775ms",
+      "1759606632088/2026-08-13@06h12m19s409ms",
+      "1759606632088/2026-08-13@06h14m25s652ms",
+      "1759606632088/2026-08-13@06h15m25s460ms",
+      "1759606632088/2026-08-13@06h19m36s454ms",
+      "1759606632088/2026-08-13@06h23m47s982ms",
+      "1759606632088/2026-08-13@06h26m46s401ms",
+      "1759606632088/2026-08-13@06h26m57s965ms",
+      "1759606632088/2026-08-13@06h37m51s942ms",
+      "1759606632088/2026-08-13@06h54m40s955ms",
+      "1759606632088/2026-09-19@22h52m47s460ms",
+      "1759606632088/2026-09-20@03h36m38s982ms",
+      "1759606632088/2026-09-20@03h37m03s927ms",
+      "1759606632088/2026-09-20@04h09m30s254ms",
+      "1759606632088/2026-09-20@04h11m21s482ms",
+      "1759606632088/2026-09-20@04h11m46s225ms",
+      "1759606632088/2026-09-20@04h34m19s453ms",
+      "1759606632088/2026-09-20@04h40m32s180ms",
+      "1759606632088/2026-09-20@07h06m38s396ms",
+      "1759606632088/Branch #1 - 2025-10-19@03h36m00s",
+      "1759606632088/Branch #5 - 2025-10-24@17h19m22s",
+      "1790927655021/2026-10-02@04h54m14s454ms",
+      "1790927655161/2026-10-02@04h54m15s039ms",
+      "1790927655499/2026-10-02@04h54m15s245ms",
+      "1790927655682/2026-10-02@04h54m15s515ms",
+      "1790927655847/2026-10-02@04h54m15s700ms",
+      "1790927655981/2026-10-02@04h54m15s894ms",
+      "1790927656484/2026-10-02@04h54m16s053ms",
+      "1790927656938/2026-10-02@04h54m16s703ms",
+      "1790927657491/2026-10-02@04h54m17s005ms",
+      "1790928603964/2026-10-02@05h10m03s963ms",
+      "1790929215846/2026-10-02@05h20m15s843ms"
+    ]
+  },
+  "sampler": {
+    "api": "textgenerationwebui",
+    "preset": "Artemis v1.1 RP",
+    "temp": 1,
+    "top_p": 1
+  },
+  "thirdParty": {
+    "disabledExtensions": [
+      "attachments",
+      "caption",
+      "expressions",
+      "gallery",
+      "third-party/Extension-Idle",
+      "third-party/Extension-Live2d",
+      "third-party/Extension-Mermaid",
+      "third-party/Extension-Objective",
+      "third-party/Extension-ReactTemplate",
+      "third-party/Extension-TopInfoBar",
+      "third-party/Prome-VN-Extension",
+      "third-party/SillyTavern-BotBrowser",
+      "third-party/SillyTavern-Chub-Search",
+      "third-party/SillyTavern-Lore-Variables",
+      "third-party/SillyTavern-MemoryBooks",
+      "third-party/SillyTavern-MoonlitEchoesTheme",
+      "third-party/SillyTavern-Presence",
+      "third-party/SillyTavern-Timelines",
+      "third-party/SillyTavern-Tracker",
+      "third-party/qvink_memory",
+      "third-party/sillytavern-actions",
+      "third-party/st-extension-example",
+      "third-party/st-group-utils",
+      "translate",
+      "tts"
+    ],
+    "installed": [
+      "third-party/Extension-Idle",
+      "third-party/Extension-Mermaid",
+      "third-party/Extension-Objective",
+      "third-party/Extension-PromptInspector",
+      "third-party/Extension-ReactTemplate",
+      "third-party/Extension-TopInfoBar",
+      "third-party/Prome-VN-Extension",
+      "third-party/SillyTavern-BotBrowser",
+      "third-party/SillyTavern-Chub-Search",
+      "third-party/SillyTavern-Lore-Variables",
+      "third-party/SillyTavern-MemoryBooks",
+      "third-party/SillyTavern-MoonlitEchoesTheme",
+      "third-party/SillyTavern-Presence",
+      "third-party/SillyTavern-Tracker",
+      "third-party/qvink_memory",
+      "third-party/sillytavern-actions",
+      "third-party/st-group-utils",
+      "third-party/st-stepped-thinking",
+      "third-party/story-orchestrator"
+    ],
+    "watched": {
+      "st-stepped-thinking": {
+        "is_enabled": false,
+        "mode": "embedded",
+        "is_shutdown": false
+      }
+    }
+  }
+}

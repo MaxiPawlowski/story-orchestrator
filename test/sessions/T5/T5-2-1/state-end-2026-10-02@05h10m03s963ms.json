@@ -1,0 +1,614 @@
+{
+  "storyId": "the-pawnbroker-of-forgotten-days",
+  "activeCheckpointId": "start",
+  "boundary": 6,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "The Pawnbroker of Forgotten Days": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {},
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "d42f6948-d812-4adc-926e-510b54765118",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ivet Marrow",
+      "tag": "knows",
+      "content": "The writ commands return of the queen's twenty pawned years by the seventh day or seizure of license and assets",
+      "createdAt": 6,
+      "messageId": 8
+    },
+    {
+      "id": "102053f7-e732-4150-bfaf-9a26adfc5529",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ivet Marrow",
+      "tag": "knows",
+      "content": "Osric Vane's accounts are kept in the climate-controlled vault, not the main ledger",
+      "createdAt": 6,
+      "messageId": 8
+    },
+    {
+      "id": "307abc4a-1c7a-477b-9986-a4e9aed48306",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Osric Vane",
+      "tag": "knows",
+      "content": "The crown sent the pawnbroker, and he has been expecting them since the writ was sealed",
+      "createdAt": 6,
+      "messageId": 8
+    },
+    {
+      "id": "ecd07223-bd4a-4a03-800f-db1ad80b0929",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sera Vantel",
+      "tag": "knows",
+      "content": "The pawnbroker found the pawn ticket",
+      "createdAt": 6,
+      "messageId": 8,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "68fc58fd-1017-44d0-b0b9-e564eb1ebaeb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Queen Alaric Vess",
+      "tag": "intends",
+      "content": "To learn the name on the debt record and decide for herself what her recovered past is worth",
+      "createdAt": 6,
+      "messageId": 8
+    },
+    {
+      "id": "780d1d8b-69e6-4e9c-babf-319e13f90ccc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Sera Vantel",
+      "tag": "intends",
+      "content": "To learn whether the crown or the Guild sent the pawnbroker before speaking further",
+      "createdAt": 6,
+      "messageId": 8,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "f331fbea-36b0-4e91-801f-775438f01239",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Sera Vantel",
+      "tag": "hiding",
+      "content": "What the queen's missing years contain and her own role in pawning them",
+      "hiddenFrom": "everyone",
+      "createdAt": 6,
+      "messageId": 8,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "3f89e5a9-5ee5-41bc-9c44-cee7c9f01d8e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ivet Marrow",
+      "tag": "knows",
+      "content": "Osric Vane's accounts are kept in a climate-controlled vault rather than the main ledger, and he pawns for leverage rather than coin.",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "e450427f-55fa-401b-a171-b00cc587be49",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Queen Alaric Vess",
+      "tag": "knows",
+      "content": "The debt record bears a soldier's name, not a woman's, and the collector holding her years is Osric Vane.",
+      "createdAt": 6,
+      "messageId": 11,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "b64f4a85-5139-4f38-b598-848c904d154f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Queen Alaric Vess",
+      "tag": "intends",
+      "content": "To have the pawn ticket brought to her first, before any crown officer or guild inspector, so she alone decides what the memory is worth.",
+      "createdAt": 6,
+      "messageId": 11,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "a94aa7d4-eadc-4969-8768-7153eafdc5a4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Sera Vantel",
+      "tag": "hiding",
+      "content": "What the missing years contain and the story the ticket would tell.",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 6,
+      "messageId": 11,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "db9a65c1-9c6e-4e08-a12d-fef652ee19c2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Ivet Marrow",
+      "tag": "suspects",
+      "content": "That the debt may have been sold or transferred without a record, making the vault a trap.",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "8e1854fe-2b29-4cc9-80fb-df621c4e47f5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ivet Marrow",
+      "tag": "knows",
+      "content": "The writ commands production of the queen's twenty pawned years held against Osric Vane's account, returnable by dusk on the seventh day or forfeiture of license and assets.",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "1bfd050d-3e86-48ef-8f7d-8fd0ac756457",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Queen Alaric Vess",
+      "tag": "knows",
+      "content": "The debt record bears a soldier's name, not a woman's.",
+      "createdAt": 6,
+      "messageId": 11,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "3ae056a5-259f-415d-9211-7a7887f177db",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Queen Alaric Vess",
+      "tag": "intends",
+      "content": "To have the ticket brought to her first and to decide alone what the memory is worth.",
+      "createdAt": 6,
+      "messageId": 11,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "37a97bf8-ae7d-4029-8000-d6dc4decaa87",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Sera Vantel",
+      "tag": "intends",
+      "content": "To keep the door barred and refuse the pawnbroker entry.",
+      "createdAt": 6,
+      "messageId": 11,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "0ee7c516-ed48-4659-bd9a-2b40488be06b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Queen Alaric Vess",
+      "tag": "knows",
+      "content": "the name on the debt record is a soldier's, not a woman's",
+      "createdAt": 6,
+      "messageId": 11,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "70470a6d-d18f-482b-8edd-bd0b29191f74",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sera Vantel",
+      "tag": "knows",
+      "content": "the ticket is a key that opens a vault and unlocks a debt",
+      "createdAt": 6,
+      "messageId": 11,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "7da9981d-3498-41cf-aab2-b91cc1657efc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Sera Vantel",
+      "tag": "hiding",
+      "content": "what the missing years contain and the story the ticket unlocks",
+      "hiddenFrom": "everyone",
+      "createdAt": 6,
+      "messageId": 11,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "aedab99f-4503-4474-8436-5be328321b72",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ivet Marrow",
+      "tag": "knows",
+      "content": "The writ's seal was broken by Max Nightriver against her protest",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "8f811245-b697-4d8e-a745-e2e651a83d85",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Queen Alaric Vess",
+      "tag": "knows",
+      "content": "The debt record bears a soldier's name, not a woman's",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "095a0ce4-c502-476d-a7d2-4def977e85d7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sera Vantel",
+      "tag": "knows",
+      "content": "The pawnbroker found the ticket",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "c922243c-b059-421f-8e10-a06162f39eb3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Sera Vantel",
+      "tag": "hiding",
+      "content": "What the queen's missing years contain and her own role in pawning them",
+      "hiddenFrom": "everyone",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "8c0de93b-5a4a-48e4-a4b2-ee284d586dd1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Sera Vantel",
+      "tag": "hiding",
+      "content": "What the missing years contain and the story the ticket would tell",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "1966666d-30dd-4c97-a196-8cc70997ba70",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Queen Alaric Vess",
+      "tag": "intends",
+      "content": "To have the ticket brought to her first, before any crown officer or guild inspector, so she alone decides what the memory is worth",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "f8c5d43c-13f1-4758-88c7-2b59accdf6ad",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Sera Vantel",
+      "tag": "intends",
+      "content": "To learn whether the crown or the Guild sent the pawnbroker before speaking further",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "0ec1ac64-0dfe-46ab-a76e-f459480c2630",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Queen Alaric Vess",
+      "tag": "believes",
+      "content": "That the name on the debt record is irrelevant now",
+      "createdAt": 6,
+      "messageId": 11,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "da63466a-0f04-437e-9bde-57cc0fb873e3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Queen Alaric Vess",
+      "tag": "believes",
+      "content": "That the debt was a soldier's, paid for things he could not afford",
+      "createdAt": 6,
+      "messageId": 11,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "014583fa-8dd7-4257-bfe8-cbfaa84dfa44",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Queen Alaric Vess",
+      "tag": "knows",
+      "content": "The pawnbroker is the one who knows the ledger's language",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "ed9ee5aa-9b9e-4ac6-8170-8ca146fa4e7b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Queen Alaric Vess",
+      "tag": "believes",
+      "content": "That the name on the debt record is irrelevant now",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "f818cbd6-df09-4ed1-8b0d-338400145676",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Queen Alaric Vess",
+      "tag": "believes",
+      "content": "That the debt was a soldier's, paid for things he could not afford",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "3410fd30-04a3-4428-9a7d-dd9ddf8b5860",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sera Vantel",
+      "tag": "knows",
+      "content": "The ticket is a key that opens a vault, unlocks a debt, and tells a story neither side wants heard in daylight",
+      "createdAt": 6,
+      "messageId": 11
+    },
+    {
+      "id": "b0336d44-b033-4271-b759-3c64c30f707d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 6,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Sera Vantel",
+      "tag": "suspects",
+      "content": "That the pawnbroker is from the guild, the crown, or is a thief who found a ticket",
+      "createdAt": 6,
+      "messageId": 11
+    }
+  ],
+  "characters": [
+    {
+      "index": 69,
+      "name": "Ivet Marrow",
+      "avatar": "Ivet Marrow.png"
+    },
+    {
+      "index": 114,
+      "name": "Osric Vane",
+      "avatar": "Osric Vane.png"
+    },
+    {
+      "index": 118,
+      "name": "Queen Alaric Vess",
+      "avatar": "Queen Alaric Vess.png"
+    },
+    {
+      "index": 138,
+      "name": "Sera Vantel",
+      "avatar": "Sera Vantel.png"
+    }
+  ],
+  "payloadEpoch": "1790927992882-yzpq97"
+}

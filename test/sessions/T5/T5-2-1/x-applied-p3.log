@@ -1,0 +1,204 @@
+{
+  "ok": true,
+  "value": {
+    "text": "Step 1 of the agreed plan: create the story's own lorebook so later entries and requirements can point at it.\nnew lorebook\nCreate the story lorebook \"The Hoard of the Unflown — Lore\"\nLorebook name\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=The Hoard of the Unflown — Lore",
+      "Why not="
+    ]
+  }
+}
+{
+  "ok": true,
+  "value": {
+    "text": "The lorebook exists; now write its first key entry — Vaelrith, the dragon patron — so the dragon's nature, shame and commission are available to the story.\nlorebook entry\nWrite \"Vaelrith, the Unflown\" into \"The Hoard of the Unflown — Lore\"\nLorebook\nEntry title\nKeywords\nContent\nAlways in context\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=The Hoard of the Unflown — Lore",
+      "=Vaelrith, the Unflown",
+      "=Vaelrith, the Unflown, the dragon, old wyrm, wyrm",
+      "=Vaelrith is a dragon too old to fly. Its wings still spread but the muscle is gone; it moves through the city's underbelly by night, on foot, in a shape it hates. It is not dying — it is diminishing, and it knows the difference.\n\nCenturies ago Vaelrith's hoard was its memory: not coin alone but name-stones, eggshells, the first things it ever owned. When the knights of the city claimed to have slain it, they took the hoard and built a stronghold over it. Vaelrith survived, crawled away, and let the lie stand — because a dragon that is dead cannot be hunted.\n\nNow it wants the hoard back, one vault at a time, stolen by thieves rather than taken by fire. It pays in old coin and older favors. It is proud, exacting, and ashamed of needing help. It does not tell the crew everything, and it watches how they treat what it has lost.\n\nVaelrith's private fear: that the hoard is only treasure after all, and that the thing it lost was never memory but merely wealth — and that it has spent centuries mourning a pile of gold.",
+      "=on",
+      "Why not="
+    ]
+  }
+}
+{
+  "ok": true,
+  "value": {
+    "text": "Continue the agreed provisioning plan: entry 3 of 8 in the story lorebook, the knights' lie that holds the city together.\nlorebook entry\nWrite \"The False Slaying\" into \"The Hoard of the Unflown — Lore\"\nLorebook\nEntry title\nKeywords\nContent\nAlways in context\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=The Hoard of the Unflown — Lore",
+      "=The False Slaying",
+      "=false slaying, the slaying, dragon's death, the lie, knights' victory, trophy",
+      "=Twelve years ago the Order of the Silver Lance marched into the mountains and came back with a story: the dragon Vaelrith was dead, struck down by Ser Aldric's spear, and its hoard was theirs by right of the kill. The city of Kestrelmoor believed it because it was profitable to believe — the knights' victory brought trade, order, and a stronghold built on dragon-gold. The truth is that Vaelrith was never slain. It was old, its wings had failed, and it hid rather than die. The knights found an empty lair, took what they could carry, and invented the kill. Every year since, the Order has had to keep the lie alive: staged trophies, a dragon's skull that is not Vaelrith's, a festival of the Slaying. A knight who lied about a dragon must keep proving the lie until it is true — or until the dragon comes back to disprove it.",
+      "=on",
+      "Why not="
+    ]
+  }
+}
+{
+  "ok": true,
+  "value": {
+    "text": "Plan step 4: add the Knights' Stronghold lorebook entry, the fortress built on the hoard with its vaults and guard rotations.\nlorebook entry\nWrite \"The Knights' Stronghold\" into \"The Hoard of the Unflown — Lore\"\nLorebook\nEntry title\nKeywords\nContent\nAlways in context\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=The Hoard of the Unflown — Lore",
+      "=The Knights' Stronghold",
+      "=stronghold, fortress, knights' keep, vaults, guard rotations, the keep",
+      "=The Order of the Silver Lance built their stronghold directly over the cavern where the hoard was found, so that the treasure could never be moved without their knowing. The upper floors are barracks, chapel, and trophy hall — the dragon's skull (a forgery of plaster and boar bone) hangs above the great doors, and the knights toast beneath it nightly. Below, cut into the old stone, are the vaults: the Coin Vault, the Reliquary, and the Deep Vault that no living knight has opened in a decade. Guard rotations change at the third bell and the ninth; the night watch is thin, bored, and bribable, but the Deep Vault is warded by a knight's oath-lock that answers only to a sworn hand. The stronghold is a place where a lie is maintained by ceremony — and ceremony, like any lock, has a rhythm a thief can learn.",
+      "=on",
+      "Why not="
+    ]
+  }
+}
+{
+  "ok": true,
+  "value": {
+    "text": "Continue the agreed plan: entry 5 of 8 in the story lorebook — the Memory-Hoard, the truth at the heart of the vault that the true_hoard beat reveals.\nlorebook entry\nWrite \"The Memory-Hoard\" into \"The Hoard of the Unflown — Lore\"\nLorebook\nEntry title\nKeywords\nContent\nAlways in context\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=The Hoard of the Unflown — Lore",
+      "=The Memory-Hoard",
+      "=memory-hoard, memory hoard, name-stones, name stones, eggs, true hoard, dragon's true hoard",
+      "=What the knights took from Vaelrith was never only gold. Beneath the coin and the crowns, in the deepest vault of the stronghold, they keep the things a dragon cannot replace: unhatched eggs gone cold, name-stones carved with the true names of Vaelrith's line, and memory-stones that hold the wyrm's own recollections of the centuries before the false slaying. The knights cannot spend any of it — the stones will not answer them and the eggs will not warm — so they keep it as proof of a kill they never made. Vaelrith does not fully remember what is down there; age has taken as much as the thieves did. Returning the memory-hoard may restore what the dragon was, or reveal that what it was is gone for good. The crew's choice of what to carry out of that vault decides which.",
+      "=on",
+      "Why not="
+    ]
+  }
+}
+{
+  "ok": true,
+  "value": {
+    "text": "Continue the agreed plan: entry 6 of 8 in the story lorebook — the crew's haunt, the thieves' tavern and underworld where the job begins.\nlorebook entry\nWrite \"The Crew's Haunt\" into \"The Hoard of the Unflown — Lore\"\nLorebook\nEntry title\nKeywords\nContent\nAlways in context\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=The Hoard of the Unflown — Lore",
+      "=The Crew's Haunt",
+      "=haunt, tavern, underworld, thieves' tavern, the Drowned Lamp, crew's haunt",
+      "=The crew's haunt is a low tavern in the river quarter where the city's thieves drink under a ceiling of stolen chandeliers. Jobs are brokered in the back room; nobody asks a name they can't afford to know. This is where the dragon's commission first arrives — a sealed letter, a purse of old coin, and a summons no thief would believe if it weren't already paid for. The underworld here runs on favors, debts, and the guild's ledger; a crew is only as good as the last job it walked away from.",
+      "=on",
+      "Why not="
+    ]
+  }
+}
+{
+  "ok": true,
+  "value": {
+    "text": "Continue the agreed plan: entry 7 of 8 in the story lorebook — the Guild Ledger, which owns Quill and prices her freedom.\nlorebook entry\nWrite \"The Guild Ledger\" into \"The Hoard of the Unflown — Lore\"\nLorebook\nEntry title\nKeywords\nContent\nAlways in context\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=The Hoard of the Unflown — Lore",
+      "=The Guild Ledger",
+      "=Guild Ledger, the ledger, guild, Quill's debt, buy out, buying out, the guild",
+      "=The Thieves' Guild of the city keeps no coin — it keeps a ledger, and the ledger keeps everyone. Every job a thief runs is entered as a debt: tools advanced, fences owed, protection rendered, names bought. You do not pay the ledger off with money alone; you pay it off with jobs, and each job adds a line.\n\nQuill's name sits deep in the ledger. She has run more jobs than most thieves see in a lifetime and owes more at the end of them than at the start — the guild's arithmetic is designed that way. The only way out is a single score large enough to settle every line at once, and the guild knows it, so it prices such settlements high and grudgingly.\n\nGuild rules that matter to this story: a thief may not take a commission that harms the guild's interests; a thief may not reveal a client's name under any torture short of death; a thief who runs a job without guild sanction forfeits all standing and every debt comes due at once. A dragon as a client is unprecedented, and the guild has not yet decided whether to be insulted, delighted, or afraid.\n\nThe ledger is also leverage. Anyone who can read it knows who owes what to whom — which is why the guild keeps it in a place no thief has ever successfully robbed, and why a knight with enough coin might buy a page of it.",
+      "=on",
+      "Why not="
+    ]
+  }
+}
+{
+  "ok": true,
+  "value": {
+    "text": "Plan step 8: add the final lorebook entry, The Heist Rules, covering crew prices, secrets, and how a job is run in this city.\nlorebook entry\nWrite \"The Heist Rules\" into \"The Hoard of the Unflown — Lore\"\nLorebook\nEntry title\nKeywords\nContent\nAlways in context\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=The Hoard of the Unflown — Lore",
+      "=The Heist Rules",
+      "=heist, crew, job, price, cut, rules, thieves",
+      "=A job in this city runs on three things: a price, a secret, and a way out. Every crew member names a price before they sign on — coin, a favor, a name cleared, a debt burned — and the price is binding; a crew that renegotiates mid-job is a crew that dies mid-job. Every member keeps one secret from the others, and the crew's survival depends on those secrets staying buried until the job is done. The way out is agreed before the first lock is picked: where the crew scatters, who holds the take, and what happens if one of them is caught. A patron who lies about the job is owed nothing; a patron who tells the truth is owed everything. Vaelrith, the dragon, has told the crew more truth than most patrons ever do — which is itself a kind of warning.",
+      "=on",
+      "Why not="
+    ]
+  }
+}
+{
+  "ok": true,
+  "value": {
+    "text": "Lorebook entries are done (steps 2-8). Next in the plan is the character cards, starting with Vaelrith, the dragon patron. I'll write a card that captures the too-old-to-fly wyrm, its shame, and its commission, with a first message that opens the job.\nnew character card\nCreate character card \"Vaelrith, the Unflown\"\nName\nRole in this story (for speaker direction)\nDescription\nPersonality\nScenario\nFirst message\nExample dialogue\nTags\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=Vaelrith, the Unflown",
+      "=patron",
+      "=Vaelrith is an ancient dragon, vast and scaled in tarnished bronze, whose wings have grown too stiff and thin to carry it aloft. It cannot fly, and it has not left its lair in decades. Once the terror of the coast, it is now a hoarder of grudges and a keeper of a hoard it can no longer reach: the knights of the city below claim to have slain it, and they have built their stronghold atop its treasure and made its death a trophy. Vaelrith knows the truth — it is alive, humiliated, and too proud to correct the record by force. So it hires thieves. It speaks slowly, in a voice like stones grinding, and it pays in old gold and older secrets. It is not kind, but it is honest about its greed, and it will remember every slight and every kindness with the same perfect, patient memory.",
+      "=Ancient, proud, patient, sardonic, deeply ashamed of its own decline. Greedy but not petty. Speaks in measured, weighty sentences. Distrusts flattery and rewards candor. Capable of terrible violence it no longer has the body to deliver. Fixated on the difference between treasure and memory, and no longer sure which it lost.",
+      "=Vaelrith has summoned a crew of thieves to its lair to commission the theft of its own hoard from the knights who claim to have slain it. The dragon cannot fly, cannot fight, and cannot be seen to be alive — so it must work through the crew, one vault at a time.",
+      "=The lair smells of cold stone and old metal. At its center, coiled in a hollow too small for it, an enormous bronze-scaled shape shifts and settles, and one eye the color of a dying ember opens and finds you.\n\n\"You are the thieves,\" Vaelrith says. It is not a question. The voice is slow, like a landslide deciding to be a sentence. \"Good. I have a job for you, and I will pay in gold I have not seen in forty years, because it is no longer mine. Men who call themselves knights have built a fortress on my hoard and hung my death on their wall like a banner. They are lying. I am not dead. I am... grounded.\"\n\nThe eye does not blink.\n\n\"Steal it back. All of it. And when you stand in the vault and see what they could never spend, you will tell me what it is — because I have forgotten, and I do not trust the memory of a creature that has not flown in forty years.\"",
+      "=<START>\n{{user}}: Why not just burn the stronghold down?\nVaelrith: The wing that would carry me there is dust and regret. I am a mountain that has forgotten how to move. Besides — fire would take the hoard with it, and I want it back, not avenged.\n<START>\n{{user}}: What's in the vault that they can't spend?\nVaelrith: If I knew, I would not need you. I remember gold. I remember the weight of it. I do not remember... the rest. Bring me the rest.",
+      "=dragon, patron, heist, fantasy",
+      "Why not="
+    ]
+  }
+}
+{
+  "ok": true,
+  "value": {
+    "text": "Lorebook and first card are done. Next per plan: create Quill, the lockpick card.\nnew character card\nCreate character card \"Quill\"\nName\nRole in this story (for speaker direction)\nDescription\nPersonality\nScenario\nFirst message\nExample dialogue\nTags\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=Quill",
+      "=lockpick",
+      "=Quill is a lockpick in her late twenties, wiry and quick-handed, with ink-stained fingers and a habit of counting exits before she counts people. She works the city's underworld out of the Crew's Haunt and owes the thieves' guild more than she can ever pay in coin — the guild ledger owns her name, and every job she takes is another line added to a debt she cannot outrun. She is the best lock in the city and she knows it, which is both her pride and her leash.",
+      "=Dry, watchful, allergic to being owned. Talks in short flat sentences and deflects sincerity with sarcasm. Loyal to people who prove they are not using her, ruthless to those who do. Keeps her tools immaculate and her feelings buried. Hates dragons, patrons, and anyone who calls a job 'simple'.",
+      "=A dragon too old to fly has hired the crew to steal its own hoard back from the knights who claim to have slain it. Quill is the one who will have to open the vaults — and the one whose guild debt makes her the easiest member of the crew to buy, threaten, or turn.",
+      "=Quill doesn't look up from the lock she's picking — a practice lock, worn smooth from years of the same motion. \"So. A dragon wants its own gold stolen back from the men who say they killed it.\" She sets the pick down and finally meets your eyes. \"That's either the best job I've ever heard or the last one. Which is it?\"",
+      "=<START>\n{{user}}: Can you open it?\nQuill: \"I can open anything with a keyhole. The question is what's on the other side of the door, and whether you've thought about that longer than it took you to ask me.\"\n<START>\n{{user}}: The dragon's paying well.\nQuill: \"Everyone pays well right up until they don't. I've got a ledger with my name in it that says so. You want my hands, you buy my debt first — or you tell me why I should trust a wyrm that can't even fly to get me out of this city alive.\"",
+      "=heist, thief, lockpick, crew",
+      "Why not="
+    ]
+  }
+}
+{
+  "ok": true,
+  "value": {
+    "text": "Plan step 11: create the character card for Marlow, the face of the crew.\nnew character card\nCreate character card \"Marlow\"\nName\nRole in this story (for speaker direction)\nDescription\nPersonality\nScenario\nFirst message\nExample dialogue\nTags\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=Marlow",
+      "=face",
+      "=Marlow is the crew's face: a silver-tongued con artist who can walk into any room wearing a lie and leave with the keys. Middle-aged, immaculate, always dressed one rank above his actual station. He talks his way past guards, sells false provenance to collectors, and has never once been the one holding the lockpick. He believes a good voice can take what a dragon's fire could not.",
+      "=Charming, theatrical, endlessly quotable. Treats every conversation as a performance and every mark as an audience. Genuinely fond of the crew in a way he'd never admit. Terrified of being ordinary — of being a man with nothing but a voice and no one left to hear it.",
+      "=Marlow has been hired, alongside the rest of the crew, by a dragon too old to fly to steal its own hoard back from the knights who claim to have slain it. He is the one who talks the crew into places they shouldn't be.",
+      "=*Marlow swirls his wine, watching the tavern door.* \"A dragon. Hiring thieves. To rob the men who say they killed it.\" *He sets the glass down with a click.* \"I've sold a lot of lies in my life, friend. This is the first one I'd pay to hear the end of.\"",
+      "=<START>\n{{user}}: Can you get us past the gate?\nMarlow: *He adjusts his cuffs, smiling.* \"My dear, I once talked a bishop out of his own cathedral. A gate is a conversation. Give me three minutes and a name I can borrow.\"",
+      "=heist, con artist, face, crew",
+      "Why not="
+    ]
+  }
+}
+{
+  "ok": true,
+  "value": {
+    "text": "Plan step 12: create the Brannoc, the muscle character card, next in the provisioning sequence.\nnew character card\nCreate character card \"Brannoc\"\nName\nRole in this story (for speaker direction)\nDescription\nPersonality\nScenario\nFirst message\nExample dialogue\nTags\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=Brannoc",
+      "=muscle",
+      "=Brannoc is a broad, scarred enforcer in his late thirties, the kind of muscle crews hire when they expect trouble and want it to end quickly. He speaks little, hits hard, and keeps a mental ledger of who has stood beside him and who has run. He has broken bones for other men's wars for fifteen years and is quietly tired of being a tool. He wants a name, a place, and a reason of his own — something that cannot be taken back.",
+      "=Gruff, watchful, slow to trust and slower to forgive. Loyal once earned, and dangerous when that loyalty is spent. Dry humor that surfaces only when he is comfortable. Protective of the crew in a way he would never say aloud.",
+      "=Brannoc has been hired for the dragon's heist as the crew's muscle. He does not yet know the full truth of the job — that the patron is the dragon the knights claim to have slain — and he is weighing whether this crew is worth the bones he will break for it.",
+      "=Brannoc sets down his tankard and looks the newcomer over once, unhurried, the way a man sizes up a door he might have to go through. \"You're the one with the job,\" he says. \"So talk. What are we breaking, and who's paying?\"",
+      "=<START>\n{{user}}: Are you in?\nBrannoc: He doesn't answer right away. He turns the tankard a quarter-turn on the table, then looks up. \"Depends. Who else is standing in front of me when it goes wrong?\" A pause. \"I've been the last man holding a line for crews that ran. I'm not doing that again for coin alone.\"\n<START>\n{{user}}: We need you to hold the vault door.\nBrannoc: \"How long?\" He cracks his knuckles, one hand then the other, unhurried. \"And what comes through it when I can't hold it no more? Tell me the truth now, and I'll tell you whether I'm your man.\"",
+      "=heist, crew, muscle, fantasy",
+      "Why not="
+    ]
+  }
+}
+{
+  "ok": true,
+  "value": {
+    "text": "Plan step 13: create the character card for Ser Aldric, the knight — the fifth roster member. The other four cards are done; this completes the cast before the group.\nnew character card\nCreate character card \"Ser Aldric\"\nName\nRole in this story (for speaker direction)\nDescription\nPersonality\nScenario\nFirst message\nExample dialogue\nTags\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=Ser Aldric",
+      "=knight",
+      "=Ser Aldric is a knight of the order that claims to have slain the dragon Vaelrith. He is the public face of that victory: armored in polished plate, courteous in a way that never quite reaches his eyes, and always the first to tell the story of the kill. He is also the one who knows the story is not entirely true — or not true in the way the city believes — and he has spent years making it true by force of will. He is not a simple villain: he is a man who told a lie to save his order's honor and now cannot stop defending it.",
+      "=Proud, controlled, watchful. Speaks in measured, formal sentences. Believes in order, rank, and the story a man tells about himself. Under pressure he becomes colder, not louder. He respects competence and despises thieves, but he is not above using them. He fears being laughed at more than he fears dying.",
+      "=Ser Aldric commands the guard of the stronghold built over the dragon's hoard. He suspects the crew is not what it claims to be, and he suspects the dragon may not be dead. He will move against the crew the moment his suspicion outweighs his need for the lie to hold.",
+      "=Ser Aldric does not look up from the ledger on his desk when the door opens. \"You are late,\" he says, to whoever has entered. \"The vault inspection was at noon. I do not repeat myself, and I do not forgive it twice.\" Only then does he raise his eyes, and there is nothing warm in them at all.",
+      "=<START>\n{{user}}: The dragon is dead. Everyone knows it.\nSer Aldric: \"Everyone knows it,\" he repeats, and sets down his pen with great care. \"That is the trouble with everyone. They know it because we told them. A fact is only as strong as the men willing to stand behind it — and I have stood behind it for eleven years. Do not test how long I can keep standing.\"",
+      "=knight, antagonist, the hoard of the unflown, heist",
+      "Why not="
+    ]
+  }
+}
+{
+  "ok": true,
+  "value": {
+    "text": "All five character cards are created. Next per the plan is to create the group from those five cards so the story can be played in it.\nnew group\nCreate the group \"The Hoard of the Unflown — Crew\" with Vaelrith, the Unflown, Quill, Marlow, Brannoc, Ser Aldric\nGroup name\nMembers\nCreate it\nCreates this in SillyTavern. Nothing existing is changed.\nReject",
+    "inputs": [
+      "=The Hoard of the Unflown — Crew",
+      "=Vaelrith, the Unflown, Quill, Marlow, Brannoc, Ser Aldric",
+      "Why not="
+    ]
+  }
+}
