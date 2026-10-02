@@ -243,7 +243,8 @@ export const executeReply = (session: AgentSession, reply: AgentReply, context: 
   const problem = editProblem(context.draft, edit);
   if (problem) return record({ family: "edit", op: edit, status: "refused", observation: `Refused: ${problem}` });
   if (session.mode === "auto-draft") {
-    return record({ family: "edit", op: edit, status: "applied", observation: noted("Applied to the draft (auto-draft)."), check: checkDraft(applyAgentOp(context.draft, edit), installOf(context)) }, edit);
+    const check = checkDraft(applyAgentOp(context.draft, edit), installOf(context));
+    return record({ family: "edit", op: edit, status: "applied", observation: noted("Applied to the draft (auto-draft)."), check }, edit);
   }
   return record({ family: "edit", op: edit, status: "pending", observation: noted("Waiting for the author.") });
 };
