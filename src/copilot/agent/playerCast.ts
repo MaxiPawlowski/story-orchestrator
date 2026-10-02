@@ -31,5 +31,7 @@ export const greetingClash = (draft: StoryV2, op: AgentOp): string | null => {
   const roles = playerRoles([op.first_mes]);
   const member = draft.roster.find((entry) => memberIsPlayer(entry, roles));
   if (!member) return null;
-  return `Note: this greeting makes the player the ${memberIsPlayer(member, roles)?.role}, while cast member "${member.name ?? member.id}" plays that role; remove that member (removeRosterMember) or address the player differently.`;
+  const role = memberIsPlayer(member, roles)?.role;
+  const name = member.name ?? member.id;
+  return `Note: this greeting makes the player the ${role}, while cast member "${name}" plays that role; remove that member (removeRosterMember) or address the player differently.`;
 };

@@ -63,7 +63,12 @@ export const doneSummary = (session: AgentSession, draft: StoryV2, claim: string
   const made = CREATED.map(([kind, one, many]) => [created.filter((op) => op.kind === kind).length, one, many] as const)
     .filter(([amount]) => amount > 0)
     .map(([amount, one, many]) => count(amount, one, many));
-  const holds = [count(draft.checkpoints.length, "checkpoint"), count(draft.transitions.length, "transition"), count(draft.qualities.length, "quality", "qualities"), count(draft.roster.length, "cast member")];
+  const holds = [
+    count(draft.checkpoints.length, "checkpoint"),
+    count(draft.transitions.length, "transition"),
+    count(draft.qualities.length, "quality", "qualities"),
+    count(draft.roster.length, "cast member"),
+  ];
   const facts = `The draft holds ${holds.join(", ")}${made.length ? `; this session created ${made.join(", ")}` : ""}.`;
   const prose = claim.split(/(?<=[.!?])\s+/).filter((sentence) => sentence.trim() && !NUMBER_CLAIM.test(sentence)).join(" ");
   return prose ? `${facts} ${prose}` : facts;

@@ -2,7 +2,8 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { Lazy, LAZY_FAILED_TEXT } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import {
-  bindNavbarDrawerToggle, currentChatOwner, getAllCharacterNames, listBackgrounds, mountInlineHosts, readProfileContextLimit, readProfilePresetName, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
+  bindNavbarDrawerToggle, currentChatOwner, getAllCharacterNames, listBackgrounds,
+  mountInlineHosts, readProfileContextLimit, readProfilePresetName, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
   type InlineHostSet,
 } from "@services/STAPI";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";

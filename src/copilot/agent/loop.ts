@@ -253,7 +253,8 @@ const finish = (session: AgentSession, claim: string, context: AgentContext, met
   const missing = missingAtDone(session, context.draft, context.environment);
   if (missing.length && !refusedDoneLast(session)) {
     const observation = `Refused: not done yet: ${missing.join("; ")}. Create what is missing, or tell the author why it should not exist, then finish again.`;
-    const step = { at, route: meta.route, call: { tool: "done", args: { summary: claim } }, family: null, status: "refused" as const, observation, firstTryValid: false, repaired: meta.repaired };
+    const call = { tool: "done", args: { summary: claim } };
+    const step = { at, route: meta.route, call, family: null, status: "refused" as const, observation, firstTryValid: false, repaired: meta.repaired };
     return { session: withStep(session, step), apply: null };
   }
   const summary = `${doneSummary(session, context.draft, claim)}${missing.length ? ` Still missing: ${missing.join("; ")}.` : ""}`;

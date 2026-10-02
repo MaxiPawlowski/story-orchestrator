@@ -43,7 +43,8 @@ export const ambiguousRef = (draft: StoryV2, op: ProposalOp): string | null => {
   const matches = transitionRefMatches(draft, op.ref);
   if (matches.length < 2) return null;
   const numbers = matches.map((index) => `#${index + 1}`).join(", ");
-  return `transition ${op.ref.from} → ${op.ref.to} is ambiguous (${matches.length} matches: readGraph ${numbers}; add "index" to the ref to name one, e.g. {"from": "${op.ref.from}", "to": "${op.ref.to}", "index": ${matches[0] + 1}})`;
+  const example = JSON.stringify({ from: op.ref.from, to: op.ref.to, index: matches[0] + 1 });
+  return `transition ${op.ref.from} → ${op.ref.to} is ambiguous (${matches.length} matches: readGraph ${numbers}; add "index" to the ref to name one, e.g. ${example})`;
 };
 
 export const isProvisioningOp = (op: ProposalOp): op is ProvisioningOp => isProvisioningKind(op.kind);
