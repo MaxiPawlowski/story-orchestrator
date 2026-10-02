@@ -2,6 +2,7 @@ import type { Checkpoint, NormalizedStoryV2 } from "@engine/index";
 import { parseStoryV2OrThrow } from "@engine/validate";
 import { applyBackground, applyCharacterAN, clearCharacterAN, disableWIEntry, enableWIEntry, executeSlashCommands, setGroupMembersDisabled } from "@services/STAPI";
 import { EffectsApplier, PENDING_NOT_SAVED } from "./effectsApplier";
+import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE } from "./castEffect";
 import { rewindNpcReplies } from "./npcReplyRewind";
 import { castInPlay } from "./castInPlay";
 import { readGatingModeWith, setScanGatingActive, setScanGatingSettled } from "./worldInfoMode";
@@ -293,6 +294,19 @@ describe("background effect", () => {
     await applier.applyCheckpoint(story, withBackground({ name: "tavern day.jpg" }), readyExtras(), snapshot, "hydrate", []);
     expect(applyBackground).toHaveBeenCalledTimes(2);
     expect(applyBackground).toHaveBeenCalledWith("tavern day.jpg");
+  });
+
+  it("T5-4: on reopen a background the host already shows needs no write, so an unconfirmed save refuses nothing", async () => {
+    const journal = jest.fn();
+    const extras = { ...readyExtras(), effects: { ledger: [], cast: [] } } as unknown as RuntimeExtras;
+    const reads = { read: () => ({ name: "cityscape medieval night.jpg" }) };
+    const applier = new EffectsApplier(testOwnership(), { reads, persist: async () => undefined, unsaved: () => true, journal });
+    await applier.applyCheckpoint(story, withBackground({ name: "cityscape medieval night.jpg" }), extras, snapshot, "hydrate", []);
+    expect(applyBackground).not.toHaveBeenCalled();
+    expect(extras.effects.ledger).toEqual([]);
+    expect(journal).not.toHaveBeenCalledWith("background effect was not applied", PENDING_NOT_SAVED);
+    await applier.applyCheckpoint(story, withBackground({ name: "royal.jpg" }), extras, snapshot, "hydrate", []);
+    expect(extras.effects.ledger.map((row) => row.status)).toEqual(["failed"]);
   });
 
   it("leaves the background alone when the checkpoint says nothing about it", async () => {
@@ -599,5 +613,30 @@ describe("transition announcement leaves a trace when it is not posted (L2 J1.7)
     const posted = String((executeSlashCommands as jest.Mock).mock.calls[0][0]);
     expect(posted.split("Travel the north road toward Wendhope")).toHaveLength(2);
     expect(posted).not.toContain("let the party notice what the road is missing.");
+  });
+});
+
+describe("T5-1: a cast change written with roster ids", () => {
+  const story = { title: "Redline", roster: [{ id: "mara_v", name: "Mara" }, { id: "ghost_id", name: "Ghost" }] } as unknown as NormalizedStoryV2;
+  const start = (disable: string[]) => ({ id: "start", name: "Start", objective: "", type: "anchor", effects: { cast_changes: { disable } } }) as unknown as Checkpoint;
+  const extras = () => ({ ...makeExtras(), requirements: { ready: true }, effects: { ledger: [], cast: [] } } as unknown as RuntimeExtras);
+
+  beforeEach(() => {
+    (setGroupMembersDisabled as jest.Mock).mockClear();
+    (setGroupMembersDisabled as jest.Mock).mockResolvedValue({ ok: true });
+  });
+
+  it("resolves a roster id to the member's card name and records the change", async () => {
+    const state = extras();
+    await new EffectsApplier(testOwnership(), { persist: async () => undefined, unsaved: () => false }).applyCheckpoint(story, start(["mara_v"]), state, {} as RuntimeSnapshot, "activate", []);
+    expect(setGroupMembersDisabled).toHaveBeenCalledWith([], ["Mara"]);
+    expect(state.effects.ledger.map((row) => [row.effect, row.status])).toEqual([["cast", "applied"]]);
+  });
+
+  it("journals a name that still matches no group member instead of skipping it silently", async () => {
+    const journal = jest.fn();
+    await new EffectsApplier(testOwnership(), { journal }).applyCheckpoint(story, start(["ghost_id", "nobody"]), extras(), {} as RuntimeSnapshot, "activate", []);
+    expect(setGroupMembersDisabled).not.toHaveBeenCalled();
+    expect(journal).toHaveBeenCalledWith(CAST_UNRESOLVED, `Ghost, nobody: ${CAST_UNRESOLVED_NOTE}`);
   });
 });

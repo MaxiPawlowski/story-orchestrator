@@ -14,7 +14,7 @@ globalThis.fetch = ((url: string, init?: { body?: string }) => {
   return new Promise((resolve) => { pending.push({ resolve }); });
 }) as unknown as typeof fetch;
 
-import { installSaveWatcher, observeNextSave, readServerBoundary } from "./persistence";
+import { installSaveWatcher, observeNextSave, onGroupEdited, readServerBoundary } from "./persistence";
 
 const answer = (status: number) => pending.shift()!.resolve({ ok: status < 300, status, json: async () => ({}) });
 
@@ -38,5 +38,29 @@ describe("V16: save evidence is attributed and read back from the server", () =>
   it("reads the boundary from the server's stored chat file, not from the page's memory", async () => {
     expect(await readServerBoundary()).toBe(7);
     expect(calls.at(-1)).toMatchObject({ url: "/api/chats/group/get", body: { id: "chat-1" } });
+  });
+});
+
+describe("T5-4: a group write the host announces with no event still reaches its listeners", () => {
+  it("calls a listener once an /api/groups/edit request answers ok, and never for another route or a refused edit", async () => {
+    const listener = jest.fn();
+    const stop = onGroupEdited(listener);
+    const other = fetch("/api/chats/group/save", { method: "POST", body: "{}" });
+    answer(200);
+    await other;
+    expect(listener).not.toHaveBeenCalled();
+    const refused = fetch("/api/groups/edit", { method: "POST", body: "{}" });
+    answer(500);
+    await refused;
+    expect(listener).not.toHaveBeenCalled();
+    const edit = fetch("/api/groups/edit", { method: "POST", body: "{}" });
+    answer(200);
+    await edit;
+    expect(listener).toHaveBeenCalledTimes(1);
+    stop();
+    const later = fetch("/api/groups/edit", { method: "POST", body: "{}" });
+    answer(200);
+    await later;
+    expect(listener).toHaveBeenCalledTimes(1);
   });
 });

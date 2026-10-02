@@ -23,6 +23,14 @@ export interface RepairStep {
   provisionable: boolean;
   /** The same consequence in player words; null when only an author can see or fix it. */
   player: string | null;
+  action?: RepairAction | null;
+  opensGroup?: boolean;
+}
+
+export interface RepairAction {
+  kind: "add-members" | "unmute-members";
+  members: string[];
+  label: string;
 }
 
 export const REPAIR_TARGET_IDS = { memoryModel: "so-extraction-profile" } as const;
@@ -119,37 +127,75 @@ function memoryModelStep(snapshot: RuntimeSnapshot): RepairStep | null {
   };
 }
 
-function requirementSteps(snapshot: RuntimeSnapshot): Array<RepairStep | null> {
-  const requirements = snapshot.requirements;
-  if (!requirements) return [];
+export const provisionableMissing = (requirements: RuntimeSnapshot["requirements"]) => ({
+  personas: requirements.missingPersonas,
+  members: requirements.absentMembers ?? requirements.missingMembers,
+  lorebooks: requirements.absentLorebooks ?? requirements.missingLorebooks,
+});
+
+const MISSING_CAST = "The story expects people who are not in this chat, so their scenes never arrive.";
+const MISSING_LORE = "The story reads from lore it cannot see, so nothing it needs to know is in play.";
+const them = (names: string[], one: string, many: string) => (names.length === 1 ? one : many);
+
+export function castRepairSteps(requirements: RuntimeSnapshot["requirements"]): Array<RepairStep | null> {
+  const absent = provisionableMissing(requirements).members;
+  const unbound = requirements.missingMembers.filter((member) => !absent.includes(member));
   const muted = requirements.mutedMembers ?? [];
-  const hidden = snapshot.loreEvidence?.hiddenBooks ?? [];
-  const displaced = requirements.slotConflict;
   return [
-    requirements.missingMembers.length ? {
+    absent.length ? {
+      area: "cast", consequence: MISSING_CAST, detail: `No card on this install: ${absent.join(", ")}`, targetId: null, provisionable: true, player: REPAIR_PLAYER_COPY.cast,
+    } : null,
+    unbound.length ? {
       area: "cast",
-      consequence: "The story expects people who are not in this chat, so their scenes never arrive.",
-      detail: `Missing from the group: ${requirements.missingMembers.join(", ")}`,
+      consequence: MISSING_CAST,
+      detail: `Not in the group: ${unbound.join(", ")}. ${them(unbound, "The card exists", "The cards exist")}, so ${them(unbound, "add it", "add them")} back to the group.`,
       targetId: null,
-      provisionable: true,
+      provisionable: false,
       player: REPAIR_PLAYER_COPY.cast,
+      action: { kind: "add-members", members: unbound, label: `Add ${unbound.join(", ")} back to the group` },
+      opensGroup: true,
     } : null,
     muted.length ? {
       area: "cast",
       consequence: mutedMembersText(muted),
-      detail: `Muted in the group: ${muted.join(", ")}. Unmute ${muted.length === 1 ? "this member" : "these members"} in the group's member list.`,
+      detail: `Muted in the group: ${muted.join(", ")}. Unmute ${them(muted, "this member", "these members")} in the group's member list.`,
       targetId: null,
       provisionable: false,
       player: mutedMembersText(muted),
+      action: { kind: "unmute-members", members: muted, label: `Unmute ${muted.join(", ")}` },
+      opensGroup: true,
     } : null,
-    requirements.missingLorebooks.length ? {
+  ];
+}
+
+export function loreRepairSteps(requirements: RuntimeSnapshot["requirements"]): Array<RepairStep | null> {
+  const absent = provisionableMissing(requirements).lorebooks;
+  const unscanned = requirements.missingLorebooks.filter((book) => !absent.includes(book));
+  return [
+    absent.length ? {
+      area: "lore", consequence: MISSING_LORE, detail: `No lorebook on this install: ${absent.join(", ")}`, targetId: null, provisionable: true, player: REPAIR_PLAYER_COPY.lore,
+    } : null,
+    unscanned.length ? {
       area: "lore",
-      consequence: "The story reads from lore it cannot see, so nothing it needs to know is in play.",
-      detail: `Missing: ${requirements.missingLorebooks.join(", ")}`,
+      consequence: MISSING_LORE,
+      detail: `${unscanned.join(", ")} ${them(unscanned, "exists", "exist")} on this install but this chat does not scan ${them(unscanned, "it", "them")}. ` +
+        "A story's own lorebooks load with the story in the chats that play it; on this install SillyTavern does not let them be added at scan time, " +
+        `so select ${them(unscanned, "it", "them")} in World Info.`,
       targetId: null,
-      provisionable: true,
+      provisionable: false,
       player: REPAIR_PLAYER_COPY.lore,
     } : null,
+  ];
+}
+
+function requirementSteps(snapshot: RuntimeSnapshot): Array<RepairStep | null> {
+  const requirements = snapshot.requirements;
+  if (!requirements) return [];
+  const hidden = snapshot.loreEvidence?.hiddenBooks ?? [];
+  const displaced = requirements.slotConflict;
+  return [
+    ...castRepairSteps(requirements),
+    ...loreRepairSteps(requirements),
     hidden.length ? {
       area: "lore",
       consequence: "Another extension is hiding this story's lorebook from the model.",

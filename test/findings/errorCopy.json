@@ -423,6 +423,16 @@
       "reason": "WriteResult reason: effect ledger and journal"
     },
     {
+      "site": "src/services/stHost/groups.ts#addGroupMembers",
+      "kind": 2,
+      "template": "`group ${group.id} could not be saved: ${error instanceof Error ? error.message : \"the host refused the write\"}`",
+      "surface": "author",
+      "rawError": true,
+      "silentCatch": null,
+      "verdict": "pass",
+      "reason": "WriteResult reason: the Repair fix journals it and toasts it to the author"
+    },
+    {
       "site": "src/services/stHost/harness.ts#cancel",
       "kind": 3,
       "template": ".catch(() => undefined)",

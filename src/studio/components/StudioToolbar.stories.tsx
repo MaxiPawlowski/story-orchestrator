@@ -78,3 +78,24 @@ export const SaveNotConfirmed: Story = {
     await expect(canvas.queryByText(/Saved .* to the library\./)).toBeNull();
   },
 };
+
+export const SaveKeepsTheSelectedCheckpoint: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    useDraftStore.getState().selectCheckpoint("cache");
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await canvas.findByText(/Saved .* v1 to the library\./);
+    await expect(useDraftStore.getState().selectedCheckpointId).toBe("cache");
+  },
+};
+
+export const BlockedSaveLineClearsOnceTheDraftIsValid: Story = {
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    useDraftStore.getState().mutate((draft) => ({ ...draft, transitions: draft.transitions.map((transition) => ({ ...transition, to: "nowhere" })) }));
+    await userEvent.click(canvas.getByRole("button", { name: "Save" }));
+    await expect(await canvas.findByText(/validation error\(s\) block save\./)).toBeInTheDocument();
+    useDraftStore.getState().undo();
+    await waitFor(() => expect(canvas.queryByText(/validation error\(s\) block save\./)).toBeNull());
+  },
+};

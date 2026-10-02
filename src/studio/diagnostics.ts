@@ -5,7 +5,7 @@ import {
 import { directorEnabled } from "@talk/index";
 import { checkChapters } from "./chapterDiagnostics";
 import { checkHouseRules, checkRequirementMembers } from "./authoringDiagnostics";
-import { checkBackgrounds, checkCastCards, checkPlayerInRoster, type InstallFacts } from "./castDiagnostics";
+import { CAST_CONSEQUENCES, checkBackgrounds, checkCastCards, checkCastChangeMembers, checkPlayerInRoster, type InstallFacts } from "./castDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
 
@@ -58,6 +58,7 @@ export const DIAGNOSTIC_CODES = [
   "cast-member-no-card",
   "background-missing",
   "roster-member-is-player",
+  "cast-change-unknown-member",
 ] as const;
 
 // Every code says what it costs the story before it says what is technically wrong: the
@@ -102,9 +103,7 @@ export const DIAGNOSTIC_CONSEQUENCES: Record<(typeof DIAGNOSTIC_CODES)[number], 
   "chapter-reentry": "Going back to an earlier chapter reopens a closed record, so the story so far repeats itself.",
   "story-dead-end": "The story stops here without an ending, so its last chapter is never written up.",
   "requirement-member-roster-id": "The story never reads as ready: it waits for a character named by a cast id, while the card has another name.",
-  "cast-member-no-card": "This character never joins the scene: there is no card by that name, so it cannot be switched on and the story never reads as ready.",
-  "background-missing": "The scene does not change: the install has no background by that name.",
-  "roster-member-is-player": "Another character speaks as the player: the story casts the player's own role as someone else.",
+  ...CAST_CONSEQUENCES,
 };
 
 // D: what the Studio needs to know about the install, not the story.
@@ -527,6 +526,7 @@ const DIAGNOSTIC_CHECKS = [
   checkChapters,
   checkRequirementMembers,
   checkCastCards,
+  checkCastChangeMembers,
   checkBackgrounds,
   checkPlayerInRoster,
 ];

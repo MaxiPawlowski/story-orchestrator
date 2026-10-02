@@ -2,8 +2,8 @@ import { useEffect, useState, useSyncExternalStore } from "react";
 import { Lazy, LAZY_FAILED_TEXT } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import {
-  bindNavbarDrawerToggle, currentChatOwner, getAllCharacterNames, listBackgrounds,
-  mountInlineHosts, readProfileContextLimit, readProfilePresetName, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
+  addGroupMembers, bindNavbarDrawerToggle, currentChatOwner, getAllCharacterNames, listBackgrounds, mountInlineHosts, openGroupMemberList,
+  readProfileContextLimit, readProfilePresetName, setGroupMembersDisabled, showConfirmPopup, subscribeToHostEvents, toggleNavbarDrawer,
   type InlineHostSet,
 } from "@services/STAPI";
 import { contextLimitInvalidators, createContextLimitCache } from "@runtime/contextLimitCache";
@@ -19,6 +19,8 @@ import { jumpToMessage } from "@runtime/messageJumpHost";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
 import { chatUpdateOutcome, NO_CHAT_OPEN, type ChatSaveAnswer } from "@runtime/librarySave";
 import { rekeyWizardSession } from "@runtime/wizardSessions";
+import { runCastRepair } from "@runtime/castRepair";
+import { provisionableMissing, type RepairAction } from "@runtime/repair";
 import type { StudioOpenIntent } from "./studio/StudioModal";
 import type { WizardHost } from "./studio/components/StudioCopilot";
 import { type DriverController } from "@components/drawer/DriverPanel";
@@ -104,8 +106,24 @@ const openWizardForRequirements = async () => {
   await openStudio({
     tab: "copilot",
     stage: "provisioning",
-    missing: { personas: requirements.missingPersonas, members: requirements.missingMembers, lorebooks: requirements.missingLorebooks },
+    missing: provisionableMissing(requirements),
   });
+};
+
+const repairCast = async (action: RepairAction) => {
+  const result = await runCastRepair(action, {
+    add: addGroupMembers,
+    unmute: (names) => setGroupMembersDisabled(names, []),
+    refresh: () => manager.refreshRequirementsNow(),
+    journal: (summary, detail) => manager.chatSave.note(summary, detail),
+    ownership: manager.requirementsHost.ownership,
+  });
+  if (!result.ok) window.toastr?.info?.(result.reason, "Story Orchestrator");
+};
+
+const openGroup = () => {
+  const opened = openGroupMemberList();
+  if (!opened.ok) window.toastr?.info?.(opened.reason, "Story Orchestrator");
 };
 
 const studioFailed = (error: unknown) => {
@@ -221,6 +239,8 @@ const settingsHost: SettingsHost = {
   openStudio: launch(() => openStudio()),
   openWizardForRequirements: launch(openWizardForRequirements),
   revealSetting: (id) => revealSetting(id),
+  repairCast: (action) => void repairCast(action),
+  openGroup,
   openDrawer: () => openSoDrawer(),
   openAuthorView: () => void toggleAuthorView(true).then(openSoDrawer),
 };

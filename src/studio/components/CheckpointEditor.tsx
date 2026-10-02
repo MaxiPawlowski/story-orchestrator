@@ -9,6 +9,7 @@ import EffectsEditor from "./EffectsEditor";
 import ScopePreview from "./ScopePreview";
 import TalkControlEditor from "./TalkControlEditor";
 import GuidanceEditor from "./GuidanceEditor";
+import { rosterMemberIsPlayer } from "../playerRole";
 
 const Field: React.FC<{ label: string; children: React.ReactNode }> = ({ label, children }) => (
   <label className="flex flex-col gap-1 text-sm">
@@ -200,6 +201,7 @@ const CheckpointBehaviour = ({ selected, draft, backgroundNames, patch }: { sele
       <EffectsEditor
         effects={selected.effects ?? {}}
         roster={draft.roster}
+        castable={draft.roster.filter((member) => !rosterMemberIsPlayer(member, draft))}
         backgroundNames={backgroundNames}
         onChange={(next: CheckpointEffects) => patch({ effects: Object.keys(next).length ? next : undefined })}
       />

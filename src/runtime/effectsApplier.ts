@@ -1,4 +1,4 @@
-import type { Checkpoint, CheckpointEffects, NormalizedStoryV2, NpcReplyEffect, NpcReplyTrigger } from "@engine/index";
+import { type Checkpoint, type CheckpointEffects, type NormalizedStoryV2, type NpcReplyEffect, type NpcReplyTrigger } from "@engine/index";
 import {
   applyBackground,
   applyCharacterAN,
@@ -36,6 +36,7 @@ import { generationWatch } from "./generationWatch";
 import { heldLine, npcReplyMayFire, recordNpcReplyFire, recordOnEnterPost, type ActiveTrigger } from "./npcReplyRewind";
 import { isRecord } from "@utils/guards";
 import { castInPlayNote } from "./castInPlay";
+import { CAST_UNRESOLVED, CAST_UNRESOLVED_NOTE, holdsBackground, planCastChanges } from "./castEffect";
 import { InFlight } from "./inFlight";
 import { chatSettle } from "./chatSettle";
 
@@ -54,10 +55,6 @@ const NOTHING_TO_RESTORE = new Set<EffectTarget["kind"]>(["preset"]);
 const JUMP_RELEASED = new Set<EffectTarget["kind"]>(["an", "background", "extension"]);
 
 export const OVERLAY_UNSUPPORTED_REASON = "a checkpoint preset applies on Text Completion and Chat Completion connections only; this connection uses another API";
-
-const readStrings = (value: unknown): string[] => Array.isArray(value) ? value.filter(
-  (entry): entry is string => typeof entry === "string" && entry.trim().length > 0,
-) : typeof value === "string" && value.trim() ? [value] : [];
 
 const readNpcReplies = (effects: CheckpointEffects | undefined): NpcReplyEffect[] => {
   const value = effects?.npc_replies;
@@ -302,7 +299,9 @@ export class EffectsApplier {
     if (!run.stillOwns()) return;
     if (ready && mode === "hydrate") await this.castWrites.track(this.applyCastMirror(extras, scope, run));
     if (!run.stillOwns()) return;
-    if (ready && effects.cast_changes !== undefined) await this.castWrites.track(this.applyCastChanges(effects.cast_changes, extras, scope, run, mode === "activate" ? checkpoint.name : null));
+    if (ready && effects.cast_changes !== undefined) {
+      await this.castWrites.track(this.applyCastChanges(effects.cast_changes, story.roster ?? [], extras, scope, run, mode === "activate" ? checkpoint.name : null));
+    }
     // Deterministic stagecraft: idempotent, so hydrating a chat and rolling back into this
     // checkpoint both restore its background without re-triggering anything.
     // `applyCastChanges` awaits once per member, so this needs its own check: without it the
@@ -310,9 +309,10 @@ export class EffectsApplier {
     if (!run.stillOwns()) return;
     if (effects.background) {
       const name = effects.background.name;
-      await this.withLedger(
+      const before = this.reads().read({ kind: "background" });
+      if (!holdsBackground(before, name)) await this.withLedger(
         extras,
-        { effect: "background", target: { kind: "background" }, before: this.reads().read({ kind: "background" }), after: { name }, ...scope },
+        { effect: "background", target: { kind: "background" }, before, after: { name }, ...scope },
         () => applyBackground(name),
       );
     }
@@ -374,16 +374,14 @@ export class EffectsApplier {
 
   // Each member the effect names is one decision about a shared group, so each is its own row: a
   // two-member change that fails on the second leaves the first recorded and restorable.
-  private async applyCastChanges(value: unknown, extras: RuntimeExtras, scope: EffectScope, run: RunGuard, entering: string | null) {
-    if (!isRecord(value)) return;
+  private async applyCastChanges(authored: unknown, roster: NormalizedStoryV2["roster"], extras: RuntimeExtras, scope: EffectScope, run: RunGuard, entering: string | null) {
+    const plan = planCastChanges(roster, authored, (name) => Boolean(resolveGroupMemberId(name)));
+    if (!plan) return;
     const group = getActiveGroup();
-    const dropped = entering ? castInPlayNote(entering, readStrings(value.disable), getContext().chat) : null;
+    if (group && entering && plan.unknown.length) this.deps.journal?.(CAST_UNRESOLVED, `${plan.unknown.join(", ")}: ${CAST_UNRESOLVED_NOTE}`);
+    const dropped = entering ? castInPlayNote(entering, plan.disable, getContext().chat) : null;
     if (dropped) this.deps.journal?.(dropped.summary, dropped.note);
-    const changes: Array<[string, boolean]> = [
-      ...readStrings(value.disable).map((name): [string, boolean] => [name, true]),
-      ...readStrings(value.enable).map((name): [string, boolean] => [name, false])
-    ];
-    for (const [identifier, disabled] of changes) {
+    for (const [identifier, disabled] of plan.changes) {
       // Inside the loop, like `fireNpcReplies`: one member is one await, and a two-member change
       // that stops half-way must not disable the second member on another chat's group.
       if (!run.stillOwns()) return;

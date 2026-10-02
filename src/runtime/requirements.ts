@@ -1,17 +1,28 @@
-import type { NormalizedStoryV2 } from "@engine/index";
-import { getContext, listGroupMembers, listMutedGroupMembers, readLoreBindings } from "@services/STAPI";
+import { castMemberNames, type NormalizedStoryV2 } from "@engine/index";
+import { getAllCharacterNames, getContext, listGroupMembers, listMutedGroupMembers, readLoreBindings } from "@services/STAPI";
 import { readRequirements, type RequirementsOptions } from "./requirementsRead";
 import type { MemoryMirrorBook, RequirementsState } from "./types";
 import { scanGatingActive } from "./worldInfoMode";
 import { storyLoreActive } from "./storyLore";
 
+export const storyRequirements = (story: Pick<NormalizedStoryV2, "requirements" | "roster">): NormalizedStoryV2["requirements"] => {
+  const members = story.requirements?.members;
+  return members?.length ? { ...story.requirements, members: castMemberNames(story.roster ?? [], members) } : story.requirements;
+};
+
 export function evaluateRequirements(story: NormalizedStoryV2 | null, options: RequirementsOptions, storyMuted: string[] = []): RequirementsState {
   if (!story) return { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
   const context = getContext();
   const persona = typeof context.name1 === "string" ? context.name1 : "";
-  const members = Boolean(story.requirements?.members?.length);
-  return readRequirements(story.requirements, {
-    persona, members: members ? listGroupMembers() : [], muted: members ? listMutedGroupMembers() : [], storyMuted, lore: readLoreBindings(),
+  const requirements = storyRequirements(story);
+  const members = Boolean(requirements?.members?.length);
+  return readRequirements(requirements, {
+    persona,
+    members: members ? listGroupMembers() : [],
+    muted: members ? listMutedGroupMembers() : [],
+    storyMuted,
+    cards: members ? getAllCharacterNames() : [],
+    lore: readLoreBindings(),
   }, options);
 }
 

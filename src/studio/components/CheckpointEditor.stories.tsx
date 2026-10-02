@@ -117,3 +117,24 @@ export const ToggleTalkControl: Story = {
     await expect(useDraftStore.getState().draft.checkpoints[0].talk_control).toEqual({ director: true });
   },
 };
+
+export const CastChangesShowRosterIdsAsMembers: Story = {
+  beforeEach: () => {
+    const story = sampleStory();
+    seedDraft({
+      ...story,
+      roster: [...story.roster, { id: "lord_vael", name: "Lord Vael" }, { id: "player", name: "The Apprentice", role: "player persona" }],
+      checkpoints: story.checkpoints.map((checkpoint, index) => (index === 0 ? { ...checkpoint, effects: { cast_changes: { disable: ["lord_vael", "ghost"] } } } : checkpoint)),
+    });
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const [, disableVael] = canvas.getAllByRole("checkbox", { name: "Lord Vael" });
+    await expect(disableVael).toBeChecked();
+    await expect(canvas.queryByRole("checkbox", { name: "The Apprentice" })).toBeNull();
+    const unresolved = canvasElement.querySelector("[data-so='cast-unresolved']");
+    await expect(unresolved?.textContent).toContain("ghost");
+    await userEvent.click(within(unresolved as HTMLElement).getByRole("button", { name: "Remove" }));
+    await expect(useDraftStore.getState().draft.checkpoints[0].effects?.cast_changes).toEqual({ enable: [], disable: ["Lord Vael"] });
+  },
+};

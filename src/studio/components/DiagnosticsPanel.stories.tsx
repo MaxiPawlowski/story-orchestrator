@@ -51,3 +51,18 @@ export const WithWarnings: Story = {
     await expect(canvas.getByText("threshold-unsatisfiable")).toBeInTheDocument();
   },
 };
+
+export const SchemaErrorNamesTheCheckpointAndTheCost: Story = {
+  beforeEach: () => {
+    const story = sampleStory();
+    story.transitions = story.transitions.map((transition) => (transition.from === "infiltrate" ? { ...transition, to: "start" } : transition));
+    seedDraft(story);
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getAllByText(/can never reach a turning point after it/).length).toBeGreaterThan(0);
+    const places = [...canvasElement.querySelectorAll("[data-so='diagnostic-place']")].map((node) => node.textContent);
+    await expect(places).toContain('Checkpoint "Infiltrate"');
+    await expect(places.some((place) => /^checkpoints\.\d/.test(place ?? ""))).toBe(false);
+  },
+};

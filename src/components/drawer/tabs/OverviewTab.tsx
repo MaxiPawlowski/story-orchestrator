@@ -1,4 +1,5 @@
 import type { LoreSource, RuntimeSnapshot } from "@runtime/types";
+import { provisionableMissing } from "@runtime/repair";
 import PlayerOverview from "../PlayerOverview";
 import ScenePanel from "../ScenePanel";
 
@@ -40,7 +41,8 @@ const AuthorRequirements = ({ snapshot, onFixWithWizard }: { snapshot: RuntimeSn
     { label: "Lore", missing: snapshot.requirements.missingLorebooks },
   ];
   const ready = extractionReady(snapshot);
-  const provisionable = snapshot.requirements.missingMembers.length + snapshot.requirements.missingLorebooks.length > 0;
+  const missing = provisionableMissing(snapshot.requirements);
+  const provisionable = missing.members.length + missing.lorebooks.length > 0;
   return (
     <div className="flex flex-col gap-1">
       {items.map((item) => (

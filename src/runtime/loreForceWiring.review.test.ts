@@ -14,6 +14,7 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   observeSamplerPayloads: () => () => undefined,
   installScanGating: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined, scans: () => 0 }),
+  onGroupEdited: () => () => undefined,
   installStoryLoreScan: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined }),
   loadScanLorebook: async () => null,
   listGlobalLorebooks: () => [],

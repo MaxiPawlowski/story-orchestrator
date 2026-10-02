@@ -1,4 +1,4 @@
-import type { StoryV2 } from "@engine/index";
+import type { Checkpoint, StoryV2 } from "@engine/index";
 import { isProvisioningKind, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
 import type { AgentSession, AgentStepStatus } from "./types";
 
@@ -58,6 +58,30 @@ const CREATED: Array<[ProvisioningOp["kind"], string, string?]> = [
   ["createGroup", "group"],
 ];
 
+const present = (value: unknown) => value !== undefined && value !== null && value !== "" && !(typeof value === "object" && !Object.keys(value as object).length);
+
+const FEATURES: Array<{ label: string; claim: RegExp; on: (checkpoint: Checkpoint) => boolean }> = [
+  { label: "guidance", claim: /\bguidance\b/i, on: (checkpoint) => present(checkpoint.guidance) },
+  { label: "tension target", claim: /\btension\b/i, on: (checkpoint) => present(checkpoint.tension_target) },
+  { label: "agency", claim: /\bagency\b/i, on: (checkpoint) => present(checkpoint.agency) },
+  { label: "talk control", claim: /\btalk[_ ]control\b|\bspeaker direction\b|\bwho speaks\b/i, on: (checkpoint) => present(checkpoint.talk_control) },
+  {
+    label: "cast changes",
+    claim: /\bcast[_ ]changes?\b|\bcast gating\b|\bwho enters\b|\benters? (?:the story )?(?:when|later)\b/i,
+    on: (checkpoint) => present(checkpoint.effects?.cast_changes),
+  },
+  { label: "background", claim: /\bbackgrounds?\b/i, on: (checkpoint) => present(checkpoint.effects?.background) },
+  { label: "author note", claim: /\bauthor['’]?s? notes?\b/i, on: (checkpoint) => present(checkpoint.effects?.author_note) },
+  { label: "motives", claim: /\bmotives?\b/i, on: (checkpoint) => present(checkpoint.motives) },
+];
+
+const EVERY = /\b(?:every|each|all)\b/i;
+
+const coverage = (draft: StoryV2) => FEATURES.map((feature) => ({ ...feature, count: draft.checkpoints.filter(feature.on).length }));
+
+const unsupported = (sentence: string, measured: ReturnType<typeof coverage>, total: number): boolean => measured.some(({ claim, count }) =>
+  claim.test(sentence) && (count === 0 || (EVERY.test(sentence) && count < total)));
+
 export const doneSummary = (session: AgentSession, draft: StoryV2, claim: string): string => {
   const created = provisioned(session, "applied");
   const made = CREATED.map(([kind, one, many]) => [created.filter((op) => op.kind === kind).length, one, many] as const)
@@ -69,7 +93,12 @@ export const doneSummary = (session: AgentSession, draft: StoryV2, claim: string
     count(draft.qualities.length, "quality", "qualities"),
     count(draft.roster.length, "cast member"),
   ];
-  const facts = `The draft holds ${holds.join(", ")}${made.length ? `; this session created ${made.join(", ")}` : ""}.`;
-  const prose = claim.split(/(?<=[.!?])\s+/).filter((sentence) => sentence.trim() && !NUMBER_CLAIM.test(sentence)).join(" ");
+  const measured = coverage(draft);
+  const total = draft.checkpoints.length;
+  const set = measured.filter(({ count }) => count > 0).map(({ label, count }) => `${label} ${count} of ${total}`);
+  const facts = `The draft holds ${holds.join(", ")}${made.length ? `; this session created ${made.join(", ")}` : ""}.${set.length ? ` Checkpoints with ${set.join(", ")}.` : ""}`;
+  const prose = claim.split(/(?<=[.!?])\s+/)
+    .filter((sentence) => sentence.trim() && !NUMBER_CLAIM.test(sentence) && !unsupported(sentence, measured, total))
+    .join(" ");
   return prose ? `${facts} ${prose}` : facts;
 };

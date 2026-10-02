@@ -17,6 +17,10 @@
       "status": "local",
       "note": "v2.6 T2-4 fix wave (2026-10-01): after awaiting the canon refresh (bounded) it writes only the controller's own in-memory pending recap and clears its own timer; nothing is persisted or chat state. It writes only when the pending recap is still the one it started with, and dismissUnless drops that on a chat switch, so a recap is never rebuilt or shown for a chat that is no longer open. The refresh it awaits is CanonSynthesis.regenerateCanon, which takes its own RunToken."
     },
+    "src/runtime/castRepair.ts#runCastRepair": {
+      "status": "checked",
+      "note": "v2.6 T5-4 fix wave (2026-10-02): the Repair one-click fix. Mints its RunToken before the group write (add or unmute, the author's own action on the open group) and checks it before the journal note and the requirements re-read; the re-read is refreshRequirementsNow, which takes its own token."
+    },
     "src/runtime/effectLedger.ts#runRestoreSteps": {
       "status": "local",
       "note": "v2.6 T1 merge (2026-10-01): moved out of EffectsApplier.restoreEffects to keep it in the file budget. Writes only the outcome list it builds and returns; the ledger writes stay in the caller (restoreEffects, PARTIAL: compare-and-set guard)."

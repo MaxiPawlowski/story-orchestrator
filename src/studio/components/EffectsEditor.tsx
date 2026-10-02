@@ -1,5 +1,7 @@
 import React from "react";
-import { NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, type CheckpointEffects, type NpcReplyEffect, type NpcReplyKind, type NpcReplyTrigger, type RosterMember } from "@engine/index";
+import {
+  castMemberNames, isCastMember, NPC_REPLY_KINDS, NPC_REPLY_TRIGGERS, type CheckpointEffects, type NpcReplyEffect, type NpcReplyKind, type NpcReplyTrigger, type RosterMember,
+} from "@engine/index";
 import MultiSelect from "@components/studio/MultiSelect";
 import HelpTooltip from "@components/studio/HelpTooltip";
 import { isRecord } from "@utils/guards";
@@ -158,12 +160,33 @@ const NpcRepliesEditor: React.FC<{ replies: NpcReplyEffect[]; roster: RosterMemb
   );
 };
 
+const CastSide: React.FC<{ label: string; names: string[]; roster: RosterMember[]; castable: RosterMember[]; onChange: (next: string[]) => void }> = ({
+  label, names, roster, castable, onChange,
+}) => {
+  const value = castMemberNames(roster, names);
+  const unresolved = value.filter((name) => !isCastMember(castable, name));
+  const options = castable.map((member) => ({ value: member.name ?? member.id, label: member.name ?? member.id }));
+  return (
+    <>
+      <span className="text-xs st-muted">{label}</span>
+      <MultiSelect label={label} options={options} value={value} onChange={onChange} />
+      {unresolved.length > 0 && (
+        <div data-so="cast-unresolved" className="st-alert-error flex flex-wrap items-center gap-2 rounded px-2 py-1 text-xs">
+          <span>Not a cast member, so this changes nobody: {unresolved.join(", ")}</span>
+          <button type="button" className="st-button secondary px-2 py-0.5 text-[11px]" onClick={() => onChange(value.filter((name) => !unresolved.includes(name)))}>Remove</button>
+        </div>
+      )}
+    </>
+  );
+};
+
 const EffectsEditor: React.FC<{
   effects: CheckpointEffects;
   roster: RosterMember[];
+  castable?: RosterMember[];
   backgroundNames?: string[];
   onChange: (next: CheckpointEffects) => void;
-}> = ({ effects, roster, backgroundNames = [], onChange }) => {
+}> = ({ effects, roster, castable = roster, backgroundNames = [], onChange }) => {
   const emit = (next: CheckpointEffects) => {
     const cleaned: CheckpointEffects = { ...next };
     (Object.keys(cleaned) as Array<keyof CheckpointEffects>).forEach((key) => {
@@ -178,7 +201,6 @@ const EffectsEditor: React.FC<{
   const castEnable = readStrings(cast?.enable);
   const castDisable = readStrings(cast?.disable);
   const worldInfo = isRecord(effects.world_info) ? effects.world_info : undefined;
-  const rosterOptions = roster.map((member) => ({ value: member.name ?? member.id, label: member.name ?? member.id }));
 
   return (
     <div className="flex flex-col gap-2">
@@ -236,10 +258,10 @@ const EffectsEditor: React.FC<{
       </Section>
 
       <Section title="Cast changes" enabled={cast !== undefined} onToggle={(on) => emit({ ...effects, cast_changes: on ? { enable: [], disable: [] } : undefined })}>
-        <span className="text-xs st-muted">Enable members</span>
-        <MultiSelect options={rosterOptions} value={castEnable} onChange={(enable) => emit({ ...effects, cast_changes: { enable, disable: castDisable } })} />
-        <span className="text-xs st-muted">Disable members</span>
-        <MultiSelect options={rosterOptions} value={castDisable} onChange={(disable) => emit({ ...effects, cast_changes: { enable: castEnable, disable } })} />
+        <CastSide label="Enable members" names={castEnable} roster={roster} castable={castable}
+          onChange={(enable) => emit({ ...effects, cast_changes: { enable, disable: castMemberNames(roster, castDisable) } })} />
+        <CastSide label="Disable members" names={castDisable} roster={roster} castable={castable}
+          onChange={(disable) => emit({ ...effects, cast_changes: { enable: castMemberNames(roster, castEnable), disable } })} />
       </Section>
 
       <Section title="World info" enabled={worldInfo !== undefined} onToggle={(on) => emit({ ...effects, world_info: on ? { enable: [], disable: [] } : undefined })}>

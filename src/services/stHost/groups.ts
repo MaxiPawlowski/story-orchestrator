@@ -115,3 +115,26 @@ export function readGroupMemberDisabled(member: string, groupId?: string): boole
   const group = groupId ? groupById(groupId) : getActiveGroup();
   return group ? (group.disabled_members ?? []).includes(member) : null;
 }
+
+const sameName = (left: unknown, right: string) => typeof left === "string" && left.trim().toLowerCase() === right.trim().toLowerCase();
+
+export async function addGroupMembers(names: string[]): Promise<WriteResult<{ added: string[] }>> {
+  const group = getActiveGroup();
+  if (!group) return couldNot("no group is open");
+  const characters = getContext().characters ?? [];
+  const found = names.map((name) => ({ name, avatar: characters.find((character) => sameName(character.name, name))?.avatar ?? null }));
+  const absent = found.filter((entry) => !entry.avatar).map((entry) => entry.name);
+  if (absent.length) return couldNot(`there is no card named ${absent.join(", ")} on this install`);
+  const avatars = found.map((entry) => entry.avatar as string).filter((avatar) => !group.members.includes(avatar));
+  if (!avatars.length) return wrote({ added: [] });
+  group.members = [...group.members, ...avatars];
+  try {
+    await groupChatsModule.editGroup(group.id, true, false);
+  } catch (error) {
+    return couldNot(`group ${group.id} could not be saved: ${error instanceof Error ? error.message : "the host refused the write"}`);
+  }
+  const saved = await readServerGroup(group.id) as { members?: unknown } | null;
+  const held = Array.isArray(saved?.members) ? saved.members.map(String) : null;
+  if (held && !avatars.every((avatar) => held.includes(avatar))) return couldNot(`group ${group.id} was saved, but the server does not hold ${avatars.join(", ")}`);
+  return wrote({ added: found.filter((entry) => avatars.includes(entry.avatar as string)).map((entry) => entry.name) });
+}

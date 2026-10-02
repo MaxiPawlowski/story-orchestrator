@@ -1,5 +1,5 @@
 import type { RuntimeSnapshot } from "@runtime/types";
-import { viewerRepairStep, type RepairStep } from "@runtime/repair";
+import { viewerRepairStep, type RepairAction, type RepairStep } from "@runtime/repair";
 import { REPAIR_PLAYER_COPY } from "@runtime/pipeline";
 import { playingLine, playingStory } from "@runtime/playingStory";
 
@@ -17,6 +17,8 @@ export interface EntryPointsProps {
   /** Reveal a settings control that already exists further down this panel. */
   onRevealSetting(id: string): void;
   onFixWithWizard(): void;
+  onRepairCast?(action: RepairAction): void;
+  onOpenGroup?(): void;
 }
 
 export const WIZARD_OFF_REASON = "Turn on the wizard under Author services first.";
@@ -28,9 +30,16 @@ const Row = ({ title, children }: { title: string; children: React.ReactNode }) 
   </div>
 );
 
-const RepairAuthorDetail = ({ repair, wizardOn, onFixWithWizard }: { repair: RepairStep; wizardOn: boolean; onFixWithWizard(): void }) => (
+const RepairAuthorDetail = ({ repair, wizardOn, onFixWithWizard, onRepairCast }: {
+  repair: RepairStep; wizardOn: boolean; onFixWithWizard(): void; onRepairCast?(action: RepairAction): void;
+}) => (
   <>
     <div data-so="repair-detail" className="text-xs opacity-70">{repair.detail}</div>
+    {repair.action && onRepairCast && (
+      <div className="flex flex-wrap items-center gap-2">
+        <button type="button" data-so="repair-fix" className="menu_button" onClick={() => onRepairCast(repair.action as RepairAction)}>{repair.action.label}</button>
+      </div>
+    )}
     {repair.provisionable && (
       <div className="flex flex-wrap items-center gap-2">
         <button
@@ -47,7 +56,8 @@ const RepairAuthorDetail = ({ repair, wizardOn, onFixWithWizard }: { repair: Rep
   </>
 );
 
-export default function EntryPoints({ snapshot, busy, importOpen, onToggleImport, onNewStory, onOpenStudio, onOpenDrawer, onOpenAuthorView, onRevealSetting, onFixWithWizard }: EntryPointsProps) {
+export default function EntryPoints(props: EntryPointsProps) {
+  const { snapshot, busy, importOpen, onToggleImport, onNewStory, onOpenStudio, onOpenDrawer, onOpenAuthorView, onRevealSetting, onFixWithWizard, onRepairCast, onOpenGroup } = props;
   const repair = viewerRepairStep(snapshot);
   const playing = playingStory(snapshot);
   const wizardOn = snapshot.copilot.enabled;
@@ -88,7 +98,12 @@ export default function EntryPoints({ snapshot, busy, importOpen, onToggleImport
                 <button type="button" data-so="repair-reveal" className="menu_button" onClick={() => onRevealSetting(repair.targetId as string)}>Show me the setting</button>
               </div>
             )}
-            {snapshot.ui.authorView && <RepairAuthorDetail repair={repair} wizardOn={wizardOn} onFixWithWizard={onFixWithWizard} />}
+            {!repair.targetId && repair.opensGroup && onOpenGroup && (
+              <div className="flex flex-wrap items-center gap-2">
+                <button type="button" data-so="repair-reveal" className="menu_button" onClick={onOpenGroup}>Show me the group</button>
+              </div>
+            )}
+            {snapshot.ui.authorView && <RepairAuthorDetail repair={repair} wizardOn={wizardOn} onFixWithWizard={onFixWithWizard} onRepairCast={onRepairCast} />}
           </div>
         ) : (
           <div id="so-entry-repair" className="text-xs opacity-70">{REPAIR_PLAYER_COPY.nothingMissing}</div>

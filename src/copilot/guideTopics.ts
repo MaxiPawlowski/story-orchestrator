@@ -276,6 +276,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "cast-member-no-card": "cast-changes",
   "background-missing": "background",
   "roster-member-is-player": "roster",
+  "cast-change-unknown-member": "cast-changes",
 };
 
 export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {
