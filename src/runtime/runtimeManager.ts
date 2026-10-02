@@ -252,6 +252,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.expansion.revalidateInserted();
     const pendingBridges = this.memory.enqueueArcBridges();
     const result = this.engine.commitBoundary(this.getBoundaryContext(at));
+    this.chatSave.fingerprints.settle();
     this.memory.markBridgesApplied(pendingBridges);
     if (result.fired) {
       await this.effects.announceTransition(this.engine.activeCheckpoint, this.extras, this.owner.ownsOpenChat());
