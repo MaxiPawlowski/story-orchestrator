@@ -51,6 +51,17 @@ test('review leftovers: the stop diff passes --owned with the session chats and 
   assert.equal(diffHeaders(header('chat-a', 3), header('chat-a', 5), allow, { ownedChats: ['chat-a'] })[0].allowed, true);
 });
 
+test('T4-2 stop: a group chat the session created (a branch) is declared, a foreign new chat or a removed one still blocks', () => {
+  const args = headerDiffArgs('s', 'e', [{ chatId: 'chat-a', groupId: 'g' }, { chatId: 'chat-a - Branch #1', groupId: 'g' }]);
+  const allow = args[args.indexOf('--allow') + 1].split(',');
+  const inventory = (chats: string[]) => ({ inventory: { groupChats: chats }, chat: { chatId: 'chat-a', chatLength: 1, groupId: 'g', authorView: false } });
+  const blocking = (before: string[], after: string[]) => diffHeaders(inventory(before), inventory(after), allow, { ownedChats: ['chat-a'] }).filter((difference) => !difference.allowed).map((difference) => difference.path);
+  assert.deepEqual(blocking(['g/chat-a'], ['g/chat-a', 'g/chat-a - Branch #1']), []);
+  assert.deepEqual(blocking(['g/chat-a'], ['g/chat-a', 'g/chat-a - Branch #1', 'g/someone-else']), ['inventory.groupChats']);
+  assert.deepEqual(blocking(['g/chat-a', 'g/old'], ['g/chat-a', 'g/chat-a - Branch #1']), ['inventory.groupChats']);
+  assert.ok(!headerDiffArgs('s', 'e', [{ chatId: 'chat-a' }])[4].includes('inventory.groupChats'));
+});
+
 const SERVED = 'ceb15ac19ec07dec3a70c5d80785b611d806cad5e9659520e5d54a8a2182ab19';
 const mismatch = (served: string, dist: string) => `the page is running a bundle that is not the built one: served ${served.slice(0, 16)} vs dist ${dist.slice(0, 16)}`;
 const t0Header = ({ head, bundleSha256, served, dirty = true, extraWarnings = [] as string[] }: { head: string; bundleSha256: string; served: string; dirty?: boolean; extraWarnings?: string[] }) => ({
@@ -104,4 +115,33 @@ test('T0-3 stop: the session records the served-identity allowance as a warning 
   assert.match(outcome.warnings[0], /served bundle ceb15ac19ec07dec stayed identical/);
   const quiet = await stopSequence(deps());
   assert.deepEqual(quiet.warnings, []);
+});
+
+test('T4-4 2026-10-02: the stop diff allows the session chats it created and the paths its card changes on purpose', () => {
+  const args = headerDiffArgs('s', 'e', [{ chatId: 'chat-a', groupId: 'g1' }, { chatId: 'chat-b', groupId: 'g1' }, { chatId: 'solo' }], ['inventory.v2Stories']);
+  const allow = args[args.indexOf('--allow') + 1].split(',');
+  assert.ok(allow.includes('inventory.groupChats:+g1/chat-b'));
+  assert.ok(!allow.some((entry) => entry.includes('solo')));
+  assert.ok(allow.includes('inventory.v2Stories'));
+  const inventory = (groupChats: string[], v2Stories: string[]) => ({ inventory: { groupChats, v2Stories } });
+  const before = inventory(['g1/chat-a'], ['adolion-adventurer@29']);
+  const after = inventory(['g1/chat-a', 'g1/chat-b'], ['adolion-adventurer@31']);
+  const blocking = (entries: string[]) => diffHeaders(before, after, entries, { ownedChats: ['chat-a', 'chat-b'] }).filter((difference) => !difference.allowed).map((difference) => difference.path);
+  assert.deepEqual(blocking(allow), []);
+  assert.deepEqual(blocking(headerDiffArgs('s', 'e', [{ chatId: 'chat-a', groupId: 'g1' }])[4].split(',')).sort(), ['inventory.groupChats', 'inventory.v2Stories']);
+  const foreign = diffHeaders(before, inventory(['g1/chat-a', 'g1/chat-z'], ['adolion-adventurer@29']), allow, { ownedChats: ['chat-a', 'chat-b'] }).filter((difference) => !difference.allowed).map((difference) => difference.path);
+  assert.deepEqual(foreign, ['inventory.groupChats']);
+});
+
+test('T4-3 stop: chats the session deleted through delete-chat and a card-declared count are allowed; an undeclared removal still blocks', () => {
+  const chats = [{ chatId: 'one', groupId: 'g', deleted: true }, { chatId: 'two', groupId: 'g', deleted: true }, { chatId: 'four', groupId: 'g' }];
+  const allow = headerDiffArgs('s', 'e', chats, ['inventory.lorebookCount'])[4].split(',');
+  assert.ok(allow.includes('inventory.groupChats:-g/one') && allow.includes('inventory.groupChats:+g/four'));
+  const header = (groupChats: string[], lorebookCount: number, v2Stories = ['adolion-aegis@12']) => ({ inventory: { groupChats, lorebookCount, v2Stories } });
+  const before = header(['g/seed', 'g/one', 'g/two'], 24);
+  const blocking = (after: unknown, entries = allow) => diffHeaders(before, after, entries, { ownedChats: ['one', 'two', 'four'] }).filter((difference) => !difference.allowed).map((difference) => difference.path);
+  assert.deepEqual(blocking(header(['g/seed', 'g/four'], 26)), []);
+  assert.deepEqual(blocking(header(['g/four'], 26)), ['inventory.groupChats'], 'the seed chat was not the session\'s to delete');
+  assert.deepEqual(blocking(header(['g/seed', 'g/four'], 26, [])), ['inventory.v2Stories'], 'a library removal the card did not declare');
+  assert.deepEqual(blocking(header(['g/seed', 'g/four'], 26), headerDiffArgs('s', 'e', chats.map(({ deleted: _deleted, ...chat }) => chat))[4].split(',')), ['inventory.groupChats', 'inventory.lorebookCount'], 'without delete-chat and the declaration both still block');
 });

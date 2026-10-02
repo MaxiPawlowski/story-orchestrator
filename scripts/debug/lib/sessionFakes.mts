@@ -25,6 +25,7 @@ export function fakeSt({ chat = [] as FakeMessage[], chatId = 'chat-a', groupId 
     },
     journal: [{ at: '2026-10-01T10:00:00.000Z', boundary: 3, messageId: 2, kind: 'boundary', summary: 'boundary 3' }],
     recap: null as unknown,
+    notices: { lastRollback: null, rollbackUnavailable: null, lastOutcome: null } as { lastRollback: unknown; rollbackUnavailable: unknown; lastOutcome: unknown },
   };
   const ctx: any = {
     chat, chatId, groupId, characters, eventSource: events, eventTypes: EVENT_TYPES,
@@ -43,6 +44,7 @@ export function fakeSt({ chat = [] as FakeMessage[], chatId = 'chat-a', groupId 
     getSnapshot: () => state.snapshot,
     getSessionJournal: () => state.journal,
     getAwayRecap: () => state.recap,
+    get notices() { return state.notices; },
   };
   return { ctx, state, events, runtime };
 }

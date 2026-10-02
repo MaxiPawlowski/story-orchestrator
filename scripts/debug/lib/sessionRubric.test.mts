@@ -77,3 +77,15 @@ test('T1 score: every evidence path is kept, after one --evidence, a repeated --
   assert.deepEqual(written.rows[4].evidence, ['turns.jsonl:1', 'shots/001-hud.png', 'turns.jsonl:2']);
   await assert.rejects(scoreCommand(dir, ['HUD', 'works', 'chips', 'readable', '--evidence', 'turns.jsonl:1'], 'T'), /unexpected argument\(s\) "readable"/);
 });
+
+test('T4-3 score: a JSON evidence file can be cited whole; a .jsonl or text file still needs its line', async () => {
+  const dir = await sessionDir();
+  await mkdir(join(dir, 'evidence'));
+  await writeFile(join(dir, 'evidence', '2026-10-02T05-59-59-216Z_st-eval.json'), '{"kept":true}', 'utf-8');
+  const rubric = rubricTemplate(findCard(await loadCards(), 'T4-3'));
+  const scored = scoreRow(rubric, dir, { row: 'keep', score: 'works', note: 'the book stayed', evidence: ['evidence/2026-10-02T05-59-59-216Z_st-eval.json'], at: 'T' });
+  assert.deepEqual(scored.row.evidence, ['evidence/2026-10-02T05-59-59-216Z_st-eval.json']);
+  assert.deepEqual(parseScoreArgs(['1', 'works', 'kept', '--evidence', 'evidence/2026-10-02T05-59-59-216Z_st-eval.json']).evidence, ['evidence/2026-10-02T05-59-59-216Z_st-eval.json']);
+  assert.throws(() => scoreRow(rubric, dir, { row: 'keep', score: 'works', note: 'x', evidence: ['turns.jsonl'] }), /cite a line/);
+  assert.throws(() => scoreRow(rubric, dir, { row: 'keep', score: 'works', note: 'x', evidence: ['evidence/missing.json'] }), /no such file/);
+});

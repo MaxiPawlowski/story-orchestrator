@@ -89,6 +89,7 @@ export interface Card {
   knownLimits: string[];
   waits?: string;
   requires?: CardRequires;
+  headerAllow?: string[];
 }
 
 export interface CardDoc { version: number; pin: string; cards: Card[] }
@@ -96,6 +97,21 @@ export interface CardDoc { version: number; pin: string; cards: Card[] }
 const isRecord = (value: unknown): value is Record<string, any> => Boolean(value) && typeof value === 'object' && !Array.isArray(value);
 const nonEmptyString = (value: unknown) => typeof value === 'string' && value.trim().length > 0;
 const stringList = (value: unknown, min = 1) => Array.isArray(value) && value.length >= min && value.every(nonEmptyString);
+
+export const LIST_HEADER_PATHS = ['inventory.v2Stories', 'inventory.wizardSessions', 'inventory.lorebooksSelected', 'inventory.groupChats', 'inventory.debugGlobals'] as const;
+const HEADER_ALLOW_ENTRY = /^([A-Za-z][\w]*(?:\.[\w]+)*)(?::([+-])(\S.*))?$/;
+
+export function headerAllowProblems(where: string, entries: unknown): string[] {
+  if (!stringList(entries)) return [`${where}: headerAllow must be a non-empty list of run-header changes the card makes on purpose`];
+  const problems: string[] = [];
+  for (const entry of entries as string[]) {
+    const match = HEADER_ALLOW_ENTRY.exec(entry);
+    if (!match) { problems.push(`${where}: headerAllow "${entry}" is neither a run-header path nor path:+item / path:-item`); continue; }
+    if (!match[2] && (LIST_HEADER_PATHS as readonly string[]).includes(match[1])) problems.push(`${where}: headerAllow "${entry}" would excuse every change to a list; name each item as ${match[1]}:+item or ${match[1]}:-item, so an undeclared removal still blocks`);
+    if (match[1] === 'inventory.groupChats') problems.push(`${where}: headerAllow cannot name group chats: stop declares the chats the session created (+) and deleted through delete-chat (-) itself`);
+  }
+  return problems;
+}
 
 export const tierOf = (id: string): Tier | null => {
   const match = /^(T[0-7])(?:-\d+)?$/.exec(id);
@@ -195,6 +211,7 @@ export function validateCardDoc(doc: unknown, index: StoryIndex, premises: Premi
       else if (card.story.premise !== premise.text) problems.push(`${where}: story.premise must be the text of premise "${premise.id}" verbatim`);
     }
     if (card.waits !== undefined && !nonEmptyString(card.waits)) problems.push(`${where}: waits must say what the card waits on`);
+    if (card.headerAllow !== undefined) problems.push(...headerAllowProblems(where, card.headerAllow));
     const setup = card.setup;
     if (!isRecord(setup)) problems.push(`${where}: setup is required`);
     else {
@@ -418,6 +435,7 @@ export function renderCard(card: Card, index: StoryIndex): string {
   lines.push('- **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):', ...card.rubric.map((row) => `  - ${row.feature}${row.ask ? `: ${row.ask}` : ''}${row.gate ? ` [blind gate ${row.gate}: paired, shuffled, unlabelled artifacts go to test/sessions/rating-pack/; the gate stays pending until the user rates them]` : ''}${row.reviewer === 'user' ? ` (${USER_REVIEW}, not decided by Claude)` : ''}${row.media ? ` (${row.media}: unexercised in the no-media variant, never counted green)` : ''}`));
   if (card.requires?.features?.length) lines.push(`- **Story data required:** ${card.requires.features.join(', ')} (preflight refuses the start when the pinned build lacks it).`);
   if (card.requires?.artifacts && Object.keys(card.requires.artifacts).length) lines.push(`- **Artifacts required at stop:** ${Object.entries(card.requires.artifacts).map(([key, count]) => `${key} >= ${count}`).join(', ')}.`);
+  if (card.headerAllow?.length) lines.push(`- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): ${card.headerAllow.map((entry) => `\`${entry}\``).join(', ')}.`);
   lines.push('- **Logged automatically:**', ...card.loggedAutomatically.map((item) => `  - ${item}`));
   lines.push('- **Known limits:**', ...card.knownLimits.map((item) => `  - ${item}`));
   return lines.join('\n');

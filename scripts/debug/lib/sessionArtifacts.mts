@@ -135,7 +135,7 @@ export function runtimeProblems(chatId: string, blob: unknown, expect: { story: 
   return problems;
 }
 
-export interface ChatRef { chatId: string; group?: string | null; groupId?: string | null; storyId?: string | null; primary?: boolean; how?: string }
+export interface ChatRef { chatId: string; group?: string | null; groupId?: string | null; storyId?: string | null; primary?: boolean; how?: string; deleted?: boolean; deletedAt?: string; lorebook?: unknown }
 
 export function trackChat(chats: ChatRef[], seen: ChatRef | null | undefined, how: string): ChatRef[] {
   if (!seen?.chatId) return chats;

@@ -4,6 +4,7 @@ import { RUBRIC_SCORES, USER_REVIEW } from './sessionCharters.mts';
 
 export const SCORER = 'claude';
 const IMAGE = /\.(png|jpe?g|webp)$/i;
+const WHOLE_FILE = /\.json$/i;
 
 export interface EvidenceRef { raw: string; path: string; line: number | null }
 
@@ -18,7 +19,7 @@ export function evidenceRefProblems(dir: string, ref: EvidenceRef): string[] {
   const full = resolve(dir, ref.path);
   if (relative(dir, full).startsWith('..')) return [`${ref.raw}: evidence must be a path inside the session dir`];
   if (!existsSync(full) || !statSync(full).isFile()) return [`${ref.raw}: no such file in the session dir`];
-  if (ref.line === null) return IMAGE.test(ref.path) ? [] : [`${ref.raw}: cite a line (path:line) or a screenshot`];
+  if (ref.line === null) return IMAGE.test(ref.path) || WHOLE_FILE.test(ref.path) ? [] : [`${ref.raw}: cite a line (path:line), a screenshot or a whole .json file`];
   if (IMAGE.test(ref.path)) return [`${ref.raw}: a screenshot has no lines`];
   const lines = readFileSync(full, 'utf-8').split(/\r?\n/).length;
   return ref.line >= 1 && ref.line <= lines ? [] : [`${ref.raw}: line ${ref.line} is outside the file (${lines} lines)`];

@@ -214,3 +214,36 @@ test('T1-7 recorded: the re-digested session has no phantom rollbacks or jumps a
   assert.ok(Object.keys(digest.countsByChat).filter((chat) => chat.startsWith('2026-10-01@')).length === 2);
   assert.match(renderFindings(digest, 'test/sessions/T1/T1-7-1'), /### By chat/);
 });
+
+test('T4-3 digest: a session stop marked INVALID is invalid in the digest too, with stop\'s reasons', async () => {
+  const { files, paths } = await loadSessionFiles(fixture('clean'), await loadIndex());
+  const stopped = digestSession({ ...files, session: { ...files.session, valid: false, invalid: ['the run header diff failed (exit 1)'] } }, paths);
+  assert.equal(stopped.valid, false);
+  assert.deepEqual(stopped.invalid, ['stop marked the session INVALID: the run header diff failed (exit 1)']);
+  assert.match(renderFindings(stopped, 'x'), /## INVALID SESSION\n\n- stop marked the session INVALID/);
+  assert.equal(digestSession({ ...files, session: { ...files.session, valid: true } }, paths).valid, true);
+});
+
+test('T4-1 digest: one rollback is one row (a replay past the old high-water mark is not three rollbacks), and repeated rows print once', async () => {
+  const { files, paths } = await loadSessionFiles(fixture('clean'), await loadIndex());
+  const at = (minute: number) => `2026-09-30T10:${String(minute).padStart(2, '0')}:00.000Z`;
+  const boundary = (line: number, value: number) => ({ line, value: { at: at(line - 90), kind: 'boundary', boundary: value, messageId: value, summary: `boundary ${value}`, chatId: 'c1', detail: { source: 'gate', applied: [], discarded: [] } } });
+  const busy = (line: number) => ({ line, value: { at: at(30), kind: 'judge', boundary: 9, messageId: 9, summary: 'judge memoryPairs fell back (busy) in 0 ms', chatId: 'c1', detail: { use: 'memoryPairs', fallback: 'busy' } } });
+  const journal = [...files.journal.slice(0, 1), ...[9, 6, 7, 8, 9].map((value, at) => boundary(100 + at, value)), busy(200), busy(201), busy(202)];
+  const digest = digestSession({ ...files, journal }, paths);
+  assert.deepEqual(digest.anomalies.filter((anomaly) => anomaly.kind === 'rollback').map((anomaly) => anomaly.summary), ['boundary went back from 9 to 6']);
+  assert.equal(digest.counts['judge-fallback'], 3);
+  const markdown = renderFindings(digest, 'x');
+  assert.equal(markdown.split('\n').filter((line) => line.startsWith('- ') && line.includes('memoryPairs fell back')).length, 1);
+  assert.match(markdown, /memoryPairs fell back \(busy\) \(x3, last [^)]+\) \(`journal.jsonl:200`, `journal.jsonl:201`, `journal.jsonl:202`\)/);
+});
+
+test('T4-1 digest: two flags on the same messages print the shared context once', () => {
+  const message = (id: number) => ({ id, name: id % 2 ? 'Max' : 'Natalia', isUser: id % 2 === 1, text: `line ${id}` });
+  const flag = (at: string, messageId: number, ids: number[]) => ({ at, chatId: 'c1', messageId, note: at, evidence: { path: 'journal.jsonl', line: 1 }, context: ids.map(message), contextFrom: 'event-time' as const });
+  const base = digestSession({ session: { charter: 'T4-1', tier: 'T4' }, journal: [], payloads: [], console: [], logs: {}, chats: {}, states: {}, story: null }, { journal: 'journal.jsonl', payloads: 'payloads.jsonl', console: 'console.jsonl', logs: {} });
+  const markdown = renderFindings({ ...base, flags: [flag('a', 16, [13, 14, 15, 16]), flag('b', 18, [13, 14, 15, 16, 17, 18])] }, 'x');
+  assert.equal(markdown.split('\n').filter((line) => line.includes('#13 Max: line 13')).length, 1);
+  assert.match(markdown, /\(#13-#16 as in the flag above\)/);
+  assert.match(markdown, /\*\*#18 Natalia: line 18\*\*/);
+});

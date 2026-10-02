@@ -17,14 +17,21 @@ export interface LiveRead {
   pipeline: { state: string | null; text: string | null; detail: string | null } | null;
   lastRollback: unknown;
   rollbackUnavailable: unknown;
+  rollbackOutcome: RollbackOutcomeRecord | null;
   scheduler: unknown;
   journal: LiveJournalEvent[];
 }
+export interface RollbackOutcomeRecord { seq: number; result: string; fromMessage: number | null; reason?: string; at: string }
 export interface RecorderEvent { index: number; at: string; event: string; type?: string | null; dryRun?: boolean; chid?: number | null; name?: string | null; messageId?: number | null; chatId?: string | null }
 
 export const RECORDER_KEY = '__soSessionRecorder';
 export const RECORDER_CAP = 500;
-export const ROLLBACK_KINDS = /rollback|rolled back|stepped back|rewind|quarantin|discard/i;
+export const ROLLBACK_RECORD = /^(?:stepped back to |eventless change at message |edit past the retained history|delete (?:not )?decoded|decoded ambiguously|rolled back)/i;
+export const ROLLBACK_READ = /^read rollback:/;
+
+export const isRollbackRecord = (event: Pick<LiveJournalEvent, 'kind' | 'summary'>) =>
+  ((event.kind === 'status' || event.kind === 'story') && ROLLBACK_RECORD.test(String(event.summary ?? '')))
+  || (event.kind === 'extraction' && ROLLBACK_READ.test(String(event.summary ?? '')));
 
 export async function readLive(page: any, from: number | null = null): Promise<LiveRead> {
   return evaluateInST(page, (start: number | null) => {
@@ -56,6 +63,7 @@ export async function readLive(page: any, from: number | null = null): Promise<L
       pipeline: pipeline ? { state: pipeline.state ?? null, text: pipeline.text ?? null, detail: pipeline.detail ?? null } : null,
       lastRollback: snapshot.lastRollback ?? null,
       rollbackUnavailable: snapshot.rollbackUnavailable ?? null,
+      rollbackOutcome: rt?.notices?.lastOutcome ? { ...rt.notices.lastOutcome } : null,
       scheduler: snapshot.extraction?.scheduler ?? null,
       journal: (rt?.getSessionJournal?.() ?? []).map((event: any) => ({ at: event.at, boundary: event.boundary, messageId: event.messageId, kind: event.kind, summary: event.summary, ...(event.detail ? { detail: event.detail } : {}) })),
     };
@@ -138,14 +146,15 @@ export function generationsOf(events: RecorderEvent[] = []) {
   };
 }
 
-const checkpointOf = (read: LiveRead) => ({ id: read.activeCheckpointId, name: read.activeCheckpointName });
+const checkpointOf = (read: Pick<LiveRead, 'activeCheckpointId' | 'activeCheckpointName'>) => ({ id: read.activeCheckpointId, name: read.activeCheckpointName });
 
-function rollbackOf(before: LiveRead, after: LiveRead, journal: LiveJournalEvent[]) {
-  const noticeChanged = JSON.stringify(before.lastRollback) !== JSON.stringify(after.lastRollback) && after.lastRollback !== null;
-  const boundaryBack = before.boundary !== null && after.boundary !== null && after.boundary < before.boundary;
-  const events = journal.filter((event) => ROLLBACK_KINDS.test(`${event.kind} ${event.summary}`));
+export function rollbackOf(before: Pick<LiveRead, 'boundary' | 'lastRollback' | 'rollbackOutcome' | 'activeCheckpointId' | 'activeCheckpointName'>, after: Pick<LiveRead, 'boundary' | 'lastRollback' | 'rollbackUnavailable' | 'rollbackOutcome' | 'activeCheckpointId' | 'activeCheckpointName'>, journal: LiveJournalEvent[]) {
+  const events = journal.filter(isRollbackRecord);
+  const ran = after.rollbackOutcome && after.rollbackOutcome.seq !== (before.rollbackOutcome?.seq ?? 0) && after.rollbackOutcome.fromMessage !== null ? after.rollbackOutcome : null;
   return {
-    happened: noticeChanged || boundaryBack || events.length > 0,
+    happened: events.length > 0 || ran !== null,
+    from: [...(events.length ? ['journal'] : []), ...(ran ? ['outcome'] : [])],
+    outcome: ran,
     notice: after.lastRollback,
     unavailable: after.rollbackUnavailable,
     boundary: { from: before.boundary, to: after.boundary },
@@ -241,6 +250,7 @@ export async function waitSchedulerIdle(page: any, timeoutMs = 600000, quietMs =
 }
 
 export interface LiveDeps {
+  lineSaved?: (page: any, chatId: string, line: string) => Promise<boolean>;
   send: (page: any, line: string, options: Record<string, unknown>) => Promise<any>;
   waitIdle: (page: any, timeoutMs: number) => Promise<unknown>;
   waitScheduler: (page: any, timeoutMs: number, quietMs: number) => Promise<unknown>;
@@ -260,7 +270,7 @@ export interface HitTest { selector: string; found: boolean; clickable: boolean;
 
 export interface Reveal { found: boolean; scrolledToBottom: boolean; inView: boolean }
 
-export interface LiveOptions { timeoutMs?: number; quietMs?: number; roundQuietMs?: number; expectReply?: boolean; loopGuard?: boolean }
+export interface LiveOptions { timeoutMs?: number; quietMs?: number; roundQuietMs?: number; expectReply?: boolean; loopGuard?: boolean; saveTimeoutMs?: number }
 
 async function settle(page: any, deps: LiveDeps, options: LiveOptions) {
   try {
@@ -306,16 +316,39 @@ export async function waitRoundSettled(page: any, deps: Pick<LiveDeps, 'waitIdle
   return { settled: false, polls, open: true, waitedMs: deps.now() - startedAt };
 }
 
+export const MAX_ROUND_PASSES = 6;
+
+const roundActivity = async (page: any, cursor: number) => (await readRecorder(page, cursor)).events.filter((event) => ROUND_ACTIVITY.has(event.event)).length;
+
+export async function settleRound(page: any, deps: LiveDeps, cursor: number, options: LiveOptions) {
+  const roundOptions = { quietMs: options.roundQuietMs ?? ROUND_QUIET_MS, timeoutMs: options.timeoutMs ?? 600000 };
+  let round = await waitRoundSettled(page, deps, cursor, roundOptions);
+  const actedAt = deps.now();
+  let seen = await roundActivity(page, cursor);
+  let schedulerError = await settle(page, deps, options);
+  let passes = 1;
+  while (passes < MAX_ROUND_PASSES) {
+    const late = (await roundActivity(page, cursor)) !== seen || await pageGenerating(page) || await talkChainPending(page);
+    if (!late) break;
+    passes += 1;
+    round = await waitRoundSettled(page, deps, cursor, roundOptions);
+    seen = await roundActivity(page, cursor);
+    schedulerError = await settle(page, deps, options);
+  }
+  const stillOpen = passes >= MAX_ROUND_PASSES && ((await roundActivity(page, cursor)) !== seen || await pageGenerating(page));
+  return { round: { ...round, passes, ...(stillOpen ? { settled: false } : {}) }, schedulerError, actedAt };
+}
+
 export async function runTurn(page: any, line: string, deps: LiveDeps, options: LiveOptions = {}) {
   const startedAt = deps.now();
   const { cursor } = await armTurnRecorder(page);
   const before = await readLive(page);
   const overlays = await clearOverlays(page, deps);
   const sent = overlays.ok ? await deps.send(page, line, { idleTimeoutMs: options.timeoutMs ?? 600000, expectReply: options.expectReply !== false }) : { skipped: true };
-  const round = overlays.ok ? await waitRoundSettled(page, deps, cursor, { quietMs: options.roundQuietMs ?? ROUND_QUIET_MS, timeoutMs: options.timeoutMs ?? 600000 }) : null;
-  const send = { ...sent, round, overlays };
-  const actedAt = deps.now();
-  const schedulerError = await settle(page, deps, options);
+  const settled = overlays.ok ? await settleRound(page, deps, cursor, options) : { round: null, schedulerError: await settle(page, deps, options), actedAt: deps.now() };
+  const send = { ...sent, round: settled.round, overlays };
+  const actedAt = settled.actedAt;
+  const schedulerError = settled.schedulerError;
   const settledAt = deps.now();
   const after = await readLive(page, before.chatLength);
   const recorder = (await readRecorder(page, cursor)).events;
@@ -527,19 +560,44 @@ async function switchMidGen(page: any, args: MutationArgs, deps: LiveDeps, optio
   return { did: { line: args.line, from: origin.chatId, to: args.to, observedGenerating, switchedAt: 'after-reply', switchedAtMs, otherGroup, target, back }, problems };
 }
 
+const lineInChat = (page: any, line: string) => evaluateInST(page, (wanted: string) => ((globalThis as any).SillyTavern.getContext().chat ?? []).some((message: any) => Boolean(message?.is_user) && String(message?.mes ?? '').trim() === wanted.trim()), line);
+
+export async function waitLineSaved(page: any, deps: Pick<LiveDeps, 'lineSaved' | 'now'>, chatId: string, line: string, timeoutMs: number) {
+  const started = deps.now();
+  if (!deps.lineSaved) return { saved: null, waitedMs: 0, reads: 0 };
+  let reads = 0;
+  while (deps.now() - started < timeoutMs) {
+    reads += 1;
+    if (await deps.lineSaved(page, chatId, line)) return { saved: true, waitedMs: deps.now() - started, reads };
+    await page.waitForTimeout(250);
+  }
+  return { saved: false, waitedMs: deps.now() - started, reads };
+}
+
 async function reloadMidGen(page: any, args: MutationArgs, deps: LiveDeps, options: LiveOptions) {
   if (!args.line) throw new Error('reload-mid-gen needs a player line to start the generation');
   const origin: ChatTarget = { chatId: String(args.chatId ?? ''), group: args.group ?? null, groupId: args.groupId ?? null };
   const before = await chatProbe(page);
   await deps.startSend(page, args.line);
   const observedGenerating = await deps.waitGenerating(page, 60000);
+  const saved = await waitLineSaved(page, deps, origin.chatId, args.line, options.saveTimeoutMs ?? 30000);
+  if (saved.saved !== true) {
+    await deps.waitIdle(page, options.timeoutMs ?? 600000);
+    const why = saved.saved === null ? 'the harness cannot read the chat back from the server' : `the player line was not on disk within ${saved.waitedMs} ms`;
+    return { did: { line: args.line, observedGenerating, before, saved, reloaded: false }, problems: [`${why}, so the page was not reloaded: a reload before ST saves the line loses it, and that loss would be the harness's, not the product's`] };
+  }
+  const generatingAtReload = await pageGenerating(page);
   await deps.reload(page);
   await armTurnRecorder(page);
   await deps.openChat(page, origin);
   await deps.waitIdle(page, options.timeoutMs ?? 600000);
   const after = await chatProbe(page);
-  const problems = after.chatId !== origin.chatId ? [`could not reopen ${origin.chatId} after the reload (open: ${after.chatId})`] : [];
-  return { did: { line: args.line, observedGenerating, before, after, reloaded: true }, problems };
+  const lineKept = await lineInChat(page, args.line);
+  const problems = [
+    ...(after.chatId !== origin.chatId ? [`could not reopen ${origin.chatId} after the reload (open: ${after.chatId})`] : []),
+    ...(after.chatId === origin.chatId && !lineKept ? ['the player line was on disk before the reload and is gone after it'] : []),
+  ];
+  return { did: { line: args.line, observedGenerating, before, saved, generatingAtReload, after, lineKept, reloaded: true }, problems };
 }
 
 export async function runMutation(page: any, verb: MutationVerb, args: MutationArgs, deps: LiveDeps, options: LiveOptions = {}) {

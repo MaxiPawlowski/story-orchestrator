@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { REPO_ROOT } from '../../lib/stRoot.mjs';
 import {
-  comfyRefusal, coverageProblems, JUDGE_USES, nextSessionNumber, renderCardsDocument, rubricProblems, rubricSummary, rubricTemplate, settingsPatch, UNEXERCISED, validateCardDoc, type CardDoc,
+  comfyRefusal, coverageProblems, headerAllowProblems, JUDGE_USES, nextSessionNumber, renderCardsDocument, rubricProblems, rubricSummary, rubricTemplate, settingsPatch, UNEXERCISED, validateCardDoc, type CardDoc,
 } from './sessionCharters.mts';
 import { CARDS_DOC_PATH, findCard, loadCards, loadIndex, pinProblems, planStart, repinCharters, startProblems } from '../so-session.mts';
 
@@ -225,4 +225,12 @@ test('plan 14 stop: the rubric template has one unscored row per card rubric row
 test('plan 14 sessions: numbering continues after the highest existing run', () => {
   assert.equal(nextSessionNumber([], 'T1-2'), 1);
   assert.equal(nextSessionNumber(['T1-2-1', 'T1-2-3', 'T1-20-9', 'T1-2-x'], 'T1-2'), 4);
+});
+
+test('T4 headerAllow: a list is declared item by item, scalar paths whole, and group chats never (stop declares those)', () => {
+  assert.deepEqual(headerAllowProblems('c', ['inventory.lorebookCount', 'inventory.v2Stories:+adolion-adventurer', 'inventory.v2Stories:-adolion-adventurer']), []);
+  assert.match(headerAllowProblems('c', ['inventory.v2Stories'])[0], /would excuse every change to a list/);
+  assert.match(headerAllowProblems('c', ['inventory.groupChats:-g/x'])[0], /cannot name group chats/);
+  assert.match(headerAllowProblems('c', ['inventory.v2Stories:x'])[0], /neither a run-header path nor/);
+  assert.match(headerAllowProblems('c', [])[0], /non-empty list/);
 });

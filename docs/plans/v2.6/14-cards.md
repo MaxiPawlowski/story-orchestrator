@@ -1090,18 +1090,27 @@ Pinned Adolion build `e6226f4c10116af9012fbd1f543bf3b99be4bd10`. 36 cards. Start
 - **Setup:**
   - Story: `adolion-saga` (Adolion: The Saga); fresh chat; player mode.
   - Persona: A Nightriver heir who keeps changing their mind.
-  - Starts at Home to Nightriver `nightriver-house`, seeded by `so-session start`.
+  - Starts at What Filwern Left `what-filwern-left`, seeded by `so-session start`.
+  - Enabled in the group at start (a start past the story's start runs only its own cast changes): Riyo.
+  - Disabled in the group at start: Tobias, Ellie, Vallie.
   - Settings: images off; sprites off; inner voice harvest (#so-inner-harvest) on; inner voice beat (#so-inner-beat) on; chapters: seal on, storySoFar on, fold on; curator on (review).
-  - AS-25: the mutations run on the Saga's Nightriver act, a genuinely chaptered story (plan 07 leaves the standalone Academy chapterless), so a swipe, edit or delete has a sealed chapter to unfold. The preflight refuses the start when the pinned Saga has no chapters, and stop refuses a session that sealed none.
+  - AS-25: the mutations run on the Saga, a genuinely chaptered story (plan 07 leaves the standalone Academy chapterless), so a swipe, edit or delete has a sealed chapter to unfold. The preflight refuses the start when the pinned Saga has no chapters, and stop refuses a session that sealed none.
+  - Starts at What Filwern Left, the last checkpoint of Acts I-II (chapter adv). One transition (saga_called_home) carries the party to Home to Nightriver in Act III, and leaving Acts I-II seals it during play, so the seal lands within the first few turns and every later mutation has a sealed chapter behind it. T4-1-1 started at Home to Nightriver instead: no chapter could seal inside the time budget, and stop was INVALID (chapterRecords 0, foldedTurns 0).
+  - The startAt jump stays inside Acts I-II, so it raises no chapter-jump confirm; if one appears anyway, start answers it 'Jump without sealing' (a debug jump seals nothing it did not play) and records it in session.json (startPopups); any other popup fails the start.
+  - Riyo travels with the party (the-changed-deep enabled her); Tobias, Ellie and Vallie stayed behind (road-to-wendhope disabled them). A start past the story's start runs only its own cast changes, so start sets these (T1-5 precedent).
   - The inner voice toggles (#so-inner-harvest, #so-inner-beat) are author-only; so-session start sets both.
 - **Drive:**
-  1. **Swipe a transition**, aims at Father's Summons `fathers-summons`. path = witch_king; swipe the reply that moved it.
+  1. **Go home: seal Acts I-II**, aims at What Filwern Left `what-filwern-left` or Home to Nightriver `nightriver-house`. saga_called_home; leaving Driftmere for the Nightriver Estate ends Acts I-II, and the chapter seals at that boundary. Budget: 4 turns; flag if Home to Nightriver is reached and no chapter record appears in the Overview.
+     - Sample line: "We tell Serenola what the mine cost. Then I open Father's letter: he calls me home, so we ride for the Nightriver Estate."
+  2. **Roll back past the seal**, aims at Home to Nightriver `nightriver-house`. Delete (or swipe) the reply that carried the story home, then play it again: the Acts I-II record must unfold, and seal again on the way back.
+     - Sample line: "(no chat line: delete the reply that moved the story to Home to Nightriver)"
+  3. **Swipe a transition**, aims at Father's Summons `fathers-summons`. path = witch_king; swipe the reply that moved it.
      - Sample line: "I go to Father's study at once."
-  2. **Edit a memory moment**, aims at Father's Summons `fathers-summons` or Whispers in the Halls `whispers`. Say something memorable, then edit it away.
+  4. **Edit a memory moment**, aims at Father's Summons `fathers-summons` or Whispers in the Halls `whispers`. Say something memorable, then edit it away.
      - Sample line: "I swear on Mother's grave I'll never duel for this house."
-  3. **Delete during a curator proposal**, aims at Whispers in the Halls `whispers` or Natalia Named `natalia-named`. Delete the last reply while a proposal is pending.
+  5. **Delete during a curator proposal**, aims at Whispers in the Halls `whispers` or Natalia Named `natalia-named`. Delete the last reply while a proposal is pending.
      - Sample line: "Shiya, who comes through the servants' door at night?"
-  4. **Swipe at the duel**, aims at Trial by Combat `the-duel` or The Night of Knives `night-of-knives`. duel_outcome; swipe the outcome reply twice.
+  6. **Swipe at the duel**, aims at Trial by Combat `the-duel` or The Night of Knives `night-of-knives`. duel_outcome; swipe the outcome reply twice.
      - Sample line: "I show the court the venom on his lance."
 - **Look for:**
   - After each mutation, the HUD, Memory tab and timeline agree with the chat; the Overview says 'the current scene' in plain words rather than naming internals. *(Overview)*
@@ -1119,7 +1128,7 @@ Pinned Adolion build `e6226f4c10116af9012fbd1f543bf3b99be4bd10`. 36 cards. Start
   - Edit a message five back.
 - **Flag when:**
   - Anything disagreed after a mutation.
-- **Stop when:** Every mutation tried at two different moments, or 45 minutes.
+- **Stop when:** Every mutation tried at two different moments, one of them rolling back past the Acts I-II seal, or 50 minutes.
 - **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - rollback: story
   - rollback: memory
@@ -1183,15 +1192,17 @@ Pinned Adolion build `e6226f4c10116af9012fbd1f543bf3b99be4bd10`. 36 cards. Start
   - Persona: Any adventurer persona.
   - Starts at Homecoming `aegis-homecoming`.
   - Settings: images off; sprites off.
-  - Two throwaway chats: play 5 turns in each so each gets a memory book, then delete both.
+  - Two throwaway chats, each played until it has a story-memory lorebook, then deleted. A mirror book exists only once the chat holds a relationship memory AND a consolidation pass has run, which happens every 10th boundary: ordinary turns never make one (T4-3-1: 6 turns, 36 rows, 0 relationships, no book). Talk about bonds (who is a friend, what someone is to you) and play each chat until its book exists, at most 15 turns per chat (T4-3-1: books at boundaries 10-30, after 9-13 bond-focused turns).
+  - Delete only with so-session delete-chat <dir> <chatId> --book keep|delete|escape. It exports the chat's full runtime, transcript and evidence first, refuses --book on a chat that has no book yet (so the book check is built in) and a chat with a book and no --book, answers the prompt as asked, and stop declares the removal. A chat deleted any other way leaves no evidence and an undeclared removal, and the session is INVALID.
+  - turn acts on the open chat; switch with st-navigation open-chat, or name it with --chat.
 - **Drive:**
-  1. **Give each chat memory**, aims at Homecoming `aegis-homecoming` or The Guild Tavern `aegis-the-tavern`. 5 turns each.
-     - Sample line: "Put us down for the exam."
-     - Sample line: "Fiana, what makes a party fail?"
-  2. **Delete chat one: keep the book**, aims at Homecoming `aegis-homecoming` or The Guild Tavern `aegis-the-tavern`. Answer the lorebook prompt with keep.
-     - Sample line: "(no chat line: delete the chat)"
-  3. **Delete chat two: delete the book**, aims at Homecoming `aegis-homecoming` or The Guild Tavern `aegis-the-tavern`. Answer with delete.
-     - Sample line: "(no chat line: delete the chat)"
+  1. **Give each chat a memory book**, aims at Homecoming `aegis-homecoming` or The Guild Tavern `aegis-the-tavern`. Bond talk until the mirror book exists: a relationship memory plus a consolidation pass at a multiple of 10 boundaries; at most 15 turns per chat.
+     - Sample line: "Fiana, after today I'd call you a friend. Would you?"
+     - Sample line: "Who is Jasira to you, Fiana?"
+  2. **Delete chat one: keep the book**, aims at Homecoming `aegis-homecoming` or The Guild Tavern `aegis-the-tavern`. so-session delete-chat <dir> <chat one> --book keep.
+     - Sample line: "(no chat line: delete-chat --book keep)"
+  3. **Delete chat two: delete the book**, aims at Homecoming `aegis-homecoming` or The Guild Tavern `aegis-the-tavern`. so-session delete-chat <dir> <chat two> --book delete.
+     - Sample line: "(no chat line: delete-chat --book delete)"
 - **Look for:**
   - The prompt names the chat and the book in plain words (expected finding: it shows a raw chat id). *(popup)*
   - Keep leaves the book; delete removes it; no Repair row after either. *(settings panel)*
@@ -1201,20 +1212,21 @@ Pinned Adolion build `e6226f4c10116af9012fbd1f543bf3b99be4bd10`. 36 cards. Start
   - A Repair row nags about a book you chose to delete.
   - The prompt blocks later popups.
 - **Provocations:**
-  - Close the prompt with Escape.
+  - Close the prompt with Escape: a third chat (new-chat, adopt, played until its book exists), deleted with delete-chat --book escape.
 - **Flag when:**
   - The prompt wording was unclear.
-- **Stop when:** Both deletes done and checked, or 20 minutes.
+- **Stop when:** Both deletes and the Escape provocation done and checked, or 60 minutes.
 - **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - mirror-book prompt
   - keep
   - delete
   - Repair after delete
+- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.lorebookCount`.
 - **Logged automatically:**
-  - the reaper's decision (journal)
+  - the reaper's decision (journal), and the delete-chat row in turns.jsonl: prompt text, answer, book before and after
   - lorebook list before and after (run header diff)
 - **Known limits:**
-  - The run header diff will show the chats and books you deleted; that is expected here.
+  - The run header diff shows the deleted chats and the kept books: stop declares the chats deleted through delete-chat, and the card declares inventory.lorebookCount; any other change (a library delete, a chat deleted another way) still invalidates the session.
   - The prompt names the deleted chat by its raw chat id. Record that as a finding (expectation: plain words), not as a mistake in the card.
 
 ### T4-4 Restart and update
@@ -1252,6 +1264,7 @@ Pinned Adolion build `e6226f4c10116af9012fbd1f543bf3b99be4bd10`. 36 cards. Start
   - hot-swap
   - invalidating choice
   - save vocabulary
+- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): `inventory.v2Stories:+adolion-adventurer`, `inventory.v2Stories:-adolion-adventurer`.
 - **Logged automatically:**
   - story update records (from/to version, classification, choice)
   - the library in the run header diff

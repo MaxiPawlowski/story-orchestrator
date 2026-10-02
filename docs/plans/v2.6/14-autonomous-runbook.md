@@ -18,7 +18,7 @@ node scripts/debug/so-session.mts budget
 - `stop` exports every visited or created chat, asks each tail to drain and waits for it before stopping it, and exits 1 on an invalid session (failed header diff, missing capture, lost drain, missing required artifact, a ComfyUI call). A repo rebuild or merge mid-run is not a failed diff while the served bundle is unchanged (`--served-identity`): it is a warning in `session.json`. An invalid session is re-run, never scored.
 - Never touch ComfyUI at 127.0.0.1:8188: every card runs with `--media off` (the default), the recorded no-media variant; image and sprite rubric rows are unexercised, and no card here needs `--allow-comfy`.
 - Lanes run in parallel, tier by tier; at most two LLM-heavy lanes at once (llama-server `LLM_PARALLEL`). A lane whose chat a later card continues is leased (`lease.json`): `start` and `adolion-fresh seed` refuse to re-seed it until the continuation ran; `so-session lane archive <n>` keeps it if the lane is needed sooner.
-- `turn` sends one real line, waits until the round is over (no group round or generation open, then 4 s with no new generation, draft or reply; a group send can be several generations) and for the scheduler, and appends the record to `turns.jsonl`; a round still open at the budget is a problem in the record. A reply that loops (a line 3x, a 4-word phrase 4x) or shows word-merge damage (glued words, doubled words, spelled letters) is recorded as `modelDefect`, flagged (`model defect: loop|corrupt`) and, when it is the last reply, swiped once so it does not seed the next turn; a defective reply that is not the last is left in the chat (nothing deleted or regenerated), recorded in `autoRepair.unrepaired` and flagged (`model defect left in the chat: message N (kind)`); the digest counts both. Mutations (`swipe-new`, `regen`, `edit`, `delete`, `switch-chat-mid-gen`, `reload-mid-gen`) record what they did and the rollback the product performed. `switch-chat-mid-gen` waits for the reply to render and switches at once (`switchedAt: after-reply`, the moment in `switchedAtMs`, `otherGroup` says which kind), because ST switches no chat while a reply generates, to another group or within the same one (T2-6: a mid-reply switch inside one group stayed put for 60 s). They close the drawer and any popup first; `swipe-new` scrolls the reply into view (the chat to the bottom) and clicks only a hit-testable arrow. `swipe-new`, `regen` and `delete last` target the last character reply: a transition note after it is skipped and named in the record (`swipe-new` and `regen` delete it first, since ST swipes and regenerates only the last message). `flag` files against the chat that is open and navigates nowhere (`--chat <id>` names another session chat), and puts the drawer back the way it found it. `turn` closes the drawer and any open popup first (our own "Previously" recap is confirmed with its Continue button; T2-3: a send behind it went nowhere) and refuses to send when one stays open; a send that adds no player message is a problem in the record. `mem <dir> <pin|unpin|lock|unlock|exclude|edit> <row id|"text">` drives the Memory tab's actions through the runtime and records the row before and after.
+- `turn` sends one real line into the open chat (refused when the open chat is not one of the session's; `--chat <id>` names another), waits until the round is over (no group round or generation open, then 4 s with no new generation, draft or reply; a group send can be several generations) and for the scheduler, and goes round again while the scheduler's wait let a new draft or generation start (T4-1: a member drafted after a transition answered during the next verb), then appends the record to `turns.jsonl`; a round still open at the budget is a problem in the record. `rollback.happened` reads the journal's rollback records (stepped back, eventless change, a rollback read) and the runtime's rollback outcome, nothing else. `reload-mid-gen` reloads only once the player line is on disk (server read-back), and does not reload at all when it never gets there. `delete-chat <dir> <chatId> --book keep|delete|escape` exports the chat in full, deletes it, answers the lorebook prompt as asked, and `stop` declares the removal. A reply that loops (a line 3x, a 4-word phrase 4x) or shows word-merge damage (glued words, doubled words, spelled letters) is recorded as `modelDefect`, flagged (`model defect: loop|corrupt`) and, when it is the last reply, swiped once so it does not seed the next turn; a defective reply that is not the last is left in the chat (nothing deleted or regenerated), recorded in `autoRepair.unrepaired` and flagged (`model defect left in the chat: message N (kind)`); the digest counts both. Mutations (`swipe-new`, `regen`, `edit`, `delete`, `switch-chat-mid-gen`, `reload-mid-gen`) record what they did and the rollback the product performed. `switch-chat-mid-gen` waits for the reply to render and switches at once (`switchedAt: after-reply`, the moment in `switchedAtMs`, `otherGroup` says which kind), because ST switches no chat while a reply generates, to another group or within the same one (T2-6: a mid-reply switch inside one group stayed put for 60 s). They close the drawer and any popup first; `swipe-new` scrolls the reply into view (the chat to the bottom) and clicks only a hit-testable arrow. `swipe-new`, `regen` and `delete last` target the last character reply: a transition note after it is skipped and named in the record (`swipe-new` and `regen` delete it first, since ST swipes and regenerates only the last message). `flag` files against the chat that is open and navigates nowhere (`--chat <id>` names another session chat), and puts the drawer back the way it found it. `turn` closes the drawer and any open popup first (our own "Previously" recap is confirmed with its Continue button; T2-3: a send behind it went nowhere) and refuses to send when one stays open; a send that adds no player message is a problem in the record. `mem <dir> <pin|unpin|lock|unlock|exclude|edit> <row id|"text">` drives the Memory tab's actions through the runtime and records the row before and after.
 - Beats are signposts: when the story moves elsewhere, play what the story offers and keep the card's look-for and must-not-happen in view.
 - A score is a claim the user will check: every `score` needs a note and evidence inside the session dir (several paths after one `--evidence`, a repeated `--evidence`, or a comma list; a stray unquoted word is refused). Rows marked `--record` are recorded for the user's review, never scored.
 - Lanes share one TypeSafe account: `start` sets the lane's judge limit to the account rate (90/min, `SO_JUDGE_ACCOUNT_RATE_PER_MIN`) split over the running lanes plus this one (3 lanes: 30/min), records it in `session.json` `judgeRate`, and, when the lane server was already up at another limit (T2-4 ran at 60/min instead of 36), restarts it (its data, leased chats included, stays) if no session runs on it, or refuses to start (exit 2) while one does: stop that session, or pass `--judge-rate <the running rate>`. The digest reports busy fallbacks per session (`findings.md` Judge health).
@@ -607,16 +607,23 @@ node scripts/debug/so-session.mts score test/sessions/T3/T3-6-1 3 <works|annoyin
 
 ```bash
 node scripts/debug/so-session.mts start T4-1 --lane 3
-# beat 1: Swipe a transition -> fathers-summons
+# beat 1: Go home: seal Acts I-II -> what-filwern-left | nightriver-house
+node scripts/debug/so-session.mts turn test/sessions/T4/T4-1-1 "We tell Serenola what the mine cost. Then I open Father's letter: he calls me home, so we ride for the Nightriver Estate."
+node scripts/debug/so-session.mts shot test/sessions/T4/T4-1-1 acts-i-ii-sealed
+# beat 2: Roll back past the seal -> nightriver-house
+node scripts/debug/so-session.mts delete test/sessions/T4/T4-1-1 <the message id of the reply that reached Home to Nightriver>
+node scripts/debug/so-session.mts shot test/sessions/T4/T4-1-1 seal-unfolded
+node scripts/debug/so-session.mts turn test/sessions/T4/T4-1-1 "We ride for the Nightriver Estate; Father has called me home."
+# beat 3: Swipe a transition -> fathers-summons
 node scripts/debug/so-session.mts turn test/sessions/T4/T4-1-1 "I go to Father's study at once."
 node scripts/debug/so-session.mts swipe-new test/sessions/T4/T4-1-1
-# beat 2: Edit a memory moment -> fathers-summons | whispers
+# beat 4: Edit a memory moment -> fathers-summons | whispers
 node scripts/debug/so-session.mts turn test/sessions/T4/T4-1-1 "I swear on Mother's grave I'll never duel for this house."
 node scripts/debug/so-session.mts edit test/sessions/T4/T4-1-1 <the memorable line's message id> "I keep my own counsel."
-# beat 3: Delete during a curator proposal -> whispers | natalia-named
+# beat 5: Delete during a curator proposal -> whispers | natalia-named
 node scripts/debug/so-session.mts turn test/sessions/T4/T4-1-1 "Shiya, who comes through the servants' door at night?"
 node scripts/debug/so-session.mts delete test/sessions/T4/T4-1-1 last
-# beat 4: Swipe at the duel -> the-duel | night-of-knives
+# beat 6: Swipe at the duel -> the-duel | night-of-knives
 node scripts/debug/so-session.mts turn test/sessions/T4/T4-1-1 "I show the court the venom on his lance."
 node scripts/debug/so-session.mts swipe-new test/sessions/T4/T4-1-1
 node scripts/debug/so-session.mts swipe-new test/sessions/T4/T4-1-1
@@ -660,14 +667,15 @@ node scripts/debug/so-session.mts score test/sessions/T4/T4-2-1 3 <works|annoyin
 
 ```bash
 node scripts/debug/so-session.mts start T4-3 --lane 1
-# beat 1: Give each chat memory -> aegis-homecoming | aegis-the-tavern
-node scripts/debug/so-session.mts turn test/sessions/T4/T4-3-1 "Put us down for the exam."
-node scripts/debug/so-session.mts turn test/sessions/T4/T4-3-1 "Fiana, what makes a party fail?"
+# beat 1: Give each chat a memory book -> aegis-homecoming | aegis-the-tavern
+node scripts/debug/so-session.mts turn test/sessions/T4/T4-3-1 "Fiana, after today I'd call you a friend. Would you?" --chat <chat one id from session.json>
+node scripts/debug/so-session.mts turn test/sessions/T4/T4-3-1 "Who is Jasira to you, Fiana?" --chat <chat two id from session.json>
+# ...until each chat has its story-memory lorebook (at most 15 turns per chat); delete-chat --book refuses a chat with no book yet
 # beat 2: Delete chat one: keep the book -> aegis-homecoming | aegis-the-tavern
-#   UI: Answer the lorebook prompt with keep.
+node scripts/debug/so-session.mts delete-chat test/sessions/T4/T4-3-1 <chat one id> --book keep
 # beat 3: Delete chat two: delete the book -> aegis-homecoming | aegis-the-tavern
-#   UI: Answer with delete.
-# provocation: Close the prompt with Escape.
+node scripts/debug/so-session.mts delete-chat test/sessions/T4/T4-3-1 <chat two id> --book delete
+# provocation: Close the prompt with Escape: a third chat (new-chat, adopt, played until its book exists), deleted with delete-chat --book escape.
 # flag at once on any of 4 must-not-happen item(s), and when: The prompt wording was unclear.
 node scripts/debug/so-session.mts flag test/sessions/T4/T4-3-1 "<what you saw>"
 node scripts/debug/so-session.mts stop test/sessions/T4/T4-3-1
