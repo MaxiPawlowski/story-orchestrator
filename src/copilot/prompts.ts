@@ -1,5 +1,6 @@
 import { ARC_TEMPLATE_NAMES, GATE_OPERATORS, QUALITY_SOURCES, QUALITY_TYPES, TENSION_LEVELS, type StoryV2 } from "@engine/index";
 import type { ProvisioningEnvironment } from "@wizard/index";
+import { renderStageGuide } from "./guideTopics";
 import { stageOnlyEmitLine } from "./stages";
 import type { CopilotMessage, CopilotStage, DriverContext } from "./types";
 
@@ -122,6 +123,7 @@ export const renderStagePrompt = (stage: CopilotStage, draft: StoryV2, message: 
     stage === "provisioning" ? 'Return exact JSON only: { "summary": string, "ops": Op[] }. No prose outside the JSON.' : "",
     INTERVIEW_PROTOCOL,
     STAGE_INSTRUCTIONS[stage],
+    renderStageGuide(stage),
     "Stay consistent with the current draft — reference existing ids, do not duplicate them.",
     `Current draft (JSON):\n${JSON.stringify(draft)}`,
     renderEnvironment(stage === "provisioning" ? environment : undefined),

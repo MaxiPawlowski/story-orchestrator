@@ -11,6 +11,8 @@ import DiagnosticsPanel from "./components/DiagnosticsPanel";
 import RosterEditor from "./components/RosterEditor";
 import StoryEditor from "./components/StoryEditor";
 import StudioGraph from "./components/StudioGraph";
+import GuideDisclosure from "./components/GuideDisclosure";
+import { STUDIO_TAB_GUIDE } from "./guideTabs";
 import StudioCopilot, { type WizardHost, type WizardMode } from "./components/StudioCopilot";
 import type { AgentTurnRunner } from "./components/AgentWizard";
 import * as wizardAgent from "@copilot/agent/index";
@@ -308,6 +310,7 @@ const StudioModal: React.FC<Props> = ({ onClose, copilotEnabled = true, runCopil
         <StudioHeader titleRef={titleRef} onRequestClose={() => void requestClose()} />
         <StudioTabList tabs={tabs} activeTab={activeTab} onSelect={setTab} />
         <div id="so-studio-tabpanel" className="flex-1 overflow-auto p-3" role="tabpanel" tabIndex={-1} aria-labelledby={`so-studio-tab-${activeTab}`}>
+          {STUDIO_TAB_GUIDE[activeTab] && <GuideDisclosure key={activeTab} topics={STUDIO_TAB_GUIDE[activeTab] ?? []} />}
           <GateReplayContext.Provider value={replay}>
             <StudioTabContent
               activeTab={activeTab}

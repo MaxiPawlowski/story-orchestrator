@@ -3,6 +3,7 @@ import type { ProvisioningEnvironment } from "@wizard/index";
 import { isRecord } from "@utils/guards";
 import { truncate } from "@utils/string";
 import { FIRST_MESSAGE_RULE, OPENING_CAST_RULE } from "../prompts";
+import { GUIDE_TOPIC_IDS } from "../guideTopics";
 import { renderCoverage, storyCoverage } from "../../studio/coverage";
 import { runReadTool } from "./readTools";
 import { renderToolSchema } from "./tools";
@@ -31,6 +32,7 @@ const RULES = [
     "Provisioning tools create NEW SillyTavern assets and the author confirms each one.",
     "You never edit an existing card or lorebook, never touch personas, and never save the story: saving is the author's click.",
   ].join(" "),
+  `Consult readGuide(topic) before authoring a field you have not used yet in this session. Topics: ${GUIDE_TOPIC_IDS.join(", ")}.`,
   "After each accepted write you are shown the validation and diagnostics. Fix blocking problems before adding more.",
   "The DRAFT section below is the current story, block contents included, and EARLIER STEPS lists what you already did: do not re-read either.",
   "A rejected step comes back with the author's reason. Do not repeat it unchanged.",
