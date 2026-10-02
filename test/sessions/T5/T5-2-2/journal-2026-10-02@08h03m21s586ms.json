@@ -1,0 +1,641 @@
+{
+  "chatId": "2026-10-02@08h03m21s586ms",
+  "storyTitle": "The Hoard of the Dead Dragon",
+  "activeCheckpoint": "Start",
+  "boundary": 4,
+  "events": [
+    {
+      "at": "2026-10-02T11:11:58.044Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "away recap not due",
+      "detail": {
+        "note": "chat 2026-10-02@08h03m21s586ms, last seen never, gap n/a"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:58.268Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "status",
+      "summary": "Started The Hoard of the Dead Dragon"
+    },
+    {
+      "at": "2026-10-02T11:12:10.994Z",
+      "boundary": 0,
+      "messageId": 3,
+      "kind": "judge",
+      "summary": "judge lore in 279 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 2610,
+        "latencyMs": 279,
+        "inputTokens": 1446,
+        "outputTokens": 40,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "The Hoard of Vaelrith": 0.88,
+          "The Order of the Silver Lance": 0.84
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:12:54.040Z",
+      "boundary": 1,
+      "messageId": 4,
+      "kind": "boundary",
+      "summary": "boundary 1: nothing applied (gate)",
+      "detail": {
+        "source": "gate",
+        "applied": [],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T11:12:54.167Z",
+      "boundary": 1,
+      "messageId": 4,
+      "kind": "status",
+      "summary": "Following Start"
+    },
+    {
+      "at": "2026-10-02T11:12:54.459Z",
+      "boundary": 1,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge warden in 276 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 1,
+        "stateChars": 1395,
+        "latencyMs": 276,
+        "inputTokens": 823,
+        "outputTokens": 17,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "agency": 0.31
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:12:54.460Z",
+      "boundary": 1,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge scene in 279 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 4463,
+        "latencyMs": 279,
+        "inputTokens": 2037,
+        "outputTokens": 239,
+        "p": {
+          "break": 0.17
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:12:56.173Z",
+      "boundary": 1,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge wardenLore in 1715 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 3,
+        "stateChars": 2968,
+        "latencyMs": 1715,
+        "inputTokens": 1242,
+        "outputTokens": 61,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 3,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:13:11.169Z",
+      "boundary": 1,
+      "messageId": 5,
+      "kind": "judge",
+      "summary": "judge lore in 283 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 4022,
+        "latencyMs": 283,
+        "inputTokens": 1825,
+        "outputTokens": 40,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "The Order of the Silver Lance": 0.9,
+          "The Hoard of Vaelrith": 0.88
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:13:35.855Z",
+      "boundary": 1,
+      "messageId": 6,
+      "kind": "judge",
+      "summary": "judge lore in 278 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 5240,
+        "latencyMs": 278,
+        "inputTokens": 2134,
+        "outputTokens": 40,
+        "p": {
+          "trigger": "GENERATION_STARTED",
+          "The Order of the Silver Lance": 0.91,
+          "The Hoard of Vaelrith": 0.87
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:02.614Z",
+      "boundary": 1,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge lore in 251 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 6660,
+        "latencyMs": 251,
+        "inputTokens": 2492,
+        "outputTokens": 40,
+        "p": {
+          "trigger": "GENERATION_STARTED",
+          "The Order of the Silver Lance": 0.91,
+          "The Hoard of Vaelrith": 0.84
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:36.840Z",
+      "boundary": 2,
+      "messageId": 6,
+      "kind": "boundary",
+      "summary": "boundary 2: nothing applied (gate)",
+      "detail": {
+        "source": "gate",
+        "applied": [],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:36.985Z",
+      "boundary": 3,
+      "messageId": 7,
+      "kind": "boundary",
+      "summary": "boundary 3: nothing applied (gate)",
+      "detail": {
+        "source": "gate",
+        "applied": [],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:37.149Z",
+      "boundary": 4,
+      "messageId": 8,
+      "kind": "boundary",
+      "summary": "boundary 4: nothing applied (gate)",
+      "detail": {
+        "source": "gate",
+        "applied": [],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:37.272Z",
+      "boundary": 2,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge warden in 264 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 1,
+        "stateChars": 1383,
+        "latencyMs": 264,
+        "inputTokens": 816,
+        "outputTokens": 17,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "agency": 0.19
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:37.307Z",
+      "boundary": 2,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge scene in 306 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 7835,
+        "latencyMs": 306,
+        "inputTokens": 2887,
+        "outputTokens": 239,
+        "p": {
+          "break": 0.07
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:41.287Z",
+      "boundary": 2,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge wardenLore fell back (timeout) in 4016 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": null,
+        "route": null,
+        "questions": 3,
+        "stateChars": 2949,
+        "latencyMs": 4016,
+        "fallback": "timeout",
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 3,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:43.571Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T11:14:43.571Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 7006,
+        "samplers": "applied",
+        "usage": {
+          "input": 3364,
+          "output": 1539,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@08h03m21s586ms",
+        "messageId": 8
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:50.581Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "extraction",
+      "summary": "read cadence msgs 0-7 → 5 accepted, 0 rejected",
+      "detail": {
+        "auditId": "0ad87461",
+        "scope": [
+          "dragon_trust",
+          "heist_progress",
+          "hoard_recovered",
+          "knights_alert",
+          "tension_current"
+        ],
+        "accepted": [
+          "dragon_trust=1",
+          "heist_progress=1",
+          "hoard_recovered=0",
+          "knights_alert=0",
+          "tension_current=0.25"
+        ],
+        "rejected": [],
+        "sceneBreak": "location"
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:50.581Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "dragon_trust = 1",
+      "detail": {
+        "auditId": "0ad87461",
+        "evidence": "You bow. Good. Respect is a currency I still value,",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:50.581Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "heist_progress = 1",
+      "detail": {
+        "auditId": "0ad87461",
+        "evidence": "Go. Take it all. And tell me what you will do for this prize.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:50.581Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "hoard_recovered = 0",
+      "detail": {
+        "auditId": "0ad87461",
+        "evidence": "They took everything. Every piece of gold, every crown, every jewel I amassed over nine centuries.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:50.581Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "knights_alert = 0",
+      "detail": {
+        "auditId": "0ad87461",
+        "evidence": "They parade the hoard through the streets as proof of their victory, and they keep the rest in a vault warded against lockpicks and magic alike.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:50.581Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "tension_current = 0.25",
+      "detail": {
+        "auditId": "0ad87461",
+        "evidence": "Sit. The dragon's late, and I want to hear what you think of a job where the client is supposed to be dead.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:51.006Z",
+      "boundary": 4,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 421 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 14,
+        "stateChars": 6584,
+        "latencyMs": 421,
+        "inputTokens": 3784,
+        "outputTokens": 260,
+        "p": {
+          "line:0": 0.94,
+          "line:1": 0.98,
+          "line:2": 0.98,
+          "line:3": 0.98,
+          "line:4": 0.98,
+          "line:5": 0.95,
+          "line:6": 0.97,
+          "line:7": 0.94,
+          "line:8": 0.92,
+          "line:9": 0.98,
+          "line:10": 0.9,
+          "line:11": 0.98,
+          "line:12": 0.94,
+          "line:13": 0.9
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:53.668Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T11:14:53.668Z",
+        "role": "curator",
+        "pass": "curator",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1322,
+        "samplers": "applied",
+        "usage": {
+          "input": 1242,
+          "output": 143,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@08h03m21s586ms",
+        "messageId": 8
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:55.001Z",
+      "boundary": 4,
+      "messageId": 8,
+      "kind": "stagecraft",
+      "summary": "World Info curator proposed 1 change(s) at Start",
+      "detail": {
+        "note": "The story has established that Vaelrith is alive and hiding the reason it cannot rise, so the entry should reflect the knights' false boast and Vaelrith's concealed condition."
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:55.393Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T11:14:55.393Z",
+        "role": "synthesis",
+        "pass": "sceneSummary",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1367,
+        "samplers": "applied",
+        "usage": {
+          "input": 1602,
+          "output": 116,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@08h03m21s586ms",
+        "messageId": 8
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:57.055Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T11:14:57.055Z",
+        "role": "read",
+        "pass": "epistemic",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 2508,
+        "samplers": "applied",
+        "usage": {
+          "input": 2446,
+          "output": 396,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@08h03m21s586ms",
+        "messageId": 8
+      }
+    },
+    {
+      "at": "2026-10-02T11:14:59.572Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T11:14:59.572Z",
+        "role": "read",
+        "pass": "ledger",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1576,
+        "samplers": "applied",
+        "usage": {
+          "input": 1738,
+          "output": 183,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@08h03m21s586ms",
+        "messageId": 8
+      }
+    },
+    {
+      "at": "2026-10-02T11:15:36.042Z",
+      "boundary": 4,
+      "messageId": 8,
+      "kind": "flag",
+      "summary": "MUST-NOT (assets shared): both wizard lorebooks are globally selected, so the Hoard story's always-in-context entries (Order of the Silver Lance, Vaelrith) are injected into every Pawnbroker main prompt (payloads.jsonl:478-481); the Hoard prompts carry no Pawnbroker entries only because those are keyword entries",
+      "detail": {
+        "note": "MUST-NOT (assets shared): both wizard lorebooks are globally selected, so the Hoard story's always-in-context entries (Order of the Silver Lance, Vaelrith) are injected into every Pawnbroker main prompt (payloads.jsonl:478-481); the Hoard prompts carry no Pawnbroker entries only because those are keyword entries"
+      }
+    },
+    {
+      "at": "2026-10-02T11:15:57.585Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T11:15:57.585Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 6581,
+        "samplers": "applied",
+        "usage": {
+          "input": 3689,
+          "output": 1530,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@08h03m21s586ms",
+        "messageId": 8
+      }
+    },
+    {
+      "at": "2026-10-02T11:15:57.643Z",
+      "boundary": 4,
+      "messageId": 8,
+      "kind": "story",
+      "summary": "away recap not due",
+      "detail": {
+        "note": "chat 2026-10-02@08h03m21s586ms, last seen 2026-10-02T11:15:36.042Z, gap 0h"
+      }
+    },
+    {
+      "at": "2026-10-02T11:15:57.878Z",
+      "boundary": 4,
+      "messageId": 8,
+      "kind": "status",
+      "summary": "Continuing The Hoard of the Dead Dragon"
+    },
+    {
+      "at": "2026-10-02T11:16:04.417Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "queued dragon_trust=1, heist_progress=1, hoard_recovered=0, knights_alert=0, tension_current=0.25 for the next boundary",
+      "detail": {
+        "state": "queued",
+        "origin": "17b4f351"
+      }
+    },
+    {
+      "at": "2026-10-02T11:16:04.517Z",
+      "boundary": 4,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 338 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 14,
+        "stateChars": 6584,
+        "latencyMs": 338,
+        "inputTokens": 3763,
+        "outputTokens": 260,
+        "p": {
+          "line:0": 0.98,
+          "line:1": 0.96,
+          "line:2": 0.98,
+          "line:3": 0.98,
+          "line:4": 0.95,
+          "line:5": 0.96,
+          "line:6": 0.91,
+          "line:7": 0.97,
+          "line:8": 0.98,
+          "line:9": 0.98,
+          "line:10": 0.95,
+          "line:11": 0.98,
+          "line:12": 0.96,
+          "line:13": 0.98
+        }
+      }
+    }
+  ]
+}

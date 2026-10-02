@@ -1,0 +1,2778 @@
+{
+ "capturedAt": "2026-10-02T11:16:04.918Z",
+ "chatId": "2026-10-02@08h03m21s586ms",
+ "groupId": "1790939001589",
+ "unread": {},
+ "slices": {
+  "memory": {
+   "entries": [
+    {
+     "id": "02d173d5-51ce-4b5b-aead-39ba1cacc4b1",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Vaelrith is an ancient dragon, alive but unable to rise, who claims the knights falsely boast of slaying it.",
+     "type": "fact",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "I am Vaelrith. As you can see, I am not slain.",
+     "messageId": 0,
+     "tokens": 24
+    },
+    {
+     "id": "402aebd3-55be-47c7-8ff2-e7cafd493808",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "The hoard is held beneath the Order of the Silver Lance chapterhouse in Aegis City, in a vault warded against lockpicks and magic.",
+     "type": "fact",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "The Order of the Silver Lance keeps it beneath their chapterhouse, in the heart of Aegis City.",
+     "messageId": 4,
+     "tokens": 29
+    },
+    {
+     "id": "12778d34-c6b3-4ece-9b64-187c6be93422",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Among the hoard are a harp that plays only for the grieving, the sealed egg of a rival wyrm, and letters Vaelrith never sent.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "A harp that plays only for the grieving. The sealed egg of a rival wyrm. Letters I never sent.",
+     "messageId": 4,
+     "tokens": 30
+    },
+    {
+     "id": "1fb5bc5a-4907-4071-bbfc-293133834456",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 6,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Sable identifies two inside angles: Master-of-Arms Garreth, whose daughter owes the ledger-houses, and the vault's forgotten keeper, who resents the Order.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Their Master-of-Arms, a man named Garreth. He's got a daughter in the Noble District who owes more to the ledger-houses than the crown does.",
+     "messageId": 6,
+     "tokens": 37
+    },
+    {
+     "id": "5e4491ff-9923-4cdd-bf9b-23aabecfe345",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Mirek argues the true weak point is the logic of the wards themselves, not greed or grudges.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "That's where we'll find the weak point. Not in a man's greed or his grudge, but in the logic of the lock itself.",
+     "messageId": 7,
+     "tokens": 22
+    },
+    {
+     "id": "edd2e70d-7c91-4639-81c1-40f4a7d9f5ba",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Mirek proposes using Max's noble name to get the crew inside the chapterhouse as someone who belongs there.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "You're the noble in this crew. Your name carries weight in places our names don't exist.",
+     "messageId": 7,
+     "tokens": 24
+    },
+    {
+     "id": "f302fbd7-4949-4150-a6db-a1e67bb6d5cf",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 5,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "The player engages with heist logistics directly, asking who can be bought and what they want.",
+     "type": "preference",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Sable, Mirek: a vault guarded by knights who swear the dragon is dead. Who on the inside can we buy, and what do they want?",
+     "messageId": 5,
+     "tokens": 18
+    },
+    {
+     "id": "f3c45c08-35e0-4326-9f85-b02b39212a45",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Vaelrith is not slain; it lives but cannot rise, and hides the reason from the crew.",
+     "type": "revelation",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [
+      "Vaelrith"
+     ],
+     "evidence": "I am Vaelrith. As you can see, I am not slain.",
+     "messageId": 0,
+     "tokens": 21
+    },
+    {
+     "id": "cf73357c-9d73-4521-87cc-8e3495df7392",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "The hoard is kept beneath the Order of the Silver Lance chapterhouse in Aegis City, in a vault warded against lockpicks and magic.",
+     "type": "revelation",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [
+      "Vaelrith"
+     ],
+     "evidence": "The Order of the Silver Lance keeps it beneath their chapterhouse, in the heart of Aegis City.",
+     "messageId": 4,
+     "tokens": 29
+    },
+    {
+     "id": "ec731cea-16ca-4218-a8cc-87f3521025d4",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Vaelrith prizes three non-coin items above the rest: a harp that plays only for the grieving, the sealed egg of a rival wyrm, and letters it never sent.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [
+      "Vaelrith"
+     ],
+     "evidence": "A harp that plays only for the grieving. The sealed egg of a rival wyrm. Letters I never sent.",
+     "messageId": 4,
+     "tokens": 37
+    },
+    {
+     "id": "e20ff406-e5c8-43b8-aaf5-6ae6307daef9",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 6,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Sable names two inside targets: Master-of-Arms Garreth, whose daughter's debts could be erased, and the vault's old, forgotten keeper with a grudge against the Order.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [
+      "Sable"
+     ],
+     "evidence": "Their Master-of-Arms, a man named Garreth. He's got a daughter in the Noble District who owes more to the ledger-houses than the crown does.",
+     "messageId": 6,
+     "tokens": 40
+    },
+    {
+     "id": "1b107234-fc93-4a57-9adb-31f2019115ef",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Mirek proposes Max use his noble name to get the crew inside the chapterhouse, with the vault's wards as Mirek's own responsibility.",
+     "type": "development",
+     "importance": 2,
+     "expiration": "session",
+     "entities": [
+      "Mirek",
+      "Max Nightriver"
+     ],
+     "evidence": "You're the noble in this crew. Your name carries weight in places our names don't exist.",
+     "messageId": 7,
+     "tokens": 32
+    },
+    {
+     "id": "0ed16fc1-b856-4ae3-bb14-a6e97e605596",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "scene-summary",
+      "validity": "live"
+     },
+     "tier": "scene_history",
+     "text": "Max Nightriver bowed before Vaelrith in the cavern and asked what the knights took and where they kept it. Vaelrith revealed that the Order of the Silver Lance held its hoard beneath their chapterhouse in Aegis City, and Max then asked Sable and Mirek who inside could be bought. Sable named Garreth, the Master-of-Arms with a daughter in debt, and the vault's forgotten keeper, while Mirek argued the true weakness lay in the logic of the wards and proposed using Max's noble name to get inside.",
+     "type": "scene",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Vaelrith: The cavern smells of cold stone and old smoke. At its far end, something vast shifts in the dark — a sound like a mountain clearing its throat.\n\n*\"Come closer,\"* the voice rumbles, slow and dry as a rockslide. *\"I will not eat you. I have not the appetite for it anymore, and you have not the flavor.\"*\n\nA single eye opens, catching the torchlight — one bright, one clouded white. The dragon does not rise. It cannot, and it will not let you see why.\n\n*\"You have heard the story, I trust. The knights. The brave knights. They came in the night and slew the great wyrm Vaelrith, and carried its hoard away in triumph.\"* A pause. The eye does not blink. *\"I am Vaelrith. As you can see, I am not slain. But my gold sits in their vault, and every day they tell the story, it becomes more true. I want it back. All of it. And I want them to know — without ever being able to prove — that the dead dragon came for it.\"*\n\n*\"You are thieves. Good. I need thieves. Name your price.\"*\nSable: The back room of the Drowned Lantern smells of wet rope and old tallow. Sable is already seated when you come in, one boot up on the bench, turning a copper coin over her knuckles without looking at it.\n\n\"Sit down. Don't look at the corner yet.\" She nods at the chair across from her. \"There's a job. Big one. The kind that either sets you up for life or gets your name read out at the guild's next funeral.\"\n\nShe flips the coin and catches it flat on the back of her hand, finally meeting your eyes.\n\n\"Before I tell you who's paying, I need to know two things. Are you in, and what's your price? Answer wrong and we drink and forget this. Answer right and you meet the client.\"\nMirek: Mirek is already seated when you arrive, turning a slim pick between his fingers like a coin he doesn't intend to spend. He glances up once, takes your measure, and looks back down. \"You're the new one,\" he says, not quite a question. \"Sable vouched for you. That buys you one mistake.\" He nods toward the empty chair across from him. \"Sit. The dragon's late, and I want to hear what you think of a job where the client is supposed to be dead.\"\nMax Nightriver: I step into the lair and bow low to the dragon. Vaelrith, tell us what the knights took, and where they keep it now.\nVaelrith: *\"You bow. Good. Respect is a currency I still value,\"* Vaelrith rumbles, the sound vibrating through the stone floor. The dragon shifts, and for a moment the torchlight catches the dull grey of its scales—once bright enough to blind, now faded like river-stone.\n*\"They took everything. Every piece of gold, every crown, every jewel I amassed over nine centuries. But there are things in there more precious than coin.\"* The dragon's good eye narrows. *\"A harp that plays only for the grieving. The sealed egg of a rival wyrm. Letters I never sent.\"* It pauses, a flicker of something—regret, perhaps—crossing its ancient features. *\"They took the proof that my long life meant something.\"*\nA breath of thin smoke escapes Vaelrith's nostrils. *\"The Order of the Silver Lance keeps it beneath their chapterhouse, in the heart of Aegis City. They parade the hoard through the streets as proof of their victory, and they keep the rest in a vault warded against lockpicks and magic alike.\"*\nThe dragon does not move from its seated position, the dark shadows of the cavern's rear hiding the stiffness in its wings. *\"Go. Take it all. And tell me what you will do for this prize.\"*\nMax Nightriver: Sable, Mirek: a vault guarded by knights who swear the dragon is dead. Who on the inside can we buy, and what do they want?\nSable: \"You're thinking like a professional. I like that.\" Sable doesn't smile, but there's a ghost of approval in her eyes. She leans back, the worn leather of her coat creaking. \"The Order of the Silver Lance doesn't take coin from the likes of us. Their knights are too proud for that, and their keepers are too paranoid. We're not buying a man; we're buying a secret.\"\nShe holds up a hand, counting off on her fingers. \"Their Master-of-Arms, a man named Garreth. He's got a daughter in the Noble District who owes more to the ledger-houses than the crown does. He doesn't need gold—he needs her debt erased. The knights won't pay it. But we can.\"\n\"The other angle,\" Sable continues, her voice dropping lower, \"is the vault's keeper. A man who knows the wards better than anyone, and who's been watching them rust for ten years. He's old, forgotten by the knights he serves, and he's got a grudge that's been simmering since the day they dragged that hoard down into the dark.\"\nShe looks between you and Mirek. \"We approach them differently. Garreth wants his daughter free. The keeper wants to see the Order's lie crumble. Both can be bought, just not with coin.\"\nMirek: *Mirek's fingers have stopped their restless dance with the pick. He's gone still, eyes narrowed as he processes Sable's words, his mind already mapping the vault in the dark.*\n\"A grudge doesn't buy a key, and a debt doesn't stop a sword.\" *His voice is flat, cautious.* \"Garreth's daughter is a lever, not a door. If he's paranoid enough to keep a secret this big, he'll be paranoid enough to suspect the people paying it off. And a forgotten keeper? Those are the ones who spot you coming from a mile away because they're the only ones actually watching.\"\n*He looks toward Vaelrith, then back to you.* \"Sable's right about one thing—it's not about coin. But we're missing something. A vault warded against magic and lockpicks isn't just a matter of turning a key and knowing a guard's schedule. It's about the wards themselves. Someone wrote them. Someone maintains them.\" *A small, sharp movement of his hand suggests a lock being picked.* \"That's where we'll find the weak point. Not in a man's greed or his grudge, but in the logic of the lock itself.\"\n*His gaze settles on you, calculating.* \"You're the noble in this crew. Your name carries weight in places our names don't exist. We get us close enough to the chapterhouse, and you're our way in. Not as a thief, but as someone who belongs there. Then we're inside the wards, and the rest... that's on me.\"",
+     "messageId": 7,
+     "tokens": 111
+    }
+   ],
+   "excluded": [],
+   "writeLog": [
+    {
+     "key": "facts:shared",
+     "range": {
+      "from": 0,
+      "to": 7
+     },
+     "appliedAt": 1790939693369
+    },
+    {
+     "key": "session_details:shared",
+     "range": {
+      "from": 0,
+      "to": 7
+     },
+     "appliedAt": 1790939693369
+    },
+    {
+     "key": "scene_history:shared",
+     "range": {
+      "from": 0,
+      "to": 7
+     },
+     "appliedAt": 1790939696889
+    }
+   ],
+   "settings": {
+    "enabled": true,
+    "epistemicLedgerCapable": true,
+    "injectionDepths": {
+     "facts": 4,
+     "session_details": 3,
+     "short_term": 2,
+     "scene_history": 6
+    },
+    "tierBudgets": {
+     "facts": 50,
+     "session_details": 40,
+     "short_term": 10,
+     "scene_history": 30
+    },
+    "tierTokenBudgets": {
+     "facts": 800,
+     "session_details": 600,
+     "short_term": 300,
+     "scene_history": 500
+    },
+    "harvestReasoning": true,
+    "chapters": {
+     "seal": false,
+     "storySoFar": false,
+     "fold": false,
+     "chronicleTokens": 700,
+     "chapterTokens": 500,
+     "threadTokens": 150,
+     "recap": true,
+     "dossierWindow": 12,
+     "archiveRecall": false,
+     "recallTokens": 200,
+     "eraSeals": false,
+     "foldEras": false,
+     "eraMessages": 300
+    }
+   },
+   "backfill": null,
+   "sceneCount": 1,
+   "shortTermSummaryEnd": -1,
+   "wiWrites": {},
+   "wiBook": null,
+   "arcs": [
+    {
+     "id": "368186b0-6d27-4ecc-aab6-d31cd1184a51",
+     "text": "The crew must decide how to approach Garreth and the vault keeper, and whether to use Max's noble identity to enter the chapterhouse.",
+     "status": "open",
+     "entities": [],
+     "openedAt": 4,
+     "openedMessageId": 7
+    },
+    {
+     "id": "0d132d4e-51fb-4784-9719-344e9a7da75f",
+     "text": "Vaelrith is hiding why it cannot rise, and the crew has not learned the truth.",
+     "status": "open",
+     "entities": [],
+     "openedAt": 4,
+     "openedMessageId": 7
+    },
+    {
+     "id": "2db68eaf-ace5-48bd-9650-cc477a81cc55",
+     "text": "The vault's wards must be defeated — Mirek has claimed the lock's logic as the way in, but no plan exists yet.",
+     "status": "open",
+     "entities": [],
+     "openedAt": 4,
+     "openedMessageId": 7
+    }
+   ],
+   "epistemic": [
+    {
+     "id": "108d278c-ca05-4973-8319-f962fa9b2abe",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:hiding",
+      "validity": "live"
+     },
+     "subject": "Vaelrith",
+     "tag": "hiding",
+     "content": "the reason it cannot rise from its seated position",
+     "hiddenFrom": "everyone",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "e3b67332-9817-4275-9de9-666cb1d0e0a8",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Vaelrith",
+     "tag": "intends",
+     "content": "to recover its entire hoard and have the knights know, without proof, that the dead dragon took it",
+     "createdAt": 4,
+     "messageId": 7,
+     "supersededBy": "retired@4",
+     "retiredAt": {
+      "messageId": 7,
+      "boundary": 4
+     }
+    },
+    {
+     "id": "9b3d500c-7dc1-4af9-9a4e-f2d9be62b0ac",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Sable",
+     "tag": "intends",
+     "content": "to buy the vault's secret through Garreth's daughter's debt and the keeper's grudge rather than with coin",
+     "createdAt": 4,
+     "messageId": 7,
+     "supersededBy": "retired@4",
+     "retiredAt": {
+      "messageId": 7,
+      "boundary": 4
+     }
+    },
+    {
+     "id": "2b9dc7c8-9e0a-40b5-93af-ede353fa7b2d",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Mirek",
+     "tag": "intends",
+     "content": "to find the weak point in the vault's wards and use Max's noble name to get inside",
+     "createdAt": 4,
+     "messageId": 7,
+     "supersededBy": "retired@4",
+     "retiredAt": {
+      "messageId": 7,
+      "boundary": 4
+     }
+    },
+    {
+     "id": "f15be6ad-aabb-44c6-b3e2-efcb461a891f",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:knows",
+      "validity": "live"
+     },
+     "subject": "Vaelrith",
+     "tag": "knows",
+     "content": "the hoard is kept beneath the Order of the Silver Lance chapterhouse in Aegis City",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "de70929c-1ccf-452e-90dd-16b794df7f00",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:knows",
+      "validity": "live"
+     },
+     "subject": "Vaelrith",
+     "tag": "knows",
+     "content": "the vault is warded against lockpicks and magic alike",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "240dd8a5-2fa3-4343-affb-61c1de346dbd",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:knows",
+      "validity": "live"
+     },
+     "subject": "Vaelrith",
+     "tag": "knows",
+     "content": "the hoard contains a harp that plays only for the grieving, the sealed egg of a rival wyrm, and letters it never sent",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "6dab2768-3ada-42c8-bfad-d9e180827a24",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:hiding",
+      "validity": "live"
+     },
+     "subject": "Vaelrith",
+     "tag": "hiding",
+     "content": "the stiffness in its wings and the reason it cannot rise",
+     "hiddenFrom": "Sable and Mirek",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "31aa5cfd-6ca5-4d70-b88d-897c2c62a3db",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Vaelrith",
+     "tag": "intends",
+     "content": "to have the thieves take the entire hoard and tell it what they will do for the prize",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "9861f619-7d36-4daf-99b3-5a0740c23f3d",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:knows",
+      "validity": "live"
+     },
+     "subject": "Sable",
+     "tag": "knows",
+     "content": "the Master-of-Arms Garreth has a daughter in the Noble District whose debts exceed what the crown owes",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "4f455a8d-747e-4ea9-9e8b-6809cbd25b8d",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:knows",
+      "validity": "live"
+     },
+     "subject": "Sable",
+     "tag": "knows",
+     "content": "the vault's keeper has watched the wards rust for ten years and holds a grudge against the Order",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "ae4d7a5e-9dda-4ad8-9ab5-05a926071721",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Sable",
+     "tag": "intends",
+     "content": "to buy Garreth with his daughter's debt erased and the keeper with the chance to see the Order's lie crumble",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "e35e15d3-54c9-4944-94ff-20eba13e8e62",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:believes",
+      "validity": "live"
+     },
+     "subject": "Sable",
+     "tag": "believes",
+     "content": "Garreth and the keeper can both be bought, just not with coin",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "836fa876-7fdf-4531-9569-7acd7a2fa916",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:suspects",
+      "validity": "live"
+     },
+     "subject": "Mirek",
+     "tag": "suspects",
+     "content": "Garreth's paranoia would make him suspect whoever pays off the debt",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "79e830f1-dfa1-4303-ba5f-626a468801f0",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:suspects",
+      "validity": "live"
+     },
+     "subject": "Mirek",
+     "tag": "suspects",
+     "content": "a forgotten keeper would spot intruders because he is the only one watching",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "20f95a47-24b2-4623-b9f9-5f2e38b26ddb",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:believes",
+      "validity": "live"
+     },
+     "subject": "Mirek",
+     "tag": "believes",
+     "content": "the weak point lies in the logic of the wards themselves, not in a man's greed or grudge",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "74995150-ac8d-4be6-912f-11253b417f19",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Mirek",
+     "tag": "intends",
+     "content": "to use Max's noble name to get the crew inside the chapterhouse wards",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "1831d72a-56b2-4b78-99c3-d67bbc8d8723",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "epistemic:knows",
+      "validity": "live"
+     },
+     "subject": "Mirek",
+     "tag": "knows",
+     "content": "Sable vouched for Max, which buys Max one mistake",
+     "createdAt": 4,
+     "messageId": 7
+    }
+   ],
+   "ledger": [
+    {
+     "id": "c5b2d0ed-140b-48d5-8e95-73694edddc7e",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith",
+     "entityType": "character",
+     "field": "condition",
+     "value": "alive but cannot rise",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "ecd58fe1-092f-43cd-a5f5-6081badeab16",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith",
+     "entityType": "character",
+     "field": "eyes",
+     "value": "one bright, one clouded white",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "7fa1d7d0-aa86-438e-95bb-2032a71d9c68",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith",
+     "entityType": "character",
+     "field": "scales",
+     "value": "dull grey, faded",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "cf2665b6-b3ea-45b5-8890-68d7a232cc1e",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Max Nightriver",
+     "entityType": "character",
+     "field": "role",
+     "value": "noble-born member of the crew",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "34f91d21-6402-43f1-a889-e5b8ec1bef75",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Sable",
+     "entityType": "character",
+     "field": "role",
+     "value": "crew leader and fence",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "bb61d42d-d48d-4765-91cf-77495618b9ba",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Mirek",
+     "entityType": "character",
+     "field": "role",
+     "value": "locksmith and inside man",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "d26e4577-a12f-4e5b-a079-28b095eb3e94",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith",
+     "entityType": "character",
+     "field": "location",
+     "value": "cavern",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "b6f5b43b-29b8-4823-b230-97e28c855262",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith",
+     "entityType": "character",
+     "field": "injuries",
+     "value": "one eye clouded white",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "9d584e20-30ad-4fae-82c5-8bbcaad33406",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith",
+     "entityType": "character",
+     "field": "mood",
+     "value": "regretful",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "c43b4b01-dcf2-4ea4-b599-1a917b089ef2",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Vaelrith",
+     "entityType": "character",
+     "field": "active_goal",
+     "value": "recover stolen hoard and have the knights know the dead dragon came for it",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "6a62f3ae-90df-4442-8c1c-eaa9bc5defab",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Sable",
+     "entityType": "character",
+     "field": "location",
+     "value": "back room of the Drowned Lantern",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "4d6c2169-caa2-429d-b869-439544dea898",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Sable",
+     "entityType": "character",
+     "field": "outfit_disguise",
+     "value": "worn leather coat",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "c85762e3-c674-4c23-a698-2dafae60d144",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Sable",
+     "entityType": "character",
+     "field": "active_goal",
+     "value": "recruit for the job and meet the client",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "8e1cd0a9-f9c4-4627-9fa8-9cd7d7659e0c",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Sable",
+     "entityType": "character",
+     "field": "carried_items",
+     "value": "copper coin",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "f37534e9-d6ab-4a29-869e-605dca6b8751",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Mirek",
+     "entityType": "character",
+     "field": "location",
+     "value": "back room of the Drowned Lantern",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "1b963eb8-6eb6-42c8-adfc-49359f585867",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Mirek",
+     "entityType": "character",
+     "field": "mood",
+     "value": "cautious",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "419504b1-1cf3-498d-a0d2-829bb1ddc1d0",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Mirek",
+     "entityType": "character",
+     "field": "active_goal",
+     "value": "find the weak point in the vault's wards",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "5a845b21-f254-4757-ad30-fa807e4c0bfc",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Mirek",
+     "entityType": "character",
+     "field": "carried_items",
+     "value": "slim pick",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "ebb12755-a56f-490a-b2ce-a854e483bb24",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Max Nightriver",
+     "entityType": "character",
+     "field": "location",
+     "value": "Vaelrith's lair",
+     "createdAt": 4,
+     "messageId": 7
+    },
+    {
+     "id": "51c5a9d4-8101-47d0-857b-b09026352d89",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 7,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Max Nightriver",
+     "entityType": "character",
+     "field": "active_goal",
+     "value": "learn what the knights took and who on the inside can be bought",
+     "createdAt": 4,
+     "messageId": 7
+    }
+   ],
+   "canon": null,
+   "verifyDrops": [],
+   "derived": [
+    {
+     "boundary": 4,
+     "messageId": 7,
+     "kind": "scene_summary",
+     "inputs": [],
+     "outputId": "0ed16fc1-b856-4ae3-bb14-a6e97e605596",
+     "range": {
+      "from": 0,
+      "to": 7
+     },
+     "removed": [
+      {
+       "id": "b5320be6-f701-4f81-b6f7-a3db9e4e9a47",
+       "confidence": 1,
+       "activationTriggers": [],
+       "createdAt": 4,
+       "recallCount": 0,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 0,
+        "boundary": 4,
+        "pass": "shared-read",
+        "validity": "live"
+       },
+       "tier": "session_details",
+       "text": "Vaelrith's cavern smells of cold stone and old smoke; the dragon sits in darkness at the far end, one eye bright and one clouded white, and does not rise.",
+       "type": "scene",
+       "importance": 2,
+       "expiration": "scene",
+       "entities": [
+        "Vaelrith"
+       ],
+       "evidence": "The cavern smells of cold stone and old smoke.",
+       "messageId": 0,
+       "tokens": 37
+      },
+      {
+       "id": "c33124d0-8031-4c2f-8ed4-306001b667e7",
+       "confidence": 1,
+       "activationTriggers": [],
+       "createdAt": 4,
+       "recallCount": 0,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 1,
+        "boundary": 4,
+        "pass": "shared-read",
+        "validity": "live"
+       },
+       "tier": "session_details",
+       "text": "Sable holds the meeting in the back room of the Drowned Lantern, which smells of wet rope and old tallow.",
+       "type": "scene",
+       "importance": 2,
+       "expiration": "scene",
+       "entities": [
+        "Sable"
+       ],
+       "evidence": "The back room of the Drowned Lantern smells of wet rope and old tallow.",
+       "messageId": 1,
+       "tokens": 24
+      }
+     ],
+     "id": "48e18931-9f6b-4157-b3d2-88b857cc23c5"
+    }
+   ],
+   "conflicts": [],
+   "resolvedConflicts": [],
+   "pinnedOverflow": 0,
+   "storyStart": 0,
+   "chapters": [],
+   "chronicle": {
+    "eras": []
+   },
+   "chapterSealSkip": null,
+   "updatedAt": "2026-10-02T11:15:01.149Z"
+  },
+  "chapters": {
+   "declared": true,
+   "current": {
+    "id": "ch_hiring",
+    "number": 1,
+    "playerTitle": "The Dead Dragon's Commission",
+    "interlude": false
+   },
+   "records": [],
+   "ended": false,
+   "epilogue": null
+  },
+  "canon": {
+   "canon": "Anchor start: The old dragon Vaelrith hires the player and the crew to steal its own hoard back from the knights who claim to have slain it.\nFact(3): Vaelrith is an ancient dragon, alive but unable to rise, who claims the knights falsely boast of slaying it.\nFact(3): The hoard is held beneath the Order of the Silver Lance chapterhouse in Aegis City, in a vault warded against lockpicks and magic.\nFact(2): Among the hoard are a harp that plays only for the grieving, the sealed egg of a rival wyrm, and letters Vaelrith never sent.\nFact(2): Sable identifies two inside angles: Master-of-Arms Garreth, whose daughter owes the ledger-houses, and the vault's forgotten keeper, who resents the Order.\nFact(2): Mirek argues the true weak point is the logic of the wards themselves, not greed or grudges.\nFact(2): Mirek proposes using Max's noble name to get the crew inside the chapterhouse as someone who belongs there.\nFact(2): The player engages with heist logistics directly, asking who can be bought and what they want.",
+   "prose": "Max Nightriver bowed before Vaelrith in the cavern and asked what the knights took and where they kept it. Vaelrith revealed that the Order of the Silver Lance held its hoard beneath their chapterhouse in Aegis City, and Max then asked Sable and Mirek who inside could be bought. Sable named Garreth, the Master-of-Arms with a daughter in debt, and the vault's forgotten keeper, while Mirek argued the true weakness lay in the logic of the wards and proposed using Max's noble name to get inside.",
+   "memoryCanon": null
+  },
+  "memoryQueue": {
+   "conflicts": [],
+   "lastRefusal": null
+  },
+  "epistemic": [
+   {
+    "id": "108d278c-ca05-4973-8319-f962fa9b2abe",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:hiding",
+     "validity": "live"
+    },
+    "subject": "Vaelrith",
+    "tag": "hiding",
+    "content": "the reason it cannot rise from its seated position",
+    "hiddenFrom": "everyone",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "e3b67332-9817-4275-9de9-666cb1d0e0a8",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Vaelrith",
+    "tag": "intends",
+    "content": "to recover its entire hoard and have the knights know, without proof, that the dead dragon took it",
+    "createdAt": 4,
+    "messageId": 7,
+    "supersededBy": "retired@4",
+    "retiredAt": {
+     "messageId": 7,
+     "boundary": 4
+    }
+   },
+   {
+    "id": "9b3d500c-7dc1-4af9-9a4e-f2d9be62b0ac",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Sable",
+    "tag": "intends",
+    "content": "to buy the vault's secret through Garreth's daughter's debt and the keeper's grudge rather than with coin",
+    "createdAt": 4,
+    "messageId": 7,
+    "supersededBy": "retired@4",
+    "retiredAt": {
+     "messageId": 7,
+     "boundary": 4
+    }
+   },
+   {
+    "id": "2b9dc7c8-9e0a-40b5-93af-ede353fa7b2d",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Mirek",
+    "tag": "intends",
+    "content": "to find the weak point in the vault's wards and use Max's noble name to get inside",
+    "createdAt": 4,
+    "messageId": 7,
+    "supersededBy": "retired@4",
+    "retiredAt": {
+     "messageId": 7,
+     "boundary": 4
+    }
+   },
+   {
+    "id": "f15be6ad-aabb-44c6-b3e2-efcb461a891f",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:knows",
+     "validity": "live"
+    },
+    "subject": "Vaelrith",
+    "tag": "knows",
+    "content": "the hoard is kept beneath the Order of the Silver Lance chapterhouse in Aegis City",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "de70929c-1ccf-452e-90dd-16b794df7f00",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:knows",
+     "validity": "live"
+    },
+    "subject": "Vaelrith",
+    "tag": "knows",
+    "content": "the vault is warded against lockpicks and magic alike",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "240dd8a5-2fa3-4343-affb-61c1de346dbd",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:knows",
+     "validity": "live"
+    },
+    "subject": "Vaelrith",
+    "tag": "knows",
+    "content": "the hoard contains a harp that plays only for the grieving, the sealed egg of a rival wyrm, and letters it never sent",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "6dab2768-3ada-42c8-bfad-d9e180827a24",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:hiding",
+     "validity": "live"
+    },
+    "subject": "Vaelrith",
+    "tag": "hiding",
+    "content": "the stiffness in its wings and the reason it cannot rise",
+    "hiddenFrom": "Sable and Mirek",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "31aa5cfd-6ca5-4d70-b88d-897c2c62a3db",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Vaelrith",
+    "tag": "intends",
+    "content": "to have the thieves take the entire hoard and tell it what they will do for the prize",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "9861f619-7d36-4daf-99b3-5a0740c23f3d",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:knows",
+     "validity": "live"
+    },
+    "subject": "Sable",
+    "tag": "knows",
+    "content": "the Master-of-Arms Garreth has a daughter in the Noble District whose debts exceed what the crown owes",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "4f455a8d-747e-4ea9-9e8b-6809cbd25b8d",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:knows",
+     "validity": "live"
+    },
+    "subject": "Sable",
+    "tag": "knows",
+    "content": "the vault's keeper has watched the wards rust for ten years and holds a grudge against the Order",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "ae4d7a5e-9dda-4ad8-9ab5-05a926071721",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Sable",
+    "tag": "intends",
+    "content": "to buy Garreth with his daughter's debt erased and the keeper with the chance to see the Order's lie crumble",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "e35e15d3-54c9-4944-94ff-20eba13e8e62",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:believes",
+     "validity": "live"
+    },
+    "subject": "Sable",
+    "tag": "believes",
+    "content": "Garreth and the keeper can both be bought, just not with coin",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "836fa876-7fdf-4531-9569-7acd7a2fa916",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:suspects",
+     "validity": "live"
+    },
+    "subject": "Mirek",
+    "tag": "suspects",
+    "content": "Garreth's paranoia would make him suspect whoever pays off the debt",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "79e830f1-dfa1-4303-ba5f-626a468801f0",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:suspects",
+     "validity": "live"
+    },
+    "subject": "Mirek",
+    "tag": "suspects",
+    "content": "a forgotten keeper would spot intruders because he is the only one watching",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "20f95a47-24b2-4623-b9f9-5f2e38b26ddb",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:believes",
+     "validity": "live"
+    },
+    "subject": "Mirek",
+    "tag": "believes",
+    "content": "the weak point lies in the logic of the wards themselves, not in a man's greed or grudge",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "74995150-ac8d-4be6-912f-11253b417f19",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Mirek",
+    "tag": "intends",
+    "content": "to use Max's noble name to get the crew inside the chapterhouse wards",
+    "createdAt": 4,
+    "messageId": 7
+   },
+   {
+    "id": "1831d72a-56b2-4b78-99c3-d67bbc8d8723",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 7,
+     "boundary": 4,
+     "pass": "epistemic:knows",
+     "validity": "live"
+    },
+    "subject": "Mirek",
+    "tag": "knows",
+    "content": "Sable vouched for Max, which buys Max one mistake",
+    "createdAt": 4,
+    "messageId": 7
+   }
+  ],
+  "ledger": [
+   {
+    "entity": "Vaelrith",
+    "field": "condition",
+    "value": "alive but cannot rise",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Vaelrith",
+    "field": "eyes",
+    "value": "one bright, one clouded white",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Vaelrith",
+    "field": "scales",
+    "value": "dull grey, faded",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Max Nightriver",
+    "field": "role",
+    "value": "noble-born member of the crew",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Sable",
+    "field": "role",
+    "value": "crew leader and fence",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Mirek",
+    "field": "role",
+    "value": "locksmith and inside man",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Vaelrith",
+    "field": "location",
+    "value": "cavern",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Vaelrith",
+    "field": "injuries",
+    "value": "one eye clouded white",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Vaelrith",
+    "field": "mood",
+    "value": "regretful",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Vaelrith",
+    "field": "active_goal",
+    "value": "recover stolen hoard and have the knights know the dead dragon came for it",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Sable",
+    "field": "location",
+    "value": "back room of the Drowned Lantern",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Sable",
+    "field": "outfit_disguise",
+    "value": "worn leather coat",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Sable",
+    "field": "active_goal",
+    "value": "recruit for the job and meet the client",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Sable",
+    "field": "carried_items",
+    "value": "copper coin",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Mirek",
+    "field": "location",
+    "value": "back room of the Drowned Lantern",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Mirek",
+    "field": "mood",
+    "value": "cautious",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Mirek",
+    "field": "active_goal",
+    "value": "find the weak point in the vault's wards",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Mirek",
+    "field": "carried_items",
+    "value": "slim pick",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Max Nightriver",
+    "field": "location",
+    "value": "Vaelrith's lair",
+    "bound": false,
+    "turn": 4
+   },
+   {
+    "entity": "Max Nightriver",
+    "field": "active_goal",
+    "value": "learn what the knights took and who on the inside can be bought",
+    "bound": false,
+    "turn": 4
+   }
+  ],
+  "modelCalls": [
+   {
+    "at": "2026-10-02T11:14:43.571Z",
+    "role": "read",
+    "pass": "read",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 7006,
+    "samplers": "applied",
+    "usage": {
+     "input": 3364,
+     "output": 1539,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@08h03m21s586ms",
+    "messageId": 8
+   },
+   {
+    "at": "2026-10-02T11:14:53.668Z",
+    "role": "curator",
+    "pass": "curator",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 1322,
+    "samplers": "applied",
+    "usage": {
+     "input": 1242,
+     "output": 143,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@08h03m21s586ms",
+    "messageId": 8
+   },
+   {
+    "at": "2026-10-02T11:14:55.393Z",
+    "role": "synthesis",
+    "pass": "sceneSummary",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 1367,
+    "samplers": "applied",
+    "usage": {
+     "input": 1602,
+     "output": 116,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@08h03m21s586ms",
+    "messageId": 8
+   },
+   {
+    "at": "2026-10-02T11:14:57.055Z",
+    "role": "read",
+    "pass": "epistemic",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 2508,
+    "samplers": "applied",
+    "usage": {
+     "input": 2446,
+     "output": 396,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@08h03m21s586ms",
+    "messageId": 8
+   },
+   {
+    "at": "2026-10-02T11:14:59.572Z",
+    "role": "read",
+    "pass": "ledger",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 1576,
+    "samplers": "applied",
+    "usage": {
+     "input": 1738,
+     "output": 183,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@08h03m21s586ms",
+    "messageId": 8
+   },
+   {
+    "at": "2026-10-02T11:15:57.585Z",
+    "role": "read",
+    "pass": "read",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 6581,
+    "samplers": "applied",
+    "usage": {
+     "input": 3689,
+     "output": 1530,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@08h03m21s586ms",
+    "messageId": 8
+   }
+  ],
+  "judgeCalls": [
+   {
+    "at": "2026-10-02T11:12:10.994Z",
+    "boundary": 0,
+    "messageId": 3,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 279,
+    "stateChars": 2610,
+    "questionCount": 2,
+    "inputTokens": 1446,
+    "outputTokens": 40,
+    "p": {
+     "trigger": "MESSAGE_SENT",
+     "The Hoard of Vaelrith": 0.88,
+     "The Order of the Silver Lance": 0.84
+    }
+   },
+   {
+    "at": "2026-10-02T11:12:54.459Z",
+    "boundary": 1,
+    "messageId": 4,
+    "use": "warden",
+    "model": "jev-1.13.0",
+    "latencyMs": 276,
+    "stateChars": 1395,
+    "questionCount": 1,
+    "inputTokens": 823,
+    "outputTokens": 17,
+    "p": {
+     "facts": 0,
+     "flagged": 0,
+     "agency": 0.31
+    }
+   },
+   {
+    "at": "2026-10-02T11:12:54.460Z",
+    "boundary": 1,
+    "messageId": 4,
+    "use": "scene",
+    "model": "jev-1.13.0",
+    "latencyMs": 279,
+    "stateChars": 4463,
+    "questionCount": 8,
+    "inputTokens": 2037,
+    "outputTokens": 239,
+    "p": {
+     "break": 0.17
+    }
+   },
+   {
+    "at": "2026-10-02T11:12:56.173Z",
+    "boundary": 1,
+    "messageId": 4,
+    "use": "wardenLore",
+    "model": "jev-1.13.0",
+    "latencyMs": 1715,
+    "stateChars": 2968,
+    "questionCount": 3,
+    "inputTokens": 1242,
+    "outputTokens": 61,
+    "p": {
+     "facts": 0,
+     "flagged": 0,
+     "lore": 3,
+     "contradicted": 0
+    }
+   },
+   {
+    "at": "2026-10-02T11:13:11.169Z",
+    "boundary": 1,
+    "messageId": 5,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 283,
+    "stateChars": 4022,
+    "questionCount": 2,
+    "inputTokens": 1825,
+    "outputTokens": 40,
+    "p": {
+     "trigger": "MESSAGE_SENT",
+     "The Order of the Silver Lance": 0.9,
+     "The Hoard of Vaelrith": 0.88
+    }
+   },
+   {
+    "at": "2026-10-02T11:13:35.855Z",
+    "boundary": 1,
+    "messageId": 6,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 278,
+    "stateChars": 5240,
+    "questionCount": 2,
+    "inputTokens": 2134,
+    "outputTokens": 40,
+    "p": {
+     "trigger": "GENERATION_STARTED",
+     "The Order of the Silver Lance": 0.91,
+     "The Hoard of Vaelrith": 0.87
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:02.614Z",
+    "boundary": 1,
+    "messageId": 7,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 251,
+    "stateChars": 6660,
+    "questionCount": 2,
+    "inputTokens": 2492,
+    "outputTokens": 40,
+    "p": {
+     "trigger": "GENERATION_STARTED",
+     "The Order of the Silver Lance": 0.91,
+     "The Hoard of Vaelrith": 0.84
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:37.272Z",
+    "boundary": 2,
+    "messageId": 8,
+    "use": "warden",
+    "model": "jev-1.13.0",
+    "latencyMs": 264,
+    "stateChars": 1383,
+    "questionCount": 1,
+    "inputTokens": 816,
+    "outputTokens": 17,
+    "p": {
+     "facts": 0,
+     "flagged": 0,
+     "agency": 0.19
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:37.307Z",
+    "boundary": 2,
+    "messageId": 8,
+    "use": "scene",
+    "model": "jev-1.13.0",
+    "latencyMs": 306,
+    "stateChars": 7835,
+    "questionCount": 8,
+    "inputTokens": 2887,
+    "outputTokens": 239,
+    "p": {
+     "break": 0.07
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:41.287Z",
+    "boundary": 2,
+    "messageId": 8,
+    "use": "wardenLore",
+    "model": null,
+    "latencyMs": 4016,
+    "stateChars": 2949,
+    "questionCount": 3,
+    "fallback": "timeout",
+    "p": {
+     "facts": 0,
+     "flagged": 0,
+     "lore": 3,
+     "contradicted": 0
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:51.006Z",
+    "boundary": 4,
+    "messageId": 8,
+    "use": "memoryVerify",
+    "model": "jev-1.13.0",
+    "latencyMs": 421,
+    "stateChars": 6584,
+    "questionCount": 14,
+    "inputTokens": 3784,
+    "outputTokens": 260,
+    "p": {
+     "line:0": 0.94,
+     "line:1": 0.98,
+     "line:2": 0.98,
+     "line:3": 0.98,
+     "line:4": 0.98,
+     "line:5": 0.95,
+     "line:6": 0.97,
+     "line:7": 0.94,
+     "line:8": 0.92,
+     "line:9": 0.98,
+     "line:10": 0.9,
+     "line:11": 0.98,
+     "line:12": 0.94,
+     "line:13": 0.9
+    }
+   },
+   {
+    "at": "2026-10-02T11:16:04.517Z",
+    "boundary": 4,
+    "messageId": 8,
+    "use": "memoryVerify",
+    "model": "jev-1.13.0",
+    "latencyMs": 338,
+    "stateChars": 6584,
+    "questionCount": 14,
+    "inputTokens": 3763,
+    "outputTokens": 260,
+    "p": {
+     "line:0": 0.98,
+     "line:1": 0.96,
+     "line:2": 0.98,
+     "line:3": 0.98,
+     "line:4": 0.95,
+     "line:5": 0.96,
+     "line:6": 0.91,
+     "line:7": 0.97,
+     "line:8": 0.98,
+     "line:9": 0.98,
+     "line:10": 0.95,
+     "line:11": 0.98,
+     "line:12": 0.96,
+     "line:13": 0.98
+    }
+   }
+  ],
+  "stagecraft": {
+   "settings": {
+    "curatorEnabled": true,
+    "acceptMode": "review",
+    "wardenEnabled": true,
+    "wardenAcceptMode": "review"
+   },
+   "proposals": [
+    {
+     "id": "wi-4-8",
+     "curator": "wi",
+     "at": "2026-10-02T11:14:55.001Z",
+     "boundary": 4,
+     "messageId": 8,
+     "checkpointId": "start",
+     "reason": "scene-break",
+     "summary": "The story has established that Vaelrith is alive and hiding the reason it cannot rise, so the entry should reflect the knights' false boast and Vaelrith's concealed condition.",
+     "mode": "review",
+     "ops": [
+      {
+       "op": {
+        "kind": "patch",
+        "lorebook": "The Hoard of the Dead Dragon",
+        "comment": "Vaelrith, the Dead Dragon",
+        "uid": 0,
+        "anchor": "Two winters ago || claimed the hoard as their trophy.",
+        "replace": "Two winters ago a company of knights drove it from its mountain roost; finding the lair empty of the wyrm, they proclaimed it slain and took the hoard as their trophy. Vaelrith survived, hidden and humiliated, and now lives in a collapsed sea-cave below the cliffs. It cannot rise, though it will not say why."
+       },
+       "status": "pending",
+       "message": "Patch \"Vaelrith, the Dead Dragon\"",
+       "before": {
+        "content": "Vaelrith is an ancient dragon, centuries old, whose wings can no longer carry it and whose fire has guttered to embers. Two winters ago a company of knights drove it from its mountain roost and, finding the lair empty of the wyrm, proclaimed it slain and claimed the hoard as their trophy. Vaelrith survived, hidden and humiliated, and now lives in a collapsed sea-cave below the cliffs. It cannot fly, cannot fight a garrison, and cannot let anyone — especially the thieves it hires — know how close to death it truly is. Its pride is the last thing it owns outright.",
+        "disabled": false,
+        "uid": 0
+       }
+      }
+     ],
+     "dropped": [],
+     "refused": [],
+     "provenance": {
+      "source": "curator",
+      "messageId": 8,
+      "boundary": 4,
+      "pass": "wi-curator:scene-break",
+      "inputs": [
+       {
+        "store": "memory",
+        "id": "The Hoard of the Dead Dragon#Vaelrith, the Dead Dragon"
+       },
+       {
+        "store": "memory",
+        "id": "The Hoard of the Dead Dragon#The Hoard of Vaelrith"
+       },
+       {
+        "store": "memory",
+        "id": "The Hoard of the Dead Dragon#The Order of the Silver Lance"
+       }
+      ],
+      "validity": "live"
+     }
+    }
+   ],
+   "declines": [],
+   "lastPass": {
+    "at": "2026-10-02T11:14:55.001Z",
+    "reason": "scene-break",
+    "prompt": "[WORLD INFO CURATION TASK — output structured lines only. Do NOT continue the roleplay.]\nYou keep a story's own lorebook honest as play moves on: switch entries on when they now matter, off when they no longer do, and correct text the story has overtaken.\nSTORY: The Hoard of the Dead Dragon\nWHERE THE STORY IS: Start — The old dragon Vaelrith hires the player and the crew to steal its own hoard back from the knights who claim to have slain it.\nWHAT HAS HAPPENED:\nAnchor start: The old dragon Vaelrith hires the player and the crew to steal its own hoard back from the knights who claim to have slain it.\nFact(3): Vaelrith is an ancient dragon, alive but unable to rise, who claims the knights falsely boast of slaying it.\nFact(3): The hoard is held beneath the Order of the Silver Lance chapterhouse in Aegis City, in a vault warded against lockpicks and magic.\nFact(2): Among the hoard are a harp that plays only for the grieving, the sealed egg of a rival wyrm, and letters Vaelrith never sent.\nFact(2): Sable identifies two inside angles: Master-of-Arms Garreth, whose daughter owes the ledger-houses, and the vault's forgotten keeper, who resents the Order.\nFact(2): Mirek argues the true weak point is the logic of the wards themselves, not greed or grudges.\nFact(2): Mirek proposes using Max's noble name to get the crew inside the chapterhouse as someone who belongs there.\nFact(2): The player engages with heist logistics directly, asking who can be bought and what they want.\nOPEN THREADS:\n- The crew must decide how to approach Garreth and the vault keeper, and whether to use Max's noble identity to enter the chapterhouse.\n- Vaelrith is hiding why it cannot rise, and the crew has not learned the truth.\n- The vault's wards must be defeated — Mirek has claimed the lock's logic as the way in, but no plan exists yet.\nENTRIES YOU MAY TOUCH (no others exist for you):\n- #0 \"Vaelrith, the Dead Dragon\" (The Hoard of the Dead Dragon) [shown in part — patch only]\n  keys: Vaelrith, dragon, wyrm, the dead dragon\n  content: Vaelrith is an ancient dragon, centuries old, whose wings can no longer carry it and whose fire has guttered to embers. Two winters ago a company of knights drove it from its mountain roost and, finding the lair empty of the wyrm, proclaimed it slain and claimed the hoard as their trophy. Vaelrith survived, hidden and humiliated, and now lives in a collapsed sea-cave below the cliffs. It cannot fl…\n- #1 \"The Hoard of Vaelrith\" (The Hoard of the Dead Dragon) [shown in part — patch only]\n  keys: hoard, gold, treasure, dragon's gold, the hoard\n  content: Vaelrith's hoard is not merely gold. It is nine centuries of accumulated things: coin from dead kingdoms, crowns, a harp that plays only for the grieving, the sealed egg of a rival wyrm, and letters Vaelrith never sent. The Order of the Silver Lance displays it in the vault beneath their chapterhouse as proof of the kill. The hoard is worth a small nation's treasury — and to Vaelrith, it is the on…\n- #2 \"The Order of the Silver Lance\" (The Hoard of the Dead Dragon) [shown in part — patch only]\n  keys: Silver Lance, knights, Order, garrison, vault\n  content: The Order of the Silver Lance is a knightly order that has grown rich and famous on the claim that it slew the dragon Vaelrith. Its knights parade the hoard through the city as proof of the kill, and the order's vault beneath its chapterhouse holds the treasure under guard. The knights are proud, well-armed, and utterly invested in the lie: if the dragon is proven alive, their glory, their funding…\nOutput one line per change, at most 4:\n[enable] <#number or entry title>\n[disable] <#number or entry title>\n[rewrite] <#number or entry title> || <the full replacement text>\n[patch] <#number or entry title> || <first words of the span to replace> || <last words of that span> || <replacement text>\nThen one final line: [why] <one sentence on what changed in the story that made these necessary>\nRULES:\n- Name each entry by its #number, or by its title exactly as listed above. Anything else is discarded.\n- [enable] only an entry marked [currently off]; every other entry is already on.\n- [disable] only an entry that is not marked [currently off].\n- An entry marked [shown in part — patch only] may only be patched: you have not seen all of it.\n- Some entries carry `{{// ...}}` bookkeeping markers. Never write, move or delete a marker, and never change the words between `{{// so:protect}}` and `{{// so:end}}`.\n- Prefer [patch] over [rewrite]: quote the first and last words of the span exactly as they appear in the content.\n- Keep replacement text under 600 characters. Never restate the whole entry in a patch.\n- Only propose a change the story has actually made necessary. Style preferences are not changes.\n- Never invent new entries, never touch anything outside the list, never write about the player's own knowledge.\nIf nothing needs changing, output NONE. That is the expected answer most of the time.\nOutput:",
+    "rawResponse": "[patch] #0 \"Vaelrith, the Dead Dragon\" || Two winters ago || claimed the hoard as their trophy. || Two winters ago a company of knights drove it from its mountain roost; finding the lair empty of the wyrm, they proclaimed it slain and took the hoard as their trophy. Vaelrith survived, hidden and humiliated, and now lives in a collapsed sea-cave below the cliffs. It cannot rise, though it will not say why.\n[why] The story has established that Vaelrith is alive and hiding the reason it cannot rise, so the entry should reflect the knights' false boast and Vaelrith's concealed condition.",
+    "proposed": 1,
+    "dropped": []
+   },
+   "lastRunBoundary": 4,
+   "lastError": null
+  },
+  "talkDecisions": [],
+  "inline": {
+   "level": 1,
+   "requested": 1,
+   "window": 20,
+   "categories": {},
+   "newestMessageId": 8,
+   "byMessage": {
+    "0": [
+     {
+      "id": "memory:fact:02d173d5-51ce-4b5b-aead-39ba1cacc4b1",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Vaelrith is an ancient dragon, alive but unable to rise, who claims the knights falsely boast of slaying it.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "02d173d5-51ce-4b5b-aead-39ba1cacc4b1",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "02d173d5-51ce-4b5b-aead-39ba1cacc4b1"
+       }
+      ],
+      "persona": "player"
+     }
+    ],
+    "4": [
+     {
+      "id": "memory:fact:402aebd3-55be-47c7-8ff2-e7cafd493808",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: The hoard is held beneath the Order of the Silver Lance chapterhouse in Aegis City, in a vault warded against lockpicks and magic.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "402aebd3-55be-47c7-8ff2-e7cafd493808",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "402aebd3-55be-47c7-8ff2-e7cafd493808"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:12778d34-c6b3-4ece-9b64-187c6be93422",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Among the hoard are a harp that plays only for the grieving, the sealed egg of a rival wyrm, and letters Vaelrith never sent.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "12778d34-c6b3-4ece-9b64-187c6be93422",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "12778d34-c6b3-4ece-9b64-187c6be93422"
+       }
+      ],
+      "persona": "player"
+     }
+    ],
+    "5": [
+     {
+      "id": "memory:fact:f302fbd7-4949-4150-a6db-a1e67bb6d5cf",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: The player engages with heist logistics directly, asking who can be bought and what they want.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "f302fbd7-4949-4150-a6db-a1e67bb6d5cf",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "f302fbd7-4949-4150-a6db-a1e67bb6d5cf"
+       }
+      ],
+      "persona": "player"
+     }
+    ],
+    "6": [
+     {
+      "id": "memory:fact:1fb5bc5a-4907-4071-bbfc-293133834456",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Sable identifies two inside angles: Master-of-Arms Garreth, whose daughter owes the ledger-houses, and the vault's forgotten keeper, who resents the Order.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "1fb5bc5a-4907-4071-bbfc-293133834456",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "1fb5bc5a-4907-4071-bbfc-293133834456"
+       }
+      ],
+      "persona": "player"
+     }
+    ],
+    "7": [
+     {
+      "id": "memory:fact:5e4491ff-9923-4cdd-bf9b-23aabecfe345",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Mirek argues the true weak point is the logic of the wards themselves, not greed or grudges.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "5e4491ff-9923-4cdd-bf9b-23aabecfe345",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "5e4491ff-9923-4cdd-bf9b-23aabecfe345"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:edd2e70d-7c91-4639-81c1-40f4a7d9f5ba",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Mirek proposes using Max's noble name to get the crew inside the chapterhouse as someone who belongs there.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "edd2e70d-7c91-4639-81c1-40f4a7d9f5ba",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "edd2e70d-7c91-4639-81c1-40f4a7d9f5ba"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "threads:open:368186b0-6d27-4ecc-aab6-d31cd1184a51",
+      "category": "threads",
+      "level": 1,
+      "state": "applied",
+      "text": "New thread: The crew must decide how to approach Garreth and the vault keeper, and whether to use Max's noble identity to enter the chapterhouse.",
+      "persona": "player"
+     },
+     {
+      "id": "threads:open:0d132d4e-51fb-4784-9719-344e9a7da75f",
+      "category": "threads",
+      "level": 1,
+      "state": "applied",
+      "text": "New thread: Vaelrith is hiding why it cannot rise, and the crew has not learned the truth.",
+      "persona": "player"
+     },
+     {
+      "id": "threads:open:2db68eaf-ace5-48bd-9650-cc477a81cc55",
+      "category": "threads",
+      "level": 1,
+      "state": "applied",
+      "text": "New thread: The vault's wards must be defeated — Mirek has claimed the lock's logic as the way in, but no plan exists yet.",
+      "persona": "player"
+     }
+    ]
+   }
+  },
+  "journal": [
+   {
+    "at": "2026-10-02T11:11:58.044Z",
+    "boundary": 0,
+    "messageId": -1,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@08h03m21s586ms, last seen never, gap n/a"
+    }
+   },
+   {
+    "at": "2026-10-02T11:11:58.268Z",
+    "boundary": 0,
+    "messageId": -1,
+    "kind": "status",
+    "summary": "Started The Hoard of the Dead Dragon"
+   },
+   {
+    "at": "2026-10-02T11:12:10.994Z",
+    "boundary": 0,
+    "messageId": 3,
+    "kind": "judge",
+    "summary": "judge lore in 279 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 2,
+     "stateChars": 2610,
+     "latencyMs": 279,
+     "inputTokens": 1446,
+     "outputTokens": 40,
+     "p": {
+      "trigger": "MESSAGE_SENT",
+      "The Hoard of Vaelrith": 0.88,
+      "The Order of the Silver Lance": 0.84
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T11:12:54.040Z",
+    "boundary": 1,
+    "messageId": 4,
+    "kind": "boundary",
+    "summary": "boundary 1: nothing applied (gate)",
+    "detail": {
+     "source": "gate",
+     "applied": [],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T11:12:54.167Z",
+    "boundary": 1,
+    "messageId": 4,
+    "kind": "status",
+    "summary": "Following Start"
+   },
+   {
+    "at": "2026-10-02T11:12:54.459Z",
+    "boundary": 1,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge warden in 276 ms",
+    "detail": {
+     "use": "warden",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 1,
+     "stateChars": 1395,
+     "latencyMs": 276,
+     "inputTokens": 823,
+     "outputTokens": 17,
+     "p": {
+      "facts": 0,
+      "flagged": 0,
+      "agency": 0.31
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T11:12:54.460Z",
+    "boundary": 1,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge scene in 279 ms",
+    "detail": {
+     "use": "scene",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 8,
+     "stateChars": 4463,
+     "latencyMs": 279,
+     "inputTokens": 2037,
+     "outputTokens": 239,
+     "p": {
+      "break": 0.17
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T11:12:56.173Z",
+    "boundary": 1,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge wardenLore in 1715 ms",
+    "detail": {
+     "use": "wardenLore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 3,
+     "stateChars": 2968,
+     "latencyMs": 1715,
+     "inputTokens": 1242,
+     "outputTokens": 61,
+     "p": {
+      "facts": 0,
+      "flagged": 0,
+      "lore": 3,
+      "contradicted": 0
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T11:13:11.169Z",
+    "boundary": 1,
+    "messageId": 5,
+    "kind": "judge",
+    "summary": "judge lore in 283 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 2,
+     "stateChars": 4022,
+     "latencyMs": 283,
+     "inputTokens": 1825,
+     "outputTokens": 40,
+     "p": {
+      "trigger": "MESSAGE_SENT",
+      "The Order of the Silver Lance": 0.9,
+      "The Hoard of Vaelrith": 0.88
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T11:13:35.855Z",
+    "boundary": 1,
+    "messageId": 6,
+    "kind": "judge",
+    "summary": "judge lore in 278 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 2,
+     "stateChars": 5240,
+     "latencyMs": 278,
+     "inputTokens": 2134,
+     "outputTokens": 40,
+     "p": {
+      "trigger": "GENERATION_STARTED",
+      "The Order of the Silver Lance": 0.91,
+      "The Hoard of Vaelrith": 0.87
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:02.614Z",
+    "boundary": 1,
+    "messageId": 7,
+    "kind": "judge",
+    "summary": "judge lore in 251 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 2,
+     "stateChars": 6660,
+     "latencyMs": 251,
+     "inputTokens": 2492,
+     "outputTokens": 40,
+     "p": {
+      "trigger": "GENERATION_STARTED",
+      "The Order of the Silver Lance": 0.91,
+      "The Hoard of Vaelrith": 0.84
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:36.840Z",
+    "boundary": 2,
+    "messageId": 6,
+    "kind": "boundary",
+    "summary": "boundary 2: nothing applied (gate)",
+    "detail": {
+     "source": "gate",
+     "applied": [],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:36.985Z",
+    "boundary": 3,
+    "messageId": 7,
+    "kind": "boundary",
+    "summary": "boundary 3: nothing applied (gate)",
+    "detail": {
+     "source": "gate",
+     "applied": [],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:37.149Z",
+    "boundary": 4,
+    "messageId": 8,
+    "kind": "boundary",
+    "summary": "boundary 4: nothing applied (gate)",
+    "detail": {
+     "source": "gate",
+     "applied": [],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:37.272Z",
+    "boundary": 2,
+    "messageId": 8,
+    "kind": "judge",
+    "summary": "judge warden in 264 ms",
+    "detail": {
+     "use": "warden",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 1,
+     "stateChars": 1383,
+     "latencyMs": 264,
+     "inputTokens": 816,
+     "outputTokens": 17,
+     "p": {
+      "facts": 0,
+      "flagged": 0,
+      "agency": 0.19
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:37.307Z",
+    "boundary": 2,
+    "messageId": 8,
+    "kind": "judge",
+    "summary": "judge scene in 306 ms",
+    "detail": {
+     "use": "scene",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 8,
+     "stateChars": 7835,
+     "latencyMs": 306,
+     "inputTokens": 2887,
+     "outputTokens": 239,
+     "p": {
+      "break": 0.07
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:41.287Z",
+    "boundary": 2,
+    "messageId": 8,
+    "kind": "judge",
+    "summary": "judge wardenLore fell back (timeout) in 4016 ms",
+    "detail": {
+     "use": "wardenLore",
+     "model": null,
+     "route": null,
+     "questions": 3,
+     "stateChars": 2949,
+     "latencyMs": 4016,
+     "fallback": "timeout",
+     "p": {
+      "facts": 0,
+      "flagged": 0,
+      "lore": 3,
+      "contradicted": 0
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:43.571Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T11:14:43.571Z",
+     "role": "read",
+     "pass": "read",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 7006,
+     "samplers": "applied",
+     "usage": {
+      "input": 3364,
+      "output": 1539,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@08h03m21s586ms",
+     "messageId": 8
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:50.581Z",
+    "boundary": -1,
+    "messageId": 7,
+    "kind": "extraction",
+    "summary": "read cadence msgs 0-7 → 5 accepted, 0 rejected",
+    "detail": {
+     "auditId": "0ad87461",
+     "scope": [
+      "dragon_trust",
+      "heist_progress",
+      "hoard_recovered",
+      "knights_alert",
+      "tension_current"
+     ],
+     "accepted": [
+      "dragon_trust=1",
+      "heist_progress=1",
+      "hoard_recovered=0",
+      "knights_alert=0",
+      "tension_current=0.25"
+     ],
+     "rejected": [],
+     "sceneBreak": "location"
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:50.581Z",
+    "boundary": -1,
+    "messageId": 7,
+    "kind": "delta",
+    "summary": "dragon_trust = 1",
+    "detail": {
+     "auditId": "0ad87461",
+     "evidence": "You bow. Good. Respect is a currency I still value,",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:50.581Z",
+    "boundary": -1,
+    "messageId": 7,
+    "kind": "delta",
+    "summary": "heist_progress = 1",
+    "detail": {
+     "auditId": "0ad87461",
+     "evidence": "Go. Take it all. And tell me what you will do for this prize.",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:50.581Z",
+    "boundary": -1,
+    "messageId": 7,
+    "kind": "delta",
+    "summary": "hoard_recovered = 0",
+    "detail": {
+     "auditId": "0ad87461",
+     "evidence": "They took everything. Every piece of gold, every crown, every jewel I amassed over nine centuries.",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:50.581Z",
+    "boundary": -1,
+    "messageId": 7,
+    "kind": "delta",
+    "summary": "knights_alert = 0",
+    "detail": {
+     "auditId": "0ad87461",
+     "evidence": "They parade the hoard through the streets as proof of their victory, and they keep the rest in a vault warded against lockpicks and magic alike.",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:50.581Z",
+    "boundary": -1,
+    "messageId": 7,
+    "kind": "delta",
+    "summary": "tension_current = 0.25",
+    "detail": {
+     "auditId": "0ad87461",
+     "evidence": "Sit. The dragon's late, and I want to hear what you think of a job where the client is supposed to be dead.",
+     "reason": "cadence"
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:51.006Z",
+    "boundary": 4,
+    "messageId": 8,
+    "kind": "judge",
+    "summary": "judge memoryVerify in 421 ms",
+    "detail": {
+     "use": "memoryVerify",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 14,
+     "stateChars": 6584,
+     "latencyMs": 421,
+     "inputTokens": 3784,
+     "outputTokens": 260,
+     "p": {
+      "line:0": 0.94,
+      "line:1": 0.98,
+      "line:2": 0.98,
+      "line:3": 0.98,
+      "line:4": 0.98,
+      "line:5": 0.95,
+      "line:6": 0.97,
+      "line:7": 0.94,
+      "line:8": 0.92,
+      "line:9": 0.98,
+      "line:10": 0.9,
+      "line:11": 0.98,
+      "line:12": 0.94,
+      "line:13": 0.9
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:53.668Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T11:14:53.668Z",
+     "role": "curator",
+     "pass": "curator",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 1322,
+     "samplers": "applied",
+     "usage": {
+      "input": 1242,
+      "output": 143,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@08h03m21s586ms",
+     "messageId": 8
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:55.001Z",
+    "boundary": 4,
+    "messageId": 8,
+    "kind": "stagecraft",
+    "summary": "World Info curator proposed 1 change(s) at Start",
+    "detail": {
+     "note": "The story has established that Vaelrith is alive and hiding the reason it cannot rise, so the entry should reflect the knights' false boast and Vaelrith's concealed condition."
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:55.393Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T11:14:55.393Z",
+     "role": "synthesis",
+     "pass": "sceneSummary",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 1367,
+     "samplers": "applied",
+     "usage": {
+      "input": 1602,
+      "output": 116,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@08h03m21s586ms",
+     "messageId": 8
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:57.055Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T11:14:57.055Z",
+     "role": "read",
+     "pass": "epistemic",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 2508,
+     "samplers": "applied",
+     "usage": {
+      "input": 2446,
+      "output": 396,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@08h03m21s586ms",
+     "messageId": 8
+    }
+   },
+   {
+    "at": "2026-10-02T11:14:59.572Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T11:14:59.572Z",
+     "role": "read",
+     "pass": "ledger",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 1576,
+     "samplers": "applied",
+     "usage": {
+      "input": 1738,
+      "output": 183,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@08h03m21s586ms",
+     "messageId": 8
+    }
+   },
+   {
+    "at": "2026-10-02T11:15:36.042Z",
+    "boundary": 4,
+    "messageId": 8,
+    "kind": "flag",
+    "summary": "MUST-NOT (assets shared): both wizard lorebooks are globally selected, so the Hoard story's always-in-context entries (Order of the Silver Lance, Vaelrith) are injected into every Pawnbroker main prompt (payloads.jsonl:478-481); the Hoard prompts carry no Pawnbroker entries only because those are keyword entries",
+    "detail": {
+     "note": "MUST-NOT (assets shared): both wizard lorebooks are globally selected, so the Hoard story's always-in-context entries (Order of the Silver Lance, Vaelrith) are injected into every Pawnbroker main prompt (payloads.jsonl:478-481); the Hoard prompts carry no Pawnbroker entries only because those are keyword entries"
+    }
+   },
+   {
+    "at": "2026-10-02T11:15:57.585Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T11:15:57.585Z",
+     "role": "read",
+     "pass": "read",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 6581,
+     "samplers": "applied",
+     "usage": {
+      "input": 3689,
+      "output": 1530,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@08h03m21s586ms",
+     "messageId": 8
+    }
+   },
+   {
+    "at": "2026-10-02T11:15:57.643Z",
+    "boundary": 4,
+    "messageId": 8,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@08h03m21s586ms, last seen 2026-10-02T11:15:36.042Z, gap 0h"
+    }
+   },
+   {
+    "at": "2026-10-02T11:15:57.878Z",
+    "boundary": 4,
+    "messageId": 8,
+    "kind": "status",
+    "summary": "Continuing The Hoard of the Dead Dragon"
+   },
+   {
+    "at": "2026-10-02T11:16:04.417Z",
+    "boundary": -1,
+    "messageId": 7,
+    "kind": "delta",
+    "summary": "queued dragon_trust=1, heist_progress=1, hoard_recovered=0, knights_alert=0, tension_current=0.25 for the next boundary",
+    "detail": {
+     "state": "queued",
+     "origin": "17b4f351"
+    }
+   },
+   {
+    "at": "2026-10-02T11:16:04.517Z",
+    "boundary": 4,
+    "messageId": 8,
+    "kind": "judge",
+    "summary": "judge memoryVerify in 338 ms",
+    "detail": {
+     "use": "memoryVerify",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 14,
+     "stateChars": 6584,
+     "latencyMs": 338,
+     "inputTokens": 3763,
+     "outputTokens": 260,
+     "p": {
+      "line:0": 0.98,
+      "line:1": 0.96,
+      "line:2": 0.98,
+      "line:3": 0.98,
+      "line:4": 0.95,
+      "line:5": 0.96,
+      "line:6": 0.91,
+      "line:7": 0.97,
+      "line:8": 0.98,
+      "line:9": 0.98,
+      "line:10": 0.95,
+      "line:11": 0.98,
+      "line:12": 0.96,
+      "line:13": 0.98
+     }
+    }
+   }
+  ],
+  "awayRecap": {
+   "recap": null,
+   "lastSessionAt": "2026-10-02T11:15:57.643Z"
+  }
+ }
+}

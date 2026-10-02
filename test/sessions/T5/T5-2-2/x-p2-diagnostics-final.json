@@ -1,0 +1,4 @@
+{
+  "ok": true,
+  "value": "No issues — this story is ready to save.\nNotes (3)\ncheckpoint-inherits-author-note\nThe model keeps being told an earlier checkpoint's note here.\n'ledger_trail' plays under the note of \"Start\"; the objective line is added\ncheckpoints.1.effects.author_note\ncheckpoint-inherits-author-note\nThe model keeps being told an earlier checkpoint's note here.\n'memory_market' plays under the note of \"Start\"; the objective line is added\ncheckpoints.2.effects.author_note\ncheckpoint-inherits-author-note\nThe model keeps being told an earlier checkpoint's note here.\n'recovery' plays under the note of \"The Palace Confrontation\"; the objective line is added\ncheckpoints.4.effects.author_note"
+}

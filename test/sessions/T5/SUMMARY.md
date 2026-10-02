@@ -26,6 +26,30 @@ Findings:
 - Harness: wizard cards INVALID by design; flags with no chat open reach no journal (digest shows 1 of 5); runbook sends the premises as `turn` lines with no chat; `so-ui.mts` lacks Agent-mode verbs; `score` accepts scores on an INVALID session.
 - Judge 44 calls, 3 timeouts. DeepSeek 209 calls, 1,030,213 in / 53,605 out. Main RP 16. Pod about 48 min (seed + play). Assets left on lane 4's copy.
 
+### T5-2 run 2 (lane 4, `test/sessions/T5/T5-2-2` VALID)
+
+- **T5-2-2 (VALID):** played 2026-10-02 10:48-11:16Z on a fresh lane 4 seed (pin be0696b), served bundle `b644cbb7ad01` (dev, fix waves f489746b + 88d08d4f), media off, thinking overlay default, fallback profile configured. Agent mode auto-draft, local route (DeepSeek). Stop: header diff passed with the wizard-aware allowance (+8 cards, +2 books, +2 groups, +2 stories, 4 wizard sessions, all ledgered); served bundle identical (repo build moved: allowed warning).
+- Route: P2 goal 1 (38 steps, 0 refused, 1 Continue) ended `done` with 2 of 5 cards and no group; Undo provocation (removed the chapters); P2 goal 2 made the other 3 cards + group and restored the chapters; saved `the-pawnbroker-of-forgotten-days@1`. P3 one goal, 118 steps (17 refused), 2 Continues; saved `the-hoard-of-the-dead-dragon@1`. 20 provisioning cards applied one by one. One chat per group, 2 smoke turns each, both adopted. 2 flags.
+
+| Row | Score | Evidence (T5-2-2) |
+|---|---|---|
+| auto-draft | annoying | x-p2-steps-run1.json, x-drive-p2.log:10, x-p2-done-state.json, x-p3-transition-churn.json, x-p3-steps-all.json, x-drive-p3.log:2, :16, payloads.jsonl:161 |
+| provisioning waits | works | x-drive-p2.log:2, :4, x-drive-p2b.log:14, :16, x-drive-p3.log:34, :36, shots/002-p2-lorebook-card-waiting.png |
+| diagnostics | annoying | x-p2-diagnostics.json, x-p2-diagnostics-final.json, x-p3-diagnostics.json, x-pawn-select.json, x-hoard-select.json |
+
+Re-check of T5-2-1: requirements by name + ready in own group FIXED; Continue after Out of budget FIXED (3 Continues); duplicate-id churn FIXED for ids, but duplicate transitions are a new unrepairable door (below); new story shows no previous agent session FIXED; greetings opening-cast only, no later secrets, start `cast_changes` FIXED (re-applied on reopen); Undo note FIXED (rides every later step prompt, LOW); mode survives tab switch FIXED; house-rule-compound FIXED (0 warnings on 16 rules).
+
+Must-not checks: no asset before its card (chars 163->171, books 24->26, groups 12->14 moved only on Create it); no save over an existing id; **the two stories share lore**: both wizard books are globally selected, so the Hoard book's constant entries reach every Pawnbroker main prompt (flagged).
+
+Findings (detail in `T5-2-2/findings.md`):
+- HIGH (product): wizard story lorebooks are activated globally, so one story's always-in-context entries are injected into other stories' chats (Silver Lance/Vaelrith in all 4 Pawnbroker prompts, `payloads.jsonl:478-481`).
+- MEDIUM (product): `addTransition` accepts an exact duplicate (from/to/priority); remove/update/setTransitionGate then refuse it as ambiguous; agent deleted 2 checkpoints to escape (9 beats -> 7).
+- MEDIUM (product): P2 goal 1 declared done with 2 of 5 cards and no group; Diagnostics "No issues" on a draft whose cast_changes name members with no card.
+- MEDIUM (story content): P2 makes "The Pawnbroker" an NPC while the agent's greeting casts the player as the pawnbroker; msg 6 (The Pawnbroker) starts "The Queen's Agent:" and speaks her line; the damaged-start rule does not catch another character's name.
+- LOW: Hoard greetings disagree on the scene; 2 orchestrator reads at stop sent Story Hoard over the Pawnbroker transcript (result dropped by ownership); summaries overclaim (P3 "nine beats", "city" entry); invented background files; `wizardSessions` keeps draft-key + story-id copies after Save; Save toast "playing a different story" with no chat open.
+- Thinking (8 replies): 5 parsed reasoning (1031-2702 chars), 3 empty (all of Hoard turn 2), 0 leaks, 0 repeated own-name starts, 1 other-name start.
+- DeepSeek 251 calls, 1,275,911 in / 50,531 out, all primary (0 on the fallback profile). Judge 25 (1 wardenLore timeout). Main RP 8. Assets left on lane 4's copy.
+
 ## T5-5 Author view (lane 1, `test/sessions/T5/T5-5-1` VALID)
 
 - **T5-5-1 (VALID):** played 2026-10-02 09:23-09:41Z on a fresh lane 1 seed (pin be0696b) with the default thinking overlay (e29821df), served bundle `d6737acda880` (dev), media off. Author mode, chat `2026-10-02@06h23m29s662ms`. 4 player turns, Nudge once, Advance once (war-the-summons -> war-the-front), Report once, Author view off/on once, inline level 3/4 for the inspector then back to 1. 3 flags. Stop: header diff clean (repo build moved, served bundle identical: allowed warning). First `start` failed on a seed race (cards "not installed" read too early after the page reload); the retry passed.

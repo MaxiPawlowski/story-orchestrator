@@ -1,0 +1,62 @@
+{
+  "seq": 1,
+  "kind": "goal",
+  "at": "2026-10-02T10:48:35.586Z",
+  "goal": "In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood.",
+  "mode": "auto-draft",
+  "fresh": true,
+  "went": true,
+  "planned": {
+    "status": "awaiting-plan",
+    "plan": "Set the story title and description to match the premise of a memory-debt city and the pawnbroker hired to recover the queen's stolen childhood.\nAdd qualities the reader scores: memory_debt (int), recovered_memory (int), queen_trust (int), pawnbroker_leverage (int), and a latching bool secret_known, each with a rubric.\nAdd checkpoints for the arc: start (the commission arrives at the pawnshop), the ledger trail, the memory market, the palace confrontation, and the final recovery beat; set start as the start checkpoint.\nGive each checkpoint an objective, tension_target, agency policy, guidance, and talk_control.\nAdd transitions between the beats with gates on the qualities, plus a refusal/backtrack transition so a player who declines the route is answered.\nAdd roster members: the pawnbroker (player-facing ally), the queen, the memory broker, and the archivist; set each drive.\nSet checkpoint motives for each cast member at the beats where their aim changes.\nSet the start checkpoint's cast_changes to disable everyone who enters later, and enable each at their entry beat.\nSet checkpoint effects: author_note, world_info, and background per beat, preserving any existing effects.\nCreate the story's own lorebook and write entries for the city, the memory-debt system, the pawnshop, the palace, and the stolen childhood.\nCreate character cards for the opening cast only, with first_mes for the start scene; leave first_mes out for later entrants.\nSet requirements (personas, members, lorebooks), stagecraft, scene_read, lore_select, and house_rules.\nSet arc_template and arc_bridges to steer pacing and thread resolution.\nSplit the premise into chapters and assign checkpoints to them.\nRun readValidation and readDiagnostics, then fix any blocking problems."
+  },
+  "state": {
+    "open": true,
+    "entry": "agent",
+    "agent": true,
+    "started": true,
+    "status": "awaiting-author",
+    "statusText": "Waiting for your decision",
+    "busy": false,
+    "mode": "auto-draft",
+    "plan": "1. Set the story title and description to match the premise of a memory-debt city and the pawnbroker hired to recover the queen's stolen childhood.\n2. Add qualities the reader scores: memory_debt (int), recovered_memory (int), queen_trust (int), pawnbroker_leverage (int), and a latching bool secret_known, each with a rubric.\n3. Add checkpoints for the arc: start (the commission arrives at the pawnshop), the ledger trail, the memory market, the palace confrontation, and the final recovery beat; set start as the start checkpoint.\n4. Give each checkpoint an objective, tension_target, agency policy, guidance, and talk_control.\n5. Add transitions between the beats with gates on the qualities, plus a refusal/backtrack transition so a player who declines the route is answered.\n6. Add roster members: the pawnbroker (player-facing ally), the queen, the memory broker, and the archivist; set each drive.\n7. Set checkpoint motives for each cast member at the beats where their aim changes.\n8. Set the start checkpoint's cast_changes to disable everyone who enters later, and enable each at their entry beat.\n9. Set checkpoint effects: author_note, world_info, and background per beat, preserving any existing effects.\n10. Create the story's own lorebook and write entries for the city, the memory-debt system, the pawnshop, the palace, and the stolen childhood.\n11. Create character cards for the opening cast only, with first_mes for the start scene; leave first_mes out for later entrants.\n12. Set requirements (personas, members, lorebooks), stagecraft, scene_read, lore_select, and house_rules.\n13. Set arc_template and arc_bridges to steer pacing and thread resolution.\n14. Split the premise into chapters and assign checkpoints to them.\n15. Run readValidation and readDiagnostics, then fix any blocking problems.",
+    "steps": 38,
+    "stepStatus": {
+      "applied": 37,
+      "pending": 1
+    },
+    "pending": {
+      "kind": "provision",
+      "text": "The plan's remaining high-value items are the story's own lorebook and the opening cast's cards, but with only 3 steps left I should prioritize what unblocks the most: create the story lorebook first, then write its entries, then create the opening cast card. However, the plan also lists requirements, stagecraft, lore_select, house_rules, arc_template, arc_bridges, and chapters. Given the budget, the most structurally important remaining piece is the story's own lorebook, since requirements and lore_select depend on it existing.\nnew lorebook\nCreate the story lorebook \"The Pawnbroker of Forgott"
+    },
+    "done": null,
+    "controls": [],
+    "error": null
+  },
+  "problems": [],
+  "ok": true,
+  "observe": {
+    "chatId": null,
+    "groupId": null,
+    "group": null,
+    "storyId": null,
+    "activeCheckpointId": null,
+    "boundary": 0,
+    "folded": null,
+    "payloadEpoch": "1790938082582-abox28",
+    "context": [
+      {
+        "id": 0,
+        "name": "Assistant",
+        "isUser": false,
+        "text": "If you're connected to an API, try asking me something!\n***\n**Hint:** Set any character as your welcome page assistant from their \"More...\" menu."
+      },
+      {
+        "id": 1,
+        "name": "SillyTavern System",
+        "isUser": false,
+        "text": "<div class=\"flex-container\">\n    <button class=\"menu_button menu_button_icon drawer-opener inline-flex\" data-target=\"sys-settings-button\">\n        <i class=\"fa-solid fa-plug\"></i>\n        <span data-i18n=\"API Connections\">API Connections</span>\n    </button>\n    <button class=\"menu_button menu_button_icon drawer-opener inline-flex\" data-target=\"rightNavHolder\">\n        <i class=\"fa-solid fa-address-card\"></i>\n        <span data-i18n=\"Character Management\">Character Management</span>\n    </button>\n    <button class=\"menu_button menu_button_icon drawer-opener inline-flex\" data-target=\"extensions-settings-button\">\n        <i class=\"fa-solid fa-cubes\"></i>\n        <span data-i18n=\"Extensions\">Extensions</span>\n    </button>\n</div>\n"
+      }
+    ]
+  }
+}

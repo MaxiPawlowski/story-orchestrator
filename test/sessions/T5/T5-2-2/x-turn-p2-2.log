@@ -1,0 +1,800 @@
+{
+  "seq": 15,
+  "kind": "turn",
+  "at": "2026-10-02T11:09:14.603Z",
+  "chatId": "2026-10-02@07h56m54s743ms",
+  "line": "A month is an insult. Show me the original pawn ticket, or tell me which district's ledger I should start with.",
+  "ok": true,
+  "problems": [],
+  "replied": true,
+  "replies": [
+    {
+      "messageId": 6,
+      "speaker": "The Pawnbroker",
+      "text": "The Queen's Agent: The agent's jaw tightens, a flicker of frustration breaking through the polished mask. She looks at the list on the counter, then at the Pawnbroker.\n\"The original ticket is in the Keeper of Debts' private vault. If you want to see it, you will have to make an appointment with the woman who spends her nights editing the crown's history. I suggest you don't.\" Her voice drops, barely above a whisper. \"The Keeper does not like being reminded of things she has tried to forget.\"\nShe taps the list with one finger. \"The daughter of Merchant-Prince Voss lives in the Jade District, where the wealthy hoard memories like pearls. The memory-broker, the woman who handled the original transaction, operates from the Low Markets in the Silk District. And the third fragment, the largest one, is still being held in the crown's own Debt Hall. The Keeper is keeping it under lock and key, listed under the false name.\"\nThe agent's eyes search the Pawnbroker's face. \"A month's share is the price for the risk. You will have to infiltrate the Jade District's social circles, negotiate with a broker who has seen every kind of desperation, and—if you are truly foolish—attempt to extract information from the crown's most dangerous servant.\"\nShe folds her arms. \"If you want a higher price, you'll have to explain why you're worth it. Tell me what you have that can buy seven years of a queen's life back from the shadows.\""
+    },
+    {
+      "messageId": 7,
+      "speaker": "The Queen's Agent",
+      "text": "*The agent's face remains impassive, though there is a cold stillness to her posture that suggests she has considered the word 'insult' and found it wanting.*\n\"The original pawn ticket is not mine to give,\" *she says, her voice measured.* \"It rests in the Keeper of Debts' private vault, where it has remained for years. The palace does not part with such things lightly—nor with its secrets.\"\n*She leans forward slightly, her tone shifting from command to something more like a confidence shared in the shadow of the counter.* \"If you seek a starting point, begin with the Silk District. Mira Vane, the broker there, has handled more pawned childhoods than most citizens have had years of their own. She will not give you names freely, but she will tell you which houses are trading in royal fragments and what currencies they accept.\"\n*The agent pauses, her gaze unwavering.* \"And as for the price—you mistake the offer for a wage. It is not. A month's share of a queen's childhood is a commodity of immense value in the memory market. But the true payment for this commission is something else entirely.\"\n*She straightens, returning to her formal bearing.* \"When the years are recovered, your name will be stricken from every ledger-house in this city. Your debts—public, private, and secret—will be erased. You will walk the streets as no one else does: with a clean slate.\""
+    }
+  ],
+  "speakers": [
+    "The Pawnbroker",
+    "The Queen's Agent"
+  ],
+  "notes": [],
+  "generations": {
+    "count": 3,
+    "types": [
+      "normal",
+      "normal",
+      "normal"
+    ],
+    "quiet": 0,
+    "dryRuns": 0,
+    "drafted": [
+      "The Pawnbroker",
+      "The Queen's Agent"
+    ],
+    "received": [
+      {
+        "messageId": 6,
+        "type": "normal"
+      },
+      {
+        "messageId": 7,
+        "type": "normal"
+      }
+    ]
+  },
+  "multiGeneration": true,
+  "checkpoint": {
+    "before": {
+      "id": "start",
+      "name": "Start"
+    },
+    "after": {
+      "id": "start",
+      "name": "Start"
+    },
+    "changed": false
+  },
+  "boundary": {
+    "from": 2,
+    "to": 4
+  },
+  "blackboard": {
+    "count": 0,
+    "changed": {}
+  },
+  "journal": [
+    {
+      "at": "2026-10-02T11:09:16.288Z",
+      "boundary": 2,
+      "messageId": 5,
+      "kind": "payload",
+      "summary": "2 story blocks injected (generation)",
+      "detail": {
+        "keys": [
+          "story_orchestrator_scene@1",
+          "story_orchestrator_guidance@4"
+        ]
+      }
+    },
+    {
+      "at": "2026-10-02T11:09:16.345Z",
+      "boundary": 2,
+      "messageId": 5,
+      "kind": "payload",
+      "summary": "3 story blocks injected (generation)",
+      "detail": {
+        "keys": [
+          "story_orchestrator_scene@1",
+          "story_orchestrator_epistemic@4",
+          "story_orchestrator_guidance@4"
+        ]
+      }
+    },
+    {
+      "at": "2026-10-02T11:09:16.822Z",
+      "boundary": 2,
+      "messageId": 5,
+      "kind": "judge",
+      "summary": "judge lore in 300 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 5,
+        "stateChars": 5341,
+        "latencyMs": 300,
+        "inputTokens": 2758,
+        "outputTokens": 94,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "The Queen's Stolen Childhood": 0.9,
+          "The Pawnshop of Forgotten Days": 0.78,
+          "The Memory-Debt System": 0.77,
+          "The City of Ledgers": 0.67
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:09:56.588Z",
+      "boundary": 2,
+      "messageId": 7,
+      "kind": "payload",
+      "summary": "3 story blocks injected (generation)",
+      "detail": {
+        "keys": [
+          "story_orchestrator_scene@1",
+          "story_orchestrator_epistemic@4",
+          "story_orchestrator_guidance@4"
+        ]
+      }
+    },
+    {
+      "at": "2026-10-02T11:09:56.891Z",
+      "boundary": 2,
+      "messageId": 6,
+      "kind": "judge",
+      "summary": "judge lore in 253 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 5,
+        "stateChars": 6838,
+        "latencyMs": 253,
+        "inputTokens": 3108,
+        "outputTokens": 94,
+        "p": {
+          "trigger": "GENERATION_STARTED",
+          "The Queen's Stolen Childhood": 0.88,
+          "The Palace of Settled Debts": 0.8,
+          "The Memory-Debt System": 0.77,
+          "The Pawnshop of Forgotten Days": 0.75
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:10:51.061Z",
+      "boundary": 3,
+      "messageId": 6,
+      "kind": "boundary",
+      "summary": "boundary 3: nothing applied (gate)",
+      "detail": {
+        "source": "gate",
+        "applied": [],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T11:10:51.274Z",
+      "boundary": 4,
+      "messageId": 7,
+      "kind": "boundary",
+      "summary": "boundary 4: nothing applied (gate)",
+      "detail": {
+        "source": "gate",
+        "applied": [],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T11:10:51.555Z",
+      "boundary": 3,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge warden in 255 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 1,
+        "stateChars": 1650,
+        "latencyMs": 255,
+        "inputTokens": 850,
+        "outputTokens": 17,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "agency": 0.03
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:10:51.558Z",
+      "boundary": 3,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge scene in 268 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 11,
+        "stateChars": 9622,
+        "latencyMs": 268,
+        "inputTokens": 3467,
+        "outputTokens": 339,
+        "p": {
+          "break": 0.06
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:10:51.787Z",
+      "boundary": 3,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge wardenLore in 234 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 5,
+        "stateChars": 4611,
+        "latencyMs": 234,
+        "inputTokens": 1741,
+        "outputTokens": 99,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 5,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:10:56.611Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T11:10:56.611Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 6444,
+        "samplers": "applied",
+        "usage": {
+          "input": 3462,
+          "output": 1535,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@07h56m54s743ms",
+        "messageId": 7
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:03.089Z",
+      "boundary": -1,
+      "messageId": 6,
+      "kind": "extraction",
+      "summary": "read cadence msgs 0-6 → 6 accepted, 0 rejected",
+      "detail": {
+        "auditId": "e809b615",
+        "scope": [
+          "memory_debt",
+          "pawnbroker_leverage",
+          "queen_trust",
+          "recovered_memory",
+          "secret_known",
+          "tension_current"
+        ],
+        "accepted": [
+          "memory_debt=0",
+          "pawnbroker_leverage=3",
+          "queen_trust=0",
+          "recovered_memory=0",
+          "secret_known=false",
+          "tension_current=0.5"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:03.089Z",
+      "boundary": -1,
+      "messageId": 6,
+      "kind": "delta",
+      "summary": "memory_debt = 0",
+      "detail": {
+        "auditId": "e809b615",
+        "evidence": "The crown has a debt to collect, and the ledger says you are the only hand in this city that can reach it.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:03.089Z",
+      "boundary": -1,
+      "messageId": 6,
+      "kind": "delta",
+      "summary": "pawnbroker_leverage = 3",
+      "detail": {
+        "auditId": "e809b615",
+        "evidence": "the ledger says you are the only hand in this city that can reach it",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:03.089Z",
+      "boundary": -1,
+      "messageId": 6,
+      "kind": "delta",
+      "summary": "queen_trust = 0",
+      "detail": {
+        "auditId": "e809b615",
+        "evidence": "The crown is prepared to allow you a share of the retrieval.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:03.089Z",
+      "boundary": -1,
+      "messageId": 6,
+      "kind": "delta",
+      "summary": "recovered_memory = 0",
+      "detail": {
+        "auditId": "e809b615",
+        "evidence": "The queen's childhood was pawned. Years ago. It is no longer in one place, and it is no longer in the palace's keeping.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:03.089Z",
+      "boundary": -1,
+      "messageId": 6,
+      "kind": "delta",
+      "summary": "secret_known = false",
+      "detail": {
+        "auditId": "e809b615",
+        "evidence": "That was the price of a father's salvation, and a daughter's silence.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:03.089Z",
+      "boundary": -1,
+      "messageId": 6,
+      "kind": "delta",
+      "summary": "tension_current = 0.5",
+      "detail": {
+        "auditId": "e809b615",
+        "evidence": "If you want a higher price, you'll have to explain why you're worth it. Tell me what you have that can buy seven years of a queen's life back from the shadows.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:03.089Z",
+      "boundary": -1,
+      "messageId": 6,
+      "kind": "delta",
+      "summary": "queued memory_debt=0, pawnbroker_leverage=3, queen_trust=0, recovered_memory=0, secret_known=false, tension_current=0.5 for the next boundary",
+      "detail": {
+        "state": "queued",
+        "origin": "e809b615"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:03.529Z",
+      "boundary": 4,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 427 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 14,
+        "stateChars": 6698,
+        "latencyMs": 427,
+        "inputTokens": 3662,
+        "outputTokens": 260,
+        "p": {
+          "line:0": 0.79,
+          "line:1": 0.94,
+          "line:2": 0.98,
+          "line:3": 0.98,
+          "line:4": 0.95,
+          "line:5": 0.97,
+          "line:6": 0.97,
+          "line:7": 0.96,
+          "line:8": 0.92,
+          "line:9": 0.87,
+          "line:10": 0.96,
+          "line:11": 0.95,
+          "line:12": 0.97,
+          "line:13": 0.96
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:08.748Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T11:11:08.748Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 5030,
+        "samplers": "applied",
+        "usage": {
+          "input": 4152,
+          "output": 1025,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@07h56m54s743ms",
+        "messageId": 7
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:13.783Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "extraction",
+      "summary": "read scene:time_skip msgs 0-7 → 3 accepted, 0 rejected",
+      "detail": {
+        "auditId": "d9101390",
+        "scope": [
+          "memory_debt",
+          "pawnbroker_leverage",
+          "queen_trust",
+          "recovered_memory",
+          "secret_known",
+          "tension_current"
+        ],
+        "accepted": [
+          "pawnbroker_leverage=3",
+          "secret_known=true",
+          "tension_current=0.5"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:13.783Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "pawnbroker_leverage = 3",
+      "detail": {
+        "auditId": "d9101390",
+        "evidence": "Mira Vane, the broker there, has handled more pawned childhoods than most citizens have had years of their own.",
+        "reason": "scene:time_skip"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:13.783Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "secret_known = true",
+      "detail": {
+        "auditId": "d9101390",
+        "evidence": "That was the price of a father's salvation, and a daughter's silence.",
+        "reason": "scene:time_skip"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:13.783Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "tension_current = 0.5",
+      "detail": {
+        "auditId": "d9101390",
+        "evidence": "If you want a higher price, you'll have to explain why you're worth it. Tell me what you have that can buy seven years of a queen's life back from the shadows.",
+        "reason": "scene:time_skip"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:13.783Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "queued pawnbroker_leverage=3, secret_known=true, tension_current=0.5 for the next boundary",
+      "detail": {
+        "state": "queued",
+        "origin": "d9101390"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:14.098Z",
+      "boundary": 4,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 306 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 8145,
+        "latencyMs": 306,
+        "inputTokens": 3235,
+        "outputTokens": 148,
+        "p": {
+          "line:0": 0.84,
+          "line:1": 0.93,
+          "line:2": 0.96,
+          "line:3": 0.97,
+          "line:4": 0.92,
+          "line:5": 0.94,
+          "line:6": 0.98,
+          "line:7": 0.53
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:16.131Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T11:11:16.131Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 4894,
+        "samplers": "applied",
+        "usage": {
+          "input": 4251,
+          "output": 1100,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@07h56m54s743ms",
+        "messageId": 7
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:21.028Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "extraction",
+      "summary": "read scene:time_skip msgs 0-7 → 3 accepted, 0 rejected",
+      "detail": {
+        "auditId": "6eed969b",
+        "scope": [
+          "memory_debt",
+          "pawnbroker_leverage",
+          "queen_trust",
+          "recovered_memory",
+          "secret_known",
+          "tension_current"
+        ],
+        "accepted": [
+          "pawnbroker_leverage=3",
+          "secret_known=true",
+          "tension_current=0.5"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:21.028Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "pawnbroker_leverage = 3",
+      "detail": {
+        "auditId": "6eed969b",
+        "evidence": "Mira Vane, the broker there, has handled more pawned childhoods than most citizens have had years of their own.",
+        "reason": "scene:time_skip"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:21.028Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "secret_known = true",
+      "detail": {
+        "auditId": "6eed969b",
+        "evidence": "That was the price of a father's salvation, and a daughter's silence.",
+        "reason": "scene:time_skip"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:21.028Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "tension_current = 0.5",
+      "detail": {
+        "auditId": "6eed969b",
+        "evidence": "If you want a higher price, you'll have to explain why you're worth it. Tell me what you have that can buy seven years of a queen's life back from the shadows?",
+        "reason": "scene:time_skip"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:21.028Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "delta",
+      "summary": "queued pawnbroker_leverage=3, secret_known=true, tension_current=0.5 for the next boundary",
+      "detail": {
+        "state": "queued",
+        "origin": "6eed969b"
+      }
+    },
+    {
+      "at": "2026-10-02T11:11:21.339Z",
+      "boundary": 4,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 306 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 9,
+        "stateChars": 8145,
+        "latencyMs": 306,
+        "inputTokens": 3329,
+        "outputTokens": 166,
+        "p": {
+          "line:0": 0.95,
+          "line:1": 0.76,
+          "line:2": 0.97,
+          "line:3": 0.9,
+          "line:4": 0.81,
+          "line:5": 0.86,
+          "line:6": 0.97,
+          "line:7": 0.88,
+          "line:8": 0.94
+        }
+      }
+    }
+  ],
+  "rollback": {
+    "happened": false,
+    "from": [],
+    "outcome": null,
+    "notice": null,
+    "unavailable": null,
+    "boundary": {
+      "from": 2,
+      "to": 4
+    },
+    "checkpoint": {
+      "from": {
+        "id": "start",
+        "name": "Start"
+      },
+      "to": {
+        "id": "start",
+        "name": "Start"
+      }
+    },
+    "events": []
+  },
+  "pipeline": {
+    "state": "idle",
+    "text": "Following along.",
+    "detail": null
+  },
+  "scheduler": {
+    "queueDepth": 0,
+    "inFlight": false,
+    "lastError": null,
+    "heavyQueueDepth": 0,
+    "heavyInFlight": false,
+    "lastHeavyError": null
+  },
+  "send": {
+    "sent": "A month is an insult. Show me the original pawn ticket, or tell me which district's ledger I should start with.",
+    "messagesBefore": 5,
+    "messagesAfter": 8,
+    "newMessages": 3,
+    "replied": true,
+    "lastSpeaker": "The Queen's Agent",
+    "lastLength": 1378,
+    "round": {
+      "settled": true,
+      "polls": 16,
+      "open": false,
+      "waitedMs": 4259,
+      "passes": 1
+    },
+    "overlays": {
+      "before": {
+        "drawerOpen": false,
+        "popups": 0
+      },
+      "after": {
+        "drawerOpen": false,
+        "popups": 0
+      },
+      "ok": true
+    }
+  },
+  "timing": {
+    "actMs": 102361,
+    "settleMs": 29513,
+    "totalMs": 131893
+  },
+  "modelDefect": null,
+  "modelDefects": [],
+  "autoRepair": null,
+  "ensured": {
+    "chatId": "2026-10-02@07h56m54s743ms",
+    "reopened": false
+  },
+  "observe": {
+    "chatId": "2026-10-02@07h56m54s743ms",
+    "groupId": "1790938614745",
+    "group": "The Pawnbroker of Forgotten Days",
+    "storyId": "the-pawnbroker-of-forgotten-days",
+    "activeCheckpointId": "start",
+    "boundary": 4,
+    "folded": null,
+    "payloadEpoch": "1790938082582-abox28",
+    "context": [
+      {
+        "id": 0,
+        "name": "The Pawnbroker",
+        "isUser": false,
+        "text": "The bell over the shop door rings once, and the Pawnbroker looks up from the ledger without hurry. The figure in the doorway is dressed too well for this street, and carries a sealed writ the way other people carry a weapon.\n\n\"We're closed,\" the Pawnbroker says, and turns a page. \"Unless you've come to pawn something. In which case we're open, and I'll want to know how many years, and whether you've pawned them before.\"\n\nThe writ slides across the counter. The Pawnbroker does not touch it yet. Outside, the city's memory-lamps gutter in the rain, and somewhere down the street a debt collector is calling in someone's childhood."
+      },
+      {
+        "id": 1,
+        "name": "The Queen's Agent",
+        "isUser": false,
+        "text": "The bell over the shop door does not ring so much as sigh. The woman who steps in is dressed for the court but stands like someone who has spent years in rooms where the wrong word costs a year of your life.\n\nShe sets a sealed writ on the counter between you, and beside it a purse that is far too light for the errand she is about to describe.\n\n\"You are the pawnbroker,\" she says. It is not a question. \"The crown has a debt to collect, and the ledger says you are the only hand in this city that can reach it.\"\n\nHer eyes move once around the shop — the shelves of stoppered years, the tags in your own handwriting — and come back to you.\n\n\"The queen's childhood was pawned. Years ago. It is no longer in one place, and it is no longer in the palace's keeping. I am here to commission its recovery.\" She folds her hands. \"Name your terms, and I will tell you what the crown will and will not pay.\""
+      },
+      {
+        "id": 2,
+        "name": "Max Nightriver",
+        "isUser": true,
+        "text": "I set down my loupe and break the seal on the writ. Whose ledger was the queen's childhood pawned against, and how many years does the crown think it is worth?"
+      },
+      {
+        "id": 3,
+        "name": "The Pawnbroker",
+        "isUser": false,
+        "text": "The Pawnbroker reads the writ in silence. Outside, rain drums against the shop shutters, and the memory-lamps along the street flicker. The Pawnbroker sets the paper flat on the counter and taps it once.\n\"Seven years. That's what the crown says it lost.\" The Pawnbroker's voice is flat, like a banker reciting a balance sheet. \"Seven years of a girl's life, pawned before she could pronounce 'your majesty.' And as for the ledger—the original entry was made against a name that no longer exists. Or never existed.\"\nThe Pawnbroker glances at the agent. \"The crown's own Keeper of Debts has been scrubbing the records. Some entries are gone entirely. Others are broken into pieces, traded like coin, diluted with each transfer. One piece is in the hands of a merchant-prince's daughter. Another is held by a memory-broker who specializes in first kisses. And the largest fragment is still in the Keeper's own vault, under a name that doesn't match the queen's.\"\nThe Pawnbroker slides the writ back across the counter. \"You're not asking for a retrieval. You're asking for a puzzle to be solved. And every piece that comes back won't be the piece that left. A memory returned after years in circulation is like a coin that's been worn thin. The edges are frayed. The details are blurred.\"\nThe Pawnbroker pauses, and for a moment their eyes wander to the shelves of stoppered jars. \"The crown pays in gold and titles. I don't care about either. But I do care about the ledger. If I find these years, I'll want a share of the memory for the shop's collection. A small piece. Just to see what a queen's childhood tastes like.\""
+      },
+      {
+        "id": 4,
+        "name": "The Queen's Agent",
+        "isUser": false,
+        "text": "\"Seven years,\" the agent says softly. \"That was the price of a father's salvation, and a daughter's silence.\"\nShe lets that slip, then catches it, her expression as smooth as court marble.\n\"The crown is prepared to allow you a share of the retrieval. A single month from the recovered years, entered into your ledger under the shop's name. That is my final offer.\" She does not blink. \"The remaining months must be restored to the palace, piece by piece. And you will find that some of these fragments are held by people who would rather the queen forget entirely.\"\nShe produces a second sheet from her cloak, this one not sealed, but marked with three names in ink so black it seems to pull at the light.\n\"Start here. The daughter of Merchant-Prince Voss holds the first fragment: a summer afternoon in the palace gardens, age four. She is sentimental, and she values rarity over coin. She will likely accept a trade, but only if the offering is as precious as the memory itself.\" The agent slides the paper across the counter. \"And a warning—the woman who holds the second piece is the very broker who brokered the first. She knows the shape of the debt in a way others do not. Be cautious. This is not merely a collection. It is an unmaking.\""
+      },
+      {
+        "id": 5,
+        "name": "Max Nightriver",
+        "isUser": true,
+        "text": "A month is an insult. Show me the original pawn ticket, or tell me which district's ledger I should start with."
+      },
+      {
+        "id": 6,
+        "name": "The Pawnbroker",
+        "isUser": false,
+        "text": "The Queen's Agent: The agent's jaw tightens, a flicker of frustration breaking through the polished mask. She looks at the list on the counter, then at the Pawnbroker.\n\"The original ticket is in the Keeper of Debts' private vault. If you want to see it, you will have to make an appointment with the woman who spends her nights editing the crown's history. I suggest you don't.\" Her voice drops, barely above a whisper. \"The Keeper does not like being reminded of things she has tried to forget.\"\nShe taps the list with one finger. \"The daughter of Merchant-Prince Voss lives in the Jade District, where the wealthy hoard memories like pearls. The memory-broker, the woman who handled the original transaction, operates from the Low Markets in the Silk District. And the third fragment, the largest one, is still being held in the crown's own Debt Hall. The Keeper is keeping it under lock and key, listed under the false name.\"\nThe agent's eyes search the Pawnbroker's face. \"A month's share is the price for the risk. You will have to infiltrate the Jade District's social circles, negotiate with a broker who has seen every kind of desperation, and—if you are truly foolish—attempt to extract information from the crown's most dangerous servant.\"\nShe folds her arms. \"If you want a higher price, you'll have to explain why you're worth it. Tell me what you have that can buy seven years of a queen's life back from the shadows.\""
+      },
+      {
+        "id": 7,
+        "name": "The Queen's Agent",
+        "isUser": false,
+        "text": "*The agent's face remains impassive, though there is a cold stillness to her posture that suggests she has considered the word 'insult' and found it wanting.*\n\"The original pawn ticket is not mine to give,\" *she says, her voice measured.* \"It rests in the Keeper of Debts' private vault, where it has remained for years. The palace does not part with such things lightly—nor with its secrets.\"\n*She leans forward slightly, her tone shifting from command to something more like a confidence shared in the shadow of the counter.* \"If you seek a starting point, begin with the Silk District. Mira Vane, the broker there, has handled more pawned childhoods than most citizens have had years of their own. She will not give you names freely, but she will tell you which houses are trading in royal fragments and what currencies they accept.\"\n*The agent pauses, her gaze unwavering.* \"And as for the price—you mistake the offer for a wage. It is not. A month's share of a queen's childhood is a commodity of immense value in the memory market. But the true payment for this commission is something else entirely.\"\n*She straightens, returning to her formal bearing.* \"When the years are recovered, your name will be stricken from every ledger-house in this city. Your debts—public, private, and secret—will be erased. You will walk the streets as no one else does: with a clean slate.\""
+      }
+    ]
+  }
+}

@@ -1,0 +1,84 @@
+ok   build.head  "8540deb94a8c32b6c93e8e2f6599c9c7523a55bc" -> "2d47916bff6c670314f26f2397184c464721c6d5"  (allowed by served-bundle b644cbb7ad01be3a)
+ok   build.manifest.builtAt  "2026-10-02T10:16:24.141Z" -> "2026-10-02T11:12:39.887Z"  (allowed by served-bundle b644cbb7ad01be3a)
+ok   build.manifest.bundleBytes  1245954 -> 1057820  (allowed by served-bundle b644cbb7ad01be3a)
+ok   build.manifest.bundleSha256  "0cec836f2103f58b1a101a4dd10db3603cebe6456e49d95c523afa53a991f0cb" -> "7691f41d4cdc310ca357e5585e5efde0f45efe3646b7ff0b437d5f05e5c93189"  (allowed by served-bundle b644cbb7ad01be3a)
+ok   build.manifest.fileSha256  "37389b568aea2112" -> "f618573567b62a8a"  (allowed by served-bundle b644cbb7ad01be3a)
+ok   build.manifest.sourceFiles  548 -> 549  (allowed by served-bundle b644cbb7ad01be3a)
+ok   build.manifest.sourceSha256  "81faeb8d30ff1cf021dd891cd04ff339c195eaa54e3373c9e6f394c43bbb1b90" -> "45646983c5ba11834724e2e298abcafe8b3c201dc246f14915e5b69845714e7c"  (allowed by served-bundle b644cbb7ad01be3a)
+ok   chat.chatId  null -> "2026-10-02@08h03m21s586ms"  (allowed by chatId)
+ok   chat.chatLength  2 -> 9  (allowed by progress)
+ok   chat.groupId  null -> "1790939001589"  (allowed by groupId)
+ok   group.members  +Mirek.png +Sable.png +Vaelrith.png  (allowed by group)
+ok   group.name  null -> "The Hoard of the Dead Dragon — Crew"  (allowed by group)
+ok   inventory.characterCount  163 -> 171  (allowed by inventory.characterCount=+8)
+ok   inventory.groupChats  +1790938614745/2026-10-02@07h56m54s743ms +1790939001589/2026-10-02@08h03m21s586ms  (allowed by inventory.groupChats:+1790938614745/2026-10-02@07h56m54s743ms)
+ok   inventory.groups  +1790938614745@The Pawnbroker of Forgotten Days +1790939001589@The Hoard of the Dead Dragon — Crew  (allowed by inventory.groups:+1790939001589)
+ok   inventory.lorebookCount  24 -> 26  (allowed by inventory.lorebookCount=+2)
+ok   inventory.lorebooksSelected  +The Hoard of the Dead Dragon +The Pawnbroker of Forgotten Days  (allowed by inventory.lorebooksSelected:+The Hoard of the Dead Dragon)
+ok   inventory.v2Stories  +the-hoard-of-the-dead-dragon@1 +the-pawnbroker-of-forgotten-days@1  (allowed by inventory.v2Stories:+the-pawnbroker-of-forgotten-days)
+ok   inventory.wizardApplied  +the-hoard-of-the-dead-dragon/Mirek +the-hoard-of-the-dead-dragon/Sable +the-hoard-of-the-dead-dragon/The Hoard of the Dead Dragon +the-hoard-of-the-dead-dragon/Vaelrith +the-pawnbroker-of-forgotten-days/The Archivist +the-pawnbroker-of-forgotten-days/The Memory Broker +the-pawnbroker-of-forgotten-days/The Pawnbroker +the-pawnbroker-of-forgotten-days/The Pawnbroker of Forgotten Days +the-pawnbroker-of-forgotten-days/The Queen +the-pawnbroker-of-forgotten-days/The Queen's Agent  (allowed by inventory.wizardApplied:+the-hoard-of-the-dead-dragon/The Hoard of the Dead Dragon)
+ok   inventory.wizardSessions  +draft-muqubabr-trupno +draft-muqunrun-zwddob +the-hoard-of-the-dead-dragon +the-pawnbroker-of-forgotten-days  (allowed by inventory.wizardSessions:+draft-muqunrun-zwddob)
+ok   story.activeCheckpointId  null -> "start"  (allowed by progress)
+ok   story.boundary  null -> 4  (allowed by progress)
+ok   story.contentHash  null -> "v2-577877f2"  (allowed by story)
+ok   story.id  null -> "the-hoard-of-the-dead-dragon"  (allowed by story)
+ok   story.playedVersion  null -> 1  (allowed by story)
+ok   story.title  null -> "The Hoard of the Dead Dragon"  (allowed by story)
+WARNING: the page is running a bundle that is not the built one: served b644cbb7ad01be3a vs dist 7691f41d4cdc310c
+ok   warnings  +the page is running a bundle that is not the built one: served b644cbb7ad01be3a vs dist 7691f41d4cdc310c -the page is running a bundle that is not the built one: served b644cbb7ad01be3a vs dist 0cec836f2103f58b  (allowed by served-bundle b644cbb7ad01be3a)
+{
+  "baseline": "C:\\dev\\story-orchestrator\\test\\sessions\\T5\\T5-2-2\\run-header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "chatId",
+    "groupId",
+    "authorView",
+    "story",
+    "group",
+    "inventory.journal",
+    "inventory.groupChats:+1790938614745/2026-10-02@07h56m54s743ms",
+    "inventory.groupChats:+1790939001589/2026-10-02@08h03m21s586ms",
+    "inventory.wizardSessions:+draft-muqunrun-zwddob",
+    "inventory.wizardSessions:+the-hoard-of-the-dead-dragon",
+    "inventory.wizardSessions:+draft-muqubabr-trupno",
+    "inventory.wizardSessions:+the-pawnbroker-of-forgotten-days",
+    "inventory.v2Stories:+the-pawnbroker-of-forgotten-days",
+    "inventory.v2Stories:+the-hoard-of-the-dead-dragon",
+    "inventory.lorebooksSelected:+The Hoard of the Dead Dragon",
+    "inventory.lorebooksSelected:+The Pawnbroker of Forgotten Days",
+    "inventory.lorebookCount=+2",
+    "inventory.characterCount=+8",
+    "inventory.wizardApplied:+the-hoard-of-the-dead-dragon/The Hoard of the Dead Dragon",
+    "inventory.wizardApplied:+the-hoard-of-the-dead-dragon/Vaelrith",
+    "inventory.wizardApplied:+the-hoard-of-the-dead-dragon/Sable",
+    "inventory.wizardApplied:+the-hoard-of-the-dead-dragon/Mirek",
+    "inventory.wizardApplied:+the-pawnbroker-of-forgotten-days/The Pawnbroker of Forgotten Days",
+    "inventory.wizardApplied:+the-pawnbroker-of-forgotten-days/The Pawnbroker",
+    "inventory.wizardApplied:+the-pawnbroker-of-forgotten-days/The Queen's Agent",
+    "inventory.wizardApplied:+the-pawnbroker-of-forgotten-days/The Queen",
+    "inventory.wizardApplied:+the-pawnbroker-of-forgotten-days/The Memory Broker",
+    "inventory.wizardApplied:+the-pawnbroker-of-forgotten-days/The Archivist",
+    "inventory.groups:+1790939001589",
+    "inventory.groups:+1790938614745"
+  ],
+  "differences": 27,
+  "progress": 3,
+  "blocking": 0,
+  "blockingPaths": [],
+  "servedIdentity": [
+    "build.head",
+    "build.manifest.builtAt",
+    "build.manifest.bundleBytes",
+    "build.manifest.bundleSha256",
+    "build.manifest.fileSha256",
+    "build.manifest.sourceFiles",
+    "build.manifest.sourceSha256",
+    "warnings"
+  ],
+  "warnings": [
+    "the page is running a bundle that is not the built one: served b644cbb7ad01be3a vs dist 0cec836f2103f58b",
+    "the page is running a bundle that is not the built one: served b644cbb7ad01be3a vs dist 7691f41d4cdc310c"
+  ],
+  "wrote": "C:\\dev\\story-orchestrator\\test\\sessions\\T5\\T5-2-2\\run-header-end.json",
+  "ok": true
+}

@@ -1,0 +1,363 @@
+Following the session journal → C:\dev\story-orchestrator\test\sessions\T5\T5-2-2\journal.jsonl every 1000 ms. Ctrl-C to stop.
+2026-10-02T10:48:02.527Z session      chat null · story none · at — (boundary 0, 2 messages)
+2026-10-02T10:48:36.422Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:48:39.795Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:48:41.170Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:48:43.110Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:48:44.460Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:48:46.546Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:48:48.176Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:48:49.562Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:48:51.009Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:48:53.428Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:48:55.728Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:48:58.328Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:00.570Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:03.068Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:04.396Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:06.089Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:07.605Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:09.096Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:11.607Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:13.084Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:14.769Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:16.303Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:17.722Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:19.270Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:20.712Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:22.272Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:23.655Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:25.051Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:26.593Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:27.997Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:29.509Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:31.021Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:32.766Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:34.304Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:36.197Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:37.597Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:39.083Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:41.445Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:49:43.728Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:50:08.172Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:50:31.988Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:51:03.723Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:51:17.142Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:51:27.810Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:51:40.713Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:51:53.232Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:04.812Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:06.406Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:08.118Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:09.912Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:11.833Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:13.642Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:15.842Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:17.457Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:19.021Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:20.808Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:22.514Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:24.339Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:26.731Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:29.694Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:31.500Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:33.668Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:35.451Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:36.966Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:38.399Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:40.051Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:41.741Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:43.207Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:45.774Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:47.331Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:48.783Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:51.022Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:53.021Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:54.544Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:56.209Z story        wizard session save not confirmed
+2026-10-02T10:52:56.555Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:52:58.782Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:53:00.262Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:53:02.504Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:53:04.251Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:53:06.005Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:24.190Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:26.786Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:28.331Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:29.893Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:31.456Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:32.914Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:34.414Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:35.912Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:37.539Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:39.042Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:40.485Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:42.117Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:43.578Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:45.179Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:46.706Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:48.409Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:49.917Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:51.506Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:52.991Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:54.430Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:56.163Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:57.123Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:55:58.560Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:56:00.137Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:56:14.062Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:56:27.713Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:56:40.959Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:56:55.287Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:56:57.174Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:56:58.723Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:56:59.714Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:57:01.091Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:57:02.710Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:57:04.275Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:57:06.093Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:18.989Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:26.515Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:29.616Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:31.160Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:32.856Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:34.866Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:36.761Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:38.198Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:40.001Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:41.629Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:43.142Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:44.763Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:46.248Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:47.746Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:49.347Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:50.869Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:52.455Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:53.920Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:55.582Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:56.997Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:58:58.930Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:00.567Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:02.117Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:03.935Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:05.460Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:06.969Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:13.430Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:14.265Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:15.742Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:17.243Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:19.439Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:20.786Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:22.152Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:23.668Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:25.163Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:26.618Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:28.350Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:29.725Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:31.108Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:32.663Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:34.057Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:36.028Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:37.863Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:57.428Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T10:59:59.065Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:00.717Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:02.272Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:03.725Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:09.436Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:10.934Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:12.729Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:14.342Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:16.041Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:17.955Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:19.560Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:21.309Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:22.905Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:24.417Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:25.945Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:27.374Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:28.826Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:30.255Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:33.348Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:34.743Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:36.397Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:37.906Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:39.711Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:41.604Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:43.381Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:45.347Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:47.129Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:49.420Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:51.018Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:52.536Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:54.487Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:55.939Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:57.771Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:00:59.348Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:01:01.251Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:01:03.030Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:01:04.972Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:01:16.238Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:01:36.012Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:01:47.061Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:02:02.843Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:02:13.732Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:02:25.739Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:02:41.209Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:09.690Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:22.083Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:23.708Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:25.797Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:27.137Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:28.610Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:29.970Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:31.977Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:33.449Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:34.992Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:37.872Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:39.635Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:42.761Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:44.455Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:46.307Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:49.113Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:51.012Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:53.688Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:55.372Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:56.835Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:03:59.126Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:01.335Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:02.811Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:04.999Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:06.384Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:08.710Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:10.875Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:12.208Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:14.228Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:15.970Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:17.847Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:19.727Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:22.668Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:24.219Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:25.591Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:04:27.177Z model-call   copilot via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:06:40.947Z session      chat 2026-10-02@07h56m54s743ms · story none · at — (boundary 0, 2 messages)
+2026-10-02T11:07:02.436Z session      chat 2026-10-02@07h56m54s743ms · story the-pawnbroker-of-forgotten-days · at Start (boundary 0, 2 messages)
+2026-10-02T11:07:03.396Z story        background effect could not be applied
+2026-10-02T11:07:03.413Z story        away recap not due
+2026-10-02T11:07:03.634Z status       Started The Pawnbroker of Forgotten Days
+2026-10-02T11:07:38.930Z payload      1 story blocks injected (generation)
+2026-10-02T11:07:38.989Z payload      2 story blocks injected (generation)
+2026-10-02T11:07:39.630Z judge        judge lore in 312 ms
+2026-10-02T11:08:25.298Z payload      2 story blocks injected (generation)
+2026-10-02T11:08:25.620Z judge        judge lore in 276 ms
+2026-10-02T11:08:59.009Z boundary     boundary 1: nothing applied (gate)
+2026-10-02T11:08:59.138Z status       Following Start
+2026-10-02T11:08:59.154Z boundary     boundary 2: nothing applied (gate)
+2026-10-02T11:08:59.450Z judge        judge warden in 278 ms
+2026-10-02T11:08:59.457Z judge        judge scene in 287 ms
+2026-10-02T11:09:02.607Z judge        judge wardenLore in 3158 ms
+2026-10-02T11:09:16.288Z payload      2 story blocks injected (generation)
+2026-10-02T11:09:16.345Z payload      3 story blocks injected (generation)
+2026-10-02T11:09:16.822Z judge        judge lore in 300 ms
+2026-10-02T11:09:56.588Z payload      3 story blocks injected (generation)
+2026-10-02T11:09:56.891Z judge        judge lore in 253 ms
+2026-10-02T11:10:51.061Z boundary     boundary 3: nothing applied (gate)
+2026-10-02T11:10:51.274Z boundary     boundary 4: nothing applied (gate)
+2026-10-02T11:10:51.555Z judge        judge warden in 255 ms
+2026-10-02T11:10:51.558Z judge        judge scene in 268 ms
+2026-10-02T11:10:51.787Z judge        judge wardenLore in 234 ms
+2026-10-02T11:10:56.611Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:11:03.529Z judge        judge memoryVerify in 427 ms
+2026-10-02T11:11:04.083Z delta        queued memory_debt=0, pawnbroker_leverage=3, queen_trust=0, recovered_memory=0, secret_known=false, tension_current=0.5 for the next boundary
+2026-10-02T11:11:03.089Z extraction   read cadence msgs 0-6 → 6 accepted, 0 rejected
+2026-10-02T11:11:03.089Z delta        memory_debt = 0
+2026-10-02T11:11:03.089Z delta        pawnbroker_leverage = 3
+2026-10-02T11:11:03.089Z delta        queen_trust = 0
+2026-10-02T11:11:03.089Z delta        recovered_memory = 0
+2026-10-02T11:11:03.089Z delta        secret_known = false
+2026-10-02T11:11:03.089Z delta        tension_current = 0.5
+2026-10-02T11:11:03.089Z delta        queued memory_debt=0, pawnbroker_leverage=3, queen_trust=0, recovered_memory=0, secret_known=false, tension_current=0.5 for the next boundary
+2026-10-02T11:11:03.089Z audit        audit cadence msgs 0-6 scope [memory_debt, pawnbroker_leverage, queen_trust, recovered_memory, secret_known, tension_current] → 6 accepted, 0 rejected
+2026-10-02T11:11:08.748Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:11:14.098Z judge        judge memoryVerify in 306 ms
+2026-10-02T11:11:14.363Z delta        queued pawnbroker_leverage=3, secret_known=true, tension_current=0.5 for the next boundary
+2026-10-02T11:11:13.783Z extraction   read scene:time_skip msgs 0-7 → 3 accepted, 0 rejected
+2026-10-02T11:11:13.783Z delta        pawnbroker_leverage = 3
+2026-10-02T11:11:13.783Z delta        secret_known = true
+2026-10-02T11:11:13.783Z delta        tension_current = 0.5
+2026-10-02T11:11:13.783Z delta        queued pawnbroker_leverage=3, secret_known=true, tension_current=0.5 for the next boundary
+2026-10-02T11:11:13.783Z audit        audit scene:time_skip msgs 0-7 scope [memory_debt, pawnbroker_leverage, queen_trust, recovered_memory, secret_known, tension_current] → 3 accepted, 0 rejected
+2026-10-02T11:11:16.131Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:11:21.339Z judge        judge memoryVerify in 306 ms
+2026-10-02T11:11:21.593Z delta        queued pawnbroker_leverage=3, secret_known=true, tension_current=0.5 for the next boundary
+2026-10-02T11:11:21.028Z extraction   read scene:time_skip msgs 0-7 → 3 accepted, 0 rejected
+2026-10-02T11:11:21.028Z delta        pawnbroker_leverage = 3
+2026-10-02T11:11:21.028Z delta        secret_known = true
+2026-10-02T11:11:21.028Z delta        tension_current = 0.5
+2026-10-02T11:11:21.028Z delta        queued pawnbroker_leverage=3, secret_known=true, tension_current=0.5 for the next boundary
+2026-10-02T11:11:21.028Z audit        audit scene:time_skip msgs 0-7 scope [memory_debt, pawnbroker_leverage, queen_trust, recovered_memory, secret_known, tension_current] → 3 accepted, 0 rejected
+2026-10-02T11:11:38.336Z flag         Pawnbroker smoke: the wizard made 'The Pawnbroker' an NPC card in the group while the Queen's Agent greeting addresses the player as the pawnbroker; msg 6 is posted as The Pawnbroker but starts 'The Queen's Agent:' and speaks her line (role confusion / speaker bleed)
+2026-10-02T11:11:43.205Z session      chat 2026-10-02@08h03m21s586ms · story none · at — (boundary 0, 3 messages)
+2026-10-02T11:11:57.802Z session      chat 2026-10-02@08h03m21s586ms · story the-hoard-of-the-dead-dragon · at Start (boundary 0, 3 messages)
+2026-10-02T11:11:58.044Z story        away recap not due
+2026-10-02T11:11:58.268Z status       Started The Hoard of the Dead Dragon
+2026-10-02T11:12:10.462Z payload      1 story blocks injected (generation)
+2026-10-02T11:12:10.511Z payload      2 story blocks injected (generation)
+2026-10-02T11:12:10.994Z judge        judge lore in 279 ms
+2026-10-02T11:12:54.040Z boundary     boundary 1: nothing applied (gate)
+2026-10-02T11:12:54.167Z status       Following Start
+2026-10-02T11:12:54.459Z judge        judge warden in 276 ms
+2026-10-02T11:12:54.460Z judge        judge scene in 279 ms
+2026-10-02T11:12:56.173Z judge        judge wardenLore in 1715 ms
+2026-10-02T11:13:10.516Z payload      2 story blocks injected (generation)
+2026-10-02T11:13:10.579Z payload      3 story blocks injected (generation)
+2026-10-02T11:13:11.169Z judge        judge lore in 283 ms
+2026-10-02T11:13:35.534Z payload      3 story blocks injected (generation)
+2026-10-02T11:13:35.855Z judge        judge lore in 278 ms
+2026-10-02T11:14:02.310Z payload      3 story blocks injected (generation)
+2026-10-02T11:14:02.614Z judge        judge lore in 251 ms
+2026-10-02T11:14:36.840Z boundary     boundary 2: nothing applied (gate)
+2026-10-02T11:14:36.985Z boundary     boundary 3: nothing applied (gate)
+2026-10-02T11:14:37.149Z boundary     boundary 4: nothing applied (gate)
+2026-10-02T11:14:37.272Z judge        judge warden in 264 ms
+2026-10-02T11:14:37.307Z judge        judge scene in 306 ms
+2026-10-02T11:14:41.287Z judge        judge wardenLore fell back (timeout) in 4016 ms
+2026-10-02T11:14:43.571Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:14:51.006Z judge        judge memoryVerify in 421 ms
+2026-10-02T11:14:51.337Z delta        queued dragon_trust=1, heist_progress=1, hoard_recovered=0, knights_alert=0 for the next boundary
+2026-10-02T11:14:50.581Z extraction   read cadence msgs 0-7 → 5 accepted, 0 rejected
+2026-10-02T11:14:50.581Z delta        dragon_trust = 1
+2026-10-02T11:14:50.581Z delta        heist_progress = 1
+2026-10-02T11:14:50.581Z delta        hoard_recovered = 0
+2026-10-02T11:14:50.581Z delta        knights_alert = 0
+2026-10-02T11:14:50.581Z delta        tension_current = 0.25
+2026-10-02T11:14:50.581Z delta        queued dragon_trust=1, heist_progress=1, hoard_recovered=0, knights_alert=0 for the next boundary
+2026-10-02T11:14:50.581Z audit        audit cadence msgs 0-7 scope [dragon_trust, heist_progress, hoard_recovered, knights_alert, tension_current] → 5 accepted, 0 rejected
+2026-10-02T11:14:53.668Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:14:55.001Z stagecraft   World Info curator proposed 1 change(s) at Start
+2026-10-02T11:14:55.393Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:14:57.055Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:14:59.572Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:15:36.042Z flag         MUST-NOT (assets shared): both wizard lorebooks are globally selected, so the Hoard story's always-in-context entries (Order of the Silver Lance, Vaelrith) are injected into every Pawnbroker main prompt (payloads.jsonl:478-481); the Hoard prompts carry no Pawnbroker entries only because those are keyword entries
+2026-10-02T11:15:48.728Z session      chat 2026-10-02@07h56m54s743ms · story the-pawnbroker-of-forgotten-days · at Start (boundary 4, 8 messages)
+2026-10-02T11:15:48.613Z story        host change "cast" was reverted when this chat reloaded
+2026-10-02T11:15:49.674Z story        background effect could not be applied
+2026-10-02T11:15:49.713Z story        away recap not due
+2026-10-02T11:15:50.365Z status       Continuing The Pawnbroker of Forgotten Days
+2026-10-02T11:15:48.899Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:15:57.916Z session      chat 2026-10-02@08h03m21s586ms · story the-hoard-of-the-dead-dragon · at Start (boundary 4, 9 messages)
+2026-10-02T11:15:57.643Z story        away recap not due
+2026-10-02T11:15:57.878Z status       Continuing The Hoard of the Dead Dragon
+2026-10-02T11:15:57.585Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T11:16:04.417Z delta        queued dragon_trust=1, heist_progress=1, hoard_recovered=0, knights_alert=0, tension_current=0.25 for the next boundary
+2026-10-02T11:16:04.517Z judge        judge memoryVerify in 338 ms
+2026-10-02T11:16:04.170Z extraction   read resume:dropped msgs 0-7 → 5 accepted, 0 rejected
+2026-10-02T11:16:04.170Z delta        dragon_trust = 1
+2026-10-02T11:16:04.170Z delta        heist_progress = 1
+2026-10-02T11:16:04.170Z delta        hoard_recovered = 0
+2026-10-02T11:16:04.170Z delta        knights_alert = 0
+2026-10-02T11:16:04.170Z delta        tension_current = 0.25
+2026-10-02T11:16:04.170Z delta        queued dragon_trust=1, heist_progress=1, hoard_recovered=0, knights_alert=0, tension_current=0.25 for the next boundary
+2026-10-02T11:16:04.170Z audit        audit resume:dropped msgs 0-7 scope [dragon_trust, heist_progress, hoard_recovered, knights_alert, tension_current] → 5 accepted, 0 rejected
+
+Stopped after 348 events and 5 audits.

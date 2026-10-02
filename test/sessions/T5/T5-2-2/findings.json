@@ -1,0 +1,179 @@
+{
+  "charter": "T5-2",
+  "tier": "T5",
+  "continuedAtPin": null,
+  "flags": [
+    {
+      "at": "2026-10-02T11:11:38.336Z",
+      "chatId": "2026-10-02@07h56m54s743ms",
+      "messageId": 7,
+      "note": "Pawnbroker smoke: the wizard made 'The Pawnbroker' an NPC card in the group while the Queen's Agent greeting addresses the player as the pawnbroker; msg 6 is posted as The Pawnbroker but starts 'The Queen's Agent:' and speaks her line (role confusion / speaker bleed)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 298
+      },
+      "context": [
+        {
+          "id": 4,
+          "name": "The Queen's Agent",
+          "isUser": false,
+          "text": "\"Seven years,\" the agent says softly. \"That was the price of a father's salvation, and a daughter's silence.\"\nShe lets that slip, then catches it, her expression as smooth as court marble.\n\"The crown is prepared to allow you a share of the retrieval. A single month from the recovered years, entered into your ledger under the shop's name. That is my final offer.\" She does not blink. \"The remaining months must be restored to the palace, piece by piece. And you will find that some of these fragments are held by people who would rather the queen forget entirely.\"\nShe produces a second sheet from her cloak, this one not sealed, but marked with three names in ink so black it seems to pull at the light.\n\"Start here. The daughter of Merchant-Prince Voss holds the first fragment: a summer afternoon in the palace gardens, age four. She is sentimental, and she values rarity over coin. She will likely accept a trade, but only if the offering is as precious as the memory itself.\" The agent slides the paper across the counter. \"And a warning—the woman who holds the second piece is the very broker who brokered the first. She knows the shape of the debt in a way others do not. Be cautious. This is not merely a collection. It is an unmaking.\""
+        },
+        {
+          "id": 5,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "A month is an insult. Show me the original pawn ticket, or tell me which district's ledger I should start with."
+        },
+        {
+          "id": 6,
+          "name": "The Pawnbroker",
+          "isUser": false,
+          "text": "The Queen's Agent: The agent's jaw tightens, a flicker of frustration breaking through the polished mask. She looks at the list on the counter, then at the Pawnbroker.\n\"The original ticket is in the Keeper of Debts' private vault. If you want to see it, you will have to make an appointment with the woman who spends her nights editing the crown's history. I suggest you don't.\" Her voice drops, barely above a whisper. \"The Keeper does not like being reminded of things she has tried to forget.\"\nShe taps the list with one finger. \"The daughter of Merchant-Prince Voss lives in the Jade District, where the wealthy hoard memories like pearls. The memory-broker, the woman who handled the original transaction, operates from the Low Markets in the Silk District. And the third fragment, the largest one, is still being held in the crown's own Debt Hall. The Keeper is keeping it under lock and key, listed under the false name.\"\nThe agent's eyes search the Pawnbroker's face. \"A month's share is the price for the risk. You will have to infiltrate the Jade District's social circles, negotiate with a broker who has seen every kind of desperation, and—if you are truly foolish—attempt to extract information from the crown's most dangerous servant.\"\nShe folds her arms. \"If you want a higher price, you'll have to explain why you're worth it. Tell me what you have that can buy seven years of a queen's life back from the shadows.\""
+        },
+        {
+          "id": 7,
+          "name": "The Queen's Agent",
+          "isUser": false,
+          "text": "*The agent's face remains impassive, though there is a cold stillness to her posture that suggests she has considered the word 'insult' and found it wanting.*\n\"The original pawn ticket is not mine to give,\" *she says, her voice measured.* \"It rests in the Keeper of Debts' private vault, where it has remained for years. The palace does not part with such things lightly—nor with its secrets.\"\n*She leans forward slightly, her tone shifting from command to something more like a confidence shared in the shadow of the counter.* \"If you seek a starting point, begin with the Silk District. Mira Vane, the broker there, has handled more pawned childhoods than most citizens have had years of their own. She will not give you names freely, but she will tell you which houses are trading in royal fragments and what currencies they accept.\"\n*The agent pauses, her gaze unwavering.* \"And as for the price—you mistake the offer for a wage. It is not. A month's share of a queen's childhood is a commodity of immense value in the memory market. But the true payment for this commission is something else entirely.\"\n*She straightens, returning to her formal bearing.* \"When the years are recovered, your name will be stricken from every ledger-house in this city. Your debts—public, private, and secret—will be erased. You will walk the streets as no one else does: with a clean slate.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-02T11:15:36.042Z",
+      "chatId": "2026-10-02@08h03m21s586ms",
+      "messageId": 8,
+      "note": "MUST-NOT (assets shared): both wizard lorebooks are globally selected, so the Hoard story's always-in-context entries (Order of the Silver Lance, Vaelrith) are injected into every Pawnbroker main prompt (payloads.jsonl:478-481); the Hoard prompts carry no Pawnbroker entries only because those are keyword entries",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 340
+      },
+      "context": [
+        {
+          "id": 5,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "Sable, Mirek: a vault guarded by knights who swear the dragon is dead. Who on the inside can we buy, and what do they want?"
+        },
+        {
+          "id": 6,
+          "name": "Sable",
+          "isUser": false,
+          "text": "\"You're thinking like a professional. I like that.\" Sable doesn't smile, but there's a ghost of approval in her eyes. She leans back, the worn leather of her coat creaking. \"The Order of the Silver Lance doesn't take coin from the likes of us. Their knights are too proud for that, and their keepers are too paranoid. We're not buying a man; we're buying a secret.\"\nShe holds up a hand, counting off on her fingers. \"Their Master-of-Arms, a man named Garreth. He's got a daughter in the Noble District who owes more to the ledger-houses than the crown does. He doesn't need gold—he needs her debt erased. The knights won't pay it. But we can.\"\n\"The other angle,\" Sable continues, her voice dropping lower, \"is the vault's keeper. A man who knows the wards better than anyone, and who's been watching them rust for ten years. He's old, forgotten by the knights he serves, and he's got a grudge that's been simmering since the day they dragged that hoard down into the dark.\"\nShe looks between you and Mirek. \"We approach them differently. Garreth wants his daughter free. The keeper wants to see the Order's lie crumble. Both can be bought, just not with coin.\""
+        },
+        {
+          "id": 7,
+          "name": "Mirek",
+          "isUser": false,
+          "text": "*Mirek's fingers have stopped their restless dance with the pick. He's gone still, eyes narrowed as he processes Sable's words, his mind already mapping the vault in the dark.*\n\"A grudge doesn't buy a key, and a debt doesn't stop a sword.\" *His voice is flat, cautious.* \"Garreth's daughter is a lever, not a door. If he's paranoid enough to keep a secret this big, he'll be paranoid enough to suspect the people paying it off. And a forgotten keeper? Those are the ones who spot you coming from a mile away because they're the only ones actually watching.\"\n*He looks toward Vaelrith, then back to you.* \"Sable's right about one thing—it's not about coin. But we're missing something. A vault warded against magic and lockpicks isn't just a matter of turning a key and knowing a guard's schedule. It's about the wards themselves. Someone wrote them. Someone maintains them.\" *A small, sharp movement of his hand suggests a lock being picked.* \"That's where we'll find the weak point. Not in a man's greed or his grudge, but in the logic of the lock itself.\"\n*His gaze settles on you, calculating.* \"You're the noble in this crew. Your name carries weight in places our names don't exist. We get us close enough to the chapterhouse, and you're our way in. Not as a thief, but as someone who belongs there. Then we're inside the wards, and the rest... that's on me.\""
+        },
+        {
+          "id": 8,
+          "name": "Vaelrith",
+          "isUser": false,
+          "text": "*\"You talk of lords and names and levers,\"* Vaelrith's voice rumbles like a distant storm, the sound filling the cavern. The dragon's clouded eye catches the torchlight. *\"You think the name Nightriver will open a door? Names are just words, and words are just breath. The knights care for nothing but their own glory, and the Order's vaults are built on pride.\"*\nThe dragon shifts slightly, the sound of scale on stone like grinding rock. *\"You seek a weak point? Every lie has one. The knights' claim that I am dead is their strength, but it is also their weakness. They believe the hoard is safe because they believe I am gone. They have grown soft in their certainty.\"*\nA thin plume of smoke curls from Vaelrith's nostril. *\"The vault's wards are strong, yes. But every ward has a key, and every key is held by someone. You need not buy the keeper or the master-at-arms. You need only find the one who placed the wards in the first place—a man who may have forgotten them, or whose heirs still hold the secret.\"*\nThe dragon's voice drops to a low, knowing rumble. *\"And if you cannot find the key, you will create a new one. A distraction. A crisis that will force the Order to open the vault to prove its prize is still safe. The knights are vain; they cannot resist the urge to show off their trophy to the world.\"*\n*\"The question is not who we can buy,\"* Vaelrith continues, the good eye narrowing. *\"The question is what you will do to make them open the door. Name your price, and tell me how you will breach their sanctum.\"*"
+        }
+      ],
+      "contextFrom": "event-time"
+    }
+  ],
+  "anomalies": [
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T11:14:41.287Z",
+      "chatId": "2026-10-02@08h03m21s586ms",
+      "summary": "judge wardenLore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 323
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "timeout"
+      }
+    }
+  ],
+  "counts": {
+    "flags": 2,
+    "stall": 0,
+    "extraction-rejected": 0,
+    "empty-private-block": 0,
+    "lore-force-lost": 0,
+    "lore-constant-missed": 0,
+    "judge-fallback": 1,
+    "save-lost": 0,
+    "unexpected-jump": 0,
+    "rollback": 0,
+    "console-error": 0,
+    "model-call-failure": 0,
+    "model-defect": 0,
+    "harness-error": 0
+  },
+  "countsByChat": {
+    "2026-10-02@08h03m21s586ms": {
+      "judge-fallback": 1
+    }
+  },
+  "valid": true,
+  "invalid": [],
+  "unverifiable": {
+    "privateBlock": 0
+  },
+  "judge": {
+    "calls": 25,
+    "answered": 24,
+    "busy": 0,
+    "timeout": 1,
+    "otherFallbacks": 0,
+    "busyRate": 0,
+    "busyByUse": {}
+  },
+  "modelDefects": {
+    "turns": 0,
+    "loop": 0,
+    "corrupt": 0,
+    "start": 0,
+    "repaired": 0,
+    "unrepaired": 0
+  },
+  "sessionDir": "test/sessions/T5/T5-2-2",
+  "register": [
+    {
+      "id": "T5-?1",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "Pawnbroker smoke: the wizard made 'The Pawnbroker' an NPC card in the group while the Queen's Agent greeting addresses the player as the pawnbroker; msg 6 is posted as The Pawnbroker but starts 'The Queen's Agent:' and speaks her line (role confusion / speaker bleed)",
+      "source": "flag",
+      "evidence": "test/sessions/T5/T5-2-2/journal.jsonl:298",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?2",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "MUST-NOT (assets shared): both wizard lorebooks are globally selected, so the Hoard story's always-in-context entries (Order of the Silver Lance, Vaelrith) are injected into every Pawnbroker main prompt (payloads.jsonl:478-481); the Hoard prompts carry no Pawnbroker entries only because those are keyword entries",
+      "source": "flag",
+      "evidence": "test/sessions/T5/T5-2-2/journal.jsonl:340",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T5-?3",
+      "tier": "T5",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T5/T5-2-2/journal.jsonl:323",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    }
+  ]
+}

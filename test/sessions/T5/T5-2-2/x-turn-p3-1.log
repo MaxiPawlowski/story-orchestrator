@@ -1,0 +1,305 @@
+{
+  "seq": 19,
+  "kind": "turn",
+  "at": "2026-10-02T11:12:08.711Z",
+  "chatId": "2026-10-02@08h03m21s586ms",
+  "line": "I step into the lair and bow low to the dragon. Vaelrith, tell us what the knights took, and where they keep it now.",
+  "ok": true,
+  "problems": [],
+  "replied": true,
+  "replies": [
+    {
+      "messageId": 4,
+      "speaker": "Vaelrith",
+      "text": "*\"You bow. Good. Respect is a currency I still value,\"* Vaelrith rumbles, the sound vibrating through the stone floor. The dragon shifts, and for a moment the torchlight catches the dull grey of its scales—once bright enough to blind, now faded like river-stone.\n*\"They took everything. Every piece of gold, every crown, every jewel I amassed over nine centuries. But there are things in there more precious than coin.\"* The dragon's good eye narrows. *\"A harp that plays only for the grieving. The sealed egg of a rival wyrm. Letters I never sent.\"* It pauses, a flicker of something—regret, perhaps—crossing its ancient features. *\"They took the proof that my long life meant something.\"*\nA breath of thin smoke escapes Vaelrith's nostrils. *\"The Order of the Silver Lance keeps it beneath their chapterhouse, in the heart of Aegis City. They parade the hoard through the streets as proof of their victory, and they keep the rest in a vault warded against lockpicks and magic alike.\"*\nThe dragon does not move from its seated position, the dark shadows of the cavern's rear hiding the stiffness in its wings. *\"Go. Take it all. And tell me what you will do for this prize.\"*"
+    }
+  ],
+  "speakers": [
+    "Vaelrith"
+  ],
+  "notes": [],
+  "generations": {
+    "count": 2,
+    "types": [
+      "normal",
+      "normal"
+    ],
+    "quiet": 0,
+    "dryRuns": 0,
+    "drafted": [
+      "Vaelrith"
+    ],
+    "received": [
+      {
+        "messageId": 4,
+        "type": "normal"
+      }
+    ]
+  },
+  "multiGeneration": true,
+  "checkpoint": {
+    "before": {
+      "id": "start",
+      "name": "Start"
+    },
+    "after": {
+      "id": "start",
+      "name": "Start"
+    },
+    "changed": false
+  },
+  "boundary": {
+    "from": 0,
+    "to": 1
+  },
+  "blackboard": {
+    "count": 0,
+    "changed": {}
+  },
+  "journal": [
+    {
+      "at": "2026-10-02T11:12:10.462Z",
+      "boundary": 0,
+      "messageId": 3,
+      "kind": "payload",
+      "summary": "1 story blocks injected (generation)",
+      "detail": {
+        "keys": [
+          "story_orchestrator_guidance@4"
+        ]
+      }
+    },
+    {
+      "at": "2026-10-02T11:12:10.511Z",
+      "boundary": 0,
+      "messageId": 3,
+      "kind": "payload",
+      "summary": "2 story blocks injected (generation)",
+      "detail": {
+        "keys": [
+          "story_orchestrator_epistemic@4",
+          "story_orchestrator_guidance@4"
+        ]
+      }
+    },
+    {
+      "at": "2026-10-02T11:12:10.994Z",
+      "boundary": 0,
+      "messageId": 3,
+      "kind": "judge",
+      "summary": "judge lore in 279 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 2610,
+        "latencyMs": 279,
+        "inputTokens": 1446,
+        "outputTokens": 40,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "The Hoard of Vaelrith": 0.88,
+          "The Order of the Silver Lance": 0.84
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:12:54.040Z",
+      "boundary": 1,
+      "messageId": 4,
+      "kind": "boundary",
+      "summary": "boundary 1: nothing applied (gate)",
+      "detail": {
+        "source": "gate",
+        "applied": [],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T11:12:54.167Z",
+      "boundary": 1,
+      "messageId": 4,
+      "kind": "status",
+      "summary": "Following Start"
+    },
+    {
+      "at": "2026-10-02T11:12:54.459Z",
+      "boundary": 1,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge warden in 276 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 1,
+        "stateChars": 1395,
+        "latencyMs": 276,
+        "inputTokens": 823,
+        "outputTokens": 17,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "agency": 0.31
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:12:54.460Z",
+      "boundary": 1,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge scene in 279 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 4463,
+        "latencyMs": 279,
+        "inputTokens": 2037,
+        "outputTokens": 239,
+        "p": {
+          "break": 0.17
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T11:12:56.173Z",
+      "boundary": 1,
+      "messageId": 4,
+      "kind": "judge",
+      "summary": "judge wardenLore in 1715 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 3,
+        "stateChars": 2968,
+        "latencyMs": 1715,
+        "inputTokens": 1242,
+        "outputTokens": 61,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 3,
+          "contradicted": 0
+        }
+      }
+    }
+  ],
+  "rollback": {
+    "happened": false,
+    "from": [],
+    "outcome": null,
+    "notice": null,
+    "unavailable": null,
+    "boundary": {
+      "from": 0,
+      "to": 1
+    },
+    "checkpoint": {
+      "from": {
+        "id": "start",
+        "name": "Start"
+      },
+      "to": {
+        "id": "start",
+        "name": "Start"
+      }
+    },
+    "events": []
+  },
+  "pipeline": {
+    "state": "idle",
+    "text": "Following along.",
+    "detail": null
+  },
+  "scheduler": {
+    "queueDepth": 0,
+    "inFlight": false,
+    "lastError": null
+  },
+  "send": {
+    "sent": "I step into the lair and bow low to the dragon. Vaelrith, tell us what the knights took, and where they keep it now.",
+    "messagesBefore": 3,
+    "messagesAfter": 5,
+    "newMessages": 2,
+    "replied": true,
+    "lastSpeaker": "Vaelrith",
+    "lastLength": 1176,
+    "round": {
+      "settled": true,
+      "polls": 16,
+      "open": false,
+      "waitedMs": 4261,
+      "passes": 1
+    },
+    "overlays": {
+      "before": {
+        "drawerOpen": false,
+        "popups": 0
+      },
+      "after": {
+        "drawerOpen": false,
+        "popups": 0
+      },
+      "ok": true
+    }
+  },
+  "timing": {
+    "actMs": 51049,
+    "settleMs": 3228,
+    "totalMs": 54290
+  },
+  "modelDefect": null,
+  "modelDefects": [],
+  "autoRepair": null,
+  "ensured": {
+    "chatId": "2026-10-02@08h03m21s586ms",
+    "reopened": false
+  },
+  "observe": {
+    "chatId": "2026-10-02@08h03m21s586ms",
+    "groupId": "1790939001589",
+    "group": "The Hoard of the Dead Dragon — Crew",
+    "storyId": "the-hoard-of-the-dead-dragon",
+    "activeCheckpointId": "start",
+    "boundary": 1,
+    "folded": null,
+    "payloadEpoch": "1790938082582-abox28",
+    "context": [
+      {
+        "id": 0,
+        "name": "Vaelrith",
+        "isUser": false,
+        "text": "The cavern smells of cold stone and old smoke. At its far end, something vast shifts in the dark — a sound like a mountain clearing its throat.\n\n*\"Come closer,\"* the voice rumbles, slow and dry as a rockslide. *\"I will not eat you. I have not the appetite for it anymore, and you have not the flavor.\"*\n\nA single eye opens, catching the torchlight — one bright, one clouded white. The dragon does not rise. It cannot, and it will not let you see why.\n\n*\"You have heard the story, I trust. The knights. The brave knights. They came in the night and slew the great wyrm Vaelrith, and carried its hoard away in triumph.\"* A pause. The eye does not blink. *\"I am Vaelrith. As you can see, I am not slain. But my gold sits in their vault, and every day they tell the story, it becomes more true. I want it back. All of it. And I want them to know — without ever being able to prove — that the dead dragon came for it.\"*\n\n*\"You are thieves. Good. I need thieves. Name your price.\"*"
+      },
+      {
+        "id": 1,
+        "name": "Sable",
+        "isUser": false,
+        "text": "The back room of the Drowned Lantern smells of wet rope and old tallow. Sable is already seated when you come in, one boot up on the bench, turning a copper coin over her knuckles without looking at it.\n\n\"Sit down. Don't look at the corner yet.\" She nods at the chair across from her. \"There's a job. Big one. The kind that either sets you up for life or gets your name read out at the guild's next funeral.\"\n\nShe flips the coin and catches it flat on the back of her hand, finally meeting your eyes.\n\n\"Before I tell you who's paying, I need to know two things. Are you in, and what's your price? Answer wrong and we drink and forget this. Answer right and you meet the client.\""
+      },
+      {
+        "id": 2,
+        "name": "Mirek",
+        "isUser": false,
+        "text": "Mirek is already seated when you arrive, turning a slim pick between his fingers like a coin he doesn't intend to spend. He glances up once, takes your measure, and looks back down. \"You're the new one,\" he says, not quite a question. \"Sable vouched for you. That buys you one mistake.\" He nods toward the empty chair across from him. \"Sit. The dragon's late, and I want to hear what you think of a job where the client is supposed to be dead.\""
+      },
+      {
+        "id": 3,
+        "name": "Max Nightriver",
+        "isUser": true,
+        "text": "I step into the lair and bow low to the dragon. Vaelrith, tell us what the knights took, and where they keep it now."
+      },
+      {
+        "id": 4,
+        "name": "Vaelrith",
+        "isUser": false,
+        "text": "*\"You bow. Good. Respect is a currency I still value,\"* Vaelrith rumbles, the sound vibrating through the stone floor. The dragon shifts, and for a moment the torchlight catches the dull grey of its scales—once bright enough to blind, now faded like river-stone.\n*\"They took everything. Every piece of gold, every crown, every jewel I amassed over nine centuries. But there are things in there more precious than coin.\"* The dragon's good eye narrows. *\"A harp that plays only for the grieving. The sealed egg of a rival wyrm. Letters I never sent.\"* It pauses, a flicker of something—regret, perhaps—crossing its ancient features. *\"They took the proof that my long life meant something.\"*\nA breath of thin smoke escapes Vaelrith's nostrils. *\"The Order of the Silver Lance keeps it beneath their chapterhouse, in the heart of Aegis City. They parade the hoard through the streets as proof of their victory, and they keep the rest in a vault warded against lockpicks and magic alike.\"*\nThe dragon does not move from its seated position, the dark shadows of the cavern's rear hiding the stiffness in its wings. *\"Go. Take it all. And tell me what you will do for this prize.\"*"
+      }
+    ]
+  }
+}

@@ -1,0 +1,63 @@
+{
+  "phase": "end",
+  "problems": [],
+  "chats": [
+    {
+      "chatId": "2026-10-02@07h56m54s743ms",
+      "groupId": "1790938614745",
+      "group": "The Pawnbroker of Forgotten Days",
+      "storyId": "the-pawnbroker-of-forgotten-days",
+      "activeCheckpointId": null,
+      "primary": false,
+      "adopted": true
+    },
+    {
+      "chatId": "2026-10-02@08h03m21s586ms",
+      "groupId": "1790939001589",
+      "group": "The Hoard of the Dead Dragon — Crew",
+      "storyId": "the-hoard-of-the-dead-dragon",
+      "activeCheckpointId": null,
+      "primary": true,
+      "adopted": true
+    }
+  ],
+  "ends": [
+    {
+      "chatId": "2026-10-02@07h56m54s743ms",
+      "events": 47,
+      "messages": 8,
+      "swipes": 6,
+      "reasoning": 4
+    },
+    {
+      "chatId": "2026-10-02@08h03m21s586ms",
+      "events": 36,
+      "messages": 9,
+      "swipes": 7,
+      "reasoning": 1
+    }
+  ],
+  "files": [
+    "wizard-drafts.json",
+    "runtime-2026-10-02@07h56m54s743ms.json",
+    "journal-2026-10-02@07h56m54s743ms.json",
+    "chat-2026-10-02@07h56m54s743ms.json",
+    "chat-full-2026-10-02@07h56m54s743ms.json",
+    "state-end-2026-10-02@07h56m54s743ms.json",
+    "snapshot-2026-10-02@07h56m54s743ms.json",
+    "evidence-2026-10-02@07h56m54s743ms.json",
+    "journal-2026-10-02@07h56m54s743ms.md",
+    "runtime-2026-10-02@08h03m21s586ms.json",
+    "journal-2026-10-02@08h03m21s586ms.json",
+    "chat-2026-10-02@08h03m21s586ms.json",
+    "chat-full-2026-10-02@08h03m21s586ms.json",
+    "state-end-2026-10-02@08h03m21s586ms.json",
+    "snapshot-2026-10-02@08h03m21s586ms.json",
+    "evidence-2026-10-02@08h03m21s586ms.json",
+    "journal-2026-10-02@08h03m21s586ms.md"
+  ],
+  "evidenceProblems": {
+    "2026-10-02@07h56m54s743ms": [],
+    "2026-10-02@08h03m21s586ms": []
+  }
+}

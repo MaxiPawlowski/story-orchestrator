@@ -1,0 +1,217 @@
+{
+  "storyId": "the-pawnbroker-of-forgotten-days",
+  "activeCheckpointId": "start",
+  "boundary": 4,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "The Pawnbroker of Forgotten Days": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {},
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "a4f8a04e-6bcd-4528-a6db-ed4d970ad77b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Pawnbroker",
+      "tag": "knows",
+      "content": "The queen's childhood was pawned seven years ago and scattered across the city's memory-debt ledgers.",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "3da08db2-bcc1-4ef2-adc8-48670ebc5faa",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Pawnbroker",
+      "tag": "knows",
+      "content": "The Keeper of Debts has been scrubbing the records and holds the largest fragment under a false name.",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "bbf0ec02-dd09-41c1-a7fa-70482ea6ba8a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Queen's Agent",
+      "tag": "knows",
+      "content": "The original pawn ticket is in the Keeper of Debts' private vault.",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "d4223a3b-d5b4-409c-afe1-2b412e2f860a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "The Queen's Agent",
+      "tag": "hiding",
+      "content": "that the seven years were the price of a father's salvation and a daughter's silence",
+      "hiddenFrom": "The Pawnbroker",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "9b3a9e3a-17c9-44eb-90f6-73a78d2bb3bf",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "The Queen's Agent",
+      "tag": "intends",
+      "content": "to commission the recovery of the queen's childhood and press the Pawnbroker to prove their worth",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "e127da74-1c93-4135-8bb9-741496b6f156",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Pawnbroker",
+      "tag": "knows",
+      "content": "The queen's childhood was pawned as the price of a father's salvation and a daughter's silence.",
+      "createdAt": 4,
+      "messageId": 7
+    },
+    {
+      "id": "91ee2c70-924e-4124-8f8a-e04ec5e88636",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Pawnbroker",
+      "tag": "knows",
+      "content": "The memory-broker who handled the original transaction is Mira Vane in the Silk District's Low Markets.",
+      "createdAt": 4,
+      "messageId": 7
+    },
+    {
+      "id": "3f415895-7185-445f-ad93-ad0723281d65",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Pawnbroker",
+      "tag": "knows",
+      "content": "The crown offers erasure of all debts as the true payment for the commission.",
+      "createdAt": 4,
+      "messageId": 7
+    },
+    {
+      "id": "6b7a23cf-958d-4f73-ad14-40df2f613fe2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 4,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "The Queen's Agent",
+      "tag": "hiding",
+      "content": "The full truth behind the pawned childhood — that it was the price of a father's salvation and a daughter's silence.",
+      "hiddenFrom": "The Pawnbroker",
+      "createdAt": 4,
+      "messageId": 7
+    },
+    {
+      "id": "b2c83263-804f-4f8c-9da1-67c93508b8b6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "The Queen's Agent",
+      "tag": "intends",
+      "content": "To secure the Pawnbroker's acceptance of the commission on the crown's terms.",
+      "createdAt": 4,
+      "messageId": 7
+    },
+    {
+      "id": "ef440616-4500-431e-a51a-1cb0ddd2dcec",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 4,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "The Queen's Agent",
+      "tag": "hiding",
+      "content": "the true reason the queen's childhood was pawned — a father's salvation and a daughter's silence",
+      "hiddenFrom": "The Pawnbroker",
+      "createdAt": 4,
+      "messageId": 7
+    }
+  ],
+  "characters": [
+    {
+      "index": 150,
+      "name": "The Archivist",
+      "avatar": "The Archivist.png"
+    },
+    {
+      "index": 152,
+      "name": "The Memory Broker",
+      "avatar": "The Memory Broker.png"
+    },
+    {
+      "index": 153,
+      "name": "The Pawnbroker",
+      "avatar": "The Pawnbroker.png"
+    },
+    {
+      "index": 154,
+      "name": "The Queen's Agent",
+      "avatar": "The Queen's Agent.png"
+    },
+    {
+      "index": 155,
+      "name": "The Queen",
+      "avatar": "The Queen.png"
+    }
+  ],
+  "payloadEpoch": "1790938082582-abox28"
+}

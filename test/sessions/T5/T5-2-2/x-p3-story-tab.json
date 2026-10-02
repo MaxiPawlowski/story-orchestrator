@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "value": [
+    "Story id=",
+    "Cast member 1=Vaelrith",
+    "Cast member 2=Sable",
+    "Cast member 3=Mirek",
+    "Lorebook 1=The Hoard of the Dead Dragon",
+    "House rule 1=The dragon Vaelrith is ancient, proud and physically failing: it cannot fly, cannot fight, and hides its weakness behind imperious manners. Never let it act or move as a healthy dragon could.",
+    "House rule 2=The Order of the Silver Lance publicly claims to have slain Vaelrith; the hoard on display is their proof and their lie. Knights are disciplined, suspicious and quick to close ranks, not comic villain",
+    "House rule 3=Gold is the only thing everyone in this story agrees on. Every character's loyalty is priced, and the price can change when the hoard is in reach.",
+    "House rule 4=Theft, betrayal and violence are the story's business, but consequences stick: wounds, debts, grudges and dead crew stay dead.",
+    "House rule 5=The player is a member of the crew, not its leader. Sable gives the orders unless the player earns otherwise in play.",
+    "House rule 6=Never narrate the player's decisions, thoughts or dialogue.",
+    "House rule 7=Present the situation and let the player act.",
+    "House rule 8=Keep the hoard's true contents partly unknown: the dragon never lists what it lost, and the crew keeps discovering what they are carrying.",
+    "Chapter of Start=ch_hiring",
+    "Chapter of The Crew Assembled=ch_crew",
+    "Chapter of The Vault=ch_vault",
+    "Chapter of The Betrayal=ch_vault",
+    "Chapter of The Escape=ch_escape",
+    "Chapter of The Reckoning=ch_reckoning",
+    "Chapter of The Hoard Returned=ch_reckoning"
+  ]
+}

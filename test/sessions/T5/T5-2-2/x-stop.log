@@ -1,0 +1,96 @@
+{
+  "dir": "test/sessions/T5/T5-2-2",
+  "stoppedAt": "2026-10-02T11:16:11.754Z",
+  "valid": true,
+  "invalid": [],
+  "steps": [
+    "end",
+    "header-diff",
+    "drain",
+    "kill",
+    "verify"
+  ],
+  "runHeaderDiff": {
+    "exit": 0,
+    "ok": true
+  },
+  "chats": [
+    "2026-10-02@07h56m54s743ms",
+    "2026-10-02@08h03m21s586ms"
+  ],
+  "evidence": {
+    "files": [
+      "wizard-drafts.json",
+      "runtime-2026-10-02@07h56m54s743ms.json",
+      "journal-2026-10-02@07h56m54s743ms.json",
+      "chat-2026-10-02@07h56m54s743ms.json",
+      "chat-full-2026-10-02@07h56m54s743ms.json",
+      "state-end-2026-10-02@07h56m54s743ms.json",
+      "snapshot-2026-10-02@07h56m54s743ms.json",
+      "evidence-2026-10-02@07h56m54s743ms.json",
+      "journal-2026-10-02@07h56m54s743ms.md",
+      "runtime-2026-10-02@08h03m21s586ms.json",
+      "journal-2026-10-02@08h03m21s586ms.json",
+      "chat-2026-10-02@08h03m21s586ms.json",
+      "chat-full-2026-10-02@08h03m21s586ms.json",
+      "state-end-2026-10-02@08h03m21s586ms.json",
+      "snapshot-2026-10-02@08h03m21s586ms.json",
+      "evidence-2026-10-02@08h03m21s586ms.json",
+      "journal-2026-10-02@08h03m21s586ms.md"
+    ],
+    "problems": {
+      "2026-10-02@07h56m54s743ms": [],
+      "2026-10-02@08h03m21s586ms": []
+    }
+  },
+  "playerClean": {
+    "skipped": "author-mode card"
+  },
+  "spend": {
+    "orchestrator": {
+      "calls": 251,
+      "input": 1275911,
+      "output": 50531,
+      "measuredCalls": 248,
+      "estimatedCalls": 3,
+      "costUsd": null,
+      "ringCalls": 10,
+      "ringCostUsd": null,
+      "answeredBy": {
+        "primary": 10,
+        "fallback": 0,
+        "failed": 0
+      }
+    },
+    "judge": {
+      "calls": 24,
+      "cached": 0,
+      "fallbacks": 1,
+      "input": 55231,
+      "output": 3113,
+      "costUsd": null
+    },
+    "main": {
+      "calls": 8
+    },
+    "responsesCaptured": 248
+  },
+  "rubric": "test/sessions/T5/T5-2-2/rubric.json",
+  "rubricSummary": {
+    "rows": 3,
+    "green": 0,
+    "annoying": 0,
+    "broken": 0,
+    "notNoticed": 0,
+    "unexercised": 0,
+    "userReview": 0,
+    "open": 3
+  },
+  "packs": [],
+  "lease": null,
+  "problems": [],
+  "warnings": [
+    "the repo build moved during the session (build.head, build.manifest.builtAt, build.manifest.bundleBytes, build.manifest.bundleSha256, build.manifest.fileSha256, build.manifest.sourceFiles, build.manifest.sourceSha256, warnings) while the served bundle b644cbb7ad01be3a stayed identical: allowed, the code under test did not change"
+  ],
+  "laneStopped": false
+}

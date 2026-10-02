@@ -1,0 +1,25 @@
+{
+  "ok": true,
+  "value": {
+    "storyId": "the-pawnbroker-of-forgotten-days",
+    "cp": "start",
+    "ready": true,
+    "req": {
+      "ready": true,
+      "missingPersonas": [],
+      "missingMembers": [],
+      "missingLorebooks": [],
+      "mutedMembers": [],
+      "satisfiedBy": {
+        "The Pawnbroker of Forgotten Days": "global"
+      },
+      "characterGaps": {},
+      "slotConflict": null
+    },
+    "disabled": [
+      "The Queen.png",
+      "The Memory Broker.png",
+      "The Archivist.png"
+    ]
+  }
+}

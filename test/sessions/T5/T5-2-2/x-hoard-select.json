@@ -1,0 +1,20 @@
+{
+  "ok": true,
+  "value": {
+    "storyId": "the-hoard-of-the-dead-dragon",
+    "cp": "start",
+    "req": {
+      "ready": true,
+      "missingPersonas": [],
+      "missingMembers": [],
+      "missingLorebooks": [],
+      "mutedMembers": [],
+      "satisfiedBy": {
+        "The Hoard of the Dead Dragon": "global"
+      },
+      "characterGaps": {},
+      "slotConflict": null
+    },
+    "disabled": []
+  }
+}
