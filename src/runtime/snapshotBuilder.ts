@@ -8,9 +8,10 @@ import { currentThreads, latestScene } from "./recapCurrent";
 import { buildNarrativeStatus, playerLocation, type NarrativeTransition, type RollbackNotice, type RollbackUnavailable } from "./narrative";
 import { agencyRecovery as agencyRecoveryOf, playerTurnIds, REFUSAL_PLAYER_TEXT, type AgencyRecovery } from "./agencyRecovery";
 import { jumpIndex } from "./messageJump";
+import { firstLines } from "./castInPlay";
 import type { MessageFingerprints } from "./fingerprints";
 import { derivePipelineStatus, expansionInFlight, playerPendingCount, type PipelineStatus } from "./pipeline";
-import { hasUnsavedChanges, SAVE_PLAYER_TEXT } from "./saveHealth";
+import { playerSaveNotice } from "./saveHealth";
 import { blobMismatch, loadPersistedRuntime, UNREADABLE_NOTICE } from "./persistence";
 import { findStoryRecord, listStoryRecords } from "./storyLibrary";
 import { orphanedLorebooks } from "./mirrorReaper";
@@ -159,7 +160,8 @@ const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, l
     loreFired: extras.lore.fired, talkDecisions: extras.talk.decisions, judgeCalls: extras.judge.calls, proposals: extras.stagecraft.proposals,
     curatorPass: extras.stagecraft.lastPass, effects: extras.effects.ledger, tensionHistory: extras.tension.history,
     tension: { expected: live.tension.expected, hint: live.tension.hint?.text ?? null }, payloadCaptures: sources.payloadCaptures, pipeline: live.pipeline,
-    agencyRecovery: live.agencyRecovery, lastRollback: sources.lastRollback, saveNotice: hasUnsavedChanges(extras.saveHealth) ? SAVE_PLAYER_TEXT : null, castNames,
+    agencyRecovery: live.agencyRecovery, lastRollback: sources.lastRollback, saveNotice: playerSaveNotice(extras.saveHealth), castNames,
+    firstLines: firstLines(sources.chat),
   });
 };
 
@@ -247,7 +249,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     sceneUnconfirmed: isSceneStale(extras.judge.scene) && Boolean(extras.judge.scene?.facts.location),
     // A write this chat believes it made and the server has not confirmed. Player
     // wording, because the player is the one who would lose the story.
-    saveNotice: hasUnsavedChanges(extras.saveHealth) ? SAVE_PLAYER_TEXT : null,
+    saveNotice: playerSaveNotice(extras.saveHealth),
     agencyNotice: agencyRecovery ? REFUSAL_PLAYER_TEXT : null,
     objectiveKind: agency.objective_kind,
   });

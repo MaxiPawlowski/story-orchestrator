@@ -1,6 +1,6 @@
 import type { PassRole } from "@extraction/passRole";
 import type { RuntimeSnapshot } from "./types";
-import { hasUnsavedChanges, SAVE_PLAYER_TEXT } from "./saveHealth";
+import { hasUnsavedChanges, playerSaveNotice, SAVE_PLAYER_TEXT } from "./saveHealth";
 import { ROLE_PROBLEM_STATES } from "./roleHealth";
 import { mutedMembersText, REPAIR_PLAYER_COPY } from "./pipeline";
 
@@ -166,7 +166,7 @@ function laterSteps(snapshot: RuntimeSnapshot): Array<RepairStep | null> {
   const degraded = (snapshot.memory?.chapters ?? []).find((record) => record.status === "degraded");
   return [
     snapshot.saveHealth && hasUnsavedChanges(snapshot.saveHealth)
-      ? { area: "save", consequence: "Your last turn is not saved on the server yet.", detail: SAVE_PLAYER_TEXT, targetId: null, provisionable: false, player: SAVE_PLAYER_TEXT }
+      ? { area: "save", consequence: "Your last turn is not saved on the server yet.", detail: SAVE_PLAYER_TEXT, targetId: null, provisionable: false, player: playerSaveNotice(snapshot.saveHealth) }
       : null,
     degraded ? {
       area: "chapter", consequence: `Chapter "${degraded.playerTitle}" was sealed without a written summary.`, detail: "Re-seal it from the Chapters panel.",

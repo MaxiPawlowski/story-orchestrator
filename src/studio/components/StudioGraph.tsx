@@ -29,6 +29,7 @@ const StudioGraph: React.FC<Props> = ({ onOpenCheckpoint }) => {
 
   return (
     <div className="flex h-full min-h-[24rem] flex-col gap-2">
+      <p className="m-0 text-xs st-muted sm:hidden" data-so="graph-narrow-hint">Narrow window: drag to move around the graph, or use the Checkpoints and Transitions tabs.</p>
       <div className="flex min-h-[20rem] flex-1">
         <GraphPanel
           draft={graphDraft}

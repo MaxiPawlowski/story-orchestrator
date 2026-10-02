@@ -1,4 +1,5 @@
 import type { Checkpoint, NormalizedStoryV2, ObjectiveKind, TensionLevel } from "@engine/index";
+import type { MemoryTier } from "@memory/index";
 import type { PipelineStatus } from "./pipeline";
 import type { LatestScene } from "./recapCurrent";
 
@@ -278,6 +279,17 @@ export const loreConsultedText = (named: string[], total: number): string => {
   const rest = total - named.length;
   return `Lore consulted: ${named.join(", ")}${rest ? ` and ${rest} more` : ""}`;
 };
+
+export const MEMORY_TIER_LABELS: Record<MemoryTier, string> = {
+  facts: "Facts",
+  session_details: "Session details",
+  short_term: "Short-term",
+  scene_history: "Scene history",
+};
+
+export const CP_AUTHOR_ONLY_TEXT = "/cp is an author tool and shows the story's internals. Turn on Author view in the story drawer to use it; /story recap shows where the story is.";
+
+export const SO_MEM_AUTHOR_ONLY_TEXT = "/so-mem backlog is an author tool. Turn on Author view in the story drawer to use it.";
 
 export const castChangeText = (name: string, left: boolean): string => `${name} ${left ? "left" : "joined"}`;
 

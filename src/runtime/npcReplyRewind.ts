@@ -7,6 +7,16 @@ export const recordNpcReplyFire = (counts: Record<string, number>, at: Record<st
   at[key] = [...(at[key] ?? []), messageId];
 };
 
+export const NPC_REPLY_SPACING = 8;
+
+export const npcReplyMayFire = (
+  counts: Record<string, number>, at: Record<string, number[]> | undefined, key: string, maxTriggers: number | undefined, trigger: string, messageId: number,
+): boolean => {
+  if ((counts[key] ?? 0) >= Math.max(1, maxTriggers ?? 1)) return false;
+  const last = at?.[key]?.at(-1);
+  return trigger === "onEnter" || last === undefined || messageId - last >= NPC_REPLY_SPACING;
+};
+
 export const rewindNpcReplies = (counts: Record<string, number>, at: Record<string, number[]>, messageId: number): void => {
   for (const key of Object.keys(at)) {
     const ids = at[key];

@@ -185,6 +185,23 @@ describe("sceneBreak replies (T1-1 runaway)", () => {
     expect(extras.firedNpcReplies).toEqual({ "cp:sceneBreak:Adolion Narrator:0": 2 });
   });
 
+  it("T3-4: a capped line never repeats within a few messages of its own post (Victory's Tusk, fired at 44 and 47)", async () => {
+    const applier = new EffectsApplier(testOwnership());
+    const extras = { ...makeExtras(), firedNpcRepliesAt: {} } as RuntimeExtras;
+    const checkpoint = checkpointWith([{ ...dusk, text: "The night wears on at Victory's Tusk." }]);
+    chatUpTo(43);
+    const breakAt = async (at: number) => { if (mockContext.chat.length - 1 < at) chatUpTo(at); await applier.fireNpcReplies(checkpoint, extras, "sceneBreak", at); };
+
+    await breakAt(44);
+    await breakAt(45);
+    await breakAt(47);
+    await breakAt(48);
+    expect(executeSlashCommands).toHaveBeenCalledTimes(1);
+    expect(extras.firedNpcRepliesAt).toEqual({ "cp:sceneBreak:Adolion Narrator:0": [44] });
+    await breakAt(52);
+    expect(executeSlashCommands).toHaveBeenCalledTimes(2);
+  });
+
   it("re-arms the reply a rollback took back, and caps it again on the replay", async () => {
     const applier = new EffectsApplier(testOwnership());
     const extras = { ...makeExtras(), firedNpcRepliesAt: {} } as RuntimeExtras;

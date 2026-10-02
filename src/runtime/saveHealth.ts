@@ -52,3 +52,5 @@ export const hasUnsavedChanges = (health: SaveHealth): boolean => health.pending
  * simply could not verify (the pipeline's `hasUnsavedChanges` is the sticky reading, and stays one).
  */
 export const saveWasLost = (health: SaveHealth): boolean => health.lastOutcome === "unsaved";
+
+export const playerSaveNotice = (health: SaveHealth): string | null => (hasUnsavedChanges(health) && saveWasLost(health) ? SAVE_PLAYER_TEXT : null);

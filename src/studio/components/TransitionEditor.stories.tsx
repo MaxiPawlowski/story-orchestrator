@@ -16,6 +16,24 @@ export default meta;
 
 type Story = StoryObj<typeof TransitionEditor>;
 
+export const NarrowStudio: Story = {
+  beforeEach: () => {
+    const story = sampleStory();
+    const long = { from: "the-sheridan-steward-who-keeps-the-ledgers", to: "road-to-wendhope-past-the-old-mill" };
+    seedDraft({ ...story, transitions: story.transitions.map((transition, index) => (index === 0 ? { ...transition, ...long } : transition)) });
+  },
+  render: () => (
+    <div data-so="narrow-frame" style={{ width: 345, overflow: "auto" }}>
+      <TransitionEditor />
+    </div>
+  ),
+  play: async ({ canvasElement }) => {
+    const frame = canvasElement.querySelector('[data-so="narrow-frame"]') as HTMLElement;
+    await expect(within(canvasElement).getByText(/the-sheridan-steward-who-keeps-the-ledgers/)).toBeInTheDocument();
+    await expect(frame.scrollWidth).toBeLessThanOrEqual(frame.clientWidth);
+  },
+};
+
 export const Populated: Story = {
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement);

@@ -1,0 +1,663 @@
+{
+ "source": "test/sessions/T3/T3-4-1 (session evidence, untracked): effects ledger cast rows + chat speakers, no text",
+ "storyId": "adolion-aegis",
+ "rows": [
+  {
+   "messageId": 0,
+   "member": "Fiana.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Rydel.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Kaian.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Jasira.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Grant.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Konako.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Alarise.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Sophie.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Calithra.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Celedir.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Lirael.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Celeste.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Arryn.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Dahlia.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Manako.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Karrus.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Ryenne.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Kass.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Yrelra.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Naomi.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Kashina.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Karia.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Mina.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Oswyn.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Panne.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Karos.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Diosanea.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Liora.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Akari.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Rosea.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Thorne.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Dixton.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Riyo.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 4,
+   "member": "Vallie.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 4,
+   "member": "Domas.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 4,
+   "member": "Ellie.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 4,
+   "member": "Fiana.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 4,
+   "member": "Rydel.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 4,
+   "member": "Kaian.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 4,
+   "member": "Jasira.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 12,
+   "member": "Tobias.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 12,
+   "member": "Fiana.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 12,
+   "member": "Rydel.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 12,
+   "member": "Kaian.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 12,
+   "member": "Jasira.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 12,
+   "member": "Grant.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 12,
+   "member": "Konako.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 12,
+   "member": "Alarise.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 17,
+   "member": "Grant.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 17,
+   "member": "Konako.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 17,
+   "member": "Alarise.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 17,
+   "member": "Sophie.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 17,
+   "member": "Calithra.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 36,
+   "member": "Sophie.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 36,
+   "member": "Calithra.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 36,
+   "member": "Celeste.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 36,
+   "member": "Arryn.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 36,
+   "member": "Dahlia.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 44,
+   "member": "Celeste.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 44,
+   "member": "Arryn.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 44,
+   "member": "Dahlia.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 44,
+   "member": "Kass.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 44,
+   "member": "Yrelra.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 44,
+   "member": "Naomi.png",
+   "disabled": false,
+   "status": "applied"
+  },
+  {
+   "messageId": 44,
+   "member": "Kashina.png",
+   "disabled": false,
+   "status": "applied"
+  }
+ ],
+ "chat": [
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Domas",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Belle",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Dalan",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Sophie",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Sophie",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Calithra",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "SillyTavern System",
+   "is_user": false,
+   "is_system": true
+  },
+  {
+   "name": "SillyTavern System",
+   "is_user": false,
+   "is_system": true
+  },
+  {
+   "name": "SillyTavern System",
+   "is_user": false,
+   "is_system": true
+  },
+  {
+   "name": "SillyTavern System",
+   "is_user": false,
+   "is_system": true
+  },
+  {
+   "name": "SillyTavern System",
+   "is_user": false,
+   "is_system": true
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Sophie",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Calithra",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Celeste",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Belle",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Dalan",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Belle",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Kass",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Belle",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Kass",
+   "is_user": false,
+   "is_system": false
+  }
+ ]
+}

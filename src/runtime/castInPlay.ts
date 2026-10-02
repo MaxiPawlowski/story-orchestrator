@@ -12,6 +12,19 @@ export const castInPlay = (names: string[], rows: unknown[], window = CAST_IN_PL
     && playerWords.some((said) => [...words(name)].every((word) => said.has(word))));
 };
 
+type SpeakerRow = { name?: unknown; original_avatar?: unknown; is_user?: unknown; is_system?: unknown } | null | undefined;
+
+const speakerKey = (value: unknown) => String(value ?? "").replace(/\.(png|webp|jpe?g)$/i, "").trim().toLowerCase();
+
+export const firstLines = (rows: readonly unknown[]): Record<string, number> => {
+  const seen: Record<string, number> = {};
+  (rows as SpeakerRow[]).forEach((row, index) => {
+    if (!row || row.is_user || row.is_system) return;
+    for (const key of [speakerKey(row.name), speakerKey(row.original_avatar)]) if (key && seen[key] === undefined) seen[key] = index;
+  });
+  return seen;
+};
+
 export const castInPlayNote = (checkpoint: string, disabled: string[], rows: unknown): { summary: string; note: string } | null => {
   const dropped = castInPlay(disabled, Array.isArray(rows) ? rows : []);
   return dropped.length ? {

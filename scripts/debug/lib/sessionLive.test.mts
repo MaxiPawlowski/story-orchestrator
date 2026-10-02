@@ -415,6 +415,27 @@ test('T2-3 turn: a popup that will not close means nothing is sent, and a send t
   assert.match(lost.problems.join('; '), /the line did not land/);
 });
 
+test('T3-6 turn: an open ST drawer (Extensions at 390 px covers #send_but) is closed before the line is sent', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const page = { extensionsOpen: true };
+  (globalThis as any).document = {
+    getElementById: () => null,
+    querySelectorAll: (selector: string) => ({ length: selector.includes('#top-settings-holder') && page.extensionsOpen ? 1 : 0 }),
+  };
+  const order: string[] = [];
+  const closeOverlays = async () => { order.push('close'); page.extensionsOpen = false; };
+  const send = async (_page: unknown, line: string) => {
+    order.push(page.extensionsOpen ? 'send under the drawer' : 'send');
+    fake.ctx.chat.push({ name: 'You', is_user: true, mes: line }, { name: 'Belle', mes: 'North it is.' });
+    return { replied: true };
+  };
+  const record = await runTurn(fakePage(), 'We set out north on the road.', baseDeps({ closeOverlays, send }));
+  assert.deepEqual(order, ['close', 'send']);
+  assert.equal(record.ok, true, record.problems.join('; '));
+  delete (globalThis as any).document;
+});
+
 test('pure helpers: blackboard diff and the journal multiset', () => {
   assert.deepEqual(blackboardDiff({ a: 1, b: [1] }, { a: 1, b: [1, 2], c: 'x' }).changed, { b: { from: [1], to: [1, 2] }, c: { from: null, to: 'x' } });
   const event = { at: 't', boundary: 1, messageId: 1, kind: 'k', summary: 's' };

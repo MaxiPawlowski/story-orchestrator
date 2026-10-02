@@ -32,7 +32,7 @@ import { releasePlan, worldInfoPlan, type WorldInfoBookPlan } from "./worldInfoG
 import { worldInfoFilesHeld } from "./worldInfoMode";
 import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import { generationWatch } from "./generationWatch";
-import { recordNpcReplyFire, recordOnEnterPost } from "./npcReplyRewind";
+import { npcReplyMayFire, recordNpcReplyFire, recordOnEnterPost } from "./npcReplyRewind";
 import { isRecord } from "@utils/guards";
 import { castInPlayNote } from "./castInPlay";
 import { InFlight } from "./inFlight";
@@ -521,9 +521,7 @@ export class EffectsApplier {
       if (reply.new_chat_only && (trigger !== "onEnter" || !Array.isArray(getContext().chat) || getContext().chat.length !== 0)) continue;
       if (trigger === "afterSpeak" && reply.after_member && !aliases.includes(reply.after_member.trim().toLowerCase())) continue;
       const key = `${checkpoint.id}:${trigger}:${reply.member}:${index}`;
-      const count = extras.firedNpcReplies[key] ?? 0;
-      const max = Math.max(1, reply.maxTriggers ?? 1);
-      if (count >= max) continue;
+      if (!npcReplyMayFire(extras.firedNpcReplies, extras.firedNpcRepliesAt, key, reply.maxTriggers, trigger, lastMessageId())) continue;
       if (typeof reply.probability === "number") {
         const roll = this.deps.roll?.(key) ?? Math.random();
         const fired = roll <= reply.probability;

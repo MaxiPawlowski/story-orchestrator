@@ -67,6 +67,7 @@ export interface InlineSources {
   lastRollback: RollbackNotice | null;
   saveNotice: string | null;
   castNames?: Record<string, string>;
+  firstLines?: Record<string, number>;
 }
 
 const RAW_LIMIT = 4000;
@@ -78,6 +79,9 @@ const plural = (count: number, word: string) => `${count} ${word}${count === 1 ?
 const clip = (text: string) => (text.length > RAW_LIMIT ? `${text.slice(0, RAW_LIMIT)}…` : text);
 const memberStem = (member: string) => member.replace(/\.(png|webp|jpe?g)$/i, "");
 const memberName = (sources: InlineSources, member: string) => sources.castNames?.[member] ?? sources.castNames?.[memberStem(member)] ?? memberStem(member);
+
+const metBefore = (sources: InlineSources, member: string, messageId: number) => [memberStem(member), memberName(sources, member)]
+  .some((key) => (sources.firstLines?.[key.trim().toLowerCase()] ?? Infinity) < messageId);
 
 const checkpointPlayerName = (story: NormalizedStoryV2 | null, id: string) => story?.checkpointById[id]?.player_name ?? null;
 
@@ -258,9 +262,9 @@ const EFFECT_STATUS: Record<EffectLedgerStatus, { state: InlineState; text: (wor
   "externally-changed": { state: "refused", text: (words) => `${words.done}, then changed elsewhere` },
 };
 
-const effectDraft = (row: EffectLedgerRow, id: string, words: EffectWording): Draft => {
+const effectDraft = (row: EffectLedgerRow, id: string, words: EffectWording, told = true): Draft => {
   const status = EFFECT_STATUS[row.status];
-  return { id, messageId: row.messageId, category: "cast", level: row.status === "applied" ? 1 : 3, state: status.state, text: status.text(words) };
+  return { id, messageId: row.messageId, category: "cast", level: row.status === "applied" && told ? 1 : 3, state: status.state, text: status.text(words) };
 };
 
 function castItems(sources: InlineSources): Draft[] {
@@ -268,7 +272,8 @@ function castItems(sources: InlineSources): Draft[] {
     if (row.target.kind === "cast") {
       const name = memberName(sources, row.target.member);
       const left = row.after?.disabled === true;
-      return [effectDraft(row, `cast:member:${row.id}`, { done: castChangeText(name, left), doing: `${name} ${left ? "leaving" : "joining"}` })];
+      const words = { done: castChangeText(name, left), doing: `${name} ${left ? "leaving" : "joining"}` };
+      return [effectDraft(row, `cast:member:${row.id}`, words, metBefore(sources, row.target.member, row.messageId))];
     }
     if (row.target.kind === "background") return [effectDraft(row, `cast:background:${row.id}`, { done: PLAYER_COPY.sceneChanged, doing: "Scene change" })];
     return [];

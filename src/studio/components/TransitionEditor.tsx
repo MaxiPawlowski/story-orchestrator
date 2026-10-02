@@ -51,7 +51,7 @@ const TransitionEditor: React.FC = () => {
     <div className="flex flex-col gap-3 sm:flex-row">
       <div className="flex w-full flex-col gap-2 sm:w-56">
         <button type="button" className="st-button primary" onClick={handleAdd} disabled={checkpoints.length === 0}>+ Transition</button>
-        <ul className="flex flex-col gap-1" aria-label="Transitions">
+        <ul className="m-0 flex list-none flex-col gap-1 p-0" aria-label="Transitions">
           {transitions.length === 0 ? <li className="text-sm st-muted">No transitions yet</li> : null}
           {transitions.map((transition, index) => (
             <li key={index}>
@@ -61,15 +61,15 @@ const TransitionEditor: React.FC = () => {
                 className={`st-chip flex w-full flex-col items-start px-2 py-1 text-left text-sm ${index === selectedIndex ? "st-tab-active" : ""}`}
                 onClick={() => { setConfirmDeleteIndex(null); setSelectedIndex(index); }}
               >
-                <span className="truncate">{transition.from} → {transition.to}</span>
-                <span className="truncate text-[10px] st-muted">{renderGateText(transition.gate) || "(always)"}</span>
+                <span className="w-full [overflow-wrap:anywhere]">{transition.from} → {transition.to}</span>
+                <span className="w-full text-[10px] st-muted [overflow-wrap:anywhere]">{renderGateText(transition.gate) || "(always)"}</span>
               </button>
             </li>
           ))}
         </ul>
       </div>
 
-      <div className="flex-1">
+      <div className="min-w-0 flex-1">
         {!selected ? (
           <div className="st-subpanel p-4 text-sm st-muted">Select or add a transition.</div>
         ) : (
