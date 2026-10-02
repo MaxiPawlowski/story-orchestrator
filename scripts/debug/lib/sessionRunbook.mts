@@ -67,12 +67,13 @@ export function cardCommands(card: Card, lane: number | null, seq = 1): string[]
   const out: string[] = [];
   if (card.waits) out.push(`# WAITS: ${card.waits}`, '# start it only with --force-waiting once that exists');
   out.push(`${S} start ${card.id}${lane ? ` --lane ${lane}` : ''}${START_FLAGS[card.id] ?? ''}${card.waits ? ' --force-waiting' : ''}`);
-  if (card.story.kind === 'wizard' && card.setup.chat !== 'continue') out.push(`# wizard: drive it in the lane browser (so-ui.mts new-story-wizard / wizard-run / wizard-apply), premise ${card.story.premiseId ?? '(none)'}`);
+  if (card.story.kind === 'wizard' && card.setup.chat !== 'continue') out.push(`# wizard: no chat is open yet, premise ${card.story.premiseId ?? '(none)'}; each goal beat runs the Agent entry (so-session goal), then review with so-session agent <dir> state|continue|go and apply provisioning cards in the lane (st-lanes.mts run ${lane ?? '<lane>'} -- scripts/debug/so-ui.mts wizard-apply <n>)`);
   out.push(...(steps.before ?? []).map(fill));
   card.drive.forEach((beat, at) => {
     out.push(`# beat ${at + 1}: ${beat.title}${beat.aim.length ? ` -> ${beat.aim.join(' | ')}` : ''}`);
     const override = steps.beats?.[at];
     if (override?.replace) out.push(...override.replace.map(fill));
+    else if (beat.goal) for (const line of beat.lines) out.push(`${S} goal ${dir} ${quote(line)} --mode ${beat.goal.mode}${beat.goal.fresh ? ' --new' : ''} --go`, `${S} agent ${dir} state`);
     else for (const line of beat.lines) {
       if (UI_LINE.test(line)) { out.push(`#   UI: ${beat.why ?? line}`); continue; }
       if (EDIT_LINE.test(line)) { out.push(`${S} edit ${dir} <message id> ${quote(line.replace(EDIT_LINE, ''))}`); continue; }

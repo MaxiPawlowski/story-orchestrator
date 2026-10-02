@@ -53,7 +53,10 @@ export interface CardSettings {
   raw?: Record<string, unknown>;
 }
 
-export interface DriveBeat { title: string; aim: string[]; why?: string; lines: string[] }
+export const GOAL_MODES = ['review', 'auto-draft'] as const;
+export type GoalMode = (typeof GOAL_MODES)[number];
+export interface BeatGoal { mode: GoalMode; fresh?: boolean }
+export interface DriveBeat { title: string; aim: string[]; why?: string; lines: string[]; goal?: BeatGoal }
 export interface LookFor { what: string; where: string }
 export interface RubricRow { feature: string; ask?: string; reviewer?: 'user'; media?: MediaKind; gate?: BlindGate }
 export interface CardRequires { features?: FeatureKey[]; artifacts?: Partial<Record<ArtifactKey, number>> }
@@ -90,6 +93,7 @@ export interface Card {
   waits?: string;
   requires?: CardRequires;
   headerAllow?: string[];
+  wizardAssets?: boolean;
 }
 
 export interface CardDoc { version: number; pin: string; cards: Card[] }
@@ -212,6 +216,10 @@ export function validateCardDoc(doc: unknown, index: StoryIndex, premises: Premi
     }
     if (card.waits !== undefined && !nonEmptyString(card.waits)) problems.push(`${where}: waits must say what the card waits on`);
     if (card.headerAllow !== undefined) problems.push(...headerAllowProblems(where, card.headerAllow));
+    if (card.wizardAssets !== undefined) {
+      if (typeof card.wizardAssets !== 'boolean') problems.push(`${where}: wizardAssets must be boolean`);
+      else if (card.wizardAssets && card.story.kind !== 'wizard') problems.push(`${where}: wizardAssets is for a card whose story the wizard makes (story.kind wizard)`);
+    }
     const setup = card.setup;
     if (!isRecord(setup)) problems.push(`${where}: setup is required`);
     else {
@@ -249,6 +257,12 @@ export function validateCardDoc(doc: unknown, index: StoryIndex, premises: Premi
       else if (card.story.kind === 'wizard') { if (beat.aim.length) problems.push(`${label}: a wizard story has no checkpoint ids yet`); }
       else if (!beat.aim.length) problems.push(`${label}: aim names no checkpoint`);
       else for (const id of beat.aim) if (!entry?.checkpoints.some((checkpoint) => checkpoint.id === id)) problems.push(`${label}: checkpoint "${id}" is not in ${String(card.story.id)}`);
+      if (beat.goal !== undefined) {
+        if (card.story.kind !== 'wizard') problems.push(`${label}: goal is the wizard agent's goal; this card plays no wizard story`);
+        if (!isRecord(beat.goal) || !(GOAL_MODES as readonly string[]).includes(beat.goal.mode)) problems.push(`${label}: goal.mode must be ${GOAL_MODES.join('|')}`);
+        else if (beat.goal.fresh !== undefined && typeof beat.goal.fresh !== 'boolean') problems.push(`${label}: goal.fresh must be boolean`);
+        if (Array.isArray(beat.lines) && beat.lines.length !== 1) problems.push(`${label}: a goal beat has exactly one line, the goal`);
+      }
     });
     if (!Array.isArray(card.lookFor) || !card.lookFor.length) problems.push(`${where}: lookFor needs at least one item`);
     else card.lookFor.forEach((item, at) => {
@@ -425,7 +439,7 @@ export function renderCard(card: Card, index: StoryIndex): string {
   card.drive.forEach((beat, at) => {
     const aim = beat.aim.length ? `, aims at ${beat.aim.map((id) => checkpointLabel(entry, id)).join(' or ')}` : '';
     lines.push(`  ${at + 1}. **${beat.title}**${aim}.${beat.why ? ` ${beat.why}` : ''}`);
-    for (const line of beat.lines) lines.push(`     - Sample line: "${line}"`);
+    for (const line of beat.lines) lines.push(beat.goal ? `     - Agent goal (${beat.goal.mode}${beat.goal.fresh ? ', fresh draft' : ''}): "${line}"` : `     - Sample line: "${line}"`);
   });
   lines.push('- **Look for:**', ...card.lookFor.map((item) => `  - ${item.what} *(${item.where})*`));
   lines.push('- **Must not happen** (press the flag at once):', ...card.mustNotHappen.map((item) => `  - ${item}`));
@@ -436,6 +450,7 @@ export function renderCard(card: Card, index: StoryIndex): string {
   if (card.requires?.features?.length) lines.push(`- **Story data required:** ${card.requires.features.join(', ')} (preflight refuses the start when the pinned build lacks it).`);
   if (card.requires?.artifacts && Object.keys(card.requires.artifacts).length) lines.push(`- **Artifacts required at stop:** ${Object.entries(card.requires.artifacts).map(([key, count]) => `${key} >= ${count}`).join(', ')}.`);
   if (card.headerAllow?.length) lines.push(`- **Declared install changes** (stop's run-header diff allows exactly these; any other change still invalidates the session): ${card.headerAllow.map((entry) => `\`${entry}\``).join(', ')}.`);
+  if (card.wizardAssets) lines.push('- **Wizard assets:** stop allows exactly what this session\'s new wizard sessions created (their `applied` ledger and the library records saved under their keys): each new session, story and selected lorebook by name, and the character and lorebook counts moving by exactly the ledger\'s numbers. A removal or an unledgered asset still invalidates the session.');
   lines.push('- **Logged automatically:**', ...card.loggedAutomatically.map((item) => `  - ${item}`));
   lines.push('- **Known limits:**', ...card.knownLimits.map((item) => `  - ${item}`));
   return lines.join('\n');

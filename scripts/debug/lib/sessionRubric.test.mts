@@ -68,7 +68,7 @@ test('T1 score: every evidence path is kept, after one --evidence, a repeated --
   assert.deepEqual(parseScoreArgs(['HUD', 'works', 'note', '--evidence', 'turns.jsonl:1', 'shots/001-hud.png']).evidence, ['turns.jsonl:1', 'shots/001-hud.png']);
   assert.deepEqual(parseScoreArgs(['HUD', 'works', 'note', '--evidence', 'turns.jsonl:1', '--evidence', 'turns.jsonl:2']).evidence, ['turns.jsonl:1', 'turns.jsonl:2']);
   assert.deepEqual(parseScoreArgs(['HUD', 'works', 'note', '--evidence', 'turns.jsonl:1,shots/001-hud.png']).evidence, ['turns.jsonl:1', 'shots/001-hud.png']);
-  assert.deepEqual(parseScoreArgs(['HUD', '--record', 'seen twice', '--evidence', 'turns.jsonl:2']), { row: 'HUD', score: null, note: 'seen twice', evidence: ['turns.jsonl:2'], record: true, extra: [] });
+  assert.deepEqual(parseScoreArgs(['HUD', '--record', 'seen twice', '--evidence', 'turns.jsonl:2']), { row: 'HUD', score: null, note: 'seen twice', evidence: ['turns.jsonl:2'], record: true, provisional: false, extra: [] });
   assert.deepEqual(parseScoreArgs(['HUD', 'works', 'a note with spaces', 'stray']).extra, ['stray']);
   const dir = await sessionDir();
   await writeFile(join(dir, 'rubric.json'), JSON.stringify(rubricTemplate(findCard(await loadCards(), 'T1-2'))), 'utf-8');

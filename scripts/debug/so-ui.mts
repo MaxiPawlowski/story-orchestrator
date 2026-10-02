@@ -1194,7 +1194,110 @@ export async function openStoryDrawer(page) {
   return { alreadyOpen: false };
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|inline|inline-level|screenshot> [label]
+export const AGENT_MODE_CHOICES = ['step', 'review', 'auto-draft'] as const;
+export type AgentModeChoice = (typeof AGENT_MODE_CHOICES)[number];
+export const AGENT_SETTLED_TIMEOUT_MS = 1200000;
+
+export function agentModeTarget(choice: string): { wizard: 'staged' | 'agent'; agent: 'review' | 'auto-draft' | null } {
+  if (choice === 'step') return { wizard: 'staged', agent: null };
+  if (choice === 'review' || choice === 'auto-draft') return { wizard: 'agent', agent: choice };
+  throw new Error(`agent mode must be one of ${AGENT_MODE_CHOICES.join(', ')} (step = the Step by step entry)`);
+}
+
+export async function getAgentState(page) {
+  return evaluateInST(page, () => {
+    const wizard = document.getElementById('so-wizard');
+    const entry = wizard?.querySelector('[data-so="wizard-mode"][aria-pressed="true"]')?.getAttribute('data-mode') ?? null;
+    const root = document.getElementById('so-agent');
+    if (!root) return { open: Boolean(wizard), entry, agent: false };
+    const status = document.getElementById('so-agent-status');
+    const select = root.querySelector('select[aria-label="Agent mode"]') as HTMLSelectElement | null;
+    const card = root.querySelector('[data-so="agent-card"]');
+    const steps = Array.from(root.querySelectorAll('[data-so="agent-step"]')).map((step) => step.getAttribute('data-status'));
+    const present = (id: string) => Boolean(document.getElementById(id));
+    return {
+      open: true,
+      entry,
+      agent: true,
+      started: Boolean(status),
+      status: status?.getAttribute('data-status') ?? null,
+      statusText: status?.textContent?.trim() ?? null,
+      busy: present('so-agent-stop') || status?.textContent?.trim() === 'Working…',
+      mode: select?.value ?? null,
+      plan: (document.getElementById('so-agent-plan') as HTMLTextAreaElement | null)?.value ?? Array.from(root.querySelectorAll('[aria-label="Agreed plan"] li')).map((item) => item.textContent?.trim() ?? '').join('\n'),
+      steps: steps.length,
+      stepStatus: steps.reduce((counts: Record<string, number>, value) => ({ ...counts, [String(value)]: (counts[String(value)] ?? 0) + 1 }), {}),
+      pending: card ? { kind: card.getAttribute('data-kind') ?? 'edit', text: (card as HTMLElement).innerText.trim().slice(0, 600) } : null,
+      done: root.querySelector('[data-so="agent-done"]')?.textContent?.trim() ?? null,
+      controls: ['so-agent-start', 'so-agent-go', 'so-agent-continue', 'so-agent-retry', 'so-agent-new-goal', 'so-agent-stop'].filter(present),
+      error: root.parentElement?.querySelector('[role="alert"]')?.textContent?.trim() ?? null,
+    };
+  });
+}
+
+async function ensureWizardOpen(page, { fresh = false } = {}) {
+  const open = await evaluateInST(page, () => Boolean(document.getElementById('so-wizard')));
+  if (fresh || !open) await openWizard(page, { newStory: fresh || !open });
+}
+
+export const setAgentEntry = (page, choice: string, { fresh = false } = {}) => applyAgentEntry(page, agentModeTarget(choice), { fresh });
+
+async function applyAgentEntry(page, target: { wizard: 'staged' | 'agent'; agent: 'review' | 'auto-draft' | null }, { fresh = false } = {}) {
+  await ensureWizardOpen(page, { fresh });
+  const toggle = page.locator(`#so-wizard [data-so="wizard-mode"][data-mode="${target.wizard}"]`);
+  if (await toggle.count()) {
+    if ((await toggle.getAttribute('aria-pressed')) !== 'true') await toggle.click();
+  } else if (target.wizard === 'agent') throw new Error('the Wizard tab offers no Agent entry: the authoring model (or its agent route) is not configured');
+  if (target.wizard === 'agent') await page.locator('#so-agent').waitFor({ state: 'visible', timeout: 10000 });
+  if (target.agent) {
+    const select = page.locator('#so-agent select[aria-label="Agent mode"]').first();
+    if (await select.isDisabled()) throw new Error('the agent mode cannot change while the agent works');
+    await select.selectOption(target.agent);
+  }
+  return getAgentState(page);
+}
+
+async function waitAgentSettled(page, timeoutMs: number) {
+  await page.waitForFunction(() => document.getElementById('so-agent-status')?.textContent?.trim() === 'Working…', null, { timeout: 5000 }).catch(() => undefined);
+  await page.waitForFunction(() => {
+    const status = document.getElementById('so-agent-status');
+    return Boolean(status) && status!.textContent?.trim() !== 'Working…' && !document.getElementById('so-agent-stop');
+  }, null, { timeout: timeoutMs, polling: 1000 });
+}
+
+async function clickAgent(page, id: string, timeoutMs: number) {
+  const button = page.locator(`#${id}`);
+  if (!(await button.count())) {
+    const state = await getAgentState(page);
+    throw new Error(`#${id} is not on screen (agent status ${String((state as any).status ?? 'none')}, controls ${((state as any).controls ?? []).join(', ') || 'none'})`);
+  }
+  if (await button.isDisabled()) throw new Error(`#${id} is disabled`);
+  await button.click();
+  await waitAgentSettled(page, timeoutMs);
+  return getAgentState(page);
+}
+
+export async function agentGoal(page, goal: string, { mode = null as string | null, fresh = false, timeoutMs = AGENT_SETTLED_TIMEOUT_MS } = {}) {
+  if (!goal.trim()) throw new Error('agent-goal needs the goal text');
+  await applyAgentEntry(page, mode ? agentModeTarget(mode) : { wizard: 'agent', agent: null }, { fresh });
+  const field = page.locator('#so-agent-goal');
+  if (!(await field.count())) throw new Error('the agent already holds a session (no #so-agent-goal): use agent-new-goal first, or start a fresh draft');
+  await field.fill(goal);
+  return clickAgent(page, 'so-agent-start', timeoutMs);
+}
+
+export const agentGo = (page, { timeoutMs = AGENT_SETTLED_TIMEOUT_MS } = {}) => clickAgent(page, 'so-agent-go', timeoutMs);
+export const agentContinue = (page, { timeoutMs = AGENT_SETTLED_TIMEOUT_MS } = {}) => clickAgent(page, 'so-agent-continue', timeoutMs);
+
+export async function agentNewGoal(page) {
+  const button = page.locator('#so-agent-new-goal');
+  if (!(await button.count())) throw new Error('#so-agent-new-goal is not on screen (the agent is waiting for a decision, working, or not started)');
+  await button.click();
+  await page.locator('#so-agent-goal').waitFor({ state: 'visible', timeout: 10000 });
+  return getAgentState(page);
+}
+
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|agent-mode|agent-goal|agent-go|agent-continue|agent-new-goal|agent-state|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|inline|inline-level|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -1214,6 +1317,12 @@ new-story-wizard: click "New story (wizard)" in the settings panel (fresh draft)
 wizard-run [stage] [message]: run a wizard stage through the UI and wait for the model.
 wizard-answer [a1|a2|a3]: answer the pending questions ('|' separated); no argument clicks "You decide".
 wizard-apply [index]: click "Create it" on one provisioning card (default 0).
+agent-mode <step|review|auto-draft>: pick the Wizard tab's entry (step = Step by step) and, for review/auto-draft, the Agent mode.
+agent-goal "<text>" [--mode review|auto-draft] [--new]: type the agent's goal and press "Plan it"; waits for the plan (--new opens a fresh draft first).
+agent-go: approve the plan as shown (#so-agent-go) and wait until the agent settles (a card waits, done, out of budget, stopped).
+agent-continue: press Continue after Stop or Out of budget and wait until the agent settles.
+agent-new-goal: press New goal (drops the agent session for this draft).
+agent-state: print the agent pane (status, mode, steps, the pending card, controls on screen).
 stagecraft: print the World Info curator review ring from the drawer (author view, Scheduler tab).
 curator-accept [index|text-first] [text]: accept one proposed change, optionally replacing its text first. text-first picks the
   newest proposal's first pending text change (text applied) or, with none, its first pending switch.
@@ -1372,6 +1481,25 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
       const state = await applyWizardProvisioning(page, Number(process.argv[3] ?? 0));
       console.log(JSON.stringify(state, null, 2));
       await writeJSON(state, 'so-ui-wizard-apply');
+    }
+
+    if (subcommand.startsWith('agent-')) {
+      const flag = (name: string) => {
+        const at = process.argv.indexOf(name);
+        return at >= 0 ? process.argv[at + 1] ?? null : null;
+      };
+      const positional = process.argv.slice(3).filter((value, at, all) => !value.startsWith('--') && !['--mode', '--timeout-ms'].includes(all[at - 1] ?? ''));
+      const timeoutMs = Number(flag('--timeout-ms') ?? AGENT_SETTLED_TIMEOUT_MS);
+      const state = subcommand === 'agent-mode' ? await setAgentEntry(page, positional[0] ?? '')
+        : subcommand === 'agent-goal' ? await agentGoal(page, positional[0] ?? '', { mode: flag('--mode'), fresh: process.argv.includes('--new'), timeoutMs })
+          : subcommand === 'agent-go' ? await agentGo(page, { timeoutMs })
+            : subcommand === 'agent-continue' ? await agentContinue(page, { timeoutMs })
+              : subcommand === 'agent-new-goal' ? await agentNewGoal(page)
+                : subcommand === 'agent-state' ? await getAgentState(page)
+                  : null;
+      if (!state) throw new Error(`unknown subcommand ${subcommand}`);
+      console.log(JSON.stringify(state, null, 2));
+      await writeJSON(state, `so-ui-${subcommand}`);
     }
 
     if (subcommand === 'stagecraft') {

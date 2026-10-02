@@ -38,6 +38,7 @@ const USAGE = `Usage: node scripts/debug/so-run-header.mts <capture|diff|show> [
         inventory.v2Stories        any change at or under that path
         inventory.v2Stories:+SO-J12   only the addition of that item
         inventory.v2Stories:-SO-J12   only the removal of that item
+        inventory.characterCount=+9   only a numeric field moving by exactly that much
 
   show
       Capture and print without writing a file.
@@ -289,7 +290,9 @@ export async function capturePage(page) {
       // The three inventories a run can mutate without anyone noticing (S8, S11, S12).
       inventory: {
         v2Stories: (root.v2Stories ?? []).map((record: any) => `${record.id ?? '?'}@${record.version ?? '?'}`).sort(),
-        wizardSessions: Object.keys(root.wizardSessions ?? {}).sort(),
+        wizardSessions: (Array.isArray(root.wizardSessions)
+          ? root.wizardSessions.map((session: any, index: number) => (typeof session?.key === 'string' ? session.key : String(index)))
+          : Object.keys(root.wizardSessions ?? {})).sort(),
         debugGlobals: debugGlobals.sort(),
         lorebooksSelected,
         lorebookCount: (ctx.getWorldInfoNames?.() ?? []).length,
@@ -416,7 +419,10 @@ export interface AllowEntry {
   path: string;
   sign?: 'added' | 'removed';
   item?: string;
+  delta?: number;
 }
+
+const DELTA_ALLOW = /^([^:=]+)=([+-]\d+)$/;
 
 // A malformed allowance used to over-permit silently: anything after ':' that was not '+' counted
 // as a removal, and an empty item turned into a whole-field pass. Parsing is now strict and a bad
@@ -425,6 +431,15 @@ export function parseAllow(entries: string[]): { allow: AllowEntry[]; errors: st
   const allow: AllowEntry[] = [];
   const errors: string[] = [];
   for (const raw of entries) {
+    const delta = DELTA_ALLOW.exec(raw);
+    if (delta) {
+      allow.push({ raw, path: ALLOW_ALIASES[delta[1]] ?? delta[1], delta: Number(delta[2]) });
+      continue;
+    }
+    if (raw.includes('=') && !raw.includes(':')) {
+      errors.push(`--allow entry "${raw}" must give a signed whole number after = (path=+9 or path=-1)`);
+      continue;
+    }
     const colon = raw.indexOf(':');
     const head = colon >= 0 ? raw.slice(0, colon) : raw;
     const item = colon >= 0 ? raw.slice(colon + 1) : null;
@@ -538,6 +553,14 @@ export function diffHeaders(
     if (!difference.allowed) {
       for (const entry of parsed) {
         if (!matchesPath(entry.path, path)) continue;
+        if (entry.delta !== undefined) {
+          if (entry.path === path && typeof a === 'number' && typeof b === 'number' && b - a === entry.delta) {
+            difference.allowed = true;
+            difference.allowedBy = entry.raw;
+            break;
+          }
+          continue;
+        }
         if (!entry.sign) {
           difference.allowed = true;
           difference.allowedBy = entry.raw;

@@ -901,11 +901,12 @@
       "tier": "T5",
       "title": "Wizard, premise 1",
       "question": "Can the author make a playable story from the first premise with the wizard in review mode, and play 20 turns of it?",
+      "wizardAssets": true,
       "story": { "kind": "wizard", "premiseId": "cartographer", "premise": "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen." },
       "setup": { "mode": "author", "persona": "An author; later, the apprentice cartographer.", "chat": "fresh", "settings": {}, "notes": ["Start from the settings panel: New story (wizard).", "Use the wizard's Agent entry with Agent mode 'review': every change waits for you and each change card has Reject. The Step by step entry has no per-item reject.", "Once the story is saved and its group's chat is open, run so-session adopt <dir>: T5-3 and T5-4 continue that chat.", "For the 11 W6 pack, start the first run with --arm agent; a second run on the same premise with --arm staged uses the Step by step entry instead. stop exports each run's draft and pairs the two stories by premise, unlabelled, in test/sessions/rating-pack/W6/."] },
       "drive": [
-        { "title": "Premise and interview", "aim": [], "why": "Paste the premise; answer the wizard's questions, use 'You decide' once.", "lines": ["A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."] },
-        { "title": "Turning points and characters", "aim": [], "why": "Review each proposed change card; Reject one with a reason (Agent mode only).", "lines": ["Make the third house quieter and more dangerous."] },
+        { "title": "Premise and interview", "aim": [], "why": "Paste the premise; answer the wizard's questions, use 'You decide' once.", "lines": ["A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."], "goal": { "mode": "review", "fresh": true } },
+        { "title": "Turning points and characters", "aim": [], "why": "Review each proposed change card; Reject one with a reason (Agent mode only).", "lines": ["(type it as a Reject reason or an agent note:) Make the third house quieter and more dangerous."] },
         { "title": "Setup: provisioning", "aim": [], "why": "Apply the character cards, lorebook and group one card at a time.", "lines": ["(no chat line: provisioning cards)"] },
         { "title": "Play 20 turns", "aim": [], "why": "Open the new group's chat and play.", "lines": ["I finish inking the northern border and watch the ink move."] }
       ],
@@ -933,11 +934,12 @@
       "tier": "T5",
       "title": "Wizard, premises 2 and 3",
       "question": "In auto-draft mode, does the wizard produce two stories whose provisioning still waits for the author?",
+      "wizardAssets": true,
       "story": { "kind": "wizard", "premiseId": "memory-pawn", "premise": "In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood." },
       "setup": { "mode": "author", "persona": "An author.", "chat": "fresh", "settings": {}, "notes": ["Second premise (old-dragon): A dragon too old to fly hires a crew of thieves to steal its own hoard back from the knights who claim to have slain it.", "Auto-draft is the Agent mode 'Write to the draft, review before saving': open the wizard's Agent entry and pick it in Agent mode for both premises."] },
       "drive": [
-        { "title": "Premise 2 in auto-draft", "aim": [], "why": "Agent mode 'Write to the draft, review before saving': edits land in the draft directly; provisioning still waits.", "lines": ["In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood."] },
-        { "title": "Premise 3 in auto-draft", "aim": [], "why": "Same, second story.", "lines": ["A dragon too old to fly hires a crew of thieves to steal its own hoard back from the knights who claim to have slain it."] },
+        { "title": "Premise 2 in auto-draft", "aim": [], "why": "Agent mode 'Write to the draft, review before saving': edits land in the draft directly; provisioning still waits.", "lines": ["In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood."], "goal": { "mode": "auto-draft", "fresh": true } },
+        { "title": "Premise 3 in auto-draft", "aim": [], "why": "Same, second story.", "lines": ["A dragon too old to fly hires a crew of thieves to steal its own hoard back from the knights who claim to have slain it."], "goal": { "mode": "auto-draft", "fresh": true } },
         { "title": "Apply provisioning cards", "aim": [], "why": "Characters, lorebook, group, one by one.", "lines": ["(no chat line: provisioning cards)"] }
       ],
       "lookFor": [
@@ -985,6 +987,7 @@
       "tier": "T5",
       "title": "Repair",
       "question": "When a requirement breaks, does Repair name the one missing step and does Fix with wizard fix it?",
+      "wizardAssets": true,
       "story": { "kind": "wizard" },
       "setup": { "mode": "author", "persona": "The author of the T5-1 story.", "chat": "continue", "continues": "T5-1", "settings": {}, "notes": ["Break the cast by REMOVING a required member from the group: a disabled member still counts as present (product finding, see 14-findings.md), so disabling breaks nothing Repair can see.", "so-session start reopens the chat T5-1 adopted."] },
       "drive": [
@@ -1079,10 +1082,11 @@
       "tier": "T6",
       "title": "Harness routing",
       "question": "Does the wizard work through the CLI harness route as well as through the local route?",
+      "wizardAssets": true,
       "story": { "kind": "wizard", "premiseId": "cartographer", "premise": "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen." },
       "setup": { "mode": "author", "persona": "An author.", "chat": "fresh", "settings": {}, "notes": ["opencode only: route the authoring role to the opencode harness in the settings panel. No claude or codex CLI, and no CLI login is performed by the run (W 2026-09-30)."] },
       "drive": [
-        { "title": "Replay T5-1 through the harness", "aim": [], "why": "Same premise, review mode.", "lines": ["A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."] }
+        { "title": "Replay T5-1 through the harness", "aim": [], "why": "Same premise, review mode.", "lines": ["A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."], "goal": { "mode": "review", "fresh": true } }
       ],
       "lookFor": [{ "what": "Tool calls parse on the first try more often than the local route.", "where": "wizard" }, { "what": "Provisioning still waits for you.", "where": "wizard" }],
       "mustNotHappen": ["The harness writes anything without confirmation.", "A harness failure is silent."],

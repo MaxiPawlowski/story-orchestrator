@@ -20,8 +20,9 @@ import {
 import { refresherFor, settingLanded } from './lib/sessionSetting.mts';
 import { ackPaths, readTailAcks, tailProblems, TAIL_FILES, TAIL_NAMES, waitFor, READY_TIMEOUT_MS, DRAIN_TIMEOUT_MS } from './lib/sessionTails.mts';
 import { headerDiffArgs, stopSequence } from './lib/sessionStop.mts';
+import { wizardAllowance, type WizardAllowance } from './lib/sessionWizardAssets.mts';
 import { buildPack, candidatesFromTurns, packLeaks, storyCandidate, type Candidate, type Verdict } from './lib/ratingPack.mts';
-import { LIVE_VERBS, type LiveChat, type LiveRequest, type LiveVerb } from './lib/sessionDriver.mts';
+import { AGENT_OPS, GOAL_AGENT_MODES, LIVE_VERBS, type AgentOp, type LiveChat, type LiveRequest, type LiveVerb } from './lib/sessionDriver.mts';
 import { BOOK_ANSWERS, type BookAnswer } from './lib/sessionDelete.mts';
 import { PRESET_OVERLAY_RECORD, sessionOverlay } from './lib/presetOverlay.mts';
 import { DEFAULT_MAIN_PROFILE, DEFAULT_ORCHESTRATOR, judgeExpectation, pinVerdict } from './lib/sessionPin.mts';
@@ -72,6 +73,14 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
   shot <dir> <label>                         screenshot into <dir>/shots/
   age <dir> <hours>                          backdate the open chat's last session and reload it
   adopt <dir>                                record the open chat as the session's chat (wizard cards)
+  goal <dir> "<goal>" [--mode review|auto-draft] [--new] [--go] [--timeout-ms n]
+      the wizard's Agent entry: open the Studio's Wizard tab (--new: a fresh "New story (wizard)" draft),
+      pick Agent and the mode, type the goal, press Plan it and wait for the plan; --go approves the
+      plan as shown and waits until the agent settles (a card waits, done, out of budget, stopped).
+      Needs no chat; the record (status, plan, steps, the pending card) goes to turns.jsonl
+  agent <dir> <go|continue|new-goal|state|mode <step|review|auto-draft>>
+      one Agent pane control (Go, Continue, New goal, the entry/mode switch) or a read of its state,
+      recorded in turns.jsonl
   mem <dir> <pin|unpin|lock|unlock|exclude|edit> <row id|"text"> ["<new text>"]
       change one memory row through the runtime (the Memory tab's actions, no DOM clicks); the row
       is named by id (8+ characters) or a piece of its text that matches exactly one live row; the
@@ -79,6 +88,8 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
   score <dir> <row|n> <works|annoying|broken|not-noticed> "<note>" --evidence <path:line|png> [<path:line|png> ...]
       (evidence: several paths after one --evidence, a repeated --evidence, or a comma list)
   score <dir> <row|n> --record "<note>" --evidence ...   (rows recorded for the user's review)
+      an INVALID session (session.json valid:false) is refused unless --provisional, which marks the
+      row provisional: true; --provisional on a valid session is refused
   stop [<dir>] [--stop-lane]   export every visited or created chat (full persisted runtime with engine
                                history, effect ledger and chapter store, transcript with swipes,
                                evidence slices) and the wizard drafts, check the player surface,
@@ -86,7 +97,11 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
                                acknowledgement, only then stop the tails, verify the card's
                                required artifacts and the ComfyUI guard, meter the spend, write
                                rubric.json, rebuild the card's blind-rating packs and the lane
-                               lease. An invalid session exits 1.
+                               lease. An invalid session exits 1. A card with wizardAssets
+                               allows exactly the additions its new wizard sessions' ledgers
+                               name (sessions, stories, selected books, the character and
+                               lorebook counts by the ledger's numbers), recorded as
+                               session.json wizardAssets.
   reverify <dir>               re-check a stopped session's required artifacts (waivers included) and rewrite valid/invalid
   digest [<dir>]               write findings.md + findings.json (flags with context, anomalies);
                                a missing capture file makes the session invalid (exit 1)
@@ -522,6 +537,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
   const viewportEnv: Record<string, string> = session.viewport ? { ST_DEBUG_VIEWPORT: session.viewport } : {};
   let pageEnd: any = {};
   let diffOutput = '';
+  let wizard: WizardAllowance | null = null;
   const verifyWarnings: string[] = [];
   const outcome = await stopSequence({
     endPhase: async () => {
@@ -530,7 +546,10 @@ async function stop(arg: string | undefined, stopLane: boolean) {
       return { ok: end.code === 0 && Array.isArray(pageEnd.ends), problems: [...(end.code !== 0 ? [`end phase failed: ${end.output.slice(-600)}`] : []), ...(pageEnd.problems ?? [])] };
     },
     headerDiff: async () => {
-      const diff = await inLane(session.lane, headerDiffArgs(resolve(dir, 'run-header-start.json'), resolve(dir, 'run-header-end.json'), pageEnd.chats ?? session.chats ?? [], card.headerAllow ?? []), viewportEnv);
+      const draftsPath = resolve(dir, 'wizard-drafts.json');
+      const startPath = resolve(dir, 'run-header-start.json');
+      wizard = card.wizardAssets ? wizardAllowance(existsSync(startPath) ? await readJson(startPath) : null, existsSync(draftsPath) ? await readJson(draftsPath) : null, session.startedAt ?? null) : null;
+      const diff = await inLane(session.lane, headerDiffArgs(startPath, resolve(dir, 'run-header-end.json'), pageEnd.chats ?? session.chats ?? [], [...(card.headerAllow ?? []), ...(wizard?.allow ?? [])]), viewportEnv);
       diffOutput = diff.output;
       await writeFile(resolve(dir, 'run-header-diff.txt'), diff.output, 'utf-8');
       return diff;
@@ -555,7 +574,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
   rubric.playerClean = pageEnd.playerClean ?? (session.mode === 'player' ? { ok: false, error: 'the player surface was not checked' } : { skipped: 'author-mode card' });
   await writeFile(rubricPath, JSON.stringify(rubric, null, 2), 'utf-8');
   const stopped = {
-    ...session, stoppedAt: new Date().toISOString(), chats: pageEnd.chats ?? session.chats, runHeaderDiff: outcome.runHeaderDiff,
+    ...session, stoppedAt: new Date().toISOString(), chats: pageEnd.chats ?? session.chats, runHeaderDiff: outcome.runHeaderDiff, ...(wizard ? { wizardAssets: wizard } : {}),
     evidence: { files: pageEnd.files ?? [], problems: pageEnd.evidenceProblems ?? {} }, playerClean: rubric.playerClean, spend,
     tails: outcome.acks, valid: outcome.valid, invalid: outcome.invalid,
     problems: [...(session.problems ?? []), ...outcome.problems],
@@ -639,7 +658,7 @@ export function liveTarget(session: any, verb: LiveVerb, wanted: string | null):
   return sessionChat(session, wanted);
 }
 
-export const OPEN_CHAT_VERBS: readonly LiveVerb[] = ['adopt', 'flag', 'shot'];
+export const OPEN_CHAT_VERBS: readonly LiveVerb[] = ['adopt', 'flag', 'shot', 'goal', 'agent'];
 
 export const sessionChatsOf = (session: any, verb: LiveVerb, wanted: string | null): LiveChat[] | undefined => (wanted || OPEN_CHAT_VERBS.includes(verb)
   ? undefined
@@ -666,7 +685,7 @@ export interface LiveCli { verb: LiveVerb; dir: string | undefined; args: LiveRe
 export const ARM_VERBS: readonly string[] = ['turn', 'swipe-new', 'regen'];
 
 export function parseLiveArgs(verb: LiveVerb, rest: string[]): LiveCli {
-  const flags = new Set(['--chat', '--timeout-ms', '--to', '--via', '--quiet-ms', '--arm', '--gate', '--book']);
+  const flags = new Set(['--chat', '--timeout-ms', '--to', '--via', '--quiet-ms', '--arm', '--gate', '--book', '--mode']);
   const positional: string[] = [];
   for (let at = 0; at < rest.length; at += 1) {
     if (flags.has(rest[at])) { at += 1; continue; }
@@ -687,6 +706,22 @@ export function parseLiveArgs(verb: LiveVerb, rest: string[]): LiveCli {
   if (verb === 'shot') args.label = more[0];
   if (verb === 'age') args.hours = Number(more[0]);
   if (verb === 'mem') { args.memOp = more[0]; args.ref = more[1]; args.text = more[2]; }
+  const mode = argValue(rest, '--mode');
+  if (verb === 'goal') {
+    args.text = more[0];
+    if (mode !== null && !(GOAL_AGENT_MODES as readonly string[]).includes(mode)) throw new Error(`goal --mode must be one of ${GOAL_AGENT_MODES.join(', ')}`);
+    args.agentMode = mode;
+    args.fresh = rest.includes('--new');
+    args.go = rest.includes('--go');
+  }
+  if (verb === 'agent') {
+    if (more[0] !== undefined && !(AGENT_OPS as readonly string[]).includes(more[0])) throw new Error(`agent takes one of ${AGENT_OPS.join(', ')}`);
+    args.agentOp = more[0] as AgentOp | undefined;
+    if (more[0] === 'mode') {
+      if (!['step', ...GOAL_AGENT_MODES].includes(more[1] ?? '')) throw new Error(`agent mode needs step, ${GOAL_AGENT_MODES.join(' or ')}`);
+      args.agentMode = more[1];
+    }
+  }
   const book = argValue(rest, '--book');
   if (book !== null && !(BOOK_ANSWERS as readonly string[]).includes(book)) throw new Error(`--book must be one of ${BOOK_ANSWERS.join(', ')}`);
   if (verb === 'delete-chat') args.book = book as BookAnswer | null;
@@ -699,6 +734,8 @@ export function parseLiveArgs(verb: LiveVerb, rest: string[]): LiveCli {
             : verb === 'mem' && args.memOp === 'edit' && !args.text ? 'the new text'
             : verb === 'switch-chat-mid-gen' && !args.to ? '--to <chatId>'
             : verb === 'delete-chat' && !more[0] ? 'the chat id to delete'
+            : verb === 'goal' && !args.text ? 'the goal text (the premise, or what to build or fix)'
+            : verb === 'agent' && !args.agentOp ? `an op (${AGENT_OPS.join('|')})`
               : !dir ? 'the session dir' : null;
   if (missing) throw new Error(`${verb} needs ${missing}`);
   const arm = argValue(rest, '--arm');
@@ -737,6 +774,7 @@ const looksLikeEvidence = (value: string) => /^\S+$/.test(value) && /[.:/\\]/.te
 
 export function parseScoreArgs(rest: string[]) {
   const record = rest.includes('--record');
+  const provisional = rest.includes('--provisional');
   const evidence: string[] = [];
   const positional: string[] = [];
   for (let index = 0; index < rest.length; index += 1) {
@@ -747,23 +785,36 @@ export function parseScoreArgs(rest: string[]) {
       }
       continue;
     }
-    if (rest[index] === '--record') continue;
+    if (rest[index] === '--record' || rest[index] === '--provisional') continue;
     positional.push(rest[index]);
   }
   const [row, ...tail] = positional;
-  return { row: row ?? null, score: record ? null : tail[0] ?? null, note: (record ? tail[0] : tail[1]) ?? '', evidence, record, extra: tail.slice(record ? 1 : 2) };
+  return { row: row ?? null, score: record ? null : tail[0] ?? null, note: (record ? tail[0] : tail[1]) ?? '', evidence, record, provisional, extra: tail.slice(record ? 1 : 2) };
+}
+
+export function scoreRefusal(session: { valid?: unknown; invalid?: unknown } | null, provisional: boolean): string | null {
+  const invalid = session?.valid === false;
+  if (invalid && !provisional) {
+    const reasons = Array.isArray(session?.invalid) ? session.invalid.map(String) : [];
+    return `the session is INVALID${reasons.length ? ` (${reasons.join('; ')})` : ''}: an invalid session is re-run, not scored; pass --provisional to record a provisional score anyway`;
+  }
+  if (!invalid && provisional) return '--provisional is only for an INVALID session; this one is valid, so score it plainly';
+  return null;
 }
 
 export async function scoreCommand(dirArg: string, rest: string[], at = new Date().toISOString()) {
   const dir = resolve(REPO_ROOT, dirArg);
   const rubricPath = resolve(dir, 'rubric.json');
   if (!existsSync(rubricPath)) throw new Error(`${dirArg} has no rubric.json yet: stop the session first`);
-  const { row, score, note, evidence, record, extra } = parseScoreArgs(rest);
+  const { row, score, note, evidence, record, provisional, extra } = parseScoreArgs(rest);
   if (!row) throw new Error('score needs a row (number or feature name)');
   if (extra.length) throw new Error(`score: unexpected argument(s) ${extra.map((item) => JSON.stringify(item)).join(' ')}; quote the note, and give evidence after --evidence (several paths, repeated --evidence or a comma list)`);
-  const scored = scoreRow(await readJson(rubricPath), dir, { row, score, note, evidence, record, at });
+  const sessionPath = resolve(dir, 'session.json');
+  const refusal = scoreRefusal(existsSync(sessionPath) ? await readJson(sessionPath) : null, provisional);
+  if (refusal) throw new Error(`score refused: ${refusal}`);
+  const scored = scoreRow(await readJson(rubricPath), dir, { row, score, note, evidence, record, at, provisional });
   await writeFile(rubricPath, JSON.stringify(scored.rubric, null, 2), 'utf-8');
-  return { row: scored.index, feature: scored.row.feature, score: scored.row.score, open: rubricProblems(scored.rubric) };
+  return { row: scored.index, feature: scored.row.feature, score: scored.row.score, ...(provisional ? { provisional: true } : {}), open: rubricProblems(scored.rubric) };
 }
 
 export async function loadSessionFiles(dir: string, index: StoryIndex) {

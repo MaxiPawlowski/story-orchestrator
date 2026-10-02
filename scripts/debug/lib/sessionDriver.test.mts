@@ -18,7 +18,7 @@ const deps = (overrides: Partial<LiveDeps> = {}): LiveDeps => ({
 const chat = () => [{ name: 'Narrator', mes: 'Hall.' }, { name: 'You', is_user: true, mes: 'Hi.' }, { name: 'Belle', mes: 'Hey.' }];
 
 test('live: every verb is wired to one CLI parse', () => {
-  assert.deepEqual([...LIVE_VERBS], ['turn', 'swipe-new', 'regen', 'edit', 'delete', 'switch-chat-mid-gen', 'reload-mid-gen', 'flag', 'shot', 'age', 'adopt', 'mem', 'delete-chat']);
+  assert.deepEqual([...LIVE_VERBS], ['turn', 'swipe-new', 'regen', 'edit', 'delete', 'switch-chat-mid-gen', 'reload-mid-gen', 'flag', 'shot', 'age', 'adopt', 'mem', 'delete-chat', 'goal', 'agent']);
   assert.deepEqual(parseLiveArgs('turn', ['test/sessions/T0/T0-1-1', 'We take it.', '--chat', 'c1', '--timeout-ms', '900000']), {
     verb: 'turn', dir: 'test/sessions/T0/T0-1-1', args: { line: 'We take it.' }, chat: 'c1', options: { timeoutMs: 900000 },
   });

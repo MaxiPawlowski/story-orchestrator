@@ -40,8 +40,8 @@ export function findRow(rubric: any, rowRef: string): number {
   throw new Error(partial.length ? `"${rowRef}" matches ${partial.map(({ row }) => `"${row.feature}"`).join(', ')}: use the row number` : `no rubric row matches "${rowRef}" (rows: ${rows.map((row, at) => `${at} ${row.feature}`).join('; ')})`);
 }
 
-export function scoreRow(rubric: any, dir: string, { row, score, note, evidence, record = false, at = new Date().toISOString() }: {
-  row: string; score: string | null; note: string; evidence: string[]; record?: boolean; at?: string;
+export function scoreRow(rubric: any, dir: string, { row, score, note, evidence, record = false, at = new Date().toISOString(), provisional = false }: {
+  row: string; score: string | null; note: string; evidence: string[]; record?: boolean; at?: string; provisional?: boolean;
 }) {
   const index = findRow(rubric, row);
   const target = rubric.rows[index];
@@ -62,7 +62,9 @@ export function scoreRow(rubric: any, dir: string, { row, score, note, evidence,
     scoredBy: target.reviewer === 'user' ? null : SCORER,
     recordedBy: SCORER,
     scoredAt: at,
+    ...(provisional ? { provisional: true } : {}),
   };
+  if (!provisional) delete (next as { provisional?: boolean }).provisional;
   const rows = [...rubric.rows];
   rows[index] = next;
   return { rubric: { ...rubric, rows }, row: next, index };
