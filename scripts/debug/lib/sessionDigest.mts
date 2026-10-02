@@ -413,7 +413,7 @@ export function renderFindings(digest: Digest, sessionDir: string): string {
   }
   out.push('## Judge health', '', ...renderJudgeHealth(digest.judge), '');
   out.push('## Model defects', '', digest.modelDefects.turns
-    ? `- ${digest.modelDefects.turns} turn(s) with a defective reply: loop ${digest.modelDefects.loop}, corrupt ${digest.modelDefects.corrupt}, damaged start ${digest.modelDefects.start}, empty ${digest.modelDefects.empty} (never swiped); swiped once by the loop guard: ${digest.modelDefects.repaired}; ` +
+    ? `- ${digest.modelDefects.turns} turn(s) with a defective reply: loop ${digest.modelDefects.loop}, corrupt ${digest.modelDefects.corrupt}, damaged start ${digest.modelDefects.start}, empty ${digest.modelDefects.empty} (never swiped), reasoning leaked ${digest.modelDefects.leak}; swiped once by the loop guard: ${digest.modelDefects.repaired}; ` +
       `left in the chat (not the last reply): ${digest.modelDefects.unrepaired} message(s)`
     : 'None detected.', '');
   out.push('## Flags', '');
