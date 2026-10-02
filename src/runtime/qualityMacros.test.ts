@@ -18,6 +18,7 @@ const harness = () => {
 describe("per-quality macros {{story_quality_<key>}} (v2.4 plan 08 R15)", () => {
   it("plans one macro per authored key, and skips a key the macro engine cannot name", () => {
     expect(qualityMacroPlan(story(["has_key", "trap_state", "Bad-Key", "two words"]))).toEqual({ keys: ["has_key", "trap_state"], skipped: ["Bad-Key", "two words"] });
+    expect(qualityMacroPlan(story(["progress_toward_saga-board-4"]))).toEqual({ keys: ["progress_toward_saga-board-4"], skipped: [] });
     expect(QUALITY_MACRO_PREFIX).toBe("story_quality_");
   });
 
@@ -54,7 +55,7 @@ describe("per-quality macros {{story_quality_<key>}} (v2.4 plan 08 R15)", () => 
     const { sync, journal } = harness();
     sync(story(["ok_key", "Not-Ok"]));
     sync(story(["ok_key", "Not-Ok"]));
-    expect(journal).toEqual([["quality macro skipped", "{{story_quality_Not-Ok}} is not registered: a macro key must be lowercase letters, digits and _"]]);
+    expect(journal).toEqual([["quality macro skipped", "{{story_quality_Not-Ok}} is not registered: a macro key must be lowercase letters, digits, _ and -"]]);
   });
 });
 

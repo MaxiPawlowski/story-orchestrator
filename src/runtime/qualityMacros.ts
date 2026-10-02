@@ -4,7 +4,7 @@
 // blackboard, its single writer. Epistemic content has no quality and so no macro.
 
 export const QUALITY_MACRO_PREFIX = "story_quality_";
-const MACRO_KEY = /^[a-z0-9_]+$/;
+const MACRO_KEY = /^[a-z0-9_-]+$/;
 
 export interface QualitySource {
   qualities: Array<{ key: string }>;
@@ -51,6 +51,6 @@ export function createQualityMacroSync(host: QualityMacroHost): (story: QualityS
       host.register(name, () => renderQualityValue(host.values(), key));
       return name;
     });
-    for (const key of plan.skipped) host.journal("quality macro skipped", `{{${QUALITY_MACRO_PREFIX}${key}}} is not registered: a macro key must be lowercase letters, digits and _`);
+    for (const key of plan.skipped) host.journal("quality macro skipped", `{{${QUALITY_MACRO_PREFIX}${key}}} is not registered: a macro key must be lowercase letters, digits, _ and -`);
   };
 }

@@ -67,7 +67,7 @@ describe("v2.4 T1: a middle delete rolls back from the message it removed", () =
     const manager = harness();
     await emit("CHAT_CHANGED");
     await hostDelete(1);
-    expect(manager.rollbackFromMessage.mock.calls).toEqual([[1, undefined, "delete"]]);
+    expect(manager.rollbackFromMessage.mock.calls).toEqual([[1, undefined, "delete", 1]]);
   });
 
   it("decodes before the first await: a /cut range reports each removed message while the rollback is still running", async () => {
@@ -112,13 +112,13 @@ describe("v2.4 T1: a middle delete rolls back from the message it removed", () =
     host.chat.push(row(4), row(5));
     await emit("MESSAGE_SENT", 5);
     await hostDelete(4);
-    expect(manager.rollbackFromMessage.mock.calls).toEqual([[4, undefined, "delete"]]);
+    expect(manager.rollbackFromMessage.mock.calls).toEqual([[4, undefined, "delete", 1]]);
   });
 
   it("control: a tail delete decodes to the same value ST sends", async () => {
     const manager = harness();
     await emit("CHAT_CHANGED");
     await hostDelete(3);
-    expect(manager.rollbackFromMessage.mock.calls).toEqual([[3, undefined, "delete"]]);
+    expect(manager.rollbackFromMessage.mock.calls).toEqual([[3, undefined, "delete", 1]]);
   });
 });
