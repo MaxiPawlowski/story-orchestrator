@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { REPO_ROOT } from '../../lib/stRoot.mjs';
 import {
-  artifactInventory, artifactProblems, artifactWaivers, comfyCalls, featureProblems, HARVEST_HEADER, HARVEST_WAIVED, replyReasoning, THINKING_SILENT, newChats, requiredArtifacts, requiredFeatures, runtimeProblems, storyFeatures, trackChat, type ChatRef,
+  artifactInventory, artifactProblems, artifactWaivers, comfyCalls, comfyContacts, featureProblems, HARVEST_HEADER, HARVEST_WAIVED, replyReasoning, THINKING_SILENT, newChats, requiredArtifacts, requiredFeatures, runtimeProblems, storyFeatures, trackChat, type ChatRef,
 } from './sessionArtifacts.mts';
 import { cardGates, findCard, liveTag, loadCards, loadIndex, verifySession } from '../so-session.mts';
 
@@ -162,4 +162,35 @@ test('T5-1-1 arm rule: a turn in an armed session takes the session arm, and a d
   assert.throws(() => liveTag(armed, { verb: 'turn', tag: { arm: 'staged' } }, gates), /is the agent arm \(set at start\)/);
   assert.equal(liveTag({ charter: 'T3-1' }, { verb: 'turn' }, ['C3']), undefined);
   assert.deepEqual(liveTag({ charter: 'T3-1' }, { verb: 'turn', tag: { arm: 'beat' } }, ['C3']), { arm: 'beat', gate: 'C3' });
+});
+
+const consoleRows = (...rows: Record<string, unknown>[]) => rows.map((row) => JSON.stringify({ at: '2026-10-02T20:00:00.000Z', ...row })).join('\n');
+
+test('T6-3-3 ComfyUI guard: ComfyUI down, ST logs each refused probe and the guard fails on it', () => {
+  const log = 'ok\nTypeError: fetch failed\n  [cause]: Error: connect ECONNREFUSED 127.0.0.1:8188\nfine';
+  const found = comfyContacts(log, consoleRows({ type: 'info', text: 'console tail attached' }));
+  assert.equal(found.length, 1);
+  assert.match(found[0], /^the lane contacted ComfyUI during the session: .*ECONNREFUSED 127\.0\.0\.1:8188/);
+});
+
+test('T6-3-3 ComfyUI guard: ComfyUI up, the server log is silent and the page\'s proxy requests still fail the guard', () => {
+  const rows = consoleRows(
+    { type: 'info', text: 'console tail attached' },
+    { type: 'request', method: 'POST', url: 'http://127.0.0.1:8101/api/sd/comfy/samplers' },
+    { type: 'request', method: 'POST', url: 'http://127.0.0.1:8101/api/sd/comfy/models' },
+    { type: 'request', method: 'GET', url: 'http://127.0.0.1:8188/object_info' },
+    { type: 'error', text: 'ComfyUI is mentioned in a console line, which is not a request' },
+  );
+  const found = comfyContacts('Story Orchestrator ready\nNew connection from 127.0.0.1', rows);
+  assert.equal(found.length, 3);
+  assert.match(found[0], /POST http:\/\/127\.0\.0\.1:8101\/api\/sd\/comfy\/samplers/);
+  assert.match(found[0], /ST logs nothing for a call ComfyUI answers/);
+  assert.match(found[2], /GET http:\/\/127\.0\.0\.1:8188\/object_info/);
+});
+
+test('T6-3-3 ComfyUI guard: a clean log and clean page requests pass', () => {
+  const rows = consoleRows({ type: 'info', text: 'console tail attached' }, { type: 'request', method: 'POST', url: 'http://127.0.0.1:8101/api/backends/text-completions/generate' }, { type: 'request', method: 'GET', url: 'http://127.0.0.1:81880/x' });
+  assert.deepEqual(comfyContacts('Story Orchestrator ready\nPOST /api/chats/save 200', rows), []);
+  assert.deepEqual(comfyContacts('', ''), []);
+  assert.deepEqual(comfyContacts('', 'not json\n{"type":"request"}'), []);
 });

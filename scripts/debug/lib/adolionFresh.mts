@@ -97,6 +97,7 @@ export interface StripPlan {
   removed: { stories: string[]; bindings: string[]; selected: string[]; profiles: string[] };
   media: { image: boolean; sprites: boolean };
   swipes: { was: boolean; now: true };
+  imageExtension: { was: boolean; now: false };
 }
 
 const spritesSwitchedOff = (value: unknown) => record(value).enabled === false && record(value).explicit === true;
@@ -108,6 +109,25 @@ export function mediaOff(root: Record<string, any>) {
   root.settings.sprites = { ...record(root.settings.sprites), enabled: false, explicit: true };
   return was;
 }
+
+export const IMAGE_EXTENSION = 'stable-diffusion';
+
+const imageExtensionDisabled = (settings: Record<string, any>) => {
+  const list = record(settings.extension_settings).disabledExtensions;
+  return Array.isArray(list) && list.includes(IMAGE_EXTENSION);
+};
+
+export function imageExtensionOff(settings: Record<string, any>) {
+  const was = !imageExtensionDisabled(settings);
+  if (!settings.extension_settings || typeof settings.extension_settings !== 'object') settings.extension_settings = {};
+  const list = settings.extension_settings.disabledExtensions;
+  settings.extension_settings.disabledExtensions = [...(Array.isArray(list) ? list : []).filter((name: unknown) => name !== IMAGE_EXTENSION), IMAGE_EXTENSION];
+  return { was, now: false as const };
+}
+
+export const imageExtensionProblems = (settings: Record<string, any>) => (imageExtensionDisabled(settings) ? [] : [
+  `SillyTavern's Image Generation extension (${IMAGE_EXTENSION}) is enabled in the lane (extension_settings.disabledExtensions does not list it): it loads its ComfyUI lists from 127.0.0.1:8188 on every page load, and ST logs nothing when ComfyUI answers. Re-seed with adolion-fresh, which disables it in the lane copy`,
+]);
 
 export const hostSwipesOn = (settings: Record<string, any>) => settings.swipes !== false;
 
@@ -184,6 +204,7 @@ export function stripPlan(manifest: AdolionManifest, disk: LaneDisk): StripPlan 
   const root = record(record(settings.extension_settings)['story-orchestrator']);
   const media = mediaOff(root);
   const swipes = swipesOn(settings);
+  const imageExtension = imageExtensionOff(settings);
   const profiles = laneProfiles(settings);
   const library = Array.isArray(root.v2Stories) ? root.v2Stories : [];
   const removedStories = library.filter((entry) => storyIds.has(record(entry).id)).map((entry) => String(record(entry).id));
@@ -203,7 +224,7 @@ export function stripPlan(manifest: AdolionManifest, disk: LaneDisk): StripPlan 
   }
   return {
     worlds, characters, spriteDirs, chatDirs, groupFiles: groups.map((group) => group.file), groupChats, settings,
-    removed: { stories: removedStories, bindings: removedBindings, selected: removedSelected, profiles }, media, swipes,
+    removed: { stories: removedStories, bindings: removedBindings, selected: removedSelected, profiles }, media, swipes, imageExtension,
   };
 }
 

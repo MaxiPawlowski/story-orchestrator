@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { contextOf, readChatInventory, readHostSwipes, readLivePresets, readObservation, readRuntimeBlob, readTranscript, readWizardDrafts } from './sessionPageReads.mts';
+import { contextOf, readChatInventory, readHostImageGeneration, readHostSwipes, readLivePresets, readObservation, readRuntimeBlob, readTranscript, readWizardDrafts } from './sessionPageReads.mts';
 import { fakeSt, install, uninstall } from './sessionFakes.mts';
 import { findCard, loadCards, parseLiveArgs, verifySession } from '../so-session.mts';
 
@@ -108,4 +108,15 @@ test('T0-3: the host swipes read comes from ST\'s own checkbox, and a missing on
   } finally {
     delete (globalThis as any).document;
   }
+});
+
+test('T6-3-3: the Image Generation read comes from the page\'s own disabledExtensions, and a missing list reads null', async () => {
+  const fake = fakeSt({ chat: [] });
+  install(fake);
+  (fake.ctx as any).extensionSettings = { disabledExtensions: ['tts', 'stable-diffusion'] };
+  assert.deepEqual(await readHostImageGeneration(page), { imageGenerationDisabled: true });
+  (fake.ctx as any).extensionSettings = { disabledExtensions: ['tts'] };
+  assert.deepEqual(await readHostImageGeneration(page), { imageGenerationDisabled: false });
+  (fake.ctx as any).extensionSettings = {};
+  assert.deepEqual(await readHostImageGeneration(page), { imageGenerationDisabled: null });
 });

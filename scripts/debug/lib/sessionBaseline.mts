@@ -91,6 +91,11 @@ export function hostSwipesProblems(host: { swipes?: unknown } | null | undefined
   return [`SillyTavern swipes read back ${JSON.stringify(host?.swipes ?? null)} on the lane, expected true: swipe-new cannot run (re-seed with adolion-fresh, which switches them on)`];
 }
 
+export function hostImageGenerationProblems(host: { imageGenerationDisabled?: unknown } | null | undefined): string[] {
+  if (host?.imageGenerationDisabled === true) return [];
+  return [`SillyTavern's Image Generation extension (stable-diffusion) is enabled on the lane page (disabledExtensions read back ${JSON.stringify(host?.imageGenerationDisabled ?? null)}): it contacts ComfyUI at 127.0.0.1:8188 on every page load (re-seed with adolion-fresh, which disables it)`];
+}
+
 const OPTIONAL_FLAGS = new Set(['memory.harvestReasoning', 'memory.innerBeat']);
 
 export function effectiveProblems(expected: Record<string, any>, actual: unknown, installOwned: readonly string[]): string[] {

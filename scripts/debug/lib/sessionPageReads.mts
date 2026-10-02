@@ -92,6 +92,13 @@ export async function readHostSwipes(page: any): Promise<{ swipes: boolean | nul
   });
 }
 
+export async function readHostImageGeneration(page: any): Promise<{ imageGenerationDisabled: boolean | null }> {
+  return evaluateInST(page, () => {
+    const list = (globalThis as any).SillyTavern?.getContext?.()?.extensionSettings?.disabledExtensions;
+    return { imageGenerationDisabled: Array.isArray(list) ? list.includes('stable-diffusion') : null };
+  });
+}
+
 export async function readLivePresets(page: any) {
   return evaluateInST(page, (paths: string[]) => {
     const ctx = (globalThis as any).SillyTavern.getContext();
