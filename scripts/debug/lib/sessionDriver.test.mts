@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import { ensureChat, LIVE_VERBS, runLive, shotName } from './sessionDriver.mts';
 import type { LiveDeps } from './sessionLive.mts';
 import { clearPage, EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './sessionFakes.mts';
-import { appendTurn, findCard, loadCards, loadIndex, liveTarget, nextSeq, parseLiveArgs, planStart, sessionChat } from '../so-session.mts';
+import { appendTurn, findCard, loadCards, loadIndex, liveTarget, markDeleted, nextSeq, parseLiveArgs, planStart, sessionChat, sessionChatsOf } from '../so-session.mts';
 
 afterEach(uninstall);
 
@@ -18,7 +18,7 @@ const deps = (overrides: Partial<LiveDeps> = {}): LiveDeps => ({
 const chat = () => [{ name: 'Narrator', mes: 'Hall.' }, { name: 'You', is_user: true, mes: 'Hi.' }, { name: 'Belle', mes: 'Hey.' }];
 
 test('live: every verb is wired to one CLI parse', () => {
-  assert.deepEqual([...LIVE_VERBS], ['turn', 'swipe-new', 'regen', 'edit', 'delete', 'switch-chat-mid-gen', 'reload-mid-gen', 'flag', 'shot', 'age', 'adopt', 'mem']);
+  assert.deepEqual([...LIVE_VERBS], ['turn', 'swipe-new', 'regen', 'edit', 'delete', 'switch-chat-mid-gen', 'reload-mid-gen', 'flag', 'shot', 'age', 'adopt', 'mem', 'delete-chat']);
   assert.deepEqual(parseLiveArgs('turn', ['test/sessions/T0/T0-1-1', 'We take it.', '--chat', 'c1', '--timeout-ms', '900000']), {
     verb: 'turn', dir: 'test/sessions/T0/T0-1-1', args: { line: 'We take it.' }, chat: 'c1', options: { timeoutMs: 900000 },
   });
@@ -110,7 +110,7 @@ test('flag files against the chat that is open, and brings no chat to the front 
   const session = { chats: [{ chatId: 'adv', group: 'Adolion - Adventurer', groupId: 'g-adv', primary: true }, { chatId: 'esha', group: 'Adolion - Esha' }] };
   assert.equal(liveTarget(session, 'flag', null), null);
   assert.deepEqual(liveTarget(session, 'flag', 'esha'), { chatId: 'esha', group: 'Adolion - Esha', groupId: null });
-  assert.deepEqual(liveTarget(session, 'turn', null), { chatId: 'adv', group: 'Adolion - Adventurer', groupId: 'g-adv' });
+  assert.equal(liveTarget(session, 'turn', null), null);
   assert.equal(liveTarget(session, 'adopt', 'esha'), null);
   const fake = fakeSt({ chat: chat() });
   fake.ctx.chatId = 'esha';
@@ -143,4 +143,37 @@ test('start: a continuation carries its age, and a wizard continuation needs the
   const wizard = planStart(doc, index, findCard(doc, 'T5-3'), base, { session: { lane: 4, chats: [{ chatId: 'w1', group: 'The Cartographer', primary: true, adopted: true }] } }) as any;
   assert.deepEqual({ lane: wizard.lane, group: wizard.open.group, chat: wizard.open.continueChat, seed: wizard.seed }, { lane: 4, group: 'The Cartographer', chat: 'w1', seed: false });
   assert.deepEqual((planStart(doc, index, findCard(doc, 'T5-1'), base, null) as any).open.premise.id, 'cartographer');
+});
+
+test('T4-3 turn without --chat: acts on the open chat when it is a session chat, and refuses any other open chat instead of reopening the primary', async () => {
+  const session = { chats: [{ chatId: 'one', group: 'Adolion - Between the Roads', groupId: 'g1' }, { chatId: 'two', group: 'Adolion - Between the Roads', groupId: 'g1', primary: true }] };
+  const chats = sessionChatsOf(session, 'turn', null)!;
+  assert.deepEqual(chats.map((chat) => chat.chatId), ['one', 'two']);
+  assert.equal(sessionChatsOf(session, 'turn', 'two'), undefined);
+  assert.equal(sessionChatsOf(session, 'flag', null), undefined);
+  assert.equal(sessionChatsOf(session, 'shot', null), undefined, 'a screenshot of whatever is open (a reap prompt after delete-chat) is never refused');
+  const fake = fakeSt({ chat: chat(), chatId: 'one' });
+  install(fake);
+  const opened: string[] = [];
+  const send = async (_page: unknown, line: string) => { fake.ctx.chat.push({ name: 'You', is_user: true, mes: line }, { name: 'Fiana', mes: 'Sure.' }); return { replied: true }; };
+  const record: any = await runLive(fakePage(), { verb: 'turn', dir: '.', chat: liveTarget(session, 'turn', null), sessionChats: chats, args: { line: 'Fiana?' } }, deps({ send, openChat: async (_page, target) => { opened.push(target.chatId); } }));
+  assert.deepEqual(opened, [], 'the primary chat (two) is not reopened');
+  assert.equal(record.chatId, 'one');
+  fake.ctx.chatId = 'someone-else';
+  await assert.rejects(runLive(fakePage(), { verb: 'turn', dir: '.', chat: null, sessionChats: chats, args: { line: 'Hi.' } }, deps({ send })), /the open chat someone-else is not one of this session's chats \(one, two\)/);
+  fake.ctx.chatId = 'one';
+  await assert.rejects(runLive(fakePage(), { verb: 'turn', dir: '.', chat: null, sessionChats: markDeleted(session.chats, { ok: true, deleted: true, chatId: 'one' }).map((entry) => ({ ...entry, group: entry.group ?? null })), args: { line: 'Hi.' } }, deps({ send })), /not one of this session's chats \(two\)/);
+});
+
+test('T4-3 delete-chat: parses the chat and the lorebook answer, and marks only a chat that is really gone as deleted', () => {
+  const cli = parseLiveArgs('delete-chat', ['d', 'chat-one', '--book', 'keep']);
+  assert.equal(cli.chat, 'chat-one');
+  assert.equal(cli.args.book, 'keep');
+  assert.throws(() => parseLiveArgs('delete-chat', ['d']), /the chat id to delete/);
+  assert.throws(() => parseLiveArgs('delete-chat', ['d', 'c', '--book', 'maybe']), /--book must be one of keep, delete, escape/);
+  const chats = [{ chatId: 'chat-one', groupId: 'g1', primary: true }, { chatId: 'chat-two', groupId: 'g1' }];
+  assert.deepEqual(markDeleted(chats, { ok: false, deleted: false, chatId: 'chat-one' }), chats);
+  const marked = markDeleted(chats, { ok: true, deleted: true, chatId: 'chat-one', at: 't' });
+  assert.deepEqual(marked[0], { chatId: 'chat-one', groupId: 'g1', primary: false, deleted: true, deletedAt: 't', lorebook: null });
+  assert.throws(() => sessionChat({ chats: marked }, 'chat-one'), /was deleted by this session/);
 });

@@ -132,3 +132,16 @@ test('T4-4 2026-10-02: the stop diff allows the session chats it created and the
   const foreign = diffHeaders(before, inventory(['g1/chat-a', 'g1/chat-z'], ['adolion-adventurer@29']), allow, { ownedChats: ['chat-a', 'chat-b'] }).filter((difference) => !difference.allowed).map((difference) => difference.path);
   assert.deepEqual(foreign, ['inventory.groupChats']);
 });
+
+test('T4-3 stop: chats the session deleted through delete-chat and a card-declared count are allowed; an undeclared removal still blocks', () => {
+  const chats = [{ chatId: 'one', groupId: 'g', deleted: true }, { chatId: 'two', groupId: 'g', deleted: true }, { chatId: 'four', groupId: 'g' }];
+  const allow = headerDiffArgs('s', 'e', chats, ['inventory.lorebookCount'])[4].split(',');
+  assert.ok(allow.includes('inventory.groupChats:-g/one') && allow.includes('inventory.groupChats:+g/four'));
+  const header = (groupChats: string[], lorebookCount: number, v2Stories = ['adolion-aegis@12']) => ({ inventory: { groupChats, lorebookCount, v2Stories } });
+  const before = header(['g/seed', 'g/one', 'g/two'], 24);
+  const blocking = (after: unknown, entries = allow) => diffHeaders(before, after, entries, { ownedChats: ['one', 'two', 'four'] }).filter((difference) => !difference.allowed).map((difference) => difference.path);
+  assert.deepEqual(blocking(header(['g/seed', 'g/four'], 26)), []);
+  assert.deepEqual(blocking(header(['g/four'], 26)), ['inventory.groupChats'], 'the seed chat was not the session\'s to delete');
+  assert.deepEqual(blocking(header(['g/seed', 'g/four'], 26, [])), ['inventory.v2Stories'], 'a library removal the card did not declare');
+  assert.deepEqual(blocking(header(['g/seed', 'g/four'], 26), headerDiffArgs('s', 'e', chats.map(({ deleted: _deleted, ...chat }) => chat))[4].split(',')), ['inventory.groupChats', 'inventory.lorebookCount'], 'without delete-chat and the declaration both still block');
+});

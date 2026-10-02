@@ -17,6 +17,7 @@ const baseDeps = (overrides: Partial<LiveDeps> = {}): LiveDeps => ({
   ...clearPage,
   openChat: async () => undefined,
   reload: async () => undefined,
+  lineSaved: async () => true,
   now: () => { clock += 100; return clock; },
   ...overrides,
 });
@@ -209,7 +210,8 @@ test('edit: rewrites the message, emits MESSAGE_EDITED and records the rollback 
   fake.state.snapshot.boundary = 5;
   fake.events.on(EVENT_TYPES.MESSAGE_EDITED, (id: number) => {
     fake.state.snapshot = { ...fake.state.snapshot, activeCheckpointId: 'guild-hall', activeCheckpointName: 'The Guild Hall', boundary: 3, lastRollback: { checkpointName: 'The Guild Hall', at: 'now' } };
-    fake.state.journal = [...fake.state.journal, { at: '2026-10-01T10:02:00.000Z', boundary: 3, messageId: id, kind: 'rollback', summary: 'stepped back to The Guild Hall' }];
+    fake.state.journal = [...fake.state.journal, { at: '2026-10-01T10:02:00.000Z', boundary: 3, messageId: id, kind: 'status', summary: 'Stepped back to The Guild Hall' }];
+    fake.state.notices.lastOutcome = { seq: 1, result: 'applied', fromMessage: id, at: 'now' };
   });
   const record = await runMutation(fakePage(), 'edit', { messageId: 1, text: 'Actually, no.' }, baseDeps());
   assert.equal(fake.ctx.chat[1].mes, 'Actually, no.');
@@ -294,7 +296,8 @@ test('reload-mid-gen: reloads during the generation, re-arms the recorder and re
   const reload = async () => { delete (globalThis as any).__soSessionRecorder; fake.ctx.chatId = null; };
   let reopenedGroup: string | null | undefined;
   const openChat = async (_page: unknown, target: { chatId: string; groupId?: string | null }) => { reopened = target.chatId; reopenedGroup = target.groupId; fake.ctx.chatId = target.chatId; };
-  const record = await runMutation(fakePage(), 'reload-mid-gen', { line: 'We reach the walls.', group: 'Adolion - Adventurer' }, baseDeps({ reload, openChat }));
+  const lineSaved = async () => { fake.ctx.chat.push({ name: 'You', is_user: true, mes: 'We reach the walls.' }); return true; };
+  const record = await runMutation(fakePage(), 'reload-mid-gen', { line: 'We reach the walls.', group: 'Adolion - Adventurer' }, baseDeps({ reload, openChat, lineSaved }));
   assert.equal(reopened, 'chat-a');
   assert.equal(reopenedGroup, 'g1', 'the group is reopened by id: after a reload the name lookup found nothing');
   assert.equal(record.ok, true, record.problems.join('; '));
@@ -682,4 +685,93 @@ test('T1 loop guard: control, a clean round is neither flagged nor swiped', asyn
   const record = await runGuardedTurn(fakePage(), 'Onward.', baseDeps({ send: guardedSend(fake, [[1, 'Belle shoulders her pack.'], [2, 'Dalan counts the coin, then counts it again.']]), flag: async () => { flagged = true; return { ok: true }; }, clickSwipeRight: async () => { swiped = true; } }));
   assert.equal(record.ok, true, record.problems.join('; '));
   assert.deepEqual({ defect: record.modelDefect, defects: record.modelDefects, repair: record.autoRepair, flagged, swiped }, { defect: null, defects: [], repair: null, flagged: false, swiped: false });
+});
+
+test('T4-1 turn: a member drafted while the scheduler settles (Javon, after the transition) is waited for, and the record holds his reply', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const { ctx, events } = fake;
+  (globalThis as any).document = { body: { dataset: {} as Record<string, string> } };
+  let schedulerCalls = 0;
+  let ticks = 0;
+  let javonDue = false;
+  const page = fakePage({
+    waitForTimeout: async () => {
+      ticks += 1;
+      if (javonDue && ticks > 5) {
+        javonDue = false;
+        ctx.chat.push({ name: 'Dalan', mes: 'Javon looks up from the desk.' });
+        await events.emit(EVENT_TYPES.MESSAGE_RECEIVED, ctx.chat.length - 1, 'normal');
+        await events.emit(EVENT_TYPES.GENERATION_ENDED);
+        delete (globalThis as any).document.body.dataset.generating;
+      }
+    },
+  });
+  const send = async (_page: unknown, line: string) => {
+    ctx.chat.push({ name: 'You', is_user: true, mes: line });
+    await events.emit(EVENT_TYPES.GENERATION_STARTED, 'normal', {}, false);
+    await events.emit(EVENT_TYPES.GROUP_MEMBER_DRAFTED, 1);
+    ctx.chat.push({ name: 'Belle', mes: 'The study door is open.' });
+    await events.emit(EVENT_TYPES.MESSAGE_RECEIVED, ctx.chat.length - 1, 'normal');
+    await events.emit(EVENT_TYPES.GENERATION_ENDED);
+    return { replied: true, lastSpeaker: 'Belle' };
+  };
+  const waitScheduler = async () => {
+    schedulerCalls += 1;
+    if (schedulerCalls === 1) {
+      await events.emit(EVENT_TYPES.GENERATION_STARTED, 'normal', {}, false);
+      await events.emit(EVENT_TYPES.GROUP_MEMBER_DRAFTED, 2);
+      (globalThis as any).document.body.dataset.generating = 'true';
+      ticks = 0;
+      javonDue = true;
+    }
+    return {};
+  };
+  const record = await runTurn(page, 'I go to Father\'s study at once.', baseDeps({ send, waitScheduler }));
+  assert.deepEqual(record.speakers, ['Belle', 'Dalan'], 'the reply that arrived after the scheduler settled is in the record');
+  assert.deepEqual(record.generations.drafted, ['Belle', 'Dalan']);
+  assert.equal((record.send as any).round.passes, 2);
+  assert.equal(schedulerCalls, 2, 'the scheduler is settled again after the late reply');
+  assert.equal(record.ok, true, record.problems.join('; '));
+});
+
+test('T4-2 reload-mid-gen: the page is reloaded only once the player line is on disk, and a line never saved means no reload at all', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const order: string[] = [];
+  let reads = 0;
+  const lineSaved = async () => { reads += 1; order.push(`read ${reads}`); if (reads >= 3) fake.ctx.chat.push({ name: 'You', is_user: true, mes: 'We reach the walls.' }); return reads >= 3; };
+  const reload = async () => { order.push('reload'); };
+  const record = await runMutation(fakePage(), 'reload-mid-gen', { line: 'We reach the walls.', group: 'Adolion - Adventurer' }, baseDeps({ lineSaved, reload }));
+  assert.deepEqual(order, ['read 1', 'read 2', 'read 3', 'reload']);
+  assert.equal(record.ok, true, record.problems.join('; '));
+  assert.equal((record.did as any).saved.saved, true);
+  assert.equal((record.did as any).lineKept, true);
+  install(fakeSt({ chat: greeting() }));
+  let reloaded = false;
+  const never = await runMutation(fakePage(), 'reload-mid-gen', { line: 'We knock again.' }, baseDeps({ lineSaved: async () => false, reload: async () => { reloaded = true; } }), { saveTimeoutMs: 2000 });
+  assert.equal(reloaded, false);
+  assert.equal(never.ok, false);
+  assert.match(never.problems[0], /not on disk within .* the page was not reloaded/);
+});
+
+test('T4-1 rollback.happened: read from the journal\'s rollback records and the runtime\'s rollback outcome, not from any word like "discarded"', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const send = async (_page: unknown, line: string) => {
+    fake.ctx.chat.push({ name: 'You', is_user: true, mes: line }, { name: 'Belle', mes: 'Fine.' });
+    fake.state.snapshot = { ...fake.state.snapshot, boundary: 4 };
+    fake.state.journal = [...fake.state.journal, { at: '2026-10-01T10:03:00.000Z', boundary: 4, messageId: 4, kind: 'boundary', summary: 'applied location=javon_study; discarded location=javon_study (superseded)' }];
+    return { replied: true };
+  };
+  const turn = await runTurn(fakePage(), 'Onward.', baseDeps({ send }));
+  assert.equal(turn.rollback.happened, false, 'a superseded read discarded at a boundary is not a rollback');
+  fake.events.on(EVENT_TYPES.MESSAGE_EDITED, (id: number) => { fake.state.notices.lastOutcome = { seq: 3, result: 'noop', fromMessage: id, at: 'now' }; });
+  const edit = await runMutation(fakePage(), 'edit', { messageId: 3, text: 'I keep my own counsel.' }, baseDeps());
+  assert.equal(edit.rollback.happened, true, 'an edit that quarantined memory without moving the story still rolled back');
+  assert.deepEqual(edit.rollback.from, ['outcome']);
+  fake.events.on(EVENT_TYPES.MESSAGE_DELETED, () => { fake.state.journal = [...fake.state.journal, { at: '2026-10-01T10:04:00.000Z', boundary: 4, messageId: 2, kind: 'story', summary: 'eventless change at message 2' }]; });
+  const removed = await runMutation(fakePage(), 'delete', { messageId: 'last' }, baseDeps());
+  assert.equal(removed.rollback.happened, true);
+  assert.deepEqual(removed.rollback.from, ['journal']);
 });

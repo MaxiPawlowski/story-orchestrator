@@ -22,6 +22,7 @@ import { ackPaths, readTailAcks, tailProblems, TAIL_FILES, TAIL_NAMES, waitFor, 
 import { headerDiffArgs, stopSequence } from './lib/sessionStop.mts';
 import { buildPack, candidatesFromTurns, packLeaks, storyCandidate, type Candidate, type Verdict } from './lib/ratingPack.mts';
 import { LIVE_VERBS, type LiveChat, type LiveRequest, type LiveVerb } from './lib/sessionDriver.mts';
+import { BOOK_ANSWERS, type BookAnswer } from './lib/sessionDelete.mts';
 import { PRESET_OVERLAY_RECORD, sessionOverlay } from './lib/presetOverlay.mts';
 import { DEFAULT_MAIN_PROFILE, DEFAULT_ORCHESTRATOR, judgeExpectation, pinVerdict } from './lib/sessionPin.mts';
 import { scoreRow } from './lib/sessionRubric.mts';
@@ -56,12 +57,17 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
       start. --no-preset-overlay seeds without it (the pre-overlay condition, recorded as such).
   setting <dir> <path> <json>                write one install-wide setting mid-session (a rating arm)
   turn <dir> "<line>" [--chat id] [--timeout-ms n] [--no-expect-reply] [--arm <label> [--gate C3|R4|Q-M]]
-      one real turn: send, wait for the reply(ies) and the scheduler, append to turns.jsonl with the
+      one real turn on the open chat (refused when it is not one of the session's chats; --chat names
+      another): send, wait for the reply(ies) and the scheduler, append to turns.jsonl with the
       chat it landed in, the transcript revision (transcripts.jsonl, swipes included) and, with
       --arm, the rating arm (swipe-new and regen take --arm too)
   swipe-new <dir> | regen <dir> | edit <dir> <mesid|last> "<text>" | delete <dir> <mesid|last>
   switch-chat-mid-gen <dir> "<line>" --to <chatId> | reload-mid-gen <dir> "<line>"
       mutations: each records what it did and the rollback the product performed in turns.jsonl
+  delete-chat <dir> <chatId> [--book keep|delete|escape]
+      export the chat's full runtime, transcript and evidence, then /delchat it and answer the
+      story-memory lorebook prompt as asked (refused when the chat has a book and no --book, or
+      --book and no book yet); stop then declares the removal instead of failing on it
   flag <dir> "<note>" [--via drawer|slash]   press the drawer flag (or /story flag)
   shot <dir> <label>                         screenshot into <dir>/shots/
   age <dir> <hours>                          backdate the open chat's last session and reload it
@@ -107,6 +113,7 @@ export const TRANSCRIPTS_FILE = 'transcripts.jsonl';
 export const RATING_PACK_ROOT = resolve(SESSIONS_ROOT, 'rating-pack');
 
 const readJson = async (path: string) => JSON.parse(await readFile(path, 'utf-8'));
+const POPUP_TIMEOUT_MS = 120000;
 export const loadIndex = async (): Promise<StoryIndex> => readJson(INDEX_PATH);
 export const loadCards = async (): Promise<CardDoc> => readJson(CHARTERS_PATH);
 export const loadPremises = async (): Promise<Premise[]> => (await readJson(PREMISES_PATH)).premises ?? [];
@@ -385,7 +392,7 @@ async function start(id: string, options: StartOptions) {
     settings: { baselineVersion: baseline.version, chain: plan.chain.map((step) => step.card), effective: 'effective-settings.json' },
     media, arm: plan.arm, logOffset: logSize(lane.log), host: effectiveRead.host, presetOverlay: presets.overlay, judgeRate: { ...judgeRate, loaded: loadedRate },
     pin: { profile: plan.pin.profile, orchestrator: plan.pin.orchestrator, judge: plan.pin.judge, verdict: pin.verdict, probe: pin.probe, routing: pin.routing },
-    age, premise: plan.open.premise, continuedAtPin,
+    age, premise: plan.open.premise, continuedAtPin, startPopups: page.popups ?? [],
     chatsBefore: page.chatsBefore ?? [], chats: page.chats ?? [], continues: card.setup.continues ?? null, problems: [] as string[], warnings,
   };
   await writeFile(resolve(dir, 'session.json'), JSON.stringify(session, null, 2), 'utf-8');
@@ -620,6 +627,7 @@ export function sessionChat(session: any, wanted: string | null): LiveChat | nul
   if (wanted) {
     const found = chats.find((chat) => chat.chatId === wanted);
     if (!found) throw new Error(`chat ${wanted} is not one of this session's chats (${chats.map((chat) => chat.chatId).join(', ') || 'none'})`);
+    if ((found as { deleted?: boolean }).deleted === true) throw new Error(`chat ${wanted} was deleted by this session (delete-chat)`);
     return { chatId: found.chatId, group: found.group ?? null, groupId: found.groupId ?? null };
   }
   const primary = chats.filter((chat) => chat.primary).pop() ?? chats[chats.length - 1];
@@ -627,8 +635,19 @@ export function sessionChat(session: any, wanted: string | null): LiveChat | nul
 }
 
 export function liveTarget(session: any, verb: LiveVerb, wanted: string | null): LiveChat | null {
-  if (verb === 'adopt' || (verb === 'flag' && !wanted)) return null;
+  if (verb === 'adopt' || !wanted) return null;
   return sessionChat(session, wanted);
+}
+
+export const OPEN_CHAT_VERBS: readonly LiveVerb[] = ['adopt', 'flag', 'shot'];
+
+export const sessionChatsOf = (session: any, verb: LiveVerb, wanted: string | null): LiveChat[] | undefined => (wanted || OPEN_CHAT_VERBS.includes(verb)
+  ? undefined
+  : ((session.chats ?? []) as LiveChat[]).map((chat) => ({ chatId: chat.chatId, group: chat.group ?? null, groupId: chat.groupId ?? null, ...(chat.deleted ? { deleted: true } : {}) })));
+
+export function markDeleted(chats: ChatRef[], record: { ok?: boolean; deleted?: boolean; chatId?: string; at?: string; lorebook?: unknown }): ChatRef[] {
+  if (!record.deleted || !record.chatId) return chats;
+  return chats.map((chat) => (chat.chatId === record.chatId ? { ...chat, deleted: true, deletedAt: record.at ?? new Date().toISOString(), primary: false, lorebook: record.lorebook ?? null } : chat));
 }
 
 async function liveInLane(lane: number, viewportEnv: Record<string, string>, request: LiveRequest): Promise<any> {
@@ -647,7 +666,7 @@ export interface LiveCli { verb: LiveVerb; dir: string | undefined; args: LiveRe
 export const ARM_VERBS: readonly string[] = ['turn', 'swipe-new', 'regen'];
 
 export function parseLiveArgs(verb: LiveVerb, rest: string[]): LiveCli {
-  const flags = new Set(['--chat', '--timeout-ms', '--to', '--via', '--quiet-ms', '--arm', '--gate']);
+  const flags = new Set(['--chat', '--timeout-ms', '--to', '--via', '--quiet-ms', '--arm', '--gate', '--book']);
   const positional: string[] = [];
   for (let at = 0; at < rest.length; at += 1) {
     if (flags.has(rest[at])) { at += 1; continue; }
@@ -668,6 +687,9 @@ export function parseLiveArgs(verb: LiveVerb, rest: string[]): LiveCli {
   if (verb === 'shot') args.label = more[0];
   if (verb === 'age') args.hours = Number(more[0]);
   if (verb === 'mem') { args.memOp = more[0]; args.ref = more[1]; args.text = more[2]; }
+  const book = argValue(rest, '--book');
+  if (book !== null && !(BOOK_ANSWERS as readonly string[]).includes(book)) throw new Error(`--book must be one of ${BOOK_ANSWERS.join(', ')}`);
+  if (verb === 'delete-chat') args.book = book as BookAnswer | null;
   const missing = (verb === 'turn' || verb === 'switch-chat-mid-gen' || verb === 'reload-mid-gen') && !args.line ? 'a player line'
     : verb === 'edit' && !args.text ? 'the message id and the new text'
       : verb === 'flag' && !args.note ? 'a note'
@@ -676,13 +698,14 @@ export function parseLiveArgs(verb: LiveVerb, rest: string[]): LiveCli {
             : verb === 'mem' && !(args.memOp && args.ref) ? 'an op (pin|unpin|lock|unlock|exclude|edit) and a row id or a piece of its text'
             : verb === 'mem' && args.memOp === 'edit' && !args.text ? 'the new text'
             : verb === 'switch-chat-mid-gen' && !args.to ? '--to <chatId>'
+            : verb === 'delete-chat' && !more[0] ? 'the chat id to delete'
               : !dir ? 'the session dir' : null;
   if (missing) throw new Error(`${verb} needs ${missing}`);
   const arm = argValue(rest, '--arm');
   const gate = argValue(rest, '--gate');
   if ((arm || gate) && !ARM_VERBS.includes(verb)) throw new Error(`--arm/--gate tag a generated reply: ${ARM_VERBS.join(', ')} only`);
   if (gate && !(BLIND_GATES as readonly string[]).includes(gate)) throw new Error(`--gate must be one of ${BLIND_GATES.join(', ')}`);
-  return { verb, dir, args, chat: argValue(rest, '--chat'), options, ...(arm || gate ? { tag: { ...(arm ? { arm } : {}), ...(gate ? { gate } : {}) } } : {}) };
+  return { verb, dir, args, chat: verb === 'delete-chat' ? more[0] : argValue(rest, '--chat'), options, ...(arm || gate ? { tag: { ...(arm ? { arm } : {}), ...(gate ? { gate } : {}) } } : {}) };
 }
 
 async function live(cli: LiveCli) {
@@ -695,14 +718,15 @@ async function live(cli: LiveCli) {
   const gates = findCard(await loadCards(), session.charter).rubric.map((row) => row.gate).filter(Boolean);
   const tag = cli.tag?.arm && !cli.tag.gate && gates.length === 1 ? { ...cli.tag, gate: gates[0] } : cli.tag;
   if (tag?.arm && !tag.gate) throw new Error(`${session.charter} feeds ${gates.length ? gates.join(' and ') : 'no blind gate'}: name the gate with --gate`);
-  const record = await liveInLane(session.lane, viewportEnv, { verb: cli.verb, dir, chat, args, options: cli.options, ...(tag ? { tag } : {}) });
+  const sessionChats = sessionChatsOf(session, cli.verb, cli.chat);
+  const record = await liveInLane(session.lane, viewportEnv, { verb: cli.verb, dir, chat, ...(sessionChats ? { sessionChats } : {}), args, options: cli.options, ...(tag ? { tag } : {}) });
   const row = await appendTurn(dir, record);
   let chats: ChatRef[] = session.chats ?? [];
   if (cli.verb === 'adopt' && record.ok && record.chat?.chatId) {
     const adopted = { chatId: record.chat.chatId, groupId: record.chat.groupId, group: record.chat.group, storyId: record.chat.storyId, activeCheckpointId: record.chat.activeCheckpointId, primary: true, adopted: true };
     chats = [...chats.map((existing: any) => ({ ...existing, primary: false })).filter((existing: any) => existing.chatId !== adopted.chatId), adopted];
   }
-  chats = trackChat(chats, record.observe ?? null, cli.verb);
+  chats = cli.verb === 'delete-chat' ? markDeleted(chats, record) : trackChat(chats, record.observe ?? null, cli.verb);
   if (JSON.stringify(chats) !== JSON.stringify(session.chats ?? [])) await writeFile(resolve(dir, 'session.json'), JSON.stringify({ ...session, chats }, null, 2), 'utf-8');
   console.log(JSON.stringify(row, null, 2));
   if (record.ok === false) process.exitCode = 1;
@@ -957,9 +981,9 @@ async function settingCommand(dirArg: string | undefined, path: string | undefin
 }
 
 async function pagePhase(phase: 'settings' | 'effective' | 'pin' | 'open' | 'end', input: string, output: string) {
-  const [{ runCli }, { evaluateInST }, navigation, { saveSettingsNow }, { renderMarkdown }, evidenceLib, pinLib, reads, { ensureCast }] = await Promise.all([
-    import('./lib/cli.mts'), import('./lib/evaluate.mts'), import('./st-navigation.mts'), import('./lib/settingsSave.mts'), import('./so-journal.mts'),
-    import('./lib/sessionEvidence.mts'), import('./lib/sessionPin.mts'), import('./lib/sessionPageReads.mts'), import('./lib/sessionCast.mts'),
+  const [{ runCli }, { evaluateInST }, navigation, { saveSettingsNow }, { exportOpenChat }, pinLib, reads, { ensureCast }, popups] = await Promise.all([
+    import('./lib/cli.mts'), import('./lib/evaluate.mts'), import('./st-navigation.mts'), import('./lib/settingsSave.mts'), import('./lib/sessionExport.mts'),
+    import('./lib/sessionPin.mts'), import('./lib/sessionPageReads.mts'), import('./lib/sessionCast.mts'), import('./lib/sessionPopups.mts'),
   ]);
   const plan = await readJson(input);
   await runCli(async (page) => {
@@ -1023,15 +1047,20 @@ async function pagePhase(phase: 'settings' | 'effective' | 'pin' | 'open' | 'end
     if (phase === 'open') {
       const open = plan.open;
       const chats: Array<Record<string, unknown>> = [];
+      const startPopups: Array<{ rule: string; text: string; answer: string; clicked: boolean; why: string }> = [];
+      out.popups = startPopups;
       out.chatsBefore = await reads.readChatInventory(page);
       const selectStory = async (storyId: string) => {
-        const result = await evaluateInST(page, async (id: string) => {
+        const answered = await popups.answeringPopups(page, evaluateInST(page, async (id: string) => {
           const rt = (globalThis as any).storyOrchestratorRuntime;
           if (rt.getSnapshot()?.storyId !== id) await rt.selectStory(id);
           const started = Date.now();
           while (Date.now() - started < 30000 && rt.getSnapshot()?.storyId !== id) await new Promise((done) => setTimeout(done, 250));
           return rt.getSnapshot()?.storyId ?? null;
-        }, storyId);
+        }, storyId), popups.START_POPUP_RULES, { timeoutMs: POPUP_TIMEOUT_MS });
+        startPopups.push(...answered.answered);
+        problems.push(...popups.popupProblems(`select ${storyId}`, answered, POPUP_TIMEOUT_MS));
+        const result = answered.result;
         if (result !== storyId) problems.push(`story ${storyId} did not load (snapshot says ${String(result)})`);
       };
       const groupListed = async (group: string) => {
@@ -1060,11 +1089,14 @@ async function pagePhase(phase: 'settings' | 'effective' | 'pin' | 'open' | 'end
         } else await selectStory(storyId);
         const loaded = !(primary && open.select === 'manual');
         if (primary && loaded && open.startAt) {
-          const moved = await evaluateInST(page, async (id: string) => {
+          const jumped = await popups.answeringPopups(page, evaluateInST(page, async (id: string) => {
             const rt = (globalThis as any).storyOrchestratorRuntime;
             if (rt.getSnapshot()?.activeCheckpointId !== id) await rt.activateCheckpoint(id);
             return rt.getSnapshot()?.activeCheckpointId ?? null;
-          }, open.startAt);
+          }, open.startAt), popups.START_POPUP_RULES, { timeoutMs: POPUP_TIMEOUT_MS });
+          startPopups.push(...jumped.answered);
+          problems.push(...popups.popupProblems(`startAt ${open.startAt}`, jumped, POPUP_TIMEOUT_MS));
+          const moved = jumped.result;
           if (moved !== open.startAt) problems.push(`startAt ${open.startAt} did not take (active ${String(moved)})`);
         }
         if (primary && loaded) for (const [key, value] of Object.entries(open.seed ?? {})) {
@@ -1121,7 +1153,7 @@ async function pagePhase(phase: 'settings' | 'effective' | 'pin' | 'open' | 'end
         await writeFile(resolve(dir, 'wizard-drafts.json'), JSON.stringify(drafts, null, 1), 'utf-8');
         files.push('wizard-drafts.json');
       }
-      const ordered = [...tracked].sort((a: any, b: any) => Number(Boolean(a.primary)) - Number(Boolean(b.primary)));
+      const ordered = [...tracked].filter((chat: any) => chat.deleted !== true).sort((a: any, b: any) => Number(Boolean(a.primary)) - Number(Boolean(b.primary)));
       for (const chat of ordered as Array<{ chatId: string; group: string | null }>) {
         try {
           if (!chat.group) throw new Error('the chat belongs to no group the session knows');
@@ -1133,41 +1165,11 @@ async function pagePhase(phase: 'settings' | 'effective' | 'pin' | 'open' | 'end
           problems.push(`could not reopen ${chat.chatId}: ${error instanceof Error ? error.message : String(error)}`);
           continue;
         }
-        const evidence = await evidenceLib.captureEvidence(page);
-        const read = await evaluateInST(page, () => {
-          const ctx = SillyTavern.getContext();
-          const rt = (globalThis as any).storyOrchestratorRuntime;
-          const snapshot = rt?.getSnapshot?.() ?? {};
-          const group = (ctx.groups ?? []).find((candidate) => candidate.id === ctx.groupId);
-          const members = (group?.members ?? []) as string[];
-          return {
-            chatId: ctx.chatId ?? null,
-            journal: { chatId: ctx.chatId ?? null, storyTitle: snapshot.storyTitle ?? null, activeCheckpoint: snapshot.activeCheckpointName ?? null, boundary: snapshot.boundary ?? 0, events: rt?.getSessionJournal?.() ?? [] },
-            chat: (ctx.chat ?? []).map((message, id) => ({ id, name: String(message.name ?? ''), isUser: Boolean(message.is_user), text: String(message.mes ?? '') })),
-            state: {
-              storyId: snapshot.storyId ?? null, activeCheckpointId: snapshot.activeCheckpointId ?? null, boundary: snapshot.boundary ?? null,
-              requirements: snapshot.requirements ?? null, blackboard: snapshot.blackboard ?? null, lastRollback: snapshot.lastRollback ?? null,
-              epistemic: rt?.getEpistemic?.() ?? [],
-              characters: (ctx.characters ?? []).map((character, index) => ({ index, name: String(character?.name ?? ''), avatar: String(character?.avatar ?? '') })).filter((character) => members.includes(character.avatar)),
-              payloadEpoch: (globalThis as any).__soDebugPayloads?.epoch ?? null,
-            },
-          };
-        });
-        if (!read.chatId) { problems.push(`no chat open after reopening ${chat.chatId}`); continue; }
-        if (read.chatId !== chat.chatId) { problems.push(`reopening ${chat.chatId} landed in ${read.chatId}`); continue; }
-        await writeFile(resolve(dir, `runtime-${read.chatId}.json`), JSON.stringify(await reads.readRuntimeBlob(page), null, 1), 'utf-8');
-        files.push(`runtime-${read.chatId}.json`);
-        await writeFile(resolve(dir, `journal-${read.chatId}.json`), JSON.stringify(read.journal, null, 2), 'utf-8');
-        await writeFile(resolve(dir, `journal-${read.chatId}.md`), renderMarkdown(read.journal), 'utf-8');
-        await writeFile(resolve(dir, `chat-${read.chatId}.json`), JSON.stringify(read.chat, null, 1), 'utf-8');
-        await writeFile(resolve(dir, `state-end-${read.chatId}.json`), JSON.stringify(read.state, null, 2), 'utf-8');
-        const split = evidenceLib.splitEvidence(evidence);
-        await writeFile(resolve(dir, `chat-full-${read.chatId}.json`), JSON.stringify(split.chatFull, null, 1), 'utf-8');
-        await writeFile(resolve(dir, `snapshot-${read.chatId}.json`), JSON.stringify(split.snapshot, null, 1), 'utf-8');
-        await writeFile(resolve(dir, `evidence-${read.chatId}.json`), JSON.stringify({ capturedAt: evidence.capturedAt, chatId: evidence.chatId, groupId: evidence.groupId, unread: evidence.unread, slices: split.slices }, null, 1), 'utf-8');
-        files.push(...['journal', 'chat', 'chat-full', 'state-end', 'snapshot', 'evidence'].map((kind) => `${kind}-${read.chatId}.json`), `journal-${read.chatId}.md`);
-        evidenceProblems[read.chatId] = evidenceLib.evidenceProblems(evidence);
-        ends.push({ chatId: read.chatId, events: read.journal.events.length, messages: read.chat.length, swipes: split.chatFull.reduce((total, message) => total + message.swipes.length, 0), reasoning: split.chatFull.filter((message) => message.reasoning).length });
+        const exported = await exportOpenChat(page, dir, chat.chatId);
+        if (exported.problem || !exported.end) { problems.push(exported.problem ?? `could not export ${chat.chatId}`); continue; }
+        files.push(...exported.files);
+        evidenceProblems[exported.end.chatId] = exported.evidenceProblems;
+        ends.push(exported.end);
       }
       out.ends = ends;
       out.files = files;

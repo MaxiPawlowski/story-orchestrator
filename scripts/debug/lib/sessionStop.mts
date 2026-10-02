@@ -4,9 +4,9 @@ export const HEADER_DIFF_ALLOW = 'chatId,groupId,authorView,story,group,inventor
 
 const nonEmpty = (value: unknown): value is string => typeof value === 'string' && value.length > 0;
 
-export function headerDiffArgs(baseline: string, out: string, chats: Array<{ chatId?: unknown; groupId?: unknown }>, cardAllow: string[] = []): string[] {
+export function headerDiffArgs(baseline: string, out: string, chats: Array<{ chatId?: unknown; groupId?: unknown; deleted?: unknown }>, cardAllow: string[] = []): string[] {
   const owned = [...new Set(chats.map((chat) => chat.chatId).filter(nonEmpty))];
-  const ownedGroupChats = [...new Set(chats.filter((chat) => nonEmpty(chat.chatId) && !chat.chatId.includes(',') && nonEmpty(chat.groupId)).map((chat) => `inventory.groupChats:+${chat.groupId}/${chat.chatId}`))];
+  const ownedGroupChats = [...new Set(chats.filter((chat) => nonEmpty(chat.chatId) && !chat.chatId.includes(',') && nonEmpty(chat.groupId)).map((chat) => `inventory.groupChats:${chat.deleted === true ? '-' : '+'}${chat.groupId}/${chat.chatId}`))];
   const allow = [HEADER_DIFF_ALLOW, ...ownedGroupChats, ...cardAllow.filter(nonEmpty)].join(',');
   return ['scripts/debug/so-run-header.mts', 'diff', baseline, '--allow', allow, ...(owned.length ? ['--owned', owned.join(',')] : []), '--served-identity', '--allow-warnings', '--out', out];
 }

@@ -775,12 +775,14 @@
       "title": "Abuse",
       "question": "When the player swipes, edits and deletes at every feature's moment, do story, memory, timeline and saves still agree?",
       "story": { "kind": "adolion", "id": "adolion-saga" },
-      "setup": { "mode": "player", "persona": "A Nightriver heir who keeps changing their mind.", "chat": "fresh", "startAt": "nightriver-house", "settings": { "innerHarvest": true, "innerBeat": true, "chapters": { "seal": true, "storySoFar": true, "fold": true }, "curator": { "enabled": true, "acceptMode": "review" } }, "notes": ["AS-25: the mutations run on the Saga's Nightriver act, a genuinely chaptered story (plan 07 leaves the standalone Academy chapterless), so a swipe, edit or delete has a sealed chapter to unfold. The preflight refuses the start when the pinned Saga has no chapters, and stop refuses a session that sealed none.", "The inner voice toggles (#so-inner-harvest, #so-inner-beat) are author-only; so-session start sets both."] },
+      "setup": {"mode": "player", "persona": "A Nightriver heir who keeps changing their mind.", "chat": "fresh", "startAt": "what-filwern-left", "members": {"enabled": ["Riyo"], "disabled": ["Tobias", "Ellie", "Vallie"]}, "settings": {"innerHarvest": true, "innerBeat": true, "chapters": {"seal": true, "storySoFar": true, "fold": true}, "curator": {"enabled": true, "acceptMode": "review"}}, "notes": ["AS-25: the mutations run on the Saga, a genuinely chaptered story (plan 07 leaves the standalone Academy chapterless), so a swipe, edit or delete has a sealed chapter to unfold. The preflight refuses the start when the pinned Saga has no chapters, and stop refuses a session that sealed none.", "Starts at What Filwern Left, the last checkpoint of Acts I-II (chapter adv). One transition (saga_called_home) carries the party to Home to Nightriver in Act III, and leaving Acts I-II seals it during play, so the seal lands within the first few turns and every later mutation has a sealed chapter behind it. T4-1-1 started at Home to Nightriver instead: no chapter could seal inside the time budget, and stop was INVALID (chapterRecords 0, foldedTurns 0).", "The startAt jump stays inside Acts I-II, so it raises no chapter-jump confirm; if one appears anyway, start answers it 'Jump without sealing' (a debug jump seals nothing it did not play) and records it in session.json (startPopups); any other popup fails the start.", "Riyo travels with the party (the-changed-deep enabled her); Tobias, Ellie and Vallie stayed behind (road-to-wendhope disabled them). A start past the story's start runs only its own cast changes, so start sets these (T1-5 precedent).", "The inner voice toggles (#so-inner-harvest, #so-inner-beat) are author-only; so-session start sets both."]},
       "drive": [
-        { "title": "Swipe a transition", "aim": ["fathers-summons"], "why": "path = witch_king; swipe the reply that moved it.", "lines": ["I go to Father's study at once."] },
-        { "title": "Edit a memory moment", "aim": ["fathers-summons", "whispers"], "why": "Say something memorable, then edit it away.", "lines": ["I swear on Mother's grave I'll never duel for this house."] },
-        { "title": "Delete during a curator proposal", "aim": ["whispers", "natalia-named"], "why": "Delete the last reply while a proposal is pending.", "lines": ["Shiya, who comes through the servants' door at night?"] },
-        { "title": "Swipe at the duel", "aim": ["the-duel", "night-of-knives"], "why": "duel_outcome; swipe the outcome reply twice.", "lines": ["I show the court the venom on his lance."] }
+        {"title": "Go home: seal Acts I-II", "aim": ["what-filwern-left", "nightriver-house"], "why": "saga_called_home; leaving Driftmere for the Nightriver Estate ends Acts I-II, and the chapter seals at that boundary. Budget: 4 turns; flag if Home to Nightriver is reached and no chapter record appears in the Overview.", "lines": ["We tell Serenola what the mine cost. Then I open Father's letter: he calls me home, so we ride for the Nightriver Estate."]},
+        {"title": "Roll back past the seal", "aim": ["nightriver-house"], "why": "Delete (or swipe) the reply that carried the story home, then play it again: the Acts I-II record must unfold, and seal again on the way back.", "lines": ["(no chat line: delete the reply that moved the story to Home to Nightriver)"]},
+        {"title": "Swipe a transition", "aim": ["fathers-summons"], "why": "path = witch_king; swipe the reply that moved it.", "lines": ["I go to Father's study at once."]},
+        {"title": "Edit a memory moment", "aim": ["fathers-summons", "whispers"], "why": "Say something memorable, then edit it away.", "lines": ["I swear on Mother's grave I'll never duel for this house."]},
+        {"title": "Delete during a curator proposal", "aim": ["whispers", "natalia-named"], "why": "Delete the last reply while a proposal is pending.", "lines": ["Shiya, who comes through the servants' door at night?"]},
+        {"title": "Swipe at the duel", "aim": ["the-duel", "night-of-knives"], "why": "duel_outcome; swipe the outcome reply twice.", "lines": ["I show the court the venom on his lance."]}
       ],
       "lookFor": [
         { "what": "After each mutation, the HUD, Memory tab and timeline agree with the chat; the Overview says 'the current scene' in plain words rather than naming internals.", "where": "Overview" },
@@ -797,7 +799,7 @@
       ],
       "provocations": ["Swipe during generation.", "Edit a message five back."],
       "flagWhen": ["Anything disagreed after a mutation."],
-      "stopWhen": "Every mutation tried at two different moments, or 45 minutes.",
+      "stopWhen": "Every mutation tried at two different moments, one of them rolling back past the Acts I-II seal, or 50 minutes.",
       "rubric": [{ "feature": "rollback: story" }, { "feature": "rollback: memory" }, { "feature": "rollback: chapters" }, { "feature": "rollback: timeline" }, { "feature": "saves after mutations" }],
       "loggedAutomatically": ["every rollback and boundary regression", "save outcomes", "memory derived records and reversals"],
       "knownLimits": ["Images and sprites are off (no ComfyUI in this tier)."]
@@ -838,11 +840,11 @@
       "title": "Cleanup",
       "question": "When a player deletes a chat, is the story-memory lorebook prompt clear, and do both answers do what they say?",
       "story": { "kind": "adolion", "id": "adolion-aegis" },
-      "setup": { "mode": "player", "persona": "Any adventurer persona.", "chat": "fresh", "chats": 2, "startAt": "aegis-homecoming", "settings": {}, "notes": ["Two throwaway chats: play 5 turns in each so each gets a memory book, then delete both."] },
+      "setup": {"mode": "player", "persona": "Any adventurer persona.", "chat": "fresh", "chats": 2, "startAt": "aegis-homecoming", "settings": {}, "notes": ["Two throwaway chats, each played until it has a story-memory lorebook, then deleted. A mirror book exists only once the chat holds a relationship memory AND a consolidation pass has run, which happens every 10th boundary: ordinary turns never make one (T4-3-1: 6 turns, 36 rows, 0 relationships, no book). Talk about bonds (who is a friend, what someone is to you) and play each chat until its book exists, at most 15 turns per chat (T4-3-1: books at boundaries 10-30, after 9-13 bond-focused turns).", "Delete only with so-session delete-chat <dir> <chatId> --book keep|delete|escape. It exports the chat's full runtime, transcript and evidence first, refuses --book on a chat that has no book yet (so the book check is built in) and a chat with a book and no --book, answers the prompt as asked, and stop declares the removal. A chat deleted any other way leaves no evidence and an undeclared removal, and the session is INVALID.", "turn acts on the open chat; switch with st-navigation open-chat, or name it with --chat."]},
       "drive": [
-        { "title": "Give each chat memory", "aim": ["aegis-homecoming", "aegis-the-tavern"], "why": "5 turns each.", "lines": ["Put us down for the exam.", "Fiana, what makes a party fail?"] },
-        { "title": "Delete chat one: keep the book", "aim": ["aegis-homecoming", "aegis-the-tavern"], "why": "Answer the lorebook prompt with keep.", "lines": ["(no chat line: delete the chat)"] },
-        { "title": "Delete chat two: delete the book", "aim": ["aegis-homecoming", "aegis-the-tavern"], "why": "Answer with delete.", "lines": ["(no chat line: delete the chat)"] }
+        {"title": "Give each chat a memory book", "aim": ["aegis-homecoming", "aegis-the-tavern"], "why": "Bond talk until the mirror book exists: a relationship memory plus a consolidation pass at a multiple of 10 boundaries; at most 15 turns per chat.", "lines": ["Fiana, after today I'd call you a friend. Would you?", "Who is Jasira to you, Fiana?"]},
+        {"title": "Delete chat one: keep the book", "aim": ["aegis-homecoming", "aegis-the-tavern"], "why": "so-session delete-chat <dir> <chat one> --book keep.", "lines": ["(no chat line: delete-chat --book keep)"]},
+        {"title": "Delete chat two: delete the book", "aim": ["aegis-homecoming", "aegis-the-tavern"], "why": "so-session delete-chat <dir> <chat two> --book delete.", "lines": ["(no chat line: delete-chat --book delete)"]}
       ],
       "lookFor": [
         { "what": "The prompt names the chat and the book in plain words (expected finding: it shows a raw chat id).", "where": "popup" },
@@ -854,12 +856,13 @@
         "A Repair row nags about a book you chose to delete.",
         "The prompt blocks later popups."
       ],
-      "provocations": ["Close the prompt with Escape."],
+      "provocations": ["Close the prompt with Escape: a third chat (new-chat, adopt, played until its book exists), deleted with delete-chat --book escape."],
       "flagWhen": ["The prompt wording was unclear."],
-      "stopWhen": "Both deletes done and checked, or 20 minutes.",
+      "stopWhen": "Both deletes and the Escape provocation done and checked, or 60 minutes.",
       "rubric": [{ "feature": "mirror-book prompt" }, { "feature": "keep" }, { "feature": "delete" }, { "feature": "Repair after delete" }],
-      "loggedAutomatically": ["the reaper's decision (journal)", "lorebook list before and after (run header diff)"],
-      "knownLimits": ["The run header diff will show the chats and books you deleted; that is expected here.", "The prompt names the deleted chat by its raw chat id. Record that as a finding (expectation: plain words), not as a mistake in the card."]
+      "loggedAutomatically": ["the reaper's decision (journal), and the delete-chat row in turns.jsonl: prompt text, answer, book before and after", "lorebook list before and after (run header diff)"],
+      "knownLimits": ["The run header diff shows the deleted chats and the kept books: stop declares the chats deleted through delete-chat, and the card declares inventory.lorebookCount; any other change (a library delete, a chat deleted another way) still invalidates the session.", "The prompt names the deleted chat by its raw chat id. Record that as a finding (expectation: plain words), not as a mistake in the card."],
+      "headerAllow": ["inventory.lorebookCount"]
     },
     {
       "id": "T4-4",
@@ -891,7 +894,7 @@
       "rubric": [{ "feature": "Restart" }, { "feature": "hot-swap" }, { "feature": "invalidating choice" }, { "feature": "save vocabulary" }],
       "loggedAutomatically": ["story update records (from/to version, classification, choice)", "the library in the run header diff"],
       "knownLimits": ["Edits change the lane's library copy only."],
-      "headerAllow": ["inventory.v2Stories"]
+      "headerAllow": ["inventory.v2Stories:+adolion-adventurer", "inventory.v2Stories:-adolion-adventurer"]
     },
     {
       "id": "T5-1",

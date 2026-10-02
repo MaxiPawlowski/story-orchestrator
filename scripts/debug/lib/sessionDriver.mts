@@ -6,16 +6,18 @@ import {
   groupNeedle, type LiveDeps, type LiveOptions, type MutationArgs, type MutationVerb,
 } from './sessionLive.mts';
 import { runMemoryVerb, type MemoryOp } from './sessionMemory.mts';
+import { defaultDeleteDeps, deleteSessionChat, type BookAnswer, type DeleteDeps } from './sessionDelete.mts';
 
-export const LIVE_VERBS = ['turn', ...MUTATION_VERBS, 'flag', 'shot', 'age', 'adopt', 'mem'] as const;
+export const LIVE_VERBS = ['turn', ...MUTATION_VERBS, 'flag', 'shot', 'age', 'adopt', 'mem', 'delete-chat'] as const;
 export type LiveVerb = (typeof LIVE_VERBS)[number];
 
-export interface LiveChat { chatId: string; group: string | null; groupId?: string | null }
+export interface LiveChat { chatId: string; group: string | null; groupId?: string | null; deleted?: boolean }
 export interface LiveRequest {
   verb: LiveVerb;
   dir: string;
   chat: LiveChat | null;
-  args: MutationArgs & { note?: string; via?: 'drawer' | 'slash'; label?: string; hours?: number; seq?: number; memOp?: string; ref?: string };
+  sessionChats?: LiveChat[];
+  args: MutationArgs & { note?: string; via?: 'drawer' | 'slash'; label?: string; hours?: number; seq?: number; memOp?: string; ref?: string; book?: BookAnswer | null };
   options?: LiveOptions;
   tag?: { arm?: string; gate?: string };
 }
@@ -93,6 +95,14 @@ export async function defaultLiveDeps(): Promise<LiveDeps> {
       await page.waitForFunction(() => Boolean((globalThis as any).storyOrchestratorRuntime), null, { timeout: 120000 });
       await page.waitForTimeout(1500);
     },
+    lineSaved: (page, chatId, line) => evaluateInST(page, async ({ chatId, line }: { chatId: string; line: string }) => {
+      const ctx = (globalThis as any).SillyTavern.getContext();
+      const character = ctx.groupId ? null : (ctx.characters ?? [])[Number(ctx.characterId)];
+      const [url, body] = ctx.groupId ? ['/api/chats/group/get', { id: chatId }] : ['/api/chats/get', { ch_name: character?.name, file_name: chatId, avatar_url: character?.avatar }];
+      const response = await fetch(url, { method: 'POST', headers: ctx.getRequestHeaders(), body: JSON.stringify(body) });
+      const rows = response.ok ? await response.json().catch(() => null) : null;
+      return Array.isArray(rows) && rows.some((row: any) => Boolean(row?.is_user) && String(row?.mes ?? '').trim() === line.trim());
+    }, { chatId, line }),
     now: () => Date.now(),
   };
 }
@@ -109,9 +119,17 @@ export async function ensureChat(page: any, chat: LiveChat | null, deps: Pick<Li
   return { chatId: after, reopened: true, from: open };
 }
 
+export async function openSessionChat(page: any, chats: LiveChat[]): Promise<LiveChat> {
+  const open = await openChatId(page);
+  const live = chats.filter((chat) => chat.deleted !== true);
+  const found = live.find((chat) => chat.chatId === open);
+  if (!found) throw new Error(`the open chat ${open ?? '(none)'} is not one of this session's chats (${live.map((chat) => chat.chatId).join(', ') || 'none'}): open one of them, or name it with --chat <id>`);
+  return found;
+}
+
 export const shotName = (seq: number, label: string) => `${String(seq).padStart(3, '0')}-${label.replace(/[^A-Za-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'shot'}.png`;
 
-export async function runLive(page: any, request: LiveRequest, deps: LiveDeps) {
+export async function runLive(page: any, request: LiveRequest, deps: LiveDeps, deleteDeps?: DeleteDeps) {
   const { verb, args } = request;
   if (verb === 'adopt') {
     const read = await evaluateInST(page, () => {
@@ -123,13 +141,18 @@ export async function runLive(page: any, request: LiveRequest, deps: LiveDeps) {
     if (!read.chatId) throw new Error('no chat is open to adopt');
     return { kind: 'adopt', at: new Date().toISOString(), ok: true, chat: read };
   }
-  const ensured = await ensureChat(page, request.chat, deps);
+  const target = request.chat ?? (request.sessionChats ? await openSessionChat(page, request.sessionChats) : null);
+  const ensured = await ensureChat(page, target, deps);
+  if (verb === 'delete-chat') {
+    if (!target) throw new Error('delete-chat needs the session chat to delete');
+    return { ...(await deleteSessionChat(page, { dir: request.dir, chat: target, book: args.book ?? null }, deleteDeps ?? await defaultDeleteDeps())), ensured };
+  }
   if (verb === 'turn') {
     if (!args.line) throw new Error('turn needs the player line');
     return { ...(await runGuardedTurn(page, args.line, deps, request.options ?? {})), ensured };
   }
   if ((MUTATION_VERBS as readonly string[]).includes(verb)) {
-    return { ...(await runMutation(page, verb as MutationVerb, { ...args, chatId: request.chat?.chatId ?? args.chatId, group: request.chat?.group ?? args.group ?? null, groupId: request.chat?.groupId ?? args.groupId ?? null }, deps, request.options ?? {})), ensured };
+    return { ...(await runMutation(page, verb as MutationVerb, { ...args, chatId: target?.chatId ?? args.chatId, group: target?.group ?? args.group ?? null, groupId: target?.groupId ?? args.groupId ?? null }, deps, request.options ?? {})), ensured };
   }
   if (verb === 'flag') {
     if (!args.note) throw new Error('flag needs a note (a word or two)');
@@ -145,7 +168,7 @@ export async function runLive(page: any, request: LiveRequest, deps: LiveDeps) {
   }
   if (verb === 'mem') return { ...(await runMemoryVerb(page, args.memOp as MemoryOp, args.ref ?? '', args.text)), ensured };
   if (verb === 'age') {
-    const aged = await backdateSession(page, Number(args.hours), deps, request.chat);
+    const aged = await backdateSession(page, Number(args.hours), deps, target);
     return { kind: 'age', at: new Date().toISOString(), ...aged, ok: aged.ok === true && aged.fired === true, ensured };
   }
   throw new Error(`unknown live verb ${String(verb)}`);

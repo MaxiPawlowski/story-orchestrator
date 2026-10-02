@@ -35,7 +35,7 @@ export interface Flag { at: string; chatId: string | null; messageId: number; no
 export interface EndState { characters?: Array<{ index: number; name: string }>; epistemic?: any[]; payloadEpoch?: string | null }
 
 export interface SessionFiles {
-  session: { charter: string; tier: string; playFrom?: string | null; story?: { kind: string; id?: string }; continuedAtPin?: ContinuedAtPin | null };
+  session: { charter: string; tier: string; playFrom?: string | null; story?: { kind: string; id?: string }; continuedAtPin?: ContinuedAtPin | null; stoppedAt?: string | null; valid?: boolean; invalid?: string[] };
   journal: Row[];
   payloads: Row[];
   console: Row[];
@@ -219,6 +219,7 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
         add('rollback', row, paths.journal, `boundary went back from ${maxBoundary} to ${boundary}`, { from: maxBoundary, to: boundary });
         since = 0;
         reported = false;
+        maxBoundary = boundary;
       }
       maxBoundary = Math.max(maxBoundary, boundary);
       if (event.detail?.source === 'manual') add('unexpected-jump', row, paths.journal, `manual checkpoint change at boundary ${boundary} (an author /cp or driver move, not play)`, { source: 'manual' });
@@ -313,7 +314,10 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
     const chat = anomaly.chatId ?? '(no chat)';
     countsByChat[chat] = { ...countsByChat[chat], [anomaly.kind]: (countsByChat[chat]?.[anomaly.kind] ?? 0) + 1 };
   }
-  const invalid = (files.missing ?? []).map((name) => `${name} is missing: zero anomalies from it would mean no evidence, not a clean run`);
+  const stopVerdict = files.session.valid === false
+    ? (files.session.invalid?.length ? files.session.invalid : ['stop marked the session invalid']).map((reason) => `stop marked the session INVALID: ${reason}`)
+    : [];
+  const invalid = [...(files.missing ?? []).map((name) => `${name} is missing: zero anomalies from it would mean no evidence, not a clean run`), ...stopVerdict];
   return {
     charter: files.session.charter, tier: files.session.tier, continuedAtPin: files.session.continuedAtPin ?? null, flags, anomalies, counts: { flags: flags.length, ...counts }, countsByChat,
     valid: invalid.length === 0, invalid, unverifiable: { privateBlock: unverifiablePrivate },
@@ -332,6 +336,33 @@ export function registerRows(digest: Digest, sessionDir: string) {
 }
 
 const cell = (value: string) => value.replace(/\|/g, '/').replace(/\r?\n/g, ' ');
+
+export function groupBy<T>(items: readonly T[], key: (item: T) => string): T[][] {
+  const groups = new Map<string, T[]>();
+  for (const item of items) groups.set(key(item), [...(groups.get(key(item)) ?? []), item]);
+  return [...groups.values()];
+}
+
+const EVIDENCE_SHOWN = 5;
+
+const evidenceList = (refs: string[]) => `${refs.slice(0, EVIDENCE_SHOWN).map((ref) => `\`${ref}\``).join(', ')}${refs.length > EVIDENCE_SHOWN ? `, and ${refs.length - EVIDENCE_SHOWN} more` : ''}`;
+
+export function contextLines(flag: Flag, shown: ReadonlySet<string>): string[] {
+  const out: string[] = [];
+  let repeated: number[] = [];
+  const flush = () => {
+    if (!repeated.length) return;
+    out.push(`  - (#${repeated[0]}${repeated.length > 1 ? `-#${repeated[repeated.length - 1]}` : ''} as in the flag above)`);
+    repeated = [];
+  };
+  for (const message of flag.context) {
+    if (message.id !== flag.messageId && shown.has(`${message.id}|${message.text}`)) { repeated.push(message.id); continue; }
+    flush();
+    out.push(`  - ${message.id === flag.messageId ? '**' : ''}#${message.id} ${message.name}: ${cell(message.text).slice(0, 300)}${message.id === flag.messageId ? '**' : ''}`);
+  }
+  flush();
+  return out;
+}
 
 export function renderJudgeHealth(health: JudgeHealth): string[] {
   if (!health.calls) return ['No judge calls in play.'];
@@ -363,12 +394,15 @@ export function renderFindings(digest: Digest, sessionDir: string): string {
     : 'None detected.', '');
   out.push('## Flags', '');
   if (!digest.flags.length) out.push('None.', '');
+  let shown = new Set<string>();
+  let shownChat: string | null = null;
   for (const flag of digest.flags) {
     out.push(`### ${flag.at} (message ${flag.messageId})`, '', `- note: ${flag.note || '(no note)'}`, `- evidence: \`${flag.evidence.path}:${flag.evidence.line}\``);
     if (flag.context.length) {
-      out.push(`- context (${flag.contextFrom}):`);
-      for (const message of flag.context) out.push(`  - ${message.id === flag.messageId ? '**' : ''}#${message.id} ${message.name}: ${cell(message.text).slice(0, 300)}${message.id === flag.messageId ? '**' : ''}`);
+      out.push(`- context (${flag.contextFrom}):`, ...contextLines(flag, shownChat === flag.chatId ? shown : new Set()));
     }
+    shown = new Set(flag.context.map((message) => `${message.id}|${message.text}`));
+    shownChat = flag.chatId;
     out.push('');
   }
   out.push('## Anomalies', '');
@@ -377,10 +411,16 @@ export function renderFindings(digest: Digest, sessionDir: string): string {
     const rows = digest.anomalies.filter((anomaly) => anomaly.kind === kind);
     if (!rows.length) continue;
     out.push(`### ${kind} (${rows.length})`, '');
-    for (const anomaly of rows) out.push(`- ${anomaly.at ?? '-'} ${cell(anomaly.summary)} (\`${anomaly.evidence.path}:${anomaly.evidence.line}\`)`);
+    for (const same of groupBy(rows, (anomaly) => anomaly.summary)) {
+      const refs = same.map((anomaly) => `${anomaly.evidence.path}:${anomaly.evidence.line}`);
+      out.push(`- ${same[0].at ?? '-'} ${cell(same[0].summary)}${same.length > 1 ? ` (x${same.length}, last ${same[same.length - 1].at ?? '-'})` : ''} (${evidenceList(refs)})`);
+    }
     out.push('');
   }
   out.push('## Draft register rows', '', '| id | tier | severity | class | evidence | status | fix commit | eval | what |', '|---|---|---|---|---|---|---|---|---|');
-  for (const row of registerRows(digest, sessionDir)) out.push(`| ${row.id} | ${row.tier} | ${row.severity} | ${row.class} | \`${row.evidence}\` | ${row.status} | ${row.fixCommit} | ${row.eval} | ${cell(row.what)} |`);
+  for (const same of groupBy(registerRows(digest, sessionDir), (row) => `${row.source}|${row.what}`)) {
+    const row = same[0];
+    out.push(`| ${row.id} | ${row.tier} | ${row.severity} | ${row.class} | \`${row.evidence}\` | ${row.status} | ${row.fixCommit} | ${row.eval} | ${cell(row.what)}${same.length > 1 ? ` (x${same.length}; every row in findings.json)` : ''} |`);
+  }
   return `${out.join('\n')}\n`;
 }
