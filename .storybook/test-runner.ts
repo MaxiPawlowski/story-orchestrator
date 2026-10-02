@@ -3,7 +3,10 @@ import { getStoryContext } from "@storybook/test-runner";
 import { injectAxe, checkA11y, configureAxe } from "axe-playwright";
 
 const config: TestRunnerConfig = {
-  async preVisit(page) {
+  async preVisit(page, context) {
+    const storyContext = await getStoryContext(page, context);
+    const viewport = storyContext.parameters?.testViewport as { width: number; height: number } | undefined;
+    await page.setViewportSize(viewport ?? { width: 1280, height: 720 });
     await injectAxe(page);
   },
   async postVisit(page, context) {

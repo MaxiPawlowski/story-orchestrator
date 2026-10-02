@@ -17,6 +17,7 @@ export default meta;
 type Story = StoryObj<typeof TransitionEditor>;
 
 export const NarrowStudio: Story = {
+  parameters: { testViewport: { width: 390, height: 844 } },
   beforeEach: () => {
     const story = sampleStory();
     const long = { from: "the-sheridan-steward-who-keeps-the-ledgers", to: "road-to-wendhope-past-the-old-mill" };
