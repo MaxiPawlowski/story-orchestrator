@@ -8,6 +8,10 @@ export interface WardenCheckInput {
   agency: { player: string; message: string } | null;
   houseRules: string[];
   lore?: Array<{ comment: string; text: string }>;
+  houseRuleContext?: {
+    scene: { player: string; playerMessage?: string; speakerRole?: string; groupMembers: string[] };
+    worldBook: Array<{ comment: string; text: string; constant?: boolean }>;
+  };
 }
 
 export interface WardenCheckFinding {

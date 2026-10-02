@@ -9,6 +9,7 @@ import { MemoryCoordinator } from "./coordinators/memoryCoordinator";
 import { PacingCoordinator } from "./coordinators/pacingCoordinator";
 import { StagecraftCoordinator } from "./coordinators/stagecraftCoordinator";
 import { createWarden, establishedFacts } from "./continuity";
+import { enabledCharacterIds, rosterMemberName } from "./roster";
 import { createCuratorFilter } from "./curatorFilter";
 import { loreEvidence } from "./worldInfoEvidence";
 import type { JudgeRuntime } from "./judge";
@@ -140,6 +141,11 @@ export function wireCoordinators(port: ManagerPort) {
       facts: () => establishedFacts(port.extras().memory.entries, memory.getLedger(), memory.boundProvenance(), port.extras().memory.conflicts),
       nudgeActive: () => copilot.getActiveNudge() !== null,
       lore: (replyMessageId) => loreEvidence.firedLore(replyMessageId),
+      group: () => {
+        const story = view.getStory();
+        const enabled = new Set(enabledCharacterIds(story, view.hosts.roster));
+        return (story?.roster ?? []).filter((member) => enabled.has(member.id)).map(rosterMemberName);
+      },
     }),
     journal: (summary, note) => port.journal("stagecraft", summary, note),
     spikes: () => getGlobalSettings().spikes,

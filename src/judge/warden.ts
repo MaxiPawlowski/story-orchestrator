@@ -1,8 +1,8 @@
 import { PLAYER_ACTION_CLAUSE, PLAYER_REF } from "@engine/index";
 import { buildContinuityRequest, continuityNote } from "./curators";
 import {
-  AGENCY_SCORE, CONTINUITY_MAX_FACTS, HOUSE_RULE_MAX_NOTE, HOUSE_RULE_P, LORE_CONTENT_CHARS, WARDEN_ARM, WARDEN_LORE_MAX_NOTE, WARDEN_LORE_P, WARDEN_MAX_LORE,
-  WARDEN_MAX_RULES, type WardenArm,
+  AGENCY_SCORE, CONTINUITY_MAX_FACTS, HOUSE_RULE_MAX_GROUP, HOUSE_RULE_MAX_NOTE, HOUSE_RULE_MESSAGE_CHARS, HOUSE_RULE_P, HOUSE_RULE_ROLE_CHARS, LORE_CONTENT_CHARS,
+  WARDEN_ARM, WARDEN_LORE_MAX_NOTE, WARDEN_LORE_P, WARDEN_MAX_LORE, WARDEN_MAX_RULES, type WardenArm,
 } from "./policy";
 import { noul, noulAnswer, score, scoreAnswer } from "./questions";
 import type { JudgeAnswer, JudgeRequest } from "./types";
@@ -16,11 +16,29 @@ export interface WardenInput {
   agency: { player: string; message: string } | null;
   houseRules: string[];
   lore?: WardenLore[];
+  houseRuleContext?: HouseRuleContext;
 }
 
 export interface WardenLore {
   comment: string;
   text: string;
+}
+
+export interface HouseRuleScene {
+  player: string;
+  playerMessage?: string;
+  speakerRole?: string;
+  groupMembers: string[];
+}
+
+export interface HouseRuleContext {
+  scene: HouseRuleScene;
+  worldBook: Array<WardenLore & { constant?: boolean }>;
+}
+
+export interface ParagraphLimit {
+  min: number;
+  max: number;
 }
 
 export interface WardenFinding {
@@ -69,6 +87,65 @@ export const loreNoteLine = (entry: WardenLore): string => `Lore: "${entry.comme
 
 const keptRules = (rules: string[]) => rules.slice(0, WARDEN_MAX_RULES);
 
+const NUMBER_WORDS = ["zero", "one", "two", "three", "four", "five", "six", "seven", "eight", "nine", "ten", "eleven", "twelve"];
+const COUNT = `(\\d+|${NUMBER_WORDS.join("|")})`;
+const PARAGRAPHS = "\\s+(?:[a-z-]+\\s+)?paragraphs?\\b";
+const quantity = (word: string): number => (/^\d+$/.test(word) ? Number(word) : NUMBER_WORDS.indexOf(word));
+const PARAGRAPH_LIMITS: Array<[RegExp, (first: number, second: number) => ParagraphLimit]> = [
+  [new RegExp(`\\b${COUNT}\\s*(?:to|and|or|-|\u2013|\u2014)\\s*${COUNT}${PARAGRAPHS}`), (first, second) => ({ min: Math.min(first, second), max: Math.max(first, second) })],
+  [new RegExp(`\\b(?:at most|up to|(?:no|not|never) more than|(?:a )?maximum of)\\s+${COUNT}${PARAGRAPHS}`), (first) => ({ min: 1, max: first })],
+  [new RegExp(`\\b(?:at least|(?:no|not|never) (?:fewer|less) than|(?:a )?minimum of)\\s+${COUNT}${PARAGRAPHS}`), (first) => ({ min: first, max: Number.POSITIVE_INFINITY })],
+  [new RegExp(`\\bexactly\\s+${COUNT}${PARAGRAPHS}`), (first) => ({ min: first, max: first })],
+  [/\b(?:a|one) single\s+(?:[a-z-]+\s+)?paragraph\b/, () => ({ min: 1, max: 1 })],
+];
+
+export function paragraphLimit(rule: string): ParagraphLimit | null {
+  const text = rule.toLowerCase();
+  for (const [pattern, limit] of PARAGRAPH_LIMITS) {
+    const match = pattern.exec(text);
+    if (!match) continue;
+    const found = limit(quantity(match[1] ?? "1"), quantity(match[2] ?? match[1] ?? "1"));
+    return found.min >= 0 && found.max >= found.min ? found : null;
+  }
+  return null;
+}
+
+export function countParagraphs(text: string): number {
+  const blocks = text.split(/\n\s*\n/).map((block) => block.trim()).filter(Boolean);
+  return blocks.length > 1 ? blocks.length : text.split("\n").map((line) => line.trim()).filter(Boolean).length;
+}
+
+export const paragraphBreak = (rule: string, reply: string): boolean => {
+  const limit = paragraphLimit(rule);
+  if (!limit) return false;
+  const count = countParagraphs(reply);
+  return count < limit.min || count > limit.max;
+};
+
+export const houseRulesDecidedInCode = (input: WardenInput): boolean => keptRules(input.houseRules).some((rule) => paragraphBreak(rule, input.reply.text));
+
+export const houseRuleP = (answers: Record<string, JudgeAnswer>, input: WardenInput, index: number): number | null => {
+  const rule = keptRules(input.houseRules)[index];
+  return rule !== undefined && paragraphBreak(rule, input.reply.text) ? 1 : noulAnswer(answers, `rule:${index}`);
+};
+
+export const houseRuleLore = (worldBook: HouseRuleContext["worldBook"] = []): WardenLore[] =>
+  keptLore([...worldBook.filter((entry) => !entry.constant), ...worldBook.filter((entry) => entry.constant)]);
+
+const sceneState = (scene: HouseRuleScene) => {
+  const role = scene.speakerRole?.trim().slice(0, HOUSE_RULE_ROLE_CHARS);
+  const message = scene.playerMessage?.trim().slice(0, HOUSE_RULE_MESSAGE_CHARS);
+  const members = scene.groupMembers.map((name) => name.trim()).filter(Boolean).slice(0, HOUSE_RULE_MAX_GROUP);
+  return {
+    player: scene.player.trim(),
+    ...(role ? { speaker_role: role } : {}),
+    ...(members.length ? { group_members: members } : {}),
+    ...(message ? { player_message: message } : {}),
+  };
+};
+
+const withPlayer = (rule: string, player: string): string => (player ? rule.replace(/\{\{user\}\}/gi, player) : rule);
+
 export const keptLore = (lore: WardenLore[] = []): WardenLore[] =>
   lore.slice(0, WARDEN_MAX_LORE).map((entry) => ({ comment: entry.comment, text: entry.text.slice(0, LORE_CONTENT_CHARS) }));
 
@@ -78,11 +155,19 @@ const agencyPart = (input: WardenInput): Pick<JudgeRequest, "state" | "questions
     : null;
 
 const rulesPart = (input: WardenInput): Pick<JudgeRequest, "state" | "questions"> | null => {
-  const rules = keptRules(input.houseRules);
-  if (!rules.length) return null;
+  const asked = keptRules(input.houseRules).map((rule, index) => ({ rule, index })).filter((entry) => !paragraphBreak(entry.rule, input.reply.text));
+  if (!asked.length) return null;
+  const context = input.houseRuleContext;
+  const scene = context ? sceneState(context.scene) : null;
+  const lore = context ? houseRuleLore(context.worldBook) : [];
+  const reads = scene ? ` Judge it with \`scene\`${lore.length ? " and `world_book`" : ""}.` : "";
   return {
-    state: { house_rules: Object.fromEntries(rules.map((rule, index) => [`rule_${index}`, rule])) },
-    questions: Object.fromEntries(rules.map((_, index) => [`rule:${index}`, noul(`Does \`reply\` break \`house_rules.rule_${index}\`?`, { ...HOUSE_RULE_CRITERIA })])),
+    state: {
+      house_rules: Object.fromEntries(asked.map((entry) => [`rule_${entry.index}`, withPlayer(entry.rule, scene?.player ?? "")])),
+      ...(scene ? { scene } : {}),
+      ...(lore.length ? { world_book: Object.fromEntries(lore.map((entry, index) => [`entry_${index}`, { title: entry.comment, text: entry.text }])) } : {}),
+    },
+    questions: Object.fromEntries(asked.map((entry) => [`rule:${entry.index}`, noul(`Does \`reply\` break \`house_rules.rule_${entry.index}\`?${reads}`, { ...HOUSE_RULE_CRITERIA })])),
   };
 };
 
@@ -97,11 +182,13 @@ const lorePart = (input: WardenInput): Pick<JudgeRequest, "state" | "questions">
 
 export function buildWardenRequests(input: WardenInput, arm: WardenArm = WARDEN_ARM): JudgeRequest[] {
   const continuity = input.facts.length ? buildContinuityRequest(input.reply, input.facts) : null;
-  const parts = [agencyPart(input), rulesPart(input), lorePart(input)].filter((part): part is Pick<JudgeRequest, "state" | "questions"> => part !== null);
-  if (arm === "separate") return [...(continuity ? [continuity] : []), ...parts.map((part) => ({ state: { reply: input.reply, ...part.state }, questions: part.questions }))];
-  if (!continuity && !parts.length) return [];
+  const rules = rulesPart(input);
+  const own = rules && input.houseRuleContext ? [{ state: { reply: input.reply, ...rules.state }, questions: rules.questions }] : [];
+  const parts = [agencyPart(input), own.length ? null : rules, lorePart(input)].filter((part): part is Pick<JudgeRequest, "state" | "questions"> => part !== null);
+  if (arm === "separate") return [...(continuity ? [continuity] : []), ...parts.map((part) => ({ state: { reply: input.reply, ...part.state }, questions: part.questions })), ...own];
+  if (!continuity && !parts.length) return own;
   const base = continuity ?? { state: { reply: input.reply }, questions: {} };
-  return [parts.reduce<JudgeRequest>((request, part) => ({ state: { ...request.state, ...part.state }, questions: { ...request.questions, ...part.questions } }), base)];
+  return [parts.reduce<JudgeRequest>((request, part) => ({ state: { ...request.state, ...part.state }, questions: { ...request.questions, ...part.questions } }), base), ...own];
 }
 
 export function readWarden(answers: Record<string, JudgeAnswer>, input: WardenInput): WardenFinding[] {
@@ -111,7 +198,7 @@ export function readWarden(answers: Record<string, JudgeAnswer>, input: WardenIn
   const agency = input.agency ? scoreAnswer(answers, "agency") : null;
   if (input.agency && agency && agency.score > AGENCY_SCORE) findings.push({ family: "agency", text: agencyNoteText(input.agency.player), facts: [], score: agency.score });
   const broken = keptRules(input.houseRules)
-    .map((rule, index) => ({ rule, p: noulAnswer(answers, `rule:${index}`) ?? 0 }))
+    .map((rule, index) => ({ rule, p: houseRuleP(answers, input, index) ?? 0 }))
     .filter((entry) => entry.p >= HOUSE_RULE_P)
     .sort((left, right) => right.p - left.p)
     .slice(0, HOUSE_RULE_MAX_NOTE)

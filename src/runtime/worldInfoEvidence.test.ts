@@ -285,7 +285,7 @@ describe("warden-lore content capture (v2.5 plan 08 L7)", () => {
       { entries: [entry(1, "CP1 Road", { content: "The road runs east." }), entry(7, "so_arin", { content: "Arin owes Mira." }, MIRROR), entry(9, "Tavern", { content: "Ale is cheap." }, "Town")] },
       { entries: [entry(2, "CP1 Keyword", { content: "A quiet whisper." })], loud: false },
     ], ["Ruins"]);
-    expect(evidence.firedLore(3)).toEqual([{ comment: "CP1 Road", text: "The road runs east." }]);
+    expect(evidence.firedLore(3)).toEqual([{ comment: "CP1 Road", text: "The road runs east.", constant: false }]);
   });
 
   it("answers only for the rendered reply at that message, and forgets a reply that was swiped or deleted", () => {

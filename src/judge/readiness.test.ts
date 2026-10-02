@@ -75,7 +75,7 @@ describe("judge readiness (v2.3 plan 09)", () => {
   // (test/goldens/judge/agency.calibration.json, house-rules.calibration.json); measured, still author-only and off.
   it("reports agency measured and house rules failed on the Adolion re-measure, off by default", () => {
     expect(JUDGE_READINESS.agencyCheck).toMatchObject({ calibration: 1, latencyP50Ms: 241, measuredOn: "jev-1.13.0" });
-    expect(JUDGE_READINESS.houseRules).toMatchObject({ calibration: 0.935, latencyP50Ms: 257, measuredOn: "jev-1.13.0", passed: false });
+    expect(JUDGE_READINESS.houseRules).toMatchObject({ calibration: 0.965, latencyP50Ms: 235, measuredOn: "jev-1.13.0", passed: false });
     expect((["agencyCheck", "houseRules"] as const).every((key) => AUTHOR_JUDGE_USES.includes(key))).toBe(true);
     expect([defaultJudgeSettings().uses.agencyCheck, defaultJudgeSettings().uses.houseRules]).toEqual([true, false]);
     expect(remeasured(settings({ agencyCheck: true, houseRules: true })).filter((row) => ["agencyCheck", "houseRules"].includes(row.key)).map((row) => [row.verdict, row.calibrationProblem])).toEqual([["measured", undefined], ["unproven", "failed"]]);

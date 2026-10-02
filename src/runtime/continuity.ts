@@ -1,11 +1,13 @@
 import { agencyForCheckpoint, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import {
-  buildWardenRequests, CONTINUITY_MAX_FACTS, CONTINUITY_TIMEOUT_MS, readWarden, readWardenLore, wardenRecordP, type WardenInput, type WardenLore,
+  buildWardenRequests, CONTINUITY_MAX_FACTS, CONTINUITY_TIMEOUT_MS, houseRulesDecidedInCode, readWarden, readWardenLore, wardenRecordP,
+  type HouseRuleScene, type WardenInput, type WardenLore,
 } from "@judge/index";
 import type { WardenCheckFinding } from "@stagecraft/index";
 import { isLive, type ConflictPair, type LedgerView, type MemoryEntry } from "@memory/index";
 import type { Provenance } from "@memory/provenance";
 import type { JudgeRuntime } from "./judge";
+import { rosterMemberName } from "./roster";
 
 /**
  * What the warden is allowed to hold a reply to, WITH the ids it came from. The card
@@ -64,13 +66,14 @@ export const createWardenCheck = (judge: () => JudgeRuntime | null): WardenCheck
   const lore: WardenInput = { reply: input.reply, facts: [], agency: null, houseRules: [], lore: input.lore ?? [] };
   const requests = buildWardenRequests(today);
   const loreRequests = buildWardenRequests(lore);
-  if (!runtime?.enabled() || (!requests.length && !loreRequests.length)) return null;
+  if (!runtime?.enabled() || (!requests.length && !loreRequests.length && !houseRulesDecidedInCode(today))) return null;
   const ask = async (use: string, list: typeof requests, asked: WardenInput) => {
     if (!list.length) return null;
     const results = await Promise.all(list.map((request) => runtime.ask(use, request, { timeoutMs: CONTINUITY_TIMEOUT_MS, summarize: (answers) => wardenRecordP(answers, asked) })));
     return results.some((result) => !result.answers) ? null : Object.assign({}, ...results.map((result) => result.answers));
   };
-  const [answers, loreAnswers] = await Promise.all([ask("warden", requests, today), ask("wardenLore", loreRequests, lore)]);
+  const [asked, loreAnswers] = await Promise.all([ask("warden", requests, today), ask("wardenLore", loreRequests, lore)]);
+  const answers = asked ?? (!requests.length && houseRulesDecidedInCode(today) ? {} : null);
   if (!answers && !loreAnswers) return null;
   const contradicted = loreAnswers ? readWardenLore(loreAnswers, lore) : null;
   return [...(answers ? readWarden(answers, today) : []), ...(contradicted ? [{ ...contradicted, facts: [] }] : [])];
@@ -85,12 +88,22 @@ export const wardenFamilies = (judge: () => JudgeRuntime | null, view: { getStor
   return { agency, houseRules: runtime?.active("houseRules") ? [...(story?.house_rules ?? [])] : [], lore: Boolean(runtime?.active("wardenLore")) };
 };
 
+export const houseRuleScene = (story: NormalizedStoryV2 | null, speaker: string, groupMembers: string[]): Pick<HouseRuleScene, "speakerRole" | "groupMembers"> => {
+  const name = speaker.trim().toLowerCase();
+  const role = story?.roster.find((member) => rosterMemberName(member).trim().toLowerCase() === name)?.role?.trim();
+  return { ...(role ? { speakerRole: role } : {}), groupMembers };
+};
+
 export const createWarden = (
   judge: () => JudgeRuntime | null,
   view: Parameters<typeof wardenFamilies>[1],
-  own: { facts: () => EstablishedFact[]; nudgeActive: () => boolean; lore?: (replyMessageId: number) => WardenLore[] },
-) => ({
-  check: createWardenCheck(judge),
-  families: wardenFamilies(judge, view),
-  ...own,
-});
+  own: { facts: () => EstablishedFact[]; nudgeActive: () => boolean; lore?: (replyMessageId: number) => Array<WardenLore & { constant?: boolean }>; group?: () => string[] },
+) => {
+  const { group, ...rest } = own;
+  return {
+    check: createWardenCheck(judge),
+    families: wardenFamilies(judge, view),
+    ...rest,
+    ...(group ? { scene: (speaker: string) => houseRuleScene(view.getStory(), speaker, group()) } : {}),
+  };
+};

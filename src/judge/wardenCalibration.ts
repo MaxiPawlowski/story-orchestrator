@@ -3,7 +3,9 @@ import { AGENCY_SCORE, CONTINUITY_P, HOUSE_RULE_P, WARDEN_LORE_P, WARDEN_MAX_RUL
 import { noulAnswer, scoreAnswer } from "./questions";
 import type { JudgeSelfTestReport, JudgeSelfTestRow } from "./selfTest";
 import type { JudgeAnswer, JudgeFallback, JudgeRequest, JudgeResult } from "./types";
-import { AGENCY_LEVELS, buildWardenRequests, keptLore, readWarden, type WardenInput, type WardenLore } from "./warden";
+import {
+  AGENCY_LEVELS, buildWardenRequests, houseRuleP, houseRulesDecidedInCode, keptLore, paragraphBreak, readWarden, type HouseRuleContext, type WardenInput, type WardenLore,
+} from "./warden";
 import { median } from "./stats";
 
 export type Ask = (request: JudgeRequest) => Promise<JudgeResult>;
@@ -20,6 +22,7 @@ export async function askWarden(ask: Ask, input: WardenInput): Promise<WardenAsk
   const failed = results.find((result) => !result.answers);
   const latencyMs = Math.max(0, ...results.map((result) => result.latencyMs));
   const model = results.find((result) => result.model)?.model ?? null;
+  if (!results.length && houseRulesDecidedInCode(input)) return { answers: {}, model, latencyMs };
   if (!results.length || failed) return { answers: null, model, latencyMs, ...(failed?.fallback ? { fallback: failed.fallback } : {}) };
   return { answers: Object.assign({}, ...results.map((result) => result.answers)), model, latencyMs };
 }
@@ -81,22 +84,27 @@ export interface HouseRuleCase {
   broken: number[];
   kept: number[];
   source?: string;
+  context?: HouseRuleContext;
 }
 
-export const houseRuleInput = (entry: Pick<HouseRuleCase, "rules" | "reply">): WardenInput => ({ reply: entry.reply, facts: [], agency: null, houseRules: entry.rules });
+export const houseRuleInput = (entry: Pick<HouseRuleCase, "rules" | "reply" | "context">): WardenInput => ({
+  reply: entry.reply, facts: [], agency: null, houseRules: entry.rules, ...(entry.context ? { houseRuleContext: entry.context } : {}),
+});
 
 // Rows per rule: `<case>.broken:<i>` (flagged), `<case>.kept:<i>` and `<case>.untouched:<i>` (not flagged).
 export async function runHouseRuleCalibration(ask: Ask, cases: HouseRuleCase[]): Promise<JudgeSelfTestReport> {
   return report(await Promise.all(cases.map(async (entry) => {
-    const asked = await askWarden(ask, houseRuleInput(entry));
+    const input = houseRuleInput(entry);
+    const asked = await askWarden(ask, input);
     const rows: JudgeSelfTestRow[] = entry.rules.slice(0, WARDEN_MAX_RULES).map((rule, index) => {
-      const p = asked.answers ? noulAnswer(asked.answers, `rule:${index}`) : null;
+      const p = asked.answers ? houseRuleP(asked.answers, input, index) : null;
+      const coded = paragraphBreak(rule, entry.reply.text);
       const flagged = p !== null && p >= HOUSE_RULE_P;
       const family = entry.broken.includes(index) ? "broken" : entry.kept.includes(index) ? "kept" : "untouched";
       return {
         id: `${entry.id}.${family}:${index}`,
         right: p !== null && (family === "broken" ? flagged : !flagged),
-        picked: p === null ? null : `p=${p}`,
+        picked: p === null ? null : coded ? "code:paragraphs" : `p=${p}`,
         detail: rule,
         latencyMs: asked.latencyMs,
         ...(asked.fallback ? { fallback: asked.fallback } : {}),

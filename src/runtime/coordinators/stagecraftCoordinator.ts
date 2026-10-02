@@ -39,7 +39,8 @@ export interface StagecraftCoordinatorDeps {
     check: (input: WardenCheckInput) => Promise<WardenCheckFinding[] | null>;
     facts: () => EstablishedFact[];
     families?: () => Omit<WardenFamiliesActive, "continuity">;
-    lore?: (replyMessageId: number) => NonNullable<WardenCheckInput["lore"]>;
+    lore?: (replyMessageId: number) => NonNullable<WardenCheckInput["houseRuleContext"]>["worldBook"];
+    scene?: (speaker: string) => Pick<NonNullable<WardenCheckInput["houseRuleContext"]>["scene"], "speakerRole" | "groupMembers">;
     nudgeActive: () => boolean;
   };
   journal: (summary: string, note?: string) => void;
@@ -378,8 +379,14 @@ export class StagecraftCoordinator {
       const input: WardenCheckInput = { reply, facts: established.map((fact) => fact.text),
           agency: playerLine !== null ? { player: this.deps.hosts.player.getPlayerName(),
           message: playerLine } : null, houseRules: families.houseRules };
-      const lore = families.lore ? warden.lore?.(replyMessageId) ?? [] : [];
+      const rules = families.houseRules.length > 0;
+      const fired = families.lore || rules ? warden.lore?.(replyMessageId) ?? [] : [];
+      const lore = families.lore ? fired : [];
       if (lore.length) input.lore = lore;
+      if (rules && warden.scene) {
+        const line = readPlayerLine(this.deps.hosts.chat.chatRows(), replyMessageId);
+        input.houseRuleContext = { scene: { player: this.deps.hosts.player.getPlayerName(), ...(line ? { playerMessage: line } : {}), ...warden.scene(reply.speaker) }, worldBook: fired };
+      }
       const asks = input.facts.length > 0 || input.agency !== null || input.houseRules.length > 0 || lore.length > 0;
       const findings = asks ? await warden.check(input).catch((error: unknown) => {
         log.warn("continuity warden: the check failed", error);
