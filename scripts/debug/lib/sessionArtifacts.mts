@@ -64,20 +64,21 @@ export function requiredArtifacts(doc: CardDoc, card: Card): Partial<Record<Arti
   return out;
 }
 
-export const EMPTY_THOUGHT_CHANNEL = /<\|channel>thought\s*<channel\|>\s*$/;
+export const HARVEST_WAIVED = 'required artifact harvestedReasoning: not applicable: the model produced no reasoning (thinking off in the instruct/overlay)';
 
-export const HARVEST_WAIVED = 'required artifact harvestedReasoning: not applicable: the preset overlay disables thinking (last_output_sequence prefills an empty thought channel)';
+const reasoningText = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
 
-export function overlayDisablesThinking(overlay: any): boolean {
-  if (!overlay || overlay.applied !== true) return false;
-  const live = overlay.live?.instruct?.last_output_sequence;
-  const edited = (Array.isArray(overlay.edits) ? overlay.edits : []).find((edit: any) => edit?.kind === 'instruct' && edit?.key === 'last_output_sequence')?.after;
-  const sequence = typeof live === 'string' ? live : edited;
-  return typeof sequence === 'string' && EMPTY_THOUGHT_CHANNEL.test(sequence);
+export function replyReasoning(messages: unknown): number {
+  if (!Array.isArray(messages)) return 0;
+  return messages.filter((message: any) => message && !message.isUser && !message.is_user).reduce((sum: number, message: any) => {
+    const own = [message.reasoning, message.extra?.reasoning].some((value) => reasoningText(value));
+    const swipes = (Array.isArray(message.swipeInfo) ? message.swipeInfo : Array.isArray(message.swipe_info) ? message.swipe_info : []).filter((info: any) => reasoningText(info?.extra?.reasoning)).length;
+    return sum + (own ? 1 : 0) + swipes;
+  }, 0);
 }
 
-export function artifactWaivers(required: Partial<Record<ArtifactKey, number>>, session: { presetOverlay?: unknown }): { required: Partial<Record<ArtifactKey, number>>; warnings: string[] } {
-  if (!required.harvestedReasoning || !overlayDisablesThinking(session.presetOverlay)) return { required, warnings: [] };
+export function artifactWaivers(required: Partial<Record<ArtifactKey, number>>, evidence: { replyReasoning: number | null }): { required: Partial<Record<ArtifactKey, number>>; warnings: string[] } {
+  if (!required.harvestedReasoning || evidence.replyReasoning !== 0) return { required, warnings: [] };
   const rest = Object.fromEntries(Object.entries(required).filter(([key]) => key !== 'harvestedReasoning')) as Partial<Record<ArtifactKey, number>>;
   return { required: rest, warnings: [HARVEST_WAIVED] };
 }

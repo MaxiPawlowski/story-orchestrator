@@ -15,7 +15,7 @@ import {
 } from './lib/sessionLanes.mts';
 import { applyOverBaseline, baselineProblems, effectiveProblems, effectiveSettings, hostSwipesProblems, loadBaseline, mediaPlan, overrideChain } from './lib/sessionBaseline.mts';
 import {
-  artifactInventory, artifactProblems, artifactWaivers, comfyCalls, featureProblems, newChats, requiredArtifacts, runtimeProblems, storyFeatures, trackChat, type ChatRef,
+  artifactInventory, artifactProblems, artifactWaivers, comfyCalls, replyReasoning, featureProblems, newChats, requiredArtifacts, runtimeProblems, storyFeatures, trackChat, type ChatRef,
 } from './lib/sessionArtifacts.mts';
 import { refresherFor, settingLanded } from './lib/sessionSetting.mts';
 import { ackPaths, readTailAcks, tailProblems, TAIL_FILES, TAIL_NAMES, waitFor, READY_TIMEOUT_MS, DRAIN_TIMEOUT_MS } from './lib/sessionTails.mts';
@@ -462,7 +462,10 @@ export async function verifySession(dir: string, session: any, doc: CardDoc, car
     const match = /^runtime-(.+)\.json$/.exec(name);
     if (match) runtimes[match[1]] = await readJson(resolve(dir, name));
   }
-  const { required, warnings } = artifactWaivers(requiredArtifacts(doc, card), session);
+  const fullChats = names.filter((name) => /^chat-full-.+\.json$/.test(name));
+  let reasoningCount: number | null = fullChats.length ? 0 : null;
+  for (const name of fullChats) reasoningCount = (reasoningCount ?? 0) + replyReasoning(await readJson(resolve(dir, name)));
+  const { required, warnings } = artifactWaivers(requiredArtifacts(doc, card), { replyReasoning: reasoningCount });
   const playsStory = card.story.kind !== 'wizard';
   for (const chat of session.chats ?? []) {
     if (!(chat.chatId in runtimes)) { invalid.push(`chat ${chat.chatId} was tracked but its persisted runtime was not exported`); continue; }
@@ -478,7 +481,7 @@ export async function verifySession(dir: string, session: any, doc: CardDoc, car
     wizardDrafts: (drafts?.sessions?.length ?? 0) + (drafts?.openDraft?.checkpoints?.length ? 1 : 0),
   });
   invalid.push(...artifactProblems(required, inventory));
-  return { invalid, inventory, required, warnings };
+  return { invalid, inventory, required, warnings, replyReasoning: reasoningCount };
 }
 
 async function reverify(arg: string | undefined) {
@@ -491,7 +494,7 @@ async function reverify(arg: string | undefined) {
   const invalid = [...new Set([...kept, ...verified.invalid, ...await comfyGuard(session)])];
   const warnings = [...new Set([...(session.warnings ?? []), ...verified.warnings])];
   const next = { ...session, valid: invalid.length === 0, invalid, warnings, reverifiedAt: new Date().toISOString(), reverifiedFrom: { valid: session.valid, invalid: session.invalid ?? [] } };
-  await writeFile(resolve(dir, 'artifacts.json'), JSON.stringify({ required: verified.required, inventory: verified.inventory, warnings: verified.warnings }, null, 2), 'utf-8');
+  await writeFile(resolve(dir, 'artifacts.json'), JSON.stringify({ required: verified.required, inventory: verified.inventory, replyReasoning: verified.replyReasoning, warnings: verified.warnings }, null, 2), 'utf-8');
   await writeFile(resolve(dir, 'session.json'), JSON.stringify(next, null, 2), 'utf-8');
   console.log(JSON.stringify({ dir: session.dir, valid: next.valid, invalid, warnings: verified.warnings, was: next.reverifiedFrom }, null, 2));
   if (!next.valid) process.exitCode = 1;
@@ -534,7 +537,7 @@ async function stop(arg: string | undefined, stopLane: boolean) {
       const merged = { ...session, chats: pageEnd.chats ?? session.chats };
       const verified = await verifySession(dir, merged, doc, card);
       verifyWarnings.push(...verified.warnings);
-      await writeFile(resolve(dir, 'artifacts.json'), JSON.stringify({ required: verified.required, inventory: verified.inventory, warnings: verified.warnings }, null, 2), 'utf-8');
+      await writeFile(resolve(dir, 'artifacts.json'), JSON.stringify({ required: verified.required, inventory: verified.inventory, replyReasoning: verified.replyReasoning, warnings: verified.warnings }, null, 2), 'utf-8');
       return [...verified.invalid, ...await comfyGuard(session)];
     },
   });

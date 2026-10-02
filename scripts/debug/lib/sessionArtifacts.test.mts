@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { REPO_ROOT } from '../../lib/stRoot.mjs';
 import {
-  artifactInventory, artifactProblems, artifactWaivers, comfyCalls, featureProblems, HARVEST_HEADER, HARVEST_WAIVED, overlayDisablesThinking, newChats, requiredArtifacts, requiredFeatures, runtimeProblems, storyFeatures, trackChat, type ChatRef,
+  artifactInventory, artifactProblems, artifactWaivers, comfyCalls, featureProblems, HARVEST_HEADER, HARVEST_WAIVED, replyReasoning, newChats, requiredArtifacts, requiredFeatures, runtimeProblems, storyFeatures, trackChat, type ChatRef,
 } from './sessionArtifacts.mts';
 import { findCard, loadCards, loadIndex } from '../so-session.mts';
 
@@ -83,39 +83,46 @@ test('AS-27 media guard: any ComfyUI line in the lane log is caught', () => {
   assert.deepEqual(comfyCalls('ok\nPOST http://127.0.0.1:8188/prompt\n/api/sd/comfy/generate 200\nfine'), ['POST http://127.0.0.1:8188/prompt', '/api/sd/comfy/generate 200']);
 });
 
-const overlay = (sequence: string, applied = true) => ({
-  applied,
-  edits: [{ kind: 'instruct', preset: 'Gemma 4', key: 'last_output_sequence', after: sequence, mirrored: true }],
-  live: { instruct: { preset: 'Gemma 4', last_output_sequence: sequence } },
+const reply = (reasoning: unknown, swipes: unknown[] = []) => ({ isUser: false, text: 'x', reasoning, extra: { reasoning }, swipeInfo: swipes.map((value) => ({ extra: { reasoning: value } })) });
+const player = { isUser: true, text: 'hi', extra: { reasoning: 'not a reply' } };
+
+test('harvest waiver: reasoning is counted on replies only, swipes included', () => {
+  assert.equal(replyReasoning([player, reply(''), reply(null), reply(undefined)]), 0);
+  assert.equal(replyReasoning([reply('  ')]), 0);
+  assert.equal(replyReasoning([reply('she weighs the offer'), reply('', ['', 'older swipe thought'])]), 2);
+  assert.equal(replyReasoning(null), 0);
 });
 
-test('T3-1 waiver: an overlay that prefills an empty thought channel turns the harvest requirement into a recorded warning', async () => {
+test('harvest waiver: a session whose model produced no reasoning records a warning instead of an invalid reason (overlay or plain instruct)', async () => {
   const doc = await loadCards();
   const required = requiredArtifacts(doc, findCard(doc, 'T3-1'));
   assert.equal(required.harvestedReasoning, 1);
-  const waived = artifactWaivers(required, { presetOverlay: overlay('<|turn>model\n<|channel>thought\n<channel|>') });
-  assert.equal(waived.required.harvestedReasoning, undefined);
-  assert.equal(waived.required.turns, required.turns);
-  assert.deepEqual(waived.warnings, [HARVEST_WAIVED]);
-  assert.match(HARVEST_WAIVED, /not applicable: the preset overlay disables thinking/);
-  assert.deepEqual(artifactProblems(waived.required, { turns: 5, chats: 1, ratingCandidates: 3, harvestedReasoning: 0 }), []);
+  const overlayChat = [reply(''), reply(''), player, reply('', [''])];
+  const groupPrefixChat = [reply(null), reply(null)];
+  for (const chat of [overlayChat, groupPrefixChat]) {
+    const waived = artifactWaivers(required, { replyReasoning: replyReasoning(chat) });
+    assert.equal(waived.required.harvestedReasoning, undefined);
+    assert.equal(waived.required.turns, required.turns);
+    assert.deepEqual(waived.warnings, [HARVEST_WAIVED]);
+    assert.deepEqual(artifactProblems(waived.required, { turns: 5, chats: 1, ratingCandidates: 3, harvestedReasoning: 0 }), []);
+  }
+  assert.match(HARVEST_WAIVED, /not applicable: the model produced no reasoning \(thinking off in the instruct\/overlay\)/);
 });
 
-test('T3-1 waiver: without the overlay, or with thinking left on, the harvest requirement still fails closed', async () => {
+test('harvest waiver: reasoning that reached a reply but not the harvest stays invalid, and unknown evidence fails closed', async () => {
   const doc = await loadCards();
   const required = requiredArtifacts(doc, findCard(doc, 'T3-1'));
   const inventory = { turns: 5, chats: 1, ratingCandidates: 3, harvestedReasoning: 0 };
-  for (const session of [{}, { presetOverlay: null }, { presetOverlay: overlay('<|turn>model\n<|channel>thought\n<channel|>', false) }, { presetOverlay: overlay('<|turn>model\n') }, { presetOverlay: overlay('<|turn>model\n<|channel>thought\nI think<channel|>') }]) {
-    const waived = artifactWaivers(required, session);
-    assert.equal(waived.required.harvestedReasoning, 1, JSON.stringify(session));
+  for (const evidence of [{ replyReasoning: replyReasoning([reply(''), reply('Kela distrusts Ced')]) }, { replyReasoning: null }]) {
+    const waived = artifactWaivers(required, evidence);
+    assert.equal(waived.required.harvestedReasoning, 1, JSON.stringify(evidence));
     assert.deepEqual(waived.warnings, []);
     assert.ok(artifactProblems(waived.required, inventory).some((line) => line.startsWith('required artifact harvestedReasoning: 0 captured')));
   }
-  assert.equal(overlayDisablesThinking({ applied: true, edits: [], live: { instruct: { last_output_sequence: '<|channel>thought\r\n<channel|>' } } }), true);
 });
 
-test('T3-1 waiver: a card that never asked for harvest is untouched by the overlay', async () => {
+test('harvest waiver: a card that never asked for harvest is untouched', async () => {
   const doc = await loadCards();
   const required = requiredArtifacts(doc, findCard(doc, 'T0-1'));
-  assert.deepEqual(artifactWaivers(required, { presetOverlay: overlay('<|turn>model\n<|channel>thought\n<channel|>') }), { required, warnings: [] });
+  assert.deepEqual(artifactWaivers(required, { replyReasoning: 0 }), { required, warnings: [] });
 });
