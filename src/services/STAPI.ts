@@ -48,7 +48,7 @@ export { setStoryExtensionPrompt, clearStoryExtensionPrompt } from "@services/st
 export {
   getWorldInfoSettings, enableWIEntry, disableWIEntry, upsertWIEntry, readWIEntry, readWIEntryAt, restoreWIEntryAt,
   updateWIEntryByUid, createLorebook, deleteLorebook, ensureLorebook, bindChatLorebook, unbindChatLorebook,
-  activateGlobalLorebook, loadLorebook, lorebookExists, listAllLorebooks, lorebookFileId,
+  deactivateGlobalLorebook, loadLorebook, loadScanLorebook, lorebookExists, listAllLorebooks, lorebookFileId,
 } from "@services/stHost/worldInfo";
 export type { ChatLorebookBinding, Lorebook, LoreEntry, WIUpsertResult, WIEntrySnapshot, WIEntryTarget } from "@services/stHost/worldInfo";
 export { currentChatOwner, probeChatFile } from "@services/stHost/chatFiles";
@@ -74,7 +74,9 @@ export { forceActivateEntries, getScannableEntries, type HostScannableEntry } fr
 export { readLorebookEntries, setLorebookEntriesDisabled } from "@services/stHost/worldInfoFiles";
 export { observeWorldInfoScans, loadedEntries, type HostEntriesLoaded, type WorldInfoScanObservation } from "@services/stHost/worldInfoEvidence";
 export { observeSamplerPayloads, readSamplerPreset, samplerApi, type SamplerPayloadHandlers } from "@services/stHost/samplerOverlay";
-export { installScanGating, probeScanGating, vectorsScanWorldInfo, type ScanGatingHandle } from "@services/stHost/worldInfoScan";
+export {
+  installScanGating, installStoryLoreScan, probeScanGating, vectorsScanWorldInfo, type ScanGatingHandle, type StoryLoreScanHandle,
+} from "@services/stHost/worldInfoScan";
 export { getSelectedConnectionProfileId, listConnectionProfiles, profileExists, sendConnectionProfileRequest } from "@services/stHost/connectionProfiles";
 export type { ModelFailureKind, ModelFinish, ModelReply, ModelRequestOptions, ModelSamplers, ModelUsage, ReasoningMeter } from "@services/stHost/modelReply";
 export { harnessContextLimit, harnessListed, harnessStatusCached, openAgentBridge, refreshHarnessStatus, sendHarness } from "@services/stHost/harnessCache";

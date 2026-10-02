@@ -29,6 +29,25 @@ export function installScanGating(apply: (arrays: HostScannableEntry[][]) => voi
   return { reassert: observation.reassert, dispose: observation.dispose, ordered: observation.ordered, scans: () => seen };
 }
 
+export interface StoryLoreScanHandle {
+  reassert: () => void;
+  dispose: () => void;
+  ordered: boolean;
+}
+
+export function installStoryLoreScan(append: (arrays: HostScannableEntry[][]) => Promise<void>): StoryLoreScanHandle {
+  const observation = observeWorldInfoScans({
+    loadedFirst: async (payload) => {
+      try {
+        await append(LOADED_ARRAYS.map((key) => payload[key]));
+      } catch (error) {
+        log.warn("a story lorebook could not join this scan", error);
+      }
+    },
+  });
+  return { reassert: observation.reassert, dispose: observation.dispose, ordered: observation.ordered };
+}
+
 export function vectorsScanWorldInfo(): boolean {
   const vectors = (getContext().extensionSettings as Record<string, unknown> | undefined)?.vectors;
   return typeof vectors === "object" && vectors !== null && (vectors as { enabled_world_info?: unknown }).enabled_world_info === true;

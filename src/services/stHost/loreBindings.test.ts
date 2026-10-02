@@ -38,6 +38,7 @@ describe("readLoreBindings (v25-08-H2..H4, H9)", () => {
       chat: "Notes",
       persona: "Persona Book",
       characters: [{ name: "Arin", books: ["Arin Lore"] }, { name: "Luke", books: ["Luke Lore", "Extra"] }],
+      listed: ["Sun Ruins", "Arin Lore", "Luke Lore", "Extra", "Persona Book", "Notes"],
     });
   });
 
@@ -55,6 +56,6 @@ describe("readLoreBindings (v25-08-H2..H4, H9)", () => {
 
   it("no chat and no character: no character lore", () => {
     host.context = { chatMetadata: {}, characters: [arin], groups: [], groupId: null };
-    expect(readLoreBindings()).toEqual({ global: ["Sun Ruins"], chat: null, persona: null, characters: [] });
+    expect(readLoreBindings()).toMatchObject({ global: ["Sun Ruins"], chat: null, persona: null, characters: [] });
   });
 });

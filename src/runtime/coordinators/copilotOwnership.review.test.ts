@@ -6,7 +6,6 @@ import { CopilotCoordinator } from "./copilotCoordinator";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "../runToken";
 
 const host = {
-  activateGlobalLorebook: jest.fn(async () => true),
   clearStoryExtensionPrompt: jest.fn(),
   createCharacterCard: jest.fn(),
   createGroup: jest.fn(),
@@ -18,7 +17,7 @@ const host = {
   setStoryExtensionPrompt: jest.fn(),
   upsertWIEntry: jest.fn(async () => "created"),
 };
-const { activateGlobalLorebook, listAllLorebooks, upsertWIEntry } = host;
+const { listAllLorebooks, upsertWIEntry } = host;
 
 const draft = {
   format: 2,
@@ -76,7 +75,6 @@ const op: ProvisioningOp = {
 beforeEach(() => {
   jest.clearAllMocks();
   (listAllLorebooks as jest.Mock).mockReturnValue(["Story Book"]);
-  (activateGlobalLorebook as jest.Mock).mockResolvedValue(true);
   (upsertWIEntry as jest.Mock).mockResolvedValue("created");
 });
 
@@ -85,22 +83,7 @@ control("provisioning writes the entry when its world stays current", async () =
   const result = await h.coordinator.applyProvisioning(op, draft);
 
   expect(result.ok).toBe(true);
-  expect(activateGlobalLorebook).toHaveBeenCalledTimes(1);
   expect(upsertWIEntry).toHaveBeenCalledTimes(1);
-});
-
-control("provisioning stops before a second host write when its world changes", async () => {
-  const h = harness();
-  (activateGlobalLorebook as jest.Mock).mockImplementation(async () => {
-    h.switchChat();
-    return true;
-  });
-
-  const result = await h.coordinator.applyProvisioning(op, draft);
-
-  expect(result.ok).toBe(false);
-  expect(activateGlobalLorebook).toHaveBeenCalledTimes(1);
-  expect(upsertWIEntry).not.toHaveBeenCalled();
 });
 
 control("provisioning does not start a host write after validation changes the world", async () => {
@@ -113,6 +96,5 @@ control("provisioning does not start a host write after validation changes the w
   const result = await h.coordinator.applyProvisioning(op, draft);
 
   expect(result.ok).toBe(false);
-  expect(activateGlobalLorebook).not.toHaveBeenCalled();
   expect(upsertWIEntry).not.toHaveBeenCalled();
 });

@@ -36,6 +36,7 @@ export interface HostLoreBindings {
   chat: string | null;
   persona: string | null;
   characters: Array<{ name: string; books: string[] }>;
+  listed?: string[];
 }
 
 const withoutExtension = (file: string) => file.replace(/\.[^/.]+$/, "");
@@ -78,6 +79,7 @@ export function readLoreBindings(): HostLoreBindings {
       name: trim(character.name),
       books: uniq([character.data?.extensions?.world, ...extraBooks(trim(character.avatar))].flatMap((book) => live(book) ?? [])),
     })),
+    listed: [...existing.values()],
   };
 }
 

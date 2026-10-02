@@ -15,7 +15,6 @@ const host = {
   enableWIEntry: jest.fn(),
   disableWIEntry: jest.fn(),
   getContext: () => ({ chat: [], extensionSettings: {} }),
-  activateGlobalLorebook: jest.fn(async () => ({ ok: true as const })),
   listAllLorebooks: () => ["Existing user book"],
 };
 const { upsertWIEntry } = host;

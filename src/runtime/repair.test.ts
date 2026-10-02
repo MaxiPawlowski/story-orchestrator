@@ -50,7 +50,7 @@ describe("nextRepairStep", () => {
 
   it("a missing lorebook still comes before a hidden one, and a hidden one before the persona", () => {
     const hidden = { loreEvidence: { last: null, hiddenBooks: ["Sun Ruins"] } };
-    expect(nextRepairStep(snapshotWith({ ...hidden, requirements: { ready: false, missingPersonas: [], missingMembers: [], missingLorebooks: ["Adolion"] } } as Partial<RuntimeSnapshot>))?.detail).toBe("Not selected: Adolion");
+    expect(nextRepairStep(snapshotWith({ ...hidden, requirements: { ready: false, missingPersonas: [], missingMembers: [], missingLorebooks: ["Adolion"] } } as Partial<RuntimeSnapshot>))?.detail).toBe("Missing: Adolion");
     expect(nextRepairStep(snapshotWith({ ...hidden, requirements: { ready: false, missingPersonas: ["Tarn"], missingMembers: [], missingLorebooks: [] } } as Partial<RuntimeSnapshot>))?.detail).toBe("Hidden from the model: Sun Ruins");
   });
 

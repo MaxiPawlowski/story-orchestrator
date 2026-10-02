@@ -28,7 +28,7 @@ campaign build. Lanes 1+ only; lane 0 is the user's.
       2026-10-01 thinking-off control) to the lane's copied presets, settings and main profile and read it back
       (a missing preset, key or profile fails the seed; --no-preset-overlay keeps the real install's presets),
       start it, run the campaign installer at the pinned commit (adolion-fresh.pin.json), upload the
-      sprite packs from an LFS checkout of that commit (a git worktree, uploads only), create the groups, select exactly the lorebooks the stories require, import the nine stories, take a
+      sprite packs from an LFS checkout of that commit (a git worktree, uploads only), create the groups, select no lorebook for every chat (each story loads its own), import the nine stories, take a
       so-assets baseline, then write and check the inventory (and diff it against the lane's last one)
   check <lane> [--drop-book <name>]
       re-read the inventory of a running lane and check it; --drop-book deletes that book first
@@ -445,15 +445,14 @@ async function pagePhase(mode: 'seed' | 'check', exportDir: string, commit: stri
       await saveSettingsNow(page);
       await page.waitForTimeout(2500);
 
-      out.selected = await evaluateInST(page, async (required: string[]) => {
+      out.selected = await evaluateInST(page, async () => {
         const ctx = SillyTavern.getContext();
         const wi = await import(/* webpackIgnore: true */ '/scripts/world-info.js' as string) as { updateWorldInfoList: () => Promise<void>; selected_world_info: string[] };
         await wi.updateWorldInfoList();
         const slash = (command: string) => ctx.executeSlashCommandsWithOptions(command, { handleParserErrors: false, handleExecutionErrors: false });
-        for (const name of [...wi.selected_world_info]) if (!required.includes(name)) await slash(`/world state=off silent=true "${name}"`);
-        for (const name of required) if (!wi.selected_world_info.includes(name)) await slash(`/world state=on silent=true "${name}"`);
+        for (const name of [...wi.selected_world_info]) await slash(`/world state=off silent=true "${name}"`);
         return [...wi.selected_world_info].sort();
-      }, manifest.requiredBooks);
+      });
       await saveSettingsNow(page);
 
       const imports: Record<string, unknown>[] = [];

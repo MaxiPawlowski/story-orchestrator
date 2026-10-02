@@ -1,6 +1,6 @@
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { listBackgrounds, listGlobalLorebooks, listGroupMembers, listPersonas, showConfirmPopup } from "@services/STAPI";
+import { listAllLorebooks, listBackgrounds, listGroupMembers, listPersonas, showConfirmPopup } from "@services/STAPI";
 import type { AuthoringStageInput, CopilotStage, ProposalResult } from "@copilot/index";
 import { useDraftStore } from "./draft";
 import { setStoryField } from "./mutations";
@@ -52,7 +52,7 @@ export interface StudioHostOptions {
 // authors every field by hand.
 const readHostOptions = (): StudioHostOptions => {
   const safe = (read: () => string[]) => { try { return read(); } catch { return []; } };
-  return { personaNames: safe(listPersonas), memberNames: safe(listGroupMembers), lorebookNames: safe(listGlobalLorebooks), backgroundNames: safe(listBackgrounds) };
+  return { personaNames: safe(listPersonas), memberNames: safe(listGroupMembers), lorebookNames: safe(listAllLorebooks), backgroundNames: safe(listBackgrounds) };
 };
 
 export const WIZARD_AGENT = wizardAgent;

@@ -9,6 +9,7 @@ const st = {
   worldNames: [] as string[],
   cache: new Map<string, Book>(),
   selected: [] as string[],
+  stuck: false,
   mirror: [] as string[],
   chatMetadata: {} as Record<string, unknown>,
   chatId: "chat-1" as string | null,
@@ -46,8 +47,10 @@ const deleteWorldInfo = jest.fn(async (name: string) => {
   return true;
 });
 const executeSlashCommands = jest.fn(async (command: string) => {
-  const name = command.replace("/world silent=true state=on ", "").replace(/^"|"$/g, "");
-  if (st.worldNames.includes(name)) st.selected.push(name);
+  const off = command.startsWith("/world silent=true state=off ");
+  const name = command.replace(/^\/world silent=true state=(on|off) /, "").replace(/^"|"$/g, "");
+  if (off && st.selected.includes(name) && !st.stuck) st.selected.splice(st.selected.indexOf(name), 1);
+  if (!off && st.worldNames.includes(name)) st.selected.push(name);
   return true;
 });
 
@@ -94,7 +97,7 @@ jest.mock("./slashCommands", () => ({
   executeSlashCommands: (command: string) => executeSlashCommands(command),
 }));
 
-import { bindChatLorebook, createLorebook, deleteLorebook, disableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, unbindChatLorebook, updateWIEntryByUid, upsertWIEntry } from "./worldInfo";
+import { bindChatLorebook, createLorebook, deactivateGlobalLorebook, deleteLorebook, disableWIEntry, ensureLorebook, listSelectedLorebooks, loadLorebook, lorebookExists, unbindChatLorebook, updateWIEntryByUid, upsertWIEntry } from "./worldInfo";
 
 const putOnDisk = (name: string, entries: Entry[] = []) => st.disk.set(name, { entries: Object.fromEntries(entries.map((entry) => [entry.uid, entry])) });
 const entry = (uid: number, comment: string, content = "text"): Entry => ({ uid, comment, content, key: [], disable: false });
@@ -105,6 +108,7 @@ beforeEach(() => {
   st.worldNames = [];
   st.selected.length = 0;
   st.mirror = [];
+  st.stuck = false;
   for (const key of Object.keys(st.chatMetadata)) delete st.chatMetadata[key];
   st.chatId = "chat-1";
   jest.spyOn(console, "warn").mockImplementation(() => undefined);
@@ -268,9 +272,10 @@ describe("upsertWIEntry identical rewrite (T4-3)", () => {
 });
 
 describe("createLorebook (wizard)", () => {
-  it("creates and switches the book on globally", async () => {
+  it("creates the book and leaves it unselected, so it reaches only the chats of its story", async () => {
     expect(await createLorebook("SO-J9 Lore")).toEqual({ ok: true, name: "SO-J9 Lore", created: true });
-    expect(st.selected).toEqual(["SO-J9 Lore"]);
+    expect(st.selected).toEqual([]);
+    expect(executeSlashCommands).not.toHaveBeenCalledWith(expect.stringContaining("/world"));
   });
 
   it("never re-creates a book that exists", async () => {
@@ -279,16 +284,26 @@ describe("createLorebook (wizard)", () => {
     expect(await createLorebook("SO-J9 Lore")).toEqual({ ok: true, name: "SO-J9 Lore", created: false });
     expect(st.disk.get("SO-J9 Lore")!.entries[0].comment).toBe("Kept");
   });
+});
 
-  // v2.3 plan 06: a book that exists but will not stay selected is a FAILURE for the caller, because
-  // a story's `requirements.lorebooks` is satisfied only by the globally selected books — so a
-  // wizard that reported success here would leave a requirement green over a book the story cannot
-  // read (this is the shape a real failure had before the typed result).
-  it("reports a failure when the book will not stay switched on", async () => {
-    const original = st.selected.push.bind(st.selected);
-    st.selected.push = () => 0;
-    expect(await createLorebook("SO-J9 Lore")).toEqual({ ok: false, reason: "\"SO-J9 Lore\" did not stay selected" });
-    st.selected.push = original;
+describe("deactivateGlobalLorebook (story lore migration)", () => {
+  it("deselects a selected book by its listed name and reads the selection back", async () => {
+    st.worldNames = ["Hoard"];
+    st.selected.push("Hoard", "Mine");
+    expect(await deactivateGlobalLorebook("hoard")).toEqual({ ok: true, name: "Hoard" });
+    expect(st.selected).toEqual(["Mine"]);
+  });
+
+  it("answers ok without a command for a book that is not selected", async () => {
+    executeSlashCommands.mockClear();
+    expect(await deactivateGlobalLorebook("Hoard")).toEqual({ ok: true, name: "Hoard" });
+    expect(executeSlashCommands).not.toHaveBeenCalled();
+  });
+
+  it("reports a deselect that did not take", async () => {
+    st.selected.push("Hoard");
+    st.stuck = true;
+    expect(await deactivateGlobalLorebook("Hoard")).toEqual({ ok: false, reason: "\"Hoard\" is still selected" });
   });
 });
 
