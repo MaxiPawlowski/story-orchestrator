@@ -620,3 +620,158 @@ User decision 2026-10-02: the plan 14 lanes run the `stga` setup now. The blind 
   - Turns 1 and 2: reasoning parsed into `extra.reasoning` (2991 and 1792 chars, `reasoning_type: parsed`). The text was clean, with no channel markers and no repeated `Name:` (0/3).
   - Turn 3: the reasoning was empty (parsed, `""`) and the reply was normal. This is the immediate-close case (4/20 in the A/B).
   - The epistemic pass carried the harvested narrator reasoning (2 passes) and stored its signals.
+
+## 2026-10-02: Reasoning effort A/B
+
+User-approved 2026-10-02 (review pack item 10). The production pod `m4dmlnzn70qgj2` was used through the existing tunnel (`http://127.0.0.1:18080`, llama-server b11046, Artemis v1.1 Q4_K_M, 4 slots, shared with other work). No pod was created, stopped or updated. Raw rows, scripts, hand-read texts and the timeline are in `C:\dev\so-lanes\artemis-effort\` (README there). Branch `v26-effort-ab`.
+
+### Setup, and what it cannot show
+
+- **Raw Text Completion arms** reuse the thinking A/B bodies, sampler and counters (W, T, B, L0, S; `min_p` first; temperature 1; DRY 0.8/1.75/2/4096). The shape is `stga` (the lane thinking setup): `<|think|>` + the brief-plan line in the system turn, prompt ends `<|turn>model\nName:<|channel>thought\n`, speaker stops off. Budget 800 reasoning + 400 reply. 4 seeds per body, so n = 20 per arm.
+- Every reply was **hand-read** (`handread/`). The detector found no damage in any arm.
+- At most 2 of my requests ran at once, with one exception: 10:09–10:18Z a queue started early and 3 ran (logged). From about 10:39Z two players on lanes 3 and 4 shared the pod. **Latency figures are under shared load**; compare them within this section only.
+- **ST group trials** ran on lane 4 (adolion-fresh, thinking overlay `56234d5dab5c`, dev bundle built 07:45Z). The lane overlay then still had **Auto-fix Markdown on** and no name-echo regex (both changed in merge `8c8f2454`). Each trial used the same scene: group *The Adventurer's Road*, the greeting, and one player line naming Belle, Dalan and Ellie. Each arm ran `/trigger await=true <member>` for Tobias, Belle, Dalan and Ellie, 4 times each (n = 16), and deleted the reply after each run. The model picks no speaker here (`/trigger` forces one), so "wrong speaker" means a reply written as, or labelled as, another character.
+- Lane 4 was taken over by the plan 14 players at about 10:39Z, during Q4. Q4 was redone on lane 1 (dev bundle `b644cbb7ad01`). Lane 4's profile changes were lost with its re-seed. Nothing else of theirs was touched.
+
+### 1. Does a per-request reasoning budget work on Text Completion (`/completion`)?
+
+**Yes, but only with all five keys.** llama-server b11046 (`tools/server/server-schema.cpp`, `common/sampling.cpp`, `common/reasoning-budget.cpp`) parses its reasoning-budget sampler fields for every completion task, not only for chat requests:
+
+| Request keys (budget 64, W body, 2 seeds) | Reasoning tokens | Capped? |
+|---|---|---|
+| `thinking_budget_tokens: 64` | 196, 284 | no: only the OpenAI chat path reads this key (`server-common.cpp:1388`) |
+| `reasoning_budget_tokens: 64` | 217, 284 | no: no start/end tags, so the sampler is never created |
+| + `reasoning_budget_start_tag` `<|channel>thought`, `reasoning_budget_end_tags` `["<channel|>"]`, `generation_prompt` `<|channel>thought\n` | 217, 284 | no: no forced sequence is built without `reasoning_budget_message` |
+| the same without `generation_prompt`, with `reasoning_budget_message: ""` | 217, 284 | no: the opener is in the prompt, so the sampler never sees the start tag |
+| **all five** (`reasoning_budget_message: ""`) | **64, 64** | **yes** |
+| all five, message `"\nTime to write the reply.\n"` | 72, 72 | yes (the message tokens count) |
+
+- `generation_prompt` feeds the prompt's trailing opener to the budget sampler, so it starts counting. `reasoning_budget_message` (even empty) is what builds the forced `<channel|>`.
+- **Budget 0 does not work.** The prefill's trailing `\n` is accepted in the forcing state and consumes the forced close. 10 rows had a median of 285 reasoning tokens. **Budget 1 works as "off"**: 5/5 rows closed after 1 token.
+- `thinking_budget_tokens` on CC (verified 2026-10-02 morning, `cc-probe.jsonl`) stays the CC key. The prompt-side levers (brief-plan line, max tokens) are measured below anyway.
+
+### 2. Effort levels on group bodies (raw TC, `stga`, n = 20 each unless noted)
+
+| Arm | Word damage (hand-read) | Out of form | Empty | Loops | Reasoning tokens median / p90 / max | Capped at budget | Wrong speaker | Repeats `Name:` | First reply token median / p90 | Total median |
+|---|---|---|---|---|---|---|---|---|---|---|
+| budget 1 (off), n = 5 (seed 12) | 0/5 | 0 | 0 | 0 | 1 / 1 / 1 | 5/5 | 0 | 1 | 12.5 s / 15.7 s | 23.9 s |
+| **budget 128** | 0/20 | **2/20** (bullet plan in the reply, T s14; a labelled script for four characters, W s13) | 0 | 0 | 128 / 128 / 128 | 16/20 | 1/20 (that script) | 3 | 12.0 s / 19.0 s | 27.8 s |
+| **budget 400** | 0/20 | 0 | 0 | 0 | 326 / 400 / 400 | 7/20 | 0 | 2 | 19.9 s / 32.1 s | 33.8 s |
+| **unlimited** (800 cap) | 0/20 | 0 (W s13 narrates other members' dialogue, unlabelled) | 0 | 0 | 335 / 655 / 712 | – | 0 | 2 | 27.8 s / 37.9 s | 38.7 s |
+| one-sentence brief line (`st1a`), unlimited | 1/20 ("asks the Dalan, then the Tal") | 1/20 (narrator speaks as `Kanna:`) | **3/20** (the reply stayed inside the thought) | 0 | 28 / 63 / 124 | – | 1/20 | 0 | 7.8 s / 11.8 s | 18.0 s |
+
+- Seed 11 closes the thought at once on B, T, S and L0 in every arm (4/20, as in the thinking A/B), so those rows are ordinary "off" replies.
+- **Blind turns** (20 later, longer contexts, seed 1001, 600 reply tokens; feed the pack):
+
+| Arm | Empty | Damage (detector) | Out of form (read) | Capped | Repeats `Name:` | First reply token median |
+|---|---|---|---|---|---|---|
+| budget 128 | 0/20 | 0 | 2/20 (b03: an out-of-character recap of the scene; b07: the narrator writes a labelled `Dalan:`/`Belle:` script) | 20/20 | 6/20 | 17.4 s |
+| budget 400 | 0/20 | 0 | not read beyond the detector | 12/20 | 4/20 | 42.8 s |
+| unlimited (`TB2`, 2026-10-02 morning) | 2/20, plus 1 cut to 10 tokens | 0 | – | – | – | – |
+
+- Reading:
+  - **128 is too tight for groups.** The forced close cuts the plan mid-list, and the model sometimes writes the rest of its planning, or a whole-scene script, into the reply (4 of 40).
+  - **400 is the sweet spot.** It is as clean as unlimited (0 damage and 0 out of form in its 20 hand-read screen replies, 0 empty in 40), caps the long tail (p90 655 → 400), and the first token comes about 8 s sooner.
+  - **The one-sentence line is not a lever.** It shortens the reasoning to 28 tokens but leaves 3/20 replies empty. The brief-plan line (5 bullets) plus a budget is the better pair.
+  - **"Off" per request is budget 1**, which gives the immediate-close shape the lanes already see on 4/20 turns.
+
+### 3. Chat Completion in a group, through ST and raw
+
+| Arm (n) | Wrong speaker | Empty | Damage (read) | Loops | Reasoning arrives | Reasoning chars median / max | Reply time median / p90 |
+|---|---|---|---|---|---|---|---|
+| ST, CC custom, names **default**, nudge on (16) | **0/13** (the 3 empties excluded) | **3/16** (the reply was written inside the reasoning) | 0 | 0 | separately (`reasoning_content` → `extra.reasoning`, type `model`) | 2703 / 4161 | 57 s / 77 s |
+| ST, CC custom, names **content**, nudge on (16) | **0/16** | 0/16 | 0 | 0 | separately | 2367 / 4959 | 86 s / 119 s |
+| ST, TC lane setup (`stga`), streaming (16) | 0/16 | 0 | **4/16 first token lost** ("le's eyes", "iple?", "ie:*Ellie", a dropped opening quote); 6/16 `."*He` glued | 0 | parsed from text (`parsed`) | 1725 / 3987 | 62 s / 84 s |
+| ST, TC lane setup, **not streaming** (4) | 0/4 | 0 | 0/4 first token lost; 2/4 glued | 0 | parsed | 1993 / 2592 | 68 s |
+| raw CC + ST's group nudge as the last system message, screen bodies W/T/B/S (16) | **0/16** | 0 | 0 | 0 | separately | 2583 (≈ 820 completion tokens incl. reply) | 65 s |
+| raw CC, **no nudge** (2026-10-02 morning, W body) | **6/6 as Tobias** | – | – | – | – | – | – |
+
+- **ST's group nudge (`[Write the next reply only as {{char}}.]`) is what holds the speaker on CC.** Without it, raw CC answered as the wrong member 6/6. With it: 0/16 raw, and 0/29 through ST.
+- Names: "content" (2) had 0 empties against 3/16 with "default" (0). n is small, and "completion" (1) was not run.
+- **CC thinks longer.** No brief line reaches it (the ST default CC main prompt replaces the instruct's system text), so CC reasons about 2400–2700 characters against TC's 1725, and replies take 57–86 s against 62 s. The empties are that cost: with no budget, the model drafts the reply inside the thought.
+- CC also changes the prose. ST's default CC main prompt ("italicize actions, and avoid quotation marks") produced unquoted speech in most CC replies. This is a prompt-manager difference, not a model one.
+- **Two ST-side TC defects showed up (lane overlay as of 07:45Z):**
+  - Under streaming, the first reply token after the reasoning is dropped in 4/16 replies (0/4 without streaming). The streaming parser in `public/scripts/reasoning.js` (`#autoParseReasoningFromMessage`) slices the message at a start index it computed once. The exact mechanism was not traced.
+  - `."*He` (no space between a quote and an asterisk) appears in 8/20 ST TC replies, against 0/60 raw TC and 0/32 ST CC. Auto-fix Markdown was on in that lane. Merge `8c8f2454` turns it off and adds a name-echo regex, which also covers the `ie:*Ellie` case. Neither defect was re-measured on the new overlay.
+
+### 4. Does checkpoint `effects.reasoning` (R4 spike) change the request?
+
+Marker story `SO-EFFORT Probe` (`so-effort-probe.story.json`: checkpoints `start` = high, `think_low` = low, `think_off` = off). It ran on lane 1 with `spikes.reasoningEffect` on, in a new chat of *The Adventurer's Road*, with `/trigger` Dalan. Requests were captured with `st-payload.mts`.
+
+| Checkpoint level, profile | Keys the spike set (its shot) | In the captured request | Reasoning | Reply time |
+|---|---|---|---|---|
+| high, TC `Artemis RunPod RP` | none: `unsupported: "Text Completion sends a raw prompt"` | unchanged: no budget key, prompt ends `Dalan:<|channel>thought\n` | 1267 chars (the instruct thinks anyway) | 26 s |
+| high, CC custom | `custom_include_body`, `include_reasoning` (`collapsed: true`) | `chat_template_kwargs: {enable_thinking: true}`, `include_reasoning: true` | 1237 chars | 22 s |
+| high, CC, **spike off** (control) | – | no `chat_template_kwargs` (the template default is thinking on) | 3050 chars | 33 s |
+| low, CC custom | same as high (`collapsed: true`) | `enable_thinking: true` | 3396 chars | 35 s |
+| **off**, CC custom (2) | `custom_include_body`, `include_reasoning` | `enable_thinking: false`, `include_reasoning: false` | **0, 0** | **12 s, 8 s** |
+
+- **On CC, "off" works and the levels do nothing.** low, high and the control are the same request in effect, because Gemma 4 treats a missing kwarg as thinking on. No budget key is sent.
+- **On TC, nothing is sent.** The spike refuses Text Completion by design (plan 05 F6), but section 1 shows llama-server's `/completion` does honour a budget. ST's `text-completions.js` forwards the whole body to llama.cpp (`body: JSON.stringify(request.body)`, the `LLAMACPP` → `/completion` case), so keys added in the payload hook reach the server.
+- The spike's `custom_include_body` rewrite turns the profile's YAML into JSON with the kwargs merged. The samplers survived (checked in the capture).
+- The marker story lived only in lane 1's and lane 4's library copies; nothing was imported into the real install. The first Q4 attempt (lane 4) imported nothing (`roster` missing, then the lane was re-seeded under it) and is not counted.
+
+### 5. Blind pack `test/sessions/rating-pack/model-blind-20-effort/`
+
+The same 20 turns as `model-blind-20` and `model-blind-20-think`, seed 1001, 600 reply tokens. Reasoning is folded under the reply. The key is sealed: sha256 `3f74df80…5af259`, checked with `so-model-blind.mts verify-key --out …` (intact).
+
+| Config (sealed) | What it is |
+|---|---|
+| thinking off (empty channel), `min_p` first | the A100 `BL1` replies, reused: the control, effort "off" |
+| `stga`, budget 128 | effort "low" |
+| `stga`, budget 400 | effort "medium" |
+| `stga`, unlimited (800 cap) | `TB2` from the morning's thinking A/B, reused (same binary, model, prompt and seed): effort "high" |
+
+- CC is not in the pack. It held the speaker, but a fair CC config needs the brief line and a budget first, and the 20 CC turns did not fit the pod budget. Its 16 raw replies are in `handread/cc-nudge-raw.md`.
+- The folded reasoning reveals which reply came from the control (it has none), and its length hints at the budget. The README asks raters to judge the reply alone.
+- The judge's first pass (`openai/gpt-6-astra`, 20/20 scored, no problems) is in `judge-first-pass/unsealed-summary.md` only, as before, so it cannot steer the human rating.
+
+### Recommendation
+
+**(a) What the reasoning-effort feature should drive:**
+
+| Level | Text Completion (llama-server) | Chat Completion (custom → llama-server) |
+|---|---|---|
+| off | `reasoning_budget_tokens: 1` + the four tag keys (never 0) | `chat_template_kwargs.enable_thinking: false` (works today) |
+| low | budget 128: not for group narration (4/40 out of form); fine for short single-voice turns | `enable_thinking: true` + `thinking_budget_tokens: 128` in `custom_include_body` |
+| medium (default) | **budget 400** | `thinking_budget_tokens: 400` |
+| high | no budget keys (the response length is the only cap) | `enable_thinking: true`, no budget |
+
+- **TC:** the spike (and plan 05 F6) should stop refusing llama.cpp Text Completion. When `api_type` is `llamacpp` and the prompt ends with the reasoning template's prefix (Start Reply With = prefix), it adds five keys:
+  - `reasoning_budget_tokens`;
+  - `reasoning_budget_start_tag` = the prefix without its trailing newline;
+  - `reasoning_budget_end_tags` = `[suffix]`;
+  - `reasoning_budget_message: ""`;
+  - `generation_prompt` = the prefix.
+
+  This breaks the X20 rule "only keys the request already carries". It needs its own allowlist, and any other TC backend stays refused.
+- **CC:** add `thinking_budget_tokens` to the custom-source plan, so low/medium/high stop collapsing. Off already works.
+- Keep `maxTokens = answer + budget` (R2) for both.
+
+**(b) Can groups move to Chat Completion?** **Speaker: yes.** With ST's group nudge, 0 wrong speakers in 45 CC group replies (16 raw on the bodies where CC failed 6/6 without the nudge, and 29 through ST).
+
+**But not as a drop-in today.** Three things are missing:
+- CC gets no brief-plan line, so it reasons about 40% longer.
+- With no budget, it left 3/16 empty under names "default".
+- ST's default CC prompt changes the prose style.
+
+A CC group setup needs the brief line in the CC main prompt, `thinking_budget_tokens` (400), names "content" and one more A/B against `stga` + budget 400. Until then, groups stay on TC with the budget.
+
+**For the lanes now:**
+- Take the TC budget overlay once it is built, budget 400 for the main reply.
+- Keep streaming off, or fix the first-token drop, before the next live sessions. The `8c8f2454` overlay fixes only the glued-markdown half; the dropped token under streaming was not re-measured with it.
+
+### Not tested
+
+- Budgets through ST end to end. The TC overlay does not exist yet, and CC `thinking_budget_tokens` through ST's `custom_include_body` was not sent.
+- CC with a brief-plan line. CC with names "completion". CC on the blind turns. CC with a budget in a group.
+- The first-token drop's exact cause, and both ST defects on the `8c8f2454` overlay.
+- Loops-in-context (L body) under any budget.
+- More than 4 seeds per cell; the blind turns are single-seed. The budget-1 arm has 5 rows. Budget 400 blind replies were checked by the detector only.
+- Latency under a quiet pod: after about 10:39Z two players shared it.
+
+### Pod time
+
+- Active window **09:14–10:47Z, about 93 minutes** of requests on the shared production pod: about 1.55 pod-hours of my time against the 1.3 asked. The overrun was the sequential ST trials (about 60–90 s per CC turn).
+- No pod was created, stopped or updated. The pod's own billing is shared with the other work on it.
+- DeepSeek calls: the lanes' own orchestration passes (extraction, director) ran on their DeepSeek profile during the ST trials; none were made by the scripts.

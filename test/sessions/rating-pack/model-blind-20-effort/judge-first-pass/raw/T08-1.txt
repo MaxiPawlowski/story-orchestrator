@@ -1,0 +1,5 @@
+exit 0
+--- text ---
+{"scores":{"A":{"coherence":5,"prose":5,"scene":3,"agency":5,"overall":3},"B":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"C":{"coherence":3,"prose":4,"scene":4,"agency":5,"overall":3},"D":{"coherence":5,"prose":5,"scene":5,"agency":5,"overall":5}},"rank":["D","B","C","A"],"why":"D most directly acknowledges the player's watchfulness request while keeping Belle's actions and dialogue her own; B responds naturally to Dalan but offers less useful vigilance. C contradicts its claim that Belle gives no verbal confirmation and invents a prior tracking claim, while A deflects the player's request and introduces an unsupported name; all four preserve player agency."}
+--- stderr ---
+

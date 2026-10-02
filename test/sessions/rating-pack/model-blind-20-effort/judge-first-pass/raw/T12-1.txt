@@ -1,0 +1,5 @@
+exit 0
+--- text ---
+{"scores":{"A":{"coherence":5,"prose":5,"scene":5,"agency":5,"overall":5},"B":{"coherence":5,"prose":5,"scene":3,"agency":5,"overall":3},"C":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"D":{"coherence":5,"prose":5,"scene":5,"agency":5,"overall":5}},"rank":["D","A","C","B"],"why":"D and A combine the ongoing fight with recognition of the grave-marker arrangement and pressure to move onward; D makes the deliberate placement clearest. C offers more specific tactical support than B's generic combat response, and all four respect the player's agency."}
+--- stderr ---
+

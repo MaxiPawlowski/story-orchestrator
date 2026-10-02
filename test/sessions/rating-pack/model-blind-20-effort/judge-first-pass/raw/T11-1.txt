@@ -1,0 +1,5 @@
+exit 0
+--- text ---
+{"scores":{"A":{"coherence":4,"prose":4,"scene":4,"agency":5,"overall":4},"B":{"coherence":5,"prose":4,"scene":3,"agency":5,"overall":3},"C":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"D":{"coherence":5,"prose":4,"scene":3,"agency":5,"overall":3}},"rank":["C","A","D","B"],"why":"C most directly engages the roots and the proposed expedition, while A responds well but wavers between retrieving Duggy and abandoning him. All preserve player agency, but none meaningfully advances the forest threat; D introduces spirit talk somewhat mechanically, and B substitutes hostility toward Duggy for investigation."}
+--- stderr ---
+
