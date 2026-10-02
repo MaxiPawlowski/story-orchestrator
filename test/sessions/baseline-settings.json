@@ -110,7 +110,7 @@
         "expansionCritic": true,
         "expansionLookahead": true,
         "agencyCheck": true,
-        "houseRules": true,
+        "houseRules": false,
         "wardenLore": true,
         "loreExclusive": true,
         "expressions": true
