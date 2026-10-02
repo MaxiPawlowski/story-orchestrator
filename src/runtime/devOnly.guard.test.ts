@@ -17,8 +17,6 @@ const DEV_ONLY_PATTERN = /^src\/judge\/\w+Calibration\.ts$/;
 const SPIKES = [
   "src/runtime/spikes/index.ts",
   "src/runtime/spikes/install.ts",
-  "src/runtime/spikes/reasoningEffect.ts",
-  "src/runtime/spikes/reasoningEffectHost.ts",
   "src/runtime/spikes/sp5Scenario.ts",
   "src/runtime/spikes/sp5ScenarioHost.ts",
   "src/runtime/spikes/sp6Complications.ts",
@@ -33,6 +31,7 @@ const DROPPED_SPIKES = [
   "src/stagecraft/curatorDigest.ts", "src/memory/shortTermAppend.ts",
 ];
 const LAZY_USER_FEATURES = ["src/judge/selfTest.ts", "src/runtime/selfTest.ts", "src/runtime/roleSelfTest.ts", "src/extraction/fixtureRun.ts"];
+const LAZY_SHIPPED = ["src/runtime/replyEffort.ts", "src/runtime/replyEffortHost.ts", "src/runtime/replyEffortLive.ts", "src/services/stHost/llamaCpp.ts", "src/utils/replyEffort.ts"];
 
 const isDevOnly = (path: string) => DEV_ONLY.includes(path) || DEV_ONLY_PATTERN.test(path) || SPIKE_PATTERN.test(path);
 const ENTRY = join(SRC, "index.tsx");
@@ -49,6 +48,22 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
 
   it("the self-tests the settings panel runs load lazily, not with the entry", () => {
     expect(staticReach(files).filter((path) => LAZY_USER_FEATURES.includes(path))).toEqual([]);
+  });
+
+  it("the reply effort overlay ships but loads as its own chunk, never with the entry", () => {
+    const present = new Set(files.map(rel));
+    expect(LAZY_SHIPPED.filter((path) => !present.has(path))).toEqual([]);
+    expect(staticReach(files).filter((path) => LAZY_SHIPPED.includes(path))).toEqual([]);
+    expect(LAZY_SHIPPED.filter(isDevOnly)).toEqual([]);
+  });
+
+  it("control: a planted static import of the reply effort host from the entry is reached", () => {
+    const planted = join(SRC, "index.tsx");
+    const fs = require("fs") as typeof import("fs");
+    const read = (path: string) => (path === planted ? `${fs.readFileSync(path, "utf8")}
+export { startLiveReplyEffort } from "./runtime/replyEffortLive";
+` : fs.readFileSync(path, "utf8"));
+    expect(staticReach(files, read).filter((path) => LAZY_SHIPPED.includes(path))).toEqual(expect.arrayContaining(LAZY_SHIPPED));
   });
 
   it("plan 09 spike modules load only behind their own flag, never with the entry (rule 2)", () => {
@@ -74,8 +89,6 @@ describe("dev-only modules stay out of the prod entry graph (v2.5 plan 12 D3)", 
 
   it.each([
     ["the SP10 probe", 'export { createToolTurnProbe } from "./runtime/spikes/toolTurnProbe";', "src/runtime/spikes/toolTurnProbe.ts"],
-    ["the R4 reasoning effect host", 'export { startReasoningEffect } from "./runtime/spikes/reasoningEffectHost";', "src/runtime/spikes/reasoningEffectHost.ts"],
-    ["the R4 pure reasoning effect", 'import "./runtime/spikes/reasoningEffect";', "src/runtime/spikes/reasoningEffect.ts"],
   ])("control: a planted static import of %s from the entry fails", (_label, line, module) => {
     const planted = join(SRC, "index.tsx");
     const fs = require("fs") as typeof import("fs");

@@ -40,6 +40,12 @@ describe("effort settings: one key per role under extraction.routes (v2.6 plan 0
     expect(sanitizeGlobalSettings({}).extraction).not.toHaveProperty("routes");
   });
 
+  it("the reply effort keeps a known level and drops anything else (absent reads as medium)", () => {
+    for (const level of ["off", "low", "medium", "high"]) expect(sanitizeGlobalSettings({ extraction: { replyEffort: level } }).extraction.replyEffort).toBe(level);
+    for (const raw of ["default", "max", 3, null]) expect(sanitizeGlobalSettings({ extraction: { replyEffort: raw } }).extraction).not.toHaveProperty("replyEffort");
+    expect(sanitizeGlobalSettings({}).extraction).not.toHaveProperty("replyEffort");
+  });
+
   it("the resolved route carries the role's effort on a role profile and on the fallback alike; default adds no key", () => {
     const routes = withRoleEffort(undefined, "read", "off");
     const settings = { profileId: "memory", profiles: { director: "fast" }, routes: withRoleEffort(routes, "director", "high") };
