@@ -9,7 +9,22 @@ import assert from 'node:assert/strict';
 import { mkdtempSync, mkdirSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
-import { diffHeaders, foreignChatGrowth, parseAllow, readBuild, readCampaign, bundleWarning, profileInventory, samplerState, thirdPartyState } from './so-run-header.mts';
+import { diffHeaders, foreignChatGrowth, parseAllow, readBuild, readCampaign, bundleWarning, profileInventory, promptSetup, samplerState, thirdPartyState } from './so-run-header.mts';
+
+test('prompt setup: the header states whether the page runs the thinking setup, from the page values alone', () => {
+  const opener = '<|channel>thought' + String.fromCharCode(10);
+  const live = (bias: string, parse: boolean) => ({
+    instruct: { preset: 'Gemma 4 Thinking', last_output_sequence: '', sequences_as_stop_strings: false },
+    textgen: { preset: 'Artemis v1.1 RP', samplers: ['min_p'] }, context: { preset: 'Gemma 4', names_as_stop_strings: false },
+    settings: { 'power_user.user_prompt_bias': bias, 'power_user.reasoning.prefix': opener, 'power_user.reasoning.auto_parse': parse, 'power_user.reasoning.name': 'Gemma 4', amount_gen: 1400 },
+    profile: { name: 'Artemis RunPod RP' },
+  });
+  const on = promptSetup(live(opener, true))!;
+  assert.deepEqual({ thinking: on.thinking, instruct: on.instruct, names: on.namesAsStopStrings, tokens: on.responseTokens, profile: on.profile?.name }, { thinking: true, instruct: 'Gemma 4 Thinking', names: false, tokens: 1400, profile: 'Artemis RunPod RP' });
+  assert.equal(promptSetup(live('', true))!.thinking, false);
+  assert.equal(promptSetup(live(opener, false))!.thinking, false);
+  assert.equal(promptSetup(null), null);
+});
 
 const header = (overrides: Record<string, any> = {}) => ({
   label: 'a',

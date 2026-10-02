@@ -1,4 +1,5 @@
 import { evaluateInST } from './evaluate.mts';
+import { LIVE_SETTINGS_PATHS } from './presetOverlay.mts';
 import type { ChatRef } from './sessionArtifacts.mts';
 
 export const CONTEXT_MESSAGES = 8;
@@ -91,18 +92,36 @@ export async function readHostSwipes(page: any): Promise<{ swipes: boolean | nul
 }
 
 export async function readLivePresets(page: any) {
-  return evaluateInST(page, () => {
+  return evaluateInST(page, (paths: string[]) => {
     const ctx = (globalThis as any).SillyTavern.getContext();
-    const instruct = ctx.powerUserSettings?.instruct;
+    const power = ctx.powerUserSettings;
+    const instruct = power?.instruct;
+    const context = power?.context;
     const textgen = ctx.textCompletionSettings;
+    const walk = (root: any, keys: string[]) => keys.reduce((node: any, key: string) => (node && typeof node === 'object' ? node[key] : undefined), root);
+    const slider = (globalThis as any).document?.getElementById?.('amount_gen');
+    const settings = power ? Object.fromEntries(paths.map((path) => {
+      if (path === 'amount_gen') return [path, slider && slider.value !== '' ? Number(slider.value) : null];
+      const [root, ...rest] = path.split('.');
+      return [path, root === 'power_user' ? walk(power, rest) ?? null : null];
+    })) : null;
+    const manager = ctx.extensionSettings?.connectionManager;
+    const selected = Array.isArray(manager?.profiles) ? manager.profiles.find((profile: any) => profile?.id === manager.selectedProfile) : null;
     return {
       instruct: instruct ? {
         preset: instruct.preset ?? null, last_output_sequence: instruct.last_output_sequence ?? null,
-        sequences_as_stop_strings: instruct.sequences_as_stop_strings ?? null,
+        sequences_as_stop_strings: instruct.sequences_as_stop_strings ?? null, names_behavior: instruct.names_behavior ?? null,
+        story_string_prefix: instruct.story_string_prefix ?? null,
       } : null,
       textgen: textgen ? { preset: textgen.preset ?? null, samplers: Array.isArray(textgen.samplers) ? [...textgen.samplers] : null } : null,
+      context: context ? { preset: context.preset ?? null, names_as_stop_strings: context.names_as_stop_strings ?? null } : null,
+      settings,
+      profile: selected ? {
+        name: selected.name ?? null, instruct: selected.instruct ?? null, 'start-reply-with': selected['start-reply-with'] ?? null,
+        'reasoning-template': selected['reasoning-template'] ?? null, preset: selected.preset ?? null,
+      } : null,
     };
-  });
+  }, [...LIVE_SETTINGS_PATHS]);
 }
 
 export async function readEffectiveSettings(page: any) {

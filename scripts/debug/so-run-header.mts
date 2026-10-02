@@ -18,6 +18,8 @@ import { fileURLToPath } from 'node:url';
 import { DEBUG_DIR, PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { runCli, hasHelpFlag, stripCommonArgs } from './lib/cli.mts';
+import { readLivePresets } from './lib/sessionPageReads.mts';
+import type { LivePresets } from './lib/presetOverlay.mts';
 
 const USAGE = `Usage: node scripts/debug/so-run-header.mts <capture|diff|show> [options]
 
@@ -326,6 +328,21 @@ export function samplerState(raw: { mainApi: string | null; textgen: Record<stri
   return { api: raw.mainApi, preset: (source?.preset as string | null) ?? null, temp: (source?.temp as number | null) ?? null, top_p: (source?.top_p as number | null) ?? null };
 }
 
+export function promptSetup(live: LivePresets | null | undefined) {
+  if (!live) return null;
+  const setting = (path: string) => live.settings?.[path] ?? null;
+  const startReplyWith = setting('power_user.user_prompt_bias');
+  const prefix = setting('power_user.reasoning.prefix');
+  const thinking = typeof startReplyWith === 'string' && typeof prefix === 'string' && prefix !== '' && startReplyWith.startsWith(prefix) && setting('power_user.reasoning.auto_parse') === true;
+  return {
+    thinking, instruct: live.instruct?.preset ?? null, lastOutputSequence: live.instruct?.last_output_sequence ?? null,
+    sequencesAsStopStrings: live.instruct?.sequences_as_stop_strings ?? null, startReplyWith,
+    namesAsStopStrings: live.context?.names_as_stop_strings ?? null, reasoningParse: setting('power_user.reasoning.auto_parse'),
+    reasoningTemplate: setting('power_user.reasoning.name'), responseTokens: setting('amount_gen'),
+    samplers: live.textgen?.samplers ?? null, profile: live.profile ?? null,
+  };
+}
+
 // v2.4 plan 01 (X10): another extension's setting a run flipped and never put back is residue the
 // header could not see. `watched` names the settings a fixture is known to flip (Stepped Thinking's
 // is_enabled for the T6 live row); the installed list and the disabled list catch the rest.
@@ -357,10 +374,12 @@ export async function captureHeader(page, label: string) {
   const sampler = samplerState(rawSampler);
   if (!sampler.preset) page_.warnings = [...page_.warnings, `the active sampler preset was not read (main API ${sampler.api ?? 'unknown'}): a preset left behind by a run cannot be diffed`];
   const thirdParty = thirdPartyState(await captureThirdParty(page).catch(() => undefined));
+  const prompt = promptSetup(await readLivePresets(page).catch(() => null));
+  if (!prompt) page_.warnings = [...page_.warnings, 'the prompt setup (instruct, Start Reply With, reasoning parse, response length) was not read: a thinking/non-thinking switch cannot be diffed'];
   if (thirdParty.installed === null) page_.warnings = [...page_.warnings, 'the installed extension list was not read (/api/extensions/discover): an extension installed or removed by a run cannot be diffed'];
   const { campaign, warnings: campaignWarnings } = readCampaign();
   page_.warnings = [...page_.warnings, ...campaignWarnings];
-  return { label, capturedAt: new Date().toISOString(), build, campaign, ...page_, profiles: { ...page_.profiles, urls: profileInventory(rawProfiles) }, sampler, thirdParty };
+  return { label, capturedAt: new Date().toISOString(), build, campaign, ...page_, profiles: { ...page_.profiles, urls: profileInventory(rawProfiles) }, sampler, prompt, thirdParty };
 }
 
 // Flatten to dot-paths so a diff names the exact field. Arrays stay whole at their leaf, because

@@ -56,6 +56,13 @@ test('AS-22/23 verify: tracked chats need their full persisted runtime and the c
   const ok = await verifySession(dir, session, doc, card);
   assert.deepEqual(ok.invalid, []);
   assert.equal(ok.inventory.chats, 2);
+  const thinking = { ...session, presetOverlay: { applied: true, variant: 'thinking' } };
+  await writeFile(join(dir, 'chat-full-c1.json'), JSON.stringify([{ isUser: true, text: 'hi' }, { isUser: false, text: 'Hello.', reasoning: '' }]), 'utf-8');
+  const silent = await verifySession(dir, thinking, doc, card);
+  assert.ok(silent.invalid.some((line) => line.startsWith('the thinking preset overlay ran, but no reply carried reasoning')));
+  assert.deepEqual((await verifySession(dir, { ...session, presetOverlay: { applied: true, variant: 'fix' } }, doc, card)).invalid, []);
+  await writeFile(join(dir, 'chat-full-c1.json'), JSON.stringify([{ isUser: false, text: 'Hello.', reasoning: '- greet them' }]), 'utf-8');
+  assert.deepEqual((await verifySession(dir, thinking, doc, card)).invalid, []);
 });
 
 test('preset overlay: the live instruct and sampler values come from the page context, and a missing holder reads null', async () => {
@@ -63,10 +70,29 @@ test('preset overlay: the live instruct and sampler values come from the page co
   (fake.ctx as any).powerUserSettings = { instruct: { preset: 'Gemma 4', last_output_sequence: 'X', enabled: true } };
   (fake.ctx as any).textCompletionSettings = { preset: 'Artemis v1.1 RP', samplers: ['min_p', 'temperature'], temp: 1 };
   install(fake);
-  assert.deepEqual(await readLivePresets(page), { instruct: { preset: 'Gemma 4', last_output_sequence: 'X', sequences_as_stop_strings: null }, textgen: { preset: 'Artemis v1.1 RP', samplers: ['min_p', 'temperature'] } });
+  assert.deepEqual(await readLivePresets(page), {
+    instruct: { preset: 'Gemma 4', last_output_sequence: 'X', sequences_as_stop_strings: null, names_behavior: null, story_string_prefix: null },
+    textgen: { preset: 'Artemis v1.1 RP', samplers: ['min_p', 'temperature'] }, context: null,
+    settings: { 'power_user.user_prompt_bias': null, 'power_user.show_user_prompt_bias': null, 'power_user.reasoning.auto_parse': null, 'power_user.reasoning.name': null, 'power_user.reasoning.prefix': null, 'power_user.reasoning.suffix': null, amount_gen: null },
+    profile: null,
+  });
+  (fake.ctx as any).powerUserSettings = {
+    instruct: { preset: 'Gemma 4 Thinking', last_output_sequence: '', sequences_as_stop_strings: false, names_behavior: 'force', story_string_prefix: 'P' },
+    context: { preset: 'Gemma 4', names_as_stop_strings: false },
+    user_prompt_bias: '<|channel>thought\n', show_user_prompt_bias: false, reasoning: { auto_parse: true, name: 'Gemma 4', prefix: '<|channel>thought\n', suffix: '<channel|>' },
+  };
+  (fake.ctx as any).extensionSettings = { ...(fake.ctx as any).extensionSettings, connectionManager: { selectedProfile: 'b', profiles: [{ id: 'a', name: 'Memory' }, { id: 'b', name: 'Artemis RunPod RP', instruct: 'Gemma 4 Thinking', 'start-reply-with': '<|channel>thought\n', 'reasoning-template': 'Gemma 4', preset: 'Artemis v1.1 RP' }] } };
+  (globalThis as any).document = { getElementById: (id: string) => (id === 'amount_gen' ? { value: '1400' } : null) };
+  try {
+    const thinking = await readLivePresets(page);
+    assert.deepEqual(thinking.context, { preset: 'Gemma 4', names_as_stop_strings: false });
+    assert.deepEqual(thinking.settings, { 'power_user.user_prompt_bias': '<|channel>thought\n', 'power_user.show_user_prompt_bias': false, 'power_user.reasoning.auto_parse': true, 'power_user.reasoning.name': 'Gemma 4', 'power_user.reasoning.prefix': '<|channel>thought\n', 'power_user.reasoning.suffix': '<channel|>', amount_gen: 1400 });
+    assert.deepEqual(thinking.profile, { name: 'Artemis RunPod RP', instruct: 'Gemma 4 Thinking', 'start-reply-with': '<|channel>thought\n', 'reasoning-template': 'Gemma 4', preset: 'Artemis v1.1 RP' });
+  } finally { delete (globalThis as any).document; }
+  delete (fake.ctx as any).extensionSettings.connectionManager;
   delete (fake.ctx as any).powerUserSettings;
   (fake.ctx as any).textCompletionSettings = { preset: 'x' };
-  assert.deepEqual(await readLivePresets(page), { instruct: null, textgen: { preset: 'x', samplers: null } });
+  assert.deepEqual(await readLivePresets(page), { instruct: null, textgen: { preset: 'x', samplers: null }, context: null, settings: null, profile: null });
 });
 
 test('T0-3: the host swipes read comes from ST\'s own checkbox, and a missing one reads null', async () => {

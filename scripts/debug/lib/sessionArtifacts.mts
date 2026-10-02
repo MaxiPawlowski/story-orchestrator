@@ -77,10 +77,13 @@ export function replyReasoning(messages: unknown): number {
   }, 0);
 }
 
-export function artifactWaivers(required: Partial<Record<ArtifactKey, number>>, evidence: { replyReasoning: number | null }): { required: Partial<Record<ArtifactKey, number>>; warnings: string[] } {
-  if (!required.harvestedReasoning || evidence.replyReasoning !== 0) return { required, warnings: [] };
+export const THINKING_SILENT = 'the thinking preset overlay ran, but no reply carried reasoning: the prompt opened no thought or ST did not parse it into the reasoning field (check the payload tail, Start Reply With and the reasoning template)';
+
+export function artifactWaivers(required: Partial<Record<ArtifactKey, number>>, evidence: { replyReasoning: number | null; thinking?: boolean }): { required: Partial<Record<ArtifactKey, number>>; warnings: string[]; problems: string[] } {
+  if (evidence.thinking) return { required, warnings: [], problems: evidence.replyReasoning === 0 ? [THINKING_SILENT] : [] };
+  if (!required.harvestedReasoning || evidence.replyReasoning !== 0) return { required, warnings: [], problems: [] };
   const rest = Object.fromEntries(Object.entries(required).filter(([key]) => key !== 'harvestedReasoning')) as Partial<Record<ArtifactKey, number>>;
-  return { required: rest, warnings: [HARVEST_WAIVED] };
+  return { required: rest, warnings: [HARVEST_WAIVED], problems: [] };
 }
 
 export interface ArtifactInventory extends Record<ArtifactKey, number> {}
