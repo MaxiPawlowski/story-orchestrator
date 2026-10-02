@@ -5,10 +5,10 @@ import { readFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { REPO_ROOT } from '../../lib/stRoot.mjs';
-import { wizardAllowance } from './sessionWizardAssets.mts';
-import { diffHeaders, parseAllow } from '../so-run-header.mts';
-import { headerDiffArgs } from './sessionStop.mts';
-import { validateCardDoc, rubricTemplate, type CardDoc } from './sessionCharters.mts';
+import { resolveHeaderAllow, storyContext, wizardAllowance } from './sessionWizardAssets.mts';
+import { allowFileEntries, diffHeaders, parseAllow } from '../so-run-header.mts';
+import { fileAllowances, headerDiffArgs } from './sessionStop.mts';
+import { headerAllowProblems, validateCardDoc, rubricTemplate, type CardDoc } from './sessionCharters.mts';
 import { cardCommands } from './sessionRunbook.mts';
 import { driverOnlyFlags } from './sessionDigest.mts';
 import { agentProblems, runAgentVerb, type AgentUi } from './sessionDriver.mts';
@@ -35,7 +35,14 @@ const blockingIn = (before: unknown, after: unknown, allow: string[]) => diffHea
 test('T5-2 wizard assets: the recorded T5-2-1 ledger allows exactly the five paths that made the session INVALID', () => {
   const { drafts, start, end, startedAt } = t52();
   assert.deepEqual(blockingIn(start, end, []), WIZARD_PATHS);
-  const { allow, ledger } = wizardAllowance(start, drafts, startedAt);
+  const { allow, ledger } = wizardAllowance(start, drafts, startedAt, { end, chats: json('session.json').chats });
+  assert.deepEqual(ledger.continued, []);
+  assert.deepEqual(ledger.unbaselined, []);
+  assert.deepEqual(ledger.groups, [], 'the T5-2-1 headers predate inventory.groups');
+  assert.deepEqual(ledger.entries, []);
+  assert.deepEqual(allow.filter((entry) => !entry.startsWith('inventory.wizardApplied:')), wizardAllowance(start, drafts, startedAt).allow.filter((entry) => !entry.startsWith('inventory.wizardApplied:')));
+  assert.equal(allow.filter((entry) => entry.startsWith('inventory.wizardApplied:')).length, 11);
+  assert.ok(fileAllowances(allow).includes('inventory.wizardApplied:+the-hoard-of-the-unflown/Vaelrith, the Unflown'));
   assert.deepEqual(ledger.sessions.sort(), ['the-hoard-of-the-unflown', 'the-pawnbroker-of-forgotten-days', 'untitled-story']);
   assert.deepEqual(ledger.stories.sort(), ['the-hoard-of-the-unflown', 'the-pawnbroker-of-forgotten-days']);
   assert.equal(ledger.characters.length, 9);
@@ -78,8 +85,9 @@ test('T5-2 wizard assets: sessions that existed at start, or were last written b
   comma.sessions[0].createdLorebooks = ['A, B'];
   comma.sessions[0].applied = ['A, B'];
   const { allow, ledger } = wizardAllowance(start, comma, startedAt);
-  assert.ok(ledger.skipped.includes('A, B'));
-  assert.ok(!allow.some((entry) => entry.includes('A, B')));
+  assert.ok(ledger.lorebooks.includes('A, B'));
+  assert.ok(allow.includes('inventory.lorebooksSelected:+A, B'));
+  assert.ok(fileAllowances(allow).includes('inventory.lorebooksSelected:+A, B'), 'a comma item reaches the diff through the allow file');
 });
 
 test('run header delta allowance: path=+n allows only that exact move, and a bare = is refused', () => {
@@ -184,4 +192,215 @@ test('T5-2 score: an INVALID session refuses a score unless --provisional, which
   assert.equal(scored.provisional, true);
   const written = JSON.parse(await readFile(join(dir, 'rubric.json'), 'utf-8'));
   assert.deepEqual({ score: written.rows[0].score, provisional: written.rows[0].provisional }, { score: 'annoying', provisional: true });
+});
+
+const STORY = 'the-hoard-of-the-unflown';
+const AT = '2026-10-02T10:00:00.000Z';
+const LATER = '2026-10-02T10:05:00.000Z';
+const ORIGINAL_CAST = ['The Hoard of the Unflown — Lore', 'Vaelrith, the Unflown', 'Quill', 'Marlow', 'Brannoc', 'Ser Aldric'];
+
+function continued() {
+  const start = {
+    story: { id: STORY },
+    inventory: {
+      v2Stories: ['adolion-war@10', `${STORY}@1`],
+      wizardSessions: [STORY],
+      wizardApplied: ORIGINAL_CAST.map((name) => `${STORY}/${name}`).sort(),
+      lorebooksSelected: ['Adolion World', 'The Hoard of the Unflown — Lore'],
+      lorebookCount: 26,
+      characterCount: 172,
+      groups: ['1790929215846@The Hoard of the Unflown — Crew', '17897@Adolion - War'],
+      groupChats: ['1790929215846/chat-a'],
+    },
+  };
+  const session = {
+    key: STORY, updatedAt: LATER, applied: [...ORIGINAL_CAST, 'Ilse Vane'], createdLorebooks: ['The Hoard of the Unflown — Lore'],
+    agent: { steps: [
+      { id: 1, at: '2026-10-02T09:00:00.000Z', status: 'applied', call: { tool: 'createGroup' }, op: { kind: 'createGroup', name: 'The Hoard of the Unflown — Crew' }, observation: 'Created the group "The Hoard of the Unflown — Crew" with 5 member(s).' },
+      { id: 2, at: LATER, status: 'applied', call: { tool: 'createGroup' }, op: { kind: 'createGroup', name: 'Hoard Crew' }, observation: 'Created the group "Hoard Crew 2" with 6 member(s).' },
+      { id: 3, at: LATER, status: 'refused', call: { tool: 'createGroup' }, op: { kind: 'createGroup', name: 'Never Made' }, observation: 'no' },
+    ] },
+  };
+  const drafts = { sessions: [session], library: [{ id: 'adolion-war', version: 10 }, { id: STORY, version: 2 }] };
+  const end = clone(start);
+  end.inventory.v2Stories = ['adolion-war@10', `${STORY}@2`];
+  end.inventory.wizardApplied = [...start.inventory.wizardApplied, `${STORY}/Ilse Vane`].sort();
+  end.inventory.characterCount = 173;
+  end.inventory.groups = [...start.inventory.groups, '1790999999999@Hoard Crew 2'].sort();
+  end.inventory.groupChats = [...start.inventory.groupChats, '1790999999999/chat-new'].sort();
+  return { start, end, drafts };
+}
+
+const stopAllow = (start: any, end: any, drafts: any, card: { headerAllow?: string[] }, chats: any[] = []) => {
+  const wizard = wizardAllowance(start, drafts, AT, { end: { inventory: { groups: end.inventory.groups } }, chats });
+  const declared = resolveHeaderAllow(card.headerAllow ?? [], storyContext(start, chats, drafts));
+  const tracked = end.inventory.groupChats.filter((item: string) => !start.inventory.groupChats.includes(item)).map((item: string) => `inventory.groupChats:+${item}`);
+  return { wizard, declared, allow: [...declared.allow, ...wizard.allow, ...tracked] };
+};
+const blocking = (start: unknown, end: unknown, allow: string[]) => diffHeaders(start, end, allow).filter((difference) => !difference.allowed).map((difference) => difference.path);
+
+test('T5-4 Fix with wizard: a session that existed at start allows exactly what its ledger grew by, and the story version moving up', async () => {
+  const { start, end, drafts } = continued();
+  const card = findCard(await loadCards(), 'T5-4');
+  const { wizard, declared, allow } = stopAllow(start, end, drafts, card);
+  assert.deepEqual(wizard.ledger.sessions, []);
+  assert.deepEqual(wizard.ledger.continued, [STORY]);
+  assert.deepEqual(wizard.ledger.characters, ['Ilse Vane']);
+  assert.deepEqual(wizard.ledger.groups, [{ id: '1790999999999', name: 'Hoard Crew 2', source: 'agent' }]);
+  assert.deepEqual(wizard.ledger.applied, [`${STORY}/Ilse Vane`]);
+  assert.deepEqual(declared.allow, [`inventory.v2Stories:~${STORY}`, 'inventory.lorebooksSelected:-The Hoard of the Unflown — Lore']);
+  assert.ok(allow.includes('inventory.characterCount=+1'));
+  assert.ok(allow.includes('inventory.groups:+1790999999999'));
+  assert.deepEqual(blocking(start, end, allow), []);
+  const unrepaired = clone(end);
+  unrepaired.inventory.lorebooksSelected = ['Adolion World'];
+  assert.deepEqual(blocking(start, unrepaired, allow), [], 'the card breaks its own story book on purpose');
+});
+
+test('T5-4 Fix with wizard: unledgered growth, a ledger removal, another book, another group, a story removal and a version drop still block', () => {
+  const { start, end, drafts } = continued();
+  const { allow } = stopAllow(start, end, drafts, { headerAllow: ['inventory.v2Stories:~{story}', 'inventory.lorebooksSelected:-{story-books}'] });
+  const extraCard = clone(end);
+  extraCard.inventory.characterCount = 174;
+  assert.deepEqual(blocking(start, extraCard, allow), ['inventory.characterCount']);
+  const lostItem = clone(end);
+  lostItem.inventory.wizardApplied = lostItem.inventory.wizardApplied.filter((item: string) => item !== `${STORY}/Quill`);
+  assert.deepEqual(blocking(start, lostItem, allow), ['inventory.wizardApplied']);
+  const foreignBook = clone(end);
+  foreignBook.inventory.lorebooksSelected = ['The Hoard of the Unflown — Lore'];
+  assert.deepEqual(blocking(start, foreignBook, allow), ['inventory.lorebooksSelected']);
+  const foreignGroup = clone(end);
+  foreignGroup.inventory.groups = [...foreignGroup.inventory.groups, '1791000000000@Made By Hand'].sort();
+  assert.deepEqual(blocking(start, foreignGroup, allow), ['inventory.groups']);
+  const goneGroup = clone(end);
+  goneGroup.inventory.groups = goneGroup.inventory.groups.filter((item: string) => !item.startsWith('17897@'));
+  assert.deepEqual(blocking(start, goneGroup, allow), ['inventory.groups']);
+  const goneStory = clone(end);
+  goneStory.inventory.v2Stories = ['adolion-war@10'];
+  assert.deepEqual(blocking(start, goneStory, allow), ['inventory.v2Stories']);
+  const older = clone(start);
+  older.inventory.v2Stories = ['adolion-war@10', `${STORY}@3`];
+  assert.deepEqual(blocking(older, end, allow).filter((path) => path === 'inventory.v2Stories'), ['inventory.v2Stories']);
+  const withOther = clone(end);
+  withOther.inventory.v2Stories = [`${STORY}@2`];
+  assert.deepEqual(blocking(start, withOther, allow), ['inventory.v2Stories'], 'a version move does not excuse dropping another story');
+});
+
+test('T5-4 Fix with wizard: an existing session with no start ledger (an older header) allows nothing', () => {
+  const { start, end, drafts } = continued();
+  delete (start.inventory as any).wizardApplied;
+  const { wizard } = stopAllow(start, end, drafts, {});
+  assert.deepEqual(wizard.ledger.unbaselined, [STORY]);
+  assert.deepEqual(wizard.ledger.continued, []);
+  assert.deepEqual(wizard.allow, []);
+  const stale = continued();
+  stale.drafts.sessions[0].updatedAt = '2026-10-02T09:59:00.000Z';
+  assert.deepEqual(stopAllow(stale.start, stale.end, stale.drafts, {}).wizard.allow, []);
+});
+
+test('T5-3 Studio edit: {story} names the continued chat\'s story, so only its version moving up is allowed', async () => {
+  const card = findCard(await loadCards(), 'T5-3');
+  assert.deepEqual(card.headerAllow, ['inventory.v2Stories:~{story}']);
+  assert.equal(card.wizardAssets, undefined);
+  const start = { story: { id: STORY }, inventory: { v2Stories: ['adolion-war@10', `${STORY}@1`] } };
+  const end = { story: { id: STORY }, inventory: { v2Stories: ['adolion-war@10', `${STORY}@4`] } };
+  const chats = [{ chatId: 'chat-a', groupId: '1790929215846', storyId: STORY, continued: true }];
+  const declared = resolveHeaderAllow(card.headerAllow!, storyContext(start, chats, null));
+  assert.deepEqual(declared, { allow: [`inventory.v2Stories:~${STORY}`], unresolved: [] });
+  assert.deepEqual(blocking(start, end, declared.allow), []);
+  assert.deepEqual(blocking(start, { ...end, inventory: { v2Stories: ['adolion-war@10'] } }, declared.allow), ['inventory.v2Stories']);
+  assert.deepEqual(blocking(start, { ...end, inventory: { v2Stories: ['adolion-war@10', `${STORY}@4`, 'other@1'] } }, declared.allow), ['inventory.v2Stories']);
+  assert.deepEqual(resolveHeaderAllow(card.headerAllow!, storyContext(null, [], null)), { allow: [], unresolved: ['inventory.v2Stories:~{story}'] });
+});
+
+test('T5-1 staged arm: a group and lorebook entries in the ledger are neither characters nor unaccounted, and an adopted chat names its new group', () => {
+  const start = { inventory: { v2Stories: ['adolion-war@10'], wizardSessions: [], wizardApplied: [], lorebooksSelected: [], lorebookCount: 24, characterCount: 163, groups: ['17897@Adolion - War'], groupChats: [] } };
+  const session = { key: 'the-ink-that-moves', updatedAt: LATER, applied: ['Ink Lore', 'Ink Lore/The Map', 'Ink Lore/House of Ash', 'Mira', 'Tomas', 'The Ink Crew'], createdLorebooks: ['Ink Lore'] };
+  const drafts = { sessions: [session], library: [{ id: 'the-ink-that-moves', version: 1 }] };
+  const end = {
+    inventory: {
+      v2Stories: ['adolion-war@10', 'the-ink-that-moves@1'], wizardSessions: ['the-ink-that-moves'],
+      wizardApplied: session.applied.map((name) => `the-ink-that-moves/${name}`).sort(),
+      lorebooksSelected: ['Ink Lore'], lorebookCount: 25, characterCount: 165,
+      groups: ['17897@Adolion - War', '1800@The Ink Crew'], groupChats: ['1800/ink-chat'],
+    },
+  };
+  const { wizard, allow } = stopAllow(start, end, drafts, {});
+  assert.deepEqual(wizard.ledger.characters, ['Mira', 'Tomas']);
+  assert.deepEqual(wizard.ledger.entries, ['Ink Lore/The Map', 'Ink Lore/House of Ash']);
+  assert.deepEqual(wizard.ledger.groups, [{ id: '1800', name: 'The Ink Crew', source: 'staged' }]);
+  assert.deepEqual(blocking(start, end, allow), []);
+  const agentLost = { ...session, applied: ['Ink Lore', 'Mira', 'Tomas'] };
+  const agentEnd = clone(end);
+  agentEnd.inventory.wizardApplied = agentLost.applied.map((name) => `the-ink-that-moves/${name}`).sort();
+  const adoptedChat = [{ chatId: 'ink-chat', groupId: '1800', storyId: 'the-ink-that-moves', adopted: true }];
+  const adopted = stopAllow(start, agentEnd, { ...drafts, sessions: [agentLost] }, {}, adoptedChat);
+  assert.deepEqual(adopted.wizard.ledger.groups, [{ id: '1800', name: 'The Ink Crew', source: 'adopted' }]);
+  assert.deepEqual(blocking(start, agentEnd, adopted.allow), []);
+  const foreignStory = stopAllow(start, agentEnd, { ...drafts, sessions: [agentLost] }, {}, [{ ...adoptedChat[0], storyId: 'adolion-war' }]);
+  assert.deepEqual(foreignStory.wizard.ledger.groups, []);
+  assert.deepEqual(blocking(start, agentEnd, foreignStory.allow), ['inventory.groups']);
+  const notAdopted = stopAllow(start, agentEnd, { ...drafts, sessions: [agentLost] }, {}, [{ ...adoptedChat[0], adopted: false }]);
+  assert.deepEqual(blocking(start, agentEnd, notAdopted.allow), ['inventory.groups']);
+});
+
+test('run header: :~ allows only one id@old out and one id@new in, upward; allow files carry comma items; charters check the tokens', () => {
+  const before = { inventory: { v2Stories: ['a@1', 'b@3'] } };
+  const at = (v2Stories: string[]) => diffHeaders(before, { inventory: { v2Stories } }, ['inventory.v2Stories:~a'])[0]?.allowed ?? true;
+  assert.equal(at(['a@2', 'b@3']), true);
+  assert.equal(at(['a@0', 'b@3']), false);
+  assert.equal(at(['b@3']), false);
+  assert.equal(at(['a@1', 'a@2', 'b@3']), false);
+  assert.equal(at(['a@2']), false);
+  assert.equal(at(['a@2', 'b@3', 'c@1']), false);
+  assert.deepEqual(parseAllow(['inventory.v2Stories:~a']).allow[0].sign, 'changed');
+  assert.deepEqual(allowFileEntries('["inventory.wizardApplied:+k/Vaelrith, the Unflown", ""]'), ['inventory.wizardApplied:+k/Vaelrith, the Unflown']);
+  assert.throws(() => allowFileEntries('{"a":1}'), /JSON array of strings/);
+  const allow = ['inventory.characterCount=+1', 'inventory.wizardApplied:+k/Vaelrith, the Unflown'];
+  const args = headerDiffArgs('s', 'e', [], allow, 'allow.json');
+  assert.ok(!args[args.indexOf('--allow') + 1].includes('Vaelrith'));
+  assert.ok(args[args.indexOf('--allow') + 1].includes('inventory.characterCount=+1'));
+  assert.deepEqual(args.slice(-2), ['--allow-file', 'allow.json']);
+  assert.deepEqual(fileAllowances(allow), ['inventory.wizardApplied:+k/Vaelrith, the Unflown']);
+  assert.ok(!headerDiffArgs('s', 'e', [], ['inventory.characterCount=+1'], 'allow.json').includes('--allow-file'));
+  assert.deepEqual(headerAllowProblems('c', ['inventory.v2Stories:~{story}', 'inventory.lorebooksSelected:-{story-books}', 'inventory.v2Stories:~adolion-war']), []);
+  assert.match(headerAllowProblems('c', ['inventory.v2Stories:~{chat}'])[0], /unknown token/);
+  assert.match(headerAllowProblems('c', ['inventory.lorebooksSelected:+{story-books}'])[0], /only inventory.lorebooksSelected:-/);
+  assert.match(headerAllowProblems('c', ['inventory.lorebooksSelected:~x'])[0], /only for inventory.v2Stories/);
+  assert.match(headerAllowProblems('c', ['inventory.groups'])[0], /would excuse every change to a list/);
+});
+
+test('T5 cards: what stop is told for each card', async () => {
+  const doc = await loadCards();
+  const rows = ['T5-1', 'T5-2', 'T5-3', 'T5-4', 'T5-5'].map((id) => findCard(doc, id)).map((card) => [card.id, Boolean(card.wizardAssets), card.headerAllow ?? []]);
+  assert.deepEqual(rows, [
+    ['T5-1', true, []],
+    ['T5-2', true, []],
+    ['T5-3', false, ['inventory.v2Stories:~{story}']],
+    ['T5-4', true, ['inventory.v2Stories:~{story}', 'inventory.lorebooksSelected:-{story-books}']],
+    ['T5-5', false, []],
+  ]);
+});
+
+test('T5-2-1 evidence through the whole stop allowance: nothing blocks, and with groups recorded both wizard groups are named', () => {
+  const { drafts, start, end, startedAt } = t52();
+  const chats = json('page-end.json').chats ?? json('session.json').chats;
+  const run = (before: any, after: any, groups: string[]) => {
+    const wizard = wizardAllowance(before, drafts, startedAt, { end: { inventory: { groups } }, chats });
+    const allow = [...resolveHeaderAllow([], storyContext(before, chats, drafts)).allow, ...wizard.allow];
+    const args = headerDiffArgs('s', 'e', chats, allow, 'run-header-allow.json');
+    const entries = [...args[args.indexOf('--allow') + 1].split(','), ...(args.includes('--allow-file') ? fileAllowances(allow) : [])];
+    assert.deepEqual(parseAllow(entries).errors, []);
+    const owned = args[args.indexOf('--owned') + 1].split(',');
+    return { wizard, blocking: diffHeaders(before, after, entries, { ownedChats: owned, servedIdentity: true }).filter((difference) => !difference.allowed).map((difference) => difference.path) };
+  };
+  assert.deepEqual(run(start, end, []).blocking, []);
+  const groups = chats.map((chat: { groupId: string; group: string }) => `${chat.groupId}@${chat.group}`).sort();
+  const before = { ...clone(start), inventory: { ...clone(start).inventory, groups: ['17897@Adolion - War'], wizardApplied: [] } };
+  const after = { ...clone(end), inventory: { ...clone(end).inventory, groups: ['17897@Adolion - War', ...groups].sort(), wizardApplied: drafts.sessions.flatMap((session: { key: string; applied: string[] }) => session.applied.map((name) => `${session.key}/${name}`)).sort() } };
+  const recorded = run(before, after, after.inventory.groups);
+  assert.deepEqual(recorded.blocking, []);
+  assert.deepEqual(recorded.wizard.ledger.groups.map((group) => [group.name, group.source]).sort(), [['The Hoard of the Unflown — Crew', 'adopted'], ['The Pawnbroker of Forgotten Days', 'agent']]);
+  const stray = { ...after, inventory: { ...after.inventory, groups: [...after.inventory.groups, '1790930000000@Stray'].sort() } };
+  assert.deepEqual(run(before, stray, stray.inventory.groups).blocking, ['inventory.groups']);
 });
