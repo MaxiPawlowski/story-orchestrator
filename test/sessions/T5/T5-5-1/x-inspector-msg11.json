@@ -1,0 +1,11 @@
+{
+  "ok": true,
+  "value": {
+    "open": true,
+    "top": -4325,
+    "height": 4763,
+    "viewport": 929,
+    "scrollParentTop": 4407,
+    "text": "Message 11\nmessage 11\nClose\nProgress\nBoundary 9 evaluated\n{\n \"war_turn\": true,\n \"location\": \"war_the_front\",\n \"tension_current\": 0.25,\n \"war_commission_taken\": true\n}\nMemory\nRemembered: Colonel Aristhide commands Fort Vicinitas and honors Prince Forre's sealed writ, giving the party quarters in the west wing and rations on the mess hall schedule.\n\"Prince Forre's word is law here\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude\nRemembered: The Zegallans have built a wall of corpses and blood-magic across the valley with no thin spots, only places where one might die slower.\n\"the Zegallans have built a wall of corpses and blood-magic that doesn't have 'thin' spots\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude\nRemembered: Colonel Aristhide says the only route behind the Zegallan lines is a steep western trail the Zegallans use to rotate their slave corps, covered by their archers.\n\"there's a trail to the west—scout routes the Zegallans use to rotate their slave corps\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude\nRemembered: Colonel Aristhide commands Fort Vicinitas and honors Prince Forre's sealed writ without question, quartering the party in the west wing.\n\"Prince Forre's word is law here\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude\nRemembered: Colonel Aristhide says the only route behind the Zegallan lines is a steep western trail used to rotate their slave corps, covered by Zegallan archers.\n\"there's a trail to the west—scout routes "
+  }
+}

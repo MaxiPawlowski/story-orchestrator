@@ -25,3 +25,28 @@ Findings:
 - LOW: agent summary miscounts entries; repeated `readStory` because the step window drops older steps.
 - Harness: wizard cards INVALID by design; flags with no chat open reach no journal (digest shows 1 of 5); runbook sends the premises as `turn` lines with no chat; `so-ui.mts` lacks Agent-mode verbs; `score` accepts scores on an INVALID session.
 - Judge 44 calls, 3 timeouts. DeepSeek 209 calls, 1,030,213 in / 53,605 out. Main RP 16. Pod about 48 min (seed + play). Assets left on lane 4's copy.
+
+## T5-5 Author view (lane 1, `test/sessions/T5/T5-5-1` VALID)
+
+- **T5-5-1 (VALID):** played 2026-10-02 09:23-09:41Z on a fresh lane 1 seed (pin be0696b) with the default thinking overlay (e29821df), served bundle `d6737acda880` (dev), media off. Author mode, chat `2026-10-02@06h23m29s662ms`. 4 player turns, Nudge once, Advance once (war-the-summons -> war-the-front), Report once, Author view off/on once, inline level 3/4 for the inspector then back to 1. 3 flags. Stop: header diff clean (repo build moved, served bundle identical: allowed warning). First `start` failed on a seed race (cards "not installed" read too early after the page reload); the retry passed.
+
+| Row | Score | Evidence (T5-5-1) |
+|---|---|---|
+| blackboard | annoying | shots/001-blackboard-council.png, shots/011-blackboard-pending-commission.png |
+| scheduler | works | shots/002-scheduler-council.png, shots/013-curator-proposal-diff.png |
+| payload / next-turn preview | annoying | x-nextturn-before-t1.json, x-nextturn-before-t2.json, payloads.jsonl:1, :9, journal.jsonl:206 |
+| driver (Nudge / Advance) | annoying | payloads.jsonl:9, :12, journal.jsonl:139, :208, shots/012-after-advance.png |
+| A1 inspector decision | annoying | x-inspector-msg11.json, shots/015-inspector-msg11.png |
+
+Must-not checks: nudge in exactly one prompt then cleared; no author panel leaked with Author view off (`assert-player-clean` ok); preview listed blocks all matched the sent prompts but it omits the drafted member's private block (flagged).
+
+Findings (detail in `T5-5-1/findings.md`):
+- HIGH (product/preset, thinking overlay): every Forre reply starts damaged: msg 4 a repeated `Forre: `, msg 6 `rre's eyebrow…`, msg 8 `re: "A wise decision."`. The model rewrites the name after the thought channel; names-as-stop off. The model-defect check caught none.
+- MEDIUM: next-turn preview omits the per-member private block (`Your private aims`).
+- MEDIUM: the Advance (engine log `source: manual`) is not shown as an author move in any panel or inline level.
+- MEDIUM: Blackboard tab lists only written keys; a pending delta shows only on the HUD.
+- MEDIUM: the inspector opens at the top of a drawer that stays scrolled down (off-screen).
+- MEDIUM: thinking 1038-2436 chars against a "under 100 words" brief, 77-91% of each reply's time; replies 46-102 s, turns 88-139 s.
+- LOW: lost spaces after closing asterisks (msgs 6, 8, 11); stale driver Report; duplicate memory/epistemic rows; ST Summarize quiet run takes the thought prefix; nudge row not marked one-turn; Inner voice lists all 20 cast.
+- Thinking: 5/5 replies with parsed reasoning, 0 empty, 0 leaks, 0 character-line cuts, 3 repeated-name starts, 0 loop-guard swipes; harvest fed 2 epistemic passes that stored `[intends]` rows (Forre, Aristhide).
+- DeepSeek 24 calls, 61,688 in / 10,987 out. Judge 69 calls (1 director timeout). Main RP 6 (5 replies + 1 ST summarize).

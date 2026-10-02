@@ -1,0 +1,585 @@
+{
+  "storyId": "adolion-war",
+  "activeCheckpointId": "war-the-front",
+  "boundary": 9,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion War Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Aegis City Noble Life": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "war_turn": true,
+    "location": "war_the_front",
+    "tension_current": 0.25,
+    "war_commission_taken": true
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "368f837a-803a-4a5d-bfd2-28a3e6bd0409",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 0,
+        "boundary": 1,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Party",
+      "tag": "knows",
+      "content": "The Crown wants a free company that can go where its army cannot, and Vallie has brought the Guild charter to the council.",
+      "createdAt": 1,
+      "messageId": 0
+    },
+    {
+      "id": "33878249-22df-4f9f-92dc-2d9981ca6936",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Alexander",
+      "tag": "intends",
+      "content": "To use the party as a dagger in the dark while his army is the hammer against Greywater.",
+      "createdAt": 3,
+      "messageId": 2,
+      "affirmedAt": [
+        {
+          "messageId": 3,
+          "boundary": 3
+        }
+      ]
+    },
+    {
+      "id": "38d0a087-9aa1-457a-b952-933b2f4e05c2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 3,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Crown's commission: infiltrate the Ashen March, gather intelligence, sabotage supplies or eliminate key targets, reporting to Prince Forre.",
+      "createdAt": 3,
+      "messageId": 3
+    },
+    {
+      "id": "285b1eaf-31fa-42d9-8425-e1578a9f2c7b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 3,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Guild's charter grants authority to act on the King's behalf.",
+      "createdAt": 3,
+      "messageId": 3
+    },
+    {
+      "id": "ca6ffc68-4bc2-4697-85a7-dd49ef39fc4e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 5,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Cursefire Regiment holds Greywater and the King's army musters at Fort Vicinitas for a conventional assault.",
+      "createdAt": 5,
+      "messageId": 6
+    },
+    {
+      "id": "efa4aedd-ef39-46b0-b79e-82277579f559",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Crown's commission is accepted and the party is bound to ride for Fort Vicinitas and report to Prince Forre.",
+      "createdAt": 6,
+      "messageId": 8
+    },
+    {
+      "id": "10e16851-99c4-4b22-976b-3a4b3b8d2d21",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Forre",
+      "tag": "knows",
+      "content": "Max Nightriver has accepted the commission and will ride for Fort Vicinitas.",
+      "createdAt": 6,
+      "messageId": 8
+    },
+    {
+      "id": "1aed27d5-c7aa-48a6-a065-24186390dc6a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Prince Forre's sealed parchment grants passage through any checkpoint and quarters at Fort Vicinitas.",
+      "createdAt": 6,
+      "messageId": 8
+    },
+    {
+      "id": "95edf9e5-6d91-48d1-94c6-635d0cbdec6a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Forre",
+      "tag": "intends",
+      "content": "To have the party report findings directly to him and act as the Crown's dagger in the Ashen March.",
+      "createdAt": 6,
+      "messageId": 8
+    },
+    {
+      "id": "9dfd3945-2224-460d-a858-ef36c3cfb9e8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Crown's commission is not a request but an order, and reports go directly to Prince Forre",
+      "createdAt": 8,
+      "messageId": 9,
+      "supersededBy": "retired@8",
+      "retiredAt": {
+        "messageId": 9,
+        "boundary": 8
+      }
+    },
+    {
+      "id": "d11c47c3-5b55-4567-86c5-c0a5951d9ac1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 8,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Forre",
+      "tag": "intends",
+      "content": "To use the party as the Crown's dagger in the Ashen March, with their reports coming to him",
+      "createdAt": 8,
+      "messageId": 9,
+      "supersededBy": "retired@8",
+      "retiredAt": {
+        "messageId": 9,
+        "boundary": 8
+      }
+    },
+    {
+      "id": "ef3874e6-9ded-4adc-9b58-936aba6ca527",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Forre",
+      "tag": "knows",
+      "content": "A runner in Crown livery delivered a whispered message, after which Forre moved a black token one finger's breadth east.",
+      "createdAt": 8,
+      "messageId": 9
+    },
+    {
+      "id": "377998cd-36e6-4803-90b0-ce701ca02a98",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 8,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Forre",
+      "tag": "hiding",
+      "content": "The content of the runner's whispered message and the meaning of the black token's movement.",
+      "hiddenFrom": "everyone",
+      "createdAt": 8,
+      "messageId": 9
+    },
+    {
+      "id": "f936acb0-0c37-4635-9b1d-3875a2541cd5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 8,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Forre's token movement and silence conceal information about the Ashen March or Zegallan movements.",
+      "createdAt": 8,
+      "messageId": 9,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "6a7e08f2-921c-4bbd-8c11-9415e07f98f7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 8,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "believes",
+      "content": "The commission is optional — he said \"We'll think about it\" as though it were a bargain.",
+      "createdAt": 8,
+      "messageId": 9,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "1401dcb3-a43a-4f81-8dd5-a489d55ea948",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Forre",
+      "tag": "knows",
+      "content": "Max Nightriver initially hesitated, saying \"We'll think about it,\" before accepting.",
+      "createdAt": 8,
+      "messageId": 9
+    },
+    {
+      "id": "7d8ca9ec-90db-4b4f-a193-27dd2897e763",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 8,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Forre",
+      "tag": "intends",
+      "content": "To have the party report their findings directly to him, valuing precision over poetry.",
+      "createdAt": 8,
+      "messageId": 9
+    },
+    {
+      "id": "cf2c536d-1e22-4d82-a049-c04ed3d3ca1b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 8,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Forre",
+      "tag": "hiding",
+      "content": "His approval at Max's acceptance, masked behind a smooth expression.",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 8,
+      "messageId": 9
+    },
+    {
+      "id": "ffc58468-4724-45f2-b50b-ce35d29917df",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Forre's sealed parchment grants passage through any checkpoint and quarters at Fort Vicinitas, and the commander there will obey without question.",
+      "createdAt": 8,
+      "messageId": 9
+    },
+    {
+      "id": "033c8a42-0ebe-4064-a1e8-a12709b92af9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Zegallans do not wait for the slow or the hesitant.",
+      "createdAt": 8,
+      "messageId": 9
+    },
+    {
+      "id": "c9dc26ee-811a-4cb1-af32-9de68f939e8b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 8,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "believes",
+      "content": "The commission is an \"opportunity\" rather than an order — he treated it as negotiable.",
+      "createdAt": 8,
+      "messageId": 9,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "59956452-76f4-4f85-a07f-2f5c86414580",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Colonel Aristhide says the only route behind the Zegallan lines is a steep western trail used to rotate their slave corps, covered by their archers",
+      "createdAt": 9,
+      "messageId": 11
+    },
+    {
+      "id": "ba970379-81f4-4232-96c9-e172bfd2d0bb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Colonel Aristhide",
+      "tag": "knows",
+      "content": "Prince Forre's sealed writ grants the party passage and quarters at Fort Vicinitas",
+      "createdAt": 9,
+      "messageId": 11
+    },
+    {
+      "id": "5d9b5010-dbac-4f74-8642-e1dce03881f8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Colonel Aristhide",
+      "tag": "intends",
+      "content": "to hold Fort Vicinitas and direct the party toward the western trail behind the Zegallan lines",
+      "createdAt": 9,
+      "messageId": 11
+    },
+    {
+      "id": "33a05aa2-0ff9-4d13-bae7-29161287caed",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Prince Forre's sealed writ compels Colonel Aristhide's obedience at Fort Vicinitas",
+      "createdAt": 9,
+      "messageId": 11
+    },
+    {
+      "id": "72af9354-ea07-46c1-acbb-07b24e453dba",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Forre",
+      "tag": "intends",
+      "content": "to receive Max Nightriver's reports directly and have the Nightriver heir's work noted by the King and himself",
+      "createdAt": 9,
+      "messageId": 11
+    },
+    {
+      "id": "ea52913d-060b-4364-9c17-0db52953d0c4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "believes",
+      "content": "The commission is optional — he said \"We'll think about it\" as though it were a bargain.",
+      "createdAt": 9,
+      "messageId": 11
+    },
+    {
+      "id": "c5a47074-eaab-47a4-ac77-52503de8be53",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "believes",
+      "content": "The commission is an \"opportunity\" rather than an order — he treated it as negotiable.",
+      "createdAt": 9,
+      "messageId": 11
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 8,
+      "name": "Alexander",
+      "avatar": "Alexander.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 28,
+      "name": "Ced",
+      "avatar": "Ced.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 48,
+      "name": "Erevan",
+      "avatar": "Erevan.png"
+    },
+    {
+      "index": 54,
+      "name": "Forre",
+      "avatar": "Forre.png"
+    },
+    {
+      "index": 60,
+      "name": "Haley",
+      "avatar": "Haley.png"
+    },
+    {
+      "index": 65,
+      "name": "Honami",
+      "avatar": "Honami.png"
+    },
+    {
+      "index": 76,
+      "name": "Kanna",
+      "avatar": "Kanna.png"
+    },
+    {
+      "index": 83,
+      "name": "Keder",
+      "avatar": "Keder.png"
+    },
+    {
+      "index": 84,
+      "name": "Kela",
+      "avatar": "Kela.png"
+    },
+    {
+      "index": 91,
+      "name": "Lobo",
+      "avatar": "Lobo.png"
+    },
+    {
+      "index": 94,
+      "name": "Malach",
+      "avatar": "Malach.png"
+    },
+    {
+      "index": 97,
+      "name": "Melisande",
+      "avatar": "Melisande.png"
+    },
+    {
+      "index": 107,
+      "name": "Natalia",
+      "avatar": "Natalia.png"
+    },
+    {
+      "index": 121,
+      "name": "Ronan",
+      "avatar": "Ronan.png"
+    },
+    {
+      "index": 132,
+      "name": "Shelara",
+      "avatar": "Shelara.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    },
+    {
+      "index": 157,
+      "name": "Welden",
+      "avatar": "Welden.png"
+    }
+  ],
+  "payloadEpoch": "1790933028183-s6ayoc"
+}

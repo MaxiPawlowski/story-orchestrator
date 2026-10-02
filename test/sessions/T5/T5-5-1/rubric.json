@@ -1,0 +1,89 @@
+{
+  "charter": "T5-5",
+  "title": "Author view",
+  "session": {
+    "dir": "test/sessions/T5/T5-5-1",
+    "lane": 1,
+    "startedAt": "2026-10-02T09:23:48.446Z",
+    "media": "full"
+  },
+  "scores": [
+    "works",
+    "annoying",
+    "broken",
+    "not-noticed"
+  ],
+  "rows": [
+    {
+      "feature": "blackboard",
+      "score": "annoying",
+      "note": "Readable key/value/source table plus Unmet gates in plain gate syntax; but it lists only keys already set (war_turn at start), so gate qualities like war_commission_taken/war_reached_front are invisible until written, and a pending delta (war_commission_taken=true) did not appear in the tab at all, only as the HUD chip '1 update next turn'.",
+      "evidence": [
+        "shots/001-blackboard-council.png",
+        "shots/011-blackboard-pending-commission.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T09:43:13.219Z"
+    },
+    {
+      "feature": "scheduler",
+      "score": "works",
+      "note": "Readable: chapters, curator proposals with a styled insert/delete diff and Accept/Decline, speaker direction per message with source (judge/LLM director) and latency, model calls, extraction scope. Long: Inner voice lists all 20 cast members, most 'none', before the calls.",
+      "evidence": [
+        "shots/002-scheduler-council.png",
+        "shots/013-curator-proposal-diff.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T09:43:14.410Z"
+    },
+    {
+      "feature": "payload / next-turn preview",
+      "score": "annoying",
+      "note": "Every block the preview listed was in the sent prompt at the listed depth, both turns (4/4 before turn 1 vs payloads idx 0; 7/7 incl. the Author nudge before turn 2 vs idx 5). But the preview never shows the drafted member's private block ('Your private aims', story_orchestrator_epistemic depth 4) that both prompts carried; flagged. Nudge row not marked one-turn.",
+      "evidence": [
+        "x-nextturn-before-t1.json",
+        "x-nextturn-before-t2.json",
+        "payloads.jsonl:1",
+        "payloads.jsonl:9",
+        "journal.jsonl:206",
+        "shots/007-nudge-armed.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T09:43:15.661Z"
+    },
+    {
+      "feature": "driver (Nudge / Advance)",
+      "score": "annoying",
+      "note": "Nudge: in exactly one prompt (payloads idx 5) and cleared (idx 7 and later without it); the model read it but did not act on it. Advance: select + Confirm advance moved war-the-summons -> war-the-front, engine log source 'manual', digest unexpected-jump; but no author panel or inline level shows it as an author move (only a transient 'Advanced to war-the-front.' with the id); flagged. Report was stale (party still 'bound for' the fort).",
+      "evidence": [
+        "payloads.jsonl:9",
+        "payloads.jsonl:12",
+        "journal.jsonl:139",
+        "journal.jsonl:208",
+        "shots/012-after-advance.png",
+        "shots/019-driver-report.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T09:43:17.011Z"
+    },
+    {
+      "feature": "A1 inspector decision",
+      "score": "annoying",
+      "note": "Inline author chip (level 3) opens #so-inspector for message 11 with Progress, Memory (with Pin/Lock/Exclude), condensations and the raw read prompt; but it opens at the top of the drawer while the drawer stays scrolled (inspector top -4325px), so nothing visible changes after the click.",
+      "evidence": [
+        "x-inspector-msg11.json",
+        "shots/015-inspector-msg11.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T09:43:18.171Z"
+    }
+  ],
+  "playerClean": {
+    "skipped": "author-mode card"
+  }
+}
