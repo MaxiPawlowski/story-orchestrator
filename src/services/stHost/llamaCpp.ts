@@ -1,10 +1,15 @@
 import { isRecord } from "@utils/guards";
-import { getContext } from "./context";
-import { importSTModule } from "./modules";
+import type { SillyTavernContext } from "./hostTypes";
 
 type OpenAiModelsHostModule = { model_list?: unknown };
 
-const openaiModule = await importSTModule<OpenAiModelsHostModule>("/scripts/openai.js");
+const hostGlobal = globalThis as { SillyTavern?: { getContext?: () => unknown } };
+
+let openaiModule: OpenAiModelsHostModule | null = null;
+
+const loadOpenAi = (path: string): Promise<OpenAiModelsHostModule> => import(/* webpackIgnore: true */ path);
+
+void loadOpenAi("/scripts/openai.js").then((module) => { openaiModule = module; }, () => undefined);
 
 export interface ThinkingTemplate {
   prefix: string;
@@ -12,7 +17,8 @@ export interface ThinkingTemplate {
 }
 
 export const readThinkingTemplate = (): ThinkingTemplate | null => {
-  const reasoning = getContext().powerUserSettings?.reasoning;
+  const context = hostGlobal.SillyTavern?.getContext?.() as SillyTavernContext | undefined;
+  const reasoning = context?.powerUserSettings?.reasoning;
   if (!isRecord(reasoning) || typeof reasoning.prefix !== "string" || typeof reasoning.suffix !== "string") return null;
   return { prefix: reasoning.prefix, suffix: reasoning.suffix };
 };
