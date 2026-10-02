@@ -381,7 +381,7 @@ async function start(id: string, options: StartOptions) {
   console.log('[4/8] read the effective settings back, pin the routing');
   const effectiveRun = await inLane(plan.lane, ['scripts/debug/so-session.mts', '_page', 'effective', planPath, resolve(dir, 'effective-settings.json')], viewportEnv);
   const effectiveRead = existsSync(resolve(dir, 'effective-settings.json')) ? await readJson(resolve(dir, 'effective-settings.json')) : null;
-  const effectiveIssues = effectiveRun.code !== 0 || !effectiveRead?.settings ? [`could not read the effective settings back: ${effectiveRun.output.slice(-600)}`] : [...effectiveProblems(expected, effectiveRead.settings, baseline.installOwned), ...hostSwipesProblems(effectiveRead.host), ...hostImageGenerationProblems(effectiveRead.host)];
+  const effectiveIssues = effectiveRun.code !== 0 || !effectiveRead?.settings ? [`could not read the effective settings back: ${effectiveRun.output.slice(-600)}`] : [...effectiveProblems(expected, effectiveRead.settings, baseline.installOwned), ...hostSwipesProblems(effectiveRead.host), ...(usesComfy(media) ? [] : hostImageGenerationProblems(effectiveRead.host))];
   if (effectiveIssues.length) return fail('effective-settings', effectiveIssues);
   const overlayPath = resolve(lane.root, 'adolion-fresh', PRESET_OVERLAY_RECORD);
   const overlayRecord = existsSync(overlayPath) ? await readJson(overlayPath) : null;
@@ -542,7 +542,10 @@ async function reverify(arg: string | undefined) {
   return next;
 }
 
+const usesComfy = (media: { variant?: string } | null | undefined) => media?.variant === 'full';
+
 async function comfyGuard(session: any, dir: string) {
+  if (usesComfy(session.media)) return [] as string[];
   const log = laneInfo(Number(session.lane)).log;
   const server = existsSync(log) ? (await readFile(log)).subarray(Number(session.logOffset ?? 0)).toString('utf-8') : '';
   const consoleRows = existsSync(resolve(dir, TAIL_FILES.console)) ? await readFile(resolve(dir, TAIL_FILES.console), 'utf-8') : '';
@@ -1120,7 +1123,7 @@ async function pagePhase(phase: 'settings' | 'effective' | 'pin' | 'open' | 'end
       out.settings = await reads.readEffectiveSettings(page);
       out.host = { ...await reads.readHostSwipes(page), ...await reads.readHostImageGeneration(page) };
       out.presets = await reads.readLivePresets(page);
-      out.problems = [...(out.settings ? effectiveProblems(plan.expected, out.settings, plan.installOwned) : ['the runtime returned no settings']), ...hostSwipesProblems(out.host as { swipes: boolean | null }), ...hostImageGenerationProblems(out.host as { imageGenerationDisabled: boolean | null })];
+      out.problems = [...(out.settings ? effectiveProblems(plan.expected, out.settings, plan.installOwned) : ['the runtime returned no settings']), ...hostSwipesProblems(out.host as { swipes: boolean | null }), ...(usesComfy(plan.mediaPlan) ? [] : hostImageGenerationProblems(out.host as { imageGenerationDisabled: boolean | null }))];
     }
 
     if (phase === 'pin') {
