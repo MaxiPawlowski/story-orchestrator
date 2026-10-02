@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "value": {
+    "open": "2026-10-02@05h30m40s485ms",
+    "repair": "Nothing is missing.",
+    "orphaned": [],
+    "books": [
+      "Story Orchestrator - Adolion Between the Roads - 2026-10-02@05h36m11s589ms",
+      "Story Orchestrator - Adolion Between the Roads - 2026-10-02@05h54m03s829ms"
+    ],
+    "openDialogs": 0
+  }
+}

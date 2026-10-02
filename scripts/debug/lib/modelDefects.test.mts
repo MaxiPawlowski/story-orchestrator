@@ -41,3 +41,9 @@ test('T1 loop guard: defect counts per session', () => {
   const corrupt = { ...loop, kind: 'corrupt' as const };
   assert.deepEqual(defectCounts([{ modelDefects: [] }, { modelDefects: [loop, corrupt], autoRepair: { swiped: true } }, { modelDefects: [corrupt], autoRepair: { swiped: false } }, {}]), { turns: 2, loop: 1, corrupt: 2, repaired: 1, unrepaired: 0 });
 });
+
+test('T4-3-3 loop guard: a word repeated across an apostrophe is not a doubled word', () => {
+  const replies = ["I'll tell you you're an idiot.", "She said it's its own reward."];
+  assert.deepEqual(modelDefects(replies.map((text, index) => ({ messageId: index, text }))), []);
+  assert.deepEqual(modelDefects([{ messageId: 9, text: 'He walked and and stopped.' }]).map((defect) => defect.rule), ['doubled word']);
+});

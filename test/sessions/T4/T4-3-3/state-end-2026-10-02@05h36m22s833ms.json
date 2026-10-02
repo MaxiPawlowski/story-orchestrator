@@ -1,0 +1,594 @@
+{
+  "storyId": "adolion-aegis",
+  "activeCheckpointId": "aegis-homecoming",
+  "boundary": 11,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Aegis Checkpoints": "global",
+      "Adolion Chronicle": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "aegis_examiner_watching": false,
+    "aegis_exam_declined": false,
+    "location": "aegis_guild_tavern"
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "5faa8552-f73c-4e38-938b-8e06f3afbb1d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 0,
+        "boundary": 1,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Party",
+      "tag": "knows",
+      "content": "The Guild will put them forward for the C-rank exam and the terms are in writing",
+      "createdAt": 1,
+      "messageId": 0
+    },
+    {
+      "id": "c6b2de72-569c-41a6-aec9-a9449cb115e3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "knows",
+      "content": "Max Nightriver asked to be called a friend and she agreed",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "01216eac-1650-4ea4-a5c5-922a87b72227",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 5,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Fiana",
+      "tag": "knows",
+      "content": "Max considers her a friend and asked her to be one",
+      "createdAt": 5,
+      "messageId": 8
+    },
+    {
+      "id": "84647a15-b88e-44b5-aa90-da6a2925003d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 5,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Vallie trusts him and respects his steel",
+      "createdAt": 5,
+      "messageId": 8
+    },
+    {
+      "id": "0a10eea9-2e0f-4472-82d6-21860be5c73b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 5,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Domas says he owes him nothing and wants the sentiment kept between them",
+      "createdAt": 5,
+      "messageId": 8
+    },
+    {
+      "id": "f000f655-053f-4f51-9e11-9e3fc453a721",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 5,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Domas",
+      "tag": "hiding",
+      "content": "his appreciation of Max's sentiment, asking it stay between them",
+      "hiddenFrom": "everyone",
+      "createdAt": 5,
+      "messageId": 8
+    },
+    {
+      "id": "a3ed070f-161f-429a-823a-4d5f4ca5062f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 5,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Vallie",
+      "tag": "intends",
+      "content": "to see the party prove her trust right in the exam",
+      "createdAt": 5,
+      "messageId": 8
+    },
+    {
+      "id": "26a8c317-522b-45cb-9fa2-fb64df872679",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 5,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Domas",
+      "tag": "intends",
+      "content": "to have the party decide on the exam terms",
+      "createdAt": 5,
+      "messageId": 8
+    },
+    {
+      "id": "fc2bf742-1341-4c81-b74a-0e5ca15f21b7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Vallie trusts him and respects his steel, and has warned him not to make a liar out of her",
+      "createdAt": 6,
+      "messageId": 10
+    },
+    {
+      "id": "79921ca2-d66f-4a67-a623-7d66f6de8f4c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Domas considers the road debt settled and wants the sentiment kept between them",
+      "createdAt": 6,
+      "messageId": 10
+    },
+    {
+      "id": "5b2aca6f-59a3-4fdd-8e92-d79f2ac391e7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Fiana was deeply moved by being called his closest thing to family in the city",
+      "createdAt": 6,
+      "messageId": 10
+    },
+    {
+      "id": "7c8ea4b9-19e9-4d37-9c89-8af3575896aa",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Domas",
+      "tag": "hiding",
+      "content": "that he appreciates Max's sentiment about owing his life, asking it be kept between them",
+      "hiddenFrom": "everyone",
+      "createdAt": 6,
+      "messageId": 10
+    },
+    {
+      "id": "6d40128f-60ff-4fd2-9152-42514d251eff",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Vallie",
+      "tag": "intends",
+      "content": "to see the party prove her trust right by not making a liar out of her",
+      "createdAt": 6,
+      "messageId": 10
+    },
+    {
+      "id": "337cfacc-7054-4d9e-a22c-4af65a69f1d5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Fiana says Jasira's coldness comes from being reminded of people she would rather not remember",
+      "createdAt": 7,
+      "messageId": 12
+    },
+    {
+      "id": "c158e002-144a-47ae-9e23-b33179f210cd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Domas",
+      "tag": "hiding",
+      "content": "his appreciation of Max's gratitude, which he asks be kept between them",
+      "hiddenFrom": "everyone",
+      "createdAt": 7,
+      "messageId": 12
+    },
+    {
+      "id": "6772a340-ede9-46ee-838b-bca19ebda559",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Vallie",
+      "tag": "intends",
+      "content": "to hold Max to the standard of trust she has voiced",
+      "createdAt": 7,
+      "messageId": 12
+    },
+    {
+      "id": "db69a1e6-a631-4e26-ade5-4b97a0e56740",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Domas considers survival the only currency of the road and wants Max's gratitude kept private",
+      "createdAt": 8,
+      "messageId": 14
+    },
+    {
+      "id": "5fcdb2c4-a9bf-485f-9ff3-5290dc567636",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Fiana believes Jasira is cold toward him because he reminds her of people she'd rather not remember",
+      "createdAt": 8,
+      "messageId": 14
+    },
+    {
+      "id": "2e91f5e7-6f42-4f1e-84b4-ac73ff6c6629",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Vallie and Domas rose from F-rank to A together and are close friends",
+      "createdAt": 8,
+      "messageId": 14
+    },
+    {
+      "id": "ae4649b3-752e-4455-a285-a38f7a2c2164",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 8,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Domas",
+      "tag": "intends",
+      "content": "to keep the party's exam decision framed as the Guild's terms and the party's choice",
+      "createdAt": 8,
+      "messageId": 14
+    },
+    {
+      "id": "5325c2b4-b5ee-4102-985a-a781faac5c0f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Fiana's account that Jasira's coldness stems from old Evergreen grudges and from Max reminding her of people she would rather not remember",
+      "createdAt": 9,
+      "messageId": 15
+    },
+    {
+      "id": "1eecf0d2-bcd3-4c95-8d62-cfadd9c7c10d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Vallie and Domas climbed from F-rank to A-rank together and consider each other comrades rather than mere colleagues",
+      "createdAt": 9,
+      "messageId": 15
+    },
+    {
+      "id": "b09a06ab-73fd-4a7e-af6c-6224af6b6eec",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Vallie and Domas rose from F-rank to A together and share an absolute, comrade-level trust",
+      "createdAt": 11,
+      "messageId": 18
+    },
+    {
+      "id": "b92c714b-b9d4-4893-8b5b-164b231acd31",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 11,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Domas",
+      "tag": "hiding",
+      "content": "that he finds the word friendship too easily thrown about and values his bond with Vallie as comradeship rather than sentiment",
+      "hiddenFrom": "everyone",
+      "createdAt": 11,
+      "messageId": 18
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 4,
+      "name": "Akari",
+      "avatar": "Akari.png"
+    },
+    {
+      "index": 6,
+      "name": "Alarise",
+      "avatar": "Alarise.png"
+    },
+    {
+      "index": 14,
+      "name": "Arryn",
+      "avatar": "Arryn.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 24,
+      "name": "Calithra",
+      "avatar": "Calithra.png"
+    },
+    {
+      "index": 30,
+      "name": "Celedir",
+      "avatar": "Celedir.png"
+    },
+    {
+      "index": 31,
+      "name": "Celeste",
+      "avatar": "Celeste.png"
+    },
+    {
+      "index": 33,
+      "name": "Dahlia",
+      "avatar": "Dahlia.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 40,
+      "name": "Diosanea",
+      "avatar": "Diosanea.png"
+    },
+    {
+      "index": 41,
+      "name": "Dixton",
+      "avatar": "Dixton.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 58,
+      "name": "Grant",
+      "avatar": "Grant.png"
+    },
+    {
+      "index": 68,
+      "name": "Jasira",
+      "avatar": "Jasira.png"
+    },
+    {
+      "index": 72,
+      "name": "Kaian",
+      "avatar": "Kaian.png"
+    },
+    {
+      "index": 77,
+      "name": "Karia",
+      "avatar": "Karia.png"
+    },
+    {
+      "index": 78,
+      "name": "Karos",
+      "avatar": "Karos.png"
+    },
+    {
+      "index": 79,
+      "name": "Karrus",
+      "avatar": "Karrus.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 81,
+      "name": "Kass",
+      "avatar": "Kass.png"
+    },
+    {
+      "index": 86,
+      "name": "Konako",
+      "avatar": "Konako.png"
+    },
+    {
+      "index": 89,
+      "name": "Liora",
+      "avatar": "Liora.png"
+    },
+    {
+      "index": 90,
+      "name": "Lirael",
+      "avatar": "Lirael.png"
+    },
+    {
+      "index": 95,
+      "name": "Manako",
+      "avatar": "Manako.png"
+    },
+    {
+      "index": 99,
+      "name": "Mina",
+      "avatar": "Mina.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 111,
+      "name": "Oswyn",
+      "avatar": "Oswyn.png"
+    },
+    {
+      "index": 112,
+      "name": "Panne",
+      "avatar": "Panne.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 122,
+      "name": "Rosea",
+      "avatar": "Rosea.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 125,
+      "name": "Ryenne",
+      "avatar": "Ryenne.png"
+    },
+    {
+      "index": 137,
+      "name": "Sophie",
+      "avatar": "Sophie.png"
+    },
+    {
+      "index": 150,
+      "name": "Thorne",
+      "avatar": "Thorne.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    },
+    {
+      "index": 159,
+      "name": "Yrelra",
+      "avatar": "Yrelra.png"
+    }
+  ],
+  "payloadEpoch": "1790930193937-h5wkom"
+}

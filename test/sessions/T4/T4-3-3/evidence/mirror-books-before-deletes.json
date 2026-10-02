@@ -1,0 +1,47 @@
+{
+  "ok": true,
+  "value": {
+    "open": "2026-10-02@05h36m22s833ms",
+    "wiBook": {
+      "name": "Story Orchestrator - Adolion Between the Roads - 2026-10-02@05h36m22s833ms",
+      "chatId": "2026-10-02@05h36m22s833ms"
+    },
+    "books": {
+      "Story Orchestrator - Adolion Between the Roads - 2026-10-02@05h36m11s589ms": {
+        "entries": 4,
+        "so": [
+          {
+            "c": "so_fd394243-34ce-4542-af18-383b5665f3be",
+            "disable": false
+          },
+          {
+            "c": "so_ce6a3478-abd8-48f5-a5c3-b8b37230a9e0",
+            "disable": false
+          },
+          {
+            "c": "so_3c4ec6c9-bff9-4454-b38b-158fc391089a",
+            "disable": false
+          }
+        ]
+      },
+      "Story Orchestrator - Adolion Between the Roads - 2026-10-02@05h36m22s833ms": {
+        "entries": 4,
+        "so": [
+          {
+            "c": "so_dec16b0a-dbbd-4119-a105-c903fca2b9b1",
+            "disable": false
+          },
+          {
+            "c": "so_532bc8b7-d03b-41da-af5e-8d1f477a118b",
+            "disable": false
+          },
+          {
+            "c": "so_9d3070e9-8a71-4a84-9db0-ecf77c065eea",
+            "disable": false
+          }
+        ]
+      }
+    },
+    "repair": null
+  }
+}

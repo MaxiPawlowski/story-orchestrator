@@ -1,0 +1,10 @@
+{
+  "verb": "shot",
+  "dir": "C:\\dev\\story-orchestrator\\test\\sessions\\T4\\T4-3-3",
+  "chat": null,
+  "args": {
+    "label": "after-escape-chat3",
+    "seq": 31
+  },
+  "options": {}
+}

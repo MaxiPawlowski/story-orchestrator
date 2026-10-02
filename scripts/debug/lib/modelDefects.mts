@@ -42,7 +42,7 @@ function corruptionIn(text: string): { sample: string; rule: string } | null {
     const match = pattern.exec(text);
     if (match) return { sample: around(text, match.index, match[0].length), rule };
   }
-  for (const match of text.matchAll(/\b(\p{L}{2,})\s+\1\b/giu)) {
+  for (const match of text.matchAll(/(?<![\p{L}'’])(\p{L}{2,})\s+\1(?![\p{L}'’])/giu)) {
     if (!DOUBLED_ALLOWED.has(match[1].toLowerCase())) return { sample: around(text, match.index ?? 0, match[0].length), rule: 'doubled word' };
   }
   return null;

@@ -248,3 +248,26 @@ Findings (ranked):
 - LOW (product): `host change "cast" was reverted when this chat reloaded` was journaled twice at the same instant, on the switch after the first delete (`evidence/poststop-chat2-escape-manual-reap.json` journalTail).
 - Note (harness/start): `start` removed lane 4's stale sprite worktree (`C:\dev\so-lanes\4\adolion-fresh\sprites-e6226f4c1011`) on its own, during its disk check. That was not my action, and it was not in lane 1.
 - Spend: DeepSeek 23 calls, 74382/12519 tokens; judge 290 metered (6 cached, 2 fallbacks); main RP 24. Cost n/a. Pod: about 22 min of play (08:00-08:22Z) plus a lane seed (07:47-08:00Z, no model calls).
+
+## T4-3 run 3 (lane 1, `test/sessions/T4/T4-3-3`: VALID, all deletes in-session through `delete-chat`)
+
+- Played 2026-10-02 08:36-09:04Z on a fresh lane 1 seed (pin be0696b), served dev bundle `d6737acda880` (unchanged all session; master moved to d7f975bf mid-run, allowed by served identity), player mode, media off. Chat one `2026-10-02@05h36m11s589ms`, chat two `2026-10-02@05h36m22s833ms`, chat three `2026-10-02@05h54m03s829ms` (new-chat + adopt, for the Escape provocation). Each got its mirror book after 8 bond turns (boundaries 10, 11, 10); all `so_` entries enabled (`evidence/mirror-books-before-deletes.json`). Stop `valid: true`, header diff 0 blocking.
+- Deletes, scored from the harness's own rows (fix 8c57188c confirmed: book read from `wiBook.name`, prompt found by `data-so-reap-chat`):
+  - chat one `--book keep`: prompt answered, book kept, `asAnswered: true` (`turns.jsonl:17`).
+  - chat two `--book delete`: book gone from the server list and `worldInfoCache`, chat one's book untouched (`turns.jsonl:19`, `evidence/after-delete-chat2.json`).
+  - chat three `--book escape`: book kept, journaled "the question was closed without an answer" (`turns.jsonl:30`, `journal.jsonl:1010`).
+  - Repair "Nothing is missing." and `orphanedLorebooks: []` after each; no dialog left open.
+
+| Row | Score | Evidence |
+|---|---|---|
+| mirror-book prompt | works | turns.jsonl:17, :19, :30 |
+| keep | works | turns.jsonl:17, :30, journal.jsonl:673, :1010 |
+| delete | works | turns.jsonl:19, evidence/after-delete-chat2.json, journal.jsonl:697 |
+| Repair after delete | works | evidence/after-*.json, shots/018, 020, 031 |
+
+Findings (ranked):
+- LOW (product copy): two chats started in the same minute get identical prompts ("chat started 2026-10-02 05:36"), told apart only by the muted `Lorebook:` line; title drops the colon.
+- LOW (product, carried): the reaper decision is journaled into whichever chat ST opens next, not the deleted one.
+- LOW (harness): `modelDefects.mts:45` "doubled word" rule flags "tell you you're" (`\b` before the apostrophe); produced the session's 2 auto flags and 1 "corrupt" model defect (`turns.jsonl:15`). Not a model defect.
+- Expected: 2 stalls at Homecoming, 5 judge timeouts, 2 extraction rejections, 0 model-call failures, 0 save-lost.
+- Spend: DeepSeek 35 calls, 129416/23639 tokens (all measured); judge 440 metered (8 cached, 5 fallbacks), digest 453 calls / 448 answered / 0 busy; main RP 31. Cost n/a. Pod: about 27 min of play plus a lane seed (08:30-08:36Z).

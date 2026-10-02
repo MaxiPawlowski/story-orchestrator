@@ -1,0 +1,35 @@
+ok   build.head  "8c57188cbd44a5cde749afafd8a916c1ece2022e" -> "d7f975bf544c11aff820066e32ad5a3a23d34737"  (allowed by served-bundle d6737acda880c18b)
+WARNING: the page is running a bundle that is not the built one: served d6737acda880c18b vs dist 75e3142cde9ba9dc
+ok   chat.chatId  "2026-10-02@05h36m22s833ms" -> "2026-10-02@05h30m40s485ms"  (allowed by chatId)
+ok   group.disabledMembers  +Dixton.png +Riyo.png +Thorne.png  (allowed by group)
+ok   inventory.groupChats  -1790929840563/2026-10-02@05h36m11s589ms -1790929840563/2026-10-02@05h36m22s833ms  (allowed by inventory.groupChats:-1790929840563/2026-10-02@05h36m11s589ms)
+ok   inventory.lorebookCount  24 -> 26  (allowed by inventory.lorebookCount)
+{
+  "baseline": "C:\\dev\\story-orchestrator\\test\\sessions\\T4\\T4-3-3\\run-header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "chatId",
+    "groupId",
+    "authorView",
+    "story",
+    "group",
+    "inventory.journal",
+    "inventory.groupChats:-1790929840563/2026-10-02@05h36m11s589ms",
+    "inventory.groupChats:-1790929840563/2026-10-02@05h36m22s833ms",
+    "inventory.groupChats:+1790929840563/2026-10-02@05h30m40s485ms",
+    "inventory.groupChats:-1790929840563/2026-10-02@05h54m03s829ms",
+    "inventory.lorebookCount"
+  ],
+  "differences": 5,
+  "progress": 0,
+  "blocking": 0,
+  "blockingPaths": [],
+  "servedIdentity": [
+    "build.head"
+  ],
+  "warnings": [
+    "the page is running a bundle that is not the built one: served d6737acda880c18b vs dist 75e3142cde9ba9dc"
+  ],
+  "wrote": "C:\\dev\\story-orchestrator\\test\\sessions\\T4\\T4-3-3\\run-header-end.json",
+  "ok": true
+}

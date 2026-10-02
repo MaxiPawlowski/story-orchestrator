@@ -1,0 +1,110 @@
+[
+ {
+  "id": 0,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The Guild hall in Aegis City has barely settled after the party's return when Vallie appears on the stairs with an announcement: the Guild will put you forward for the C-rank exam. Domas follows her with the terms in writing, and Ellie has already laid out the forms. Tobias watches from behind the counter. No one has put a pen in your hand yet."
+ },
+ {
+  "id": 1,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Fiana, after today I'd call you a friend. Would you?"
+ },
+ {
+  "id": 2,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Fiana's face lights up, her blue eyes widening as she lets out a delighted laugh. She wipes her hands on her apron and steps forward, closing the distance between them.\n\"Friend? Oh, I'd call you more than that!\" Fiana beams, her freckled cheeks flushing. \"You're officially one of my favorite adventurers now. Anyone who can keep their head when things go sideways—and looks half as good doing it—is someone I want in my corner.\"\nShe gestures toward the tavern's bar with a grin. \"Tavern's on me for the rest of the night. We can celebrate your new rank or your survival, or both—your choice.\""
+ },
+ {
+  "id": 3,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Who is Jasira to you, Fiana?"
+ },
+ {
+  "id": 4,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Fiana's expression softens, a flicker of something complex passing through her eyes before she leans back against the polished wood of the bar. \"Jasira?\" She swirls the cider in her glass, watching the bubbles rise. \"She's... complicated.\"\n\"We're friends,\" Fiana says slowly, \"but the kind where you have to walk on eggshells sometimes. She's got a wall around her—high and thick—and most people just give up trying to climb it. Me? I've always liked a challenge.\" She shrugs, though there's a tension in her shoulders. \"She's the best ranger I've ever seen, but there's always this... weight she carries. Like she's waiting for someone to fail her.\""
+ },
+ {
+  "id": 5,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Vallie, you've looked out for us since the start. I trust you. Do you trust me?"
+ },
+ {
+  "id": 6,
+  "name": "Vallie",
+  "isUser": false,
+  "text": "Vallie's blue eye fixes on Max Nightriver, considering, before she lets out a short bark of a laugh. \"Kid, you've got the instincts of a predator and the patience of a spider. I've watched you work.\" She crosses her arms, her black eyepatch shifting as her expression goes serious. \"Trust is a heavy word. I don't give it out like beer tokens.\"\n*She leans in closer, her sharp teeth glinting.*\n\"But I trust you to get the job done. That's what counts in the Guild.\" A heavy hand lands on Max's shoulder—not too rough, but firm enough to leave a bruise. \"Now quit being all sentimental and sign the damned forms before Domas starts chewing my ear about paperwork.\""
+ },
+ {
+  "id": 7,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Domas, I owe you my life after the road. I won't forget it."
+ },
+ {
+  "id": 8,
+  "name": "Domas",
+  "isUser": false,
+  "text": "Domas pauses mid-turn, his red eyes meeting Max's with an unreadable expression. He slowly lowers the clipboard, setting it on the counter with a soft tap.\n\"You owe me nothing,\" he says, his voice measured and quiet enough that only a few nearby can hear. \"The road is not a place for debts. If you wish to repay me, then live to see your next rank up.\" He gives a single, curt nod—a gesture of acknowledgement between equals. \"That is all the gratitude I require.\"\n*He retrieves his clipboard and glances at the forms Ellie has laid out, waiting.*"
+ },
+ {
+  "id": 9,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Fiana, you're the closest thing I have to family in this city."
+ },
+ {
+  "id": 10,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The words hang in the air between them, soft and heavy. Fiana freezes, her hands still gripped around the rag she'd been using to wipe the bar. Her blue eyes search Max's face, and for a heartbeat, the cheerful mask slips.\n\"Family...\" Fiana breathes the word like it's fragile glass. Her expression softens completely, and she sets the rag down. \"You know, most people who come through here just see a barmaid. Someone to pour their drinks and laugh at their jokes.\" She reaches out, resting her hand briefly over Max's on the cool wood of the bar. \"But you actually *see* me.\"\n*She straightens up, a determined look settling on her freckled face.*\n\"Then you've got a sister in this city now. Someone who'll keep you fed, keep your secrets, and kick your ass if you start acting too much like a brooding hero.\" Fiana gives his hand a small squeeze before pulling back. \"Tavern's still on me tonight. Come on, sit. Tell me what's really going through that head of yours.\""
+ },
+ {
+  "id": 11,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Jasira and I don't get along, do we? Tell me honestly what she thinks of me."
+ },
+ {
+  "id": 12,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Fiana pauses mid-pour, the cider swirling in her pitcher. She sets it down on the counter with a quiet thud and leans against the bar, her expression growing contemplative.\n\"Honestly?\" Fiana sighs, glancing toward the tavern's entrance as if making sure no one is listening. \"She thinks you're a pampered noble who doesn't understand what it means to *earn* something. She sees the Nightriver name and her shoulders tighten up like you've just insulted her ancestors.\" She drums her fingers on the wood. \"But there's more to it. I've seen them in the same room—how she watches you when she thinks you're not looking. It's not just contempt.\"\n*Fiana shakes her head, a wry smile touching her lips.*\n\"It's like... she recognizes something in you that she doesn't want to admit. Some kind of darkness or weight that matches her own. That's why you clash. She'd rather fight you than face whatever it is that makes her see herself in you.\" She picks up the pitcher again. \"Still, I wouldn't suggest trying to 'get along' with her right now. Just... be patient. Elves like Jasira take a long time to thaw out.\""
+ },
+ {
+  "id": 13,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Vallie, is Domas your friend, or just someone you work beside?"
+ },
+ {
+  "id": 14,
+  "name": "Vallie",
+  "isUser": false,
+  "text": "Vallie's blue eye narrows slightly, and she lets out a snort that's half-laugh, half-something else. \"Work beside?\" She shakes her head, her curved horns catching the light of the Guild's lanterns. \"Kid, Domas and I have bled together in more places than I care to count. He's the one who dragged me out of a Zegallan pit when I was too stubborn to die, and I'm the one who punched a mage twice his size in the jaw for thinking he could bully an elf.\"\n*She reaches for a Blackroot cigar from a leather pouch, lighting it with a spark from her thumb.*\n\"He's the smartest man I know, and the most annoying.\" A cloud of bitter smoke curls around her face. \"But if the world ended tomorrow, Domas is the only person I'd trust to watch my back while I swing my axe. That's more than friendship—that's survival.\""
+ },
+ {
+  "id": 15,
+  "name": "Domas",
+  "isUser": false,
+  "text": "Domas doesn't look up from his clipboard, but the corner of his mouth twitches upward. \"I believe the technical term is 'tolerable partnership,' Guildmaster.\" He finally meets Max's gaze with those piercing red eyes, his expression perfectly composed. \"We are bound by history, blood, and an extraordinary amount of paperwork. It would be far too convenient if our relationship were simple.\""
+ },
+ {
+  "id": 16,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Fiana, I want you at my back on whatever comes next. Partners?"
+ },
+ {
+  "id": 17,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Fiana's breath catches. She sets the pitcher down with a sharp clink and turns fully to face Max, her blue eyes wide and shining. The tavern noise seems to fall away around them.\n\"Partners...\" Fiana whispers the word like it's a promise. A slow, brilliant smile spreads across her freckled face. \"You want a barmaid as your partner?\" She laughs, though there's a watery quality to it. \"You've got some nerve, and I love it.\"\n*She extends her hand across the polished wood of the bar, palm up, her expression suddenly fierce and unwavering.*\n\"Count me in. When you're out there in the thick of it, you'll know someone's got your back here—someone who'll keep your secrets, your ale, and your head on straight.\" She squeezes his hand firmly. \"We're partners. Now what comes next?\""
+ }
+]

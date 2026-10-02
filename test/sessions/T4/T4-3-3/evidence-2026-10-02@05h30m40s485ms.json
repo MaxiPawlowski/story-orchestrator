@@ -1,0 +1,1440 @@
+{
+ "capturedAt": "2026-10-02T09:03:48.585Z",
+ "chatId": "2026-10-02@05h30m40s485ms",
+ "groupId": "1790929840563",
+ "unread": {},
+ "slices": {
+  "memory": {
+   "entries": [],
+   "excluded": [],
+   "writeLog": [],
+   "settings": {
+    "enabled": true,
+    "epistemicLedgerCapable": true,
+    "injectionDepths": {
+     "facts": 4,
+     "session_details": 3,
+     "short_term": 2,
+     "scene_history": 6
+    },
+    "tierBudgets": {
+     "facts": 50,
+     "session_details": 40,
+     "short_term": 10,
+     "scene_history": 30
+    },
+    "tierTokenBudgets": {
+     "facts": 800,
+     "session_details": 600,
+     "short_term": 300,
+     "scene_history": 500
+    },
+    "chapters": {
+     "seal": false,
+     "storySoFar": false,
+     "fold": false,
+     "chronicleTokens": 700,
+     "chapterTokens": 500,
+     "threadTokens": 150,
+     "recap": true,
+     "dossierWindow": 12,
+     "archiveRecall": false,
+     "recallTokens": 200,
+     "eraSeals": false,
+     "foldEras": false,
+     "eraMessages": 300
+    }
+   },
+   "backfill": null,
+   "sceneCount": 0,
+   "shortTermSummaryEnd": -1,
+   "wiWrites": {},
+   "wiBook": null,
+   "arcs": [],
+   "epistemic": [],
+   "ledger": [],
+   "canon": null,
+   "verifyDrops": [],
+   "derived": [],
+   "conflicts": [],
+   "resolvedConflicts": [],
+   "pinnedOverflow": 0,
+   "storyStart": 0,
+   "chapters": [],
+   "chronicle": {
+    "eras": []
+   },
+   "chapterSealSkip": null,
+   "updatedAt": "2026-10-02T08:31:33.575Z"
+  },
+  "chapters": {
+   "declared": true,
+   "current": {
+    "id": "the-city",
+    "number": 1,
+    "playerTitle": "A Week in the City",
+    "interlude": false
+   },
+   "records": [],
+   "ended": false,
+   "epilogue": null
+  },
+  "canon": {
+   "canon": "Anchor aegis-homecoming: Hear out the Guild's offer and put the party's names down for the C-rank promotion exam.",
+   "prose": "",
+   "memoryCanon": null
+  },
+  "memoryQueue": {
+   "conflicts": [],
+   "lastRefusal": null
+  },
+  "epistemic": [],
+  "ledger": [],
+  "modelCalls": [
+   {
+    "at": "2026-10-02T08:53:34.292Z",
+    "role": "read",
+    "pass": "read",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 835,
+    "samplers": "applied",
+    "usage": {
+     "input": 3547,
+     "output": 9,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@05h30m40s485ms",
+    "messageId": 0
+   }
+  ],
+  "judgeCalls": [
+   {
+    "at": "2026-10-02T08:31:44.380Z",
+    "boundary": 1,
+    "messageId": 0,
+    "use": "typed",
+    "model": "jev-1.13.0",
+    "latencyMs": 268,
+    "stateChars": 596,
+    "questionCount": 8,
+    "inputTokens": 1164,
+    "outputTokens": 160
+   },
+   {
+    "at": "2026-10-02T08:31:44.441Z",
+    "boundary": 1,
+    "messageId": 0,
+    "use": "scene",
+    "model": "jev-1.13.0",
+    "latencyMs": 328,
+    "stateChars": 5458,
+    "questionCount": 47,
+    "inputTokens": 4648,
+    "outputTokens": 1189,
+    "p": {
+     "break": 0.12
+    }
+   },
+   {
+    "at": "2026-10-02T08:31:44.590Z",
+    "boundary": 1,
+    "messageId": 0,
+    "use": "warden",
+    "model": "jev-1.13.0",
+    "latencyMs": 211,
+    "stateChars": 1273,
+    "questionCount": 7,
+    "inputTokens": 1177,
+    "outputTokens": 130,
+    "p": {
+     "facts": 0,
+     "flagged": 0,
+     "rules": 8,
+     "broken": 1
+    }
+   },
+   {
+    "at": "2026-10-02T08:53:34.292Z",
+    "boundary": 1,
+    "messageId": 0,
+    "use": "typed",
+    "model": "jev-1.13.0",
+    "latencyMs": 413,
+    "stateChars": 197,
+    "questionCount": 8,
+    "inputTokens": 1056,
+    "outputTokens": 160
+   }
+  ],
+  "stagecraft": {
+   "settings": {
+    "curatorEnabled": true,
+    "acceptMode": "review",
+    "wardenEnabled": true,
+    "wardenAcceptMode": "review"
+   },
+   "proposals": [
+    {
+     "id": "warden-1-0",
+     "curator": "warden",
+     "at": "2026-10-02T08:31:44.590Z",
+     "boundary": 1,
+     "messageId": 0,
+     "checkpointId": "aegis-homecoming",
+     "reason": "house-rule",
+     "summary": "Adolion Narrator's reply breaks a house rule",
+     "mode": "review",
+     "ops": [
+      {
+       "op": {
+        "kind": "note",
+        "text": "House rule: \"Each reply stays within two to four short paragraphs.\" — keep the next reply within it.",
+        "facts": [],
+        "replyMessageId": 0,
+        "family": "house-rule",
+        "rules": [
+         "Each reply stays within two to four short paragraphs."
+        ]
+       },
+       "status": "pending"
+      }
+     ],
+     "dropped": [],
+     "provenance": {
+      "source": "curator",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "continuity-warden",
+      "inputs": [
+       {
+        "store": "memory",
+        "id": "reply:0"
+       }
+      ],
+      "validity": "live"
+     }
+    }
+   ],
+   "declines": [],
+   "lastPass": null,
+   "lastRunBoundary": -1,
+   "lastError": null
+  },
+  "talkDecisions": [],
+  "inline": {
+   "level": 1,
+   "requested": 1,
+   "window": 20,
+   "categories": {},
+   "newestMessageId": 0,
+   "byMessage": {
+    "0": [
+     {
+      "id": "cast:background:f2213662-274d-4feb-afa6-de13e231b74f",
+      "category": "cast",
+      "level": 1,
+      "state": "applied",
+      "text": "The scene changed",
+      "persona": "player"
+     },
+     {
+      "id": "cast:background:edf60830-ffc1-4555-ad71-7e87b78efb75",
+      "category": "cast",
+      "level": 1,
+      "state": "applied",
+      "text": "The scene changed",
+      "persona": "player"
+     }
+    ]
+   }
+  },
+  "journal": [
+   {
+    "at": "2026-10-02T08:31:33.783Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "boundary",
+    "summary": "boundary 1: nothing applied (gate)",
+    "detail": {
+     "source": "gate",
+     "applied": [],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T08:31:43.996Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@05h30m40s485ms, last seen never, gap n/a"
+    }
+   },
+   {
+    "at": "2026-10-02T08:31:44.071Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "status",
+    "summary": "Following Homecoming"
+   },
+   {
+    "at": "2026-10-02T08:31:44.380Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "judge",
+    "summary": "judge typed in 268 ms",
+    "detail": {
+     "use": "typed",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 8,
+     "stateChars": 596,
+     "latencyMs": 268,
+     "inputTokens": 1164,
+     "outputTokens": 160
+    }
+   },
+   {
+    "at": "2026-10-02T08:31:44.441Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "judge",
+    "summary": "judge scene in 328 ms",
+    "detail": {
+     "use": "scene",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 47,
+     "stateChars": 5458,
+     "latencyMs": 328,
+     "inputTokens": 4648,
+     "outputTokens": 1189,
+     "p": {
+      "break": 0.12
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:31:44.590Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "judge",
+    "summary": "judge warden in 211 ms",
+    "detail": {
+     "use": "warden",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 1273,
+     "latencyMs": 211,
+     "inputTokens": 1177,
+     "outputTokens": 130,
+     "p": {
+      "facts": 0,
+      "flagged": 0,
+      "rules": 8,
+      "broken": 1
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T08:31:44.590Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "stagecraft",
+    "summary": "Warden flagged Adolion Narrator's reply (house-rule)",
+    "detail": {
+     "note": "Each reply stays within two to four short paragraphs."
+    }
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.405Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:47.406Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"background\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:34:48.514Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@05h30m40s485ms, last seen 2026-10-02T08:31:44.590Z, gap 0h"
+    }
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:07.912Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:36:09.021Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@05h30m40s485ms, last seen 2026-10-02T08:34:48.514Z, gap 0h"
+    }
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:33.519Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"background\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T08:53:34.209Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "lore",
+    "summary": "Deleted the story-memory lorebook of the \"Adolion Between the Roads\" chat started 2026-10-02 05:36.",
+    "detail": {
+     "note": "lorebook \"Story Orchestrator - Adolion Between the Roads - 2026-10-02@05h36m22s833ms\", chat \"2026-10-02@05h36m22s833ms\""
+    }
+   },
+   {
+    "at": "2026-10-02T08:53:34.292Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "judge",
+    "summary": "judge typed in 413 ms",
+    "detail": {
+     "use": "typed",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 8,
+     "stateChars": 197,
+     "latencyMs": 413,
+     "inputTokens": 1056,
+     "outputTokens": 160
+    }
+   },
+   {
+    "at": "2026-10-02T08:53:34.292Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T08:53:34.292Z",
+     "role": "read",
+     "pass": "read",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 835,
+     "samplers": "applied",
+     "usage": {
+      "input": 3547,
+      "output": 9,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@05h30m40s485ms",
+     "messageId": 0
+    }
+   },
+   {
+    "at": "2026-10-02T08:53:34.811Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@05h30m40s485ms, last seen 2026-10-02T08:36:09.021Z, gap 0h"
+    }
+   },
+   {
+    "at": "2026-10-02T08:53:35.063Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "status",
+    "summary": "Continuing Adolion: Between the Roads"
+   },
+   {
+    "at": "2026-10-02T08:53:35.127Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "extraction",
+    "summary": "read resume:dropped msgs 16-0 → 0 accepted, 0 rejected",
+    "detail": {
+     "auditId": "384608b9",
+     "scope": [
+      "aegis_exam_declined",
+      "aegis_exam_entered",
+      "guild_reputation",
+      "location",
+      "party_rank",
+      "tension_current"
+     ],
+     "accepted": [],
+     "rejected": [],
+     "sceneBreak": null
+    }
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.085Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "host change \"background\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T09:03:02.451Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "lore",
+    "summary": "Kept the story-memory lorebook of the \"Adolion Between the Roads\" chat started 2026-10-02 05:54: the question was closed without an answer.",
+    "detail": {
+     "note": "lorebook \"Story Orchestrator - Adolion Between the Roads - 2026-10-02@05h54m03s829ms\", chat \"2026-10-02@05h54m03s829ms\""
+    }
+   },
+   {
+    "at": "2026-10-02T09:03:03.388Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@05h30m40s485ms, last seen 2026-10-02T08:53:35.279Z, gap 0h"
+    }
+   },
+   {
+    "at": "2026-10-02T09:03:03.649Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "status",
+    "summary": "Continuing Adolion: Between the Roads"
+   }
+  ],
+  "awayRecap": {
+   "recap": null,
+   "lastSessionAt": "2026-10-02T09:03:03.388Z"
+  }
+ }
+}
