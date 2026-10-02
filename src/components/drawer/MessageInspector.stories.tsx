@@ -1,5 +1,6 @@
+import { useLayoutEffect, useRef, type ReactNode } from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { expect, fn, userEvent, within } from "@storybook/test";
+import { expect, fn, userEvent, waitFor, within } from "@storybook/test";
 import type { InlineView } from "@runtime/inlineTimeline";
 import { MessageInspector } from "./MessageInspector";
 
@@ -48,18 +49,24 @@ export const NothingRecorded: Story = {
   },
 };
 
-export const OpensInViewInAScrolledDrawer: Story = {
-  args: { view, messageId: 4, onClose: fn() },
-  render: (args) => (
-    <div data-so="scroller" ref={(node) => { if (node) node.scrollTop = 3000; }} style={{ height: 200, overflowY: "auto" }}>
-      <MessageInspector {...args} />
+const ScrolledDrawer = ({ children }: { children: ReactNode }) => {
+  const ref = useRef<HTMLDivElement | null>(null);
+  useLayoutEffect(() => { if (ref.current) ref.current.scrollTop = 3000; }, []);
+  return (
+    <div data-so="scroller" ref={ref} style={{ height: 200, overflowY: "auto" }}>
+      {children}
       <div style={{ height: 4000 }} />
     </div>
-  ),
+  );
+};
+
+export const OpensInViewInAScrolledDrawer: Story = {
+  args: { view, messageId: 4, onClose: fn() },
+  render: (args) => <ScrolledDrawer><MessageInspector {...args} /></ScrolledDrawer>,
   play: async ({ canvasElement }) => {
     const inspector = canvasElement.querySelector("#so-inspector") as HTMLElement;
-    await expect(document.activeElement).toBe(inspector);
     const scroller = canvasElement.querySelector('[data-so="scroller"]') as HTMLElement;
-    await expect(Math.abs(inspector.getBoundingClientRect().top - scroller.getBoundingClientRect().top)).toBeLessThan(2);
+    await waitFor(() => expect(Math.abs(inspector.getBoundingClientRect().top - scroller.getBoundingClientRect().top)).toBeLessThan(2));
+    await waitFor(() => expect(inspector.ownerDocument.activeElement).toBe(inspector));
   },
 };
