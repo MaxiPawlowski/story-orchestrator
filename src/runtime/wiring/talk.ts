@@ -25,6 +25,9 @@ const talkHost = (live: LiveParts, judgeRuntime: JudgeRuntime, { chatLastId, rec
   getLastMessageId: chatLastId,
   getWindow: recentTurns,
   getCheckpointInfo: () => runtimeManager.getActiveCheckpointInfo(),
+  getPendingCheckpointId: () => runtimeManager.getPendingCheckpointId(),
+  postsOpener: (id) => (runtimeManager.getStory()?.checkpointById[id]?.effects?.npc_replies ?? [])
+    .some((reply) => reply.trigger === "onEnter" && reply.enabled !== false && reply.new_chat_only !== true),
   callDirector: (prompt, signal) => askText(runtimeManager.model, prompt, { role: "director", pass: "director", maxTokens: DIRECTOR_MAX_TOKENS, signal }),
   breakerOpen: () => live.scheduler?.breakerOpen(routedProfileId("director")) ?? false,
   triggerMember: async (name) => { await executeSlashCommands(`/trigger await=true ${quoteSlashArg(name)}`, { silent: false }); },

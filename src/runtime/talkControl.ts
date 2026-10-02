@@ -65,6 +65,8 @@ export interface TalkControlHost {
   getLastMessageId(): number;
   getWindow(): DirectorWindowMessage[];
   getCheckpointInfo(): TalkCheckpointInfo | null;
+  getPendingCheckpointId?(): string | null;
+  postsOpener?(checkpointId: string): boolean;
   callDirector(prompt: string, signal: AbortSignal): Promise<string>;
   breakerOpen?(): boolean;
   judgeDirector?(input: JudgeDirectorInput): Promise<JudgeDirectorDecision | null>;
@@ -249,18 +251,24 @@ export class TalkController {
     const lastSpeaker = this.host.getLastSpeakerRosterId();
     if (lastSpeaker) chain.speakers.push(lastSpeaker);
     if (chain.spokeCount >= config.max) { this.endChain(); return; }
-    if (config.stopOnTransition && (this.host.getCheckpointInfo()?.id ?? "") !== chain.checkpointId) { this.endChain(); return; }
+    if (this.sceneMoves(chain, config)) { this.endChain(); return; }
     const run = beginRun(this.host.ownership, this.window());
     const next = config.mode === "scripted"
       ? this.scriptedSpeaker(config, chain.spokeCount)
       : await this.decideChainSpeaker(control, config, chain);
-    if (!next) { this.endChain(); return; }
-    if (!run.stillOwns()) { this.endChain(); return; }
+    if (!next || !run.stillOwns() || this.sceneMoves(chain, config)) { this.endChain(); return; }
     if (!chain.hold && config.holdExtraction) {
       chain.hold = true;
       this.host.setExtractionHold?.(true);
     }
     this.trigger(next);
+  }
+
+  private sceneMoves(chain: ChainState, config: TalkChainConfig): boolean {
+    const current = this.host.getCheckpointInfo()?.id ?? "";
+    const entered = [current === chain.checkpointId ? null : current, this.host.getPendingCheckpointId?.() ?? null]
+      .filter((id): id is string => id !== null);
+    return entered.length > 0 && (config.stopOnTransition || entered.some((id) => this.host.postsOpener?.(id) === true));
   }
 
   private scriptedSpeaker(config: TalkChainConfig, index: number): string | null {

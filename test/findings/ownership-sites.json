@@ -543,7 +543,7 @@
     },
     "src/runtime/talkControl.ts#TalkController.advanceChain": {
       "status": "checked",
-      "note": "v2.5 chaining: mints a run before asking the judge for the next voice and stops before triggering it if the world moved, so a chain never fires a member into another chat."
+      "note": "v2.5 chaining: mints a run before asking the judge for the next voice and stops before triggering it if the world moved, so a chain never fires a member into another chat. v2.6 T4-1-2 (2026-10-02): before asking and again after the answer it ends the chain when the scene moves (a committed transition, or one the queued writes fire at the reply's boundary) and stop_on_transition is on or the new checkpoint posts an opener, so no voice is drafted for the old scene around the opener (talkControl.test.ts, T4-1-2 describe); no new write."
     },
     "src/runtime/talkControl.ts#TalkController.decideChainSpeaker": {
       "status": "checked",
