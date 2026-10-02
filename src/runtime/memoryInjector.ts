@@ -5,7 +5,7 @@ import {
   renderLedgerBlock, renderPrivateEpistemicBlock, selectLedgerRows, renderSoloEpistemicBlock, type LedgerBinding, type LedgerView, type MemoryTier,
   type ScoreContext, castVoices, hasInnerVoice, innerRender, joinBlocks, loadInnerRender, withoutLapsedIntents,
   type CastVoice, type EpistemicEntry,
-  heldSecrets, ledgerWithoutSecrets, withheldEntryIds, writeMemoryBlocks, type HeldSecret,
+  heldSecrets, keptFrom, ledgerWithoutSecrets, withheldEntryIds, writeMemoryBlocks, type HeldSecret,
 } from "@memory/index";
 import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DEPTH } from "@constants/defaults";
 import type { ChapterPort } from "./chapterPort";
@@ -230,7 +230,8 @@ export class MemoryInjector {
       this.setPrivateBlocks(this.deps.capable() ? this.rest : null, "");
       return;
     }
-    const beat = this.deps.beatFor(rosterId);
+    const drafted = this.deps.beatFor(rosterId);
+    const beat = drafted && keptFrom(drafted, this.secrets(story), namesForRosterId(story, rosterId)) ? "" : drafted;
     const epistemic = beat ? this.memberBlock(story, rosterId, this.knowledge(), beat) : staged.epistemic;
     this.draft = beat ? { storyId: storyKey(story), rosterId, epistemic } : { storyId: storyKey(story), rosterId };
     this.setPrivateBlocks(staged.shared, epistemic);

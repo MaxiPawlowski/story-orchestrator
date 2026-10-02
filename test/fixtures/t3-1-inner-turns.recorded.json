@@ -1,0 +1,499 @@
+{
+  "source": "test/sessions/T3/T3-1-1: chat-full-*.json (speaker per message), journal.jsonl kind=transition (checkpoint per message), the pinned story's roster and talk_control for the visited checkpoints, and the journal's inner counts",
+  "recorded": {
+    "passes": 24,
+    "used": 16,
+    "unused": 13,
+    "stale": 16,
+    "none": 65
+  },
+  "start": "deep-joint-posting",
+  "transitions": [
+    {
+      "messageId": 6,
+      "to": "deep-with-crimsonwing"
+    },
+    {
+      "messageId": 22,
+      "to": "deep-the-north-road"
+    },
+    {
+      "messageId": 23,
+      "to": "deep-ritual-fort"
+    },
+    {
+      "messageId": 39,
+      "to": "deep-the-altar"
+    }
+  ],
+  "roster": [
+    {
+      "id": "dm",
+      "name": "Adolion Narrator"
+    },
+    {
+      "id": "companion_a",
+      "name": "Belle"
+    },
+    {
+      "id": "companion_b",
+      "name": "Dalan"
+    },
+    {
+      "id": "ced",
+      "name": "Ced"
+    },
+    {
+      "id": "kela",
+      "name": "Kela"
+    },
+    {
+      "id": "runo",
+      "name": "Runo"
+    },
+    {
+      "id": "safie",
+      "name": "Safie"
+    },
+    {
+      "id": "vallie",
+      "name": "Vallie"
+    },
+    {
+      "id": "unira",
+      "name": "Unira"
+    },
+    {
+      "id": "amthir",
+      "name": "Amthir"
+    },
+    {
+      "id": "nendira",
+      "name": "Nendira"
+    },
+    {
+      "id": "anax",
+      "name": "Anax"
+    },
+    {
+      "id": "sana",
+      "name": "Sana"
+    },
+    {
+      "id": "shadur",
+      "name": "Shadur"
+    },
+    {
+      "id": "shelur",
+      "name": "Shelur"
+    },
+    {
+      "id": "idira",
+      "name": "Idira"
+    },
+    {
+      "id": "caelia",
+      "name": "Caelia"
+    },
+    {
+      "id": "caetus",
+      "name": "Caetus"
+    },
+    {
+      "id": "yuna",
+      "name": "Yuna"
+    }
+  ],
+  "checkpoints": [
+    {
+      "id": "deep-joint-posting",
+      "name": "Two Wings at One Counter",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 3
+          },
+          {
+            "member": "Vallie",
+            "weight": 2
+          },
+          {
+            "member": "Ced",
+            "weight": 2
+          },
+          {
+            "member": "Kela",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false
+      }
+    },
+    {
+      "id": "deep-with-crimsonwing",
+      "name": "Crimsonwing at the North Gate",
+      "talk_control": {
+        "lead": "Ced",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Ced",
+            "weight": 2
+          },
+          {
+            "member": "Runo",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 2
+          },
+          {
+            "member": "Dalan",
+            "weight": 2
+          }
+        ],
+        "no_repeat": true
+      }
+    },
+    {
+      "id": "deep-the-north-road",
+      "name": "The North Road",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 2
+          },
+          {
+            "member": "Dalan",
+            "weight": 2
+          },
+          {
+            "member": "Ced",
+            "weight": 2
+          },
+          {
+            "member": "Kela",
+            "weight": 2
+          },
+          {
+            "member": "Runo",
+            "weight": 3
+          },
+          {
+            "member": "Safie",
+            "weight": 3
+          }
+        ],
+        "no_repeat": true
+      }
+    },
+    {
+      "id": "deep-ritual-fort",
+      "name": "Carrow Keep",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 3
+          },
+          {
+            "member": "Belle",
+            "weight": 1
+          },
+          {
+            "member": "Dalan",
+            "weight": 2
+          },
+          {
+            "member": "Ced",
+            "weight": 2
+          },
+          {
+            "member": "Kela",
+            "weight": 2
+          },
+          {
+            "member": "Runo",
+            "weight": 1
+          },
+          {
+            "member": "Safie",
+            "weight": 1
+          }
+        ],
+        "no_repeat": false
+      }
+    },
+    {
+      "id": "deep-the-altar",
+      "name": "The Altar in the Great Hall",
+      "talk_control": {
+        "lead": "Adolion Narrator",
+        "speakers": [
+          {
+            "member": "Adolion Narrator",
+            "weight": 2
+          },
+          {
+            "member": "Belle",
+            "weight": 2
+          },
+          {
+            "member": "Dalan",
+            "weight": 2
+          },
+          {
+            "member": "Ced",
+            "weight": 2
+          },
+          {
+            "member": "Kela",
+            "weight": 2
+          },
+          {
+            "member": "Runo",
+            "weight": 2
+          },
+          {
+            "member": "Safie",
+            "weight": 2
+          }
+        ],
+        "no_repeat": true
+      }
+    }
+  ],
+  "messages": [
+    {
+      "id": 0,
+      "speaker": "Adolion Narrator",
+      "isUser": false
+    },
+    {
+      "id": 1,
+      "speaker": "Max Nightriver",
+      "isUser": true
+    },
+    {
+      "id": 2,
+      "speaker": "Ced",
+      "isUser": false
+    },
+    {
+      "id": 3,
+      "speaker": "Kela",
+      "isUser": false
+    },
+    {
+      "id": 4,
+      "speaker": "Max Nightriver",
+      "isUser": true
+    },
+    {
+      "id": 5,
+      "speaker": "Ced",
+      "isUser": false
+    },
+    {
+      "id": 6,
+      "speaker": "Kela",
+      "isUser": false
+    },
+    {
+      "id": 7,
+      "speaker": "Ced",
+      "isUser": false
+    },
+    {
+      "id": 8,
+      "speaker": "Max Nightriver",
+      "isUser": true
+    },
+    {
+      "id": 9,
+      "speaker": "Ced",
+      "isUser": false
+    },
+    {
+      "id": 10,
+      "speaker": "Max Nightriver",
+      "isUser": true
+    },
+    {
+      "id": 11,
+      "speaker": "Adolion Narrator",
+      "isUser": false
+    },
+    {
+      "id": 12,
+      "speaker": "Runo",
+      "isUser": false
+    },
+    {
+      "id": 13,
+      "speaker": "Ced",
+      "isUser": false
+    },
+    {
+      "id": 14,
+      "speaker": "Max Nightriver",
+      "isUser": true
+    },
+    {
+      "id": 15,
+      "speaker": "Runo",
+      "isUser": false
+    },
+    {
+      "id": 16,
+      "speaker": "Ced",
+      "isUser": false
+    },
+    {
+      "id": 17,
+      "speaker": "Max Nightriver",
+      "isUser": true
+    },
+    {
+      "id": 18,
+      "speaker": "Adolion Narrator",
+      "isUser": false
+    },
+    {
+      "id": 19,
+      "speaker": "Adolion Narrator",
+      "isUser": false
+    },
+    {
+      "id": 20,
+      "speaker": "Max Nightriver",
+      "isUser": true
+    },
+    {
+      "id": 21,
+      "speaker": "Adolion Narrator",
+      "isUser": false
+    },
+    {
+      "id": 22,
+      "speaker": "Ced",
+      "isUser": false
+    },
+    {
+      "id": 23,
+      "speaker": "Runo",
+      "isUser": false
+    },
+    {
+      "id": 24,
+      "speaker": "Adolion Narrator",
+      "isUser": false
+    },
+    {
+      "id": 25,
+      "speaker": "Max Nightriver",
+      "isUser": true
+    },
+    {
+      "id": 26,
+      "speaker": "Ced",
+      "isUser": false
+    },
+    {
+      "id": 27,
+      "speaker": "Runo",
+      "isUser": false
+    },
+    {
+      "id": 28,
+      "speaker": "Dalan",
+      "isUser": false
+    },
+    {
+      "id": 29,
+      "speaker": "Max Nightriver",
+      "isUser": true
+    },
+    {
+      "id": 30,
+      "speaker": "Dalan",
+      "isUser": false
+    },
+    {
+      "id": 31,
+      "speaker": "Max Nightriver",
+      "isUser": true
+    },
+    {
+      "id": 32,
+      "speaker": "Dalan",
+      "isUser": false
+    },
+    {
+      "id": 33,
+      "speaker": "Ced",
+      "isUser": false
+    },
+    {
+      "id": 34,
+      "speaker": "Max Nightriver",
+      "isUser": true
+    },
+    {
+      "id": 35,
+      "speaker": "Ced",
+      "isUser": false
+    },
+    {
+      "id": 36,
+      "speaker": "Max Nightriver",
+      "isUser": true
+    },
+    {
+      "id": 37,
+      "speaker": "Adolion Narrator",
+      "isUser": false
+    },
+    {
+      "id": 38,
+      "speaker": "Max Nightriver",
+      "isUser": true
+    },
+    {
+      "id": 39,
+      "speaker": "Ced",
+      "isUser": false
+    },
+    {
+      "id": 40,
+      "speaker": "Adolion Narrator",
+      "isUser": false
+    },
+    {
+      "id": 41,
+      "speaker": "Runo",
+      "isUser": false
+    }
+  ]
+}

@@ -1,0 +1,553 @@
+{
+  "source": "live facts-tier rows of test/sessions/T3/T3-3-2 and T3-5-1 (runtime-*.json extras.memory.entries, tier facts, not superseded/folded, validity live), text + messageId + createdAt + importance",
+  "t3_3_2": [
+    {
+      "text": "Reeve Tull shouted that he did not hide the grimoire, then admitted he wanted Selena gone and did not know what would happen.",
+      "messageId": 23,
+      "createdAt": 18,
+      "importance": 3
+    },
+    {
+      "text": "Ren turned his attention to the Reeve and asked whose book it was, if not the Reeve's.",
+      "messageId": 24,
+      "createdAt": 18,
+      "importance": 2
+    },
+    {
+      "text": "Max broke Selena out of the tithe barn past midnight and is leading her west toward Thornwood Forest.",
+      "messageId": 25,
+      "createdAt": 19,
+      "importance": 3
+    },
+    {
+      "text": "Reeve Tull shouted that he did not hide the grimoire but admitted he wanted Selena gone.",
+      "messageId": 23,
+      "createdAt": 19,
+      "importance": 2
+    },
+    {
+      "text": "Max freed Selena from the tithe barn and is smuggling her west toward Thornwood Forest.",
+      "messageId": 25,
+      "createdAt": 19,
+      "importance": 3
+    },
+    {
+      "text": "Max broke Selena's chains in the tithe barn past midnight and led her out the back, west toward Thornwood Forest.",
+      "messageId": 26,
+      "createdAt": 20,
+      "importance": 3
+    },
+    {
+      "text": "Selena says two Inquisitors came for her and she only wanted them to stop, and that she signed nothing.",
+      "messageId": 27,
+      "createdAt": 20,
+      "importance": 2
+    },
+    {
+      "text": "Max slipped into the tithe barn past midnight, broke Selena's chains with a crowbar, and led her out the back toward Thornwood Forest.",
+      "messageId": 26,
+      "createdAt": 20,
+      "importance": 3
+    },
+    {
+      "text": "Reeve Tull shouted that he did not hide the book but admitted he wanted Selena gone.",
+      "messageId": 23,
+      "createdAt": 20,
+      "importance": 3
+    },
+    {
+      "text": "Ren asked whose book it was after Tull's denial, and Tull did not answer.",
+      "messageId": 24,
+      "createdAt": 20,
+      "importance": 2
+    },
+    {
+      "text": "Max freed Selena from the tithe barn and is smuggling her toward Thornwood Forest.",
+      "messageId": 25,
+      "createdAt": 20,
+      "importance": 3
+    },
+    {
+      "text": "Max broke Selena's chains with a crowbar and led her out of the tithe barn toward Thornwood.",
+      "messageId": 25,
+      "createdAt": 21,
+      "importance": 3
+    },
+    {
+      "text": "Selena says two Inquisitors came for her and she only wanted them to stop; she says she signed nothing and is not a witch.",
+      "messageId": 27,
+      "createdAt": 21,
+      "importance": 3
+    },
+    {
+      "text": "Max freed Selena from the tithe barn and brought her under Thornwood's trees.",
+      "messageId": 28,
+      "createdAt": 21,
+      "importance": 3
+    },
+    {
+      "text": "Reeve Tull denies hiding the grimoire but admits he wanted Selena gone and did not know what would happen.",
+      "messageId": 23,
+      "createdAt": 21,
+      "importance": 3
+    },
+    {
+      "text": "Ren asks the Reeve whose book it was, pressing the question of the grimoire's true owner.",
+      "messageId": 29,
+      "createdAt": 21,
+      "importance": 3
+    },
+    {
+      "text": "Max breaks Selena's chains with a crowbar past midnight and leads her out of the tithe barn west toward Thornwood.",
+      "messageId": 26,
+      "createdAt": 21,
+      "importance": 3
+    },
+    {
+      "text": "Max freed Selena from the tithe barn and led her west toward Thornwood Forest before dawn.",
+      "messageId": 26,
+      "createdAt": 21,
+      "importance": 3
+    },
+    {
+      "text": "Max broke Selena's chains in the tithe barn past midnight and led her out the back, west toward Thornwood Forest.",
+      "messageId": 25,
+      "createdAt": 22,
+      "importance": 3
+    },
+    {
+      "text": "Max and Selena have entered under the trees of Thornwood Forest, away from the road.",
+      "messageId": 28,
+      "createdAt": 22,
+      "importance": 3
+    },
+    {
+      "text": "Selena says two Inquisitors came for her and she only wanted them to stop, and that she signed nothing and is not a witch.",
+      "messageId": 27,
+      "createdAt": 22,
+      "importance": 2
+    },
+    {
+      "text": "Selena says nobody would help her, not even her mother.",
+      "messageId": 31,
+      "createdAt": 22,
+      "importance": 2
+    },
+    {
+      "text": "Max freed Selena from the tithe barn and fled with her into Thornwood Forest before first light.",
+      "messageId": 25,
+      "createdAt": 22,
+      "importance": 3
+    },
+    {
+      "text": "Ren asks whose book it was after Tull's outburst, leaving the question of the planter unanswered.",
+      "messageId": 24,
+      "createdAt": 23,
+      "importance": 3
+    },
+    {
+      "text": "Max breaks Selena's chains past midnight and leads her out of the tithe barn west toward Thornwood.",
+      "messageId": 25,
+      "createdAt": 23,
+      "importance": 3
+    },
+    {
+      "text": "Max and Selena reach a cabin in Thornwood Forest with a yellow glow in the window and knock for shelter.",
+      "messageId": 32,
+      "createdAt": 23,
+      "importance": 2
+    },
+    {
+      "text": "Reeve Tull publicly denies hiding the grimoire but admits he wanted Selena gone, drawing Ren's attention to the unanswered question of the book's owner.",
+      "messageId": 23,
+      "createdAt": 23,
+      "importance": 3
+    },
+    {
+      "text": "Max breaks Selena out of the tithe barn past midnight and leads her west into Thornwood Forest.",
+      "messageId": 26,
+      "createdAt": 23,
+      "importance": 3
+    },
+    {
+      "text": "Max and Selena have reached Kayla's cabin in Thornwood Forest and knocked for shelter.",
+      "messageId": 32,
+      "createdAt": 24,
+      "importance": 3
+    },
+    {
+      "text": "Kayla is the woman in the Thornwood cabin; she wears dark robes and a thorn-patterned shawl and carries a staff.",
+      "messageId": 33,
+      "createdAt": 24,
+      "importance": 3
+    },
+    {
+      "text": "Kayla is wary of the Inquisition and suspects Max and Selena are being hunted by it.",
+      "messageId": 33,
+      "createdAt": 24,
+      "importance": 2
+    },
+    {
+      "text": "Max and Selena have entered Thornwood Forest and reached Kayla's cabin, where Kayla is wary and has not yet let them in.",
+      "messageId": 32,
+      "createdAt": 24,
+      "importance": 3
+    },
+    {
+      "text": "Kayla refuses to say what is in the lake, calling it a secret.",
+      "messageId": 35,
+      "createdAt": 24,
+      "importance": 2
+    },
+    {
+      "text": "Max and Selena reach Kayla's cabin in Thornwood Forest and she lets them in.",
+      "messageId": 37,
+      "createdAt": 25,
+      "importance": 3
+    },
+    {
+      "text": "Kayla warns that the lake keeps its secrets and the forest hides things that do not want to be found.",
+      "messageId": 35,
+      "createdAt": 25,
+      "importance": 2
+    },
+    {
+      "text": "Kayla Thornwood lives in a cabin in Thornwood Forest and answers the door when Max and Selena knock seeking shelter till dawn.",
+      "messageId": 39,
+      "createdAt": 26,
+      "importance": 3
+    },
+    {
+      "text": "Kayla lets Max and Selena inside her cabin despite her wariness of the Inquisition.",
+      "messageId": 37,
+      "createdAt": 26,
+      "importance": 3
+    },
+    {
+      "text": "Kayla says she has lived in Thornwood since the day she learned to hear the wood.",
+      "messageId": 39,
+      "createdAt": 26,
+      "importance": 2
+    },
+    {
+      "text": "Kayla refuses to say what is in the lake, saying the lake keeps its secrets.",
+      "messageId": 35,
+      "createdAt": 26,
+      "importance": 2
+    },
+    {
+      "text": "Max and Selena reached Kayla's cabin in Thornwood Forest and were let inside.",
+      "messageId": 37,
+      "createdAt": 26,
+      "importance": 3
+    },
+    {
+      "text": "Erevan states he does not believe the grimoire was Selena's, noting the new binding and fresh ink.",
+      "messageId": 3,
+      "createdAt": 26,
+      "importance": 2
+    },
+    {
+      "text": "Ren declares the law does not care whether the book was planted; a witch with the Heresy in her house is to be burned.",
+      "messageId": 4,
+      "createdAt": 26,
+      "importance": 2
+    },
+    {
+      "text": "Selena says two men came for her, shut the door, and tried to assault her, and that her magic happened by itself.",
+      "messageId": 6,
+      "createdAt": 26,
+      "importance": 2
+    },
+    {
+      "text": "Selena says even her mother would not help her.",
+      "messageId": 31,
+      "createdAt": 26,
+      "importance": 2
+    },
+    {
+      "text": "Kayla says the lake keeps its secrets and that the forest hides things that do not want to be found.",
+      "messageId": 35,
+      "createdAt": 26,
+      "importance": 2
+    },
+    {
+      "text": "Kayla is the woman who lives in the cabin on the lake in Thornwood Forest and confirms her name to Max.",
+      "messageId": 40,
+      "createdAt": 28,
+      "importance": 3
+    },
+    {
+      "text": "Kayla refuses to say what is in the lake, saying the lake keeps its secrets.",
+      "messageId": 40,
+      "createdAt": 28,
+      "importance": 2
+    },
+    {
+      "text": "Kayla lets Max and Selena inside her cabin out of the freezing mist.",
+      "messageId": 37,
+      "createdAt": 28,
+      "importance": 2
+    },
+    {
+      "text": "Kayla has lived in Thornwood since the day she learned to hear the wood, many years ago.",
+      "messageId": 40,
+      "createdAt": 28,
+      "importance": 2
+    },
+    {
+      "text": "Selena says she does not know why Max broke her out and did not ask him to.",
+      "messageId": 40,
+      "createdAt": 28,
+      "importance": 2
+    }
+  ],
+  "t3_5_1": [
+    {
+      "text": "The party has crossed the Jehopa Ocean to Hianxo in response to a letter from Jiansho Academy for a tournament group entry, but the letter says little about who asked for them.",
+      "messageId": 0,
+      "createdAt": 1,
+      "importance": 3
+    },
+    {
+      "text": "A woman with three white tails waits at the foot of the gangplank in Hianxo, bowing to the party with a smile.",
+      "messageId": 0,
+      "createdAt": 1,
+      "importance": 2
+    },
+    {
+      "text": "The woman waiting at the gangplank is Honami Nemaden of Jiansho Academy, a three-tailed kitsune who personally petitioned the Academy to bring in fresh Guild talent for the tournament.",
+      "messageId": 2,
+      "createdAt": 2,
+      "importance": 3
+    },
+    {
+      "text": "Honami says the Academy has provided the party passage and a place to stay, and that they need only accept her assistance to reach the grounds.",
+      "messageId": 2,
+      "createdAt": 2,
+      "importance": 2
+    },
+    {
+      "text": "Honami claims she singled out Max specifically, calling him 'Darling' and saying he caught her eye.",
+      "messageId": 2,
+      "createdAt": 2,
+      "importance": 2
+    },
+    {
+      "text": "Honami describes Megumi as 'the Black Palm,' remarkably dedicated to her craft, with a brutality in her technique that some find impressive.",
+      "messageId": 4,
+      "createdAt": 3,
+      "importance": 2
+    },
+    {
+      "text": "Honami says she prefers a more refined approach than Megumi and claims Megumi lacks subtlety.",
+      "messageId": 4,
+      "createdAt": 3,
+      "importance": 2
+    },
+    {
+      "text": "Honami says the tournament register is managed by a senior administrator in the main hall.",
+      "messageId": 6,
+      "createdAt": 4,
+      "importance": 2
+    },
+    {
+      "text": "Honami says many would consider Megumi the favourite to win, but calls that a matter of opinion rather than fact.",
+      "messageId": 6,
+      "createdAt": 4,
+      "importance": 2
+    },
+    {
+      "text": "A grey-haired steward by the main hall door is Lord Karos, present for his own reasons.",
+      "messageId": 8,
+      "createdAt": 6,
+      "importance": 2
+    },
+    {
+      "text": "The grey-haired steward by the door is Lord Karos, present at the Academy for his own reasons.",
+      "messageId": 8,
+      "createdAt": 6,
+      "importance": 2
+    },
+    {
+      "text": "Megumi Xianxu is Head of the Student Council at Jiansho Academy.",
+      "messageId": 9,
+      "createdAt": 6,
+      "importance": 2
+    },
+    {
+      "text": "Honami says she finds the odds more interesting when they are uncertain, and suggests a new group entry could provide an upset.",
+      "messageId": 6,
+      "createdAt": 8,
+      "importance": 2
+    },
+    {
+      "text": "The administrator said the party's entry papers were expedited.",
+      "messageId": 8,
+      "createdAt": 8,
+      "importance": 1
+    },
+    {
+      "text": "Honami did not know Lord Karos had any interest in the tournament, and finds his presence peculiar.",
+      "messageId": 10,
+      "createdAt": 9,
+      "importance": 2
+    },
+    {
+      "text": "The party's entry papers were expedited by the administrator at Honami Nemaden's name.",
+      "messageId": 8,
+      "createdAt": 10,
+      "importance": 2
+    },
+    {
+      "text": "Megumi Xianxu is the Head of the Student Council of Jiansho Academy.",
+      "messageId": 9,
+      "createdAt": 10,
+      "importance": 2
+    },
+    {
+      "text": "The party's first bout is against the Mountain Silence of the Guao, and the party has stepped onto the sand to fight it.",
+      "messageId": 12,
+      "createdAt": 10,
+      "importance": 2
+    },
+    {
+      "text": "The senior administrator at Jiansho Academy confirms Honami Nemaden's group entry papers were expedited.",
+      "messageId": 8,
+      "createdAt": 11,
+      "importance": 2
+    },
+    {
+      "text": "The silver-haired man watching from the door is Lord Karos, present at the Academy for his own reasons.",
+      "messageId": 8,
+      "createdAt": 11,
+      "importance": 2
+    },
+    {
+      "text": "The party's first bout has begun: Honami Nemaden and the guests of Darran against the Mountain Silence of the Guao.",
+      "messageId": 11,
+      "createdAt": 11,
+      "importance": 2
+    },
+    {
+      "text": "The grey-haired steward at the door is Hanzo Hattaxi, not a steward.",
+      "messageId": 15,
+      "createdAt": 11,
+      "importance": 2
+    },
+    {
+      "text": "Hanzo Hattaxi confirms his name to Max but deflects what he is, saying it depends on who is asking.",
+      "messageId": 15,
+      "createdAt": 12,
+      "importance": 2
+    },
+    {
+      "text": "The party won its first bout by a wide margin and will face the Sunset Blooms, a group of young cultivators who have trained together for years, in the next round.",
+      "messageId": 17,
+      "createdAt": 12,
+      "importance": 2
+    },
+    {
+      "text": "The party won its first tournament bout against the Mountain Silence of the Guao by a wide margin.",
+      "messageId": 17,
+      "createdAt": 12,
+      "importance": 3
+    },
+    {
+      "text": "The party's next opponents are the Sunset Blooms, a group of young cultivators who have trained together for years.",
+      "messageId": 17,
+      "createdAt": 12,
+      "importance": 2
+    },
+    {
+      "text": "The bookmakers had the Darran entry at six to one before the first bout, and are now adjusting those odds.",
+      "messageId": 17,
+      "createdAt": 12,
+      "importance": 2
+    },
+    {
+      "text": "The party won its opening bout of the Jiansho Tournament against the Mountain Silence of the Guao.",
+      "messageId": 17,
+      "createdAt": 12,
+      "importance": 3
+    },
+    {
+      "text": "The party's next tournament opponents are the Sunset Blooms, a group of young cultivators who have trained together for years.",
+      "messageId": 17,
+      "createdAt": 13,
+      "importance": 3
+    },
+    {
+      "text": "Honami says the court watches the tournament because Jiansho's champions reflect the strength of the Emperor's mandate, and the winner gains prestige that could bolster a House's influence in the palace.",
+      "messageId": 19,
+      "createdAt": 13,
+      "importance": 2
+    },
+    {
+      "text": "Honami says Megumi Xianxu is overshadowed by her brother and wants this victory to establish her own name, independent of him.",
+      "messageId": 19,
+      "createdAt": 13,
+      "importance": 2
+    },
+    {
+      "text": "The bookmakers had the Darran entry at six to one before the first bout, and are now reconsidering after the party's wide-margin win.",
+      "messageId": 17,
+      "createdAt": 14,
+      "importance": 2
+    },
+    {
+      "text": "Honami says the court watches the tournament because Jiansho's champions reflect the strength of the Emperor's mandate, and that the winner gains prestige that could bolster a House's influence in the palace.",
+      "messageId": 19,
+      "createdAt": 14,
+      "importance": 2
+    },
+    {
+      "text": "Honami says Megumi Xianxu is overshadowed by her brother, the Xianxu heir, and that this victory would establish her own name independent of him.",
+      "messageId": 19,
+      "createdAt": 14,
+      "importance": 2
+    },
+    {
+      "text": "Honami says some tournament entrants fight for family obligation, some for debts settled in blood, and a few for reasons that have nothing to do with the tournament, using the arena as a stage for their own games.",
+      "messageId": 21,
+      "createdAt": 14,
+      "importance": 2
+    },
+    {
+      "text": "Honami says some entrants fight for family obligation, some for blood debts, and a few for things unrelated to the tournament, using the arena as a stage for their own games.",
+      "messageId": 21,
+      "createdAt": 15,
+      "importance": 2
+    },
+    {
+      "text": "Honami says Megumi Xianxu is overshadowed by her brother and wants this victory to establish her own name independent of him.",
+      "messageId": 19,
+      "createdAt": 15,
+      "importance": 2
+    },
+    {
+      "text": "Honami says some entrants fight for reasons unrelated to the tournament, using the arena as a stage for their own games.",
+      "messageId": 21,
+      "createdAt": 15,
+      "importance": 2
+    },
+    {
+      "text": "Honami says the court watches the Jiansho Tournament because Jiansho's champions reflect the strength of the Emperor's mandate, and the winner gains prestige that could bolster a House's influence in the palace.",
+      "messageId": 19,
+      "createdAt": 16,
+      "importance": 2
+    },
+    {
+      "text": "Honami says some tournament entrants fight for family obligation, debts settled in blood, or reasons unrelated to the tournament, using the arena as a stage for their own games.",
+      "messageId": 21,
+      "createdAt": 17,
+      "importance": 2
+    },
+    {
+      "text": "Dalan reads the Sunset Blooms' leader as weighted on his right, expecting close-quarters exchange, with a tense chi flow, and the Blooms covering each other's blind spots in a coordinated formation.",
+      "messageId": 27,
+      "createdAt": 17,
+      "importance": 2
+    }
+  ]
+}

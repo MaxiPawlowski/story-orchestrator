@@ -29,7 +29,7 @@ const read = async (row: Row, evidenceFrom = row.quality.evidence_from) => {
   const window: SharedReadWindow = { from: row.window.from, to: row.window.to, messages: row.window.messages.map((message) => ({ ...message, index: message.messageId })) };
   const line = `DELTA q=${row.key} value=${row.quality.type === "bool" ? row.value : `"${row.value}"`} evidence="${row.evidence}"`;
   const { audit } = await runSharedRead({ story, state: engine.serialize(), priority: 0, reason: "t2-1", window, ...readWith("p1", { debugResponse: line }) });
-  return { accepted: audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)}@${entry.messageId}`), rejected: audit.rejected.map((entry) => entry.reason) };
+  return { accepted: audit.acceptedDeltas.map((entry) => `${entry.delta.q}=${String(entry.delta.v)}@${entry.messageId}`), rejected: [...new Set(audit.rejected.map((entry) => entry.reason))] };
 };
 
 const t21 = recorded.t2_1 as unknown as Row[];

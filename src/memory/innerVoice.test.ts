@@ -189,6 +189,13 @@ describe("the inner beat ring and its prompt", () => {
     expect(freshBeat([beat({})], "lyria", anchor)).toBeNull();
   });
 
+  it("over a player turn: any beat from the turn's base reply to the newest row, the newest base first; nothing before the base or past the chat", () => {
+    const turn = { chatId: "c", checkpointId: "cp", basedOn: 4, upTo: 7 };
+    expect(freshBeat([beat({ basedOnMessageId: 6, beat: "mid" }), beat({ beat: "base" })], "kael", turn)?.beat).toBe("mid");
+    expect(freshBeat([beat({ basedOnMessageId: 3 })], "kael", turn)).toBeNull();
+    expect(freshBeat([beat({ basedOnMessageId: 8 })], "kael", turn)).toBeNull();
+  });
+
   it("is a capped ring, replaced per member and reply, and a rollback drops a beat built on a removed reply", () => {
     const ring = Array.from({ length: BEAT_RING_CAP + 2 }, (_, index) => beat({ memberId: `m${index}` })).reduce<InnerBeat[]>((kept, next) => pushBeat(kept, next), []);
     expect(ring).toHaveLength(BEAT_RING_CAP);

@@ -1271,6 +1271,36 @@
       "silentCatch": null,
       "verdict": "pass",
       "reason": "author or console surface: raw error kept for diagnosis"
+    },
+    {
+      "site": "src/runtime/coordinators/innerCoordinator.ts#InnerCoordinator.ensureFor",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "waits out the boundary pass's in-flight beat; that pass's own runner logs its failure"
+    },
+    {
+      "site": "src/runtime/innerBeatHost.ts#within",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "draft-time deadline race; a failed beat call only means this draft has no beat"
+    },
+    {
+      "site": "src/runtime/wiring/generation.ts#handler",
+      "kind": 3,
+      "template": ".catch(() => undefined)",
+      "surface": "console",
+      "rawError": false,
+      "silentCatch": "probe",
+      "verdict": "pass",
+      "reason": "a draft-time beat must never block ST's draft; the reply generates without one"
     }
   ]
 }

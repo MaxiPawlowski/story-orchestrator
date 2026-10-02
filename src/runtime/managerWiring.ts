@@ -73,10 +73,12 @@ export function wireCoordinators(port: ManagerPort) {
   });
   let innerHost: InnerBeatHost | null = null;
   let innerLoad: Promise<InnerBeatHost> | null = null;
+  const loadInner = () => (innerLoad ??= loadInnerRender().then(() => import("./innerBeatHost"))
+    .then(({ innerBeatHostFor }) => (innerHost = innerBeatHostFor(port, memory, pacing))));
   const inner = {
     due: () => port.extras().memory.settings.innerBeat === true && Boolean(view.getStory()),
-    run: async () => (await (innerLoad ??= loadInnerRender().then(() => import("./innerBeatHost"))
-      .then(({ innerBeatHostFor }) => (innerHost = innerBeatHostFor(port, memory, pacing))))).run(),
+    run: async () => (await loadInner()).run(),
+    prepare: async (rosterId: string) => { if (inner.due()) await (await loadInner()).prepare(rosterId); },
     beatFor: (rosterId: string) => innerHost?.beatFor(rosterId) ?? "",
   };
   const expansion: ExpansionCoordinator = new ExpansionCoordinator({

@@ -14,13 +14,23 @@ export interface InnerBeatHostDeps extends InnerCoordinatorDeps {
 
 export interface InnerBeatHost {
   run: () => Promise<number>;
+  prepare: (rosterId: string) => Promise<void>;
   beatFor: (rosterId: string) => string;
 }
+
+export const INNER_DRAFT_WAIT_MS = 3000;
+
+const within = async (work: Promise<unknown>, ms: number): Promise<void> => {
+  let timer: ReturnType<typeof setTimeout> | undefined;
+  await Promise.race([work.catch(() => undefined), new Promise<void>((resolve) => { timer = setTimeout(resolve, ms); })]);
+  clearTimeout(timer);
+};
 
 export function createInnerBeatHost(deps: InnerBeatHostDeps): InnerBeatHost {
   const coordinator = new InnerCoordinator(deps);
   return {
     run: () => coordinator.run(),
+    prepare: (rosterId) => (deps.enabled() && deps.group() ? within(coordinator.ensureFor(rosterId), INNER_DRAFT_WAIT_MS) : Promise.resolve()),
     beatFor: (rosterId) => (deps.enabled() ? takeBeat(rosterId, {
       beats: deps.getBeats() ?? [], chatId: deps.chatId() ?? "", checkpointId: deps.getState()?.activeCheckpointId ?? null,
       rows: deps.chatRows(), name: deps.memberName(rosterId), journal: deps.journal, setBeats: deps.setBeats,
