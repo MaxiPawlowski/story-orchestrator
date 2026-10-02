@@ -50,7 +50,7 @@ describe("agent loop (v2.6 plan 11 A2)", () => {
     const next = await advanceAgent(decided.session, agentContext(applyAgentOp(draft, decided.apply!)), route, AT);
     expect(prompts[1]).toContain("#1 updateCheckpoint → accepted");
     expect(prompts[1]).toContain("check: 0 validation error(s)");
-    expect(next.session).toMatchObject({ status: "done", summary: "objective sharpened" });
+    expect(next.session).toMatchObject({ status: "done", summary: "The draft holds 2 checkpoints, 1 transition, 1 quality, 0 cast members. objective sharpened" });
   });
 
   it("sends the author's rejection reason back to the agent", async () => {

@@ -75,6 +75,7 @@ export interface SchedulerHost {
     read?: ReadOwnership | null,
   ): Promise<void>;
   beginRead?(window: { from: number; to: number }): ReadOwnership;
+  readsOpenChat?(): boolean;
   onSchedulerChange(): void;
   noteLapse?(reason: string, detail: string): void;
   noteHealth?(summary: string, detail: string): void;
@@ -114,7 +115,7 @@ export const REREAD_SETTLE_MAX_MS = 10_000;
 
 const overlaps = (left: { from: number; to: number }, right: { from: number; to: number }) => left.from <= right.to && right.from <= left.to;
 
-const isWindowlessCue = (job: SchedulerJob): boolean => job.priority === 0 && !job.run && !job.window && isCueReason(job.reason);
+const isWindowlessCue = (job: SchedulerJob) => job.priority === 0 && !job.run && !job.window && isCueReason(job.reason);
 
 const errorText = (error: unknown, fallback: string): string => (error instanceof Error ? error.message : fallback);
 
@@ -486,7 +487,7 @@ export class ExtractionScheduler {
     const story = this.host.getStory();
     const state = this.host.getEngineState();
     const settings = this.host.getExtractionSettings();
-    if (!story || !state || !settings.enabled) {
+    if (!story || !state || !settings.enabled || (!job.run && this.host.readsOpenChat?.() === false)) {
       this.host.onSchedulerChange();
       return;
     }

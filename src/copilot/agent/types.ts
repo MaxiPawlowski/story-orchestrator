@@ -52,6 +52,7 @@ export interface AgentNote {
   role: "author" | "agent";
   text: string;
   at: string;
+  onceAt?: number;
 }
 
 export interface AgentSession {

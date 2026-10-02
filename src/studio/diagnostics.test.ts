@@ -27,6 +27,13 @@ const clean: StoryV2 = {
   roster: [],
 };
 
+const installSeeded: StoryV2 = {
+  ...clean,
+  description: "You are the courier of the guild.",
+  checkpoints: [{ ...clean.checkpoints[0], effects: { background: { name: "harbour_night" }, cast_changes: { enable: ["Ghost"] } } }, clean.checkpoints[1]],
+  roster: [{ id: "courier", name: "The Courier" }],
+};
+
 const seeded: StoryV2 = {
   format: 2,
   title: "seeded",
@@ -102,6 +109,7 @@ describe("runDiagnostics", () => {
       ...runDiagnostics(seeded, { worldInfoGating: "scan" }),
       ...runDiagnostics({ ...clean, lore_select: { lorebooks: [], exclusive: true } }),
       ...runDiagnostics(chaptered),
+      ...runDiagnostics(installSeeded, { characterNames: () => ["Tobias"], backgroundNames: () => ["tavern day.jpg"] }),
     ];
     const counts = new Map<string, number>();
     diagnostics.forEach((entry) => counts.set(entry.code, (counts.get(entry.code) ?? 0) + 1));

@@ -67,11 +67,19 @@ export const setCheckpointEffects = (draft: StoryDraft, id: string, effects: Che
 
 export const newTransition = (from: string, to: string): Transition => ({ from, to, gate: { all: [] }, priority: 0 });
 
+export const sameTransitionKey = (left: Pick<Transition, "from" | "to" | "priority">, right: Pick<Transition, "from" | "to" | "priority">): boolean =>
+  left.from === right.from && left.to === right.to && left.priority === right.priority;
+
+const freePriority = (draft: StoryDraft, from: string, to: string): number => {
+  const taken = draft.transitions.filter((entry) => entry.from === from && entry.to === to).map((entry) => entry.priority);
+  return taken.length ? Math.max(...taken) + 1 : 0;
+};
+
 export const addTransition = (draft: StoryDraft, transition?: Transition): StoryDraft => {
-  const from = transition?.from ?? draft.checkpoints[0]?.id ?? "";
-  const to = transition?.to ?? draft.checkpoints[1]?.id ?? draft.checkpoints[0]?.id ?? "";
-  const value = transition ?? newTransition(from, to);
-  return { ...draft, transitions: [...draft.transitions, value] };
+  if (transition) return draft.transitions.some((entry) => sameTransitionKey(entry, transition)) ? draft : { ...draft, transitions: [...draft.transitions, transition] };
+  const from = draft.checkpoints[0]?.id ?? "";
+  const to = draft.checkpoints[1]?.id ?? draft.checkpoints[0]?.id ?? "";
+  return { ...draft, transitions: [...draft.transitions, { ...newTransition(from, to), priority: freePriority(draft, from, to) }] };
 };
 
 export const updateTransition = (draft: StoryDraft, index: number, patch: Partial<Transition>): StoryDraft => ({

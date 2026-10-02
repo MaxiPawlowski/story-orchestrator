@@ -37,8 +37,8 @@ const validationLines = (draft: StoryV2): string => {
   return `${parsed.length} error(s):\n${parsed.map((error) => `- ${error.path}: ${error.message}`).join("\n")}`;
 };
 
-const diagnosticLines = (draft: StoryV2): string => {
-  const diagnostics = runDiagnostics(draft);
+const diagnosticLines = (draft: StoryV2, lookup: AgentLookup): string => {
+  const diagnostics = runDiagnostics(draft, { characterNames: lookup.characters, backgroundNames: lookup.backgrounds });
   if (!diagnostics.length) return "No diagnostics.";
   return diagnostics.map((diagnostic) => `- [${diagnostic.severity}] ${diagnostic.code} at ${diagnostic.path}: ${diagnostic.message}`).join("\n");
 };
@@ -104,7 +104,7 @@ export const runReadTool = (tool: ReadToolName, args: Record<string, unknown>, d
         .map((transition, index) => `${index + 1}. ${transition.from} → ${transition.to} [p${transition.priority}] ${renderGateText(transition.gate)}`)
         .join("\n") || "No transitions.";
     case "readDiagnostics":
-      return diagnosticLines(draft);
+      return diagnosticLines(draft, lookup);
     case "readValidation":
       return validationLines(draft);
     case "readQualityUsage": {

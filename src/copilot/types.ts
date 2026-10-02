@@ -25,6 +25,7 @@ export interface TransitionRef {
   from: string;
   to: string;
   priority?: number;
+  index?: number;
 }
 
 export type ProposalOp =

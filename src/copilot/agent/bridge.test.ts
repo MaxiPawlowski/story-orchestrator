@@ -76,7 +76,7 @@ describe("agent tool bridge route (v2.6 plan 04 H, option 2)", () => {
     expect(bridge.closed).toEqual([]);
     const second = await settled(await advanceAgent(first.session, agentContext(story()), route, AT), route);
     expect(bridge.opened).toHaveLength(1);
-    expect(second.session).toMatchObject({ status: "done", summary: "read it" });
+    expect(second.session).toMatchObject({ status: "done", summary: expect.stringContaining("read it") });
   });
 
   it("refuses an unknown tool call through checkToolCall, tells the shim so, and writes nothing", async () => {

@@ -2,7 +2,8 @@ import { studioFailure } from "../errorCopy";
 import React, { useEffect, useRef, useState } from "react";
 
 import {
-  AGENT_MODES, addAuthorNote, agentStats, applyAgentOp, applyProvisioningFollowUps, approvePlan, budgetSliceText, isProvisionOp, checkToolCall, confirmProvisioning, decideStep, driveAgent,
+  AGENT_MODES, addAuthorNote, addUndoNote,
+  agentStats, applyAgentOp, applyProvisioningFollowUps, approvePlan, budgetSliceText, isProvisionOp, checkToolCall, confirmProvisioning, decideStep, driveAgent,
   newAgentSession,
   opPreview, pendingStep, resumeAgent, setAgentMode, type AgentMode, type AgentOp, type AgentRunner, type AgentSession, type AgentStep,
 } from "@copilot/agent/index";
@@ -224,7 +225,7 @@ const AgentWizard: React.FC<Props> = ({ runTurn, host, initial = null, onPersist
   const drive = async (resumed: AgentSession) => {
     if (!runTurn) return;
     const undone = useDraftStore.getState().takeUndone();
-    const start = undone.reduce((session, note) => addAuthorNote(session, note), resumed);
+    const start = undone.reduce((session, note) => addUndoNote(session, note), resumed);
     stopRequested.current = false;
     setBusy(true);
     setError(null);
