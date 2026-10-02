@@ -139,6 +139,7 @@ export const READ_TOOLS = {
   readQualityUsage: { family: "read", doc: "Where a quality is read: gates and snapshots.", args: { key: req("string", "quality key") } },
   readGateOptions: { family: "read", doc: "The operators and a sample value a gate on this quality may use.", args: { key: req("string", "quality key") } },
   readCoverage: { family: "read", doc: "Fields this story does not use yet, and what each would add.", args: {} },
+  readGuide: { family: "read", doc: "The author's guide on one topic: what the fields do, a good example, the trap.", args: { topic: req("string", "a guide topic") } },
   simulateReachability: { family: "simulate", doc: "Which beats the start can reach, and which lead nowhere.", args: {} },
   simulateWalk: {
     family: "simulate",

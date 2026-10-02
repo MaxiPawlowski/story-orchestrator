@@ -4,6 +4,7 @@ import { storyCoverage, renderCoverage } from "../../studio/coverage";
 import { runDiagnostics } from "../../studio/diagnostics";
 import { defaultValueForOp, opsForType } from "../../studio/gateOptions";
 import { findQualityUsages } from "../../studio/qualityUsage";
+import { readGuide } from "../guideTopics";
 import type { ReadToolName } from "./tools";
 import type { AgentLookup } from "./types";
 
@@ -117,6 +118,8 @@ export const runReadTool = (tool: ReadToolName, args: Record<string, unknown>, d
     }
     case "readCoverage":
       return renderCoverage(storyCoverage(draft));
+    case "readGuide":
+      return readGuide(args.topic);
     case "simulateReachability":
       return json(reachability(draft));
     case "simulateWalk":
