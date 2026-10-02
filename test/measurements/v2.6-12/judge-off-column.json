@@ -1,0 +1,568 @@
+{
+  "measuredAt": "2026-10-02T17:09:29.664Z",
+  "arm": "judge-off (no answer: every probe returns fallback 'disabled')",
+  "note": "offRate is what each use's scorer counts right with no judgment; for chooser uses (director, scene, lore, typed, backgrounds) the real fallback is another component (LLM director, heuristic, keyword scan, extractor) and is measured by its own suite, not here",
+  "results": [
+    {
+      "use": "director",
+      "fixture": "director",
+      "cases": 25,
+      "scoredRows": 25,
+      "offRight": 0,
+      "offRate": 0,
+      "families": [],
+      "calls": {
+        "typesafe": 25,
+        "llamaLogprob": 200
+      },
+      "stateCharsMax": 445
+    },
+    {
+      "use": "memory-verify",
+      "fixture": "memory-verify",
+      "cases": 36,
+      "scoredRows": 36,
+      "offRight": 21,
+      "offRate": 0.5833,
+      "families": [],
+      "calls": {
+        "typesafe": 9,
+        "llamaLogprob": 36
+      },
+      "stateCharsMax": 1420
+    },
+    {
+      "use": "memory-pairs",
+      "fixture": "memory-pairs",
+      "cases": 29,
+      "scoredRows": 29,
+      "offRight": 0,
+      "offRate": 0,
+      "families": [],
+      "calls": {
+        "typesafe": 29,
+        "llamaLogprob": 58
+      },
+      "stateCharsMax": 155
+    },
+    {
+      "use": "scene",
+      "fixture": "scene",
+      "cases": 66,
+      "scoredRows": 214,
+      "offRight": 0,
+      "offRate": 0,
+      "families": [
+        {
+          "family": "present",
+          "right": 0,
+          "total": 70,
+          "floor": 0.9,
+          "ok": false
+        },
+        {
+          "family": "location",
+          "right": 0,
+          "total": 26,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "time",
+          "right": 0,
+          "total": 26,
+          "floor": 0.8,
+          "ok": false
+        },
+        {
+          "family": "heading",
+          "right": 0,
+          "total": 52,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "break",
+          "right": 0,
+          "total": 22,
+          "floor": 0.5,
+          "ok": false
+        },
+        {
+          "family": "nobreak",
+          "right": 0,
+          "total": 18,
+          "floor": 1,
+          "ok": false
+        }
+      ],
+      "calls": {
+        "typesafe": 66,
+        "llamaLogprob": 455
+      },
+      "stateCharsMax": 1523
+    },
+    {
+      "use": "curator-filter",
+      "fixture": "curator-filter",
+      "cases": 3,
+      "scoredRows": 18,
+      "offRight": 10,
+      "offRate": 0.5556,
+      "families": [
+        {
+          "family": "recall",
+          "right": 10,
+          "total": 10,
+          "floor": 0.9,
+          "ok": true
+        },
+        {
+          "family": "narrowed",
+          "right": 0,
+          "total": 8,
+          "floor": 0,
+          "ok": true
+        }
+      ],
+      "calls": {
+        "typesafe": 3,
+        "llamaLogprob": 18
+      },
+      "stateCharsMax": 1273
+    },
+    {
+      "use": "continuity",
+      "fixture": "continuity",
+      "cases": 23,
+      "scoredRows": 67,
+      "offRight": 43,
+      "offRate": 0.6418,
+      "families": [
+        {
+          "family": "reply",
+          "right": 11,
+          "total": 23,
+          "floor": 0.9,
+          "ok": false
+        },
+        {
+          "family": "broken",
+          "right": 0,
+          "total": 12,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "consistent",
+          "right": 32,
+          "total": 32,
+          "floor": 0.966,
+          "ok": true
+        }
+      ],
+      "calls": {
+        "typesafe": 23,
+        "llamaLogprob": 44
+      },
+      "stateCharsMax": 347
+    },
+    {
+      "use": "typed",
+      "fixture": "typed",
+      "cases": 55,
+      "scoredRows": 75,
+      "offRight": 0,
+      "offRate": 0,
+      "families": [
+        {
+          "family": "coverage",
+          "right": 0,
+          "total": 75,
+          "floor": 0,
+          "ok": true
+        }
+      ],
+      "calls": {
+        "typesafe": 54,
+        "llamaLogprob": 79
+      },
+      "stateCharsMax": 1528
+    },
+    {
+      "use": "stall",
+      "fixture": "stall",
+      "cases": 47,
+      "scoredRows": 57,
+      "offRight": 0,
+      "offRate": 0,
+      "families": [
+        {
+          "family": "kept",
+          "right": 0,
+          "total": 57,
+          "floor": 1,
+          "ok": false
+        }
+      ],
+      "calls": {
+        "typesafe": 47,
+        "llamaLogprob": 118
+      },
+      "stateCharsMax": 1358
+    },
+    {
+      "use": "critic",
+      "fixture": "critic",
+      "cases": 34,
+      "scoredRows": 34,
+      "offRight": 0,
+      "offRate": 0,
+      "families": [
+        {
+          "family": "verdict",
+          "right": 0,
+          "total": 34,
+          "floor": 1,
+          "ok": false
+        }
+      ],
+      "calls": {
+        "typesafe": 34,
+        "llamaLogprob": 126
+      },
+      "stateCharsMax": 597
+    },
+    {
+      "use": "variants",
+      "fixture": "variants",
+      "cases": 8,
+      "scoredRows": 16,
+      "offRight": 0,
+      "offRate": 0,
+      "families": [
+        {
+          "family": "pick",
+          "right": 0,
+          "total": 8,
+          "floor": 0.8,
+          "ok": false
+        },
+        {
+          "family": "rejected",
+          "right": 0,
+          "total": 8,
+          "floor": 1,
+          "ok": false
+        }
+      ],
+      "calls": {
+        "typesafe": 24,
+        "llamaLogprob": 96
+      },
+      "stateCharsMax": 592
+    },
+    {
+      "use": "agency",
+      "fixture": "agency",
+      "cases": 41,
+      "scoredRows": 41,
+      "offRight": 0,
+      "offRate": 0,
+      "families": [
+        {
+          "family": "writes",
+          "right": 0,
+          "total": 18,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "clean",
+          "right": 0,
+          "total": 23,
+          "floor": 0.95,
+          "ok": false
+        }
+      ],
+      "calls": {
+        "typesafe": 41,
+        "llamaLogprob": 41
+      },
+      "stateCharsMax": 1922
+    },
+    {
+      "use": "house-rules",
+      "fixture": "house-rules",
+      "cases": 20,
+      "scoredRows": 80,
+      "offRight": 0,
+      "offRate": 0,
+      "families": [
+        {
+          "family": "broken",
+          "right": 0,
+          "total": 15,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "kept",
+          "right": 0,
+          "total": 11,
+          "floor": 0.95,
+          "ok": false
+        },
+        {
+          "family": "untouched",
+          "right": 0,
+          "total": 54,
+          "floor": 0.966,
+          "ok": false
+        }
+      ],
+      "calls": {
+        "typesafe": 20,
+        "llamaLogprob": 80
+      },
+      "stateCharsMax": 1778
+    },
+    {
+      "use": "warden-lore",
+      "fixture": "warden-lore",
+      "cases": 26,
+      "scoredRows": 60,
+      "offRight": 0,
+      "offRate": 0,
+      "families": [
+        {
+          "family": "contradicts",
+          "right": 0,
+          "total": 14,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "consistent",
+          "right": 0,
+          "total": 15,
+          "floor": 0.966,
+          "ok": false
+        },
+        {
+          "family": "untouched",
+          "right": 0,
+          "total": 31,
+          "floor": 0.966,
+          "ok": false
+        }
+      ],
+      "calls": {
+        "typesafe": 26,
+        "llamaLogprob": 60
+      },
+      "stateCharsMax": 1884
+    },
+    {
+      "use": "continuity",
+      "fixture": "continuity-combined",
+      "cases": 23,
+      "scoredRows": 67,
+      "offRight": 32,
+      "offRate": 0.4776,
+      "families": [
+        {
+          "family": "reply",
+          "right": 0,
+          "total": 23,
+          "floor": 0.9,
+          "ok": false
+        },
+        {
+          "family": "broken",
+          "right": 0,
+          "total": 12,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "consistent",
+          "right": 32,
+          "total": 32,
+          "floor": 0.966,
+          "ok": true
+        }
+      ],
+      "calls": {
+        "typesafe": 23,
+        "llamaLogprob": 113
+      },
+      "stateCharsMax": 558
+    },
+    {
+      "use": "house-rules",
+      "fixture": "adolion-house-rules",
+      "cases": 25,
+      "scoredRows": 200,
+      "offRight": 0,
+      "offRate": 0,
+      "families": [
+        {
+          "family": "broken",
+          "right": 0,
+          "total": 18,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "kept",
+          "right": 0,
+          "total": 10,
+          "floor": 0.95,
+          "ok": false
+        },
+        {
+          "family": "untouched",
+          "right": 0,
+          "total": 172,
+          "floor": 0.966,
+          "ok": false
+        }
+      ],
+      "calls": {
+        "typesafe": 25,
+        "llamaLogprob": 198
+      },
+      "stateCharsMax": 6001
+    },
+    {
+      "use": "warden-lore-facts",
+      "fixture": "warden-lore",
+      "cases": 26,
+      "scoredRows": 60,
+      "offRight": 0,
+      "offRate": 0,
+      "families": [
+        {
+          "family": "contradicts",
+          "right": 0,
+          "total": 14,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "consistent",
+          "right": 0,
+          "total": 15,
+          "floor": 0.966,
+          "ok": false
+        },
+        {
+          "family": "untouched",
+          "right": 0,
+          "total": 31,
+          "floor": 0.966,
+          "ok": false
+        }
+      ],
+      "calls": {
+        "typesafe": 26,
+        "llamaLogprob": 60
+      },
+      "stateCharsMax": 1799
+    },
+    {
+      "use": "lore",
+      "fixture": "lore",
+      "cases": 11,
+      "scoredRows": 30,
+      "offRight": 0,
+      "offRate": 0,
+      "families": [
+        {
+          "family": "recall",
+          "right": 0,
+          "total": 30,
+          "floor": 0.8,
+          "ok": false
+        }
+      ],
+      "calls": {
+        "typesafe": 11,
+        "llamaLogprob": 465
+      },
+      "stateCharsMax": 1308
+    },
+    {
+      "use": "backgrounds",
+      "fixture": "backgrounds",
+      "cases": 19,
+      "scoredRows": 19,
+      "offRight": 3,
+      "offRate": 0.1579,
+      "families": [
+        {
+          "family": "pick",
+          "right": 0,
+          "total": 16,
+          "floor": 0.85,
+          "ok": false
+        },
+        {
+          "family": "none",
+          "right": 3,
+          "total": 3,
+          "floor": 1,
+          "ok": true
+        }
+      ],
+      "calls": {
+        "typesafe": 19,
+        "llamaLogprob": 19
+      },
+      "stateCharsMax": 231
+    },
+    {
+      "use": "contradiction-release",
+      "fixture": "contradiction-release (K0)",
+      "cases": 21,
+      "scoredRows": 42,
+      "offRight": 26,
+      "offRate": 0.619,
+      "families": [],
+      "calls": {
+        "typesafe": 42,
+        "llamaLogprob": 63
+      },
+      "stateCharsMax": 219
+    },
+    {
+      "use": "lore-relevance",
+      "fixture": "lore-relevance",
+      "cases": 17,
+      "floor": {
+        "precisionAt4": 0.85,
+        "tieRate": 0.05
+      },
+      "arms": [
+        {
+          "arm": "noul",
+          "precisionAt4": null,
+          "ndcgAt4": 0,
+          "tieRate": null
+        },
+        {
+          "arm": "score",
+          "precisionAt4": null,
+          "ndcgAt4": 0,
+          "tieRate": null
+        }
+      ],
+      "calls": {
+        "typesafe": 34,
+        "llamaLogprob": 2176
+      },
+      "stateCharsMax": 493
+    }
+  ]
+}

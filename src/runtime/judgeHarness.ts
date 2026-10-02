@@ -10,7 +10,7 @@ import {
   type MemoryVerifyCase, type JudgeSelfTestCase, type JudgeSelfTestReport,
 } from "@judge/calibration";
 import {
-  runCuratorFilterCalibration, type CuratorFilterCase, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeProviderId, type JudgeRequest, type JudgeResult,
+  runCuratorFilterCalibration, DEFAULT_JUDGE_PROVIDER, type CuratorFilterCase, type JudgeDirectorDecision, type JudgeDirectorInput, type JudgeProviderId, type JudgeRequest, type JudgeResult,
 } from "@judge/index";
 import {
   runContradictionReleaseCalibration, scoreReleasePhaseA, type ContradictionReleaseCase, type ReleasePhaseAVerdict,
@@ -23,13 +23,47 @@ export interface JudgeHarness {
   director(input: JudgeDirectorInput): Promise<JudgeDirectorDecision | null>;
   invalidateStatus(): void;
   modelVerdict: JudgeRuntime["modelVerdict"];
-  calibrate(use: string, cases: unknown[], model?: string, provider?: JudgeProviderId): Promise<JudgeSelfTestReport>;
-  calibrateLoreRelevance(cases: unknown[], model?: string, provider?: JudgeProviderId): Promise<LoreRelevanceReport>;
+  calibrate(use: string, cases: unknown[], model?: string, provider?: JudgeProviderId, split?: number): Promise<JudgeSelfTestReport>;
+  calibrateLoreRelevance(cases: unknown[], model?: string, provider?: JudgeProviderId, split?: number): Promise<LoreRelevanceReport>;
   rescore(use: string, rows: WardenRescoreRow[], model?: string, provider?: JudgeProviderId): Promise<RescoreResult[]>;
   scoreContradictionRelease(report: Pick<JudgeSelfTestReport, "rows">, cases: ContradictionReleaseCase[], modes: Record<string, readonly string[] | null>): ReleasePhaseAVerdict;
 }
 
 type Ask = (request: JudgeRequest) => Promise<JudgeResult>;
+
+const mergeParts = (parts: JudgeResult[]): JudgeResult => {
+  const answered = parts.filter((part) => part.answers);
+  const usage = {
+    input_tokens: parts.reduce((sum, part) => sum + (part.usage?.input_tokens ?? 0), 0),
+    output_tokens: parts.reduce((sum, part) => sum + (part.usage?.output_tokens ?? 0), 0),
+  };
+  const fallback = parts.find((part) => part.fallback)?.fallback;
+  return {
+    answers: answered.length ? Object.assign({}, ...answered.map((part) => part.answers)) : null,
+    model: parts.find((part) => part.model)?.model ?? null,
+    latencyMs: parts.reduce((sum, part) => sum + part.latencyMs, 0),
+    stateChars: parts[0]?.stateChars ?? 0,
+    questionCount: parts.reduce((sum, part) => sum + part.questionCount, 0),
+    cached: parts.every((part) => part.cached),
+    usage,
+    ...(fallback && !answered.length ? { fallback } : {}),
+  };
+};
+
+export const splitQuestions = (ask: Ask, size: number): Ask => async (request) => {
+  const ids = Object.keys(request.questions);
+  if (!(size >= 1) || ids.length <= size) return ask(request);
+  const parts: JudgeResult[] = [];
+  for (let start = 0; start < ids.length; start += size) {
+    parts.push(await ask({ ...request, questions: Object.fromEntries(ids.slice(start, start + size).map((id) => [id, request.questions[id]])) }));
+  }
+  return mergeParts(parts);
+};
+
+const askVia = (runtime: JudgeRuntime, model: string | undefined, provider: JudgeProviderId | undefined, split: number | undefined): Ask => {
+  const ask: Ask = (request) => runtime.probe(request, model, provider);
+  return split && provider && provider !== DEFAULT_JUDGE_PROVIDER ? splitQuestions(ask, split) : ask;
+};
 
 const CALIBRATIONS: Record<string, (ask: Ask, cases: unknown[]) => Promise<JudgeSelfTestReport>> = {
   director: (ask, cases) => runJudgeDirectorSelfTest(ask, cases as JudgeSelfTestCase[]),
@@ -58,11 +92,11 @@ export const createJudgeHarness = (runtime: JudgeRuntime): JudgeHarness => ({
   director: (input) => runtime.director(input),
   invalidateStatus: () => runtime.invalidateStatus(),
   modelVerdict: (requested, answered) => runtime.modelVerdict(requested, answered),
-  calibrate: (use, cases, model, provider) => {
+  calibrate: (use, cases, model, provider, split) => {
     const run = CALIBRATIONS[use];
-    return run ? run((request) => runtime.probe(request, model, provider), cases) : Promise.reject(new Error(`no calibration for judge use '${use}' yet`));
+    return run ? run(askVia(runtime, model, provider, split), cases) : Promise.reject(new Error(`no calibration for judge use '${use}' yet`));
   },
-  calibrateLoreRelevance: (cases, model, provider) => runLoreRelevanceCalibration((request) => runtime.probe(request, model, provider), cases as never),
+  calibrateLoreRelevance: (cases, model, provider, split) => runLoreRelevanceCalibration(askVia(runtime, model, provider, split), cases as never),
   rescore: (use, rows, model, provider) => ((WARDEN_RESCORE_USES as readonly string[]).includes(use)
     ? runWardenRescore((request) => runtime.probe(request, model, provider), use as WardenRescoreUse, rows)
     : Promise.reject(new Error(`no rescore for judge use '${use}' yet`))),

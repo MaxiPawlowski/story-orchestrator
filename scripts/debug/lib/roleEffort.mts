@@ -54,3 +54,31 @@ export function latencyPercentiles(samples: number[]): { p50: number | null; p95
   const at = (q: number) => (sorted.length ? sorted[Math.min(sorted.length - 1, Math.ceil(q * sorted.length) - 1)] : null);
   return { p50: at(0.5), p95: at(0.95), n: sorted.length };
 }
+
+export function nextProfiles(before: Record<string, string>, role: string, profileId: string): Record<string, string> {
+  return { ...before, [role]: profileId };
+}
+
+export async function pinRoleProfile(page: Page, role: string, profile: string): Promise<{ before: Record<string, string>; profile: { id: string; name: string } }> {
+  return evaluateInST(page, ({ role, profile }) => {
+    const rt = globalThis.storyOrchestratorRuntime;
+    const profiles = SillyTavern.getContext().extensionSettings?.connectionManager?.profiles ?? [];
+    const chosen = profiles.find((entry) => entry.id === profile || entry.name === profile);
+    if (!chosen) throw new Error(`no Connection Manager profile named or id'd "${profile}"`);
+    const before = { ...(rt.getGlobalSettings().extraction.profiles ?? {}) };
+    rt.setExtractionSettings({ profiles: { ...before, [role]: chosen.id } });
+    const after = rt.getGlobalSettings().extraction.profiles ?? {};
+    if (after[role] !== chosen.id) throw new Error(`the ${role} role did not take profile "${chosen.name}"`);
+    return { before, profile: { id: chosen.id, name: chosen.name } };
+  }, { role, profile });
+}
+
+export async function restoreRoleProfiles(page: Page, before: Record<string, string>): Promise<Record<string, string>> {
+  const after = await evaluateInST(page, (before) => {
+    const rt = globalThis.storyOrchestratorRuntime;
+    rt.setExtractionSettings({ profiles: before });
+    return rt.getGlobalSettings().extraction.profiles ?? {};
+  }, before);
+  await saveSettingsNow(page);
+  return after;
+}

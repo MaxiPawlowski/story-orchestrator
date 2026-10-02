@@ -5,10 +5,10 @@ import { PROJECT_ROOT } from './lib/connection.mts';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
-import { latencyPercentiles, parseEffortArm, pinRoleEffort, readRoleReasoning, restoreRoleEfforts, type EffortArm } from './lib/roleEffort.mts';
+import { latencyPercentiles, parseEffortArm, pinRoleEffort, pinRoleProfile, readRoleReasoning, restoreRoleEfforts, restoreRoleProfiles, type EffortArm } from './lib/roleEffort.mts';
 import { DEFAULT_TIER_FLOORS, parseTierFloors, scoreContains, scoreIntents, scoreRejected, suiteVerdict, tierTotals } from './lib/liveSuiteScore.mts';
 
-const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high]
+const USAGE = `Usage: node scripts/debug/so-live-suite.mts run [--min 0.9] [--filter <substr>] [--record] [--judge] [--effort default|off|low|medium|high] [--profile <name|id>] [--arm <label>]
 
 Runs every test/fixtures/extractor*.{story,transcript,expected}.json triple through the live
 extraction model (globalThis.storyOrchestratorLiveSuite.runFixture) and scores exact-match on
@@ -22,6 +22,10 @@ memory profile selected in the extension settings.
   --record        write each live raw response to test/goldens/live/<name>.response.txt
   --effort <lvl>  v2.6 plan 05 R3: pin the read role's reasoning effort for the run (restored and read back after);
                   the report gains effort, the connection's reasoning read-out and p50/p95 latency. Not with --record.
+  --profile <p>   route the read role to this Connection Manager profile for the run (extraction.profiles.read),
+                  restored and read back after; without it the read role keeps its install route (R3 arms)
+  --arm <label>   report file so-live-suite-<label>-report.json and an "arm" field, so r1 and r2 of one cell
+                  do not overwrite each other (R3: <arm>-<level>-r<n>)
   --min-tier <s>  per-tier floors over the defaults facts=0.85,rejected=0.9,epistemic=0.8,ledger=0.8,arcs=0.8,intents=0.8
                   (intents: the floor is PRECISION over the live [intends] rows; recall >= 0.5 and
                   playerAttributed = 0 are fixed by test/measurements/v2.6-06/b-intents.json)
@@ -85,14 +89,17 @@ async function discoverFixtures(filter) {
   return fixtures;
 }
 
-async function runSuite(page, { min, filter, record, judge = false, floors = DEFAULT_TIER_FLOORS as Partial<Record<string, number>>, floorsGiven = [] as string[], expectCount = null, effort = null as EffortArm | null }) {
+async function runSuite(page, { min, filter, record, judge = false, floors = DEFAULT_TIER_FLOORS as Partial<Record<string, number>>, floorsGiven = [] as string[], expectCount = null, effort = null as EffortArm | null, profile = null as string | null, arm = null as string | null }) {
   if (effort && record) throw new Error('--effort is a measurement arm; it never records over the live goldens');
+  if (profile && record) throw new Error('--profile is a measurement arm; it never records over the live goldens');
   const fixtures = await discoverFixtures(filter);
   if (!fixtures.length) throw new Error(`No fixtures found in ${FIX_DIR}`);
   if (record) await mkdir(judge ? JUDGE_GOLDEN_DIR : LIVE_GOLDEN_DIR, { recursive: true });
+  const routed = profile ? await pinRoleProfile(page, 'read', profile) : null;
   const pinned = effort ? await pinRoleEffort(page, 'read', effort) : null;
   let reasoning = null;
   let effortsRestored = null;
+  let profilesRestored = null;
 
   const results = [];
   try {
@@ -133,6 +140,7 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
     if (pinned) reasoning = await readRoleReasoning(page, 'read');
   } finally {
     if (pinned) effortsRestored = await restoreRoleEfforts(page, pinned.before);
+    if (routed) profilesRestored = await restoreRoleProfiles(page, routed.before);
   }
 
   const passed = results.filter((entry) => entry.pass).length;
@@ -155,10 +163,13 @@ async function runSuite(page, { min, filter, record, judge = false, floors = DEF
     ok: verdict.ok,
     recorded: record,
     judge,
-    ...(effort ? { effort, reasoning, effortsRestored, latency: latencyPercentiles(results.map((entry) => entry.ms)) } : {}),
+    ...(arm ? { arm } : {}),
+    ...(routed ? { profile: routed.profile, profilesRestored } : {}),
+    ...(effort ? { effort, reasoning, effortsRestored } : {}),
+    ...(effort || routed ? { latency: latencyPercentiles(results.map((entry) => entry.ms)) } : {}),
     results,
   };
-  await writeJSON(report, judge ? 'so-live-suite-judge-report' : effort ? `so-live-suite-effort-${effort}-report` : 'so-live-suite-report');
+  await writeJSON(report, judge ? 'so-live-suite-judge-report' : arm ? `so-live-suite-${arm}-report` : effort ? `so-live-suite-effort-${effort}-report` : 'so-live-suite-report');
   for (const [tier, total] of Object.entries(totals)) {
     const intents = total.intents ? ` precision ${total.intents.precision} recall ${total.intents.recall} playerAttributed ${total.intents.playerAttributed}` : '';
     console.log(`${total.ok ? 'ok  ' : 'FAIL'} ${tier.padEnd(10)} ${total.passed}/${total.scored}${intents}${total.floor === undefined ? '' : ` floor ${total.floor}`}${total.vacuous.length ? `  [vacuous expectations: ${total.vacuous.join(', ')}]` : ''}`);
@@ -184,5 +195,5 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
     process.exit(1);
   }
   const expectCountRaw = argValue('--expect-count', '');
-  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null, effort: parseEffortArm(argValue('--effort', '')) }));
+  runCli((page) => runSuite(page, { min, filter, record, judge: process.argv.includes('--judge'), floors, floorsGiven: given, expectCount: expectCountRaw ? Number(expectCountRaw) : null, effort: parseEffortArm(argValue('--effort', '')), profile: argValue('--profile', '') || null, arm: argValue('--arm', '') || null }));
 }

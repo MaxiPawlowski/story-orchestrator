@@ -3,12 +3,38 @@
   "step": "R3",
   "declaredAt": "2026-09-30",
   "rule": "A level is recommended for a role only if it meets that role's floor on two consecutive runs AND its p95 latency fits the role's cadence. Defaults stay 'default' whatever the numbers (overview rule 9). Floors are never retuned.",
-  "levels": ["default", "off", "low", "medium", "high"],
-  "reasoningBudget": { "low": 512, "medium": 2048, "high": 6144 },
+  "levels": [
+    "default",
+    "off",
+    "low",
+    "medium",
+    "high"
+  ],
+  "reasoningBudget": {
+    "low": 512,
+    "medium": 2048,
+    "high": 6144
+  },
   "arms": [
-    { "id": "artemis-tc", "profile": "Artemis RunPod RP", "kind": "text-completion", "expect": "every level except default reads unsupported (F6); run default + one level to prove the refusal, not the full sweep" },
-    { "id": "artemis-cc", "profile": "<llama-server Chat Completion profile, custom source>", "kind": "chat-completion/custom", "expect": "off = enable_thinking false; low/medium/high collapse to one 'on' arm (F5)" },
-    { "id": "openrouter", "profile": "<OpenRouter CC profile>", "model": "<pick one reasoning-capable model and write it here BEFORE the first call (overview W23)>", "kind": "chat-completion/openrouter", "expect": "all five levels apply" }
+    {
+      "id": "artemis-tc",
+      "profile": "Artemis RunPod RP",
+      "kind": "text-completion",
+      "expect": "every level except default reads unsupported (F6); run default + one level to prove the refusal, not the full sweep"
+    },
+    {
+      "id": "artemis-cc",
+      "profile": "Artemis RunPod CC (does not exist yet; create it on the run lane only, see reconciliation.profiles)",
+      "kind": "chat-completion/custom",
+      "expect": "off = enable_thinking false; low/medium/high collapse to one 'on' arm (F5)"
+    },
+    {
+      "id": "openrouter",
+      "profile": "<UNRESOLVED: needs an OpenRouter key added by the user, then a CC profile on the run lane>",
+      "model": "<UNRESOLVED 2026-10-02: no OpenRouter key and no OpenRouter profile on the install or any lane; pick one reasoning-capable model and write it here BEFORE the first call (overview W23)>",
+      "kind": "chat-completion/openrouter",
+      "expect": "all five levels apply"
+    }
   ],
   "roles": {
     "read": {
@@ -41,5 +67,72 @@
   "hypothesis": "read/director best at off; authoring/synthesis gain at medium. To test, not to assume.",
   "output": "docs/plans/v2.6/recommended-reasoning.md (one row per role x arm; the UI line comes from it)",
   "records": "test/measurements/v2.6-05/<arm>/<role>-<level>-r<n>.json (copy each report out of the debug dir in the same commit as the table)",
-  "budget": "about 300-600 hosted calls"
+  "budget": "about 300-600 hosted calls",
+  "reconciliation": {
+    "writtenAt": "2026-10-02",
+    "scope": "Notes only. rule, roles[*].floor, roles[*].latency, levels and reasoningBudget are unchanged (a floor is never retuned). Arm expectations are restated against the code as built on master 7e9f3ab8; they are not floors.",
+    "replyEffortIsNotTheRolePath": "The 2026-10-02 reply effort (runtime/replyEffort*, five llama.cpp TC keys / CC thinking_budget_tokens, medium = 400) applies only to LOUD main-reply generations. Every R3 role call goes through the Connection Manager: TC CM calls never fire GENERATE_AFTER_DATA and CC CM calls are typed quiet (custom-request.js:601), so no role ever receives those keys. R3 measures the role mapping, src/services/stHost/reasoningPayload.ts, which is unchanged: TC = unsupported ('Text Completion sends a raw prompt'), custom = enable_thinking only (collapsed), deepseek = 'not mapped'.",
+    "arms": {
+      "artemis-tc": "Expectation STANDS as declared. The five llama.cpp budget keys exist server-side (15-model-config.md section 'Reasoning effort A/B', b11046) and the reply overlay sends them, but reasoningPayload still refuses TC for roles. So: default x2 full + one level (off) on one case per role to prove the refusal (report reasoning.unsupported set, request unchanged). Note the arm profile 'Artemis RunPod RP' uses the 'Gemma 4 Thinking' instruct, so its default already thinks, uncapped; read's answer budget is 512 tokens and may read reasoning-exhausted at default. Teaching the role mapping the five keys is a product change (proposed, not built); if it is built before the run, this arm becomes a full sweep and this note must be rewritten BEFORE the first call.",
+      "artemis-cc": "F5 is now answered (15-model-config.md: chat_template_kwargs.thinking_budget_tokens caps CC reasoning on b11046; reasoning_effort low/high are byte-identical; no kwarg = thinking on). The role mapping does NOT send thinking_budget_tokens (customPlan sends enable_thinking only), so the declared collapse STANDS for the code as built. 'Collapsed' is the thinking switch only: R2 still adds reasoningBudget[level] (512/2048/6144) to max_tokens, so low/medium/high differ in max_tokens and therefore in exhaustion. Minimum run = default, off, medium (the 'on' arm) x2; low and high are optional extra cells that measure exhaustion only. If customPlan gains thinking_budget_tokens before the run, the arm becomes a full sweep; rewrite this note first.",
+      "openrouter": "BLOCKED: overview W23 (user) chose OpenRouter; no OpenRouter key exists in the install's secrets.json (key names only were read) and no OpenRouter profile exists on lanes 1/4. Claude creates no accounts or keys.",
+      "deepseek (proposed replacement, needs the user's OK)": "The only hosted reasoning model on the install is the memory profile 'deepseek 4.1 flash' (id 975bc0dc-956b-4cd8-9fe4-9be158e01847, source deepseek, model deepseek-flash, key present). As built every level except default reads 'deepseek is not mapped' (05 section Mapping: deliberately left unmapped). ST's DeepSeek branch (chat-completions.js sendDeepSeekRequest) sends thinking {type: enabled|disabled} from include_reasoning and forwards reasoning_effort only with include_reasoning, so a real arm needs a product mapping first (off = include_reasoning false; low/high = include_reasoning true + reasoning_effort; medium unmapped or collapsed, per DeepSeek's accepted values, unverified). Without that mapping the arm measures default only and proves refusals; it was NOT run."
+    },
+    "profiles": {
+      "artemis-tc": "Artemis RunPod RP (id 4581c7d9-c5fc-40f2-a994-fb4ba435c542, TC llamacpp http://127.0.0.1:18080, preset Artemis v1.1 RP, instruct Gemma 4 Thinking) - exists on every seeded lane",
+      "artemis-cc": "to create on the run lane only (a lane copy, not the install): Connection Manager profile 'Artemis RunPod CC', API Chat Completion, source Custom (OpenAI-compatible), URL http://127.0.0.1:18080/v1, model = the id /v1/models lists, Request model reasoning on (include_reasoning), no chat_template_kwargs in Additional Parameters (the mapping writes it), streaming off. No CC profile pointing at the pod exists anywhere (15-model-config.md F12).",
+      "memory profiles seen (lanes 1 and 4, 2026-10-02)": [
+        "Artemis Local (Unsloth) tc generic :18888",
+        "Artemis RunPod tc llamacpp :18080",
+        "Artemis RunPod RP tc llamacpp :18080",
+        "deepseek 4.1 flash cc deepseek",
+        "Image Director tc llamacpp :18080",
+        "Story Orchestrator Memory RunPod tc llamacpp :18080",
+        "Story Orchestrator Memory Unsloth tc generic :18888"
+      ]
+    },
+    "commandCorrections": {
+      "read": "05 recipe step 4 says --expect-count 29; there are 43 extractor triples on master, so this matrix's 43 is right. The live suite's defaults now also include intents=0.8 (plan 06), which is NOT in this matrix's predeclared floor: pass --min-tier intents=0 so the verdict binds exactly the declared tiers (the report states the switch). The live suite had no --profile/--arm and wrote one file per level, so r1 was overwritten by r2: branch v26-measure-prep adds --profile (extraction.profiles.read, restored + read back) and --arm (so-live-suite-<arm>-report.json).",
+      "authoring": "add --holdout (05 recipe step 4; so-role-calibration refuses an authoring verdict without hold-out scores, plan 15 AS-16).",
+      "x2": "each so-role-calibration / so-live-suite run is one sample; r1 and r2 back to back on one lane, distinct --arm labels."
+    },
+    "callsPerPass": {
+      "read": 43,
+      "synthesis": 5,
+      "authoring": 17,
+      "director": 25,
+      "curator": 12,
+      "total": 102
+    },
+    "notRunYet": "Nothing in this matrix has been run. No pod arm may run while other sessions share the pod (latency is part of the rule).",
+    "runbook": {
+      "preconditions": [
+        "pod to this run alone (latency is part of the rule); tunnel 127.0.0.1:18080 up; one lane n >= 1 seeded from adolion-fresh (lane 5 seeded and check-clean 2026-10-02, stopped)",
+        "the seeded lane maps EVERY role to 'deepseek 4.1 flash' (extraction.profiles.*), so every Artemis cell must pass --profile; without it read/roles run on DeepSeek",
+        "dev build of branch v26-measure-prep staged (npm run build:dev && npm run stage -- --flavor dev) then st-session reload; staging reaches real ST and every lane, so do it when that is acceptable"
+      ],
+      "steps": [
+        "node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts capture --label v26-05-r3",
+        "create 'Artemis RunPod CC' on the lane (reconciliation.profiles.artemis-cc), then re-capture the header",
+        "per cell, r1 then r2 back to back: node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-live-suite.mts run --profile <arm profile> --effort <level> --expect-count 43 --min-tier intents=0 --arm <arm>-<level>-r<n>",
+        "per cell, r1 then r2: node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-role-calibration.mts run --role <synthesis|authoring|director|curator> --profile <arm profile> --effort <level> --arm <arm>-<level>-r<n> (authoring adds --holdout)",
+        "copy <lane debug>/so-live-suite-<arm>-<level>-r<n>-report.json and so-role-calibration-<role>-<arm>-<level>-r<n>.json to test/measurements/v2.6-05/<arm>/<role>-<level>-r<n>.json",
+        "node scripts/debug/so-role-calibration.mts verdict <r1> <r2> per role x arm x level; read cells: both reports ok:true and p95 within the read bound measured on the arm's default run",
+        "node scripts/debug/st-lanes.mts run <n> -- scripts/debug/so-run-header.mts diff <capture> ; write docs/plans/v2.6/recommended-reasoning.md"
+      ],
+      "cellsAsBuilt": {
+        "artemis-tc": "default x2 full (5 roles); off x2 on one case per role (--filter) as the refusal proof",
+        "artemis-cc": "default, off, medium x2 full (minimum); low, high x2 optional (exhaustion only)",
+        "hosted": "blocked (see reconciliation.arms)"
+      },
+      "podMinutesEstimate": {
+        "basis": "role-calibration goldens on 'Story Orchestrator Memory RunPod' (thinking off): read ~6 min / 43, authoring ~3-4 min incl. hold-out, curator ~1, director ~0.4, synthesis ~0.2 => ~12 min per non-thinking pass of 102 calls; thinking adds ~8 s/call capped at 400 tokens, ~14-20 s/call uncapped (15-model-config.md)",
+        "artemis-tc": "default ~35 min/pass x2 = ~70 min, refusal proofs ~3 min => ~75 min",
+        "artemis-cc minimum": "default ~45 + off ~12 + medium ~45 = ~100 min/sweep x2 = ~200 min",
+        "artemis-cc optional low+high": "+~75 min/sweep x2 = +~150 min",
+        "total": "~275 min (4.6 h, ~$3.30 at $0.72/h) minimum; ~425 min (7.1 h, ~$5.10) with the optional cells. Upper bounds; reasoning-exhausted calls end early.",
+        "calls": "artemis-tc 2 x 102 + 10 = 214; artemis-cc minimum 6 x 102 = 612 (+408 optional); hosted 0 until unblocked"
+      }
+    }
+  }
 }

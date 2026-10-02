@@ -17,10 +17,13 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
 
   status                              plugin reachability, key source (never the key), install settings
   ask <request.json>                  POST one System One request through the plugin from the page
-  calibrate [--use director|memory-verify|memory-pairs|contradiction-release|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants|agency|house-rules|warden-lore|warden-lore-facts] [--fixture <name>] [--model <id>] [--provider typesafe|llama-logprob] [--min 0.85] [--chunk <rows>] [--record]
+  calibrate [--use director|memory-verify|memory-pairs|contradiction-release|scene|lore|lore-relevance|curator-filter|continuity|backgrounds|typed|stall|critic|variants|agency|house-rules|warden-lore|warden-lore-facts] [--fixture <name>] [--model <id>] [--provider typesafe|llama-logprob] [--split <n>] [--min 0.85] [--chunk <rows>] [--record]
                                       --chunk asks the fixture in slices of <rows>, 61 s apart, so one run never exceeds the plugin's
                                       60 calls/min limit (scene, 66 calls); a run with any limiter refusal (fallback=busy) is refused, never recorded
                                       --provider asks that decision provider (default typesafe); the summary records it, and a llama run never reaches TypeSafe
+                                      --split <n> (v2.6 plan 12 Phase B, never TypeSafe): ask a provider that answers per question (llama-logprob)
+                                      at most n questions per probe, so a many-question request (lore, lore-relevance) is not cut by the
+                                      probe timeout; latency is the slices' sum, i.e. what one request would cost
                                       run test/fixtures/judge/<fixture|use>.json page -> plugin -> TypeSafe;
                                       --model asks that model without changing install settings; the report records the model that answered
                                       and a modelVerdict (matched | resolved, with resolvedTo | mismatch | unknown; the last two exit 1);
@@ -67,6 +70,18 @@ const USAGE = `Usage: node scripts/debug/so-judge.mts <command>
 The plugin must be installed (npm run plugin:install) and ST started with enableServerPlugins: true.`;
 
 const PLUGIN_BASE = '/api/plugins/story-orchestrator-judge';
+
+function splitArg(): number | undefined {
+  if (!process.argv.includes('--split')) return undefined;
+  const value = Number(argValue('--split', ''));
+  if (!Number.isInteger(value) || value < 1) throw new Error('--split takes a whole number of questions >= 1');
+  return value;
+}
+
+function p95Of(rows: Array<{ latencyMs?: number; fallback?: string }>): number | null {
+  const sorted = rows.filter((row) => !row.fallback && Number.isFinite(row.latencyMs)).map((row) => row.latencyMs as number).sort((a, b) => a - b);
+  return sorted.length ? sorted[Math.min(sorted.length - 1, Math.ceil(0.95 * sorted.length) - 1)] : null;
+}
 
 function argValue(name: string, fallback: string): string {
   const index = process.argv.indexOf(name);
@@ -119,12 +134,12 @@ async function calibrateRelevance(page: any, fixtureName: string, requestedModel
   const pools: Record<string, unknown[]> = { ...(fixture.pools ?? {}) };
   if (fixture.poolsFrom) Object.assign(pools, (await loadFixture(fixture.poolsFrom)).pools ?? {});
   const rows = fixture.rows.map((row: any) => ({ ...row, candidates: row.candidates ?? pools[row.pool] ?? [] }));
-  const raw = await evaluateInST(page, async ({ rows: cases, model, provider }: { rows: unknown[]; model?: string; provider: string }) => {
+  const raw = await evaluateInST(page, async ({ rows: cases, model, provider, split }: { rows: unknown[]; model?: string; provider: string; split?: number }) => {
     const judge = (globalThis as any).storyOrchestratorJudge;
     if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
-    const out = await judge.calibrateLoreRelevance(cases, model, provider);
+    const out = await judge.calibrateLoreRelevance(cases, model, provider, split);
     return { ...out, verdict: judge.modelVerdict(model ?? null, out.model) };
-  }, { rows, model: requestedModel, provider });
+  }, { rows, model: requestedModel, provider, split: splitArg() });
   const report = { ...raw, verdict: providerVerdict(provider, raw.verdict, raw.model ?? null) };
   const floor = fixture.floor ?? {};
   const verdict = (arm: any) => ({
@@ -172,12 +187,12 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
       console.log(`chunk ${index + 1}/${chunks.length}: waiting ${CHUNK_PAUSE_MS / 1000}s for the plugin's ${PLUGIN_CALLS_PER_MINUTE}/min window`);
       await new Promise((resolve) => setTimeout(resolve, CHUNK_PAUSE_MS));
     }
-    parts.push(await evaluateInST(page, async ({ use, rows, model, provider }: { use: string; rows: unknown[]; model?: string; provider: string }) => {
+    parts.push(await evaluateInST(page, async ({ use, rows, model, provider, split }: { use: string; rows: unknown[]; model?: string; provider: string; split?: number }) => {
       const judge = (globalThis as any).storyOrchestratorJudge;
       if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
-      const out = await judge.calibrate(use, rows, model, provider);
+      const out = await judge.calibrate(use, rows, model, provider, split);
       return { ...out, verdict: judge.modelVerdict(model ?? null, out.model) };
-    }, { use, model: requestedModel, provider, rows }));
+    }, { use, model: requestedModel, provider, rows, split: splitArg() }));
   }
   const verdicts = [...new Set(parts.map((part) => JSON.stringify(part.verdict)))];
   const raw = { ...mergeCalibrationReports(parts), verdict: verdicts.length === 1 ? parts[0].verdict : { verdict: 'mismatch' } };
@@ -195,7 +210,7 @@ async function calibrate(page: any, use: string, fixtureName: string, min: numbe
   const rate = report.total ? report.right / report.total : 0;
   const families = ['scene', 'lore', 'curator-filter', 'continuity', 'backgrounds', 'typed', 'stall', 'critic', 'variants', 'agency', 'house-rules', 'warden-lore', 'warden-lore-facts'].includes(use) ? familyScores(report.rows, fixture.floors ?? {}) : [];
   families.forEach((row) => console.log(`${row.ok ? 'ok  ' : 'FAIL'} ${row.family.padEnd(9)} ${row.right}/${row.total} floor ${row.floor}`));
-  const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), ...(families.length ? { families } : {}), p50LatencyMs: report.p50LatencyMs, provider, requestedModel: requestedModel ?? null, model: report.model, modelVerdict: report.verdict.verdict as ModelVerdict, ...(report.verdict.resolvedTo ? { resolvedTo: report.verdict.resolvedTo } : {}), min, minGiven: process.argv.includes('--min'), ok: calibrationOk({ rate, min, minGiven: process.argv.includes('--min'), families, modelVerdict: report.verdict.verdict }) };
+  const summary = { use, fixture: fixtureName, right: report.right, total: report.total, rate: Number(rate.toFixed(4)), ...(families.length ? { families } : {}), p50LatencyMs: report.p50LatencyMs, p95LatencyMs: p95Of(report.rows), timeouts: report.rows.filter((row: any) => row.fallback === 'timeout').length, provider, split: splitArg() ?? null, requestedModel: requestedModel ?? null, model: report.model, modelVerdict: report.verdict.verdict as ModelVerdict, ...(report.verdict.resolvedTo ? { resolvedTo: report.verdict.resolvedTo } : {}), min, minGiven: process.argv.includes('--min'), ok: calibrationOk({ rate, min, minGiven: process.argv.includes('--min'), families, modelVerdict: report.verdict.verdict }) };
   console.log(JSON.stringify(summary, null, 2));
   await writeJSON({ summary, report }, `so-judge-calibrate-${fixtureName}`);
   if (record) {
@@ -211,12 +226,12 @@ async function calibrateRelease(page: any, fixtureName: string, record: boolean,
   const brackets: Brackets[] = await Promise.all(bracketNames.map(async (name) => JSON.parse(await readFile(join(PROJECT_ROOT, K0_BRACKET_DIR, name), 'utf-8'))));
   const cases = releaseCases(fixture);
   const modes = releaseModes(fixture, brackets);
-  const raw = await evaluateInST(page, async ({ cases, modes, model, provider }: { cases: unknown[]; modes: Record<string, string[] | null>; model?: string; provider: string }) => {
+  const raw = await evaluateInST(page, async ({ cases, modes, model, provider, split }: { cases: unknown[]; modes: Record<string, string[] | null>; model?: string; provider: string; split?: number }) => {
     const judge = (globalThis as any).storyOrchestratorJudge;
     if (!judge) throw new Error('storyOrchestratorJudge not registered (extension not loaded?)');
-    const out = await judge.calibrate('contradiction-release', cases, model, provider);
+    const out = await judge.calibrate('contradiction-release', cases, model, provider, split);
     return { ...out, phaseA: judge.scoreContradictionRelease(out, cases, modes), verdict: judge.modelVerdict(model ?? null, out.model) };
-  }, { cases, modes, model: requestedModel, provider });
+  }, { cases, modes, model: requestedModel, provider, split: splitArg() });
   const report = { ...raw, verdict: providerVerdict(provider, raw.verdict, raw.model ?? null) };
   const labelOf: Record<string, string> = Object.fromEntries(cases.map((row) => [row.id, row.label]));
   for (const row of report.rows) console.log(`${row.right ? 'ok  ' : 'MISS'} ${row.id.padEnd(6)} ${String(row.picked).padEnd(8)} ${String(row.latencyMs).padStart(5)} ms  [${labelOf[row.id.split('.')[0]] ?? ''}]${row.fallback ? `  fallback=${row.fallback}` : ''}${row.detail ? `  ${row.detail}` : ''}`);
