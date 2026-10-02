@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { buildPack, candidatesFromTurns, gateStatus, GATE_SPECS, packLeaks, storyCandidate } from './ratingPack.mts';
+import { armRefusal, buildPack, candidatesFromTurns, gateStatus, GATE_SPECS, packLeaks, premiseKey, rowArm, sessionCandidates, storyCandidate } from './ratingPack.mts';
 
 const context = [{ id: 1, name: 'Kela', text: 'We march at dawn.' }, { id: 2, name: 'You', text: 'Why the hurry?' }];
 const rows = [
@@ -57,4 +57,32 @@ test('AS-28 rating pack: wizard stories pair by premise for W6', () => {
   assert.match(agent.text, /1\. Docks: cross/);
   assert.equal(buildPack('W6', [agent, staged], 'x').pairs.length, 1);
   assert.equal(storyCandidate('W6', 'agent', 'p', null, 's'), null);
+});
+
+test('T5-1-1 arm rule: an armed session owns every generated turn, untagged or not, and a foreign arm never counts', () => {
+  const untagged = rows.map(({ line, value }) => ({ line, value: { ...value, arm: undefined } }));
+  assert.equal(candidatesFromTurns('C3', untagged, 'd').length, 0);
+  assert.equal(candidatesFromTurns('C3', untagged, 'd', 'plain').length, 4);
+  assert.ok(candidatesFromTurns('C3', rows, 'd', 'plain').every((candidate) => candidate.arm === 'plain'));
+  assert.equal(rowArm({ kind: 'flag', arm: 'beat' }, 'beat'), null);
+  assert.equal(rowArm({ kind: 'mutation', verb: 'swipe-new' }, 'beat'), 'beat');
+  assert.equal(rowArm({ kind: 'mutation', verb: 'delete' }, 'beat'), null);
+  assert.equal(sessionCandidates('C3', { session: { arm: 'agent' }, turns: rows, drafts: null, sessionDir: 'd' }).length, 0);
+});
+
+test('T5-1-1 arm rule: W6 counts the armed session story, keyed by premise, never its turns', () => {
+  const story = { title: 'Redline', checkpoints: [{ id: 'a', name: 'Ink', objective: 'draw' }], roster: [] };
+  const session = { charter: 'T5-1', arm: 'agent', story: { kind: 'wizard', premiseId: 'cartographer' } };
+  const found = sessionCandidates('W6', { session, turns: rows, drafts: { openDraft: story }, sessionDir: 'd' });
+  assert.deepEqual(found.map((candidate) => [candidate.arm, candidate.key, candidate.source]), [['agent', 'cartographer', 'd/wizard-drafts.json']]);
+  assert.equal(premiseKey({ charter: 'T5-1' }), 'T5-1');
+  assert.deepEqual(sessionCandidates('W6', { session: { ...session, arm: null }, turns: rows, drafts: { openDraft: story }, sessionDir: 'd' }), []);
+  assert.deepEqual(sessionCandidates('W6', { session, turns: rows, drafts: { openDraft: null }, sessionDir: 'd' }), []);
+});
+
+test('T5-1-1 arm rule: start refuses an arm the card cannot pair', () => {
+  assert.equal(armRefusal(['W6'], 'agent'), null);
+  assert.equal(armRefusal(['W6'], null), null);
+  assert.match(armRefusal(['W6'], 'beat')!, /not an arm of W6 \(agent, staged\)/);
+  assert.match(armRefusal([], 'agent')!, /feeds no blind gate/);
 });

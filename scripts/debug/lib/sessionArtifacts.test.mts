@@ -6,7 +6,7 @@ import { REPO_ROOT } from '../../lib/stRoot.mjs';
 import {
   artifactInventory, artifactProblems, artifactWaivers, comfyCalls, featureProblems, HARVEST_HEADER, HARVEST_WAIVED, replyReasoning, THINKING_SILENT, newChats, requiredArtifacts, requiredFeatures, runtimeProblems, storyFeatures, trackChat, type ChatRef,
 } from './sessionArtifacts.mts';
-import { findCard, loadCards, loadIndex } from '../so-session.mts';
+import { cardGates, findCard, liveTag, loadCards, loadIndex, verifySession } from '../so-session.mts';
 
 test('AS-11 preflight: the harvest header the digest looks for is the one the product sends', () => {
   const source = readFileSync(resolve(REPO_ROOT, 'src', 'memory', 'innerRender.ts'), 'utf-8');
@@ -51,7 +51,7 @@ test('AS-22/23 artifacts: the inventory counts what was observed, and a shortfal
   const inventory = artifactInventory({
     turns: [{ kind: 'turn', ok: true, observe: { folded: 3 } }, { kind: 'turn', ok: false }, { kind: 'flag', landed: true }, { kind: 'turn', ok: true, arm: 'beat' }],
     payloads: [{ body: JSON.stringify({ messages: [{ content: `${HARVEST_HEADER}\nKela: wants out` }] }) }, { body: '{"prompt":"x"}' }],
-    runtimes: { c1: blob }, shots: 2, wizardDrafts: 0,
+    runtimes: { c1: blob }, shots: 2, wizardDrafts: 0, ratingCandidates: 1,
   });
   assert.deepEqual(inventory, { turns: 2, flags: 1, shots: 2, chats: 1, chapterRecords: 2, foldedTurns: 1, harvestedReasoning: 1, ratingCandidates: 1, wizardDrafts: 0 });
   assert.deepEqual(artifactProblems({ turns: 2, chats: 2, wizardDrafts: 1 }, inventory), [
@@ -137,4 +137,29 @@ test('thinking overlay: no waiver, and a session whose replies carry no reasonin
   assert.deepEqual(artifactWaivers(required, { replyReasoning: null, thinking: true }).problems, []);
   const plain = requiredArtifacts(doc, findCard(doc, 'T0-1'));
   assert.deepEqual(artifactWaivers(plain, { replyReasoning: 0, thinking: true }).problems, [THINKING_SILENT]);
+});
+
+test('T5-1-1 recorded: the armed wizard session carries its W6 candidate, so stop no longer invalidates it on ratingCandidates', async () => {
+  const dir = resolve(REPO_ROOT, 'test', 'sessions', 'T5', 'T5-1-1');
+  const session = JSON.parse(readFileSync(resolve(dir, 'session.json'), 'utf-8'));
+  const doc = await loadCards();
+  const card = findCard(doc, session.charter);
+  assert.equal(session.arm, 'agent');
+  const verified = await verifySession(dir, session, doc, card);
+  assert.equal(verified.inventory.ratingCandidates, 1);
+  assert.equal(verified.required.ratingCandidates, 1);
+  assert.deepEqual(verified.invalid.filter((line) => line.includes('ratingCandidates')), []);
+});
+
+test('T5-1-1 arm rule: a turn in an armed session takes the session arm, and a different tag is refused', async () => {
+  const doc = await loadCards();
+  const gates = cardGates(findCard(doc, 'T5-1'));
+  assert.deepEqual(gates, ['W6']);
+  const armed = { charter: 'T5-1', dir: 'test/sessions/T5/T5-1-9', arm: 'agent' };
+  assert.deepEqual(liveTag(armed, { verb: 'turn' }, gates), { arm: 'agent', gate: 'W6' });
+  assert.deepEqual(liveTag(armed, { verb: 'turn', tag: { arm: 'agent' } }, gates), { arm: 'agent', gate: 'W6' });
+  assert.equal(liveTag(armed, { verb: 'flag' }, gates), undefined);
+  assert.throws(() => liveTag(armed, { verb: 'turn', tag: { arm: 'staged' } }, gates), /is the agent arm \(set at start\)/);
+  assert.equal(liveTag({ charter: 'T3-1' }, { verb: 'turn' }, ['C3']), undefined);
+  assert.deepEqual(liveTag({ charter: 'T3-1' }, { verb: 'turn', tag: { arm: 'beat' } }, ['C3']), { arm: 'beat', gate: 'C3' });
 });

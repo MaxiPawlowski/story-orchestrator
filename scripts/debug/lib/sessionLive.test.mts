@@ -1,6 +1,6 @@
 import { test, afterEach } from 'node:test';
 import assert from 'node:assert/strict';
-import { backdateSession, blackboardDiff, flagMoment, groupNeedle, newJournalEvents, runGuardedTurn, runMutation, runTurn, UNREPAIRED_REASON, type LiveDeps } from './sessionLive.mts';
+import { backdateSession, blackboardDiff, flagMoment, groupNeedle, newJournalEvents, runGuardedTurn, runMutation, runTurn, EMPTY_NOT_SWIPED, UNREPAIRED_REASON, type LiveDeps } from './sessionLive.mts';
 import { defectCounts } from './modelDefects.mts';
 import { clearPage, EVENT_TYPES, fakePage, fakeSt, install, uninstall } from './sessionFakes.mts';
 
@@ -674,7 +674,45 @@ test('T1-6 turn 24: two looping replies in one round, the last is swiped and the
 test('T1-6 turn 24 digest: only the swiped message reads as swiped; the one left in the chat says so and is counted', () => {
   const defect = (messageId: number) => ({ kind: 'loop', messageId, speaker: 'x', sample: 's', rule: 'r' });
   const counts = defectCounts([{ modelDefects: [defect(56), defect(57)] as any, autoRepair: { swiped: true, repaired: [57], unrepaired: [{ messageId: 56 }] } as any }]);
-  assert.deepEqual(counts, { turns: 1, loop: 2, corrupt: 0, start: 0, repaired: 1, unrepaired: 1 });
+  assert.deepEqual(counts, { turns: 1, loop: 2, corrupt: 0, start: 0, empty: 0, repaired: 1, unrepaired: 1 });
+});
+
+const thinkingSend = (fake: ReturnType<typeof fakeSt>, replies: Array<[number, string, string]>) => async (_page: unknown, line: string) => {
+  fake.ctx.chat.push({ name: 'You', is_user: true, mes: line });
+  for (const [chid, text, reasoning] of replies) {
+    fake.ctx.chat.push({ name: fake.ctx.characters[chid].name, mes: text, swipes: [text], swipe_id: 0, extra: { reasoning } });
+    await fake.events.emit(EVENT_TYPES.MESSAGE_RECEIVED, fake.ctx.chat.length - 1, 'normal');
+  }
+  return { replied: true };
+};
+
+test('T5-1-1 msg 17: a reply with reasoning and no text is an empty defect, flagged and reported, never swiped by the guard', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const flags: string[] = [];
+  let swiped = false;
+  const record = await runGuardedTurn(fakePage(), 'If I stop inking, does the kingdom stop changing?', baseDeps({ send: thinkingSend(fake, [[1, '  \n', 'x'.repeat(5487)]]), flag: async (_page, note) => { flags.push(note); return { ok: true }; }, clickSwipeRight: async () => { swiped = true; } }));
+  assert.deepEqual(record.modelDefect, { kind: 'empty', messageId: 4, sample: '(no text; 5487 chars of reasoning)' });
+  assert.deepEqual(record.emptyReplies, [{ messageId: 4, speaker: fake.ctx.characters[1].name, reasoningLength: 5487 }]);
+  assert.deepEqual(flags, ['model defect: empty']);
+  assert.equal(swiped, false);
+  assert.deepEqual(record.autoRepair, { flag: { ok: true }, swiped: false, repaired: [], skipped: EMPTY_NOT_SWIPED });
+  assert.equal(record.ok, false);
+  assert.match(record.problems.join(), /no reply text: 1 character message\(s\) came back empty \(4 .*5487 chars of reasoning\)/);
+  assert.deepEqual(defectCounts([record as any]), { turns: 1, loop: 0, corrupt: 0, start: 0, empty: 1, repaired: 0, unrepaired: 0 });
+});
+
+test('T5-1-1 empty: an empty reply beside a looping last reply leaves the loop guard to swipe the loop only', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const flags: string[] = [];
+  const record = await runGuardedTurn(fakePage(), 'Hold.', baseDeps({ send: thinkingSend(fake, [[1, '', 'thought'], [2, LOOPING, 'thought']]), flag: async (_page, note) => { flags.push(note); return { kind: 'flag', note, ok: true }; }, clickSwipeRight: swipeOn(fake, false) }));
+  assert.deepEqual(record.modelDefects.map((defect) => [defect.kind, defect.messageId]), [['empty', 4], ['loop', 5]]);
+  assert.equal(record.modelDefect?.kind, 'loop');
+  assert.equal(record.ok, true, 'a round with one real reply still replied');
+  const repair = record.autoRepair as any;
+  assert.deepEqual([repair.swiped, repair.repaired], [true, [5]]);
+  assert.equal(flags[0], 'model defect: loop');
 });
 
 test('T1 loop guard: control, a clean round is neither flagged nor swiped', async () => {

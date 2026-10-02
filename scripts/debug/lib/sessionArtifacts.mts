@@ -100,6 +100,7 @@ export interface InventoryInput {
   runtimes: Record<string, any>;
   shots: number;
   wizardDrafts: number;
+  ratingCandidates: number;
 }
 
 export function chapterRecordsOf(blob: any): number {
@@ -119,7 +120,7 @@ export function artifactInventory(input: InventoryInput): ArtifactInventory {
     chapterRecords: Math.max(0, ...Object.values(input.runtimes).map(chapterRecordsOf)),
     foldedTurns: input.turns.filter((row) => Number(row?.observe?.folded) > 0).length,
     harvestedReasoning: bodies.filter((body) => body.includes(HARVEST_HEADER) || body.includes(JSON.stringify(HARVEST_HEADER).slice(1, -1))).length,
-    ratingCandidates: input.turns.filter((row) => typeof row?.arm === 'string' && row.arm && ok(row)).length,
+    ratingCandidates: input.ratingCandidates,
     wizardDrafts: input.wizardDrafts,
   };
 }

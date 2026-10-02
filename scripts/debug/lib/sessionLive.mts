@@ -1,7 +1,7 @@
 import { evaluateInST } from './evaluate.mts';
 import { modelDefects, type ModelDefect } from './modelDefects.mts';
 
-export interface LiveMessage { id: number; name: string; isUser: boolean; isSystem: boolean; text: string; swipeId: number | null; swipes: number }
+export interface LiveMessage { id: number; name: string; isUser: boolean; isSystem: boolean; text: string; swipeId: number | null; swipes: number; reasoningLength?: number; media?: boolean }
 export interface LiveJournalEvent { at: string; boundary: number; messageId: number; kind: string; summary: string; detail?: Record<string, unknown> }
 export interface LiveRead {
   at: string;
@@ -54,6 +54,8 @@ export async function readLive(page: any, from: number | null = null): Promise<L
         text: String(message?.mes ?? ''),
         swipeId: Number.isInteger(message?.swipe_id) ? message.swipe_id : null,
         swipes: Array.isArray(message?.swipes) ? message.swipes.length : 0,
+        reasoningLength: typeof message?.extra?.reasoning === 'string' ? message.extra.reasoning.trim().length : 0,
+        media: Boolean(message?.extra?.image || message?.extra?.image_swipes || message?.extra?.video || message?.extra?.file),
       })),
       storyId: snapshot.storyId ?? null,
       activeCheckpointId: snapshot.activeCheckpointId ?? null,
@@ -172,13 +174,16 @@ export function composeTurn({ line, before, after, recorder, send, timing, sched
 }) {
   const journal = newJournalEvents(before.journal, after.journal);
   const replies = after.messages.filter((message) => !message.isUser && !message.isSystem && message.text.trim().length > 0);
+  const empty = after.messages.filter((message) => !message.isUser && !message.isSystem && !message.media && !message.text.trim());
   const notes = after.messages.filter((message) => message.isSystem);
   const generations = generationsOf(recorder);
   const replied = replies.length > 0;
   const problems = [
     ...(send?.overlays && !send.overlays.ok ? [`could not clear the page before sending (drawer open ${send.overlays.after.drawerOpen}, popups ${send.overlays.after.popups}): nothing was sent`] : []),
     ...(send?.overlays?.ok !== false && !after.messages.some((message) => message.isUser) ? ['the line did not land: no player message was added to the chat'] : []),
-    ...(expectReply && !replied ? ['no reply: the send produced no non-empty character message (backend down, or silence under talk control)'] : []),
+    ...(expectReply && !replied ? [empty.length
+      ? `no reply text: ${empty.length} character message(s) came back empty (${empty.map((message) => `${message.id} ${message.name}${message.reasoningLength ? `, ${message.reasoningLength} chars of reasoning` : ''}`).join('; ')})`
+      : 'no reply: the send produced no non-empty character message (backend down, or silence under talk control)'] : []),
     ...(after.chatId !== before.chatId ? [`the open chat changed during the turn (${before.chatId} -> ${after.chatId})`] : []),
     ...(schedulerError ? [`scheduler did not settle: ${schedulerError}`] : []),
     ...(send?.round?.settled === false ? [`the round did not settle: a group round or generation was still open after ${send.round.waitedMs} ms`] : []),
@@ -192,6 +197,7 @@ export function composeTurn({ line, before, after, recorder, send, timing, sched
     problems,
     replied,
     replies: replies.map((message) => ({ messageId: message.id, speaker: message.name, text: message.text })),
+    emptyReplies: empty.map((message) => ({ messageId: message.id, speaker: message.name, reasoningLength: message.reasoningLength ?? 0 })),
     speakers: [...new Set(replies.map((message) => message.name))],
     notes: notes.map((message) => ({ messageId: message.id, name: message.name, text: message.text })),
     generations,
@@ -708,14 +714,19 @@ export async function backdateSession(page: any, hours: number, deps: Pick<LiveD
 
 export async function runGuardedTurn(page: any, line: string, deps: LiveDeps, options: LiveOptions = {}) {
   const record = await runTurn(page, line, deps, options);
-  const defects: ModelDefect[] = modelDefects(record.replies.map((reply) => ({ messageId: reply.messageId, speaker: reply.speaker, text: reply.text })));
+  const defects: ModelDefect[] = modelDefects([
+    ...record.replies.map((reply) => ({ messageId: reply.messageId, speaker: reply.speaker, text: reply.text })),
+    ...(record.emptyReplies ?? []).map((reply) => ({ messageId: reply.messageId, speaker: reply.speaker, text: '', reasoningLength: reply.reasoningLength })),
+  ]).sort((a, b) => (a.messageId ?? 0) - (b.messageId ?? 0));
   if (!defects.length) return { ...record, modelDefect: null, modelDefects: [], autoRepair: null };
-  const first = defects.find((defect) => defect.kind === 'loop') ?? defects[0];
+  const swipeable = defects.filter((defect) => defect.kind !== 'empty');
+  const first = defects.find((defect) => defect.kind === 'loop') ?? swipeable[0] ?? defects[0];
   const modelDefect = { kind: first.kind, messageId: first.messageId, sample: first.sample };
   if (options.loopGuard === false) return { ...record, modelDefect, modelDefects: defects, autoRepair: { skipped: 'loop guard off', swiped: false } };
   const flag = await deps.flag(page, `model defect: ${first.kind}`);
+  if (!swipeable.length) return { ...record, modelDefect, modelDefects: defects, autoRepair: { flag, swiped: false, repaired: [], skipped: EMPTY_NOT_SWIPED } };
   const target = await replyTarget(page);
-  const lastDefective = target.id !== null && !target.isUser && defects.some((defect) => defect.messageId === target.id);
+  const lastDefective = target.id !== null && !target.isUser && swipeable.some((defect) => defect.messageId === target.id);
   const unrepaired = unrepairedDefects(defects, lastDefective ? target.id : null, target.id);
   const unrepairedFlag = unrepaired.length ? await deps.flag(page, unrepairedNote(unrepaired)) : null;
   const left = unrepaired.length ? { unrepaired, unrepairedFlag } : {};
@@ -727,6 +738,8 @@ export async function runGuardedTurn(page: any, line: string, deps: LiveDeps, op
   const stillDefective = after.id === target.id ? modelDefects([{ messageId: after.id, speaker: defects.find((defect) => defect.messageId === target.id)?.speaker ?? null, text: await messageText(page, after.id) }]) : [];
   return { ...record, modelDefect, modelDefects: defects, autoRepair: { flag, swiped: swipe.ok === true, repaired: swipe.ok === true ? [target.id] : [], ...left, swipe, stillDefective } };
 }
+
+export const EMPTY_NOT_SWIPED = 'empty reply only: the loop guard swipes a reply so its text does not seed the next turn, and an empty reply seeds nothing; swipe by hand (swipe-new) if the round needs the line';
 
 export const UNREPAIRED_REASON = 'not the last character reply: ST swipes only the last message, and deleting the replies after it would rewrite the round';
 
