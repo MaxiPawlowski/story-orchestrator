@@ -1,0 +1,103 @@
+{
+  "ok": true,
+  "value": {
+    "level": 1,
+    "hosts": [
+      {
+        "id": "so-inline-23",
+        "text": "",
+        "chips": 4
+      },
+      {
+        "id": "so-inline-24",
+        "text": "3",
+        "chips": 2
+      },
+      {
+        "id": "so-inline-26",
+        "text": "",
+        "chips": 1
+      },
+      {
+        "id": "so-inline-27",
+        "text": "",
+        "chips": 1
+      },
+      {
+        "id": "so-inline-28",
+        "text": "",
+        "chips": 1
+      },
+      {
+        "id": "so-inline-30",
+        "text": "3",
+        "chips": 1
+      },
+      {
+        "id": "so-inline-31",
+        "text": "",
+        "chips": 1
+      },
+      {
+        "id": "so-inline-32",
+        "text": "2",
+        "chips": 1
+      },
+      {
+        "id": "so-inline-35",
+        "text": "",
+        "chips": 2
+      },
+      {
+        "id": "so-inline-37",
+        "text": "4\n2",
+        "chips": 2
+      },
+      {
+        "id": "so-inline-39",
+        "text": "2",
+        "chips": 5
+      },
+      {
+        "id": "so-inline-root",
+        "text": "",
+        "chips": 0
+      }
+    ],
+    "beats": [
+      {
+        "m": "dm",
+        "on": 27,
+        "beat": "Adolion Narrator presses the scene forward by having the chapel tower's violet light pulse hard enough to throw the wall guards' shadows wrong, and one guard breaks formation to walk the parapet alone toward the side gate."
+      },
+      {
+        "m": "dm",
+        "on": 30,
+        "used": true,
+        "beat": "Adolion Narrator will have the chapel tower's violet pulse quicken and a grey-robed figure step onto the wall to stare directly down at the gorge ledge where Dalan crouches, forcing an immediate reaction."
+      },
+      {
+        "m": "dm",
+        "on": 32,
+        "beat": "Adolion Narrator presses the scene forward by having the west wall's old watch begin its descent, leaving the wall briefly blind as Dalan's rope goes taut."
+      },
+      {
+        "m": "dm",
+        "on": 33,
+        "beat": "Adolion Narrator presses the scene forward by having the west wall's old guard start down the stairs, leaving the wall briefly blind while the violet light pulses again and something in the chapel answers it."
+      },
+      {
+        "m": "dm",
+        "on": 35,
+        "used": true,
+        "beat": "Adolion Narrator presses the scene forward by having the Keep itself answer the intrusion—the violet light in the tower flares and a bell begins to toll, forcing the party to react on the wall walk."
+      },
+      {
+        "m": "companion_a",
+        "on": 40,
+        "beat": "Belle charges straight past Ced toward the altar, roaring to draw the thing's attention off the captive before the knife can fall."
+      }
+    ]
+  }
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-10-02T02-41-43-274Z_st-eval.json

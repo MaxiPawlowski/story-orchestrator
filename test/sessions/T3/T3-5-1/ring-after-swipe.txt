@@ -1,0 +1,13 @@
+{
+  "ok": true,
+  "value": [
+    {
+      "id": "wi-4-6",
+      "boundary": 4,
+      "ops": [
+        "rejected Switch \"Chronicle - About this book\" on"
+      ]
+    }
+  ]
+}
+Wrote JSON: C:\dev\so-lanes\4\debug\2026-10-02T02-50-56-857Z_st-eval.json

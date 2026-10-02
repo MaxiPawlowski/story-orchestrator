@@ -1,0 +1,1146 @@
+{
+  "charter": "T3-2",
+  "title": "Timeline levels",
+  "session": {
+    "dir": "test/sessions/T3/T3-2-1",
+    "lane": 3,
+    "startedAt": "2026-10-02T02:48:39.321Z",
+    "media": "full"
+  },
+  "scores": [
+    "works",
+    "annoying",
+    "broken",
+    "not-noticed"
+  ],
+  "rows": [
+    {
+      "feature": "timeline level 0-2",
+      "score": "works",
+      "note": "Level 0 showed no strips over 3 turns. Level 1 showed Memory/Threads/Progress/Cast/Pacing chips in player words ('Remembered: ...', 'New thread: ...', 'Unira joined'). Level 2 added World Info ('Lore consulted: 19 entries') and Model calls ('2 things noted'), with no ids, gate keys or gated entry names (regex scan clean). Switching to 2 mid-generation took effect at once. A swipe swapped the message's chips with the new text (old threads gone, new memories in). Minor: 'The story is deciding how the world answers that' and 'changes not saved yet' chips linger under the last reply.",
+      "evidence": [
+        "inline-L0-t3.json:1",
+        "inline-L1-t3.json:1",
+        "inline-L2-t1.json:1",
+        "inline-swipe-before.json:1",
+        "inline-swipe-after.json:1",
+        "turns.jsonl:7",
+        "turns.jsonl:9"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T03:08:02.271Z"
+    },
+    {
+      "feature": "timeline level 3-4",
+      "score": "annoying",
+      "note": "Author levels appear only with Author view: in player mode, level 3 was clamped to effective 2 and the select offered only 0-2. With Author view on, the remembered request 3 took effect at once and 4 added gate JSON, the boundary blackboard dump and per-call judge rows. Useful detail, but noisy: up to 34 'Model calls' and 23 'World Info' items under one message, and player messages carry chips too. Raw numbers like tension_current 0.6152645516717542 are unrounded.",
+      "evidence": [
+        "inline-L3-playermode.json:1",
+        "inline-L3-t0.json:1768",
+        "inline-L4-t0.json:1",
+        "shots/011-level3-author.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T03:08:03.009Z"
+    },
+    {
+      "feature": "message inspector",
+      "score": "works",
+      "note": "The magnifier 'Open this message in the inspector' under transition reply 65 was hit-testable and opened #so-inspector in the drawer. It groups the message's items by Progress (transition, gate, path, boundary blackboard), Memory (rows with Pin/Lock/Exclude), World Info (forced/constant/key with uid), and so on. Nits: the header repeats 'Message 65' / 'message 65', and the same deep_unira_truth delta is listed twice (evidence differing only by a trailing 'and—').",
+      "evidence": [
+        "inspector-65.json:9",
+        "shots/013-inspector-65.png"
+      ],
+      "scoredBy": "claude",
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T03:08:03.744Z"
+    },
+    {
+      "feature": "A1 inspector decision input",
+      "reviewer": "user",
+      "status": "recorded for the user's review",
+      "score": null,
+      "note": "Inspector input for A1: on a transition reply it held the checkpoint arrival copy, edge plus gate JSON plus the full visited path, a 15-key blackboard dump, 2 memories with actions, 2 duplicate delta rows, about 20 World Info entries with uids, and judge calls with token counts. Everything an author needs is there; the decision on depth and grouping is the user's.",
+      "evidence": [
+        "inspector-65.json:9",
+        "shots/013-inspector-65.png"
+      ],
+      "scoredBy": null,
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T03:08:04.499Z"
+    },
+    {
+      "feature": "C5/C6 surface decisions",
+      "ask": "the levels as seen, as evidence",
+      "reviewer": "user",
+      "status": "recorded for the user's review",
+      "score": null,
+      "note": "Levels as seen: 0 nothing; 1 quiet icon chips with counts, player copy; 2 adds lore counts and 'things noted'; 3/4 author detail, dense (dozens of items per message). The HUD names the checkpoint in player words ('The Prisoner in the Cells'). The background went black in the dungeon (shot 011) after a town-street background inside the keep in T3-1.",
+      "evidence": [
+        "shots/011-level3-author.png",
+        "inline-L1-t3.json:1",
+        "inline-L2-t1.json:1"
+      ],
+      "scoredBy": null,
+      "recordedBy": "claude",
+      "scoredAt": "2026-10-02T03:08:05.253Z"
+    }
+  ],
+  "playerClean": {
+    "at": "2026-10-02T03:07:26.437Z",
+    "ok": true,
+    "tabs": [
+      "Overview",
+      "Memory"
+    ],
+    "surfaces": [
+      "#drawer-manager",
+      "#so-hud",
+      "dialog[open] .popup-content"
+    ],
+    "selectorSurfaces": [
+      "#drawer-manager",
+      "#so-hud",
+      "dialog[open] .popup-content",
+      "#story-orchestrator-settings"
+    ],
+    "selectorsChecked": 111,
+    "findings": [],
+    "sweep": [],
+    "recoveryControls": [],
+    "records": [
+      {
+        "tab": "Overview",
+        "texts": [
+          {
+            "surface": "#drawer-manager",
+            "text": "Adolion: Crimsonwing & Ebonwing\nAuthor view\nOverview\nMemory\n⚑\nWhere you are\nWhat Unira Says\nAt the dungeon under the keep.\nUnira, freed and still in the rags of her gambeson, has started to talk, and the stair back up has come down behind you.\nThings are close to breaking.\nAbout this story\nYour C-rank party is back at the Aegis City Adventurers Guild, and the counter is offering work above your rank: a joint posting with one of the Guild's two famous high-rank parties, Crimsonwing or Ebonwing, to clear a border fort in the Velniran foothills where a rogue lord is buying captives. Expect a hard, dark delve beside partners who are polite, ruthless and proud of their record. Play the Nightriver heir who leads the party, with Belle and Dalan at your side.\nRecently\nYou left The Prisoner in the Cells behind and moved into What Unira Says.\nMax Nightriver and the captive descended the spiral stair beneath the Great Hall, past an iron-barred gate, into a dark corridor of stone cells where the demon-reek was stronger and the captive revealed that the Beastmen were still present. At the far end, in the lowest cell, they found a gaunt, silver-haired woman hunched in the corner who did not look up as the torchlight reached her. The tone was tense and oppressive, heavy with fear and foreboding.\nOpen threads\nA Beastman shaman and three Beastmen have cornered the party at the lowest cell and demand they surrender Unira.\nUnira cannot walk and must be carried out while the shaman closes in.\nThe Beastman shaman's brand can compel Unira, and the party must get her out before he can give her an order.\nThe party must decide whether to expose the Wind Ballad's betrayal and the Guild's false report of Unira's death, or honor Unira's plea to let them keep thinking she is dead.\nThe story so far\nMax Nightriver's party chose Ced of Crimsonwing over Kela of Ebonwing for a joint Guild posting to a Velniran foothills fort taking captives, swayed by Crimsonwing's record and Ced's dawn-departure discipline. Ced led Max, Runo, and Dalan north from Aegis City with a mule of alchemical supplies and a covered cart of Runo's magitech golems, taking a steeper, less-watched path to Carrow Keep. On the march Runo confessed the failed last expedition was his fault and that he had failed Crimsonwing's last member.\nNoted\n1 thing the story picked up — they take effect on the next turn.\nFollowing along.\nWaiting for the next reply.\nchanges not saved yet — they go with the next save\nChat preferences — this chat only\nSpeaker direction in group chats\nDramatic shape\nUse story default\nRising to climax\nFall then recovery\nThree act\nIllustrations — this chat\nAutomatic images are off for this install. Manual images are still available.\nPause automatic images in this chat\nChat image preferences\nIllustrate scene\nPortrait\nBackground\nNo images waiting\nRepair: changes not saved yet — they go with the next save\nRestart story"
+          },
+          {
+            "surface": "#so-hud",
+            "text": "◈ What Unira Says\ntension critical\n1 update next turn"
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "text": "Story OrchestratorStartNew story (wizard)Import a storyBuild a story with the wizard, or bring your own JSON.ContinuePlaying \"Adolion: Crimsonwing & Ebonwing\".Choose a storyRestart or exportRepairchanges not saved yet — they go with the next saveAuthorTurn on Author viewEdit the story, cast and what players may see.This chat — select and continue a storyStory for this chatSelect a storyAdolion: Between the RoadsAdolion: Crimsonwing & EbonwingAdolion: EshalanoreAdolion: Fire and WarAdolion: House NightriverAdolion: Night CourtsAdolion: The Adventurer's RoadAdolion: The Eastern RoadAdolion: The SagaPlaying your pinned copy (v10).New chats in Adolion - Crimsonwing & Ebonwing start withNo story (choose in each chat)Adolion: Between the RoadsAdolion: Crimsonwing & EbonwingAdolion: EshalanoreAdolion: Fire and WarAdolion: House NightriverAdolion: Night CourtsAdolion: The Adventurer's RoadAdolion: The Eastern RoadAdolion: The SagaApplies only to a new, empty chat in this group. Chats already playing keep their own story.Open story and chat preferencesGeneral setup — shared by every chatConnection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.Memory model — this installChanges here affect every chat.Let the story advance on its own (shared read extraction)Memory model profileNo profile selectedArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)AdvancedCadenceReconcile ×LagTest memory modelRuns fixed scenes through the real pipeline and reports what this model can actually do.Models per task (5 set)Affects every chat. A task left on \"Same as memory model\" asks the memory model profile above.Story readsSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetSummaries and canonSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetWizard and road aheadSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetSpeaker directionSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetWorld Info curatorSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetInner voiceSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighDisplay — this installChanges here affect every chat.Notes under messagesOffStoryBehind the scenesProgressMemoryThreadsWorld InfoCast & directionPacingModel callsHealthOnly the lastmessagesChaptersShow \"Previously…\" when a chat opens after a chapter endedAlso post a chat note when the story moves onShow story status above the chat inputImage service — this installThis install provides the model and ComfyUI. Story authors choose the scenes and style; players can pause images for their chat. Renders wait for text and queue it while ComfyUI uses the GPU.Permit automatic illustrations on this installAutomation for all chatsManual onlyStory-authored momentsEvery N replies + story momentsModel requestsEvery N repliesImage-prompt modelSelect a Connection Manager profileArtemis Local (Unsloth)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flashImage DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory UnslothComfyUI URLAvoid explicit imageryDefault image routes — advancedThese are install defaults. A story supplies visual intent; the selected route picks model, size and placement for each image type.Edit routescenecharacterportraituserbackgroundfreesceneModelWAI-illustrious v17JANKU v7.77FLUX.1 dev fp8QualitybasehiresAspectautoportraitsquarelandscapewideShotcloseuppercowboyfullwidepovfrom_abovefrom_belowPlacementinlinemessagebackgroundCandidatesLet the director select another modelExtra positive Extra negative Fallback card appearance — this installUsed when the story has not authored an appearance for this cast member.Adolion NarratorFixed image tagsAlways include Never include BelleFixed image tagsAlways include Never include DalanFixed image tagsAlways include Never include CedFixed image tagsAlways include Never include KelaFixed image tagsAlways include Never include RunoFixed image tagsAlways include Never include SafieFixed image tagsAlways include Never include VallieFixed image tagsAlways include Never include UniraFixed image tagsAlways include Never include AmthirFixed image tagsAlways include Never include NendiraFixed image tagsAlways include Never include AnaxFixed image tagsAlways include Never include SanaFixed image tagsAlways include Never include ShadurFixed image tagsAlways include Never include ShelurFixed image tagsAlways include Never include IdiraFixed image tagsAlways include Never include CaeliaFixed image tagsAlways include Never include CaetusFixed image tagsAlways include Never include YunaFixed image tagsAlways include Never include Sprite stageShow character sprites that change expression as replies streamOff in every chat: you switched it off, so a story that directs a stage does not turn it on.Let each story decideShow the stageWith Visual Novel mode (/vn)AlwaysExpression model when the judge is off or unavailableSame as the image directorArtemis Local (Unsloth)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flashImage DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory UnslothDim whoever is not speakingIdle breathingOn stage: Belle, Dalan, Ced, RunoAuthor services — optional, shared by every chatLorebooks — this installChanges here affect every chat.Lorebook gatingFile writesPer chat (scan)Story Orchestrator switches story lorebook entries on and off in their files as a chat moves.Judge — install-wide, optionalReady · key from dotenv · jev-1.13.0TypeSafe API keySave keyUse the judgeWhen a use is on, the text it lists is sent to the provider it is routed to. Nothing is sent while this is off.Speaker directionTypeSafe (Jev)llama-server (log-probabilities)Check memory before storingTypeSafe (Jev)llama-server (log-probabilities)Merge related notesTypeSafe (Jev)llama-server (log-probabilities)Notice scene changesTypeSafe (Jev)llama-server (log-probabilities)Scene trackerTypeSafe (Jev)llama-server (log-probabilities)Heading toward (author view)TypeSafe (Jev)llama-server (log-probabilities)Lore selectionTypeSafe (Jev)llama-server (log-probabilities)Every-turn story readsTypeSafe (Jev)llama-server (log-probabilities)Stall checkTypeSafe (Jev)llama-server (log-probabilities)Curator focusTypeSafe (Jev)llama-server (log-probabilities)Sprite expressionsTypeSafe (Jev)llama-server (log-probabilities)Continuity wardenTypeSafe (Jev)llama-server (log-probabilities)A configured TypeSafe key is consent: while the judge is on, each use routed here sends the chat excerpts it lists to TypeSafe. To stop it, untick \"Use the judgment model\" or the use itself.Privacy policyGot itSprite expressions: on, but nothing has measured it — Not measured yet: presentation only, a wrong face never touches the story. The sprite model and the local classifier take over when it is off.Test the judgeRecheckWhat each use is measured atOn and measured: Speaker direction 88% (p50 245 ms) · Check memory before storing 97% (p50 236 ms) · Merge related notes 93% (p50 254 ms) · Notice scene changes 97% (p50 243 ms) · Scene tracker 97% (p50 243 ms) · Heading toward (author view) 100% (p50 270 ms) · Lore selection 90% (p50 291 ms) · Curator focus 89% (p50 281 ms) · Every-turn story reads 83% (p50 260 ms) · Stall check 100% (p50 243 ms) · Continuity warden 97% (p50 247 ms) — measured on jev-1.13.0Speaker direction — this installChanges here affect every chat.Several characters may answer one messageVoices per turn at mostPacing — this installChanges here affect every chat.Smoothing αSteering hintDiagnostics — ST capabilities and versionHost capabilitiesRecheckCopy for a bug report1 of 10 unavailableSillyTavern 1.19.0 (7c3994196) · new macro engine · extension 2.4.0Memory model context: 131,072 tokens (known for deepseek; the profile names no settings preset) · up to 117,452 per readharness is unavailable: no harness is offered; every task stays on a profile"
+          }
+        ],
+        "attributes": [
+          {
+            "surface": "#drawer-manager",
+            "attr": "title",
+            "value": "Show gates, blackboard, scheduler and payload debugging. Spoils upcoming story branches.",
+            "controls": [
+              "so-author-view"
+            ]
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "aria-label",
+            "value": "Story Orchestrator tabs",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "title",
+            "value": "Flag this moment — it lands in the session journal for review",
+            "id": "so-flag-moment",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "aria-label",
+            "value": "Flag this moment",
+            "id": "so-flag-moment",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "title",
+            "value": "Only this chat is paused. You can still request an image manually; other chats keep their own preference.",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "aria-label",
+            "value": "Help: Only this chat is paused. You can still request an image manually; other chats keep their own preference.",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "title",
+            "value": "Start this story over in this chat. Messages stay; progress and story memory are cleared.",
+            "id": "so-restart-story-drawer",
+            "controls": []
+          },
+          {
+            "surface": "#so-hud",
+            "attr": "title",
+            "value": "Open the story",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Start a new story from a premise: the wizard interviews you, proposes the graph, and creates the cards, lore and group it needs.",
+            "id": "so-new-story-wizard",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Restart this story in this chat (clears progress and memory for it)",
+            "id": "so-restart-story",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Restart story in this chat",
+            "id": "so-restart-story",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "This Connection Manager profile reads the chat after replies to track story progress. The choice affects every chat; it does not replace the main chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: This Connection Manager profile reads the chat after replies to track story progress. The choice affects every chat; it does not replace the main chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "When the story stalls, widen the re-read window by this multiplier to double-check missed facts.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: When the story stalls, widen the re-read window by this multiplier to double-check missed facts.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Skip the newest N messages when reading, in case you often re-roll replies. 0 = react to the latest message immediately.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Skip the newest N messages when reading, in case you often re-roll replies. 0 = react to the latest message immediately.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Story reads",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Summaries and canon",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Wizard and road ahead",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Speaker direction",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test World Info curator",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Small notes under the messages: where the story moved, what it remembered, which lore it consulted. Story and Behind the scenes never show spoilers; the Author levels show only while this chat's Author view is on.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Small notes under the messages: where the story moved, what it remembered, which lore it consulted. Story and Behind the scenes never show spoilers; the Author levels show only while this chat's Author view is on.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Automatic rendering also needs an automation mode, a story requesting cues, and a chat that has not paused them. Manual images remain available.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Automatic rendering also needs an automation mode, a story requesting cues, and a chat that has not paused them. Manual images remain available.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Story: follow the moments each story asks art for. Every N: draw every N replies and at each of those story moments. Tool: let the model ask. Manual: draw only when you ask.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Story: follow the moments each story asks art for. Every N: draw every N replies and at each of those story moments. Tool: let the model ask. Manual: draw only when you ask.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "A Connection Manager profile that turns the current scene and the story's visual direction into a ComfyUI prompt. This is separate from the chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: A Connection Manager profile that turns the current scene and the story's visual direction into a ComfyUI prompt. This is separate from the chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "The address of your ComfyUI server. When text and image models share a GPU, use the local GPU broker for your text profiles.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: The address of your ComfyUI server. When text and image models share a GPU, use the local GPU broker for your text profiles.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Stored in SillyTavern's own secrets on the server. It is never shown again, never saved in extension settings, and never sent to the page.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Stored in SillyTavern's own secrets on the server. It is never shown again, never saved in extension settings, and never sent to the page.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "A second, fast model for yes/no and pick-one decisions. Each use below is on by default and can be switched off on its own; each says what it sends. It never receives character cards, persona text, other chats or the key.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: A second, fast model for yes/no and pick-one decisions. Each use below is on by default and can be switched off on its own; each says what it sends. It never receives character cards, persona text, other chats or the key.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides. Sends: the last 8 messages, character names and roles, the scene name and goal.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides. Sends: the last 8 messages, character names and roles, the scene name and goal.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Speaker direction: provider",
+            "id": "so-judge-provider-director",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Drops notes the story never showed and down-weights doubtful ones. Sends: the read's messages, the candidate notes, story title and cast names.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Drops notes the story never showed and down-weights doubtful ones. Sends: the read's messages, the candidate notes, story title and cast names.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Check memory before storing: provider",
+            "id": "so-judge-provider-memory-verify",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Decides whether two similar notes are a duplicate, an update, or both true. Sends: two memory notes per question.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Decides whether two similar notes are a duplicate, an update, or both true. Sends: two memory notes per question.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Merge related notes: provider",
+            "id": "so-judge-provider-memory-pairs",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Asks for the scene read on the turn a scene changes, next to today's keyword check. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Asks for the scene read on the turn a scene changes, next to today's keyword check. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Notice scene changes: provider",
+            "id": "so-judge-provider-scene-trigger",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Keeps location, time and who is present, and adds them to the prompt. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Keeps location, time and who is present, and adds them to the prompt. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Scene tracker: provider",
+            "id": "so-judge-provider-scene-tracker",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Shows which upcoming checkpoints play is moving toward. Sends: the last 8 messages and the names and goals of the next checkpoints.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Shows which upcoming checkpoints play is moving toward. Sends: the last 8 messages and the names and goals of the next checkpoints.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Heading toward (author view): provider",
+            "id": "so-judge-provider-lookahead",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Adds the lore entries that matter to the next reply, even without their keywords. Sends: the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Adds the lore entries that matter to the next reply, even without their keywords. Sends: the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Lore selection: provider",
+            "id": "so-judge-provider-lore-select",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Reads qualities the author marked for it on every turn, so gates fire sooner; the rest stay with the story model. Sends: the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Reads qualities the author marked for it on every turn, so gates fire sooner; the rest stay with the story model. Sends: the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Every-turn story reads: provider",
+            "id": "so-judge-provider-typed-extraction",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Checks a stalled gate before spending a full re-read; writes only what the messages clearly show. Sends: the messages since the checkpoint began and the unmet conditions' descriptions and values.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Checks a stalled gate before spending a full re-read; writes only what the messages clearly show. Sends: the messages since the checkpoint began and the unmet conditions' descriptions and values.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Stall check: provider",
+            "id": "so-judge-provider-stall-check",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Shows the World Info curator only the entries the story may have overtaken. Sends: the story so far and the story's lore entries.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Shows the World Info curator only the entries the story may have overtaken. Sends: the story so far and the story's lore entries.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Curator focus: provider",
+            "id": "so-judge-provider-curator-filter",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Reads each passage of a reply as it streams and picks which character it is about and their facial expression, for the sprite stage. Otherwise the sprite model, then the local classifier, decide. Sends: each reply's passages, the on-stage character names and the expression labels with their descriptions.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Reads each passage of a reply as it streams and picks which character it is about and their facial expression, for the sprite stage. Otherwise the sprite model, then the local classifier, decide. Sends: each reply's passages, the on-stage character names and the expression labels with their descriptions.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Sprite expressions: provider",
+            "id": "so-judge-provider-expressions",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Continuity warden: provider",
+            "id": "so-judge-provider-warden",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "A single player message can be answered by more than one character. The judge picks each next speaker and stops when it hands the turn back to you; a story may set its own order on a checkpoint. Off: one voice per turn, as before.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: A single player message can be answered by more than one character. The judge picks each next speaker and stops when it hands the turn back to you; a story may set its own order on a checkpoint. Off: one voice per turn, as before.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "How quickly the measured tension follows the latest scene. Higher = jumpier, lower = smoother.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: How quickly the measured tension follows the latest scene. Higher = jumpier, lower = smoother.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Quietly nudge the main model toward the story's intended tension (escalate or cool down) via an injected note.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Quietly nudge the main model toward the story's intended tension (escalate or cool down) via an injected note.",
+            "controls": []
+          }
+        ]
+      },
+      {
+        "tab": "Memory",
+        "texts": [
+          {
+            "surface": "#drawer-manager",
+            "text": "Adolion: Crimsonwing & Ebonwing\nAuthor view\nOverview\nMemory\n⚑\nWhat the story remembers\nMemorize chat\nRead the whole chat history into memory.\nFind\nFacts\nSession details\nShort-term\nScene history\nShowing 94 of 94\nFacts (48)\nCed senses something wrong because the food in the Great Hall is fresh.\nPin\nEdit\nExclude\nCed ordered Runo to scan for life signs and arcane signatures and Dalan to check the perimeter for traps or ambushes inside the Great Hall.\nPin\nEdit\nExclude\nRuno deployed a defensive golem shell to hold off the demon and the emerging guards.\nPin\nEdit\nExclude\nCed ordered Runo to hold the enemy off, Dalan to cover the exit, and Max to follow him toward the altar.\nPin\nEdit\nExclude\nDalan shot an armored tentacled guard through the chest with an arrow, but the guard did not falter and kept advancing.\nPin\nEdit\nExclude\nThe demon-thing on the throne watches Max Nightriver and continues feeding on Lord Carrow's chest.\nPin\nEdit\nExclude\nThe cultist is gaunt and vacant-eyed, resisting only with the mindless determination of the dead.\nPin\nEdit\nExclude\nSomething answered the demon's shriek from deeper within the Keep.\nPin\nEdit\nExclude\nMax wrenched the cultist's knife away from the captive's throat and cut her bonds, hauling her off the altar.\nPin\nEdit\nExclude\nThe captive bears a purple trident brand seared across her brow.\nPin\nEdit\nExclude\nDalan holds the Great Hall threshold with his shortbow, covering the party's retreat.\nPin\nEdit\nExclude\nRuno's defensive golem shell erupted in a wave of force that knocked two armored guards back a dozen feet.\nPin\nEdit\nExclude\nThe demon on the throne stands and watches the party rather than attacking, laughing as more tentacled guards emerge from the corridors.\nPin\nEdit\nExclude\nA low grinding sound like stone sliding on stone echoes from below the Great Hall, and a wave of demon-reek washes over the room.\nPin\nEdit\nExclude\nMax saved the branded captive by stopping the cultist's knife and cutting her bonds, then hauled her off the altar.\nPin\nEdit\nExclude\nThe captive tells Max there is another prisoner below, a woman in knight's rags.\nPin\nEdit\nExclude\nThe party freed the branded captive and fled the Great Hall through the side door, descending the spiral stair below the hall.\nPin\nEdit\nExclude\nThe freed captive told the party there is another prisoner below, a woman in knight's rags.\nPin\nEdit\nExclude\nDalan stayed at the Great Hall threshold to hold off the tentacled guards while the others escaped.\nPin\nEdit\nExclude\nMax wrenched the cultist's knife away from the captive's throat and cut her bonds.\nPin\nEdit\nExclude\nThe party has descended the spiral stair below the Great Hall and reached an iron-barred gate into a dark corridor, seeking the second prisoner, a woman in knight's rags.\nPin\nEdit\nExclude\nThe captive told the party there is one more prisoner below, a woman in knight's rags held in the lowest cell, branded and starved for weeks.\nPin\nEdit\nExclude\nThe branded captive told Max there is a second prisoner below, a woman in knight's rags held in the lowest cell, starved for weeks and branded like her.\nPin\nEdit\nExclude\nBeastmen are still present in the dungeon corridor, heard drumming and calling in a grinding language.\nPin\nEdit\nExclude\nA massive stone door is being forced open somewhere below, and the demon-reek grows stronger down the stair.\nPin\nEdit\nExclude\nIn the last cell of the corridor, a gaunt silver-haired woman hunches in the corner and does not look up as the torchlight reaches her.\nPin\nEdit\nExclude\nThe second prisoner, a gaunt silver-haired woman, is held in the lowest cell at the far end of the dungeon corridor.\nPin\nEdit\nExclude\nBeastmen still inhabit the dungeon corridor, their drumming and calls suggesting they may be roused.\nPin\nEdit\nExclude\nA massive stone door is being forced open somewhere below the dungeon, and something is coming up toward the party.\nPin\nEdit\nExclude\nThe captive tells Max the second prisoner is in the lowest cell beneath the Great Hall, branded like her and starved for weeks.\nPin\nEdit\nExclude\nA heavier grinding sound echoes up the stair, as if a massive stone door is being forced open, and the demon-reek is stronger with a sulfurous tang.\nPin\nEdit\nExclude\nThe corridor below the Great Hall is lined with cells cut into the stone, most empty, and the Beastmen are still present, drumming and calling in their grinding language.\nPin\nEdit\nExclude\nThe silver-haired woman in the lowest cell is Unira, red-eyed with spiral irises, branded on her outer thigh with the Tahanna Brand, scarred and too weak to stand.\nPin\nEdit\nExclude\nUnira cannot walk yet; her legs are too weak to stand.\nPin\nEdit\nExclude\nThe Tahanna Brand on Unira's thigh pulses with faint purple light as the drumming and a guttural counting voice draw closer.\nPin\nEdit\nExclude\nUnira warns that the shaman is coming and urges the party to free her immediately.\nPin\nEdit\nExclude\nMax Nightriver smashed the lock of the lowest cell and carried Unira out, freeing her.\nPin\nEdit\nExclude\nA Beastman shaman bearing the trident-and-snake brand confronted the party with three more Beastmen, demanding they give up Unira.\nPin\nEdit\nExclude\nUnira's legs gave way and she cannot walk on her own, clinging to Max for support.\nPin\nEdit\nExclude\nThe Tahanna Brand on Unira's thigh pulses with faint purple light as the shaman approaches.\nPin\nEdit\nExclude\nUnira revealed that her own party, the Wind Ballad — Kallan, Fulanie, and Mallow — deliberately abandoned her in Nahalbuk: Mallow said to leave her, Fulanie froze her boots to the ground, and Kallan shoved her into the Beastmen horde, then reported her dead.\nPin\nEdit\nExclude\nUnira bears the Tahanna Brand, which flares with purple light and pulses in time with her breathing, and the Beastman shaman carries the same brand.\nPin\nEdit\nExclude\nUnira says the shaman's brand can compel her: if he gives an order and she does not obey, something happens to her.\nPin\nEdit\nExclude\nUnira names the Wind Ballad — Kallan, Fulanie, Mallow — as the party that abandoned her, saying Mallow called her 'the bitch', Fulanie froze her boots to the ground, and Kallan shoved her into the horde.\nPin\nEdit\nExclude\nUnira says the Wind Ballad reported her dead and asks the party to let them keep thinking she is dead.\nPin\nEdit\nExclude\nUnira's Tahanna Brand flares purple in time with the shaman's brand, and she fears he can compel her with an order.\nPin\nEdit\nExclude\nMax smashed the cell lock with the torch bracket and is carrying Unira, whose legs have given out.\nPin\nEdit\nExclude\nA Beastman shaman and three Beastmen have cornered Max and Unira at the lowest cell, demanding they surrender the branded prisoner.\nPin\nEdit\nExclude\nSession details (37)\nThe cultist at the altar is gaunt and vacant-eyed, fighting only with mindless determination, not skill.\nPin\nEdit\nExclude\nMax ordered Dalan to cover the door and called for a run, and Dalan committed to holding the threshold while the party escapes.\nPin\nEdit\nExclude\nThe captive reveals there is one more prisoner below, a woman in knight's rags.\nPin\nEdit\nExclude\nThe freed captive reveals a second prisoner below: a woman in knight's rags in the lowest cell, branded like her but unbroken, starved for weeks.\nPin\nEdit\nExclude\nMax cut the captive's bonds and hauled her off the altar, and she now grips his arm as they descend.\nPin\nEdit\nExclude\nA heavier grinding sound, as of a massive stone door forced open, echoes up the stair, and the demon-reek grows stronger with a sulfurous tang.\nPin\nEdit\nExclude\nThe dungeon corridor below the Great Hall is cold, rough-hewn rock with cells cut into the stone, doors barred from outside, lit by a single guttering torch.\nPin\nEdit\nExclude\nA second prisoner, a silver-haired woman in knight's rags, is held in the lowest cell of Dungeon Nahalbuk, branded and starved for weeks.\nPin\nEdit\nExclude\nThe silver-haired prisoner sits hunched in the corner of the last cell, knees drawn to her chest, and does not react to the torchlight.\nPin\nEdit\nExclude\nDalan stayed at the Great Hall threshold, firing arrows and holding the tentacled guards while the others descended.\nPin\nEdit\nExclude\nThe captive bears a purple trident brand seared across her brow.\nPin\nEdit\nExclude\nThe second prisoner is a gaunt silver-haired woman in the lowest cell, branded and starved for weeks, who would not break.\nPin\nEdit\nExclude\nBeastmen are still present in the dungeon corridor, and their drumming and counting voices suggest they may be roused.\nPin\nEdit\nExclude\nThe branded captive is guiding Max toward the second prisoner, gripping his arm and flinching at the Beastmen sounds.\nPin\nEdit\nExclude\nThe lowest cell of Dungeon Nahalbuk holds Unira, a gaunt silver-haired woman with red spiral-irised eyes, hunched in the corner and unresponsive until the torchlight reaches her.\nPin\nEdit\nExclude\nUnira bears the Tahanna Brand on her outer thigh, the same brand as the captive, and is terrified of being taken for it.\nPin\nEdit\nExclude\nMax tells Unira they are not there for any brand and offers to break the lock and take her home.\nPin\nEdit\nExclude\nBeastmen drums and counting voices sound from deeper in the dungeon warren, and Unira can smell them coming.\nPin\nEdit\nExclude\nThe branded prisoner in the lowest cell is Unira, red-eyed with spiral irises, bearing the Tahanna Brand on her outer thigh.\nPin\nEdit\nExclude\nUnira cannot walk yet, and the Tahanna Brand pulses purple as a shaman approaches with drumming and a counting voice.\nPin\nEdit\nExclude\nUnira flinches from torchlight and struggles to meet Max's eyes, her voice dry as dust.\nPin\nEdit\nExclude\nThe lowest cell of Dungeon Nahalbuk holds Unira, a gaunt silver-haired woman with red spiral-irised eyes and a Tahanna Brand on her thigh.\nPin\nEdit\nExclude\nUnira initially feared the party had come for her brand, asking 'Are you here for the brand?'\nPin\nEdit\nExclude\nMax freed Unira from her cell and is now carrying her, but she cannot yet walk.\nPin\nEdit\nExclude\nUnira's brand is the Tahanna Brand, and it reacts with purple light to the shaman's presence.\nPin\nEdit\nExclude\nBeastmen drumming and a counting voice signal the shaman's approach through the dungeon warren.\nPin\nEdit\nExclude\nUnira's old party the Wind Ballad (Kallan, Fulanie, Mallow) abandoned her on purpose in Nahalbuk — froze her boots, shoved her into the Beastmen, and reported her dead — confirming the Guild's account of her volunteering to die is a lie.\nPin\nEdit\nExclude\nUnira bears the Tahanna Brand on her outer thigh; it flares purple and pulses with her breathing, and the Beastman shaman wears the same brand.\nPin\nEdit\nExclude\nUnira cannot walk — her legs give way and she clings to Max's shoulder, and she fears the shaman's brand can compel her obedience.\nPin\nEdit\nExclude\nMax smashed the cell lock with the torch bracket and is carrying Unira out, keeping her behind him with the torch between them and the shaman.\nPin\nEdit\nExclude\nA grey-and-white mottled Beastman shaman with the trident-and-snake brand and three Beastmen with bone knives have cornered Max and Unira ten paces from the last cell.\nPin\nEdit\nExclude\nUnira reveals the Wind Ballad deliberately abandoned her: Mallow said to leave her, Fulanie froze her boots to the floor, and Kallan shoved her into the Beastmen horde.\nPin\nEdit\nExclude\nThe Guild's report that Unira volunteered to die is a lie; the Wind Ballad reported her dead after abandoning her.\nPin\nEdit\nExclude\nUnira's Tahanna Brand is on her outer thigh and pulses purple in time with the Beastman shaman's brand.\nPin\nEdit\nExclude\nUnira cannot walk; her legs have given out and she must be carried.\nPin\nEdit\nExclude\nA Beastman shaman with a trident-and-snake brand and three Beastmen with bone knives have cornered Max and Unira at the lowest cell, ten paces off.\nPin\nEdit\nExclude\nUnira clings to Max for support and pleads with them to get her out before the shaman can give her an order.\nPin\nEdit\nExclude\nShort-term (1)\nMax Nightriver freed the branded captive, who caught his arm and revealed another prisoner below—a woman in knight's rags held in the lowest cell. Max led the group through a side door and down a spiral stair into the Keep's dungeons, where the captive warned that Beastmen still occupied the warren. At the last cell they found Unira, a gaunt silver-haired woman with red spiral-irised eyes, who confirmed she couldn't walk and warned that a shaman was coming as her Tahanna Brand pulsed with purple light.\nPin\nEdit\nExclude\nScene history (8)\nAt the Guild counter, Ced of Crimsonwing and Kela of Ebonwing each pitched their crews for a joint contract to rescue captives from a fort in the Velniran foothills. Max Nightriver chose Crimsonwing, and Kela departed without protest. Ced offered Max a stimulant vial, which Max declined, and they agreed to meet at the north gate within the hour.\nPin\nEdit\nExclude\nRuno nervously babbled about pre-charged golems and the map until Ced silenced him with a sharp look and a quiet command to save technicals for the march. As they prepared to leave the city, Ced assessed Max with a measured glance, instructing them to keep distance from the mule and cart for clear lines of sight on the road.\nPin\nEdit\nExclude\nMax Nightriver and Runo left the city behind the cart, and a few miles out Max dropped back to ask Runo what his leader had not said about the last expedition. Runo's tufts spiked as he glanced toward Ced ahead, then broke down, blaming himself for failing the last member and everyone else by not making the golems faster or stronger.\nPin\nEdit\nExclude\nCed halted the party at a fork in the road within a day's march of the Keep, tracing a steeper, less-watched path through the foothills on a vellum map. After days of disciplined travel north from Aegis City through thickening forest, he instructed Max Nightriver to keep his eyes on the horizon and Runo to walk behind the mule. The tone remained tense and watchful as clouds gathered and Ced scanned the treeline for movement.\nPin\nEdit\nExclude\nMax Nightriver led the group up Ced's steep path into the foothills toward the Keep, the ascent grueling through jagged granite and cold, thin air. By mid-afternoon the grim black-stone Keep came into view, and Ced halted them behind a shale ridge, quietly reporting three guards on the wall and two more at the gatehouse. The tone was tense and wary as they studied the fortress before them.\nPin\nEdit\nExclude\nCed prepared a plan to infiltrate Carrow Keep and rescue captives, but Max Nightriver urged caution, so the group held on the ridge to observe patrols. Dalan scouted the west wall and reported a twenty-heartbeat gap in the watch change, and the group entered over the wall at Ced's signal. Inside the Great Hall, they found fresh food on the banquet table, and Ced sensed something was wrong.\nPin\nEdit\nExclude\nMax Nightriver and his companions entered the Great Hall, where they found Lord Aldric Carrow dead on his throne and a many-eyed demon feeding on him. When the demon laughed and guards with tentacles attacked, Runo summoned a defensive golem, Dalan covered the exit, and Max freed a branded captive from the altar. With the front cut off, they fled through a side door and descended a spiral stair, the captive warning of another prisoner below.\nPin\nEdit\nExclude\nMax Nightriver and the captive descended the spiral stair beneath the Great Hall, past an iron-barred gate, into a dark corridor of stone cells where the demon-reek was stronger and the captive revealed that the Beastmen were still present. At the far end, in the lowest cell, they found a gaunt, silver-haired woman hunched in the corner who did not look up as the torchlight reached her. The tone was tense and oppressive, heavy with fear and foreboding.\nPin\nEdit\nExclude"
+          },
+          {
+            "surface": "#so-hud",
+            "text": "◈ What Unira Says\ntension critical\n1 update next turn"
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "text": "Story OrchestratorStartNew story (wizard)Import a storyBuild a story with the wizard, or bring your own JSON.ContinuePlaying \"Adolion: Crimsonwing & Ebonwing\".Choose a storyRestart or exportRepairchanges not saved yet — they go with the next saveAuthorTurn on Author viewEdit the story, cast and what players may see.This chat — select and continue a storyStory for this chatSelect a storyAdolion: Between the RoadsAdolion: Crimsonwing & EbonwingAdolion: EshalanoreAdolion: Fire and WarAdolion: House NightriverAdolion: Night CourtsAdolion: The Adventurer's RoadAdolion: The Eastern RoadAdolion: The SagaPlaying your pinned copy (v10).New chats in Adolion - Crimsonwing & Ebonwing start withNo story (choose in each chat)Adolion: Between the RoadsAdolion: Crimsonwing & EbonwingAdolion: EshalanoreAdolion: Fire and WarAdolion: House NightriverAdolion: Night CourtsAdolion: The Adventurer's RoadAdolion: The Eastern RoadAdolion: The SagaApplies only to a new, empty chat in this group. Chats already playing keep their own story.Open story and chat preferencesGeneral setup — shared by every chatConnection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.Memory model — this installChanges here affect every chat.Let the story advance on its own (shared read extraction)Memory model profileNo profile selectedArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)AdvancedCadenceReconcile ×LagTest memory modelRuns fixed scenes through the real pipeline and reports what this model can actually do.Models per task (5 set)Affects every chat. A task left on \"Same as memory model\" asks the memory model profile above.Story readsSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetSummaries and canonSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetWizard and road aheadSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetSpeaker directionSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetWorld Info curatorSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetInner voiceSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighDisplay — this installChanges here affect every chat.Notes under messagesOffStoryBehind the scenesProgressMemoryThreadsWorld InfoCast & directionPacingModel callsHealthOnly the lastmessagesChaptersShow \"Previously…\" when a chat opens after a chapter endedAlso post a chat note when the story moves onShow story status above the chat inputImage service — this installThis install provides the model and ComfyUI. Story authors choose the scenes and style; players can pause images for their chat. Renders wait for text and queue it while ComfyUI uses the GPU.Permit automatic illustrations on this installAutomation for all chatsManual onlyStory-authored momentsEvery N replies + story momentsModel requestsEvery N repliesImage-prompt modelSelect a Connection Manager profileArtemis Local (Unsloth)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flashImage DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory UnslothComfyUI URLAvoid explicit imageryDefault image routes — advancedThese are install defaults. A story supplies visual intent; the selected route picks model, size and placement for each image type.Edit routescenecharacterportraituserbackgroundfreesceneModelWAI-illustrious v17JANKU v7.77FLUX.1 dev fp8QualitybasehiresAspectautoportraitsquarelandscapewideShotcloseuppercowboyfullwidepovfrom_abovefrom_belowPlacementinlinemessagebackgroundCandidatesLet the director select another modelExtra positive Extra negative Fallback card appearance — this installUsed when the story has not authored an appearance for this cast member.Adolion NarratorFixed image tagsAlways include Never include BelleFixed image tagsAlways include Never include DalanFixed image tagsAlways include Never include CedFixed image tagsAlways include Never include KelaFixed image tagsAlways include Never include RunoFixed image tagsAlways include Never include SafieFixed image tagsAlways include Never include VallieFixed image tagsAlways include Never include UniraFixed image tagsAlways include Never include AmthirFixed image tagsAlways include Never include NendiraFixed image tagsAlways include Never include AnaxFixed image tagsAlways include Never include SanaFixed image tagsAlways include Never include ShadurFixed image tagsAlways include Never include ShelurFixed image tagsAlways include Never include IdiraFixed image tagsAlways include Never include CaeliaFixed image tagsAlways include Never include CaetusFixed image tagsAlways include Never include YunaFixed image tagsAlways include Never include Sprite stageShow character sprites that change expression as replies streamOff in every chat: you switched it off, so a story that directs a stage does not turn it on.Let each story decideShow the stageWith Visual Novel mode (/vn)AlwaysExpression model when the judge is off or unavailableSame as the image directorArtemis Local (Unsloth)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flashImage DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory UnslothDim whoever is not speakingIdle breathingOn stage: Belle, Dalan, Ced, RunoAuthor services — optional, shared by every chatLorebooks — this installChanges here affect every chat.Lorebook gatingFile writesPer chat (scan)Story Orchestrator switches story lorebook entries on and off in their files as a chat moves.Judge — install-wide, optionalReady · key from dotenv · jev-1.13.0TypeSafe API keySave keyUse the judgeWhen a use is on, the text it lists is sent to the provider it is routed to. Nothing is sent while this is off.Speaker directionTypeSafe (Jev)llama-server (log-probabilities)Check memory before storingTypeSafe (Jev)llama-server (log-probabilities)Merge related notesTypeSafe (Jev)llama-server (log-probabilities)Notice scene changesTypeSafe (Jev)llama-server (log-probabilities)Scene trackerTypeSafe (Jev)llama-server (log-probabilities)Heading toward (author view)TypeSafe (Jev)llama-server (log-probabilities)Lore selectionTypeSafe (Jev)llama-server (log-probabilities)Every-turn story readsTypeSafe (Jev)llama-server (log-probabilities)Stall checkTypeSafe (Jev)llama-server (log-probabilities)Curator focusTypeSafe (Jev)llama-server (log-probabilities)Sprite expressionsTypeSafe (Jev)llama-server (log-probabilities)Continuity wardenTypeSafe (Jev)llama-server (log-probabilities)A configured TypeSafe key is consent: while the judge is on, each use routed here sends the chat excerpts it lists to TypeSafe. To stop it, untick \"Use the judgment model\" or the use itself.Privacy policyGot itSprite expressions: on, but nothing has measured it — Not measured yet: presentation only, a wrong face never touches the story. The sprite model and the local classifier take over when it is off.Test the judgeRecheckWhat each use is measured atOn and measured: Speaker direction 88% (p50 245 ms) · Check memory before storing 97% (p50 236 ms) · Merge related notes 93% (p50 254 ms) · Notice scene changes 97% (p50 243 ms) · Scene tracker 97% (p50 243 ms) · Heading toward (author view) 100% (p50 270 ms) · Lore selection 90% (p50 291 ms) · Curator focus 89% (p50 281 ms) · Every-turn story reads 83% (p50 260 ms) · Stall check 100% (p50 243 ms) · Continuity warden 97% (p50 247 ms) — measured on jev-1.13.0Speaker direction — this installChanges here affect every chat.Several characters may answer one messageVoices per turn at mostPacing — this installChanges here affect every chat.Smoothing αSteering hintDiagnostics — ST capabilities and versionHost capabilitiesRecheckCopy for a bug report1 of 10 unavailableSillyTavern 1.19.0 (7c3994196) · new macro engine · extension 2.4.0Memory model context: 131,072 tokens (known for deepseek; the profile names no settings preset) · up to 117,452 per readharness is unavailable: no harness is offered; every task stays on a profile"
+          }
+        ],
+        "attributes": [
+          {
+            "surface": "#drawer-manager",
+            "attr": "title",
+            "value": "Show gates, blackboard, scheduler and payload debugging. Spoils upcoming story branches.",
+            "controls": [
+              "so-author-view"
+            ]
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "aria-label",
+            "value": "Story Orchestrator tabs",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "title",
+            "value": "Flag this moment — it lands in the session journal for review",
+            "id": "so-flag-moment",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "aria-label",
+            "value": "Flag this moment",
+            "id": "so-flag-moment",
+            "controls": []
+          },
+          {
+            "surface": "#so-hud",
+            "attr": "title",
+            "value": "Open the story",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Start a new story from a premise: the wizard interviews you, proposes the graph, and creates the cards, lore and group it needs.",
+            "id": "so-new-story-wizard",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Restart this story in this chat (clears progress and memory for it)",
+            "id": "so-restart-story",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Restart story in this chat",
+            "id": "so-restart-story",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "This Connection Manager profile reads the chat after replies to track story progress. The choice affects every chat; it does not replace the main chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: This Connection Manager profile reads the chat after replies to track story progress. The choice affects every chat; it does not replace the main chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "When the story stalls, widen the re-read window by this multiplier to double-check missed facts.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: When the story stalls, widen the re-read window by this multiplier to double-check missed facts.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Skip the newest N messages when reading, in case you often re-roll replies. 0 = react to the latest message immediately.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Skip the newest N messages when reading, in case you often re-roll replies. 0 = react to the latest message immediately.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Story reads",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Summaries and canon",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Wizard and road ahead",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Speaker direction",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test World Info curator",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Small notes under the messages: where the story moved, what it remembered, which lore it consulted. Story and Behind the scenes never show spoilers; the Author levels show only while this chat's Author view is on.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Small notes under the messages: where the story moved, what it remembered, which lore it consulted. Story and Behind the scenes never show spoilers; the Author levels show only while this chat's Author view is on.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Automatic rendering also needs an automation mode, a story requesting cues, and a chat that has not paused them. Manual images remain available.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Automatic rendering also needs an automation mode, a story requesting cues, and a chat that has not paused them. Manual images remain available.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Story: follow the moments each story asks art for. Every N: draw every N replies and at each of those story moments. Tool: let the model ask. Manual: draw only when you ask.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Story: follow the moments each story asks art for. Every N: draw every N replies and at each of those story moments. Tool: let the model ask. Manual: draw only when you ask.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "A Connection Manager profile that turns the current scene and the story's visual direction into a ComfyUI prompt. This is separate from the chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: A Connection Manager profile that turns the current scene and the story's visual direction into a ComfyUI prompt. This is separate from the chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "The address of your ComfyUI server. When text and image models share a GPU, use the local GPU broker for your text profiles.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: The address of your ComfyUI server. When text and image models share a GPU, use the local GPU broker for your text profiles.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Stored in SillyTavern's own secrets on the server. It is never shown again, never saved in extension settings, and never sent to the page.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Stored in SillyTavern's own secrets on the server. It is never shown again, never saved in extension settings, and never sent to the page.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "A second, fast model for yes/no and pick-one decisions. Each use below is on by default and can be switched off on its own; each says what it sends. It never receives character cards, persona text, other chats or the key.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: A second, fast model for yes/no and pick-one decisions. Each use below is on by default and can be switched off on its own; each says what it sends. It never receives character cards, persona text, other chats or the key.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides. Sends: the last 8 messages, character names and roles, the scene name and goal.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides. Sends: the last 8 messages, character names and roles, the scene name and goal.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Speaker direction: provider",
+            "id": "so-judge-provider-director",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Drops notes the story never showed and down-weights doubtful ones. Sends: the read's messages, the candidate notes, story title and cast names.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Drops notes the story never showed and down-weights doubtful ones. Sends: the read's messages, the candidate notes, story title and cast names.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Check memory before storing: provider",
+            "id": "so-judge-provider-memory-verify",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Decides whether two similar notes are a duplicate, an update, or both true. Sends: two memory notes per question.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Decides whether two similar notes are a duplicate, an update, or both true. Sends: two memory notes per question.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Merge related notes: provider",
+            "id": "so-judge-provider-memory-pairs",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Asks for the scene read on the turn a scene changes, next to today's keyword check. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Asks for the scene read on the turn a scene changes, next to today's keyword check. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Notice scene changes: provider",
+            "id": "so-judge-provider-scene-trigger",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Keeps location, time and who is present, and adds them to the prompt. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Keeps location, time and who is present, and adds them to the prompt. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Scene tracker: provider",
+            "id": "so-judge-provider-scene-tracker",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Shows which upcoming checkpoints play is moving toward. Sends: the last 8 messages and the names and goals of the next checkpoints.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Shows which upcoming checkpoints play is moving toward. Sends: the last 8 messages and the names and goals of the next checkpoints.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Heading toward (author view): provider",
+            "id": "so-judge-provider-lookahead",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Adds the lore entries that matter to the next reply, even without their keywords. Sends: the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Adds the lore entries that matter to the next reply, even without their keywords. Sends: the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Lore selection: provider",
+            "id": "so-judge-provider-lore-select",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Reads qualities the author marked for it on every turn, so gates fire sooner; the rest stay with the story model. Sends: the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Reads qualities the author marked for it on every turn, so gates fire sooner; the rest stay with the story model. Sends: the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Every-turn story reads: provider",
+            "id": "so-judge-provider-typed-extraction",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Checks a stalled gate before spending a full re-read; writes only what the messages clearly show. Sends: the messages since the checkpoint began and the unmet conditions' descriptions and values.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Checks a stalled gate before spending a full re-read; writes only what the messages clearly show. Sends: the messages since the checkpoint began and the unmet conditions' descriptions and values.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Stall check: provider",
+            "id": "so-judge-provider-stall-check",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Shows the World Info curator only the entries the story may have overtaken. Sends: the story so far and the story's lore entries.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Shows the World Info curator only the entries the story may have overtaken. Sends: the story so far and the story's lore entries.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Curator focus: provider",
+            "id": "so-judge-provider-curator-filter",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Reads each passage of a reply as it streams and picks which character it is about and their facial expression, for the sprite stage. Otherwise the sprite model, then the local classifier, decide. Sends: each reply's passages, the on-stage character names and the expression labels with their descriptions.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Reads each passage of a reply as it streams and picks which character it is about and their facial expression, for the sprite stage. Otherwise the sprite model, then the local classifier, decide. Sends: each reply's passages, the on-stage character names and the expression labels with their descriptions.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Sprite expressions: provider",
+            "id": "so-judge-provider-expressions",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Continuity warden: provider",
+            "id": "so-judge-provider-warden",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "A single player message can be answered by more than one character. The judge picks each next speaker and stops when it hands the turn back to you; a story may set its own order on a checkpoint. Off: one voice per turn, as before.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: A single player message can be answered by more than one character. The judge picks each next speaker and stops when it hands the turn back to you; a story may set its own order on a checkpoint. Off: one voice per turn, as before.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "How quickly the measured tension follows the latest scene. Higher = jumpier, lower = smoother.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: How quickly the measured tension follows the latest scene. Higher = jumpier, lower = smoother.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Quietly nudge the main model toward the story's intended tension (escalate or cool down) via an injected note.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Quietly nudge the main model toward the story's intended tension (escalate or cool down) via an injected note.",
+            "controls": []
+          }
+        ]
+      }
+    ],
+    "tokens": [
+      "deep-joint-posting",
+      "deep-kela-and-ced",
+      "deep-with-crimsonwing",
+      "deep-with-ebonwing",
+      "deep-the-north-road",
+      "deep-the-march",
+      "deep-ritual-fort",
+      "deep-the-altar",
+      "deep-nahalbuk-cells",
+      "deep-what-unira-says",
+      "deep-draxford-call",
+      "deep-miners-at-the-door",
+      "deep-the-tunnels",
+      "deep-the-swarm",
+      "deep-into-the-dark",
+      "deep-the-demonborn-camp",
+      "deep-the-blade-in-the-dark",
+      "deep-the-hive",
+      "deep-hive-burned",
+      "deep-hive-sealed",
+      "deep-the-reckoning",
+      "deep_guild_hall",
+      "deep_north_gate",
+      "deep_north_road",
+      "deep_ritual_fort",
+      "deep_great_hall",
+      "deep_nahalbuk",
+      "deep_draxford_mines",
+      "deep_draxford_tunnels",
+      "deep_darklands",
+      "deep_demonborn_camp",
+      "deep_moonshadow_cavern",
+      "deep_hive"
+    ]
+  }
+}

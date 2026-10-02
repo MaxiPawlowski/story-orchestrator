@@ -1,0 +1,254 @@
+[
+ {
+  "id": 0,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Nine people have gone missing from the Aegis slums since the first frost. The Grand Temple's posting brought you here after dark, where tallow smoke clings to the alleys and the watch keeps to better streets. A shop window shows unsettling paintings signed 'Butcher'; two elves have just hurried past it after someone who ran, and somewhere deeper in the alleys a door bangs shut."
+ },
+ {
+  "id": 1,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "A tall man in plate and a blue collar stands on a cart in the middle of the square, a covered lantern at his belt and a steel mask over his mouth. \"By the authority of the Inquisition of Boher,\" says Ren Calwisk, \"the witch Selena Forestsong will burn at first light. If any here would speak for her, speak now, and give me your name.\" Nobody in Glasnoa moves."
+ },
+ {
+  "id": 2,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Erevan, do you believe the book was hers?"
+ },
+ {
+  "id": 3,
+  "name": "Erevan",
+  "isUser": false,
+  "text": "\"I do not believe it was hers,\" says Erevan, his voice muffled by his facemask. \"A witch's grimoire is her most precious possession. She would not keep it under a floorboard like common scraps.\" Erevan pauses and then adds, \"The binding is new. The ink is still fresh. It was not her book. I suspect someone else put it there.\""
+ },
+ {
+  "id": 4,
+  "name": "Ren",
+  "isUser": false,
+  "text": "\"The law does not care what she thinks of it,\" says Ren, his voice even and cold. \"A witch with the Heresy in her house is a witch to be burned. The law is the law.\" Ren's hand rests on the hilt of his sword, his gaze fixed on the condemned woman chained in the barn. \"If you doubt the law, then you will doubt the Inquisition.\""
+ },
+ {
+  "id": 5,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Selena, tell me what happened in your room."
+ },
+ {
+  "id": 6,
+  "name": "Selena",
+  "isUser": false,
+  "text": "\"I... I don't...\" Selena's voice is barely a whisper, her ruby-red eyes wide with fear. She shrinks back against the wooden wall, chains rattling softly. Her spade-tipped tail twitches nervously behind her.\n\"They came for me. Two of them.\" Her breath catches, and she wraps her arms around herself. \"They shut the door and... and they tried to...\" She breaks off, unable to finish the sentence, her voice trembling. \"I didn't mean to. The magic just happened. It happened by itself.\"\nShe looks up at Max Nightriver with a desperate, pleading expression. \"Please... I'm not a witch. I never signed anything. I-I just wanted them to stop.\""
+ },
+ {
+  "id": 7,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Erevan, a straight answer. Yes or no: do you know who put that book under her floor?"
+ },
+ {
+  "id": 8,
+  "name": "Erevan",
+  "isUser": false,
+  "text": "Erevan's blue eyes narrow behind his facemask as he looks at Max Nightriver. His hand rests on his longbow, but his stance is not hostile.\n\"No.\" The answer comes flat and certain. \"I did not see it happen. I was not here when the book was placed.\" Erevan pauses, his fingers tightening on his bow. \"But the binding is new. Fresh ink. A witch would not keep her own grimoire hidden away under a floor like that. She would keep it close, care for it.\" He looks over at Selena in the barn. \"The book was planted. I know that much.\""
+ },
+ {
+  "id": 9,
+  "name": "Ren",
+  "isUser": false,
+  "text": "\"Telling me what you *think* is not the same as knowing,\" says Ren, his voice cold and flat. His hand remains on the sword hilt as his gaze shifts from Erevan to Max Nightriver. \"I have seen this case already. The witch is condemned. The book is in her house. The law is clear.\"\nRen's eyes harden as he stares at the half-demon. \"If you have proof of a frame-up, produce it. Otherwise, the law will be carried out at dawn.\""
+ },
+ {
+  "id": 10,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I say nothing and let Ren make his case to the crowd.*"
+ },
+ {
+  "id": 11,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Ren steps down from the cart with a heavy clink of metal. He holds the grimoire aloft for the square to see—dark leather and silver filigree that catches the torchlight. \"Dracul's Heresy,\" he says, and the name makes a few villagers recoil. \"Found under the floorboards of the witch's home. A crime for which there is only one penalty.\"\nHe turns and points a gauntleted finger at the barn. \"At first light, Selena Forestsong burns for the heresy found in her possession. If anyone wishes to challenge this ruling, step forward now and present your evidence.\"\nThe crowd is silent. Nobody moves. The only sounds are the crackle of the torch-pits and the distant bleat of a sheep."
+ },
+ {
+  "id": 12,
+  "name": "Ren",
+  "isUser": false,
+  "text": "Ren's gaze sweeps the square, blue eyes cold and unblinking behind the surgical mask. He lowers the book, his grip on its spine iron. \"There are no challenges,\" he says, his voice level. \"The law is settled.\"\nHis hand returns to the sword hilt. \"Erevan, prepare the pyre. I will be here at dawn.\""
+ },
+ {
+  "id": 13,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "She goes free. The book was planted."
+ },
+ {
+  "id": 14,
+  "name": "Ren",
+  "isUser": false,
+  "text": "Ren's hand tightens on his sword hilt, his knuckles white. His blue eyes fix on Max Nightriver, cold and unyielding. \"She does not go free.\" He says the word-word-word, each syllable sharp. \"The law does not say 'planted.' The law says 'found in her house.'\" He takes a step toward Max Nightriver, his plate armor clinking. \"Your doubt is a dangerous thing. Are you suggesting the Inquisition is wrong?\""
+ },
+ {
+  "id": 15,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Then I'll find you proof. Reeve Tull, the book was found in her room. Who told the Inquisition where to look, and when were you last in that house?"
+ },
+ {
+  "id": 16,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Reeve Tull stands at the edge of the square, his hands clasped behind his back, his face a mask of pious concern. His gaze is steady, his expression carefully neutral.\n\"The Inquisitor came for her on my word,\" says Tull, his voice clear and steady. \"I saw her consorting with strangers in the dead of night. I thought it prudent to call for aid. The Inquisitor arrived by moonrise. I have not been in her home since the Inquisitor arrived.\"\nThe Reeve shifts his weight slightly, his boots crunching on the frozen earth. He looks to the Inquisitors as though seeking confirmation."
+ },
+ {
+  "id": 17,
+  "name": "Ren",
+  "isUser": false,
+  "text": "Ren's gaze shifts to Reeve Tull, his blue eyes unblinking. \"The Reeve's word is law in his village,\" he says flatly. \"His concern was warranted. I came upon his word. I searched the premises myself.\"\nHe turns back to Max Nightriver, and his hand remains on his sword hilt. \"I was in her house only once. I found the book. The case is settled.\""
+ },
+ {
+  "id": 18,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "From the square comes the steady knock of a mallet on green wood: the stake going in, one blow at a time."
+ },
+ {
+  "id": 19,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*I step close to Tull and keep my voice low.* You won't look at me, Reeve. Strangers in the night, you say, yet there's fresh mud from her lane on your boots. You put it there, didn't you? Tell me why, and tell Ren, or I tell the whole square."
+ },
+ {
+  "id": 20,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Tull's face tightens. His hands drop from behind his back and his gaze snaps to Max's boots, then back to the mud-caked leather of his own. He is silent for a long breath.\n\"You will not tell the square nothing,\" he says, his voice low and sharp. \"I am the Reeve of Glasnoa. I-I am...\" He stops, his jaw working. He glances to where the villagers stand watching, then to the Inquisitor. \"I am not going to say anything.\""
+ },
+ {
+  "id": 21,
+  "name": "Ren",
+  "isUser": false,
+  "text": "Ren's hand has not left his sword hilt as he stands in the square, but his gaze has shifted. His head turns toward the Reeve, and his blue eyes are cold. \"The Reeve has words to say,\" he says. \"I am listening.\""
+ },
+ {
+  "id": 22,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Go on, Reeve. Ren is listening, and so is the square. Did you hide that book in her room?"
+ },
+ {
+  "id": 23,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Tull's head snaps toward the Inquisitor as he is spoken to directly. His shoulders stiffen, his face flush-red. He looks to where the villagers are watching, his voice loud and clear.\n\"I did not hide it!\" he shouts, his hand pointing toward the barn where Selena is chained. \"I didn't—I didn't do it! I just...\" His voice falters, and he looks down at his boots. He pauses and then adds, \"I didn't want it.\" He steps back from Max Nightriver, away from the light of the torches. \"I just wanted her gone. I-I didn't think—I didn't know what would happen.\""
+ },
+ {
+  "id": 24,
+  "name": "Ren",
+  "isUser": false,
+  "text": "Ren's gaze does not leave the Reeve's flushed face. He says nothing. He does not draw his sword. He stands perfectly still. \"The book was not yours,\" he says, flatly. \"Then whose was it?\""
+ },
+ {
+  "id": 25,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*Past midnight, while the watch dozes, I slip into the tithe barn, break Selena's chains with a crowbar and lead her out the back, west toward the dark line of Thornwood.* Quiet now. Stay close to me."
+ },
+ {
+  "id": 26,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The lock snaps under the pry bar with a muffled crack. Selena's wrists drop, raw and chafed. She stumbles as she stands, her legs shaking.\n\"You... you came back for me,\" she whispers, and for a moment the red of her eyes catches the torchlight from the square.\nOutside the barn's back door, the night is cold and clear. The forest road runs west, a dark line between the village and the treeline. Selena clings to Max Nightriver's sleeve, her steps unsteady on the frozen mud. Behind them, the village is silent, the watch's torches small and distant."
+ },
+ {
+  "id": 27,
+  "name": "Selena",
+  "isUser": false,
+  "text": "Selena keeps her voice low, her words a whisper. \"Thank you.\" Her red eyes scan the dark, then flick back to Max Nightriver's face. \"They were going to kill me.\"\nShe pauses, her tail twitching nervously. \"The Inquisitors. Two of them.\" She stops and then speaks more quickly. \"I-I didn't mean to. I-I just wanted them to stop.\"\nShe shudders and wraps her arms around herself. \"I didn't sign anything. I'm not a witch.\""
+ },
+ {
+  "id": 28,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*We push in under the first thorn trees, into the mist.* We're in. They won't follow us in here before dawn. Selena, you're free now. Breathe."
+ },
+ {
+  "id": 29,
+  "name": "Selena",
+  "isUser": false,
+  "text": "Selena takes a shallow breath, her red eyes blinking. Her voice is small. \"Free.\" She lets out a shuddering exhale and leans into the trees for support. \"I... I didn't think anyone would... I didn't know...\"\nShe looks at Max Nightriver, then back at the village. \"Thank you. For coming back for me. For not... for believing me.\"\nHer tail flickers behind her. \"I'm not a witch.\" She says it again, quietly. \"I just... I-I didn't want them to hurt me.\""
+ },
+ {
+  "id": 30,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "You don't owe me anything. Come on, deeper into Thornwood, away from the road. Keep an eye out for a light, there's supposed to be someone living out here."
+ },
+ {
+  "id": 31,
+  "name": "Selena",
+  "isUser": false,
+  "text": "Selena follows closely, her boots crunching softly on the frozen ground. She keeps her gaze low, scanning the underbrush and mist. \"A light,\" she murmurs, and her tail twitches with nervous hope.\nAfter a few minutes, she pauses. \"Thank you.\" Her voice is softer this time, almost shy. \"Again. I... I didn't have anyone.\"\nShe looks at Max Nightriver as they walk. \"Nobody would help me. Even my mother.\" Her shoulders slump a little. \"Nobody.\""
+ },
+ {
+  "id": 32,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*Ahead, a yellow glow shows through the thorns: a cabin window. I head for it and knock on the door.* Hello? We mean no harm. We need shelter till dawn."
+ },
+ {
+  "id": 33,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The door creaks open. A woman stands in the doorway, her eyes sharp and wary. She wears dark robes and a thorn-patterned shawl, and her staff is held loosely in one hand. Her face is pale, framed by long black hair.\n\"Shelter,\" she says, her voice cool and cautious. \"On a night like this, you're bold.\"\nHer gaze shifts to Selena, then back to Max Nightriver. She does not move to let them in. \"You have the scent of trouble on you both. The Inquisition?\""
+ },
+ {
+  "id": 34,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "The Inquisition, yes. They meant to burn her at dawn for a book someone planted. You're Kayla? What's in the lake?"
+ },
+ {
+  "id": 35,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Kayla's eyes narrow as she looks at Selena, then back to where Max Nightriver stands. Her grip on her staff tightens.\n\"I am Kayla,\" she says, \"and the lake keeps its secrets.\"\nShe takes a step back from the door, her hand still on the frame. \"The Inquisition... you're one of them?\" Her voice is low and dangerous. \"And you ask what is in the lake?\"\nShe looks again to Selena, her gaze lingering on the half-demon's horns and tail. \"You're a fool for bringing them here.\""
+ },
+ {
+  "id": 36,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "I'm Guild, not Inquisition. I'm the one who broke her out. Let us in before the mist freezes us both, and tell me what this forest of yours is hiding."
+ },
+ {
+  "id": 37,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Kayla's eyes flick to the blue-haired girl clinging to Max's sleeve, then to Max himself. Her hand relaxes slightly on the staff, but her face remains tense.\n\"Guild,\" she repeats, her voice flat. \"The kind who gets themselves in over their heads for a coin-purse.\"\nShe steps aside from the threshold, opening the door just wide enough. \"The mist freezes fools and the dead, not me. And this forest hides things that do not want to be found.\"\nThe scent of dried herbs and woodsmoke wafts from inside. She glances back over her shoulder. \"Come in. Quickly.\""
+ },
+ {
+  "id": 38,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "*We step inside.* Selena, sit by the fire. Kayla, how long have you lived out here in Thornwood?"
+ },
+ {
+  "id": 39,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The door closes with a heavy thud, and Kayla's hand finds the bolt. The interior is small, with a stone hearth where a low fire crackles and walls lined with bundles of drying herbs. Selena moves toward the warmth, her torn dress clinging to her frame.\n\"Since the day I learned to hear the wood,\" Kayla says, her eyes never leaving Max. She sets her staff against the wall and gestures to a stool by the hearth. \"And that was many years ago.\"\nShe walks to a small table and picks up a knife, her movements slow and deliberate. \"Now, tell me why you broke an Inquisitor's condemned. Tell me why you're here, and what you think you'll find in this forest.\""
+ },
+ {
+  "id": 40,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Selena curls up on the stool by the fire, her tail wrapped tight around her legs. She doesn't look up at the conversation, but her shoulders are hunched.\n\"I-I don't...\" she whispers, her voice small and trembling. \"I don't know why he did it. I-I-I didn't ask him to.\"\nThe light from the fire catches the red in her eyes as she watches the flames."
+ },
+ {
+  "id": 41,
+  "name": "Kayla",
+  "isUser": false,
+  "text": "\"I didn't ask you, darling,\" Kayla says to Max, her eyes hard and cold. \"I asked *him*.\"\nShe leans against the table, the knife in her hand. \"You broke the law. You freed a half-demon from execution. Now you're here in my wood, asking questions.\"\nThe firelight catches the edge of the knife as she taps it against the wood of the table. \"I don't give my time for free. You want answers? You'll pay for them.\""
+ }
+]

@@ -1,0 +1,136 @@
+{
+  "charter": "T3-2",
+  "tier": "T3",
+  "continuedAtPin": null,
+  "flags": [],
+  "anomalies": [
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:55:26.594Z",
+      "chatId": "2026-10-01@23h13m06s765ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 917
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:55:29.087Z",
+      "chatId": "2026-10-01@23h13m06s765ms",
+      "summary": "judge typed fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 918
+      },
+      "detail": {
+        "use": "typed",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T03:00:54.998Z",
+      "chatId": "2026-10-01@23h13m06s765ms",
+      "summary": "1 extraction line(s) rejected: FACT importance=2 text=\"Unira says her family does not want her, trailing off before finishing the thought.\" evidence=\"My family doesn't...\" *She trails off, jaw tightening as she suppresses the thought.* (unrecognized line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1188
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "FACT importance=2 text=\"Unira says her family does not want her, trailing off before finishing the thought.\" evidence=\"My family doesn't...\" *She trails off, jaw tightening as she suppresses the thought.*",
+            "reason": "unrecognized line"
+          }
+        ]
+      }
+    }
+  ],
+  "counts": {
+    "flags": 0,
+    "stall": 0,
+    "extraction-rejected": 1,
+    "empty-private-block": 0,
+    "lore-force-lost": 0,
+    "lore-constant-missed": 0,
+    "judge-fallback": 2,
+    "save-lost": 0,
+    "unexpected-jump": 0,
+    "rollback": 0,
+    "console-error": 0,
+    "model-call-failure": 0,
+    "model-defect": 0,
+    "harness-error": 0
+  },
+  "countsByChat": {
+    "2026-10-01@23h13m06s765ms": {
+      "judge-fallback": 2,
+      "extraction-rejected": 1
+    }
+  },
+  "valid": true,
+  "invalid": [],
+  "unverifiable": {
+    "privateBlock": 0
+  },
+  "judge": {
+    "calls": 202,
+    "answered": 200,
+    "busy": 0,
+    "timeout": 2,
+    "otherFallbacks": 0,
+    "busyRate": 0,
+    "busyByUse": {}
+  },
+  "modelDefects": {
+    "turns": 0,
+    "loop": 0,
+    "corrupt": 0,
+    "repaired": 0,
+    "unrepaired": 0
+  },
+  "sessionDir": "test/sessions/T3/T3-2-1",
+  "register": [
+    {
+      "id": "T3-?1",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-2-1/journal.jsonl:917",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?2",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge typed fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-2-1/journal.jsonl:918",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?3",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: FACT importance=2 text=\"Unira says her family does not want her, trailing off before finishing the thought.\" evidence=\"My family doesn't...\" *She trails off, jaw tightening as she suppresses the thought.* (unrecognized line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-2-1/journal.jsonl:1188",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    }
+  ]
+}

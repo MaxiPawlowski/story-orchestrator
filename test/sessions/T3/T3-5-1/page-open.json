@@ -1,0 +1,477 @@
+{
+  "phase": "open",
+  "problems": [],
+  "chatsBefore": [
+    {
+      "chatId": "2024-10-27@09h04m05s",
+      "group": "Group: Adventure Awaits!",
+      "groupId": "1703513523027"
+    },
+    {
+      "chatId": "2023-12-30@07h37m27s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #3 - 2023-12-30@07h49m03s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #4 - 2023-12-30@07h49m58s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #7 - 2023-12-30@08h34m59s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #9 - 2023-12-30@08h38m48s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #9 - 2023-12-30@08h43m16s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #10 - 2023-12-30@08h46m02s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #12 - 2023-12-30@09h04m17s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #37 - 2024-1-7@07h44m27s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #38 - 2024-1-7@08h07m14s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #37 - 2024-1-7@08h07m21s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h16m07s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h16m50s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h21m35s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h26m16s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h50m34s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h54m44s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h57m26s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@09h01m01s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h07m39s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h13m12s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h14m18s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h21m12s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h24m17s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h24m55s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #44 - 2024-1-8@07h46m49s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #35 - 2024-1-11@08h47m04s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "2024-10-25@16h35m36s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "2025-10-05@06h12m53s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-19@03h33m31s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "Branch #1 - 2025-10-19@03h36m00s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-19@07h16m29s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-24@12h14m56s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-24@17h18m15s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "Branch #5 - 2025-10-24@17h19m22s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-27@20h24m15s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-02-17@11h42m56s913ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-03-26@12h06m12s510ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-03-26@12h08m16s199ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-05@22h24m53s198ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-05@22h55m21s034ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-06@05h51m54s748ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h45m42s515ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h48m58s737ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h52m33s971ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h54m33s414ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h31m08s263ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h50m22s390ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h57m58s240ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h43m15s689ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h43m40s089ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h54m21s833ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@03h56m01s832ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@03h56m31s664ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@08h08m11s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@10h03m45s492ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h43m26s486ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h44m44s165ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h49m39s901ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@04h14m58s603ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@04h27m07s632ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@05h41m21s356ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h05m16s093ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h12m05s775ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h12m19s409ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h14m25s652ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h15m25s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h19m36s454ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h23m47s982ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h26m46s401ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h26m57s965ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h37m51s942ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h54m40s955ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-19@22h52m47s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@03h36m38s982ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@03h37m03s927ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h09m30s254ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h11m21s482ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h11m46s225ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h34m19s453ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h40m32s180ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@07h06m38s396ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-10-01@23h35m15s565ms",
+      "group": "Adolion - House Nightriver",
+      "groupId": "1790908515852"
+    },
+    {
+      "chatId": "2026-10-01@23h35m15s865ms",
+      "group": "Adolion - The Adventurer's Road",
+      "groupId": "1790908515974"
+    },
+    {
+      "chatId": "2026-10-01@23h35m15s985ms",
+      "group": "Adolion - Between the Roads",
+      "groupId": "1790908516078"
+    },
+    {
+      "chatId": "2026-10-01@23h35m16s092ms",
+      "group": "Adolion - Crimsonwing & Ebonwing",
+      "groupId": "1790908516206"
+    },
+    {
+      "chatId": "2026-10-01@23h35m16s214ms",
+      "group": "Adolion - The Eastern Road",
+      "groupId": "1790908516372"
+    },
+    {
+      "chatId": "2026-10-01@23h35m16s379ms",
+      "group": "Adolion - Eshalanore",
+      "groupId": "1790908516404"
+    },
+    {
+      "chatId": "2026-10-01@23h35m16s414ms",
+      "group": "Adolion - Night Courts",
+      "groupId": "1790908516499"
+    },
+    {
+      "chatId": "2026-10-01@23h35m16s519ms",
+      "group": "Adolion - The Saga",
+      "groupId": "1790908516675"
+    },
+    {
+      "chatId": "2026-10-01@23h35m16s730ms",
+      "group": "Adolion - Fire and War",
+      "groupId": "1790908516799"
+    }
+  ],
+  "chats": [
+    {
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "groupId": "1790908516372",
+      "storyId": "adolion-east",
+      "activeCheckpointId": "east-landfall",
+      "requirementsReady": true,
+      "group": "Adolion - The Eastern Road",
+      "primary": true
+    }
+  ]
+}

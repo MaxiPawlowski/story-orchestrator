@@ -1,0 +1,732 @@
+Following the session journal → C:\dev\story-orchestrator\test\sessions\T3\T3-5-1\journal.jsonl every 1000 ms. Ctrl-C to stop.
+2026-10-02T02:41:55.363Z session      chat 2026-10-01@23h41m44s699ms · story adolion-east · at Landfall at Hianxo (boundary 1, 1 messages)
+2026-10-02T02:41:45.042Z story        quality macro skipped
+2026-10-02T02:41:45.042Z story        quality macro skipped
+2026-10-02T02:41:45.042Z story        quality macro skipped
+2026-10-02T02:41:45.042Z story        quality macro skipped
+2026-10-02T02:41:45.042Z story        quality macro skipped
+2026-10-02T02:41:45.042Z story        quality macro skipped
+2026-10-02T02:41:45.042Z story        quality macro skipped
+2026-10-02T02:41:45.050Z boundary     boundary 1: nothing applied (gate)
+2026-10-02T02:41:51.967Z story        away recap not due
+2026-10-02T02:41:52.085Z status       Following Landfall at Hianxo
+2026-10-02T02:41:52.416Z judge        judge typed in 291 ms
+2026-10-02T02:41:52.417Z judge        judge scene in 290 ms
+2026-10-02T02:41:52.497Z judge        judge typed in 0 ms
+2026-10-02T02:41:52.497Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:41:55.360Z delta        queued east_at_academy=false, location=east_hianxo, tension_current=0.25 for the next boundary
+2026-10-02T02:41:55.599Z judge        judge memoryVerify in 244 ms
+2026-10-02T02:41:56.384Z delta        queued east_at_academy=false, location=east_hianxo, tension_current=0.25 for the next boundary
+2026-10-02T02:41:55.352Z extraction   read cue:east-landfall->east-jiansho-academy msgs 0-0 → 3 accepted, 0 rejected
+2026-10-02T02:41:55.352Z delta        east_at_academy = false
+2026-10-02T02:41:55.352Z delta        location = east_hianxo
+2026-10-02T02:41:55.352Z delta        tension_current = 0.25
+2026-10-02T02:41:55.352Z delta        queued east_at_academy=false, location=east_hianxo, tension_current=0.25 for the next boundary
+2026-10-02T02:41:55.352Z audit        audit cue:east-landfall->east-jiansho-academy msgs 0-0 scope [east_at_academy, guild_reputation, location, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:42:08.223Z payload      4 story blocks injected (generation)
+2026-10-02T02:42:08.256Z payload      5 story blocks injected (generation)
+2026-10-02T02:42:08.818Z judge        judge lore in 371 ms
+2026-10-02T02:42:08.832Z judge        judge lore in 389 ms
+2026-10-02T02:42:09.158Z judge        judge lore in 343 ms
+2026-10-02T02:42:09.189Z judge        judge lore in 361 ms
+2026-10-02T02:42:09.394Z judge        judge lore in 237 ms
+2026-10-02T02:42:09.665Z talk         Honami speaks (judge)
+2026-10-02T02:42:09.665Z judge        judge director in 245 ms
+2026-10-02T02:42:29.538Z payload      5 story blocks injected (generation)
+2026-10-02T02:42:29.827Z payload      5 story blocks injected (generation)
+2026-10-02T02:42:30.156Z boundary     applied east_at_academy=false, location=east_hianxo, tension_current=0.25
+2026-10-02T02:42:30.363Z talk         silence speaks (judge)
+2026-10-02T02:42:30.363Z judge        judge director in 276 ms
+2026-10-02T02:42:31.599Z judge        judge scene in 1238 ms
+2026-10-02T02:42:31.612Z judge        judge typed in 1270 ms
+2026-10-02T02:42:31.848Z judge        judge wardenLore in 237 ms
+2026-10-02T02:42:31.875Z judge        judge warden in 277 ms
+2026-10-02T02:42:32.024Z judge        judge typed in 0 ms
+2026-10-02T02:42:32.025Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:42:35.543Z judge        judge memoryVerify in 278 ms
+2026-10-02T02:42:36.218Z delta        queued east_at_academy=false, location=east_hianxo, tension_current=0.25 for the next boundary
+2026-10-02T02:42:35.263Z extraction   read cue:east-landfall->east-jiansho-academy msgs 0-2 → 3 accepted, 0 rejected
+2026-10-02T02:42:35.263Z delta        east_at_academy = false
+2026-10-02T02:42:35.263Z delta        location = east_hianxo
+2026-10-02T02:42:35.263Z delta        tension_current = 0.25
+2026-10-02T02:42:35.263Z delta        queued east_at_academy=false, location=east_hianxo, tension_current=0.25 for the next boundary
+2026-10-02T02:42:35.263Z audit        audit cue:east-landfall->east-jiansho-academy msgs 0-2 scope [east_at_academy, guild_reputation, location, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:42:47.415Z payload      5 story blocks injected (generation)
+2026-10-02T02:42:47.457Z payload      6 story blocks injected (generation)
+2026-10-02T02:42:48.036Z judge        judge lore in 389 ms
+2026-10-02T02:42:48.049Z judge        judge lore in 397 ms
+2026-10-02T02:42:48.330Z judge        judge lore in 298 ms
+2026-10-02T02:42:48.350Z judge        judge lore in 305 ms
+2026-10-02T02:42:48.557Z judge        judge lore in 228 ms
+2026-10-02T02:42:48.791Z talk         Honami speaks (judge)
+2026-10-02T02:42:48.791Z judge        judge director in 222 ms
+2026-10-02T02:43:09.760Z payload      6 story blocks injected (generation)
+2026-10-02T02:43:11.423Z payload      6 story blocks injected (generation)
+2026-10-02T02:43:14.154Z boundary     applied east_at_academy=false, location=east_hianxo, tension_current=0.25
+2026-10-02T02:43:14.227Z talk         silence speaks (judge)
+2026-10-02T02:43:14.227Z judge        judge director in 309 ms
+2026-10-02T02:43:14.602Z judge        judge scene in 241 ms
+2026-10-02T02:43:14.662Z judge        judge warden in 300 ms
+2026-10-02T02:43:14.823Z judge        judge wardenLore in 222 ms
+2026-10-02T02:43:15.239Z judge        judge typed in 226 ms
+2026-10-02T02:43:15.239Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:43:18.272Z delta        queued east_at_academy=false, location=east_hianxo, tension_current=0.25 for the next boundary
+2026-10-02T02:43:18.092Z extraction   read cadence msgs 3-4 → 3 accepted, 0 rejected
+2026-10-02T02:43:18.092Z delta        east_at_academy = false
+2026-10-02T02:43:18.092Z delta        location = east_hianxo
+2026-10-02T02:43:18.092Z delta        tension_current = 0.25
+2026-10-02T02:43:18.092Z delta        queued east_at_academy=false, location=east_hianxo, tension_current=0.25 for the next boundary
+2026-10-02T02:43:18.327Z judge        judge memoryVerify in 234 ms
+2026-10-02T02:43:18.092Z audit        audit cadence msgs 3-4 scope [east_at_academy, location, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:43:20.022Z judge        judge typed in 237 ms
+2026-10-02T02:43:20.022Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:43:24.613Z judge        judge memoryVerify in 318 ms
+2026-10-02T02:43:24.651Z delta        queued east_at_academy=false, location=east_hianxo, tension_current=0.25 for the next boundary
+2026-10-02T02:43:25.707Z delta        queued east_at_academy=false, location=east_hianxo, tension_current=0.25 for the next boundary
+2026-10-02T02:43:24.291Z extraction   read cue:east-landfall->east-jiansho-academy msgs 0-4 → 3 accepted, 0 rejected
+2026-10-02T02:43:24.291Z delta        east_at_academy = false
+2026-10-02T02:43:24.291Z delta        location = east_hianxo
+2026-10-02T02:43:24.291Z delta        tension_current = 0.25
+2026-10-02T02:43:24.291Z delta        queued east_at_academy=false, location=east_hianxo, tension_current=0.25 for the next boundary
+2026-10-02T02:43:24.291Z audit        audit cue:east-landfall->east-jiansho-academy msgs 0-4 scope [east_at_academy, guild_reputation, location, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:43:37.130Z payload      6 story blocks injected (generation)
+2026-10-02T02:43:37.170Z payload      7 story blocks injected (generation)
+2026-10-02T02:43:37.767Z judge        judge lore in 384 ms
+2026-10-02T02:43:37.794Z judge        judge lore in 416 ms
+2026-10-02T02:43:38.084Z judge        judge lore in 321 ms
+2026-10-02T02:43:38.097Z judge        judge lore in 309 ms
+2026-10-02T02:43:38.317Z judge        judge lore in 235 ms
+2026-10-02T02:43:38.542Z talk         Honami speaks (judge)
+2026-10-02T02:43:38.542Z judge        judge director in 211 ms
+2026-10-02T02:43:40.075Z payload      7 story blocks injected (generation)
+2026-10-02T02:43:41.831Z payload      7 story blocks injected (generation)
+2026-10-02T02:44:00.536Z boundary     applied east_at_academy=false, location=east_hianxo, tension_current=0.25; discarded east_at_academy=false, location=east_hianxo, tension_current=0.25 (superseded)
+2026-10-02T02:44:00.597Z talk         silence speaks (judge)
+2026-10-02T02:44:00.597Z judge        judge director in 294 ms
+2026-10-02T02:44:01.007Z judge        judge typed in 248 ms
+2026-10-02T02:44:01.045Z judge        judge scene in 285 ms
+2026-10-02T02:44:01.257Z judge        judge warden in 251 ms
+2026-10-02T02:44:02.244Z judge        judge wardenLore in 1200 ms
+2026-10-02T02:44:02.527Z judge        judge typed in 295 ms
+2026-10-02T02:44:02.528Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:44:07.143Z delta        queued east_at_academy=true, location=east_jiansho, tension_current=0.25 for the next boundary
+2026-10-02T02:44:07.197Z judge        judge memoryVerify in 316 ms
+2026-10-02T02:44:08.173Z delta        queued east_at_academy=true, location=east_jiansho, tension_current=0.25 for the next boundary
+2026-10-02T02:44:06.879Z extraction   read cue:east-landfall->east-jiansho-academy msgs 0-6 → 3 accepted, 0 rejected
+2026-10-02T02:44:06.879Z delta        east_at_academy = true
+2026-10-02T02:44:06.879Z delta        location = east_jiansho
+2026-10-02T02:44:06.879Z delta        tension_current = 0.25
+2026-10-02T02:44:06.879Z delta        queued east_at_academy=true, location=east_jiansho, tension_current=0.25 for the next boundary
+2026-10-02T02:44:06.879Z audit        audit cue:east-landfall->east-jiansho-academy msgs 0-6 scope [east_at_academy, guild_reputation, location, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:44:09.316Z judge        judge curatorFilter in 322 ms
+2026-10-02T02:44:09.317Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:44:10.520Z stagecraft   World Info curator proposed 1 change(s) at Landfall at Hianxo
+2026-10-02T02:44:10.727Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:44:12.487Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:44:14.577Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:44:33.650Z payload      7 story blocks injected (generation)
+2026-10-02T02:44:33.686Z payload      8 story blocks injected (generation)
+2026-10-02T02:44:34.263Z judge        judge lore in 361 ms
+2026-10-02T02:44:34.292Z judge        judge lore in 405 ms
+2026-10-02T02:44:34.591Z judge        judge lore in 332 ms
+2026-10-02T02:44:34.636Z judge        judge lore in 347 ms
+2026-10-02T02:44:34.837Z judge        judge lore in 247 ms
+2026-10-02T02:44:35.104Z talk         Adolion Narrator speaks (judge)
+2026-10-02T02:44:35.104Z judge        judge director in 252 ms
+2026-10-02T02:44:36.235Z payload      8 story blocks injected (generation)
+2026-10-02T02:44:58.465Z payload      8 story blocks injected (generation)
+2026-10-02T02:44:59.676Z talk         Honami speaks (mention)
+2026-10-02T02:44:59.926Z boundary     applied east_at_academy=true, location=east_jiansho, tension_current=0.25
+2026-10-02T02:44:59.926Z transition   east-landfall → east-jiansho-academy
+2026-10-02T02:44:59.958Z payload      7 story blocks injected (generation)
+2026-10-02T02:45:00.716Z payload      8 story blocks injected (generation)
+2026-10-02T02:45:01.189Z judge        judge lore in 418 ms
+2026-10-02T02:45:01.213Z judge        judge lore in 446 ms
+2026-10-02T02:45:01.605Z judge        judge lore in 422 ms
+2026-10-02T02:45:01.606Z judge        judge lore in 398 ms
+2026-10-02T02:45:01.925Z judge        judge lore in 321 ms
+2026-10-02T02:45:03.222Z status       Moved into Jiansho Academy
+2026-10-02T02:45:03.303Z boundary     boundary 6: nothing applied (gate)
+2026-10-02T02:45:03.839Z status       Following Jiansho Academy
+2026-10-02T02:45:03.897Z judge        judge typed in 594 ms
+2026-10-02T02:45:03.899Z judge        judge scene in 595 ms
+2026-10-02T02:45:04.136Z judge        judge wardenLore in 238 ms
+2026-10-02T02:45:04.154Z judge        judge warden in 258 ms
+2026-10-02T02:45:04.584Z judge        judge typed in 222 ms
+2026-10-02T02:45:04.585Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:45:09.240Z delta        queued east_entered=true, location=east_jiansho for the next boundary
+2026-10-02T02:45:09.311Z judge        judge memoryVerify in 258 ms
+2026-10-02T02:45:10.272Z delta        queued east_entered=true, location=east_jiansho for the next boundary
+2026-10-02T02:45:09.048Z extraction   read cue:east-jiansho-academy->east-the-rounds msgs 1-8 → 2 accepted, 0 rejected
+2026-10-02T02:45:09.048Z delta        east_entered = true
+2026-10-02T02:45:09.048Z delta        location = east_jiansho
+2026-10-02T02:45:09.048Z delta        queued east_entered=true, location=east_jiansho for the next boundary
+2026-10-02T02:45:09.048Z audit        audit cue:east-jiansho-academy->east-the-rounds msgs 1-8 scope [east_entered, east_refused_entry, guild_reputation, location, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:45:12.360Z judge        judge typed in 264 ms
+2026-10-02T02:45:12.361Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:45:16.794Z judge        judge memoryVerify in 256 ms
+2026-10-02T02:45:17.552Z delta        queued east_entered=true, location=east_jiansho for the next boundary
+2026-10-02T02:45:18.581Z delta        queued east_entered=true, location=east_jiansho for the next boundary
+2026-10-02T02:45:16.533Z extraction   read scene:cast msgs 2-9 → 2 accepted, 0 rejected
+2026-10-02T02:45:16.533Z delta        east_entered = true
+2026-10-02T02:45:16.533Z delta        location = east_jiansho
+2026-10-02T02:45:16.533Z delta        queued east_entered=true, location=east_jiansho for the next boundary
+2026-10-02T02:45:16.533Z audit        audit scene:cast msgs 2-9 scope [east_entered, east_refused_entry, guild_reputation, location, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:45:19.676Z judge        judge typed in 0 ms
+2026-10-02T02:45:21.689Z payload      6 story blocks injected (generation)
+2026-10-02T02:45:19.676Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:45:25.095Z delta        queued east_entered=true, location=east_jiansho for the next boundary
+2026-10-02T02:45:25.199Z judge        judge memoryVerify in 269 ms
+2026-10-02T02:45:26.132Z delta        queued east_entered=true, location=east_jiansho for the next boundary
+2026-10-02T02:45:27.177Z delta        queued east_entered=true, location=east_jiansho for the next boundary
+2026-10-02T02:45:24.926Z extraction   read cue:east-jiansho-academy->east-the-rounds msgs 2-9 → 2 accepted, 0 rejected
+2026-10-02T02:45:24.926Z delta        east_entered = true
+2026-10-02T02:45:24.926Z delta        location = east_jiansho
+2026-10-02T02:45:24.926Z delta        queued east_entered=true, location=east_jiansho for the next boundary
+2026-10-02T02:45:24.926Z audit        audit cue:east-jiansho-academy->east-the-rounds msgs 2-9 scope [east_entered, east_refused_entry, guild_reputation, location, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:45:28.586Z judge        judge typed in 227 ms
+2026-10-02T02:45:28.586Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:45:32.757Z story        1 commitment reading(s) held: no line the player wrote in the window shows the commitment
+2026-10-02T02:45:33.069Z judge        judge memoryVerify in 311 ms
+2026-10-02T02:45:33.482Z delta        queued location=east_jiansho, tension_current=0.25 for the next boundary
+2026-10-02T02:45:32.756Z extraction   read cadence msgs 5-9 → 3 accepted, 0 rejected
+2026-10-02T02:45:32.756Z delta        east_entered = true
+2026-10-02T02:45:32.756Z delta        location = east_jiansho
+2026-10-02T02:45:32.756Z delta        tension_current = 0.25
+2026-10-02T02:45:32.756Z delta        queued location=east_jiansho, tension_current=0.25 for the next boundary
+2026-10-02T02:45:32.756Z audit        audit cadence msgs 5-9 scope [east_entered, east_refused_entry, guild_reputation, location, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:45:34.726Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:45:36.171Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:45:54.027Z boundary     applied east_entered=true, location=east_jiansho, east_entered=true, location=east_jiansho, location=east_jiansho, tension_current=0.25; discarded east_entered=true, location=east_jiansho (superseded)
+2026-10-02T02:45:54.027Z transition   east-jiansho-academy → east-the-rounds
+2026-10-02T02:45:55.999Z status       Moved into The Opening Rounds
+2026-10-02T02:45:56.089Z boundary     boundary 8: nothing applied (gate)
+2026-10-02T02:45:56.398Z status       Following The Opening Rounds
+2026-10-02T02:45:56.693Z judge        judge typed in 306 ms
+2026-10-02T02:45:56.695Z judge        judge scene in 306 ms
+2026-10-02T02:45:57.254Z judge        judge typed in 560 ms
+2026-10-02T02:45:57.266Z judge        judge warden in 574 ms
+2026-10-02T02:45:57.479Z judge        judge typed in 226 ms
+2026-10-02T02:45:57.479Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:46:02.909Z judge        judge memoryVerify in 282 ms
+2026-10-02T02:46:03.146Z delta        queued location=east_jiansho, tension_current=0.32499999999999996 for the next boundary
+2026-10-02T02:46:04.193Z delta        queued location=east_jiansho, tension_current=0.32499999999999996 for the next boundary
+2026-10-02T02:46:02.624Z extraction   read scene:cast msgs 3-10 → 2 accepted, 6 rejected
+2026-10-02T02:46:02.624Z delta        location = east_jiansho
+2026-10-02T02:46:02.624Z delta        tension_current = 0.32499999999999996
+2026-10-02T02:46:02.624Z delta        queued location=east_jiansho, tension_current=0.32499999999999996 for the next boundary
+2026-10-02T02:46:02.624Z audit        audit scene:cast msgs 3-10 scope [east_odds, east_round_fought, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 6 rejected
+2026-10-02T02:46:05.900Z judge        judge curatorFilter in 243 ms
+2026-10-02T02:46:06.375Z judge        judge typed in 510 ms
+2026-10-02T02:46:05.901Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:46:07.378Z stagecraft   World Info curator proposed 2 change(s) at The Opening Rounds
+2026-10-02T02:46:06.375Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:46:12.321Z judge        judge memoryVerify in 277 ms
+2026-10-02T02:46:12.817Z delta        queued location=east_arena, tension_current=0.37749999999999995 for the next boundary
+2026-10-02T02:46:13.862Z delta        queued location=east_arena, tension_current=0.37749999999999995 for the next boundary
+2026-10-02T02:46:12.041Z extraction   read cue:east-the-rounds->east-the-upset msgs 4-11 → 2 accepted, 6 rejected
+2026-10-02T02:46:12.041Z delta        location = east_arena
+2026-10-02T02:46:12.041Z delta        tension_current = 0.37749999999999995
+2026-10-02T02:46:12.041Z delta        queued location=east_arena, tension_current=0.37749999999999995 for the next boundary
+2026-10-02T02:46:12.041Z audit        audit cue:east-the-rounds->east-the-upset msgs 4-11 scope [east_odds, east_round_fought, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 6 rejected
+2026-10-02T02:46:15.128Z judge        judge typed in 0 ms
+2026-10-02T02:46:15.128Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:46:20.822Z judge        judge memoryVerify in 283 ms
+2026-10-02T02:46:21.212Z delta        queued east_round_fought=false, east_through_rounds=false, location=east_arena, tension_current=0.30249999999999994 for the next boundary
+2026-10-02T02:46:22.285Z delta        queued east_round_fought=false, east_through_rounds=false, location=east_arena, tension_current=0.30249999999999994 for the next boundary
+2026-10-02T02:46:20.537Z extraction   read scene:judge msgs 4-11 → 4 accepted, 1 rejected
+2026-10-02T02:46:20.537Z delta        east_round_fought = false
+2026-10-02T02:46:20.537Z delta        east_through_rounds = false
+2026-10-02T02:46:20.537Z delta        location = east_arena
+2026-10-02T02:46:20.537Z delta        tension_current = 0.30249999999999994
+2026-10-02T02:46:20.537Z delta        queued east_round_fought=false, east_through_rounds=false, location=east_arena, tension_current=0.30249999999999994 for the next boundary
+2026-10-02T02:46:20.537Z audit        audit scene:judge msgs 4-11 scope [east_odds, east_round_fought, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 4 accepted, 1 rejected
+2026-10-02T02:46:23.397Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:46:25.650Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:46:29.073Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:46:31.233Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:46:32.991Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:47:39.614Z payload      7 story blocks injected (generation)
+2026-10-02T02:47:39.649Z payload      8 story blocks injected (generation)
+2026-10-02T02:47:40.330Z judge        judge lore in 371 ms
+2026-10-02T02:47:40.362Z judge        judge lore in 412 ms
+2026-10-02T02:47:40.652Z judge        judge lore in 326 ms
+2026-10-02T02:47:40.682Z judge        judge lore in 323 ms
+2026-10-02T02:47:40.916Z judge        judge lore in 265 ms
+2026-10-02T02:47:41.166Z judge        judge director in 237 ms
+2026-10-02T02:47:41.167Z talk         Belle speaks (judge)
+2026-10-02T02:48:07.496Z payload      8 story blocks injected (generation)
+2026-10-02T02:48:08.579Z payload      8 story blocks injected (generation)
+2026-10-02T02:48:10.501Z payload      8 story blocks injected (generation)
+2026-10-02T02:48:11.621Z boundary     applied location=east_jiansho, tension_current=0.32499999999999996, east_round_fought=false, east_through_rounds=false, location=east_arena, tension_current=0.30249999999999994; discarded location=east_arena, tension_current=0.37749999999999995 (superseded)
+2026-10-02T02:48:11.871Z stagecraft   World Info curator applied 1 change(s)
+2026-10-02T02:48:12.937Z judge        judge scene in 470 ms
+2026-10-02T02:48:12.954Z judge        judge warden in 485 ms
+2026-10-02T02:48:13.151Z judge        judge wardenLore in 215 ms
+2026-10-02T02:48:13.638Z judge        judge typed in 400 ms
+2026-10-02T02:48:13.639Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:48:17.419Z judge        judge memoryVerify in 260 ms
+2026-10-02T02:48:17.940Z delta        queued east_round_fought=false, location=east_arena, tension_current=0.3617499999999999 for the next boundary
+2026-10-02T02:48:17.158Z extraction   read cadence msgs 10-13 → 3 accepted, 0 rejected
+2026-10-02T02:48:17.158Z delta        east_round_fought = false
+2026-10-02T02:48:17.158Z delta        location = east_arena
+2026-10-02T02:48:17.158Z delta        tension_current = 0.3617499999999999
+2026-10-02T02:48:17.158Z delta        queued east_round_fought=false, location=east_arena, tension_current=0.3617499999999999 for the next boundary
+2026-10-02T02:48:17.158Z audit        audit cadence msgs 10-13 scope [east_odds, east_round_fought, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:48:19.142Z judge        judge typed in 501 ms
+2026-10-02T02:48:19.142Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:48:23.181Z judge        judge memoryVerify in 256 ms
+2026-10-02T02:48:23.271Z delta        queued location=east_arena, tension_current=0.4367499999999999 for the next boundary
+2026-10-02T02:48:24.329Z delta        queued location=east_arena, tension_current=0.4367499999999999 for the next boundary
+2026-10-02T02:48:22.923Z extraction   read cue:east-the-rounds->east-the-upset msgs 6-13 → 2 accepted, 1 rejected
+2026-10-02T02:48:22.923Z delta        location = east_arena
+2026-10-02T02:48:22.923Z delta        tension_current = 0.4367499999999999
+2026-10-02T02:48:22.923Z delta        queued location=east_arena, tension_current=0.4367499999999999 for the next boundary
+2026-10-02T02:48:25.176Z judge        judge typed in 0 ms
+2026-10-02T02:48:22.923Z audit        audit cue:east-the-rounds->east-the-upset msgs 6-13 scope [east_odds, east_round_fought, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 1 rejected
+2026-10-02T02:48:25.177Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:48:29.415Z judge        judge memoryVerify in 289 ms
+2026-10-02T02:48:29.661Z delta        queued location=east_arena, tension_current=0.4367499999999999 for the next boundary
+2026-10-02T02:48:29.124Z extraction   read scene:location msgs 6-13 → 2 accepted, 1 rejected
+2026-10-02T02:48:29.124Z delta        location = east_arena
+2026-10-02T02:48:29.124Z delta        tension_current = 0.4367499999999999
+2026-10-02T02:48:29.124Z delta        queued location=east_arena, tension_current=0.4367499999999999 for the next boundary
+2026-10-02T02:48:29.124Z audit        audit scene:location msgs 6-13 scope [east_odds, east_round_fought, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 1 rejected
+2026-10-02T02:48:31.233Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:48:33.567Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:48:36.331Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:48:37.852Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:48:39.735Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:48:57.651Z payload      6 story blocks injected (generation)
+2026-10-02T02:48:57.698Z payload      7 story blocks injected (generation)
+2026-10-02T02:48:57.757Z stagecraft   World Info curator changes rolled back (1)
+2026-10-02T02:48:58.134Z judge        judge lore in 368 ms
+2026-10-02T02:48:58.195Z judge        judge lore in 437 ms
+2026-10-02T02:48:58.451Z judge        judge lore in 320 ms
+2026-10-02T02:48:58.524Z judge        judge lore in 333 ms
+2026-10-02T02:48:58.674Z judge        judge lore in 224 ms
+2026-10-02T02:49:21.020Z story        eventless change at message 13
+2026-10-02T02:49:21.405Z boundary     boundary 10: nothing applied (gate)
+2026-10-02T02:49:24.353Z judge        judge scene fell back (timeout) in 2514 ms
+2026-10-02T02:49:26.844Z judge        judge typed fell back (timeout) in 5006 ms
+2026-10-02T02:49:28.048Z judge        judge warden in 3697 ms
+2026-10-02T02:49:28.208Z judge        judge typed in 1365 ms
+2026-10-02T02:49:28.208Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:49:34.788Z delta        queued east_round_fought=true, location=east_arena, tension_current=0.3617499999999999 for the next boundary
+2026-10-02T02:49:34.911Z judge        judge memoryVerify in 817 ms
+2026-10-02T02:49:35.839Z delta        queued east_round_fought=true, location=east_arena, tension_current=0.3617499999999999 for the next boundary
+2026-10-02T02:49:36.921Z delta        queued east_round_fought=true, location=east_arena, tension_current=0.3617499999999999 for the next boundary
+2026-10-02T02:49:37.980Z delta        queued east_round_fought=true, location=east_arena, tension_current=0.3617499999999999 for the next boundary
+2026-10-02T02:49:39.039Z delta        queued east_round_fought=true, location=east_arena, tension_current=0.3617499999999999 for the next boundary
+2026-10-02T02:49:34.091Z extraction   read cue:east-the-rounds->east-the-upset msgs 6-13 → 3 accepted, 0 rejected
+2026-10-02T02:49:34.091Z delta        east_round_fought = true
+2026-10-02T02:49:34.091Z delta        location = east_arena
+2026-10-02T02:49:34.091Z delta        tension_current = 0.3617499999999999
+2026-10-02T02:49:34.091Z delta        queued east_round_fought=true, location=east_arena, tension_current=0.3617499999999999 for the next boundary
+2026-10-02T02:49:34.091Z audit        audit cue:east-the-rounds->east-the-upset msgs 6-13 scope [east_odds, east_round_fought, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:49:41.895Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:49:48.908Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:49:51.562Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:49:54.137Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:50:00.805Z judge        judge memoryPairs in 250 ms
+2026-10-02T02:50:00.871Z judge        judge memoryPairs in 314 ms
+2026-10-02T02:50:01.056Z judge        judge memoryPairs in 252 ms
+2026-10-02T02:50:01.090Z judge        judge memoryPairs in 220 ms
+2026-10-02T02:50:01.282Z judge        judge memoryPairs in 226 ms
+2026-10-02T02:50:01.391Z judge        judge memoryPairs in 302 ms
+2026-10-02T02:50:01.537Z judge        judge memoryPairs in 255 ms
+2026-10-02T02:50:01.625Z judge        judge memoryPairs in 235 ms
+2026-10-02T02:50:01.839Z judge        judge memoryPairs in 213 ms
+2026-10-02T02:50:01.865Z judge        judge memoryPairs in 238 ms
+2026-10-02T02:50:02.082Z judge        judge memoryPairs in 243 ms
+2026-10-02T02:50:02.095Z judge        judge memoryPairs in 231 ms
+2026-10-02T02:50:02.301Z judge        judge memoryPairs in 220 ms
+2026-10-02T02:50:02.335Z judge        judge memoryPairs in 241 ms
+2026-10-02T02:50:02.530Z judge        judge memoryPairs in 229 ms
+2026-10-02T02:50:02.571Z judge        judge memoryPairs in 236 ms
+2026-10-02T02:50:02.804Z judge        judge memoryPairs in 231 ms
+2026-10-02T02:50:02.811Z judge        judge memoryPairs in 239 ms
+2026-10-02T02:50:03.030Z judge        judge memoryPairs in 220 ms
+2026-10-02T02:50:03.034Z judge        judge memoryPairs in 231 ms
+2026-10-02T02:50:03.261Z judge        judge memoryPairs in 228 ms
+2026-10-02T02:50:03.295Z judge        judge memoryPairs in 266 ms
+2026-10-02T02:50:03.510Z judge        judge memoryPairs in 215 ms
+2026-10-02T02:50:03.514Z judge        judge memoryPairs in 254 ms
+2026-10-02T02:50:03.754Z judge        judge memoryPairs in 238 ms
+2026-10-02T02:50:03.777Z judge        judge memoryPairs in 261 ms
+2026-10-02T02:50:03.988Z judge        judge memoryPairs in 235 ms
+2026-10-02T02:50:04.021Z judge        judge memoryPairs in 244 ms
+2026-10-02T02:50:04.199Z judge        judge memoryPairs in 212 ms
+2026-10-02T02:50:42.806Z judge        judge memoryPairs in 266 ms
+2026-10-02T02:50:42.867Z judge        judge memoryPairs in 328 ms
+2026-10-02T02:50:43.037Z judge        judge memoryPairs in 231 ms
+2026-10-02T02:50:43.092Z judge        judge memoryPairs in 225 ms
+2026-10-02T02:50:43.247Z judge        judge memoryPairs in 210 ms
+2026-10-02T02:50:43.304Z judge        judge memoryPairs in 212 ms
+2026-10-02T02:50:43.306Z judge        judge memoryPairs fell back (busy) in 3 ms
+2026-10-02T02:50:43.473Z judge        judge memoryPairs in 227 ms
+2026-10-02T02:50:43.475Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.475Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.475Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.475Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.475Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.475Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.475Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.476Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.476Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.476Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.476Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.477Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.477Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.477Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:50:43.477Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:50:43.478Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:50:43.478Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:50:43.478Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:50:43.478Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.478Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.478Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.478Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.478Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:50:43.825Z model-call   supersession via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:50:45.198Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:50:46.305Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:50:47.367Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:50:48.426Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:50:49.502Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:50:50.579Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:50:51.643Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:50:52.699Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:50:53.754Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:50:54.828Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:50:55.887Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:50:56.960Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:50:58.019Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:50:59.093Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:00.156Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:01.216Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:02.277Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:03.349Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:04.414Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:05.048Z flag         Swipe of msg 13 reverted the applied Tournament rewrite (good, wi-after-swipe.txt) but also removed the whole proposal wi-8-11 from the ring (made on msg 11, which survived the swipe): my edited+accepted rewrite and the declined op are gone, so the author's decision is lost and nothing re-applies. ring-after-swipe.txt
+2026-10-02T02:51:05.474Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:06.536Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:07.598Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:08.663Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:09.720Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:10.796Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:11.856Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:12.915Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:13.975Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:15.051Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:16.111Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:17.169Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:18.230Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:19.310Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:20.370Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:21.434Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:21.953Z payload      7 story blocks injected (generation)
+2026-10-02T02:51:21.990Z payload      8 story blocks injected (generation)
+2026-10-02T02:51:22.489Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:22.654Z judge        judge lore in 370 ms
+2026-10-02T02:51:22.740Z judge        judge lore in 465 ms
+2026-10-02T02:51:23.019Z judge        judge lore in 368 ms
+2026-10-02T02:51:23.080Z judge        judge lore in 343 ms
+2026-10-02T02:51:23.241Z judge        judge lore in 223 ms
+2026-10-02T02:51:23.549Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:23.568Z judge        judge director in 314 ms
+2026-10-02T02:51:23.569Z talk         Hanzo speaks (judge)
+2026-10-02T02:51:24.686Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:25.756Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:26.816Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:27.874Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:28.931Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:30.004Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:31.061Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:32.124Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:33.185Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:34.245Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:35.321Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:36.381Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:37.440Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:38.497Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:39.569Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:40.635Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:41.691Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:42.750Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:43.807Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:44.867Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:45.927Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:46.794Z payload      8 story blocks injected (generation)
+2026-10-02T02:51:46.983Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:47.945Z payload      8 story blocks injected (generation)
+2026-10-02T02:51:48.158Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:49.211Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:50.000Z payload      8 story blocks injected (generation)
+2026-10-02T02:51:50.286Z delta        queued east_round_fought=false, location=east_arena for the next boundary
+2026-10-02T02:51:51.228Z boundary     applied east_round_fought=true, location=east_arena, tension_current=0.3617499999999999; discarded east_round_fought=false, location=east_arena (superseded)
+2026-10-02T02:51:51.858Z judge        judge typed in 279 ms
+2026-10-02T02:51:51.865Z judge        judge scene in 285 ms
+2026-10-02T02:51:52.104Z judge        judge wardenLore in 240 ms
+2026-10-02T02:51:52.109Z judge        judge warden in 252 ms
+2026-10-02T02:51:52.539Z judge        judge typed in 221 ms
+2026-10-02T02:51:52.540Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:51:57.536Z judge        judge memoryVerify in 254 ms
+2026-10-02T02:51:57.279Z extraction   read cue:east-the-rounds->east-the-upset msgs 8-15 → 0 accepted, 1 rejected
+2026-10-02T02:51:57.279Z audit        audit cue:east-the-rounds->east-the-upset msgs 8-15 scope [east_odds, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 0 accepted, 1 rejected
+2026-10-02T02:52:01.939Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:52:03.489Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:52:05.987Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:52:26.542Z payload      8 story blocks injected (generation)
+2026-10-02T02:52:26.578Z payload      9 story blocks injected (generation)
+2026-10-02T02:52:27.269Z judge        judge lore in 362 ms
+2026-10-02T02:52:27.279Z judge        judge lore in 380 ms
+2026-10-02T02:52:27.588Z judge        judge lore in 324 ms
+2026-10-02T02:52:27.641Z judge        judge lore in 365 ms
+2026-10-02T02:52:27.855Z judge        judge lore in 269 ms
+2026-10-02T02:52:28.120Z talk         Honami speaks (judge)
+2026-10-02T02:52:28.120Z judge        judge director in 253 ms
+2026-10-02T02:52:50.791Z payload      9 story blocks injected (generation)
+2026-10-02T02:52:51.929Z boundary     boundary 12: nothing applied (gate)
+2026-10-02T02:52:53.299Z judge        judge scene in 391 ms
+2026-10-02T02:52:53.341Z judge        judge warden in 432 ms
+2026-10-02T02:52:53.580Z judge        judge wardenLore in 282 ms
+2026-10-02T02:52:53.694Z judge        judge typed in 220 ms
+2026-10-02T02:52:53.695Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:52:57.507Z judge        judge memoryVerify in 216 ms
+2026-10-02T02:52:58.007Z delta        queued east_odds=6, east_through_rounds=false, location=east_jiansho, tension_current=0.32822499999999993 for the next boundary
+2026-10-02T02:52:57.290Z extraction   read cadence msgs 14-17 → 4 accepted, 0 rejected
+2026-10-02T02:52:57.290Z delta        east_odds = 6
+2026-10-02T02:52:57.290Z delta        east_through_rounds = false
+2026-10-02T02:52:57.290Z delta        location = east_jiansho
+2026-10-02T02:52:57.290Z delta        tension_current = 0.32822499999999993
+2026-10-02T02:52:57.290Z delta        queued east_odds=6, east_through_rounds=false, location=east_jiansho, tension_current=0.32822499999999993 for the next boundary
+2026-10-02T02:52:57.290Z audit        audit cadence msgs 14-17 scope [east_odds, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T02:52:59.471Z judge        judge typed in 240 ms
+2026-10-02T02:52:59.471Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:53:04.066Z judge        judge memoryVerify in 286 ms
+2026-10-02T02:53:04.564Z delta        queued east_odds=6, location=east_arena for the next boundary
+2026-10-02T02:53:03.778Z extraction   read cue:east-the-rounds->east-the-upset,east-the-rounds->east-the-hattaxi-shadow msgs 10-17 → 2 accepted, 0 rejected
+2026-10-02T02:53:03.778Z delta        east_odds = 6
+2026-10-02T02:53:03.778Z delta        location = east_arena
+2026-10-02T02:53:03.778Z delta        queued east_odds=6, location=east_arena for the next boundary
+2026-10-02T02:53:03.778Z audit        audit cue:east-the-rounds->east-the-upset,east-the-rounds->east-the-hattaxi-shadow msgs 10-17 scope [east_odds, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:53:05.922Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:53:07.159Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:53:07.733Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:53:08.978Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:53:11.060Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:53:12.088Z judge        judge curatorFilter in 343 ms
+2026-10-02T02:53:12.089Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:53:13.594Z stagecraft   World Info curator proposed 1 change(s) at The Opening Rounds
+2026-10-02T02:53:24.651Z payload      8 story blocks injected (generation)
+2026-10-02T02:53:24.696Z payload      9 story blocks injected (generation)
+2026-10-02T02:53:25.368Z judge        judge lore in 351 ms
+2026-10-02T02:53:25.388Z judge        judge lore in 376 ms
+2026-10-02T02:53:25.678Z judge        judge lore in 294 ms
+2026-10-02T02:53:25.720Z judge        judge lore in 355 ms
+2026-10-02T02:53:25.896Z judge        judge lore in 219 ms
+2026-10-02T02:53:26.151Z talk         Honami speaks (judge)
+2026-10-02T02:53:26.151Z judge        judge director in 241 ms
+2026-10-02T02:53:49.342Z payload      9 story blocks injected (generation)
+2026-10-02T02:53:51.112Z payload      9 story blocks injected (generation)
+2026-10-02T02:53:52.616Z payload      9 story blocks injected (generation)
+2026-10-02T02:53:54.222Z boundary     applied east_through_rounds=false, tension_current=0.32822499999999993, east_odds=6, location=east_arena; discarded east_odds=6, location=east_jiansho (superseded)
+2026-10-02T02:53:55.026Z judge        judge typed in 346 ms
+2026-10-02T02:53:55.033Z judge        judge scene in 351 ms
+2026-10-02T02:53:55.294Z judge        judge wardenLore in 263 ms
+2026-10-02T02:53:55.750Z judge        judge typed in 264 ms
+2026-10-02T02:53:55.759Z judge        judge warden in 735 ms
+2026-10-02T02:53:55.751Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:54:00.365Z delta        queued east_odds=6, east_through_rounds=false, location=east_jiansho, tension_current=0.22975749999999995 for the next boundary
+2026-10-02T02:54:00.405Z judge        judge memoryVerify in 260 ms
+2026-10-02T02:54:01.453Z delta        queued east_odds=6, east_through_rounds=false, location=east_jiansho, tension_current=0.22975749999999995 for the next boundary
+2026-10-02T02:54:00.143Z extraction   read cue:east-the-rounds->east-the-hattaxi-shadow msgs 12-19 → 4 accepted, 0 rejected
+2026-10-02T02:54:00.143Z delta        east_odds = 6
+2026-10-02T02:54:00.143Z delta        east_through_rounds = false
+2026-10-02T02:54:00.143Z delta        location = east_jiansho
+2026-10-02T02:54:00.143Z delta        tension_current = 0.22975749999999995
+2026-10-02T02:54:00.143Z delta        queued east_odds=6, east_through_rounds=false, location=east_jiansho, tension_current=0.22975749999999995 for the next boundary
+2026-10-02T02:54:00.143Z audit        audit cue:east-the-rounds->east-the-hattaxi-shadow msgs 12-19 scope [east_odds, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T02:54:02.733Z judge        judge typed in 0 ms
+2026-10-02T02:54:02.733Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:54:07.907Z judge        judge memoryVerify in 251 ms
+2026-10-02T02:54:08.051Z delta        queued east_odds=6, east_through_rounds=false, location=east_arena for the next boundary
+2026-10-02T02:54:09.124Z delta        queued east_odds=6, east_through_rounds=false, location=east_arena for the next boundary
+2026-10-02T02:54:07.654Z extraction   read scene:judge msgs 12-19 → 3 accepted, 0 rejected
+2026-10-02T02:54:07.654Z delta        east_odds = 6
+2026-10-02T02:54:07.654Z delta        east_through_rounds = false
+2026-10-02T02:54:07.654Z delta        location = east_arena
+2026-10-02T02:54:07.654Z delta        queued east_odds=6, east_through_rounds=false, location=east_arena for the next boundary
+2026-10-02T02:54:07.654Z audit        audit scene:judge msgs 12-19 scope [east_odds, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:54:10.047Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:54:12.843Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:54:42.592Z payload      8 story blocks injected (generation)
+2026-10-02T02:54:42.639Z payload      9 story blocks injected (generation)
+2026-10-02T02:54:43.332Z judge        judge lore in 394 ms
+2026-10-02T02:54:43.356Z judge        judge lore in 413 ms
+2026-10-02T02:54:43.655Z judge        judge lore in 303 ms
+2026-10-02T02:54:43.712Z judge        judge lore in 385 ms
+2026-10-02T02:54:43.988Z judge        judge lore in 334 ms
+2026-10-02T02:54:44.414Z judge        judge director in 415 ms
+2026-10-02T02:54:44.415Z talk         Honami speaks (judge)
+2026-10-02T02:54:46.034Z payload      9 story blocks injected (generation)
+2026-10-02T02:55:21.184Z payload      9 story blocks injected (generation)
+2026-10-02T02:55:22.842Z payload      9 story blocks injected (generation)
+2026-10-02T02:55:24.244Z payload      9 story blocks injected (generation)
+2026-10-02T02:55:25.685Z payload      9 story blocks injected (generation)
+2026-10-02T02:55:26.979Z boundary     applied tension_current=0.22975749999999995, east_odds=6, east_through_rounds=false, location=east_arena; discarded east_odds=6, east_through_rounds=false, location=east_jiansho (superseded)
+2026-10-02T02:55:27.269Z stagecraft   World Info curator applied 1 change(s)
+2026-10-02T02:55:28.264Z judge        judge typed in 286 ms
+2026-10-02T02:55:28.634Z judge        judge scene in 654 ms
+2026-10-02T02:55:28.658Z judge        judge warden in 395 ms
+2026-10-02T02:55:28.860Z judge        judge wardenLore in 227 ms
+2026-10-02T02:55:28.877Z judge        judge typed in 220 ms
+2026-10-02T02:55:28.877Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:55:34.663Z judge        judge memoryVerify in 248 ms
+2026-10-02T02:55:35.260Z delta        queued east_odds=6, east_through_rounds=false, location=east_jiansho for the next boundary
+2026-10-02T02:55:34.412Z extraction   read cue:east-the-rounds->east-the-upset msgs 14-21 → 3 accepted, 0 rejected
+2026-10-02T02:55:34.412Z delta        east_odds = 6
+2026-10-02T02:55:34.412Z delta        east_through_rounds = false
+2026-10-02T02:55:34.412Z delta        location = east_jiansho
+2026-10-02T02:55:34.412Z delta        queued east_odds=6, east_through_rounds=false, location=east_jiansho for the next boundary
+2026-10-02T02:55:34.412Z audit        audit cue:east-the-rounds->east-the-upset msgs 14-21 scope [east_odds, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:55:37.305Z judge        judge typed in 0 ms
+2026-10-02T02:55:37.305Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:55:42.907Z judge        judge memoryVerify in 356 ms
+2026-10-02T02:55:43.038Z delta        queued east_odds=6, east_through_rounds=false, location=east_hianxo for the next boundary
+2026-10-02T02:55:42.548Z extraction   read scene:location msgs 14-21 → 3 accepted, 0 rejected
+2026-10-02T02:55:42.548Z delta        east_odds = 6
+2026-10-02T02:55:42.548Z delta        east_through_rounds = false
+2026-10-02T02:55:42.548Z delta        location = east_hianxo
+2026-10-02T02:55:42.548Z delta        queued east_odds=6, east_through_rounds=false, location=east_hianxo for the next boundary
+2026-10-02T02:55:42.548Z audit        audit scene:location msgs 14-21 scope [east_odds, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:55:44.770Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:55:46.961Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:56:05.293Z payload      8 story blocks injected (generation)
+2026-10-02T02:56:05.343Z payload      9 story blocks injected (generation)
+2026-10-02T02:56:06.090Z judge        judge lore in 413 ms
+2026-10-02T02:56:06.131Z judge        judge lore in 448 ms
+2026-10-02T02:56:06.404Z judge        judge lore in 318 ms
+2026-10-02T02:56:06.475Z judge        judge lore in 350 ms
+2026-10-02T02:56:06.654Z judge        judge lore in 252 ms
+2026-10-02T02:56:06.923Z talk         Belle speaks (judge)
+2026-10-02T02:56:06.923Z judge        judge director in 254 ms
+2026-10-02T02:56:08.369Z payload      9 story blocks injected (generation)
+2026-10-02T02:56:29.265Z payload      9 story blocks injected (generation)
+2026-10-02T02:56:30.391Z payload      9 story blocks injected (generation)
+2026-10-02T02:56:31.550Z boundary     applied east_odds=6, east_through_rounds=false, location=east_hianxo; discarded east_odds=6, east_through_rounds=false, location=east_jiansho (superseded)
+2026-10-02T02:56:32.009Z reconciliation stall re-check queued for east_round_fought, east_through_rounds
+2026-10-02T02:56:32.770Z judge        judge stall in 395 ms
+2026-10-02T02:56:32.772Z reconciliation stall re-check resolved (1 evidence)
+2026-10-02T02:56:32.776Z judge        judge scene in 399 ms
+2026-10-02T02:56:33.052Z judge        judge wardenLore in 277 ms
+2026-10-02T02:56:33.061Z judge        judge warden in 292 ms
+2026-10-02T02:56:33.396Z judge        judge typed in 337 ms
+2026-10-02T02:56:33.397Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:56:37.252Z judge        judge memoryVerify in 262 ms
+2026-10-02T02:56:37.493Z delta        queued location=east_jiansho for the next boundary
+2026-10-02T02:56:36.988Z extraction   read cadence msgs 18-23 → 2 accepted, 4 rejected
+2026-10-02T02:56:36.988Z delta        location = east_jiansho
+2026-10-02T02:56:36.988Z delta        tension_current = 0
+2026-10-02T02:56:36.988Z delta        queued location=east_jiansho for the next boundary
+2026-10-02T02:56:36.988Z audit        audit cadence msgs 18-23 scope [east_odds, east_through_rounds, location, party_injuries, party_rank, tension_current] → 2 accepted, 4 rejected
+2026-10-02T02:56:39.049Z judge        judge typed in 372 ms
+2026-10-02T02:56:39.050Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:56:43.569Z judge        judge memoryVerify in 312 ms
+2026-10-02T02:56:44.216Z delta        queued east_odds=6, east_through_rounds=false, location=east_hianxo for the next boundary
+2026-10-02T02:56:43.254Z extraction   read scene:location msgs 16-23 → 4 accepted, 0 rejected
+2026-10-02T02:56:43.254Z delta        east_odds = 6
+2026-10-02T02:56:43.254Z delta        east_through_rounds = false
+2026-10-02T02:56:43.254Z delta        location = east_hianxo
+2026-10-02T02:56:43.254Z delta        tension_current = 0
+2026-10-02T02:56:43.254Z delta        queued east_odds=6, east_through_rounds=false, location=east_hianxo for the next boundary
+2026-10-02T02:56:43.254Z audit        audit scene:location msgs 16-23 scope [east_odds, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T02:56:47.383Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:56:49.210Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:56:50.862Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:57:08.744Z payload      8 story blocks injected (generation)
+2026-10-02T02:57:08.789Z payload      9 story blocks injected (generation)
+2026-10-02T02:57:09.467Z judge        judge lore in 368 ms
+2026-10-02T02:57:09.476Z judge        judge lore in 380 ms
+2026-10-02T02:57:09.779Z judge        judge lore in 316 ms
+2026-10-02T02:57:09.934Z judge        judge lore in 461 ms
+2026-10-02T02:57:10.020Z judge        judge lore in 243 ms
+2026-10-02T02:57:10.403Z judge        judge director in 371 ms
+2026-10-02T02:57:10.404Z talk         Belle speaks (judge)
+2026-10-02T02:57:40.871Z payload      9 story blocks injected (generation)
+2026-10-02T02:57:42.103Z payload      9 story blocks injected (generation)
+2026-10-02T02:57:43.219Z boundary     applied east_odds=6, east_through_rounds=false, location=east_hianxo; discarded location=east_jiansho (superseded)
+2026-10-02T02:57:44.273Z judge        judge typed in 319 ms
+2026-10-02T02:57:44.277Z judge        judge scene in 321 ms
+2026-10-02T02:57:44.910Z judge        judge wardenLore in 634 ms
+2026-10-02T02:57:44.939Z judge        judge warden in 668 ms
+2026-10-02T02:57:45.179Z judge        judge typed in 267 ms
+2026-10-02T02:57:45.179Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:57:49.765Z judge        judge memoryVerify in 249 ms
+2026-10-02T02:57:50.476Z delta        queued location=east_arena, party_injuries=0, tension_current=0.23583024999999996 for the next boundary
+2026-10-02T02:57:49.514Z extraction   read cue:east-the-rounds->east-the-upset msgs 18-25 → 3 accepted, 2 rejected
+2026-10-02T02:57:49.514Z delta        location = east_arena
+2026-10-02T02:57:49.514Z delta        party_injuries = 0
+2026-10-02T02:57:49.514Z delta        tension_current = 0.23583024999999996
+2026-10-02T02:57:49.514Z delta        queued location=east_arena, party_injuries=0, tension_current=0.23583024999999996 for the next boundary
+2026-10-02T02:57:49.514Z audit        audit cue:east-the-rounds->east-the-upset msgs 18-25 scope [east_odds, east_through_rounds, location, party_injuries, party_rank, tension_current] → 3 accepted, 2 rejected
+2026-10-02T02:57:51.911Z judge        judge typed in 0 ms
+2026-10-02T02:57:52.580Z judge        judge curatorFilter in 670 ms
+2026-10-02T02:57:52.581Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:57:54.013Z stagecraft   World Info curator proposed 2 change(s) at The Opening Rounds
+2026-10-02T02:57:51.911Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:57:56.637Z judge        judge memoryVerify in 248 ms
+2026-10-02T02:57:57.182Z delta        queued location=east_arena, party_injuries=0, tension_current=0.23583024999999996 for the next boundary
+2026-10-02T02:57:56.387Z extraction   read scene:judge msgs 18-25 → 3 accepted, 2 rejected
+2026-10-02T02:57:56.387Z delta        location = east_arena
+2026-10-02T02:57:56.387Z delta        party_injuries = 0
+2026-10-02T02:57:56.387Z delta        tension_current = 0.23583024999999996
+2026-10-02T02:57:56.387Z delta        queued location=east_arena, party_injuries=0, tension_current=0.23583024999999996 for the next boundary
+2026-10-02T02:57:56.387Z audit        audit scene:judge msgs 18-25 scope [east_odds, east_through_rounds, location, party_injuries, party_rank, tension_current] → 3 accepted, 2 rejected
+2026-10-02T02:57:58.106Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:58:00.391Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:58:03.052Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:58:04.652Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:58:07.111Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:58:38.133Z payload      8 story blocks injected (generation)
+2026-10-02T02:58:38.177Z payload      9 story blocks injected (generation)
+2026-10-02T02:58:38.921Z judge        judge lore in 382 ms
+2026-10-02T02:58:38.947Z judge        judge lore in 404 ms
+2026-10-02T02:58:39.254Z judge        judge lore in 338 ms
+2026-10-02T02:58:39.281Z judge        judge lore in 338 ms
+2026-10-02T02:58:39.469Z judge        judge lore in 216 ms
+2026-10-02T02:58:39.710Z talk         Dalan speaks (judge)
+2026-10-02T02:58:39.710Z judge        judge director in 228 ms
+2026-10-02T02:58:59.051Z payload      9 story blocks injected (generation)
+2026-10-02T02:59:00.072Z payload      9 story blocks injected (generation)
+2026-10-02T02:59:01.116Z boundary     applied location=east_arena, party_injuries=0, tension_current=0.23583024999999996; discarded location=east_arena, party_injuries=0, tension_current=0.23583024999999996 (superseded)
+2026-10-02T02:59:02.567Z judge        judge typed in 612 ms
+2026-10-02T02:59:02.570Z judge        judge scene in 427 ms
+2026-10-02T02:59:02.891Z judge        judge wardenLore in 322 ms
+2026-10-02T02:59:02.920Z judge        judge warden in 354 ms
+2026-10-02T02:59:03.130Z judge        judge typed in 240 ms
+2026-10-02T02:59:03.130Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:59:06.975Z judge        judge memoryVerify in 245 ms
+2026-10-02T02:59:07.078Z delta        queued location=east_arena for the next boundary
+2026-10-02T02:59:06.729Z extraction   read cue:east-the-rounds->east-the-upset msgs 20-27 → 1 accepted, 1 rejected
+2026-10-02T02:59:06.729Z delta        location = east_arena
+2026-10-02T02:59:06.729Z delta        queued location=east_arena for the next boundary
+2026-10-02T02:59:06.729Z audit        audit cue:east-the-rounds->east-the-upset msgs 20-27 scope [east_odds, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 1 accepted, 1 rejected
+2026-10-02T02:59:09.184Z judge        judge typed in 0 ms
+2026-10-02T02:59:09.184Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:59:13.315Z judge        judge memoryVerify in 258 ms
+2026-10-02T02:59:13.908Z delta        queued location=east_arena, tension_current=0.315081175 for the next boundary
+2026-10-02T02:59:13.055Z extraction   read scene:location msgs 20-27 → 2 accepted, 2 rejected
+2026-10-02T02:59:13.055Z delta        location = east_arena
+2026-10-02T02:59:13.055Z delta        tension_current = 0.315081175
+2026-10-02T02:59:13.055Z delta        queued location=east_arena, tension_current=0.315081175 for the next boundary
+2026-10-02T02:59:13.055Z audit        audit scene:location msgs 20-27 scope [east_odds, east_through_rounds, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 2 rejected
+2026-10-02T02:59:15.517Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:59:17.883Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:59:20.326Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:59:22.083Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:59:24.299Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:59:38.262Z flag         Curator re-proposed switching on 'Chronicle - About this book' (the book's own meta/house-style note) 3 times (wi-4-6, wi-8-11, wi-16-25) after I declined it twice: useless op, and declines are not remembered. Its latest rewrite also wanted to put 'Hanzo Hattaxi' into the open Tournament chronicle entry; declined.
+
+Stopped after 699 events and 29 audits.

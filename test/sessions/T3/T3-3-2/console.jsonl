@@ -1,0 +1,47 @@
+{"at":"2026-10-02T03:08:48.846Z","type":"info","text":"console tail attached"}
+{"at":"2026-10-02T03:09:14.325Z","type":"warning","text":"Stream stats: 83 tokens, 2.71 seconds, rate: 30.64 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:09:30.622Z","type":"warning","text":"Stream stats: 85 tokens, 2.77 seconds, rate: 30.72 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:10:22.501Z","type":"warning","text":"Stream stats: 157 tokens, 5.17 seconds, rate: 30.37 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:11:11.501Z","type":"warning","text":"Stream stats: 134 tokens, 4.44 seconds, rate: 30.19 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:11:37.076Z","type":"warning","text":"Stream stats: 112 tokens, 3.70 seconds, rate: 30.29 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:11:37.572Z","type":"warning","text":"[Macro] Warning: Dynamic macro \"words\" uses unsupported number/boolean format. {macroName: words, range: Object, raw: words, call: Object}","location":"http://127.0.0.1:8104/scripts/macros/engine/MacroDiagnostics.js:106"}
+{"at":"2026-10-02T03:12:33.844Z","type":"warning","text":"Stream stats: 161 tokens, 5.48 seconds, rate: 29.36 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:12:51.248Z","type":"warning","text":"Stream stats: 80 tokens, 2.64 seconds, rate: 30.31 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:12:53.059Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8104/script.js:9415"}
+{"at":"2026-10-02T03:13:50.571Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-02T03:14:08.982Z","type":"warning","text":"Stream stats: 101 tokens, 3.35 seconds, rate: 30.18 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:14:10.191Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-02T03:14:10.192Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-02T03:15:00.016Z","type":"warning","text":"Stream stats: 137 tokens, 4.71 seconds, rate: 29.11 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:15:19.781Z","type":"warning","text":"Stream stats: 93 tokens, 3.10 seconds, rate: 29.99 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:15:20.867Z","type":"warning","text":"[Macro] Warning: Dynamic macro \"words\" uses unsupported number/boolean format. {macroName: words, range: Object, raw: words, call: Object}","location":"http://127.0.0.1:8104/scripts/macros/engine/MacroDiagnostics.js:106"}
+{"at":"2026-10-02T03:15:20.869Z","type":"warning","text":"[Macro] Warning: Dynamic macro \"words\" uses unsupported number/boolean format. {macroName: words, range: Object, raw: words, call: Object}","location":"http://127.0.0.1:8104/scripts/macros/engine/MacroDiagnostics.js:106"}
+{"at":"2026-10-02T03:16:28.965Z","type":"warning","text":"Stream stats: 114 tokens, 3.94 seconds, rate: 28.90 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:16:41.954Z","type":"warning","text":"Stream stats: 58 tokens, 1.92 seconds, rate: 30.15 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:17:17.578Z","type":"warning","text":"Stream stats: 150 tokens, 5.07 seconds, rate: 29.57 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:17:31.347Z","type":"warning","text":"Stream stats: 52 tokens, 1.74 seconds, rate: 29.83 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:18:13.256Z","type":"warning","text":"Stream stats: 134 tokens, 4.55 seconds, rate: 29.46 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:18:35.221Z","type":"warning","text":"Stream stats: 116 tokens, 3.78 seconds, rate: 30.68 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:18:36.057Z","type":"warning","text":"[Macro] Warning: Dynamic macro \"words\" uses unsupported number/boolean format. {macroName: words, range: Object, raw: words, call: Object}","location":"http://127.0.0.1:8104/scripts/macros/engine/MacroDiagnostics.js:106"}
+{"at":"2026-10-02T03:18:37.547Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8104/script.js:9415"}
+{"at":"2026-10-02T03:18:37.548Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8104/script.js:9415"}
+{"at":"2026-10-02T03:18:43.173Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8104/script.js:9415"}
+{"at":"2026-10-02T03:18:43.375Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8104/script.js:9415"}
+{"at":"2026-10-02T03:18:53.455Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8104/script.js:9415"}
+{"at":"2026-10-02T03:18:53.486Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8104/script.js:9415"}
+{"at":"2026-10-02T03:19:05.177Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8104/script.js:9415"}
+{"at":"2026-10-02T03:19:17.762Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-02T03:19:17.763Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-02T03:20:57.304Z","type":"warning","text":"Stream stats: 123 tokens, 4.12 seconds, rate: 29.83 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:21:08.097Z","type":"error","text":"Failed to load resource: the server responded with a status of 429 (Too Many Requests)","location":"http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"}
+{"at":"2026-10-02T03:21:49.699Z","type":"warning","text":"Stream stats: 111 tokens, 3.72 seconds, rate: 29.84 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:22:40.550Z","type":"warning","text":"Stream stats: 117 tokens, 3.99 seconds, rate: 29.35 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:23:36.652Z","type":"warning","text":"Stream stats: 124 tokens, 4.22 seconds, rate: 29.35 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:23:38.773Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8104/script.js:9415"}
+{"at":"2026-10-02T03:24:37.844Z","type":"warning","text":"Stream stats: 133 tokens, 4.53 seconds, rate: 29.35 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:25:28.684Z","type":"warning","text":"Stream stats: 158 tokens, 5.40 seconds, rate: 29.26 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:25:30.070Z","type":"warning","text":"[Macro] Warning: Dynamic macro \"words\" uses unsupported number/boolean format. {macroName: words, range: Object, raw: words, call: Object}","location":"http://127.0.0.1:8104/scripts/macros/engine/MacroDiagnostics.js:106"}
+{"at":"2026-10-02T03:25:32.511Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8104/script.js:9415"}
+{"at":"2026-10-02T03:25:42.815Z","type":"warning","text":"Timeout waiting for chat to save","location":"http://127.0.0.1:8104/script.js:9415"}
+{"at":"2026-10-02T03:25:54.802Z","type":"warning","text":"Stream stats: 96 tokens, 4.39 seconds, rate: 21.88 TPS","location":"http://127.0.0.1:8104/script.js:3898"}
+{"at":"2026-10-02T03:26:25.768Z","type":"warning","text":"Stream stats: 113 tokens, 3.96 seconds, rate: 28.52 TPS","location":"http://127.0.0.1:8104/script.js:3898"}

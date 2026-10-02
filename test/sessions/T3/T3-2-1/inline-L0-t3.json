@@ -1,0 +1,13 @@
+{
+  "level": {
+    "requested": 0,
+    "effective": 0,
+    "window": 20
+  },
+  "attach": {
+    "samples": 10,
+    "medianMs": 545.6999999284744
+  },
+  "strips": []
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-10-02T02-52-54-965Z_so-ui-inline.json

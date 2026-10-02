@@ -1,0 +1,1282 @@
+{
+  "charter": "T3-5",
+  "tier": "T3",
+  "continuedAtPin": null,
+  "flags": [
+    {
+      "at": "2026-10-02T02:51:05.048Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "messageId": 13,
+      "note": "Swipe of msg 13 reverted the applied Tournament rewrite (good, wi-after-swipe.txt) but also removed the whole proposal wi-8-11 from the ring (made on msg 11, which survived the swipe): my edited+accepted rewrite and the declined op are gone, so the author's decision is lost and nothing re-applies. ring-after-swipe.txt",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 410
+      },
+      "context": [
+        {
+          "id": 10,
+          "name": "Honami",
+          "isUser": false,
+          "text": "\"Lord Karos?\" Honami steps closer to Max, her voice hushed and curious. Her white hair shifts across her face as she glances toward the silver-haired man by the door. \"How peculiar. I wasn't aware he had any interest in the tournament.\"\n*Her tails flick with subtle intrigue, though her gaze remains fixed on Max, as if checking his reaction. One tail curls forward, almost touching his arm in a possessive gesture.*\n\"You have a keen eye, Darling,\" she murmurs, her smile prim and sweet. \"Most would have been too preoccupied with the register to notice a steward standing guard.\""
+        },
+        {
+          "id": 11,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "A bronze gong rolls across the sand. \"Group entry, Honami Nemaden and the guests of Darran, against the Mountain Silence of the Guao!\" A steward lights the first incense stick, and the noise of the stands drops to a hum."
+        },
+        {
+          "id": 12,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "*We step onto the sand for our first bout of the Jiansho Tournament.* Belle, you take the big one. Dalan, watch the flank. Let's show the Guao what the Guild sends."
+        },
+        {
+          "id": 13,
+          "name": "Belle",
+          "isUser": false,
+          "text": "\"Got it.\" Belle doesn't wait for the gong to fade before she's already moving, Cleaver's head scraping the sand. \"And you stay back and watch, pretty boy. Wouldn't want that fancy Nightriver blood getting splattered on the place.\"\n*She doesn't look back, just shifts her weight and grins as her opponent steps forward—a hulking monk who barely reaches her shoulder but moves with the solid confidence of a mountain. Belle's brown eyes gleam with something hungry.*\n\"Try not to blink too much,\" she adds over her shoulder, \"or you'll miss the best part.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-02T02:59:38.262Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "messageId": 27,
+      "note": "Curator re-proposed switching on 'Chronicle - About this book' (the book's own meta/house-style note) 3 times (wi-4-6, wi-8-11, wi-16-25) after I declined it twice: useless op, and declines are not remembered. Its latest rewrite also wanted to put 'Hanzo Hattaxi' into the open Tournament chronicle entry; declined.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 729
+      },
+      "context": [
+        {
+          "id": 24,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "*Next morning we walk back onto the arena sand to face the Sunset Blooms.* Belle, Dalan, same as yesterday. Keep it clean."
+        },
+        {
+          "id": 25,
+          "name": "Belle",
+          "isUser": false,
+          "text": "\"Clean? The fuck you sayin'?\" Belle laughs, a short bark that draws eyes from the stands. She cracks her neck, Cleaver's stone head already resting in the sand. \"Clean is for the fucking laundry. I'm gonna break their ribs so hard the bookies'll shit themselves.\"\n*She steps forward, eyes locked on the Sunset Blooms with a predator's focus. The cherry blossoms drift down around her, but she doesn't notice—only the opponents and the hunger to prove herself.*\n\"Just keep your head down and try not to get splattered, pretty boy,\" she adds over her shoulder, a sharp grin flashing. \"This won't be nearly as pretty as the last one.\""
+        },
+        {
+          "id": 26,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "*I watch the Sunset Blooms' leader closely as the gong sounds.* Dalan, what do you make of their stance?"
+        },
+        {
+          "id": 27,
+          "name": "Dalan",
+          "isUser": false,
+          "text": "Dalan has already notched an arrow, but his eyes are narrowed and focused. He doesn't turn his head, keeping his vision on the enemy lines. \"The leader is weighted on his right,\" he reports in a soft, measured voice. \"Tells me he's expecting a close-quarters exchange. His chi flow is... tense, like a spring.\"\n*His fingers flex against the bowstring, blonde hair shifting in the wind. He makes a subtle gesture toward the other two Blooms.*\n\"They're covering each other's blind spots. Coordinated. If we let them surround Belle, they'll chip away at her from the edges.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    }
+  ],
+  "anomalies": [
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:46:02.624Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "6 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"\" (missing evidence); DELTA q=east_round_fought value=false evidence=\"\" (missing evidence); DELTA q=east_through_rounds value=false evidence=\"\" (missing evidence)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 217
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=east_odds value=null evidence=\"\"",
+            "reason": "missing evidence"
+          },
+          {
+            "line": "DELTA q=east_round_fought value=false evidence=\"\"",
+            "reason": "missing evidence"
+          },
+          {
+            "line": "DELTA q=east_through_rounds value=false evidence=\"\"",
+            "reason": "missing evidence"
+          },
+          {
+            "line": "DELTA q=guild_reputation value=0 evidence=\"\"",
+            "reason": "missing evidence"
+          },
+          {
+            "line": "DELTA q=party_injuries value=0 evidence=\"\"",
+            "reason": "missing evidence"
+          },
+          {
+            "line": "DELTA q=party_rank value=0 evidence=\"\"",
+            "reason": "missing evidence"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:46:12.041Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "6 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"\" (missing evidence); DELTA q=east_round_fought value=false evidence=\"\" (missing evidence); DELTA q=east_through_rounds value=false evidence=\"\" (missing evidence)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 230
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=east_odds value=null evidence=\"\"",
+            "reason": "missing evidence"
+          },
+          {
+            "line": "DELTA q=east_round_fought value=false evidence=\"\"",
+            "reason": "missing evidence"
+          },
+          {
+            "line": "DELTA q=east_through_rounds value=false evidence=\"\"",
+            "reason": "missing evidence"
+          },
+          {
+            "line": "DELTA q=guild_reputation value=2 evidence=\"\"",
+            "reason": "missing evidence"
+          },
+          {
+            "line": "DELTA q=party_injuries value=0 evidence=\"\"",
+            "reason": "missing evidence"
+          },
+          {
+            "line": "DELTA q=party_rank value=1 evidence=\"\"",
+            "reason": "missing evidence"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:46:20.537Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"Though I must confess, I find the odds far more interesting when they're... uncertain.\" (invalid value)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 242
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=east_odds value=null evidence=\"Though I must confess, I find the odds far more interesting when they're... uncertain.\"",
+            "reason": "invalid value"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:48:22.923Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=east_round_fought value=true evidence=\"We step onto the sand for our first bout of the Jiansho Tournament.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 285
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=east_round_fought value=true evidence=\"We step onto the sand for our first bout of the Jiansho Tournament.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:48:29.124Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=east_round_fought value=true evidence=\"We step onto the sand for our first bout of the Jiansho Tournament.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 293
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=east_round_fought value=true evidence=\"We step onto the sand for our first bout of the Jiansho Tournament.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:49:24.353Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 309
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:49:26.844Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge typed fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 310
+      },
+      "detail": {
+        "use": "typed",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.306Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 365
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-02T02:50:43.307Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 18
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.475Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 367
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.475Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 368
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.475Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 369
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.475Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 370
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.475Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 371
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.475Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 372
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.475Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 373
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.476Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 374
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.476Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 375
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.476Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 376
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.476Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 377
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.477Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 378
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.477Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 379
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.477Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 380
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.477Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 381
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.478Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 382
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.478Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 383
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.478Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 384
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.478Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 385
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.478Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 386
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.478Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 387
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.478Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 388
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:50:43.478Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 389
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:51:57.279Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"\" (missing evidence)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 475
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=east_odds value=null evidence=\"\"",
+            "reason": "missing evidence"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:56:36.988Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "4 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"\" (missing evidence); DELTA q=east_through_rounds value=false evidence=\"\" (missing evidence); DELTA q=party_injuries value=0 evidence=\"\" (missing evidence)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 632
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=east_odds value=null evidence=\"\"",
+            "reason": "missing evidence"
+          },
+          {
+            "line": "DELTA q=east_through_rounds value=false evidence=\"\"",
+            "reason": "missing evidence"
+          },
+          {
+            "line": "DELTA q=party_injuries value=0 evidence=\"\"",
+            "reason": "missing evidence"
+          },
+          {
+            "line": "DELTA q=party_rank value=null evidence=\"\"",
+            "reason": "missing evidence"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:57:49.514Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "2 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"I'm gonna break their ribs so hard the bookies'll shit themselves.\" (invalid value); DELTA q=east_through_rounds value=false evidence=\"Next morning we walk back onto the arena sand to face the Sunset Blooms.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 672
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=east_odds value=null evidence=\"I'm gonna break their ribs so hard the bookies'll shit themselves.\"",
+            "reason": "invalid value"
+          },
+          {
+            "line": "DELTA q=east_through_rounds value=false evidence=\"Next morning we walk back onto the arena sand to face the Sunset Blooms.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:57:56.387Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "2 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"I'm gonna break their ribs so hard the bookies'll shit themselves.\" (invalid value); DELTA q=east_through_rounds value=false evidence=\"Next morning we walk back onto the arena sand to face the Sunset Blooms.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 685
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=east_odds value=null evidence=\"I'm gonna break their ribs so hard the bookies'll shit themselves.\"",
+            "reason": "invalid value"
+          },
+          {
+            "line": "DELTA q=east_through_rounds value=false evidence=\"Next morning we walk back onto the arena sand to face the Sunset Blooms.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "stall",
+      "at": "2026-10-02T02:59:01.116Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "10 boundaries without a transition at east-the-rounds while its exits were pending",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 702
+      },
+      "detail": {
+        "checkpoint": "east-the-rounds",
+        "boundaries": 10,
+        "chat": "2026-10-01@23h41m44s699ms"
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:59:06.729Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=east_through_rounds value=false evidence=\"Tomorrow it's the Sunset Blooms.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 714
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=east_through_rounds value=false evidence=\"Tomorrow it's the Sunset Blooms.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:59:13.055Z",
+      "chatId": "2026-10-01@23h41m44s699ms",
+      "summary": "2 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"I'm gonna break their ribs so hard the bookies'll shit themselves.\" (invalid value); DELTA q=east_through_rounds value=false evidence=\"Next morning we walk back onto the arena sand to face the Sunset Blooms.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 723
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=east_odds value=null evidence=\"I'm gonna break their ribs so hard the bookies'll shit themselves.\"",
+            "reason": "invalid value"
+          },
+          {
+            "line": "DELTA q=east_through_rounds value=false evidence=\"Next morning we walk back onto the arena sand to face the Sunset Blooms.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    }
+  ],
+  "counts": {
+    "flags": 2,
+    "stall": 1,
+    "extraction-rejected": 11,
+    "empty-private-block": 0,
+    "lore-force-lost": 0,
+    "lore-constant-missed": 0,
+    "judge-fallback": 26,
+    "save-lost": 0,
+    "unexpected-jump": 0,
+    "rollback": 0,
+    "console-error": 1,
+    "model-call-failure": 0,
+    "model-defect": 0,
+    "harness-error": 0
+  },
+  "countsByChat": {
+    "2026-10-01@23h41m44s699ms": {
+      "extraction-rejected": 11,
+      "judge-fallback": 26,
+      "stall": 1
+    },
+    "(no chat)": {
+      "console-error": 1
+    }
+  },
+  "valid": true,
+  "invalid": [],
+  "unverifiable": {
+    "privateBlock": 0
+  },
+  "judge": {
+    "calls": 261,
+    "answered": 235,
+    "busy": 24,
+    "timeout": 2,
+    "otherFallbacks": 0,
+    "busyRate": 0.092,
+    "busyByUse": {
+      "memoryPairs": 24
+    }
+  },
+  "modelDefects": {
+    "turns": 0,
+    "loop": 0,
+    "corrupt": 0,
+    "repaired": 0,
+    "unrepaired": 0
+  },
+  "sessionDir": "test/sessions/T3/T3-5-1",
+  "register": [
+    {
+      "id": "T3-?1",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "Swipe of msg 13 reverted the applied Tournament rewrite (good, wi-after-swipe.txt) but also removed the whole proposal wi-8-11 from the ring (made on msg 11, which survived the swipe): my edited+accepted rewrite and the declined op are gone, so the author's decision is lost and nothing re-applies. ring-after-swipe.txt",
+      "source": "flag",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:410",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?2",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "Curator re-proposed switching on 'Chronicle - About this book' (the book's own meta/house-style note) 3 times (wi-4-6, wi-8-11, wi-16-25) after I declined it twice: useless op, and declines are not remembered. Its latest rewrite also wanted to put 'Hanzo Hattaxi' into the open Tournament chronicle entry; declined.",
+      "source": "flag",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:729",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?3",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "6 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"\" (missing evidence); DELTA q=east_round_fought value=false evidence=\"\" (missing evidence); DELTA q=east_through_rounds value=false evidence=\"\" (missing evidence)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:217",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?4",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "6 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"\" (missing evidence); DELTA q=east_round_fought value=false evidence=\"\" (missing evidence); DELTA q=east_through_rounds value=false evidence=\"\" (missing evidence)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:230",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?5",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"Though I must confess, I find the odds far more interesting when they're... uncertain.\" (invalid value)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:242",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?6",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=east_round_fought value=true evidence=\"We step onto the sand for our first bout of the Jiansho Tournament.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:285",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?7",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=east_round_fought value=true evidence=\"We step onto the sand for our first bout of the Jiansho Tournament.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:293",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?8",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:309",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?9",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge typed fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:310",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?10",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:365",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?11",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T3/T3-5-1/console.jsonl:18",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?12",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:367",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?13",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:368",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?14",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:369",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?15",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:370",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?16",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:371",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?17",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:372",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?18",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:373",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?19",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:374",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?20",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:375",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?21",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:376",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?22",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:377",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?23",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:378",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?24",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:379",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?25",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:380",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?26",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:381",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?27",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:382",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?28",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:383",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?29",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:384",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?30",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:385",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?31",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:386",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?32",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:387",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?33",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:388",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?34",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:389",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?35",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"\" (missing evidence)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:475",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?36",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "4 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"\" (missing evidence); DELTA q=east_through_rounds value=false evidence=\"\" (missing evidence); DELTA q=party_injuries value=0 evidence=\"\" (missing evidence)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:632",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?37",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "2 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"I'm gonna break their ribs so hard the bookies'll shit themselves.\" (invalid value); DELTA q=east_through_rounds value=false evidence=\"Next morning we walk back onto the arena sand to face the Sunset Blooms.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:672",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?38",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "2 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"I'm gonna break their ribs so hard the bookies'll shit themselves.\" (invalid value); DELTA q=east_through_rounds value=false evidence=\"Next morning we walk back onto the arena sand to face the Sunset Blooms.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:685",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?39",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "10 boundaries without a transition at east-the-rounds while its exits were pending",
+      "source": "stall",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:702",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?40",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=east_through_rounds value=false evidence=\"Tomorrow it's the Sunset Blooms.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:714",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?41",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "2 extraction line(s) rejected: DELTA q=east_odds value=null evidence=\"I'm gonna break their ribs so hard the bookies'll shit themselves.\" (invalid value); DELTA q=east_through_rounds value=false evidence=\"Next morning we walk back onto the arena sand to face the Sunset Blooms.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-5-1/journal.jsonl:723",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    }
+  ]
+}

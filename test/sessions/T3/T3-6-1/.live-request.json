@@ -1,0 +1,14 @@
+{
+  "verb": "shot",
+  "dir": "C:\\dev\\story-orchestrator\\test\\sessions\\T3\\T3-6-1",
+  "chat": {
+    "chatId": "2026-10-01@23h56m55s897ms",
+    "group": "Adolion - The Adventurer's Road",
+    "groupId": "1790909432362"
+  },
+  "args": {
+    "label": "narrow-road-chips",
+    "seq": 18
+  },
+  "options": {}
+}

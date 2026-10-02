@@ -1,0 +1,239 @@
+{
+  "visible": true,
+  "header": "Watching Adolion Chronicle · changes wait for you",
+  "proposals": [
+    {
+      "summary": "The chronicle book should be on now that play has begun changing lore, and the tournament entry needs the Hanzo unmasking added since it happened at the arena.",
+      "ops": [
+        "rewrite \"Chronicle - The Jiansho Tournament\" · waiting for you",
+        "switch on \"Chronicle - About this book\" · waiting for you"
+      ],
+      "pending": 2
+    },
+    {
+      "summary": "The tournament has begun, the party has cleared the opening round, and their next opponent is known, so the entry's claim that the tournament has not begun is no longer true.",
+      "ops": [
+        "rewrite \"Chronicle - The Jiansho Tournament\" · written"
+      ],
+      "pending": 0
+    },
+    {
+      "summary": "The party has now landed in Hianxo and begun making campaign-specific changes to Adolion, so the chronicle's framing entry becomes relevant to track what this campaign alters.",
+      "ops": [
+        "switch on \"Chronicle - About this book\" · declined"
+      ],
+      "pending": 0
+    }
+  ],
+  "snapshot": {
+    "settings": {
+      "curatorEnabled": true,
+      "acceptMode": "review",
+      "wardenEnabled": true,
+      "wardenAcceptMode": "review"
+    },
+    "proposals": [
+      {
+        "id": "wi-4-6",
+        "curator": "wi",
+        "at": "2026-10-02T02:44:10.520Z",
+        "boundary": 4,
+        "messageId": 6,
+        "checkpointId": "east-landfall",
+        "reason": "scene-break",
+        "summary": "The party has now landed in Hianxo and begun making campaign-specific changes to Adolion, so the chronicle's framing entry becomes relevant to track what this campaign alters.",
+        "mode": "review",
+        "ops": [
+          {
+            "op": {
+              "kind": "enable",
+              "lorebook": "Adolion Chronicle",
+              "comment": "Chronicle - About this book",
+              "uid": 0
+            },
+            "status": "rejected",
+            "message": "Switch \"Chronicle - About this book\" on",
+            "before": {
+              "content": "[This book holds what THIS campaign has changed about Adolion. Each entry starts in its pre-campaign state and is rewritten as play makes it untrue. Nothing here is statuotw's canon. House style: one short factual paragraph in the present tense, an Appearance line for anything that can be seen, keys that are names rather than common words.]",
+              "disabled": true,
+              "uid": 0
+            }
+          }
+        ],
+        "dropped": [],
+        "refused": [],
+        "provenance": {
+          "source": "curator",
+          "messageId": 6,
+          "boundary": 4,
+          "pass": "wi-curator:scene-break",
+          "inputs": [
+            {
+              "store": "memory",
+              "id": "Adolion Chronicle#Chronicle - About this book"
+            },
+            {
+              "store": "memory",
+              "id": "Adolion Chronicle#Chronicle - Tiunhime Village"
+            }
+          ],
+          "validity": "live"
+        }
+      },
+      {
+        "id": "wi-12-17",
+        "curator": "wi",
+        "at": "2026-10-02T02:53:13.594Z",
+        "boundary": 12,
+        "messageId": 21,
+        "checkpointId": "east-the-rounds",
+        "reason": "scene-break",
+        "summary": "The tournament has begun, the party has cleared the opening round, and their next opponent is known, so the entry's claim that the tournament has not begun is no longer true.",
+        "mode": "review",
+        "ops": [
+          {
+            "op": {
+              "kind": "rewrite",
+              "lorebook": "Adolion Chronicle",
+              "comment": "Chronicle - The Jiansho Tournament",
+              "uid": 9,
+              "text": "This year's tournament in Hianxo is underway. The party entered as a group under Honami Nemaden's name and won their opening bout against the Mountain Silence of the Guao by a wide margin. They now face the Sunset Blooms, a veteran cultivator group, in the next round. The court is watching the tournament for signs of who will succeed Emperor Zhao."
+            },
+            "status": "applied",
+            "message": "Rewrite \"Chronicle - The Jiansho Tournament\"",
+            "before": {
+              "content": "[State of the Jiansho Tournament in this campaign. This year's tournament in Hianxo has not begun; group entries are open, and the court is watching it for signs of who will succeed Emperor Zhao.]",
+              "disabled": false,
+              "uid": 9
+            },
+            "after": {
+              "content": "This year's tournament in Hianxo is underway. The party entered as a group under Honami Nemaden's name and won their opening bout against the Mountain Silence of the Guao by a wide margin. They now face the Sunset Blooms, a veteran cultivator group, in the next round. The court is watching the tournament for signs of who will succeed Emperor Zhao.",
+              "disabled": false
+            },
+            "target": {
+              "lorebookFileId": "Adolion Chronicle",
+              "uid": 9
+            }
+          }
+        ],
+        "dropped": [],
+        "refused": [],
+        "provenance": {
+          "source": "curator",
+          "messageId": 17,
+          "boundary": 12,
+          "pass": "wi-curator:scene-break",
+          "inputs": [
+            {
+              "store": "memory",
+              "id": "Adolion Chronicle#Chronicle - About this book"
+            },
+            {
+              "store": "memory",
+              "id": "Adolion Chronicle#Chronicle - The Party"
+            },
+            {
+              "store": "memory",
+              "id": "Adolion Chronicle#Chronicle - Driftmere"
+            },
+            {
+              "store": "memory",
+              "id": "Adolion Chronicle#Chronicle - The Jiansho Tournament"
+            }
+          ],
+          "validity": "live"
+        },
+        "appliedAt": "2026-10-02T02:55:27.269Z"
+      },
+      {
+        "id": "wi-16-25",
+        "curator": "wi",
+        "at": "2026-10-02T02:57:54.013Z",
+        "boundary": 16,
+        "messageId": 25,
+        "checkpointId": "east-the-rounds",
+        "reason": "scene-break",
+        "summary": "The chronicle book should be on now that play has begun changing lore, and the tournament entry needs the Hanzo unmasking added since it happened at the arena.",
+        "mode": "review",
+        "ops": [
+          {
+            "op": {
+              "kind": "rewrite",
+              "lorebook": "Adolion Chronicle",
+              "comment": "Chronicle - The Jiansho Tournament",
+              "uid": 9,
+              "text": "This year's tournament in Hianxo is underway. The party entered as a group under Honami Nemaden's name and won their opening bout against the Mountain Silence of the Guao by a wide margin. They now face the Sunset Blooms, a veteran cultivator group, in the next round. The court is watching the tournament for signs of who will succeed Emperor Zhao. After the bout, Max unmasked the grey-haired steward at the main hall door as Hanzo Hattaxi, who admitted his name but not his purpose."
+            },
+            "status": "pending",
+            "message": "Rewrite \"Chronicle - The Jiansho Tournament\"",
+            "before": {
+              "content": "This year's tournament in Hianxo is underway. The party entered as a group under Honami Nemaden's name and won their opening bout against the Mountain Silence of the Guao by a wide margin. They now face the Sunset Blooms, a veteran cultivator group, in the next round. The court is watching the tournament for signs of who will succeed Emperor Zhao.",
+              "disabled": false,
+              "uid": 9
+            }
+          },
+          {
+            "op": {
+              "kind": "enable",
+              "lorebook": "Adolion Chronicle",
+              "comment": "Chronicle - About this book",
+              "uid": 0
+            },
+            "status": "pending",
+            "message": "Switch \"Chronicle - About this book\" on",
+            "before": {
+              "content": "[This book holds what THIS campaign has changed about Adolion. Each entry starts in its pre-campaign state and is rewritten as play makes it untrue. Nothing here is statuotw's canon. House style: one short factual paragraph in the present tense, an Appearance line for anything that can be seen, keys that are names rather than common words.]",
+              "disabled": true,
+              "uid": 0
+            }
+          }
+        ],
+        "dropped": [],
+        "refused": [],
+        "provenance": {
+          "source": "curator",
+          "messageId": 25,
+          "boundary": 16,
+          "pass": "wi-curator:scene-break",
+          "inputs": [
+            {
+              "store": "memory",
+              "id": "Adolion Chronicle#Chronicle - About this book"
+            },
+            {
+              "store": "memory",
+              "id": "Adolion Chronicle#Chronicle - The Party"
+            },
+            {
+              "store": "memory",
+              "id": "Adolion Chronicle#Chronicle - Tiunhime Village"
+            },
+            {
+              "store": "memory",
+              "id": "Adolion Chronicle#Chronicle - The Jiansho Tournament"
+            }
+          ],
+          "validity": "live"
+        }
+      }
+    ],
+    "lastPass": {
+      "at": "2026-10-02T02:57:54.013Z",
+      "reason": "scene-break",
+      "prompt": "[WORLD INFO CURATION TASK — output structured lines only. Do NOT continue the roleplay.]\nYou keep a story's own lorebook honest as play moves on: switch entries on when they now matter, off when they no longer do, and correct text the story has overtaken.\nSTORY: Adolion: The Eastern Road\nWHERE THE STORY IS: The Opening Rounds — Win through the opening rounds of the Jiansho Tournament.\nWHAT HAS HAPPENED:\nWHAT HAS HAPPENED:\nMax Nightriver and his party crossed the Jehopa Ocean to Hianxo for a tournament group entry at Jiansho Academy, answering a letter that said little about who had requested them. At the harbour they were met by Honami Nemaden, a three-tailed kitsune of the Academy who had personally petitioned for fresh Guild talent and claimed she had singled out Max. She led them to the Academy, where Max registered under her name and learned the grey-haired steward at the main hall door was Lord Karos. Megumi Xianxu, Head of the Student Council, greeted them before a gong announced their first bout against the Mountain Silence of the Guao. Max led the party onto the sand, assigning Belle to the large opponent and Dalan to watch the flank; Belle moved before the gong faded, taunting Max about his Nightriver blood. The party won the bout by a wide margin. Afterward, Max confronted the grey-haired steward, accusing him of not being a steward, and the man revealed himself as Hanzo Hattaxi, hinting at a more dangerous identity with his hand on his katana.\n\nCURRENT STATE:\nThe party has cleared the opening round of the Jiansho Tournament and now faces the Sunset Blooms, a group of yo…\nOPEN THREADS:\n- Hanzo Hattaxi has been unmasked as no steward and has deflected Max's question about who he is, leaving his purpose at the Academy unknown.\n- Lord Karos's reasons for attending the tournament remain unexplained, and Honami is now watching for the party's read on him.\n- Hanzo Hattaxi's true purpose at the Academy remains unknown after he deflects Max's question about what he is.\n- The party must now face the Sunset Blooms, a veteran cultivator group, in the next round of the tournament.\n- Honami's explanation of Megumi's motives leaves open what Megumi herself will do to secure her independent name in the tournament.\n- Honami's hint that some entrants use the arena as a stage for games unrelated to the tournament leaves unknown players and hidden agendas in the bracket.\n- Megumi's drive to establish her own name apart from her brother's shadow makes her a predictable but dangerous rival still to be faced.\n- Hanzo Hattaxi has admitted his name but not his purpose, leaving what he is and why he watches the party unresolved.\nENTRIES YOU MAY TOUCH (no others exist for you):\n- #0 \"Chronicle - About this book\" (Adolion Chronicle) [currently off]\n  keys: adolion-chronicle-about\n  content: [This book holds what THIS campaign has changed about Adolion. Each entry starts in its pre-campaign state and is rewritten as play makes it untrue. Nothing here is statuotw's canon. House style: one short factual paragraph in the present tense, an Appearance line for anything that can be seen, keys that are names rather than common words.]\n- #1 \"Chronicle - The Party\" (Adolion Chronicle)\n  keys: the party, our party, adventuring party\n  content: [{{// so:protect}}This campaign's party, registered at the Aegis City Adventurers Guild.{{// so:end}} They are newly formed and unproven, holding the lowest working rank, with no reputation beyond the counter clerks who signed them up and no completed postings to their name.]\n- #8 \"Chronicle - Tiunhime Village\" (Adolion Chronicle)\n  keys: Tiunhime\n  content: {{// so:auto}}[State of Tiunhime Village in this campaign. The Harvest Festival is coming, Sota is gathering salt for the Rite of Warding, and the fox gods Watara and Yurine and the crow god Ebisu keep their old uneasy balance. No fever has reached the village yet.]\n- #9 \"Chronicle - The Jiansho Tournament\" (Adolion Chronicle)\n  keys: Jiansho Tournament\n  content: This year's tournament in Hianxo is underway. The party entered as a group under Honami Nemaden's name and won their opening bout against the Mountain Silence of the Guao by a wide margin. They now face the Sunset Blooms, a veteran cultivator group, in the next round. The court is watching the tournament for signs of who will succeed Emperor Zhao.\nOutput one line per change, at most 4:\n[enable] <#number or entry title>\n[disable] <#number or entry title>\n[rewrite] <#number or entry title> || <the full replacement text>\n[patch] <#number or entry title> || <first words of the span to replace> || <last words of that span> || <replacement text>\nThen one final line: [why] <one sentence on what changed in the story that made these necessary>\nRULES:\n- Name each entry by its #number, or by its title exactly as listed above. Anything else is discarded.\n- [enable] only an entry marked [currently off]; every other entry is already on.\n- [disable] only an entry that is not marked [currently off].\n- An entry marked [shown in part — patch only] may only be patched: you have not seen all of it.\n- Some entries carry `{{// ...}}` bookkeeping markers. Never write, move or delete a marker, and never change the words between `{{// so:protect}}` and `{{// so:end}}`.\n- Prefer [patch] over [rewrite]: quote the first and last words of the span exactly as they appear in the content.\n- Keep replacement text under 600 characters. Never restate the whole entry in a patch.\n- Only propose a change the story has actually made necessary. Style preferences are not changes.\n- Never invent new entries, never touch anything outside the list, never write about the player's own knowledge.\nIf nothing needs changing, output NONE. That is the expected answer most of the time.\nOutput:",
+      "rawResponse": "[enable] #0 \"Chronicle - About this book\"\n[rewrite] #9 \"Chronicle - The Jiansho Tournament\" || This year's tournament in Hianxo is underway. The party entered as a group under Honami Nemaden's name and won their opening bout against the Mountain Silence of the Guao by a wide margin. They now face the Sunset Blooms, a veteran cultivator group, in the next round. The court is watching the tournament for signs of who will succeed Emperor Zhao. After the bout, Max unmasked the grey-haired steward at the main hall door as Hanzo Hattaxi, who admitted his name but not his purpose.\n[why] The chronicle book should be on now that play has begun changing lore, and the tournament entry needs the Hanzo unmasking added since it happened at the arena.",
+      "proposed": 2,
+      "dropped": [],
+      "focus": {
+        "shown": 4,
+        "total": 13
+      }
+    },
+    "lastRunBoundary": 16,
+    "lastError": null
+  },
+  "scope": [
+    "Adolion Chronicle"
+  ]
+}
+Wrote JSON: C:\dev\so-lanes\4\debug\2026-10-02T02-58-14-915Z_so-ui-stagecraft.json

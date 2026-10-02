@@ -1,0 +1,3079 @@
+{
+  "level": {
+    "requested": 3,
+    "effective": 3,
+    "window": 20
+  },
+  "attach": {
+    "samples": 28,
+    "medianMs": 492.1999999284744
+  },
+  "strips": [
+    {
+      "mesid": "47",
+      "level": 3,
+      "nodes": 15,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 4",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The cultist is gaunt and vacant-eyed, resisting only with the mindless determination of the dead.\n\"He doesn't fight back with skill—just with the mindless determination of the dead.\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Something answered the demon's shriek from deeper within the Keep.\n\"something answers from deeper within the Keep.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Max wrenched the cultist's knife away from the captive's throat and cut her bonds, hauling her off the altar.\n\"The knife stops an inch from the captive's skin as Max Nightriver's hand clamps around the cultist's wrist.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Max wrenched the cultist's knife away from the captive's throat and cut her bonds.\n\"The knife stops an inch from the captive's skin as Max Nightriver's hand clamps around the cultist's wrist.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 2",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: Something deeper within the Keep answered the demon's shriek and may be closing on the Great Hall.\nd19dcfb9-10fe-4f81-93f2-02b95fdec21e"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The cultist at the altar is still alive and grasping for the knife, and the captive remains bound on the altar.\n06e1e05e-ed6f-463c-99c8-b8fd13b5ce55\nCed led Max Nightriver, Runo, and Dalan north from Aegis City with a mule of alchemical supplies and a covered cart of Runo's magitech golems, taking a steeper, less-watched path through the Velniran foothills toward Carrow Keep while enforcing silence and watchfulness on the march. After Runo broke down over his failure on the last expedition, the party reached the Keep, where Dalan scouted the west wall and found a twenty-heartbeat gap in the watch change, and Max ordered a rope set for entry at the change of watch. Inside the Great Hall they found fresh food on the banquet table, and Ced sensed something was wrong as a slow violet light pulsed from the chapel tower and the grey-robed guards failed to react to it. Ced gave the word and ascended the rope first, clearing the wall walk with alchemical speed while the guards continued their plodding circle, oblivious. The cultist at the altar remained alive and grasping for the knife, and the captive remained bound on the altar."
+            }
+          ]
+        },
+        {
+          "category": "lore",
+          "label": "World Info: 19",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Crimsonwing & Ebonwing\nconstant · checkpoint-gated · uid 0"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - The Tear Over the Altar\nconstant · checkpoint-gated · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · CP deep-the-altar - Scene\nconstant · checkpoint-gated · uid 17"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Adolion\nkey · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Aegis City\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Cedoric \"Ced\" Vinasun - Adventurer\nkey · uid 43"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Crimsonwing - Adventuring Party\nkey · uid 49"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Dalan Evergreen\nkey · uid 57"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Demons\nkey · uid 64"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Ebonwing - Adventuring Party\nkey · uid 81"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Kelawynn \"Kela\" Vinamoon - Adventurer of Ebonwing\nkey · uid 143"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Nightriver Great House\nkey · uid 172"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Runo Firevill - Adventurer\nkey · uid 191"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · The Nightriver Noble Family\nkey · uid 224"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Velniran Mountains\nkey · uid 240"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - The Party\nkey · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - House Nightriver\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - Crimsonwing and Ebonwing\nkey · uid 7"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · World - Primer\nconstant · uid 0"
+            }
+          ]
+        },
+        {
+          "category": "calls",
+          "label": "Model calls: 7",
+          "items": [
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "2 things noted\ncadence · messages 44–47 · 0 rejected"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 803 ms\njev-1.13.0 · 11 questions · 2309/242 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge scene · 676 ms\njev-1.13.0 · 25 questions · 3828/693 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge warden · 675 ms\njev-1.13.0 · 30 questions · 4599/558 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge wardenLore · 859 ms\njev-1.13.0 · 8 questions · 2170/156 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 237 ms\njev-1.13.0 · 12 questions · 1953/415 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryVerify · 251 ms\njev-1.13.0 · 12 questions · 2315/222 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "48",
+      "level": 3,
+      "nodes": 6,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "calls",
+          "label": "Model calls: 6",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 391 ms\njev-1.13.0 · 64 questions · 13535/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 432 ms\njev-1.13.0 · 64 questions · 14461/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 347 ms\njev-1.13.0 · 64 questions · 14154/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 330 ms\njev-1.13.0 · 64 questions · 13497/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 226 ms\njev-1.13.0 · 7 questions · 2702/130 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 248 ms\njev-1.13.0 · 12 questions · 2358/266 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "49",
+      "level": 3,
+      "nodes": 14,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 6",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Dalan holds the Great Hall threshold with his shortbow, covering the party's retreat.\n\"Go! Get her out of there—I'm holding them as long as I can!\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Dalan stayed at the Great Hall threshold to hold off the tentacled guards while the others escaped.\n\"\\\"Go! Get her out of there—I'm holding them as long as I can!\\\"\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "Recent events condensed\nshort_term from 1 input, removed 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Applied location=deep_great_hall, tension_current=0.5998069356325\nread at message 47"
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Held: two claims disagree\nclaim: Dalan stays behind at the Great Hall threshold to hold the tentacled guards while the others flee.\nclaim: Carrow Keep guards = emerging with inky tentacles\nKeep: Dalan stays behind at the Great Hall threshold to hold the tentacled guards while the others flee."
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Held: two claims disagree\nclaim: Dalan stays behind at the Great Hall threshold, firing arrows and holding the tentacled guards so the others can escape down the stair.\nclaim: Carrow Keep guards = emerging with inky tentacles\nKeep: Dalan stays behind at the Great Hall threshold, firing arrows and holding the tentacled guards so the others can escape down the stair."
+            }
+          ]
+        },
+        {
+          "category": "lore",
+          "label": "World Info: 19",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Crimsonwing & Ebonwing\nconstant · checkpoint-gated · uid 0"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - The Tear Over the Altar\nconstant · checkpoint-gated · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · CP deep-the-altar - Scene\nconstant · checkpoint-gated · uid 17"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Adolion\nkey · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Aegis City\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Cedoric \"Ced\" Vinasun - Adventurer\nkey · uid 43"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Crimsonwing - Adventuring Party\nkey · uid 49"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Dalan Evergreen\nkey · uid 57"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Demons\nkey · uid 64"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Ebonwing - Adventuring Party\nkey · uid 81"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Kelawynn \"Kela\" Vinamoon - Adventurer of Ebonwing\nkey · uid 143"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Nightriver Great House\nkey · uid 172"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Runo Firevill - Adventurer\nkey · uid 191"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · The Nightriver Noble Family\nkey · uid 224"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Velniran Mountains\nkey · uid 240"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - The Party\nkey · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - House Nightriver\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - Crimsonwing and Ebonwing\nkey · uid 7"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · World - Primer\nconstant · uid 0"
+            }
+          ]
+        },
+        {
+          "category": "pacing",
+          "label": "Pacing: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Tension: critical\nsmoothed 0.60"
+            }
+          ]
+        },
+        {
+          "category": "calls",
+          "label": "Model calls: 10",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 1057 ms\njev-1.13.0 · 11 questions · 2291/242 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 482 ms\njev-1.13.0 · 12 questions · 1715/375 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge scene · 642 ms\njev-1.13.0 · 25 questions · 3747/693 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge warden · 609 ms\njev-1.13.0 · 36 questions · 5413/672 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge wardenLore · 238 ms\njev-1.13.0 · 8 questions · 2170/156 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 348 ms\njev-1.13.0 · 64 questions · 14409/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 341 ms\njev-1.13.0 · 64 questions · 13483/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 363 ms\njev-1.13.0 · 64 questions · 14102/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 303 ms\njev-1.13.0 · 64 questions · 13445/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 260 ms\njev-1.13.0 · 7 questions · 2650/130 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "50",
+      "level": 3,
+      "nodes": 15,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 9",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The captive bears a purple trident brand seared across her brow.\n\"Her face is gaunt, marked by the purple trident brand that sears across her brow.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The demon on the throne stands and watches the party rather than attacking, laughing as more tentacled guards emerge from the corridors.\n\"The demon on the throne stands, its too-many eyes tracking the movement, but it doesn't rush forward—just watches, laughing softly as more armored guards emerge from the corridors, tentacles coiling and snapping.\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: A low grinding sound like stone sliding on stone echoes from below the Great Hall, and a wave of demon-reek washes over the room.\n\"A low, grinding sound echoes from below the Great Hall, like stone sliding on stone, and a wave of demon-reek washes over the room, thick and cloying.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The party freed the branded captive and fled the Great Hall through the side door, descending the spiral stair below the hall.\n\"The captive stumbles as her bonds part, and she catches Max Nightriver's arm with a trembling grip.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "A thread was summarized\narc_summary from 1 input"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "The story so far was updated\ncanon from 34 inputs"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "location = deep_great_hall\n\"The demon on the throne stands, its too-many eyes tracking the movement, but it doesn't rush forward—just watches, laughing softly as more armored guards emerge from the corridors, tentacles coiling and snapping.\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "tension_current = 0.71986485494275\n\"A low, grinding sound echoes from below the Great Hall, like stone sliding on stone, and a wave of demon-reek washes over the room, thick and cloying.\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "tension_current = 0.728905398459925\n\"The demon on the throne stands, its too-many eyes tracking the movement, but it doesn't rush forward—just watches, laughing softly as more armored guards emerge from the corridors, tentacles coiling and snapping.\""
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 4",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Thread resolved: The cultist at the altar is still alive and grasping for the knife, and the captive remains bound on the altar.\n06e1e05e-ed6f-463c-99c8-b8fd13b5ce55\nCed led Max Nightriver, Runo, and Dalan north from Aegis City with a mule of alchemical supplies and a covered cart of Runo's magitech golems, taking a steeper, less-watched path through the Velniran foothills toward Carrow Keep while enforcing silence and watchfulness on the march. After Runo broke down over his failure on the last expedition, the party reached the Keep, where Dalan scouted the west wall and found a twenty-heartbeat gap in the watch change, and Max ordered a rope set for entry at the change of watch. Inside the Great Hall they found fresh food on the banquet table, and Ced sensed something was wrong as a slow violet light pulsed from the chapel tower and the grey-robed guards failed to react to it. Ced gave the word and ascended the rope first, clearing the wall walk with alchemical speed while the guards continued their plodding circle, oblivious. The cultist at the altar remained alive and grasping for the knife, and the captive remained bound on the altar."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The party has freed the branded captive and must now escape the Great Hall through the tentacled guards while Dalan holds the door.\nfe96e795-e23f-45c1-bdaf-4af7f68643a9"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The demon on the throne is standing and watching rather than attacking, and more tentacled guards keep emerging from the corridors.\ndcc1f1c3-d213-4b61-9e91-117867b2a258"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The grinding sound and demon-reek rising from below the Great Hall suggest something is climbing up toward the party.\n42aa40e7-309c-47e2-b082-bfbebc1d43ec"
+            }
+          ]
+        },
+        {
+          "category": "lore",
+          "label": "World Info: 20",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Runo Firevill - Adventurer\nforced · uid 191"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Zombie\nforced · uid 263"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Crimsonwing & Ebonwing\nconstant · checkpoint-gated · uid 0"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - The Tear Over the Altar\nconstant · checkpoint-gated · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · CP deep-the-altar - Scene\nconstant · checkpoint-gated · uid 17"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Adolion\nkey · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Aegis City\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Cedoric \"Ced\" Vinasun - Adventurer\nkey · uid 43"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Crimsonwing - Adventuring Party\nkey · uid 49"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Dalan Evergreen\nkey · uid 57"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Demons\nkey · uid 64"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Ebonwing - Adventuring Party\nkey · uid 81"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Kelawynn \"Kela\" Vinamoon - Adventurer of Ebonwing\nkey · uid 143"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Nightriver Great House\nkey · uid 172"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · The Nightriver Noble Family\nkey · uid 224"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Velniran Mountains\nkey · uid 240"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - The Party\nkey · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - House Nightriver\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - Crimsonwing and Ebonwing\nkey · uid 7"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · World - Primer\nconstant · uid 0"
+            }
+          ]
+        },
+        {
+          "category": "calls",
+          "label": "Model calls: 10",
+          "items": [
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "2 things noted\ncue:deep-the-altar->deep-nahalbuk-cells · messages 43–50 · 0 rejected"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 792 ms\njev-1.13.0 · 9 questions · 2210/194 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge stall · 765 ms\njev-1.13.0 · 1 questions · 1662/22 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 1020 ms\njev-1.13.0 · 12 questions · 1737/375 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge scene · 582 ms\njev-1.13.0 · 25 questions · 3861/693 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge wardenLore · 317 ms\njev-1.13.0 · 8 questions · 2127/156 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge warden · 850 ms\njev-1.13.0 · 36 questions · 5435/672 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 254 ms\njev-1.13.0 · 12 questions · 2595/575 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryVerify · 272 ms\njev-1.13.0 · 13 questions · 2968/241 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Stall re-check: deep_below_fort\njudge: nothing shown (max p 0.06)"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "51",
+      "level": 3,
+      "nodes": 6,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "calls",
+          "label": "Model calls: 6",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 377 ms\njev-1.13.0 · 64 questions · 14435/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 397 ms\njev-1.13.0 · 64 questions · 13509/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 313 ms\njev-1.13.0 · 64 questions · 14128/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 324 ms\njev-1.13.0 · 64 questions · 13471/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 263 ms\njev-1.13.0 · 7 questions · 2676/130 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 256 ms\njev-1.13.0 · 12 questions · 2332/270 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "52",
+      "level": 3,
+      "nodes": 17,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 18",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The freed captive told the party there is another prisoner below, a woman in knight's rags.\n\"\\\"There's another one,\\\" she rasps, her voice thin and raw. \\\"One more prisoner below... a woman in knight's rags.\\\"\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The captive told the party there is one more prisoner below, a woman in knight's rags held in the lowest cell, branded and starved for weeks.\n\"One more prisoner below... a woman in knight's rags.\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The branded captive told Max there is a second prisoner below, a woman in knight's rags held in the lowest cell, starved for weeks and branded like her.\n\"One more prisoner below... a woman in knight's rags.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "Scene summarized\nscene_summary from 0 inputs, removed 9"
+            },
+            {
+              "state": "refused",
+              "level": 3,
+              "text": "location = deep_great_hall\n\"The side door is a narrow gap in the stone, half-shrouded in the pulsing violet shadow from the chapel.\""
+            },
+            {
+              "state": "refused",
+              "level": 3,
+              "text": "tension_current = 0.728905398459925\n\"Behind them, the shrieks of the demon and the metallic clatter of armored guards echo through the Great Hall as they retreat into the dark.\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "deep_below_fort = true\n\"Beyond it lies a spiral stair descending into the heart of the Keep, where the grinding stone-on-stone echoes from below grow louder.\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "location = deep_nahalbuk\n\"Beyond it lies a spiral stair descending into the heart of the Keep, where the grinding stone-on-stone echoes from below grow louder.\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Applied location=deep_great_hall, tension_current=0.71986485494275\nread at message 50"
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Held: two claims disagree\nclaim: The party crossed the yard behind the patrol and pushed open the Great Hall's doors, entering the keep's hall.\nclaim: Carrow Keep below_hall = spiral stair descending into the heart of the Keep\nKeep: The party crossed the yard behind the patrol and pushed open the Great Hall's doors, entering the keep's hall."
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Held: two claims disagree\nclaim: Ced notices the banquet food is fresh and calls it wrong, suspecting a trap or something amiss inside the Great Hall.\nclaim: Carrow Keep below_hall = spiral stair descending into the heart of the Keep\nKeep: Ced notices the banquet food is fresh and calls it wrong, suspecting a trap or something amiss inside the Great Hall."
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Held: two claims disagree\nclaim: Ced notes the banquet food is fresh and warns the party not to touch it, calling the hall 'too clean.'\nclaim: Carrow Keep below_hall = spiral stair descending into the heart of the Keep\nKeep: Ced notes the banquet food is fresh and warns the party not to touch it, calling the hall 'too clean.'"
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Held: two claims disagree\nclaim: Ced and Max move in coordinated silence through the keep yard and into the Great Hall, with Ced leading and Max following his cues.\nclaim: Carrow Keep below_hall = spiral stair descending into the heart of the Keep\nKeep: Ced and Max move in coordinated silence through the keep yard and into the Great Hall, with Ced leading and Max following his cues."
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Held: two claims disagree\nclaim: A demon-thing with too many eyes was found feeding on what is left of Lord Aldric Carrow on the throne at the far end of the Great Hall.\nclaim: Carrow Keep below_hall = spiral stair descending into the heart of the Keep\nKeep: A demon-thing with too many eyes was found feeding on what is left of Lord Aldric Carrow on the throne at the far end of the Great Hall."
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Held: two claims disagree\nclaim: Lord Aldric Carrow is dead or nearly so, his body being fed upon by a many-eyed demon in the Great Hall.\nclaim: Carrow Keep below_hall = spiral stair descending into the heart of the Keep\nKeep: Lord Aldric Carrow is dead or nearly so, his body being fed upon by a many-eyed demon in the Great Hall."
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Held: two claims disagree\nclaim: Dalan stays behind at the Great Hall threshold to hold the tentacled guards while the others flee.\nclaim: Carrow Keep below_hall = spiral stair descending into the heart of the Keep\nKeep: Dalan stays behind at the Great Hall threshold to hold the tentacled guards while the others flee."
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Held: two claims disagree\nclaim: Dalan remains alone at the Great Hall threshold, holding the door while the party descends.\nclaim: Carrow Keep below_hall = spiral stair descending into the heart of the Keep\nKeep: Dalan remains alone at the Great Hall threshold, holding the door while the party descends."
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Held: two claims disagree\nclaim: Dalan stays behind at the Great Hall threshold, firing arrows and holding the tentacled guards so the others can escape down the stair.\nclaim: Carrow Keep below_hall = spiral stair descending into the heart of the Keep\nKeep: Dalan stays behind at the Great Hall threshold, firing arrows and holding the tentacled guards so the others can escape down the stair."
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 2",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The party has descended the spiral stair below the Great Hall and must find the second prisoner, a woman in knight's rags, while Dalan holds the door above.\n634afb2f-39e9-4827-b5df-04ffe29070b2"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: Dalan is alone at the Great Hall threshold holding off the tentacled guards, and his fate is unresolved.\nd1b0d032-44d2-49d0-a248-780ee46f0293"
+            }
+          ]
+        },
+        {
+          "category": "lore",
+          "label": "World Info: 23",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Tahanna's Brand\nforced · uid 215"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Crimsonwing & Ebonwing\nconstant · checkpoint-gated · uid 0"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - The Tear Over the Altar\nconstant · checkpoint-gated · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · CP deep-the-altar - Scene\nconstant · checkpoint-gated · uid 17"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Adolion\nkey · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Aegis City\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Cedoric \"Ced\" Vinasun - Adventurer\nkey · uid 43"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Crimsonwing - Adventuring Party\nkey · uid 49"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Dalan Evergreen\nkey · uid 57"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Demons\nkey · uid 64"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Ebonwing - Adventuring Party\nkey · uid 81"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Kelawynn \"Kela\" Vinamoon - Adventurer of Ebonwing\nkey · uid 143"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Nightriver Great House\nkey · uid 172"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Runo Firevill - Adventurer\nkey · uid 191"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · The Nightriver Noble Family\nkey · uid 224"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Velniran Mountains\nkey · uid 240"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - The Party\nkey · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - House Nightriver\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - Crimsonwing and Ebonwing\nkey · uid 7"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · World - Primer\nconstant · uid 0"
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Rewrite Adolion Chronicle · Chronicle - The Party\nThe party is now working with Crimsonwing at Carrow Keep, so the party entry and the Crimsonwing/Ebonwing entry no longer match play, and the chronicle's own framing entry should be on.\nRewrite \"Chronicle - The Party\"\nAccept\nDecline"
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Rewrite Adolion Chronicle · Chronicle - Crimsonwing and Ebonwing\nThe party is now working with Crimsonwing at Carrow Keep, so the party entry and the Crimsonwing/Ebonwing entry no longer match play, and the chronicle's own framing entry should be on.\nRewrite \"Chronicle - Crimsonwing and Ebonwing\"\nAccept\nDecline"
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Switch on Adolion Chronicle · Chronicle - About this book\nThe party is now working with Crimsonwing at Carrow Keep, so the party entry and the Crimsonwing/Ebonwing entry no longer match play, and the chronicle's own framing entry should be on.\nSwitch \"Chronicle - About this book\" on\nAccept\nDecline"
+            }
+          ]
+        },
+        {
+          "category": "pacing",
+          "label": "Pacing: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Tension: peak\nsmoothed 0.72"
+            }
+          ]
+        },
+        {
+          "category": "calls",
+          "label": "Model calls: 11",
+          "items": [
+            {
+              "state": "refused",
+              "level": 2,
+              "text": "2 things noted\ncadence · messages 48–52 · 0 rejected"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "3 things noted\ncue:deep-the-altar->deep-nahalbuk-cells · messages 45–52 · 0 rejected"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 856 ms\njev-1.13.0 · 11 questions · 2278/243 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge scene · 1112 ms\njev-1.13.0 · 25 questions · 3797/692 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge warden · 1000 ms\njev-1.13.0 · 39 questions · 5854/729 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge wardenLore · 1073 ms\njev-1.13.0 · 8 questions · 2210/156 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 230 ms\njev-1.13.0 · 12 questions · 2060/455 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryVerify · 269 ms\njev-1.13.0 · 5 questions · 1573/94 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 236 ms\njev-1.13.0 · 12 questions · 2531/575 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryVerify · 292 ms\njev-1.13.0 · 7 questions · 2176/130 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge curatorFilter · 677 ms\njev-1.13.0 · 13 questions · 2793/241 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "53",
+      "level": 3,
+      "nodes": 6,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "calls",
+          "label": "Model calls: 6",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 373 ms\njev-1.13.0 · 64 questions · 14330/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 382 ms\njev-1.13.0 · 64 questions · 13404/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 316 ms\njev-1.13.0 · 64 questions · 14023/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 302 ms\njev-1.13.0 · 64 questions · 13366/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 224 ms\njev-1.13.0 · 7 questions · 2571/130 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 226 ms\njev-1.13.0 · 12 questions · 2227/270 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "54",
+      "level": 3,
+      "nodes": 23,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "progress",
+          "label": "Progress: 2",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "The Prisoner in the Cells: Behind the altar the stair drops into a Beastmen warren of bone fetishes and drum skins, and somewhere past the drums are the cells."
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "deep-the-altar → deep-nahalbuk-cells (gate)\ngate: {\"q\":\"deep_below_fort\",\"op\":\"==\",\"v\":true}\nlocation: deep_great_hall → deep_nahalbuk\ntension_current: 0.71986485494275 → 0.728905398459925\ndeep_below_fort: ∅ → true\npath: deep-joint-posting → deep-with-crimsonwing → deep-the-north-road → deep-ritual-fort → deep-the-altar → deep-nahalbuk-cells"
+            }
+          ]
+        },
+        {
+          "category": "memory",
+          "label": "Memory: 17",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The party has descended the spiral stair below the Great Hall and reached an iron-barred gate into a dark corridor, seeking the second prisoner, a woman in knight's rags.\n\"The spiral stair ends at a iron-barred gate that leads into a dark corridor.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: A massive stone door is being forced open somewhere below, and the demon-reek grows stronger down the stair.\n\"another grinding sound echoes up the stair—heavier this time, as if a massive stone door is being forced open.\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: A massive stone door is being forced open somewhere below the dungeon, and something is coming up toward the party.\n\"From somewhere below, another grinding sound echoes up the stair—heavier this time, as if a massive stone door is being forced open.\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The captive tells Max the second prisoner is in the lowest cell beneath the Great Hall, branded like her and starved for weeks.\n\"She's in the lowest cell. They... they branded her like me, but she wouldn't break. They've been starving her for weeks.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: A heavier grinding sound echoes up the stair, as if a massive stone door is being forced open, and the demon-reek is stronger with a sulfurous tang.\n\"From somewhere below, another grinding sound echoes up the stair—heavier this time, as if a massive stone door is being forced open.\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "Older memories folded\ndedup from 7 inputs, removed 6"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "Older memories folded\ndedup from 3 inputs, removed 2"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "The story so far was updated\ncanon from 34 inputs"
+            },
+            {
+              "state": "refused",
+              "level": 3,
+              "text": "location = deep_nahalbuk\n\"The spiral stair ends at a iron-barred gate that leads into a dark corridor.\""
+            },
+            {
+              "state": "refused",
+              "level": 3,
+              "text": "tension_current = 0.6602337789219475\n\"From somewhere below, another grinding sound echoes up the stair—heavier this time, as if a massive stone door is being forced open.\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "location = deep_nahalbuk\n\"The spiral stair ends at a iron-barred gate that leads into a dark corridor.\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "tension_current = 0.7352337789219474\n\"From somewhere below, another grinding sound echoes up the stair—heavier this time, as if a massive stone door is being forced open.\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "location = deep_nahalbuk\n\"The spiral stair ends at a iron-barred gate that leads into a dark corridor.\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "location = deep_nahalbuk\n\"The spiral stair ends at a iron-barred gate that leads into a dark corridor.\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Applied deep_below_fort=true, location=deep_nahalbuk, tension_current=0.728905398459925\nread at message 52"
+            },
+            {
+              "state": "refused",
+              "level": 3,
+              "text": "Not stored: The party descended the spiral stair below the Great Hall into the dungeon corridor of Nahalbuk, leaving Dalan holding the door above.\np 0.12 · jev-1.13.0"
+            },
+            {
+              "state": "refused",
+              "level": 3,
+              "text": "Not stored: The party has descended the spiral stair below the Great Hall into Dungeon Nahalbuk, past an iron-barred gate into a dark corridor of stone-cut cells.\np 0.15 · jev-1.13.0"
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 2",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The party must find and free the second prisoner, the woman in knight's rags, in the lowest cell of Dungeon Nahalbuk.\n80176680-36ea-43a6-ad25-2a8476195c9e"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: A massive stone door is being forced open somewhere below the dungeon, and something is coming up toward the party.\nd04da422-1e25-4990-9e1b-db781aff4108"
+            }
+          ]
+        },
+        {
+          "category": "lore",
+          "label": "World Info: 19",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Crimsonwing & Ebonwing\nconstant · checkpoint-gated · uid 0"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - The Tear Over the Altar\nconstant · checkpoint-gated · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · CP deep-the-altar - Scene\nconstant · checkpoint-gated · uid 17"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Adolion\nkey · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Aegis City\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Cedoric \"Ced\" Vinasun - Adventurer\nkey · uid 43"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Crimsonwing - Adventuring Party\nkey · uid 49"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Dalan Evergreen\nkey · uid 57"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Demons\nkey · uid 64"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Ebonwing - Adventuring Party\nkey · uid 81"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Kelawynn \"Kela\" Vinamoon - Adventurer of Ebonwing\nkey · uid 143"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Nightriver Great House\nkey · uid 172"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Runo Firevill - Adventurer\nkey · uid 191"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · The Nightriver Noble Family\nkey · uid 224"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Velniran Mountains\nkey · uid 240"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - The Party\nkey · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - House Nightriver\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - Crimsonwing and Ebonwing\nkey · uid 7"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · World - Primer\nconstant · uid 0"
+            }
+          ]
+        },
+        {
+          "category": "cast",
+          "label": "Cast & direction: 2",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Unira joined"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "The scene changed"
+            }
+          ]
+        },
+        {
+          "category": "pacing",
+          "label": "Pacing: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Tension: critical\nsmoothed 0.73"
+            }
+          ]
+        },
+        {
+          "category": "calls",
+          "label": "Model calls: 34",
+          "items": [
+            {
+              "state": "refused",
+              "level": 2,
+              "text": "2 things noted\ncue:deep-nahalbuk-cells->deep-what-unira-says · messages 47–54 · 0 rejected"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "2 things noted\nscene:cast · messages 47–54 · 0 rejected"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 434 ms\njev-1.13.0 · 11 questions · 2299/243 tokens"
+            },
+            {
+              "state": "refused",
+              "level": 3,
+              "text": "judge scene · 2510 ms\nno model · 25 questions · fallback timeout"
+            },
+            {
+              "state": "refused",
+              "level": 3,
+              "text": "judge typed · 5004 ms\nno model · 12 questions · fallback timeout"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge warden · 3266 ms\njev-1.13.0 · 41 questions · 6124/767 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge wardenLore · 924 ms\njev-1.13.0 · 8 questions · 2236/156 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 400 ms\njev-1.13.0 · 12 questions · 2552/575 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryVerify · 1268 ms\njev-1.13.0 · 7 questions · 2273/130 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 0 ms\njev-1.13.0 · 12 questions · cached"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryVerify · 715 ms\njev-1.13.0 · 8 questions · 2374/148 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 243 ms\njev-1.13.0 · 2 questions · 635/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 272 ms\njev-1.13.0 · 2 questions · 625/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 227 ms\njev-1.13.0 · 2 questions · 630/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 371 ms\njev-1.13.0 · 2 questions · 652/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 239 ms\njev-1.13.0 · 2 questions · 644/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 233 ms\njev-1.13.0 · 2 questions · 627/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 218 ms\njev-1.13.0 · 2 questions · 656/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 232 ms\njev-1.13.0 · 2 questions · 641/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 221 ms\njev-1.13.0 · 2 questions · 624/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 231 ms\njev-1.13.0 · 2 questions · 636/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 213 ms\njev-1.13.0 · 2 questions · 644/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 243 ms\njev-1.13.0 · 2 questions · 643/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 278 ms\njev-1.13.0 · 2 questions · 630/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 241 ms\njev-1.13.0 · 2 questions · 640/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 200 ms\njev-1.13.0 · 2 questions · 628/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 233 ms\njev-1.13.0 · 2 questions · 636/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 236 ms\njev-1.13.0 · 2 questions · 632/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 265 ms\njev-1.13.0 · 2 questions · 622/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 314 ms\njev-1.13.0 · 2 questions · 645/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 245 ms\njev-1.13.0 · 2 questions · 628/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 253 ms\njev-1.13.0 · 2 questions · 630/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 235 ms\njev-1.13.0 · 2 questions · 620/66 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryPairs · 208 ms\njev-1.13.0 · 2 questions · 627/66 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "55",
+      "level": 3,
+      "nodes": 6,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "calls",
+          "label": "Model calls: 6",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 364 ms\njev-1.13.0 · 64 questions · 14399/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 381 ms\njev-1.13.0 · 64 questions · 13473/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 309 ms\njev-1.13.0 · 64 questions · 14092/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 306 ms\njev-1.13.0 · 64 questions · 13435/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 223 ms\njev-1.13.0 · 7 questions · 2640/130 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 248 ms\njev-1.13.0 · 14 questions · 2369/316 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "56",
+      "level": 3,
+      "nodes": 15,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 9",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Beastmen are still present in the dungeon corridor, heard drumming and calling in a grinding language.\n\"The Beastmen,\" she whispers, her voice trembling. \"They're still here.\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: In the last cell of the corridor, a gaunt silver-haired woman hunches in the corner and does not look up as the torchlight reaches her.\n\"In the last cell, a figure hunches in the corner, her long silver hair hanging in tangled curtains around a gaunt face.\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The second prisoner, a gaunt silver-haired woman, is held in the lowest cell at the far end of the dungeon corridor.\n\"In the last cell, a figure hunches in the corner, her long silver hair hanging in tangled curtains around a gaunt face.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Beastmen still inhabit the dungeon corridor, their drumming and calls suggesting they may be roused.\n\"The Beastmen,\" she whispers, her voice trembling. \"They're still here.\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The corridor below the Great Hall is lined with cells cut into the stone, most empty, and the Beastmen are still present, drumming and calling in their grinding language.\n\"The Beastmen,\" she whispers, her voice trembling. \"They're still here.\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "Scene summarized\nscene_summary from 0 inputs, removed 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "tension_current = 0.6646636452453631\n\"From deeper in the corridor comes a sound—rhythmic, guttural drumming that thrums through the stone beneath their boots, and a voice calling out in a language that sounds like bones grinding together.\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "location = deep_nahalbuk\n\"The iron bars screech against the stone floor as Max Nightriver shoves them open, and the torchlight spills into the corridor.\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Applied location=deep_nahalbuk, tension_current=0.7352337789219474\nread at message 54"
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: Beastmen still inhabit the dungeon corridor, and their drumming and calls suggest they may be roused.\n1fb8686d-71b3-457d-8e8d-0d0b7bf70aa5"
+            }
+          ]
+        },
+        {
+          "category": "lore",
+          "label": "World Info: 22",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Crimsonwing & Ebonwing\nconstant · checkpoint-gated · uid 0"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - The Tear Over the Altar\nconstant · checkpoint-gated · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Unira Windsor\nconstant · checkpoint-gated · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - Nahalbuk and the Brand\nconstant · checkpoint-gated · uid 3"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · CP deep-nahalbuk-cells - Scene\nconstant · checkpoint-gated · uid 18"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Adolion\nkey · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Aegis City\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Cedoric \"Ced\" Vinasun - Adventurer\nkey · uid 43"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Crimsonwing - Adventuring Party\nkey · uid 49"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Dalan Evergreen\nkey · uid 57"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Demons\nkey · uid 64"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Ebonwing - Adventuring Party\nkey · uid 81"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Kelawynn \"Kela\" Vinamoon - Adventurer of Ebonwing\nkey · uid 143"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Nightriver Great House\nkey · uid 172"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Runo Firevill - Adventurer\nkey · uid 191"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · The Nightriver Noble Family\nkey · uid 224"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Unira the Branded\nkey · uid 235"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Velniran Mountains\nkey · uid 240"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - The Party\nkey · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - House Nightriver\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - Crimsonwing and Ebonwing\nkey · uid 7"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · World - Primer\nconstant · uid 0"
+            }
+          ]
+        },
+        {
+          "category": "cast",
+          "label": "Cast & direction: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "Adolion Narrator was chosen to speak\njudge · p 0.99 (choice) · 249 ms"
+            }
+          ]
+        },
+        {
+          "category": "calls",
+          "label": "Model calls: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "2 things noted\ncue:deep-nahalbuk-cells->deep-what-unira-says · messages 49–56 · 0 rejected"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "57",
+      "level": 3,
+      "nodes": 10,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "tension_current = 0.6152645516717542\n\"Somewhere deeper in the warren a drum starts, slow, and the Beastmen voices under it are counting.\""
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The party has reached the lowest cell and must free the silver-haired woman before the Beastmen rouse or whatever is forcing the stone door below arrives.\n43a53f8f-7e2d-4b88-86c1-69cba1dfa37f\nCed led Max Nightriver, Runo, and Dalan north from Aegis City along a hidden foothill path to Carrow Keep, where Dalan identified a twenty-heartbeat gap in the west wall watch and the party climbed over at Ced's signal. Inside the Great Hall they found fresh food, Lord Aldric Carrow dead on his throne, and a many-eyed demon feeding on him; when tentacled guards attacked, Runo raised a defensive golem, Dalan covered the exit, and Max cut the bonds of a branded captive and fled with her down a spiral stair. In the dark corridor of stone cells below, as a grinding sound rose from beneath the Hall, they reached the lowest cell and found a gaunt, silver-haired woman hunched in the corner who did not look up as the torchlight reached her."
+            }
+          ]
+        },
+        {
+          "category": "calls",
+          "label": "Model calls: 10",
+          "items": [
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "2 things noted\ncadence · messages 53–57 · 0 rejected"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 1059 ms\njev-1.13.0 · 13 questions · 2434/289 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 697 ms\njev-1.13.0 · 12 questions · 1921/375 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge scene · 699 ms\njev-1.13.0 · 25 questions · 3879/691 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge wardenLore · 573 ms\njev-1.13.0 · 8 questions · 2238/156 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge warden · 585 ms\njev-1.13.0 · 35 questions · 5358/653 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 462 ms\njev-1.13.0 · 12 questions · 2692/575 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryVerify · 293 ms\njev-1.13.0 · 10 questions · 2744/184 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 254 ms\njev-1.13.0 · 12 questions · 2097/455 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryVerify · 277 ms\njev-1.13.0 · 7 questions · 1872/130 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "58",
+      "level": 3,
+      "nodes": 6,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "calls",
+          "label": "Model calls: 6",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 372 ms\njev-1.13.0 · 64 questions · 13513/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 387 ms\njev-1.13.0 · 64 questions · 14439/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 322 ms\njev-1.13.0 · 64 questions · 13475/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 338 ms\njev-1.13.0 · 64 questions · 14132/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 224 ms\njev-1.13.0 · 7 questions · 2680/130 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 241 ms\njev-1.13.0 · 14 questions · 2409/312 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "59",
+      "level": 3,
+      "nodes": 16,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 4",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The silver-haired woman in the lowest cell is Unira, red-eyed with spiral irises, branded on her outer thigh with the Tahanna Brand, scarred and too weak to stand.\n\"Her hand moves to her outer thigh, clutching at the tattered fabric covering the Tahanna Brand.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Applied location=deep_nahalbuk, tension_current=0.6646636452453631\nread at message 56"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Applied location=deep_nahalbuk, tension_current=0.6152645516717542\nread at message 57"
+            },
+            {
+              "state": "refused",
+              "level": 3,
+              "text": "Not stored: The living prisoner in the lowest cell is Unira, a silver-haired woman with red eyes and spiral irises, branded with the Tahanna Brand on her outer thigh.\np 0.13 · jev-1.13.0"
+            }
+          ]
+        },
+        {
+          "category": "lore",
+          "label": "World Info: 19",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Arryn Serelda - Adventurer\nforced · uid 22"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Idira Darnovan\nforced · uid 125"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Unira the Branded\nforced · uid 235"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Crimsonwing & Ebonwing\nconstant · checkpoint-gated · uid 0"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - The Tear Over the Altar\nconstant · checkpoint-gated · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Unira Windsor\nconstant · checkpoint-gated · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - Nahalbuk and the Brand\nconstant · checkpoint-gated · uid 3"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · CP deep-nahalbuk-cells - Scene\nconstant · checkpoint-gated · uid 18"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Adolion\nkey · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Aegis City\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Cedoric \"Ced\" Vinasun - Adventurer\nkey · uid 43"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Dalan Evergreen\nkey · uid 57"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Demons\nkey · uid 64"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Nightriver Great House\nkey · uid 172"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Runo Firevill - Adventurer\nkey · uid 191"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · The Nightriver Noble Family\nkey · uid 224"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - The Party\nkey · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - House Nightriver\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · World - Primer\nconstant · uid 0"
+            }
+          ]
+        },
+        {
+          "category": "cast",
+          "label": "Cast & direction: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "Unira was chosen to speak\njudge · p 0.66 (choice) · 244 ms"
+            }
+          ]
+        },
+        {
+          "category": "pacing",
+          "label": "Pacing: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Tension: tense\nsmoothed 0.62"
+            }
+          ]
+        },
+        {
+          "category": "calls",
+          "label": "Model calls: 5",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 356 ms\njev-1.13.0 · 13 questions · 2486/291 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge scene · 683 ms\njev-1.13.0 · 25 questions · 3871/691 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 761 ms\njev-1.13.0 · 12 questions · 1651/375 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge wardenLore · 396 ms\njev-1.13.0 · 8 questions · 2052/156 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge warden · 430 ms\njev-1.13.0 · 41 questions · 6066/767 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "60",
+      "level": 3,
+      "nodes": 6,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "calls",
+          "label": "Model calls: 6",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 403 ms\njev-1.13.0 · 64 questions · 13475/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 504 ms\njev-1.13.0 · 64 questions · 14401/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 346 ms\njev-1.13.0 · 64 questions · 14094/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 327 ms\njev-1.13.0 · 64 questions · 13437/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 222 ms\njev-1.13.0 · 7 questions · 2642/130 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 265 ms\njev-1.13.0 · 14 questions · 2371/312 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "61",
+      "level": 3,
+      "nodes": 13,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 7",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Unira cannot walk yet; her legs are too weak to stand.\n\"Can't... can't walk. Not yet. Legs feel like shit.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The Tahanna Brand on Unira's thigh pulses with faint purple light as the drumming and a guttural counting voice draw closer.\n\"The drumming grows closer—a guttural, counting voice calls out in the distance, and the Tahanna Brand beneath her skirt begins to pulse with a faint purple light.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Unira warns that the shaman is coming and urges the party to free her immediately.\n\"The shaman,\" she breathes, her voice dropping to a whisper. \"He's coming. If you're really gonna get me out, you better do it fuckin' now.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The Tahanna Brand on Unira's thigh pulses with faint purple light as the shaman approaches.\n\"the Tahanna Brand beneath her skirt begins to pulse with a faint purple light.\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "Recent events condensed\nshort_term from 1 input, removed 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "deep_found_unira = false\n\"Can't... can't walk. Not yet. Legs feel like shit.\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "location = deep_nahalbuk\n\"The shaman,\" she breathes, her voice dropping to a whisper. \"He's coming. If you're really gonna get me out, you better do it fuckin' now.\""
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: A shaman is approaching the lowest cell, drawn by the drumming, and the party must free Unira before he arrives.\n61d822b0-3703-4fee-b738-767d3ed70222"
+            }
+          ]
+        },
+        {
+          "category": "cast",
+          "label": "Cast & direction: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "Unira was chosen to speak\njudge · p 0.9 (choice) · 267 ms"
+            }
+          ]
+        },
+        {
+          "category": "calls",
+          "label": "Model calls: 5",
+          "items": [
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "2 things noted\ncadence · messages 58–61 · 0 rejected"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge scene · 596 ms\njev-1.13.0 · 25 questions · 3878/691 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge warden · 626 ms\njev-1.13.0 · 41 questions · 6160/767 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 232 ms\njev-1.13.0 · 12 questions · 1875/415 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryVerify · 219 ms\njev-1.13.0 · 7 questions · 1681/130 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "62",
+      "level": 3,
+      "nodes": 6,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "calls",
+          "label": "Model calls: 6",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 378 ms\njev-1.13.0 · 64 questions · 13468/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 412 ms\njev-1.13.0 · 64 questions · 14394/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 326 ms\njev-1.13.0 · 64 questions · 13430/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 409 ms\njev-1.13.0 · 64 questions · 14087/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 236 ms\njev-1.13.0 · 7 questions · 2635/130 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 235 ms\njev-1.13.0 · 14 questions · 2364/316 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "63",
+      "level": 3,
+      "nodes": 17,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 14",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Max Nightriver smashed the lock of the lowest cell and carried Unira out, freeing her.\n\"Max hauls Unira from the cell, and she nearly collapses\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: A Beastman shaman bearing the trident-and-snake brand confronted the party with three more Beastmen, demanding they give up Unira.\n\"The shaman stops ten paces away, his eyes gleaming with malicious intelligence.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Unira's legs gave way and she cannot walk on her own, clinging to Max for support.\n\"her legs give way, and she clings to Max's shoulder with a strength born of panic rather than power.\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Max smashed the cell lock with the torch bracket and is carrying Unira, whose legs have given out.\n\"The lock shatters in a shower of rust and iron flakes as the heavy bracket strikes it. Max hauls Unira from the cell, and she nearly collapses\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: A Beastman shaman and three Beastmen have cornered Max and Unira at the lowest cell, demanding they surrender the branded prisoner.\n\"The shaman stops ten paces away, his eyes gleaming with malicious intelligence. \\\"You take what is marked by the brand,\\\" he says in a voice like grinding stones. \\\"You take what belongs to Nahalbuk.\\\"\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "A thread was summarized\narc_summary from 1 input"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "The story so far was updated\ncanon from 35 inputs"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "deep_found_unira = true\n\"Max hauls Unira from the cell, and she nearly collapses\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "tension_current = 0.655685186170228\n\"The shaman stops ten paces away, his eyes gleaming with malicious intelligence.\""
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "location = deep_nahalbuk\n\"From the shadows beyond the last cell, a figure emerges: a Beastman shaman\""
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "tension_current = 0.75\n\"The shaman stops ten paces away, his eyes gleaming with malicious intelligence.\""
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "location = deep_nahalbuk\n\"From the shadows beyond the last cell, a figure emerges: a Beastman shaman, his fur mottled grey and white, wearing the trident-and-snake brand in ash across his chest.\""
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "tension_current = 0.75\n\"The shaman stops ten paces away, his eyes gleaming with malicious intelligence. \\\"You take what is marked by the brand,\\\" he says in a voice like grinding stones. \\\"You take what belongs to Nahalbuk.\\\"\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Applied deep_found_unira=false, location=deep_nahalbuk\nread at message 61"
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 3",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Thread resolved: The party has reached the lowest cell and must free the silver-haired woman before the Beastmen rouse or whatever is forcing the stone door below arrives.\n43a53f8f-7e2d-4b88-86c1-69cba1dfa37f\nCed led Max Nightriver, Runo, and Dalan north from Aegis City along a hidden foothill path to Carrow Keep, where Dalan identified a twenty-heartbeat gap in the west wall watch and the party climbed over at Ced's signal. Inside the Great Hall they found fresh food, Lord Aldric Carrow dead on his throne, and a many-eyed demon feeding on him; when tentacled guards attacked, Runo raised a defensive golem, Dalan covered the exit, and Max cut the bonds of a branded captive and fled with her down a spiral stair. In the dark corridor of stone cells below, as a grinding sound rose from beneath the Hall, they reached the lowest cell and found a gaunt, silver-haired woman hunched in the corner who did not look up as the torchlight reached her."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: A Beastman shaman and three Beastmen have cornered the party at the lowest cell and demand they surrender Unira.\nb2d2fd39-fcef-423e-9235-c50bbbd3530e"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: Unira cannot walk and must be carried out while the shaman closes in.\n0acd9865-758c-4018-888b-621b7b7a90ad"
+            }
+          ]
+        },
+        {
+          "category": "lore",
+          "label": "World Info: 18",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Tahanna's Brand\nforced · uid 215"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Unira the Branded\nforced · uid 235"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Crimsonwing & Ebonwing\nconstant · checkpoint-gated · uid 0"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - The Tear Over the Altar\nconstant · checkpoint-gated · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Unira Windsor\nconstant · checkpoint-gated · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - Nahalbuk and the Brand\nconstant · checkpoint-gated · uid 3"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · CP deep-nahalbuk-cells - Scene\nconstant · checkpoint-gated · uid 18"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Adolion\nkey · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Aegis City\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Cedoric \"Ced\" Vinasun - Adventurer\nkey · uid 43"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Dalan Evergreen\nkey · uid 57"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Demons\nkey · uid 64"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Nightriver Great House\nkey · uid 172"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Runo Firevill - Adventurer\nkey · uid 191"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · The Nightriver Noble Family\nkey · uid 224"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - The Party\nkey · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - House Nightriver\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · World - Primer\nconstant · uid 0"
+            }
+          ]
+        },
+        {
+          "category": "cast",
+          "label": "Cast & direction: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "Adolion Narrator was chosen to speak\njudge · p 0.85 (choice) · 238 ms"
+            }
+          ]
+        },
+        {
+          "category": "calls",
+          "label": "Model calls: 8",
+          "items": [
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "3 things noted\ncue:deep-nahalbuk-cells->deep-what-unira-says · messages 56–63 · 0 rejected"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 709 ms\njev-1.13.0 · 13 questions · 2451/289 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 283 ms\njev-1.13.0 · 12 questions · 1846/375 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge warden · 587 ms\njev-1.13.0 · 41 questions · 6184/767 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge scene · 619 ms\njev-1.13.0 · 25 questions · 3896/691 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge wardenLore · 706 ms\njev-1.13.0 · 8 questions · 2113/156 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 590 ms\njev-1.13.0 · 12 questions · 2631/575 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryVerify · 287 ms\njev-1.13.0 · 9 questions · 2521/166 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "64",
+      "level": 3,
+      "nodes": 6,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "calls",
+          "label": "Model calls: 6",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 356 ms\njev-1.13.0 · 64 questions · 13411/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 475 ms\njev-1.13.0 · 64 questions · 14337/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 411 ms\njev-1.13.0 · 64 questions · 14030/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 340 ms\njev-1.13.0 · 64 questions · 13373/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 228 ms\njev-1.13.0 · 7 questions · 2578/130 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 269 ms\njev-1.13.0 · 14 questions · 2307/312 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "65",
+      "level": 3,
+      "nodes": 20,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "progress",
+          "label": "Progress: 2",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "What Unira Says: Unira, freed and still in the rags of her gambeson, has started to talk, and the stair back up has come down behind you."
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "deep-nahalbuk-cells → deep-what-unira-says (gate)\ngate: {\"q\":\"deep_found_unira\",\"op\":\"==\",\"v\":true}\ntension_current: 0.6152645516717542 → 0.655685186170228\ndeep_found_unira: false → true\npath: deep-joint-posting → deep-with-crimsonwing → deep-the-north-road → deep-ritual-fort → deep-the-altar → deep-nahalbuk-cells → deep-what-unira-says"
+            }
+          ]
+        },
+        {
+          "category": "memory",
+          "label": "Memory: 5",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Unira names the Wind Ballad — Kallan, Fulanie, Mallow — as the party that abandoned her, saying Mallow called her 'the bitch', Fulanie froze her boots to the ground, and Kallan shoved her into the horde.\n\"Mallow said 'leave the bitch behind' and Fulanie froze my boots to the ground and Kallan shoved me into the horde and—\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Unira says the Wind Ballad reported her dead and asks the party to let them keep thinking she is dead.\n\"They reported me dead. Let them think I'm dead. Just... please.\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "deep_unira_truth = true\n\"Mallow said 'leave the bitch behind' and Fulanie froze my boots to the ground and Kallan shoved me into the horde\""
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "deep_unira_truth = true\n\"Mallow said 'leave the bitch behind' and Fulanie froze my boots to the ground and Kallan shoved me into the horde and—\""
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Applied deep_found_unira=true, location=deep_nahalbuk, tension_current=0.655685186170228\nread at message 63"
+            }
+          ]
+        },
+        {
+          "category": "lore",
+          "label": "World Info: 21",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Tahanna's Brand\nforced · uid 215"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Crimsonwing & Ebonwing\nconstant · checkpoint-gated · uid 0"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - The Tear Over the Altar\nconstant · checkpoint-gated · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Unira Windsor\nconstant · checkpoint-gated · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - Nahalbuk and the Brand\nconstant · checkpoint-gated · uid 3"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · CP deep-nahalbuk-cells - Scene\nconstant · checkpoint-gated · uid 18"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Adolion\nkey · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Aegis City\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Cedoric \"Ced\" Vinasun - Adventurer\nkey · uid 43"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Dalan Evergreen\nkey · uid 57"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Demons\nkey · uid 64"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Nightriver Great House\nkey · uid 172"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Runo Firevill - Adventurer\nkey · uid 191"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · The Nightriver Noble Family\nkey · uid 224"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Unira the Branded\nkey · uid 235"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - The Party\nkey · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - House Nightriver\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · World - Primer\nconstant · uid 0"
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Rewrite Adolion Chronicle · Chronicle - The Party\nThe party has entered play with Ced and Runo, freed the reportedly dead Unira, and the chronicle's framing entry is now relevant, so the party and Crimsonwing/Ebonwing entries need updating.\nRewrite \"Chronicle - The Party\"\nAccept\nDecline"
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Rewrite Adolion Chronicle · Chronicle - Crimsonwing and Ebonwing\nThe party has entered play with Ced and Runo, freed the reportedly dead Unira, and the chronicle's framing entry is now relevant, so the party and Crimsonwing/Ebonwing entries need updating.\nRewrite \"Chronicle - Crimsonwing and Ebonwing\"\nAccept\nDecline"
+            },
+            {
+              "state": "pending",
+              "level": 3,
+              "text": "Switch on Adolion Chronicle · Chronicle - About this book\nThe party has entered play with Ced and Runo, freed the reportedly dead Unira, and the chronicle's framing entry is now relevant, so the party and Crimsonwing/Ebonwing entries need updating.\nSwitch \"Chronicle - About this book\" on\nAccept\nDecline"
+            }
+          ]
+        },
+        {
+          "category": "cast",
+          "label": "Cast & direction: 2",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "The scene changed"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "Unira was chosen to speak\njudge · p 0.97 (choice) · 271 ms"
+            }
+          ]
+        },
+        {
+          "category": "pacing",
+          "label": "Pacing: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Tension: critical\nsmoothed 0.66"
+            }
+          ]
+        },
+        {
+          "category": "calls",
+          "label": "Model calls: 6",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge director · 467 ms\njev-1.13.0 · 13 questions · 2439/291 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 428 ms\njev-1.13.0 · 64 questions · 14487/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 433 ms\njev-1.13.0 · 64 questions · 13561/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 325 ms\njev-1.13.0 · 64 questions · 13523/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 361 ms\njev-1.13.0 · 64 questions · 14180/1210 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge lore · 232 ms\njev-1.13.0 · 7 questions · 2728/130 tokens"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "66",
+      "level": 3,
+      "nodes": 17,
+      "inspect": true,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 6",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Unira revealed that her own party, the Wind Ballad — Kallan, Fulanie, and Mallow — deliberately abandoned her in Nahalbuk: Mallow said to leave her, Fulanie froze her boots to the ground, and Kallan shoved her into the Beastmen horde, then reported her dead.\n\"Mallow said 'leave the bitch behind' and Fulanie froze her boots to the ground and Kallan shoved me into the horde\"\nshared-read · importance 3 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Unira bears the Tahanna Brand, which flares with purple light and pulses in time with her breathing, and the Beastman shaman carries the same brand.\n\"The shaman's brand—it's the same as mine.\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Unira says the shaman's brand can compel her: if he gives an order and she does not obey, something happens to her.\n\"If he gives an order and I don't—\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Unira's Tahanna Brand flares purple in time with the shaman's brand, and she fears he can compel her with an order.\n\"The shaman's brand—it's the same as mine. If he gives an order and I don't—\"\nshared-read · importance 2 · permanent\nPin\nLock\nExclude"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "A thread was summarized\narc_summary from 1 input"
+            },
+            {
+              "state": "applied",
+              "level": 2,
+              "text": "The story so far was updated\ncanon from 36 inputs"
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 4",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: Unira has revealed the Wind Ballad deliberately abandoned her, and the party must decide whether to expose the Guild's false report of her death.\n5dd130ae-7c1e-4a28-8e4d-6582b56c43d6\nCed led Max Nightriver, Runo, and Dalan north from Aegis City through the foothills to Carrow Keep, where they infiltrated over the west wall using a gap in the watch change that Dalan had scouted. Inside the Great Hall they found Lord Aldric Carrow dead on his throne, a many-eyed demon feeding on him, and tentacled guards emerging from the corridors; Runo summoned a defensive golem, Dalan held the threshold, and Max freed a branded captive from the altar before the party fled through a side door and down a spiral stair. The captive revealed that another prisoner, a woman in knight's rags, was held below, and in the lowest cell they found a gaunt, silver-haired woman hunched in the corner who did not look up as the torchlight reached her."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Thread resolved: Unira has revealed the Wind Ballad deliberately abandoned her, and the party must decide whether to expose the Guild's false report of her death.\n5dd130ae-7c1e-4a28-8e4d-6582b56c43d6\nCed led Max Nightriver, Runo, and Dalan north from Aegis City through the foothills to Carrow Keep, where they infiltrated over the west wall using a gap in the watch change that Dalan had scouted. Inside the Great Hall they found Lord Aldric Carrow dead on his throne, a many-eyed demon feeding on him, and tentacled guards emerging from the corridors; Runo summoned a defensive golem, Dalan held the threshold, and Max freed a branded captive from the altar before the party fled through a side door and down a spiral stair. The captive revealed that another prisoner, a woman in knight's rags, was held below, and in the lowest cell they found a gaunt, silver-haired woman hunched in the corner who did not look up as the torchlight reached her."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The Beastman shaman's brand can compel Unira, and the party must get her out before he can give her an order.\ncab2fdac-7abc-4dbe-9d1c-be6c2ded6e66"
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The party must decide whether to expose the Wind Ballad's betrayal and the Guild's false report of Unira's death, or honor Unira's plea to let them keep thinking she is dead.\n2e409ecb-b1f9-4ecf-9749-1c44b236c6a6"
+            }
+          ]
+        },
+        {
+          "category": "lore",
+          "label": "World Info: 19",
+          "items": [
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Tahanna's Brand\nforced · uid 215"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Unira the Branded\nforced · uid 235"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Crimsonwing & Ebonwing\nconstant · checkpoint-gated · uid 0"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - The Tear Over the Altar\nconstant · checkpoint-gated · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Cast - Unira Windsor\nconstant · checkpoint-gated · uid 2"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - Nahalbuk and the Brand\nconstant · checkpoint-gated · uid 3"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · Deep - Unira's Truth\nconstant · checkpoint-gated · uid 4"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Deep Checkpoints · CP deep-what-unira-says - Scene\nconstant · checkpoint-gated · uid 19"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Adventurer Rank\nkey · uid 4"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Aegis City\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Cedoric \"Ced\" Vinasun - Adventurer\nkey · uid 43"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Dalan Evergreen\nkey · uid 57"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Demons\nkey · uid 64"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Nightriver Great House\nkey · uid 172"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · Runo Firevill - Adventurer\nkey · uid 191"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · The Nightriver Noble Family\nkey · uid 224"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - The Party\nkey · uid 1"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion Chronicle · Chronicle - House Nightriver\nkey · uid 6"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "Adolion World · World - Primer\nconstant · uid 0"
+            }
+          ]
+        },
+        {
+          "category": "pacing",
+          "label": "Pacing: 1",
+          "items": [
+            {
+              "state": "live",
+              "level": 3,
+              "text": "Expected tension 0.50\nsteering: Pacing: keep the tension near tense — move the scene with one concrete development: someone acts, something arrives, or something comes out. If nothing new is happening, hand the scene back to {{user}} in one short beat; never fill it with weather, silence or atmosphere. Do not narrate {{user}}'s own words or decisions. Stay in the present moment and place: never skip ahead in time or move {{user}} and their party somewhere new unless {{user}} chose to go. End on something that just happened or a character's move, not on scenery or mood, and never on a question asking {{user}} what they do."
+            }
+          ]
+        },
+        {
+          "category": "calls",
+          "label": "Model calls: 11",
+          "items": [
+            {
+              "state": "pending",
+              "level": 2,
+              "text": "3 things noted, apply next turn\ncadence · messages 62–66 · 0 rejected"
+            },
+            {
+              "state": "pending",
+              "level": 2,
+              "text": "3 things noted, apply next turn\ncue:deep-what-unira-says->deep-draxford-call · messages 59–66 · 0 rejected"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge scene · 1271 ms\njev-1.13.0 · 26 questions · 3999/712 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 1300 ms\njev-1.13.0 · 12 questions · 1870/375 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge wardenLore · 1492 ms\njev-1.13.0 · 8 questions · 2153/156 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge warden · 1538 ms\njev-1.13.0 · 41 questions · 6181/767 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge curatorFilter · 346 ms\njev-1.13.0 · 13 questions · 2796/241 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 221 ms\njev-1.13.0 · 12 questions · 2158/455 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryVerify · 255 ms\njev-1.13.0 · 8 questions · 2174/148 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge typed · 315 ms\njev-1.13.0 · 12 questions · 2665/575 tokens"
+            },
+            {
+              "state": "applied",
+              "level": 3,
+              "text": "judge memoryVerify · 259 ms\njev-1.13.0 · 11 questions · 2861/203 tokens"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-10-02T03-06-29-428Z_so-ui-inline.json

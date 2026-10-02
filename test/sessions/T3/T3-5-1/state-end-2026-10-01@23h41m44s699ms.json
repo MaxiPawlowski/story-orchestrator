@@ -1,0 +1,2101 @@
+{
+  "storyId": "adolion-east",
+  "activeCheckpointId": "east-the-rounds",
+  "boundary": 17,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion East Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - The Third Kingdom": "global",
+      "Adolion - Tiunhime Village": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "east_upset": false,
+    "east_at_academy": true,
+    "location": "east_arena",
+    "tension_current": 0.23583024999999996,
+    "east_entered": true,
+    "east_round_fought": true,
+    "east_through_rounds": false,
+    "east_odds": 6,
+    "party_injuries": 0
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "eab72e98-3247-4147-a1f2-3795c5bde998",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 0,
+        "boundary": 1,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Party",
+      "tag": "knows",
+      "content": "Their invitation to Jiansho Academy is for a tournament group entry and does not name their host.",
+      "createdAt": 1,
+      "messageId": 0,
+      "supersededBy": "retired@8",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 8
+      }
+    },
+    {
+      "id": "5aad64f6-1fbd-4111-9cd8-148326d53823",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 0,
+        "boundary": 1,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "The Party",
+      "tag": "suspects",
+      "content": "The three-tailed woman at the gangplank is watching them specifically.",
+      "createdAt": 1,
+      "messageId": 0,
+      "supersededBy": "retired@8",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 8
+      }
+    },
+    {
+      "id": "f67531b9-dd45-404d-a08a-ba732f2b90f7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Megumi",
+      "tag": "knows",
+      "content": "The party has signed the tournament register under Honami Nemaden's group entry",
+      "createdAt": 6,
+      "messageId": 9,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 9,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "2d5f5057-a5d7-4cc1-a5a4-f67bc41b004e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Megumi",
+      "tag": "knows",
+      "content": "The party has entered the tournament under Honami's entry.",
+      "createdAt": 6,
+      "messageId": 9,
+      "supersededBy": "retired@8",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 8
+      }
+    },
+    {
+      "id": "46f9689e-9a3a-465a-bacb-4533dc9b6df3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Megumi",
+      "tag": "knows",
+      "content": "The party has signed the tournament register under Honami Nemaden's group entry.",
+      "createdAt": 6,
+      "messageId": 9,
+      "supersededBy": "retired@8",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 8
+      }
+    },
+    {
+      "id": "3ca82714-f1bf-483c-bf0d-bc66a7298935",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Megumi",
+      "tag": "knows",
+      "content": "The party has signed the tournament register under Honami Nemaden's group entry.",
+      "createdAt": 8,
+      "messageId": 11,
+      "supersededBy": "retired@10",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 10
+      }
+    },
+    {
+      "id": "478a3861-7f30-4715-ac5b-b9c3d597505f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Megumi",
+      "tag": "knows",
+      "content": "The party's entry papers were expedited.",
+      "createdAt": 10,
+      "messageId": 13,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 15,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "51125ddf-51c9-4e7f-9a20-507f00a14874",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Megumi",
+      "tag": "knows",
+      "content": "The party is signed under Honami Nemaden's group entry.",
+      "createdAt": 10,
+      "messageId": 13,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 15,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "9dac42f5-492e-4d24-af37-5c970842bc51",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 10,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Megumi",
+      "tag": "suspects",
+      "content": "Honami's group entry is irregular or improper.",
+      "createdAt": 10,
+      "messageId": 13,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 15,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "6210d0c1-bfcf-4c5f-9582-0839a2dcb918",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 10,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Megumi",
+      "tag": "hiding",
+      "content": "Her unease, shown by wringing the register book's spine behind her back.",
+      "hiddenFrom": "everyone",
+      "createdAt": 10,
+      "messageId": 13,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 15,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "4d6607d2-efe2-4feb-8223-f84c04d0e682",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 10,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "intends",
+      "content": "To encourage a new group entry to upset the Academy's odds.",
+      "createdAt": 10,
+      "messageId": 13,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 15,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "e19b8b78-a9e7-4df4-964b-43deae334ee6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "Lord Karos is present at the Academy, which she finds peculiar.",
+      "createdAt": 11,
+      "messageId": 15,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 15,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "9013e093-6ed7-4a26-b0a8-634be4883e71",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 11,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Hanzo",
+      "tag": "intends",
+      "content": "To keep his true identity and purpose at the Academy unstated, deflecting Max's question.",
+      "createdAt": 11,
+      "messageId": 15,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 15,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "4e34ba5e-ed27-426c-9268-0b411f14bfa9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Megumi",
+      "tag": "knows",
+      "content": "The party's entry papers were expedited.",
+      "createdAt": 11,
+      "messageId": 15
+    },
+    {
+      "id": "2afa5ab3-96b1-4bc2-be6e-731805ce29e0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Megumi",
+      "tag": "knows",
+      "content": "The party is signed under Honami Nemaden's group entry.",
+      "createdAt": 11,
+      "messageId": 15
+    },
+    {
+      "id": "2848eb24-fb2e-4142-9650-333d895ca1bd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 11,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Megumi",
+      "tag": "suspects",
+      "content": "Honami's group entry is irregular or improper.",
+      "createdAt": 11,
+      "messageId": 15
+    },
+    {
+      "id": "be64deb3-84a8-44e2-9c1b-8ec380e6d0d6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 11,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Megumi",
+      "tag": "hiding",
+      "content": "Her unease, shown by wringing the register book's spine behind her back.",
+      "hiddenFrom": "everyone",
+      "createdAt": 11,
+      "messageId": 15
+    },
+    {
+      "id": "c7b88345-4543-487d-89fb-911850bc871a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "Lord Karos is present at the Academy, which she finds peculiar.",
+      "createdAt": 11,
+      "messageId": 15,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 17,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "1ac976c8-aea9-49f4-8e9c-057dce6b3bad",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 11,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Hanzo",
+      "tag": "intends",
+      "content": "To keep his true identity and purpose at the Academy unstated, deflecting Max's question.",
+      "createdAt": 11,
+      "messageId": 15,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 17,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "69f8e206-9370-48c4-93ab-902c2e251a53",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 12,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Hanzo",
+      "tag": "hiding",
+      "content": "what he actually is and his purpose at the Academy",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 12,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 17,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "bf2720e1-02dc-4b81-99f8-745e2bfd4cde",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 12,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "intends",
+      "content": "to see the party make quick work of the Sunset Blooms in the next round",
+      "createdAt": 12,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 17,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "8fd576ba-c117-48fe-b1bd-3d0874f5924b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Hanzo",
+      "tag": "knows",
+      "content": "Max Nightriver recognized the Hattaxi name.",
+      "createdAt": 12,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 17,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "85c6ecf7-0f2c-4017-a4e7-422c55c9f75e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 12,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "intends",
+      "content": "To make quick work of the Sunset Blooms with the party.",
+      "createdAt": 12,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 17,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "0e4b8851-35fc-4adb-83ec-667cf062c63f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "Lord Karos is present at the Academy, which she finds peculiar.",
+      "createdAt": 12,
+      "messageId": 17
+    },
+    {
+      "id": "14021d9e-3903-49ed-8ab0-c69565229137",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Hanzo",
+      "tag": "knows",
+      "content": "Max Nightriver recognized the Hattaxi name.",
+      "createdAt": 12,
+      "messageId": 17,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "70ab47aa-7259-488f-a7fe-d22675425c68",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 12,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Hanzo",
+      "tag": "hiding",
+      "content": "what he actually is and his purpose at the Academy",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 12,
+      "messageId": 17
+    },
+    {
+      "id": "29fc14f1-00a0-41c9-bb57-b61cf3c744bc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 12,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Hanzo",
+      "tag": "intends",
+      "content": "To keep his true identity and purpose at the Academy unstated, deflecting Max's question.",
+      "createdAt": 12,
+      "messageId": 17
+    },
+    {
+      "id": "ccd929be-83c3-4bc5-b6a1-7366d160034f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 12,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "intends",
+      "content": "To make quick work of the Sunset Blooms with the party.",
+      "createdAt": 12,
+      "messageId": 17,
+      "supersededBy": "retired@13",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 13
+      }
+    },
+    {
+      "id": "d4cd1bab-c019-42fc-80a2-d57419b6302b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "intends",
+      "content": "to explain the court's and Megumi's stakes to Max over tea",
+      "createdAt": 13,
+      "messageId": 19,
+      "supersededBy": "retired@13",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 13
+      }
+    },
+    {
+      "id": "11f056d1-e225-44e5-8585-4bcc6b9a6ae7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Max assigned her the big opponent and Dalan the flank.",
+      "createdAt": 13,
+      "messageId": 19
+    },
+    {
+      "id": "e866702e-7cff-49a1-a5ad-9fb44c8a5fab",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Max assigned Belle the big opponent and him the flank.",
+      "createdAt": 13,
+      "messageId": 19
+    },
+    {
+      "id": "1397702a-3384-4260-aa47-91a028980920",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Hanzo",
+      "tag": "knows",
+      "content": "Max Nightriver asked him directly who he is.",
+      "createdAt": 13,
+      "messageId": 19,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "e856a50f-5555-4d15-b35d-b1c2b19644d7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 13,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Hanzo",
+      "tag": "hiding",
+      "content": "his true identity and purpose, deflected with \"depends on who's asking.\"",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 13,
+      "messageId": 19,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "1a16d74d-67be-49b8-bfdc-04b13cc7c9a1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "The bookmakers adjusted the party's odds after the first bout.",
+      "createdAt": 13,
+      "messageId": 19,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "7e310752-b345-429d-a90e-02c86a6b1010",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 13,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "hiding",
+      "content": "her calculation behind the sweet framing, shown in her glittering eyes and \"predictable\" remark.",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 13,
+      "messageId": 19
+    },
+    {
+      "id": "e5a36eeb-375a-4064-8ade-0b7ec7646795",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 13,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Honami's account of Megumi serves Honami's own ends.",
+      "createdAt": 13,
+      "messageId": 19
+    },
+    {
+      "id": "3ac2d88a-ad10-4078-b489-9a13dcb443f1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "intends",
+      "content": "to explain the court's and Megumi's stakes to Max over tea.",
+      "createdAt": 13,
+      "messageId": 19,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "d5a181e5-0e57-4c44-9c45-94126b67d4a2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "that some tournament entrants are fighting for reasons beyond glory",
+      "createdAt": 14,
+      "messageId": 21
+    },
+    {
+      "id": "cc29d2e7-1046-4d9f-b4a2-ad63fbe98a70",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "intends",
+      "content": "to keep Max close and steer the party through the tournament, calling him Darling and promising quick work of the Sunset Blooms",
+      "createdAt": 14,
+      "messageId": 21,
+      "affirmedAt": [
+        {
+          "messageId": 25,
+          "boundary": 16
+        }
+      ]
+    },
+    {
+      "id": "d1afdb3a-768e-48ee-9871-2de8c780413d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The grey-haired steward is Hanzo Hattaxi, who deflects what he is.",
+      "createdAt": 14,
+      "messageId": 21,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "51b28076-e968-4a3a-87b4-d6345f206478",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says Megumi is overshadowed by her brother and fights to establish her own name.",
+      "createdAt": 14,
+      "messageId": 21,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "b897cfaf-5a8d-4191-8dd2-ff60a958f1c3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says some entrants use the arena as a stage for games unrelated to the tournament.",
+      "createdAt": 14,
+      "messageId": 21,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "a932db12-0dff-4260-ae3f-21927a7d9d6c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Hanzo Hattaxi is hiding his true purpose at the Academy.",
+      "createdAt": 14,
+      "messageId": 21,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "5aa88f11-28ee-4b0f-ade5-4f94af96edf3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Hanzo Hattaxi",
+      "tag": "hiding",
+      "content": "what he actually is and why he is at the Academy",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 14,
+      "messageId": 21,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "b3c2cdf7-a55c-450d-9b77-b2c3c0c8aea3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "intends",
+      "content": "to see the party make quick work of the Sunset Blooms in the next round",
+      "createdAt": 14,
+      "messageId": 21,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "71e0237f-a4e3-48fd-8b7e-3a24412a090d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Hanzo",
+      "tag": "knows",
+      "content": "Max Nightriver recognized the Hattaxi name.",
+      "createdAt": 14,
+      "messageId": 21
+    },
+    {
+      "id": "70d1127b-8994-432b-aeb3-ae022b56a2ba",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Hanzo",
+      "tag": "knows",
+      "content": "Max Nightriver asked him directly who he is.",
+      "createdAt": 14,
+      "messageId": 21
+    },
+    {
+      "id": "5e45bfcb-8983-47c4-b94a-cd2610da7c04",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Hanzo",
+      "tag": "hiding",
+      "content": "his true identity and purpose, deflected with \"depends on who's asking.\"",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 14,
+      "messageId": 21
+    },
+    {
+      "id": "26ed2f65-ed41-4e03-8706-275c513eae28",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The grey-haired steward is Hanzo Hattaxi, who deflects what he is.",
+      "createdAt": 14,
+      "messageId": 21
+    },
+    {
+      "id": "a990f1d0-0fd1-4fce-b394-90eb18717774",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Hanzo Hattaxi is hiding his true purpose at the Academy.",
+      "createdAt": 14,
+      "messageId": 21
+    },
+    {
+      "id": "6113810b-6326-4a4e-8dee-0b042cd2850d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "The bookmakers are adjusting the party's odds after the first bout.",
+      "createdAt": 14,
+      "messageId": 21,
+      "supersededBy": "retired@15",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 15
+      }
+    },
+    {
+      "id": "4d6659b1-e30b-4361-bb86-525c5e9b3a14",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says the Sunset Blooms have trained together for years.",
+      "createdAt": 14,
+      "messageId": 21,
+      "supersededBy": "retired@15",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 15
+      }
+    },
+    {
+      "id": "4fc00815-2b76-4c0d-805f-f6ee152c6eb7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says Megumi is overshadowed by her brother and fights to establish her own name.",
+      "createdAt": 14,
+      "messageId": 21,
+      "supersededBy": "retired@15",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 15
+      }
+    },
+    {
+      "id": "c39be5e9-6452-4b34-97ae-b708743f1fe3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says Megumi fights to establish her own name independent of her brother, and that some entrants use the arena for games unrelated to the tournament.",
+      "createdAt": 15,
+      "messageId": 23,
+      "supersededBy": "retired@15",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 15
+      }
+    },
+    {
+      "id": "ce3d7d44-1194-486d-b0fc-1e4053c13b37",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Honami says some entrants use the arena as a stage for games unrelated to the tournament.",
+      "createdAt": 15,
+      "messageId": 23,
+      "supersededBy": "retired@15",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 15
+      }
+    },
+    {
+      "id": "569ce947-ff0c-4266-8080-31980191ca3d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party faces the Sunset Blooms next.",
+      "createdAt": 15,
+      "messageId": 23,
+      "supersededBy": "retired@15",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 15
+      }
+    },
+    {
+      "id": "78f1eb69-7821-44b5-8b3e-4ddb71517e8d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 15,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "find meat and ale before tomorrow's bout",
+      "createdAt": 15,
+      "messageId": 23,
+      "supersededBy": "retired@15",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 15
+      }
+    },
+    {
+      "id": "d5337dbc-56cc-4a49-8ac1-0828cf7bef33",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "The bookmakers are adjusting the party's odds after the first bout.",
+      "createdAt": 15,
+      "messageId": 23
+    },
+    {
+      "id": "08115bc8-d752-4aec-b5e0-96cdccee87f1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says the Sunset Blooms have trained together for years.",
+      "createdAt": 15,
+      "messageId": 23,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "f159bf8c-a6d4-4f3e-9e4c-45f6b3e6af3a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says Megumi is overshadowed by her brother and fights to establish her own name.",
+      "createdAt": 15,
+      "messageId": 23,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "795c9638-2854-4e07-8a5c-6c13b681a8e3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party faces the Sunset Blooms next.",
+      "createdAt": 15,
+      "messageId": 23,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "28229a4d-94d0-46a5-9836-5fc47787951f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party faces the Sunset Blooms next.",
+      "createdAt": 15,
+      "messageId": 23,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "14f7d54a-2fe8-4124-b5f0-5e5451ddf353",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 15,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "find meat and ale before tomorrow's bout",
+      "createdAt": 15,
+      "messageId": 23,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "20dbfd67-2222-4cce-900c-eef616ff3aec",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To break the Sunset Blooms' ribs and prove herself in the bout.",
+      "createdAt": 16,
+      "messageId": 25,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "941fd5e1-65dc-4384-8e46-8c9b2f5c6154",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says Megumi fights to establish her own name apart from her brother's shadow.",
+      "createdAt": 16,
+      "messageId": 25,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "02538fe5-7ff2-43c1-8cb7-c38bd223fa78",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To find meat and ale before the Sunset Blooms bout.",
+      "createdAt": 16,
+      "messageId": 25,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "17d20c43-6039-44a9-8e34-144ab2649011",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "The court watches the tournament because Jiansho's champions reflect the strength of the Emperor's mandate.",
+      "createdAt": 16,
+      "messageId": 25
+    },
+    {
+      "id": "4545846c-0062-4614-91a2-7475ace69428",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "Megumi is overshadowed by her brother and fights to establish her own name.",
+      "createdAt": 16,
+      "messageId": 25
+    },
+    {
+      "id": "e8fd171b-4b11-4cf0-8720-2210c98183f6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "Some entrants fight for family obligation, blood debts, or games unrelated to the tournament.",
+      "createdAt": 16,
+      "messageId": 25,
+      "supersededBy": "retired@17",
+      "retiredAt": {
+        "messageId": 27,
+        "boundary": 17
+      }
+    },
+    {
+      "id": "f1581dd0-a370-462f-8192-555125c6a63a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says some entrants use the arena as a stage for games unrelated to the tournament.",
+      "createdAt": 16,
+      "messageId": 25
+    },
+    {
+      "id": "a341e820-c4c7-4e52-a8b5-11bd3073fdf4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says Megumi is overshadowed by her brother and fights to establish her own name.",
+      "createdAt": 16,
+      "messageId": 25
+    },
+    {
+      "id": "0510380c-0353-46c4-acef-e8c991a1c13a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says the court watches because champions reflect the Emperor's mandate.",
+      "createdAt": 16,
+      "messageId": 25
+    },
+    {
+      "id": "52fe829e-bd76-4acb-9c44-c66aa156d118",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Hanzo Hattaxi is one of those using the tournament as a stage for other games.",
+      "createdAt": 16,
+      "messageId": 25
+    },
+    {
+      "id": "e14ae83c-abed-44a1-a88e-1509c406fcf3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To find meat and ale before tomorrow's bout.",
+      "createdAt": 16,
+      "messageId": 25,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "530103cd-6bd3-426d-8f7c-f8d4e16027df",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "believes",
+      "content": "That Max should keep his head down and stay back rather than fight.",
+      "createdAt": 16,
+      "messageId": 25
+    },
+    {
+      "id": "149a9db4-7da8-48f3-a909-9811eff10ce0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "hiding",
+      "content": "Her intent to mock and sideline him, voiced as a jibe to stay back.",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 16,
+      "messageId": 25,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "38c90a8b-1f6a-4b0e-b3d8-e64f697d184d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party faces the Sunset Blooms next.",
+      "createdAt": 16,
+      "messageId": 25,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "899e9871-8238-4417-9529-6dc5d545e086",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party faces the Sunset Blooms next.",
+      "createdAt": 16,
+      "messageId": 25,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 25,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "5ec7be07-8948-4f23-aa6f-3a48292b8a94",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "The Xianxu family is prominent and Megumi is overshadowed by her brother.",
+      "createdAt": 16,
+      "messageId": 25
+    },
+    {
+      "id": "ba8be246-cfae-4579-89fd-4ad29fa559ef",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "Megumi fights to establish her own name independent of her brother.",
+      "createdAt": 16,
+      "messageId": 25
+    },
+    {
+      "id": "0690467b-973b-4cc8-b8cf-2027ed86a9dc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "The winner's prestige could bolster a House's influence in the palace.",
+      "createdAt": 16,
+      "messageId": 25
+    },
+    {
+      "id": "91a54678-ac90-4290-8299-5d93ddcbc1d7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says the winner gains prestige that could bolster a House's influence in the palace.",
+      "createdAt": 16,
+      "messageId": 25
+    },
+    {
+      "id": "1f3a02da-602b-45a4-ad6c-bb507f901699",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says some entrants fight for family obligation, blood debts, or games unrelated to the tournament.",
+      "createdAt": 16,
+      "messageId": 25,
+      "supersededBy": "retired@17",
+      "retiredAt": {
+        "messageId": 27,
+        "boundary": 17
+      }
+    },
+    {
+      "id": "26ddcf8d-61ca-48e5-9b05-171642324dc5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says a few entrants use the arena as a stage for their own games.",
+      "createdAt": 16,
+      "messageId": 25,
+      "supersededBy": "retired@17",
+      "retiredAt": {
+        "messageId": 27,
+        "boundary": 17
+      }
+    },
+    {
+      "id": "fb8be620-862a-42b9-a265-ae2d5fe2655d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "hiding",
+      "content": "Her calculation behind the serene framing, shown in her careful pause and thin smile.",
+      "hiddenFrom": "everyone",
+      "createdAt": 16,
+      "messageId": 25
+    },
+    {
+      "id": "9b09c47b-584a-49c0-9922-4167f9853b96",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To find meat and ale before tomorrow's bout.",
+      "createdAt": 16,
+      "messageId": 25,
+      "supersededBy": "retired@17",
+      "retiredAt": {
+        "messageId": 27,
+        "boundary": 17
+      }
+    },
+    {
+      "id": "ef08f7b3-fea0-42b9-91a2-2ef25efe61a8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To break the Sunset Blooms' ribs and prove herself.",
+      "createdAt": 16,
+      "messageId": 25,
+      "affirmedAt": [
+        {
+          "messageId": 27,
+          "boundary": 17
+        }
+      ]
+    },
+    {
+      "id": "3d1ea216-86d4-40c3-a97b-71e08af80758",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "hiding",
+      "content": "Her intent to mock and sideline him, voiced as a jibe to keep his head down.",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 16,
+      "messageId": 25
+    },
+    {
+      "id": "e32f9de6-f82d-4808-b59b-b4b617824599",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party faces the Sunset Blooms next.",
+      "createdAt": 16,
+      "messageId": 25,
+      "supersededBy": "retired@17",
+      "retiredAt": {
+        "messageId": 27,
+        "boundary": 17
+      }
+    },
+    {
+      "id": "44964d22-cdd3-4b98-826b-72c3ae23ce8f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 25,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party faces the Sunset Blooms next.",
+      "createdAt": 16,
+      "messageId": 25,
+      "supersededBy": "retired@17",
+      "retiredAt": {
+        "messageId": 27,
+        "boundary": 17
+      }
+    },
+    {
+      "id": "71a53faa-ba59-4607-b07f-08ea131c0ee2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The Sunset Blooms' leader is weighted on his right and the group covers each other's blind spots in a coordinated formation.",
+      "createdAt": 17,
+      "messageId": 27,
+      "supersededBy": "retired@17",
+      "retiredAt": {
+        "messageId": 27,
+        "boundary": 17
+      }
+    },
+    {
+      "id": "f856ffc1-6038-4669-845d-ea08a521ee7b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Dalan's read that the Sunset Blooms fight in a coordinated formation",
+      "createdAt": 17,
+      "messageId": 27,
+      "supersededBy": "retired@17",
+      "retiredAt": {
+        "messageId": 27,
+        "boundary": 17
+      }
+    },
+    {
+      "id": "8b44faa9-9bd0-413d-a15c-180b9241dd7a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The Sunset Blooms' leader is weighted right and expects close quarters",
+      "createdAt": 17,
+      "messageId": 27,
+      "supersededBy": "retired@17",
+      "retiredAt": {
+        "messageId": 27,
+        "boundary": 17
+      }
+    },
+    {
+      "id": "d698845c-bd20-44fb-a1c4-2ab064d63f42",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "break the Sunset Blooms' ribs and prove herself in the bout",
+      "createdAt": 17,
+      "messageId": 27,
+      "supersededBy": "retired@17",
+      "retiredAt": {
+        "messageId": 27,
+        "boundary": 17
+      }
+    },
+    {
+      "id": "449efa03-f0b1-476e-b342-7ba6fc9e58b9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "Max Nightriver asked whether anyone in the tournament fights for something other than glory.",
+      "createdAt": 17,
+      "messageId": 27
+    },
+    {
+      "id": "415a9735-e886-4acb-9819-6af8abe6d821",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says some entrants fight for family obligation, blood debts, or games unrelated to the tournament.",
+      "createdAt": 17,
+      "messageId": 27
+    },
+    {
+      "id": "23bd139a-14fe-44cf-b489-47c21677583b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says a few entrants use the arena as a stage for their own games.",
+      "createdAt": 17,
+      "messageId": 27
+    },
+    {
+      "id": "9e8b6465-8d67-47fd-a488-55d406f38a21",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Honami says glory is a currency in the Third Kingdom, tradable for favor or power in the court.",
+      "createdAt": 17,
+      "messageId": 27
+    },
+    {
+      "id": "da30009f-ecef-4a97-9e27-6267c0048118",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Honami",
+      "tag": "knows",
+      "content": "Max Nightriver connected her remark about entrants using the arena as a stage to Hanzo Hattaxi.",
+      "createdAt": 17,
+      "messageId": 27
+    },
+    {
+      "id": "4910c9f7-5868-482c-b8bf-c27c25bc393e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Max ordered the party to turn in early for the Sunset Blooms bout.",
+      "createdAt": 17,
+      "messageId": 27
+    },
+    {
+      "id": "520a9a99-f8bf-4857-bf1e-649662266d39",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Max ordered the party to turn in early for the Sunset Blooms bout.",
+      "createdAt": 17,
+      "messageId": 27
+    },
+    {
+      "id": "a28c8618-55a6-4ab8-a22d-a1e7217dba1a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To find meat and ale before tomorrow's bout.",
+      "createdAt": 17,
+      "messageId": 27
+    },
+    {
+      "id": "d27cd8bc-2ef7-48eb-80fc-0be025c7a2b6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party faces the Sunset Blooms next.",
+      "createdAt": 17,
+      "messageId": 27
+    },
+    {
+      "id": "47146858-0075-4c3e-b96c-706d19b3aaa3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party faces the Sunset Blooms next.",
+      "createdAt": 17,
+      "messageId": 27
+    },
+    {
+      "id": "24ec9cfc-0b74-4592-b3dd-ebc62cf9cb67",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The Sunset Blooms' leader is weighted on his right and expects close quarters.",
+      "createdAt": 17,
+      "messageId": 27
+    },
+    {
+      "id": "89e82974-cb80-4766-acef-e29495868691",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The Sunset Blooms cover each other's blind spots in a coordinated formation.",
+      "createdAt": 17,
+      "messageId": 27
+    },
+    {
+      "id": "961c6cbb-8f93-4a9e-a636-3c804ecbbbb3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 27,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Dalan's read that the Sunset Blooms fight in a coordinated formation.",
+      "createdAt": 17,
+      "messageId": 27
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 5,
+      "name": "Akito",
+      "avatar": "Akito.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 34,
+      "name": "Daigo",
+      "avatar": "Daigo.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 44,
+      "name": "Ebisu",
+      "avatar": "Ebisu.png"
+    },
+    {
+      "index": 50,
+      "name": "Eunie",
+      "avatar": "Eunie.png"
+    },
+    {
+      "index": 55,
+      "name": "Fumio",
+      "avatar": "Fumio.png"
+    },
+    {
+      "index": 62,
+      "name": "Hanabi",
+      "avatar": "Hanabi.png"
+    },
+    {
+      "index": 63,
+      "name": "Hanzo",
+      "avatar": "Hanzo.png"
+    },
+    {
+      "index": 64,
+      "name": "Himari",
+      "avatar": "Himari.png"
+    },
+    {
+      "index": 65,
+      "name": "Honami",
+      "avatar": "Honami.png"
+    },
+    {
+      "index": 73,
+      "name": "Kanai",
+      "avatar": "Kanai.png"
+    },
+    {
+      "index": 74,
+      "name": "Kanami",
+      "avatar": "Kanami.png"
+    },
+    {
+      "index": 85,
+      "name": "Koharu",
+      "avatar": "Koharu.png"
+    },
+    {
+      "index": 96,
+      "name": "Megumi",
+      "avatar": "Megumi.png"
+    },
+    {
+      "index": 101,
+      "name": "Miyabi",
+      "avatar": "Miyabi.png"
+    },
+    {
+      "index": 118,
+      "name": "Rikako",
+      "avatar": "Rikako.png"
+    },
+    {
+      "index": 119,
+      "name": "Rinne",
+      "avatar": "Rinne.png"
+    },
+    {
+      "index": 134,
+      "name": "Shiba",
+      "avatar": "Shiba.png"
+    },
+    {
+      "index": 135,
+      "name": "Shinen",
+      "avatar": "Shinen.png"
+    },
+    {
+      "index": 138,
+      "name": "Sota",
+      "avatar": "Sota.png"
+    },
+    {
+      "index": 142,
+      "name": "Tanabe",
+      "avatar": "Tanabe.png"
+    },
+    {
+      "index": 143,
+      "name": "Tanya",
+      "avatar": "Tanya.png"
+    },
+    {
+      "index": 156,
+      "name": "Watara",
+      "avatar": "Watara.png"
+    },
+    {
+      "index": 161,
+      "name": "Yurine",
+      "avatar": "Yurine.png"
+    }
+  ],
+  "payloadEpoch": "1790908915383-dymm5a"
+}

@@ -1,0 +1,10 @@
+{
+  "verb": "flag",
+  "dir": "C:\\dev\\story-orchestrator\\test\\sessions\\T3\\T3-4-1",
+  "chat": null,
+  "args": {
+    "note": "Harness deviation: msgs 50-52 (player line 'Kass, I'll take your bet...' + Belle/Kass replies) were sent by a backgrounded turn verb whose process was killed when its shell exited, so turns.jsonl has no row for them (they are in the chat). Done to hold the drawer open during generation: drawer stayed open, HUD/Overview stayed clean while generating; no transition happened.",
+    "via": "drawer"
+  },
+  "options": {}
+}

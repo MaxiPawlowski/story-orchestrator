@@ -1,0 +1,45 @@
+ok   build.head  "58695ff343fc1a2b6054ad031a03e1704a2cbc41" -> "d4678fe1eb85674843f73af8082b1f23ed2c6ae3"  (allowed by served-bundle 7a1e95c3c47cc993)
+ok   build.manifest.builtAt  "2026-10-02T01:55:07.140Z" -> "2026-10-02T02:38:47.348Z"  (allowed by served-bundle 7a1e95c3c47cc993)
+ok   build.manifest.bundleBytes  1214966 -> 1216456  (allowed by served-bundle 7a1e95c3c47cc993)
+ok   build.manifest.bundleSha256  "48fa7f15f83a3c346c5f50b3d50e96529b2caaa160ae89cdf3d1c454ceffd315" -> "4dfcf2f69c4aee4fbee22e05827eb263763cc139b8367a7172f798771147354f"  (allowed by served-bundle 7a1e95c3c47cc993)
+ok   build.manifest.fileSha256  "3f44f11cdcf6bd16" -> "fe8abc63e3d69b00"  (allowed by served-bundle 7a1e95c3c47cc993)
+ok   build.manifest.sourceFiles  541 -> 542  (allowed by served-bundle 7a1e95c3c47cc993)
+ok   build.manifest.sourceSha256  "071454d9752350b3ab2f7621f2ddb8cc7eae1cdda5d2ddef2719da671328cdcc" -> "27739b074482a6219d85f079d05e5a2317b35e1b1b8d7d7b3ee3297bf810a04d"  (allowed by served-bundle 7a1e95c3c47cc993)
+ok   chat.chatLength  1 -> 42  (allowed by progress)
+ok   group.disabledMembers  +Kela.png +Vallie.png -Runo.png  (allowed by group)
+ok   story.activeCheckpointId  "deep-joint-posting" -> "deep-the-altar"  (allowed by progress)
+ok   story.boundary  1 -> 32  (allowed by progress)
+WARNING: the page is running a bundle that is not the built one: served 7a1e95c3c47cc993 vs dist 4dfcf2f69c4aee4f
+ok   warnings  +the page is running a bundle that is not the built one: served 7a1e95c3c47cc993 vs dist 4dfcf2f69c4aee4f -the page is running a bundle that is not the built one: served 7a1e95c3c47cc993 vs dist 48fa7f15f83a3c34  (allowed by served-bundle 7a1e95c3c47cc993)
+{
+  "baseline": "C:\\dev\\story-orchestrator\\test\\sessions\\T3\\T3-1-1\\run-header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "chatId",
+    "groupId",
+    "authorView",
+    "story",
+    "group",
+    "inventory.journal"
+  ],
+  "differences": 12,
+  "progress": 3,
+  "blocking": 0,
+  "blockingPaths": [],
+  "servedIdentity": [
+    "build.head",
+    "build.manifest.builtAt",
+    "build.manifest.bundleBytes",
+    "build.manifest.bundleSha256",
+    "build.manifest.fileSha256",
+    "build.manifest.sourceFiles",
+    "build.manifest.sourceSha256",
+    "warnings"
+  ],
+  "warnings": [
+    "the page is running a bundle that is not the built one: served 7a1e95c3c47cc993 vs dist 48fa7f15f83a3c34",
+    "the page is running a bundle that is not the built one: served 7a1e95c3c47cc993 vs dist 4dfcf2f69c4aee4f"
+  ],
+  "wrote": "C:\\dev\\story-orchestrator\\test\\sessions\\T3\\T3-1-1\\run-header-end.json",
+  "ok": true
+}

@@ -1,0 +1,1344 @@
+{
+  "storyId": "adolion-deep",
+  "activeCheckpointId": "deep-the-altar",
+  "boundary": 32,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Deep Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Aegis City Noble Life": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "deep_swarm": false,
+    "deep_posting_refused": false,
+    "deep_set_out": true,
+    "location": "deep_great_hall",
+    "tension_current": 0.535438479475,
+    "deep_partner": "crimsonwing",
+    "progress_toward_deep-the-reckoning": 2,
+    "progress_toward_deep-ritual-fort": 1,
+    "party_injuries": 0,
+    "deep_first_camp": true,
+    "deep_fort_sighted": true,
+    "deep_hall_breached": true
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "41026c70-3114-4665-ba72-dd1fbb33d2fb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 0,
+        "boundary": 1,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kela",
+      "tag": "knows",
+      "content": "Both leaders offer to take the player's party, and neither will speak first while the other is listening",
+      "createdAt": 1,
+      "messageId": 0
+    },
+    {
+      "id": "714d6a0d-3801-4eb0-9862-d81d6fdc671e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kela",
+      "tag": "knows",
+      "content": "Max's party has chosen Crimsonwing over Ebonwing",
+      "createdAt": 6,
+      "messageId": 6
+    },
+    {
+      "id": "29ed903d-1ade-4f19-b310-6f5b0acec314",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Kela",
+      "tag": "intends",
+      "content": "to move on to Ebonwing's own work after losing the joint posting",
+      "createdAt": 6,
+      "messageId": 6,
+      "affirmedAt": [
+        {
+          "messageId": 9,
+          "boundary": 7
+        }
+      ],
+      "supersededBy": "retired@8",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 8
+      }
+    },
+    {
+      "id": "5d5b0bcb-97ad-4fbe-95fa-28ce29f977c2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kela",
+      "tag": "knows",
+      "content": "Max's party chose Crimsonwing for the joint posting",
+      "createdAt": 6,
+      "messageId": 7
+    },
+    {
+      "id": "fdabcfe9-b17f-4dff-bb68-b0d71ed4a9e6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Vallie",
+      "tag": "knows",
+      "content": "Max's party chose Crimsonwing for the joint posting",
+      "createdAt": 6,
+      "messageId": 7
+    },
+    {
+      "id": "1b21dd4d-fac1-44fc-89d0-cac7873319ff",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Kela",
+      "tag": "intends",
+      "content": "to find work for Ebonwing elsewhere",
+      "createdAt": 6,
+      "messageId": 7,
+      "supersededBy": "retired@8",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 8
+      }
+    },
+    {
+      "id": "2334bcae-7c6e-4aee-8096-7da5ec752a22",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kela",
+      "tag": "knows",
+      "content": "Max's party chose Crimsonwing over Ebonwing.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "c25067f0-ec36-4471-acf1-246f72e05e4d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Kela",
+      "tag": "intends",
+      "content": "to take Ebonwing to its own work after losing the joint posting",
+      "createdAt": 7,
+      "messageId": 9,
+      "supersededBy": "retired@8",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 8
+      }
+    },
+    {
+      "id": "c03c459c-d17e-44aa-bdc4-25ee87e90f50",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 8,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Kela",
+      "tag": "hiding",
+      "content": "that losing the joint posting stung, shown only by touching her hat brim",
+      "hiddenFrom": "Ced",
+      "createdAt": 8,
+      "messageId": 11,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 12,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "bf6fcd11-4605-4267-9307-5ae6d73988c3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Kela",
+      "tag": "hiding",
+      "content": "that losing the joint posting stung, shown only by touching her hat brim",
+      "hiddenFrom": "Ced",
+      "createdAt": 9,
+      "messageId": 12,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "2aa8648e-d896-43fc-80a3-41a77f4835a5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Ced wants silence until the tree line and clear lines of sight from the mule and cart",
+      "createdAt": 11,
+      "messageId": 15,
+      "supersededBy": "retired@13",
+      "retiredAt": {
+        "messageId": 18,
+        "boundary": 13
+      }
+    },
+    {
+      "id": "d0346e5b-82b6-4dca-bcf7-69201ca2e135",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Ced does not want the failed expedition discussed on the march",
+      "createdAt": 13,
+      "messageId": 18,
+      "supersededBy": "retired@13",
+      "retiredAt": {
+        "messageId": 18,
+        "boundary": 13
+      }
+    },
+    {
+      "id": "19541f94-8a48-4797-864c-c5708b4752e9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "intends",
+      "content": "keep the party silent and focused on reaching the Keep, saving technicals for the march",
+      "createdAt": 13,
+      "messageId": 18,
+      "supersededBy": "retired@13",
+      "retiredAt": {
+        "messageId": 18,
+        "boundary": 13
+      }
+    },
+    {
+      "id": "5deb6057-3d22-423a-990a-88bbd4e7f339",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "knows",
+      "content": "Max dropped back beside the cart and questioned Runo about the last expedition",
+      "createdAt": 13,
+      "messageId": 18,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "70be270f-4dc9-4514-b007-12f4bd06857e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Runo blames himself for a failed last expedition and for failing the last member of Crimsonwing",
+      "createdAt": 13,
+      "messageId": 18,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "09f74439-151c-4c55-b878-2ecbf2f623f5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Ced wants silence until the tree line and clear lines of sight from the mule and cart",
+      "createdAt": 13,
+      "messageId": 18,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "eb8931a3-1ebb-416c-9d31-40ade3df18e8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Ced does not want the failed expedition discussed on the march",
+      "createdAt": 13,
+      "messageId": 18,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "aca665f1-3eda-4e6c-88a4-59ea6bdb0e44",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "knows",
+      "content": "Ced wants the technical details about the golems kept quiet during the march",
+      "createdAt": 13,
+      "messageId": 18,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "a126890b-6e45-47c8-b8f6-cd318a596f0a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "intends",
+      "content": "keep quiet about the technicals on the march as Ced ordered",
+      "createdAt": 13,
+      "messageId": 18,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "31bd35b3-d8f7-428f-a63f-7214afa19ffa",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "intends",
+      "content": "reach the Velniran foothills fort with the golems and supplies intact and assess whether Max's party is an asset",
+      "createdAt": 13,
+      "messageId": 18,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "a8c5bf71-32db-496a-9ef7-a0608d4265cf",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "intends",
+      "content": "keep the party silent and focused on reaching the Keep, saving technicals for the march",
+      "createdAt": 13,
+      "messageId": 18,
+      "supersededBy": "retired@14",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 14
+      }
+    },
+    {
+      "id": "baa3c547-0fe9-4bde-a71b-79c279f33eff",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Ced chose a steeper, less-watched path into the foothills rather than the main valley roads",
+      "createdAt": 14,
+      "messageId": 19,
+      "supersededBy": "retired@15",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 15
+      }
+    },
+    {
+      "id": "99737092-b89f-43dd-98a0-f8c45b823ec0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 14,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "intends",
+      "content": "to reach the Keep by a steeper, less-watched path and keep the party's lines of sight clear on the road",
+      "createdAt": 14,
+      "messageId": 19,
+      "supersededBy": "retired@15",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 15
+      }
+    },
+    {
+      "id": "43f14bd4-4476-4d6c-8d7d-8f17f3d0fbfe",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 14,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Ced ordered Runo to walk behind the mule and keep his eyes on the horizon",
+      "createdAt": 14,
+      "messageId": 19,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 22,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "1f9f8123-53b1-4595-9840-4439eb06b486",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Ced counted three guards on the wall and two at the gatehouse",
+      "createdAt": 15,
+      "messageId": 21
+    },
+    {
+      "id": "5f3f7c2f-a7f3-4e81-bafd-3cc49ca27c0b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "knows",
+      "content": "Ced said the Keep is within a day's march and the steep path avoids the main valley roads",
+      "createdAt": 15,
+      "messageId": 21,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 22,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "1f9c6b87-7799-4807-9c7b-6b8706269a9d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "knows",
+      "content": "Ced counted three guards on the wall and two at the gatehouse",
+      "createdAt": 15,
+      "messageId": 21,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 22,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "96ff7f1a-dde0-4632-9e90-06e696c9c66f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 22,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Ced's plan to deploy a golem as a distraction, take the gatehouse himself, and retreat to the ridge if anything goes wrong",
+      "createdAt": 16,
+      "messageId": 22
+    },
+    {
+      "id": "d4f211bc-2d91-437d-be31-28858f57ea2b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 22,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Ced's assault plan: Runo deploys a golem distraction at the side gate, Ced takes the wall guards, Max takes the gatehouse, fallback to the ridge.",
+      "createdAt": 16,
+      "messageId": 22
+    },
+    {
+      "id": "17db3ec6-38b5-4f26-83e2-c6a0400a389f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 22,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "knows",
+      "content": "Ced's assault plan and his order to deploy the first golem as a distraction.",
+      "createdAt": 16,
+      "messageId": 22,
+      "supersededBy": "retired@16",
+      "retiredAt": {
+        "messageId": 22,
+        "boundary": 16
+      }
+    },
+    {
+      "id": "54699c96-6390-4a3a-9920-c5f1329eec50",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 22,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "knows",
+      "content": "Ced's assault plan and his order to deploy the first golem as a distraction",
+      "createdAt": 16,
+      "messageId": 22,
+      "supersededBy": "retired@18",
+      "retiredAt": {
+        "messageId": 24,
+        "boundary": 18
+      }
+    },
+    {
+      "id": "912c6d6f-56d4-4fc6-b5d4-3aade3c8ff22",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 22,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "knows",
+      "content": "Ced's plan to retreat to the ridge if anything goes wrong and that the goal is to get the captives out, not start a war",
+      "createdAt": 16,
+      "messageId": 22
+    },
+    {
+      "id": "49c669e9-5a64-447b-b6f1-018ae3b08655",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 18,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "intends",
+      "content": "to open the side gate with a golem distraction, take the wall guards himself, and have Max take the gatehouse to free the captives",
+      "createdAt": 18,
+      "messageId": 24,
+      "supersededBy": "retired@18",
+      "retiredAt": {
+        "messageId": 24,
+        "boundary": 18
+      }
+    },
+    {
+      "id": "087be0e1-8153-4213-a7b5-58c88768cbe7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 18,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "intends",
+      "content": "to keep the golem drawing the guards' attention during the assault",
+      "createdAt": 18,
+      "messageId": 24,
+      "supersededBy": "retired@18",
+      "retiredAt": {
+        "messageId": 24,
+        "boundary": 18
+      }
+    },
+    {
+      "id": "9eda1445-4314-4b30-9b46-e6dc681965d4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 18,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "suspects",
+      "content": "that the assault is dangerous and the party may be hurt",
+      "createdAt": 18,
+      "messageId": 24
+    },
+    {
+      "id": "0d9469fe-c8b0-4b0e-bbec-0d8a5568e4c4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 18,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "knows",
+      "content": "Ced's plan: golem distracts at the side gate, Ced takes wall guards, Max takes the gatehouse, fallback is the ridge.",
+      "createdAt": 18,
+      "messageId": 24,
+      "supersededBy": "retired@18",
+      "retiredAt": {
+        "messageId": 24,
+        "boundary": 18
+      }
+    },
+    {
+      "id": "c02f9db3-7fee-4eb2-b345-da0da95e9f31",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 18,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "intends",
+      "content": "to keep the golem drawing the guards' attention so the others can get in.",
+      "createdAt": 18,
+      "messageId": 24,
+      "supersededBy": "retired@18",
+      "retiredAt": {
+        "messageId": 24,
+        "boundary": 18
+      }
+    },
+    {
+      "id": "f695956d-beac-4096-ba65-259988094d85",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 18,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "knows",
+      "content": "Ced ordered him to deploy the first golem as a distraction at the side gate",
+      "createdAt": 18,
+      "messageId": 24
+    },
+    {
+      "id": "302d3b96-6c1c-4fa5-b73e-be52e6f9bb35",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 18,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "knows",
+      "content": "Ced will handle the wall guards and Max will take the gatehouse",
+      "createdAt": 18,
+      "messageId": 24
+    },
+    {
+      "id": "17583a7a-4b4f-4bfc-91e7-ccb6254e51e9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 18,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "knows",
+      "content": "the fallback is the ridge and the goal is to get the captives out, not start a war",
+      "createdAt": 18,
+      "messageId": 24
+    },
+    {
+      "id": "01249c31-cacc-4ae4-b0e1-9765d7207e2c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 18,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "suspects",
+      "content": "Runo is nervous about the assault",
+      "createdAt": 18,
+      "messageId": 24
+    },
+    {
+      "id": "834806e9-7b94-41d3-9f25-8b145726bf1c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 18,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "intends",
+      "content": "keep the golem drawing the guards' attention",
+      "createdAt": 18,
+      "messageId": 24
+    },
+    {
+      "id": "b04dc4b9-d896-425a-9ca6-acaa0009e0d0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 18,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "hiding",
+      "content": "his fear that the party may be hurt in the assault",
+      "hiddenFrom": "Ced",
+      "createdAt": 18,
+      "messageId": 24
+    },
+    {
+      "id": "fd6efb28-662f-4e0e-9ec7-95ec2b95c69b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 18,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "believes",
+      "content": "that he must keep the golem drawing attention so the others can get in",
+      "createdAt": 18,
+      "messageId": 24
+    },
+    {
+      "id": "05545456-54e6-4985-988f-388c9eac2a28",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 32,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Runo",
+      "tag": "knows",
+      "content": "the wall guards' stance is not a standard rotation and they never speak to each other",
+      "createdAt": 24,
+      "messageId": 32
+    },
+    {
+      "id": "66db5250-f569-4c31-9e53-7f9d291a9d55",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 32,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "the wall guards do not react to the violet light from the chapel tower",
+      "createdAt": 24,
+      "messageId": 32
+    },
+    {
+      "id": "b1ea5ff8-7044-4967-9a4e-042d60ac6e70",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 32,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "the wall watch change leaves a roughly twenty-heartbeat gap with the west wall briefly blind",
+      "createdAt": 24,
+      "messageId": 32
+    },
+    {
+      "id": "7d4a971b-8539-4293-a3bc-b839c6f82e4f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 32,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "knows",
+      "content": "Max's plan to hold on the ridge and time the watch change, and that Dalan will set a rope on the west wall",
+      "createdAt": 24,
+      "messageId": 32,
+      "supersededBy": "retired@29",
+      "retiredAt": {
+        "messageId": 37,
+        "boundary": 29
+      }
+    },
+    {
+      "id": "bc875fc6-4baa-4e17-8878-f6cd9a2f5dce",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 32,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "the wall watch change gap and the west wall blind window",
+      "createdAt": 24,
+      "messageId": 32
+    },
+    {
+      "id": "445e72df-2cb0-454a-9d85-2bbf82852aa6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 32,
+        "boundary": 24,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "to set a rope on the west wall and slip the party in during the watch change",
+      "createdAt": 24,
+      "messageId": 32,
+      "supersededBy": "retired@29",
+      "retiredAt": {
+        "messageId": 37,
+        "boundary": 29
+      }
+    },
+    {
+      "id": "651cabd0-9775-4a50-b675-d82272421740",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 26,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "suspects",
+      "content": "something is wrong with the wall guards, who do not even blink at the violet light",
+      "createdAt": 26,
+      "messageId": 35
+    },
+    {
+      "id": "cdff579f-002d-4e46-8a06-18d8d39ecbf5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 35,
+        "boundary": 26,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "intends",
+      "content": "to move on his word and take the Hall doors",
+      "createdAt": 26,
+      "messageId": 35,
+      "supersededBy": "retired@29",
+      "retiredAt": {
+        "messageId": 37,
+        "boundary": 29
+      }
+    },
+    {
+      "id": "77915205-7777-4b9f-9bf5-b74577d6d278",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "knows",
+      "content": "the food in the Great Hall is fresh and something is wrong",
+      "createdAt": 29,
+      "messageId": 37,
+      "supersededBy": "retired@29",
+      "retiredAt": {
+        "messageId": 37,
+        "boundary": 29
+      }
+    },
+    {
+      "id": "f2331f98-2eba-4fdb-a932-30f8e3712d2d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "the food in the Great Hall is fresh and Ced senses something wrong",
+      "createdAt": 29,
+      "messageId": 37,
+      "supersededBy": "retired@29",
+      "retiredAt": {
+        "messageId": 37,
+        "boundary": 29
+      }
+    },
+    {
+      "id": "aa40ecd2-0c46-41ca-a51e-b7d3981dfc0d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "intends",
+      "content": "to move the party to the Hall doors and investigate what is wrong inside",
+      "createdAt": 29,
+      "messageId": 37,
+      "supersededBy": "retired@29",
+      "retiredAt": {
+        "messageId": 37,
+        "boundary": 29
+      }
+    },
+    {
+      "id": "27d8b9d5-56b1-487a-9e27-a50fe1d86cc4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "the west wall is blind for a few seconds while the old guard descends the stairs",
+      "createdAt": 29,
+      "messageId": 37
+    },
+    {
+      "id": "431396a1-5a78-4825-b678-3a9da37a6e07",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "the cliffs on the gorge side are steep but the stone is good for anchors",
+      "createdAt": 29,
+      "messageId": 37
+    },
+    {
+      "id": "bd919b5a-c079-4c28-a83b-64a530e34430",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "to use the gorge side to slip the party in and out before they are noticed",
+      "createdAt": 29,
+      "messageId": 37
+    },
+    {
+      "id": "ffe972f0-0c40-4eb1-95c4-538b869a9560",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "knows",
+      "content": "Dalan will set the rope on the west wall and the party goes over at the change of watch",
+      "createdAt": 29,
+      "messageId": 37
+    },
+    {
+      "id": "946f60a1-cd44-42bc-be8b-24973c47eaae",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "knows",
+      "content": "Max will climb the rope, drop onto the wall walk, and make for the Great Hall doors",
+      "createdAt": 29,
+      "messageId": 37
+    },
+    {
+      "id": "d4fc1eba-2236-4ecd-9ce6-f63e59f6d3ae",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "knows",
+      "content": "the grey-robed guards did not react to his crossing the wall walk",
+      "createdAt": 29,
+      "messageId": 37
+    },
+    {
+      "id": "97d04d09-5ced-4cc4-bd1f-bdbc5e71a52f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Ced was first up the rope and cleared the wall walk in a single motion",
+      "createdAt": 29,
+      "messageId": 37
+    },
+    {
+      "id": "c5e1b16e-1d62-4472-a71b-9cfb7236d4de",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "the grey-robed guards continued their plodding circle, oblivious",
+      "createdAt": 29,
+      "messageId": 37
+    },
+    {
+      "id": "c749d339-9261-4409-a1dc-6f7de9978e0c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "the Great Hall doors released a smell of rotting flowers and cold stone",
+      "createdAt": 29,
+      "messageId": 37
+    },
+    {
+      "id": "7979da48-0798-422d-98c6-1f0e682b833b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "a single chair faces the door and the banquet table holds fresh food and drink",
+      "createdAt": 29,
+      "messageId": 37
+    },
+    {
+      "id": "6b5ab03b-1624-4b24-a43e-b20b10c5adb1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 37,
+        "boundary": 29,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "knows",
+      "content": "a single chair faces the door inside the Great Hall",
+      "createdAt": 29,
+      "messageId": 37
+    },
+    {
+      "id": "cb5959bf-fd8b-41b6-8445-4a84b93a6490",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 31,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "knows",
+      "content": "The Great Hall's food is fresh and uncorrupted, which he finds wrong.",
+      "createdAt": 31,
+      "messageId": 39
+    },
+    {
+      "id": "80716e56-dfac-4ccc-aa85-e8bcd80e4a5a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 31,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Great Hall contains fresh food and a single chair facing the door.",
+      "createdAt": 31,
+      "messageId": 39
+    },
+    {
+      "id": "0d0c9494-8320-4bcb-b95a-8a88a9c5a94d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 39,
+        "boundary": 31,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ced",
+      "tag": "intends",
+      "content": "Find the captives and the altar while avoiding the food and staying tight.",
+      "createdAt": 31,
+      "messageId": 39
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 11,
+      "name": "Amthir",
+      "avatar": "Amthir.png"
+    },
+    {
+      "index": 12,
+      "name": "Anax",
+      "avatar": "Anax.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 22,
+      "name": "Caelia",
+      "avatar": "Caelia.png"
+    },
+    {
+      "index": 23,
+      "name": "Caetus",
+      "avatar": "Caetus.png"
+    },
+    {
+      "index": 28,
+      "name": "Ced",
+      "avatar": "Ced.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 66,
+      "name": "Idira",
+      "avatar": "Idira.png"
+    },
+    {
+      "index": 84,
+      "name": "Kela",
+      "avatar": "Kela.png"
+    },
+    {
+      "index": 108,
+      "name": "Nendira",
+      "avatar": "Nendira.png"
+    },
+    {
+      "index": 123,
+      "name": "Runo",
+      "avatar": "Runo.png"
+    },
+    {
+      "index": 126,
+      "name": "Safie",
+      "avatar": "Safie.png"
+    },
+    {
+      "index": 128,
+      "name": "Sana",
+      "avatar": "Sana.png"
+    },
+    {
+      "index": 131,
+      "name": "Shadur",
+      "avatar": "Shadur.png"
+    },
+    {
+      "index": 133,
+      "name": "Shelur",
+      "avatar": "Shelur.png"
+    },
+    {
+      "index": 152,
+      "name": "Unira",
+      "avatar": "Unira.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    },
+    {
+      "index": 160,
+      "name": "Yuna",
+      "avatar": "Yuna.png"
+    }
+  ],
+  "payloadEpoch": "1790908329599-jka3r1"
+}

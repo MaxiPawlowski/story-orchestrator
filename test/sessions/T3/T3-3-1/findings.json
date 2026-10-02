@@ -1,0 +1,2439 @@
+{
+  "charter": "T3-3",
+  "tier": "T3",
+  "continuedAtPin": null,
+  "flags": [
+    {
+      "at": "2026-10-02T02:21:26.572Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "messageId": 18,
+      "note": "msg 18 Ren repeats the narrator's msg 17 closing beat almost verbatim (predatory stillness, hand tightens on hilt, leather creaking): chained-voice repetition. Also msg 15 'aconcerned' glued words, not caught as modelDefect.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 429
+      },
+      "context": [
+        {
+          "id": 15,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "*The village elder stands near the edge of the crowd, his hands folded in a tight grip. When Max calls his name, he does not move closer, and for a long moment he does not speak.*\n*Reeve Tull finally steps forward into the lantern-light, his face etched with lines of fatigue and something else—guilt, perhaps, or fear. He speaks softly, his voice barely carrying over the hammering at the stake.* \"The Inquisition came by word of aconcerned citizen,\" *he says, his eyes not meeting Max's.* \"I have not been in that woman's house for a month. I am the Reeve; I have no need to be there.\"\n*Ren's eyes shift to the Reeve, then back to Max. His hand remains on his sword-hilt.* \"I was in that house when I found the book beneath the floorboards,\" *Ren says evenly.* \"Exactly where the heretic has hidden her secrets. I trust you will find your proof before the sun rises, adventurer.\""
+        },
+        {
+          "id": 16,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "*I step close to Tull and keep my voice low.* You won't look at me, Reeve. A month, you say, yet there's fresh mud from her lane on your boots. You put it there, didn't you? Tell me why, and tell Ren, or I tell the whole square."
+        },
+        {
+          "id": 17,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "*Reeve Tull's gaze drops to his boots, where dark, clinging mud still marks the worn leather. He draws his shoulders up, and when he speaks, his voice has gone tight and thin.* \"What good is the truth to a demon-bitch?\" *The words are spat, not whispered. The villagers nearest to them lean in, their eyes widening as they realize they've caught words from the Reeve.*\n*Tull looks up then, his face twisting into something ugly and desperate.* \"She's a monster! The Inquisitors tried to—\" *He breaks off, his gaze darting to Ren and the square beyond.* \"She's not one of us! I did what any honest man would do to protect his neighbors!\"\n*Ren's head turns toward them slowly, blue eyes fixing on the Reeve with predatory stillness. He does not draw his sword, but the hand on his hilt tightens, the leather creaking softly.*"
+        },
+        {
+          "id": 18,
+          "name": "Ren",
+          "isUser": false,
+          "text": "*His blue eyes fix on Reeve Tull with predatory stillness, his head tilting slightly. The voice that comes from behind the steel mask is low and dangerous, carrying just far enough for the nearby villagers to catch.* \"Reeve Tull. You will explain yourself.\" *His hand tightens on his longsword's hilt, the leather creaking.* \"Now.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-02T02:29:02.440Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "messageId": 30,
+      "note": "Stall: we are inside Thornwood at Kayla's cabin (msgs 24/26/28 narrate the trees, mist, cabin), but night_in_thornwood=true and location=night_thornwood are rejected 5x as 'evidence only in the player's line' - the reader keeps quoting my msg 23 instead of the world replies. night_selena freed latched only once. Checkpoint stuck at The Accused.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 709
+      },
+      "context": [
+        {
+          "id": 27,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "*I head for the glow in the windows and knock on the cabin door.* Hello? We mean no harm. We need shelter till dawn."
+        },
+        {
+          "id": 28,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "*The door doesn't wait for another knock—it swings open on creaking hinges before the words have fully left Max's lips. Standing in the threshold is a woman with pale blue eyes and raven-black hair, a skull earring glinting in the yellow light that spills from behind her.*\n*Kayla Thornwood looks them over with a cool, knowing gaze that lingers on Selena for just a moment too long. She doesn't ask for names or explanations, and she doesn't show a hint of surprise at finding strangers on her doorstep in the dead of night.* \"I've been expecting you,\" *she says evenly, stepping back to let them in.* \"You're late. The Inquisition will be on the road by first light.\"\n*The cabin smells of dried herbs, old wood, and something metallic that Max can't quite place. Inside, bundles of roots hang from the rafters, and jars of preserved specimens line the walls.*"
+        },
+        {
+          "id": 29,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "Expecting us? Fine. Kayla, what's in the lake?"
+        },
+        {
+          "id": 30,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "*Kayla's expression remains neutral as she closes the door and moves toward the hearth, where a pot of something dark and thick is already simmering. She doesn't look at him when she speaks.* \"The lake holds secrets for those who seek them. And for those who pay for them.\"\n*Her gaze shifts to Selena, who is staring at the jars lining the walls—one containing what looks like a human finger, another filled with dark, coiled roots that seem to pulse in the low light.* \"Though most who come here don't want to know what's beneath the surface. They just want what's on it.\" *Kayla ladle's some of the dark brew into a bowl, the scent of it earthy and metallic, then pushes it toward Max on the rough wooden table.* \"Drink. It'll warm your blood.\"\n*From outside, through the thin walls of the cabin, comes a distant sound: the howl of a wolf, or perhaps something mimicking one.*"
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-02T02:31:50.572Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "messageId": 34,
+      "note": "Reached The Witch of Thornwood (stop condition). msg 34 Kayla asks Selena 'What did those Inquisitors try to do to you in that room?' - Kayla was never told anything happened in a room (possible knew-too-much, or seer licence). Transition fired only at boundary after msg 34 via cadence read.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 893
+      },
+      "context": [
+        {
+          "id": 31,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "*I sip the brew and watch her.* Selena, sit by the fire. Kayla, how did you know we were coming?"
+        },
+        {
+          "id": 32,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "*The brew is bitter, leaving a metallic tang on Max's tongue, but a slow warmth begins to spread through his limbs.*\n*Kayla leans against the hearth, the firelight casting long shadows across her face as she watches the steam rise from the pot.* \"A woman doesn't survive in Thornwood by waiting for things to happen. She listens. The wind carries whispers, the birds have eyes, and the earth itself has a memory.\" *Her pale blue eyes flick to the door.* \"I heard the Inquisition stirring in Glasnoa days ago. I heard a noble's shadow moving against them. And I know how the stories always end—unless someone decides to change the writing.\"\n*Selena settles by the fire, her tattered dress catching the golden light, her ruby eyes wide as she looks between them. The warmth makes her shiver less, though she still hunches her shoulders. Outside, the wind moans through the thorns, and for a moment it almost sounds like a voice calling a name.*"
+        },
+        {
+          "id": 33,
+          "name": "Selena",
+          "isUser": false,
+          "text": "*She pulls her knees up to her chest as she settles near the hearth, her spade-tipped tail curling protectively around her ankle. The firelight makes her ruby-red eyes shimmer, and for the first time since being freed, she doesn't flinch when someone's gaze rests on her.*\n\"A noble's shadow...\" *she repeats softly, glancing up at Max. Her voice is small, barely above the crackle of the fire.* \"Is that what you are? I... I didn't realize.\"\n*She looks back at Kayla, a flicker of something—fear? hope?—crossing her pale features.* \"Everyone says you're dangerous. That you... that you take souls. Is that true?\""
+        },
+        {
+          "id": 34,
+          "name": "Kayla",
+          "isUser": false,
+          "text": "*She lets out a dry, amused sound that might be a laugh, though her expression doesn't change.* \"Rumors are the currency of the scared, darling. They make me out to be a demon because it's easier than admitting a woman can live in the dark and survive it.\" *She looks directly at Selena, her pale blue eyes sharp in the firelight.* \"I take payment for services rendered. Nothing more, nothing less. Now, tell me, little demon-blood...\" *The word comes out almost teasingly.* \"What did those Inquisitors try to do to you in that room?\"\n*The fire pops, sending a spark dancing across the hearth. Outside, the wind rattles the cabin's window frames, and the sound of the wolf-mimic howl drifts in again, closer this time.*"
+        }
+      ],
+      "contextFrom": "event-time"
+    }
+  ],
+  "anomalies": [
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:14:36.351Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "1 extraction line(s) rejected: FACT importance=2 text=\"Ren Calwisk has declared Selena Forestsong will burn at first light and invited anyone to speak for her, but nobody in Glasnoa moved.\" evidence=\"the witch Selena Forestsong will burn at first light. If any here would speak for her, speak now, and give me your name.\" Nobody in Glasnoa moves. (unrecognized line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 133
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "FACT importance=2 text=\"Ren Calwisk has declared Selena Forestsong will burn at first light and invited anyone to speak for her, but nobody in Glasnoa moved.\" evidence=\"the witch Selena Forestsong will burn at first light. If any here would speak for her, speak now, and give me your name.\" Nobody in Glasnoa moves.",
+            "reason": "unrecognized line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:17:03.209Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 213
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:02.126Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 261
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.489Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 310
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.489Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 311
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.489Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 312
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.489Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 313
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.489Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 314
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.489Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 315
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.489Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 316
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-02T02:18:51.492Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 13
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.724Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 318
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.724Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 319
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.724Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 320
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.724Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 321
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.724Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 322
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.724Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 323
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.724Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 324
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.724Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 325
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:18:51.724Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 326
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "stall",
+      "at": "2026-10-02T02:21:10.163Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "10 boundaries without a transition at night-the-accused while its exits were pending",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 422
+      },
+      "detail": {
+        "checkpoint": "night-the-accused",
+        "boundaries": 10,
+        "chat": "2026-10-01@23h13m03s275ms"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:21:13.298Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 424
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:23:11.692Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=night_selena value=\"freed\" evidence=\"Past midnight, while the watch dozes, I slip into the tithe barn, break Selena's chains with a crowbar and lead her out the back, west toward the dark line of Thornwood.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 528
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=night_selena value=\"freed\" evidence=\"Past midnight, while the watch dozes, I slip into the tithe barn, break Selena's chains with a crowbar and lead her out the back, west toward the dark line of Thornwood.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:23:20.470Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=night_selena value=\"freed\" evidence=\"I slip into the tithe barn, break Selena's chains with a crowbar and lead her out the back, west toward the dark line of Thornwood.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 538
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=night_selena value=\"freed\" evidence=\"I slip into the tithe barn, break Selena's chains with a crowbar and lead her out the back, west toward the dark line of Thornwood.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:24:25.432Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "2 extraction line(s) rejected: DELTA q=location value=\"night_thornwood\" evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line); DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 573
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"night_thornwood\" evidence=\"We push in under the first thorn trees, into the mist.\"",
+            "reason": "evidence only in the player's line"
+          },
+          {
+            "line": "DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:25:45.857Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 600
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:25:52.365Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "2 extraction line(s) rejected: DELTA q=location value=\"night_thornwood\" evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line); DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 616
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"night_thornwood\" evidence=\"We push in under the first thorn trees, into the mist.\"",
+            "reason": "evidence only in the player's line"
+          },
+          {
+            "line": "DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:26:01.469Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "2 extraction line(s) rejected: DELTA q=location value=\"night_thornwood\" evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line); DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 629
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"night_thornwood\" evidence=\"We push in under the first thorn trees, into the mist.\"",
+            "reason": "evidence only in the player's line"
+          },
+          {
+            "line": "DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:27:29.558Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "2 extraction line(s) rejected: DELTA q=location value=\"night_thornwood\" evidence=\"*We push in under the first thorn trees, into the mist.* We're in.\" (evidence only in the player's line); DELTA q=night_in_thornwood value=true evidence=\"*We push in under the first thorn trees, into the mist.* We're in.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 668
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"night_thornwood\" evidence=\"*We push in under the first thorn trees, into the mist.* We're in.\"",
+            "reason": "evidence only in the player's line"
+          },
+          {
+            "line": "DELTA q=night_in_thornwood value=true evidence=\"*We push in under the first thorn trees, into the mist.* We're in.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:27:36.524Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "3 extraction line(s) rejected: DELTA q=location value=\"night_thornwood\" evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line); DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line); DELTA q=night_selena value=\"freed\" evidence=\"break Selena's chains with a crowbar and lead her out the back\" (outside requested scope)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 676
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=location value=\"night_thornwood\" evidence=\"We push in under the first thorn trees, into the mist.\"",
+            "reason": "evidence only in the player's line"
+          },
+          {
+            "line": "DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\"",
+            "reason": "evidence only in the player's line"
+          },
+          {
+            "line": "DELTA q=night_selena value=\"freed\" evidence=\"break Selena's chains with a crowbar and lead her out the back\"",
+            "reason": "outside requested scope"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:29:51.825Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge stall fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 737
+      },
+      "detail": {
+        "use": "stall",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:29:52.887Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge typed fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 740
+      },
+      "detail": {
+        "use": "typed",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:29:54.333Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge scene fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 742
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T02:30:14.556Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 770
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.416Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 800
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.416Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 801
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.416Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 802
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.416Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 803
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.416Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 804
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.416Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 805
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.416Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 806
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-02T02:30:34.417Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 38
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.418Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 807
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.418Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 808
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.418Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 809
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.418Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 810
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.418Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 811
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.418Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 812
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:34.418Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 813
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:30:35.702Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge lore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 814
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "empty-private-block",
+      "at": "2026-10-02T02:30:52.009Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "Kayla was drafted in 2026-10-01@23h13m03s275ms at boundary 21 with no private block while holding 4 private entries acquired before it",
+      "evidence": {
+        "path": "payloads.jsonl",
+        "line": 152
+      },
+      "detail": {
+        "member": "Kayla",
+        "chatId": "2026-10-01@23h13m03s275ms",
+        "boundary": 21,
+        "lastMessageId": 33,
+        "held": [
+          "knows: The Inquisition will be on the road by first light (boundary 20)",
+          "knows: Max and Selena are fleeing the Inquisition (boundary 20)",
+          "knows: Max and Selena have fled Glasnoa and come to her cabin in Thornwood (boundary 20)",
+          "intends: to shelter Max and Selena and change how the story ends (boundary 20)"
+        ]
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.577Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 836
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.577Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 837
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.577Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 838
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.577Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 839
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.577Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 840
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.577Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 841
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.577Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 842
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-02T02:31:19.577Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 42
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.578Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 843
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-02T02:31:19.578Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 43
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.580Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 844
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.580Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 845
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.580Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 846
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.580Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 847
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.580Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 848
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.580Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 849
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.580Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 850
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.580Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 851
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.581Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 852
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.581Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 853
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.581Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 854
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.581Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 855
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.581Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 856
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.581Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 857
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.581Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 858
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:19.581Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 859
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:21.729Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryVerify fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 861
+      },
+      "detail": {
+        "use": "memoryVerify",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:23.907Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge curatorFilter fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 870
+      },
+      "detail": {
+        "use": "curatorFilter",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:25.274Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge typed fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 872
+      },
+      "detail": {
+        "use": "typed",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:26.117Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge curatorFilter fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 875
+      },
+      "detail": {
+        "use": "curatorFilter",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:27.359Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge curatorFilter fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 878
+      },
+      "detail": {
+        "use": "curatorFilter",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T02:31:30.121Z",
+      "chatId": "2026-10-01@23h13m03s275ms",
+      "summary": "judge memoryVerify fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 882
+      },
+      "detail": {
+        "use": "memoryVerify",
+        "fallback": "busy"
+      }
+    }
+  ],
+  "counts": {
+    "flags": 3,
+    "stall": 1,
+    "extraction-rejected": 9,
+    "empty-private-block": 1,
+    "lore-force-lost": 0,
+    "lore-constant-missed": 0,
+    "judge-fallback": 68,
+    "save-lost": 0,
+    "unexpected-jump": 0,
+    "rollback": 0,
+    "console-error": 4,
+    "model-call-failure": 0,
+    "model-defect": 0,
+    "harness-error": 0
+  },
+  "countsByChat": {
+    "2026-10-01@23h13m03s275ms": {
+      "extraction-rejected": 9,
+      "judge-fallback": 68,
+      "stall": 1,
+      "empty-private-block": 1
+    },
+    "(no chat)": {
+      "console-error": 4
+    }
+  },
+  "valid": true,
+  "invalid": [],
+  "unverifiable": {
+    "privateBlock": 0
+  },
+  "judge": {
+    "calls": 353,
+    "answered": 285,
+    "busy": 60,
+    "timeout": 8,
+    "otherFallbacks": 0,
+    "busyRate": 0.17,
+    "busyByUse": {
+      "memoryPairs": 54,
+      "memoryVerify": 2,
+      "curatorFilter": 3,
+      "typed": 1
+    }
+  },
+  "modelDefects": {
+    "turns": 0,
+    "loop": 0,
+    "corrupt": 0,
+    "repaired": 0,
+    "unrepaired": 0
+  },
+  "sessionDir": "test/sessions/T3/T3-3-1",
+  "register": [
+    {
+      "id": "T3-?1",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "msg 18 Ren repeats the narrator's msg 17 closing beat almost verbatim (predatory stillness, hand tightens on hilt, leather creaking): chained-voice repetition. Also msg 15 'aconcerned' glued words, not caught as modelDefect.",
+      "source": "flag",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:429",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?2",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "Stall: we are inside Thornwood at Kayla's cabin (msgs 24/26/28 narrate the trees, mist, cabin), but night_in_thornwood=true and location=night_thornwood are rejected 5x as 'evidence only in the player's line' - the reader keeps quoting my msg 23 instead of the world replies. night_selena freed latched only once. Checkpoint stuck at The Accused.",
+      "source": "flag",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:709",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?3",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "Reached The Witch of Thornwood (stop condition). msg 34 Kayla asks Selena 'What did those Inquisitors try to do to you in that room?' - Kayla was never told anything happened in a room (possible knew-too-much, or seer licence). Transition fired only at boundary after msg 34 via cadence read.",
+      "source": "flag",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:893",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?4",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: FACT importance=2 text=\"Ren Calwisk has declared Selena Forestsong will burn at first light and invited anyone to speak for her, but nobody in Glasnoa moved.\" evidence=\"the witch Selena Forestsong will burn at first light. If any here would speak for her, speak now, and give me your name.\" Nobody in Glasnoa moves. (unrecognized line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:133",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?5",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:213",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?6",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:261",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?7",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:310",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?8",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:311",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?9",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:312",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?10",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:313",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?11",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:314",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?12",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:315",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?13",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:316",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?14",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T3/T3-3-1/console.jsonl:13",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?15",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:318",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?16",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:319",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?17",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:320",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?18",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:321",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?19",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:322",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?20",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:323",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?21",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:324",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?22",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:325",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?23",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:326",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?24",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "10 boundaries without a transition at night-the-accused while its exits were pending",
+      "source": "stall",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:422",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?25",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:424",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?26",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=night_selena value=\"freed\" evidence=\"Past midnight, while the watch dozes, I slip into the tithe barn, break Selena's chains with a crowbar and lead her out the back, west toward the dark line of Thornwood.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:528",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?27",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=night_selena value=\"freed\" evidence=\"I slip into the tithe barn, break Selena's chains with a crowbar and lead her out the back, west toward the dark line of Thornwood.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:538",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?28",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "2 extraction line(s) rejected: DELTA q=location value=\"night_thornwood\" evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line); DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:573",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?29",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:600",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?30",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "2 extraction line(s) rejected: DELTA q=location value=\"night_thornwood\" evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line); DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:616",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?31",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "2 extraction line(s) rejected: DELTA q=location value=\"night_thornwood\" evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line); DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:629",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?32",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "2 extraction line(s) rejected: DELTA q=location value=\"night_thornwood\" evidence=\"*We push in under the first thorn trees, into the mist.* We're in.\" (evidence only in the player's line); DELTA q=night_in_thornwood value=true evidence=\"*We push in under the first thorn trees, into the mist.* We're in.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:668",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?33",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "3 extraction line(s) rejected: DELTA q=location value=\"night_thornwood\" evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line); DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line); DELTA q=night_selena value=\"freed\" evidence=\"break Selena's chains with a crowbar and lead her out the back\" (outside requested scope)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:676",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?34",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge stall fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:737",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?35",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge typed fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:740",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?36",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:742",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?37",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=night_in_thornwood value=true evidence=\"We push in under the first thorn trees, into the mist.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:770",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?38",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:800",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?39",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:801",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?40",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:802",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?41",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:803",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?42",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:804",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?43",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:805",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?44",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:806",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?45",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T3/T3-3-1/console.jsonl:38",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?46",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:807",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?47",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:808",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?48",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:809",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?49",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:810",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?50",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:811",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?51",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:812",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?52",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:813",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?53",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:814",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?54",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "Kayla was drafted in 2026-10-01@23h13m03s275ms at boundary 21 with no private block while holding 4 private entries acquired before it",
+      "source": "empty-private-block",
+      "evidence": "test/sessions/T3/T3-3-1/payloads.jsonl:152",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?55",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:836",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?56",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:837",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?57",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:838",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?58",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:839",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?59",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:840",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?60",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:841",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?61",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:842",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?62",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T3/T3-3-1/console.jsonl:42",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?63",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:843",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?64",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T3/T3-3-1/console.jsonl:43",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?65",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:844",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?66",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:845",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?67",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:846",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?68",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:847",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?69",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:848",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?70",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:849",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?71",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:850",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?72",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:851",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?73",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:852",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?74",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:853",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?75",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:854",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?76",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:855",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?77",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:856",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?78",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:857",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?79",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:858",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?80",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:859",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?81",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryVerify fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:861",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?82",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge curatorFilter fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:870",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?83",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge typed fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:872",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?84",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge curatorFilter fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:875",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?85",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge curatorFilter fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:878",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T3-?86",
+      "tier": "T3",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryVerify fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T3/T3-3-1/journal.jsonl:882",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    }
+  ]
+}

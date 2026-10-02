@@ -1,0 +1,10 @@
+{
+  "verb": "flag",
+  "dir": "C:\\dev\\story-orchestrator\\test\\sessions\\T3\\T3-5-1",
+  "chat": null,
+  "args": {
+    "note": "Curator re-proposed switching on 'Chronicle - About this book' (the book's own meta/house-style note) 3 times (wi-4-6, wi-8-11, wi-16-25) after I declined it twice: useless op, and declines are not remembered. Its latest rewrite also wanted to put 'Hanzo Hattaxi' into the open Tournament chronicle entry; declined.",
+    "via": "drawer"
+  },
+  "options": {}
+}

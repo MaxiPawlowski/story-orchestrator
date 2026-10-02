@@ -1,0 +1,291 @@
+{
+  "phase": "pin",
+  "problems": [],
+  "verdict": {
+    "ok": true,
+    "problems": []
+  },
+  "probe": {
+    "profile": "Artemis RunPod RP",
+    "ok": true,
+    "ms": 1882,
+    "text": "\nPONG",
+    "error": null
+  },
+  "routing": {
+    "main": {
+      "selectedProfileId": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+      "selectedProfileName": "Artemis RunPod RP",
+      "mainApi": "textgenerationwebui",
+      "onlineStatus": "/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+    },
+    "profiles": [
+      {
+        "id": "beba5264-4e69-4554-9ef0-8749f1caa0bb",
+        "name": "Artemis Local (Unsloth)",
+        "api": "generic",
+        "model": "TheDrummer/Artemis-31B-v1.1-GGUF",
+        "url": "http://127.0.0.1:18888",
+        "fields": {
+          "id": "beba5264-4e69-4554-9ef0-8749f1caa0bb",
+          "mode": "tc",
+          "exclude": [],
+          "api": "generic",
+          "preset": "Artemis v1.1 RP",
+          "api-url": "http://127.0.0.1:18888",
+          "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+          "sysprompt-state": "true",
+          "instruct": "Gemma 4",
+          "context": "Gemma 4",
+          "instruct-state": "true",
+          "stop-strings": "[]",
+          "start-reply-with": "",
+          "reasoning-template": "Gemma 4",
+          "name": "Artemis Local (Unsloth)",
+          "model": "TheDrummer/Artemis-31B-v1.1-GGUF"
+        }
+      },
+      {
+        "id": "b907b9ce-a720-4858-8ff1-fbe604169a24",
+        "name": "Artemis RunPod",
+        "api": "llamacpp",
+        "model": null,
+        "url": "http://127.0.0.1:18080",
+        "fields": {
+          "id": "b907b9ce-a720-4858-8ff1-fbe604169a24",
+          "mode": "tc",
+          "exclude": [],
+          "api": "llamacpp",
+          "api-url": "http://127.0.0.1:18080",
+          "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+          "sysprompt-state": "true",
+          "instruct": "Gemma 4",
+          "context": "Gemma 4",
+          "instruct-state": "true",
+          "stop-strings": "[]",
+          "start-reply-with": "",
+          "reasoning-template": "Gemma 4",
+          "name": "Artemis RunPod",
+          "preset": "Artemis v1.1 RP"
+        }
+      },
+      {
+        "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+        "name": "Artemis RunPod RP",
+        "api": "llamacpp",
+        "model": null,
+        "url": "http://127.0.0.1:18080",
+        "fields": {
+          "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+          "mode": "tc",
+          "exclude": [],
+          "api": "llamacpp",
+          "preset": "Artemis v1.1 RP",
+          "api-url": "http://127.0.0.1:18080",
+          "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+          "sysprompt-state": "true",
+          "instruct": "Gemma 4",
+          "context": "Gemma 4",
+          "instruct-state": "true",
+          "stop-strings": "[]",
+          "start-reply-with": "",
+          "reasoning-template": "Gemma 4",
+          "name": "Artemis RunPod RP"
+        }
+      },
+      {
+        "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "name": "deepseek 4.1 flash",
+        "api": "deepseek",
+        "model": "deepseek-flash",
+        "url": null,
+        "fields": {
+          "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "mode": "cc",
+          "exclude": [],
+          "api": "deepseek",
+          "model": "deepseek-flash",
+          "name": "deepseek 4.1 flash"
+        }
+      },
+      {
+        "id": "68422a21-7c97-4af8-a1ca-bbe44d83d138",
+        "name": "Image Director",
+        "api": "llamacpp",
+        "model": null,
+        "url": "http://127.0.0.1:18080",
+        "fields": {
+          "id": "68422a21-7c97-4af8-a1ca-bbe44d83d138",
+          "mode": "tc",
+          "exclude": [],
+          "api": "llamacpp",
+          "preset": "Artemis Extraction",
+          "api-url": "http://127.0.0.1:18080",
+          "sysprompt-state": "false",
+          "instruct": "Gemma 4",
+          "context": "Gemma 4",
+          "instruct-state": "true",
+          "stop-strings": "[]",
+          "start-reply-with": "",
+          "reasoning-template": "Gemma 4",
+          "name": "Image Director"
+        }
+      },
+      {
+        "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+        "name": "Story Orchestrator Memory RunPod",
+        "api": "llamacpp",
+        "model": null,
+        "url": "http://127.0.0.1:18080",
+        "fields": {
+          "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "mode": "tc",
+          "exclude": [],
+          "api": "llamacpp",
+          "preset": "Artemis Extraction",
+          "api-url": "http://127.0.0.1:18080",
+          "sysprompt-state": "false",
+          "instruct": "Gemma 4",
+          "context": "Gemma 4",
+          "instruct-state": "true",
+          "stop-strings": "[]",
+          "start-reply-with": "",
+          "reasoning-template": "Gemma 4",
+          "name": "Story Orchestrator Memory RunPod"
+        }
+      },
+      {
+        "id": "55f61212-a59e-4bf3-9dcd-4029845293c4",
+        "name": "Story Orchestrator Memory Unsloth",
+        "api": "generic",
+        "model": "TheDrummer/Artemis-31B-v1.1-GGUF",
+        "url": "http://127.0.0.1:18888",
+        "fields": {
+          "id": "55f61212-a59e-4bf3-9dcd-4029845293c4",
+          "mode": "tc",
+          "exclude": [],
+          "api": "generic",
+          "preset": "Artemis Extraction",
+          "api-url": "http://127.0.0.1:18888",
+          "sysprompt-state": "false",
+          "instruct": "Gemma 4",
+          "context": "Gemma 4",
+          "instruct-state": "true",
+          "stop-strings": "[]",
+          "start-reply-with": "",
+          "reasoning-template": "Gemma 4",
+          "name": "Story Orchestrator Memory Unsloth",
+          "model": "TheDrummer/Artemis-31B-v1.1-GGUF"
+        }
+      }
+    ],
+    "roles": [
+      {
+        "role": "read",
+        "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "profileName": "deepseek 4.1 flash",
+        "state": "untested",
+        "effort": "default",
+        "reasoning": null
+      },
+      {
+        "role": "synthesis",
+        "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "profileName": "deepseek 4.1 flash",
+        "state": "untested",
+        "effort": "default",
+        "reasoning": null
+      },
+      {
+        "role": "authoring",
+        "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "profileName": "deepseek 4.1 flash",
+        "state": "untested",
+        "effort": "default",
+        "reasoning": null
+      },
+      {
+        "role": "director",
+        "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "profileName": "deepseek 4.1 flash",
+        "state": "untested",
+        "effort": "default",
+        "reasoning": null
+      },
+      {
+        "role": "curator",
+        "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "profileName": "deepseek 4.1 flash",
+        "state": "untested",
+        "effort": "default",
+        "reasoning": null
+      },
+      {
+        "role": "inner",
+        "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "profileName": "deepseek 4.1 flash",
+        "state": "fallback",
+        "effort": "default",
+        "reasoning": null
+      }
+    ],
+    "judge": {
+      "enabled": true,
+      "uses": {
+        "director": true,
+        "memoryVerify": true,
+        "memoryPairs": true,
+        "sceneTrigger": true,
+        "sceneTracker": true,
+        "lookahead": true,
+        "loreSelect": true,
+        "curatorFilter": true,
+        "typedExtraction": true,
+        "stallCheck": true,
+        "expansionCritic": true,
+        "expansionLookahead": true,
+        "agencyCheck": true,
+        "houseRules": false,
+        "wardenLore": true,
+        "loreExclusive": true,
+        "expressions": true
+      },
+      "provider": {
+        "director": "typesafe",
+        "memoryVerify": "typesafe",
+        "memoryPairs": "typesafe",
+        "sceneTrigger": "typesafe",
+        "sceneTracker": "typesafe",
+        "lookahead": "typesafe",
+        "loreSelect": "typesafe",
+        "curatorFilter": "typesafe",
+        "typedExtraction": "typesafe",
+        "stallCheck": "typesafe",
+        "expansionCritic": "typesafe",
+        "expansionLookahead": "typesafe",
+        "agencyCheck": "typesafe",
+        "houseRules": "typesafe",
+        "wardenLore": "typesafe",
+        "loreExclusive": "typesafe",
+        "expressions": "typesafe",
+        "warden": "typesafe"
+      },
+      "pluginHttp": 200,
+      "keyPresent": true
+    },
+    "reasoning": {
+      "budget": "default",
+      "powerUser": {
+        "name": "Gemma 4",
+        "auto_parse": true,
+        "add_to_prompts": false,
+        "auto_expand": false,
+        "show_hidden": false,
+        "prefix": "<|channel>thought\n",
+        "suffix": "<channel|>",
+        "separator": "\n\n",
+        "max_additions": 1
+      }
+    }
+  }
+}

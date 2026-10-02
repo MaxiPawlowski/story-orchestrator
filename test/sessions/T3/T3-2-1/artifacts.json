@@ -1,0 +1,21 @@
+{
+  "required": {
+    "turns": 1,
+    "chats": 1
+  },
+  "inventory": {
+    "turns": 10,
+    "flags": 0,
+    "shots": 2,
+    "chats": 1,
+    "chapterRecords": 0,
+    "foldedTurns": 0,
+    "harvestedReasoning": 0,
+    "ratingCandidates": 0,
+    "wizardDrafts": 0
+  },
+  "replyReasoning": 0,
+  "warnings": [
+    "required artifact harvestedReasoning: not applicable: the model produced no reasoning (thinking off in the instruct/overlay)"
+  ]
+}

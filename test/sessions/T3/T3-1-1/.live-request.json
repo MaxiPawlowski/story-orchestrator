@@ -1,0 +1,14 @@
+{
+  "verb": "shot",
+  "dir": "C:\\dev\\story-orchestrator\\test\\sessions\\T3\\T3-1-1",
+  "chat": {
+    "chatId": "2026-10-01@23h13m06s765ms",
+    "group": "Adolion - Crimsonwing & Ebonwing",
+    "groupId": "1790906792430"
+  },
+  "args": {
+    "label": "timeline-level1-end",
+    "seq": 23
+  },
+  "options": {}
+}

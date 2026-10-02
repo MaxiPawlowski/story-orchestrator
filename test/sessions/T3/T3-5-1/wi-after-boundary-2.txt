@@ -1,0 +1,24 @@
+{
+  "ok": true,
+  "value": [
+    {
+      "uid": 0,
+      "comment": "Chronicle - About this book",
+      "disable": true,
+      "key": [
+        "adolion-chronicle-about"
+      ],
+      "content": "[This book holds what THIS campaign has changed about Adolion. Each entry starts in its pre-campaign state and is rewritten as play makes it untrue. Nothing here is statuotw's canon. House style: one short factual paragraph in the present tense, an Appearance line for anything that can be seen, keys that are names rather than common words.]"
+    },
+    {
+      "uid": 9,
+      "comment": "Chronicle - The Jiansho Tournament",
+      "disable": false,
+      "key": [
+        "Jiansho Tournament"
+      ],
+      "content": "This year's tournament in Hianxo is underway. The party entered as a group under Honami Nemaden's name and won their opening bout against the Mountain Silence of the Guao by a wide margin. They now face the Sunset Blooms, a veteran cultivator group, in the next round. The court is watching the tournament for signs of who will succeed Emperor Zhao."
+    }
+  ]
+}
+Wrote JSON: C:\dev\so-lanes\4\debug\2026-10-02T02-55-54-918Z_st-eval.json

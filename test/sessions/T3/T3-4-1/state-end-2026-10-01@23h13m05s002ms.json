@@ -1,0 +1,2453 @@
+{
+  "storyId": "adolion-aegis",
+  "activeCheckpointId": "aegis-victorys-tusk",
+  "boundary": 30,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Aegis Checkpoints": "global",
+      "Adolion Chronicle": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "aegis_examiner_watching": false,
+    "aegis_exam_declined": false,
+    "location": "aegis_victorys_tusk",
+    "aegis_exam_entered": true,
+    "tension_current": 0.09302676802499998,
+    "progress_toward_aegis-the-board": 2,
+    "party_injuries": 0,
+    "aegis_out_in_city": true,
+    "aegis_gear_needed": true,
+    "aegis_at_the_tusk": true,
+    "aegis_city_favour": 1,
+    "guild_reputation": 0,
+    "party_rank": 0,
+    "aegis_downtime": "orphanage",
+    "aegis_duel_settled": false,
+    "aegis_farm_called": false
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "182b3be5-8177-40b0-9f75-6a71f2bdc926",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 0,
+        "boundary": 1,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Party",
+      "tag": "knows",
+      "content": "The Guild will put them forward for the C-rank exam, with written terms and forms ready.",
+      "createdAt": 1,
+      "messageId": 0
+    },
+    {
+      "id": "361ae1f5-8668-44ef-97cf-d29d0b0167cc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kaianalor Wrightsteel",
+      "tag": "knows",
+      "content": "The Velvet Shadow in the Market District is run by a tiefling named Valerius who sells unrecorded cursed artifacts, experimental scrolls, and dangerous magic.",
+      "createdAt": 7,
+      "messageId": 10,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 10,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "6b41c956-7b6e-4561-9ba3-f55fda1655e6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kaianalor Wrightsteel",
+      "tag": "knows",
+      "content": "The gnome at The Oddity's Nest sells charms and baubles.",
+      "createdAt": 7,
+      "messageId": 10,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 10,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "b66edc5a-6cef-4dd5-8613-787d150b1f0b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Kaianalor Wrightsteel",
+      "tag": "hiding",
+      "content": "That he knows the Velvet Shadow and Valerius well enough to describe their inventory and clientele.",
+      "hiddenFrom": "everyone",
+      "createdAt": 7,
+      "messageId": 10,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 10,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "769bb821-237c-4afd-8477-01a9d61fc490",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kaianalor Wrightsteel",
+      "tag": "knows",
+      "content": "The Velvet Shadow is in the Market District, run by a tiefling named Valerius, who sells unrecorded cursed artifacts, experimental scrolls, and dangerous magic.",
+      "createdAt": 7,
+      "messageId": 10,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 12,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "71267199-4b2b-4d37-92cf-cc60f48389c9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Kaianalor Wrightsteel",
+      "tag": "hiding",
+      "content": "That he knows the Velvet Shadow and Valerius well enough to describe their inventory and clientele.",
+      "hiddenFrom": "everyone",
+      "createdAt": 7,
+      "messageId": 10,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 12,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "414de527-1540-4549-b839-c2732b8ea12a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Party",
+      "tag": "knows",
+      "content": "Kaian says 'The Velvet Shadow' is run by a tiefling named Valerius who sells unrecorded magic",
+      "createdAt": 8,
+      "messageId": 12,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 12,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "1ee6904f-1b5f-4e50-938a-2abdedb7fa4e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 8,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Party",
+      "tag": "knows",
+      "content": "The Oddity's Nest is a proper curio shop run by a gnome named Pimpernel",
+      "createdAt": 8,
+      "messageId": 12,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 12,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "5dfb2771-b198-4201-89b1-9e7e264ee39b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 8,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Kaianalor Wrightsteel",
+      "tag": "intends",
+      "content": "to direct the party toward The Velvet Shadow and its proprietor Valerius",
+      "createdAt": 8,
+      "messageId": 12,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 12,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "8019af1f-493a-4e5f-97e8-d219dcdd06ad",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Kaianalor Wrightsteel",
+      "tag": "hiding",
+      "content": "That he knows the Velvet Shadow and Valerius well enough to describe their inventory and clientele.",
+      "hiddenFrom": "everyone",
+      "createdAt": 9,
+      "messageId": 12
+    },
+    {
+      "id": "380fc2d9-8b97-4703-b3f5-ff735a70670a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Kaianalor Wrightsteel",
+      "tag": "intends",
+      "content": "to direct the party toward The Velvet Shadow and its proprietor Valerius",
+      "createdAt": 9,
+      "messageId": 12
+    },
+    {
+      "id": "77d8b959-b1f2-4cee-8b08-930476e5a7d4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "A cutpurse robbed Belle and escaped into the crowd.",
+      "createdAt": 10,
+      "messageId": 15,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 18,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "7c32a1a9-ace6-417f-b632-f0465148266e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Aegis Delights and Curios is run by Sophie.",
+      "createdAt": 10,
+      "messageId": 15,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 18,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "de596c54-b84a-4f4c-b91c-9914c5a7ccaf",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "knows",
+      "content": "Max and his party are shopping for exam gear at her shop",
+      "createdAt": 12,
+      "messageId": 17
+    },
+    {
+      "id": "a71e5b12-4c97-428b-949f-5fba06a15f27",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "knows",
+      "content": "Max, Belle and Dalan are sitting the C-rank promotion exam and are shopping for it",
+      "createdAt": 12,
+      "messageId": 18
+    },
+    {
+      "id": "48f9d9a8-0db4-40ac-ad0f-df82599356de",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "knows",
+      "content": "Max's party members are named Belle and Dalan",
+      "createdAt": 12,
+      "messageId": 18
+    },
+    {
+      "id": "4f64276d-ed4e-4edd-b86f-cd1ca6caae07",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Aegis Delights and Curios is run by Sophie",
+      "createdAt": 12,
+      "messageId": 18
+    },
+    {
+      "id": "2413c439-dec3-419a-add8-bac372b41e57",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 12,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "suspects",
+      "content": "Max's party is shopping for the C-rank exam without stating it outright",
+      "createdAt": 12,
+      "messageId": 18
+    },
+    {
+      "id": "5d1fba90-7e7a-4f31-8464-3a977cfca181",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 18,
+        "boundary": 12,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "hiding",
+      "content": "That she already knows their names and that they are Max's party members",
+      "hiddenFrom": "Belle and Dalan",
+      "createdAt": 12,
+      "messageId": 18
+    },
+    {
+      "id": "302c76a3-2b3e-4f73-ad0a-aed3838ac78c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Sophie Tallaboros has horns, scales and a tail and is not an ordinary shopkeeper",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "1a79c03b-08ea-460f-b535-3032ed66063a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Sophie is hiding what she really is",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "5390e17d-568b-4d5f-bf44-3966279a5d39",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "hiding",
+      "content": "her true nature, behind the claim that she is just a simple lizardkin",
+      "hiddenFrom": "Max Nightriver",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "51052756-5dd6-4205-b105-83bb3ab40d34",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "intends",
+      "content": "to sell the party its exam gear and keep her margins healthy",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "d582442d-7a7c-4adb-b69e-65715509bb29",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "knows",
+      "content": "Max asked Sophie what she really is and Sophie deflected with a claim of being a simple lizardkin",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "3c965680-2c0e-40b0-8913-2af73b800d28",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "suspects",
+      "content": "Sophie is not what she claims to be",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "2572cdaa-8371-4d07-b68b-f9a90dcea93a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "hiding",
+      "content": "that she is watching the exchange from the mezzanine shadows",
+      "hiddenFrom": "everyone",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "e43d78e4-f14d-4325-89fa-c8b011a89a93",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "believes",
+      "content": "Sophie is just a simple lizardkin",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "62fb4b51-632a-41e8-bc59-4bd1faa54977",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Calithra refuses Darklands jobs and left that place behind",
+      "createdAt": 15,
+      "messageId": 24
+    },
+    {
+      "id": "031595cc-c9a2-41d6-a1b6-fbfc899e6d40",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 15,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Calithra is a drow blade for hire living above the shop",
+      "createdAt": 15,
+      "messageId": 24
+    },
+    {
+      "id": "3a7628d1-fc1c-44ac-8f17-961e24aa4e9e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 15,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "suspects",
+      "content": "Sophie is not an ordinary lizardkin",
+      "createdAt": 15,
+      "messageId": 24
+    },
+    {
+      "id": "da69a471-039f-46a3-a927-cb9ff7af8fb4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 15,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "hiding",
+      "content": "her true nature, deflecting Max's question with a claim of being a simple lizardkin",
+      "hiddenFrom": "everyone",
+      "createdAt": 15,
+      "messageId": 24
+    },
+    {
+      "id": "96e3b5b2-a7d0-401a-96be-846576a64a9f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 15,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "intends",
+      "content": "to make proper introductions and give hugs to the party",
+      "createdAt": 15,
+      "messageId": 24
+    },
+    {
+      "id": "e0cad2c7-5d7c-4cf4-ae26-438c2ffbafaf",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 31,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "knows",
+      "content": "Max's party has heard of her reputation as a fine blade",
+      "createdAt": 16,
+      "messageId": 31
+    },
+    {
+      "id": "d2236878-2452-45ee-8dd7-f0a20cab0d65",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 31,
+        "boundary": 16,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "knows",
+      "content": "The party needs coin before the exam",
+      "createdAt": 16,
+      "messageId": 31
+    },
+    {
+      "id": "88e25302-4c05-44ca-8572-3bb2c8cf05e5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 31,
+        "boundary": 16,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "intends",
+      "content": "To trade a delivery job for a discount on the party's exam gear as a shrewd investment",
+      "createdAt": 16,
+      "messageId": 31,
+      "affirmedAt": [
+        {
+          "messageId": 34,
+          "boundary": 18
+        },
+        {
+          "messageId": 38,
+          "boundary": 20
+        }
+      ]
+    },
+    {
+      "id": "004df535-fe3a-445d-838c-3a2b6222fb30",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 31,
+        "boundary": 16,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "hiding",
+      "content": "Why she left the Darklands and refuses to return",
+      "hiddenFrom": "The Party",
+      "createdAt": 16,
+      "messageId": 31
+    },
+    {
+      "id": "6be98e74-f973-43f6-bd10-6d96296e3971",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 32,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "knows",
+      "content": "Sophie has three deliveries on offer and will discount the party's exam gear for one",
+      "createdAt": 17,
+      "messageId": 32
+    },
+    {
+      "id": "737af410-fcc1-4e43-ae47-1283944eb764",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 32,
+        "boundary": 17,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "knows",
+      "content": "the Rypanor Shrine is in the Temple District and Manako is a cow girl there",
+      "createdAt": 17,
+      "messageId": 32
+    },
+    {
+      "id": "8c1c8ba9-edf0-4c6c-987e-068e533dc178",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 32,
+        "boundary": 17,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "intends",
+      "content": "to make sure the party is properly geared before the exam",
+      "createdAt": 17,
+      "messageId": 32,
+      "affirmedAt": [
+        {
+          "messageId": 34,
+          "boundary": 18
+        }
+      ]
+    },
+    {
+      "id": "e0a3c739-3b44-4b72-a42a-f9bbdc666e3d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 34,
+        "boundary": 18,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "knows",
+      "content": "The party has taken the orphanage delivery for Sophie's discount.",
+      "createdAt": 18,
+      "messageId": 34,
+      "supersededBy": "retired@18",
+      "retiredAt": {
+        "messageId": 34,
+        "boundary": 18
+      }
+    },
+    {
+      "id": "53a0d86e-05ad-497b-b2b2-2231e427936e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 34,
+        "boundary": 18,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "knows",
+      "content": "The party has taken the orphanage delivery for her discount.",
+      "createdAt": 18,
+      "messageId": 34,
+      "supersededBy": "retired@18",
+      "retiredAt": {
+        "messageId": 34,
+        "boundary": 18
+      }
+    },
+    {
+      "id": "431a334e-716e-419d-b230-8b12a21ab5c0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 34,
+        "boundary": 18,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "knows",
+      "content": "The party has chosen the orphanage delivery and will head to the residential district.",
+      "createdAt": 18,
+      "messageId": 34,
+      "supersededBy": "retired@18",
+      "retiredAt": {
+        "messageId": 34,
+        "boundary": 18
+      }
+    },
+    {
+      "id": "b67fb7cb-bb84-4f34-93bf-4af447316236",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 34,
+        "boundary": 18,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "knows",
+      "content": "The orphanage delivery consists of bedding and supplies for the city's orphanage.",
+      "createdAt": 18,
+      "messageId": 34,
+      "supersededBy": "retired@20",
+      "retiredAt": {
+        "messageId": 38,
+        "boundary": 20
+      }
+    },
+    {
+      "id": "65596747-a15a-4ae6-8ee4-ac87a423acdd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 34,
+        "boundary": 18,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "knows",
+      "content": "The orphanage delivery consists of bedding and supplies for the city's orphanage.",
+      "createdAt": 18,
+      "messageId": 34,
+      "supersededBy": "retired@20",
+      "retiredAt": {
+        "messageId": 38,
+        "boundary": 20
+      }
+    },
+    {
+      "id": "6acfc446-2b89-4166-8668-48abae23664c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 34,
+        "boundary": 18,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "knows",
+      "content": "The three deliveries on offer are roof slates for the chapel of the Immortal Flame, bedding and supplies for the orphanage, and charm-wood for the shrine of the flame spirit Furabi.",
+      "createdAt": 18,
+      "messageId": 34,
+      "supersededBy": "retired@20",
+      "retiredAt": {
+        "messageId": 38,
+        "boundary": 20
+      }
+    },
+    {
+      "id": "3f874e00-2b07-4e28-a6b6-ccbb4eff1d91",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 34,
+        "boundary": 18,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "knows",
+      "content": "The three deliveries on offer are roof slates for the chapel of the Immortal Flame, bedding and supplies for the orphanage, and charm-wood for the shrine of the flame spirit Furabi.",
+      "createdAt": 18,
+      "messageId": 34,
+      "supersededBy": "retired@20",
+      "retiredAt": {
+        "messageId": 38,
+        "boundary": 20
+      }
+    },
+    {
+      "id": "874a7538-c034-4856-adaf-6183b30adc5f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "knows",
+      "content": "The orphanage is near the residential district and the monks' chapel is easy to find by the smell of incense.",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "589637de-02ed-4b57-a8f8-b4af6e4a0e86",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Calithra",
+      "tag": "intends",
+      "content": "to ensure the party is properly geared before the exam, not looking like they crawled out of a ditch.",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "a993d77f-9902-4b80-8b9a-b6a1184219f4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "knows",
+      "content": "The three deliveries on offer are roof slates for the chapel of the Immortal Flame, bedding and supplies for the orphanage, and charm-wood for the shrine of the flame spirit Furabi.",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "38ca4ff9-a11d-4922-91c6-bb4151e6803e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 38,
+        "boundary": 20,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sophie",
+      "tag": "knows",
+      "content": "Manako at the Rypanor Shrine has been asking for the charm-wood for weeks.",
+      "createdAt": 20,
+      "messageId": 38
+    },
+    {
+      "id": "08cfa665-3903-4e43-9bc4-5d72ce0324d8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 40,
+        "boundary": 21,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The orphanage needs more food and its heating charms are wearing thin",
+      "createdAt": 21,
+      "messageId": 40
+    },
+    {
+      "id": "d3118b38-9f44-4a1e-9240-4515cd000dfd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 41,
+        "boundary": 22,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "hiding",
+      "content": "that the orphanage needs more food and the heating charms are wearing thin, framing it as \"asking strangers for more is a bit much.\"",
+      "hiddenFrom": "The Party",
+      "createdAt": 22,
+      "messageId": 41,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 43,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "17d1b562-059d-46ff-8b66-6eea517ed41a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 41,
+        "boundary": 22,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "intends",
+      "content": "to find a way to repay the party for helping the orphanage's children.",
+      "createdAt": 22,
+      "messageId": 41,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 43,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "fd32d586-e3aa-4069-98d3-33e598d7bf6e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 43,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "knows",
+      "content": "The party delivered Sophie's blankets to the orphanage and helped make the beds",
+      "createdAt": 23,
+      "messageId": 43,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 43,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "5b1d3b09-381f-42e3-acd3-1725c947cffb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 43,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "knows",
+      "content": "The party delivered Sophie's blankets and helped make up the children's beds.",
+      "createdAt": 23,
+      "messageId": 43,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 43,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "ae7d0500-775e-479f-9c70-81828b7a7cf0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 43,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "knows",
+      "content": "The orphanage needs more food and the heating spell charms are wearing thin.",
+      "createdAt": 23,
+      "messageId": 43,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 43,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "d6fdc187-1ce1-45c2-8280-1bd175089656",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 43,
+        "boundary": 23,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "hiding",
+      "content": "that the orphanage needs more food and the heating charms are wearing thin, framing it as \"asking strangers for more is a bit much.\"",
+      "hiddenFrom": "The Party",
+      "createdAt": 23,
+      "messageId": 43,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 43,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "9e11ff28-7901-42c7-a45f-b7c5a345bba6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 43,
+        "boundary": 23,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "intends",
+      "content": "to find a way to repay the party for helping the orphanage's children.",
+      "createdAt": 23,
+      "messageId": 43,
+      "supersededBy": "retired@23",
+      "retiredAt": {
+        "messageId": 43,
+        "boundary": 23
+      }
+    },
+    {
+      "id": "ef6a93ca-fd86-4937-8d6c-10fbc14ba58e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 43,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "knows",
+      "content": "The party delivered Sophie's blankets and helped make up the children's beds.",
+      "createdAt": 23,
+      "messageId": 43,
+      "supersededBy": "retired@24",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 24
+      }
+    },
+    {
+      "id": "c060fe7a-5a7e-42ca-b418-233959171c14",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 43,
+        "boundary": 23,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "knows",
+      "content": "The orphanage needs more food and the heating spell charms are wearing thin.",
+      "createdAt": 23,
+      "messageId": 43,
+      "supersededBy": "retired@24",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 24
+      }
+    },
+    {
+      "id": "71f19f8d-c4dc-4c1f-8966-720c59ce0774",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 43,
+        "boundary": 23,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "hiding",
+      "content": "that the orphanage needs more food and the heating charms are wearing thin, framing it as \"asking strangers for more is a bit much.\"",
+      "hiddenFrom": "The Party",
+      "createdAt": 23,
+      "messageId": 43,
+      "supersededBy": "retired@24",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 24
+      }
+    },
+    {
+      "id": "16425d54-f839-443f-9b1d-e9fde795a5b3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 43,
+        "boundary": 23,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "intends",
+      "content": "to find a way to repay the party for helping the orphanage's children.",
+      "createdAt": 23,
+      "messageId": 43,
+      "supersededBy": "retired@24",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 24
+      }
+    },
+    {
+      "id": "f9848652-81f5-4010-a333-1578d2814014",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "knows",
+      "content": "The party delivered blankets and made up the orphanage beds.",
+      "createdAt": 24,
+      "messageId": 44,
+      "supersededBy": "retired@24",
+      "retiredAt": {
+        "messageId": 44,
+        "boundary": 24
+      }
+    },
+    {
+      "id": "5ce24aca-0cbe-4427-af17-47e00867b2be",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "knows",
+      "content": "The party delivered Sophie's blankets and helped make up the children's beds.",
+      "createdAt": 24,
+      "messageId": 44
+    },
+    {
+      "id": "56accc18-cda2-48e3-b933-e67cafb003d7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "knows",
+      "content": "The orphanage needs more food and the heating spell charms are wearing thin.",
+      "createdAt": 24,
+      "messageId": 44
+    },
+    {
+      "id": "2781ca4d-c467-41f7-a6b3-fd900d61c979",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "hiding",
+      "content": "that the orphanage needs more food and the heating charms are wearing thin, framing it as \"asking strangers for more is a bit much.\"",
+      "hiddenFrom": "The Party",
+      "createdAt": 24,
+      "messageId": 44
+    },
+    {
+      "id": "2abeee33-b90e-4d40-9c25-4b2a0e9a5372",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "intends",
+      "content": "to find a way to repay the party for helping the orphanage's children.",
+      "createdAt": 24,
+      "messageId": 44
+    },
+    {
+      "id": "acb9ecfa-5cf8-4dc9-abf9-10d24c22e7ee",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle wants to drink at Victory's Game.",
+      "createdAt": 24,
+      "messageId": 44,
+      "supersededBy": "retired@26",
+      "retiredAt": {
+        "messageId": 45,
+        "boundary": 26
+      }
+    },
+    {
+      "id": "2ad81909-28b3-4456-af5e-cfdb252ca93b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To go along with the party to drink, but avoid fighting.",
+      "createdAt": 24,
+      "messageId": 44,
+      "supersededBy": "retired@26",
+      "retiredAt": {
+        "messageId": 45,
+        "boundary": 26
+      }
+    },
+    {
+      "id": "9c9291ad-d67c-4f41-946d-5da82a6bf14e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Celeste",
+      "tag": "knows",
+      "content": "The party delivered blankets and made up the orphanage beds.",
+      "createdAt": 24,
+      "messageId": 44
+    },
+    {
+      "id": "c54bf790-8b5a-49e3-a67c-046dc094f381",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To drink heavily and find brawlers at Victory's Game.",
+      "createdAt": 24,
+      "messageId": 44,
+      "supersededBy": "retired@26",
+      "retiredAt": {
+        "messageId": 45,
+        "boundary": 26
+      }
+    },
+    {
+      "id": "3608ad49-ba2a-41d0-a95d-04d52ba6147c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The barkeep at Victory's Game is named Gordo and she has a tab there.",
+      "createdAt": 24,
+      "messageId": 44,
+      "supersededBy": "retired@26",
+      "retiredAt": {
+        "messageId": 45,
+        "boundary": 26
+      }
+    },
+    {
+      "id": "2981d3d0-1179-4692-b80d-8e24a93e3287",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Victory's Game is the tavern the party chose, and she ordered a round on her tab.",
+      "createdAt": 24,
+      "messageId": 44,
+      "supersededBy": "retired@26",
+      "retiredAt": {
+        "messageId": 45,
+        "boundary": 26
+      }
+    },
+    {
+      "id": "5c94db7c-0c0a-4b73-9f31-f045bc32fd2e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle has a tab at Victory's Game and knows the barkeep Gordo.",
+      "createdAt": 24,
+      "messageId": 44,
+      "supersededBy": "retired@26",
+      "retiredAt": {
+        "messageId": 45,
+        "boundary": 26
+      }
+    },
+    {
+      "id": "9c33a6d1-1bc0-4d31-931b-34d117f1bd39",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party is going to Victory's Game for a round and a table.",
+      "createdAt": 24,
+      "messageId": 44,
+      "supersededBy": "retired@26",
+      "retiredAt": {
+        "messageId": 45,
+        "boundary": 26
+      }
+    },
+    {
+      "id": "b1702203-6d3c-4092-aeec-e27c24ff0823",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Dalan asked not to be made to fight.",
+      "createdAt": 24,
+      "messageId": 44,
+      "supersededBy": "retired@26",
+      "retiredAt": {
+        "messageId": 45,
+        "boundary": 26
+      }
+    },
+    {
+      "id": "28bb3d7f-9353-444e-8117-c3470b090e2c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle ordered the usual for herself and something strong for her companions.",
+      "createdAt": 24,
+      "messageId": 44,
+      "supersededBy": "retired@26",
+      "retiredAt": {
+        "messageId": 45,
+        "boundary": 26
+      }
+    },
+    {
+      "id": "c0a101df-6938-4527-ab85-6a96f009c44a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 44,
+        "boundary": 24,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Dalan is uneasy about loud taverns and being stared at.",
+      "createdAt": 24,
+      "messageId": 44
+    },
+    {
+      "id": "ddc89d61-7bc8-41bc-984b-aef446e116ec",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 26,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To drink heavily and find a fight at Victory's Tusk.",
+      "createdAt": 26,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "0ea6a8e4-fb02-48fb-90b5-8395dd541355",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 26,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To have a drink without being made to fight or stared at.",
+      "createdAt": 26,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "8c6747d1-a617-43cf-a781-d6a05ead4b5f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 26,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Victory's Game is near the market district.",
+      "createdAt": 26,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "af38c984-12d7-491a-a6d7-817b38b95dfd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 26,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Victory's Game is where she lives and fights most often, with cold ale and plentiful brawlers.",
+      "createdAt": 26,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "b73fd0fc-6f85-4ad1-95d2-7b0e92ee343e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 26,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle wants to drink at Victory's Game.",
+      "createdAt": 26,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "4e14050b-04d9-4fc8-a248-0de6b7ad6d63",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 26,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To go drinking at Victory's Game and drink heavily.",
+      "createdAt": 26,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "9e0f0381-ea60-4aa7-9cca-73da6f32155d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 26,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To go along with the party to drink, but avoid fighting.",
+      "createdAt": 26,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "46b77bba-aab1-437d-8c74-2581989eae61",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 26,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The barkeep at Victory's Game is named Gordo and she has a tab there.",
+      "createdAt": 26,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "a6e3f11a-a119-42b9-b1ed-b0b1986b84e4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 26,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle has a tab at Victory's Game and knows the barkeep Gordo.",
+      "createdAt": 26,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "c8ff23d4-8bab-4f86-83a0-9a9bd7cc0c75",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 26,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Dalan asked not to be made to fight.",
+      "createdAt": 26,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "e8089eae-579a-4261-a158-faae77c20e5d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 26,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle ordered the usual for herself and something strong for her companions.",
+      "createdAt": 26,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "cd578513-c292-4802-8e22-f69c26fa1bd7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 26,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "believes",
+      "content": "The tavern is named Victory's Tusk.",
+      "createdAt": 26,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "6ad31b3c-9a45-4130-8f1d-d3e3f97984dc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 45,
+        "boundary": 26,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "believes",
+      "content": "The tavern is named Victory's Tusk.",
+      "createdAt": 26,
+      "messageId": 45,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "71ac62b2-ff2b-4adc-b878-171bde73aa83",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Dalan does not want to be made to fight at the tavern",
+      "createdAt": 28,
+      "messageId": 48,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "1b7200c4-22b9-4035-a7de-ab5028f9667a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Dalan does not want to be made to fight at the tavern",
+      "createdAt": 28,
+      "messageId": 48,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "17313ae8-94b0-4498-a10b-d9fb4e71b28f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "to drink her usual and get the party a round at Victory's Tusk",
+      "createdAt": 28,
+      "messageId": 48,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "2e8ad4ac-0270-4650-a13e-f2f85bf603a1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "to drink somewhere quieter and avoid being stared at or made to fight",
+      "createdAt": 28,
+      "messageId": 48,
+      "supersededBy": "retired@28",
+      "retiredAt": {
+        "messageId": 48,
+        "boundary": 28
+      }
+    },
+    {
+      "id": "8064e8a9-06d2-44b2-9794-7a3fff85efa3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 49,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kass",
+      "tag": "knows",
+      "content": "the party's reputation and that a C-rank posting is about to drop",
+      "createdAt": 28,
+      "messageId": 49
+    },
+    {
+      "id": "be2957ee-6a6e-478a-a9b7-56c6a7d82a40",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 49,
+        "boundary": 28,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Kass",
+      "tag": "intends",
+      "content": "to trade songs and stories for rumours and coin with the party",
+      "createdAt": 28,
+      "messageId": 49
+    },
+    {
+      "id": "a83c7834-4129-4a0d-a008-a07ca4dac82a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The tavern is named Victory's Game, not Victory's Tusk.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "0f37bdc8-d388-4461-ba99-d8c030a67156",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The barkeep is Gordo and she has a tab there.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "6a96b078-bc8c-4c7a-be42-759cb0899415",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Dalan asked not to be made to fight.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "47b3e879-db42-46e1-8316-574634214808",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle ordered the usual for herself and something strong for her companions.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "5e1065b0-222c-429b-ab94-6b9d06a9e96d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle wants to drink at Victory's Game.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "12709a4b-3d16-4c21-9d12-687ba2298483",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Victory's Game is near the market district.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "89c3f8af-213d-4f81-9f65-9dca0c97d6d4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Victory's Game is where she lives and fights most often, with cold ale and plentiful brawlers.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "0ce158d3-3bd9-4f5c-bb56-1405c6465483",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The centaur at the far table is a tavern-crawler from the High Plains and there may be coin in the north.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "2496f1a5-c790-456a-a4dc-19b20f212338",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The kitsune bard trades songs and stories for rumours and coin.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "ae8026bd-6d1b-4cd3-9b89-f51bc8deca17",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle ordered a round on her tab at Victory's Game.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "09ac0d2a-657a-489e-8e55-3feb861b3637",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle knows the barkeep Gordo.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "6a30abe2-2d99-49f2-bfa9-4ea3df8016c6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle intends to find a fight at Victory's Game.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "a7247606-9e2f-4a9b-b6c0-d9c711b22f4e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The tavern has a kitsune bard who trades songs and stories for rumours and coin.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "b1521db2-2207-4aa4-bef1-58cd4db70579",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "A centaur adventurer from the High Plains is at the far table.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "3bad972f-d781-4a6c-a8e1-7def9db3c976",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Max wants to know who is worth knowing in the tavern tonight.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "bd500035-4b4d-4418-a0d6-62e2d1d952a3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Max wants to know who is worth knowing in the tavern tonight.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "7b016518-b944-42fb-891b-fe56aa2a4cab",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "believes",
+      "content": "The tavern is named Victory's Tusk.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "0a632135-1008-4193-99da-d1bb876648fe",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "believes",
+      "content": "The tavern is named Victory's Tusk.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "8a2f6172-fd31-4a03-a170-5c801a8695f4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "hiding",
+      "content": "That she intends to find a fight at Victory's Game.",
+      "hiddenFrom": "Dalan",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "bc3c8a29-cfb7-461d-871e-a93a711d50c7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "hiding",
+      "content": "That he is uneasy about loud taverns and being stared at.",
+      "hiddenFrom": "Belle",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "5cd69bed-f3a7-4c42-b43a-55ac789c0ed9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To have a drink without being made to fight or stared at.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "884c4860-7869-4a5f-bd28-4e9826cad53e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 48,
+        "boundary": 28,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To go along with the party to drink, but avoid fighting.",
+      "createdAt": 28,
+      "messageId": 48
+    },
+    {
+      "id": "97fb9d8b-7764-4404-b457-043f1f8e7597",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 52,
+        "boundary": 30,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Kass says a C-rank posting is about to drop for a party with the party's reputation",
+      "createdAt": 30,
+      "messageId": 52
+    },
+    {
+      "id": "2869c825-2e73-41d6-9ef2-58a4e6144bc6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 52,
+        "boundary": 30,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Naomi Moonlight has accepted her challenge",
+      "createdAt": 30,
+      "messageId": 52
+    },
+    {
+      "id": "070ee693-f5c2-41e2-9a6b-3e4fa25106f3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 52,
+        "boundary": 30,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Naomi",
+      "tag": "knows",
+      "content": "Belle has accepted the challenge in the hall",
+      "createdAt": 30,
+      "messageId": 52
+    },
+    {
+      "id": "aaf99745-c746-4737-ac96-9d6a5c2555b3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 52,
+        "boundary": 30,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Kashina",
+      "tag": "knows",
+      "content": "Naomi has a challenger in Belle",
+      "createdAt": 30,
+      "messageId": 52
+    },
+    {
+      "id": "2d049e5b-8eef-4987-9fbf-b09f117d36ce",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 52,
+        "boundary": 30,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Kass",
+      "tag": "intends",
+      "content": "to take bets on who draws blood first",
+      "createdAt": 30,
+      "messageId": 52
+    },
+    {
+      "id": "aeec12b2-2579-45fe-9fd1-47c08fc4638c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 52,
+        "boundary": 30,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Thorrin is back from the Velniran Peaks with silver and a fire-breathing cave story",
+      "createdAt": 30,
+      "messageId": 52
+    },
+    {
+      "id": "abbca9c6-5874-449f-b4bc-1b0fa0692aab",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 52,
+        "boundary": 30,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Yrelra is a shy blue-haired woman who can cast a fireball",
+      "createdAt": 30,
+      "messageId": 52
+    },
+    {
+      "id": "b50b1e0f-ff14-4a52-9bfa-54c21d9c737e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 52,
+        "boundary": 30,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "to fight whoever accepts her open challenge in the hall",
+      "createdAt": 30,
+      "messageId": 52
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 4,
+      "name": "Akari",
+      "avatar": "Akari.png"
+    },
+    {
+      "index": 6,
+      "name": "Alarise",
+      "avatar": "Alarise.png"
+    },
+    {
+      "index": 14,
+      "name": "Arryn",
+      "avatar": "Arryn.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 24,
+      "name": "Calithra",
+      "avatar": "Calithra.png"
+    },
+    {
+      "index": 30,
+      "name": "Celedir",
+      "avatar": "Celedir.png"
+    },
+    {
+      "index": 31,
+      "name": "Celeste",
+      "avatar": "Celeste.png"
+    },
+    {
+      "index": 33,
+      "name": "Dahlia",
+      "avatar": "Dahlia.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 40,
+      "name": "Diosanea",
+      "avatar": "Diosanea.png"
+    },
+    {
+      "index": 41,
+      "name": "Dixton",
+      "avatar": "Dixton.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 58,
+      "name": "Grant",
+      "avatar": "Grant.png"
+    },
+    {
+      "index": 68,
+      "name": "Jasira",
+      "avatar": "Jasira.png"
+    },
+    {
+      "index": 72,
+      "name": "Kaian",
+      "avatar": "Kaian.png"
+    },
+    {
+      "index": 77,
+      "name": "Karia",
+      "avatar": "Karia.png"
+    },
+    {
+      "index": 78,
+      "name": "Karos",
+      "avatar": "Karos.png"
+    },
+    {
+      "index": 79,
+      "name": "Karrus",
+      "avatar": "Karrus.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 81,
+      "name": "Kass",
+      "avatar": "Kass.png"
+    },
+    {
+      "index": 86,
+      "name": "Konako",
+      "avatar": "Konako.png"
+    },
+    {
+      "index": 89,
+      "name": "Liora",
+      "avatar": "Liora.png"
+    },
+    {
+      "index": 90,
+      "name": "Lirael",
+      "avatar": "Lirael.png"
+    },
+    {
+      "index": 95,
+      "name": "Manako",
+      "avatar": "Manako.png"
+    },
+    {
+      "index": 99,
+      "name": "Mina",
+      "avatar": "Mina.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 111,
+      "name": "Oswyn",
+      "avatar": "Oswyn.png"
+    },
+    {
+      "index": 112,
+      "name": "Panne",
+      "avatar": "Panne.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 122,
+      "name": "Rosea",
+      "avatar": "Rosea.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 125,
+      "name": "Ryenne",
+      "avatar": "Ryenne.png"
+    },
+    {
+      "index": 137,
+      "name": "Sophie",
+      "avatar": "Sophie.png"
+    },
+    {
+      "index": 150,
+      "name": "Thorne",
+      "avatar": "Thorne.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    },
+    {
+      "index": 159,
+      "name": "Yrelra",
+      "avatar": "Yrelra.png"
+    }
+  ],
+  "payloadEpoch": "1790907196060-1r5gkl"
+}

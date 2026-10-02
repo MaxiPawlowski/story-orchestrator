@@ -1,0 +1,2071 @@
+{
+  "charter": "T3-4",
+  "tier": "T3",
+  "title": "Spoiler hunt",
+  "number": 1,
+  "dir": "test/sessions/T3/T3-4-1",
+  "lane": 2,
+  "laneUrl": "http://127.0.0.1:8102/",
+  "story": {
+    "kind": "adolion",
+    "id": "adolion-aegis"
+  },
+  "mode": "player",
+  "startedAt": "2026-10-02T02:13:16.413Z",
+  "playFrom": "2026-10-02T02:13:12.402Z",
+  "stoppedAt": "2026-10-02T02:48:08.875Z",
+  "build": {
+    "flavor": "dev",
+    "bundleSha256": "7a1e95c3c47cc9937c273dde794c5f8be04385d9b0137bf58468f451081f48ba",
+    "version": "2.4.0",
+    "builtAt": "2026-10-02T02:02:37.057Z",
+    "sourceSha256": "071454d9752350b3ab2f7621f2ddb8cc7eae1cdda5d2ddef2719da671328cdcc",
+    "laneCampaign": "884380b627f3a36fd09ab81b0fe8f8c75e03268e",
+    "indexCommit": "884380b627f3a36fd09ab81b0fe8f8c75e03268e"
+  },
+  "pids": {
+    "journal": 82928,
+    "payloads": 69780,
+    "console": 85564
+  },
+  "viewport": null,
+  "settingsPatch": {
+    "image": {
+      "enabled": false
+    },
+    "sprites": {
+      "enabled": false,
+      "explicit": true
+    },
+    "display": {
+      "inline": {
+        "level": 2
+      }
+    }
+  },
+  "settings": {
+    "baselineVersion": 1,
+    "chain": [
+      "T3-4"
+    ],
+    "effective": "effective-settings.json"
+  },
+  "media": {
+    "variant": "full",
+    "images": false,
+    "sprites": false,
+    "unexercised": [],
+    "prerenderedSprites": 0
+  },
+  "arm": null,
+  "logOffset": 208289768,
+  "host": {
+    "swipes": true
+  },
+  "presetOverlay": {
+    "sha256": "4af4006b7801cf18a349784c42f9653c75ca5acdf3bdceea6954a9f326dc12fe",
+    "applied": true,
+    "reason": null,
+    "seededAt": "2026-10-02T02:03:59.029Z",
+    "edits": [
+      {
+        "kind": "instruct",
+        "preset": "Gemma 4",
+        "key": "last_output_sequence",
+        "after": "<|turn>model\n<|channel>thought\n<channel|>",
+        "mirrored": true
+      },
+      {
+        "kind": "instruct",
+        "preset": "Gemma 4",
+        "key": "sequences_as_stop_strings",
+        "after": false,
+        "mirrored": true
+      },
+      {
+        "kind": "textgen",
+        "preset": "Artemis v1.1 RP",
+        "key": "samplers",
+        "after": [
+          "min_p",
+          "penalties",
+          "dry",
+          "top_n_sigma",
+          "top_k",
+          "typ_p",
+          "tfs_z",
+          "typical_p",
+          "xtc",
+          "top_p",
+          "adaptive_p",
+          "temperature"
+        ],
+        "mirrored": true
+      }
+    ],
+    "live": {
+      "instruct": {
+        "preset": "Gemma 4",
+        "last_output_sequence": "<|turn>model\n<|channel>thought\n<channel|>",
+        "sequences_as_stop_strings": false
+      },
+      "textgen": {
+        "preset": "Artemis v1.1 RP",
+        "samplers": [
+          "min_p",
+          "penalties",
+          "dry",
+          "top_n_sigma",
+          "top_k",
+          "typ_p",
+          "tfs_z",
+          "typical_p",
+          "xtc",
+          "top_p",
+          "adaptive_p",
+          "temperature"
+        ]
+      }
+    }
+  },
+  "judgeRate": {
+    "perMinute": 36,
+    "lanes": 5,
+    "running": [
+      1,
+      2,
+      3,
+      4,
+      5
+    ],
+    "account": 90,
+    "source": "derived",
+    "loaded": 36
+  },
+  "pin": {
+    "profile": "Artemis RunPod RP",
+    "orchestrator": "deepseek",
+    "judge": "on",
+    "verdict": {
+      "ok": true,
+      "problems": []
+    },
+    "probe": {
+      "profile": "Artemis RunPod RP",
+      "ok": true,
+      "ms": 647,
+      "text": "\nPONG",
+      "error": null
+    },
+    "routing": {
+      "main": {
+        "selectedProfileId": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+        "selectedProfileName": "Artemis RunPod RP",
+        "mainApi": "textgenerationwebui",
+        "onlineStatus": "/workspace/models/TheDrummer_Artemis-31B-v1.1-Q4_K_M.gguf"
+      },
+      "profiles": [
+        {
+          "id": "beba5264-4e69-4554-9ef0-8749f1caa0bb",
+          "name": "Artemis Local (Unsloth)",
+          "api": "generic",
+          "model": "TheDrummer/Artemis-31B-v1.1-GGUF",
+          "url": "http://127.0.0.1:18888",
+          "fields": {
+            "id": "beba5264-4e69-4554-9ef0-8749f1caa0bb",
+            "mode": "tc",
+            "exclude": [],
+            "api": "generic",
+            "preset": "Artemis v1.1 RP",
+            "api-url": "http://127.0.0.1:18888",
+            "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+            "sysprompt-state": "true",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Artemis Local (Unsloth)",
+            "model": "TheDrummer/Artemis-31B-v1.1-GGUF"
+          }
+        },
+        {
+          "id": "b907b9ce-a720-4858-8ff1-fbe604169a24",
+          "name": "Artemis RunPod",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "b907b9ce-a720-4858-8ff1-fbe604169a24",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+            "sysprompt-state": "true",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Artemis RunPod",
+            "preset": "Artemis v1.1 RP"
+          }
+        },
+        {
+          "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+          "name": "Artemis RunPod RP",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "4581c7d9-c5fc-40f2-a994-fb4ba435c542",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "preset": "Artemis v1.1 RP",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt": "Sphiratrioth - Roleplay - 3rd person",
+            "sysprompt-state": "true",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Artemis RunPod RP"
+          }
+        },
+        {
+          "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "name": "deepseek 4.1 flash",
+          "api": "deepseek",
+          "model": "deepseek-flash",
+          "url": null,
+          "fields": {
+            "id": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+            "mode": "cc",
+            "exclude": [],
+            "api": "deepseek",
+            "model": "deepseek-flash",
+            "name": "deepseek 4.1 flash"
+          }
+        },
+        {
+          "id": "68422a21-7c97-4af8-a1ca-bbe44d83d138",
+          "name": "Image Director",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "68422a21-7c97-4af8-a1ca-bbe44d83d138",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "preset": "Artemis Extraction",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt-state": "false",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Image Director"
+          }
+        },
+        {
+          "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+          "name": "Story Orchestrator Memory RunPod",
+          "api": "llamacpp",
+          "model": null,
+          "url": "http://127.0.0.1:18080",
+          "fields": {
+            "id": "c400ff9a-4fc7-4012-b095-ba1b4f40c0e5",
+            "mode": "tc",
+            "exclude": [],
+            "api": "llamacpp",
+            "preset": "Artemis Extraction",
+            "api-url": "http://127.0.0.1:18080",
+            "sysprompt-state": "false",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Story Orchestrator Memory RunPod"
+          }
+        },
+        {
+          "id": "55f61212-a59e-4bf3-9dcd-4029845293c4",
+          "name": "Story Orchestrator Memory Unsloth",
+          "api": "generic",
+          "model": "TheDrummer/Artemis-31B-v1.1-GGUF",
+          "url": "http://127.0.0.1:18888",
+          "fields": {
+            "id": "55f61212-a59e-4bf3-9dcd-4029845293c4",
+            "mode": "tc",
+            "exclude": [],
+            "api": "generic",
+            "preset": "Artemis Extraction",
+            "api-url": "http://127.0.0.1:18888",
+            "sysprompt-state": "false",
+            "instruct": "Gemma 4",
+            "context": "Gemma 4",
+            "instruct-state": "true",
+            "stop-strings": "[]",
+            "start-reply-with": "",
+            "reasoning-template": "Gemma 4",
+            "name": "Story Orchestrator Memory Unsloth",
+            "model": "TheDrummer/Artemis-31B-v1.1-GGUF"
+          }
+        }
+      ],
+      "roles": [
+        {
+          "role": "read",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "synthesis",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "authoring",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "director",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "curator",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "untested",
+          "effort": "default",
+          "reasoning": null
+        },
+        {
+          "role": "inner",
+          "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+          "profileName": "deepseek 4.1 flash",
+          "state": "fallback",
+          "effort": "default",
+          "reasoning": null
+        }
+      ],
+      "judge": {
+        "enabled": true,
+        "uses": {
+          "director": true,
+          "memoryVerify": true,
+          "memoryPairs": true,
+          "sceneTrigger": true,
+          "sceneTracker": true,
+          "lookahead": true,
+          "loreSelect": true,
+          "curatorFilter": true,
+          "typedExtraction": true,
+          "stallCheck": true,
+          "expansionCritic": true,
+          "expansionLookahead": true,
+          "agencyCheck": true,
+          "houseRules": false,
+          "wardenLore": true,
+          "loreExclusive": true,
+          "expressions": true
+        },
+        "provider": {
+          "director": "typesafe",
+          "memoryVerify": "typesafe",
+          "memoryPairs": "typesafe",
+          "sceneTrigger": "typesafe",
+          "sceneTracker": "typesafe",
+          "lookahead": "typesafe",
+          "loreSelect": "typesafe",
+          "curatorFilter": "typesafe",
+          "typedExtraction": "typesafe",
+          "stallCheck": "typesafe",
+          "expansionCritic": "typesafe",
+          "expansionLookahead": "typesafe",
+          "agencyCheck": "typesafe",
+          "houseRules": "typesafe",
+          "wardenLore": "typesafe",
+          "loreExclusive": "typesafe",
+          "expressions": "typesafe",
+          "warden": "typesafe"
+        },
+        "pluginHttp": 200,
+        "keyPresent": true
+      },
+      "reasoning": {
+        "budget": "default",
+        "powerUser": {
+          "name": "Gemma 4",
+          "auto_parse": true,
+          "add_to_prompts": false,
+          "auto_expand": false,
+          "show_hidden": false,
+          "prefix": "<|channel>thought\n",
+          "suffix": "<channel|>",
+          "separator": "\n\n",
+          "max_additions": 1
+        }
+      }
+    }
+  },
+  "age": null,
+  "premise": null,
+  "continuedAtPin": null,
+  "chatsBefore": [
+    {
+      "chatId": "2024-10-27@09h04m05s",
+      "group": "Group: Adventure Awaits!",
+      "groupId": "1703513523027"
+    },
+    {
+      "chatId": "2023-12-30@07h37m27s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #3 - 2023-12-30@07h49m03s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #4 - 2023-12-30@07h49m58s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #7 - 2023-12-30@08h34m59s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #9 - 2023-12-30@08h38m48s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #9 - 2023-12-30@08h43m16s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #10 - 2023-12-30@08h46m02s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #12 - 2023-12-30@09h04m17s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #37 - 2024-1-7@07h44m27s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #38 - 2024-1-7@08h07m14s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #37 - 2024-1-7@08h07m21s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h16m07s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h16m50s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h21m35s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h26m16s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h50m34s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h54m44s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #40 - 2024-1-7@08h57m26s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@09h01m01s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h07m39s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h13m12s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h14m18s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h21m12s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h24m17s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #39 - 2024-1-7@11h24m55s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #44 - 2024-1-8@07h46m49s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "Branch #35 - 2024-1-11@08h47m04s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "2024-10-25@16h35m36s",
+      "group": "Dm group",
+      "groupId": "1703932647585"
+    },
+    {
+      "chatId": "2025-10-05@06h12m53s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-19@03h33m31s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "Branch #1 - 2025-10-19@03h36m00s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-19@07h16m29s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-24@12h14m56s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-24@17h18m15s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "Branch #5 - 2025-10-24@17h19m22s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2025-10-27@20h24m15s",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-02-17@11h42m56s913ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-03-26@12h06m12s510ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-03-26@12h08m16s199ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-05@22h24m53s198ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-05@22h55m21s034ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-07-06@05h51m54s748ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h45m42s515ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h48m58s737ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h52m33s971ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@20h54m33s414ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h31m08s263ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h50m22s390ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-11@21h57m58s240ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h43m15s689ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h43m40s089ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@02h54m21s833ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@03h56m01s832ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@03h56m31s664ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@08h08m11s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@10h03m45s492ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h43m26s486ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h44m44s165ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-12@11h49m39s901ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@04h14m58s603ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@04h27m07s632ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@05h41m21s356ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h05m16s093ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h12m05s775ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h12m19s409ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h14m25s652ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h15m25s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h19m36s454ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h23m47s982ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h26m46s401ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h26m57s965ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h37m51s942ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-08-13@06h54m40s955ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-19@22h52m47s460ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@03h36m38s982ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@03h37m03s927ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h09m30s254ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h11m21s482ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h11m46s225ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h34m19s453ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@04h40m32s180ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-09-20@07h06m38s396ms",
+      "group": "Group: Arin, DM Narrator",
+      "groupId": "1759606632088"
+    },
+    {
+      "chatId": "2026-10-01@23h06m28s934ms",
+      "group": "Adolion - House Nightriver",
+      "groupId": "1790906789151"
+    },
+    {
+      "chatId": "2026-10-01@23h06m29s193ms",
+      "group": "Adolion - The Adventurer's Road",
+      "groupId": "1790906789230"
+    },
+    {
+      "chatId": "2026-10-01@23h06m29s239ms",
+      "group": "Adolion - Between the Roads",
+      "groupId": "1790906789984"
+    },
+    {
+      "chatId": "2026-10-01@23h06m30s005ms",
+      "group": "Adolion - Crimsonwing & Ebonwing",
+      "groupId": "1790906790049"
+    },
+    {
+      "chatId": "2026-10-01@23h06m30s079ms",
+      "group": "Adolion - The Eastern Road",
+      "groupId": "1790906790199"
+    },
+    {
+      "chatId": "2026-10-01@23h06m30s218ms",
+      "group": "Adolion - Eshalanore",
+      "groupId": "1790906790500"
+    },
+    {
+      "chatId": "2026-10-01@23h06m30s520ms",
+      "group": "Adolion - Night Courts",
+      "groupId": "1790906790573"
+    },
+    {
+      "chatId": "2026-10-01@23h06m30s606ms",
+      "group": "Adolion - The Saga",
+      "groupId": "1790906790873"
+    },
+    {
+      "chatId": "2026-10-01@23h06m31s115ms",
+      "group": "Adolion - Fire and War",
+      "groupId": "1790906791381"
+    }
+  ],
+  "chats": [
+    {
+      "chatId": "2026-10-01@23h13m05s002ms",
+      "groupId": "1790906789984",
+      "storyId": "adolion-aegis",
+      "activeCheckpointId": "aegis-homecoming",
+      "requirementsReady": true,
+      "group": "Adolion - Between the Roads",
+      "primary": true
+    }
+  ],
+  "continues": null,
+  "problems": [],
+  "warnings": [
+    "the repo build moved during the session (build.head, build.manifest.builtAt, build.manifest.bundleBytes, build.manifest.bundleSha256, build.manifest.fileSha256, build.manifest.sourceFiles, build.manifest.sourceSha256, warnings) while the served bundle 7a1e95c3c47cc993 stayed identical: allowed, the code under test did not change"
+  ],
+  "runHeaderDiff": {
+    "exit": 0,
+    "ok": true
+  },
+  "evidence": {
+    "files": [
+      "runtime-2026-10-01@23h13m05s002ms.json",
+      "journal-2026-10-01@23h13m05s002ms.json",
+      "chat-2026-10-01@23h13m05s002ms.json",
+      "chat-full-2026-10-01@23h13m05s002ms.json",
+      "state-end-2026-10-01@23h13m05s002ms.json",
+      "snapshot-2026-10-01@23h13m05s002ms.json",
+      "evidence-2026-10-01@23h13m05s002ms.json",
+      "journal-2026-10-01@23h13m05s002ms.md"
+    ],
+    "problems": {
+      "2026-10-01@23h13m05s002ms": []
+    }
+  },
+  "playerClean": {
+    "at": "2026-10-02T02:47:57.940Z",
+    "ok": true,
+    "tabs": [
+      "Overview",
+      "Memory"
+    ],
+    "surfaces": [
+      "#drawer-manager",
+      "#so-hud",
+      "dialog[open] .popup-content"
+    ],
+    "selectorSurfaces": [
+      "#drawer-manager",
+      "#so-hud",
+      "dialog[open] .popup-content",
+      "#story-orchestrator-settings"
+    ],
+    "selectorsChecked": 111,
+    "findings": [],
+    "sweep": [],
+    "recoveryControls": [],
+    "records": [
+      {
+        "tab": "Overview",
+        "texts": [
+          {
+            "surface": "#drawer-manager",
+            "text": "Adolion: Between the Roads\nAuthor view\nOverview\nMemory\n⚑\nWhere you are\nA Challenge at Victory's Tusk\nThe scene is calm.\nAbout this story\nA week in Aegis City between adventures. The Adventurer's Guild has started to notice your party, and the C-rank promotion exam is coming due: before it there are errands to run, gear to buy, favours to carry across the city and long nights in its taverns. Expect warm, busy slice-of-life days with rivals and odd neighbours, and a real test at the end of the week. Bring the adventurer you have been so far, travelling with Belle and Dalan.\nRecently\nYou left Bedding for the Orphanage behind and moved into A Challenge at Victory's Tusk.\nAt Victory's Tusk, Max Nightriver surveyed the crowded tavern while Belle pointed out a centaur adventurer and a kitsune bard as potential sources of coin and rumors. The evening wore on with drinking songs and a brawl, the barmaid quietly protecting the good tankards. The scene carried a lively, opportunistic tone.\nOpen threads\nKass's five-silver bet on Belle stands, with the hall's reaction still to be seen.\nKass's rumour of a C-rank posting about to drop for a party of the party's reputation.\nThorrin the centaur's fire-breathing cave story from the Velniran Peaks remains an unclaimed lead.\nNaomi Moonlight and Belle's duel is now joined by Kashina as Naomi's second, with the hall watching and Kass's five-silver bet riding on it.\nYrelra, the shy blue-haired woman watching the party from the shadows, has been pointed out by Kass but not yet approached.\nThe story so far\nThe Guild offered Max Nightriver, Belle, and Dalan a C-rank promotion exam, which Domas explained would consist of an interview with Ellie, a week of preparation, and a graded quest under a Guild-appointed observer, graded as pass, pass with honours, or fail. Max signed the forms alongside Belle and Dalan. Seeking real magic in the Market District, the party was directed by Kaianalor Wrightsteel to The Velvet Shadow, a shop run by the tiefling Valerius selling unrecorded magic and cursed artifacts.\nNoted\n1 thing the story picked up — they take effect on the next turn.\nFollowing along.\nWaiting for the next reply.\nThe story is deciding how the world answers that.\nChat preferences — this chat only\nSpeaker direction in group chats\nDramatic shape\nUse story default\nRising to climax\nFall then recovery\nThree act\nIllustrations — this chat\nAutomatic images are off for this install. Manual images are still available.\nPause automatic images in this chat\nChat image preferences\nIllustrate scene\nPortrait\nBackground\nNo images waiting\nRestart story"
+          },
+          {
+            "surface": "#so-hud",
+            "text": "◈ A Challenge at Victory's Tusk\ntension calm\n1 update next turn"
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "text": "Story OrchestratorStartNew story (wizard)Import a storyBuild a story with the wizard, or bring your own JSON.ContinuePlaying \"Adolion: Between the Roads\".Choose a storyRestart or exportRepairNothing is missing.AuthorTurn on Author viewEdit the story, cast and what players may see.This chat — select and continue a storyStory for this chatSelect a storyAdolion: Between the RoadsAdolion: Crimsonwing & EbonwingAdolion: EshalanoreAdolion: Fire and WarAdolion: House NightriverAdolion: Night CourtsAdolion: The Adventurer's RoadAdolion: The Eastern RoadAdolion: The SagaPlaying your pinned copy (v11).New chats in Adolion - Between the Roads start withNo story (choose in each chat)Adolion: Between the RoadsAdolion: Crimsonwing & EbonwingAdolion: EshalanoreAdolion: Fire and WarAdolion: House NightriverAdolion: Night CourtsAdolion: The Adventurer's RoadAdolion: The Eastern RoadAdolion: The SagaApplies only to a new, empty chat in this group. Chats already playing keep their own story.Open story and chat preferencesGeneral setup — shared by every chatConnection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.Memory model — this installChanges here affect every chat.Let the story advance on its own (shared read extraction)Memory model profileNo profile selectedArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)AdvancedCadenceReconcile ×LagTest memory modelRuns fixed scenes through the real pipeline and reports what this model can actually do.Models per task (5 set)Affects every chat. A task left on \"Same as memory model\" asks the memory model profile above.Story readsSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetSummaries and canonSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetWizard and road aheadSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetSpeaker directionSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetWorld Info curatorSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetInner voiceSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighDisplay — this installChanges here affect every chat.Notes under messagesOffStoryBehind the scenesProgressMemoryThreadsWorld InfoCast & directionPacingModel callsHealthOnly the lastmessagesChaptersShow \"Previously…\" when a chat opens after a chapter endedAlso post a chat note when the story moves onShow story status above the chat inputImage service — this installThis install provides the model and ComfyUI. Story authors choose the scenes and style; players can pause images for their chat. Renders wait for text and queue it while ComfyUI uses the GPU.Permit automatic illustrations on this installAutomation for all chatsManual onlyStory-authored momentsEvery N replies + story momentsModel requestsEvery N repliesImage-prompt modelSelect a Connection Manager profileArtemis Local (Unsloth)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flashImage DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory UnslothComfyUI URLAvoid explicit imageryDefault image routes — advancedThese are install defaults. A story supplies visual intent; the selected route picks model, size and placement for each image type.Edit routescenecharacterportraituserbackgroundfreesceneModelWAI-illustrious v17JANKU v7.77FLUX.1 dev fp8QualitybasehiresAspectautoportraitsquarelandscapewideShotcloseuppercowboyfullwidepovfrom_abovefrom_belowPlacementinlinemessagebackgroundCandidatesLet the director select another modelExtra positive Extra negative Fallback card appearance — this installUsed when the story has not authored an appearance for this cast member.Adolion NarratorFixed image tagsAlways include Never include TobiasFixed image tagsAlways include Never include BelleFixed image tagsAlways include Never include DalanFixed image tagsAlways include Never include VallieFixed image tagsAlways include Never include DomasFixed image tagsAlways include Never include EllieFixed image tagsAlways include Never include FianaFixed image tagsAlways include Never include RydelFixed image tagsAlways include Never include KaianFixed image tagsAlways include Never include JasiraFixed image tagsAlways include Never include GrantFixed image tagsAlways include Never include KonakoFixed image tagsAlways include Never include AlariseFixed image tagsAlways include Never include SophieFixed image tagsAlways include Never include CalithraFixed image tagsAlways include Never include CeledirFixed image tagsAlways include Never include LiraelFixed image tagsAlways include Never include CelesteFixed image tagsAlways include Never include ArrynFixed image tagsAlways include Never include DahliaFixed image tagsAlways include Never include ManakoFixed image tagsAlways include Never include KarrusFixed image tagsAlways include Never include RyenneFixed image tagsAlways include Never include KassFixed image tagsAlways include Never include YrelraFixed image tagsAlways include Never include NaomiFixed image tagsAlways include Never include KashinaFixed image tagsAlways include Never include KariaFixed image tagsAlways include Never include MinaFixed image tagsAlways include Never include OswynFixed image tagsAlways include Never include PanneFixed image tagsAlways include Never include KarosFixed image tagsAlways include Never include DiosaneaFixed image tagsAlways include Never include LioraFixed image tagsAlways include Never include AkariFixed image tagsAlways include Never include RoseaFixed image tagsAlways include Never include ThorneFixed image tagsAlways include Never include DixtonFixed image tagsAlways include Never include RiyoFixed image tagsAlways include Never include Sprite stageShow character sprites that change expression as replies streamOff in every chat: you switched it off, so a story that directs a stage does not turn it on.Let each story decideShow the stageWith Visual Novel mode (/vn)AlwaysExpression model when the judge is off or unavailableSame as the image directorArtemis Local (Unsloth)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flashImage DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory UnslothDim whoever is not speakingIdle breathingOn stage: Tobias, Belle, Dalan, Vallie, Domas, Ellie, Fiana, Rydel, Kaian, Jasira, Grant, Konako, Alarise, Sophie, Calithra, Celedir, Lirael, Celeste, Arryn, Dahlia, Manako, Karrus, Ryenne, Kass, Yrelra, Naomi, Kashina, Karia, Mina, Oswyn, Panne, Karos, Diosanea, Liora, Akari, Rosea, Thorne, Dixton, RiyoAuthor services — optional, shared by every chatLorebooks — this installChanges here affect every chat.Lorebook gatingFile writesPer chat (scan)Story Orchestrator switches story lorebook entries on and off in their files as a chat moves.Judge — install-wide, optionalReady · key from dotenv · jev-1.13.0TypeSafe API keySave keyUse the judgeWhen a use is on, the text it lists is sent to the provider it is routed to. Nothing is sent while this is off.Speaker directionTypeSafe (Jev)llama-server (log-probabilities)Check memory before storingTypeSafe (Jev)llama-server (log-probabilities)Merge related notesTypeSafe (Jev)llama-server (log-probabilities)Notice scene changesTypeSafe (Jev)llama-server (log-probabilities)Scene trackerTypeSafe (Jev)llama-server (log-probabilities)Heading toward (author view)TypeSafe (Jev)llama-server (log-probabilities)Lore selectionTypeSafe (Jev)llama-server (log-probabilities)Every-turn story readsTypeSafe (Jev)llama-server (log-probabilities)Stall checkTypeSafe (Jev)llama-server (log-probabilities)Curator focusTypeSafe (Jev)llama-server (log-probabilities)Sprite expressionsTypeSafe (Jev)llama-server (log-probabilities)Continuity wardenTypeSafe (Jev)llama-server (log-probabilities)A configured TypeSafe key is consent: while the judge is on, each use routed here sends the chat excerpts it lists to TypeSafe. To stop it, untick \"Use the judgment model\" or the use itself.Privacy policyGot itSprite expressions: on, but nothing has measured it — Not measured yet: presentation only, a wrong face never touches the story. The sprite model and the local classifier take over when it is off.Test the judgeRecheckWhat each use is measured atOn and measured: Speaker direction 88% (p50 245 ms) · Check memory before storing 97% (p50 236 ms) · Merge related notes 93% (p50 254 ms) · Notice scene changes 97% (p50 243 ms) · Scene tracker 97% (p50 243 ms) · Heading toward (author view) 100% (p50 270 ms) · Lore selection 90% (p50 291 ms) · Curator focus 89% (p50 281 ms) · Every-turn story reads 83% (p50 260 ms) · Stall check 100% (p50 243 ms) · Continuity warden 97% (p50 247 ms) — measured on jev-1.13.0Speaker direction — this installChanges here affect every chat.Several characters may answer one messageVoices per turn at mostPacing — this installChanges here affect every chat.Smoothing αSteering hintDiagnostics — ST capabilities and versionHost capabilitiesRecheckCopy for a bug report1 of 10 unavailableSillyTavern 1.19.0 (7c3994196) · new macro engine · extension 2.4.0Memory model context: 131,072 tokens (known for deepseek; the profile names no settings preset) · up to 117,452 per readharness is unavailable: no harness is offered; every task stays on a profile"
+          }
+        ],
+        "attributes": [
+          {
+            "surface": "#drawer-manager",
+            "attr": "title",
+            "value": "Show gates, blackboard, scheduler and payload debugging. Spoils upcoming story branches.",
+            "controls": [
+              "so-author-view"
+            ]
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "aria-label",
+            "value": "Story Orchestrator tabs",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "title",
+            "value": "Flag this moment — it lands in the session journal for review",
+            "id": "so-flag-moment",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "aria-label",
+            "value": "Flag this moment",
+            "id": "so-flag-moment",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "title",
+            "value": "Only this chat is paused. You can still request an image manually; other chats keep their own preference.",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "aria-label",
+            "value": "Help: Only this chat is paused. You can still request an image manually; other chats keep their own preference.",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "title",
+            "value": "Start this story over in this chat. Messages stay; progress and story memory are cleared.",
+            "id": "so-restart-story-drawer",
+            "controls": []
+          },
+          {
+            "surface": "#so-hud",
+            "attr": "title",
+            "value": "Open the story",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Start a new story from a premise: the wizard interviews you, proposes the graph, and creates the cards, lore and group it needs.",
+            "id": "so-new-story-wizard",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Restart this story in this chat (clears progress and memory for it)",
+            "id": "so-restart-story",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Restart story in this chat",
+            "id": "so-restart-story",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "This Connection Manager profile reads the chat after replies to track story progress. The choice affects every chat; it does not replace the main chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: This Connection Manager profile reads the chat after replies to track story progress. The choice affects every chat; it does not replace the main chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "When the story stalls, widen the re-read window by this multiplier to double-check missed facts.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: When the story stalls, widen the re-read window by this multiplier to double-check missed facts.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Skip the newest N messages when reading, in case you often re-roll replies. 0 = react to the latest message immediately.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Skip the newest N messages when reading, in case you often re-roll replies. 0 = react to the latest message immediately.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Story reads",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Summaries and canon",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Wizard and road ahead",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Speaker direction",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test World Info curator",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Small notes under the messages: where the story moved, what it remembered, which lore it consulted. Story and Behind the scenes never show spoilers; the Author levels show only while this chat's Author view is on.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Small notes under the messages: where the story moved, what it remembered, which lore it consulted. Story and Behind the scenes never show spoilers; the Author levels show only while this chat's Author view is on.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Automatic rendering also needs an automation mode, a story requesting cues, and a chat that has not paused them. Manual images remain available.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Automatic rendering also needs an automation mode, a story requesting cues, and a chat that has not paused them. Manual images remain available.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Story: follow the moments each story asks art for. Every N: draw every N replies and at each of those story moments. Tool: let the model ask. Manual: draw only when you ask.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Story: follow the moments each story asks art for. Every N: draw every N replies and at each of those story moments. Tool: let the model ask. Manual: draw only when you ask.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "A Connection Manager profile that turns the current scene and the story's visual direction into a ComfyUI prompt. This is separate from the chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: A Connection Manager profile that turns the current scene and the story's visual direction into a ComfyUI prompt. This is separate from the chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "The address of your ComfyUI server. When text and image models share a GPU, use the local GPU broker for your text profiles.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: The address of your ComfyUI server. When text and image models share a GPU, use the local GPU broker for your text profiles.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Stored in SillyTavern's own secrets on the server. It is never shown again, never saved in extension settings, and never sent to the page.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Stored in SillyTavern's own secrets on the server. It is never shown again, never saved in extension settings, and never sent to the page.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "A second, fast model for yes/no and pick-one decisions. Each use below is on by default and can be switched off on its own; each says what it sends. It never receives character cards, persona text, other chats or the key.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: A second, fast model for yes/no and pick-one decisions. Each use below is on by default and can be switched off on its own; each says what it sends. It never receives character cards, persona text, other chats or the key.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides. Sends: the last 8 messages, character names and roles, the scene name and goal.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides. Sends: the last 8 messages, character names and roles, the scene name and goal.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Speaker direction: provider",
+            "id": "so-judge-provider-director",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Drops notes the story never showed and down-weights doubtful ones. Sends: the read's messages, the candidate notes, story title and cast names.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Drops notes the story never showed and down-weights doubtful ones. Sends: the read's messages, the candidate notes, story title and cast names.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Check memory before storing: provider",
+            "id": "so-judge-provider-memory-verify",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Decides whether two similar notes are a duplicate, an update, or both true. Sends: two memory notes per question.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Decides whether two similar notes are a duplicate, an update, or both true. Sends: two memory notes per question.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Merge related notes: provider",
+            "id": "so-judge-provider-memory-pairs",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Asks for the scene read on the turn a scene changes, next to today's keyword check. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Asks for the scene read on the turn a scene changes, next to today's keyword check. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Notice scene changes: provider",
+            "id": "so-judge-provider-scene-trigger",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Keeps location, time and who is present, and adds them to the prompt. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Keeps location, time and who is present, and adds them to the prompt. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Scene tracker: provider",
+            "id": "so-judge-provider-scene-tracker",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Shows which upcoming checkpoints play is moving toward. Sends: the last 8 messages and the names and goals of the next checkpoints.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Shows which upcoming checkpoints play is moving toward. Sends: the last 8 messages and the names and goals of the next checkpoints.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Heading toward (author view): provider",
+            "id": "so-judge-provider-lookahead",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Adds the lore entries that matter to the next reply, even without their keywords. Sends: the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Adds the lore entries that matter to the next reply, even without their keywords. Sends: the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Lore selection: provider",
+            "id": "so-judge-provider-lore-select",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Reads qualities the author marked for it on every turn, so gates fire sooner; the rest stay with the story model. Sends: the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Reads qualities the author marked for it on every turn, so gates fire sooner; the rest stay with the story model. Sends: the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Every-turn story reads: provider",
+            "id": "so-judge-provider-typed-extraction",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Checks a stalled gate before spending a full re-read; writes only what the messages clearly show. Sends: the messages since the checkpoint began and the unmet conditions' descriptions and values.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Checks a stalled gate before spending a full re-read; writes only what the messages clearly show. Sends: the messages since the checkpoint began and the unmet conditions' descriptions and values.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Stall check: provider",
+            "id": "so-judge-provider-stall-check",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Shows the World Info curator only the entries the story may have overtaken. Sends: the story so far and the story's lore entries.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Shows the World Info curator only the entries the story may have overtaken. Sends: the story so far and the story's lore entries.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Curator focus: provider",
+            "id": "so-judge-provider-curator-filter",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Reads each passage of a reply as it streams and picks which character it is about and their facial expression, for the sprite stage. Otherwise the sprite model, then the local classifier, decide. Sends: each reply's passages, the on-stage character names and the expression labels with their descriptions.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Reads each passage of a reply as it streams and picks which character it is about and their facial expression, for the sprite stage. Otherwise the sprite model, then the local classifier, decide. Sends: each reply's passages, the on-stage character names and the expression labels with their descriptions.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Sprite expressions: provider",
+            "id": "so-judge-provider-expressions",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Continuity warden: provider",
+            "id": "so-judge-provider-warden",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "A single player message can be answered by more than one character. The judge picks each next speaker and stops when it hands the turn back to you; a story may set its own order on a checkpoint. Off: one voice per turn, as before.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: A single player message can be answered by more than one character. The judge picks each next speaker and stops when it hands the turn back to you; a story may set its own order on a checkpoint. Off: one voice per turn, as before.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "How quickly the measured tension follows the latest scene. Higher = jumpier, lower = smoother.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: How quickly the measured tension follows the latest scene. Higher = jumpier, lower = smoother.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Quietly nudge the main model toward the story's intended tension (escalate or cool down) via an injected note.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Quietly nudge the main model toward the story's intended tension (escalate or cool down) via an injected note.",
+            "controls": []
+          }
+        ]
+      },
+      {
+        "tab": "Memory",
+        "texts": [
+          {
+            "surface": "#drawer-manager",
+            "text": "Adolion: Between the Roads\nAuthor view\nOverview\nMemory\n⚑\nWhat the story remembers\nMemorize chat\nRead the whole chat history into memory.\nFind\nFacts\nSession details\nShort-term\nScene history\nShowing 87 of 87\nFacts (38)\nThe orphanage still needs more food and its heating spell charms are wearing thin.\nPin\nEdit\nExclude\nCeleste is the woman who runs the Aegis City Orphanage and wields a floating greatsword named Jalkor.\nPin\nEdit\nExclude\nThe orphanage children have been freezing in the old dormitory and some wear noticeably tattered clothes.\nPin\nEdit\nExclude\nBelle names Victory's Game, near the market district, as the tavern where she lives and fights most often.\nPin\nEdit\nExclude\nCeleste is the woman who runs the Aegis City Orphanage, a sturdy stone building in the residential district.\nPin\nEdit\nExclude\nDalan dislikes loud taverns and being stared at, and asks not to be made to fight.\nPin\nEdit\nExclude\nThe party delivered Sophie's bedding to the Aegis City Orphanage and helped make up the children's beds.\nPin\nEdit\nExclude\nCeleste's greatsword Jalkor floats silently beside her.\nPin\nEdit\nExclude\nDalan dislikes loud taverns because people stare and ask questions.\nPin\nEdit\nExclude\nThe party walked into Victory's Game and Belle went straight to the bar.\nPin\nEdit\nExclude\nDalan asks not to be made to fight anyone at the tavern.\nPin\nEdit\nExclude\nThe party arrives at Victory's Game in the evening as the street lamps are lit.\nPin\nEdit\nExclude\nBelle calls the bartender Gordo and orders a round of the coldest ale on her tab.\nPin\nEdit\nExclude\nBelle says Victory's Game is where she lives and fights most often, with cold ale and plentiful brawlers.\nPin\nEdit\nExclude\nThe party arrived at Victory's Tusk in the evening and Belle went straight to the bar.\nPin\nEdit\nExclude\nThe party reached Victory's Tusk and Belle ordered a round at the bar.\nPin\nEdit\nExclude\nDalan asked the party not to make him fight anyone at the tavern.\nPin\nEdit\nExclude\nA blue-haired, pointed-eared woman watched the party with wide, uncertain eyes from the shadows by the entrance.\nPin\nEdit\nExclude\nA kitsune bard at Victory's Tusk trades songs and stories for coin and gossip.\nPin\nEdit\nExclude\nKass identifies the centaur adventurer at Victory's Tusk as Thorrin, just back from the Velniran Peaks with silver and a story about a fire-breathing cave.\nPin\nEdit\nExclude\nKass identifies the blue-haired, pointed-eared woman watching the party as Yrelra, shy but capable of casting a powerful fireball.\nPin\nEdit\nExclude\nKass says she has heard whispers that a C-rank posting is about to drop for a party of the party's reputation.\nPin\nEdit\nExclude\nKass's full name is Kasamiko Merrywright to the Guild.\nPin\nEdit\nExclude\nKass says the centaur Thorrin is just back from the Velniran Peaks with silver and a story about a cave that breathes fire.\nPin\nEdit\nExclude\nKass says the shy elf girl at the edge is Yrelra, and that she has seen her cast a powerful fireball.\nPin\nEdit\nExclude\nKass says a C-rank posting is about to drop for a party with exactly the party's reputation.\nPin\nEdit\nExclude\nMax accepted Kass's bet and had Belle accept the challenge on the party's behalf.\nPin\nEdit\nExclude\nBelle stepped into the center of the room and openly called for anyone to fight her.\nPin\nEdit\nExclude\nKass bet five silver on Belle, wagering she'll have the whole hall on their feet before the first round is finished.\nPin\nEdit\nExclude\nNaomi Moonlight of the Moonlight Blade Style rose and accepted Belle's challenge, seeking a worthy opponent.\nPin\nEdit\nExclude\nKashina Grystle, a lizardkin woman with purple hair and orange eyes, offered to be Naomi's second or to fight herself.\nPin\nEdit\nExclude\nBelle called for a fight in the center of Victory's Tusk, Naomi Moonlight accepted her challenge, and Kashina Grystle offered to second or fight.\nPin\nEdit\nExclude\nKass's Guild name is Kasamiko Merrywright.\nPin\nEdit\nExclude\nThe centaur at Victory's Tusk is named Thorrin, just back from the Velniran Peaks with silver and a story about a fire-breathing cave.\nPin\nEdit\nExclude\nThe shy blue-haired woman at the edge of the hall is Yrelra, and Kass says she can cast a fireball.\nPin\nEdit\nExclude\nNaomi Moonlight wields a flaming longsword and follows the Moonlight Blade Style.\nPin\nEdit\nExclude\nKashina Grystle, a lizardkin woman, offers to be Naomi's second.\nPin\nEdit\nExclude\nMax accepted Kass's bet, and Belle stepped into the center of the hall to call for a challenger.\nPin\nEdit\nExclude\nSession details (34)\nBelle names Victory's Game, near the market district, as where she drinks and fights, with cold ale and plentiful brawlers.\nPin\nEdit\nExclude\nDalan dislikes loud taverns and being stared at, and asks not to be made to fight.\nPin\nEdit\nExclude\nThe orphanage is a sturdy stone building with ivy on grey walls and a chipped yellow door; children peek from doorways and hallways.\nPin\nEdit\nExclude\nCeleste says the orphanage could use more food and that its heating spell charms are wearing thin.\nPin\nEdit\nExclude\nVictory's Game is near the market district; Belle says the ale is cold and the brawlers plentiful.\nPin\nEdit\nExclude\nDalan dislikes loud taverns because people stare and ask questions, but follows the party anyway.\nPin\nEdit\nExclude\nBelle says Victory's Game is near the market district, that she lives there and fights there most often, and that the ale is cold and the brawlers plentiful.\nPin\nEdit\nExclude\nDalan is uneasy about loud taverns and being stared at, and asks the party not to make him fight anyone.\nPin\nEdit\nExclude\nBelle calls the bartender Gordo and orders a round of the coldest ale on her tab.\nPin\nEdit\nExclude\nCeleste offered Max a favour in return for the party's help at the orphanage.\nPin\nEdit\nExclude\nBelle says Victory's Game is near the market district, where she lives and fights most often.\nPin\nEdit\nExclude\nDalan agreed to go to the tavern despite his unease, asking only not to be made to fight.\nPin\nEdit\nExclude\nBelle calls the bartender 'Gordo' and treats him with rough familiarity, ordering her usual and a round on her tab.\nPin\nEdit\nExclude\nDalan dislikes loud taverns and being stared at, and asked not to be made to fight.\nPin\nEdit\nExclude\nA blue-haired woman with pointed ears watched the party nervously from the shadows by the entrance.\nPin\nEdit\nExclude\nA kitsune bard at Victory's Tusk offers songs for stories and trades in rumours.\nPin\nEdit\nExclude\nA centaur adventurer from the High Plains holds court at a large table, and Belle notes coin to be had in the north if he's back from a quest.\nPin\nEdit\nExclude\nBelle calls the bartender 'Gordo' and orders a round of the coldest ale on her tab, with something strong for her companions.\nPin\nEdit\nExclude\nThorrin is a centaur adventurer at Victory's Tusk, just back from the Velniran Peaks with silver and a tale of a fire-breathing cave.\nPin\nEdit\nExclude\nKass says the shy blue-haired elf girl watching the party is Yrelra, and that she has seen her cast a fireball strong enough to singe eyebrows off.\nPin\nEdit\nExclude\nKass claims she has heard whispers that a C-rank posting is about to drop for a party of the party's reputation.\nPin\nEdit\nExclude\nKass the kitsune bard approached the party's table at Victory's Tusk, introduced herself, and offered rumours for songs or stories.\nPin\nEdit\nExclude\nKass says Thorrin the centaur is back from the Velniran Peaks with silver and a story about a fire-breathing cave.\nPin\nEdit\nExclude\nKass identifies the shy elf at the edge as Yrelra and claims she can cast a devastating fireball.\nPin\nEdit\nExclude\nKass says a C-rank posting is about to drop for a party with exactly the party's reputation.\nPin\nEdit\nExclude\nMax accepted Kass's bet and told Belle to accept any challenge thrown tonight.\nPin\nEdit\nExclude\nNaomi Moonlight fights in the Moonlight Blade Style and carries a flaming longsword.\nPin\nEdit\nExclude\nKashina Grystle is a lizardkin woman with purple hair and orange eyes, already swaying drunk.\nPin\nEdit\nExclude\nVictory's Tusk is loud and crowded tonight: a drinking song, a brawl starting, and the barmaid clearing the good tankards off the tables.\nPin\nEdit\nExclude\nKass trades tunes, tales and rumours, and offers a song for a story or a story for a song.\nPin\nEdit\nExclude\nThorrin the centaur sits at a massive table at the far end of the hall, laughing with a party of humans.\nPin\nEdit\nExclude\nYrelra, a blue-haired woman with pointed ears, watches the party from the shadows by the entrance, twisting a lock of her hair.\nPin\nEdit\nExclude\nNaomi Moonlight rose to answer Belle's open challenge, and Kashina Grystle declared herself Naomi's second.\nPin\nEdit\nExclude\nKashina is a lizardkin woman with purple hair and orange eyes, already swaying on her feet.\nPin\nEdit\nExclude\nShort-term (1)\nMax chose the orphanage delivery, and the party carted bedding and supplies through the residential district to a stone orphanage, where Celeste thanked them and accepted help making up the beds; she mentioned the children could also use food and fresh heating charms but hesitated to ask for more. Max declined further aid and asked where adventurers drink, and Belle named Victory's Game near the market district, boasting of cold ale and plentiful brawls. Dalan admitted he could use a drink but preferred somewhere quieter, wary of stares and questions, yet agreed to follow the party. Max led them to Victory's Game, where Belle greeted the barkeep Gordo with insults and demanded a round of cold ale on her tab, plus something strong for her companions.\nPin\nEdit\nExclude\nScene history (14)\nThe Guild offered the party a C-rank exam, with Domas outlining an interview, a week of preparation, and a graded quest under a Guild observer. Max signed the forms and set off with Belle and Dalan to find real magic in the Market District, where Kaianalor Wrightsteel pointed them toward The Velvet Shadow and its tiefling proprietor Valerius. The group located the narrow, unmarked shop tucked in an alley, its strange atmosphere hinting at genuine arcane wares.\nPin\nEdit\nExclude\nMax Nightriver rejected the shady shop and returned to the main street with Belle and Dalan, where they found a proper curio shop called The Oddity's Nest. Belle identified the owner as a gnome named Pimpernel and noted his talent for unusual goods. The scene carried a cautious but hopeful tone as the group weighed an honest alternative.\nPin\nEdit\nExclude\nA cutpurse stole from Belle in the crowded street and escaped before anyone could react. Max Nightriver redirected the group from the gnome to Aegis Delights and Curios, the shop Sophie runs near the temple district. Frustrated but refocused, Belle abandoned the chase and led the others toward Sophie's shop.\nPin\nEdit\nExclude\nMax Nightriver entered Aegis Delights and Curios with Belle and Dalan, where warm lamplight and the scent of cinnamon and parchment filled the shop. Sophie Tallaboros greeted Max by name from behind the counter, recognizing the party and asking whether they were browsing or seeking something specific for the exam. The tone was warm and welcoming.\nPin\nEdit\nExclude\nMax Nightriver confronted Sophie in her shop, questioning her true nature based on her horns, scales, and tail. Sophie froze briefly before deflecting with a forced playful smile, claiming to be a simple lizardkin and emphasizing her business success instead. From the mezzanine above, a pair of red eyes watched the exchange with quiet intensity.\nPin\nEdit\nExclude\nMax Nightriver spotted Calithra watching from the mezzanine and asked why she refused Darklands jobs; she descended and coldly stated she left that place behind and would never return, though she warmed slightly while demanding introductions and hugs. When Sophie offered three delivery jobs in exchange for a discount on exam gear, Max chose the orphanage delivery so the children would not shiver, and the party loaded bedding and supplies onto a cart.\nPin\nEdit\nExclude\nMax Nightriver and the party pushed the cart of blankets through the residential district to the orphanage, where Celeste answered their knock. Relieved and grateful, she confirmed the supplies were from Ms. Sophie and invited them inside to help bring the blankets in for the freezing children.\nPin\nEdit\nExclude\nMax Nightriver helped carry blankets inside and asked Celeste if the children needed anything else. Celeste thanked him warmly, noting the blankets would keep the children warm, and mentioned they could use more food and heating charms, though she was reluctant to ask for more. She offered to do something for Max in return for his help.\nPin\nEdit\nExclude\nAs evening fell, Max Nightriver asked Belle and Dalan where adventurers drink in the city. Belle suggested Victory's Game near the market district, describing it as a loud place with cold ale and plentiful brawlers, and invited them to join her for a drink. The tone was rowdy and eager for celebration.\nPin\nEdit\nExclude\nDalan hesitated at the suggestion of a drink, his smile fading as he admitted he preferred somewhere quieter than the loud main street taverns where people asked questions and stared. He agreed to follow wherever the party went, asking only not to be made to fight, and fell into step beside Belle.\nPin\nEdit\nExclude\nMax Nightriver led the party to Victory's Tusk, where they planned to order a round and find a table. As evening fell and street lamps flickered on, they entered the tavern, its air thick with sweat, stale ale, and roasting pork. Belle ignored the menu board and marched straight to the bar, where a broad-shouldered man was wiping the counter.\nPin\nEdit\nExclude\nBelle loudly ordered a round of cold ale and something strong for her companions at the bar, slamming her fist while grinning. She threatened Gordo with violence if he did not hurry. The tone was rowdy and playful.\nPin\nEdit\nExclude\nThe night at Victory's Tusk grew rowdy as a drinking song broke out and a fight followed. The barmaid quietly cleared the good tankards from the tables amid the chaos. The scene carried a raucous, unruly tone.\nPin\nEdit\nExclude\nAt Victory's Tusk, Max Nightriver surveyed the crowded tavern while Belle pointed out a centaur adventurer and a kitsune bard as potential sources of coin and rumors. The evening wore on with drinking songs and a brawl, the barmaid quietly protecting the good tankards. The scene carried a lively, opportunistic tone.\nPin\nEdit\nExclude"
+          },
+          {
+            "surface": "#so-hud",
+            "text": "◈ A Challenge at Victory's Tusk\ntension calm\n1 update next turn"
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "text": "Story OrchestratorStartNew story (wizard)Import a storyBuild a story with the wizard, or bring your own JSON.ContinuePlaying \"Adolion: Between the Roads\".Choose a storyRestart or exportRepairNothing is missing.AuthorTurn on Author viewEdit the story, cast and what players may see.This chat — select and continue a storyStory for this chatSelect a storyAdolion: Between the RoadsAdolion: Crimsonwing & EbonwingAdolion: EshalanoreAdolion: Fire and WarAdolion: House NightriverAdolion: Night CourtsAdolion: The Adventurer's RoadAdolion: The Eastern RoadAdolion: The SagaPlaying your pinned copy (v11).New chats in Adolion - Between the Roads start withNo story (choose in each chat)Adolion: Between the RoadsAdolion: Crimsonwing & EbonwingAdolion: EshalanoreAdolion: Fire and WarAdolion: House NightriverAdolion: Night CourtsAdolion: The Adventurer's RoadAdolion: The Eastern RoadAdolion: The SagaApplies only to a new, empty chat in this group. Chats already playing keep their own story.Open story and chat preferencesGeneral setup — shared by every chatConnection Manager owns the actual model profiles. Choose which profiles this extension uses here; changes affect every chat.Memory model — this installChanges here affect every chat.Let the story advance on its own (shared read extraction)Memory model profileNo profile selectedArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)AdvancedCadenceReconcile ×LagTest memory modelRuns fixed scenes through the real pipeline and reports what this model can actually do.Models per task (5 set)Affects every chat. A task left on \"Same as memory model\" asks the memory model profile above.Story readsSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetSummaries and canonSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetWizard and road aheadSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetSpeaker directionSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetWorld Info curatorSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighTestnot tested yetInner voiceSame as memory modelArtemis Local (Unsloth) (TheDrummer/Artemis-31B-v1.1-GGUF)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flash (deepseek-flash)Image DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory Unsloth (TheDrummer/Artemis-31B-v1.1-GGUF)Reasoning effortAs the profile sets itOffLowMediumHighDisplay — this installChanges here affect every chat.Notes under messagesOffStoryBehind the scenesProgressMemoryThreadsWorld InfoCast & directionPacingModel callsHealthOnly the lastmessagesChaptersShow \"Previously…\" when a chat opens after a chapter endedAlso post a chat note when the story moves onShow story status above the chat inputImage service — this installThis install provides the model and ComfyUI. Story authors choose the scenes and style; players can pause images for their chat. Renders wait for text and queue it while ComfyUI uses the GPU.Permit automatic illustrations on this installAutomation for all chatsManual onlyStory-authored momentsEvery N replies + story momentsModel requestsEvery N repliesImage-prompt modelSelect a Connection Manager profileArtemis Local (Unsloth)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flashImage DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory UnslothComfyUI URLAvoid explicit imageryDefault image routes — advancedThese are install defaults. A story supplies visual intent; the selected route picks model, size and placement for each image type.Edit routescenecharacterportraituserbackgroundfreesceneModelWAI-illustrious v17JANKU v7.77FLUX.1 dev fp8QualitybasehiresAspectautoportraitsquarelandscapewideShotcloseuppercowboyfullwidepovfrom_abovefrom_belowPlacementinlinemessagebackgroundCandidatesLet the director select another modelExtra positive Extra negative Fallback card appearance — this installUsed when the story has not authored an appearance for this cast member.Adolion NarratorFixed image tagsAlways include Never include TobiasFixed image tagsAlways include Never include BelleFixed image tagsAlways include Never include DalanFixed image tagsAlways include Never include VallieFixed image tagsAlways include Never include DomasFixed image tagsAlways include Never include EllieFixed image tagsAlways include Never include FianaFixed image tagsAlways include Never include RydelFixed image tagsAlways include Never include KaianFixed image tagsAlways include Never include JasiraFixed image tagsAlways include Never include GrantFixed image tagsAlways include Never include KonakoFixed image tagsAlways include Never include AlariseFixed image tagsAlways include Never include SophieFixed image tagsAlways include Never include CalithraFixed image tagsAlways include Never include CeledirFixed image tagsAlways include Never include LiraelFixed image tagsAlways include Never include CelesteFixed image tagsAlways include Never include ArrynFixed image tagsAlways include Never include DahliaFixed image tagsAlways include Never include ManakoFixed image tagsAlways include Never include KarrusFixed image tagsAlways include Never include RyenneFixed image tagsAlways include Never include KassFixed image tagsAlways include Never include YrelraFixed image tagsAlways include Never include NaomiFixed image tagsAlways include Never include KashinaFixed image tagsAlways include Never include KariaFixed image tagsAlways include Never include MinaFixed image tagsAlways include Never include OswynFixed image tagsAlways include Never include PanneFixed image tagsAlways include Never include KarosFixed image tagsAlways include Never include DiosaneaFixed image tagsAlways include Never include LioraFixed image tagsAlways include Never include AkariFixed image tagsAlways include Never include RoseaFixed image tagsAlways include Never include ThorneFixed image tagsAlways include Never include DixtonFixed image tagsAlways include Never include RiyoFixed image tagsAlways include Never include Sprite stageShow character sprites that change expression as replies streamOff in every chat: you switched it off, so a story that directs a stage does not turn it on.Let each story decideShow the stageWith Visual Novel mode (/vn)AlwaysExpression model when the judge is off or unavailableSame as the image directorArtemis Local (Unsloth)Artemis RunPodArtemis RunPod RPdeepseek 4.1 flashImage DirectorStory Orchestrator Memory RunPodStory Orchestrator Memory UnslothDim whoever is not speakingIdle breathingOn stage: Tobias, Belle, Dalan, Vallie, Domas, Ellie, Fiana, Rydel, Kaian, Jasira, Grant, Konako, Alarise, Sophie, Calithra, Celedir, Lirael, Celeste, Arryn, Dahlia, Manako, Karrus, Ryenne, Kass, Yrelra, Naomi, Kashina, Karia, Mina, Oswyn, Panne, Karos, Diosanea, Liora, Akari, Rosea, Thorne, Dixton, RiyoAuthor services — optional, shared by every chatLorebooks — this installChanges here affect every chat.Lorebook gatingFile writesPer chat (scan)Story Orchestrator switches story lorebook entries on and off in their files as a chat moves.Judge — install-wide, optionalReady · key from dotenv · jev-1.13.0TypeSafe API keySave keyUse the judgeWhen a use is on, the text it lists is sent to the provider it is routed to. Nothing is sent while this is off.Speaker directionTypeSafe (Jev)llama-server (log-probabilities)Check memory before storingTypeSafe (Jev)llama-server (log-probabilities)Merge related notesTypeSafe (Jev)llama-server (log-probabilities)Notice scene changesTypeSafe (Jev)llama-server (log-probabilities)Scene trackerTypeSafe (Jev)llama-server (log-probabilities)Heading toward (author view)TypeSafe (Jev)llama-server (log-probabilities)Lore selectionTypeSafe (Jev)llama-server (log-probabilities)Every-turn story readsTypeSafe (Jev)llama-server (log-probabilities)Stall checkTypeSafe (Jev)llama-server (log-probabilities)Curator focusTypeSafe (Jev)llama-server (log-probabilities)Sprite expressionsTypeSafe (Jev)llama-server (log-probabilities)Continuity wardenTypeSafe (Jev)llama-server (log-probabilities)A configured TypeSafe key is consent: while the judge is on, each use routed here sends the chat excerpts it lists to TypeSafe. To stop it, untick \"Use the judgment model\" or the use itself.Privacy policyGot itSprite expressions: on, but nothing has measured it — Not measured yet: presentation only, a wrong face never touches the story. The sprite model and the local classifier take over when it is off.Test the judgeRecheckWhat each use is measured atOn and measured: Speaker direction 88% (p50 245 ms) · Check memory before storing 97% (p50 236 ms) · Merge related notes 93% (p50 254 ms) · Notice scene changes 97% (p50 243 ms) · Scene tracker 97% (p50 243 ms) · Heading toward (author view) 100% (p50 270 ms) · Lore selection 90% (p50 291 ms) · Curator focus 89% (p50 281 ms) · Every-turn story reads 83% (p50 260 ms) · Stall check 100% (p50 243 ms) · Continuity warden 97% (p50 247 ms) — measured on jev-1.13.0Speaker direction — this installChanges here affect every chat.Several characters may answer one messageVoices per turn at mostPacing — this installChanges here affect every chat.Smoothing αSteering hintDiagnostics — ST capabilities and versionHost capabilitiesRecheckCopy for a bug report1 of 10 unavailableSillyTavern 1.19.0 (7c3994196) · new macro engine · extension 2.4.0Memory model context: 131,072 tokens (known for deepseek; the profile names no settings preset) · up to 117,452 per readharness is unavailable: no harness is offered; every task stays on a profile"
+          }
+        ],
+        "attributes": [
+          {
+            "surface": "#drawer-manager",
+            "attr": "title",
+            "value": "Show gates, blackboard, scheduler and payload debugging. Spoils upcoming story branches.",
+            "controls": [
+              "so-author-view"
+            ]
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "aria-label",
+            "value": "Story Orchestrator tabs",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "title",
+            "value": "Flag this moment — it lands in the session journal for review",
+            "id": "so-flag-moment",
+            "controls": []
+          },
+          {
+            "surface": "#drawer-manager",
+            "attr": "aria-label",
+            "value": "Flag this moment",
+            "id": "so-flag-moment",
+            "controls": []
+          },
+          {
+            "surface": "#so-hud",
+            "attr": "title",
+            "value": "Open the story",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Start a new story from a premise: the wizard interviews you, proposes the graph, and creates the cards, lore and group it needs.",
+            "id": "so-new-story-wizard",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Restart this story in this chat (clears progress and memory for it)",
+            "id": "so-restart-story",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Restart story in this chat",
+            "id": "so-restart-story",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "This Connection Manager profile reads the chat after replies to track story progress. The choice affects every chat; it does not replace the main chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: This Connection Manager profile reads the chat after replies to track story progress. The choice affects every chat; it does not replace the main chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Run an extraction read every N chat messages. Lower = story reacts faster but calls the memory model more often.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "When the story stalls, widen the re-read window by this multiplier to double-check missed facts.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: When the story stalls, widen the re-read window by this multiplier to double-check missed facts.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Skip the newest N messages when reading, in case you often re-roll replies. 0 = react to the latest message immediately.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Skip the newest N messages when reading, in case you often re-roll replies. 0 = react to the latest message immediately.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Story reads",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Summaries and canon",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Wizard and road ahead",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test Speaker direction",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Test World Info curator",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Small notes under the messages: where the story moved, what it remembered, which lore it consulted. Story and Behind the scenes never show spoilers; the Author levels show only while this chat's Author view is on.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Small notes under the messages: where the story moved, what it remembered, which lore it consulted. Story and Behind the scenes never show spoilers; the Author levels show only while this chat's Author view is on.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Automatic rendering also needs an automation mode, a story requesting cues, and a chat that has not paused them. Manual images remain available.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Automatic rendering also needs an automation mode, a story requesting cues, and a chat that has not paused them. Manual images remain available.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Story: follow the moments each story asks art for. Every N: draw every N replies and at each of those story moments. Tool: let the model ask. Manual: draw only when you ask.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Story: follow the moments each story asks art for. Every N: draw every N replies and at each of those story moments. Tool: let the model ask. Manual: draw only when you ask.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "A Connection Manager profile that turns the current scene and the story's visual direction into a ComfyUI prompt. This is separate from the chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: A Connection Manager profile that turns the current scene and the story's visual direction into a ComfyUI prompt. This is separate from the chat model.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "The address of your ComfyUI server. When text and image models share a GPU, use the local GPU broker for your text profiles.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: The address of your ComfyUI server. When text and image models share a GPU, use the local GPU broker for your text profiles.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Stored in SillyTavern's own secrets on the server. It is never shown again, never saved in extension settings, and never sent to the page.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Stored in SillyTavern's own secrets on the server. It is never shown again, never saved in extension settings, and never sent to the page.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "A second, fast model for yes/no and pick-one decisions. Each use below is on by default and can be switched off on its own; each says what it sends. It never receives character cards, persona text, other chats or the key.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: A second, fast model for yes/no and pick-one decisions. Each use below is on by default and can be switched off on its own; each says what it sends. It never receives character cards, persona text, other chats or the key.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides. Sends: the last 8 messages, character names and roles, the scene name and goal.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Picks who speaks next in a group chat when the checkpoint has talk control. Needs a one-line role for every character in the pool; otherwise the usual director decides. Sends: the last 8 messages, character names and roles, the scene name and goal.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Speaker direction: provider",
+            "id": "so-judge-provider-director",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Drops notes the story never showed and down-weights doubtful ones. Sends: the read's messages, the candidate notes, story title and cast names.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Drops notes the story never showed and down-weights doubtful ones. Sends: the read's messages, the candidate notes, story title and cast names.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Check memory before storing: provider",
+            "id": "so-judge-provider-memory-verify",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Decides whether two similar notes are a duplicate, an update, or both true. Sends: two memory notes per question.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Decides whether two similar notes are a duplicate, an update, or both true. Sends: two memory notes per question.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Merge related notes: provider",
+            "id": "so-judge-provider-memory-pairs",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Asks for the scene read on the turn a scene changes, next to today's keyword check. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Asks for the scene read on the turn a scene changes, next to today's keyword check. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Notice scene changes: provider",
+            "id": "so-judge-provider-scene-trigger",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Keeps location, time and who is present, and adds them to the prompt. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Keeps location, time and who is present, and adds them to the prompt. Sends: the last 8 messages, the checkpoint name and goal, cast names and roles, your persona name, the story's locations.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Scene tracker: provider",
+            "id": "so-judge-provider-scene-tracker",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Shows which upcoming checkpoints play is moving toward. Sends: the last 8 messages and the names and goals of the next checkpoints.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Shows which upcoming checkpoints play is moving toward. Sends: the last 8 messages and the names and goals of the next checkpoints.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Heading toward (author view): provider",
+            "id": "so-judge-provider-lookahead",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Adds the lore entries that matter to the next reply, even without their keywords. Sends: the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Adds the lore entries that matter to the next reply, even without their keywords. Sends: the last 8 messages, the checkpoint name and goal, and the title and text of each entry in the story's lore-select books.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Lore selection: provider",
+            "id": "so-judge-provider-lore-select",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Reads qualities the author marked for it on every turn, so gates fire sooner; the rest stay with the story model. Sends: the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Reads qualities the author marked for it on every turn, so gates fire sooner; the rest stay with the story model. Sends: the last 3 messages (or the read's window), the story title and checkpoint, and each marked quality's description, values and numbers or names found in the messages.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Every-turn story reads: provider",
+            "id": "so-judge-provider-typed-extraction",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Checks a stalled gate before spending a full re-read; writes only what the messages clearly show. Sends: the messages since the checkpoint began and the unmet conditions' descriptions and values.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Checks a stalled gate before spending a full re-read; writes only what the messages clearly show. Sends: the messages since the checkpoint began and the unmet conditions' descriptions and values.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Stall check: provider",
+            "id": "so-judge-provider-stall-check",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Shows the World Info curator only the entries the story may have overtaken. Sends: the story so far and the story's lore entries.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Shows the World Info curator only the entries the story may have overtaken. Sends: the story so far and the story's lore entries.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Curator focus: provider",
+            "id": "so-judge-provider-curator-filter",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Reads each passage of a reply as it streams and picks which character it is about and their facial expression, for the sprite stage. Otherwise the sprite model, then the local classifier, decide. Sends: each reply's passages, the on-stage character names and the expression labels with their descriptions.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Reads each passage of a reply as it streams and picks which character it is about and their facial expression, for the sprite stage. Otherwise the sprite model, then the local classifier, decide. Sends: each reply's passages, the on-stage character names and the expression labels with their descriptions.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Sprite expressions: provider",
+            "id": "so-judge-provider-expressions",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Continuity warden: provider",
+            "id": "so-judge-provider-warden",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "A single player message can be answered by more than one character. The judge picks each next speaker and stops when it hands the turn back to you; a story may set its own order on a checkpoint. Off: one voice per turn, as before.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: A single player message can be answered by more than one character. The judge picks each next speaker and stops when it hands the turn back to you; a story may set its own order on a checkpoint. Off: one voice per turn, as before.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "How quickly the measured tension follows the latest scene. Higher = jumpier, lower = smoother.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: How quickly the measured tension follows the latest scene. Higher = jumpier, lower = smoother.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "title",
+            "value": "Quietly nudge the main model toward the story's intended tension (escalate or cool down) via an injected note.",
+            "controls": []
+          },
+          {
+            "surface": "#story-orchestrator-settings",
+            "attr": "aria-label",
+            "value": "Help: Quietly nudge the main model toward the story's intended tension (escalate or cool down) via an injected note.",
+            "controls": []
+          }
+        ]
+      }
+    ],
+    "tokens": [
+      "aegis-homecoming",
+      "aegis-tobias-pleads",
+      "aegis-the-tavern",
+      "aegis-market-street",
+      "aegis-errands",
+      "aegis-the-curio-shop",
+      "aegis-the-chapel",
+      "aegis-the-orphanage",
+      "aegis-the-shrine",
+      "aegis-victorys-tusk",
+      "aegis-the-long-week",
+      "aegis-green-meadow",
+      "aegis-the-exam",
+      "aegis-vallie-watches",
+      "aegis-a-name-in-the-city",
+      "aegis-tibalts-manor",
+      "aegis-a-hard-lesson",
+      "aegis-the-board",
+      "passed_with_honours",
+      "aegis_guild_hall",
+      "aegis_guild_tavern",
+      "aegis_market",
+      "aegis_curio_shop",
+      "aegis_prodyr_chapel",
+      "aegis_orphanage",
+      "aegis_temple_district",
+      "aegis_victorys_tusk",
+      "aegis_green_meadow",
+      "aegis_wagon_road",
+      "aegis_tibalt_manor"
+    ]
+  },
+  "spend": {
+    "orchestrator": {
+      "calls": 119,
+      "input": 285697,
+      "output": 54050,
+      "measuredCalls": 119,
+      "estimatedCalls": 0,
+      "costUsd": null,
+      "ringCalls": 119,
+      "ringCostUsd": null
+    },
+    "judge": {
+      "calls": 248,
+      "cached": 4,
+      "fallbacks": 48,
+      "input": 1093136,
+      "output": 113882,
+      "costUsd": null
+    },
+    "main": {
+      "calls": 30
+    },
+    "responsesCaptured": 125
+  },
+  "tails": {
+    "journal": {
+      "ready": {
+        "at": "2026-10-02T02:13:16.089Z",
+        "pid": 82928,
+        "tail": "journal",
+        "chatId": "2026-10-01@23h13m05s002ms",
+        "storyId": "adolion-aegis",
+        "boundary": 1
+      },
+      "drained": {
+        "at": "2026-10-02T02:48:06.853Z",
+        "pid": 82928,
+        "tail": "journal",
+        "ok": true,
+        "events": 1105,
+        "audits": 36
+      }
+    },
+    "payloads": {
+      "ready": {
+        "at": "2026-10-02T02:13:16.079Z",
+        "pid": 69780,
+        "tail": "payloads",
+        "epoch": "1790907196060-1r5gkl",
+        "nextIndex": 0
+      },
+      "drained": {
+        "at": "2026-10-02T02:48:06.237Z",
+        "pid": 69780,
+        "tail": "payloads",
+        "written": 149,
+        "responses": 125,
+        "dropped": 0,
+        "rearmed": 0,
+        "unknownGaps": 0,
+        "writeErrors": 0,
+        "epoch": "1790907196060-1r5gkl",
+        "ok": true
+      }
+    },
+    "console": {
+      "ready": {
+        "at": "2026-10-02T02:13:16.086Z",
+        "pid": 85564,
+        "tail": "console"
+      },
+      "drained": {
+        "at": "2026-10-02T02:48:05.075Z",
+        "pid": 85564,
+        "tail": "console",
+        "ok": true,
+        "rows": 69
+      }
+    }
+  },
+  "valid": true,
+  "invalid": []
+}

@@ -1,0 +1,466 @@
+{
+  "level": {
+    "requested": 1,
+    "effective": 1,
+    "window": 20
+  },
+  "attach": {
+    "samples": 10,
+    "medianMs": 545.6999999284744
+  },
+  "strips": [
+    {
+      "mesid": "31",
+      "level": 1,
+      "nodes": 3,
+      "inspect": false,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The party's revised plan is for Dalan to set a rope on the west wall and for everyone to go over the wall at the change of watch."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "32",
+      "level": 1,
+      "nodes": 4,
+      "inspect": false,
+      "chips": [
+        {
+          "category": "threads",
+          "label": "Threads: 2",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The party's revised infiltration plan — Dalan's rope on the west wall and entry over the wall at the change of watch — must succeed or fail."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The wall guards' unnatural stillness and their non-reaction to the violet light suggest something is wrong with them or controlling them."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "35",
+      "level": 1,
+      "nodes": 5,
+      "inspect": false,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Ced gave the word and ascended the rope first, clearing the wall walk with alchemical speed while the grey-robed guards continued their plodding circle, oblivious."
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The party has gone over the west wall and must reach the Great Hall doors before the oblivious guards notice the intrusion."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "37",
+      "level": 1,
+      "nodes": 7,
+      "inspect": false,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 4",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The party crossed the yard behind the patrol and pushed open the Great Hall's doors, entering the keep's hall."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Inside the Great Hall a single chair faces the door and a long banquet table holds fresh food and drink, uncorrupted by the stench of decay."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Ced senses something wrong because the food in the Great Hall is fresh."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The party entered Carrow Keep's Great Hall, where a single chair faces the door and a banquet table holds fresh, uncorrupted food and drink under pulsing violet light."
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 2",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Thread resolved: The party's revised infiltration plan — Dalan's rope on the west wall and entry over the wall at the change of watch — must succeed or fail."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The Great Hall's fresh food and single chair facing the door suggest a trap or a waiting presence the party has not identified."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "39",
+      "level": 1,
+      "nodes": 10,
+      "inspect": false,
+      "chips": [
+        {
+          "category": "progress",
+          "label": "Progress: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "What Waits in the Great Hall: The Great Hall's doors swing open on a throne, an altar with a captive strapped to it, and a cultist still holding the knife."
+            }
+          ]
+        },
+        {
+          "category": "memory",
+          "label": "Memory: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Ced ordered Runo to scan for life signs and arcane signatures and Dalan to check the perimeter for traps or ambushes inside the Great Hall."
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 2",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The Great Hall's fresh banquet and single chair facing the door remain unexplained, and the party must find the captives and the altar without touching the food."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: Runo has been tasked to scan for life signs and arcane signatures, and Dalan to check the hall's perimeter for traps or ambushes."
+            }
+          ]
+        },
+        {
+          "category": "pacing",
+          "label": "Pacing: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Tension: tense"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "40",
+      "level": 1,
+      "nodes": 3,
+      "inspect": false,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: A demon-thing with too many eyes was found feeding on what is left of Lord Aldric Carrow on the throne at the far end of the Great Hall."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "41",
+      "level": 1,
+      "nodes": 5,
+      "inspect": false,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Runo deployed a defensive golem shell to hold off the demon and the emerging guards."
+            }
+          ]
+        },
+        {
+          "category": "cast",
+          "label": "Cast & direction: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "The scene changed"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "43",
+      "level": 1,
+      "nodes": 6,
+      "inspect": false,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Ced ordered Runo to hold the enemy off, Dalan to cover the exit, and Max to follow him toward the altar."
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 2",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The demon-thing feeding on Lord Aldric Carrow and the tentacled guards must be fought or evaded in the Great Hall."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: Max wants to cut the captive loose and escape the hall, while Ced pushes toward the altar — the party must reconcile escape with the altar objective."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "44",
+      "level": 1,
+      "nodes": 3,
+      "inspect": false,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Dalan shot an armored tentacled guard through the chest with an arrow, but the guard did not falter and kept advancing."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "45",
+      "level": 1,
+      "nodes": 4,
+      "inspect": false,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 3",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The demon-thing on the throne watches Max Nightriver and continues feeding on Lord Carrow's chest."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Runo's defensive golem shell repelled two armored guards with a wave of force, knocking them back a dozen feet."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Runo's defensive golem shell erupted in a wave of force that knocked two armored guards back a dozen feet."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "47",
+      "level": 1,
+      "nodes": 7,
+      "inspect": false,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 5",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Max Nightriver grabbed the cultist's wrist, stopping the sacrificial knife an inch from the captive's throat."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The cultist is gaunt and vacant-eyed, resisting only with the mindless determination of the dead."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Something answered the demon's shriek from deeper within the Keep."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Max wrenched the cultist's knife away from the captive's throat and cut her bonds, hauling her off the altar."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Max saved the branded captive by stopping the cultist's knife and cutting her bonds, then hauled her off the altar."
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 2",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: Something deeper within the Keep answered the demon's shriek and may be closing on the Great Hall."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The cultist at the altar is still alive and grasping for the knife, and the captive remains bound on the altar."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "49",
+      "level": 1,
+      "nodes": 5,
+      "inspect": false,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: Dalan holds the Great Hall threshold with his shortbow, covering the party's retreat."
+            }
+          ]
+        },
+        {
+          "category": "pacing",
+          "label": "Pacing: 1",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Tension: critical"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "mesid": "50",
+      "level": 1,
+      "nodes": 7,
+      "inspect": false,
+      "chips": [
+        {
+          "category": "memory",
+          "label": "Memory: 3",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The captive bears a purple trident brand seared across her brow."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: The demon on the throne stands and watches the party rather than attacking, laughing as more tentacled guards emerge from the corridors."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Remembered: A low grinding sound like stone sliding on stone echoes from below the Great Hall, and a wave of demon-reek washes over the room."
+            }
+          ]
+        },
+        {
+          "category": "threads",
+          "label": "Threads: 4",
+          "items": [
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "Thread resolved: The cultist at the altar is still alive and grasping for the knife, and the captive remains bound on the altar."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The party has freed the branded captive and must now escape the Great Hall through the tentacled guards while Dalan holds the door."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The demon on the throne is standing and watching rather than attacking, and more tentacled guards keep emerging from the corridors."
+            },
+            {
+              "state": "applied",
+              "level": 1,
+              "text": "New thread: The grinding sound and demon-reek rising from below the Great Hall suggest something is climbing up toward the party."
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
+Wrote JSON: C:\dev\so-lanes\3\debug\2026-10-02T02-53-05-446Z_so-ui-inline.json

@@ -1,0 +1,1326 @@
+Following the session journal → C:\dev\story-orchestrator\test\sessions\T3\T3-2-1\journal.jsonl every 1000 ms. Ctrl-C to stop.
+2026-10-02T02:48:38.746Z session      chat 2026-10-01@23h13m06s765ms · story adolion-deep · at The Altar in the Great Hall (boundary 32, 42 messages)
+2026-10-02T02:13:07.049Z story        quality macro skipped
+2026-10-02T02:13:07.049Z story        quality macro skipped
+2026-10-02T02:13:07.049Z story        quality macro skipped
+2026-10-02T02:13:07.049Z story        quality macro skipped
+2026-10-02T02:13:07.049Z story        quality macro skipped
+2026-10-02T02:13:07.049Z story        quality macro skipped
+2026-10-02T02:13:07.049Z story        quality macro skipped
+2026-10-02T02:13:07.058Z boundary     boundary 1: nothing applied (gate)
+2026-10-02T02:13:11.634Z story        away recap not due
+2026-10-02T02:13:11.744Z status       Following Two Wings at One Counter
+2026-10-02T02:13:11.799Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:13:12.244Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:13:37.726Z status       No inner beat for Ced
+2026-10-02T02:13:56.148Z status       No inner beat for Ced
+2026-10-02T02:13:56.150Z story        NPC reply Adolion Narrator (afterSpeak) skipped by its roll
+2026-10-02T02:13:56.350Z status       No inner beat for Kela
+2026-10-02T02:13:56.630Z status       No inner beat for Belle
+2026-10-02T02:13:56.873Z status       No inner beat for Dalan
+2026-10-02T02:13:57.105Z status       No inner beat for Vallie
+2026-10-02T02:13:57.434Z boundary     applied deep_posting_refused=false, deep_set_out=false, location=deep_guild_hall, tension_current=0.25
+2026-10-02T02:13:58.281Z status       No inner beat for Kela
+2026-10-02T02:13:58.343Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:13:59.059Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:13:59.219Z status       Inner beat unused
+2026-10-02T02:14:21.839Z status       No inner beat for Kela
+2026-10-02T02:14:21.840Z story        NPC reply Adolion Narrator (afterSpeak) skipped by its roll
+2026-10-02T02:14:22.321Z boundary     applied location=deep_guild_hall, tension_current=0.25
+2026-10-02T02:14:22.558Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:14:23.988Z status       Inner beat unused
+2026-10-02T02:14:23.989Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:14:26.699Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:15:01.750Z status       No inner beat for Kela
+2026-10-02T02:15:04.365Z status       No inner beat for Kela
+2026-10-02T02:15:04.366Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:15:05.445Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:15:05.447Z status       No inner beat for Belle
+2026-10-02T02:15:06.500Z status       No inner beat for Belle
+2026-10-02T02:15:06.759Z status       No inner beat for Ced
+2026-10-02T02:15:22.983Z status       No inner beat for Ced
+2026-10-02T02:15:22.984Z story        NPC reply Adolion Narrator (afterSpeak) skipped by its roll
+2026-10-02T02:15:23.464Z boundary     applied location=deep_guild_hall; discarded location=deep_guild_hall (superseded)
+2026-10-02T02:15:23.704Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:15:24.088Z status       No inner beat for Kela
+2026-10-02T02:15:25.444Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:15:31.408Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:15:32.421Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:15:50.164Z status       No inner beat for Kela
+2026-10-02T02:15:50.165Z story        NPC reply Adolion Narrator (afterSpeak) skipped by its roll
+2026-10-02T02:15:50.651Z boundary     applied deep_partner=crimsonwing, deep_posting_refused=false, location=deep_guild_hall, tension_current=0.25, progress_toward_deep-the-reckoning=2; discarded deep_partner=crimsonwing (superseded)
+2026-10-02T02:15:50.651Z transition   deep-joint-posting → deep-with-crimsonwing
+2026-10-02T02:15:50.689Z story        cast change at "Crimsonwing at the North Gate" removed Kela, whom the play just brought in
+2026-10-02T02:15:53.368Z status       No inner beat for Ced
+2026-10-02T02:16:22.196Z status       No inner beat for Ced
+2026-10-02T02:16:22.694Z status       Moved into Crimsonwing at the North Gate
+2026-10-02T02:16:22.766Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:16:22.771Z boundary     boundary 6: nothing applied (gate)
+2026-10-02T02:16:22.987Z status       Following Crimsonwing at the North Gate
+2026-10-02T02:16:23.994Z status       Inner beat unused
+2026-10-02T02:16:24.236Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:16:24.281Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:16:25.565Z stagecraft   World Info curator proposed 1 change(s) at Crimsonwing at the North Gate
+2026-10-02T02:16:29.177Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:16:30.203Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:16:30.225Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:16:36.476Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:16:54.628Z status       No inner beat for Belle
+2026-10-02T02:16:56.982Z status       No inner beat for Belle
+2026-10-02T02:16:56.982Z status       No inner beat for Runo
+2026-10-02T02:16:57.888Z status       No inner beat for Runo
+2026-10-02T02:16:58.160Z status       No inner beat for Ced
+2026-10-02T02:17:13.249Z status       No inner beat for Ced
+2026-10-02T02:17:13.754Z boundary     applied tension_current=0.25, deep_set_out=false, location=deep_guild_hall, deep_set_out=false, location=deep_guild_hall; discarded deep_set_out=false, location=deep_guild_hall (superseded)
+2026-10-02T02:17:13.858Z status       No inner beat for Ced
+2026-10-02T02:17:14.285Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:17:14.394Z model-call   generation via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:17:15.408Z status       Inner beat unused
+2026-10-02T02:17:15.675Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:17:20.986Z extraction   read cue:deep-with-crimsonwing->deep-the-north-road msgs 2-9 → 2 accepted, 0 rejected
+2026-10-02T02:17:20.986Z delta        deep_set_out = false
+2026-10-02T02:17:20.986Z delta        location = deep_guild_hall
+2026-10-02T02:17:23.739Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:17:28.319Z extraction   read scene:location msgs 2-9 → 2 accepted, 1 rejected
+2026-10-02T02:17:28.319Z delta        location = deep_guild_hall
+2026-10-02T02:17:28.319Z delta        tension_current = 0.25
+2026-10-02T02:17:54.893Z status       No inner beat for Ced
+2026-10-02T02:17:56.959Z status       No inner beat for Ced
+2026-10-02T02:17:56.960Z status       No inner beat for Runo
+2026-10-02T02:17:57.551Z status       No inner beat for Runo
+2026-10-02T02:17:57.552Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:18:19.177Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:18:19.664Z status       No inner beat for Dalan
+2026-10-02T02:18:21.442Z boundary     applied deep_set_out=false, location=deep_guild_hall, tension_current=0.25; discarded location=deep_guild_hall (superseded)
+2026-10-02T02:18:21.784Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:18:22.533Z status       No inner beat for Runo
+2026-10-02T02:18:23.074Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:18:28.396Z extraction   read cue:deep-with-crimsonwing->deep-the-north-road msgs 4-11 → 2 accepted, 1 rejected
+2026-10-02T02:18:28.396Z delta        location = deep_north_road
+2026-10-02T02:18:28.396Z delta        tension_current = 0.175
+2026-10-02T02:18:34.285Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:18:36.280Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:18:37.777Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:18:39.809Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:18:48.542Z status       No inner beat for Runo
+2026-10-02T02:18:49.098Z boundary     applied location=deep_north_road, tension_current=0.175
+2026-10-02T02:18:49.462Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:18:49.673Z status       Inner beat stale for Ced
+2026-10-02T02:18:50.598Z status       Inner beat unused
+2026-10-02T02:18:51.157Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:18:55.547Z extraction   read cadence msgs 8-12 → 1 accepted, 1 rejected
+2026-10-02T02:18:55.547Z delta        location = deep_north_road
+2026-10-02T02:18:57.921Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:18:58.126Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:18:59.418Z stagecraft   World Info curator proposed 1 change(s) at Crimsonwing at the North Gate
+2026-10-02T02:19:03.512Z extraction   read scene:location msgs 5-12 → 2 accepted, 2 rejected
+2026-10-02T02:19:03.512Z delta        location = deep_north_road
+2026-10-02T02:19:03.512Z delta        tension_current = 0.19749999999999998
+2026-10-02T02:19:05.871Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:19:08.111Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:19:23.047Z status       Inner beat stale for Ced
+2026-10-02T02:19:23.612Z boundary     applied location=deep_north_road, tension_current=0.19749999999999998; discarded location=deep_north_road (superseded)
+2026-10-02T02:19:28.529Z judge        judge typed in 4511 ms
+2026-10-02T02:19:30.533Z judge        judge warden fell back (timeout) in 4006 ms
+2026-10-02T02:19:31.444Z judge        judge wardenLore in 2917 ms
+2026-10-02T02:19:31.923Z judge        judge typed in 478 ms
+2026-10-02T02:19:31.923Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:19:37.616Z extraction   read cue:deep-with-crimsonwing->deep-the-north-road msgs 6-13 → 2 accepted, 1 rejected
+2026-10-02T02:19:37.616Z delta        location = deep_north_road
+2026-10-02T02:19:37.616Z delta        tension_current = 0.21325
+2026-10-02T02:19:39.131Z judge        judge memoryVerify in 1513 ms
+2026-10-02T02:19:49.220Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:19:51.654Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:19:54.524Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:19:58.781Z judge        judge memoryPairs in 429 ms
+2026-10-02T02:19:58.874Z judge        judge memoryPairs in 521 ms
+2026-10-02T02:19:59.013Z judge        judge memoryPairs in 233 ms
+2026-10-02T02:19:59.215Z judge        judge memoryPairs in 342 ms
+2026-10-02T02:19:59.514Z judge        judge memoryPairs in 299 ms
+2026-10-02T02:19:59.522Z judge        judge memoryPairs in 510 ms
+2026-10-02T02:19:59.728Z judge        judge memoryPairs in 215 ms
+2026-10-02T02:19:59.779Z judge        judge memoryPairs in 258 ms
+2026-10-02T02:19:59.999Z judge        judge memoryPairs in 218 ms
+2026-10-02T02:20:00.006Z judge        judge memoryPairs in 225 ms
+2026-10-02T02:20:00.370Z judge        judge memoryPairs in 365 ms
+2026-10-02T02:20:00.391Z judge        judge memoryPairs in 393 ms
+2026-10-02T02:20:00.637Z judge        judge memoryPairs in 267 ms
+2026-10-02T02:20:00.733Z judge        judge memoryPairs in 343 ms
+2026-10-02T02:20:00.870Z judge        judge memoryPairs in 234 ms
+2026-10-02T02:20:01.097Z judge        judge memoryPairs in 365 ms
+2026-10-02T02:20:01.331Z judge        judge memoryPairs in 232 ms
+2026-10-02T02:20:01.360Z judge        judge memoryPairs in 262 ms
+2026-10-02T02:20:01.633Z judge        judge memoryPairs in 274 ms
+2026-10-02T02:20:01.855Z judge        judge memoryPairs in 223 ms
+2026-10-02T02:20:01.856Z judge        judge memoryPairs in 526 ms
+2026-10-02T02:20:02.069Z judge        judge memoryPairs in 214 ms
+2026-10-02T02:20:02.115Z judge        judge memoryPairs in 261 ms
+2026-10-02T02:20:02.414Z judge        judge memoryPairs in 346 ms
+2026-10-02T02:20:35.385Z judge        judge memoryPairs in 291 ms
+2026-10-02T02:20:35.606Z judge        judge memoryPairs in 221 ms
+2026-10-02T02:20:35.628Z judge        judge memoryPairs in 532 ms
+2026-10-02T02:20:35.824Z judge        judge memoryPairs in 219 ms
+2026-10-02T02:20:36.033Z judge        judge memoryPairs in 406 ms
+2026-10-02T02:20:36.036Z judge        judge memoryPairs in 214 ms
+2026-10-02T02:20:36.250Z judge        judge memoryPairs in 218 ms
+2026-10-02T02:20:36.640Z judge        judge memoryPairs in 605 ms
+2026-10-02T02:20:36.890Z judge        judge memoryPairs in 249 ms
+2026-10-02T02:20:37.119Z judge        judge memoryPairs in 230 ms
+2026-10-02T02:20:37.122Z judge        judge memoryPairs fell back (busy) in 4 ms
+2026-10-02T02:20:37.123Z judge        judge memoryPairs fell back (busy) in 481 ms
+2026-10-02T02:20:37.123Z judge        judge memoryPairs fell back (busy) in 482 ms
+2026-10-02T02:20:37.123Z judge        judge memoryPairs fell back (busy) in 482 ms
+2026-10-02T02:20:37.123Z judge        judge memoryPairs fell back (busy) in 482 ms
+2026-10-02T02:20:37.210Z judge        judge memoryPairs in 568 ms
+2026-10-02T02:20:37.211Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:20:37.211Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:20:37.211Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:20:37.211Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:20:37.535Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:21:22.442Z status       No inner beat for Runo
+2026-10-02T02:21:23.093Z judge        judge lore in 387 ms
+2026-10-02T02:21:23.348Z judge        judge lore in 637 ms
+2026-10-02T02:21:23.423Z judge        judge lore in 334 ms
+2026-10-02T02:21:23.663Z judge        judge lore in 241 ms
+2026-10-02T02:21:24.013Z judge        judge lore in 669 ms
+2026-10-02T02:21:24.244Z judge        judge director in 220 ms
+2026-10-02T02:21:48.732Z status       No inner beat for Runo
+2026-10-02T02:21:49.309Z status       No inner beat for Belle
+2026-10-02T02:21:50.726Z status       Inner beat stale for Ced
+2026-10-02T02:21:53.188Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:21:54.643Z boundary     applied location=deep_north_road, tension_current=0.21325
+2026-10-02T02:21:54.964Z reconciliation stall re-check queued for deep_set_out
+2026-10-02T02:21:54.995Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:21:55.020Z judge        judge director in 270 ms
+2026-10-02T02:21:55.359Z judge        judge typed in 357 ms
+2026-10-02T02:21:55.421Z judge        judge stall in 402 ms
+2026-10-02T02:21:55.627Z status       Inner beat stale for Ced
+2026-10-02T02:21:55.906Z judge        judge scene in 549 ms
+2026-10-02T02:21:55.922Z status       Inner beat unused
+2026-10-02T02:21:55.929Z judge        judge warden in 509 ms
+2026-10-02T02:21:56.380Z judge        judge wardenLore in 475 ms
+2026-10-02T02:21:56.408Z judge        judge lore in 483 ms
+2026-10-02T02:21:56.739Z judge        judge lore in 335 ms
+2026-10-02T02:21:56.748Z judge        judge lore in 372 ms
+2026-10-02T02:21:57.008Z judge        judge lore in 262 ms
+2026-10-02T02:21:57.026Z judge        judge lore in 291 ms
+2026-10-02T02:21:58.262Z judge        judge typed in 1255 ms
+2026-10-02T02:21:58.262Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:22:04.706Z extraction   read reconcile:deep_set_out msgs 7-15 → 1 accepted, 1 rejected
+2026-10-02T02:22:04.706Z delta        location = deep_north_road
+2026-10-02T02:22:05.377Z judge        judge memoryVerify in 668 ms
+2026-10-02T02:22:07.947Z reconciliation stall re-check resolved (1 evidence)
+2026-10-02T02:22:08.632Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:22:09.940Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:22:11.464Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:22:22.665Z status       Inner beat stale for Ced
+2026-10-02T02:22:23.254Z boundary     applied location=deep_north_road
+2026-10-02T02:22:23.722Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:22:24.010Z judge        judge director in 761 ms
+2026-10-02T02:22:24.064Z judge        judge scene in 333 ms
+2026-10-02T02:22:24.308Z judge        judge warden in 299 ms
+2026-10-02T02:22:25.141Z judge        judge wardenLore in 1078 ms
+2026-10-02T02:22:25.479Z judge        judge typed in 1172 ms
+2026-10-02T02:22:25.479Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:22:29.049Z extraction   read cadence msgs 13-16 → 1 accepted, 1 rejected
+2026-10-02T02:22:29.049Z delta        location = deep_north_road
+2026-10-02T02:22:29.282Z judge        judge memoryVerify in 231 ms
+2026-10-02T02:22:50.276Z status       Inner beat stale for Ced
+2026-10-02T02:22:51.096Z judge        judge lore in 519 ms
+2026-10-02T02:22:51.118Z judge        judge lore in 537 ms
+2026-10-02T02:22:51.410Z judge        judge lore in 319 ms
+2026-10-02T02:22:51.653Z judge        judge lore in 245 ms
+2026-10-02T02:22:51.669Z judge        judge lore in 557 ms
+2026-10-02T02:22:51.926Z judge        judge director in 244 ms
+2026-10-02T02:22:53.120Z status       Inner beat stale for Ced
+2026-10-02T02:22:53.121Z status       No inner beat for Belle
+2026-10-02T02:22:54.448Z status       No inner beat for Belle
+2026-10-02T02:22:54.754Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:23:18.942Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:23:19.595Z boundary     applied location=deep_north_road
+2026-10-02T02:23:19.982Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:23:20.049Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:23:20.652Z judge        judge typed in 269 ms
+2026-10-02T02:23:20.913Z judge        judge lore in 511 ms
+2026-10-02T02:23:20.940Z status       Inner beat unused
+2026-10-02T02:23:20.997Z judge        judge lore in 349 ms
+2026-10-02T02:23:21.241Z judge        judge lore in 332 ms
+2026-10-02T02:23:21.300Z judge        judge lore in 306 ms
+2026-10-02T02:23:21.544Z judge        judge scene in 246 ms
+2026-10-02T02:23:21.600Z judge        judge lore in 361 ms
+2026-10-02T02:23:23.155Z judge        judge wardenLore in 1556 ms
+2026-10-02T02:23:23.156Z judge        judge warden in 1614 ms
+2026-10-02T02:23:23.405Z judge        judge typed in 252 ms
+2026-10-02T02:23:23.405Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:23:28.201Z extraction   read cue:deep-with-crimsonwing->deep-the-north-road msgs 11-18 → 3 accepted, 1 rejected
+2026-10-02T02:23:28.201Z delta        location = deep_north_road
+2026-10-02T02:23:28.201Z delta        party_injuries = 0
+2026-10-02T02:23:28.201Z delta        tension_current = 0.224275
+2026-10-02T02:23:28.464Z judge        judge memoryVerify in 260 ms
+2026-10-02T02:23:31.235Z judge        judge typed in 0 ms
+2026-10-02T02:23:31.236Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:23:31.244Z judge        judge curatorFilter in 310 ms
+2026-10-02T02:23:31.245Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:23:33.128Z stagecraft   World Info curator proposed 3 change(s) at Crimsonwing at the North Gate
+2026-10-02T02:23:36.139Z extraction   read scene:judge msgs 11-18 → 3 accepted, 1 rejected
+2026-10-02T02:23:36.139Z delta        location = deep_north_road
+2026-10-02T02:23:36.139Z delta        party_injuries = 0
+2026-10-02T02:23:36.139Z delta        tension_current = 0.224275
+2026-10-02T02:23:36.412Z judge        judge memoryVerify in 270 ms
+2026-10-02T02:23:38.124Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:23:40.295Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:24:09.253Z boundary     applied location=deep_north_road, party_injuries=0, tension_current=0.224275; discarded location=deep_north_road, party_injuries=0, tension_current=0.224275 (superseded)
+2026-10-02T02:24:09.583Z reconciliation stall re-check queued for deep_set_out
+2026-10-02T02:24:09.622Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:24:09.907Z judge        judge typed in 279 ms
+2026-10-02T02:24:09.948Z judge        judge stall in 319 ms
+2026-10-02T02:24:10.385Z judge        judge scene in 479 ms
+2026-10-02T02:24:10.404Z judge        judge warden in 458 ms
+2026-10-02T02:24:10.728Z status       Inner beat unused
+2026-10-02T02:24:11.353Z judge        judge typed in 243 ms
+2026-10-02T02:24:11.354Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:24:16.893Z extraction   read reconcile:deep_set_out msgs 7-19 → 1 accepted, 1 rejected
+2026-10-02T02:24:16.893Z delta        location = deep_north_road
+2026-10-02T02:24:17.162Z judge        judge memoryVerify in 265 ms
+2026-10-02T02:24:19.074Z reconciliation stall re-check resolved (1 evidence)
+2026-10-02T02:24:20.617Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:24:22.369Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:24:24.464Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:24:43.380Z flag         Story stuck at Crimsonwing at the North Gate: party has marched four days north (msg 18) but deep_set_out is rejected 5 times, the memory model always quotes my line 'We fall in behind the cart and leave the city' as evidence (evidence only in the player's line), never the narrator's travel text.
+2026-10-02T02:24:49.989Z status       Inner beat stale for Ced
+2026-10-02T02:24:50.717Z judge        judge lore in 371 ms
+2026-10-02T02:24:50.776Z judge        judge lore in 419 ms
+2026-10-02T02:24:51.030Z judge        judge lore in 317 ms
+2026-10-02T02:24:51.187Z judge        judge lore in 414 ms
+2026-10-02T02:24:51.281Z judge        judge lore in 253 ms
+2026-10-02T02:24:51.558Z judge        judge director in 259 ms
+2026-10-02T02:24:52.557Z status       Inner beat used for Ced
+2026-10-02T02:24:52.559Z status       No inner beat for Dalan
+2026-10-02T02:24:53.601Z status       No inner beat for Dalan
+2026-10-02T02:24:53.602Z status       No inner beat for Runo
+2026-10-02T02:24:54.825Z status       No inner beat for Runo
+2026-10-02T02:24:55.118Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:25:39.052Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:25:39.775Z boundary     applied location=deep_north_road
+2026-10-02T02:25:40.218Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:25:40.462Z status       Inner beat used for Ced
+2026-10-02T02:25:40.779Z judge        judge scene in 556 ms
+2026-10-02T02:25:40.826Z judge        judge warden in 602 ms
+2026-10-02T02:25:41.999Z judge        judge wardenLore in 1221 ms
+2026-10-02T02:25:42.347Z judge        judge lore fell back (timeout) in 1527 ms
+2026-10-02T02:25:42.365Z judge        judge lore in 372 ms
+2026-10-02T02:25:42.662Z judge        judge lore in 304 ms
+2026-10-02T02:25:42.690Z judge        judge lore in 350 ms
+2026-10-02T02:25:42.906Z judge        judge lore in 245 ms
+2026-10-02T02:25:43.143Z judge        judge typed in 454 ms
+2026-10-02T02:25:43.143Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:25:48.093Z extraction   read cadence msgs 17-21 → 4 accepted, 0 rejected
+2026-10-02T02:25:48.093Z delta        deep_set_out = true
+2026-10-02T02:25:48.093Z delta        location = deep_ritual_fort
+2026-10-02T02:25:48.093Z delta        party_injuries = 0
+2026-10-02T02:25:48.093Z delta        tension_current = 0.2319925
+2026-10-02T02:25:48.420Z judge        judge memoryVerify in 325 ms
+2026-10-02T02:25:51.898Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:25:53.852Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:25:55.440Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:26:08.676Z status       Inner beat used for Ced
+2026-10-02T02:26:09.587Z boundary     applied deep_set_out=true, location=deep_ritual_fort, party_injuries=0, tension_current=0.2319925
+2026-10-02T02:26:09.587Z transition   deep-with-crimsonwing → deep-the-north-road
+2026-10-02T02:26:10.016Z judge        judge director in 389 ms
+2026-10-02T02:26:10.839Z status       Moved into The North Road
+2026-10-02T02:26:11.081Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:26:11.092Z model-call   generation via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:26:11.742Z status       No inner beat for Runo
+2026-10-02T02:26:12.155Z judge        judge scene in 1053 ms
+2026-10-02T02:26:12.193Z judge        judge typed in 1093 ms
+2026-10-02T02:26:12.844Z judge        judge wardenLore in 653 ms
+2026-10-02T02:26:12.887Z judge        judge warden in 736 ms
+2026-10-02T02:26:13.176Z judge        judge lore in 338 ms
+2026-10-02T02:26:13.257Z judge        judge lore in 376 ms
+2026-10-02T02:26:13.542Z judge        judge lore in 370 ms
+2026-10-02T02:26:13.565Z judge        judge lore in 313 ms
+2026-10-02T02:26:13.804Z judge        judge lore in 263 ms
+2026-10-02T02:26:14.010Z judge        judge typed in 447 ms
+2026-10-02T02:26:14.011Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:26:15.793Z judge        judge critic in 251 ms
+2026-10-02T02:26:20.719Z extraction   read cue:deep-the-north-road->deep-ritual-fort msgs 15-22 → 4 accepted, 0 rejected
+2026-10-02T02:26:20.719Z delta        deep_first_camp = true
+2026-10-02T02:26:20.719Z delta        deep_fort_sighted = true
+2026-10-02T02:26:20.719Z delta        location = deep_ritual_fort
+2026-10-02T02:26:20.719Z delta        tension_current = 0.31239474999999994
+2026-10-02T02:26:20.992Z judge        judge memoryVerify in 270 ms
+2026-10-02T02:26:24.298Z judge        judge typed in 0 ms
+2026-10-02T02:26:24.299Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:26:28.957Z extraction   read scene:location msgs 15-22 → 4 accepted, 0 rejected
+2026-10-02T02:26:28.957Z delta        deep_first_camp = true
+2026-10-02T02:26:28.957Z delta        deep_fort_sighted = true
+2026-10-02T02:26:28.957Z delta        location = deep_ritual_fort
+2026-10-02T02:26:28.957Z delta        tension_current = 0.38739474999999995
+2026-10-02T02:26:29.333Z judge        judge memoryVerify in 371 ms
+2026-10-02T02:26:32.284Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:26:34.209Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:26:37.482Z status       No inner beat for Runo
+2026-10-02T02:26:38.549Z boundary     applied deep_first_camp=true, deep_fort_sighted=true, location=deep_ritual_fort, tension_current=0.38739474999999995; discarded deep_first_camp=true, deep_fort_sighted=true, location=deep_ritual_fort, tension_current=0.31239474999999994 (superseded)
+2026-10-02T02:26:38.549Z transition   deep-the-north-road → deep-ritual-fort
+2026-10-02T02:26:40.968Z status       Moved into Carrow Keep
+2026-10-02T02:26:41.082Z boundary     boundary 18: nothing applied (gate)
+2026-10-02T02:26:41.528Z status       Following Carrow Keep
+2026-10-02T02:26:41.942Z judge        judge typed in 860 ms
+2026-10-02T02:26:41.944Z judge        judge scene in 861 ms
+2026-10-02T02:26:42.697Z judge        judge wardenLore in 754 ms
+2026-10-02T02:26:42.703Z judge        judge warden in 762 ms
+2026-10-02T02:26:42.766Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:26:42.951Z judge        judge curatorFilter in 256 ms
+2026-10-02T02:26:42.951Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:26:44.394Z stagecraft   World Info curator proposed 2 change(s) at Carrow Keep
+2026-10-02T02:26:46.272Z judge        judge typed in 247 ms
+2026-10-02T02:26:46.273Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:26:49.649Z extraction   read cue:deep-ritual-fort->deep-the-altar msgs 17-24 → 2 accepted, 0 rejected
+2026-10-02T02:26:49.649Z delta        location = deep_ritual_fort
+2026-10-02T02:26:49.649Z delta        tension_current = 0.4211763249999999
+2026-10-02T02:26:49.965Z judge        judge memoryVerify in 314 ms
+2026-10-02T02:26:53.320Z judge        judge typed in 273 ms
+2026-10-02T02:26:53.320Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:26:57.547Z extraction   read cadence msgs 22-24 → 2 accepted, 0 rejected
+2026-10-02T02:26:57.547Z delta        location = deep_ritual_fort
+2026-10-02T02:26:57.547Z delta        tension_current = 0.4961763249999999
+2026-10-02T02:26:57.818Z judge        judge memoryVerify in 270 ms
+2026-10-02T02:27:00.619Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:27:02.727Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:27:20.363Z status       Inner beat stale for Ced
+2026-10-02T02:27:21.149Z judge        judge lore in 414 ms
+2026-10-02T02:27:21.196Z judge        judge lore in 449 ms
+2026-10-02T02:27:21.470Z judge        judge lore in 325 ms
+2026-10-02T02:27:21.497Z judge        judge lore in 307 ms
+2026-10-02T02:27:21.698Z judge        judge lore in 230 ms
+2026-10-02T02:27:21.940Z judge        judge director in 229 ms
+2026-10-02T02:27:51.395Z status       Inner beat stale for Ced
+2026-10-02T02:27:52.226Z status       No inner beat for Dalan
+2026-10-02T02:27:53.276Z boundary     applied location=deep_ritual_fort, tension_current=0.4211763249999999, location=deep_ritual_fort, tension_current=0.4961763249999999
+2026-10-02T02:27:54.003Z judge        judge director in 743 ms
+2026-10-02T02:27:54.060Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:27:54.308Z judge        judge typed in 243 ms
+2026-10-02T02:27:54.654Z status       No inner beat for Runo
+2026-10-02T02:27:54.802Z judge        judge scene in 736 ms
+2026-10-02T02:27:54.844Z judge        judge warden in 537 ms
+2026-10-02T02:27:55.027Z judge        judge wardenLore in 225 ms
+2026-10-02T02:27:55.176Z judge        judge lore in 336 ms
+2026-10-02T02:27:55.358Z judge        judge lore in 335 ms
+2026-10-02T02:27:55.363Z status       Inner beat unused
+2026-10-02T02:27:55.631Z judge        judge lore in 459 ms
+2026-10-02T02:27:55.670Z judge        judge lore in 316 ms
+2026-10-02T02:27:55.876Z judge        judge lore in 246 ms
+2026-10-02T02:28:36.375Z status       No inner beat for Runo
+2026-10-02T02:28:37.177Z boundary     boundary 20: nothing applied (gate)
+2026-10-02T02:28:37.665Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:28:37.718Z judge        judge director in 420 ms
+2026-10-02T02:28:40.225Z judge        judge scene fell back (timeout) in 2509 ms
+2026-10-02T02:28:42.678Z judge        judge typed fell back (timeout) in 5006 ms
+2026-10-02T02:28:44.235Z judge        judge warden fell back (timeout) in 4012 ms
+2026-10-02T02:28:44.499Z status       No inner beat for Dalan
+2026-10-02T02:28:44.948Z judge        judge wardenLore in 2271 ms
+2026-10-02T02:28:46.045Z status       Inner beat unused
+2026-10-02T02:28:46.052Z judge        judge lore in 1108 ms
+2026-10-02T02:28:46.068Z judge        judge lore in 1465 ms
+2026-10-02T02:28:46.762Z judge        judge lore in 716 ms
+2026-10-02T02:28:46.763Z judge        judge lore in 700 ms
+2026-10-02T02:28:47.502Z judge        judge lore in 741 ms
+2026-10-02T02:29:17.251Z status       No inner beat for Dalan
+2026-10-02T02:29:19.183Z boundary     boundary 21: nothing applied (gate)
+2026-10-02T02:30:42.108Z status       No inner beat for Dalan
+2026-10-02T02:31:13.719Z status       No inner beat for Dalan
+2026-10-02T02:31:14.830Z story        eventless change at message 28
+2026-10-02T02:31:15.082Z status       No inner beat for Dalan
+2026-10-02T02:31:15.680Z boundary     boundary 22: nothing applied (gate)
+2026-10-02T02:31:17.386Z judge        judge typed in 327 ms
+2026-10-02T02:32:14.416Z story        host change "cast" was reverted when this chat reloaded
+2026-10-02T02:32:14.416Z story        host change "background" was reverted when this chat reloaded
+2026-10-02T02:32:15.680Z story        away recap not due
+2026-10-02T02:32:16.873Z status       Continuing Adolion: Crimsonwing & Ebonwing
+2026-10-02T02:32:16.909Z story        quality macro skipped
+2026-10-02T02:32:16.910Z story        quality macro skipped
+2026-10-02T02:32:16.910Z story        quality macro skipped
+2026-10-02T02:32:16.910Z story        quality macro skipped
+2026-10-02T02:32:16.910Z story        quality macro skipped
+2026-10-02T02:32:16.910Z story        quality macro skipped
+2026-10-02T02:32:16.910Z story        quality macro skipped
+2026-10-02T02:32:32.824Z judge        judge lore in 359 ms
+2026-10-02T02:32:32.868Z judge        judge lore in 415 ms
+2026-10-02T02:32:33.171Z judge        judge lore in 351 ms
+2026-10-02T02:32:33.211Z judge        judge lore in 347 ms
+2026-10-02T02:32:33.395Z judge        judge lore in 225 ms
+2026-10-02T02:32:33.634Z judge        judge director in 226 ms
+2026-10-02T02:32:52.202Z boundary     boundary 23: nothing applied (gate)
+2026-10-02T02:32:52.442Z judge        judge director in 341 ms
+2026-10-02T02:32:52.443Z talk         silence speaks (judge)
+2026-10-02T02:32:53.420Z status       Following Carrow Keep
+2026-10-02T02:32:53.474Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:32:53.718Z judge        judge typed in 259 ms
+2026-10-02T02:32:53.748Z judge        judge scene in 287 ms
+2026-10-02T02:32:54.104Z judge        judge wardenLore in 358 ms
+2026-10-02T02:32:54.105Z judge        judge warden in 389 ms
+2026-10-02T02:32:54.633Z status       Inner beat unused
+2026-10-02T02:33:08.739Z status       No inner beat for Dalan
+2026-10-02T02:33:09.566Z judge        judge lore in 420 ms
+2026-10-02T02:33:09.608Z judge        judge lore in 457 ms
+2026-10-02T02:33:09.869Z judge        judge lore in 308 ms
+2026-10-02T02:33:09.941Z judge        judge lore in 337 ms
+2026-10-02T02:33:10.097Z judge        judge lore in 230 ms
+2026-10-02T02:33:10.342Z talk         Dalan speaks (judge)
+2026-10-02T02:33:10.342Z judge        judge director in 232 ms
+2026-10-02T02:33:23.262Z status       No inner beat for Dalan
+2026-10-02T02:33:24.175Z status       Inner beat stale for Ced
+2026-10-02T02:33:24.882Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:33:25.651Z boundary     boundary 24: nothing applied (gate)
+2026-10-02T02:33:26.173Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:33:26.575Z talk         Ced speaks (judge)
+2026-10-02T02:33:26.575Z judge        judge director in 946 ms
+2026-10-02T02:33:26.659Z judge        judge scene in 479 ms
+2026-10-02T02:33:26.940Z judge        judge warden in 366 ms
+2026-10-02T02:33:26.947Z judge        judge wardenLore in 289 ms
+2026-10-02T02:33:27.263Z status       Inner beat stale for Ced
+2026-10-02T02:33:27.686Z judge        judge lore in 328 ms
+2026-10-02T02:33:27.725Z judge        judge lore in 363 ms
+2026-10-02T02:33:28.018Z judge        judge lore in 336 ms
+2026-10-02T02:33:28.053Z judge        judge lore in 332 ms
+2026-10-02T02:33:28.249Z judge        judge lore in 233 ms
+2026-10-02T02:33:28.449Z judge        judge typed in 397 ms
+2026-10-02T02:33:28.450Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:33:34.888Z extraction   read cadence msgs 25-32 → 2 accepted, 0 rejected
+2026-10-02T02:33:34.888Z delta        location = deep_ritual_fort
+2026-10-02T02:33:34.888Z delta        tension_current = 0.5
+2026-10-02T02:33:35.189Z judge        judge memoryVerify in 253 ms
+2026-10-02T02:33:41.658Z status       Inner beat stale for Ced
+2026-10-02T02:33:42.689Z boundary     applied location=deep_ritual_fort
+2026-10-02T02:33:42.861Z talk         silence speaks (judge)
+2026-10-02T02:33:42.861Z judge        judge director in 378 ms
+2026-10-02T02:33:43.189Z reconciliation stall re-check queued for deep_hall_breached
+2026-10-02T02:33:43.246Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:33:43.793Z judge        judge typed in 537 ms
+2026-10-02T02:33:43.796Z reconciliation stall re-check resolved (1 evidence)
+2026-10-02T02:33:43.796Z judge        judge stall in 539 ms
+2026-10-02T02:33:44.636Z judge        judge scene in 845 ms
+2026-10-02T02:33:44.658Z judge        judge warden in 864 ms
+2026-10-02T02:33:44.681Z status       Inner beat unused
+2026-10-02T02:33:45.010Z judge        judge wardenLore in 375 ms
+2026-10-02T02:34:00.804Z status       No inner beat for Ced
+2026-10-02T02:34:01.625Z judge        judge lore in 375 ms
+2026-10-02T02:34:01.642Z judge        judge lore in 396 ms
+2026-10-02T02:34:01.959Z judge        judge lore in 338 ms
+2026-10-02T02:34:01.981Z judge        judge lore in 345 ms
+2026-10-02T02:34:02.268Z judge        judge lore in 311 ms
+2026-10-02T02:34:02.509Z talk         Ced speaks (judge)
+2026-10-02T02:34:02.509Z judge        judge director in 225 ms
+2026-10-02T02:34:30.482Z status       No inner beat for Ced
+2026-10-02T02:34:31.397Z status       No inner beat for Belle
+2026-10-02T02:34:33.009Z boundary     boundary 26: nothing applied (gate)
+2026-10-02T02:34:33.203Z talk         silence speaks (judge)
+2026-10-02T02:34:33.203Z judge        judge director in 314 ms
+2026-10-02T02:34:33.542Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:34:34.443Z judge        judge typed in 894 ms
+2026-10-02T02:34:34.448Z judge        judge scene in 898 ms
+2026-10-02T02:34:34.827Z judge        judge wardenLore in 381 ms
+2026-10-02T02:34:34.831Z judge        judge warden in 392 ms
+2026-10-02T02:34:35.258Z status       Inner beat unused
+2026-10-02T02:34:35.604Z judge        judge typed in 466 ms
+2026-10-02T02:34:35.605Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:34:40.333Z extraction   read cue:deep-ritual-fort->deep-the-altar msgs 28-35 → 3 accepted, 0 rejected
+2026-10-02T02:34:40.333Z delta        deep_hall_breached = false
+2026-10-02T02:34:40.333Z delta        location = deep_ritual_fort
+2026-10-02T02:34:40.333Z delta        tension_current = 0.5723234275
+2026-10-02T02:34:40.599Z judge        judge memoryVerify in 263 ms
+2026-10-02T02:34:54.172Z status       No inner beat for Belle
+2026-10-02T02:34:54.937Z judge        judge lore in 364 ms
+2026-10-02T02:34:54.964Z judge        judge lore in 386 ms
+2026-10-02T02:34:55.245Z judge        judge lore in 314 ms
+2026-10-02T02:34:55.279Z judge        judge lore in 319 ms
+2026-10-02T02:34:55.461Z judge        judge lore in 217 ms
+2026-10-02T02:34:55.698Z talk         Adolion Narrator speaks (judge)
+2026-10-02T02:34:55.698Z judge        judge director in 226 ms
+2026-10-02T02:34:56.824Z status       No inner beat for Belle
+2026-10-02T02:34:56.825Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:35:20.864Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:35:21.838Z status       No inner beat for Ced
+2026-10-02T02:35:23.314Z boundary     applied deep_hall_breached=false, location=deep_ritual_fort, tension_current=0.5723234275
+2026-10-02T02:35:24.241Z talk         silence speaks (judge)
+2026-10-02T02:35:35.038Z stagecraft   World Info curator proposed 3 change(s) at Carrow Keep
+2026-10-02T02:36:08.991Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:36:33.842Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:36:34.707Z story        eventless change at message 37
+2026-10-02T02:36:34.981Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:36:35.457Z boundary     boundary 28: nothing applied (gate)
+2026-10-02T02:36:35.907Z reconciliation stall re-check queued for deep_hall_breached
+2026-10-02T02:36:53.102Z reconciliation stall re-check resolved (3 evidence)
+2026-10-02T02:38:45.993Z story        eventless change at message 37
+2026-10-02T02:38:46.517Z boundary     boundary 29: nothing applied (gate)
+2026-10-02T02:38:48.397Z judge        judge typed in 318 ms
+2026-10-02T02:38:48.404Z judge        judge scene in 323 ms
+2026-10-02T02:38:48.998Z judge        judge typed in 596 ms
+2026-10-02T02:38:48.999Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:38:49.011Z judge        judge warden in 617 ms
+2026-10-02T02:38:52.689Z extraction   read cue:deep-ritual-fort->deep-the-altar msgs 30-37 → 3 accepted, 0 rejected
+2026-10-02T02:38:52.689Z delta        deep_hall_breached = true
+2026-10-02T02:38:52.689Z delta        location = deep_great_hall
+2026-10-02T02:38:52.689Z delta        tension_current = 0.55062639925
+2026-10-02T02:38:53.001Z judge        judge memoryVerify in 310 ms
+2026-10-02T02:38:54.845Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:38:56.609Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:38:56.640Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:38:58.937Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:39:00.659Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:39:02.770Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:39:24.138Z status       No inner beat for Belle
+2026-10-02T02:39:24.915Z judge        judge lore in 366 ms
+2026-10-02T02:39:24.969Z judge        judge lore in 424 ms
+2026-10-02T02:39:25.218Z judge        judge lore in 307 ms
+2026-10-02T02:39:25.274Z judge        judge lore in 309 ms
+2026-10-02T02:39:25.458Z judge        judge lore in 242 ms
+2026-10-02T02:39:25.702Z talk         Ced speaks (judge)
+2026-10-02T02:39:25.702Z judge        judge director in 233 ms
+2026-10-02T02:39:27.000Z status       No inner beat for Belle
+2026-10-02T02:39:27.331Z status       No inner beat for Ced
+2026-10-02T02:39:44.880Z status       No inner beat for Ced
+2026-10-02T02:39:45.712Z boundary     applied deep_hall_breached=true, location=deep_great_hall, tension_current=0.55062639925
+2026-10-02T02:39:45.712Z transition   deep-ritual-fort → deep-the-altar
+2026-10-02T02:39:46.179Z talk         Runo speaks (judge)
+2026-10-02T02:39:46.179Z judge        judge director in 471 ms
+2026-10-02T02:39:47.223Z status       No inner beat for Runo
+2026-10-02T02:39:48.477Z status       Moved into The Altar in the Great Hall
+2026-10-02T02:39:48.624Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:39:48.631Z boundary     boundary 31: nothing applied (gate)
+2026-10-02T02:39:49.031Z judge        judge lore in 1554 ms
+2026-10-02T02:39:49.042Z judge        judge lore fell back (timeout) in 1561 ms
+2026-10-02T02:39:50.534Z judge        judge lore fell back (timeout) in 1508 ms
+2026-10-02T02:39:50.549Z judge        judge lore fell back (timeout) in 1512 ms
+2026-10-02T02:39:52.043Z judge        judge lore fell back (timeout) in 1511 ms
+2026-10-02T02:39:54.545Z judge        judge scene fell back (timeout) in 2504 ms
+2026-10-02T02:39:55.016Z status       Following The Altar in the Great Hall
+2026-10-02T02:39:55.042Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:39:55.559Z judge        judge typed fell back (timeout) in 5011 ms
+2026-10-02T02:39:56.195Z judge        judge warden in 1652 ms
+2026-10-02T02:39:56.369Z judge        judge wardenLore in 811 ms
+2026-10-02T02:39:56.710Z judge        judge scene in 342 ms
+2026-10-02T02:39:56.732Z judge        judge typed in 538 ms
+2026-10-02T02:39:57.231Z judge        judge typed in 522 ms
+2026-10-02T02:39:57.231Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:40:02.136Z extraction   read scene:location msgs 32-39 → 2 accepted, 0 rejected
+2026-10-02T02:40:02.136Z delta        location = deep_great_hall
+2026-10-02T02:40:02.136Z delta        tension_current = 0.535438479475
+2026-10-02T02:40:03.056Z judge        judge memoryVerify in 918 ms
+2026-10-02T02:40:35.261Z status       No inner beat for Runo
+2026-10-02T02:40:36.412Z boundary     applied location=deep_great_hall, tension_current=0.535438479475
+2026-10-02T02:40:39.889Z judge        judge typed in 2110 ms
+2026-10-02T02:40:40.334Z judge        judge scene fell back (timeout) in 2553 ms
+2026-10-02T02:40:40.725Z judge        judge warden in 839 ms
+2026-10-02T02:40:41.203Z judge        judge wardenLore in 870 ms
+2026-10-02T02:40:43.908Z judge        judge memoryPairs in 215 ms
+2026-10-02T02:40:43.929Z judge        judge memoryPairs in 235 ms
+2026-10-02T02:40:44.134Z judge        judge memoryPairs in 227 ms
+2026-10-02T02:40:44.168Z judge        judge memoryPairs in 240 ms
+2026-10-02T02:40:44.381Z judge        judge memoryPairs in 248 ms
+2026-10-02T02:40:44.392Z judge        judge memoryPairs in 225 ms
+2026-10-02T02:40:44.621Z judge        judge memoryPairs in 230 ms
+2026-10-02T02:40:44.632Z judge        judge memoryPairs in 252 ms
+2026-10-02T02:40:44.858Z judge        judge memoryPairs in 225 ms
+2026-10-02T02:40:44.866Z judge        judge memoryPairs in 232 ms
+2026-10-02T02:40:45.143Z judge        judge memoryPairs in 277 ms
+2026-10-02T02:40:45.144Z judge        judge memoryPairs in 287 ms
+2026-10-02T02:40:45.380Z judge        judge memoryPairs in 236 ms
+2026-10-02T02:40:45.392Z judge        judge memoryPairs in 249 ms
+2026-10-02T02:40:45.610Z judge        judge memoryPairs in 231 ms
+2026-10-02T02:40:45.712Z judge        judge memoryPairs in 320 ms
+2026-10-02T02:40:45.948Z judge        judge memoryPairs in 234 ms
+2026-10-02T02:40:45.973Z judge        judge memoryPairs in 260 ms
+2026-10-02T02:40:45.977Z judge        judge memoryPairs fell back (busy) in 5 ms
+2026-10-02T02:40:45.977Z judge        judge memoryPairs fell back (busy) in 264 ms
+2026-10-02T02:40:45.977Z judge        judge memoryPairs fell back (busy) in 264 ms
+2026-10-02T02:40:45.977Z judge        judge memoryPairs fell back (busy) in 264 ms
+2026-10-02T02:40:45.977Z judge        judge memoryPairs fell back (busy) in 264 ms
+2026-10-02T02:40:46.233Z judge        judge memoryPairs in 286 ms
+2026-10-02T02:40:46.236Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:40:46.237Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:40:46.237Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:40:46.237Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:40:46.237Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:40:46.237Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:40:46.237Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:40:46.237Z judge        judge memoryPairs fell back (busy) in 1 ms
+2026-10-02T02:41:20.358Z judge        judge memoryPairs in 250 ms
+2026-10-02T02:41:20.376Z judge        judge memoryPairs in 271 ms
+2026-10-02T02:41:20.574Z judge        judge memoryPairs in 217 ms
+2026-10-02T02:41:20.599Z judge        judge memoryPairs in 224 ms
+2026-10-02T02:41:20.797Z judge        judge memoryPairs in 224 ms
+2026-10-02T02:41:20.803Z judge        judge memoryPairs in 205 ms
+2026-10-02T02:41:21.025Z judge        judge memoryPairs in 228 ms
+2026-10-02T02:41:21.041Z judge        judge memoryPairs in 239 ms
+2026-10-02T02:41:21.260Z judge        judge memoryPairs in 218 ms
+2026-10-02T02:41:21.267Z judge        judge memoryPairs in 224 ms
+2026-10-02T02:41:21.493Z judge        judge memoryPairs in 234 ms
+2026-10-02T02:41:21.511Z judge        judge memoryPairs in 244 ms
+2026-10-02T02:41:21.518Z judge        judge memoryPairs fell back (busy) in 7 ms
+2026-10-02T02:41:21.518Z judge        judge memoryPairs fell back (busy) in 476 ms
+2026-10-02T02:41:21.518Z judge        judge memoryPairs fell back (busy) in 476 ms
+2026-10-02T02:41:21.705Z judge        judge memoryPairs in 213 ms
+2026-10-02T02:41:21.706Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:41:21.706Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:41:21.706Z judge        judge memoryPairs fell back (busy) in 0 ms
+2026-10-02T02:41:22.158Z model-call   supersession via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:41:23.360Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:48:29.855Z story        away recap not due
+2026-10-02T02:48:30.216Z status       Continuing Adolion: Crimsonwing & Ebonwing
+2026-10-02T02:48:30.225Z story        quality macro skipped
+2026-10-02T02:48:30.225Z story        quality macro skipped
+2026-10-02T02:48:30.225Z story        quality macro skipped
+2026-10-02T02:48:30.225Z story        quality macro skipped
+2026-10-02T02:48:30.225Z story        quality macro skipped
+2026-10-02T02:48:30.225Z story        quality macro skipped
+2026-10-02T02:48:30.225Z story        quality macro skipped
+2026-10-02T02:17:20.986Z audit        audit cue:deep-with-crimsonwing->deep-the-north-road msgs 2-9 scope [deep_set_out, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:17:28.319Z audit        audit scene:location msgs 2-9 scope [deep_posting_refused, deep_set_out, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 1 rejected
+2026-10-02T02:18:28.396Z audit        audit cue:deep-with-crimsonwing->deep-the-north-road msgs 4-11 scope [deep_posting_refused, deep_set_out, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 1 rejected
+2026-10-02T02:18:55.547Z audit        audit cadence msgs 8-12 scope [deep_set_out, guild_reputation, location, party_injuries, party_rank, tension_current] → 1 accepted, 1 rejected
+2026-10-02T02:19:03.512Z audit        audit scene:location msgs 5-12 scope [deep_set_out, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 2 rejected
+2026-10-02T02:19:37.616Z audit        audit cue:deep-with-crimsonwing->deep-the-north-road msgs 6-13 scope [deep_set_out, guild_reputation, location, party_injuries, party_rank, tension_current] → 2 accepted, 1 rejected
+2026-10-02T02:22:04.706Z audit        audit reconcile:deep_set_out msgs 7-15 scope [deep_set_out, guild_reputation, location, party_injuries, party_rank, tension_current] → 1 accepted, 1 rejected
+2026-10-02T02:22:29.049Z audit        audit cadence msgs 13-16 scope [deep_set_out, location, party_injuries, party_rank, tension_current] → 1 accepted, 1 rejected
+2026-10-02T02:23:28.201Z audit        audit cue:deep-with-crimsonwing->deep-the-north-road msgs 11-18 scope [deep_set_out, location, party_injuries, party_rank, tension_current] → 3 accepted, 1 rejected
+2026-10-02T02:23:36.139Z audit        audit scene:judge msgs 11-18 scope [deep_set_out, location, party_injuries, party_rank, tension_current] → 3 accepted, 1 rejected
+2026-10-02T02:24:16.893Z audit        audit reconcile:deep_set_out msgs 7-19 scope [deep_set_out, guild_reputation, location, party_injuries, party_rank, tension_current] → 1 accepted, 1 rejected
+2026-10-02T02:25:48.093Z audit        audit cadence msgs 17-21 scope [deep_set_out, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T02:26:20.719Z audit        audit cue:deep-the-north-road->deep-ritual-fort msgs 15-22 scope [deep_first_camp, deep_fort_sighted, deep_standing_with_partner, guild_reputation, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T02:26:28.957Z audit        audit scene:location msgs 15-22 scope [deep_first_camp, deep_fort_sighted, deep_standing_with_partner, guild_reputation, location, party_injuries, party_rank, tension_current] → 4 accepted, 0 rejected
+2026-10-02T02:26:49.649Z audit        audit cue:deep-ritual-fort->deep-the-altar msgs 17-24 scope [deep_hall_breached, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:26:57.547Z audit        audit cadence msgs 22-24 scope [deep_hall_breached, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:33:34.888Z audit        audit cadence msgs 25-32 scope [deep_hall_breached, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:34:40.333Z audit        audit cue:deep-ritual-fort->deep-the-altar msgs 28-35 scope [deep_hall_breached, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:38:52.689Z audit        audit cue:deep-ritual-fort->deep-the-altar msgs 30-37 scope [deep_hall_breached, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:40:02.136Z audit        audit scene:location msgs 32-39 scope [deep_below_fort, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:48:58.792Z payload      8 story blocks injected (generation)
+2026-10-02T02:48:58.876Z payload      9 story blocks injected (generation)
+2026-10-02T02:48:59.765Z judge        judge lore in 409 ms
+2026-10-02T02:48:59.782Z judge        judge lore in 413 ms
+2026-10-02T02:49:00.108Z judge        judge lore in 347 ms
+2026-10-02T02:49:00.130Z judge        judge lore in 352 ms
+2026-10-02T02:49:00.360Z judge        judge lore in 253 ms
+2026-10-02T02:49:00.615Z talk         Ced speaks (judge)
+2026-10-02T02:49:00.615Z judge        judge director in 242 ms
+2026-10-02T02:49:01.761Z payload      9 story blocks injected (generation)
+2026-10-02T02:49:03.006Z payload      9 story blocks injected (generation)
+2026-10-02T02:49:25.451Z boundary     boundary 33: nothing applied (gate)
+2026-10-02T02:49:25.840Z status       Following The Altar in the Great Hall
+2026-10-02T02:49:26.169Z judge        judge director in 760 ms
+2026-10-02T02:49:26.170Z talk         Dalan speaks (judge)
+2026-10-02T02:49:26.242Z judge        judge scene in 301 ms
+2026-10-02T02:49:26.229Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:49:26.692Z payload      8 story blocks injected (generation)
+2026-10-02T02:49:27.018Z judge        judge wardenLore in 777 ms
+2026-10-02T02:49:27.057Z status       No inner beat for Dalan
+2026-10-02T02:49:27.065Z payload      9 story blocks injected (generation)
+2026-10-02T02:49:27.470Z judge        judge warden in 1302 ms
+2026-10-02T02:49:27.889Z judge        judge lore in 531 ms
+2026-10-02T02:49:27.898Z judge        judge lore in 432 ms
+2026-10-02T02:49:28.201Z judge        judge lore in 307 ms
+2026-10-02T02:49:28.254Z judge        judge lore in 369 ms
+2026-10-02T02:49:28.447Z judge        judge lore in 247 ms
+2026-10-02T02:49:28.673Z judge        judge typed in 420 ms
+2026-10-02T02:49:28.674Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:49:33.969Z judge        judge memoryVerify in 251 ms
+2026-10-02T02:49:34.588Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:49:35.742Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:49:33.715Z extraction   read cadence msgs 40-43 → 2 accepted, 0 rejected
+2026-10-02T02:49:33.715Z delta        location = deep_great_hall
+2026-10-02T02:49:33.715Z delta        tension_current = 1
+2026-10-02T02:49:33.715Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:49:33.715Z audit        audit cadence msgs 40-43 scope [deep_below_fort, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:49:51.071Z status       No inner beat for Dalan
+2026-10-02T02:49:52.147Z boundary     applied location=deep_great_hall
+2026-10-02T02:49:52.654Z talk         Adolion Narrator speaks (judge)
+2026-10-02T02:49:52.654Z judge        judge director in 513 ms
+2026-10-02T02:49:53.109Z payload      8 story blocks injected (generation)
+2026-10-02T02:49:52.636Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:49:53.585Z judge        judge scene in 933 ms
+2026-10-02T02:49:53.610Z judge        judge typed in 968 ms
+2026-10-02T02:49:53.640Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:49:53.643Z payload      9 story blocks injected (generation)
+2026-10-02T02:49:53.976Z judge        judge wardenLore in 367 ms
+2026-10-02T02:49:54.022Z status       Inner beat unused
+2026-10-02T02:49:54.030Z judge        judge warden in 447 ms
+2026-10-02T02:49:54.423Z judge        judge lore in 452 ms
+2026-10-02T02:49:54.672Z judge        judge lore in 649 ms
+2026-10-02T02:49:54.758Z judge        judge lore in 340 ms
+2026-10-02T02:49:54.961Z judge        judge lore in 293 ms
+2026-10-02T02:49:54.996Z judge        judge lore in 239 ms
+2026-10-02T02:50:19.091Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:50:20.186Z boundary     boundary 35: nothing applied (gate)
+2026-10-02T02:50:21.694Z judge        judge typed in 996 ms
+2026-10-02T02:50:21.702Z judge        judge scene in 1002 ms
+2026-10-02T02:50:22.127Z judge        judge wardenLore in 426 ms
+2026-10-02T02:50:22.128Z judge        judge warden in 435 ms
+2026-10-02T02:50:40.153Z payload      8 story blocks injected (generation)
+2026-10-02T02:50:40.186Z status       Inner beat stale for Belle
+2026-10-02T02:50:40.192Z payload      9 story blocks injected (generation)
+2026-10-02T02:50:40.940Z judge        judge lore in 377 ms
+2026-10-02T02:50:40.951Z judge        judge lore in 392 ms
+2026-10-02T02:50:41.256Z judge        judge lore in 320 ms
+2026-10-02T02:50:41.286Z judge        judge lore in 339 ms
+2026-10-02T02:50:41.505Z judge        judge lore in 250 ms
+2026-10-02T02:50:41.730Z judge        judge director in 217 ms
+2026-10-02T02:50:41.731Z talk         Adolion Narrator speaks (judge)
+2026-10-02T02:50:42.758Z status       Inner beat stale for Belle
+2026-10-02T02:50:43.064Z payload      9 story blocks injected (generation)
+2026-10-02T02:50:43.108Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:50:43.110Z payload      9 story blocks injected (generation)
+2026-10-02T02:51:00.409Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:51:01.311Z boundary     boundary 36: nothing applied (gate)
+2026-10-02T02:51:01.435Z payload      7 story blocks injected (generation)
+2026-10-02T02:51:01.479Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:51:02.109Z talk         Ced speaks (judge)
+2026-10-02T02:51:02.109Z judge        judge director in 803 ms
+2026-10-02T02:51:02.759Z judge        judge scene in 676 ms
+2026-10-02T02:51:02.783Z judge        judge warden in 675 ms
+2026-10-02T02:51:02.078Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:51:03.301Z status       Inner beat unused
+2026-10-02T02:51:03.617Z judge        judge wardenLore in 859 ms
+2026-10-02T02:51:05.020Z judge        judge typed in 237 ms
+2026-10-02T02:51:05.020Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:51:09.594Z judge        judge memoryVerify in 251 ms
+2026-10-02T02:51:09.601Z delta        queued location=deep_great_hall, tension_current=0.5998069356325 for the next boundary
+2026-10-02T02:51:10.720Z delta        queued location=deep_great_hall, tension_current=0.5998069356325 for the next boundary
+2026-10-02T02:51:09.340Z extraction   read cadence msgs 44-47 → 2 accepted, 0 rejected
+2026-10-02T02:51:09.340Z delta        location = deep_great_hall
+2026-10-02T02:51:09.340Z delta        tension_current = 0.5998069356325
+2026-10-02T02:51:09.340Z delta        queued location=deep_great_hall, tension_current=0.5998069356325 for the next boundary
+2026-10-02T02:51:09.340Z audit        audit cadence msgs 44-47 scope [deep_below_fort, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:51:43.618Z payload      8 story blocks injected (generation)
+2026-10-02T02:51:43.651Z status       No inner beat for Dalan
+2026-10-02T02:51:43.665Z payload      9 story blocks injected (generation)
+2026-10-02T02:51:44.455Z judge        judge lore in 391 ms
+2026-10-02T02:51:44.486Z judge        judge lore in 432 ms
+2026-10-02T02:51:44.798Z judge        judge lore in 347 ms
+2026-10-02T02:51:44.812Z judge        judge lore in 330 ms
+2026-10-02T02:51:45.022Z judge        judge lore in 226 ms
+2026-10-02T02:51:45.281Z talk         Dalan speaks (judge)
+2026-10-02T02:51:45.281Z judge        judge director in 248 ms
+2026-10-02T02:52:01.740Z status       No inner beat for Dalan
+2026-10-02T02:52:02.705Z status       No inner beat for Ced
+2026-10-02T02:52:02.714Z payload      9 story blocks injected (generation)
+2026-10-02T02:52:03.791Z status       No inner beat for Runo
+2026-10-02T02:52:03.815Z payload      9 story blocks injected (generation)
+2026-10-02T02:52:04.883Z boundary     applied location=deep_great_hall, tension_current=0.5998069356325
+2026-10-02T02:52:05.868Z talk         Adolion Narrator speaks (judge)
+2026-10-02T02:52:05.868Z judge        judge director in 1057 ms
+2026-10-02T02:52:05.923Z judge        judge typed in 482 ms
+2026-10-02T02:52:05.432Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:52:06.483Z payload      8 story blocks injected (generation)
+2026-10-02T02:52:06.508Z judge        judge scene in 642 ms
+2026-10-02T02:52:06.530Z judge        judge warden in 609 ms
+2026-10-02T02:52:06.554Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:52:06.556Z payload      9 story blocks injected (generation)
+2026-10-02T02:52:06.745Z judge        judge wardenLore in 238 ms
+2026-10-02T02:52:06.964Z judge        judge lore in 348 ms
+2026-10-02T02:52:07.083Z judge        judge lore in 341 ms
+2026-10-02T02:52:07.323Z judge        judge lore in 363 ms
+2026-10-02T02:52:07.382Z judge        judge lore in 303 ms
+2026-10-02T02:52:07.581Z judge        judge lore in 260 ms
+2026-10-02T02:52:06.625Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:52:08.305Z status       Inner beat unused
+2026-10-02T02:52:09.446Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:52:31.509Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:52:32.477Z boundary     boundary 38: nothing applied (gate)
+2026-10-02T02:52:33.002Z reconciliation stall re-check queued for deep_below_fort
+2026-10-02T02:52:33.262Z talk         silence speaks (judge)
+2026-10-02T02:52:33.262Z judge        judge director in 792 ms
+2026-10-02T02:52:34.026Z reconciliation stall re-check resolved (1 evidence)
+2026-10-02T02:52:34.026Z judge        judge stall in 765 ms
+2026-10-02T02:52:34.076Z judge        judge typed in 1020 ms
+2026-10-02T02:52:34.606Z judge        judge scene in 582 ms
+2026-10-02T02:52:34.922Z judge        judge wardenLore in 317 ms
+2026-10-02T02:52:34.924Z judge        judge warden in 850 ms
+2026-10-02T02:52:35.470Z judge        judge typed in 254 ms
+2026-10-02T02:52:35.470Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:52:41.556Z judge        judge memoryVerify in 272 ms
+2026-10-02T02:52:41.922Z delta        queued location=deep_great_hall, tension_current=0.71986485494275 for the next boundary
+2026-10-02T02:52:43.061Z delta        queued location=deep_great_hall, tension_current=0.71986485494275 for the next boundary
+2026-10-02T02:52:41.281Z extraction   read cue:deep-the-altar->deep-nahalbuk-cells msgs 43-50 → 2 accepted, 0 rejected
+2026-10-02T02:52:41.281Z delta        location = deep_great_hall
+2026-10-02T02:52:41.281Z delta        tension_current = 0.71986485494275
+2026-10-02T02:52:41.281Z delta        queued location=deep_great_hall, tension_current=0.71986485494275 for the next boundary
+2026-10-02T02:52:41.281Z audit        audit cue:deep-the-altar->deep-nahalbuk-cells msgs 43-50 scope [deep_below_fort, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:52:44.195Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:52:45.886Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:53:09.368Z payload      8 story blocks injected (generation)
+2026-10-02T02:53:09.431Z status       No inner beat for Dalan
+2026-10-02T02:53:09.440Z payload      9 story blocks injected (generation)
+2026-10-02T02:53:10.244Z judge        judge lore in 377 ms
+2026-10-02T02:53:10.275Z judge        judge lore in 397 ms
+2026-10-02T02:53:10.554Z judge        judge lore in 313 ms
+2026-10-02T02:53:10.595Z judge        judge lore in 324 ms
+2026-10-02T02:53:10.816Z judge        judge lore in 263 ms
+2026-10-02T02:53:11.084Z judge        judge director in 256 ms
+2026-10-02T02:53:11.085Z talk         Adolion Narrator speaks (judge)
+2026-10-02T02:53:12.239Z status       No inner beat for Dalan
+2026-10-02T02:53:12.587Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:53:12.589Z payload      9 story blocks injected (generation)
+2026-10-02T02:53:46.459Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:53:47.455Z boundary     applied location=deep_great_hall, tension_current=0.71986485494275
+2026-10-02T02:53:48.300Z talk         silence speaks (judge)
+2026-10-02T02:53:48.300Z judge        judge director in 856 ms
+2026-10-02T02:53:49.187Z judge        judge scene in 1112 ms
+2026-10-02T02:53:48.066Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:53:49.298Z status       Inner beat unused
+2026-10-02T02:53:49.299Z judge        judge warden in 1000 ms
+2026-10-02T02:53:50.259Z judge        judge wardenLore in 1073 ms
+2026-10-02T02:53:50.487Z judge        judge typed in 230 ms
+2026-10-02T02:53:50.487Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:53:53.804Z delta        queued location=deep_great_hall, tension_current=0.728905398459925 for the next boundary
+2026-10-02T02:53:54.011Z judge        judge memoryVerify in 269 ms
+2026-10-02T02:53:54.912Z delta        queued location=deep_great_hall, tension_current=0.728905398459925 for the next boundary
+2026-10-02T02:53:53.741Z extraction   read cadence msgs 48-52 → 2 accepted, 0 rejected
+2026-10-02T02:53:53.741Z delta        location = deep_great_hall
+2026-10-02T02:53:53.741Z delta        tension_current = 0.728905398459925
+2026-10-02T02:53:53.741Z delta        queued location=deep_great_hall, tension_current=0.728905398459925 for the next boundary
+2026-10-02T02:53:53.741Z audit        audit cadence msgs 48-52 scope [deep_below_fort, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:53:56.588Z judge        judge typed in 236 ms
+2026-10-02T02:53:56.589Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:54:01.155Z judge        judge memoryVerify in 292 ms
+2026-10-02T02:54:01.936Z delta        queued deep_below_fort=true, location=deep_nahalbuk, tension_current=0.728905398459925 for the next boundary
+2026-10-02T02:54:00.861Z extraction   read cue:deep-the-altar->deep-nahalbuk-cells msgs 45-52 → 3 accepted, 0 rejected
+2026-10-02T02:54:00.861Z delta        deep_below_fort = true
+2026-10-02T02:54:00.861Z delta        location = deep_nahalbuk
+2026-10-02T02:54:00.861Z delta        tension_current = 0.728905398459925
+2026-10-02T02:54:00.861Z delta        queued deep_below_fort=true, location=deep_nahalbuk, tension_current=0.728905398459925 for the next boundary
+2026-10-02T02:54:00.861Z audit        audit cue:deep-the-altar->deep-nahalbuk-cells msgs 45-52 scope [deep_below_fort, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T02:54:04.209Z judge        judge curatorFilter in 677 ms
+2026-10-02T02:54:04.210Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:54:04.253Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:54:06.469Z stagecraft   World Info curator proposed 3 change(s) at The Altar in the Great Hall
+2026-10-02T02:54:06.433Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:54:08.292Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:54:42.563Z payload      7 story blocks injected (generation)
+2026-10-02T02:54:42.608Z status       No inner beat for Ced
+2026-10-02T02:54:42.615Z payload      8 story blocks injected (generation)
+2026-10-02T02:54:43.398Z judge        judge lore in 373 ms
+2026-10-02T02:54:43.418Z judge        judge lore in 382 ms
+2026-10-02T02:54:43.710Z judge        judge lore in 316 ms
+2026-10-02T02:54:43.716Z judge        judge lore in 302 ms
+2026-10-02T02:54:43.933Z judge        judge lore in 224 ms
+2026-10-02T02:54:44.170Z talk         Adolion Narrator speaks (judge)
+2026-10-02T02:54:44.170Z judge        judge director in 226 ms
+2026-10-02T02:54:45.379Z status       No inner beat for Ced
+2026-10-02T02:54:45.715Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:54:45.717Z payload      8 story blocks injected (generation)
+2026-10-02T02:55:20.089Z status       Inner beat stale for Adolion Narrator
+2026-10-02T02:55:21.285Z boundary     applied deep_below_fort=true, location=deep_nahalbuk, tension_current=0.728905398459925; discarded location=deep_great_hall, tension_current=0.728905398459925 (superseded)
+2026-10-02T02:55:21.285Z transition   deep-the-altar → deep-nahalbuk-cells
+2026-10-02T02:55:21.714Z talk         silence speaks (judge)
+2026-10-02T02:55:21.714Z judge        judge director in 434 ms
+2026-10-02T02:55:23.915Z status       Moved into The Cells of Nahalbuk
+2026-10-02T02:55:26.594Z judge        judge scene fell back (timeout) in 2510 ms
+2026-10-02T02:55:29.087Z judge        judge typed fell back (timeout) in 5004 ms
+2026-10-02T02:55:29.858Z judge        judge warden in 3266 ms
+2026-10-02T02:55:30.009Z judge        judge wardenLore in 924 ms
+2026-10-02T02:55:24.076Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:55:30.744Z status       Inner beat unused
+2026-10-02T02:55:30.757Z judge        judge typed in 400 ms
+2026-10-02T02:55:30.757Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:55:35.108Z delta        queued location=deep_nahalbuk, tension_current=0.6602337789219475 for the next boundary
+2026-10-02T02:55:35.897Z judge        judge memoryVerify in 1268 ms
+2026-10-02T02:55:36.232Z delta        queued location=deep_nahalbuk, tension_current=0.6602337789219475 for the next boundary
+2026-10-02T02:55:37.362Z delta        queued location=deep_nahalbuk, tension_current=0.6602337789219475 for the next boundary
+2026-10-02T02:55:38.515Z delta        queued location=deep_nahalbuk, tension_current=0.6602337789219475 for the next boundary
+2026-10-02T02:55:34.627Z extraction   read cue:deep-nahalbuk-cells->deep-what-unira-says msgs 47-54 → 2 accepted, 0 rejected
+2026-10-02T02:55:34.627Z delta        location = deep_nahalbuk
+2026-10-02T02:55:34.627Z delta        tension_current = 0.6602337789219475
+2026-10-02T02:55:34.627Z delta        queued location=deep_nahalbuk, tension_current=0.6602337789219475 for the next boundary
+2026-10-02T02:55:34.627Z audit        audit cue:deep-nahalbuk-cells->deep-what-unira-says msgs 47-54 scope [deep_found_unira, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:55:40.170Z judge        judge typed in 0 ms
+2026-10-02T02:55:40.171Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:55:45.271Z delta        queued location=deep_nahalbuk, tension_current=0.7352337789219474 for the next boundary
+2026-10-02T02:55:45.801Z judge        judge memoryVerify in 715 ms
+2026-10-02T02:55:46.411Z delta        queued location=deep_nahalbuk, tension_current=0.7352337789219474 for the next boundary
+2026-10-02T02:55:47.539Z delta        queued location=deep_nahalbuk, tension_current=0.7352337789219474 for the next boundary
+2026-10-02T02:55:48.651Z delta        queued location=deep_nahalbuk, tension_current=0.7352337789219474 for the next boundary
+2026-10-02T02:55:49.776Z delta        queued location=deep_nahalbuk, tension_current=0.7352337789219474 for the next boundary
+2026-10-02T02:55:50.929Z delta        queued location=deep_nahalbuk, tension_current=0.7352337789219474 for the next boundary
+2026-10-02T02:55:52.053Z delta        queued location=deep_nahalbuk, tension_current=0.7352337789219474 for the next boundary
+2026-10-02T02:55:44.714Z extraction   read scene:cast msgs 47-54 → 2 accepted, 0 rejected
+2026-10-02T02:55:44.714Z delta        location = deep_nahalbuk
+2026-10-02T02:55:44.714Z delta        tension_current = 0.7352337789219474
+2026-10-02T02:55:44.714Z delta        queued location=deep_nahalbuk, tension_current=0.7352337789219474 for the next boundary
+2026-10-02T02:55:44.714Z audit        audit scene:cast msgs 47-54 scope [deep_found_unira, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:55:53.677Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:55:56.024Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:56:09.808Z judge        judge memoryPairs in 243 ms
+2026-10-02T02:56:09.837Z judge        judge memoryPairs in 272 ms
+2026-10-02T02:56:10.035Z judge        judge memoryPairs in 227 ms
+2026-10-02T02:56:10.207Z judge        judge memoryPairs in 371 ms
+2026-10-02T02:56:10.273Z judge        judge memoryPairs in 239 ms
+2026-10-02T02:56:10.440Z judge        judge memoryPairs in 233 ms
+2026-10-02T02:56:10.490Z judge        judge memoryPairs in 218 ms
+2026-10-02T02:56:10.671Z judge        judge memoryPairs in 232 ms
+2026-10-02T02:56:10.893Z judge        judge memoryPairs in 221 ms
+2026-10-02T02:56:10.904Z judge        judge memoryPairs in 231 ms
+2026-10-02T02:56:11.106Z judge        judge memoryPairs in 213 ms
+2026-10-02T02:56:11.146Z judge        judge memoryPairs in 243 ms
+2026-10-02T02:56:11.383Z judge        judge memoryPairs in 278 ms
+2026-10-02T02:56:11.385Z judge        judge memoryPairs in 241 ms
+2026-10-02T02:56:11.582Z judge        judge memoryPairs in 200 ms
+2026-10-02T02:56:11.617Z judge        judge memoryPairs in 233 ms
+2026-10-02T02:56:11.854Z judge        judge memoryPairs in 236 ms
+2026-10-02T02:56:33.052Z judge        judge memoryPairs in 265 ms
+2026-10-02T02:56:33.102Z judge        judge memoryPairs in 314 ms
+2026-10-02T02:56:33.297Z judge        judge memoryPairs in 245 ms
+2026-10-02T02:56:33.355Z judge        judge memoryPairs in 253 ms
+2026-10-02T02:56:33.531Z judge        judge memoryPairs in 235 ms
+2026-10-02T02:56:33.562Z judge        judge memoryPairs in 208 ms
+2026-10-02T02:56:34.038Z model-call   supersession via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:56:36.280Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:37.401Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:38.508Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:35.564Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:56:39.660Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:40.785Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:41.923Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:43.078Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:44.248Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:45.404Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:46.560Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:47.720Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:48.844Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:49.959Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:51.113Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:52.238Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:53.358Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:54.481Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:55.590Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:56.193Z payload      7 story blocks injected (generation)
+2026-10-02T02:56:56.230Z status       No inner beat for Dalan
+2026-10-02T02:56:56.237Z payload      8 story blocks injected (generation)
+2026-10-02T02:56:56.715Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:57.012Z judge        judge lore in 364 ms
+2026-10-02T02:56:57.038Z judge        judge lore in 381 ms
+2026-10-02T02:56:57.317Z judge        judge lore in 309 ms
+2026-10-02T02:56:57.340Z judge        judge lore in 306 ms
+2026-10-02T02:56:57.539Z judge        judge lore in 223 ms
+2026-10-02T02:56:57.799Z talk         Adolion Narrator speaks (judge)
+2026-10-02T02:56:57.799Z judge        judge director in 248 ms
+2026-10-02T02:56:57.994Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:56:59.009Z status       No inner beat for Dalan
+2026-10-02T02:56:59.010Z status       Inner beat stale for Belle
+2026-10-02T02:56:59.016Z payload      8 story blocks injected (generation)
+2026-10-02T02:56:59.250Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:00.315Z status       Inner beat stale for Belle
+2026-10-02T02:57:00.382Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:00.680Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:57:00.683Z payload      8 story blocks injected (generation)
+2026-10-02T02:57:01.530Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:02.656Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:03.775Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:04.883Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:06.005Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:07.177Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:08.302Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:09.422Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:10.575Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:11.691Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:12.807Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:13.928Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:15.035Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:16.158Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:17.311Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:18.433Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:19.570Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:20.695Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:21.817Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:22.940Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:24.061Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:25.195Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:26.349Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:27.473Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:28.594Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:29.709Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:30.821Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:31.945Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:33.070Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:34.181Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:35.298Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:36.447Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:37.554Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:38.663Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:39.810Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:40.930Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:42.051Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:43.175Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:44.083Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:57:44.085Z story        NPC reply Adolion Narrator (afterSpeak) fired by its roll
+2026-10-02T02:57:44.293Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:45.464Z payload      6 story blocks injected (generation)
+2026-10-02T02:57:45.495Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:45.567Z status       Inner beat used for Adolion Narrator
+2026-10-02T02:57:46.275Z talk         silence speaks (judge)
+2026-10-02T02:57:46.275Z judge        judge director in 1059 ms
+2026-10-02T02:57:46.646Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:47.768Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:48.920Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:50.041Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:51.161Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:52.270Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:53.406Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:54.531Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:55.670Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:56.794Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:57.948Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:57:59.073Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:00.213Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:01.334Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:02.459Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:03.628Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:04.753Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:05.907Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:07.031Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:08.152Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:09.276Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:10.397Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:11.537Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:12.660Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:13.768Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:14.891Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:16.017Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:17.151Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:18.269Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:19.391Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:20.513Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:21.630Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:22.769Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:23.894Z delta        queued location=deep_great_hall for the next boundary
+2026-10-02T02:58:25.182Z boundary     applied location=deep_nahalbuk, tension_current=0.7352337789219474; discarded location=deep_nahalbuk, tension_current=0.6602337789219475, location=deep_great_hall (superseded)
+2026-10-02T02:58:25.562Z status       Following The Cells of Nahalbuk
+2026-10-02T02:58:25.714Z boundary     boundary 42: nothing applied (gate)
+2026-10-02T02:58:25.706Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:58:26.334Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:58:26.947Z status       Inner beat unusable
+2026-10-02T02:58:26.950Z judge        judge typed in 697 ms
+2026-10-02T02:58:26.954Z judge        judge scene in 699 ms
+2026-10-02T02:58:27.525Z judge        judge wardenLore in 573 ms
+2026-10-02T02:58:27.533Z judge        judge warden in 585 ms
+2026-10-02T02:58:27.986Z judge        judge typed in 462 ms
+2026-10-02T02:58:27.986Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:58:33.261Z judge        judge memoryVerify in 293 ms
+2026-10-02T02:58:33.539Z delta        queued location=deep_nahalbuk, tension_current=0.6646636452453631 for the next boundary
+2026-10-02T02:58:34.661Z delta        queued location=deep_nahalbuk, tension_current=0.6646636452453631 for the next boundary
+2026-10-02T02:58:32.966Z extraction   read cue:deep-nahalbuk-cells->deep-what-unira-says msgs 49-56 → 2 accepted, 0 rejected
+2026-10-02T02:58:32.966Z delta        location = deep_nahalbuk
+2026-10-02T02:58:32.966Z delta        tension_current = 0.6646636452453631
+2026-10-02T02:58:32.966Z delta        queued location=deep_nahalbuk, tension_current=0.6646636452453631 for the next boundary
+2026-10-02T02:58:32.966Z audit        audit cue:deep-nahalbuk-cells->deep-what-unira-says msgs 49-56 scope [deep_found_unira, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:58:36.459Z judge        judge typed in 254 ms
+2026-10-02T02:58:36.460Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:58:39.994Z judge        judge memoryVerify in 277 ms
+2026-10-02T02:58:40.456Z delta        queued location=deep_nahalbuk, tension_current=0.6152645516717542 for the next boundary
+2026-10-02T02:58:39.716Z extraction   read cadence msgs 53-57 → 2 accepted, 0 rejected
+2026-10-02T02:58:39.716Z delta        location = deep_nahalbuk
+2026-10-02T02:58:39.716Z delta        tension_current = 0.6152645516717542
+2026-10-02T02:58:39.716Z delta        queued location=deep_nahalbuk, tension_current=0.6152645516717542 for the next boundary
+2026-10-02T02:58:39.716Z audit        audit cadence msgs 53-57 scope [deep_found_unira, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T02:58:42.799Z model-call   sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:58:44.407Z model-call   epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:58:46.747Z model-call   ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:59:07.629Z payload      8 story blocks injected (generation)
+2026-10-02T02:59:07.666Z status       No inner beat for Dalan
+2026-10-02T02:59:07.673Z payload      9 story blocks injected (generation)
+2026-10-02T02:59:08.452Z judge        judge lore in 372 ms
+2026-10-02T02:59:08.464Z judge        judge lore in 387 ms
+2026-10-02T02:59:08.781Z judge        judge lore in 322 ms
+2026-10-02T02:59:08.786Z judge        judge lore in 338 ms
+2026-10-02T02:59:09.003Z judge        judge lore in 224 ms
+2026-10-02T02:59:09.262Z talk         Unira speaks (judge)
+2026-10-02T02:59:09.262Z judge        judge director in 241 ms
+2026-10-02T02:59:09.902Z status       No inner beat for Dalan
+2026-10-02T02:59:09.903Z status       Inner beat stale for Belle
+2026-10-02T02:59:09.910Z payload      9 story blocks injected (generation)
+2026-10-02T02:59:10.479Z status       Inner beat stale for Belle
+2026-10-02T02:59:10.854Z status       No inner beat for Unira
+2026-10-02T02:59:10.857Z payload      9 story blocks injected (generation)
+2026-10-02T02:59:38.555Z status       No inner beat for Unira
+2026-10-02T02:59:39.550Z boundary     applied location=deep_nahalbuk, tension_current=0.6646636452453631, location=deep_nahalbuk, tension_current=0.6152645516717542
+2026-10-02T02:59:40.081Z talk         silence speaks (judge)
+2026-10-02T02:59:40.081Z judge        judge director in 356 ms
+2026-10-02T02:59:40.762Z judge        judge scene in 683 ms
+2026-10-02T02:59:40.793Z judge        judge typed in 761 ms
+2026-10-02T02:59:40.024Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T02:59:41.187Z judge        judge wardenLore in 396 ms
+2026-10-02T02:59:41.189Z judge        judge warden in 430 ms
+2026-10-02T02:59:41.204Z status       Inner beat unused
+2026-10-02T03:00:10.614Z payload      8 story blocks injected (generation)
+2026-10-02T03:00:10.656Z status       Inner beat stale for Belle
+2026-10-02T03:00:10.663Z payload      9 story blocks injected (generation)
+2026-10-02T03:00:11.454Z judge        judge lore in 403 ms
+2026-10-02T03:00:11.552Z judge        judge lore in 504 ms
+2026-10-02T03:00:11.796Z judge        judge lore in 346 ms
+2026-10-02T03:00:11.875Z judge        judge lore in 327 ms
+2026-10-02T03:00:12.016Z judge        judge lore in 222 ms
+2026-10-02T03:00:12.294Z talk         Unira speaks (judge)
+2026-10-02T03:00:12.294Z judge        judge director in 265 ms
+2026-10-02T03:00:13.304Z status       Inner beat stale for Belle
+2026-10-02T03:00:13.305Z status       No inner beat for Runo
+2026-10-02T03:00:13.312Z payload      9 story blocks injected (generation)
+2026-10-02T03:00:14.591Z status       No inner beat for Runo
+2026-10-02T03:00:14.907Z status       No inner beat for Unira
+2026-10-02T03:00:14.909Z payload      9 story blocks injected (generation)
+2026-10-02T03:00:44.627Z status       No inner beat for Unira
+2026-10-02T03:00:45.594Z boundary     boundary 44: nothing applied (gate)
+2026-10-02T03:00:46.592Z talk         silence speaks (judge)
+2026-10-02T03:00:46.592Z judge        judge director in 893 ms
+2026-10-02T03:00:46.116Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:00:47.265Z judge        judge typed in 1142 ms
+2026-10-02T03:00:47.303Z status       Inner beat unused
+2026-10-02T03:00:47.305Z judge        judge scene in 714 ms
+2026-10-02T03:00:48.501Z judge        judge warden in 1240 ms
+2026-10-02T03:00:48.504Z judge        judge wardenLore in 1201 ms
+2026-10-02T03:00:49.297Z judge        judge typed in 464 ms
+2026-10-02T03:00:49.297Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:00:55.272Z judge        judge memoryVerify in 272 ms
+2026-10-02T03:00:56.077Z delta        queued deep_found_unira=false, location=deep_nahalbuk, tension_current=0.655685186170228 for the next boundary
+2026-10-02T03:00:54.998Z extraction   read cue:deep-nahalbuk-cells->deep-what-unira-says msgs 54-61 → 3 accepted, 1 rejected
+2026-10-02T03:00:54.998Z delta        deep_found_unira = false
+2026-10-02T03:00:54.998Z delta        location = deep_nahalbuk
+2026-10-02T03:00:54.998Z delta        tension_current = 0.655685186170228
+2026-10-02T03:00:54.998Z delta        queued deep_found_unira=false, location=deep_nahalbuk, tension_current=0.655685186170228 for the next boundary
+2026-10-02T03:00:54.998Z audit        audit cue:deep-nahalbuk-cells->deep-what-unira-says msgs 54-61 scope [deep_found_unira, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 3 accepted, 1 rejected
+2026-10-02T03:00:59.660Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:01:42.233Z payload      8 story blocks injected (generation)
+2026-10-02T03:01:42.296Z status       No inner beat for Unira
+2026-10-02T03:01:42.298Z payload      8 story blocks injected (generation)
+2026-10-02T03:01:43.020Z judge        judge lore in 382 ms
+2026-10-02T03:01:43.030Z judge        judge lore in 396 ms
+2026-10-02T03:01:43.327Z judge        judge lore in 300 ms
+2026-10-02T03:01:43.333Z judge        judge lore in 317 ms
+2026-10-02T03:01:43.561Z judge        judge lore in 235 ms
+2026-10-02T03:02:02.004Z status       No inner beat for Unira
+2026-10-02T03:02:03.235Z story        eventless change at message 61
+2026-10-02T03:02:03.777Z boundary     boundary 45: nothing applied (gate)
+2026-10-02T03:02:04.973Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:02:05.845Z judge        judge scene in 596 ms
+2026-10-02T03:02:05.879Z judge        judge warden in 626 ms
+2026-10-02T03:02:06.053Z status       Inner beat unused
+2026-10-02T03:02:06.076Z judge        judge typed in 232 ms
+2026-10-02T03:02:06.077Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:02:09.796Z judge        judge memoryVerify in 219 ms
+2026-10-02T03:02:10.334Z delta        queued deep_found_unira=false, location=deep_nahalbuk for the next boundary
+2026-10-02T03:02:09.575Z extraction   read cadence msgs 58-61 → 2 accepted, 0 rejected
+2026-10-02T03:02:09.575Z delta        deep_found_unira = false
+2026-10-02T03:02:09.575Z delta        location = deep_nahalbuk
+2026-10-02T03:02:09.575Z delta        queued deep_found_unira=false, location=deep_nahalbuk for the next boundary
+2026-10-02T03:02:09.575Z audit        audit cadence msgs 58-61 scope [deep_found_unira, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 2 accepted, 0 rejected
+2026-10-02T03:02:11.868Z model-call   shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:02:57.678Z payload      7 story blocks injected (generation)
+2026-10-02T03:02:57.719Z status       Inner beat used for Adolion Narrator
+2026-10-02T03:02:57.722Z payload      8 story blocks injected (generation)
+2026-10-02T03:02:58.518Z judge        judge lore in 378 ms
+2026-10-02T03:02:58.548Z judge        judge lore in 412 ms
+2026-10-02T03:02:58.870Z judge        judge lore in 326 ms
+2026-10-02T03:02:58.923Z judge        judge lore in 409 ms
+2026-10-02T03:02:59.105Z judge        judge lore in 236 ms
+2026-10-02T03:02:59.353Z judge        judge director in 235 ms
+2026-10-02T03:02:59.354Z talk         Adolion Narrator speaks (judge)
+2026-10-02T03:03:23.316Z status       Inner beat used for Adolion Narrator
+2026-10-02T03:03:24.045Z status       Inner beat stale for Belle
+2026-10-02T03:03:24.055Z payload      8 story blocks injected (generation)
+2026-10-02T03:03:25.455Z status       No inner beat for Dalan
+2026-10-02T03:03:25.480Z payload      9 story blocks injected (generation)
+2026-10-02T03:03:27.597Z status       No inner beat for Ced
+2026-10-02T03:03:27.618Z payload      8 story blocks injected (generation)
+2026-10-02T03:03:28.831Z boundary     applied deep_found_unira=false, location=deep_nahalbuk
+2026-10-02T03:03:29.678Z talk         silence speaks (judge)
+2026-10-02T03:03:29.678Z judge        judge director in 709 ms
+2026-10-02T03:03:29.708Z judge        judge typed in 283 ms
+2026-10-02T03:03:30.293Z judge        judge warden in 587 ms
+2026-10-02T03:03:30.294Z judge        judge scene in 619 ms
+2026-10-02T03:03:29.417Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:03:30.998Z judge        judge wardenLore in 706 ms
+2026-10-02T03:03:30.999Z judge        judge typed in 590 ms
+2026-10-02T03:03:30.999Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:03:35.644Z judge        judge memoryVerify in 287 ms
+2026-10-02T03:03:36.241Z delta        queued deep_found_unira=true, location=deep_nahalbuk, tension_current=0.655685186170228 for the next boundary
+2026-10-02T03:03:35.354Z extraction   read cue:deep-nahalbuk-cells->deep-what-unira-says msgs 56-63 → 3 accepted, 0 rejected
+2026-10-02T03:03:35.354Z delta        deep_found_unira = true
+2026-10-02T03:03:35.354Z delta        location = deep_nahalbuk
+2026-10-02T03:03:35.354Z delta        tension_current = 0.655685186170228
+2026-10-02T03:03:35.354Z delta        queued deep_found_unira=true, location=deep_nahalbuk, tension_current=0.655685186170228 for the next boundary
+2026-10-02T03:03:35.354Z audit        audit cue:deep-nahalbuk-cells->deep-what-unira-says msgs 56-63 scope [deep_found_unira, deep_standing_with_partner, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T03:03:37.688Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:03:39.630Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:04:41.146Z payload      7 story blocks injected (generation)
+2026-10-02T03:04:41.184Z status       No inner beat for Unira
+2026-10-02T03:04:41.186Z payload      8 story blocks injected (generation)
+2026-10-02T03:04:42.024Z judge        judge lore in 356 ms
+2026-10-02T03:04:42.134Z judge        judge lore in 475 ms
+2026-10-02T03:04:42.431Z judge        judge lore in 411 ms
+2026-10-02T03:04:42.470Z judge        judge lore in 340 ms
+2026-10-02T03:04:42.658Z judge        judge lore in 228 ms
+2026-10-02T03:04:42.941Z talk         Unira speaks (judge)
+2026-10-02T03:04:42.941Z judge        judge director in 269 ms
+2026-10-02T03:05:07.005Z status       No inner beat for Unira
+2026-10-02T03:05:08.114Z status       No inner beat for Runo
+2026-10-02T03:05:08.122Z payload      8 story blocks injected (generation)
+2026-10-02T03:05:09.545Z status       Inner beat stale for Belle
+2026-10-02T03:05:09.570Z payload      8 story blocks injected (generation)
+2026-10-02T03:05:10.888Z status       No inner beat for Ced
+2026-10-02T03:05:10.911Z payload      8 story blocks injected (generation)
+2026-10-02T03:05:12.179Z status       No inner beat for Dalan
+2026-10-02T03:05:12.202Z payload      9 story blocks injected (generation)
+2026-10-02T03:05:13.494Z status       Inner beat used for Adolion Narrator
+2026-10-02T03:05:13.514Z payload      8 story blocks injected (generation)
+2026-10-02T03:05:14.951Z boundary     applied deep_found_unira=true, location=deep_nahalbuk, tension_current=0.655685186170228
+2026-10-02T03:05:14.951Z transition   deep-nahalbuk-cells → deep-what-unira-says
+2026-10-02T03:05:15.347Z judge        judge director in 467 ms
+2026-10-02T03:05:15.348Z talk         silence speaks (judge)
+2026-10-02T03:05:16.141Z payload      7 story blocks injected (generation)
+2026-10-02T03:05:16.197Z status       No inner beat for Unira
+2026-10-02T03:05:16.199Z payload      8 story blocks injected (generation)
+2026-10-02T03:05:16.676Z judge        judge lore in 428 ms
+2026-10-02T03:05:16.685Z judge        judge lore in 433 ms
+2026-10-02T03:05:17.007Z judge        judge lore in 325 ms
+2026-10-02T03:05:17.033Z judge        judge lore in 361 ms
+2026-10-02T03:05:17.237Z judge        judge lore in 232 ms
+2026-10-02T03:05:38.610Z status       No inner beat for Unira
+2026-10-02T03:05:39.989Z status       Moved into What Unira Says
+2026-10-02T03:05:40.140Z boundary     boundary 48: nothing applied (gate)
+2026-10-02T03:05:40.131Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:05:40.336Z payload      6 story blocks injected (generation)
+2026-10-02T03:05:40.595Z status       No inner beat for Unira
+2026-10-02T03:05:41.073Z status       Following What Unira Says
+2026-10-02T03:05:41.412Z judge        judge scene in 1271 ms
+2026-10-02T03:05:41.440Z judge        judge typed in 1300 ms
+2026-10-02T03:05:41.186Z model-call   inner via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:05:42.931Z judge        judge wardenLore in 1492 ms
+2026-10-02T03:05:42.949Z judge        judge warden in 1538 ms
+2026-10-02T03:05:43.276Z judge        judge curatorFilter in 346 ms
+2026-10-02T03:05:43.839Z judge        judge typed in 221 ms
+2026-10-02T03:05:43.277Z model-call   curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:05:45.448Z stagecraft   World Info curator proposed 3 change(s) at What Unira Says
+2026-10-02T03:05:43.840Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:05:48.396Z delta        queued deep_unira_truth=true, location=deep_nahalbuk for the next boundary
+2026-10-02T03:05:48.537Z judge        judge memoryVerify in 255 ms
+2026-10-02T03:05:49.532Z delta        queued deep_unira_truth=true, location=deep_nahalbuk for the next boundary
+2026-10-02T03:05:48.281Z extraction   read cadence msgs 62-66 → 3 accepted, 0 rejected
+2026-10-02T03:05:48.281Z delta        deep_unira_truth = true
+2026-10-02T03:05:48.281Z delta        location = deep_nahalbuk
+2026-10-02T03:05:48.281Z delta        tension_current = 0.75
+2026-10-02T03:05:48.281Z delta        queued deep_unira_truth=true, location=deep_nahalbuk for the next boundary
+2026-10-02T03:05:48.281Z audit        audit cadence msgs 62-66 scope [deep_reached_mines, deep_standing_with_partner, deep_unira_truth, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T03:05:51.262Z judge        judge typed in 315 ms
+2026-10-02T03:05:51.263Z model-call   read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:05:57.401Z judge        judge memoryVerify in 259 ms
+2026-10-02T03:05:57.458Z delta        queued deep_unira_truth=true, location=deep_nahalbuk for the next boundary
+2026-10-02T03:05:58.579Z delta        queued deep_unira_truth=true, location=deep_nahalbuk for the next boundary
+2026-10-02T03:05:57.139Z extraction   read cue:deep-what-unira-says->deep-draxford-call msgs 59-66 → 3 accepted, 0 rejected
+2026-10-02T03:05:57.139Z delta        deep_unira_truth = true
+2026-10-02T03:05:57.139Z delta        location = deep_nahalbuk
+2026-10-02T03:05:57.139Z delta        tension_current = 0.75
+2026-10-02T03:05:57.139Z delta        queued deep_unira_truth=true, location=deep_nahalbuk for the next boundary
+2026-10-02T03:05:57.139Z audit        audit cue:deep-what-unira-says->deep-draxford-call msgs 59-66 scope [deep_reached_mines, deep_standing_with_partner, deep_unira_truth, guild_reputation, location, party_injuries, party_rank, tension_current] → 3 accepted, 0 rejected
+2026-10-02T03:05:59.798Z model-call   arcSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+2026-10-02T03:06:01.442Z model-call   canon via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok
+
+Stopped after 1288 events and 34 audits.

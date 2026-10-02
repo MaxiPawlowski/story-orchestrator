@@ -1,0 +1,27 @@
+ok   chat.chatLength  1 -> 10  (allowed by progress)
+WARNING: the page is running a bundle that is not the built one: served 7a1e95c3c47cc993 vs dist 4dfcf2f69c4aee4f
+ok   group.disabledMembers  +Ellie.png +Tobias.png +Vallie.png  (allowed by group)
+ok   story.activeCheckpointId  "guild-hall" -> "road-to-wendhope"  (allowed by progress)
+ok   story.boundary  1 -> 7  (allowed by progress)
+{
+  "baseline": "C:\\dev\\story-orchestrator\\test\\sessions\\T3\\T3-6-1\\run-header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "chatId",
+    "groupId",
+    "authorView",
+    "story",
+    "group",
+    "inventory.journal"
+  ],
+  "differences": 4,
+  "progress": 3,
+  "blocking": 0,
+  "blockingPaths": [],
+  "servedIdentity": [],
+  "warnings": [
+    "the page is running a bundle that is not the built one: served 7a1e95c3c47cc993 vs dist 4dfcf2f69c4aee4f"
+  ],
+  "wrote": "C:\\dev\\story-orchestrator\\test\\sessions\\T3\\T3-6-1\\run-header-end.json",
+  "ok": true
+}
