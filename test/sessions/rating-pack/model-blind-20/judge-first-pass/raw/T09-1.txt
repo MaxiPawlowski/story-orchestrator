@@ -1,5 +1,0 @@
-exit 0
---- text ---
-{"scores":{"A":{"coherence":5,"prose":5,"scene":3,"agency":5,"overall":3},"B":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"C":{"coherence":4,"prose":3,"scene":2,"agency":5,"overall":2},"D":{"coherence":4,"prose":5,"scene":4,"agency":5,"overall":4}},"rank":["B","D","A","C"],"why":"B best answers the player and builds interest in the posting, though it invents a shipment and quest rank; D stays close to Wendhope but incorrectly reacts to hearing his name. A diverts into unsupported personal insecurity, while C contains a malformed word and ends by questioning the player rather than developing the opportunity; all four preserve player agency."}
---- stderr ---
-

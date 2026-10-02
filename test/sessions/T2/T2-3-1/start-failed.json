@@ -1,9 +1,0 @@
-{
-  "charter": "T2-3",
-  "stage": "reload",
-  "at": "2026-10-01T23:32:56.725Z",
-  "problems": [
-    "reload failed: Error: page.waitForFunction: Timeout 30000ms exceeded.\n"
-  ],
-  "warnings": []
-}

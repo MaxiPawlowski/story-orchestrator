@@ -1,5 +1,0 @@
-exit 0
---- text ---
-{"scores":{"A":{"coherence":3,"prose":4,"scene":3,"agency":4,"overall":3},"B":{"coherence":5,"prose":5,"scene":4,"agency":4,"overall":4},"C":{"coherence":4,"prose":4,"scene":4,"agency":5,"overall":4},"D":{"coherence":4,"prose":4,"scene":3,"agency":3,"overall":3}},"rank":["B","C","A","D"],"why":"B gives the departure a vivid, playable warning, although it invents the player's name and attire; C preserves agency most cleanly, but introduces southbound traffic without acknowledging the established stoppage. A is atmospheric but inconsistently shifts from walking to hoofbeats, while D advances the party through several hours of travel beyond the player's stated departure."}
---- stderr ---
-

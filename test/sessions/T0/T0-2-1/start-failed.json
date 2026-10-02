@@ -1,9 +1,0 @@
-{
-  "charter": "T0-2",
-  "stage": "age",
-  "at": "2026-10-01T12:10:10.370Z",
-  "problems": [
-    "--age: the away recap did not fire (no recap after the reload)"
-  ],
-  "warnings": []
-}

@@ -1,6 +1,0 @@
-Persisting every capture → C:\dev\story-orchestrator\test\sessions\T5\T5-4-1\payloads.jsonl every 1000 ms. Ctrl-C to stop.
-2026-10-02T12:18:29.371Z #0 POST /api/backends/chat-completions/generate
-2026-10-02T12:18:32.465Z #1 POST /api/backends/chat-completions/generate
-2026-10-02T12:20:05.078Z #2 POST /api/backends/chat-completions/generate
-
-{"written":3,"responses":3,"dropped":0,"rearmed":0,"unknownGaps":0,"writeErrors":0,"epoch":"1790943507089-87ttxq","ok":true}

@@ -1,5 +1,0 @@
-exit 0
---- text ---
-{"scores":{"A":{"coherence":4,"prose":5,"scene":2,"agency":3,"overall":2},"B":{"coherence":4,"prose":5,"scene":3,"agency":5,"overall":3},"C":{"coherence":1,"prose":2,"scene":2,"agency":5,"overall":1},"D":{"coherence":5,"prose":5,"scene":1,"agency":4,"overall":2}},"rank":["B","D","A","C"],"why":"B best preserves Talis and responds to the warning without controlling the player, though it misses her concealed deadline anxiety and does little to advance the posting choice. D offers polished recruitment material but abandons Talis entirely; A introduces unsupported, distracting details and dictates everyone's reaction, while C collapses into repetitive pleading and contains a conspicuous word error."}
---- stderr ---
-

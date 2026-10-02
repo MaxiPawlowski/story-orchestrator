@@ -1,4 +1,0 @@
-{
-  "ok": true,
-  "value": "No issues — this story is ready to save.\nNotes (4)\ncheckpoint-inherits-author-note\nThe model keeps being told an earlier checkpoint's note here.\n'the_vault' plays under the note of \"The Crew Assembled\"; the objective line is added\ncheckpoints.2.effects.author_note\ncheckpoint-inherits-author-note\nThe model keeps being told an earlier checkpoint's note here.\n'the_escape' plays under the note of \"The Betrayal\"; the objective line is added\ncheckpoints.4.effects.author_note\ncheckpoint-inherits-author-note\nThe model keeps being told an earlier checkpoint's note here.\n'the_reckoning' plays under the note of \"The Betrayal\"; the objective line is added\ncheckpoints.5.effects.author_note\ncheckpoint-inherits-author-note\nThe model keeps being told an earlier checkpoint's note here.\n'the_hoard_returned' plays under the note of \"The Betrayal\"; the objective line is added\ncheckpoints.6.effects.author_note"
-}

@@ -1,5 +1,0 @@
-exit 0
---- text ---
-{"scores":{"A":{"coherence":4,"prose":5,"scene":3,"agency":3,"overall":3},"B":{"coherence":4,"prose":4,"scene":3,"agency":3,"overall":3},"C":{"coherence":5,"prose":5,"scene":5,"agency":5,"overall":5},"D":{"coherence":4,"prose":4,"scene":4,"agency":4,"overall":4}},"rank":["C","D","A","B"],"why":"C stays close to the declared departure, gives the companions distinct reactions, and leaves the next response to the player; D offers a solid atmospheric continuation but advances farther without interaction. A invents the player's name and equipment, while B dictates extended party travel and develops an investigation with unsupported magical observations before leaving room for player input."}
---- stderr ---
-

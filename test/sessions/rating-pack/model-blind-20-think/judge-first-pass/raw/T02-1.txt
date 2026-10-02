@@ -1,5 +1,0 @@
-exit 0
---- text ---
-{"scores":{"A":{"coherence":4,"prose":5,"scene":4,"agency":5,"overall":4},"B":{"coherence":4,"prose":5,"scene":5,"agency":5,"overall":4},"C":{"coherence":4,"prose":5,"scene":2,"agency":5,"overall":3},"D":{"coherence":4,"prose":5,"scene":4,"agency":5,"overall":4}},"rank":["B","A","D","C"],"why":"B best preserves the established setting while introducing frightened defenders who refuse entry; A delivers the intended pressure more explicitly but abruptly changes the time and wall construction. D supplies a useful but less developed response with an unclear reference to the voice changing, while C leaves the player's appeal unanswered; all four respect player agency."}
---- stderr ---
-

@@ -1,5 +1,0 @@
-exit 0
---- text ---
-{"scores":{"A":{"coherence":4,"prose":3,"scene":3,"agency":3,"overall":3},"B":{"coherence":3,"prose":4,"scene":3,"agency":5,"overall":3},"C":{"coherence":4,"prose":4,"scene":4,"agency":5,"overall":4},"D":{"coherence":5,"prose":5,"scene":4,"agency":4,"overall":4}},"rank":["D","C","B","A"],"why":"D offers the strongest atmospheric continuation and a restrained hook, though it unnecessarily defines what the player cannot hear; C respects agency but invents Tobias's earlier 'no rescue' warning. B preserves a choice but introduces an unsupported player name and awkward route details, while A relies on repetitive phrasing and narrates the player's continued travel through a time advance."}
---- stderr ---
-

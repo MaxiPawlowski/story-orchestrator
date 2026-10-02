@@ -50,3 +50,9 @@ notes/
 # v2.6 plan 03: spike run dirs keep summaries; raw captures and lab fixture copies stay local
 /test/measurements/v2.6-03/**/raw/
 /test/measurements/v2.6-03/_run/
+
+# Session evidence quotes third-party Adolion campaign text (no license): it lives in the PRIVATE repo
+# MaxiPawlowski/so-sessions (git dir C:/dev/so-sessions.git, work tree test/sessions; npm run sessions:archive).
+# This public repo keeps only the charters, index, tier summaries and spend log.
+/test/sessions/T*/T*-*/
+/test/sessions/rating-pack/

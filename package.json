@@ -35,6 +35,7 @@
     "test-storybook:ci": "npm run storybook:build && concurrently -k -s first -n SB,TEST \"npm run serve-sb\" \"wait-on -t 60000 http://127.0.0.1:6006 && npm run test-storybook\"",
     "plugin:install": "node scripts/plugin-install.mjs",
     "plugins:install": "node scripts/plugin-install.mjs",
+    "sessions:archive": "git --git-dir=C:/dev/so-sessions.git add -A && git --git-dir=C:/dev/so-sessions.git commit -m \"session evidence\" && git --git-dir=C:/dev/so-sessions.git push -q origin master",
     "test:plugin": "node --test server-plugin/story-orchestrator-judge/plugin.test.mjs server-plugin/story-orchestrator-gpu/gate.test.mjs server-plugin/story-orchestrator-harness/plugin.test.mjs server-plugin/story-orchestrator-harness/agent.test.mjs",
     "test:debug": "node --test \"scripts/debug/**/*.test.mts\" \"scripts/lib/*.test.mjs\"",
     "typecheck:test": "tsc -p tsconfig.test.json",

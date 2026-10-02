@@ -1,5 +1,0 @@
-exit 0
---- text ---
-{"scores":{"A":{"coherence":4,"prose":4,"scene":4,"agency":5,"overall":3},"B":{"coherence":5,"prose":4,"scene":3,"agency":5,"overall":3},"C":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"D":{"coherence":5,"prose":4,"scene":3,"agency":5,"overall":3}},"rank":["C","A","D","B"],"why":"C gives Belle a focused, well-written response to the order, while A fits her established unease but repeats its assurances; D and B lean more heavily on embellished bravado, with B especially undercutting the threatening atmosphere. All respect player agency, but none advances the requested fog-and-Screecher pressure beyond taking position and waiting."}
---- stderr ---
-

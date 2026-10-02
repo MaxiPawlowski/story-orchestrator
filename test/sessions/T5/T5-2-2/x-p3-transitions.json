@@ -1,4 +1,0 @@
-{
-  "ok": true,
-  "value": "+ Transition\nstart → the_crew_assembled\nheist_progress >= 1\nthe_vault → the_betrayal\nheist_progress >= 4\nthe_betrayal → the_escape\nheist_progress >= 5\nthe_crew_assembled → the_vault\nheist_progress >= 2\nthe_escape → the_reckoning\nheist_progress >= 6\nthe_reckoning → the_hoard_returned\nheist_progress >= 7\nFrom\nStart\nThe Crew Assembled\nThe Vault\nThe Betrayal\nThe Escape\nThe Reckoning\nThe Hoard Returned\nTo\nStart\nThe Crew Assembled\nThe Vault\nThe Betrayal\nThe Escape\nThe Reckoning\nThe Hoard Returned\nPriority\nGate\nquality…\nheist_progress\ndragon_trust\nknights_alert\nhoard_recovered\n==\n!=\n>=\n<=\n>\n<\nPreview: heist_progress >= 1\nOpen the Studio from a chat that plays this story to replay its history.\nProgress effect\nExtractor trigger\nExtraction hint\nDelete transition"
-}

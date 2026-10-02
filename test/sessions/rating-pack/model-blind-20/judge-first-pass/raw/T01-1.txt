@@ -1,5 +1,0 @@
-exit 0
---- text ---
-{"scores":{"A":{"coherence":4,"prose":5,"scene":4,"agency":5,"overall":4},"B":{"coherence":4,"prose":3,"scene":3,"agency":5,"overall":3},"C":{"coherence":4,"prose":3,"scene":4,"agency":5,"overall":3},"D":{"coherence":4,"prose":5,"scene":2,"agency":5,"overall":2}},"rank":["A","C","B","D"],"why":"A best combines safer alternatives, the explicit Sheridan warning, and an opening to form a party without choosing for the player; C conveys the warning well but has conspicuous wording errors and no party-formation prompt. B omits the requested explanation of Tobias's suspicion and contains a grammatical glitch, while D keeps the key warning internal, introduces unsupported funding details, and treats the player as already having a party."}
---- stderr ---
-

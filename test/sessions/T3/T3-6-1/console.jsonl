@@ -1,8 +1,0 @@
-{"at":"2026-10-02T02:57:07.968Z","type":"info","text":"console tail attached"}
-{"at":"2026-10-02T02:57:47.903Z","type":"warning","text":"Stream stats: 215 tokens, 9.59 seconds, rate: 22.43 TPS","location":"http://127.0.0.1:8102/script.js:3898"}
-{"at":"2026-10-02T02:59:43.096Z","type":"warning","text":"Stream stats: 187 tokens, 7.35 seconds, rate: 25.45 TPS","location":"http://127.0.0.1:8102/script.js:3898"}
-{"at":"2026-10-02T03:00:09.283Z","type":"warning","text":"Stream stats: 222 tokens, 7.40 seconds, rate: 29.98 TPS","location":"http://127.0.0.1:8102/script.js:3898"}
-{"at":"2026-10-02T03:00:47.329Z","type":"warning","text":"Stream stats: 258 tokens, 17.10 seconds, rate: 15.09 TPS","location":"http://127.0.0.1:8102/script.js:3898"}
-{"at":"2026-10-02T03:06:09.187Z","type":"warning","text":"Stream stats: 182 tokens, 8.27 seconds, rate: 22.00 TPS","location":"http://127.0.0.1:8102/script.js:3898"}
-{"at":"2026-10-02T03:06:26.744Z","type":"warning","text":"Stream stats: 163 tokens, 5.37 seconds, rate: 30.35 TPS","location":"http://127.0.0.1:8102/script.js:3898"}
-{"at":"2026-10-02T03:06:27.306Z","type":"warning","text":"[Macro] Warning: Dynamic macro \"words\" uses unsupported number/boolean format. {macroName: words, range: Object, raw: words, call: Object}","location":"http://127.0.0.1:8102/scripts/macros/engine/MacroDiagnostics.js:106"}

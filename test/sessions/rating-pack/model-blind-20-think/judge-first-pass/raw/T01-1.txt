@@ -1,5 +1,0 @@
-exit 0
---- text ---
-{"scores":{"A":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"B":{"coherence":3,"prose":5,"scene":2,"agency":5,"overall":2},"C":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"D":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4}},"rank":["C","D","A","B"],"why":"C and D clearly convey Tobias's suspicion and the party requirement without deciding for the player; A also offers useful alternatives but adds unsupported specifics and a less convincing endorsement of overpayment. B contradicts the unusually high reward with 'D-rank coin for a D-rank problem' and invents substantial posting details; B, C, and D also use the unestablished player name Max."}
---- stderr ---
-

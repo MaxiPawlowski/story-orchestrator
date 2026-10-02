@@ -1,5 +1,0 @@
-exit 0
---- text ---
-{"scores":{"A":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"B":{"coherence":4,"prose":5,"scene":3,"agency":5,"overall":3},"C":{"coherence":4,"prose":5,"scene":2,"agency":5,"overall":2},"D":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4}},"rank":["A","D","B","C"],"why":"A gives a clean, enthusiastic reaction without settling the negotiation or prompting the player; D also fits, though its closing challenge is less effective. B muddles the demanded triple fee with accepting double and takes over Talis's response, while C invents a dead village and ends by asking the player to repeat a choice already expressed."}
---- stderr ---
-

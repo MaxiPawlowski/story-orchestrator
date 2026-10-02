@@ -100,6 +100,46 @@ Findings (detail in `T5-1-1/findings.md`):
 - Harness: the W6 rule above; `turn` does not remind the operator to pass `--arm` on a gated card.
 - Thinking: 44 replies, reasoning on 36, empty reasoning on 8, 3 empty contents, 0 damaged starts, 0 repeated names. DeepSeek 151 calls (776k in / 64k out, 70 primary, 0 fallback), judge 258 (22 timeouts), main RP 51.
 
+### T5-1 re-run: T5-1-3 (agent) and T5-1-4 (staged), both VALID
+
+- **T5-1-3 (VALID, `--arm agent`):** played 2026-10-02 14:12-15:03Z on lane 3 (fresh seed, pin be0696b, started `--no-seed` after the seed-drift exit below), served dev bundle `133b12aa92a0` (master `7e3bb993`), thinking overlay default, media off, Agent mode "Review every change", local route (DeepSeek). Story `the-redrawn-kingdom@2`; 4 cards, 1 book (7 entries), group `1790950910047`, chat `2026-10-02@11h21m50s046ms` adopted. 21 player turns, 0 swipes, 2 flags. Header diff clean.
+- **T5-1-4 (VALID, `--arm staged`):** played 15:11-15:54Z on lane 3 (fresh seed, `--no-seed` again), same bundle, Step by step entry. Story `the-redrawing-map@2`; 4 cards, 1 book (5 entries), group `1790954267984`, chat `2026-10-02@12h17m47s982ms` adopted. 20 player turns, 0 swipes, 3 flags. Header diff clean.
+- **W6:** stop built 1 pair (pending user rating), but it pairs T5-1-4 with **T5-1-1** (the invalid run), not T5-1-3 (`rating-pack/.keys/W6.json`).
+- **Seed drift (harness):** `start T5-1 --lane 3` reseeds cleanly (`problems: []`), then exits 1 on `$.selected: length 16 vs 0`. The last good seed (12:42Z) predates f7342021 (the seed now deselects every global book), and a drifted seed is never recorded as good, so every reseed on this pin fails until the baseline is re-accepted.
+
+| Row | T5-1-3 agent | Evidence | T5-1-4 staged | Evidence |
+|---|---|---|---|---|
+| wizard interview | annoying | turns.jsonl:1 | broken | turns.jsonl:2 |
+| review mode | annoying | x-cards.jsonl:21 | annoying | shots/001-staged-qualities-invalid.png |
+| provisioning | annoying | x-cards.jsonl:71 | annoying | turns.jsonl:5 |
+| playability of the result | annoying | journal.jsonl:263 | annoying | journal.jsonl:70 |
+| 11 W6 leg | recorded (user) | wizard-drafts.json:1 | recorded (user) | wizard-drafts.json:1 |
+
+Findings (detail in `T5-1-3/findings.md`, `T5-1-4/findings.md`):
+- HIGH (product, agent + provisioning, T5-1-3): the createGroup card put **Mira** (Mira Thornwick, an Adolion campaign card from the seed) into The Redrawn Kingdom's group. `validateProvisioningOp` accepted a foreign member that is in neither the roster nor the requirements, so two stories share an asset, and Mira speaks as an NPC (6 replies). The card named her; the operator loop applied it unread.
+- HIGH (product, staged, T5-1-4): `STAGE_MAX_TOKENS = 2048` (`src/copilot/authoring.ts:11`) truncates proposals that carry rubrics. Qualities failed 4 times and Checkpoints once, each showing a raw JSON parser error. It worked only after the author asked for a compact set.
+- HIGH (product, staged, T5-1-4): the Effects & Cast stage required a persona "The Apprentice", which nothing can provision. The saved story was not ready, no start effects ran, and Repair said only "written for a different player character". Fixed by hand in the Story tab.
+- MEDIUM (agent design, T5-1-3): gates collapse (`map_truth == awake` on two consecutive edges, `cartographic_insight >= 2/3`). Start reached final_map in 7 turns, then 14 turns sat at the terminal beat; the Morrow branch was never visited. No diagnostic warned.
+- MEDIUM (agent, T5-1-3): the foreign lorebook was re-proposed 3 times after rejection. It never reached requirements, and the done summary says it was declined.
+- MEDIUM (agent cost, T5-1-3): 176 steps / ~1.35M tokens / 4 Continues; 28 readGuide steps up front; a 5-change fix goal took 36 steps; New goal still drops the prior agent session.
+- MEDIUM (both): neither entry interviews, so "answer the questions, use You decide once" cannot be done.
+- MEDIUM (harness): W6 pairs the invalid T5-1-1 draft; seed-drift baseline (both above).
+- MEDIUM (story, T5-1-4): 10-boundary stalls at house_two and at the terminal last_map.
+- LOW: 1 empty reply per arm (reasoning only), now flagged by the defect rule, not swiped.
+- Operator error (T5-1-3): my foreign-request filter matched the agent's thought text and wrongly rejected 7 in-story edits (including #116, house_vael_offer effects). A narrow second goal added the missing enables. Recorded in `x-cards.jsonl`.
+
+Fix-wave live checks (both arms):
+1. Start `cast_changes` by name take effect: yes (T5-1-3 at once, T5-1-4 once the story was ready). No `CAST_UNRESOLVED`.
+2. Agent done summary is factual; no `patch: {}` card among 72.
+3. Drive cards preview null -> real text.
+4. Every main reply carries the five reasoning-budget keys at 400 (31/31, 39/39).
+5. `globalSelect` is empty; the book reads `satisfiedBy: story`.
+6. Judge plugin 1.5.0.
+7. Empty replies: 1 per arm, both flagged.
+8. Provocation: no verbal refusal. The foreign lorebook came back 3 times as cards that waited, all rejected; requirements untouched.
+
+- Thinking: T5-1-3 40 replies, reasoning 40, empty reasoning 4, empty content 1, median 1508 chars; T5-1-4 39 / 39 / 4 / 1, median 1249. DeepSeek: T5-1-3 265 calls (1.72M in / 58k out), T5-1-4 62 (160k / 54k). Judge: 174 calls (14 timeouts, 1 busy) and 185 (6 timeouts).
+
 ## T5-3 Studio edit (lane 3, `test/sessions/T5/T5-3-1` VALID)
 
 - **T5-3-1 (VALID):** 2026-10-02 11:56-12:15Z, continued the T5-1 chat. Four saves through the Studio, each hot-swapped ("Applied to this chat"): v2 flight guidance, v3 gate `ink_awareness >= 5 -> 4` (fired from play at b46), v4 background on redline (applied at save), v5 start cast disable re-picked by name. Invalid save (retargeted transition) refused with 2 errors. 3 turns. Header diff clean with `inventory.v2Stories:~the-redline-kingdom`.
