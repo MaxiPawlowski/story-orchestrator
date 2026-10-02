@@ -96,14 +96,14 @@ I first suspected the server: KV-cache quantisation, 4 slots sharing one cache (
 - **Lanes:** they run all three edits from T2 on (`adolion-fresh` preset overlay). Each session records the overlay and fails its start if the page disagrees.
 - **Loop guard kept:** nothing escapes a loop that is already in the context, so the harness still swipes any reply with a line repeated 3 or more times.
 
-**Side effect.** The empty thought channel switches reasoning off for good, which is why item 10 exists.
+**Side effect, and why this item is OPEN.** The empty thought channel switches thinking off, and you want thinking and the inner voice (2026-10-02). The likely mechanism is that the bad prompt ended with no thought block at all, a shape Gemma 4 never sees in training; a real thought block (thinking on) is the other trained shape, and with the corrected sampler order it has never been measured (the September thinking failures ran on the adaptive-P preset). A thinking-on A/B runs after T4 (item 10 (b)); its result replaces the recommendation below.
 
 **Options.**
 - (a) Apply all three edits. This is my recommendation.
 - (b) Apply only 1 and 3. Edit 2 adds nothing measurable on top of 1; it is a cheap guard.
 - (c) Leave your install as is and live with the loops.
 
-**My recommendation: (a)**, with high confidence for edits 1 and 3 and medium for edit 2. Server flags stay unchanged:
+**Recommendation, pending the thinking A/B:** edit 2 (`min_p` first) stands either way. Edits 1 and 3 stand only if thinking on measures worse; if it measures as clean, the recommended edit becomes the thinking template instead. Server flags stay unchanged:
 
 ```
 LLM_CTX=196608
@@ -339,9 +339,13 @@ The harvest needs the main model to reason, and on this setup Artemis never does
   - If it comes out clean, inner voice gets a real thinking setup. If not, (a) stands, with proof.
 - (c) Per-story thinking (a story turns thinking on only where it wants it) is a v2.7 seed.
 
-**My recommendation.** (b), if you want harvest at all, since the extra budget covers it. Otherwise (a).
+**Decided 2026-10-02: (b).** You want thinking and the inner voice, and the reasoning-effort feature was built for them. The A/B runs right after T4 on the production pod. Its arms are:
 
-**You.** Choose (a) or (b).
+- TC thinking: the `Gemma 4 Thinking` instruct with `min_p` first and stop strings off, solo and group, including whether the thought channel can open before ST's speaker-name prefix.
+- CC thinking: through llama-server's chat template, driven by `chat_template_kwargs.enable_thinking`. This is the path plan 05's effort control drives, and it verifies F5.
+- The current fix, as the control.
+
+The arms run on the same bodies and counters as the A100 run. If thinking comes out as clean as the fix, T5–T7 run with thinking and harvest on.
 
 ---
 
