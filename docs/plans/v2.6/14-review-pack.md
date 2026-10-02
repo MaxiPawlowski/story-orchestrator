@@ -22,7 +22,7 @@
 |---|---|---|
 | T0 playable | done (3/3 valid) | `test/sessions/T0/SUMMARY.md` |
 | T1 features | done (7/7 valid); fix waves T1-6 and T1-7 merged (one must-not-happen: foreign gated lore on the first reply after a chat switch, fixed) | `test/sessions/T1/SUMMARY.md`, `14-findings.md` |
-| T2 memory | running on bundle `8319f7535e1e` (pin `884380b`, lane preset overlay) | `test/sessions/T2/SUMMARY.md` |
+| T2 memory | done (6/6 valid; DeepSeek outage 19:50–21:32Z cost 4 turns, flagged); 4 fix waves merged (secrets out of shared tiers, lost updates on chat leave, switch attribution, away recap, chapter seal/fold, warden lapse, party moves, beat holds); live check in T3 | `test/sessions/T2/SUMMARY.md`, `14-findings.md` |
 | T3–T7 | not started | — |
 
 ## Measurements
@@ -31,7 +31,7 @@
 |---|---|
 | Model config audit | done, `15-model-config.md` |
 | English judge re-measure | done, every use at floor, `15-judge-remeasure.md` |
-| Plan 03 spikes | SP7 include, SP3 include (director), SP2 drop, SP9 drop, SP5 include, SP8 tiers/spans include (digest dropped, below floor); SP4 + SP3.b re-measure running on the T2 bundle; SP6/SP1/SP10 not started |
+| Plan 03 spikes | SP7 include, SP3 include (director), SP2 drop, SP9 drop, SP5 include, SP8 tiers/spans include (digest dropped, below floor); SP3.b accepted (Phase B 2.01 / 2.87 per 50); SP4 English pairs running, distractor arm skipped (no bar, pod budget); SP6/SP1/SP10 not started |
 | Artemis long-prompt degradation | A100 experiment done: flags not the cause; empty thought channel + min_p first fix most of it (lanes run it from T2); blind pack ready for rating |
 
 ## Spend
