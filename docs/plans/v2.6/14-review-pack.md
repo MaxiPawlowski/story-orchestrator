@@ -15,6 +15,14 @@ Each decision item below covers:
 
 The table is the short version; each section has the rest.
 
+**Decisions (user, 2026-10-02):**
+
+- Items 3–8: approved as recommended.
+- Item 9: option (c) in v2.6; the house-rules question gets world-book context and is re-measured.
+- Items 2 and 10: wait for the thinking and model A/B, which is running.
+
+Item 3 is applied with ST stopped by `C:\dev\so-lanesackupspply-review-item3.py`. The script refuses while :8000 listens, backs up first and reads the result back. It does not change the selected profile, `Artemis Local (Unsloth)`, because only you can fix its key.
+
 | # | Item | You | Effort |
 |---|---|---|---|
 | 1 | Blind model comparison (20 turns × 4 setups) | rate blind; it picks the model | 20–60 min |
