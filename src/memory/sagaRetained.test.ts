@@ -51,7 +51,8 @@ describe("AS-14 D10: archive recall selects folded rows the turn names", () => {
   });
 
   it("caps at four lines", () => {
-    const many = Array.from({ length: 9 }, (_, index) => entry(`r${index}`, `Ronan fact ${index}`, ["Ronan"], "adv#1"));
+    const topics = ["oath sworn", "hand lost", "wyrm hunted", "horse sold", "sister found", "debt paid", "sword broken", "ship sunk", "scar earned"];
+    const many = topics.map((topic, index) => entry(`r${index}`, `Ronan ${topic}`, ["Ronan"], "adv#1"));
     expect(selectRecall(recallCandidates(many, "Ronan"), records, context, { tokens: 10_000 }).length).toBe(4);
   });
 });

@@ -1,4 +1,4 @@
-import { chainThresholdFor, gateKeys, parseStoryV2, progressQualityForAnchor, type GateNode, type NormalizedStoryV2, type StoryV2, type Transition } from "@engine/index";
+import { chainThresholdFor, gateKeys, GENERATED_CHECKPOINT_PREFIX, parseStoryV2, progressQualityForAnchor, type GateNode, type NormalizedStoryV2, type StoryV2, type Transition } from "@engine/index";
 import type { ExtraGateSource } from "@extraction/types";
 import type { ExpansionCacheEntry } from "./types";
 
@@ -6,7 +6,7 @@ const clone = <T>(value: T): T => JSON.parse(JSON.stringify(value)) as T;
 
 const allGate = (left: GateNode, right: GateNode): GateNode => ({ all: [left, right] });
 
-const generatedId = (entry: ExpansionCacheEntry, index: number) => `gen_${entry.stubId}_${index + 1}`;
+const generatedId = (entry: ExpansionCacheEntry, index: number) => `${GENERATED_CHECKPOINT_PREFIX}${entry.stubId}_${index + 1}`;
 
 const MAX_NAME_WORDS = 8;
 

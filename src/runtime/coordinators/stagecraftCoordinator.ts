@@ -71,6 +71,14 @@ const readReply = (chat: unknown[], messageId: number): { speaker: string; text:
   return { speaker: typeof raw?.name === "string" && raw.name ? raw.name : "Narrator", text: message.text };
 };
 
+const playerWroteBetween = (chat: unknown[], after: number, upTo: number): boolean => {
+  for (let index = after + 1; index <= Math.min(upTo, chat.length - 1); index += 1) {
+    const message = cleanWindowMessage(chat[index]);
+    if (message.keep && message.isUser) return true;
+  }
+  return false;
+};
+
 const readPlayerLine = (chat: unknown[], replyMessageId: number): string | null => {
   for (let index = Math.min(replyMessageId, chat.length) - 1; index >= 0; index -= 1) {
     const message = cleanWindowMessage(chat[index]);
@@ -342,7 +350,9 @@ export class StagecraftCoordinator {
     if (!anyWardenFamily(families)) return false;
     const reply = readReply(this.deps.hosts.chat.chatRows(), replyMessageId);
     if (!reply) return false;
-    const lapsed = this.settleNotes((op, status) => op.replyMessageId < replyMessageId && status !== "applied", "lapsed") + this.withdrawRemovedRules();
+    const rows = this.deps.hosts.chat.chatRows();
+    const moved = (op: WardenNoteOp) => op.replyMessageId < replyMessageId && playerWroteBetween(rows, op.replyMessageId, replyMessageId);
+    const lapsed = this.settleNotes((op, status) => moved(op) && status !== "applied", "lapsed") + this.withdrawRemovedRules();
     if (this.busy(this.wardenHold)) {
       if (lapsed) await this.save();
       return false;
@@ -370,7 +380,7 @@ export class StagecraftCoordinator {
         return false;
       }
       const record: CuratorProposalRecord = {
-        id: `warden-${state.boundary}-${replyMessageId}`,
+        id: uniqueRecordId(`warden-${state.boundary}-${replyMessageId}`, this.state.proposals),
         curator: "warden",
         at: new Date().toISOString(),
         boundary: state.boundary,
@@ -394,8 +404,9 @@ export class StagecraftCoordinator {
     }
   }
 
-  // A note is about one reply: a newer reply makes an unapplied one moot ("lapsed"), and a rollback
-  // past its reply withdraws it whatever its state ("reverted").
+  // A note is about one reply: once the player has written again and a newer reply came, an unapplied
+  // one is moot ("lapsed"); a group round's later replies never lapse it. A rollback past its reply
+  // withdraws it whatever its state ("reverted").
   private settleNotes(match: (op: WardenNoteOp, status: CuratorOpStatus) => boolean, message: string): number {
     let settled = 0;
     const proposals = this.state.proposals.map((record) => (record.curator !== "warden" ? record : {

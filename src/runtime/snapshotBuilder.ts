@@ -1,6 +1,6 @@
 import { agencyFor, gateKeys, type ApplyQueueEntry, type BoundaryLogEntry, type EngineState, type NormalizedStoryV2, type StoryEngine, type ValidationError } from "@engine/index";
 import type { DriverContext } from "@copilot/index";
-import { castVoices, sceneFieldsInConflict, type LedgerView, type MemoryInjectionView } from "@memory/index";
+import { castVoices, sceneFieldsInConflict, withoutExcludedThreads, type LedgerView, type MemoryInjectionView } from "@memory/index";
 import { curatorLorebooks } from "@stagecraft/index";
 import { confirmedSceneFacts, isSceneStale, judgeMeterView } from "@judge/index";
 import { buildConvergenceReadout, buildPendingDeltas, buildStoryIdentity, buildTensionSnapshot, playerLastTransition } from "./snapshot";
@@ -168,7 +168,7 @@ const chapterParts = (sources: SnapshotSources, story: NormalizedStoryV2 | null,
   const records = memory.chapters ?? [];
   const chapters = chapterKit()?.buildChapterView(story, state?.activeCheckpointId, records) ?? { declared: false, current: null, records: [], ended: storyEnded(records), epilogue: null };
   const origins = new Map(records.map((record) => [record.id, record.playerTitle]));
-  const playerThreads = sources.openThreads.length ? currentThreads(memory.arcs, state?.checkpointStartedBoundary ?? 0, state?.boundary ?? 0) : [];
+  const playerThreads = sources.openThreads.length ? currentThreads(withoutExcludedThreads(memory.arcs, memory.derived), state?.checkpointStartedBoundary ?? 0, state?.boundary ?? 0) : [];
   const openThreads = playerThreads.map((text) => {
     const origin = memory.arcs.find((arc) => arc.status === "open" && arc.text === text)?.originChapter;
     return origin && origins.has(origin) ? `${text} (since ${origins.get(origin)})` : text;

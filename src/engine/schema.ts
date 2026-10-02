@@ -1,8 +1,9 @@
 export const QUALITY_TYPES = ["int", "float", "bool", "enum", "string"] as const;
 export const QUALITY_SOURCES = ["code", "extractor"] as const;
-export const EVIDENCE_FROM = ["any", "world"] as const;
+export const EVIDENCE_FROM = ["any", "world", "party"] as const;
 export const GATE_OPERATORS = ["==", "!=", ">=", "<=", ">", "<", "in"] as const;
 export const TENSION_LEVELS = ["calm", "stirring", "tense", "critical", "peak"] as const;
+export const GENERATED_CHECKPOINT_PREFIX = "gen_";
 // A latching enum freezes on the first read, so a value meaning "not set yet"
 // freezes the quality on it forever. The unset state is the absence of a value; listing one of these
 // as an option makes the first read a decision nobody made.
@@ -84,6 +85,13 @@ export interface Quality {
 }
 
 export type EvidenceFrom = typeof EVIDENCE_FROM[number];
+
+export const PARTY_LOCATION_KEY = "location";
+
+export const readsWorldEvidence = (quality: Pick<Quality, "evidence_from">): boolean => quality.evidence_from === "world" || quality.evidence_from === "party";
+
+export const movesParty = (quality: Pick<Quality, "key" | "evidence_from">): boolean =>
+  quality.evidence_from === "party" || (quality.evidence_from === "world" && quality.key === PARTY_LOCATION_KEY);
 
 export type GateNode = GateLeaf | GateAll | GateAny | GateNot;
 

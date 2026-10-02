@@ -18,6 +18,7 @@ import { mintToken, tokenMatches, type RunContext, type RunOwnership } from "./r
 import type { MemoryRuntimeState } from "./types";
 
 const story = parseStoryV2OrThrow(JSON.parse(JSON.stringify({ ...sagaMini, default: undefined })) as StoryV2);
+const WRITTEN = "SUMMARY:\nthe span was played through.\nSHORT:\nthe span ended.";
 
 const shortTerm = (id: string, messageId: number) => ({
   id, tier: "short_term", type: "detail", text: `summary ${id}`, importance: 2, expiration: "permanent", entities: [], confidence: 1, activationTriggers: [],
@@ -45,7 +46,7 @@ const harness = (chronicleTokens = 700) => {
     memory: () => memory,
     patch: (next) => { memory = { ...memory, ...next }; },
     record: (input) => { derivedId += 1; memory = { ...memory, derived: [...memory.derived, { ...input, id: `d${derivedId}`, boundary: 0, messageId: input.messageId ?? 0 } as DerivedRecord] }; },
-    model: () => async () => { onModel.shift()?.(); return { text: "" } as never; },
+    model: () => async () => { onModel.shift()?.(); return { text: WRITTEN } as never; },
     ownership: () => ownership,
     closeScene: async () => {},
     sceneStart: (to) => to + 1,
@@ -167,7 +168,7 @@ describe("AS-6: a re-seal owns unseal -> seal with one token, and never seals in
         stores[context.chatId!] = { ...memory, derived: [...memory.derived, { ...input, id: `d${derivedId}`, boundary: 0, messageId: input.messageId ?? 0 } as DerivedRecord] };
         effects.push(`record:${context.chatId}`);
       },
-      model: () => async () => { onModel.shift()?.(); return { text: "" } as never; },
+      model: () => async () => { onModel.shift()?.(); return { text: WRITTEN } as never; },
       ownership: () => ownership,
       closeScene: async () => {},
       sceneStart: (to) => to + 1,

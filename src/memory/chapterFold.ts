@@ -1,3 +1,4 @@
+import { isEstablished } from "./conflicts";
 import type { ArcEntry, ChapterDisposition, ChapterRecord, EpistemicEntry, MemoryEntry } from "./types";
 
 export interface FoldInput {
@@ -17,7 +18,7 @@ export interface FoldOutcome {
 const inRange = (messageId: number | undefined, range: { from: number; to: number }) =>
   typeof messageId === "number" && messageId >= range.from && messageId <= range.to;
 
-const kept = (entry: MemoryEntry) => entry.pinned || entry.locked || Boolean(entry.supersededBy) || Boolean(entry.foldedInto);
+const kept = (entry: MemoryEntry) => entry.pinned || isEstablished(entry) || Boolean(entry.supersededBy) || Boolean(entry.foldedInto);
 
 export function foldsAtSeal(entry: MemoryEntry, range: { from: number; to: number }): boolean {
   if (kept(entry)) return false;

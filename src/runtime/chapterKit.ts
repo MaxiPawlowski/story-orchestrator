@@ -3,7 +3,7 @@ import { estimateTokens } from "@memory/budget";
 import { renderChronicle } from "@memory/chronicle";
 import type { ArcEntry, ChapterRecord, EraLine, MemoryEntry } from "@memory/types";
 import { recallCandidates, recallMentions, renderRecall, selectRecall } from "@memory/archiveRecall";
-import { ARC_OPEN_INJECT_LIMIT, DEFAULT_DEDUP_THRESHOLDS, labelMemoryBlock, memoryExtensionKey, openArcTexts, type ScoreContext } from "@memory/index";
+import { ARC_OPEN_INJECT_LIMIT, DEFAULT_DEDUP_THRESHOLDS, labelMemoryBlock, memoryExtensionKey, openArcTexts, withoutExcludedThreads, type ScoreContext } from "@memory/index";
 import { buildChapterView, chapterNumber, chapterOf, chapterSettings, eraTarget, isEraId, jumpSeal, liveSkip, playerTitleOf, sealTarget, type ChapterSettings, type SealSkip } from "./chapters";
 import { sealAtState, type ChapterHost, type ChapterPort } from "./chapterPort";
 import { withholds } from "./generationLifecycle";
@@ -126,7 +126,7 @@ export async function recall(port: ChapterPort, chat: readonly unknown[], type: 
   const story = host.deps.getStory();
   const state = host.deps.getState();
   const settings = settingsOf(host);
-  if (!story || !state || !settings.archiveRecall || !memory.settings.enabled || withholds(type) || !recordsOf(host).length) return 0;
+  if (!story || !state || !(settings.archiveRecall || settings.fold) || !memory.settings.enabled || withholds(type) || !recordsOf(host).length) return 0;
   const text = recallText(chat, story.checkpointById[state.activeCheckpointId]?.objective ?? "");
   const candidates = recallCandidates(memory.entries, text);
   if (!candidates.length) return 0;
@@ -182,7 +182,7 @@ export function storySoFar(host: ChapterHost): string {
   const story = host.deps.getStory();
   const chapter = chapterOf(story, host.deps.getState()?.activeCheckpointId);
   return story ? storySoFarText({ records: recordsOf(host), eras: memory.chronicle?.eras ?? [], canon: memory.canon && !memory.canon.stale ? memory.canon.text : "",
-    chapterTitle: chapter ? playerTitleOf(chapter) : null, threads: memory.arcs.filter((arc) => arc.status === "open"), settings: settingsOf(host) }) : "";
+    chapterTitle: chapter ? playerTitleOf(chapter) : null, threads: withoutExcludedThreads(memory.arcs, memory.derived).filter((arc) => arc.status === "open"), settings: settingsOf(host) }) : "";
 }
 
 export function inject(port: ChapterPort, prompt: PromptHost, on: boolean): Map<string, string> {
@@ -213,7 +213,8 @@ export function commitBridge(port: ChapterPort, rendered: boolean) {
 export { unfoldAt };
 
 const coveredBy = (records: readonly ChapterRecord[], eras: readonly { recordIds: string[]; text: string }[], block: string): ChapterRecord[] =>
-  (block ? records.filter((record) => block.includes(record.short) || block.includes(record.summary) || eras.some((era) => era.recordIds.includes(record.id) && block.includes(era.text))) : []);
+  (block ? records.filter((record) => record.status !== "degraded"
+    && (block.includes(record.short) || block.includes(record.summary) || eras.some((era) => era.recordIds.includes(record.id) && block.includes(era.text)))) : []);
 
 export function foldPreview(memory: MemoryRuntimeState, story: NormalizedStoryV2 | null, blocks: ReadonlyArray<{ key: string; value: string }>, chatLength: number): number {
   const records = memory.chapters ?? [];

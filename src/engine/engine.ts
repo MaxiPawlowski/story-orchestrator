@@ -2,7 +2,7 @@ import { ApplyQueue, type ApplyQueueEntry, type QueueDrainResult } from "./apply
 import { Blackboard, type BlackboardSnapshot } from "./blackboard";
 import { applyTransitionProgress, progressQualityForAnchor } from "./convergence";
 import { gateKeys } from "./gates";
-import type { CheckpointEffects, NormalizedStoryV2, NormalizedTransition, PrimitiveValue } from "./schema";
+import { GENERATED_CHECKPOINT_PREFIX, type CheckpointEffects, type NormalizedStoryV2, type NormalizedTransition, type PrimitiveValue } from "./schema";
 import { selectFiring } from "./transitions";
 
 export interface DerivedQualityView {
@@ -19,6 +19,7 @@ export interface EngineHost {
 export interface BoundaryContext {
   lastMessageId: number;
   chatLength: number;
+  lastPlayerMessageId?: number;
 }
 
 export interface EngineState {
@@ -237,7 +238,7 @@ export class StoryEngine {
 
     const outgoing = story.outgoingByCheckpoint[this.activeCheckpointId] ?? [];
     const evaluated = blackboard.snapshot().values;
-    const fired = selectFiring(outgoing, blackboard);
+    const fired = this.awaitsPlayer(normalizedContext) ? null : selectFiring(outgoing, blackboard);
     let effects: CheckpointEffects | null = null;
 
     if (fired) {
@@ -470,7 +471,13 @@ export class StoryEngine {
   private normalizeContext(context: BoundaryContext): BoundaryContext {
     const chatLength = Math.max(0, Math.floor(Number.isFinite(context.chatLength) ? context.chatLength : this.chatLength));
     const lastMessageId = Math.max(-1, Math.floor(Number.isFinite(context.lastMessageId) ? context.lastMessageId : chatLength - 1));
-    return { lastMessageId, chatLength };
+    const player = context.lastPlayerMessageId;
+    return typeof player === "number" && Number.isFinite(player) ? { lastMessageId, chatLength, lastPlayerMessageId: Math.floor(player) } : { lastMessageId, chatLength };
+  }
+
+  private awaitsPlayer(context: BoundaryContext): boolean {
+    const player = context.lastPlayerMessageId;
+    return this.activeCheckpointId.startsWith(GENERATED_CHECKPOINT_PREFIX) && typeof player === "number" && player <= this.checkpointStartedMessageId;
   }
 
   private requireStory(): NormalizedStoryV2 {

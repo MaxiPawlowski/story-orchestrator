@@ -1,0 +1,406 @@
+{
+ "source": "test/sessions/T2/T2-5-1/runtime-2026-10-01@16h56m09s049ms.json extras.memory: the two exclusion records (boundary 92, msg 149) and every open arc at the end of T2-5 (flag at msg 151: the excluded content rode [Open threads])",
+ "derived": [
+  {
+   "boundary": 92,
+   "messageId": 149,
+   "kind": "exclusion",
+   "inputs": [
+    "1f7bc1f7-88c0-4cde-a4fa-0a06b1668a13"
+   ],
+   "removed": [
+    {
+     "id": "1f7bc1f7-88c0-4cde-a4fa-0a06b1668a13",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 85,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 132,
+      "boundary": 85,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Javon sets three conditions before he will reveal the truth of the house: explain his conduct at the mines, name Serenola's source, and accept that some questions must wait until he is strong enough.",
+     "type": "fact",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [],
+     "messageId": 132,
+     "tokens": 42
+    }
+   ],
+   "hash": "c08cfdae",
+   "id": "e71c0792-73b8-41e6-8aee-a05c23707d6a"
+  },
+  {
+   "boundary": 92,
+   "messageId": 149,
+   "kind": "exclusion",
+   "inputs": [
+    "f7bc059c-c175-4c14-8d87-f5de166438ec"
+   ],
+   "removed": [
+    {
+     "id": "f7bc059c-c175-4c14-8d87-f5de166438ec",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 91,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 132,
+      "boundary": 91,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Javon demands Max explain his conduct at the mines, name the source of Serenola's story, and warns some questions must wait until he is strong enough to survive the answers.",
+     "type": "fact",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [],
+     "messageId": 132,
+     "tokens": 37
+    }
+   ],
+   "hash": "62c4815e",
+   "id": "38ec1b1c-dc3f-427c-bd8a-3945d9856259"
+  }
+ ],
+ "arcs": [
+  {
+   "id": "84cb5e65-6c69-46a6-bd65-770e96b598b0",
+   "text": "The frozen shapes suspended in the ice-like walls may be victims the party could free or must pass.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 61,
+   "openedMessageId": 97,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "f29bd3c7-8075-4517-b38a-8595376038d5",
+   "text": "The party must decide what to do about the massive iron chain and lift platform built and maintained by someone unknown.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 68,
+   "openedMessageId": 109,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "e9eb8c7c-9d02-4153-8898-1f2d79cabbd5",
+   "text": "The maddened robed creature that climbed the chain and demanded the seal be broken is still unaccounted for.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 68,
+   "openedMessageId": 109,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "eeecc437-c400-46a5-864e-494ec2dc2de7",
+   "text": "The three letters Serenola sent to House Nightriver were never seen by Max — who intercepted or discarded them, and why.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 69,
+   "openedMessageId": 111,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "aa020c00-4bf5-429f-a33d-13a2d1a303e2",
+   "text": "Max intends to tell Garreth what happened to the crew in person.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 69,
+   "openedMessageId": 111,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "54e7f92a-d1ea-4964-b81d-5c60a2b68802",
+   "text": "Who intercepted or discarded Serenola's three letters to House Nightriver, and why — Serenola now openly questions whether the house knew and did not care.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 69,
+   "openedMessageId": 111,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "6ccbff55-d443-400e-bbe0-891085b8a7b7",
+   "text": "Max has sworn to Serenola to find out whether House Nightriver received and discarded her three letters, and she will hold him to it.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 70,
+   "openedMessageId": 113,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "b418a617-3e2e-409f-8652-fad339a7f762",
+   "text": "A grieving townsfolk woman whose son died in the mine is approaching the party for answers.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 70,
+   "openedMessageId": 113,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "b1276060-c327-418b-8a14-447ad4ecd5b5",
+   "text": "The grieving townsfolk mother whose son died in the mine now knows the party killed the thing that took him — whether she accepts their account or demands more remains open.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 72,
+   "openedMessageId": 115,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "9bc62b20-aed8-4a89-b94a-a60d2e781cfb",
+   "text": "Max has been summoned to his father's study at the Nightriver estate — what Lord Javon wants is unknown.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 73,
+   "openedMessageId": 117,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "8f6337e1-eaeb-4289-8a68-239bd7447c5e",
+   "text": "Baroness Serenola waits in her study to speak about House Nightriver, and Max has sworn to learn whether the house received and discarded her three letters.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 75,
+   "openedMessageId": 120,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "b05346d2-bd1a-4ac7-b566-ba031e82aa18",
+   "text": "The party has been promoted to B-rank and must return to the Aegis City Guild Hall to claim the badge and rewards.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 76,
+   "openedMessageId": 121
+  },
+  {
+   "id": "869217c5-220e-4309-b1ba-8aa4017375cb",
+   "text": "Riyo's refusal of a room and her guarded vigil by the estate door — what she is hiding and why she will not settle in.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 76,
+   "openedMessageId": 123
+  },
+  {
+   "id": "746649f5-fde5-4ff0-b1e0-d826fb396849",
+   "text": "Welden is behaving strangely and refuses to explain what is troubling him.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 78,
+   "openedMessageId": 124
+  },
+  {
+   "id": "a77ca6ed-84a1-4420-86c8-fdfbe733a7e7",
+   "text": "Javon has confronted Max about letters sent to the house, holding a letter with a grain-stalk seal — what he knows about Serenola's three unanswered letters is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 79,
+   "openedMessageId": 126
+  },
+  {
+   "id": "c7dfa5e5-3fa4-44ea-befb-5a712503bf07",
+   "text": "Javon has admitted the estate deliberately 'handled' Serenola's letters — what that purpose was, and who ordered it, is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 80,
+   "openedMessageId": 128
+  },
+  {
+   "id": "230df9f0-8da2-4d8b-bf09-b6add2a6b312",
+   "text": "Welden is in the library, jumpier than usual and refusing to explain what troubles him.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 80,
+   "openedMessageId": 128
+  },
+  {
+   "id": "b2cd9a3f-f692-4440-8de8-13139a6d6c79",
+   "text": "Javon suspects Max has been receiving letters he knows nothing about — who is writing to Max, and what Javon will do about it, is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 81,
+   "openedMessageId": 130
+  },
+  {
+   "id": "33dbbc7f-496d-4641-a00d-9598cce03823",
+   "text": "Javon's stated purpose for 'handling' Serenola's letters remains unexplained — who ordered it and why is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 81,
+   "openedMessageId": 130
+  },
+  {
+   "id": "e6c1e074-bbf9-4584-89c0-eab22d86efb4",
+   "text": "Javon has set three conditions Max must meet before he will reveal the truth of the house's seals and marriages — whether Max meets them, and what the truth is, is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 82,
+   "openedMessageId": 132
+  },
+  {
+   "id": "865123f3-4c96-4f55-be07-173eb89853a7",
+   "text": "The truth of the Nightriver seals and the Witch King — Max now knows the bloodline is the prison, but how to act on it, and what Javon's three conditions will reveal, is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 83,
+   "openedMessageId": 134
+  },
+  {
+   "id": "1ae2cdeb-ce53-4ed8-b92c-b56f296664bc",
+   "text": "Javon has named the entity beneath Driftmere 'Tzarak' and claims killing it altered the balance of powers beneath the mountains — what that disruption means is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 84,
+   "openedMessageId": 136
+  },
+  {
+   "id": "e4c2400f-6202-4abd-af9b-3d0ad37d16ef",
+   "text": "Javon has named the Witch King a prison and the Nightriver bloodline his jailers — how Max will act on the knowledge that his blood is the seal, and whether he will break or preserve the line, is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 84,
+   "openedMessageId": 136
+  },
+  {
+   "id": "3399dfd5-1f8b-4f3c-be31-984557b46fa5",
+   "text": "Javon's three conditions (explain the mines, name Serenola's source, accept some questions must wait) stand between Max and the full truth of the house — whether Max meets them is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 84,
+   "openedMessageId": 136
+  },
+  {
+   "id": "31e56d7c-1175-4aed-9801-932c13d4acbc",
+   "text": "Riyo's hidden left arm — what she is concealing under the cloak, and why she panicked when Max asked, is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 85,
+   "openedMessageId": 138
+  },
+  {
+   "id": "83038a5e-15c4-405c-8ffa-aa97aec70664",
+   "text": "Welden is acting jumpier than usual and will not say why — what is troubling him is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 85,
+   "openedMessageId": 138
+  },
+  {
+   "id": "8b50abf9-d7cb-4ef3-afe8-de8508877cb1",
+   "text": "Belle has publicly contradicted Max's claim that Garreth's crew came home alive — whether the party's lie to the townsfolk unravels, and how Max handles Belle's openness, is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 86,
+   "openedMessageId": 140
+  },
+  {
+   "id": "bea8a578-1ea3-4ef2-bf72-a9091e544a9c",
+   "text": "Javon knows the Guild's report says the entity beneath the mines was disrupted — how much the Guild and others know of what the party did below Driftmere is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 86,
+   "openedMessageId": 140
+  },
+  {
+   "id": "59e28453-8538-482a-a1e4-5a9ffbd8354c",
+   "text": "Natalia knows about the seals and the missing letters, and has confronted Max directly — what she wants and how much she knows is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 87,
+   "openedMessageId": 141
+  },
+  {
+   "id": "2a6e4477-523f-44cf-946b-dc46fa07a489",
+   "text": "Belle has openly contradicted Max's lie about Garreth's crew in front of the household — whether the townsfolk's belief unravels is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 87,
+   "openedMessageId": 141
+  },
+  {
+   "id": "7ae6ed39-da73-4746-8d38-354a7fcce9ad",
+   "text": "Riyo's panic at Max's question about her arms — what she hides under the cloak and why she gripped her sword — is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 87,
+   "openedMessageId": 141
+  },
+  {
+   "id": "0697673e-7b60-4d3c-ac7c-f85c8c303747",
+   "text": "The balance altered by breaking the seal and killing Tzarak — what changed and what Javon fears is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 89,
+   "openedMessageId": 145
+  },
+  {
+   "id": "93ae835f-e9fc-4fb5-8633-aa7474b6db81",
+   "text": "Whether Max admits the truth about Garreth's crew and the seal to Javon, and how Natalia's knowledge of the lie affects the household, is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 91,
+   "openedMessageId": 147
+  },
+  {
+   "id": "5ab3c00a-8382-4642-ad05-2b363fb50ea6",
+   "text": "What Natalia wants in exchange for her knowledge of the seals and the missing letters is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 91,
+   "openedMessageId": 147
+  },
+  {
+   "id": "2e01be93-6301-4537-beb5-f781ebc68000",
+   "text": "Javon demands Max explain his conduct at the mines and name the source of Serenola's story before he will reveal more — whether Max tells the truth about breaking the seal and killing Tzarak is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 91,
+   "openedMessageId": 147
+  },
+  {
+   "id": "83f71275-eaf6-4783-99cc-b67bfce29813",
+   "text": "Natalia knows Max lied about Garreth's crew and the seal and is pressing him on what he will admit to Javon — what she wants in exchange is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 91,
+   "openedMessageId": 147
+  },
+  {
+   "id": "1c5c6f0a-b9b9-4be5-8e20-3ebc461f6259",
+   "text": "Whether Max confesses the Driftmere lie, the broken seal, and the Tzarak's death to Javon, and how he handles Javon's demand to accept the marriages, is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 93,
+   "openedMessageId": 151
+  },
+  {
+   "id": "55e77337-7a6f-4ee3-9e07-dcedd49f0034",
+   "text": "What the altered balance beneath the mountains means now that Tzarak is dead is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 94,
+   "openedMessageId": 153
+  },
+  {
+   "id": "eaf6444a-380e-4531-b243-d53c56cf9415",
+   "text": "Whether Belle's open contradiction of Max's lie unravels the household's belief is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 94,
+   "openedMessageId": 153
+  },
+  {
+   "id": "5be42d2e-ce6b-4393-a129-291d58f2fa3b",
+   "text": "Whether Max's partial admission to Belle and Dalan spreads to Javon and forces a full confession about the Devourer is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 96,
+   "openedMessageId": 156
+  }
+ ]
+}

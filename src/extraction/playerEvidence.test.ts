@@ -245,6 +245,6 @@ describe("v2.4 plan 04 T15: schema", () => {
     expect((parseStoryV2(code) as Array<{ path: string }>).map((error) => error.path)).toContain("qualities.0.evidence_from");
     const unknown = storyRecord();
     (unknown.qualities[0] as unknown as Record<string, unknown>).evidence_from = "narrator";
-    expect((parseStoryV2(unknown) as Array<{ message: string }>).map((error) => error.message)).toContain("evidence_from must be any or world");
+    expect((parseStoryV2(unknown) as Array<{ message: string }>).map((error) => error.message)).toContain("evidence_from must be any, world or party");
   });
 });

@@ -799,6 +799,19 @@ describe("continuity warden (v2.2 plan 05)", () => {
     expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(0);
   });
 
+  it("T2-3: a group round's later replies never lapse a pending note, so the author can accept it and the next generation carries it", async () => {
+    const env = harness({ settings: wardenOn("review"), warden: warden() });
+    await env.coordinator.runWardenPass(1);
+    mockChat.push({ name: "Theo", mes: "The bridge? Which bridge.", is_user: false });
+    await env.coordinator.runWardenPass(2);
+    const first = env.read().proposals.find((record) => record.messageId === 1);
+    expect(first?.ops[0].status).toBe("pending");
+    await env.coordinator.setOpDecision(first!.id, 0, "accepted");
+    env.coordinator.onGenerationStarted("normal", false);
+    expect(setStoryExtensionPrompt).toHaveBeenCalledTimes(1);
+    expect(new Set(env.read().proposals.map((record) => record.id)).size).toBe(env.read().proposals.length);
+  });
+
   it("reads nothing for the player's message, a switched-off warden or mode off", async () => {
     for (const [settings, id] of [[wardenOn("auto"), 0], [{ ...wardenOn("auto"), wardenEnabled: false }, 1], [wardenOn("off"), 1]] as const) {
       const check = warden();

@@ -1,4 +1,5 @@
 import { estimateTokens } from "./budget";
+import { nearDuplicateIds } from "./inject";
 import { isLive } from "./provenance";
 import { DEFAULT_SCORE_WEIGHTS, scoreEntry, type ScoreContext } from "./score";
 import type { ChapterRecord, MemoryEntry } from "./types";
@@ -41,11 +42,16 @@ export function selectRecall(candidates: readonly MemoryEntry[], records: readon
   const titles = new Map(records.map((record) => [record.id, record.playerTitle]));
   const semantic = options.semantic ?? null;
   const weight = context.weights?.semanticSimilarity ?? DEFAULT_SCORE_WEIGHTS.semanticSimilarity;
-  const scored = candidates
-    .filter((entry) => entry.foldedInto && titles.has(entry.foldedInto))
+  const aboutWeight = context.weights?.entityOverlap ?? DEFAULT_SCORE_WEIGHTS.entityOverlap;
+  const named = new Set(context.turnEntities.map(lower));
+  const about = (entry: MemoryEntry) => (entry.entities.length === 1 && named.has(lower(entry.entities[0])) ? aboutWeight : 0);
+  const archivedRows = candidates.filter((entry) => entry.foldedInto && titles.has(entry.foldedInto));
+  const repeats = nearDuplicateIds(archivedRows);
+  const scored = archivedRows
+    .filter((entry) => !repeats.has(entry.id))
     .map((entry, index) => ({
       entry, index,
-      score: semantic ? scoreEntry(entry, { ...context, turnText: "" }) + (semantic.has(entry.id) ? weight : 0) : scoreEntry(entry, context),
+      score: about(entry) + (semantic ? scoreEntry(entry, { ...context, turnText: "" }) + (semantic.has(entry.id) ? weight : 0) : scoreEntry(entry, context)),
     }))
     .sort((left, right) => right.score - left.score || left.index - right.index);
   const lines: RecallLine[] = [];

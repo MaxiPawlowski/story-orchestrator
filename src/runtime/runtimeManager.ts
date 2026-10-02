@@ -1,3 +1,4 @@
+import { boundaryContextAt } from "./playerTurn";
 import { appendJudgeCall, type JudgeCallRecord, type SceneReadRecord } from "@judge/index";
 import type { JudgeRuntime } from "./judge";
 import { acceptModelCall, type ModelCallRecord } from "./modelCallLog";
@@ -607,8 +608,7 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   setSpikeFlags(flags: Partial<SpikeSettings>) { setGlobalSettings({ spikes: flags }); }
 
-  private getBoundaryContext(at?: number): BoundaryContext { const chat = Array.isArray(getContext().chat) ? getContext().chat : []; const last = at === undefined ? chat.length - 1 : Math.min(at,
-      chat.length - 1); return { lastMessageId: last, chatLength: last + 1 }; }
+  private getBoundaryContext(at?: number): BoundaryContext { return boundaryContextAt(getContext().chat, at); }
 
   private applyActive(mode: "activate" | "hydrate", gate?: number) { return this.effects.applyCheckpoint(required(this.loaded, "loaded story").story,
       this.engine.activeCheckpoint, this.extras, this.getSnapshot(), mode, stagedPath(this.engine.checkpointPath, this.engine.serialize().stagedFrom), gate); }

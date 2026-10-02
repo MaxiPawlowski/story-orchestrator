@@ -1,0 +1,2129 @@
+{
+ "source": "test/sessions/T2/T2-5-1/runtime-2026-10-01@16h56m09s049ms.json extras.memory: every unfolded, unsuperseded facts and session_details row at the end of T2-5 (evidence fields dropped); the author's edit is the row with provenance.override.from = edit (msg 145, edited at boundary 91)",
+ "edited": [
+  "ae05cf48-e339-402d-87e9-a3e54e8e5999"
+ ],
+ "entries": [
+  {
+   "id": "e04f62c6-6c24-4ea8-aaad-b341a73526ec",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 85,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 138,
+    "boundary": 85,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo reacted with genuine alarm when Max asked about her arms, gripping her sword and pulling her cloak tighter over her left side.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Riyo"
+   ],
+   "messageId": 138,
+   "tokens": 26,
+   "contradicted": false,
+   "pinned": true
+  },
+  {
+   "id": "cc3d0afb-5170-41ca-a833-209ad933b693",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 87,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 87,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon explains the marriages are not merely political: Natalia and Welden are being wed to houses that can strengthen the Nightriver line and ensure the seals hold another generation.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 34
+  },
+  {
+   "id": "76f06240-9f8c-4529-98dd-340ec1fa98e2",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 87,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 136,
+    "boundary": 87,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon names the entity beneath the mines Tzarak, a guardian bound to the same powers that sealed the Witch King, and says killing it altered the balance of powers beneath the mountains.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 136,
+   "tokens": 37
+  },
+  {
+   "id": "06d9f658-8ce2-49e5-90da-70749a5a9daf",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 87,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 136,
+    "boundary": 87,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon cites the Guild's report that the entity beneath the mines has been disrupted, contradicting Max's claim that the party never went past the seal.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 136,
+   "tokens": 32
+  },
+  {
+   "id": "8eb70fdc-7855-4825-8812-061e10cb9e08",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 87,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 140,
+    "boundary": 87,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Belle publicly contradicts Max's claim that Garreth's crew all came home alive, stating they were all dead in the mines and turned to dust when Tzarak was killed.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 140,
+   "tokens": 36
+  },
+  {
+   "id": "8e2d8faf-47f4-4eaa-aac0-e4a2672e045d",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 87,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 141,
+    "boundary": 87,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Natalia descends the staircase with frost curling from the railing beneath her hand and confronts Max about accusing the patriarch, asking whether he has learned about the seals or is pretending not to know why letters go missing.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 141,
+   "tokens": 41,
+   "contradicted": true
+  },
+  {
+   "id": "fdc5444b-be7b-486c-889d-29dd81efe212",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 88,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 88,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon says the marriages are not merely political but meant to strengthen the Nightriver line so the seals hold another generation.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 24
+  },
+  {
+   "id": "82be498a-77db-4ca6-80a3-0fcfa8509ef1",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 88,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 136,
+    "boundary": 88,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon reveals Tzarak was a guardian bound to the same powers that sealed the Witch King, and killing it altered the balance of powers beneath the mountains.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 136,
+   "tokens": 31
+  },
+  {
+   "id": "989ea8af-887c-47e0-9c23-f4956a3c489d",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 88,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 132,
+    "boundary": 88,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon sets three conditions before Max can learn the truth of the house: explain his conduct at the mines, name Serenola's source, and accept some questions must wait until he is strong enough.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 132,
+   "tokens": 41
+  },
+  {
+   "id": "b1cb8cda-0595-4532-b6f2-a24f6376371b",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 88,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 140,
+    "boundary": 88,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Belle publicly states Garreth's crew were all dead in the mines, suspended in ice by Tzarak, and turned to dust when he was killed.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 140,
+   "tokens": 31
+  },
+  {
+   "id": "1cadacfb-0718-4fff-8d67-2b4f54f80445",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 88,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 141,
+    "boundary": 88,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Natalia knows about the seals and the missing letters and confronts Max about his talk with Father.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 141,
+   "tokens": 19
+  },
+  {
+   "id": "920191eb-c2bc-454d-b7c8-bf0a37170d22",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 88,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 124,
+    "boundary": 88,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Welden has turned up in the library, jumpier than usual, and will not say why.",
+   "type": "fact",
+   "importance": 1,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 124,
+   "tokens": 20
+  },
+  {
+   "id": "a74d08a9-8652-4f07-9c7b-4997ad29106f",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 88,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 140,
+    "boundary": 88,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle openly contradicts Max's claim that Garreth's crew came home alive, saying they were all dead and turned to dust.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Belle",
+    "Max Nightriver"
+   ],
+   "messageId": 140,
+   "tokens": 27
+  },
+  {
+   "id": "bf6edb30-1610-422a-96a9-3917562b31f7",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 88,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 126,
+    "boundary": 88,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Javon holds a letter bearing an unfamiliar wax seal: a simple crest of a grain stalk.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [
+    "Javon"
+   ],
+   "messageId": 126,
+   "tokens": 19
+  },
+  {
+   "id": "f2d2829c-b01f-4f14-bd45-bdeb7f5f8560",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 88,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 138,
+    "boundary": 88,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo panics when Max asks about her arms, gripping her sword and insisting it is just an arm she keeps covered for travel.",
+   "type": "detail",
+   "importance": 1,
+   "expiration": "session",
+   "entities": [
+    "Riyo"
+   ],
+   "messageId": 138,
+   "tokens": 27
+  },
+  {
+   "id": "9eacf825-d62c-4a70-81ae-f4dca4b02a96",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 89,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 141,
+    "boundary": 89,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Natalia knows about the seals and the missing letters, and confronts Max about whether Father told him about the seals.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 141,
+   "tokens": 23
+  },
+  {
+   "id": "22791caa-fec4-4328-9d73-4c4683e4da11",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 89,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 145,
+    "boundary": 89,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Natalia states the Tzarak was bound to the seals, and that breaking it altered something in the balance that Father is concerned about.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 145,
+   "tokens": 27
+  },
+  {
+   "id": "ae05cf48-e339-402d-87e9-a3e54e8e5999",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 89,
+   "recallCount": 0,
+   "provenance": {
+    "source": "author",
+    "messageId": 145,
+    "boundary": 89,
+    "pass": "shared-read",
+    "validity": "live",
+    "override": {
+     "by": "author",
+     "at": "2026-10-01T23:53:50.393Z",
+     "boundary": 91,
+     "from": "edit"
+    }
+   },
+   "tier": "facts",
+   "text": "Natalia met Baroness Serenola once at court in Aegis City and liked her; she calls Serenola a stubborn orc baroness who believes common folk matter more than court politics.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 145
+  },
+  {
+   "id": "ce71ac95-7678-4b19-8252-42e4ff2dfc40",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 89,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 140,
+    "boundary": 89,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Belle publicly states Garreth's crew were all dead in the mines and turned to dust when the yellow-eyed entity was killed, contradicting Max's claim they came home alive.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 140,
+   "tokens": 37
+  },
+  {
+   "id": "faa55be0-fa26-423a-a61d-f0a2110fe336",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 89,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 138,
+    "boundary": 89,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Riyo panicked when Max mentioned her arms, gripping her sword and insisting she keeps it covered for travel to keep the sword safe.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 138,
+   "tokens": 26
+  },
+  {
+   "id": "0026bb7c-7b9e-48bd-8a24-066bd5e2b603",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 89,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 145,
+    "boundary": 89,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Natalia reveals she knows about the seals and the missing letters, and that the Tzarak was bound to the seals — breaking it altered the balance Father fears.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Natalia",
+    "Max Nightriver"
+   ],
+   "messageId": 145,
+   "tokens": 32
+  },
+  {
+   "id": "2c60022e-1380-458f-aceb-203207da9963",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 89,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 140,
+    "boundary": 89,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle openly contradicts Max's lie about Garreth's crew in front of the household, saying they were all dead and turned to dust.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Belle",
+    "Max Nightriver"
+   ],
+   "messageId": 140,
+   "tokens": 29
+  },
+  {
+   "id": "d4790ffa-92bc-4e02-bd8a-2c3ac84fa201",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 89,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 138,
+    "boundary": 89,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo panicked at the mention of her arms, gripping her sword and claiming she keeps it covered for travel to keep the sword safe.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Riyo"
+   ],
+   "messageId": 138,
+   "tokens": 27
+  },
+  {
+   "id": "ea53e9f7-7d6e-43a6-b2e9-7c9b1fd5e978",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 89,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 145,
+    "boundary": 89,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Natalia describes Baroness Serenola as a stubborn dwarf who values common folk over court politics and whom Father considers naive.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Serenola",
+    "Natalia"
+   ],
+   "messageId": 145,
+   "tokens": 24
+  },
+  {
+   "id": "2c467667-8173-46e2-a87d-597abdabf959",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 90,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 145,
+    "boundary": 90,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Natalia knows about the Nightriver seals and that Max has been told he is a jailer for an ancient evil.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 145,
+   "tokens": 24
+  },
+  {
+   "id": "af581910-59ed-4786-857f-5a856b4e3f5d",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 90,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 140,
+    "boundary": 90,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Belle publicly states that all of Garreth's crew were dead in the mines, suspended in ice by Tzarak, and turned to dust when Tzarak was killed.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 140,
+   "tokens": 34
+  },
+  {
+   "id": "29a3301d-7c93-4a6f-8938-b99e4180bc79",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 90,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 141,
+    "boundary": 90,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Natalia knows about the seals and the missing letters, and confronts Max about them directly.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 141,
+   "tokens": 18
+  },
+  {
+   "id": "d9db0420-5389-4644-a8d4-6e6db03d5aaa",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 90,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 145,
+    "boundary": 90,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Natalia states that breaking the seal and killing Tzarak altered something in the balance, which is why Javon lectured Max.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 145,
+   "tokens": 25
+  },
+  {
+   "id": "6be1af41-2fbf-4b38-b805-156465fd8d84",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 90,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 143,
+    "boundary": 90,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Baroness Serenola is a dwarf of the old houses, stout with a braided beard and heavy armor.",
+   "type": "fact",
+   "importance": 1,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 143,
+   "tokens": 22
+  },
+  {
+   "id": "70ed63eb-2ab5-45ac-b60f-a313f0722705",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 90,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 140,
+    "boundary": 90,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle reveals in the foyer that Garreth's crew were all dead in the mines, held in ice by Tzarak, and crumbled to dust when Tzarak was killed.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Belle",
+    "Max Nightriver",
+    "Dalan",
+    "Riyo"
+   ],
+   "messageId": 140,
+   "tokens": 35
+  },
+  {
+   "id": "8104c1c4-54e8-4fce-b234-a10c69a6f680",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 90,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 141,
+    "boundary": 90,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Natalia confirms she knows about the seals and the missing letters, and that Javon told Max the family secrets.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Natalia",
+    "Max Nightriver"
+   ],
+   "messageId": 141,
+   "tokens": 23
+  },
+  {
+   "id": "22b90d64-a066-4f60-9f15-5e9c76dc069b",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 90,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 143,
+    "boundary": 90,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Baroness Serenola is a dwarf of the old houses, stout with a braided beard and heavy armor.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [
+    "Serenola"
+   ],
+   "messageId": 143,
+   "tokens": 22
+  },
+  {
+   "id": "6747992d-bdec-4cf2-9b3a-3e5f33f7a47e",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 84,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 84,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon revealed the Nightriver seals are not under the house but in the bloodline itself: each child of the Nightriver blood carries a seal binding a great evil dormant, and when the bloodline ends the seals break and He Who Curses awakens.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 51
+  },
+  {
+   "id": "717a7376-5acb-4c4a-a05d-1f669ef8777f",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 84,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 84,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon stated the Witch King is a prison, and that Max, Natalia, and Welden are his jailers, their blood the key that keeps him in shadow.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 34
+  },
+  {
+   "id": "6046c3d8-e591-48d6-8943-b743b67242ec",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 84,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 84,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon stated the marriages are not merely political but meant to strengthen the Nightriver line so the seals hold another generation.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 24
+  },
+  {
+   "id": "49703832-8aae-4a28-b895-170bace10d64",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 84,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 132,
+    "boundary": 84,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon set three conditions before he will reveal the truth of the house: Max must explain his conduct at the mines, tell him who Serenola's story came from, and understand some questions are better left unasked until strong enough to survive the answers.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 132,
+   "tokens": 52
+  },
+  {
+   "id": "2bdc9a47-2d2e-43b1-bbb0-f3a3dc38f59a",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 85,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 85,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon states the seals are not under the house but in the Nightriver bloodline itself — each child carries a binding that keeps a great evil dormant, and when the bloodline ends the seals break and He Who Curses awakens.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 47
+  },
+  {
+   "id": "576283e5-f436-4fa3-9ef0-19ce5446e48f",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 85,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 85,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon names the Witch King a prison and says Max, Natalia and Welden are his jailers, their blood the key that keeps him in shadow.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 31
+  },
+  {
+   "id": "8b28e39d-9911-45a7-8669-5249bdf2a304",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 85,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 132,
+    "boundary": 85,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon set three conditions before he will reveal the truth of the house: Max must explain his conduct at the mines, name the source of Serenola's story, and accept that some questions must wait until he is strong enough.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 132,
+   "tokens": 47
+  },
+  {
+   "id": "773d8c90-f82b-48ee-844e-7fb525121722",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 85,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 85,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Lord Javon confirms the seals are not under the house but in the Nightriver bloodline itself — each child carries a seal binding a great evil dormant, and when the bloodline ends the seals break and He Who Curses awakens.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 47
+  },
+  {
+   "id": "ee7324bb-9bee-446e-a7b9-e4b240c87395",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 85,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 85,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon names the Witch King a prison and states Max, Natalia and Welden are his jailers, their blood the key that keeps him in shadow.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 31
+  },
+  {
+   "id": "f780982f-18fb-49ed-9a72-70e24d2df9cc",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 85,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 85,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon states the marriages are not merely political but meant to strengthen the Nightriver line so the seals hold another generation.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 24
+  },
+  {
+   "id": "ad354df1-5ba3-4b5a-bc4b-2160e1c72907",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 85,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 136,
+    "boundary": 85,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon names the entity beneath Driftmere 'Tzarak', a guardian bound to the same powers that sealed the Witch King, and claims killing it altered the balance of powers beneath the mountains.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 136,
+   "tokens": 39
+  },
+  {
+   "id": "a963de0f-35ec-4c8e-86c2-40d646ec75a0",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 86,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 86,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon reveals the Nightriver seals are not under the house but in the bloodline itself: each child of the Nightriver blood carries a seal binding a great evil dormant, and when the bloodline ends the seals break and He Who Curses awakens.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 51
+  },
+  {
+   "id": "897a549a-9a35-4068-8bff-79e73f690b74",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 85,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 85,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Javon revealed the Nightriver seals live in the bloodline itself: each child carries a binding that keeps the Witch King dormant, and the line's end breaks the seals.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Javon",
+    "Max Nightriver",
+    "Natalia",
+    "Welden"
+   ],
+   "messageId": 134,
+   "tokens": 36
+  },
+  {
+   "id": "5f681b61-9c18-403f-8bc6-9da83b6b78fb",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 85,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 136,
+    "boundary": 85,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Javon named the entity beneath Driftmere 'Tzarak', a guardian bound to the same powers as the Witch King's seal, and said killing it altered the balance beneath the mountains.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Javon",
+    "Max Nightriver"
+   ],
+   "messageId": 136,
+   "tokens": 39
+  },
+  {
+   "id": "a57adeea-c2f8-4214-83bd-22fdb6111fb7",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 85,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 132,
+    "boundary": 85,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Javon set three conditions before revealing the house's truth: explain the mines, name Serenola's source, and accept some questions must wait.",
+   "type": "development",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Javon",
+    "Max Nightriver"
+   ],
+   "messageId": 132,
+   "tokens": 31
+  },
+  {
+   "id": "6e326cfe-9c32-416e-990e-db1d91b803ce",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 86,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 86,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Javon revealed the Nightriver bloodline itself is the seal keeping the Witch King dormant; each child carries a binding, and the line's end breaks it.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Javon",
+    "Max Nightriver",
+    "Natalia",
+    "Welden"
+   ],
+   "messageId": 134,
+   "tokens": 33
+  },
+  {
+   "id": "c0c616b4-bc5b-4006-82c1-d4d915ba2db6",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 86,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 138,
+    "boundary": 86,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo panicked and gripped her sword when Max asked about her arms, pulling her cloak tighter over her left side.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Riyo",
+    "Max Nightriver"
+   ],
+   "messageId": 138,
+   "tokens": 23
+  },
+  {
+   "id": "2c00135c-fe87-421d-9ba8-db46c3fabb5c",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 140,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Belle reveals to the household that Garreth's crew were all dead in the mines, suspended in ice by Tzarak, and turned to dust when Tzarak was killed.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 140,
+   "tokens": 35
+  },
+  {
+   "id": "6b029795-e850-4dde-abe7-4423a30176ac",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 140,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle publicly revealed that Garreth's crew were all dead in the mines, frozen by Tzarak and reduced to dust when he was killed, contradicting the party's earlier story.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Belle",
+    "Max Nightriver",
+    "Dalan",
+    "Riyo",
+    "Natalia"
+   ],
+   "messageId": 140,
+   "tokens": 37
+  },
+  {
+   "id": "0eec8bd6-18cb-4073-ac69-203ffb7cb1f6",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 143,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Baroness Serenola is described as a stout dwarf with a braided beard and heavy armor, stubborn and sympathetic to common folk.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [
+    "Serenola"
+   ],
+   "messageId": 143,
+   "tokens": 26
+  },
+  {
+   "id": "6d9d652d-9b7e-4d4a-997b-78710d705bb6",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 145,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Natalia treats Max as a fellow jailer initiated into the family secrets, with a flicker of something raw beneath her cold mask.",
+   "type": "development",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Natalia",
+    "Max Nightriver"
+   ],
+   "messageId": 145,
+   "tokens": 26
+  },
+  {
+   "id": "51ff12a6-8f86-4d81-b7b0-e9e12dc8fc0b",
+   "confidence": 0.47,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 128,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon confirms Serenola's letters to the estate were deliberately intercepted and unanswered, and that nothing in the house is done without purpose.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 128,
+   "tokens": 28
+  },
+  {
+   "id": "6c82765f-281d-4246-827e-f8f143dd4d4f",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 136,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon says the Guild's report shows the entity beneath the mines was disrupted, and that Tzarak was a guardian bound to the same powers that sealed the Witch King.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 136,
+   "tokens": 35
+  },
+  {
+   "id": "50eadeb6-6114-4bb1-be74-4a944a38c4d9",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 140,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Belle openly states in the foyer that Garreth's crew were all dead in the mines and turned to dust when Tzarak was killed, contradicting Max's claim they came home alive.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 140,
+   "tokens": 38
+  },
+  {
+   "id": "b240b6b4-5958-4362-9e19-2de4dba850e4",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 147,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Natalia knows Max lied about Garreth's crew and the seal, and warns that Javon can detect lies.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 147,
+   "tokens": 24
+  },
+  {
+   "id": "cf2b0a26-751b-4530-aea3-ecb5cc266de0",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 126,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Max meets Javon in the study: heavy oak door, smells of old paper, cedarwood and incense, evening light through tall windows, a letter with a plain grain-stalk wax seal on the desk.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Javon Nightriver",
+    "Max Nightriver"
+   ],
+   "messageId": 126,
+   "tokens": 42
+  },
+  {
+   "id": "45024680-9cdd-4d14-8207-0dd5f7b2bc36",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Javon reveals the seals are in the Nightriver bloodline itself: each child carries a binding keeping a great evil dormant, and when the bloodline ends He Who Curses awakens.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Javon Nightriver",
+    "Max Nightriver",
+    "Natalia",
+    "Welden"
+   ],
+   "messageId": 134,
+   "tokens": 37
+  },
+  {
+   "id": "aa9c6013-ab23-4a08-b822-564f3a1346ca",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Javon says the Witch King is a prison and Max, Natalia and Welden are his jailers, their blood the key that keeps him in shadow.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Javon Nightriver",
+    "Max Nightriver"
+   ],
+   "messageId": 134,
+   "tokens": 31
+  },
+  {
+   "id": "c47f4b90-5203-48b4-8157-6626534027d5",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Javon says the marriages are meant to strengthen the Nightriver line so the seals hold another generation.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Javon Nightriver",
+    "Max Nightriver"
+   ],
+   "messageId": 134,
+   "tokens": 20
+  },
+  {
+   "id": "28cd3193-8f73-41a2-aa5f-8fbb7fb4c5d9",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 136,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Javon names the entity beneath Driftmere Tzarak, a guardian bound to the same powers that sealed the Witch King, and says killing it altered the balance of powers beneath the mountains.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Javon Nightriver",
+    "Max Nightriver",
+    "Tzarak"
+   ],
+   "messageId": 136,
+   "tokens": 37
+  },
+  {
+   "id": "e41baf16-e695-47dc-a25b-51d11c3fd602",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 138,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "When Max asks about her arms, Riyo panics, grips her sword, insists it is just an arm kept covered for travel, and pulls her cloak tighter.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Riyo",
+    "Max Nightriver"
+   ],
+   "messageId": 138,
+   "tokens": 33
+  },
+  {
+   "id": "7bf09ff5-8ae5-44e3-822e-1131c9298bb8",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 140,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle publicly contradicts Max's claim that Garreth's crew came home alive, saying they were all dead and turned to dust when Tzarak was killed.",
+   "type": "development",
+   "importance": 3,
+   "expiration": "session",
+   "entities": [
+    "Belle",
+    "Max Nightriver"
+   ],
+   "messageId": 140,
+   "tokens": 32
+  },
+  {
+   "id": "ba09abde-6290-463f-b724-7b343dd0372d",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 141,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Natalia descends the staircase with frost curling from the railing, mocks Max's confrontation with Javon, and reveals she knows about the seals and the missing letters.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Natalia",
+    "Max Nightriver"
+   ],
+   "messageId": 141,
+   "tokens": 33
+  },
+  {
+   "id": "a468d2f9-25f1-447f-941e-ab2c626bc2d9",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 145,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Natalia says the Baroness Serenola is a stubborn woman who values common folk over court politics, and that Javon considers her naivete an inconvenience.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Natalia",
+    "Max Nightriver"
+   ],
+   "messageId": 145,
+   "tokens": 32
+  },
+  {
+   "id": "3d423144-a970-40fa-8ece-6cc2b1abc47b",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 91,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 124,
+    "boundary": 91,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Welden appears in the library jumpier than usual and refuses to say why.",
+   "type": "detail",
+   "importance": 1,
+   "expiration": "session",
+   "entities": [
+    "Welden Nightriver"
+   ],
+   "messageId": 124,
+   "tokens": 16
+  },
+  {
+   "id": "a6ec6503-adfb-4984-a722-1cd377ceb8e9",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 92,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 149,
+    "boundary": 92,
+    "pass": "shared-read",
+    "validity": "conflicted"
+   },
+   "tier": "facts",
+   "text": "Natalia met Baroness Serenola once years ago and judges her unpleasant, tough, stubborn, and honest — not a tool the Nightrivers can use.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 149,
+   "tokens": 31
+  },
+  {
+   "id": "62e09429-3383-4952-b7ac-4a8e05233047",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 92,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 149,
+    "boundary": 92,
+    "pass": "shared-read",
+    "validity": "conflicted"
+   },
+   "tier": "session_details",
+   "text": "Natalia met Baroness Serenola once at a council meeting; she calls her honest, blunt, stubborn, and dangerous to the family's plans.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [
+    "Serenola",
+    "Natalia"
+   ],
+   "messageId": 149,
+   "tokens": 31
+  },
+  {
+   "id": "916b48e5-67ed-46ff-b311-9371bfce7909",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 92,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 145,
+    "boundary": 92,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Natalia treats Max as newly initiated into the family secrets, dryly congratulating him on being told he is a jailer for an ancient evil.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Natalia",
+    "Max Nightriver"
+   ],
+   "messageId": 145,
+   "tokens": 30
+  },
+  {
+   "id": "6c23bc3d-c9df-4b8b-ab3d-6a695903e9e8",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 93,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 149,
+    "boundary": 93,
+    "pass": "shared-read",
+    "validity": "conflicted"
+   },
+   "tier": "facts",
+   "text": "Natalia met Baroness Serenola once and judges her honest, stubborn, and dangerous — not a tool the Nightrivers can use.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 149,
+   "tokens": 27
+  },
+  {
+   "id": "92da8566-0c88-42af-8e4b-0059c15b50b7",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 128,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon confirms Serenola's letters to the estate were deliberately intercepted and 'handled,' not lost.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 128,
+   "tokens": 21
+  },
+  {
+   "id": "3441192c-cdd8-42c5-8abb-25ba8bf38bee",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon states the seals are not under the house but in the Nightriver bloodline itself, each child carrying a binding that keeps a great evil dormant.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 31
+  },
+  {
+   "id": "6fa30972-fbea-4256-9ff1-43d4e8b9367f",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon says the Witch King is a prison and Max, Natalia, and Welden are his jailers, their blood the key that keeps him in shadow.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 32
+  },
+  {
+   "id": "b67d002c-51da-45fd-b5ca-aa632b920aa7",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon says the marriages are meant to strengthen the Nightriver line so the seals hold another generation.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 134,
+   "tokens": 20
+  },
+  {
+   "id": "181cdd67-7fe3-43e8-b2bc-651d56ea9956",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 132,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Javon demands Max explain his conduct at the mines and name the source of Serenola's story before revealing more.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 132,
+   "tokens": 24
+  },
+  {
+   "id": "9c93170a-0c02-4b8d-ba2a-01c04036543b",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 149,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "conflicted"
+   },
+   "tier": "facts",
+   "text": "Natalia has met Baroness Serenola once and judges her honest, stubborn, and dangerous to Javon's plans.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 149,
+   "tokens": 25
+  },
+  {
+   "id": "0aec5b74-b485-4930-9ea4-ce37c3282795",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 151,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Natalia says Javon's conditions are that Max confess everything at Driftmere and accept the marriages without complaint.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 151,
+   "tokens": 23
+  },
+  {
+   "id": "c5b987c7-9d5e-4bd5-8795-c35990c2ea5e",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 140,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Belle openly contradicts Max's claim that Garreth's crew all came home alive, saying they were dead in the ice and turned to dust.",
+   "type": "event",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Belle",
+    "Max Nightriver"
+   ],
+   "messageId": 140,
+   "tokens": 30
+  },
+  {
+   "id": "bcb61928-105d-4e2a-a56f-fcb2bb488074",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 134,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "The Nightriver bloodline itself is the seal: each child carries a binding that keeps the Witch King dormant, and the marriages exist to strengthen the line so the seals hold another generation.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Javon",
+    "Max Nightriver",
+    "Natalia",
+    "Welden"
+   ],
+   "messageId": 134,
+   "tokens": 37
+  },
+  {
+   "id": "7786e975-7c43-4162-b2c7-8561685ade6f",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 128,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Javon admits Serenola's letters were deliberately intercepted and 'handled,' and that nothing in the house is done without purpose.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Javon",
+    "Max Nightriver"
+   ],
+   "messageId": 128,
+   "tokens": 26
+  },
+  {
+   "id": "8e13e2b2-2db7-463d-81a9-1e1efc4cf0b0",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 136,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Tzarak was a guardian bound to the same powers that sealed the Witch King; killing it altered the balance of powers beneath the mountains.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Javon",
+    "Tzarak"
+   ],
+   "messageId": 136,
+   "tokens": 28
+  },
+  {
+   "id": "d7c5f229-e271-4b9a-9d41-34fa25401b6e",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 147,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Natalia tells Max that Javon's price for the truth is a full confession of Driftmere and acceptance of the marriages, and warns Father can smell a lie.",
+   "type": "development",
+   "importance": 3,
+   "expiration": "session",
+   "entities": [
+    "Natalia",
+    "Max Nightriver"
+   ],
+   "messageId": 147,
+   "tokens": 34
+  },
+  {
+   "id": "ffce6742-91c8-406e-bf7f-64648d038ae3",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 138,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo panics when Max asks about her arms, gripping her sword and insisting it is 'just an arm,' keeping it covered.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Riyo",
+    "Max Nightriver"
+   ],
+   "messageId": 138,
+   "tokens": 27
+  },
+  {
+   "id": "585fd70d-c57f-4085-a4df-c8e0920594d4",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 94,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 149,
+    "boundary": 94,
+    "pass": "shared-read",
+    "validity": "conflicted"
+   },
+   "tier": "session_details",
+   "text": "Natalia met Serenola once at a council meeting and calls her honest, blunt, and dangerous because she cannot be used as a tool.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Natalia",
+    "Serenola"
+   ],
+   "messageId": 149,
+   "tokens": 28
+  },
+  {
+   "id": "158c3e56-b75f-4557-be68-421b9694c18b",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 96,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 152,
+    "boundary": 96,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Max admits to Belle and Dalan that the party left the Devourer alive and only sealed it back in.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 152,
+   "tokens": 23
+  },
+  {
+   "id": "efd2a367-1624-4d17-93cb-e736f06d70d4",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 96,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 156,
+    "boundary": 96,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Natalia treats Max's admission as the truth finally coming out and a better foundation for a story, but suspects it is still incomplete.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 156,
+   "tokens": 28
+  },
+  {
+   "id": "58d3b4c7-4944-4fff-a54e-f394cee91fd3",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 96,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 152,
+    "boundary": 96,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Max openly admits the Devourer was left alive and only sealed back in, and Natalia notes the truth is still incomplete.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Max Nightriver",
+    "Belle",
+    "Dalan",
+    "Natalia"
+   ],
+   "messageId": 152,
+   "tokens": 25
+  },
+  {
+   "id": "42ecb866-f164-4246-ada7-5cb9c9378a83",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 96,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 155,
+    "boundary": 96,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle reacts to Max's admission with relief and irritation, her tension easing but her jaw tight.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Belle",
+    "Max Nightriver"
+   ],
+   "messageId": 155,
+   "tokens": 20
+  },
+  {
+   "id": "ff4ca00d-d28d-4686-b678-8b08686d9201",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 96,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 156,
+    "boundary": 96,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "The exchange happens in the estate foyer with Natalia watching from the railing above.",
+   "type": "scene",
+   "importance": 1,
+   "expiration": "scene",
+   "entities": [
+    "Nightriver Estate",
+    "Natalia",
+    "Max Nightriver"
+   ],
+   "messageId": 156,
+   "tokens": 15
+  }
+ ]
+}

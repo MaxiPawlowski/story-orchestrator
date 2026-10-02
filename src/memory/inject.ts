@@ -26,8 +26,8 @@ const sameSaying = (a: Set<string>, b: Set<string>): boolean => {
   return similarity >= NEAR_DUPLICATE_SIMILARITY || (similarity >= PARAPHRASE_SIMILARITY && wordOverlap(a, b) >= PARAPHRASE_OVERLAP);
 };
 
-export function nearDuplicateIds(entries: MemoryEntry[]): Set<string> {
-  const seen: Set<string>[] = [];
+export function nearDuplicateIds(entries: MemoryEntry[], said: readonly Set<string>[] = []): Set<string> {
+  const seen: Set<string>[] = [...said];
   const duplicates = new Set<string>();
   for (const entry of [...entries].sort((a, b) => Number(kept(b)) - Number(kept(a)) || newestFirst(a, b))) {
     const words = contentWords(entry.text);
@@ -68,11 +68,13 @@ export interface TierTrim {
 const filteredFate = (entry: MemoryEntry, tier: MemoryTier, activeSpeakerId: string | null, withheld?: ReadonlySet<string>): MemoryFate | null => {
   if (!isLive(entry)) return "quarantined";
   if (entry.supersededBy) return "superseded";
-  if (entry.foldedInto) return "folded";
+  if (entry.foldedInto && !isEstablished(entry)) return "folded";
   if (tier === "facts" && entry.characterId && entry.characterId !== activeSpeakerId) return "other-speaker";
   if (withheld?.has(entry.id)) return "private";
   return null;
 };
+
+const ESTABLISHED_PRIORITY = 100;
 
 function selectTierEntries(
   entries: MemoryEntry[],
@@ -80,6 +82,7 @@ function selectTierEntries(
   activeSpeakerId: string | null,
   options: InjectionOptions,
   fates: Record<string, MemoryFate>,
+  said: readonly Set<string>[],
 ): { entries: MemoryEntry[]; pinnedOverflow: number; trim: TierTrim } {
   const inTier = entries.filter((entry) => entry.tier === tier);
   const live = inTier.filter((entry) => {
@@ -87,11 +90,11 @@ function selectTierEntries(
     if (fate) fates[entry.id] = fate;
     return fate === null;
   });
-  const duplicates = DEDUPED_TIERS.has(tier) ? nearDuplicateIds(live) : new Set<string>();
+  const duplicates = DEDUPED_TIERS.has(tier) ? nearDuplicateIds(live, said) : new Set<string>();
   duplicates.forEach((id) => { fates[id] = "near-duplicate"; });
   const candidates = live.filter((entry) => !duplicates.has(entry.id));
   const budget = options.tokenBudgets[tier];
-  const score = (entry: MemoryEntry) => scoreEntry(entry, options.scoreContext);
+  const score = (entry: MemoryEntry) => scoreEntry(entry, options.scoreContext) + (isEstablished(entry) ? ESTABLISHED_PRIORITY : 0);
   const selection = selectWithinBudget(candidates, budget, score, INJECTION_DIVERSITY_FLOOR);
   const { kept: chosen } = selection;
   const cap = ROW_CAPS[tier];
@@ -129,8 +132,10 @@ export function buildMemoryInjection(entries: MemoryEntry[], activeSpeakerId: st
   const trim = {} as Record<MemoryTier, TierTrim>;
   const fates: Record<string, MemoryFate> = {};
   let pinnedOverflow = 0;
+  const said: Set<string>[] = [];
   MEMORY_TIERS.forEach((tier) => {
-    const selection = selectTierEntries(entries, tier, activeSpeakerId, options, fates);
+    const selection = selectTierEntries(entries, tier, activeSpeakerId, options, fates, said);
+    if (DEDUPED_TIERS.has(tier)) said.push(...selection.entries.map((entry) => contentWords(entry.text)));
     pinnedOverflow += selection.pinnedOverflow;
     trim[tier] = selection.trim;
     blocks[tier] = selection.entries.map((entry) => entry.text).join("\n");

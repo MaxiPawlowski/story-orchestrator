@@ -2,6 +2,7 @@ import type { ChapterInput, ChapterInputItem } from "./chapterInput";
 import type { ParsedChapterRecord } from "./chapterRecord";
 
 export const CHAPTER_ITEM_KINDS: ReadonlyArray<ChapterInputItem["kind"]> = ["scene", "arc", "fact", "detail", "ledger", "state"];
+export const MAP_BOUNDS = { lines: 16, words: 30 } as const;
 
 export interface ChapterDigest {
   items: ChapterInputItem[];
@@ -39,6 +40,7 @@ export function buildChapterMapPrompt(storyTitle: string, chapterTitle: string, 
     "Write one line per condensed note, in this form:",
     "- (<kind>) <condensed note> [src: <input id>, <input id>]",
     `Keep each note's kind. Every one of these kinds must appear at least once: ${kinds.join(", ")}.`,
+    `Write at most ${MAP_BOUNDS.lines} lines of at most ${MAP_BOUNDS.words} words each, in story order, then stop.`,
     "",
     `STORY: ${storyTitle}`,
     `CHAPTER: ${chapterTitle}`,

@@ -205,6 +205,7 @@ const QualityScopeFields = ({ selected, isReserved, draft, patch, onScope, onLed
         <option value="">Any line (default)</option>
         <option value="any">Any line (decided)</option>
         <option value="world">Only lines the player did not write</option>
+        <option value="party">The world, or the player moving their own party once a reply answers it</option>
       </select>
     </Field>
 

@@ -383,6 +383,38 @@ test('group needle: the id wins over the name, the name is the fallback', () => 
   assert.equal(groupNeedle({ group: null }), null);
 });
 
+test('T2-3 turn: an open popup (the "Previously" recap) is closed before the line is sent', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  const page = { popups: 1 };
+  (globalThis as any).document = { getElementById: () => null, querySelectorAll: () => ({ length: page.popups }) };
+  const order: string[] = [];
+  const closeOverlays = async () => { order.push('close'); page.popups = 0; };
+  const send = async (_page: unknown, line: string) => {
+    order.push(page.popups ? 'send behind a popup' : 'send');
+    fake.ctx.chat.push({ name: 'You', is_user: true, mes: line }, { name: 'Belle', mes: 'Fine.' });
+    return { replied: true };
+  };
+  const record = await runTurn(fakePage(), 'We never went past the seal.', baseDeps({ closeOverlays, send }));
+  assert.deepEqual(order, ['close', 'send']);
+  assert.equal(record.ok, true, record.problems.join('; '));
+  assert.deepEqual((record.send as any).overlays.after, { drawerOpen: false, popups: 0 });
+});
+
+test('T2-3 turn: a popup that will not close means nothing is sent, and a send that posts nothing is a problem', async () => {
+  const fake = fakeSt({ chat: greeting() });
+  install(fake);
+  (globalThis as any).document = { getElementById: () => null, querySelectorAll: () => ({ length: 1 }) };
+  let sent = 0;
+  const stuck = await runTurn(fakePage(), 'Hello?', baseDeps({ send: async () => { sent += 1; return { replied: true }; } }));
+  assert.equal(sent, 0);
+  assert.equal(stuck.ok, false);
+  assert.match(stuck.problems.join('; '), /could not clear the page before sending .*nothing was sent/);
+  delete (globalThis as any).document;
+  const lost = await runTurn(fakePage(), 'Hello?', baseDeps({ send: async () => ({ replied: true }) }));
+  assert.match(lost.problems.join('; '), /the line did not land/);
+});
+
 test('pure helpers: blackboard diff and the journal multiset', () => {
   assert.deepEqual(blackboardDiff({ a: 1, b: [1] }, { a: 1, b: [1, 2], c: 'x' }).changed, { b: { from: [1], to: [1, 2] }, c: { from: null, to: 'x' } });
   const event = { at: 't', boundary: 1, messageId: 1, kind: 'k', summary: 's' };

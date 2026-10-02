@@ -1,4 +1,4 @@
-import { TENSION_CURRENT_KEY, TENSION_FRESH_MESSAGES, TENSION_LEVELS, type NormalizedStoryV2, type TensionLevel } from "@engine/index";
+import { readsWorldEvidence, TENSION_CURRENT_KEY, TENSION_FRESH_MESSAGES, TENSION_LEVELS, type NormalizedStoryV2, type TensionLevel } from "@engine/index";
 import { renderMemoryContractAddendum } from "@memory/contract";
 import { fnv1a, stableStringify } from "@runtime/hash";
 import type { SharedReadContract } from "./types";
@@ -12,6 +12,7 @@ const TENSION_SCALE: Record<TensionLevel, string> = {
 };
 
 export const WORLD_EVIDENCE_RULE = "Evidence must quote a line the player did not write.";
+export const PARTY_EVIDENCE_RULE = "Evidence may quote the player's own line only where the player moves themselves or the party; anything else must quote a line the player did not write.";
 export const PLAYER_MARK = " (player)";
 
 const renderType = (contract: SharedReadContract) => contract.qualities.map(({ quality, hints }) => {
@@ -25,11 +26,11 @@ const renderType = (contract: SharedReadContract) => contract.qualities.map(({ q
     ].join("\n");
   }
   const allowed = quality.values?.length ? ` Allowed values: ${quality.values.join(", ")}.` : "";
-  const world = quality.evidence_from === "world" ? ` ${WORLD_EVIDENCE_RULE}` : "";
+  const world = quality.evidence_from === "party" ? ` ${PARTY_EVIDENCE_RULE}` : quality.evidence_from === "world" ? ` ${WORLD_EVIDENCE_RULE}` : "";
   return `- ${quality.key}: type=${quality.type}; ${quality.rubric}${allowed}${hintText}${world}`;
 }).join("\n");
 
-export const marksPlayerLines = (contract: Pick<SharedReadContract, "qualities">): boolean => contract.qualities.some(({ quality }) => quality.evidence_from === "world");
+export const marksPlayerLines = (contract: Pick<SharedReadContract, "qualities">): boolean => contract.qualities.some(({ quality }) => readsWorldEvidence(quality));
 
 const renderTranscript = (contract: SharedReadContract) => {
   const marked = marksPlayerLines(contract);

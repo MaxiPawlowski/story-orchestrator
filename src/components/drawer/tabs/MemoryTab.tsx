@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
-import { MEMORY_TIERS, type MemoryEntry, type MemoryTier } from "@memory/index";
+import { isEstablished, MEMORY_TIERS, type MemoryEntry, type MemoryTier } from "@memory/index";
 import { memorizeProgressText, PLAYER_COPY, pinnedOverflowText } from "@runtime/narrative";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
@@ -66,7 +66,7 @@ const MemoryRow = ({ entry, snapshot, manager, authorView, editing, draftText, o
       </div>
     ) : (
       <>
-        <div className={entry.supersededBy || entry.foldedInto ? "opacity-70 line-through" : ""}>
+        <div className={entry.supersededBy || (entry.foldedInto && !isEstablished(entry)) ? "opacity-70 line-through" : ""}>
           {entry.text}{entry.pinned ? " 📌" : ""}{entry.characterId ? ` (${characterName(snapshot, entry.characterId)})` : ""}
         </div>
         <div className="flex gap-2 flex-wrap">
@@ -92,7 +92,7 @@ export const MemoryTab = ({ snapshot, manager, authorView, focusFact }: { snapsh
   const characterIds = Array.from(new Set(snapshot.memory.entries.map((entry) => entry.characterId).filter((id): id is string => Boolean(id)))).sort();
   const filtered = characterFilter ? snapshot.memory.entries.filter((entry) => entry.characterId === characterFilter) : snapshot.memory.entries;
   // Superseded and folded entries are bookkeeping: the player curates established facts only.
-  const visible = authorView ? filtered : filtered.filter((entry) => !entry.supersededBy && !entry.foldedInto && entry.provenance?.validity !== "conflicted");
+  const visible = authorView ? filtered : filtered.filter((entry) => !entry.supersededBy && (!entry.foldedInto || isEstablished(entry)) && entry.provenance?.validity !== "conflicted");
   const searchable = snapshot.memory.entries.length > MEMORY_SEARCH_FROM;
   const needle = query.trim().toLowerCase();
   const shown = visible

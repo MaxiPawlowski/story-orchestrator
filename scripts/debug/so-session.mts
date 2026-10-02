@@ -65,6 +65,10 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
   shot <dir> <label>                         screenshot into <dir>/shots/
   age <dir> <hours>                          backdate the open chat's last session and reload it
   adopt <dir>                                record the open chat as the session's chat (wizard cards)
+  mem <dir> <pin|unpin|lock|unlock|exclude|edit> <row id|"text"> ["<new text>"]
+      change one memory row through the runtime (the Memory tab's actions, no DOM clicks); the row
+      is named by id (8+ characters) or a piece of its text that matches exactly one live row; the
+      record in turns.jsonl holds the row before and after and fails when the change did not land
   score <dir> <row|n> <works|annoying|broken|not-noticed> "<note>" --evidence <path:line|png> [<path:line|png> ...]
       (evidence: several paths after one --evidence, a repeated --evidence, or a comma list)
   score <dir> <row|n> --record "<note>" --evidence ...   (rows recorded for the user's review)
@@ -639,11 +643,14 @@ export function parseLiveArgs(verb: LiveVerb, rest: string[]): LiveCli {
   if (verb === 'flag') { args.note = more[0]; args.via = argValue(rest, '--via') === 'slash' ? 'slash' : 'drawer'; }
   if (verb === 'shot') args.label = more[0];
   if (verb === 'age') args.hours = Number(more[0]);
+  if (verb === 'mem') { args.memOp = more[0]; args.ref = more[1]; args.text = more[2]; }
   const missing = (verb === 'turn' || verb === 'switch-chat-mid-gen' || verb === 'reload-mid-gen') && !args.line ? 'a player line'
     : verb === 'edit' && !args.text ? 'the message id and the new text'
       : verb === 'flag' && !args.note ? 'a note'
         : verb === 'shot' && !args.label ? 'a label'
           : verb === 'age' && !(Number(args.hours) > 0) ? 'a number of hours'
+            : verb === 'mem' && !(args.memOp && args.ref) ? 'an op (pin|unpin|lock|unlock|exclude|edit) and a row id or a piece of its text'
+            : verb === 'mem' && args.memOp === 'edit' && !args.text ? 'the new text'
             : verb === 'switch-chat-mid-gen' && !args.to ? '--to <chatId>'
               : !dir ? 'the session dir' : null;
   if (missing) throw new Error(`${verb} needs ${missing}`);
