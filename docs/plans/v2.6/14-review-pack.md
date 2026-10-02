@@ -393,6 +393,8 @@ The arms run on the same bodies and counters as the A100 run. If thinking comes 
 
 **Decided 2026-10-02:** lanes switch to the thinking setup now, harvest on; you rate the pack later, and the rating can overrule it.
 
+**Decided 2026-10-02: reasoning-effort A/B** after the thinking switch merges (about 1 pod-hour): thinking budgets about 128 / 400 / unlimited on Text Completion in groups; empty replies, damage, loops; whether `thinking_budget_tokens` reaches a Text Completion request at all; whether the checkpoint `effects.reasoning` overlay lands on the request; replies into a blind pack.
+
 ---
 
 ## Tiers
