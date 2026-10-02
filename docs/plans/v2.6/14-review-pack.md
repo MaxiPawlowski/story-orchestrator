@@ -106,6 +106,27 @@ I first suspected the server: KV-cache quantisation, 4 slots sharing one cache (
 
 **Side effect, and why this item is OPEN.** The empty thought channel switches thinking off, and you want thinking and the inner voice (2026-10-02). The likely mechanism is that the bad prompt ended with no thought block at all, a shape Gemma 4 never sees in training; a real thought block (thinking on) is the other trained shape, and with the corrected sampler order it has never been measured (the September thinking failures ran on the adaptive-P preset). A thinking-on A/B runs after T4 (item 10 (b)); its result replaces the recommendation below.
 
+**A/B result (2026-10-02, `15-model-config.md` §Thinking A/B, hand-read).** Thinking on is as clean as the fix, once the prompt really opens a thought block after the speaker name:
+
+| Setup (Artemis v1.1, `min_p` first) | Damaged | Loops | Opened a thought |
+|---|---|---|---|
+| Fix: empty thought channel (control) | 0/26 | 0/26 | – |
+| `Gemma 4 Thinking` instruct + opener after the name | 0/20 | 0/20 | 20/20 |
+| Thinking token only + opener after the name | 0/24 | 0/24 | 24/24 |
+| `Gemma 4 Thinking` instruct unchanged, group | 10/20 | 4/20 | 0/20 |
+
+The unchanged instruct ends the prompt on `Dalan:` and never opens a thought: that is the September shape. Costs of thinking: median 381 reasoning tokens, 2/20 empty replies on the blind turns (budget spent in the thought), first token ~13 s later solo and ~65 s with 4 busy lanes (12 s without). No setup escapes a loop already in context.
+
+**Recommendation, replacing the one below once you have rated the blind pack `model-blind-20-think`:** unless your rating clearly favours the control, ship the thinking setup instead of edit 1:
+
+1. Instruct `Gemma 4 Thinking`, "Last Assistant Prefix" (`last_output_sequence`) empty.
+2. **Start Reply With** = `<|channel>thought` + newline (it lands after ST's `Name:` prefix).
+3. "Names as Stop Strings" off (on, it cut the reasoning at the first character line in 4/6), and "Sequences as Stop Strings" off (edit 3).
+4. Reasoning auto-parse on, Gemma 4 reasoning template; max response at least 1400 tokens.
+5. Edit 2 (`min_p` first) stands either way.
+
+Not yet verified end to end in ST: Start Reply With + auto-parse, whether ST strips a repeated `Dalan:` (3/20 replies start with it), and the harvest. The first T5 session with this setup checks one payload capture before play.
+
 **Options.**
 - (a) Apply all three edits. This is my recommendation.
 - (b) Apply only 1 and 3. Edit 2 adds nothing measurable on top of 1; it is a cheap guard.
@@ -361,6 +382,14 @@ The harvest needs the main model to reason, and on this setup Artemis never does
 - The current fix, as the control.
 
 The arms run on the same bodies and counters as the A100 run. If thinking comes out as clean as the fix, T5–T7 run with thinking and harvest on.
+
+**Result (2026-10-02).** Clean on Artemis v1.1 with the opener after the name (item 2's table: 0/20 and 0/24 damaged, 0 loops, a thought opened in every reply). The harvest therefore has reasoning to read in groups, with the ST setup in item 2.
+
+- **Chat Completion (plan 05 F5) verified on b11046:** `enable_thinking` false = the empty-channel shape, true = thinking, absent = thinking on; `reasoning_content` comes back separately; `reasoning_effort` low/high are byte-identical (ignored), `"none"` turns it off; `thinking_budget_tokens` caps reasoning per request, so the effort control should map onto it (`reasoning_budget` does nothing). In a group, CC answered as the wrong character 6/6: group thinking stays on Text Completion.
+- **Other models:** Skyfall 31B v4.2 without thinking 0/16 damaged, 33 tok/s (Artemis 28.6); its native `[THINK]` never closes (0/16), a plain `<think>` prefill worked 6/6 (thin). Artemis v1.2 closes the thought at once in 14/16. Cydonia 24B is fastest (41.8 tok/s) but thinking gave 2/16 empty replies and speaker slips. Rocinante-XL dropped at your request.
+- **Blind pack `test/sessions/rating-pack/model-blind-20-think/`** (20 turns, reasoning folded under each reply, sealed key intact): the control, the two thinking setups, and Skyfall without thinking. The judge's first pass is kept unsealed-only, so it cannot steer your rating.
+
+**You.** Rate `model-blind-20-think`. Unless it clearly favours the control, T5–T7 run with the thinking setup and harvest on, and item 2's edit 1 is replaced by it.
 
 ---
 
