@@ -1,5 +1,6 @@
 import { parseStoryV2OrThrow, StoryEngine, type EngineState, type NormalizedStoryV2, type StoryV2 } from "@engine/index";
-import { applyStoryUpdate, chatUpdateSentence, describeStoryUpdate, renderStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from "./storyUpdate";
+import { chatUpdateSentence } from "./librarySave";
+import { applyStoryUpdate, describeStoryUpdate, renderStoryUpdate, type StoryUpdateDeps, type StoryUpdateOutcome } from "./storyUpdate";
 import { diffStories } from "@engine/storyDiff";
 import type { LoadedStory, StoryLibraryRecord } from "./types";
 import { mintToken, tokenMatches, type RunContext, type RunOwnership, type RunToken } from "./runToken";

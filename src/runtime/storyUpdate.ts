@@ -3,7 +3,6 @@ import type { StoryDiffResult } from "@engine/storyDiff";
 import { showChoicePopup } from "@services/STAPI";
 import { findStoryRecord, loadStoryRecord } from "./storyLibrary";
 import type { LoadedStory, StoryLibraryRecord } from "./types";
-import { chatSaveSentence, type ChatSaveOutcome } from "./librarySave";
 import { beginRun, type RunOwnership } from "./runToken";
 import { log } from "@utils/log";
 
@@ -84,17 +83,6 @@ export const renderStoryUpdate = (description: StoryUpdateDescription, doc: Docu
   para(`Keep playing applies ${update} and drops only what no longer fits. Restart story applies ${update} and clears this chat's progress. ` +
     `Cancel applies nothing — this chat keeps playing ${playing}.${kept}`);
   return root;
-};
-
-export const chatUpdateOutcome = (outcome: StoryUpdateOutcome): ChatSaveOutcome | null => {
-  if (outcome.applied) return { applied: true, detail: outcome.choice === "restart" ? "this chat restarted on the new version" : "this chat is playing the new version now" };
-  if (outcome.choice === "cancel") return { applied: false, detail: outcome.fromVersion !== null ? `this chat keeps playing v${outcome.fromVersion}` : "this chat keeps the version it is playing" };
-  return outcome.reason ? { applied: false, detail: outcome.reason } : null;
-};
-
-export const chatUpdateSentence = (outcome: StoryUpdateOutcome | null | undefined): string | null => {
-  const taken = outcome ? chatUpdateOutcome(outcome) : null;
-  return taken ? chatSaveSentence(taken) : null;
 };
 
 export const emptyOutcome = (reason: string): StoryUpdateOutcome => ({

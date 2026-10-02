@@ -5,7 +5,7 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import { viewerRepairStep } from "@runtime/repair";
 import { PLAYER_COPY } from "@runtime/narrative";
-import { chatUpdateSentence } from "@runtime/storyUpdate";
+import { chatUpdateSentence } from "@runtime/librarySave";
 import type { DriverController, RecoveryTarget } from "./DriverPanel";
 import { MessageJumpProvider } from "./MessageCitation";
 import { OverviewTab } from "./tabs/OverviewTab";

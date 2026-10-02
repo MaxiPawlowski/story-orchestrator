@@ -9,6 +9,10 @@
       "status": "local",
       "note": "v2.5 plan 05 F3 spike (2026-09-26): the so-f3-arms probe. Writes only the SceneArmResult it builds and returns (promptChars, passes, signals); it reads no chat, writes no store, chat metadata or host state, so a chat switch mid-run changes nothing it writes."
     },
+    "src/runtime/chatIdentity.ts#continueFromBranch": {
+      "status": "partial",
+      "note": "T4-2 fix wave (2026-10-02): after awaiting selectStory it writes extras.branchedFrom (markBranch) and the 'branch continued' note, each only while the open chat is still the branch it adopted (currentChat().chatId === branch.chatId). COVERED: a switch during the hydrate leaves both unwritten. NOT COVERED: no RunToken (the deps carry none); the chat-id check cannot tell a re-opened same branch from the first open, which writes the same marker. Case: branchContinue.review.test.ts \"T4-2: the parent's journal a branch inherits stays attributed to the parent\"."
+    },
     "src/runtime/awayRecap.ts#AwayRecapController.showAfter": {
       "status": "local",
       "note": "v2.6 T2-4 fix wave (2026-10-01): after awaiting the canon refresh (bounded) it writes only the controller's own in-memory pending recap and clears its own timer; nothing is persisted or chat state. It writes only when the pending recap is still the one it started with, and dismissUnless drops that on a chat switch, so a recap is never rebuilt or shown for a chat that is no longer open. The refresh it awaits is CanonSynthesis.regenerateCanon, which takes its own RunToken."
