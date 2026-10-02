@@ -405,8 +405,9 @@ The arms run on the same bodies and counters as the A100 run. If thinking comes 
 | T1 features | done (7/7 valid). Fix waves T1-6 and T1-7 merged. One must-not-happen fixed: foreign gated lore on the first reply after a chat switch | `test/sessions/T1/SUMMARY.md`, `14-findings.md` |
 | T2 memory | done (6/6 valid; the DeepSeek outage 19:50–21:32Z cost 4 turns, flagged). 4 fix waves merged: secrets out of shared tiers, lost updates on chat leave, switch attribution, away recap, chapter seal/fold, warden lapse, party moves, beat holds | `test/sessions/T2/SUMMARY.md`, `14-findings.md` |
 | T3 surfaces | done (all cards valid; T3-3 re-run without the overlay). Fix waves merged: spoiler cast chips, `/cp` author-only, lost-save chip, scripted line spacing, Studio narrow layout, curator declines remembered, non-player quote re-ask, inner beats per drafted member. Campaign round 4 | `test/sessions/T3/SUMMARY.md`, `14-findings.md` |
-| T4 robustness | running (abuse, switching, cleanup, restart/update; 4 lanes) | `test/sessions/T4/` |
-| T5–T7 | not started (wizard/Studio/repair/author view; reasoning/judge providers/harness routing; integration + freeze) | — |
+| T4 robustness | done (4/4 valid on re-runs T4-1-2, T4-2-2, T4-3-3, T4-4-2). Fix waves merged: chat-switch lifecycle, mirror/reaper/library, mutations/author loop, delete-chat harness. Open: scripted lines re-posted after a step back (fix running) | `test/sessions/T4/SUMMARY.md` |
+| T5 authoring | running with thinking on (default since e29821df). T5-2-1 INVALID (harness, fixed 91500820), wizard product fixes running; T5-5 playing; T5-1/T5-3/T5-4 wait for fixes | `test/sessions/T5/SUMMARY.md` |
+| T6–T7 | not started (reasoning/judge providers/harness routing/judge off; integration + freeze) | — |
 
 ## Measurements
 
