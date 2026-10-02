@@ -58,6 +58,8 @@ const later: EngineState = {
   boundary: 30, checkpointStartedBoundary: 30, checkpointStartedAt: 0, checkpointStartedMessageId: 99, lastMessageId: 99, chatLength: 100,
 };
 
+const WRITTEN = "SUMMARY:\nthe gate held through the night.\nSHORT:\nthe gate held.";
+
 const recordReply = (cite: string) => [
   "SUMMARY:", "The party held the gate through the night and saw the dawn come over the walls.", "SHORT:", "They held the gate.",
   "CONSEQUENCES:", `- The gate held against the raiders [src: ${cite}]`, "PEOPLE:", "OPEN:",
@@ -152,7 +154,7 @@ describe("AS-14 map-reduce: an oversize chapter is reduced, never trimmed", () =
     expect(h.prompts.length).toBe(1);
   });
 
-  it("Q-M7: a final, oversize seal whose every answer fails makes at most six model calls, era merges and saga included", async () => {
+  it("Q-M7: a final, oversize seal whose every answer fails makes at most SEAL_CALL_BUDGET model calls, era merges and saga included", async () => {
     const previous = [record("arrival#1", 0, 1), record("arrival#2", 2, 3), record("arrival#3", 4, 5)];
     const h = harness({ memory: { entries: oversize(6), chapters: previous }, chapters: { chronicleTokens: 1 } });
     const sealed = await h.seal.seal({ chapter: siege, part: 1, final: true }, atDawn(20));
@@ -218,7 +220,7 @@ describe("AS-14 D3: the seal folds the secrets of members who leave together", (
   ];
 
   it("folds into the record what the next chapter's cast_changes takes away, records it, and unseal gives it back", async () => {
-    const h = harness({ memory: { epistemic }, reply: () => "" });
+    const h = harness({ memory: { epistemic }, reply: () => WRITTEN });
     const sealed = await h.seal.seal({ chapter: arrival, part: 1, final: false }, atWalls(10));
     expect(h.memory().epistemic.filter((entry) => entry.foldedInto).map((entry) => entry.id)).toEqual(["h1"]);
     expect(h.memory().epistemic.find((entry) => entry.id === "h1")?.foldedInto).toBe(sealed?.id);
@@ -228,7 +230,7 @@ describe("AS-14 D3: the seal folds the secrets of members who leave together", (
   });
 
   it("control: a chapter entered without cast_changes folds no knowledge", async () => {
-    const h = harness({ memory: { epistemic }, reply: () => "" });
+    const h = harness({ memory: { epistemic }, reply: () => WRITTEN });
     await h.seal.seal({ chapter: arrival, part: 1, final: false }, { ...atWalls(10), activeCheckpointId: "fire" });
     expect(h.memory().epistemic.some((entry) => entry.foldedInto)).toBe(false);
   });
@@ -381,6 +383,11 @@ describe("AS-14 D10: archive recall rides the scene-history block for one genera
     expect(r.vectors.vectorPurge).toHaveBeenCalled();
   });
 
+  it("T2-3: the message fold turns recall on, because a folded chapter leaves the prompt nothing else to recall from", async () => {
+    const r = recallPort({ current: "x", chapters: { fold: true } });
+    expect(await recall(r.port, turn("Ronan, how did you lose your hand to the wyrm?"), "normal")).toBe(2);
+  });
+
   it("bounded by recallTokens", async () => {
     const r = recallPort({ current: "x", chapters: { archiveRecall: true, recallTokens: 14 } });
     expect(await recall(r.port, turn("Ronan, how did you lose your hand to the wyrm?"), "normal")).toBe(1);
@@ -409,11 +416,11 @@ describe("AS-14 fault shapes of the seal unit", () => {
     expect(recordPrompts(h.prompts)[1]).toContain("no SUMMARY section");
   });
 
-  it("with the backend answering nothing the chapter still seals, degraded, and folds its rows", async () => {
+  it("with the backend answering nothing the chapter still seals, degraded, and folds nothing: its rows keep steering (T2-1)", async () => {
     const h = harness({ memory, reply: () => "" });
     const sealed = await h.seal.seal(target, atWalls(10));
     expect(sealed?.status).toBe("degraded");
-    expect(h.memory().entries[0].foldedInto).toBe(sealed?.id);
+    expect(h.memory().entries[0].foldedInto).toBeUndefined();
   });
 
   it("a model error leaves no record and frees the seal for the next boundary", async () => {

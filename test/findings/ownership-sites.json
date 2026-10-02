@@ -273,6 +273,10 @@
       "status": "checked",
       "note": "AS-14 (2026-10-01, plan 07 D10 archive recall): the only await is the vectors band (recallBand); a RunGuard minted before it is checked immediately after, before the store is re-read, the scene-history extension prompt is written, port.recalled is set and the journal line is written. All writes are synchronous after that one check."
     },
+    "src/runtime/chapterSeal.ts#ChapterSeal.ask": {
+      "status": "checked",
+      "note": "T2-1 fix wave (2026-10-01): a reply cut at its limit is asked again once at the cap, only while the run still owns its chat (checked after the first call). The only write after its awaits is run.cuts, the seal run's own in-memory list of cut replies that ChapterSeal.run puts in the journal line; nothing reaches the store here."
+    },
     "src/runtime/chapterSeal.ts#ChapterSeal.seal": {
       "status": "local",
       "note": "v2.6 plan 07: the only write after its await is the finally that clears inFlight, the unit's own in-memory bookkeeping (the CanonSynthesis.regenerateCanon rule): leaving it set because the world moved would wedge sealing for the session. The chapter writes are ChapterSeal.run's, which is checked."

@@ -167,6 +167,8 @@ export function composeTurn({ line, before, after, recorder, send, timing, sched
   const generations = generationsOf(recorder);
   const replied = replies.length > 0;
   const problems = [
+    ...(send?.overlays && !send.overlays.ok ? [`could not clear the page before sending (drawer open ${send.overlays.after.drawerOpen}, popups ${send.overlays.after.popups}): nothing was sent`] : []),
+    ...(send?.overlays?.ok !== false && !after.messages.some((message) => message.isUser) ? ['the line did not land: no player message was added to the chat'] : []),
     ...(expectReply && !replied ? ['no reply: the send produced no non-empty character message (backend down, or silence under talk control)'] : []),
     ...(after.chatId !== before.chatId ? [`the open chat changed during the turn (${before.chatId} -> ${after.chatId})`] : []),
     ...(schedulerError ? [`scheduler did not settle: ${schedulerError}`] : []),
@@ -308,9 +310,10 @@ export async function runTurn(page: any, line: string, deps: LiveDeps, options: 
   const startedAt = deps.now();
   const { cursor } = await armTurnRecorder(page);
   const before = await readLive(page);
-  const sent = await deps.send(page, line, { idleTimeoutMs: options.timeoutMs ?? 600000, expectReply: options.expectReply !== false });
-  const round = await waitRoundSettled(page, deps, cursor, { quietMs: options.roundQuietMs ?? ROUND_QUIET_MS, timeoutMs: options.timeoutMs ?? 600000 });
-  const send = { ...sent, round };
+  const overlays = await clearOverlays(page, deps);
+  const sent = overlays.ok ? await deps.send(page, line, { idleTimeoutMs: options.timeoutMs ?? 600000, expectReply: options.expectReply !== false }) : { skipped: true };
+  const round = overlays.ok ? await waitRoundSettled(page, deps, cursor, { quietMs: options.roundQuietMs ?? ROUND_QUIET_MS, timeoutMs: options.timeoutMs ?? 600000 }) : null;
+  const send = { ...sent, round, overlays };
   const actedAt = deps.now();
   const schedulerError = await settle(page, deps, options);
   const settledAt = deps.now();

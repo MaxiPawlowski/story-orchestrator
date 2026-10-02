@@ -1,7 +1,7 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
-import { maxTokensForInput } from "@extraction/callBudget";
+import { maxTokensCap, maxTokensForInput } from "@extraction/callBudget";
 import { lapseAsEmpty } from "@extraction/modelError";
-import { askText, type ModelCall } from "@extraction/modelRoute";
+import { askReply, type ModelCall } from "@extraction/modelRoute";
 import { stripChannelNoise } from "@extraction/parse";
 import { buildVerifyRequest, readVerify, verifyVerdict, VERIFY_TIMEOUT_MS } from "@judge/index";
 import { estimateTokens } from "@memory/budget";
@@ -30,9 +30,11 @@ import { rosterMemberName } from "./roster";
 export type { SealAt };
 
 export const CHAPTER_INPUT_TOKENS = 6000;
-export const SEAL_CALL_BUDGET = 6;
+export const SEAL_CALL_BUDGET = 12;
 export const WRITE_ATTEMPTS = 2;
-export const MAP_MAX_TOKENS = 768;
+export const MAP_CHUNKS = 4;
+export const MAP_MAX_TOKENS = 2048;
+export const ERA_MAX_TOKENS = 256;
 export const JUDGED_CONSEQUENCES = 12;
 const QUIET_KEYS = new Set(["tension"]);
 
@@ -41,6 +43,7 @@ export type SealJudge = Pick<JudgeRuntime, "active" | "ask">;
 interface SealRun {
   guard: RunGuard;
   calls: number;
+  cuts: string[];
 }
 
 export interface ChapterSealDeps {
@@ -119,7 +122,7 @@ export class ChapterSeal {
     const records = this.deps.memory().chapters ?? [];
     const range = sealRange(records, this.deps.memory().storyStart, at.messageId);
     const guard = beginRun(this.deps.ownership(), range);
-    const run: SealRun = { guard, calls: 0 };
+    const run: SealRun = { guard, calls: 0, cuts: [] };
     if (this.deps.sceneStart(range.to) <= range.to) await this.deps.closeScene(range.to);
     if (!guard.stillOwns()) return null;
     const unsummarized = this.deps.memory().arcs
@@ -158,27 +161,39 @@ export class ChapterSeal {
     this.deps.updateInjection();
     await this.deps.save();
     if (!guard.stillOwns()) return record;
-    this.deps.journal(`chapter sealed: ${record.playerTitle}${record.status === "degraded" ? " (without a written summary)" : ""}`, `${record.id} · messages ${range.from}-${range.to}`);
+    const degraded = record.status === "degraded";
+    const note = [`${record.id} · messages ${range.from}-${range.to}`, ...(degraded ? [...run.cuts, ...written.failures] : [])].join(" · ");
+    this.deps.journal(`chapter sealed: ${record.playerTitle}${degraded ? " (without a written summary; nothing folded)" : ""}`, note);
     const entered = chapterOf(story, at.activeCheckpointId);
     if (!record.final && entered && entered.kind !== "interlude") await this.deps.announce(chapterAnnouncementText(chapterNumber(story, entered.id), playerTitleOf(entered)));
     return record;
   }
 
-  private ask(prompt: string, run: SealRun, maxTokens = maxTokensForInput("chapterSeal", prompt)): Promise<string> {
-    if (run.calls >= SEAL_CALL_BUDGET) return Promise.resolve("");
-    run.calls += 1;
-    return askText(this.deps.model(), prompt, { role: "synthesis", pass: "chapterSeal", maxTokens, signal: run.guard.signal, refuseIncomplete: true }).catch(lapseAsEmpty);
+  private async ask(prompt: string, run: SealRun, maxTokens = maxTokensForInput("chapterSeal", prompt), retryTokens = maxTokensCap("chapterSeal")): Promise<string> {
+    const call = async (tokens: number) => {
+      run.calls += 1;
+      return askReply(this.deps.model(), prompt, { role: "synthesis", pass: "chapterSeal", maxTokens: tokens, signal: run.guard.signal, refuseIncomplete: true })
+        .catch((error: unknown) => ({ text: lapseAsEmpty(error), finish: "stop" as const }));
+    };
+    if (run.calls >= SEAL_CALL_BUDGET) return "";
+    const first = await call(maxTokens);
+    if (first.text || first.finish !== "length" || !run.guard.stillOwns()) return first.text;
+    const larger = Math.max(maxTokens, retryTokens);
+    const retry = larger > maxTokens && run.calls < SEAL_CALL_BUDGET ? await call(larger) : null;
+    if (retry && (retry.text || retry.finish !== "length")) return retry.text;
+    run.cuts.push(`reply cut at ${maxTokens} tokens${retry ? `, asked again: cut at ${larger}` : ""}`);
+    return "";
   }
 
   private async prepare(story: NormalizedStoryV2, target: SealTarget, raw: ChapterInput, style: "prose" | "chronicle", run: SealRun): Promise<ReducedChapterInput | null> {
     const title = playerTitleOf(target.chapter);
     const fits = (candidate: ChapterInput) => estimateTokens(buildChapterRecordPrompt(story.title, title, candidate, style)) <= CHAPTER_INPUT_TOKENS;
     if (fits(raw)) return { input: raw, sources: new Map() };
-    const mapCalls = SEAL_CALL_BUDGET - WRITE_ATTEMPTS - (target.final ? 1 : 0);
+    const mapCalls = MAP_CHUNKS - (target.final ? 1 : 0);
     const chunks = chunkChapterItems(raw.items, (chunk) => estimateTokens(buildChapterMapPrompt(story.title, title, chunk, 1, 1)) <= CHAPTER_INPUT_TOKENS, mapCalls);
     const digests: ChapterDigest[] = [];
     for (const [index, chunk] of chunks.entries()) {
-      const reply = await this.ask(buildChapterMapPrompt(story.title, title, chunk, index + 1, chunks.length), run, MAP_MAX_TOKENS);
+      const reply = await this.ask(buildChapterMapPrompt(story.title, title, chunk, index + 1, chunks.length), run, MAP_MAX_TOKENS, MAP_MAX_TOKENS * 2);
       if (!run.guard.stillOwns()) return null;
       digests.push(parseChapterDigest(stripChannelNoise(reply), chunk, index + 1));
     }
@@ -263,8 +278,11 @@ export class ChapterSeal {
       if (policy === "close") return "closed-offscreen";
       return decided.find((item) => item.arcId === arc.id)?.disposition ?? "carry";
     };
-    const folded = foldChapter({ entries: memory.entries, arcs: memory.arcs, shortTermSummaryEnd: memory.shortTermSummaryEnd }, record, disposition);
-    const knowledge = foldEpistemic(memory.epistemic, record.id, leaving, cast);
+    const degraded = record.status === "degraded";
+    const folded = degraded
+      ? { entries: memory.entries, arcs: memory.arcs, shortTermSummaryEnd: memory.shortTermSummaryEnd, folded: [], resolved: [] }
+      : foldChapter({ entries: memory.entries, arcs: memory.arcs, shortTermSummaryEnd: memory.shortTermSummaryEnd }, record, disposition);
+    const knowledge = degraded ? { epistemic: memory.epistemic, folded: [] } : foldEpistemic(memory.epistemic, record.id, leaving, cast);
     this.deps.patch({
       entries: folded.entries,
       arcs: folded.arcs,
@@ -300,7 +318,7 @@ export class ChapterSeal {
       if (renderChronicle(records, eras, settings.chronicleTokens).fits) return;
       const merge = eraCandidates(records, eras);
       if (merge.length < 2) return;
-      const reply = await this.ask(buildEraMergePrompt(merge), run, 256);
+      const reply = await this.ask(buildEraMergePrompt(merge), run, ERA_MAX_TOKENS, ERA_MAX_TOKENS * 2);
       if (!run.guard.stillOwns()) return;
       const text = parseEraLine(stripChannelNoise(reply)) ?? fallbackEraText(merge);
       const era = { id: generateMemoryId(), recordIds: merge.map((record) => record.id), text, messageId: eraMessageId(records) };

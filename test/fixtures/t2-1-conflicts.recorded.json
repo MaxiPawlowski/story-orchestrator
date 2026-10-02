@@ -1,0 +1,285 @@
+{
+ "source": "test/sessions/T2/T2-1-2/runtime-2026-10-01@16h56m09s049ms.json extras.memory.conflicts (the 40 memory-vs-ledger pairs queued by the end of T2-1; T2-3 shots/012 'Needs your decision (40)'); tier looked up in the T2-1/T2-3/T2-5 stores, null when the row was later dropped",
+ "pairs": [
+  {
+   "tier": "facts",
+   "fact": "The party is promoted to B-rank for clearing the Driftmere Mines, with rewards to collect at the Aegis City Guild Hall.",
+   "entity": "Max Nightriver",
+   "field": "rank",
+   "value": "B-rank adventurer"
+  },
+  {
+   "tier": "session_details",
+   "fact": "The Nightriver estate has deep-blue banners, iron gates that open for recognized house members, cedar scent, and a faint metallic tang of magic; servants bow with unreadable faces.",
+   "entity": "Nightriver Estate",
+   "field": "gates",
+   "value": "iron, open for recognized house members"
+  },
+  {
+   "tier": "session_details",
+   "fact": "The party arrives at the Nightriver estate; the iron gates open for Max, servants bow, and the air smells of cedar and faint magic.",
+   "entity": "Nightriver Estate",
+   "field": "gates",
+   "value": "iron, open for recognized house members"
+  },
+  {
+   "tier": "scene_history",
+   "fact": "Dalan opened fire on the undead miners, warning the group to aim for the head, while Belle charged in with Cleaver and Naomi guarded her with Nispelheim's fiery blade. Max Nightriver directed the formation, killed the eyeless leader with fire, and found no crew badges on the bodies. A deeper voice taunted the Nightriver blood, and the party descended to the second level, where a black-armored figure with a glowing yellow eye awaited them in a vast cavern.",
+   "entity": "The Party",
+   "field": "formation",
+   "value": "staying together"
+  },
+  {
+   "tier": null,
+   "fact": "Something is climbing the chain toward the party, forcing a decision to fight, flee, or use the lift.",
+   "entity": "Driftmere Mines",
+   "field": "lift",
+   "value": "operational"
+  },
+  {
+   "tier": null,
+   "fact": "Belle notes the lift means someone built a way down and a way back up, and readies Cleaver against whatever climbs the chain.",
+   "entity": "Driftmere Mines",
+   "field": "lift",
+   "value": "operational"
+  },
+  {
+   "tier": "scene_history",
+   "fact": "The party confronted a gaunt, robed creature that climbed the lift chain and mimicked Riyo's voice, demanding the seal be broken so Tzarak could ascend. Belle cut the creature down while Max performed a Driftmere shrine offering of bread, salt, and a candle, which healed the seal, but Max then shattered it with Nightriver fire to reach the miners below. They emerged into a frozen, glass-floored cavern filled with suspended figures, where a vast yellow eye opened in the darkness and fixed on them.",
+   "entity": "Driftmere Mines",
+   "field": "lift",
+   "value": "operational"
+  },
+  {
+   "tier": "scene_history",
+   "fact": "The party confronted a gaunt, robed creature that climbed the lift chain and mimicked Riyo's voice, demanding the seal be broken so Tzarak could ascend. Belle cut the creature down while Max performed a Driftmere shrine offering of bread, salt, and a candle, which healed the seal, but Max then shattered it with Nightriver fire to reach the miners below. They emerged into a frozen, glass-floored cavern filled with suspended figures, where a vast yellow eye opened in the darkness and fixed on them.",
+   "entity": "Driftmere Mines",
+   "field": "floor",
+   "value": "black glass reverted to grey stone"
+  },
+  {
+   "tier": null,
+   "fact": "The tunnels of the Driftmere Mines no longer shift and pulse after the Devourer's death; the path back to the lift felt familiar and grounded in the stone as it was meant to be.",
+   "entity": "Driftmere Mines",
+   "field": "tunnels",
+   "value": "no longer shifting and pulsing"
+  },
+  {
+   "tier": null,
+   "fact": "The tunnels of the Driftmere Mines no longer shift and pulse after the Devourer's death; the path back to the lift felt familiar and grounded in the stone as it was meant to be.",
+   "entity": "Driftmere Mines",
+   "field": "lift",
+   "value": "operational"
+  },
+  {
+   "tier": null,
+   "fact": "The party climbed the lift out of the mines and returned to Driftmere town, where Baroness Serenola waited outside her manor on the hill.",
+   "entity": "Driftmere Mines",
+   "field": "lift",
+   "value": "operational"
+  },
+  {
+   "tier": null,
+   "fact": "The party has reached a narrow ledge overlooking a vast descent in the deep mines, where the walls are organic and pulsing like the throat of a great beast.",
+   "entity": "Driftmere Mines",
+   "field": "walls",
+   "value": "organic, pulsing"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo keeps her cloak positioned to conceal the left side of her body.",
+   "entity": "Riyo",
+   "field": "left_arm",
+   "value": "hidden"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo keeps her cloak positioned to conceal the left side of her body.",
+   "entity": "Riyo",
+   "field": "left_side",
+   "value": "concealed"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo reveals the thing below is called the Maw by the Floor Bosses—not a name, just what it does—and that past the next drop the breathing becomes everything.",
+   "entity": "Driftmere Mines",
+   "field": "bottom_floor",
+   "value": "organic pulsing walls"
+  },
+  {
+   "tier": null,
+   "fact": "Dalan read pre-dwarven carvings naming the 'ascension' the Floor Bosses await and the name 'Tzarak'.",
+   "entity": "Driftmere Mines",
+   "field": "bottom_floor",
+   "value": "organic pulsing walls"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo revealed the Floor Bosses call the thing below 'the Maw', and there is no bottom, only down.",
+   "entity": "Driftmere Mines",
+   "field": "bottom_floor",
+   "value": "organic pulsing walls"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo keeps her left side hidden under her cloak and slips a '-nya' tic, flinching each time.",
+   "entity": "Riyo",
+   "field": "left_side",
+   "value": "concealed"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo calls the thing below 'the Maw' and says the Floor Bosses use that word because it is what it does, not a name.",
+   "entity": "Driftmere Mines",
+   "field": "bottom_floor",
+   "value": "organic pulsing walls"
+  },
+  {
+   "tier": null,
+   "fact": "Belle takes the front position guarding the seal, refusing to let anyone touch the markings and treating the creature as just another scrap-heap to break.",
+   "entity": "Riyo",
+   "field": "position",
+   "value": "flank"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo says Tzarak is a key of shadow and hunger, not a person, and the seal holds it out rather than in; the Maw at the bottom is Tzarak's true shape, needing the seal broken to ascend.",
+   "entity": "Driftmere Mines",
+   "field": "bottom_floor",
+   "value": "organic pulsing walls"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo carries an obsidian hilt and grips it tightly when frightened.",
+   "entity": "Riyo",
+   "field": "grip",
+   "value": "right hand on obsidian hilt"
+  },
+  {
+   "tier": null,
+   "fact": "The white-haired watcher is Riyo, a small cloaked figure with an obsidian-hilted longsword who hides her left side.",
+   "entity": "Riyo",
+   "field": "left_side",
+   "value": "hidden"
+  },
+  {
+   "tier": null,
+   "fact": "The white-haired watcher is Riyo, a small cloaked figure with an obsidian-hilted longsword who hides her left side.",
+   "entity": "Riyo",
+   "field": "left_arm",
+   "value": "hidden under cloak"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo is small, white-haired, cloaked in a dark travelling coat, carries an obsidian-hilted longsword, and speaks with a raspy voice and a habit of slipping into a cat-like lilt.",
+   "entity": "Riyo",
+   "field": "voice",
+   "value": "raspy from disuse"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo keeps her left side hidden and her right arm is worn leather, and she insists she can fight.",
+   "entity": "Riyo",
+   "field": "left_arm",
+   "value": "hidden under cloak"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo keeps her left side hidden under her cloak and her right hand on her obsidian-hilted sword, and she sometimes slips into a '-nya' verbal tic.",
+   "entity": "Riyo",
+   "field": "left_arm",
+   "value": "hidden under cloak"
+  },
+  {
+   "tier": "scene_history",
+   "fact": "The party descended into the mine tunnels and defeated a scrap-and-bone creature with exposed muscle, rusted metal, and a glowing chest cavity, using Belle's cleaver strike, Dalan's arrow, Max's fire, and Naomi's Crescent Slash. After the fight, Max found Riyo hiding in a side passage and invited her to join them despite her not being part of their Guild, and she agreed. Deeper in the tunnels, Dalan read ancient carvings warning that the floors were domains ruled by Floor Bosses awaiting an \"ascension,\" with the name \"Tzarak\" carved at the end.",
+   "entity": "Riyo",
+   "field": "left_side",
+   "value": "hidden"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo keeps her left side hidden and her right arm is worn leather; she has a verbal tic adding '-nya' she tries to suppress.",
+   "entity": "Riyo",
+   "field": "left_arm",
+   "value": "hidden under cloak"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo keeps her left side hidden under her cloak and grips her obsidian sword with trembling desperation.",
+   "entity": "Riyo",
+   "field": "left_arm",
+   "value": "hidden under cloak"
+  },
+  {
+   "tier": null,
+   "fact": "Riyo keeps her left side hidden under her cloak and carries an obsidian-hilted longsword; she flinches when the '-nya' tic slips out.",
+   "entity": "Riyo",
+   "field": "left_arm",
+   "value": "hidden under cloak"
+  },
+  {
+   "tier": null,
+   "fact": "The party descended the north shaft at first light and reached the upper mines, taking the main tunnel toward level three.",
+   "entity": "Driftmere Mines",
+   "field": "level",
+   "value": "second"
+  },
+  {
+   "tier": null,
+   "fact": "The tunnels of the Driftmere Mines appear to stretch themselves or lead somewhere other than the mapped depths, as the geography does not match the Guild's maps.",
+   "entity": "Driftmere Mines",
+   "field": "mapped",
+   "value": "false"
+  },
+  {
+   "tier": null,
+   "fact": "Garreth entered by the North shaft and was on level three, just past the main support beam, when the air turned heavy and the walls pulsed once and the tunnel back to the shaft became solid stone.",
+   "entity": "Driftmere",
+   "field": "level",
+   "value": "first floor reached"
+  },
+  {
+   "tier": null,
+   "fact": "Belle's weapon is named Cleaver.",
+   "entity": "Naomi",
+   "field": "weapon",
+   "value": "Nispelheim (fiery longsword)"
+  },
+  {
+   "tier": null,
+   "fact": "The air on the upper level of the Driftmere Mines smells of wet earth and something faintly sweet, like rotting fruit.",
+   "entity": "Driftmere",
+   "field": "air",
+   "value": "sweet rotting-fruit smell"
+  },
+  {
+   "tier": null,
+   "fact": "The air on the upper level of the Driftmere Mines smells of wet earth and something faintly sweet, like rotting fruit.",
+   "entity": "Driftmere",
+   "field": "level",
+   "value": "first floor reached"
+  },
+  {
+   "tier": null,
+   "fact": "The air in the upper Driftmere Mines smells faintly sweet, like rotting fruit, mixed with a scent like old wet wool.",
+   "entity": "Driftmere",
+   "field": "air",
+   "value": "sweet rotting-fruit smell"
+  },
+  {
+   "tier": "scene_history",
+   "fact": "Garreth told Max Nightriver and the party that his crew vanished on level three of the North shaft after the walls pulsed and the tunnel sealed behind them. At the tavern, an old dwarf warned that Filwern's silence in Driftmere meant something else had awakened, and Max ordered Belle, Dalan, and Naomi to gear up for a descent at first light. The party entered the mine, and in a vast carved hall, a pale, eyeless figure in a miner's tunic emerged from a side tunnel with three shambling shapes, claiming Garreth's crew now belonged to it.",
+   "entity": "Driftmere",
+   "field": "level",
+   "value": "first floor reached"
+  },
+  {
+   "tier": "scene_history",
+   "fact": "Max Nightriver and Naomi met Baroness Serenola in Driftmere, where she revealed that a mining expedition in Wendhope had vanished and that House Nightriver had ignored her letters. Naomi eagerly joined Max's party, and they went to the Minotaur's Tusk, where the survivor Garreth described tunnels that moved like living things and something ancient breathing in the dark. The scene carried an ominous, tense tone as the party prepared to investigate the mine.",
+   "entity": "Naomi",
+   "field": "carried_items",
+   "value": "fiery longsword, armor"
+  }
+ ]
+}

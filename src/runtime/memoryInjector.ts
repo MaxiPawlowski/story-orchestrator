@@ -1,7 +1,7 @@
 import type { EngineState, NormalizedStoryV2 } from "@engine/index";
 import {
   applyEpistemicInjection, applyLedgerInjection, applyMemoryInjection, ARC_OPEN_INJECT_LIMIT, buildLedgerView,
-  buildMemoryInjectionBlocks, clearAllMemoryInjection, memoryInjectionView, pinnedOverflowOf, type MemoryInjectionView, clearEpistemicInjection, openArcTexts,
+  buildMemoryInjectionBlocks, clearAllMemoryInjection, memoryInjectionView, pinnedOverflowOf, type MemoryInjectionView, clearEpistemicInjection, openArcTexts, withoutExcludedThreads,
   renderLedgerBlock, renderPrivateEpistemicBlock, selectLedgerRows, renderSoloEpistemicBlock, type LedgerBinding, type LedgerView, type MemoryTier,
   type ScoreContext, castVoices, hasInnerVoice, innerRender, joinBlocks, loadInnerRender, withoutLapsedIntents,
   type CastVoice, type EpistemicEntry,
@@ -62,7 +62,7 @@ export class MemoryInjector {
     return buildScoreContext(this.hosts.chat, {
       boundary: this.deps.getState()?.boundary ?? 0,
       rosterNames: this.deps.getStory()?.roster.map(rosterMemberName) ?? [],
-      openArcs: this.deps.enabled() ? openArcTexts(this.state.arcs, ARC_OPEN_INJECT_LIMIT) : [],
+      openArcs: this.deps.enabled() ? openArcTexts(withoutExcludedThreads(this.state.arcs, this.state.derived), ARC_OPEN_INJECT_LIMIT) : [],
       weights: this.state.settings.scoreWeights,
     });
   }

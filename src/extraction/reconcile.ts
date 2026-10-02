@@ -1,4 +1,4 @@
-import type { GateNode, NormalizedStoryV2, PrimitiveValue, Quality } from "@engine/index";
+import { readsWorldEvidence, type GateNode, type NormalizedStoryV2, type PrimitiveValue, type Quality } from "@engine/index";
 import type { ChatWindowReader, ReconciliationDescriptor, SharedReadWindow } from "./types";
 import type { ExtractionScheduler } from "./scheduler";
 
@@ -62,7 +62,7 @@ const collectUnmetLeaves = (gate: GateNode, story: NormalizedStoryV2, values: Re
       type: quality.type,
       op: gate.op,
       v: gate.v,
-      ...(quality.evidence_from === "world" ? { world: true } : {})
+      ...(readsWorldEvidence(quality) ? { world: true } : {})
     });
     return;
   }

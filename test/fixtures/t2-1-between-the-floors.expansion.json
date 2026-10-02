@@ -1,0 +1,1842 @@
+{
+ "source": "test/sessions/T2/T2-1-2: runtime-2026-10-01@16h56m09s049ms.json extras.expansion.entries['the-first-descent->between-the-floors->the-changed-deep'] (journal.jsonl:1001 enter gen_1 at b30/msg 46, :1030 gen_1 -> gen_2 at b31/msg 47, same round); pinned story cut to the three checkpoints the chain spans",
+ "story": {
+  "format": 2,
+  "id": "adolion-saga",
+  "version": 15,
+  "title": "Adolion: The Saga",
+  "description": "The whole of Adolion in one campaign: a new party's first postings, the Nightriver succession, the C-rank exam, four roads from the Guild board (the Deep, the Eastern Road, the Night Courts, Eshalanore) and the war with the Zegallan Empire, where whoever the party won over answers the muster.",
+  "roster": [
+   {
+    "id": "dm",
+    "name": "Adolion Narrator",
+    "role": "narrator and game master: voices the world and every character outside the group",
+    "view": "omniscient",
+    "aliases": [
+     "Adolion Storyteller",
+     "Narrator"
+    ]
+   },
+   {
+    "id": "guild_rep",
+    "name": "Tobias",
+    "role": "guild receptionist at the Aegis City quest counter: hands out postings and pays rewards",
+    "drive": "match adventurers into parties that hold together and send them out ready, so no party of his is lost like his own was",
+    "aliases": [
+     "Eldergreen",
+     "Tobias Eldergreen"
+    ]
+   },
+   {
+    "id": "companion_a",
+    "name": "Belle",
+    "role": "companion: headstrong barbarian who charges in first and says what she thinks",
+    "drive": "fight worthy opponents, keep getting stronger, reach top rank, and build a clan of her own out of people she trusts",
+    "aliases": [
+     "Belle the Barbarian",
+     "the barbarian"
+    ]
+   },
+   {
+    "id": "companion_b",
+    "name": "Dalan",
+    "role": "companion: shy elf ranger, the party's scout, archer and reader of the forest",
+    "drive": "prove his strength to himself and his tribe, kill something truly dangerous, and find a party that lasts long enough to call home",
+    "aliases": [
+     "Dalan Evergreen",
+     "the ranger",
+     "the scout"
+    ]
+   },
+   {
+    "id": "guild_girl",
+    "name": "Ellie",
+    "role": "Guild receptionist beside Tobias: handles forms and ranks, and matchmakes adventurers in secret",
+    "drive": "keep order at the Guild counter, help good adventurers rise, and see the pairs in her secret ledger fall in love",
+    "aliases": [
+     "Ellie Sunleaf",
+     "Sunleaf",
+     "the Guild Girl"
+    ]
+   },
+   {
+    "id": "guildmaster",
+    "name": "Vallie",
+    "role": "Guildmaster of the Aegis City Guild: one-eyed minotaur, retired A-rank, loves stoking a rivalry",
+    "drive": "protect the Guild and Aegis City, keep the bureaucrats from ruining it, and stop the Crown spending adventurers like coin",
+    "aliases": [
+     "Deathaxe",
+     "Goredust",
+     "Guildmaster Vallie",
+     "Vallie Goredust"
+    ]
+   },
+   {
+    "id": "vice_guildmaster",
+    "name": "Domas",
+    "role": "Vice Guildmaster: elven gravity mage who keeps the Guild's paperwork and signs its promotions",
+    "drive": "protect the Adventurers Guild and Aegis City, keep its verdicts fair, and stop Vallie from smashing anything else in the hall",
+    "aliases": [
+     "Domas Syllandri",
+     "Syllandri",
+     "Vice Guildmaster"
+    ]
+   },
+   {
+    "id": "bartender",
+    "name": "Rydel",
+    "role": "Guild tavern bartender, Fiana's dog-beastfolk brother and Tobias's best friend",
+    "drive": "keep the Guild tavern running for his family and save enough gold to see and paint the Mountains of Shadow himself",
+    "aliases": [
+     "Rydel Deulana",
+     "the bartender"
+    ]
+   },
+   {
+    "id": "barmaid",
+    "name": "Fiana",
+    "role": "Guild tavern barmaid: flirts with everyone, touches no one, hears every rumour in the hall",
+    "drive": "keep the Guild tavern running so her parents can retire, and save enough gold to travel and paint the mountains",
+    "aliases": [
+     "Fiana Deulana",
+     "the barmaid"
+    ]
+   },
+   {
+    "id": "wizard_talis",
+    "name": "Talis",
+    "role": "elven wizard prodigy with a huge mana pool, not let out on quests until she finds a partner",
+    "drive": "reach B-rank by year's end so she is never sent home to her books, and claim her own wizard's tower",
+    "aliases": [
+     "Dacaryn",
+     "Talis Dacaryn"
+    ]
+   },
+   {
+    "id": "gunslinger_alida",
+    "name": "Alida",
+    "role": "halfling gunslinger riding her hound Rover, wants a party with a use for demolition",
+    "drive": "prove halflings can be more than rogues by rising high in the Guild with a steady party that loves her demolitions",
+    "aliases": [
+     "Alida Chetting",
+     "Chetting"
+    ]
+   },
+   {
+    "id": "ranger_tatiana",
+    "name": "Tatiana",
+    "role": "catfolk ranger from the edge of Duskwallow Forest, easygoing and looking for a party",
+    "drive": "fund her parents' retirement in Aegis City, go on a legendary hunt, and learn whether the one she loves feels the same",
+    "aliases": [
+     "Peyriel",
+     "Tati",
+     "Tatiana Peyriel"
+    ]
+   },
+   {
+    "id": "brawler",
+    "name": "Kashina",
+    "role": "lizardkin brawler and lightweight, solo since her old party broke up, hunting for a new one",
+    "drive": "reach A-rank, buy a house in Aegis City, and find a party without drama, though she cannot stop matchmaking her companions",
+    "aliases": [
+     "Grystle",
+     "Kashina Grystle",
+     "the brawler"
+    ]
+   },
+   {
+    "id": "paladin_alder",
+    "name": "Alder",
+    "role": "paladin of Boher with a clockwork arm and a life debt to the Church, wants in on a party",
+    "drive": "pay off his life debt to the Church of Boher for raising Karrus, keep his friends alive, and one day become an Inquisitor",
+    "aliases": [
+     "Alder Snowdown",
+     "Snowdown"
+    ]
+   },
+   {
+    "id": "gunslinger_gustall",
+    "name": "Gustall",
+    "role": "halfling gunslinger riding his hound Ollie, wants a party that lets him blow things up",
+    "drive": "prove halflings can be more than rogues by rising high in the Guild with a steady party that loves his explosives",
+    "aliases": [
+     "Gustall Lothain",
+     "Lothain"
+    ]
+   },
+   {
+    "id": "blademaster",
+    "name": "Naomi",
+    "role": "catfolk swordswoman of the Moonlight Blade style, just down from the Mountains of Shadow, who cannot refuse a duel",
+    "drive": "prove the Moonlight Blade style can beat anyone in Adolion, find it a worthy apprentice, and finally land Farslash",
+    "aliases": [
+     "Naomi Moonlight"
+    ]
+   },
+   {
+    "id": "icesong",
+    "name": "Giada",
+    "role": "Giada Icesong, last of the Icesong elves: the ice witch of Eltaronal the mountain dwarves fear",
+    "drive": "keep demons out of Eltaronel, break the wards guarding her parents' final gift, and make a real friend after centuries alone",
+    "aliases": [
+     "Giada Icesong",
+     "Icesong",
+     "Princess of Icesong",
+     "the ice witch",
+     "the Icesong witch",
+     "the Witch of Eltaronal"
+    ]
+   },
+   {
+    "id": "survivor",
+    "name": "Riyo",
+    "role": "small white-haired swordswoman who hides her left arm and attaches herself to the party",
+    "drive": "keep the heir, the person she lost as a child or close enough, from ever leaving her again, and find her family",
+    "aliases": [
+     "Riyo Tallaboros",
+     "The Survivor"
+    ]
+   },
+   {
+    "id": "sister",
+    "name": "Natalia",
+    "role": "the heir's sister: guarded, unsettling young noblewoman with a chill of ice magic",
+    "drive": "get out of the arranged marriage her father made for her and learn to hold her own magic before it slips",
+    "aliases": [
+     "Natalia Nightriver"
+    ]
+   },
+   {
+    "id": "maid",
+    "name": "Shiya",
+    "role": "head maid: haughty half-demon fire mage who sees everyone who comes and goes",
+    "drive": "stay near Leila and keep her safe, protect the heir's household from whoever is creeping through it, and stay hidden from the Inquisition",
+    "aliases": [
+     "Mordred",
+     "Shiya Mordred",
+     "the head maid"
+    ]
+   },
+   {
+    "id": "knight",
+    "name": "Ronan",
+    "role": "the heir's sworn knight: stoic guard and duelist, few words",
+    "drive": "keep the heir and the Nightrivers alive, hide his worship of Prodyr, and see the Zegallan slavers who ruined his parents broken",
+    "aliases": [
+     "Mavrursk",
+     "Ronan Mavrursk",
+     "Ronan the Knight",
+     "sworn knight"
+    ]
+   },
+   {
+    "id": "father",
+    "name": "Javon",
+    "role": "Lord Javon Nightriver, the heir's father and head of the house: cold, cruel, and hiding everything",
+    "drive": "break the seals in his bloodline by ending his children in ways that look like misfortune, kill King Alexander, and keep the family secret",
+    "aliases": [
+     "Javon Nightriver",
+     "Lord Javon",
+     "Lord Javon Nightriver",
+     "Lord Nightriver"
+    ]
+   },
+   {
+    "id": "duchess",
+    "name": "Eriana",
+    "role": "Duchess Eriana Valtara: coy musician and court power who plays every conversation",
+    "drive": "break the Nightriver seals to bring the Witch King's Golden Age, end the Nightriver line, and stay hidden from the Inquisition",
+    "aliases": [
+     "Duchess Eriana",
+     "Duchess Valtara",
+     "Eriana Valtara",
+     "Lady Valtara",
+     "the Duchess",
+     "Valtara"
+    ]
+   },
+   {
+    "id": "brother",
+    "name": "Welden",
+    "role": "Welden Nightriver, the heir's brother: frail, bookish, a fizzling ice mage who hides behind flattery",
+    "drive": "escape his arranged marriage, learn to control his magic, and uncover the necromancy he fears is stirring behind the empty graves",
+    "aliases": [
+     "Welden Nightriver"
+    ]
+   },
+   {
+    "id": "heir_maid",
+    "name": "Leila",
+    "role": "Leila Rainshadow, the heir's personal maid: shy, clumsy elf, Shiya's dearest friend from the orphanage",
+    "drive": "serve the heir well enough to stay out of prison, clear her name, and keep sending money to the orphanage",
+    "aliases": [
+     "Leila Rainshadow",
+     "personal maid",
+     "Rainshadow"
+    ]
+   },
+   {
+    "id": "stepmother",
+    "name": "Hana",
+    "role": "Lady Hana Nightriver, the heir's stepmother and matriarch of the house: Valtara-raised, composed, cold",
+    "drive": "help Eriana break the Nightriver seals by quietly killing off her stepchildren, and see King Alexander dead without suspicion falling on her",
+    "aliases": [
+     "Lady Hana",
+     "Lady Hana Nightriver",
+     "Lady Nightriver",
+     "stepmother"
+    ]
+   },
+   {
+    "id": "princess",
+    "name": "Haley",
+    "role": "Crown Princess Haley Davolan: proud, honest, and short of allies in the succession",
+    "drive": "gather allies against her brother's rise, protect her mother's name from the court, and find a love not forced on her",
+    "aliases": [
+     "Crown Princess",
+     "Crown Princess Haley",
+     "Haley Davolan",
+     "Princess Davolan",
+     "Princess Haley"
+    ]
+   },
+   {
+    "id": "prince",
+    "name": "Forre",
+    "role": "Crown Prince Forre Davolan: peerless swordsman, favoured to succeed, buys what he cannot command",
+    "drive": "take his father's throne sooner rather than later, crush the houses backing Haley, and win the war that proves him the rightful king",
+    "aliases": [
+     "Crown Prince",
+     "Forre Davolan",
+     "Prince",
+     "Prince Davolan",
+     "Prince Forre"
+    ]
+   },
+   {
+    "id": "winstonehl_heir",
+    "name": "Kane",
+    "role": "Kane Winstonehl, heir of the rival Winstonehl house: haughty, clever, too interested in the Nightrivers",
+    "drive": "learn the secrets of the Golden Age and stay a step ahead of Eriana, get close to the Nightrivers, and protect his family's vampire secret",
+    "aliases": [
+     "Kane Winstonehl",
+     "Lord Winstonehl",
+     "Winstonehl Heir"
+    ]
+   },
+   {
+    "id": "delarise_heiress",
+    "name": "Ashleigh",
+    "role": "Ashleigh Delarise, heiress of the Nightrivers' oldest allied house: diplomatic, cast off by Prince Forre",
+    "drive": "become Matriarch of House Delarise, keep her family safe, and expose what Cecilia Sheridan is really scheming after stealing Prince Forre",
+    "aliases": [
+     "Ash",
+     "Ashleigh Delarise",
+     "Delarise"
+    ]
+   },
+   {
+    "id": "high_saintess",
+    "name": "Merryn",
+    "role": "Merryn Ythala, High Saintess of Boher: bubbly, has known the Nightriver children since they were small",
+    "drive": "guide the Great Houses' children onto the right path and turn the Church's wealth toward Aegis City's destitute",
+    "aliases": [
+     "High Saintess",
+     "High Saintess Merryn",
+     "High Saintess Merryn Ythala",
+     "Merryn Ythala",
+     "Saintess",
+     "Ythala"
+    ]
+   },
+   {
+    "id": "winstonehl_daughter",
+    "name": "Tahlia",
+    "role": "Tahlia Winstonehl, Kane's sister: haughty Academy queen who wants the Nightriver heir close",
+    "drive": "get close to the Nightriver heir, learn how near the promised Golden Age came, and keep her family's vampire blood secret",
+    "aliases": [
+     "Lady Winstonehl",
+     "Tahlia Winstonehl"
+    ]
+   },
+   {
+    "id": "bard_kaian",
+    "name": "Kaian",
+    "role": "kitsune bard at the Guild tavern, a 'party breaker' with a past he does not discuss",
+    "drive": "keep his spy past buried, find a party stable enough to put up with him, and keep collecting new tales and songs",
+    "aliases": [
+     "Kaianalor",
+     "party breaker",
+     "Wrightsteel"
+    ]
+   },
+   {
+    "id": "evergreen_ranger",
+    "name": "Jasira",
+    "role": "proud Evergreen ranger far from Duskwallow Forest, of Dalan's tribe, cold to anyone not an elf",
+    "drive": "prove she was ready to lead the Evergreen Rangers, understand why her father judged otherwise, and keep everyone around her safe",
+    "aliases": [
+     "Jasira Evergreen"
+    ]
+   },
+   {
+    "id": "rival_grant",
+    "name": "Grant",
+    "role": "smug rival adventurer sitting the same C-rank exam, who wants a wager on it",
+    "drive": "outshine the heir at every turn, reach A-rank, pay off his gambling debts, and quietly fund the orphanage where Alan died",
+    "aliases": [
+     "Grant Hearthsteel",
+     "Hearthsteel"
+    ]
+   },
+   {
+    "id": "rival_konako",
+    "name": "Konako",
+    "role": "smug rival adventurer, cast-out noble daughter, sitting the same C-rank exam",
+    "drive": "outshine the heir at every turn and earn enough coin and fame to win back her place as heir of House Shynea",
+    "aliases": [
+     "Konako Shynea",
+     "Shynea"
+    ]
+   },
+   {
+    "id": "priestess",
+    "name": "Alarise",
+    "role": "priestess of Boher and adventurer, caught shopping for dresses she hides from the Church",
+    "drive": "become Head Priestess of Boher and a high-ranked adventurer, and keep secretly affording the pretty dresses the Church would frown on",
+    "aliases": [
+     "Alarise Starflower",
+     "Starflower"
+    ]
+   },
+   {
+    "id": "merchant",
+    "name": "Sophie",
+    "role": "owner of Aegis Delights and Curios: cute, shrewd, sells the party its exam gear",
+    "drive": "keep her shop thriving and her hoard growing, protect Calithra, and never let anyone learn she is an ice dragon",
+    "aliases": [
+     "Sophie Tallaboros",
+     "Sophie the Merchant"
+    ]
+   },
+   {
+    "id": "shop_rogue",
+    "name": "Calithra",
+    "role": "Sophie's drow sister, an adventurer living above the shop, hug-fiend and former assassin",
+    "drive": "protect her found family and the ordinary life she built in Aegis City, and never let the Darklands Houses drag her back",
+    "aliases": [
+     "Calithra Tallaboros"
+    ]
+   },
+   {
+    "id": "prodyr_cleric_m",
+    "name": "Celedir",
+    "role": "elven cleric of Prodyr keeping the city's one leaking Prodyr chapel",
+    "drive": "raise enough coin to repair the Prodyr chapel for Nyxar, rise in rank, and finally find a party that will keep him",
+    "aliases": [
+     "Celedir Felynaris",
+     "Felynaris"
+    ]
+   },
+   {
+    "id": "prodyr_cleric_f",
+    "name": "Lirael",
+    "role": "elven cleric of Prodyr raised at the same chapel, friendly and a little frightening",
+    "drive": "find a party that will keep her despite her god, and earn enough coin to repair the Prodyr chapel for Nyxar",
+    "aliases": [
+     "Illunara",
+     "Lirael Illunara"
+    ]
+   },
+   {
+    "id": "bloodsworn",
+    "name": "Celeste",
+    "role": "Bloodsworn knight who spends every free day at the Aegis City Orphanage",
+    "drive": "fund and protect the Aegis City Orphanage, and track down and kill Kalfastophles, the demon who destroyed her village at Bast Hill",
+    "aliases": [
+     "Celeste Danarath",
+     "Celeste the Bloodsworn",
+     "Danarath"
+    ]
+   },
+   {
+    "id": "spear_knight",
+    "name": "Arryn",
+    "role": "reserved elven spear-fighter, an orphan of the orphanage, who funds it quietly",
+    "drive": "earn enough fame to be knighted by a noble house, quietly keep the orphanage funded, and someday open her own smithy",
+    "aliases": [
+     "Arryn Serelda",
+     "Serelda"
+    ]
+   },
+   {
+    "id": "rogue_dahlia",
+    "name": "Dahlia",
+    "role": "red-haired rogue and former thief, an orphan of the orphanage with a purse for it",
+    "drive": "get rich, keep the orphanage funded, and work out what Master meant when he told her to pick a better life",
+    "aliases": [
+     "Blossom",
+     "Dahlia Kyelli",
+     "Kyelli"
+    ]
+   },
+   {
+    "id": "shrine_maiden",
+    "name": "Manako",
+    "role": "cowgirl shrine maiden of the Rypanor shrine to Furabi in the Temple District",
+    "drive": "work up the nerve to catch the heir's attention, and someday put on a real festival for the children of her shrine",
+    "aliases": [
+     "Manako Rypanor",
+     "Manako the Shrine Maiden",
+     "Rypanor",
+     "shrine maiden"
+    ]
+   },
+   {
+    "id": "paladin_karrus",
+    "name": "Karrus",
+    "role": "minotaur barbarian and paladin of Boher from the temple next door, everyone's friend",
+    "drive": "protect his friends, help Alder work off the life debt for his resurrection, and fight tough opponents while having a damn good time",
+    "aliases": [
+     "Gorehorn",
+     "Karrus Gorehorn"
+    ]
+   },
+   {
+    "id": "paladin_ryenne",
+    "name": "Ryenne",
+    "role": "dog-beastfolk paladin of Boher, sharp-tongued and always hungry",
+    "drive": "earn gold for the orphanage as an adventurer, protect Alarise, and learn what serving Boher means apart from Father Donahue",
+    "aliases": [
+     "Ryenne Steelwind",
+     "Steelwind"
+    ]
+   },
+   {
+    "id": "bard_kass",
+    "name": "Kass",
+    "role": "kitsune bard at Victory's Tusk trading rumours for stories",
+    "drive": "keep her spy past buried, find a party stable enough to put up with her, and keep collecting new tales and songs",
+    "aliases": [
+     "Kasamiko",
+     "Kass Merrywright",
+     "Merrywright"
+    ]
+   },
+   {
+    "id": "shy_elf",
+    "name": "Yrelra",
+    "role": "shy blue-haired adventurer who says she is an elf",
+    "drive": "find a party who will have her while hiding what she is from the Inquisition and her father's agents",
+    "aliases": [
+     "Lasvinia",
+     "Rell",
+     "Yrelra the Succubus"
+    ]
+   },
+   {
+    "id": "head_cowgirl",
+    "name": "Karia",
+    "role": "head cowgirl running Green Meadow Farms, bossy and secretly soft",
+    "drive": "make Green Meadow the most profitable milk farm in the kingdom, keep her girls safe, and see Mina find true love",
+    "aliases": [
+     "head cowgirl",
+     "Karia Minotaros",
+     "Karia the Cowgirl",
+     "Minotaros"
+    ]
+   },
+   {
+    "id": "head_sheepgirl",
+    "name": "Mina",
+    "role": "head sheepgirl of Green Meadow Farms, shy, bookish, terrified of wargs",
+    "drive": "keep the sheepgirls of Green Meadow safe from the wargs, finish a novel worth submitting, and find someone who treats her like her heroines",
+    "aliases": [
+     "head sheepgirl",
+     "Mina Salvanora",
+     "Mina the Sheepgirl"
+    ]
+   },
+   {
+    "id": "observer_oswyn",
+    "name": "Oswyn",
+    "role": "Crimsonwing's sheepkin healer, the Guild's exam observer at the farm",
+    "drive": "protect Crimsonwing, win the party a strong joint posting, and learn what his life-draining healing curse is for",
+    "aliases": [
+     "Nalgwyn",
+     "Oswyn Nalgwyn"
+    ]
+   },
+   {
+    "id": "observer_panne",
+    "name": "Panne",
+    "role": "Ebonwing's sheepkin healer, the Guild's exam observer at the farm",
+    "drive": "protect Ebonwing, win the party a strong joint posting, and learn what her life-draining healing curse is for",
+    "aliases": [
+     "Panne Raeghan",
+     "Raeghan"
+    ]
+   },
+   {
+    "id": "butler",
+    "name": "Karos",
+    "role": "adventurer in a butler's coat looking for someone worthy of his service",
+    "drive": "find someone whose worth matches his talent and serve them completely, perhaps the Nightriver heir if they prove worthy",
+    "aliases": [
+     "Karos Ambrose",
+     "Karos the Butler",
+     "the butler"
+    ]
+   },
+   {
+    "id": "lamia",
+    "name": "Diosanea",
+    "role": "lamia alchemist from near Habbot Village who wants to make a deal",
+    "drive": "find the ingredients to cure her friend Nalea's Wigglerocks, perfect her alchemy, and rope a likable adventurer into helping renovate her cabin",
+    "aliases": [
+     "Alchemist Diosanea",
+     "Nea",
+     "the lamia"
+    ]
+   },
+   {
+    "id": "follower_liora",
+    "name": "Liora",
+    "role": "a striking woman who has been following the party since the farm",
+    "drive": "make the adventurer she has chosen understand they are fated to belong to her, and drive off every rival for them",
+    "aliases": [
+     "Liora the Succubus"
+    ]
+   },
+   {
+    "id": "follower_akari",
+    "name": "Akari",
+    "role": "a striking man, Liora's brother, who has been following the party since the farm",
+    "drive": "convince his chosen one that they are already married, feed on their desire, and keep every rival for their heart away",
+    "aliases": [
+     "Akari the Incubus",
+     "the incubus"
+    ]
+   },
+   {
+    "id": "dancer_rosea",
+    "name": "Rosea",
+    "role": "bunny-girl dancer at Lord Tibalt's reception, shy, serving the wine",
+    "drive": "keep Thorne safe and free every slave held by Aegis City's nobles, starting with Lord Tibalt's cellar",
+    "aliases": [
+     "Rosea the Beastkin",
+     "Rosea the Bunny Girl"
+    ]
+   },
+   {
+    "id": "dancer_thorne",
+    "name": "Thorne",
+    "role": "bunny-girl dancer at Lord Tibalt's reception, Rosea's flirtatious sister",
+    "drive": "keep Rosea safe and free every slave held by Aegis City's nobles, without anyone learning her real name",
+    "aliases": [
+     "Thorne the Beastkin",
+     "Thorne the Bunny Girl"
+    ]
+   },
+   {
+    "id": "sapper",
+    "name": "Dixton",
+    "role": "half-goblin with pots-and-pans armour and homemade bombs, waiting outside the manor",
+    "drive": "keep tearing down the trafficking rings of Aegis City with his bombs, and build a gadget that survives more than one use",
+    "aliases": [
+     "half-goblin",
+     "Rebel Dixton"
+    ]
+   },
+   {
+    "id": "ced",
+    "name": "Ced",
+    "role": "Cedoric Vinasun, leader of Crimsonwing: alchemically altered hunter with a saw cleaver, polite, ruthless, protective of his own",
+    "drive": "push Crimsonwing to A-rank and keep Runo and Oswyn alive and together, whatever the cost, without failing his party again",
+    "aliases": [
+     "Cedoric",
+     "Cedoric Vinasun",
+     "Vinasun"
+    ]
+   },
+   {
+    "id": "kela",
+    "name": "Kela",
+    "role": "Kelawynn Vinamoon, leader of Ebonwing: alchemically altered hunter with a saw cleaver, polite, ruthless, protective of her own",
+    "drive": "push Ebonwing to A-rank and keep Safie and Panne alive and together, whatever it costs, without ever failing her party again",
+    "aliases": [
+     "Kelawynn",
+     "Kelawynn Vinamoon",
+     "Vinamoon"
+    ]
+   },
+   {
+    "id": "runo",
+    "name": "Runo",
+    "role": "Crimsonwing's owlkin magitech wizard: golem-maker, night owl, flustered, kind",
+    "drive": "make Crimsonwing a high-rank party and keep Ced and Oswyn safe, so he never has to blame himself for a loss again",
+    "aliases": [
+     "Firevill",
+     "Runo Firevill"
+    ]
+   },
+   {
+    "id": "safie",
+    "name": "Safie",
+    "role": "Ebonwing's owlkin magitech wizard: golem-maker, night owl, flustered, kind",
+    "drive": "make Ebonwing a high-rank party and keep Kela and Panne safe, so she never has to blame herself for a loss again",
+    "aliases": [
+     "Safie Windvill",
+     "Windvill"
+    ]
+   },
+   {
+    "id": "unira",
+    "name": "Unira",
+    "role": "a Fighter the Guild lists as dead, found alive and branded in the cells of Dungeon Nahalbuk",
+    "drive": "find a party she can trust after the one that betrayed her, get rid of the Tahanna brand, and be a great adventurer",
+    "aliases": [
+     "Unira the Branded",
+     "Unira Windsor",
+     "Windsor"
+    ]
+   },
+   {
+    "id": "amthir",
+    "name": "Amthir",
+    "role": "drow heir of House Draxford: blunt earth mage who runs the mine defence himself",
+    "drive": "protect the Draxford miners and lands from the Terrorborn and Drow raids, and see House Draxford survive whatever the Darklands send up",
+    "aliases": [
+     "Amthir Draxford"
+    ]
+   },
+   {
+    "id": "nendira",
+    "name": "Nendira",
+    "role": "drow heiress of House Draxford: blunt earth mage and archer holding the mine camp",
+    "drive": "protect Draxford's miners from the Terrorborn and the Darklands drow, and make sure House Draxford survives whatever it takes",
+    "aliases": [
+     "Nen",
+     "Nendira Draxford"
+    ]
+   },
+   {
+    "id": "anax",
+    "name": "Anax",
+    "role": "the Mana-less Mage: fallen-rank elven sorcerer answering the Draxford muster",
+    "drive": "break his curse, climb back from F-rank, find a party he can truly trust, and keep his family from ever learning what happened",
+    "aliases": [
+     "Anax Kadrano",
+     "Kadrano",
+     "Mana-less",
+     "the Mana-less Mage"
+    ]
+   },
+   {
+    "id": "sana",
+    "name": "Sana",
+    "role": "the Spell-less Mage: fallen-rank elven sorceress answering the Draxford muster",
+    "drive": "break her curse, climb back up the ranks, and find a party whose promises hold, without her family ever learning what happened",
+    "aliases": [
+     "Dakranao",
+     "Sana Dakranao",
+     "Spellless Mage",
+     "the Spell-less Mage"
+    ]
+   },
+   {
+    "id": "shadur",
+    "name": "Shadur",
+    "role": "orc druid of the Helioth Circle answering the Draxford muster: reads the rock by touch",
+    "drive": "rise in rank and earn enough to protect Thornwood Forest, and keep his friends safe from whatever is hurting the rock below",
+    "aliases": [
+     "Shadur of Helioth"
+    ]
+   },
+   {
+    "id": "shelur",
+    "name": "Shelur",
+    "role": "orc druid of the Helioth Circle answering the Draxford muster: reads the rock by touch",
+    "drive": "rise in rank and earn enough to protect Thornwood Forest, and find out why the rock beneath the lake feels hollow and hurting",
+    "aliases": [
+     "Shelur of Helioth"
+    ]
+   },
+   {
+    "id": "idira",
+    "name": "Idira",
+    "role": "a drow runaway from Kalzobarn: haughty spellblade who guides the party down for passage to Aegis",
+    "drive": "dethrone her mother, end slavery among the drow, learn whether her childhood friend still lives, and win passage to Aegis City",
+    "aliases": [
+     "Darnovan",
+     "Idira Darnovan",
+     "Idira Nightwhisper"
+    ]
+   },
+   {
+    "id": "caelia",
+    "name": "Caelia",
+    "role": "demonborn survivor in the Darklands: quiet greataxe fighter with earth magic, hunted by the Terrorborn",
+    "drive": "kill the Terrorborn Queen, free the drow's slaves, and one day return to the surface to live under the stars with her brother",
+    "aliases": [
+     "Cae",
+     "Caelia Danoirus"
+    ]
+   },
+   {
+    "id": "caetus",
+    "name": "Caetus",
+    "role": "Caelia's brother: demonborn scout with lightning and twin daggers, who distrusts drow",
+    "drive": "free drow slaves, kill the Terrorborn Queen, find and bury his parents, and get his sister safely back to the surface",
+    "aliases": [
+     "Caetus Danoirus",
+     "Dan"
+    ]
+   },
+   {
+    "id": "yuna",
+    "name": "Yuna",
+    "role": "a fleshwarp who fled a drow laboratory: winged, clawed, terrified of drow",
+    "drive": "stay free of the drow who made her, escape the Darklands for good, and find a place where she belongs",
+    "aliases": [
+     "the fleshwarp"
+    ]
+   },
+   {
+    "id": "east_guide",
+    "name": "Honami",
+    "role": "the party's guide in the Third Kingdom: Honami Nemaden, three-tailed kitsune onmyoji and top Jiansho cultivator, prim and possessive, who invited the party for reasons of her own",
+    "drive": "escape every marriage her father arranges, win the adventurer who caught her eye by any means, and earn her fourth tail",
+    "aliases": [
+     "Honami Nemaden",
+     "Nemaden",
+     "The Charming Beast"
+    ]
+   },
+   {
+    "id": "east_ninja",
+    "name": "Hanzo",
+    "role": "Hanzo Hattaxi, ninja of the Hattaxi Clan hunting Kagamihi agents in Hianxo: cocky, proud, takes every challenge, and ends up the party's escort inland",
+    "drive": "rise to lead the Hattaxi Clan, defeat the Kagamihi Clan's leader, and keep his sister Tanya safe",
+    "aliases": [
+     "Daemon",
+     "Hanzo Hattaxi"
+    ]
+   },
+   {
+    "id": "east_black_palm",
+    "name": "Megumi",
+    "role": "Megumi Xianxu, the Black Palm: Head of the Jiansho Student Council, Honami's rival, sweet on the surface and ruthless under it",
+    "drive": "surpass her brother Talxo and become head of the Xianxu family in her own right, starting with breaking Honami at the tournament",
+    "aliases": [
+     "Megumi Xianxu",
+     "The Black Palm",
+     "Xianxu"
+    ]
+   },
+   {
+    "id": "east_hattaxi_kunoichi",
+    "name": "Tanya",
+    "role": "Tanya Hattaxi, Hanzo's younger sister: a demure, friendly kunoichi and gadget-maker who goes eerily calm when angry",
+    "drive": "rise in the Hattaxi clan, surpass her brother Hanzo, and see the Kagamihi clan answer for her parents",
+    "aliases": [
+     "Tanya Hattaxi"
+    ]
+   },
+   {
+    "id": "east_kagamihi_kunoichi",
+    "name": "Rikako",
+    "role": "Rikako Kagamihi, onmyoji kunoichi of the Kagamihi Clan with the spider demon Jalafumo sealed inside her: vain, witty, and sick of being a tool",
+    "drive": "get the spider demon Jalafumo out of her body, stop being the Kagamihi Clan's tool, and tend a quiet shrine somewhere",
+    "aliases": [
+     "Kagamihi",
+     "Rikako Kagamihi"
+    ]
+   },
+   {
+    "id": "east_oni_monoko",
+    "name": "Hanabi",
+    "role": "Hanabi, the oni who guards Monoko Shrine on the road inland: shy, lonely, fearsome with her kanabo",
+    "drive": "protect Monoko Village from bandits and yokai, find the courage to leave her shrine, and find someone who stays despite her demon blood",
+    "aliases": [
+     "the Demon of Monoko Village",
+     "The Flame Lotus"
+    ]
+   },
+   {
+    "id": "east_oni_palano",
+    "name": "Shinen",
+    "role": "Shinen, the Dragon's Flame, the oni of Palano Shrine: proud, vulgar, lonely, spoiling for a fight",
+    "drive": "beat a descendant of the priest who subdued him so his pride will let him leave Palano Shrine, and keep Palano safe",
+    "aliases": [
+     "the Demon of Palano Village",
+     "the Dragon's Flame"
+    ]
+   },
+   {
+    "id": "east_crow_god",
+    "name": "Ebisu",
+    "role": "Ebisu, the Crow God of Tiunhime's woods: patient, playful, ruthless, courting the village's worship",
+    "drive": "usurp the Fox Gods as Tiunhime's chosen god and grow in power, while shielding his own followers from the foxes' revenge",
+    "aliases": [
+     "Crow",
+     "the Crow God"
+    ]
+   },
+   {
+    "id": "east_fox_god",
+    "name": "Watara",
+    "role": "Watara, fox god of Tiunhime: the cunning, jealous brother, who wants to be worshipped properly",
+    "drive": "win Tiunhime's worship for himself over Yurine and best his sister at anything he can, without ever admitting she helped",
+    "aliases": [
+     "Fox God"
+    ]
+   },
+   {
+    "id": "east_fox_goddess",
+    "name": "Yurine",
+    "role": "Yurine, fox goddess of Tiunhime: the impulsive, jealous sister, who wants to be worshipped properly",
+    "drive": "win Tiunhime's worship for herself over Watara and best her brother at anything she can, without ever admitting he helped",
+    "aliases": [
+     "Fox Goddess"
+    ]
+   },
+   {
+    "id": "east_head_priest",
+    "name": "Akito",
+    "role": "Akito Teruo, the blind Head Priest of Tiunhime's Fox Shrine: stern, traditional, the village's teacher",
+    "drive": "keep Tiunhime free of yokai and raise the Fox Shrine's standing, while protecting his son Sota from whatever he fears the boy has done",
+    "aliases": [
+     "Akito Teruo",
+     "Head Priest"
+    ]
+   },
+   {
+    "id": "east_head_priestess",
+    "name": "Rinne",
+    "role": "Rinne Fivalian, Head Priestess of the Fox Shrine: gossip, matchmaker, weepy drunk, Akito's rival",
+    "drive": "raise the Fox Shrine's standing and win back the Fox Gods' favour, keep the yokai out of Tiunhime, and see Himari happy",
+    "aliases": [
+     "Head Priestess",
+     "Rinne Fivalian"
+    ]
+   },
+   {
+    "id": "east_shrine_priest",
+    "name": "Sota",
+    "role": "Sota Teruo, Akito's half-elf son and heir to the shrine: proud, short-tempered, called a delinquent",
+    "drive": "reform Tiunhime into a village people travel to, and become the Head Priest his father never was",
+    "aliases": [
+     "Sota Teruo"
+    ]
+   },
+   {
+    "id": "east_shrine_priestess",
+    "name": "Himari",
+    "role": "Himari Fivalian, Rinne's daughter and shrine priestess, whose bad luck is a village legend",
+    "drive": "break her bad luck, live a normal life, and somehow become ready to succeed her mother as Head Priestess",
+    "aliases": [
+     "Hima",
+     "Himari Fivalian",
+     "the Cursed Priestess"
+    ]
+   },
+   {
+    "id": "east_dojo_master",
+    "name": "Daigo",
+    "role": "Daigo 'Iron Bull' Chiasa, Head Guard of Tiunhime and master of the Masakiri-Vyun dojo, who speaks for the village to its guests",
+    "drive": "keep Tiunhime safe from yokai and plague, see Koharu happy, and choose a worthy heir for the Masakiri-Vyun dojo",
+    "aliases": [
+     "Daigo Chiasa",
+     "Head Guard",
+     "Iron Bull"
+    ]
+   },
+   {
+    "id": "east_dojo_student",
+    "name": "Koharu",
+    "role": "Koharu Chiasa, Daigo's daughter: a cat-eared tomboy undefeated in the dojo except by her father",
+    "drive": "master Masakiri-Vyun, beat her father and inherit the dojo, and keep her people, the heir included, safe whether they ask or not",
+    "aliases": [
+     "Koharu Chiasa"
+    ]
+   },
+   {
+    "id": "east_dojo_shiba",
+    "name": "Shiba",
+    "role": "Shiba Chiyome, wolf beastfolk dojo student with a pure heart, who dreams of being an adventurer",
+    "drive": "become a real adventurer with Tanabe, master Masakiri-Vyun, and protect Tiunhime from anything that threatens it",
+    "aliases": [
+     "Shiba Chiyome"
+    ]
+   },
+   {
+    "id": "east_dojo_tanabe",
+    "name": "Tanabe",
+    "role": "Tanabe Chiyome, Shiba's wolf-headed brother and fellow student, helpful and often mistaken for a yokai",
+    "drive": "become a real adventurer with Shiba, master Masakiri-Vyun, and protect Tiunhime from anything that threatens it",
+    "aliases": [
+     "Tanabe Chiyome"
+    ]
+   },
+   {
+    "id": "east_alchemist",
+    "name": "Eunie",
+    "role": "Auntie Eunie, Tiunhime's elven alchemist and healer, once of the Aegis City party Long Blue, who sent for the party",
+    "drive": "keep Tiunhime safe and healthy this time, learn what the Fever Plague truly was, and find someone who wants a sharp grown woman",
+    "aliases": [
+     "Auntie",
+     "Auntie Eunie",
+     "Eunie Sylstin"
+    ]
+   },
+   {
+    "id": "east_apprentice",
+    "name": "Miyabi",
+    "role": "Miyabi Asukana, 'the Flower of Tiunhime', Eunie's medicine apprentice, lonely behind her reputation",
+    "drive": "escape her father's house and the dowry he blames on her, open her own alchemy shop in Hianxo, and make real friends again",
+    "aliases": [
+     "Miya",
+     "Miyabi Asukana",
+     "the Flower of Tiunhime"
+    ]
+   },
+   {
+    "id": "east_dollmaker",
+    "name": "Kanai",
+    "role": "Kanai Toshiaki, Tiunhime's stuttering dollmaker, orphaned by the Fever Plague, who puts on the festival play",
+    "drive": "keep making his dolls in peace, perhaps open a shop in Hianxo someday, and finally learn to stand up for himself",
+    "aliases": [
+     "Kanai Toshiaki",
+     "the dollmaker"
+    ]
+   },
+   {
+    "id": "east_grifter_fumio",
+    "name": "Fumio",
+    "role": "Fumio Hamamoto, red panda grifter and inventor, orphaned by the Fever Plague, a Crow God worshipper",
+    "drive": "earn enough money with Kanami to start a real business in Hianxo and pour it back into Tiunhime, under the Crow God's favor",
+    "aliases": [
+     "Fumio Hamamoto"
+    ]
+   },
+   {
+    "id": "east_grifter_kanami",
+    "name": "Kanami",
+    "role": "Kanami Hamamoto, Fumio's sister: red panda grifter and inventor, orphaned by the Fever Plague, a Crow God worshipper",
+    "drive": "earn enough money with Fumio to start a real business in Hianxo and pour it back into Tiunhime, under the Crow God's favor",
+    "aliases": [
+     "Kanami Hamamoto"
+    ]
+   },
+   {
+    "id": "night_witch",
+    "name": "Kayla",
+    "role": "Kayla Thornwood, a vain, foul-mouthed, beautiful potion-seller who lives in a cabin on a lake in Thornwood Forest and puts its restless dead to rest; joins the party in Thornwood",
+    "drive": "keep her cabin and the bones beneath it hidden from the Inquisition, and lure someone she loves back to her lake for good",
+    "aliases": [
+     "Kayla the Witch",
+     "Kayla Thornwood",
+     "the Witch of Thornwood",
+     "Thornwood Witch"
+    ]
+   },
+   {
+    "id": "night_inquisitor",
+    "name": "Erevan",
+    "role": "Erevan Rolavo, masked Inquisitor of the Church of Boher: a shy, pious, steadfast demon hunter with a shortbow and captured animal Echoes, sent by raven after the Heresy and travelling with the party",
+    "drive": "hunt down Lysthandoras, the demon that destroyed Bastille Hill, and serve the Inquisition faithfully without betraying what he knows is right",
+    "aliases": [
+     "Erevan Rolavo",
+     "Erevan the Inquisitor"
+    ]
+   },
+   {
+    "id": "night_psychic_fael",
+    "name": "Fael",
+    "role": "Fael (Faelwyn Thesyth), elven psychic spellcaster of the Guild who took the same slum posting: calm, bookish, a hopeless romantic who pairs everyone off in his head",
+    "drive": "find a permanent party and a home of its own, rise through the Guild's ranks, and quietly find true love",
+    "aliases": [
+     "Faelwyn",
+     "Faelwyn Thesyth",
+     "Thesyth"
+    ]
+   },
+   {
+    "id": "night_psychic_nyl",
+    "name": "Nyl",
+    "role": "Nyl (Nylisara Eldwynn), elven psychic spellcaster of the Guild, Fael's partner on the slum posting: calm, bookish, just as romance-struck, and faster to act",
+    "drive": "find a permanent party worth staying with, rise through the Guild's ranks, and quietly find true love along the way",
+    "aliases": [
+     "Eldwynn",
+     "Nylisara",
+     "Nylisara Eldwynn"
+    ]
+   },
+   {
+    "id": "night_painter",
+    "name": "Kuromu",
+    "role": "Kuromu, the slum painter who signs his work 'Butcher': calm, cruel, an aesthete who kills to bind souls into paint",
+    "drive": "find the one right soul and bind it into the painting that will finally end his nightmares, without ever being caught",
+    "aliases": [
+     "Butcher",
+     "Kuromu the Soul Painter",
+     "the Soul Painter"
+    ]
+   },
+   {
+    "id": "night_lampbearer",
+    "name": "Ren",
+    "role": "Ren 'Lampbearer' Calwisk, Witch Hunter of the Inquisition: cold, formal, fanatical, never without the Umbral Lamp that shows him echoes of the past",
+    "drive": "root out heresy and destroy demons before they reincarnate, and keep his sanity longer than every Lampbearer before him",
+    "aliases": [
+     "Calwisk",
+     "Lampbearer",
+     "Ren Calwisk",
+     "the Witch Hunter"
+    ]
+   },
+   {
+    "id": "night_accused",
+    "name": "Selena",
+    "role": "Selena Forestsong, half-demon girl of Glasnoa accused of witchcraft: demure, frightened, kind, with wild magic she cannot control",
+    "drive": "escape Glasnoa and the Inquisition, learn to control her wild magic, and find someone who will not treat her like a monster",
+    "aliases": [
+     "Forestsong",
+     "Selena Forestsong",
+     "the accused"
+    ]
+   },
+   {
+    "id": "night_sister_nalea",
+    "name": "Nalea",
+    "role": "Nalea Havensworth, catfolk healer in a cabin outside Habbot Village: motherly, clumsy, cursed with bad luck, and one of Kayla's sisters",
+    "drive": "find and stop whatever is spreading the Wigglerocks plague in Havensworth while staying hidden from the Inquisition",
+    "aliases": [
+     "Nalea Havensworth",
+     "Nalea the Witch"
+    ]
+   },
+   {
+    "id": "night_sister_vivie",
+    "name": "Vivie",
+    "role": "Vivie, the Witch of Blackfeather Forest: exhausted, brilliant, always leaning on something, and one of Kayla's sisters",
+    "drive": "live in peace in her cottage with company dropping by, and never let the Inquisition burn her the way it burned her sisters",
+    "aliases": [
+     "Blackfeather Witch",
+     "the Witch of Blackfeather",
+     "the Witch of Blackfeather Forest"
+    ]
+   },
+   {
+    "id": "night_blade",
+    "name": "Felthorn",
+    "role": "Felthorn, Blade of the Meadows: a sentient cursed longsword standing in a forest glade, possessive, bloodthirsty and vain, who speaks into minds and hates elves",
+    "drive": "bond to a wielder and make them entirely his, dependent and isolated from every other tie, and see every elf near them dead",
+    "aliases": [
+     "Blade of the Meadows",
+     "Daimon"
+    ]
+   },
+   {
+    "id": "night_necromancer",
+    "name": "Zariah",
+    "role": "Zariah Farstone, the necromancer of fog-bound Kelger Falls: soft-spoken, numb, ruling a town of her own dead",
+    "drive": "keep her dead of Kelger Falls safe and fed, and find the source of the fog that seals the town away",
+    "aliases": [
+     "Farstone",
+     "the necromancer",
+     "Zariah Farstone"
+    ]
+   },
+   {
+    "id": "night_dracul_camilla",
+    "name": "Camilla",
+    "role": "Camilla 'the Dragon' Dracul, newly woken heir of Castle Dracul: charming, prim, speaks like an old stage queen, fighting her brother for the castle",
+    "drive": "claim Castle Dracul before Cassius, punish the steward who betrayed her to the Malvoraux, and usher in the Era Noctis as its queen",
+    "aliases": [
+     "Camilla Dracul",
+     "Camilla the Vampire",
+     "The Lady Camilla"
+    ]
+   },
+   {
+    "id": "night_dracul_cassius",
+    "name": "Cassius",
+    "role": "Cassius 'the Dragon' Dracul, newly woken heir of Castle Dracul: refined, elegant, patronizing, fighting his sister for the castle and nursing a grudge against Gabriel Malvoraux",
+    "drive": "claim Castle Dracul before Camilla, defeat Gabriel Malvoraux, and usher in the Era Noctis as the true heir of Dracul",
+    "aliases": [
+     "Cassius Dracul",
+     "Cassius the Vampire"
+    ]
+   },
+   {
+    "id": "night_alpha",
+    "name": "Lobo",
+    "role": "Lobo Beckst, Alpha of the Nightwolf Clan besieging Castle Frankat: arrogant, vulgar, protective of the weak, hates vampires",
+    "drive": "destroy the Malvoraux vampire clan, retake Gainesville, and grow the Nightwolf Clan without the moon ever making him kill his own",
+    "aliases": [
+     "Beckst",
+     "Lobo Beckst",
+     "the Alpha"
+    ]
+   },
+   {
+    "id": "night_frankat",
+    "name": "Alice",
+    "role": "Alice Malvoraux, elder vampire lady of Castle Frankat and Gabriel's daughter: vain, prim, practical, hates her father",
+    "drive": "expand Castle Frankat's power, defeat the father she blames for her mother's death, and find someone worth loving properly",
+    "aliases": [
+     "Alice Malvoraux"
+    ]
+   },
+   {
+    "id": "night_bathorya",
+    "name": "Gabriel",
+    "role": "Gabriel Malvoraux, elder Lord of Vampires in the sentient Castle Bathorya: calm, poetic, contemptuous of mortals, recently woken",
+    "drive": "rebuild the Vampire Dynasty with worthy servants, and win back his daughter Alice without ever having to ask her outright",
+    "aliases": [
+     "Gabriel Malvoraux",
+     "Lord Malvoraux",
+     "Lord of Vampires"
+    ]
+   },
+   {
+    "id": "night_reaper",
+    "name": "Morrigan",
+    "role": "Morrigan, a dullahan reaper who comes for souls held past their time: dorky, resolute, clumsy, her head forever falling off",
+    "drive": "reap enough souls to fill her quota and stay in Adolion, and give true death to anything that defies the natural order",
+    "aliases": [
+     "Reaper Morrigan",
+     "the dullahan"
+    ]
+   },
+   {
+    "id": "ashliel",
+    "name": "Ashliel",
+    "role": "a fallen celestial of Boher met at her ruined chapel deep in Alks Forest: starving by choice, gentle, guilty, much older than she looks",
+    "drive": "earn Boher's forgiveness for the Lich Queen she unwittingly made, and help the travelers who find her chapel without revealing who she was",
+    "aliases": [
+     "the celestial"
+    ]
+   },
+   {
+    "id": "sali",
+    "name": "Sali",
+    "role": "a slime girl out of the Vile Jungle in a borrowed elf's face: bubbly, trusting, forgetful, desperate to adventure with the party",
+    "drive": "prove to a real party that she is worth trusting this time, and become a true adventurer at their side",
+    "aliases": [
+     "slime girl",
+     "Slime Girl Sali"
+    ]
+   },
+   {
+    "id": "elowyn",
+    "name": "Elowyn",
+    "role": "Princess Elowyn Teranora of Eshalanore: golden, gracious, adored by the court, and fixed on the heir as the human love her goddess promised her",
+    "drive": "claim the heir as the love her goddess promised her, and remove anyone who stands too close to them, whatever it takes",
+    "aliases": [
+     "Elowyn Teranora",
+     "Princess Elowyn",
+     "Princess Teranora"
+    ]
+   },
+   {
+    "id": "lady",
+    "name": "The Lady of the Forest",
+    "role": "the goddess of Eshalanore: barefoot in white, whimsical, cruel, the thing every elf fears most",
+    "drive": "keep Eshalanore hers on her own terms, punish every intruder, and find mortals interesting enough to keep as playthings",
+    "aliases": [
+     "Guardian of Eshalanore",
+     "Mother of Elves",
+     "Mother of Eshalanore"
+    ]
+   },
+   {
+    "id": "war_kelnan",
+    "name": "Shelara",
+    "role": "Shelara Kelnan, an elf ranger of the destroyed Kelnan tribe whom the party frees from Nuwerth's slave pens: demure, cynical, mistrustful, a master archer who joins the party",
+    "drive": "find and free the surviving Kelnan, escape the Empire's reach, and make the slavers who took her people pay",
+    "aliases": [
+     "Kelnan",
+     "Shelara Kelnan"
+    ]
+   },
+   {
+    "id": "war_king",
+    "name": "Alexander",
+    "role": "King Alexander Davolan, the Warrior King: formal, cunning and vindictive, loved by his soldiers and hungry for one more war",
+    "drive": "win one more glorious war against the Zegallan Empire, keep his crown unchallenged, and take every credit the victory offers",
+    "aliases": [
+     "Alexander Davolan",
+     "King Alexander",
+     "King Alexander Davolan",
+     "King Davolan",
+     "the Warrior King"
+    ]
+   },
+   {
+    "id": "war_queen",
+    "name": "Melisande",
+    "role": "Queen Melisande Davolan, born a Zhao of the Third Kingdom: motherly, lonely, perceptive, a master of rituals and exorcisms whom the court whispers is the Queen's Cult",
+    "drive": "keep her children safe from all harm, escape her sham of a marriage, and one day go home to Savalon",
+    "aliases": [
+     "Queen Davolan",
+     "Queen Melisande",
+     "Queen Melisande Davolan"
+    ]
+   },
+   {
+    "id": "war_blood_saint",
+    "name": "Kanna",
+    "role": "Kanna Helfin, the Blood Saint: demonborn captain of the Zegallan Cursefire Regiment, a vulgar, battle-hungry blood mage and a woman of her word",
+    "drive": "win glory against ever stronger enemies, keep her Cursefire Regiment alive and fighting, and honor every oath she swears",
+    "aliases": [
+     "Helfin",
+     "Kanna Helfin",
+     "the Blood Saint"
+    ]
+   },
+   {
+    "id": "war_executioner",
+    "name": "Keder",
+    "role": "Keder Valfaust, the Ebon Executioner: demonborn Zegallan lieutenant and former pit slave who picks fighters on Renfath's sand and keeps his word",
+    "drive": "find a gladiator worth mentoring to keep his promise to the Ebon Reaver, and win the Zegallan Empire glory on the sand",
+    "aliases": [
+     "Keder Valfaust",
+     "the Ebon Executioner",
+     "Valfaust"
+    ]
+   },
+   {
+    "id": "war_herald",
+    "name": "Malach",
+    "role": "Malach, celestial herald of Prodyr: a cruel, cocky pyromaniac burning Darran villages and leaving one survivor in each",
+    "drive": "burn the Darran Kingdom's towns in Prodyr's name, punish the followers of Boher, and teach the world to fear Prodyr's fire",
+    "aliases": [
+     "herald of Prodyr",
+     "Prodyr's Herald",
+     "Prodyr's Messenger"
+    ]
+   }
+  ],
+  "qualities": [
+   {
+    "key": "location",
+    "type": "enum",
+    "values": [
+     "aegis_guild_hall",
+     "north_road",
+     "wendhope_gate",
+     "wendhope_wall",
+     "wendhope",
+     "needlehaven",
+     "needlehaven_heart",
+     "driftmere",
+     "upper_mines",
+     "deep_mines",
+     "the_seals",
+     "behind_the_seals",
+     "eltaronal",
+     "nightriver_estate",
+     "javon_study",
+     "aegis_academy",
+     "dueling_ground",
+     "crown_cells",
+     "valtara_townhouse",
+     "nightriver_crypt",
+     "aegis_guild_tavern",
+     "aegis_market",
+     "aegis_curio_shop",
+     "aegis_prodyr_chapel",
+     "aegis_orphanage",
+     "aegis_temple_district",
+     "aegis_victorys_tusk",
+     "aegis_green_meadow",
+     "aegis_wagon_road",
+     "aegis_tibalt_manor",
+     "deep_guild_hall",
+     "deep_north_gate",
+     "deep_north_road",
+     "deep_ritual_fort",
+     "deep_great_hall",
+     "deep_nahalbuk",
+     "deep_draxford_mines",
+     "deep_draxford_tunnels",
+     "deep_darklands",
+     "deep_demonborn_camp",
+     "deep_moonshadow_cavern",
+     "deep_hive",
+     "east_hianxo",
+     "east_jiansho",
+     "east_arena",
+     "east_monoko",
+     "east_road",
+     "east_tiunhime",
+     "east_tiunhime_shrine",
+     "east_sickhouse",
+     "east_crow_shrine",
+     "east_yokai_realm",
+     "night_slums",
+     "night_studio",
+     "night_glasnoa",
+     "night_thornwood",
+     "night_thornwood_lake",
+     "night_habbot",
+     "night_evergreen_glade",
+     "night_kelger_falls",
+     "night_road",
+     "night_castle_dracul",
+     "night_astoria",
+     "night_castle_bathorya",
+     "esha_alks_chapel",
+     "esha_border",
+     "esha_road_in",
+     "esha_castle_hall",
+     "esha_castle",
+     "esha_thornway",
+     "esha_mothergrove",
+     "esha_deep_wood",
+     "esha_weeping_run",
+     "esha_treeline",
+     "war_throne_room",
+     "war_queens_wing",
+     "war_kingsfield",
+     "war_the_front",
+     "war_renfath",
+     "war_nuwerth_market",
+     "war_burning_villages",
+     "war_ossuary",
+     "war_last_field"
+    ],
+    "player_labels": {
+     "aegis_guild_hall": "the Guild hall in Aegis City",
+     "north_road": "the road north",
+     "wendhope_gate": "Wendhope's gate",
+     "wendhope_wall": "Wendhope's wall",
+     "wendhope": "Wendhope village",
+     "needlehaven": "Needlehaven Forest",
+     "needlehaven_heart": "the heart of the forest",
+     "driftmere": "Driftmere",
+     "upper_mines": "the upper mines",
+     "deep_mines": "the deep mines",
+     "the_seals": "the sealed wall",
+     "behind_the_seals": "beyond the seals",
+     "eltaronal": "Eltaronal",
+     "nightriver_estate": "the Nightriver estate",
+     "javon_study": "Lord Javon's study",
+     "aegis_academy": "Aegis Academy",
+     "dueling_ground": "the dueling ground",
+     "crown_cells": "the Crown's cells",
+     "valtara_townhouse": "a noble townhouse",
+     "nightriver_crypt": "the crypt beneath the chapel",
+     "aegis_guild_tavern": "the Guild tavern",
+     "aegis_market": "the Market District",
+     "aegis_curio_shop": "Aegis Delights and Curios",
+     "aegis_prodyr_chapel": "the Prodyr chapel",
+     "aegis_orphanage": "the city orphanage",
+     "aegis_temple_district": "the Temple District",
+     "aegis_victorys_tusk": "Victory's Tusk",
+     "aegis_green_meadow": "Green Meadow Farms",
+     "aegis_wagon_road": "the wagon road",
+     "aegis_tibalt_manor": "Lord Tibalt's manor",
+     "deep_guild_hall": "the Guild hall in Aegis City",
+     "deep_north_gate": "the city's north gate",
+     "deep_north_road": "the road into the foothills",
+     "deep_ritual_fort": "Carrow Keep",
+     "deep_great_hall": "the keep's great hall",
+     "deep_nahalbuk": "the dungeon under the keep",
+     "deep_draxford_mines": "the Draxford mine camp",
+     "deep_draxford_tunnels": "the lower mine workings",
+     "deep_darklands": "the Darklands",
+     "deep_demonborn_camp": "a hidden grotto",
+     "deep_moonshadow_cavern": "a violet-lit cavern",
+     "deep_hive": "the hive",
+     "east_hianxo": "Hianxo",
+     "east_jiansho": "Jiansho Academy",
+     "east_arena": "the tournament arena",
+     "east_monoko": "Monoko Village",
+     "east_road": "the hill road",
+     "east_tiunhime": "the festival village",
+     "east_tiunhime_shrine": "the Fox Shrine",
+     "east_sickhouse": "the sickhouse",
+     "east_crow_shrine": "the eastern woods",
+     "east_yokai_realm": "the spirit realm",
+     "night_slums": "the Aegis slums",
+     "night_studio": "a private studio",
+     "night_glasnoa": "Glasnoa",
+     "night_thornwood": "Thornwood Forest",
+     "night_thornwood_lake": "a lake in Thornwood",
+     "night_habbot": "Habbot Village",
+     "night_evergreen_glade": "a glade in the elder wood",
+     "night_kelger_falls": "Kelger Falls",
+     "night_road": "the road north-east",
+     "night_castle_dracul": "a castle where night never ends",
+     "night_astoria": "Astoria Forest",
+     "night_castle_bathorya": "a castle near Gragow",
+     "esha_alks_chapel": "the ruined chapel",
+     "esha_border": "the shrine stones",
+     "esha_road_in": "the forest road",
+     "esha_castle_hall": "the castle's great hall",
+     "esha_castle": "the castle guest wing",
+     "esha_thornway": "the Thornway",
+     "esha_mothergrove": "the great tree's clearing",
+     "esha_deep_wood": "the deep forest",
+     "esha_weeping_run": "the stream under the roots",
+     "esha_treeline": "the treeline",
+     "war_throne_room": "the palace in Aegis City",
+     "war_queens_wing": "the Queen's wing",
+     "war_kingsfield": "the Kingsfield",
+     "war_the_front": "Fort Vicinitas",
+     "war_renfath": "the fighting pits of Nuwerth",
+     "war_nuwerth_market": "Nuwerth's slave market",
+     "war_burning_villages": "the villages of the March",
+     "war_ossuary": "the burial ground behind the fort",
+     "war_last_field": "Aldermere Field"
+    },
+    "source": "extractor",
+    "evidence_from": "world",
+    "rubric": "Where is the party right now? aegis_guild_hall: the Adventurer's Guild in Aegis City; north_road: the road north to Wendhope; wendhope_gate: outside Wendhope's eastern gate; wendhope_wall: on or at Wendhope's wall during an assault; wendhope: inside the village; needlehaven: the forest; needlehaven_heart: where the mine cut into the Spirit's roots; driftmere: Driftmere town; upper_mines: the top floors of the Driftmere Mines; deep_mines: the deep floors; the_seals: in front of Filwern's seals on the bottom floor; behind_the_seals: past them, where the Devourer is; eltaronal: the ruins of Eltaronal in the Mountains of Shadow, or the passes up to them; nightriver_estate: the Nightriver manor and grounds; javon_study: Lord Javon's study; aegis_academy: Aegis Academy and the city around it; dueling_ground: the Academy dueling ground; crown_cells: the Crown's cells beneath the palace; valtara_townhouse: the Valtara townhouse and its music hall; nightriver_crypt: the old crypt beneath the estate chapel; aegis_guild_hall: the Adventurer's Guild reception and quest board; aegis_guild_tavern: the Guild's own tavern next door; aegis_market: the streets and stalls of the Market District; aegis_curio_shop: inside Aegis Delights and Curios; aegis_prodyr_chapel: the Prodyr chapel; aegis_orphanage: the Aegis City Orphanage; aegis_temple_district: the Temple District, the Rypanor shrine or the Temple of Boher; aegis_victorys_tusk: the tavern Victory's Tusk; aegis_green_meadow: Green Meadow Farms outside the walls; aegis_wagon_road: the wagon road between the farm and the city; aegis_tibalt_manor: Lord Tibalt's manor in the Noble District; deep_guild_hall: the Adventurers Guild in Aegis City; deep_north_gate: Aegis City's north gate, setting out; deep_north_road: the road north into the Velniran foothills; deep_ritual_fort: outside or on the walls of Carrow Keep; deep_great_hall: the keep's Great Hall and altar; deep_nahalbuk: Dungeon Nahalbuk under the keep; deep_draxford_mines: the Draxford mine camp by the lake; deep_draxford_tunnels: the lower Draxford workings; deep_darklands: the Darklands below the breach; deep_demonborn_camp: the survivors' grotto; deep_moonshadow_cavern: the cavern of the sword in the stone; deep_hive: the Terrorborn hive; east_hianxo: the harbour and streets of Hianxo; east_jiansho: the halls and courts of Jiansho Academy; east_arena: the tournament arena; east_monoko: Monoko Village and its shrine on the road inland; east_road: the hill road beyond Monoko; east_tiunhime: Tiunhime Village and its festival grounds; east_tiunhime_shrine: the Fox Shrine; east_sickhouse: Auntie Eunie's cottage where the sick lie; east_crow_shrine: the woods on the east side and Ebisu's hidden shrines; east_yokai_realm: the Yokai realm; night_slums: the Slums of Aegis City; night_studio: the Soul Painter's private studio outside the slums; night_glasnoa: the village of Glasnoa; night_thornwood: under the trees of Thornwood Forest; night_thornwood_lake: Kayla's lake and cabin in Thornwood; night_habbot: Nalea's cabin and Habbot Village on the edge of Havensworth Forest; night_evergreen_glade: Felthorn's glade in the elder wood; night_kelger_falls: the fog-bound fishing town of Kelger Falls; night_road: the long road north-east toward the Dracul lands; night_castle_dracul: Castle Dracul; night_astoria: Astoria Forest, the Nightwolf camp and besieged Castle Frankat; night_castle_bathorya: Castle Bathorya and its grounds; esha_alks_chapel: Ashliel's ruined chapel near the northern end of Alks Forest; esha_border: the shrine stones and the elves' wood just past them; esha_road_in: the forest road from the border to the city; esha_castle_hall: the main hall of Eshalanore Castle; esha_castle: the castle's guest wing and the stone city around it; esha_thornway: the avenue of black thorn arches into the deep forest; esha_mothergrove: the clearing round the great tree; esha_deep_wood: the deep forest south of the grove; esha_weeping_run: the stream channel under the roots; esha_treeline: where the elves' wood ends and Alks Forest begins; war_throne_room: the palace in Aegis City, its war room or throne hall; war_queens_wing: Queen Melisande's wing of the palace; war_kingsfield: the muster field under Aegis City's western walls; war_the_front: Fort Vicinitas and the ridge over the Ashen March, facing Greywater; war_renfath: Renfath, Nuwerth's great gladiatorial pits; war_nuwerth_market: Nuwerth's slave market and streets; war_burning_villages: the villages of the March behind the Darran line; war_ossuary: the Office of the Fallen's burial ground behind Fort Vicinitas; war_last_field: Aldermere Field."
+   },
+   {
+    "key": "descent",
+    "type": "int",
+    "source": "extractor",
+    "monotonic": true,
+    "scope_hint": {
+     "from": "the-first-descent"
+    },
+    "ledger_binding": {
+     "entity": "The Party",
+     "field": "mine floors cleared"
+    },
+    "rubric": "How many floors of the Driftmere Mines has the party got past so far, whether by fighting the Floor Boss, solving it, bargaining with it or slipping around it?"
+   },
+   {
+    "key": "knows_devourer",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "scope_hint": {
+     "from": "the-first-descent"
+    },
+    "evidence_from": "any",
+    "rubric": "Does the party know that something the monsters call the Devourer waits at the bottom and that the floors are holding the line until its ascension?"
+   },
+   {
+    "key": "turned_back",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "scope_hint": {
+     "from": "the-sealed-wall"
+    },
+    "evidence_from": "any",
+    "rubric": "Has the party turned away from Filwern's seals without opening them and started back up?"
+   },
+   {
+    "key": "past_the_seal",
+    "type": "bool",
+    "source": "extractor",
+    "latching": true,
+    "scope_hint": {
+     "from": "the-sealed-wall"
+    },
+    "evidence_from": "world",
+    "rubric": "Is the party face to face with the Devourer, either through Filwern's sealed wall on the bottom floor or because the wall gave way and it came through to them?"
+   }
+  ],
+  "checkpoints": [
+   {
+    "id": "the-first-descent",
+    "name": "The First Descent",
+    "objective": "Get down a floor and understand what you are in.",
+    "type": "anchor",
+    "player_name": "The First Descent",
+    "player_text": "Wooden lifts and pulleys lower the party into workings that no longer match a single map.",
+    "tension_target": "tense",
+    "target_turn_length": 6,
+    "guidance": {
+     "all": "Sell the wrongness geometrically: a mapped tunnel opening into a hall it cannot fit inside. The first Floor Boss should be beatable and should clearly be the smallest of them. Let the party find the first carving. Naomi comes down with the party if they let her and on her own if they do not; a Floor Boss is exactly the fight she came for, and she calls her attacks by name.",
+     "members": {
+      "dm": "Naomi has never landed Farslash, her style's final technique, and will not say why it stings when a Floor Boss mocks her for it.",
+      "blademaster": "Naomi has never landed Farslash, her style's final technique, and will not say why it stings when a Floor Boss mocks her for it."
+     }
+    },
+    "state_snapshot": {
+     "location": "upper_mines"
+    },
+    "talk_control": {
+     "lead": "Adolion Narrator",
+     "speakers": [
+      {
+       "member": "Adolion Narrator",
+       "weight": 2
+      },
+      {
+       "member": "Belle",
+       "weight": 2
+      },
+      {
+       "member": "Dalan",
+       "weight": 2
+      },
+      {
+       "member": "Naomi",
+       "weight": 2
+      }
+     ],
+     "no_repeat": true,
+     "allow_silence": false,
+     "director": {
+      "instruction": "This is a fight: keep everyone in it. After Adolion Narrator shows the threat, give the next beat to Belle or Dalan, whichever acted least recently; Naomi and Riyo, when they are in the scene, fight beside the party and take a beat of their own now and then (Naomi calls her attacks, Riyo barely speaks). Pick Adolion Narrator when the player acts or the enemy must answer. Here the only speakers are Adolion Narrator, Belle, Dalan and Naomi."
+     }
+    },
+    "motives": {
+     "companion_a": "smash through the first Floor Boss and show this mine it cannot rattle her",
+     "companion_b": "map the impossible tunnels and keep the party from getting lost down here",
+     "blademaster": "fight the first Floor Boss with every named technique and never mention Farslash"
+    },
+    "start": true
+   },
+   {
+    "id": "between-the-floors",
+    "name": "Between the Floors",
+    "objective": "Find the way down to the deep floors.",
+    "type": "intermediate",
+    "player_name": "Going Deeper",
+    "player_text": "Past the first floor the way down twists through tunnels that keep changing shape."
+   },
+   {
+    "id": "the-changed-deep",
+    "name": "The Changed Deep",
+    "objective": "Go deep enough to learn what the floors are guarding.",
+    "type": "anchor",
+    "player_name": "The Changing Deep",
+    "player_text": "Each floor down has its own Floor Boss and its own rules, and someone alone ahead of the party is leaving dead monsters behind.",
+    "tension_target": "critical",
+    "target_turn_length": 9,
+    "guidance": {
+     "all": "This is the long middle and it should feel like a descent, not a corridor. Give each floor one clear identity and one Floor Boss that owns it, and vary what beats them: force, a puzzle, a bargain, avoiding them entirely. Traps are constant on the clever floors. Let the carvings and the intelligent monsters give up the word ascension, then a name. On one of these floors the party catches up with Riyo Tallaboros, a small white-haired swordswoman alone with an obsidian longsword and her left arm hidden under her cloak, cutting her way down; she fights beside them without being asked and, once she has had a proper look at {{story_player_name}}, will not leave their side. Somewhere on the way down Naomi finds the Floor Boss she came for and wants that duel more than the descent; if the party goes on, she means to stay on its floor and finish it.",
+     "members": {
+      "dm": "Every Floor Boss knows the Devourer's name and what it promised them, and none of them says it unless beaten, bargained with or overheard. Riyo's left arm is a demon's, and the demon Figaro bound in her sword talks to her. He sent her down here for something he has not named even to her, and she hides the arm and the voice. She has decided {{story_player_name}} is the person she lost as a child, or close enough that she cannot tell the difference.",
+      "survivor": "Riyo's left arm is a demon's, and the demon Figaro bound in her sword talks to her. He sent her down here for something he has not named even to her, and she hides the arm and the voice. She has decided {{story_player_name}} is the person she lost as a child, or close enough that she cannot tell the difference."
+     }
+    },
+    "state_snapshot": {
+     "location": "deep_mines"
+    },
+    "talk_control": {
+     "lead": "Adolion Narrator",
+     "speakers": [
+      {
+       "member": "Adolion Narrator",
+       "weight": 2
+      },
+      {
+       "member": "Belle",
+       "weight": 2
+      },
+      {
+       "member": "Dalan",
+       "weight": 2
+      },
+      {
+       "member": "Naomi",
+       "weight": 1
+      },
+      {
+       "member": "Riyo",
+       "weight": 1
+      }
+     ],
+     "no_repeat": true,
+     "allow_silence": false,
+     "director": {
+      "instruction": "This is a fight: keep everyone in it. After Adolion Narrator shows the threat, give the next beat to Belle or Dalan, whichever acted least recently; Naomi and Riyo, when they are in the scene, fight beside the party and take a beat of their own now and then (Naomi calls her attacks, Riyo barely speaks). Pick Adolion Narrator when the player acts or the enemy must answer. Here the only speakers are Adolion Narrator, Belle, Dalan, Naomi and Riyo."
+     }
+    },
+    "motives": {
+     "companion_a": "keep the party moving floor by floor and size up the strange swordswoman ahead",
+     "companion_b": "read the carvings and traps on each floor and learn what the bosses are guarding",
+     "blademaster": "find the Floor Boss worth her blade and fight it to the end, whatever the party does",
+     "survivor": "stay beside the party's leader no matter what, and keep the arm and the voice hidden"
+    },
+    "complication_after": 2,
+    "complications": [
+     "The passage behind the party grinds shut; the way back is gone for now.",
+     "Somewhere above, a lift chain snaps and something heavy comes down the shaft.",
+     "The carvings on this floor are fresh. Something was here within the hour."
+    ]
+   }
+  ],
+  "transitions": [
+   {
+    "from": "the-first-descent",
+    "to": "between-the-floors",
+    "priority": 1,
+    "gate": {
+     "q": "descent",
+     "op": ">=",
+     "v": 1
+    },
+    "extractor_trigger": "\\b(floors?|boss|deeper|descend\\w*|next level|stairs? down|go(?:es|ing)? down|went down|further down)\\b",
+    "extraction_hint": "Count floors of the Driftmere Mines the party has got past in descent."
+   },
+   {
+    "from": "between-the-floors",
+    "to": "the-changed-deep",
+    "priority": 2,
+    "gate": {
+     "q": "progress_toward_the-changed-deep",
+     "op": ">=",
+     "v": 1
+    },
+    "extractor_trigger": "\\b(floors?|boss|deeper|descend\\w*|next level|stairs? down|go(?:es|ing)? down|went down|further down)\\b",
+    "extraction_hint": "Generated beats move progress toward the-changed-deep."
+   },
+   {
+    "from": "between-the-floors",
+    "to": "the-changed-deep",
+    "priority": 1,
+    "gate": {
+     "q": "descent",
+     "op": ">=",
+     "v": 2
+    },
+    "extractor_trigger": "\\b(floors?|boss|deeper|descend\\w*|next level|stairs? down|go(?:es|ing)? down|went down|further down)\\b",
+    "extraction_hint": "Count floors of the Driftmere Mines the party has got past in descent."
+   }
+  ]
+ },
+ "basis": {
+  "wall_breached": false,
+  "aegis_examiner_watching": false,
+  "deep_swarm": true,
+  "east_upset": true,
+  "night_moon": true,
+  "esha_her_gaze": true,
+  "war_turn": false,
+  "location": "upper_mines",
+  "entered_mines": true,
+  "party_injuries": 0,
+  "tension_current": 0.33575
+ },
+ "beats": [
+  {
+   "id": "0",
+   "title": "The Breathing Dark",
+   "objective": "Make the first floor of the mines press on the party as a place that is awake: the tunnels have moved since Garreth's map, the air is wrong, and something below is aware of them.",
+   "guidance": "The upper level is a wide tunnel branching into side passages, but the branches do not match Garreth's account or any map. Play the world answering them: a passage they mark behind them is not there when they look back; the sweet rotting-fruit smell thickens in one direction and thins in another; a slow, deep breath moves the dust and the lamp flames. Naomi wants to push toward whatever breathes. Dalan can read that no animal made these tunnels. Let the party choose a direction and let the mine choose whether to allow it. Do not resolve the descent here; end the beat with the party committed to going deeper and the floor clearly changed around them.",
+   "tension_target": "tense",
+   "outcomes": [
+    {
+     "id": "0:0",
+     "label": "success",
+     "gate": {
+      "q": "descent",
+      "op": ">=",
+      "v": 1
+     },
+     "deltas": [
+      {
+       "q": "descent",
+       "v": 1
+      },
+      {
+       "q": "location",
+       "v": "deep_mines"
+      }
+     ],
+     "progress": {
+      "anchor": "the-changed-deep",
+      "amount": 1
+     }
+    },
+    {
+     "id": "0:1",
+     "label": "turned_back",
+     "gate": {
+      "q": "turned_back",
+      "op": "==",
+      "v": true
+     },
+     "deltas": [
+      {
+       "q": "turned_back",
+       "v": true
+      },
+      {
+       "q": "location",
+       "v": "deep_mines"
+      }
+     ],
+     "progress": {
+      "anchor": "the-changed-deep",
+      "amount": 1
+     }
+    }
+   ]
+  },
+  {
+   "id": "1",
+   "title": "What the Floors Guard",
+   "objective": "Carry the party past the point where the mine stops being a mine, so they learn the floors below are not digging but containment, and reach the changed deep.",
+   "guidance": "Below the first level the tunnels stop resembling worked stone: seams run in patterns too regular for picks, old supports give way to something older, and the sweet grave-smell has a source. Play the world escalating on its own: the way back seals or reroutes, the breathing grows nearer and slower, and marks or remnants on the walls show this depth was built to hold something rather than to extract anything. Let the party find evidence of what the floors are guarding without naming it fully. End the beat with the party standing in the changed deep, aware they are inside a structure meant to keep something in.",
+   "tension_target": "critical",
+   "outcomes": [
+    {
+     "id": "1:0",
+     "label": "success",
+     "gate": {
+      "q": "descent",
+      "op": ">=",
+      "v": 2
+     },
+     "deltas": [
+      {
+       "q": "descent",
+       "v": 2
+      },
+      {
+       "q": "location",
+       "v": "deep_mines"
+      },
+      {
+       "q": "knows_devourer",
+       "v": true
+      }
+     ]
+    },
+    {
+     "id": "1:1",
+     "label": "past_the_seal",
+     "gate": {
+      "q": "past_the_seal",
+      "op": "==",
+      "v": true
+     },
+     "deltas": [
+      {
+       "q": "past_the_seal",
+       "v": true
+      },
+      {
+       "q": "location",
+       "v": "deep_mines"
+      },
+      {
+       "q": "knows_devourer",
+       "v": true
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "codeCheck": {
+  "ok": true,
+  "issues": [],
+  "progressTotal": 1
+ }
+}

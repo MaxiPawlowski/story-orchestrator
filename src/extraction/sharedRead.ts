@@ -1,4 +1,4 @@
-import { TENSION_CURRENT_KEY, type EngineState, type NormalizedStoryV2, type NormalizedTransition } from "@engine/index";
+import { movesParty, readsWorldEvidence, TENSION_CURRENT_KEY, type EngineState, type NormalizedStoryV2, type NormalizedTransition } from "@engine/index";
 import { fnv1a, stableStringify } from "@runtime/hash";
 import type { ExtractionReply, ModelAsk, ModelCall } from "./modelRoute";
 import { getCanonLite } from "./canonLite";
@@ -25,6 +25,14 @@ const CHARS_PER_TOKEN = 4;
 const DEFAULT_RESPONSE_TOKENS = maxTokensCap("sharedRead");
 
 export const PLAYER_ONLY_EVIDENCE = "evidence only in the player's line";
+
+const PARTY_MOVE = /\b(i|we|us|let's)\b[^.!?]*\b(go|goes|going|head|heading|walk|climb|ride|enter|descend|leave|return|follow|cross|step|move|travel|set out|make camp|stand)\b/i;
+
+const answeredMove = (quote: string, sources: number[], window: SharedReadWindow): number | undefined => {
+  if (!PARTY_MOVE.test(quote)) return undefined;
+  const said = Math.max(...sources);
+  return window.messages.find((message) => message.messageId > said && !message.isUser)?.messageId;
+};
 
 const describeDelta = (entry: ParsedDelta) => `DELTA ${entry.delta.q} value=${String(entry.delta.v)} evidence="${entry.evidence}"`;
 
@@ -63,11 +71,13 @@ const screenDeltas = (parsed: ParsedSharedRead, residual: readonly ScopedQuality
       continue;
     }
     const worldSources = sources.filter((id) => window.messages.some((message) => message.messageId === id && !message.isUser));
-    if (quality.evidence_from === "world" && !worldSources.length) {
-      rejected.push({ line, reason: PLAYER_ONLY_EVIDENCE });
+    if (readsWorldEvidence(quality) && !worldSources.length) {
+      const answer = movesParty({ ...quality, key: entry.delta.q }) ? answeredMove(entry.evidence, sources, window) : undefined;
+      if (answer === undefined) rejected.push({ line, reason: PLAYER_ONLY_EVIDENCE });
+      else accepted.push({ ...entry, messageId: answer });
       continue;
     }
-    const attributable = quality.evidence_from === "world" ? worldSources : sources;
+    const attributable = readsWorldEvidence(quality) ? worldSources : sources;
     accepted.push({ ...entry, messageId: entry.delta.q === TENSION_CURRENT_KEY ? attributable[attributable.length - 1] : attributable[0] });
   }
   return { accepted, rejected };

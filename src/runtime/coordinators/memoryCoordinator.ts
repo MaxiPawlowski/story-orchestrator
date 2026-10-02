@@ -10,7 +10,7 @@ import {
   ARC_OPEN_INJECT_LIMIT, buildArcSummaryPrompt, buildBoundKeySet, capAllTiers, capEpistemic, capLedger,
   highImportanceFacts, isLive, ledgerBindings, ledgerEntityList, storyEntities, disappearingEntries, recordDerived,
   reverseMemoryState, dropCommonKnowledge, capOpenArcs, capResolvedArcs, CONSOLIDATION_MIN_GROUP, consolidateTier,
-  DEFAULT_DEDUP_THRESHOLDS, editEntryText, expireScoped, matchArcBridges, openArcTexts, removeArc, removeEpistemic,
+  DEFAULT_DEDUP_THRESHOLDS, editEntryText, expireScoped, matchArcBridges, openArcTexts, withoutExcludedThreads, removeArc, removeEpistemic,
   removeLedger, restoreEntry, setArcPinned, setLocked, setArcSummary, setEpistemicPinned, setLedgerPinned, setPinned,
   type ArcEntry, type DerivedRecord, type EpistemicEntry, type LedgerBinding, type LedgerView, type MemoryEntry,
   type MemoryTier, type ParsedArcSignal, type ParsedEpistemicSignal, type ParsedLedgerSignal, type UncertainPair,
@@ -256,7 +256,7 @@ export class MemoryCoordinator {
   }
 
   getOpenArcs(): string[] {
-    return this.deps.getStory() && this.enabled ? openArcTexts(this.state.arcs, ARC_OPEN_INJECT_LIMIT) : [];
+    return this.deps.getStory() && this.enabled ? openArcTexts(withoutExcludedThreads(this.state.arcs, this.state.derived), ARC_OPEN_INJECT_LIMIT) : [];
   }
 
   async setArcPinned(id: string, pinned: boolean) { await this.commit(() => ({ arcs: setArcPinned(this.state.arcs, id, pinned) })); }

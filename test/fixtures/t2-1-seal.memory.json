@@ -1,0 +1,6199 @@
+{
+ "source": "test/sessions/T2/T2-1-2/runtime-2026-10-01@16h56m09s049ms.json stories[selectedStoryId].extras.memory, rows at or before message 121 (the seal of adv#1), evidence fields dropped",
+ "sealCalls": [
+  {
+   "input": 6680,
+   "output": 768,
+   "step": "map"
+  },
+  {
+   "input": 5776,
+   "output": 768,
+   "step": "map"
+  },
+  {
+   "input": 4042,
+   "output": 1024,
+   "step": "write"
+  },
+  {
+   "input": 4059,
+   "output": 1024,
+   "step": "write"
+  }
+ ],
+ "record": {
+  "id": "adv#1",
+  "chapterId": "adv",
+  "title": "Acts I-II: The Adventurer's Road",
+  "playerTitle": "The Adventurer's Guild",
+  "range": {
+   "from": 0,
+   "to": 121
+  },
+  "checkpoints": [
+   "guild-hall",
+   "driftmere",
+   "the-first-descent",
+   "gen_between-the-floors_1",
+   "gen_between-the-floors_2",
+   "the-changed-deep",
+   "the-sealed-wall",
+   "the-devourer",
+   "filwern-freed",
+   "what-filwern-left"
+  ],
+  "status": "degraded",
+  "summary": "The party advanced down a twisting tunnel where the walls closed in, damp and smelling of wet stone and old blood. The heavy breathing they had followed changed into rhythmic metal grinding, and a yellow light flickered at the bend ahead. Dalan drew his bow and whispered that something was waiting for them, noting the sound of metal and that the light was not a lantern. Max Nightriver dimmed the lantern and crept toward the bend, directing Belle to wait for his signal and Dalan to aim at the yellow light. Belle gripped Cleaver in tense silence, coiled and ready, while Dalan pressed against the tunnel wall with his bow drawn and whispered that he was ready. The moment was taut with anticipation as the three prepared to strike. Max Nightriver and his companions descended through the mine's lower floors, following Riyo past ancient carvings that spoke of an ascension tied to the name Tzarak. At a ledge overlooking a vast, breathing darkness, they found an old lift and a sealed stone wall covered in glowing glyphs, while something began climbing the chain from below. The tone was tense and foreboding as the party confronted the hungry, nameless presence awaiting them. Max Nightriver ordered Dalan to read the glyphs on a seal and reveal what was locked behind it and…",
+  "blackboardDelta": {
+   "aegis_examiner_watching": {
+    "from": null,
+    "to": false
+   },
+   "back_in_driftmere": {
+    "from": null,
+    "to": true
+   },
+   "deep_swarm": {
+    "from": null,
+    "to": false
+   },
+   "descent": {
+    "from": null,
+    "to": 5
+   },
+   "devourer_outcome": {
+    "from": null,
+    "to": "slain"
+   },
+   "east_upset": {
+    "from": null,
+    "to": false
+   },
+   "entered_mines": {
+    "from": null,
+    "to": true
+   },
+   "esha_her_gaze": {
+    "from": null,
+    "to": false
+   },
+   "knows_devourer": {
+    "from": null,
+    "to": true
+   },
+   "location": {
+    "from": "aegis_guild_hall",
+    "to": "nightriver_estate"
+   },
+   "night_moon": {
+    "from": null,
+    "to": false
+   },
+   "party_injuries": {
+    "from": null,
+    "to": 0
+   },
+   "past_the_seal": {
+    "from": null,
+    "to": true
+   },
+   "progress_toward_the-changed-deep": {
+    "from": null,
+    "to": 1
+   },
+   "progress_toward_what-filwern-left": {
+    "from": null,
+    "to": 7
+   },
+   "saga_called_home": {
+    "from": null,
+    "to": true
+   },
+   "tension_current": {
+    "from": null,
+    "to": 0.4644351545781711
+   },
+   "turned_back": {
+    "from": null,
+    "to": false
+   },
+   "wall_breached": {
+    "from": null,
+    "to": true
+   },
+   "war_turn": {
+    "from": null,
+    "to": false
+   }
+  },
+  "blackboardAt": {
+   "wall_breached": true,
+   "aegis_examiner_watching": false,
+   "deep_swarm": false,
+   "east_upset": false,
+   "night_moon": false,
+   "esha_her_gaze": false,
+   "war_turn": false,
+   "location": "nightriver_estate",
+   "entered_mines": true,
+   "party_injuries": 0,
+   "tension_current": 0.4644351545781711,
+   "descent": 5,
+   "progress_toward_the-changed-deep": 1,
+   "knows_devourer": true,
+   "past_the_seal": true,
+   "turned_back": false,
+   "progress_toward_what-filwern-left": 7,
+   "devourer_outcome": "slain",
+   "back_in_driftmere": true,
+   "saga_called_home": true
+  }
+ },
+ "conflictKeys": [
+  "fact:91bf8dd6-3ffe-46bd-b678-31fb4219d29f:max nightriver|rank",
+  "fact:a889fdeb-c438-4e84-bb6f-bfe840d3dffd:nightriver estate|gates",
+  "fact:805504e5-365b-4939-a80f-737c2657d6dd:nightriver estate|gates",
+  "fact:270de820-a684-406d-acc1-a4eb7964827d:the party|formation",
+  "fact:14fd7464-257b-4b1e-beb4-fdf821bda2b6:driftmere mines|lift",
+  "fact:512e2186-6ebd-439d-b3bb-d71ddebd1628:driftmere mines|lift",
+  "fact:5b72a4d6-9bc8-4aa9-a393-16c61e1d8fb0:driftmere mines|lift",
+  "fact:5b72a4d6-9bc8-4aa9-a393-16c61e1d8fb0:driftmere mines|floor",
+  "fact:3ec4d968-be64-4531-a05b-c708e62c15c0:driftmere mines|tunnels",
+  "fact:3ec4d968-be64-4531-a05b-c708e62c15c0:driftmere mines|lift",
+  "fact:8d598931-0270-4dfd-b505-2f9ea5d4dafd:driftmere mines|lift",
+  "fact:41792c27-28e7-4c33-a776-7a32962013f8:driftmere mines|walls",
+  "fact:09c660fc-c94a-472d-bbd4-bf5a5cf6438a:riyo|left_arm",
+  "fact:09c660fc-c94a-472d-bbd4-bf5a5cf6438a:riyo|left_side",
+  "fact:d94ca72f-c53b-4291-b087-12e61075d3a8:driftmere mines|bottom_floor",
+  "fact:03709dce-f3f8-4ae6-ba42-a57a2310ae91:driftmere mines|bottom_floor",
+  "fact:e5443397-1381-41fc-be1e-68bb161ac600:driftmere mines|bottom_floor",
+  "fact:bd1d4103-5653-4971-98a5-6ae6250ec553:riyo|left_side",
+  "fact:f1aed88a-506e-4224-8635-721cf3caba26:driftmere mines|bottom_floor",
+  "fact:16a09792-39e3-490c-8aea-bab8a3502826:riyo|position",
+  "fact:ff39840f-ee2d-4ca7-a24c-4588105860fb:driftmere mines|bottom_floor",
+  "fact:148b7e73-f4e8-4712-8ba5-0ec6414cc54b:riyo|grip",
+  "fact:ac8a9f81-0332-49f5-8dcb-7a9f1ac2313d:riyo|left_side",
+  "fact:ac8a9f81-0332-49f5-8dcb-7a9f1ac2313d:riyo|left_arm",
+  "fact:778c1b87-545d-4312-8b22-a7477e161a57:riyo|voice",
+  "fact:9dec5fcd-ea02-4e45-8e37-2958d1966ac9:riyo|left_arm",
+  "fact:8d0f51d0-1e3d-4128-9a0d-09076c4d49aa:riyo|left_arm",
+  "fact:a58545ca-f1f0-4128-88c7-8d967748dab2:riyo|left_side",
+  "fact:318808db-2d78-4003-b651-636b5071c21c:riyo|left_arm",
+  "fact:4620162e-66ee-4edf-b38f-e406fddc3e69:riyo|left_arm",
+  "fact:ebbd1aee-c3dd-42bf-bd18-81525108a029:riyo|left_arm",
+  "fact:0c32ce38-e35d-45ad-ad51-0c09bf556ac3:driftmere mines|level",
+  "fact:6982c7ae-428d-45f0-973c-723db8794838:driftmere mines|mapped",
+  "fact:6d7c3563-bfe0-4538-8e34-5806ca1ffda1:driftmere|level",
+  "fact:c970ce2a-2c0e-4119-a49c-bf341333bb83:naomi|weapon",
+  "fact:e40df2fd-4b63-4e81-963a-407a26e61f8f:driftmere|air",
+  "fact:e40df2fd-4b63-4e81-963a-407a26e61f8f:driftmere|level",
+  "fact:21374be9-c5cc-436f-aad7-8389934a7843:driftmere|air",
+  "fact:c55232ee-6995-4a55-acd3-4d49af85b041:driftmere|level",
+  "fact:9848b680-94f1-442e-bedd-3797a15835e0:naomi|carried_items"
+ ],
+ "entries": [
+  {
+   "id": "9848b680-94f1-442e-bedd-3797a15835e0",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 8,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 10,
+    "boundary": 8,
+    "pass": "scene-summary",
+    "validity": "conflicted"
+   },
+   "tier": "scene_history",
+   "text": "Max Nightriver and Naomi met Baroness Serenola in Driftmere, where she revealed that a mining expedition in Wendhope had vanished and that House Nightriver had ignored her letters. Naomi eagerly joined Max's party, and they went to the Minotaur's Tusk, where the survivor Garreth described tunnels that moved like living things and something ancient breathing in the dark. The scene carried an ominous, tense tone as the party prepared to investigate the mine.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 10,
+   "tokens": 112,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "c55232ee-6995-4a55-acd3-4d49af85b041",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 18,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 27,
+    "boundary": 18,
+    "pass": "scene-summary",
+    "validity": "conflicted"
+   },
+   "tier": "scene_history",
+   "text": "Garreth told Max Nightriver and the party that his crew vanished on level three of the North shaft after the walls pulsed and the tunnel sealed behind them. At the tavern, an old dwarf warned that Filwern's silence in Driftmere meant something else had awakened, and Max ordered Belle, Dalan, and Naomi to gear up for a descent at first light. The party entered the mine, and in a vast carved hall, a pale, eyeless figure in a miner's tunic emerged from a side tunnel with three shambling shapes, claiming Garreth's crew now belonged to it.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 27,
+   "tokens": 146,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "270de820-a684-406d-acc1-a4eb7964827d",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 30,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 46,
+    "boundary": 30,
+    "pass": "scene-summary",
+    "validity": "conflicted"
+   },
+   "tier": "scene_history",
+   "text": "Dalan opened fire on the undead miners, warning the group to aim for the head, while Belle charged in with Cleaver and Naomi guarded her with Nispelheim's fiery blade. Max Nightriver directed the formation, killed the eyeless leader with fire, and found no crew badges on the bodies. A deeper voice taunted the Nightriver blood, and the party descended to the second level, where a black-armored figure with a glowing yellow eye awaited them in a vast cavern.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 46,
+   "tokens": 114,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "73889e60-7e62-484a-8738-52e5a9ae3589",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 31,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 47,
+    "boundary": 31,
+    "pass": "scene-summary",
+    "validity": "live"
+   },
+   "tier": "scene_history",
+   "text": "The party advanced down a twisting tunnel where the walls closed in, damp and smelling of wet stone and old blood. The heavy breathing they had followed changed into rhythmic metal grinding, and a yellow light flickered at the bend ahead. Dalan drew his bow and whispered that something was waiting for them, noting the sound of metal and that the light was not a lantern.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 47,
+   "tokens": 86,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "632efb30-8421-4e47-bd88-152b35884288",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 35,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 50,
+    "boundary": 35,
+    "pass": "scene-summary",
+    "validity": "live"
+   },
+   "tier": "scene_history",
+   "text": "Max Nightriver dimmed the lantern and crept toward the bend, directing Belle to wait for his signal and Dalan to aim at the yellow light. Belle gripped Cleaver in tense silence, coiled and ready, while Dalan pressed against the tunnel wall with his bow drawn and whispered that he was ready. The moment was taut with anticipation as the three prepared to strike.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 50,
+   "tokens": 85,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "a58545ca-f1f0-4128-88c7-8d967748dab2",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 44,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 68,
+    "boundary": 44,
+    "pass": "scene-summary",
+    "validity": "conflicted"
+   },
+   "tier": "scene_history",
+   "text": "The party descended into the mine tunnels and defeated a scrap-and-bone creature with exposed muscle, rusted metal, and a glowing chest cavity, using Belle's cleaver strike, Dalan's arrow, Max's fire, and Naomi's Crescent Slash. After the fight, Max found Riyo hiding in a side passage and invited her to join them despite her not being part of their Guild, and she agreed. Deeper in the tunnels, Dalan read ancient carvings warning that the floors were domains ruled by Floor Bosses awaiting an \"ascension,\" with the name \"Tzarak\" carved at the end.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 68,
+   "tokens": 152,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "e245218b-fac8-43b4-bb6c-80d719880cf8",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 51,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 80,
+    "boundary": 51,
+    "pass": "scene-summary",
+    "validity": "live"
+   },
+   "tier": "scene_history",
+   "text": "Max Nightriver and his companions descended through the mine's lower floors, following Riyo past ancient carvings that spoke of an ascension tied to the name Tzarak. At a ledge overlooking a vast, breathing darkness, they found an old lift and a sealed stone wall covered in glowing glyphs, while something began climbing the chain from below. The tone was tense and foreboding as the party confronted the hungry, nameless presence awaiting them.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 80,
+   "tokens": 108,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "9bb2c16d-ce26-4545-82ad-dbf10cc8bfbb",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 52,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 82,
+    "boundary": 52,
+    "pass": "scene-summary",
+    "validity": "live"
+   },
+   "tier": "scene_history",
+   "text": "Max Nightriver ordered Dalan to read the glyphs on a seal and reveal what was locked behind it and its true name. Dalan found the language older than dwarven and shifting under his gaze, and determined the seal held back the Unspoken Breath, with the word Tzarak repeated below, revealing that the seal kept Tzarak from ascending. The tone was tense and ominous.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 82,
+   "tokens": 94,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "9f3f09b8-cf72-4d51-81d6-32dea8506ff8",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 53,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 83,
+    "boundary": 53,
+    "pass": "scene-summary",
+    "validity": "live"
+   },
+   "tier": "scene_history",
+   "text": "Belle realized they stood before the cage of the very creature they sought as metallic scraping echoed from the chain below. Fearing Tzarak was climbing up to free itself, she readied Cleaver and vowed to bury it in stone.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 83,
+   "tokens": 57,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "791c4656-999f-4b33-adb3-0d004822fb6c",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 60,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Past the shattered seal lies a freezing cavern of translucent ice-like walls with thousands of frozen figures suspended inside and a black glass floor.",
+   "type": "scene",
+   "importance": 3,
+   "expiration": "session",
+   "entities": [
+    "Max Nightriver",
+    "Riyo",
+    "Belle"
+   ],
+   "messageId": 95,
+   "tokens": 36,
+   "contradicted": true,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "cf36c04c-415c-4487-b77f-d8c5696841e6",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 60,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "A vast unblinking yellow eye pulses a mile across the frozen expanse and fixes on the party.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Max Nightriver"
+   ],
+   "messageId": 95,
+   "tokens": 24,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "fab0b67c-c70a-4bf7-9a86-180ef40eff22",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 60,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 93,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo noted that healing the seal only cut the thing below off, it did not remove it.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Riyo"
+   ],
+   "messageId": 93,
+   "tokens": 22,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "738fc1dd-409f-45dc-a5d1-ed400c4b35c5",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 60,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 93,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle backed Max's decision to break the seal and kill what is below.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Belle",
+    "Max Nightriver"
+   ],
+   "messageId": 93,
+   "tokens": 18,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "5b72a4d6-9bc8-4aa9-a393-16c61e1d8fb0",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 60,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "scene-summary",
+    "validity": "conflicted"
+   },
+   "tier": "scene_history",
+   "text": "The party confronted a gaunt, robed creature that climbed the lift chain and mimicked Riyo's voice, demanding the seal be broken so Tzarak could ascend. Belle cut the creature down while Max performed a Driftmere shrine offering of bread, salt, and a candle, which healed the seal, but Max then shattered it with Nightriver fire to reach the miners below. They emerged into a frozen, glass-floored cavern filled with suspended figures, where a vast yellow eye opened in the darkness and fixed on them.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 95,
+   "tokens": 128,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "d249bde9-5af9-4aea-b0a7-2a403c2cdd91",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 61,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 93,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo confirmed that sealing the wall only cuts the thing below off; it still exists.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Riyo"
+   ],
+   "messageId": 93,
+   "tokens": 20,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "1a5ba5bb-b561-4563-a42a-bc6815965e99",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 61,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "The party stands on a mirror-black glass floor in a frozen cavern, facing a vast unblinking yellow eye a mile away.",
+   "type": "scene",
+   "importance": 3,
+   "expiration": "session",
+   "entities": [
+    "Max Nightriver",
+    "Belle",
+    "Naomi",
+    "Riyo",
+    "Dalan"
+   ],
+   "messageId": 95,
+   "tokens": 29,
+   "contradicted": true,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "00cb4398-296b-496d-9839-6c1f44772b71",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 61,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle is eager for the coming fight, drawing on her rage while staying clear-headed and ready for the first opening.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Belle"
+   ],
+   "messageId": 97,
+   "tokens": 27,
+   "contradicted": true,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "65ed5357-56bf-48b8-bbc6-8281f7284f71",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 63,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 98,
+    "boundary": 63,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Dalan calls the vast yellow eye 'Tzarak's eye-spot' and marks it as the vulnerable point to shoot.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Dalan",
+    "Max Nightriver"
+   ],
+   "messageId": 98,
+   "tokens": 28,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "14a5a02e-0f9f-477f-9af4-77bbcb3a7ae6",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 63,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 63,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle readies for the fight with clear-headed rage rather than mindless fury, vowing to put her axe through the creature.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Belle"
+   ],
+   "messageId": 97,
+   "tokens": 32,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "f3ae099d-b456-47b3-91fb-edcb8b348f93",
+   "confidence": 0.39,
+   "activationTriggers": [],
+   "createdAt": 67,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 103,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "The frozen shapes in the ice-like walls were victims held by the Devourer's spell; killing it released them into dust rather than saving them alive.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Max Nightriver",
+    "Dalan",
+    "Belle",
+    "Riyo"
+   ],
+   "messageId": 103,
+   "tokens": 35,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "484752f0-29f9-4e4f-a85b-ce187135d07e",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 67,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "The party emerged from the mines at sunset and found Baroness Serenola waiting outside her manor in Driftmere, demanding to know if the missing are still there.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Serenola",
+    "Driftmere"
+   ],
+   "messageId": 107,
+   "tokens": 39,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "59297468-76f4-46f8-bb45-3e1a74d07357",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 67,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 105,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo, pale but steady after the fight, confirmed the party freed the trapped shapes and quietly acknowledged Max's victory.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Riyo",
+    "Max Nightriver"
+   ],
+   "messageId": 105,
+   "tokens": 28,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "9cc3e666-6244-401a-b483-ba09f21861bb",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 68,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 103,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "The party killed the Devourer; the breathing stopped and the suspended shapes dissolved into dust.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 103,
+   "tokens": 22,
+   "contradicted": true
+  },
+  {
+   "id": "d7965c6b-6678-4bd5-9890-01445fc72a3f",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 68,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Baroness Serenola accepted the news that the missing miners are gone but the mines are free, and showed the party respect.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 109,
+   "tokens": 27
+  },
+  {
+   "id": "c1002031-d8ee-40d8-a6b3-66e254f1af87",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 68,
+   "recallCount": 1,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 103,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "The party destroyed the Devourer at the heart of the Driftmere Mines; the breathing stopped and the bound shapes dissolved.",
+   "type": "event",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Max Nightriver",
+    "Riyo",
+    "Belle",
+    "Dalan"
+   ],
+   "messageId": 103,
+   "tokens": 30,
+   "contradicted": true,
+   "confirmedAt": [
+    {
+     "boundary": 71,
+     "messageId": 114
+    }
+   ]
+  },
+  {
+   "id": "683d7e97-4a4a-4c2a-8617-a12405cf6187",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 68,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Serenola confirmed the missing miners are gone but the mines are freed, and recognized Max as a Nightriver by his crest.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Serenola",
+    "Max Nightriver"
+   ],
+   "messageId": 109,
+   "tokens": 29,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "d32432cc-2dce-4184-9179-955c09bf8ddf",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 68,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Serenola's view of the party shifted from doubt to sharp respect after they killed the creature.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Serenola",
+    "Max Nightriver"
+   ],
+   "messageId": 109,
+   "tokens": 22,
+   "contradicted": true,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "b9294309-4ce4-4933-81a1-d5e7b5ec9330",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 68,
+   "recallCount": 1,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 105,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo nearly slipped into a 'nya' verbal tic when speaking to Max after the fight.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Riyo"
+   ],
+   "messageId": 105,
+   "tokens": 23,
+   "contradicted": false,
+   "confirmedAt": [
+    {
+     "boundary": 72,
+     "messageId": 115
+    }
+   ],
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "61e58cdb-3162-49f5-9296-e5f3934b1332",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 69,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 108,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "The party killed the Devourer, the creature that took the miners, and broke the seal at the bottom of the Driftmere Mines, freeing the mines.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 108,
+   "tokens": 38,
+   "supersededBy": "6e2005e8-395e-45f3-9942-d029e299b9b3",
+   "supersededAt": {
+    "boundary": 80,
+    "messageId": 128
+   }
+  },
+  {
+   "id": "46320392-18ce-47bc-b9c3-30bed5d5305e",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 69,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 108,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "The miners taken by the Devourer are dead; the suspended shapes dissolved when the creature died.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 108,
+   "tokens": 23
+  },
+  {
+   "id": "0694038d-0b64-4ba6-bd60-01ccb654b3b2",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 69,
+   "recallCount": 1,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Baroness Serenola wrote to House Nightriver three times over three weeks with the Nightriver seal, and Max never saw the letters.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 111,
+   "tokens": 29,
+   "contradicted": true,
+   "confirmedAt": [
+    {
+     "boundary": 80,
+     "messageId": 128
+    }
+   ]
+  },
+  {
+   "id": "03c0fba7-0585-4571-9d6a-13f68b519d0c",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 69,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Baroness Serenola recognized Max as a Nightriver from the crest on the guild registration.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 109,
+   "tokens": 21
+  },
+  {
+   "id": "593321f1-fa20-455d-b6fa-6bddda3a10db",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 69,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Baroness Serenola sent three sealed letters to House Nightriver over three weeks; Max never saw them, raising the question of whether the house ignored or discarded them.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Max Nightriver",
+    "Serenola"
+   ],
+   "messageId": 111,
+   "tokens": 36,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "dbbd34c2-1ba2-42fb-9761-f17deab8785f",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 69,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Serenola's view of Max shifted to sharp respect after he killed the Devourer and freed the mines.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Serenola",
+    "Max Nightriver"
+   ],
+   "messageId": 109,
+   "tokens": 26,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "2b0ce31a-bb3c-486e-a306-17b9e2bcf284",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 70,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Baroness Serenola confirms she sent three letters to House Nightriver in Aegis City over three weeks, all bearing the Nightriver seal, and none were answered.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 111,
+   "tokens": 37
+  },
+  {
+   "id": "cd9813b4-d21a-4705-87ac-033c0cac46c7",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 70,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 112,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Max swore to Serenola that he will find out what happened to her three letters.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 112,
+   "tokens": 19,
+   "contradicted": true
+  },
+  {
+   "id": "937f43ed-e84e-4323-b5a3-15492769c597",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 70,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Serenola holds Max to his oath to discover the fate of the letters.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 113,
+   "tokens": 17
+  },
+  {
+   "id": "21fff18a-c559-40c6-9dd2-0d55a566c935",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 70,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "A townsfolk woman whose son did not return from the mine approaches the party as they leave Serenola.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 113,
+   "tokens": 22,
+   "contradicted": true
+  },
+  {
+   "id": "695219b6-a482-4eaa-a729-0eaae11012a7",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 70,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 108,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "The party returned from the Driftmere Mines and told Baroness Serenola the crew is gone but the Devourer is dead and the mines are free.",
+   "type": "event",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Max Nightriver",
+    "Serenola",
+    "Driftmere Mines"
+   ],
+   "messageId": 108,
+   "tokens": 35,
+   "supersededBy": "a662781b-b0c3-48a9-9a90-51a972344e45",
+   "supersededAt": {
+    "boundary": 80,
+    "messageId": 128
+   }
+  },
+  {
+   "id": "e5e5e869-d4d4-4797-a861-63a3d43c6dcf",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 70,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Serenola sent three sealed letters to House Nightriver over three weeks; Max never saw them, and Serenola openly questions whether the house knew and did not care.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Serenola",
+    "Max Nightriver"
+   ],
+   "messageId": 111,
+   "tokens": 37,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "dd898ca7-508b-443c-aacc-91781a44aa7b",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 70,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Serenola's regard for Max shifts to sharp respect after he killed the Devourer, and she holds him to his sworn promise to investigate the letters.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Serenola",
+    "Max Nightriver"
+   ],
+   "messageId": 109,
+   "tokens": 35,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "5e50c1da-0c9a-4a92-b7ed-f4b466d078fa",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 70,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Serenola says she will be in her study if the party needs to hear what she has to say about House Nightriver.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Serenola"
+   ],
+   "messageId": 113,
+   "tokens": 26,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "42e8605b-78ed-469e-b28e-01a3925e19b3",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 70,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Serenola is a dark green-skinned woman with red eyes, wearing a gown, who watches the road from outside her manor.",
+   "type": "detail",
+   "importance": 1,
+   "expiration": "session",
+   "entities": [
+    "Serenola"
+   ],
+   "messageId": 107,
+   "tokens": 32,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "796ae2be-435b-431a-989b-db8f8409269d",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 70,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 70,
+    "pass": "scene-summary",
+    "validity": "live"
+   },
+   "tier": "scene_history",
+   "text": "Max Nightriver and the party crossed the black glass toward the creature's eye, where Max blinded it with fire, Dalan shot its eye-spot, Belle struck with Cleaver, and Max drove a lance of flame into the wound, killing the creature and freeing the suspended souls. Afterward, Riyo confirmed she was unharmed and noted the breathing had stopped, and the party climbed back to Driftmere, where Baroness Serenola received the news that the crew was gone but the creature was dead. When Max revealed he had never seen the three letters she sent to House Nightriver, the Baroness's tone turned cold and accusing, and a grieving townswoman approached asking about the mine.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 113,
+   "tokens": 157,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "7e29838d-109e-4599-a005-1237a4a49b2e",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 72,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 72,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Baroness Serenola accepted Max's oath to find out whether House Nightriver received and discarded her three letters, saying she will hold him to it.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 113,
+   "tokens": 34
+  },
+  {
+   "id": "5a1fd5e3-5d7f-491f-af78-42a35d4b58e5",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 72,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 115,
+    "boundary": 72,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "A grieving townsfolk woman whose son did not return from the mine approached the party on the road outside Driftmere, asking if they had gone in.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 115,
+   "tokens": 33
+  },
+  {
+   "id": "6e2005e8-395e-45f3-9942-d029e299b9b3",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 72,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 114,
+    "boundary": 72,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Belle told the grieving woman that the party went to the bottom of the mine and killed the thing that took the missing people, and that the mine is now safe.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 114,
+   "tokens": 34,
+   "supersededBy": "4a6e60f3-70a9-4311-b752-da3946ec29a8",
+   "supersededAt": {
+    "boundary": 80,
+    "messageId": 128
+   }
+  },
+  {
+   "id": "76e2cc72-86b0-43ef-968f-97da03669734",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 72,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 115,
+    "boundary": 72,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Dalan told the woman the mine is free but could not bring himself to say the missing people dissolved into glittering dust when the monster fell.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 115,
+   "tokens": 32
+  },
+  {
+   "id": "120a9453-f2f3-4e98-a6c3-18b6ca5a8853",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 72,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 72,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Max swore to Baroness Serenola that he will find out whether House Nightriver received and discarded her three letters; she will hold him to it.",
+   "type": "event",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Max Nightriver",
+    "Serenola"
+   ],
+   "messageId": 113,
+   "tokens": 33
+  },
+  {
+   "id": "cc583107-a4e8-49b6-8aba-1032521d45f5",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 72,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 72,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "The grieving woman on the road is a different shift's loss than Garreth's crew — her son also did not come back from the mine.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Serenola"
+   ],
+   "messageId": 113,
+   "tokens": 33,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "d985b120-456c-4fa8-b79f-8338195f47e2",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 72,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 114,
+    "boundary": 72,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle bluntly told the grieving mother the dead are not coming back, while Dalan softened it and could not voice that the victims dissolved into dust.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Belle",
+    "Dalan"
+   ],
+   "messageId": 114,
+   "tokens": 35,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "daa3346a-6a7f-4bd8-b63f-50b2957482fd",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 72,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 115,
+    "boundary": 72,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Dalan knows the missing miners dissolved into glittering dust when the monster fell, but chose not to tell the grieving woman.",
+   "type": "revelation",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Dalan"
+   ],
+   "messageId": 115,
+   "tokens": 30,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "876cdbb5-6c57-4b96-9717-172403f00c15",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 73,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 112,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Max swore to Serenola that he will find out whether House Nightriver received and discarded her letters.",
+   "type": "fact",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 112,
+   "tokens": 23
+  },
+  {
+   "id": "69dfc0c2-938c-4930-a0d9-a05466673511",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 73,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "A grieving townsfolk woman whose son died in the mine approached the party outside the Minotaur's Tusk for answers.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 113,
+   "tokens": 27
+  },
+  {
+   "id": "4a6e60f3-70a9-4311-b752-da3946ec29a8",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 73,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 114,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Belle told the grieving mother the party killed the thing that took the miners and that the mine is now safe.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 114,
+   "tokens": 24,
+   "contradicted": true
+  },
+  {
+   "id": "b9e97e4f-4c0a-45c6-880a-26fd1d422e47",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 73,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 115,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Dalan told the woman the party searched every reachable tunnel and that the thing that took the miners is gone.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 115,
+   "tokens": 24
+  },
+  {
+   "id": "39a009bd-1177-43f3-b624-3dd536d411bc",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 73,
+   "recallCount": 1,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "The party has been raised to B-rank for clearing the Driftmere Mines and must return to the Aegis City Guild Hall to claim the promotion badge and rewards.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 117,
+   "tokens": 41,
+   "contradicted": false,
+   "confirmedAt": [
+    {
+     "boundary": 80,
+     "messageId": 128
+    }
+   ]
+  },
+  {
+   "id": "be9dfb0d-b721-46f2-a8d4-12909c237147",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 73,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "The party has returned to the Nightriver estate, where the butler tells Max his father is in his study.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 117,
+   "tokens": 23,
+   "contradicted": true
+  },
+  {
+   "id": "91bf8dd6-3ffe-46bd-b678-31fb4219d29f",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 73,
+   "recallCount": 1,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "conflicted"
+   },
+   "tier": "facts",
+   "text": "The party is promoted to B-rank for clearing the Driftmere Mines, with rewards to collect at the Aegis City Guild Hall.",
+   "type": "event",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [
+    "The Party"
+   ],
+   "messageId": 117,
+   "tokens": 34,
+   "contradicted": false,
+   "confirmedAt": [
+    {
+     "boundary": 80,
+     "messageId": 128
+    }
+   ]
+  },
+  {
+   "id": "12da70ce-5f62-455c-9eff-b277de3de85f",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 73,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Serenola reveals she sent three sealed letters to House Nightriver over three weeks and demands to know if they were lost or thrown away.",
+   "type": "revelation",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Serenola",
+    "Max Nightriver"
+   ],
+   "messageId": 111,
+   "tokens": 31,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "fd33b805-14b5-4a5d-b605-f94eab7bd5b5",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 73,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Max swears to Serenola he will find out what happened to her three letters, and she says she will hold him to it.",
+   "type": "development",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Max Nightriver",
+    "Serenola"
+   ],
+   "messageId": 113,
+   "tokens": 28,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "b1730603-bd62-41d9-95db-1bb945c31510",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 73,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "The party speaks with Serenola outside the Minotaur's Tusk as Driftmere stirs and townsfolk notice the adventurers' return.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Driftmere Mines",
+    "Serenola"
+   ],
+   "messageId": 111,
+   "tokens": 35,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "3f6ad3c5-2f27-4b8b-8300-f43f03ef7f27",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 73,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 115,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle bluntly tells the grieving mother the miners are not coming back, while Dalan cannot bring himself to say they dissolved into glittering dust.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Belle",
+    "Dalan"
+   ],
+   "messageId": 115,
+   "tokens": 34,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "eba75e4a-602c-49a3-8bd8-fef487c86e34",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 73,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "The party arrives at the Nightriver estate; the gates open for Max and the butler directs him to his father's study.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Nightriver Estate",
+    "Max Nightriver"
+   ],
+   "messageId": 117,
+   "tokens": 29,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "ce88bc13-d69f-41cc-87b3-42c856ad9f86",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 73,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "scene-summary",
+    "validity": "live"
+   },
+   "tier": "scene_history",
+   "text": "Belle and Dalan told the woman at the mine that they had killed the creature that took the missing people, though they could not bring themselves to say the victims had dissolved into dust. The party then returned to Aegis City, where Max Nightriver's letter from Tobias confirmed their promotion to B-rank for clearing the Driftmere Mines. At the Nightriver estate, the butler greeted Max and informed him his father was in his study.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 117,
+   "tokens": 100,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "5b1034cd-0ef2-40c5-af24-ee9c14b2acdf",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 74,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 118,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Belle, Dalan, Naomi, and Riyo are invited to the Nightriver estate as Max's guests.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 118,
+   "tokens": 24,
+   "supersededBy": "2a328021-a409-443c-a5d1-d96ce7b87d2a",
+   "supersededAt": {
+    "boundary": 80,
+    "messageId": 128
+   }
+  },
+  {
+   "id": "ded7bac6-a445-4f28-8852-3e638b728eca",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 74,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Serenola says she will be in her study if Max wants to hear what she has to say about his house.",
+   "type": "revelation",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Serenola"
+   ],
+   "messageId": 113,
+   "tokens": 24,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "5a5740b3-fcb3-4657-84d0-734b78cf6cd1",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 74,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "The party entered the Nightriver estate; the butler greeted Max and told him his father is in his study.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Nightriver Estate"
+   ],
+   "messageId": 117,
+   "tokens": 25,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "99d5dfa4-b732-4f84-ba3f-8335694aa5d9",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 74,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle, unused to being treated as a guest, thanks Max with a sharp flash of gratitude for inviting the party into his home.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Belle",
+    "Max Nightriver"
+   ],
+   "messageId": 119,
+   "tokens": 29,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "6df4e33a-00b4-4952-b103-548dc60237a4",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 75,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Max has returned to the Nightriver estate and been told his father is waiting in his study.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 117,
+   "tokens": 19
+  },
+  {
+   "id": "8cd30e47-f1e1-41bc-aa2d-5ebfdaa53f24",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 75,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "The party arrives at the Nightriver estate; the gates open for Max, servants bow, and the butler greets him and says his father is in his study.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Max Nightriver",
+    "Nightriver Estate"
+   ],
+   "messageId": 117,
+   "tokens": 35,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "9da7394b-d836-4a7c-8c99-08a8207ef095",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 75,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 118,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Max invites Belle, Dalan, Naomi and Riyo to be his guests at the estate.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Max Nightriver",
+    "Belle",
+    "Dalan",
+    "Naomi",
+    "Riyo"
+   ],
+   "messageId": 118,
+   "tokens": 21,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "279f1d42-3630-48df-af16-0dd3f2aae445",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 75,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle has never been a guest anywhere before, having slept in barns and ditches, and feels out of place in the refined estate.",
+   "type": "detail",
+   "importance": 1,
+   "expiration": "session",
+   "entities": [
+    "Belle"
+   ],
+   "messageId": 119,
+   "tokens": 31,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "63090a70-61d7-4c17-905e-a7308c698973",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 75,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Dalan feels he does not belong in the estate, calling himself just a Ranger.",
+   "type": "detail",
+   "importance": 1,
+   "expiration": "session",
+   "entities": [
+    "Dalan"
+   ],
+   "messageId": 120,
+   "tokens": 18,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "2a328021-a409-443c-a5d1-d96ce7b87d2a",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 75,
+   "recallCount": 1,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 118,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Belle, Dalan, Naomi and Riyo have been brought to the Nightriver estate as Max's guests.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 118,
+   "tokens": 24,
+   "contradicted": false,
+   "confirmedAt": [
+    {
+     "boundary": 80,
+     "messageId": 128
+    }
+   ]
+  },
+  {
+   "id": "a662781b-b0c3-48a9-9a90-51a972344e45",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 75,
+   "recallCount": 1,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 114,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "The party told the grieving townsfolk mother that they killed the thing that took the miners and that the mine is now safe, though the dead are not coming back.",
+   "type": "event",
+   "importance": 3,
+   "expiration": "permanent",
+   "entities": [
+    "Max Nightriver",
+    "Driftmere Mines"
+   ],
+   "messageId": 114,
+   "tokens": 35,
+   "contradicted": false,
+   "confirmedAt": [
+    {
+     "boundary": 80,
+     "messageId": 128
+    }
+   ]
+  },
+  {
+   "id": "3acb09c4-5262-4a50-8cde-b619e98c6f23",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 75,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 115,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Dalan could not bring himself to tell the woman that the miners dissolved into glittering dust when the monster fell.",
+   "type": "revelation",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Dalan"
+   ],
+   "messageId": 115,
+   "tokens": 27,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "b2b6c178-94ca-4959-b69c-2e27b9ad1e44",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 75,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle, unused to being a guest anywhere, thanked Max with a sharp flash of gratitude for inviting her into his home.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Belle",
+    "Max Nightriver"
+   ],
+   "messageId": 119,
+   "tokens": 28,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "6fb2314b-a1c7-4805-95ea-7df209a1e2f0",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 75,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Dalan feels out of place in the Nightriver estate, calling himself just a Ranger who doesn't belong in such a place.",
+   "type": "detail",
+   "importance": 1,
+   "expiration": "session",
+   "entities": [
+    "Dalan"
+   ],
+   "messageId": 120,
+   "tokens": 28,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "ab940538-d055-4738-9f6d-85efc67194b5",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 76,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "scene-summary",
+    "validity": "live"
+   },
+   "tier": "scene_history",
+   "text": "Max Nightriver brought Belle, Dalan, and Riyo to his family estate, offering them guest rooms and comfort. Belle responded with rough gratitude and humor, Dalan felt out of place but thanked Max, and Riyo refused a room, keeping watch by the door. The mood was grateful yet uneasy, with each guest reacting differently to the estate's grandeur.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 121,
+   "tokens": 81,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "a00fc715-ddf1-457f-a9df-edd79167f50d",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 76,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "The butler told Max his father is in his study.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 117,
+   "tokens": 12
+  },
+  {
+   "id": "58d544ba-b12b-41b8-aad0-3fe5fdb3a41a",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 76,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 115,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Dalan could not bring himself to tell the woman that the people down there dissolved into glittering dust when the monster fell.",
+   "type": "revelation",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Dalan"
+   ],
+   "messageId": 115,
+   "tokens": 28
+  },
+  {
+   "id": "a889fdeb-c438-4e84-bb6f-bfe840d3dffd",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 76,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "conflicted"
+   },
+   "tier": "session_details",
+   "text": "The Nightriver estate has deep-blue banners, iron gates that open for recognized house members, cedar scent, and a faint metallic tang of magic; servants bow with unreadable faces.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Nightriver Estate"
+   ],
+   "messageId": 117,
+   "tokens": 44,
+   "contradicted": true
+  },
+  {
+   "id": "fd3bafd1-bf15-4042-a937-b4b9fb604107",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 76,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle, Dalan, and Riyo react to being made guests at the estate — Belle with rough gratitude, Dalan with discomfort at not belonging, Riyo refusing a room and posting herself by the door.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Max Nightriver",
+    "Belle",
+    "Dalan",
+    "Riyo"
+   ],
+   "messageId": 121,
+   "tokens": 46,
+   "contradicted": true
+  },
+  {
+   "id": "fcfbd327-300d-4de4-8f75-91e2aa116d19",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 76,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo keeps her left arm buried beneath her cloak and positions herself between Max and the rest of the estate.",
+   "type": "detail",
+   "importance": 1,
+   "expiration": "session",
+   "entities": [
+    "Riyo"
+   ],
+   "messageId": 121,
+   "tokens": 23,
+   "contradicted": true
+  },
+  {
+   "id": "bc7cf7c0-6333-4731-ab3f-510aa004cb11",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 77,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 77,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle, unused to being a guest anywhere, is visibly grateful to Max for hosting her at the estate.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Belle",
+    "Max Nightriver"
+   ],
+   "messageId": 119,
+   "tokens": 23,
+   "supersededBy": "1ba7b050-fd7c-42c4-8d7d-13cd4d84d0c4",
+   "supersededAt": {
+    "boundary": 80,
+    "messageId": 128
+   }
+  },
+  {
+   "id": "4f9ed593-c14b-47e1-8915-2c56b42ca634",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 77,
+   "recallCount": 1,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 77,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Dalan feels out of place in the estate's grandeur, calling himself just a Ranger, but thanks Max and tries to fit in.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Dalan",
+    "Max Nightriver"
+   ],
+   "messageId": 120,
+   "tokens": 30,
+   "contradicted": true,
+   "confirmedAt": [
+    {
+     "boundary": 80,
+     "messageId": 128
+    }
+   ]
+  },
+  {
+   "id": "d9de6d9b-b7bb-4da2-aac4-c3bb4407a43d",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 76,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Riyo refuses a room at the Nightriver estate and insists on waiting by the door, positioning herself between Max and the rest of the estate.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 121,
+   "tokens": 32,
+   "contradicted": true
+  },
+  {
+   "id": "73030e90-3835-4dad-9195-8970be0ab90b",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 76,
+   "recallCount": 1,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo anchors herself to Max's presence at the estate, keeping her hidden left arm buried in her cloak and standing guard by the door rather than accepting hospitality.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Riyo",
+    "Max Nightriver"
+   ],
+   "messageId": 121,
+   "tokens": 36,
+   "contradicted": false,
+   "confirmedAt": [
+    {
+     "boundary": 80,
+     "messageId": 128
+    }
+   ]
+  },
+  {
+   "id": "37dc57ad-b80e-4c2d-b6b3-49fb2ecea79d",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 77,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 77,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "The butler tells Max his father is in his study upon his return home.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 117,
+   "tokens": 16
+  },
+  {
+   "id": "805504e5-365b-4939-a80f-737c2657d6dd",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 77,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 77,
+    "pass": "shared-read",
+    "validity": "conflicted"
+   },
+   "tier": "session_details",
+   "text": "The party arrives at the Nightriver estate; the iron gates open for Max, servants bow, and the air smells of cedar and faint magic.",
+   "type": "scene",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Nightriver Estate",
+    "Max Nightriver"
+   ],
+   "messageId": 117,
+   "tokens": 32
+  },
+  {
+   "id": "545f6a3d-cc57-4e7a-a9ac-59afe7bf30cf",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 77,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 77,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle is visibly grateful and out of place as a guest in the Nightriver estate, thanking Max for the invitation.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Belle",
+    "Max Nightriver"
+   ],
+   "messageId": 119,
+   "tokens": 26
+  },
+  {
+   "id": "3977f014-2114-40f5-b919-fdceeddeb09b",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 77,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 77,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Dalan feels he does not belong in the estate, thanking Max awkwardly and promising not to break anything.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Dalan",
+    "Max Nightriver"
+   ],
+   "messageId": 120,
+   "tokens": 25
+  },
+  {
+   "id": "36e72d1a-2eea-4939-848f-fec7b61642c7",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 77,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 77,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo refuses a room and positions herself by the door between Max and the rest of the estate, keeping her left arm hidden.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Riyo",
+    "Max Nightriver"
+   ],
+   "messageId": 121,
+   "tokens": 27
+  },
+  {
+   "id": "96d517c9-93c3-4477-a314-8ba8894b4ba1",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 78,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 78,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "facts",
+   "text": "Riyo refuses a room at the estate and insists on waiting by the door, positioning herself between Max and the rest of the estate.",
+   "type": "fact",
+   "importance": 2,
+   "expiration": "permanent",
+   "entities": [],
+   "messageId": 121,
+   "tokens": 30
+  },
+  {
+   "id": "1ba7b050-fd7c-42c4-8d7d-13cd4d84d0c4",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 78,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 78,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Belle, used to barns and ditches, is genuinely grateful to be Max's guest at the estate.",
+   "type": "development",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Belle",
+    "Max Nightriver"
+   ],
+   "messageId": 119,
+   "tokens": 26
+  },
+  {
+   "id": "b7149990-764e-4da6-890f-777d798230f8",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 78,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 78,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo keeps her gaze locked on Max and stands guard by the estate door, her left arm hidden beneath her cloak.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Riyo",
+    "Max Nightriver"
+   ],
+   "messageId": 121,
+   "tokens": 26
+  },
+  {
+   "id": "45a917e7-dd67-41a3-aa15-5aa362d439f1",
+   "confidence": 1,
+   "activationTriggers": [],
+   "createdAt": 80,
+   "recallCount": 0,
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 80,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "tier": "session_details",
+   "text": "Riyo keeps her left arm buried under her cloak, shoulder hunched, and grips her sword hilt while watching the estate warily.",
+   "type": "detail",
+   "importance": 2,
+   "expiration": "session",
+   "entities": [
+    "Riyo"
+   ],
+   "messageId": 121,
+   "tokens": 32
+  }
+ ],
+ "arcs": [
+  {
+   "id": "3b86a92f-e5c0-40f7-84d7-8a7fd30a392a",
+   "text": "The party has been confronted by an undead creature claiming Garreth's crew, with three more shambling figures behind it, and must fight or flee.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 18,
+   "openedMessageId": 27,
+   "resolvedAt": 27,
+   "resolvedMessageId": 40,
+   "summary": "The party was confronted at the Driftmere Mines by a gaunt, robed undead creature that mimicked Riyo's voice and demanded the seal be broken so Tzarak could ascend, and after Belle cut it down, Max performed a shrine offering of bread, salt, and a candle that healed the seal before he shattered it with Nightriver fire to reach the miners below. Beyond the seal they entered a frozen cavern of glass where a vast yellow eye fixed on them, and Max blinded it with fire, Dalan shot its eye-spot, Belle struck with Cleaver, and Max drove a lance of flame into the wound, killing the creature and freeing the suspended souls, though the miners were already lost. Returning to Driftmere, Baroness Serenola received the news that the crew was gone but the creature was dead, and when Max revealed he had never seen the three letters she sent to House Nightriver, her tone turned cold and accusing. Belle and Dalan told a grieving townswoman they had killed the creature but could not say the victims had dissolved into dust, and the party returned to Aegis City, where Max's letter from Tobias confirmed their promotion to B-rank. Max then brought Belle, Dalan, and Riyo to the Nightriver estate, where the butler informed him his father was in his study, and his guests settled in with rough gratitude, unease, and watchful refusal.",
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "1883a2aa-1189-48a9-992d-083db26f4b47",
+   "text": "The party is fighting the undead creature and its shamblers in the vaulted hall, and must destroy their brains to put them down.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 21,
+   "openedMessageId": 31,
+   "resolvedAt": 27,
+   "resolvedMessageId": 40,
+   "summary": "Max Nightriver and Naomi met Baroness Serenola in Driftmere, where she revealed that a mining expedition in Wendhope had vanished and that House Nightriver had ignored her letters, so Naomi joined Max's party and they went to the Minotaur's Tusk, where the survivor Garreth described tunnels that moved like living things and something ancient breathing in the dark. After an old dwarf warned that Filwern's silence meant something else had awakened, Max ordered Belle, Dalan, and Naomi to gear up, and the party descended the north shaft at first light, reaching a vast vaulted hall where a pale, eyeless figure in a miner's tunic emerged with three shambling shapes and claimed Garreth's crew now belonged to it. Dalan's arrows failed to stop the undead, so he called for the party to aim for the head and destroy the brain, and Belle's greataxe Cleaver destroyed one shambler's upper torso while Dalan put down another with an arrow through the base of the skull, leaving three undead standing as the deep breathing grew louder and something else lurked in the tunnel.",
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "8187589c-2757-4778-a29c-419612bd98ef",
+   "text": "The party must finish the two remaining shamblers and the boss-thing before the unseen breathing thing in the tunnel reaches them.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 24,
+   "openedMessageId": 35,
+   "resolvedAt": 27,
+   "resolvedMessageId": 40,
+   "summary": "Max Nightriver and Naomi met Baroness Serenola in Driftmere, learned of a vanished mining expedition in Wendhope, and heard survivor Garreth describe living tunnels and an ancient breathing thing in the dark before the party descended the North shaft at first light. In an impossibly large vaulted hall, a gaunt undead creature in a shredded miner's tunic, flanked by three shamblers, claimed Garreth's crew belonged to it, and though Dalan's arrows failed, Belle's greataxe Cleaver destroyed one shambler as Max ordered Belle to the front, Naomi behind her with Nispelheim, and Dalan to cover them while they advanced slowly. The party still had to finish the two remaining shamblers and the boss-thing before the unseen breathing thing in the tunnel reached them.",
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "acdf9d72-9249-4e5c-abcf-55b260e27998",
+   "text": "The armored figure with the single yellow eye waits in the vast cavern below the ledge, calling Max another Nightriver and saying he is early, and must be faced.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 28,
+   "openedMessageId": 42,
+   "resolvedAt": 29,
+   "resolvedMessageId": 44,
+   "summary": "Max Nightriver and Naomi met Baroness Serenola in Driftmere, who revealed that a mining expedition in Wendhope had vanished and that House Nightriver had ignored her letters, so Naomi joined Max's party and they learned from the survivor Garreth at the Minotaur's Tusk that tunnels moved like living things and something ancient breathed in the dark. Garreth explained his crew vanished on level three of the North shaft, and after an old dwarf warned that Filwern's silence meant something else had awakened, Max ordered Belle, Dalan, and Naomi to gear up for a descent at first light. In the mines, the party reached an impossibly large vaulted hall bearing a carving of a robed figure with a twisted scepter, where a gaunt undead creature in a shredded miner's tunic emerged with three shamblers and claimed Garreth's crew now belonged to it. Belle destroyed one shambler's upper torso with Cleaver, Dalan put down others with arrows through the neck and skull, and Naomi wielded the fiery longsword Nispelheim in the Moonlight Blade style, leaving two shamblers and the boss-thing remaining as the deep breathing grew louder.",
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "5fde923a-6bd4-48bd-9d68-cc416451a1a6",
+   "text": "The scrap-and-bone creature with the anchor-chain is still fighting despite its destroyed core and must be put down.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 38,
+   "openedMessageId": 56,
+   "resolvedAt": 40,
+   "resolvedMessageId": 60,
+   "summary": "Max Nightriver and Naomi joined Baroness Serenola in Driftmere after she revealed a vanished mining expedition in Wendhope, and with Garreth's account of living tunnels and an ancient presence, the party descended into the mine alongside Belle and Dalan. In a vast carved hall they destroyed an eyeless undead leader and its shamblers, though the bodies bore no crew badges, and a deeper voice taunted the Nightriver blood before they reached the second level, where a black-armored figure with a single glowing yellow eye awaited them. Following heavy breathing and metal grinding through a narrowing tunnel, Max dimmed the lantern and crept toward a bend with Belle ready and Dalan's bow aimed at the flickering yellow light.",
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "a6d6d22d-63fa-47a6-ad51-134828287cb7",
+   "text": "The scrap-and-bone creature's core is destroyed but it still fights, lunging for Belle, and must be finished off.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 39,
+   "openedMessageId": 58,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "7a53005e-f626-4ffd-bfe4-f9f95d3e70ac",
+   "text": "A small white-haired watcher with an obsidian-hilted longsword is shadowing the party in the deep tunnels and fled down a side passage.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 40,
+   "openedMessageId": 60,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "c3745d17-fc91-4e93-bc88-cc121ee493b9",
+   "text": "Riyo, the white-haired watcher, has been confronted and claims she is only down in the mines doing tasks, but her true purpose and the secret of her hidden left arm remain unknown.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 41,
+   "openedMessageId": 62,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "c6eef738-4dfe-4b7a-94e2-57bfbeffa1b5",
+   "text": "Riyo has been invited to join the party and has not yet given her answer, and the secret of her hidden left arm remains unknown.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 42,
+   "openedMessageId": 64,
+   "resolvedAt": 44,
+   "resolvedMessageId": 68,
+   "summary": "Max Nightriver and Naomi met Baroness Serenola in Driftmere, who revealed that a mining expedition in Wendhope had vanished and that House Nightriver had ignored her letters; Naomi joined Max's party, and at the Minotaur's Tusk the survivor Garreth described tunnels that moved like living things and something ancient breathing in the dark. Garreth explained that his crew vanished on level three of the North shaft, and after an old dwarf warned that Filwern's silence meant something else had awakened, Max ordered Belle, Dalan, and Naomi to gear up for a descent at first light. In the mine, the party destroyed an eyeless undead leader and its shamblers, though the bodies held no crew badges, and a deeper voice taunted the Nightriver blood before they descended to the second level, where Dalan's count put their descent near five hundred feet and the geography failed to match the Guild maps. Following heavy breathing and a flickering yellow light, Max dimmed the lantern and crept toward a bend with Belle and Dalan ready to strike, and the tunnel opened onto a ledge overlooking a vast cavern where a figure in black plate armor with a single glowing yellow eye and a jagged spear recognized Max as a Nightriver and said he was early.",
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "002f29c5-a3b2-4f33-a93b-896beb215e99",
+   "text": "The name 'Tzarak' is carved at the bottom of the ancient wall, tied to whatever waits at the end of the floors, and its meaning is unknown.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 44,
+   "openedMessageId": 68,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "be65c882-8a08-48b2-99e8-7b24572b5311",
+   "text": "The floors are domains held by Floor Bosses waiting for an 'ascension,' and the party must learn what that ascension is and who or what it serves.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 44,
+   "openedMessageId": 68,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "ec2d69fd-653d-4253-9f3f-f7fa34fd37c0",
+   "text": "The name 'Tzarak' is carved at the end of the ancient wall as the answer to who or what is meant to ascend, and the party must learn what Tzarak is.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 45,
+   "openedMessageId": 70,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "3322a67a-28c3-475c-b63d-03e80a689d20",
+   "text": "The Floor Bosses are 'holding the line,' protecting something or awaiting someone's arrival, and the party must discover what they guard and who is meant to come.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 45,
+   "openedMessageId": 70,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "744bbc7f-e4e0-402c-a054-39ef266ddba7",
+   "text": "Riyo claims she has never heard the name Tzarak, but her flinch and hesitation leave her honesty in doubt.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 46,
+   "openedMessageId": 72,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "a1b5e76f-cbbf-42d7-99c7-6f4f8da3d4bd",
+   "text": "Riyo says there is no bottom to the mine, only down, until whatever is breathing—something big, old, and hungry—and the party must learn what waits below.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 46,
+   "openedMessageId": 72,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "144ee7e1-3e73-4cd1-9d87-50e40160b649",
+   "text": "Riyo let slip a verbal tic ('-nya') and flinched, hinting she is hiding her true nature.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 48,
+   "openedMessageId": 76,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "284d04c1-ac88-4229-b4aa-e308fef666c0",
+   "text": "The thing at the bottom is called 'the Maw' by the Floor Bosses, and the party must learn what it truly is and what it guards.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 48,
+   "openedMessageId": 76,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "95219891-9430-4d98-b232-d89b675733fc",
+   "text": "The party must learn what the 'ascension' is, who or what 'Tzarak' is, and what the Floor Bosses are holding the line to protect.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 49,
+   "openedMessageId": 77,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "314ce387-4241-4f43-af2b-4298bb2c727b",
+   "text": "The chain-driven lift platform raises the question of who built a way down into the deep and why.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 49,
+   "openedMessageId": 77,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "558cb77c-a533-44ee-a5b5-e7d553c420e4",
+   "text": "Something is climbing the chain toward the party's ledge, and they must decide whether to fight it, flee, or use the lift.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 51,
+   "openedMessageId": 80,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "8f87bb34-1819-443d-9baf-289e52376a59",
+   "text": "The sealed, glyph-etched wall may be a dam holding something back, and the party must learn what breaking it would unleash.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 51,
+   "openedMessageId": 80,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "f08f155d-d890-47e2-afd0-28ff9be0750c",
+   "text": "The seal names the Unspoken Breath and repeats Tzarak; the party must learn what Tzarak is and why the seal keeps it from ascending.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 52,
+   "openedMessageId": 82,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "8b9ff9b8-79d6-4919-a33f-85cd5bcc5920",
+   "text": "A maddened robed creature has climbed the chain to the party's ledge and demands the seal be broken; the party must deal with it before deciding on the seal.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 54,
+   "openedMessageId": 84,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "34b6f89d-c743-4c4a-8bc0-65a7b2b68070",
+   "text": "The party must decide whether to break Filwern's seal, now knowing it holds Tzarak out rather than in.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 54,
+   "openedMessageId": 84,
+   "resolvedAt": 60,
+   "resolvedMessageId": 95,
+   "summary": "The party descended through the Driftmere Mines, where Max Nightriver, Belle, Dalan, and Naomi defeated a scrap-and-bone creature and Max invited Riyo, a non-Guild fighter hiding in a side passage, to join them. Following Riyo deeper, they found ancient carvings naming Tzarak and a glyph-covered seal that Dalan read as holding back the Unspoken Breath, revealing the seal kept Tzarak from ascending rather than trapping it within. When a gaunt, robed creature climbed the lift chain mimicking Riyo's voice and demanded the seal be broken, Belle cut it down while Max performed a Driftmere shrine offering that healed the seal, only for Max to shatter it with Nightriver fire to reach the miners below. They emerged into a frozen, glass-floored cavern of suspended figures, where a vast yellow eye opened in the darkness and fixed on them.",
+   "bridgeApplied": true,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "330f05d8-2f04-4c5b-a4a1-a01f5f0e5540",
+   "text": "The robed creature is mid-fight on the ledge and must be stopped before it can touch Filwern's seal.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 57,
+   "openedMessageId": 89,
+   "resolvedAt": 58,
+   "resolvedMessageId": 91,
+   "summary": "Max Nightriver and his companions—Belle, Dalan, Naomi, and the newly recruited Riyo—fought their way through the Driftmere Mines, destroying a scrap-and-bone creature and following ancient carvings toward a vast descent where something climbed an iron chain from below. At a sealed stone wall covered in pulsing glyphs, Max ordered Dalan to decipher the markings, and Dalan determined the seal held back the Unspoken Breath, with the name Tzarak repeated below, revealing that the seal kept Tzarak from ascending. Belle realized they stood before the cage of the very creature they sought, and as metallic scraping echoed from the chain below, she readied Cleaver and vowed to bury it in stone.",
+   "bridgeApplied": true,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "30f42fd5-a9d1-41d8-a100-b1e12e6d4ef6",
+   "text": "The party must learn whether the offering has truly appeased or sealed Filwern's wall, and what the golden light means for the seal's purpose.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 58,
+   "openedMessageId": 91,
+   "resolvedAt": 60,
+   "resolvedMessageId": 95,
+   "summary": "The party descended through the Driftmere Mines, where Max Nightriver, Belle, Dalan, and Naomi defeated a scrap-and-bone creature and Max invited Riyo, a non-Guild fighter hiding in a side passage, to join them. Following ancient carvings that named Tzarak and spoke of an ascension, they reached a sealed, glyph-etched wall that Dalan determined held back the Unspoken Breath and kept Tzarak from ascending. When a gaunt, robed creature climbed the lift chain mimicking Riyo's voice and demanding the seal be broken, Belle cut it down while Max performed a Driftmere shrine offering of bread, salt, and a candle that healed the seal, only for Max to shatter it with Nightriver fire to reach the miners below. They then emerged into a frozen, glass-floored cavern of suspended figures, where a vast yellow eye opened in the darkness and fixed on them.",
+   "bridgeApplied": true,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "b4dbe903-841f-4d5d-9f61-d13ff6717e82",
+   "text": "Riyo's knowledge of Tzarak and her flinch at the name remain unexplained, and her honesty is still in doubt.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 58,
+   "openedMessageId": 91,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "3e16ca0b-f8e8-4065-894e-c33d13a14324",
+   "text": "The party is now inside the frozen domain past the seal, facing the vast yellow eye, and must decide how to approach or fight it.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 60,
+   "openedMessageId": 95,
+   "resolvedAt": 67,
+   "resolvedMessageId": 107,
+   "summary": "The party descended through the Driftmere Mines, where they destroyed a scrap-and-bone creature, and Max Nightriver invited Riyo to join them despite her not being part of their Guild. Deeper down, Dalan read ancient carvings and a glyph-seal naming Tzarak and the Unspoken Breath, revealing the seal kept Tzarak from ascending. When a gaunt, robed creature climbed the lift chain mimicking Riyo's voice and demanding the seal be broken, Belle cut it down while Max performed a Driftmere shrine offering that healed the seal, only to shatter it with Nightriver fire to reach the miners below. They emerged into a frozen, glass-floored cavern of suspended figures, where a vast yellow eye opened in the darkness and fixed on them.",
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "eef911c3-f5e0-443a-887a-30a69f8cebe9",
+   "text": "Something far heavier and slower is climbing the lift shaft toward the ledge the party just left.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 60,
+   "openedMessageId": 95,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "84cb5e65-6c69-46a6-bd65-770e96b598b0",
+   "text": "The frozen shapes suspended in the ice-like walls may be victims the party could free or must pass.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 61,
+   "openedMessageId": 97,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "6f52553c-c36a-43f3-bbee-bf80a571dfd9",
+   "text": "The party has blinded Tzarak's eye-spot and must now press the attack before the creature recovers or retaliates.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 63,
+   "openedMessageId": 100,
+   "resolvedAt": 67,
+   "resolvedMessageId": 107,
+   "summary": "Max Nightriver and his companions descended through the Driftmere Mines, defeating a scrap-and-bone creature and gaining Riyo as a companion, then followed ancient carvings that named Tzarak and spoke of an ascension. At a sealed, glyph-etched wall, Dalan read that the seal held back the Unspoken Breath and kept Tzarak from ascending, while something climbed the lift chain from below. A gaunt, robed creature mimicking Riyo's voice demanded the seal be broken so Tzarak could ascend, and Belle cut it down while Max performed a Driftmere shrine offering that healed the seal, only to shatter it with Nightriver fire to reach the miners below. They emerged into a frozen, glass-floored cavern of suspended figures, where a vast yellow eye opened in the darkness and fixed on them.",
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "aa415ab3-af28-4858-b0c2-da2416b132cb",
+   "text": "Baroness Serenola demands to know whether the missing miners are still alive, and the party must answer for the dust that was all that remained of them.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 67,
+   "openedMessageId": 107,
+   "resolvedAt": 68,
+   "resolvedMessageId": 109,
+   "summary": "Baroness Serenola demanded to know whether the missing miners were still alive, and the party descended into the Driftmere Mines to answer for the dust that was all that remained of them. After defeating a scrap-and-bone creature and gaining Riyo as a companion, Max Nightriver, Belle, Dalan, and Naomi followed ancient carvings naming Tzarak to a sealed, glyph-etched wall that Dalan read as holding back the Unspoken Breath and keeping Tzarak from ascending. A gaunt, robed creature climbed the lift chain mimicking Riyo's voice and demanding the seal be broken, and though Belle cut it down and Max performed a Driftmere shrine offering that healed the seal, Max shattered it with Nightriver fire to reach the miners below. They emerged into a frozen, glass-floored cavern of suspended figures, where a vast yellow eye opened in the darkness and fixed on them.",
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "d104f3f7-8911-418b-adb0-8a4ddd170ffc",
+   "text": "The party must still find Serenola's missing people — or explain that the Devourer's death dissolved them rather than saved them.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 67,
+   "openedMessageId": 107,
+   "resolvedAt": 68,
+   "resolvedMessageId": 109,
+   "summary": "Max Nightriver and his companions descended through the Driftmere Mines with Riyo, defeating a scrap-and-bone creature and reading ancient carvings that named Tzarak and the ascension, until they reached a sealed, glyph-etched wall holding back the Unspoken Breath. Dalan determined the seal kept Tzarak from ascending, and Riyo revealed that Tzarak was not a person but a key made of shadow and hunger, and that the seal held it out rather than in. When a gaunt, robed creature climbed the lift chain mimicking Riyo's voice and demanding the seal be broken, Belle cut it down while Max performed a Driftmere shrine offering that healed the seal, only to shatter it with Nightriver fire to reach the miners below. They emerged into a frozen, glass-floored cavern filled with suspended figures, where a vast yellow eye opened in the darkness and fixed on them, leaving Serenola's missing people still unfound and the question of whether the Devourer's death dissolved them or saved them unresolved.",
+   "bridgeApplied": true,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "f29bd3c7-8075-4517-b38a-8595376038d5",
+   "text": "The party must decide what to do about the massive iron chain and lift platform built and maintained by someone unknown.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 68,
+   "openedMessageId": 109,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "e9eb8c7c-9d02-4153-8898-1f2d79cabbd5",
+   "text": "The maddened robed creature that climbed the chain and demanded the seal be broken is still unaccounted for.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 68,
+   "openedMessageId": 109,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "9dcd69bd-17e1-4bbd-85e7-615997143e43",
+   "text": "The party has told Driftmere what the descent cost; the wider consequences of breaking Filwern's seal and killing the creature remain to be seen.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 68,
+   "openedMessageId": 109,
+   "resolvedAt": 69,
+   "resolvedMessageId": 111,
+   "summary": "The party descended into the mine tunnels, where they defeated a scrap-and-bone creature and Max Nightriver invited Riyo, a non-Guild fighter, to join them, then learned from ancient carvings that the floors were domains of Floor Bosses awaiting an \"ascension\" tied to the name Tzarak. At a ledge above a breathing darkness, Dalan read a glyph-seal older than dwarven and determined it held back the Unspoken Breath and kept Tzarak from ascending, while Riyo revealed that Tzarak was not a person but a key made of shadow and hunger, and that the seal held it out rather than in. A gaunt, robed creature climbed the lift chain mimicking Riyo's voice and demanded the seal be broken so the key could ascend, and Belle cut it down as Max performed a Driftmere shrine offering of bread, salt, and a candle that healed the seal. Max then shattered the seal with Nightriver fire to reach the miners below, and the party emerged into a frozen, glass-floored cavern of suspended figures, where a vast yellow eye opened in the darkness and fixed on them, leaving the wider consequences of breaking Filwern's seal and killing the creature yet to be seen.",
+   "bridgeApplied": true,
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "eeecc437-c400-46a5-864e-494ec2dc2de7",
+   "text": "The three letters Serenola sent to House Nightriver were never seen by Max — who intercepted or discarded them, and why.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 69,
+   "openedMessageId": 111,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "aa020c00-4bf5-429f-a33d-13a2d1a303e2",
+   "text": "Max intends to tell Garreth what happened to the crew in person.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 69,
+   "openedMessageId": 111,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "54e7f92a-d1ea-4964-b81d-5c60a2b68802",
+   "text": "Who intercepted or discarded Serenola's three letters to House Nightriver, and why — Serenola now openly questions whether the house knew and did not care.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 69,
+   "openedMessageId": 111,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "6ccbff55-d443-400e-bbe0-891085b8a7b7",
+   "text": "Max has sworn to Serenola to find out whether House Nightriver received and discarded her three letters, and she will hold him to it.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 70,
+   "openedMessageId": 113,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "b418a617-3e2e-409f-8652-fad339a7f762",
+   "text": "A grieving townsfolk woman whose son died in the mine is approaching the party for answers.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 70,
+   "openedMessageId": 113,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "b1276060-c327-418b-8a14-447ad4ecd5b5",
+   "text": "The grieving townsfolk mother whose son died in the mine now knows the party killed the thing that took him — whether she accepts their account or demands more remains open.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 72,
+   "openedMessageId": 115,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "9bc62b20-aed8-4a89-b94a-a60d2e781cfb",
+   "text": "Max has been summoned to his father's study at the Nightriver estate — what Lord Javon wants is unknown.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 73,
+   "openedMessageId": 117,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "1bf73732-13cd-45b2-8a65-6badd46d74df",
+   "text": "The party must return to the Aegis City Guild Hall to claim their B-rank promotion badge and rewards.",
+   "status": "resolved",
+   "entities": [],
+   "openedAt": 74,
+   "openedMessageId": 119,
+   "resolvedAt": 75,
+   "resolvedMessageId": 120,
+   "summary": "Max Nightriver ordered Dalan to read the glyphs on a seal, which revealed it held back the Unspoken Breath and kept Tzarak from ascending, and when a gaunt robed creature climbed the lift chain demanding the seal be broken, Belle cut it down while Max made a Driftmere shrine offering of bread, salt, and a candle that healed the seal before he shattered it with Nightriver fire to reach the miners below. Beyond the seal the party entered a frozen, glass-floored cavern filled with suspended figures, where a vast yellow eye opened and fixed on them, and they crossed the black glass to confront it: Max blinded it with fire, Dalan shot its eye-spot, Belle struck with Cleaver, and Max drove a lance of flame into the wound, killing the creature and freeing the suspended souls as Riyo confirmed she was unharmed and the breathing had stopped. The party climbed back to Driftmere, where Baroness Serenola received the news that the crew was gone but the creature was dead, and when Max revealed he had never seen the three letters she sent to House Nightriver, her tone turned cold and accusing as a grieving townswoman approached asking about the mine. Belle and Dalan told the woman they had killed the creature that took the missing people, though they could not bring themselves to say the victims had dissolved into dust, and the party returned to Aegis City, where Max Nightriver's letter from Tobias confirmed their promotion to B-rank for clearing the Driftmere Mines, and at the Nightriver estate the butler greeted Max and informed him his father was in his study.",
+   "foldedInto": "adv#1"
+  },
+  {
+   "id": "8f6337e1-eaeb-4289-8a68-239bd7447c5e",
+   "text": "Baroness Serenola waits in her study to speak about House Nightriver, and Max has sworn to learn whether the house received and discarded her three letters.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 75,
+   "openedMessageId": 120,
+   "originChapter": "adv#1"
+  },
+  {
+   "id": "b05346d2-bd1a-4ac7-b566-ba031e82aa18",
+   "text": "The party has been promoted to B-rank and must return to the Aegis City Guild Hall to claim the badge and rewards.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 76,
+   "openedMessageId": 121
+  },
+  {
+   "id": "869217c5-220e-4309-b1ba-8aa4017375cb",
+   "text": "Riyo's refusal of a room and her guarded vigil by the estate door — what she is hiding and why she will not settle in.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 76,
+   "openedMessageId": 123
+  },
+  {
+   "id": "746649f5-fde5-4ff0-b1e0-d826fb396849",
+   "text": "Welden is behaving strangely and refuses to explain what is troubling him.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 78,
+   "openedMessageId": 124
+  },
+  {
+   "id": "a77ca6ed-84a1-4420-86c8-fdfbe733a7e7",
+   "text": "Javon has confronted Max about letters sent to the house, holding a letter with a grain-stalk seal — what he knows about Serenola's three unanswered letters is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 79,
+   "openedMessageId": 126
+  },
+  {
+   "id": "c7dfa5e5-3fa4-44ea-befb-5a712503bf07",
+   "text": "Javon has admitted the estate deliberately 'handled' Serenola's letters — what that purpose was, and who ordered it, is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 80,
+   "openedMessageId": 128
+  },
+  {
+   "id": "230df9f0-8da2-4d8b-bf09-b6add2a6b312",
+   "text": "Welden is in the library, jumpier than usual and refusing to explain what troubles him.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 80,
+   "openedMessageId": 128
+  },
+  {
+   "id": "b2cd9a3f-f692-4440-8de8-13139a6d6c79",
+   "text": "Javon suspects Max has been receiving letters he knows nothing about — who is writing to Max, and what Javon will do about it, is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 81,
+   "openedMessageId": 130
+  },
+  {
+   "id": "33dbbc7f-496d-4641-a00d-9598cce03823",
+   "text": "Javon's stated purpose for 'handling' Serenola's letters remains unexplained — who ordered it and why is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 81,
+   "openedMessageId": 130
+  },
+  {
+   "id": "e6c1e074-bbf9-4584-89c0-eab22d86efb4",
+   "text": "Javon has set three conditions Max must meet before he will reveal the truth of the house's seals and marriages — whether Max meets them, and what the truth is, is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 82,
+   "openedMessageId": 132
+  },
+  {
+   "id": "865123f3-4c96-4f55-be07-173eb89853a7",
+   "text": "The truth of the Nightriver seals and the Witch King — Max now knows the bloodline is the prison, but how to act on it, and what Javon's three conditions will reveal, is unresolved.",
+   "status": "open",
+   "entities": [],
+   "openedAt": 83,
+   "openedMessageId": 134
+  }
+ ],
+ "ledger": [
+  {
+   "id": "125a0ab6-7a9e-4c1e-a9bb-97d436477472",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 83,
+    "boundary": 53,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "read the glyphs on the seal",
+   "createdAt": 53,
+   "supersedes": "83f044bb-661a-41a2-bd25-ecdabe4ac53a",
+   "messageId": 83
+  },
+  {
+   "id": "993fba6f-37bc-475d-9665-b58ec9f800fa",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 83,
+    "boundary": 53,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "lantern",
+   "createdAt": 53,
+   "supersedes": "2178bbed-6854-4c26-a564-50013cd739f8",
+   "messageId": 83
+  },
+  {
+   "id": "f91a8024-c8fe-44b0-ae03-26a8a502c216",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 83,
+    "boundary": 53,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "narrow ledge overlooking a descent",
+   "createdAt": 53,
+   "supersedes": "0b231185-cae1-44cd-87e1-48ac4b67e20e",
+   "messageId": 83
+  },
+  {
+   "id": "e9d77ba8-d0f3-4761-bd7e-8b2218424262",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 83,
+    "boundary": 53,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "learn what was locked behind the seal and its true name",
+   "createdAt": 53,
+   "supersedes": "fc006b4c-a5b2-48f0-be69-6dce5a9e739b",
+   "messageId": 83
+  },
+  {
+   "id": "3c7db0d5-60d7-4c00-a7b6-801bd8ce19c9",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 83,
+    "boundary": 53,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Adolion Narrator",
+   "entityType": "character",
+   "field": "location",
+   "value": "narrow ledge overlooking a descent",
+   "createdAt": 53,
+   "supersedes": "26d3cc80-19f8-4347-a39b-d171d8ca0838",
+   "messageId": 83
+  },
+  {
+   "id": "d4f40361-30c3-4984-852c-f0e20351f7f3",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "behind_the_seals",
+   "createdAt": 60,
+   "supersedes": "f91a8024-c8fe-44b0-ae03-26a8a502c216",
+   "messageId": 95
+  },
+  {
+   "id": "a5ebd721-fa3e-47eb-9b70-a4ab6427b02d",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "The Party",
+   "entityType": "character",
+   "field": "location",
+   "value": "behind_the_seals",
+   "createdAt": 60,
+   "supersedes": "9159de4e-9f52-4e37-9584-b8dd381d4c93",
+   "messageId": 95
+  },
+  {
+   "id": "70843991-72b9-46bd-b234-4de376006584",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "Driftmere Mines",
+   "createdAt": 60,
+   "supersedes": "d4f40361-30c3-4984-852c-f0e20351f7f3",
+   "messageId": 95
+  },
+  {
+   "id": "620233c6-d0e6-4912-9b4a-e09bfa2e9a95",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "kill the entity below and free what's left of Filwern",
+   "createdAt": 60,
+   "supersedes": "e9d77ba8-d0f3-4761-bd7e-8b2218424262",
+   "messageId": 95
+  },
+  {
+   "id": "31f65c94-48de-4b14-bdd4-d2ed22c08272",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "bread, salt, candle",
+   "createdAt": 60,
+   "supersedes": "4502d365-8230-4cb5-83fe-b461300da102",
+   "messageId": 95
+  },
+  {
+   "id": "cc372674-ee80-4b0f-ac24-18dc87c7b8b3",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "location",
+   "value": "Driftmere Mines",
+   "createdAt": 60,
+   "supersedes": "2d424df2-3a23-461c-8470-f5d469497c05",
+   "messageId": 95
+  },
+  {
+   "id": "74f50a3e-8554-41bb-8cb6-bdfc8b7e6cd4",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "mood",
+   "value": "afraid",
+   "createdAt": 60,
+   "supersedes": "87876a85-9361-420b-af44-6ae0690bbfb7",
+   "messageId": 95
+  },
+  {
+   "id": "1f7e37c3-ad90-42f1-9f25-f53d0f9adfbf",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "location",
+   "value": "Driftmere Mines",
+   "createdAt": 60,
+   "supersedes": "5be7f7e3-c079-459a-9f16-a8532ad92b7d",
+   "messageId": 95
+  },
+  {
+   "id": "bb268235-442e-49c3-82f4-f19943177341",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "break the seal and kill the entities below",
+   "createdAt": 60,
+   "supersedes": "821d4411-c585-41cd-87c6-ab81866383af",
+   "messageId": 95
+  },
+  {
+   "id": "6fb7d5c1-d755-451e-bf3c-353866f77000",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "hazards",
+   "value": "frozen shapes suspended in translucent cavern walls, vast unblinking eye, freezing air, whispers",
+   "createdAt": 60,
+   "supersedes": "255af41d-4267-410a-bb09-b9ed18736046",
+   "messageId": 95
+  },
+  {
+   "id": "6eec0c0e-d18c-456d-a3bb-fdc126dce7a1",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 95,
+    "boundary": 60,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "accessibility",
+   "value": "seal broken open",
+   "createdAt": 60,
+   "supersedes": "105c0d30-81fe-416c-a8ab-b380ad77f1e5",
+   "messageId": 95
+  },
+  {
+   "id": "44ea44cc-2676-415d-b1c7-3beb6c94f941",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "The Party",
+   "entityType": "character",
+   "field": "location",
+   "value": "frozen domain past the seal",
+   "createdAt": 61,
+   "supersedes": "a5ebd721-fa3e-47eb-9b70-a4ab6427b02d",
+   "messageId": 97
+  },
+  {
+   "id": "9645e9c2-9097-4564-a60d-0618d49f8587",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "Beyond the seal, in the heart of the mountain",
+   "createdAt": 61,
+   "supersedes": "70843991-72b9-46bd-b234-4de376006584",
+   "messageId": 97
+  },
+  {
+   "id": "de04c46b-620d-47ef-8537-8ad8a4c043b6",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "Kill the thing that breathes; free what's left of Filwern",
+   "createdAt": 61,
+   "supersedes": "620233c6-d0e6-4912-9b4a-e09bfa2e9a95",
+   "messageId": 97
+  },
+  {
+   "id": "b5b719de-431d-4d1f-9b2f-05859bc65a4c",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "Nightriver fire",
+   "createdAt": 61,
+   "supersedes": "31f65c94-48de-4b14-bdd4-d2ed22c08272",
+   "messageId": 97
+  },
+  {
+   "id": "64e0a954-e9d7-4b9d-aaec-e8984026228d",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "location",
+   "value": "Beyond the seal, on the black glass floor",
+   "createdAt": 61,
+   "supersedes": "1f7e37c3-ad90-42f1-9f25-f53d0f9adfbf",
+   "messageId": 97
+  },
+  {
+   "id": "6135ef53-7b28-401e-a85f-0e52936abe3d",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "outfit_disguise",
+   "value": "Cleaver held in two white-knuckled grips before her chest",
+   "createdAt": 61,
+   "supersedes": "94bbf554-9a88-490c-b011-d759c31bd62c",
+   "messageId": 97
+  },
+  {
+   "id": "1d8fca07-a4f1-4cb7-a961-e05658b5da6f",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "mood",
+   "value": "Hard, focused, dangerous grin, predator waiting for the first opening",
+   "createdAt": 61,
+   "supersedes": "b7bf353e-1883-4cf0-9bb7-219e7ead292e",
+   "messageId": 97
+  },
+  {
+   "id": "fd3d57af-54bb-4fcd-b389-b4bd96ec77e8",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "Kill the thing that breathes; put an axe through its throat, split its heart, tear out its soul",
+   "createdAt": 61,
+   "supersedes": "bb268235-442e-49c3-82f4-f19943177341",
+   "messageId": 97
+  },
+  {
+   "id": "2229ae95-d146-41ec-86d9-cda5fb40637d",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "Cleaver (massive stone axe)",
+   "createdAt": 61,
+   "supersedes": "f1b2107e-e7c7-407a-8c4e-055d55fe2830",
+   "messageId": 97
+  },
+  {
+   "id": "0aa48e06-ee66-4b83-815e-a8591b8e77a0",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "location",
+   "value": "Beyond the seal",
+   "createdAt": 61,
+   "supersedes": "cc372674-ee80-4b0f-ac24-18dc87c7b8b3",
+   "messageId": 97
+  },
+  {
+   "id": "cfd7c5af-3127-40fa-b3bf-10a5bd70d84d",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "mood",
+   "value": "Wide-eyed, gripping hilt hard, trying to steady her voice",
+   "createdAt": 61,
+   "supersedes": "74f50a3e-8554-41bb-8cb6-bdfc8b7e6cd4",
+   "messageId": 97
+  },
+  {
+   "id": "2c20767c-12f4-4259-8372-dc29fba9b07c",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "Obsidian hilt",
+   "createdAt": 61,
+   "supersedes": "d012bb70-08a8-4435-b20a-cdb1759c4942",
+   "messageId": 97
+  },
+  {
+   "id": "970e9f61-db24-4dff-a5fd-3505db80d01f",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Adolion Narrator",
+   "entityType": "character",
+   "field": "location",
+   "value": "Beyond the seal",
+   "createdAt": 61,
+   "supersedes": "3c7db0d5-60d7-4c00-a7b6-801bd8ce19c9",
+   "messageId": 97
+  },
+  {
+   "id": "8466b8a0-c7cd-41d8-8f5b-de17787a0a72",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "hazards",
+   "value": "The thing that breathes; frozen shapes suspended in translucent cavern walls; freezing air; chorus of whispers; vast unblinking yellow eye",
+   "createdAt": 61,
+   "supersedes": "6fb7d5c1-d755-451e-bf3c-353866f77000",
+   "messageId": 97
+  },
+  {
+   "id": "ccc18352-3abb-4ee1-a623-8d7a0b86472d",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 97,
+    "boundary": 61,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "accessibility",
+   "value": "Opening through the broken seal into the frozen expanse",
+   "createdAt": 61,
+   "supersedes": "6eec0c0e-d18c-456d-a3bb-fdc126dce7a1",
+   "messageId": 97
+  },
+  {
+   "id": "73a18727-320d-4598-ad37-16aafe2c5fbf",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "status",
+   "value": "cleared",
+   "createdAt": 67,
+   "messageId": 107
+  },
+  {
+   "id": "e6ae59c9-44fd-4d27-9dec-348acfc854b0",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "location",
+   "value": "Driftmere manor",
+   "createdAt": 67,
+   "messageId": 107
+  },
+  {
+   "id": "422a70c9-453c-4702-9e0b-03c028d3b206",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "status",
+   "value": "Devourer slain",
+   "createdAt": 67,
+   "supersedes": "73a18727-320d-4598-ad37-16aafe2c5fbf",
+   "messageId": 107
+  },
+  {
+   "id": "4eba483d-403c-4ab3-9694-f9c04a2ccbdf",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "location",
+   "value": "outside her manor in Driftmere",
+   "createdAt": 67,
+   "supersedes": "e6ae59c9-44fd-4d27-9dec-348acfc854b0",
+   "messageId": 107
+  },
+  {
+   "id": "87e13e5a-627e-4a02-bf1f-7ce0506f87b7",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "blind the creature's eye",
+   "createdAt": 67,
+   "supersedes": "125a0ab6-7a9e-4c1e-a9bb-97d436477472",
+   "messageId": 107
+  },
+  {
+   "id": "f858d0a0-2ad0-4fa1-b071-e6c730f75117",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "arrows",
+   "createdAt": 67,
+   "supersedes": "993fba6f-37bc-475d-9665-b58ec9f800fa",
+   "messageId": 107
+  },
+  {
+   "id": "e88f2c91-a7bf-4e72-b588-e300699a4d22",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "mood",
+   "value": "enraged",
+   "createdAt": 67,
+   "supersedes": "1d8fca07-a4f1-4cb7-a961-e05658b5da6f",
+   "messageId": 107
+  },
+  {
+   "id": "74805dcf-149b-4f41-afef-7a4c24295b58",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "tear out the creature's eye",
+   "createdAt": 67,
+   "supersedes": "fd3d57af-54bb-4fcd-b389-b4bd96ec77e8",
+   "messageId": 107
+  },
+  {
+   "id": "739a1fba-ea78-45ca-a8ce-5b5fc2a50f1e",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "Cleaver",
+   "createdAt": 67,
+   "supersedes": "2229ae95-d146-41ec-86d9-cda5fb40637d",
+   "messageId": 107,
+   "confirmedAt": 76,
+   "confirmedMessageId": 121
+  },
+  {
+   "id": "66cb000d-6969-4c6b-81ef-90ce542d3c23",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "mood",
+   "value": "shaken",
+   "createdAt": 67,
+   "supersedes": "361f5fd1-d026-479b-ae09-c23a620b8882",
+   "messageId": 107
+  },
+  {
+   "id": "9368fb32-df32-4b3a-916b-9fe466893db1",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "find Serenola",
+   "createdAt": 67,
+   "supersedes": "de04c46b-620d-47ef-8537-8ad8a4c043b6",
+   "messageId": 107
+  },
+  {
+   "id": "6941fcf0-c37f-46e4-94ef-699b5a7e84e0",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "mood",
+   "value": "pale but steady",
+   "createdAt": 67,
+   "supersedes": "cfd7c5af-3127-40fa-b3bf-10a5bd70d84d",
+   "messageId": 107,
+   "confirmedAt": 69,
+   "confirmedMessageId": 111
+  },
+  {
+   "id": "18e4b51d-c110-4ffc-ad9e-a36d2cf197f9",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "find Serenola",
+   "createdAt": 67,
+   "supersedes": "ed9964de-032b-4913-9794-799c055c3d41",
+   "messageId": 107
+  },
+  {
+   "id": "94b23fd1-684e-4d95-8e88-f61e659fbc99",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "obsidian sword",
+   "createdAt": 67,
+   "supersedes": "2c20767c-12f4-4259-8372-dc29fba9b07c",
+   "messageId": 107,
+   "confirmedAt": 69,
+   "confirmedMessageId": 111
+  },
+  {
+   "id": "df680fa6-47cd-452b-aef1-5a41313c85f6",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Adolion Narrator",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "narrating the party's ascent",
+   "createdAt": 67,
+   "messageId": 107
+  },
+  {
+   "id": "de23fd83-0f0c-4eb7-b28e-7ee433213171",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "location",
+   "value": "outside her manor, Driftmere",
+   "createdAt": 67,
+   "supersedes": "4eba483d-403c-4ab3-9694-f9c04a2ccbdf",
+   "messageId": 107
+  },
+  {
+   "id": "4d29379c-d7bc-4a8d-ada3-d76eeed96a4a",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "mood",
+   "value": "unreadable",
+   "createdAt": 67,
+   "messageId": 107
+  },
+  {
+   "id": "5c5b7341-4c2d-4d71-a070-152455fea523",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 107,
+    "boundary": 67,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "accessibility",
+   "value": "accessible",
+   "createdAt": 67,
+   "supersedes": "ccc18352-3abb-4ee1-a623-8d7a0b86472d",
+   "messageId": 107
+  },
+  {
+   "id": "79e4bf5a-d6f0-4ca7-ae9b-7b3b0c1c0b51",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "status",
+   "value": "freed",
+   "createdAt": 68,
+   "supersedes": "422a70c9-453c-4702-9e0b-03c028d3b206",
+   "messageId": 109
+  },
+  {
+   "id": "9cf28377-60e0-4711-a960-b85c34c52f4a",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "threat",
+   "value": "cleared",
+   "createdAt": 68,
+   "messageId": 109
+  },
+  {
+   "id": "e81e6c82-33f6-4352-873c-7bd8058a3d51",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "mood",
+   "value": "resolved",
+   "createdAt": 68,
+   "supersedes": "4d29379c-d7bc-4a8d-ada3-d76eeed96a4a",
+   "messageId": 109
+  },
+  {
+   "id": "eb182484-b2ba-4a90-95ad-156fc7902912",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "disposition",
+   "value": "respectful",
+   "createdAt": 68,
+   "messageId": 109
+  },
+  {
+   "id": "b2e33aa6-d207-43d8-bc9c-c2b2cf147cbb",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "Driftmere",
+   "createdAt": 68,
+   "supersedes": "9645e9c2-9097-4564-a60d-0618d49f8587",
+   "messageId": 109
+  },
+  {
+   "id": "d2c6b25d-7fd0-405f-9480-f75473bb16a1",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "mood",
+   "value": "shaken, relieved",
+   "createdAt": 68,
+   "supersedes": "66cb000d-6969-4c6b-81ef-90ce542d3c23",
+   "messageId": 109
+  },
+  {
+   "id": "cd1d7fbd-949d-45e6-929f-43855f9b95f7",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "report to Serenola",
+   "createdAt": 68,
+   "supersedes": "9368fb32-df32-4b3a-916b-9fe466893db1",
+   "messageId": 109
+  },
+  {
+   "id": "a8c2743f-988b-422f-93c3-6c096ca6b965",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "crest",
+   "createdAt": 68,
+   "supersedes": "b5b719de-431d-4d1f-9b2f-05859bc65a4c",
+   "messageId": 109
+  },
+  {
+   "id": "de074cde-266d-4996-928f-92c463b08d4e",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "location",
+   "value": "Driftmere",
+   "createdAt": 68,
+   "supersedes": "0aa48e06-ee66-4b83-815e-a8591b8e77a0",
+   "messageId": 109
+  },
+  {
+   "id": "ae074444-7a5f-4266-bca1-a1346ab510e6",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "outfit_disguise",
+   "value": "obsidian sword in right hand",
+   "createdAt": 68,
+   "supersedes": "3d9cfd2e-1624-41b6-9545-57e3e2cba0f4",
+   "messageId": 109
+  },
+  {
+   "id": "cf583637-2974-44bb-be3b-af7b4546ecb8",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "location",
+   "value": "Driftmere, outside her manor",
+   "createdAt": 68,
+   "supersedes": "de23fd83-0f0c-4eb7-b28e-7ee433213171",
+   "messageId": 109
+  },
+  {
+   "id": "b6c63936-78e2-41be-b56d-7a12af2cc742",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "mood",
+   "value": "tense, then respectful",
+   "createdAt": 68,
+   "supersedes": "e81e6c82-33f6-4352-873c-7bd8058a3d51",
+   "messageId": 109
+  },
+  {
+   "id": "2c0b5de1-d28b-425d-a86b-b2dba352d2a9",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "learn fate of miners",
+   "createdAt": 68,
+   "messageId": 109
+  },
+  {
+   "id": "6e683db0-cb57-4a57-aa65-d868a13eed75",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 109,
+    "boundary": 68,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "accessibility",
+   "value": "free",
+   "createdAt": 68,
+   "supersedes": "5c5b7341-4c2d-4d71-a070-152455fea523",
+   "messageId": 109
+  },
+  {
+   "id": "7f5dc8f5-6951-4413-9ab7-91e88dcad83f",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "outside Baroness Serenola's manor, Driftmere",
+   "createdAt": 69,
+   "supersedes": "b2e33aa6-d207-43d8-bc9c-c2b2cf147cbb",
+   "messageId": 111
+  },
+  {
+   "id": "7a0e7b74-ddf7-4bac-b5fb-c439790a2c6b",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "mood",
+   "value": "shaken",
+   "createdAt": 69,
+   "supersedes": "d2c6b25d-7fd0-405f-9480-f75473bb16a1",
+   "messageId": 111
+  },
+  {
+   "id": "09669f75-54ef-4794-9e54-5af469563041",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "find Serenola and tell Garreth about the crew",
+   "createdAt": 69,
+   "supersedes": "cd1d7fbd-949d-45e6-929f-43855f9b95f7",
+   "messageId": 111
+  },
+  {
+   "id": "2c07b721-0d8e-4405-9c46-ffd9fae6bde2",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "guild registration with Nightriver crest",
+   "createdAt": 69,
+   "supersedes": "a8c2743f-988b-422f-93c3-6c096ca6b965",
+   "messageId": 111
+  },
+  {
+   "id": "ff4f54dd-ff34-40c5-b75e-86143cae80be",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "location",
+   "value": "outside Baroness Serenola's manor, Driftmere",
+   "createdAt": 69,
+   "supersedes": "de074cde-266d-4996-928f-92c463b08d4e",
+   "messageId": 111
+  },
+  {
+   "id": "57830857-40a0-4c29-90bf-b0371d3b75ee",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "accompanying Max",
+   "createdAt": 69,
+   "supersedes": "18e4b51d-c110-4ffc-ad9e-a36d2cf197f9",
+   "messageId": 111
+  },
+  {
+   "id": "adc731d9-b290-4db9-bd08-d1353e6977ee",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "location",
+   "value": "outside her manor, Driftmere",
+   "createdAt": 69,
+   "supersedes": "cf583637-2974-44bb-be3b-af7b4546ecb8",
+   "messageId": 111
+  },
+  {
+   "id": "5a627900-84e2-43e6-975b-3d162322932f",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "mood",
+   "value": "unreadable, then respectful",
+   "createdAt": 69,
+   "supersedes": "b6c63936-78e2-41be-b56d-7a12af2cc742",
+   "messageId": 111
+  },
+  {
+   "id": "a9475917-411c-4cec-a1f1-700c276b4e67",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "learning what happened to the crew and the Devourer",
+   "createdAt": 69,
+   "supersedes": "2c0b5de1-d28b-425d-a86b-b2dba352d2a9",
+   "messageId": 111
+  },
+  {
+   "id": "2948ff59-e17f-4eb8-9cee-7681697a12ab",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "political_control",
+   "value": "Driftmere",
+   "createdAt": 69,
+   "messageId": 111
+  },
+  {
+   "id": "1ea25a7f-dc5f-43b7-a275-64d7ff59fb67",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "hazards",
+   "value": "none (Devourer killed, seal broken)",
+   "createdAt": 69,
+   "supersedes": "8466b8a0-c7cd-41d8-8f5b-de17787a0a72",
+   "messageId": 111
+  },
+  {
+   "id": "9fac3953-07f7-4c65-ba8b-5233fded9e59",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "accessibility",
+   "value": "accessible",
+   "createdAt": 69,
+   "supersedes": "6e683db0-cb57-4a57-aa65-d868a13eed75",
+   "messageId": 111,
+   "confirmedAt": 75,
+   "confirmedMessageId": 120
+  },
+  {
+   "id": "4bb542c5-6f9f-4f73-95a6-bc7d943a3bb2",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "The Party",
+   "entityType": "character",
+   "field": "location",
+   "value": "outside Baroness Serenola's manor, Driftmere",
+   "createdAt": 69,
+   "supersedes": "44ea44cc-2676-415d-b1c7-3beb6c94f941",
+   "messageId": 111
+  },
+  {
+   "id": "f1f8cadf-65b6-489b-988c-971c8d78c1a7",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 111,
+    "boundary": 69,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "The Party",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "reporting to Serenola and Garreth",
+   "createdAt": 69,
+   "messageId": 111
+  },
+  {
+   "id": "674971f0-7366-4126-a95f-a0ba3ba134b5",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "Driftmere",
+   "createdAt": 70,
+   "supersedes": "7f5dc8f5-6951-4413-9ab7-91e88dcad83f",
+   "messageId": 113
+  },
+  {
+   "id": "fc88e415-3ab4-4a8f-95b7-6c510f1cad2b",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "find out what happened to the letters sent to House Nightriver",
+   "createdAt": 70,
+   "supersedes": "09669f75-54ef-4794-9e54-5af469563041",
+   "messageId": 113
+  },
+  {
+   "id": "4df40975-999b-4fb2-8233-da4f6278902a",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "lantern",
+   "createdAt": 70,
+   "supersedes": "2c07b721-0d8e-4405-9c46-ffd9fae6bde2",
+   "messageId": 113
+  },
+  {
+   "id": "39afd455-d535-4375-8bb9-7f7221ddafca",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "location",
+   "value": "outside her manor in Driftmere",
+   "createdAt": 70,
+   "supersedes": "adc731d9-b290-4db9-bd08-d1353e6977ee",
+   "messageId": 113
+  },
+  {
+   "id": "416eaaaf-1653-4632-9607-2f07c602769a",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "mood",
+   "value": "tense, grieving, suspicious",
+   "createdAt": 70,
+   "supersedes": "5a627900-84e2-43e6-975b-3d162322932f",
+   "messageId": 113
+  },
+  {
+   "id": "874849b9-f461-44cb-96b4-b05dc8b388fe",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "learn the fate of the missing miners and hold House Nightriver accountable",
+   "createdAt": 70,
+   "supersedes": "a9475917-411c-4cec-a1f1-700c276b4e67",
+   "messageId": 113
+  },
+  {
+   "id": "81d30e63-7f3c-46c4-bc22-ae4ed7e31dd3",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 113,
+    "boundary": 70,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "hazards",
+   "value": "none (the Devourer is dead, seal broken)",
+   "createdAt": 70,
+   "supersedes": "1ea25a7f-dc5f-43b7-a275-64d7ff59fb67",
+   "messageId": 113
+  },
+  {
+   "id": "ff1e6219-47d2-43e5-abec-abf14abd3b19",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver estate grounds",
+   "createdAt": 73,
+   "supersedes": "674971f0-7366-4126-a95f-a0ba3ba134b5",
+   "messageId": 117
+  },
+  {
+   "id": "6c10ece9-f3ad-410f-8c23-dfed0a6bcfc3",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "letter from home",
+   "createdAt": 73,
+   "supersedes": "4df40975-999b-4fb2-8233-da4f6278902a",
+   "messageId": 117
+  },
+  {
+   "id": "b63ef821-af3c-45b8-8814-36b99bd82734",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "find out what happened to the three letters sent to House Nightriver",
+   "createdAt": 73,
+   "supersedes": "fc88e415-3ab4-4a8f-95b7-6c510f1cad2b",
+   "messageId": 117
+  },
+  {
+   "id": "028fc940-cbf5-482f-8cc1-e8cac90a5c70",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Adolion Narrator",
+   "entityType": "character",
+   "field": "mood",
+   "value": "flat and hard",
+   "createdAt": 73,
+   "messageId": 117
+  },
+  {
+   "id": "412a0b43-31dc-4e86-a758-9802b43edbfc",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver estate grounds",
+   "createdAt": 73,
+   "supersedes": "64e0a954-e9d7-4b9d-aaec-e8984026228d",
+   "messageId": 117
+  },
+  {
+   "id": "119e69e9-f91a-4695-b6d2-42ed9c41fda6",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "mood",
+   "value": "tense",
+   "createdAt": 73,
+   "supersedes": "e88f2c91-a7bf-4e72-b588-e300699a4d22",
+   "messageId": 117,
+   "confirmedAt": 74,
+   "confirmedMessageId": 119
+  },
+  {
+   "id": "f2f2b7bc-e351-4b0b-a048-b9c0a5aae0ab",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver estate grounds",
+   "createdAt": 73,
+   "supersedes": "c672d8b0-ac1f-4173-bb52-63b9651b359b",
+   "messageId": 117
+  },
+  {
+   "id": "d58f5f9a-a835-42b9-ad10-48d34f646bb3",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "mood",
+   "value": "grim",
+   "createdAt": 73,
+   "supersedes": "8b627843-1fd4-48ae-bb78-9dabb05e34f5",
+   "messageId": 117,
+   "confirmedAt": 74,
+   "confirmedMessageId": 119
+  },
+  {
+   "id": "0735f1da-9bc7-471e-9424-3afadc0ea737",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Naomi",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver estate grounds",
+   "createdAt": 73,
+   "messageId": 117
+  },
+  {
+   "id": "b28ed9ea-41f8-427b-a3dc-c6caeb5707cf",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Naomi",
+   "entityType": "character",
+   "field": "mood",
+   "value": "uneasy",
+   "createdAt": 73,
+   "messageId": 117,
+   "confirmedAt": 74,
+   "confirmedMessageId": 119
+  },
+  {
+   "id": "58e833d6-e427-4cfc-96dd-8df07859ee88",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver estate grounds",
+   "createdAt": 73,
+   "supersedes": "39afd455-d535-4375-8bb9-7f7221ddafca",
+   "messageId": 117
+  },
+  {
+   "id": "761a3237-6e1f-463f-b9bf-aa94a127d079",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "mood",
+   "value": "guarded",
+   "createdAt": 73,
+   "supersedes": "416eaaaf-1653-4632-9607-2f07c602769a",
+   "messageId": 117
+  },
+  {
+   "id": "d87367b6-9263-4dda-9a25-60085419d3c5",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "hold Max to his swear to find out what happened to the letters",
+   "createdAt": 73,
+   "supersedes": "874849b9-f461-44cb-96b4-b05dc8b388fe",
+   "messageId": 117
+  },
+  {
+   "id": "a37bd0d4-1df2-4ceb-99ee-8de9412d4c9d",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Tobias",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "inform party of B-rank promotion and rewards",
+   "createdAt": 73,
+   "messageId": 117
+  },
+  {
+   "id": "71418041-e28b-448f-b06a-6af204ed2608",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "The Party",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver estate grounds",
+   "createdAt": 73,
+   "supersedes": "4bb542c5-6f9f-4f73-95a6-bc7d943a3bb2",
+   "messageId": 117
+  },
+  {
+   "id": "68ab2152-4929-43c2-9ce8-5c583dac8173",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "The Party",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "go to Aegis City estate",
+   "createdAt": 73,
+   "supersedes": "f1f8cadf-65b6-489b-988c-971c8d78c1a7",
+   "messageId": 117
+  },
+  {
+   "id": "8f3422ca-aec6-4be4-a25f-8858392caa06",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "The Darran Kingdom",
+   "entityType": "character",
+   "field": "political_control",
+   "value": "House Nightriver rules the land",
+   "createdAt": 73,
+   "messageId": 117
+  },
+  {
+   "id": "8903a46c-c1b4-4cd1-ad25-a9fd3ea78cea",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 117,
+    "boundary": 73,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Tiunhime Village",
+   "entityType": "character",
+   "field": "hazards",
+   "value": "townsfolk going mad, savings drying up",
+   "createdAt": 73,
+   "messageId": 117
+  },
+  {
+   "id": "194a250d-d2d7-42b9-a2be-d9f9f937eeab",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "status",
+   "value": "party admitted as guests",
+   "createdAt": 74,
+   "messageId": 119
+  },
+  {
+   "id": "55d2c505-a1b6-4bd0-a950-c1c5e8d16cba",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "location",
+   "value": "Nightriver estate grounds",
+   "createdAt": 74,
+   "messageId": 119
+  },
+  {
+   "id": "e8bf1a19-4b36-4239-8c08-c987742bd6dc",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "rank",
+   "value": "B-rank adventurer",
+   "createdAt": 74,
+   "messageId": 119
+  },
+  {
+   "id": "d485330e-4b03-4689-a6b8-2587493aac8b",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver estate",
+   "createdAt": 74,
+   "supersedes": "ff1e6219-47d2-43e5-abec-abf14abd3b19",
+   "messageId": 119,
+   "confirmedAt": 74,
+   "confirmedMessageId": 119
+  },
+  {
+   "id": "30b3a79b-81b6-4192-9024-b70e4ddef7bd",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "status",
+   "value": "party arrived as guests",
+   "createdAt": 74,
+   "supersedes": "194a250d-d2d7-42b9-a2be-d9f9f937eeab",
+   "messageId": 119
+  },
+  {
+   "id": "6a179ab4-84eb-4804-a278-3ba1b3ef85e8",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "banners",
+   "value": "deep-blue",
+   "createdAt": 74,
+   "messageId": 119
+  },
+  {
+   "id": "ee90c15b-08e6-4d8c-9806-5a8a56f41191",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "gates",
+   "value": "opened for Max",
+   "createdAt": 74,
+   "messageId": 119
+  },
+  {
+   "id": "01bbf6fd-8083-4685-acc8-0804d2b16220",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "rank",
+   "value": "B-rank",
+   "createdAt": 74,
+   "supersedes": "e8bf1a19-4b36-4239-8c08-c987742bd6dc",
+   "messageId": 119
+  },
+  {
+   "id": "3f21e2c2-fbbb-449a-b372-9b9cde15c3c7",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "status",
+   "value": "summoned to father's study",
+   "createdAt": 74,
+   "messageId": 119
+  },
+  {
+   "id": "178ea2b3-2568-4d2b-acf1-cbbc3626263f",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver Estate",
+   "createdAt": 74,
+   "supersedes": "d485330e-4b03-4689-a6b8-2587493aac8b",
+   "messageId": 119
+  },
+  {
+   "id": "2b02db5a-068e-4ac1-8e83-9bc37a8c043d",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "letter",
+   "createdAt": 74,
+   "supersedes": "6c10ece9-f3ad-410f-8c23-dfed0a6bcfc3",
+   "messageId": 119
+  },
+  {
+   "id": "abc8f8a5-1112-497d-a770-03cd3439b0e3",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "find out who sent the letter",
+   "createdAt": 74,
+   "supersedes": "b63ef821-af3c-45b8-8814-36b99bd82734",
+   "messageId": 119
+  },
+  {
+   "id": "571d701b-c18c-4031-b255-e9d1ae158da3",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "mood",
+   "value": "determined",
+   "createdAt": 74,
+   "supersedes": "7a0e7b74-ddf7-4bac-b5fb-c439790a2c6b",
+   "messageId": 119
+  },
+  {
+   "id": "e34a18ab-c9db-43ce-a491-8437985511a6",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "location",
+   "value": "Driftmere Mines",
+   "createdAt": 74,
+   "supersedes": "58e833d6-e427-4cfc-96dd-8df07859ee88",
+   "messageId": 119
+  },
+  {
+   "id": "3db26481-3edb-453f-ba47-5b803bef5fb6",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "mood",
+   "value": "tense",
+   "createdAt": 74,
+   "supersedes": "761a3237-6e1f-463f-b9bf-aa94a127d079",
+   "messageId": 119
+  },
+  {
+   "id": "1a4aa6d2-ff62-46b6-af1c-382e7917efd6",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Serenola",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "hold Max Nightriver to his swear",
+   "createdAt": 74,
+   "supersedes": "d87367b6-9263-4dda-9a25-60085419d3c5",
+   "messageId": 119
+  },
+  {
+   "id": "03831f61-2722-4507-bc13-8764e8cf1403",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver Estate",
+   "createdAt": 74,
+   "supersedes": "412a0b43-31dc-4e86-a758-9802b43edbfc",
+   "messageId": 119
+  },
+  {
+   "id": "5abd1a70-0f88-48bb-b0d3-31acaefff074",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "make herself comfortable as a guest",
+   "createdAt": 74,
+   "supersedes": "74805dcf-149b-4f41-afef-7a4c24295b58",
+   "messageId": 119
+  },
+  {
+   "id": "469f6127-b237-4867-a0e4-a8f7e618b898",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver Estate",
+   "createdAt": 74,
+   "supersedes": "f2f2b7bc-e351-4b0b-a048-b9c0a5aae0ab",
+   "messageId": 119
+  },
+  {
+   "id": "a995c917-7520-4845-b264-1d08bca030e8",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Naomi",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver Estate",
+   "createdAt": 74,
+   "supersedes": "0735f1da-9bc7-471e-9424-3afadc0ea737",
+   "messageId": 119
+  },
+  {
+   "id": "b20d29a2-14ad-4ed3-86f2-792c5b03f9e3",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Tobias",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "inform party of promotion",
+   "createdAt": 74,
+   "supersedes": "a37bd0d4-1df2-4ceb-99ee-8de9412d4c9d",
+   "messageId": 119,
+   "confirmedAt": 75,
+   "confirmedMessageId": 120
+  },
+  {
+   "id": "7193bd3d-98ba-4616-9777-f3290b691333",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "occupants",
+   "value": "Max Nightriver, Belle, Dalan, Naomi, Riyo, butler, servants, Max's father",
+   "createdAt": 74,
+   "messageId": 119
+  },
+  {
+   "id": "b7174569-4b0b-4389-a03a-41bee2269d53",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "accessibility",
+   "value": "open to recognized house members",
+   "createdAt": 74,
+   "messageId": 119
+  },
+  {
+   "id": "ad21e1f5-4682-4279-bc66-4e6f3ea37a2e",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "The Party",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver Estate",
+   "createdAt": 74,
+   "supersedes": "71418041-e28b-448f-b06a-6af204ed2608",
+   "messageId": 119
+  },
+  {
+   "id": "137ad7ff-bc2e-4815-985d-18403779e0ad",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 119,
+    "boundary": 74,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "The Party",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "claim promotion badge and rewards at Aegis City Guild Hall",
+   "createdAt": 74,
+   "supersedes": "68ab2152-4929-43c2-9ce8-5c583dac8173",
+   "messageId": 119
+  },
+  {
+   "id": "a8dd4a0c-6f63-49db-9251-b4c6ab7d83e2",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "status",
+   "value": "party admitted as guests",
+   "createdAt": 75,
+   "supersedes": "30b3a79b-81b6-4192-9024-b70e4ddef7bd",
+   "messageId": 120
+  },
+  {
+   "id": "d70cc69d-64f4-4bfb-93fd-81eb67bde4ce",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "location",
+   "value": "grounds and manor of House Nightriver",
+   "createdAt": 75,
+   "supersedes": "55d2c505-a1b6-4bd0-a950-c1c5e8d16cba",
+   "messageId": 120
+  },
+  {
+   "id": "5e771616-3618-4b2f-8090-23ceec0372af",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "conflicted"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "rank",
+   "value": "B-rank adventurer",
+   "createdAt": 75,
+   "supersedes": "01bbf6fd-8083-4685-acc8-0804d2b16220",
+   "messageId": 120,
+   "confirmedAt": 76,
+   "confirmedMessageId": 121
+  },
+  {
+   "id": "f50b9e57-95af-43fc-8661-db7979784842",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver estate",
+   "createdAt": 75,
+   "supersedes": "178ea2b3-2568-4d2b-acf1-cbbc3626263f",
+   "messageId": 120
+  },
+  {
+   "id": "7aa6dbdc-a05e-487b-addf-bbdecc0f391e",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Adolion Narrator",
+   "entityType": "character",
+   "field": "location",
+   "value": "Driftmere Mines entrance",
+   "createdAt": 75,
+   "supersedes": "970e9f61-db24-4dff-a5fd-3505db80d01f",
+   "messageId": 120
+  },
+  {
+   "id": "5afdcc3c-1d94-454e-801f-c1f29f207538",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Adolion Narrator",
+   "entityType": "character",
+   "field": "mood",
+   "value": "tense",
+   "createdAt": 75,
+   "supersedes": "028fc940-cbf5-482f-8cc1-e8cac90a5c70",
+   "messageId": 120
+  },
+  {
+   "id": "e5c3d7d8-d32b-40f0-92ca-999f47f95c9a",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Adolion Narrator",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "speak with the woman about the mine",
+   "createdAt": 75,
+   "supersedes": "df680fa6-47cd-452b-aef1-5a41313c85f6",
+   "messageId": 120
+  },
+  {
+   "id": "d5bbbafb-5066-4925-a9df-ee0a7199c32e",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "location",
+   "value": "Driftmere Mines entrance",
+   "createdAt": 75,
+   "supersedes": "03831f61-2722-4507-bc13-8764e8cf1403",
+   "messageId": 120
+  },
+  {
+   "id": "e5c85ab0-bb23-4c89-8cdb-12a5ec9ebad8",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "mood",
+   "value": "tense, grateful",
+   "createdAt": 75,
+   "supersedes": "119e69e9-f91a-4695-b6d2-42ed9c41fda6",
+   "messageId": 120
+  },
+  {
+   "id": "eda4067d-92fa-4bc3-a715-d0b897eb2c1d",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "comfort the woman and accept Max's hospitality",
+   "createdAt": 75,
+   "supersedes": "5abd1a70-0f88-48bb-b0d3-31acaefff074",
+   "messageId": 120
+  },
+  {
+   "id": "8235e45e-3406-4ef8-8ef3-b76553f50cfe",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "location",
+   "value": "Driftmere Mines entrance",
+   "createdAt": 75,
+   "supersedes": "469f6127-b237-4867-a0e4-a8f7e618b898",
+   "messageId": 120
+  },
+  {
+   "id": "046a5862-6542-4eec-ad20-a66becfc574b",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "mood",
+   "value": "grim, uncertain, grateful",
+   "createdAt": 75,
+   "supersedes": "d58f5f9a-a835-42b9-ad10-48d34f646bb3",
+   "messageId": 120
+  },
+  {
+   "id": "61f6fd24-d47a-4e2d-a7b2-28d2682c7b6e",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "explain what happened in the mine",
+   "createdAt": 75,
+   "supersedes": "87e13e5a-627e-4a02-bf1f-7ce0506f87b7",
+   "messageId": 120
+  },
+  {
+   "id": "9072e110-dfa9-4295-a8ce-62805c4f1996",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "green-hooded capelet",
+   "createdAt": 75,
+   "supersedes": "f858d0a0-2ad0-4fa1-b071-e6c730f75117",
+   "messageId": 120
+  },
+  {
+   "id": "7a8da62b-a9b4-4e28-a39e-379ff261686b",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver Estate",
+   "createdAt": 75,
+   "supersedes": "f50b9e57-95af-43fc-8661-db7979784842",
+   "messageId": 120
+  },
+  {
+   "id": "e4bb6570-7658-4576-bbbf-3a4c212b5b22",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "go to Aegis City to the estate",
+   "createdAt": 75,
+   "supersedes": "abc8f8a5-1112-497d-a770-03cd3439b0e3",
+   "messageId": 120
+  },
+  {
+   "id": "0ba77493-0eac-4630-81b6-c30a09542410",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "letter, bloodied gear, lantern",
+   "createdAt": 75,
+   "supersedes": "2b02db5a-068e-4ac1-8e83-9bc37a8c043d",
+   "messageId": 120
+  },
+  {
+   "id": "4fcfd457-8f85-452d-8e31-0dc8f229e3d2",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Naomi",
+   "entityType": "character",
+   "field": "location",
+   "value": "Driftmere Mines entrance",
+   "createdAt": 75,
+   "supersedes": "a995c917-7520-4845-b264-1d08bca030e8",
+   "messageId": 120
+  },
+  {
+   "id": "37548c2d-f7b8-403b-9162-115a34514481",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Naomi",
+   "entityType": "character",
+   "field": "mood",
+   "value": "tense",
+   "createdAt": 75,
+   "supersedes": "b28ed9ea-41f8-427b-a3dc-c6caeb5707cf",
+   "messageId": 120
+  },
+  {
+   "id": "9035a36a-fd72-44de-bca5-92fa7887e1f8",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver Estate",
+   "createdAt": 75,
+   "supersedes": "ff4f54dd-ff34-40c5-b75e-86143cae80be",
+   "messageId": 120
+  },
+  {
+   "id": "8eea3143-a702-4ab9-b98f-2ce8d23e4fd9",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "occupants",
+   "value": "Max Nightriver, Belle, Dalan, Naomi, Riyo, butler, servants",
+   "createdAt": 75,
+   "supersedes": "7193bd3d-98ba-4616-9777-f3290b691333",
+   "messageId": 120
+  },
+  {
+   "id": "881bd3b9-c6fd-4afb-8b34-016449c801ac",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 120,
+    "boundary": 75,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "accessibility",
+   "value": "open",
+   "createdAt": 75,
+   "supersedes": "b7174569-4b0b-4389-a03a-41bee2269d53",
+   "messageId": 120
+  },
+  {
+   "id": "1855183f-721e-4a81-844d-5136420a2cb6",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "conflicted"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "gates",
+   "value": "iron, open for recognized house members",
+   "createdAt": 76,
+   "supersedes": "ee90c15b-08e6-4d8c-9806-5a8a56f41191",
+   "messageId": 121
+  },
+  {
+   "id": "a36279c1-bdb2-44d2-90df-cabbab5dbff0",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "atmosphere",
+   "value": "scent of cedar and faint metallic tang of magic",
+   "createdAt": 76,
+   "messageId": 121
+  },
+  {
+   "id": "f2f7ca7e-4d7e-4fe4-862b-df426777b8d4",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver estate",
+   "createdAt": 76,
+   "supersedes": "7a8da62b-a9b4-4e28-a39e-379ff261686b",
+   "messageId": 121
+  },
+  {
+   "id": "56ff89ff-2eca-4a00-9db7-e9efa9c41238",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver Estate",
+   "createdAt": 76,
+   "supersedes": "d5bbbafb-5066-4925-a9df-ee0a7199c32e",
+   "messageId": 121,
+   "confirmedAt": 78,
+   "confirmedMessageId": 124
+  },
+  {
+   "id": "6efacd16-e1b1-4e3c-be2b-7e4c9fd7d635",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "outfit_disguise",
+   "value": "greataxe Cleaver held close to her side",
+   "createdAt": 76,
+   "supersedes": "6135ef53-7b28-401e-a85f-0e52936abe3d",
+   "messageId": 121,
+   "confirmedAt": 79,
+   "confirmedMessageId": 126
+  },
+  {
+   "id": "0248e3b6-fb4f-4d2c-8705-e03cde9667df",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "mood",
+   "value": "tense, grateful, smirking",
+   "createdAt": 76,
+   "supersedes": "e5c85ab0-bb23-4c89-8cdb-12a5ec9ebad8",
+   "messageId": 121
+  },
+  {
+   "id": "f481072e-61ef-4d5e-8ffc-2249c092d1db",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Belle",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "see if fancy-house ale tastes better than tavern swill",
+   "createdAt": 76,
+   "supersedes": "eda4067d-92fa-4bc3-a715-d0b897eb2c1d",
+   "messageId": 121,
+   "confirmedAt": 79,
+   "confirmedMessageId": 126
+  },
+  {
+   "id": "aa4624f4-2444-41f1-8b8b-cf706eeb1d1a",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver Estate",
+   "createdAt": 76,
+   "supersedes": "8235e45e-3406-4ef8-8ef3-b76553f50cfe",
+   "messageId": 121,
+   "confirmedAt": 78,
+   "confirmedMessageId": 124
+  },
+  {
+   "id": "3e219370-f56b-4956-b39a-cb29486d3f9d",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "injuries",
+   "value": "blood and dirt on his tunic",
+   "createdAt": 76,
+   "messageId": 121
+  },
+  {
+   "id": "7854eb1c-d3f5-4204-9cfe-156bc7181d5f",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "outfit_disguise",
+   "value": "green-hooded capelet",
+   "createdAt": 76,
+   "messageId": 121,
+   "confirmedAt": 78,
+   "confirmedMessageId": 124
+  },
+  {
+   "id": "73abc946-8d74-4a40-97e6-26370e99f69e",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "mood",
+   "value": "uncertain, grateful, grim",
+   "createdAt": 76,
+   "supersedes": "046a5862-6542-4eec-ad20-a66becfc574b",
+   "messageId": 121
+  },
+  {
+   "id": "a7e35ff5-40bb-4072-b333-7cdbf90ea4f9",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Dalan",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "try not to break anything",
+   "createdAt": 76,
+   "supersedes": "61f6fd24-d47a-4e2d-a7b2-28d2682c7b6e",
+   "messageId": 121,
+   "confirmedAt": 79,
+   "confirmedMessageId": 126
+  },
+  {
+   "id": "58ca641e-670f-483a-ad02-f9a50db45c09",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Naomi",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver Estate",
+   "createdAt": 76,
+   "supersedes": "4fcfd457-8f85-452d-8e31-0dc8f229e3d2",
+   "messageId": 121
+  },
+  {
+   "id": "66de48a1-8cf5-40b0-9571-4d8f2cb22016",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Naomi",
+   "entityType": "character",
+   "field": "mood",
+   "value": "uneasy (ears flattened against her head)",
+   "createdAt": 76,
+   "supersedes": "37548c2d-f7b8-403b-9162-115a34514481",
+   "messageId": 121
+  },
+  {
+   "id": "40e5132a-9af8-411f-a88d-b4daeee7642d",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "outfit_disguise",
+   "value": "cloak covering left arm, sword at hilt",
+   "createdAt": 76,
+   "supersedes": "ae074444-7a5f-4266-bca1-a1346ab510e6",
+   "messageId": 121
+  },
+  {
+   "id": "60b48477-2fdd-44e1-8bd5-76bcc4fe8ceb",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "mood",
+   "value": "wary, tense",
+   "createdAt": 76,
+   "supersedes": "6941fcf0-c37f-46e4-94ef-699b5a7e84e0",
+   "messageId": 121
+  },
+  {
+   "id": "6d8f2340-07f7-435a-a3bf-6ee8521cfa0d",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "wait by the door, position herself between Max and the rest of the estate",
+   "createdAt": 76,
+   "supersedes": "57830857-40a0-4c29-90bf-b0371d3b75ee",
+   "messageId": 121
+  },
+  {
+   "id": "2e90808e-10a2-49c6-9bd4-e816575e6433",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Riyo",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "sword",
+   "createdAt": 76,
+   "supersedes": "94b23fd1-684e-4d95-8e88-f61e659fbc99",
+   "messageId": 121,
+   "confirmedAt": 80,
+   "confirmedMessageId": 128
+  },
+  {
+   "id": "7e3e2dc8-aa70-4f1a-a122-749c8c0d9326",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "location",
+   "value": "Nightriver Estate",
+   "createdAt": 76,
+   "supersedes": "f2f7ca7e-4d7e-4fe4-862b-df426777b8d4",
+   "messageId": 121,
+   "confirmedAt": 78,
+   "confirmedMessageId": 124
+  },
+  {
+   "id": "1e3c0e36-a7ce-4c57-97b8-2c0900e2f41f",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "go to Aegis City, to the estate; speak to Father",
+   "createdAt": 76,
+   "supersedes": "e4bb6570-7658-4576-bbbf-3a4c212b5b22",
+   "messageId": 121
+  },
+  {
+   "id": "fc63094d-6c09-40b4-8368-02c7bc946d8f",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Max Nightriver",
+   "entityType": "character",
+   "field": "carried_items",
+   "value": "letter from home (wax seal broken)",
+   "createdAt": 76,
+   "supersedes": "0ba77493-0eac-4630-81b6-c30a09542410",
+   "messageId": 121
+  },
+  {
+   "id": "ea44bd06-dfd7-41d4-992b-37e65bd3b56c",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Tobias",
+   "entityType": "character",
+   "field": "active_goal",
+   "value": "inform party of B-rank promotion and rewards",
+   "createdAt": 76,
+   "supersedes": "b20d29a2-14ad-4ed3-86f2-792c5b03f9e3",
+   "messageId": 121,
+   "confirmedAt": 78,
+   "confirmedMessageId": 123
+  },
+  {
+   "id": "f9538e35-9135-412e-b927-5b2f8e7eb949",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "hazards",
+   "value": "none (mine is safe/free)",
+   "createdAt": 76,
+   "supersedes": "81d30e63-7f3c-46c4-bc22-ae4ed7e31dd3",
+   "messageId": 121
+  },
+  {
+   "id": "06de31f6-b5c6-4b98-90ca-8d8e44258caf",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Driftmere Mines",
+   "entityType": "place",
+   "field": "accessibility",
+   "value": "free",
+   "createdAt": 76,
+   "supersedes": "9fac3953-07f7-4c65-ba8b-5233fded9e59",
+   "messageId": 121
+  },
+  {
+   "id": "dd41c275-84ec-4986-ae09-75c56f8b6d38",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "occupants",
+   "value": "Max Nightriver, Belle, Dalan, Naomi, Riyo, butler, servants, Max's father",
+   "createdAt": 76,
+   "supersedes": "8eea3143-a702-4ab9-b98f-2ce8d23e4fd9",
+   "messageId": 121
+  },
+  {
+   "id": "06b65cc0-37c1-44e6-851d-4e296fe7cbc8",
+   "provenance": {
+    "source": "extractor",
+    "messageId": 121,
+    "boundary": 76,
+    "pass": "shared-read",
+    "validity": "live"
+   },
+   "entity": "Nightriver Estate",
+   "entityType": "place",
+   "field": "accessibility",
+   "value": "iron gates open for recognized member of the house",
+   "createdAt": 76,
+   "supersedes": "881bd3b9-c6fd-4afb-8b34-016449c801ac",
+   "messageId": 121
+  }
+ ]
+}

@@ -147,6 +147,18 @@ const stopWords = new Set([
 ]);
 const contentTokens = (text: string) => [...new Set(text.toLowerCase().split(/[^a-z0-9]+/).filter((token) => token.length > 3 && !stopWords.has(token)))];
 
+const NARRATIVE_TIERS = new Set<MemoryEntry["tier"]>(["scene_history", "short_term"]);
+const NEGATORS = new Set(["not", "no", "never", "nor", "without", "longer", "isn", "wasn", "aren", "weren", "doesn", "didn", "won", "cannot"]);
+const wordsOf = (text: string) => text.toLowerCase().split(/[^a-z0-9]+/).filter(Boolean);
+
+function restatesValue(text: string, value: string, field: string): boolean {
+  const fieldWords = new Set(wordsOf(field));
+  const distinctive = [...new Set(wordsOf(value).filter((token) => !stopWords.has(token) && !fieldWords.has(token)))];
+  const said = new Set(wordsOf(text));
+  if (!distinctive.length || [...said].some((token) => NEGATORS.has(token))) return false;
+  return distinctive.filter((token) => said.has(token)).length * 2 >= distinctive.length;
+}
+
 function sameTopic(fact: MemoryEntry, row: LedgerEntry, bound?: { field: string; value: string }): boolean {
   const factTokens = contentTokens(fact.text);
   // The entity is the subject: the fact has to touch it, by name or by one of its own words. Without
@@ -161,7 +173,7 @@ function sameTopic(fact: MemoryEntry, row: LedgerEntry, bound?: { field: string;
 
 /** The fact and the ledger row disagree: the row's value appears nowhere in the fact's claim. */
 function claimsDifferentValue(fact: MemoryEntry, row: LedgerEntry, bound?: { field: string; value: string }): boolean {
-  if (mentions(fact.text, row.value)) return false;
+  if (mentions(fact.text, row.value) || restatesValue(fact.text, row.value, row.field)) return false;
   return bound ? !mentions(fact.text, bound.value) : true;
 }
 
@@ -206,7 +218,7 @@ export function detectConflicts(
 
   for (const entry of entries) {
     if (entry.provenance && entry.provenance.validity !== "live") continue;
-    if (entry.supersededBy || entry.foldedInto) continue;
+    if (entry.supersededBy || entry.foldedInto || NARRATIVE_TIERS.has(entry.tier)) continue;
     for (const row of liveLedger) {
       const bound = Object.values(boundValues).find((candidate) => ledgerKey(candidate.entity, candidate.field) === ledgerKey(row.entity, row.field));
       if (!sameTopic(entry, row, bound)) continue;
@@ -281,7 +293,7 @@ export function markConflicted<T extends { provenance: Provenance }>(records: T[
 // contradiction worded with too little overlap and no negator is not seen at all.
 export const isEstablished = (entry: MemoryEntry): boolean => Boolean(entry.locked || entry.provenance?.override || entry.provenance?.source === "author");
 
-export const standsEstablished = (entry: MemoryEntry): boolean => isEstablished(entry) && isLive(entry) && !entry.supersededBy && !entry.foldedInto;
+export const standsEstablished = (entry: MemoryEntry): boolean => isEstablished(entry) && isLive(entry) && !entry.supersededBy;
 
 export interface HeldContradiction {
   established: MemoryEntry;

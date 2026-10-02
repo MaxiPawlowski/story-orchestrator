@@ -5,8 +5,9 @@ import {
   backdateSession, flagMoment, MUTATION_VERBS, runGuardedTurn, runMutation, waitSchedulerIdle,
   groupNeedle, type LiveDeps, type LiveOptions, type MutationArgs, type MutationVerb,
 } from './sessionLive.mts';
+import { runMemoryVerb, type MemoryOp } from './sessionMemory.mts';
 
-export const LIVE_VERBS = ['turn', ...MUTATION_VERBS, 'flag', 'shot', 'age', 'adopt'] as const;
+export const LIVE_VERBS = ['turn', ...MUTATION_VERBS, 'flag', 'shot', 'age', 'adopt', 'mem'] as const;
 export type LiveVerb = (typeof LIVE_VERBS)[number];
 
 export interface LiveChat { chatId: string; group: string | null; groupId?: string | null }
@@ -14,7 +15,7 @@ export interface LiveRequest {
   verb: LiveVerb;
   dir: string;
   chat: LiveChat | null;
-  args: MutationArgs & { note?: string; via?: 'drawer' | 'slash'; label?: string; hours?: number; seq?: number };
+  args: MutationArgs & { note?: string; via?: 'drawer' | 'slash'; label?: string; hours?: number; seq?: number; memOp?: string; ref?: string };
   options?: LiveOptions;
   tag?: { arm?: string; gate?: string };
 }
@@ -49,7 +50,9 @@ export async function defaultLiveDeps(): Promise<LiveDeps> {
       for (let attempt = 0; attempt < 3; attempt += 1) {
         const open = await evaluateInST(page, () => document.querySelectorAll('dialog[open]').length);
         if (!open) break;
-        await page.keyboard.press('Escape');
+        const ours = page.locator('dialog[open]:has(.so-popup-anchor) .popup-button-ok').first();
+        if (await ours.count()) await ours.click({ force: true, timeout: 5000 });
+        else await page.keyboard.press('Escape');
         await page.waitForTimeout(300);
       }
       await page.waitForTimeout(300);
@@ -140,6 +143,7 @@ export async function runLive(page: any, request: LiveRequest, deps: LiveDeps) {
     await page.screenshot({ path, fullPage: false });
     return { kind: 'shot', at: new Date().toISOString(), ok: true, label, path: relative(request.dir, path).replace(/\\/g, '/'), chatId: ensured.chatId };
   }
+  if (verb === 'mem') return { ...(await runMemoryVerb(page, args.memOp as MemoryOp, args.ref ?? '', args.text)), ensured };
   if (verb === 'age') {
     const aged = await backdateSession(page, Number(args.hours), deps, request.chat);
     return { kind: 'age', at: new Date().toISOString(), ...aged, ok: aged.ok === true && aged.fired === true, ensured };

@@ -4,6 +4,7 @@ export * from "./similarity";
 export * from "./stores";
 export * from "./arcs";
 export * from "./derived";
+export * from "./excludedThreads";
 export * from "./entities";
 export * from "./reverse";
 export * from "./epistemic";

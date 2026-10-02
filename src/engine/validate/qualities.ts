@@ -73,7 +73,7 @@ const readPlayerLabels =(value: Record<string, unknown>, values: string[] | unde
 const readEvidenceFrom =(value: Record<string, unknown>, source: Quality["source"], path: string, errors: ValidationError[]): Pick<Quality, "evidence_from"> => {
   if (value.evidence_from === undefined) return {};
   if (!isOneOf(value.evidence_from, EVIDENCE_FROM)) {
-    addError(errors, `${path}.evidence_from`, "evidence_from must be any or world");
+    addError(errors, `${path}.evidence_from`, "evidence_from must be any, world or party");
     return {};
   }
   if (source !== "extractor") {

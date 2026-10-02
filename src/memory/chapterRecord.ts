@@ -2,6 +2,7 @@ import { CHAPTER_DISPOSITIONS, type ChapterDisposition, type ChapterRecord } fro
 import { inputText, type ChapterInput } from "./chapterInput";
 
 export const CHAPTER_SECTIONS = ["SUMMARY", "SHORT", "CONSEQUENCES", "PEOPLE", "OPEN"] as const;
+export const CHAPTER_RECORD_BOUNDS = { summaryWords: 220, shortWords: 45, consequences: 6, consequenceWords: 30, people: 8, personWords: 20, open: 8, openWords: 15 } as const;
 type Section = typeof CHAPTER_SECTIONS[number];
 
 export interface ParsedChapterRecord {
@@ -21,16 +22,18 @@ export function buildChapterRecordPrompt(storyTitle: string, chapterTitle: strin
     `Base every line strictly on the INPUTS. Do not invent people, places or events.${style === "chronicle" ? " Keep the SUMMARY terse, like a chronicle." : ""}`,
     "Output exactly these labelled sections, in this order:",
     "SUMMARY:",
-    "[120-220 words, past tense, using names exactly as the inputs write them]",
+    `[120-${CHAPTER_RECORD_BOUNDS.summaryWords} words, past tense, from the chapter's first events to its last, using names exactly as the inputs write them]`,
     "SHORT:",
-    "[one or two sentences]",
+    `[one or two sentences, at most ${CHAPTER_RECORD_BOUNDS.shortWords} words]`,
     "CONSEQUENCES:",
-    "- [a durable change the chapter left behind] [src: <input id>, <input id>]",
+    `- [a durable change the chapter left behind, at most ${CHAPTER_RECORD_BOUNDS.consequenceWords} words] [src: <input id>, <input id>]`,
     "PEOPLE:",
-    "- [Name]: [where they stand now, and toward whom]",
+    `- [Name]: [where they stand now, and toward whom, at most ${CHAPTER_RECORD_BOUNDS.personWords} words]`,
     "OPEN:",
-    `- [thread id] | ${CHAPTER_DISPOSITIONS.join(" or ")} | [why]`,
+    `- [thread id] | ${CHAPTER_DISPOSITIONS.join(" or ")} | [why, at most ${CHAPTER_RECORD_BOUNDS.openWords} words]`,
     "Every CONSEQUENCES line must end with [src: ...] naming input ids. Name only the listed cast in PEOPLE. Never reveal secrets one character hides from another.",
+    `At most ${CHAPTER_RECORD_BOUNDS.consequences} CONSEQUENCES lines and ${CHAPTER_RECORD_BOUNDS.people} PEOPLE lines, the most important first.`,
+    `In OPEN list at most ${CHAPTER_RECORD_BOUNDS.open} threads, only the ones this chapter closed; every thread you leave out carries over. Then stop.`,
     ...(failures.length ? ["", "Your previous answer was refused for these reasons; fix them:", ...failures.map((failure) => `- ${failure}`)] : []),
     "",
     `STORY: ${storyTitle}`,
@@ -122,10 +125,16 @@ const words = (text: string, max: number) => {
   return parts.length <= max ? parts.join(" ") : `${parts.slice(0, max).join(" ")}…`;
 };
 
+const DEGRADED_SCENE_FLOOR = 12;
+
+const firstSentence = (text: string) => text.split(/(?<=[.!?])\s+/)[0] ?? text;
+
 export function degradedChapterRecord(input: ChapterInput): ParsedChapterRecord {
   const scenes = input.items.filter((item) => item.kind === "scene").map((item) => item.text);
   const arcs = input.items.filter((item) => item.kind === "arc");
-  const summary = words(scenes.join(" ") || arcs.map((item) => item.text).join(" ") || "This chapter passed without a recorded scene.", 220);
+  const each = Math.max(DEGRADED_SCENE_FLOOR, Math.floor(CHAPTER_RECORD_BOUNDS.summaryWords / Math.max(1, scenes.length)));
+  const spanned = scenes.map((scene) => words(firstSentence(scene), each)).join(" ");
+  const summary = words(spanned || arcs.map((item) => item.text).join(" ") || "This chapter passed without a recorded scene.", CHAPTER_RECORD_BOUNDS.summaryWords);
   const short = words(summary.split(/(?<=[.!?])\s+/)[0] ?? summary, 45);
   return {
     summary,

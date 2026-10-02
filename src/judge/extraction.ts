@@ -1,4 +1,4 @@
-import { qualityAccepts, ratingLevels, type PrimitiveValue, type Quality, type QualityCriterion } from "@engine/index";
+import { qualityAccepts, ratingLevels, readsWorldEvidence, type PrimitiveValue, type Quality, type QualityCriterion } from "@engine/index";
 import { findNumbers, findStringCandidates } from "./numbers";
 import { EXTRACTION_CONFIDENCE, EXTRACTION_LATCHING_BUMP, STALL_DIRECT_P, STALL_GENUINE_P } from "./policy";
 import { choice, choiceAnswer, noul, noulAnswer, scoreAnswer, score } from "./questions";
@@ -173,7 +173,7 @@ export function readTypedDeltas(answers: Record<string, JudgeAnswer>, plan: Type
     const picked = (decoder.evidenceId ? choiceAnswer(answers, decoder.evidenceId)?.choice : undefined) ?? read.messageKey;
     const messageId = picked !== undefined ? plan.messageIds[picked] : window.length === 1 ? window[0].id : undefined;
     const source = window.find((message) => message.id === messageId);
-    if (quality.evidence_from === "world" && (!source || source.isUser)) continue;
+    if (readsWorldEvidence(quality) && (!source || source.isUser)) continue;
     answered.push(decoder.key);
     if (read.value === undefined || !qualityAccepts(quality, read.value)) continue;
     deltas.push({ q: decoder.key, v: read.value, confidence: read.confidence, evidence: (source?.text ?? "judged from the window").slice(0, 160), ...(messageId !== undefined ? { messageId } : {}) });
