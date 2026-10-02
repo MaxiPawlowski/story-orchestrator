@@ -2,9 +2,13 @@ import { tailProblems, type TailAcks, type TailName } from './sessionTails.mts';
 
 export const HEADER_DIFF_ALLOW = 'chatId,groupId,authorView,story,group,inventory.journal';
 
-export function headerDiffArgs(baseline: string, out: string, chats: Array<{ chatId?: unknown }>): string[] {
+export function headerDiffArgs(baseline: string, out: string, chats: Array<{ chatId?: unknown; groupId?: unknown }>): string[] {
   const owned = [...new Set(chats.map((chat) => chat.chatId).filter((id): id is string => typeof id === 'string' && id.length > 0))];
-  return ['scripts/debug/so-run-header.mts', 'diff', baseline, '--allow', HEADER_DIFF_ALLOW, ...(owned.length ? ['--owned', owned.join(',')] : []), '--served-identity', '--allow-warnings', '--out', out];
+  const ownedGroupChats = [...new Set(chats
+    .filter((chat): chat is { chatId: string; groupId: string } => typeof chat.chatId === 'string' && chat.chatId.length > 0 && !chat.chatId.includes(',') && typeof chat.groupId === 'string' && chat.groupId.length > 0)
+    .map((chat) => `inventory.groupChats:+${chat.groupId}/${chat.chatId}`))];
+  const allow = [HEADER_DIFF_ALLOW, ...ownedGroupChats].join(',');
+  return ['scripts/debug/so-run-header.mts', 'diff', baseline, '--allow', allow, ...(owned.length ? ['--owned', owned.join(',')] : []), '--served-identity', '--allow-warnings', '--out', out];
 }
 
 const SERVED_LINE = /^ok\s+(\S+)\s.*\(allowed by served-bundle ([0-9a-f]+)\)\s*$/;

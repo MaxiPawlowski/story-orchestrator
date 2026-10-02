@@ -51,6 +51,17 @@ test('review leftovers: the stop diff passes --owned with the session chats and 
   assert.equal(diffHeaders(header('chat-a', 3), header('chat-a', 5), allow, { ownedChats: ['chat-a'] })[0].allowed, true);
 });
 
+test('T4-2 stop: a group chat the session created (a branch) is declared, a foreign new chat or a removed one still blocks', () => {
+  const args = headerDiffArgs('s', 'e', [{ chatId: 'chat-a', groupId: 'g' }, { chatId: 'chat-a - Branch #1', groupId: 'g' }]);
+  const allow = args[args.indexOf('--allow') + 1].split(',');
+  const inventory = (chats: string[]) => ({ inventory: { groupChats: chats }, chat: { chatId: 'chat-a', chatLength: 1, groupId: 'g', authorView: false } });
+  const blocking = (before: string[], after: string[]) => diffHeaders(inventory(before), inventory(after), allow, { ownedChats: ['chat-a'] }).filter((difference) => !difference.allowed).map((difference) => difference.path);
+  assert.deepEqual(blocking(['g/chat-a'], ['g/chat-a', 'g/chat-a - Branch #1']), []);
+  assert.deepEqual(blocking(['g/chat-a'], ['g/chat-a', 'g/chat-a - Branch #1', 'g/someone-else']), ['inventory.groupChats']);
+  assert.deepEqual(blocking(['g/chat-a', 'g/old'], ['g/chat-a', 'g/chat-a - Branch #1']), ['inventory.groupChats']);
+  assert.ok(!headerDiffArgs('s', 'e', [{ chatId: 'chat-a' }])[4].includes('inventory.groupChats'));
+});
+
 const SERVED = 'ceb15ac19ec07dec3a70c5d80785b611d806cad5e9659520e5d54a8a2182ab19';
 const mismatch = (served: string, dist: string) => `the page is running a bundle that is not the built one: served ${served.slice(0, 16)} vs dist ${dist.slice(0, 16)}`;
 const t0Header = ({ head, bundleSha256, served, dirty = true, extraWarnings = [] as string[] }: { head: string; bundleSha256: string; served: string; dirty?: boolean; extraWarnings?: string[] }) => ({
