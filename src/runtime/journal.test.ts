@@ -123,6 +123,23 @@ describe("buildSessionJournal", () => {
 });
 
 describe("SessionJournal", () => {
+  it("T4-4: a queued judge write keeps the time it was first seen, so a tail polling every second records it once (T4-4-1 journal.jsonl:446-521)", () => {
+    jest.useFakeTimers().setSystemTime(new Date("2026-10-02T05:11:31.482Z"));
+    try {
+      const journal = new SessionJournal();
+      const queued = { source: "extractor" as const, origin: "judge:typed@1", blackboardVersionSum: 0, turnRange: { from: 12, to: 14 }, deltas: [{ q: "party_name", v: "The Second Tries", source: "extractor" as const }] };
+      const read = () => journal.build({ boundaryLog: [], audits: [], reconciliationEvents: [], talkDecisions: [], pending: [queued] }).filter((event) => event.kind === "delta");
+      const first = read();
+      jest.setSystemTime(new Date("2026-10-02T05:11:32.494Z"));
+      const second = read();
+      expect(first).toHaveLength(1);
+      expect(second).toEqual(first);
+      expect(first[0].at).toBe("2026-10-02T05:11:31.482Z");
+    } finally {
+      jest.useRealTimers();
+    }
+  });
+
   it("records only status changes", () => {
     const journal = new SessionJournal();
     expect(journal.observeStatus("Loaded", { boundary: 0, messageId: -1 })).toBe(true);

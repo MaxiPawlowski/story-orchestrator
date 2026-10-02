@@ -16,6 +16,7 @@ import { loadPersistedRuntime } from "@runtime/persistence";
 import { branchFromOldest, continueFromBranch } from "@runtime/chatIdentity";
 import { jumpToMessage } from "@runtime/messageJumpHost";
 import type { RuntimeSnapshot, StoryLibraryRecord } from "@runtime/types";
+import { chatUpdateOutcome, type ChatSaveOutcome } from "@runtime/librarySave";
 import type { StudioOpenIntent } from "./studio/StudioModal";
 import type { WizardHost } from "./studio/components/StudioCopilot";
 import { type DriverController } from "@components/drawer/DriverPanel";
@@ -119,11 +120,9 @@ const wizardHost: WizardHost = {
 // (spec addendum §Story identity); every other chat keeps its pinned copy.
 // The chat half of one save vocabulary. The library half is the Studio's; this returns
 // only what happened HERE, so the two events never read as one sentence.
-const applySavedStory = async (record: StoryLibraryRecord): Promise<string | null> => {
+const applySavedStory = async (record: StoryLibraryRecord): Promise<ChatSaveOutcome | null> => {
   if (manager.getSnapshot().storyId !== record.id) return null;
-  const outcome = await manager.applyStoryUpdate(record);
-  if (outcome.applied) return outcome.choice === "restart" ? "this chat restarted on the new version" : "this chat is playing the new version now";
-  return outcome.reason ? `this chat kept its version — ${outcome.reason}` : null;
+  return chatUpdateOutcome(await manager.applyStoryUpdate(record));
 };
 
 const readReplaySource = (): GateReplaySource | null => {
@@ -233,7 +232,8 @@ const toggleAuthorView = async (next: boolean) => {
 };
 
 // The player's Continue from here, and the author's branch cut at the history floor.
-const continueBranch = () => continueFromBranch({ selectStory: (storyId) => manager.selectStory(storyId), note: (summary, detail) => manager.chatSave.note(summary, detail) });
+const continueBranch = () => continueFromBranch({ selectStory: (storyId) => manager.selectStory(storyId), note: (summary, detail) => manager.chatSave.note(summary, detail),
+  markBranch: (origin) => manager.markBranch(origin) });
 const branchAtFloor = async (messageId: number) => {
   const result = await branchFromOldest(messageId);
   if (!result.ok) window.toastr?.info?.(result.reason, "Story Orchestrator");

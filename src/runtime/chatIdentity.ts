@@ -148,6 +148,7 @@ export async function loadAtStartup(host: { load: () => Promise<unknown>; owners
 export interface ContinueBranchDeps {
   selectStory: (storyId: string) => Promise<boolean>;
   note: (summary: string, detail: string) => void;
+  markBranch: (origin: { chatId: string; at: string }) => void;
 }
 
 /** Continue from here: adopt (chat id + integrity), hydrate, and let the hydrate reconcile step the story
@@ -156,8 +157,10 @@ export async function continueFromBranch(deps: ContinueBranchDeps): Promise<bool
   const identity = readStoredIdentity();
   const branch = currentChat();
   if (identity?.snapshot.kind !== "branch" || !identity.storyId || !branch) return false;
+  const at = new Date().toISOString();
   if (!adoptChatState()) return false;
   if (!(await deps.selectStory(identity.storyId))) return false;
+  if (currentChat()?.chatId === branch.chatId) deps.markBranch({ chatId: identity.snapshot.parentChat, at });
   if (currentChat()?.chatId === branch.chatId) deps.note(
     "branch continued",
     `this chat is a branch of ${identity.snapshot.parentChat}; it took that chat's story state and stepped back to where the branch ends`,

@@ -5,6 +5,7 @@ import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 import { viewerRepairStep } from "@runtime/repair";
 import { PLAYER_COPY } from "@runtime/narrative";
+import { chatUpdateSentence } from "@runtime/librarySave";
 import type { DriverController, RecoveryTarget } from "./DriverPanel";
 import { MessageJumpProvider } from "./MessageCitation";
 import { OverviewTab } from "./tabs/OverviewTab";
@@ -136,7 +137,10 @@ const StoryControls = ({ snapshot, manager, onEditStory, onOpenRepair, onNewStor
         type="button"
         className="menu_button"
         title="Take the newer version from the library into this chat."
-        onClick={() => void manager.applyStoryUpdate()}
+        onClick={() => void manager.applyStoryUpdate().then((outcome) => {
+          const line = chatUpdateSentence(outcome);
+          if (line) window.toastr?.info?.(line, "Story Orchestrator");
+        })}
       >Update to v{snapshot.storyIdentity.libraryVersion}</button>
     )}
   </div>

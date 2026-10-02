@@ -106,6 +106,17 @@ describe("story identity", () => {
     expect(listStoryRecords().map((record) => [record.id, record.version])).toEqual([["quest-for-the-sun-ruins", 2]]);
   });
 
+  it("T4-4: a save that moves the version stores that version in the story itself, and saving the stored copy again moves nothing (T4-4-1 v30 vs raw 29)", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson());
+    await manager.importStory(storyJson({ description: "Rewritten." }));
+    const [record] = listStoryRecords();
+    expect(record.version).toBe(2);
+    expect(record.raw.version).toBe(2);
+    await manager.importStory(JSON.stringify(record.raw));
+    expect(listStoryRecords().map((entry) => [entry.version, entry.raw.version, entry.hash])).toEqual([[2, 2, record.hash]]);
+  });
+
   it("control: a different title is a second record, and an id-carrying import keeps its id", async () => {
     const manager = new RuntimeManager();
     await manager.importStory(storyJson({ id: undefined }));
@@ -185,6 +196,25 @@ describe("story identity", () => {
     expect(playing.getSnapshot().activeCheckpointId).toBe("start");
     expect(playing.getSnapshot().storyDescription).toBe("Rewritten.");
     expect(playing.getSnapshot().storyIdentity).toMatchObject({ playedVersion: 2, drifted: false });
+  });
+
+  it("T4-4: restart keeps this chat's Author view and its journal, and journals the restart (T4-4-2 x-state-A-after-restart.json:44)", async () => {
+    const manager = new RuntimeManager();
+    await manager.importStory(storyJson());
+    manager.setUiSettings({ authorView: true });
+    await manager.flagMoment("before the restart");
+    await manager.setQuality("found_key", "true");
+    await manager.commitBoundary();
+    expect(manager.getSnapshot().activeCheckpointId).toBe("door");
+
+    expect(await manager.restartStory(true)).toBe(true);
+    expect(manager.getSnapshot().activeCheckpointId).toBe("start");
+    expect(manager.getSnapshot().ui.authorView).toBe(true);
+    expect(blob().stories["sun-ruins"].extras.journal.some((record) => record.kind === "flag" && record.summary === "before the restart")).toBe(true);
+    const records = manager.getSessionJournal();
+    const restarted = records.find((record) => record.summary === "Story restarted");
+    expect(restarted?.detail).toMatchObject({ note: expect.stringContaining("restarted from Door (boundary 2, v1) on v1") });
+    expect(records.indexOf(restarted!)).toBeGreaterThan(records.findIndex((record) => record.kind === "flag"));
   });
 
   it("restart does nothing when the confirm is declined", async () => {

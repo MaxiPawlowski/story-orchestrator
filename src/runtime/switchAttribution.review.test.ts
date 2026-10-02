@@ -62,7 +62,14 @@ jest.mock("@services/STAPI", () => ({
 
 jest.mock("./effectHost", () => {
   const actual = jest.requireActual("./effectHost");
-  return { ...actual, reconcileEffectLedger: jest.fn((rows: unknown[]) => mockReconcile(rows)) };
+  return {
+    ...actual,
+    reconcileEffectLedgerInto: jest.fn((effects: { ledger: unknown[] }, note: (text: string) => void) => {
+      const { rows, notes } = mockReconcile(effects.ledger);
+      effects.ledger = rows;
+      notes.forEach((text) => note(text));
+    }),
+  };
 });
 
 let mockReconcile: (rows: unknown[]) => { rows: unknown[]; notes: string[] } = (rows) => ({ rows, notes: [] });

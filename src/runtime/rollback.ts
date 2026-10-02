@@ -10,7 +10,7 @@ import type { DecodeJournal } from "./messageIdentity";
 
 export type { DecodeJournal };
 import { dropJudgeCallsAfter } from "@judge/index";
-import { rewindNpcReplies, rewindOnEnterPosts } from "./npcReplyRewind";
+import { rewindNpcReplies, rewindOnEnterPosts, survivingOnEnterPosts } from "./npcReplyRewind";
 import { rollbackLoreFired } from "./loreFired";
 import { rollbackTensionHistory } from "./tensionState";
 import type { RuntimeExtras } from "./types";
@@ -55,13 +55,13 @@ export const rollbackRecord = (previous: RollbackRecord | null | undefined, mess
 const historyNote = (messageId: number, oldest: { boundary: number }): string =>
   `message ${messageId} is older than what this chat can reconstruct (oldest boundary ${oldest.boundary}); the messages the edit invalidated were dropped and the story was not stepped back`;
 
-export async function runRollback(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal, kind?: RollbackKind): Promise<RollbackOutcome> {
-  const outcome = await rollbackOnce(deps, messageId, decoded, kind);
+export async function runRollback(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal, kind?: RollbackKind, removed?: number): Promise<RollbackOutcome> {
+  const outcome = await rollbackOnce(deps, messageId, decoded, kind, removed);
   deps.notices.lastOutcome = rollbackRecord(deps.notices.lastOutcome, messageId, outcome, new Date().toISOString());
   return outcome;
 }
 
-async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal, kind?: RollbackKind): Promise<RollbackOutcome> {
+async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: DecodeJournal, kind?: RollbackKind, removed?: number): Promise<RollbackOutcome> {
   if (!Number.isFinite(messageId)) return { ok: true, result: "noop" };
   const { engine } = deps;
   if (deps.extras().memory?.chapters?.length && !chapterKit()) {
@@ -81,8 +81,9 @@ async function rollbackOnce(deps: RollbackDeps, messageId: number, decoded?: Dec
     extras.judge = dropJudgeCallsAfter(extras.judge, messageId);
     if (extras.modelCalls) extras.modelCalls = rollbackModelCalls(extras.modelCalls, messageId);
     extras.firedNpcRepliesAt = extras.firedNpcRepliesAt ?? {};
-    rewindNpcReplies(extras.firedNpcReplies, extras.firedNpcRepliesAt, messageId);
-    if (extras.onEnterPosts) extras.onEnterPosts = rewindOnEnterPosts(extras.onEnterPosts, messageId);
+    const mutation = kind ? { kind, removed } : undefined;
+    rewindNpcReplies(extras.firedNpcReplies, extras.firedNpcRepliesAt, messageId, survivingOnEnterPosts(extras.onEnterPosts, messageId, mutation), mutation);
+    if (extras.onEnterPosts) extras.onEnterPosts = rewindOnEnterPosts(extras.onEnterPosts, messageId, mutation);
     if (typeof extras.lastSelfInjectionMessageId === "number" && extras.lastSelfInjectionMessageId >= messageId) extras.lastSelfInjectionMessageId = null;
     extras.extraction.audits = extras.extraction.audits.filter((audit) => audit.window.to < messageId);
     extras.lore = rollbackLoreFired(extras.lore, messageId);

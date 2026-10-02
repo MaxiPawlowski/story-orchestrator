@@ -7,13 +7,15 @@ import {
 import { findStoryRecord, listStoryRecords, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
 import type { RunGuard } from "./runToken";
 import type { LoadedStory, PersistedStoryRuntime } from "./types";
+import type { RestartCarry } from "./extras";
 import { log } from "@utils/log";
 
 // Which story this chat plays and where that copy comes from (spec addendum §Story identity). Split
 // out of the manager so the lifecycle rules live next to the library and the
 // persistence layer they read, and the manager keeps only the engine-facing half (`loadStory`).
 export interface StorySelectionDeps {
-  loadStory: (loaded: LoadedStory, mode: "activate" | "hydrate", persisted?: PersistedStoryRuntime | null) => Promise<void>;
+  loadStory: (loaded: LoadedStory, mode: "activate" | "hydrate", persisted?: PersistedStoryRuntime | null, carry?: RestartCarry | null) => Promise<void>;
+  carryOver?: () => RestartCarry | null;
   clearStory: (status: string, note?: string) => Promise<void>;
   restoreEffects?: (scope: "leave" | "restart") => Promise<void>;
   beginRun?: () => RunGuard;
@@ -141,6 +143,7 @@ export async function restartStory(deps: StorySelectionDeps, currentId: string |
     return true;
   }
   const fallback = deps.loadedFallback();
+  const carry = deps.carryOver?.() ?? null;
   await deps.restoreEffects?.("restart");
   if (run && !run.stillOwns()) return false;
   dropPersistedRuntime(id);
@@ -148,8 +151,9 @@ export async function restartStory(deps: StorySelectionDeps, currentId: string |
   const fromLibrary = record ? loadStoryRecord(record) : null;
   const next = fromLibrary && !isValidationErrorList(fromLibrary) ? fromLibrary : fallback;
   if (!next) return false;
-  await deps.loadStory(next, "activate");
-  deps.setStatus("Story restarted", note);
+  await deps.loadStory(next, "activate", null, carry);
+  const cleared = "the chat keeps its messages; checkpoint progress, blackboard and story memory were cleared";
+  deps.setStatus("Story restarted", note ?? `restarted${carry ? ` from ${carry.from}` : ""} on v${next.record.version}: ${cleared}`);
   return true;
 }
 

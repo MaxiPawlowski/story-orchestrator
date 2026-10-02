@@ -24,13 +24,13 @@ import { coordinatorHosts } from "./coordinatorHosts";
 import { wireCoordinators } from "./managerWiring";
 import { activeSpeakerId, enabledCharacterIds, namesForRosterId, rosterIdForName } from "./roster";
 import { EffectsApplier } from "./effectsApplier";
-import { createExtras, hydrateExtras, TALK_DECISION_LIMIT } from "./extras";
+import { createExtras, hydrateExtras, restartCarry, restartedExtras, TALK_DECISION_LIMIT, type RestartCarry } from "./extras";
 import { SettingsControl } from "./settingsControl";
 import { beginRun, type RunContext, type RunOwnership } from "./runToken";
 import { RunOwner } from "./runOwner";
 import { runRollback, type DecodeJournal } from "./rollback";
 import { memoryActions, memoryDelegates } from "./memoryActions";
-import { readEffectTarget, reconcileEffectLedger, restoreCastFlags, restoreEffectTarget } from "./effectHost";
+import { readEffectTarget, reconcileEffectLedgerInto, restoreCastFlags, restoreEffectTarget } from "./effectHost";
 import { ChatSave } from "./chatSave";
 import { hasUnsavedChanges } from "./saveHealth";
 import { getGlobalSettings, setGlobalSettings, type SpikeSettings, type TalkChainSettings } from "./settingsStore";
@@ -52,7 +52,7 @@ import {
   type StorySelectionDeps,
 } from "./storySelection";
 import type {
-  CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory,
+  BranchOrigin, CopilotRuntimeSettings, PersistedStoryRuntime, ExtractionRuntimeSettings, ExtractionRuntimeState, LoadedStory,
   MemoryMirrorBook, MemoryRuntimeSettings, PacingSettings, PayloadCapture, RuntimeExtras, RuntimeSnapshot, StagecraftSettings,
   StoryLibraryRecord, TalkDecisionAudit, TalkRuntimeState, UiRuntimeSettings,
 } from "./types";
@@ -175,9 +175,11 @@ export class RuntimeManager extends CoordinatorDelegates {
     const { extraction, talk, judge } = this.extras;
     return this.journal.build({ boundaryLog: this.loaded ? this.engine.stateLog : [], audits: extraction.audits,
         reconciliationEvents: extraction.reconciliationEvents, talkDecisions: talk.decisions,
-        judgeCalls: judge.calls, modelCalls: this.extras.modelCalls, pending: this.loaded ? this.engine.pendingWrites : [] });
+        judgeCalls: judge.calls, modelCalls: this.extras.modelCalls, pending: this.loaded ? this.engine.pendingWrites : [],
+        ...(this.extras.branchedFrom ? { branchedFrom: this.extras.branchedFrom } : {}) });
   }
   getExtractionAudits() { return this.extras.extraction.audits; }
+  markBranch(origin: BranchOrigin) { if (this.loaded) this.extras.branchedFrom = origin; }
   async flagMoment(note = "") {
     this.journal.flag(note, this.journalContext());
     this.extras.journal = this.journal.getRecords();
@@ -196,7 +198,8 @@ export class RuntimeManager extends CoordinatorDelegates {
   onArcsResolvedConfirmed(listener: (arcIds: string[]) => void) { this.arcResolvedListeners.add(listener); return () => { this.arcResolvedListeners.delete(listener); }; }
 
   private readonly selectionDeps: StorySelectionDeps = {
-    loadStory: (loaded, mode, persisted) => this.loadStory(loaded, mode, persisted ?? null),
+    loadStory: (loaded, mode, persisted, carry) => this.loadStory(loaded, mode, persisted ?? null, carry ?? null),
+    carryOver: () => (this.loaded ? restartCarry(this.extras, this.engine.activeCheckpoint?.name, this.engine.currentBoundary, this.loaded.record.version) : null),
     restoreEffects: async (scope) => { await this.effects.restoreFor(this.extras, scope); },
     beginRun: () => beginRun(this.owner.ownership),
     clearStory: async (status, note) => {
@@ -252,6 +255,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.expansion.revalidateInserted();
     const pendingBridges = this.memory.enqueueArcBridges();
     const result = this.engine.commitBoundary(this.getBoundaryContext(at));
+    this.chatSave.fingerprints.settle();
     this.memory.markBridgesApplied(pendingBridges);
     if (result.fired) {
       await this.effects.announceTransition(this.engine.activeCheckpoint, this.extras, this.owner.ownsOpenChat());
@@ -337,12 +341,12 @@ export class RuntimeManager extends CoordinatorDelegates {
     this.notify();
   }
 
-  async rollbackFromMessage(messageId: number, decoded?: DecodeJournal, kind?: RollbackKind): Promise<RollbackOutcome> {
+  async rollbackFromMessage(messageId: number, decoded?: DecodeJournal, kind?: RollbackKind, removed?: number): Promise<RollbackOutcome> {
     // A mutation's POSITION is recorded: an in-flight read whose window reaches it is invalidated,
     // a reply merely appended later is not. See `tokenMatches`.
     this.owner.noteMutation(messageId); this.chatSave.fingerprints.forgetFrom(messageId);
     if (!this.loaded) return { ok: true, result: "noop" };
-    const run = runRollback(this.co.rollbackDeps, messageId, decoded, kind);
+    const run = runRollback(this.co.rollbackDeps, messageId, decoded, kind, removed);
     this.rollbackRun = Promise.allSettled([this.rollbackRun, run]);
     return run;
   }
@@ -365,12 +369,6 @@ export class RuntimeManager extends CoordinatorDelegates {
   getMirrorBook(): MemoryMirrorBook | null { return this.extras.memory.wiBook; }
   getExtractionSettings(): ExtractionRuntimeSettings { return this.extras.extraction.settings; }
 
-  private reconcileEffectLedger() {
-    const { rows, notes } = reconcileEffectLedger(this.extras.effects.ledger);
-    this.extras.effects.ledger = rows;
-    notes.forEach((note) => this.noteRecap(note, ""));
-  }
-
   private readonly settingsControl = new SettingsControl({ extras: () => this.extras,
       updateSteering: () => this.pacing.updateSteering(), updateInjection: () => this.memory.updateInjection(),
       clearNudge: () => this.clearCopilotNudge(), ...this.lifecycle });
@@ -387,20 +385,9 @@ export class RuntimeManager extends CoordinatorDelegates {
 
   getTalkState(): TalkRuntimeState { return this.extras.talk; }
 
-  setTalkDirectionEnabled(enabled: boolean, scope: "chat" | "global" = "chat") {
-    if (scope === "global") setGlobalSettings({ talk: { enabled } });
-    this.extras.talk = { ...this.extras.talk, enabled };
-    void this.persist();
-    this.notify();
-  }
-
+  setTalkDirectionEnabled(enabled: boolean, scope: "chat" | "global" = "chat") { this.settingsControl.talk(enabled, scope); }
   getTalkChainConfig() { return getGlobalSettings().talk.chain; }
-
-  setTalkChainSettings(chain: Partial<TalkChainSettings>) {
-    const current = getGlobalSettings().talk.chain;
-    setGlobalSettings({ talk: { chain: { ...current, ...chain } } });
-    this.notify();
-  }
+  setTalkChainSettings(chain: Partial<TalkChainSettings>) { this.settingsControl.talkChain(chain); }
 
   private extractionHold = false;
   setExtractionHold(hold: boolean) { this.extractionHold = hold; }
@@ -510,14 +497,14 @@ export class RuntimeManager extends CoordinatorDelegates {
   getPayloadCaptures(): PayloadCapture[] { return this.journal.getCaptures(); }
   noteFolded(folded: number) { if (this.journal.noteFolded(folded)) this.notify(); }
 
-  private async loadStory(loaded: LoadedStory, mode: "activate" | "hydrate", knownPersisted: PersistedStoryRuntime | null = null) {
+  private async loadStory(loaded: LoadedStory, mode: "activate" | "hydrate", knownPersisted: PersistedStoryRuntime | null = null, carry: RestartCarry | null = null) {
     const previous = this.loaded?.story ?? null;
     this.validationErrors = [];
     this.pacing.reset();
     const persisted = mode === "hydrate" ? knownPersisted ?? loadPersistedRuntime(loaded.record.id) : null;
     const priorSessionAt = persisted?.extras?.lastSessionAt ?? null;
     this.invalidateRuns();
-    this.extras = hydrateExtras(persisted?.extras, getGlobalSettings); this.chatSave.fingerprints.load(persisted?.fingerprints);
+    this.extras = carry ? restartedExtras(carry, getGlobalSettings) : hydrateExtras(persisted?.extras, getGlobalSettings); this.chatSave.fingerprints.load(persisted?.fingerprints);
     this.status = `Opening ${loaded.story.title}`;
     this.journal.hydrate(this.extras.journal, this.status);
     this.loaded = { record: loaded.record, story: this.expansion.mergedStoryOrBase(loaded.record.raw, loaded.story) };
@@ -529,7 +516,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     // The history travels WITH the state: `hydrate` clears the log before restoring what it is handed.
     const saved = mode === "hydrate" ? persisted?.engineState ?? null : null;
     if (saved) this.engine.hydrate(saved, persisted?.engineHistory ?? null); else this.memory.markStoryStart();
-    this.reconcileEffectLedger(); this.notify();
+    reconcileEffectLedgerInto(this.extras.effects, (note) => this.noteRecap(note, "")); this.notify();
     await this.effects.applyCheckpoint(loaded.story, this.engine.activeCheckpoint, this.extras, this.getSnapshot(), saved ? "hydrate" : "activate",
       stagedPath(this.engine.checkpointPath, this.engine.serialize().stagedFrom));
     // A superseded load stops here: its tail used to retitle the newer load, release ITS gated lore and
@@ -564,6 +551,7 @@ export class RuntimeManager extends CoordinatorDelegates {
     const run = beginRun(this.owner.ownership);
     this.engine.loadStory(loaded.story);
     if (state) this.engine.hydrate(state);
+    this.expansion.pruneRemovedQualities(loaded.story);
     this.refreshRequirements();
     this.expansion.revalidateInserted();
     await this.applyActive(reanchored ? "activate" : "hydrate");

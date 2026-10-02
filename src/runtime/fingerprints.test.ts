@@ -115,10 +115,27 @@ describe("v2.4 plan 02 T3: capture, diff and truncate", () => {
     expect(keeper.drift(continued, 2)).toBe(2);
     keeper.forgetFrom(2);
     expect(keeper.drift(continued, 2)).toBeNull();
+    keeper.settle();
     keeper.capture(continued, -1, 2);
     expect(hashAt(keeper.current, 2)).toBe(fingerprintOf(continued[2]));
     expect(keeper.unchanged(continued, 2)).toBe(true);
     expect(keeper.unchanged(chat, 2)).toBe(false);
+  });
+
+  it("T4-1: a swipe's in-flight text saved before its reply lands is never read as an eventless change (T4-1-1 msg 2)", () => {
+    const recorded = ["The estate's servants scurry out of your path as you stride through the manor's corridors.", "The Nightriver Estate is quiet in a way it rarely is."];
+    const chat = chatOf(3).map((message, index) => (index === 2 ? { ...message, name: "Adolion Narrator", mes: recorded[0] } : message));
+    const keeper = new FingerprintKeeper();
+    keeper.capture(chat, -1, 2);
+    keeper.forgetFrom(2);
+    chat[2] = { ...chat[2], mes: "..." };
+    keeper.capture(chat, -1, 2);
+    chat[2] = { ...chat[2], mes: recorded[1] };
+    expect(keeper.drift(chat, 2)).toBeNull();
+    keeper.settle();
+    keeper.capture(chat, -1, 2);
+    expect(hashAt(keeper.current, 2)).toBe(fingerprintOf(chat[2]));
+    expect(keeper.drift(chat.map((message, index) => (index === 2 ? { ...message, mes: "rewritten" } : message)), 2)).toBe(2);
   });
 
   it("unchanged is false for a message it never read", () => {

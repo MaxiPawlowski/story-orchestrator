@@ -90,6 +90,17 @@ export class ExpansionCoordinator {
     this.deps.replaceStory(mergeExpansions(this.deps.getStoryRaw(), this.entries));
   }
 
+  pruneRemovedQualities(story: NormalizedStoryV2): number {
+    let pruned = 0;
+    Object.entries(this.entries).forEach(([key, entry]) => {
+      const basis = Object.fromEntries(Object.entries(entry.basis).filter(([quality]) => story.qualityByKey[quality]));
+      if (Object.keys(basis).length === Object.keys(entry.basis).length) return;
+      this.entries[key] = { ...entry, basis };
+      pruned += 1;
+    });
+    return pruned;
+  }
+
   // The ACTIVE generated checkpoint is never staled: splicing it out mid-play freezes boundary
   // commits (live finding acceptance run).
   revalidateInserted() {

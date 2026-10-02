@@ -74,17 +74,24 @@ export function diffFingerprints(stored: MessageFingerprints | null, chat: reado
 
 export class FingerprintKeeper {
   private value: MessageFingerprints | null = null;
+  private heldFrom: number | null = null;
 
   load(persisted: unknown) {
     this.value = sanitizeFingerprints(persisted);
+    this.heldFrom = null;
   }
 
   forgetFrom(messageId: number) {
     this.value = truncateFingerprints(this.value, messageId);
+    if (Number.isFinite(messageId)) this.heldFrom = Math.min(this.heldFrom ?? Infinity, Math.max(0, Math.floor(messageId)));
+  }
+
+  settle() {
+    this.heldFrom = null;
   }
 
   capture(chat: readonly unknown[], floor: number, last: number): MessageFingerprints | null {
-    this.value = captureFingerprints(this.value, chat, floor, last);
+    this.value = captureFingerprints(this.value, chat, floor, this.heldFrom === null ? last : Math.min(last, this.heldFrom - 1));
     return this.value;
   }
 

@@ -228,6 +228,20 @@ test('two chats producing an identical event still record both (the stamp is loa
   assert.deepEqual(lines.filter((line) => line.kind === 'boundary').map((line) => line.chatId), ['chat-a', 'chat-b']);
 });
 
+test('T4-2: a branch\'s inherited events stay with the parent chat and are not recorded twice (T4-2-1 journal.jsonl:1527 vs :395)', async () => {
+  const parentEvent = event('2026-09-20T00:00:00Z', 'story', 'save held back');
+  world.events = [parentEvent];
+  const lines = await runTail([
+    () => {
+      world.chatId = 'branch-2';
+      world.events = [{ ...parentEvent, inheritedFrom: 'chat-a' }, event('2026-09-20T00:00:09Z', 'story', 'branch continued')];
+    },
+    () => {},
+  ]);
+  const story = lines.filter((line) => line.kind === 'story');
+  assert.deepEqual(story.map((line) => [line.summary, line.chatId]), [['save held back', 'chat-a'], ['branch continued', 'branch-2']]);
+});
+
 test('the audit row carries the prompt and priority, not only the summary', async () => {
   world.audits = [{
     id: 'a1', createdAt: '2026-09-20T00:00:03Z', reason: 'cadence', priority: 1,

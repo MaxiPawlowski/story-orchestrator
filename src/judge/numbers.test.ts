@@ -30,4 +30,12 @@ describe("numbers (v2.2 plan 06)", () => {
     const found = findStringCandidates([{ id: "msg_1", text: "She whispers \"moon\" to the Sphinx. The Sphinx waits. Ángela nods." }]);
     expect(found.map((candidate) => candidate.raw)).toEqual(["moon", "She", "Sphinx", "The", "Ángela"]);
   });
+
+  it("T4-4: a quoted line of speech is not a value, the name it carries is (T4-4-1 msg 14, party_name)", () => {
+    const text = "Below it, in that same neat script, she writes: *The Second Tries*.\n\"Party name updated to The Second Tries,\" she says, her voice regaining its composed clarity.";
+    const found = findStringCandidates([{ id: "msg_14", text }]).map((candidate) => candidate.raw);
+    expect(found).toContain("The Second Tries");
+    expect(found).not.toContain("Party name updated to The Second Tries,");
+    expect(findStringCandidates([{ id: "msg_1", text: "\"Ash Lanterns\" is painted on the board." }]).map((candidate) => candidate.raw)).toContain("Ash Lanterns");
+  });
 });

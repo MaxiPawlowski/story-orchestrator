@@ -375,6 +375,22 @@ export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
   } as RuntimeExtras["stagecraft"],
 });
 
+export interface RestartCarry {
+  overrides: ChatOverrides;
+  journal: RuntimeExtras["journal"];
+  from: string;
+}
+
+export const restartCarry = (extras: RuntimeExtras, checkpoint: string | undefined, boundary: number, version: number): RestartCarry => ({
+  overrides: readChatOverrides(extras), journal: [...extras.journal], from: `${checkpoint ?? "the story"} (boundary ${boundary}, v${version})`,
+});
+
+export const restartedExtras = (carry: RestartCarry, read: () => GlobalSettings): RuntimeExtras => {
+  const extras = createExtras(read);
+  extras.journal = sanitizeJournalRecords(carry.journal);
+  return applyGlobalSettings(extras, read(), carry.overrides);
+};
+
 export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => GlobalSettings): RuntimeExtras => {
   const overrides = readChatOverrides(persisted);
   const extras = persisted ?? createExtras(read);
@@ -394,6 +410,7 @@ export const hydrateExtras = (persisted: RuntimeExtras | undefined, read: () => 
   extras.journal = sanitizeJournalRecords(extras.journal);
   extras.modelCalls = sanitizeModelCalls(extras.modelCalls);
   extras.lastSelfInjectionMessageId = typeof extras.lastSelfInjectionMessageId === "number" ? extras.lastSelfInjectionMessageId : null;
+  if (extras.branchedFrom !== undefined && (typeof extras.branchedFrom?.chatId !== "string" || typeof extras.branchedFrom?.at !== "string")) delete extras.branchedFrom;
   extras.firedNpcReplies = extras.firedNpcReplies && typeof extras.firedNpcReplies === "object" ? extras.firedNpcReplies : {};
   extras.firedNpcRepliesAt = extras.firedNpcRepliesAt && typeof extras.firedNpcRepliesAt === "object" ? extras.firedNpcRepliesAt : {};
   if (extras.onEnterPosts !== undefined) extras.onEnterPosts = sanitizeOnEnterPosts(extras.onEnterPosts);

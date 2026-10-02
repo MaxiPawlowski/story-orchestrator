@@ -17,9 +17,14 @@ export const npcReplyMayFire = (
   return trigger === "onEnter" || last === undefined || messageId - last >= NPC_REPLY_SPACING;
 };
 
-export const rewindNpcReplies = (counts: Record<string, number>, at: Record<string, number[]>, messageId: number): void => {
+export const rewindNpcReplies = (counts: Record<string, number>, at: Record<string, number[]>, messageId: number, surviving: OnEnterPost[] = [], mutation?: PostMutation): void => {
+  const spent = new Set(surviving.map((post) => `${post.checkpointId}:onEnter:`));
   for (const key of Object.keys(at)) {
     const ids = at[key];
+    if ([...spent].some((prefix) => key.startsWith(prefix))) {
+      at[key] = ids.map((id) => (id >= messageId && mutation?.kind === "delete" ? Math.max(messageId - 1, id - removedBy(mutation)) : id));
+      continue;
+    }
     const kept = ids.filter((id) => id < messageId);
     if (kept.length === ids.length) continue;
     const removed = ids.length - kept.length;
@@ -43,7 +48,29 @@ export const ON_ENTER_POST_LIMIT = 20;
 export const recordOnEnterPost = (posts: OnEnterPost[], post: OnEnterPost): OnEnterPost[] =>
   [...posts.filter((entry) => entry.first < post.first), post].slice(-ON_ENTER_POST_LIMIT);
 
-export const rewindOnEnterPosts = (posts: OnEnterPost[] | undefined, messageId: number): OnEnterPost[] => (posts ?? []).filter((post) => post.last < messageId);
+export interface PostMutation {
+  kind: "edit" | "delete" | "swipe";
+  removed?: number;
+}
+
+const removedBy = (mutation: PostMutation): number => Math.max(1, mutation.removed ?? 1);
+
+const untouchedFrom = (messageId: number, mutation: PostMutation): number => messageId + (mutation.kind === "delete" ? removedBy(mutation) : 1);
+
+export const survivingOnEnterPosts = (posts: OnEnterPost[] | undefined, messageId: number, mutation?: PostMutation): OnEnterPost[] => {
+  if (!mutation) return [];
+  const from = untouchedFrom(messageId, mutation);
+  const shift = mutation.kind === "delete" ? removedBy(mutation) : 0;
+  return (posts ?? []).filter((post) => post.last >= messageId && post.first >= from).map((post) => ({
+    checkpointId: post.checkpointId,
+    gate: post.gate >= from ? post.gate - shift : shift && post.gate >= messageId ? messageId - 1 : post.gate,
+    first: post.first - shift,
+    last: post.last - shift,
+  }));
+};
+
+export const rewindOnEnterPosts = (posts: OnEnterPost[] | undefined, messageId: number, mutation?: PostMutation): OnEnterPost[] =>
+  [...(posts ?? []).filter((post) => post.last < messageId), ...survivingOnEnterPosts(posts, messageId, mutation)];
 
 export const sanitizeOnEnterPosts = (value: unknown): OnEnterPost[] => (Array.isArray(value) ? value : []).filter((entry): entry is OnEnterPost =>
   Boolean(entry) && typeof entry === "object" && typeof (entry as OnEnterPost).checkpointId === "string"

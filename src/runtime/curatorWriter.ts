@@ -9,6 +9,7 @@ import { beginRun, type RunGuard, type RunOwnership } from "./runToken";
 import type { StagecraftRuntimeState } from "./types";
 
 const RETAINED_OP_STATUSES = new Set(["applied", "revert-failed", "externally-edited"]);
+const OPEN_OP_STATUSES = new Set(["pending", "accepted"]);
 
 // An op is reverted by the entry uid it recorded, so a rename after the write does not lose the
 // entry. An op recorded without one is never name-addressed: it is refused.
@@ -107,9 +108,10 @@ export class CuratorWriter {
     // NEWEST RECORD FIRST, and within a record newest op first, so two writes to
     // one entry walk back through their own chain: Original -> First -> Second reverts to Original,
     // not to the intermediate text the older record happens to hold.
+    const orphaned = this.withdrawOrphaned(messageId);
     const affected = this.deps.state().proposals.filter((record) => record.curator !== "warden" && record.appliedAt && record.messageId >= messageId).reverse();
     if (!story || !affected.length) {
-      if (withdrawn) await this.deps.save();
+      if (withdrawn || orphaned) await this.deps.save();
       return 0;
     }
     let reverted = 0;
@@ -162,6 +164,20 @@ export class CuratorWriter {
     if (reverted) this.deps.journal(`World Info curator changes rolled back (${reverted})${reviewed ? `; ${reviewed} back to review` : ""}`);
     await this.deps.save();
     return reverted;
+  }
+
+  private withdrawOrphaned(messageId: number): number {
+    let withdrawn = 0;
+    const proposals = this.deps.state().proposals.filter((record) => {
+      if (record.curator === "warden" || record.appliedAt || (record.provenance?.messageId ?? record.messageId) < messageId) return true;
+      withdrawn += record.ops.filter((entry) => OPEN_OP_STATUSES.has(entry.status)).length;
+      return false;
+    });
+    const removed = this.deps.state().proposals.length - proposals.length;
+    if (!removed) return 0;
+    this.deps.patch({ proposals });
+    if (withdrawn) this.deps.journal(`World Info curator proposal withdrawn (${withdrawn} change(s)): the reply it was read from was changed or removed`);
+    return removed;
   }
 
   // One inverse host call, checked. `false` means the host refused or could not find the entry;

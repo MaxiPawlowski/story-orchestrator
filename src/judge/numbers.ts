@@ -89,6 +89,8 @@ export function findNumbers(messages: Array<{ id: string; text: string }>): Numb
   return found;
 }
 
+const UTTERANCE_END = /[,.;:!?…]\s*$/;
+
 export function findStringCandidates(messages: Array<{ id: string; text: string }>): StringCandidate[] {
   const out: StringCandidate[] = [];
   const seen = new Set<string>();
@@ -100,7 +102,7 @@ export function findStringCandidates(messages: Array<{ id: string; text: string 
       seen.add(key);
       out.push({ raw: clean, messageId: message.id, snippet: snippetAround(message.text, index, index + clean.length) });
     };
-    for (const match of message.text.matchAll(/["“«*_]([^"”»*_\n]{1,40})["”»*_]/g)) push(match[1], match.index ?? 0);
+    for (const match of message.text.matchAll(/["“«*_]([^"”»*_\n]{1,40})["”»*_]/g)) if (!UTTERANCE_END.test(match[1])) push(match[1], match.index ?? 0);
     for (const match of message.text.matchAll(/(?<!\p{L})(\p{Lu}\p{Ll}{2,})(?!\p{L})/gu)) push(match[1], match.index ?? 0);
   }
   return out;
