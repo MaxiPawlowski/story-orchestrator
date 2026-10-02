@@ -30,12 +30,14 @@ DeepSeek (orchestrator passes) and TypeSafe judge spend per session, written by 
 | `test/sessions/T3/T3-4-1` | 2 | 2026-10-02T02:48:08.875Z | 119 | 285697 / 54050 | 119 / 0 | n/a | 248 (4) | 1093136 / 113882 | n/a | 30 |
 | `test/sessions/T3/T3-5-1` | 4 | 2026-10-02T02:59:54.261Z | 77 | 186803 / 35425 | 77 / 0 | n/a | 213 (8) | 1072793 / 105983 | n/a | 15 |
 | `test/sessions/T3/T3-6-1` | 2 | 2026-10-02T03:07:29.493Z | 18 | 48055 / 11292 | 18 / 0 | n/a | 76 (2) | 471524 / 45422 | n/a | 7 |
-| **Total** | | | 2026 | 5793563 / 933431 | | n/a | 4848 | 26993087 / 2661907 | n/a | 657 |
+| `test/sessions/T4/T4-2-1` | 4 | 2026-10-02T05:29:37.664Z | 79 | 177511 / 36814 | 78 / 1 | n/a | 362 (11) | 2070217 / 199226 | n/a | 29 |
+| `test/sessions/T4/T4-4-1` | 2 | 2026-10-02T05:21:29.304Z | 55 | 132030 / 25522 | 54 / 1 | n/a | 121 (6) | 755175 / 71833 | n/a | 18 |
+| **Total** | | | 2160 | 6103104 / 995767 | | n/a | 5331 | 29818479 / 2932966 | n/a | 704 |
 <!-- sessions:end -->
 
 ## RunPod pod hours (the lead adds these by hand)
 
-Budget: EUR 20 granted 2026-09-30 (about USD 21.6 at 1.08), stop at about EUR 19 (USD 20.5).
+Budget: EUR 20 granted 2026-09-30 (about USD 21.6 at 1.08), plus EUR 10 added by the user 2026-10-02: EUR 30 (about USD 32.4); stop at about USD 31.
 Baseline: RunPod account spend 2026-10-01 before this work = USD 0.05 (storage only); 2026-09-29..30 spend (USD 14.40) was earlier sessions' and is not counted.
 Reused resource: network volume `x9gi6f1rig` (comfy-pod, EU-RO-1, 50 GB, holds the Artemis GGUF); storage billing is pre-existing and not counted.
 
