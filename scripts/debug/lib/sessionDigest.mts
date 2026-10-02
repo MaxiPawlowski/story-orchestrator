@@ -138,6 +138,27 @@ export function withoutForeignRows(rows: Row[]): Row[] {
   });
 }
 
+export function driverOnlyFlags(turns: Row[], known: Flag[], playFrom: number | null, path: string): Flag[] {
+  const knownAts = new Set(known.map((flag) => String(flag.at)));
+  const knownNotes = new Set(known.map((flag) => `${flag.chatId ?? ''}|${flag.note}`));
+  const out: Flag[] = [];
+  for (const row of turns) {
+    const value = row.value ?? {};
+    if (value.kind !== 'flag' || value.ok === false || value.landed === false || !inPlay(value.at, playFrom)) continue;
+    const filed = value.flag ?? {};
+    const note = String(value.note ?? filed.detail?.note ?? filed.summary ?? '');
+    const chatId: string | null = value.context?.chatId ?? filed.chatId ?? value.ensured?.chatId ?? null;
+    const at = String(filed.at ?? value.at ?? '');
+    if (knownAts.has(at) || knownNotes.has(`${chatId ?? ''}|${note}`)) continue;
+    knownAts.add(at);
+    knownNotes.add(`${chatId ?? ''}|${note}`);
+    const messageId = Number(filed.messageId ?? value.context?.messageId ?? -1);
+    const context = chatId && Array.isArray(value.context?.messages) ? contextFor(value.context.messages as ChatMessage[], messageId >= 0 ? messageId : Number(value.context.messageId ?? -1)) : [];
+    out.push({ at, chatId, messageId, note, evidence: { path, line: row.line }, context, contextFrom: context.length ? 'event-time' : 'none' });
+  }
+  return out;
+}
+
 export function digestSession(files: SessionFiles, paths: { journal: string; payloads: string; console: string; logs: Record<string, string>; turns?: string } = {
   journal: 'journal.jsonl', payloads: 'payloads.jsonl', console: 'console.jsonl', logs: {},
 }): Digest {
@@ -177,6 +198,8 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
       contextFrom: fromEvent.length ? 'event-time' : fromEnd.length ? 'end-of-session' : 'none',
     });
   }
+  flags.push(...driverOnlyFlags(files.turns ?? [], flags, playFrom, paths.turns ?? 'turns.jsonl'));
+  flags.sort((left, right) => (timeOf(left.at) ?? 0) - (timeOf(right.at) ?? 0));
 
   const byChat = new Map<string, Row[]>();
   for (const row of journal) {

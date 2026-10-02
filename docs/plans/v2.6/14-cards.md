@@ -1286,9 +1286,9 @@ Pinned Adolion build `be0696b361731080f4fb04a98e7caec5c40d177e`. 36 cards. Start
   - For the 11 W6 pack, start the first run with --arm agent; a second run on the same premise with --arm staged uses the Step by step entry instead. stop exports each run's draft and pairs the two stories by premise, unlabelled, in test/sessions/rating-pack/W6/.
 - **Drive:**
   1. **Premise and interview**. Paste the premise; answer the wizard's questions, use 'You decide' once.
-     - Sample line: "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
+     - Agent goal (review, fresh draft): "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
   2. **Turning points and characters**. Review each proposed change card; Reject one with a reason (Agent mode only).
-     - Sample line: "Make the third house quieter and more dangerous."
+     - Sample line: "(type it as a Reject reason or an agent note:) Make the third house quieter and more dangerous."
   3. **Setup: provisioning**. Apply the character cards, lorebook and group one card at a time.
      - Sample line: "(no chat line: provisioning cards)"
   4. **Play 20 turns**. Open the new group's chat and play.
@@ -1315,6 +1315,7 @@ Pinned Adolion build `be0696b361731080f4fb04a98e7caec5c40d177e`. 36 cards. Start
   - provisioning
   - playability of the result
   - 11 W6 leg: the finished story, paired with the other wizard arm's on the same premise, for blind rating [blind gate W6: paired, shuffled, unlabelled artifacts go to test/sessions/rating-pack/; the gate stays pending until the user rates them] (recorded for the user's review, not decided by Claude)
+- **Wizard assets:** stop allows exactly what this session's new wizard sessions created (their `applied` ledger and the library records saved under their keys): each new session, story and selected lorebook by name, and the character and lorebook counts moving by exactly the ledger's numbers. A removal or an unledgered asset still invalidates the session.
 - **Logged automatically:**
   - the wizard transcript and every tool call
   - created assets (the wizard ledger)
@@ -1334,9 +1335,9 @@ Pinned Adolion build `be0696b361731080f4fb04a98e7caec5c40d177e`. 36 cards. Start
   - Auto-draft is the Agent mode 'Write to the draft, review before saving': open the wizard's Agent entry and pick it in Agent mode for both premises.
 - **Drive:**
   1. **Premise 2 in auto-draft**. Agent mode 'Write to the draft, review before saving': edits land in the draft directly; provisioning still waits.
-     - Sample line: "In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood."
+     - Agent goal (auto-draft, fresh draft): "In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood."
   2. **Premise 3 in auto-draft**. Same, second story.
-     - Sample line: "A dragon too old to fly hires a crew of thieves to steal its own hoard back from the knights who claim to have slain it."
+     - Agent goal (auto-draft, fresh draft): "A dragon too old to fly hires a crew of thieves to steal its own hoard back from the knights who claim to have slain it."
   3. **Apply provisioning cards**. Characters, lorebook, group, one by one.
      - Sample line: "(no chat line: provisioning cards)"
 - **Look for:**
@@ -1355,6 +1356,7 @@ Pinned Adolion build `be0696b361731080f4fb04a98e7caec5c40d177e`. 36 cards. Start
   - auto-draft
   - provisioning waits
   - diagnostics
+- **Wizard assets:** stop allows exactly what this session's new wizard sessions created (their `applied` ledger and the library records saved under their keys): each new session, story and selected lorebook by name, and the character and lorebook counts moving by exactly the ledger's numbers. A removal or an unledgered asset still invalidates the session.
 - **Logged automatically:**
   - wizard transcripts
   - created assets
@@ -1432,6 +1434,7 @@ Pinned Adolion build `be0696b361731080f4fb04a98e7caec5c40d177e`. 36 cards. Start
   - Repair
   - Fix with wizard
   - disabled member (known finding)
+- **Wizard assets:** stop allows exactly what this session's new wizard sessions created (their `applied` ledger and the library records saved under their keys): each new session, story and selected lorebook by name, and the character and lorebook counts moving by exactly the ledger's numbers. A removal or an unledgered asset still invalidates the session.
 - **Logged automatically:**
   - requirement readings
   - wizard provisioning
@@ -1567,7 +1570,7 @@ Pinned Adolion build `be0696b361731080f4fb04a98e7caec5c40d177e`. 36 cards. Start
   - opencode only: route the authoring role to the opencode harness in the settings panel. No claude or codex CLI, and no CLI login is performed by the run (W 2026-09-30).
 - **Drive:**
   1. **Replay T5-1 through the harness**. Same premise, review mode.
-     - Sample line: "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
+     - Agent goal (review, fresh draft): "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
 - **Look for:**
   - Tool calls parse on the first try more often than the local route. *(wizard)*
   - Provisioning still waits for you. *(wizard)*
@@ -1582,6 +1585,7 @@ Pinned Adolion build `be0696b361731080f4fb04a98e7caec5c40d177e`. 36 cards. Start
 - **Rubric** (score each works / annoying / broken / not noticed, with a note and evidence):
   - harness route
   - fallback visibility
+- **Wizard assets:** stop allows exactly what this session's new wizard sessions created (their `applied` ledger and the library records saved under their keys): each new session, story and selected lorebook by name, and the character and lorebook counts moving by exactly the ledger's numbers. A removal or an unledgered asset still invalidates the session.
 - **Logged automatically:**
   - model calls with route and result
   - wizard transcript

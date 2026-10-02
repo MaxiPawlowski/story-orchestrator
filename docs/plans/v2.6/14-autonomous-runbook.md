@@ -713,11 +713,12 @@ node scripts/debug/so-session.mts score test/sessions/T4/T4-4-1 3 <works|annoyin
 
 ```bash
 node scripts/debug/so-session.mts start T5-1 --lane 3 --arm agent
-# wizard: drive it in the lane browser (so-ui.mts new-story-wizard / wizard-run / wizard-apply), premise cartographer
+# wizard: no chat is open yet, premise cartographer; each goal beat runs the Agent entry (so-session goal), then review with so-session agent <dir> state|continue|go and apply provisioning cards in the lane (st-lanes.mts run 3 -- scripts/debug/so-ui.mts wizard-apply <n>)
 # beat 1: Premise and interview
-node scripts/debug/so-session.mts turn test/sessions/T5/T5-1-1 "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
+node scripts/debug/so-session.mts goal test/sessions/T5/T5-1-1 "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen." --mode review --new --go
+node scripts/debug/so-session.mts agent test/sessions/T5/T5-1-1 state
 # beat 2: Turning points and characters
-node scripts/debug/so-session.mts turn test/sessions/T5/T5-1-1 "Make the third house quieter and more dangerous."
+#   UI: Review each proposed change card; Reject one with a reason (Agent mode only).
 # beat 3: Setup: provisioning
 #   UI: Apply the character cards, lorebook and group one card at a time.
 node scripts/debug/so-session.mts adopt test/sessions/T5/T5-1-1
@@ -740,11 +741,13 @@ node scripts/debug/so-session.mts score test/sessions/T5/T5-1-1 4 --record "<11 
 
 ```bash
 node scripts/debug/so-session.mts start T5-2 --lane 4
-# wizard: drive it in the lane browser (so-ui.mts new-story-wizard / wizard-run / wizard-apply), premise memory-pawn
+# wizard: no chat is open yet, premise memory-pawn; each goal beat runs the Agent entry (so-session goal), then review with so-session agent <dir> state|continue|go and apply provisioning cards in the lane (st-lanes.mts run 4 -- scripts/debug/so-ui.mts wizard-apply <n>)
 # beat 1: Premise 2 in auto-draft
-node scripts/debug/so-session.mts turn test/sessions/T5/T5-2-1 "In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood."
+node scripts/debug/so-session.mts goal test/sessions/T5/T5-2-1 "In a city where debts are paid in years of memory, a pawnbroker of forgotten days is hired to recover the queen's stolen childhood." --mode auto-draft --new --go
+node scripts/debug/so-session.mts agent test/sessions/T5/T5-2-1 state
 # beat 2: Premise 3 in auto-draft
-node scripts/debug/so-session.mts turn test/sessions/T5/T5-2-1 "A dragon too old to fly hires a crew of thieves to steal its own hoard back from the knights who claim to have slain it."
+node scripts/debug/so-session.mts goal test/sessions/T5/T5-2-1 "A dragon too old to fly hires a crew of thieves to steal its own hoard back from the knights who claim to have slain it." --mode auto-draft --new --go
+node scripts/debug/so-session.mts agent test/sessions/T5/T5-2-1 state
 # beat 3: Apply provisioning cards
 #   UI: Characters, lorebook, group, one by one.
 # provocation: Undo an auto-draft change.
@@ -867,9 +870,10 @@ node scripts/debug/so-session.mts score test/sessions/T6/T6-2-1 2 <works|annoyin
 
 ```bash
 node scripts/debug/so-session.mts start T6-3 --lane 1
-# wizard: drive it in the lane browser (so-ui.mts new-story-wizard / wizard-run / wizard-apply), premise cartographer
+# wizard: no chat is open yet, premise cartographer; each goal beat runs the Agent entry (so-session goal), then review with so-session agent <dir> state|continue|go and apply provisioning cards in the lane (st-lanes.mts run 1 -- scripts/debug/so-ui.mts wizard-apply <n>)
 # beat 1: Replay T5-1 through the harness
-node scripts/debug/so-session.mts turn test/sessions/T6/T6-3-1 "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen."
+node scripts/debug/so-session.mts goal test/sessions/T6/T6-3-1 "A cartographer's apprentice learns that the map she is inking redraws the kingdom each night, and three noble houses will kill to hold her pen." --mode review --new --go
+node scripts/debug/so-session.mts agent test/sessions/T6/T6-3-1 state
 # flag at once on any of 2 must-not-happen item(s), and when: The route fell back without saying so.
 node scripts/debug/so-session.mts flag test/sessions/T6/T6-3-1 "<what you saw>"
 node scripts/debug/so-session.mts stop test/sessions/T6/T6-3-1

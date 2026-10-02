@@ -8,8 +8,11 @@ import {
 import { runMemoryVerb, type MemoryOp } from './sessionMemory.mts';
 import { defaultDeleteDeps, deleteSessionChat, type BookAnswer, type DeleteDeps } from './sessionDelete.mts';
 
-export const LIVE_VERBS = ['turn', ...MUTATION_VERBS, 'flag', 'shot', 'age', 'adopt', 'mem', 'delete-chat'] as const;
+export const LIVE_VERBS = ['turn', ...MUTATION_VERBS, 'flag', 'shot', 'age', 'adopt', 'mem', 'delete-chat', 'goal', 'agent'] as const;
 export type LiveVerb = (typeof LIVE_VERBS)[number];
+export const AGENT_OPS = ['go', 'continue', 'new-goal', 'state', 'mode'] as const;
+export type AgentOp = (typeof AGENT_OPS)[number];
+export const GOAL_AGENT_MODES = ['review', 'auto-draft'] as const;
 
 export interface LiveChat { chatId: string; group: string | null; groupId?: string | null; deleted?: boolean }
 export interface LiveRequest {
@@ -17,9 +20,57 @@ export interface LiveRequest {
   dir: string;
   chat: LiveChat | null;
   sessionChats?: LiveChat[];
-  args: MutationArgs & { note?: string; via?: 'drawer' | 'slash'; label?: string; hours?: number; seq?: number; memOp?: string; ref?: string; book?: BookAnswer | null };
+  args: MutationArgs & { note?: string; via?: 'drawer' | 'slash'; label?: string; hours?: number; seq?: number; memOp?: string; ref?: string; book?: BookAnswer | null; agentOp?: AgentOp; agentMode?: string | null; fresh?: boolean; go?: boolean };
   options?: LiveOptions;
   tag?: { arm?: string; gate?: string };
+}
+
+export interface AgentState { agent?: boolean; status?: string | null; busy?: boolean; error?: string | null; plan?: string; [key: string]: unknown }
+type Timeout = { timeoutMs?: number };
+export interface AgentUi {
+  agentGoal: (page: any, goal: string, options: { mode: string | null; fresh: boolean } & Timeout) => Promise<AgentState>;
+  agentGo: (page: any, options?: Timeout) => Promise<AgentState>;
+  agentContinue: (page: any, options?: Timeout) => Promise<AgentState>;
+  agentNewGoal: (page: any) => Promise<AgentState>;
+  getAgentState: (page: any) => Promise<AgentState>;
+  setAgentEntry: (page: any, choice: string) => Promise<AgentState>;
+}
+
+const SETTLED = ['awaiting-author', 'done', 'budget', 'stopped'];
+
+export function agentProblems(state: AgentState, expected: readonly string[] | null): string[] {
+  if (!state?.agent) return ['the Agent pane is not open'];
+  const problems: string[] = [];
+  if (state.error) problems.push(`the agent pane shows an error: ${state.error}`);
+  if (state.busy) problems.push('the agent is still working');
+  if (expected && !expected.includes(String(state.status))) problems.push(`agent status ${String(state.status)}, expected ${expected.join(' or ')}`);
+  return problems;
+}
+
+export async function runAgentVerb(page: any, request: Pick<LiveRequest, 'verb' | 'args' | 'options'>, ui: AgentUi) {
+  const { verb, args } = request;
+  const timeout = request.options?.timeoutMs ? { timeoutMs: request.options.timeoutMs } : {};
+  const at = new Date().toISOString();
+  if (verb === 'goal') {
+    const planned = await ui.agentGoal(page, args.text ?? '', { mode: args.agentMode ?? null, fresh: Boolean(args.fresh), ...timeout });
+    const approve = Boolean(args.go) && planned.status === 'awaiting-plan';
+    const state = approve ? await ui.agentGo(page, timeout) : planned;
+    const problems = [
+      ...(args.go && !approve ? [`no plan to approve: the agent answered the goal with status ${String(planned.status)}`] : []),
+      ...agentProblems(state, args.go ? SETTLED : ['awaiting-plan']),
+    ];
+    return { kind: 'goal', at, goal: args.text, mode: args.agentMode ?? null, fresh: Boolean(args.fresh), went: approve, planned: { status: planned.status ?? null, plan: planned.plan ?? null }, state, problems, ok: problems.length === 0 };
+  }
+  const op = args.agentOp;
+  const state = op === 'go' ? await ui.agentGo(page, timeout)
+    : op === 'continue' ? await ui.agentContinue(page, timeout)
+      : op === 'new-goal' ? await ui.agentNewGoal(page)
+        : op === 'mode' ? await ui.setAgentEntry(page, String(args.agentMode ?? ''))
+          : op === 'state' ? await ui.getAgentState(page)
+            : null;
+  if (!state) throw new Error(`agent needs one of ${AGENT_OPS.join(', ')}`);
+  const problems = op === 'go' || op === 'continue' ? agentProblems(state, SETTLED) : op === 'state' ? [] : agentProblems(state, null).filter((problem) => !(op === 'mode' && args.agentMode === 'step' && problem === 'the Agent pane is not open'));
+  return { kind: 'agent', at, op, ...(op === 'mode' ? { mode: args.agentMode } : {}), state, problems, ok: problems.length === 0 };
 }
 
 export async function defaultLiveDeps(): Promise<LiveDeps> {
@@ -129,8 +180,9 @@ export async function openSessionChat(page: any, chats: LiveChat[]): Promise<Liv
 
 export const shotName = (seq: number, label: string) => `${String(seq).padStart(3, '0')}-${label.replace(/[^A-Za-z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60) || 'shot'}.png`;
 
-export async function runLive(page: any, request: LiveRequest, deps: LiveDeps, deleteDeps?: DeleteDeps) {
+export async function runLive(page: any, request: LiveRequest, deps: LiveDeps, deleteDeps?: DeleteDeps, agentUi?: AgentUi) {
   const { verb, args } = request;
+  if (verb === 'goal' || verb === 'agent') return runAgentVerb(page, request, agentUi ?? await import('../so-ui.mts') as unknown as AgentUi);
   if (verb === 'adopt') {
     const read = await evaluateInST(page, () => {
       const ctx = (globalThis as any).SillyTavern.getContext();

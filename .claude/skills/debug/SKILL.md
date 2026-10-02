@@ -171,7 +171,9 @@ node scripts/debug/so-session.mts delete-chat <dir> <chatId> --book keep|delete|
 node scripts/debug/so-session.mts flag <dir> "<note>"          # drawer flag with forced clicks, /story flag fallback
 node scripts/debug/so-session.mts shot <dir> <label>           # shots/NNN-<label>.png
 node scripts/debug/so-session.mts adopt <dir>                  # wizard cards: record the open chat for T5-3/T5-4
-node scripts/debug/so-session.mts score <dir> <row> <score> "<note>" --evidence turns.jsonl:12
+node scripts/debug/so-session.mts goal <dir> "<premise>" --mode review|auto-draft --new --go   # wizard cards (no chat yet): Agent entry, goal, Plan it, Go, wait until it settles -> turns.jsonl
+node scripts/debug/so-session.mts agent <dir> state|go|continue|new-goal|mode <step|review|auto-draft>   # one Agent pane control (so-ui.mts agent-* does the same without a session)
+node scripts/debug/so-session.mts score <dir> <row> <score> "<note>" --evidence turns.jsonl:12   # INVALID session: refused unless --provisional (row marked provisional)
 node scripts/debug/so-session.mts budget | runbook --write
 ```
 
