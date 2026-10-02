@@ -7,6 +7,7 @@ const { BundledPackagesPlugin } = require("./scripts/release/bundledPackages.cjs
 
 const OUTPUT_DIRS = { prod: "dist", dev: "dist-dev" };
 const BUNDLE_BUDGET_BYTES = 1250000;
+const HOST_BROWSER_FLOOR = { chrome: "89", edge: "89", firefox: "90", safari: "15", ios: "15", opera: "75", samsung: "15" };
 
 module.exports = (env = {}, argv = {}) => {
   const mode = argv.mode || process.env.NODE_ENV || "production";
@@ -56,7 +57,7 @@ module.exports = (env = {}, argv = {}) => {
           options: {
             cacheDirectory: true,
             presets: [
-              ["@babel/preset-env", { exclude: ["@babel/plugin-transform-unicode-regex", "@babel/plugin-transform-unicode-property-regex"] }],
+              ["@babel/preset-env", { targets: HOST_BROWSER_FLOOR, exclude: ["@babel/plugin-transform-unicode-regex", "@babel/plugin-transform-unicode-property-regex"] }],
               ["@babel/preset-react", { runtime: "automatic" }],
               "@babel/preset-typescript",
             ],
