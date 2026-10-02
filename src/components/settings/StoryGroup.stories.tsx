@@ -41,8 +41,24 @@ export const ImportFieldsAreLabelled: Story = {
     const file = canvas.getByLabelText("Import story from a JSON file");
     await expect(file).toHaveAttribute("type", "file");
     await expect(canvas.getByRole("button", { name: "Import and load" })).toBeDisabled();
+    await expect(canvasElement.querySelector("#so-no-chat")).toBeNull();
     await userEvent.type(text, "{{}");
     await userEvent.click(canvas.getByRole("button", { name: "Import and load" }));
+    await expect(args.manager.importStory).toHaveBeenCalledWith("{}");
+  },
+};
+
+const welcomeScreen = (notice: string): RuntimeSnapshot => ({ ...snapshot(), noChat: { notice } }) as unknown as RuntimeSnapshot;
+
+export const NoChatOpenSavesToLibraryOnly: Story = {
+  args: { manager: fakeManager(), snapshot: welcomeScreen("Saved “The Quest for the Sun Ruins” v3 to the library. Open a chat to play it.") },
+  play: async ({ canvasElement, args }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelector("#so-no-chat")?.textContent).toBe("Saved “The Quest for the Sun Ruins” v3 to the library. Open a chat to play it.");
+    await expect(canvas.getByLabelText("Story for this chat")).toBeDisabled();
+    await expect(canvas.queryByRole("button", { name: "Import and load" })).toBeNull();
+    await userEvent.type(canvas.getByLabelText("Import story (JSON)"), "{{}");
+    await userEvent.click(canvas.getByRole("button", { name: "Save to library" }));
     await expect(args.manager.importStory).toHaveBeenCalledWith("{}");
   },
 };

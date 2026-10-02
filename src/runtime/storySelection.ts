@@ -1,11 +1,13 @@
 import { isValidationErrorList, storyWarnings, type NormalizedStoryV2, type ValidationError } from "@engine/index";
 import { showConfirmPopup } from "@services/STAPI";
 import {
-  adoptChatState, blobMismatch, describeMismatch, dropPersistedRuntime, getSelectedStoryId, loadPersistedRuntime,
+  adoptChatState, blobMismatch, describeMismatch, dropPersistedRuntime, getSelectedStoryId, hasOpenChat, loadPersistedRuntime,
   replaceUnreadableBlob, UNREADABLE_NOTICE, unreadableStored,
 } from "./persistence";
 import { findStoryRecord, listStoryRecords, loadPinnedStory, loadStoryRecord, removeStoryRecord, saveStoryRecord } from "./storyLibrary";
 import type { RunGuard } from "./runToken";
+import { savedToLibrarySentence } from "./librarySave";
+import { noteSavedWithoutChat } from "./noChat";
 import type { LoadedStory, PersistedStoryRuntime } from "./types";
 import type { RestartCarry } from "./extras";
 import { log } from "@utils/log";
@@ -43,7 +45,17 @@ export async function releaseGatedWorldInfo(
 
 let refusedSelection: { chat: string | null; storyId: string } | null = null;
 
+export const NO_CHAT_STATUS = "No chat is open: open a chat to play a story";
+export const OPEN_A_CHAT = "Open a chat to play it.";
+
+const refusedWithoutChat = (deps: StorySelectionDeps, id: string): boolean => {
+  if (hasOpenChat()) return false;
+  deps.setStatus(NO_CHAT_STATUS, `selecting '${id}' refused: no chat is open to own its effects`);
+  return true;
+};
+
 export async function loadSelectedStory(deps: StorySelectionDeps): Promise<boolean> {
+  noteSavedWithoutChat(null);
   await deps.restoreEffects?.("leave");
   const id = getSelectedStoryId();
   if (!id) {
@@ -74,6 +86,12 @@ export async function importStoryJson(deps: StorySelectionDeps, rawText: string)
     deps.fail(saved, "Story validation failed");
     return false;
   }
+  if (!hasOpenChat()) {
+    const sentence = `${savedToLibrarySentence(saved.record)} ${OPEN_A_CHAT}`;
+    noteSavedWithoutChat(sentence);
+    deps.setStatus(sentence);
+    return false;
+  }
   // After the load: loading a story starts its journal, so a warning recorded before it was wiped
   // (found live).
   const selected = await selectStory(deps, saved.record.id);
@@ -86,6 +104,7 @@ export async function importStoryJson(deps: StorySelectionDeps, rawText: string)
 // (library edits, and even deletion, cannot reach it); a story new to this chat pins the version the
 // library holds right now. Reset lives only in restartStory().
 export async function selectStory(deps: StorySelectionDeps, id: string, chosen = true): Promise<boolean> {
+  if (refusedWithoutChat(deps, id)) return false;
   if (chosen && !adoptChatState()) {
     const found = unreadableStored();
     if (found) {
@@ -123,6 +142,7 @@ export async function selectStory(deps: StorySelectionDeps, id: string, chosen =
 // The only reset path. Drops this chat's progress for the story and re-pins the latest library
 // version, so a restart also adopts whatever the author changed meanwhile.
 export async function restartStory(deps: StorySelectionDeps, currentId: string | null, alreadyConfirmed = false): Promise<boolean> {
+  if (!hasOpenChat()) return false;
   const unreadable = currentId ? null : unreadableStored();
   const refused = unreadable && refusedSelection?.chat === unreadable.openChat ? refusedSelection.storyId : null;
   const id = currentId ?? (unreadable ? refused : getSelectedStoryId());

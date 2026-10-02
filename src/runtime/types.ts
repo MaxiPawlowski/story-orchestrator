@@ -464,6 +464,7 @@ export interface RuntimeSnapshot {
   validationErrors: ValidationError[];
   library: StoryLibraryRecord[];
   status: string;
+  noChat?: { notice: string } | null;
   extraction: ExtractionRuntimeState;
   expansion: ExpansionRuntimeState;
   memory: MemoryRuntimeState;

@@ -86,6 +86,7 @@ const harness = (next: StoryV2, nextVersion = 2) => {
     restart,
     journal: (outcome) => journalled.push(outcome),
     ownership,
+    chatOpen: () => true,
   };
   return {
     deps,
@@ -280,6 +281,17 @@ describe("applyStoryUpdate", () => {
     expect(outcome).toMatchObject({ applied: false, classification: "identical", reason: "already playing this version" });
     expect(swapped).toHaveLength(0);
     expect(journalled).toHaveLength(1);
+  });
+
+  it("2026-10-02: takes nothing while no chat is open, so no host effect runs on the welcome screen", async () => {
+    const next = storyV1();
+    next.description = "Edited on the welcome screen.";
+    const h = harness(next);
+    h.deps.chatOpen = () => false;
+    const outcome = await applyStoryUpdate(h.deps);
+    expect(outcome).toMatchObject({ applied: false, reason: "no chat is open" });
+    expect(h.swapped).toEqual([]);
+    expect(h.restart).not.toHaveBeenCalled();
   });
 
   it("refuses a record that is a different story", async () => {

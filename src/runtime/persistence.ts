@@ -16,6 +16,8 @@ const openChatId = (): string | null => {
   return id === undefined || id === null ? null : String(id);
 };
 
+export const hasOpenChat = (): boolean => Boolean(openChatId());
+
 export type ChatWriteKind = "select" | "drop" | "replace" | "restamp";
 
 export interface ChatWrite {
