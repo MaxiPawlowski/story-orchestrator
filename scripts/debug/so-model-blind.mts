@@ -20,8 +20,10 @@ Plan 15 blind model pack (A100 experiment, blind-20): 20 real turns x 4 configs,
       pack.md, rating-sheet.csv and README.md, and the sealed key (key.sealed.json, letter -> config);
       refuses when the pack names a config, a source turn or a template marker
   verify-key [--out <dir>]          recompute the key's sha256 and compare it with README.md
-  judge [--out <dir>] [--model <m>]  opencode first pass over pack.json only (never the key); resumes
-  unseal-judge [--out <dir>]        per-config aggregate of the judge's scores, opened with the key
+  judge [--out <dir>] [--model <m>] [--variant <effort>] [--judge-dir <name>]
+                                    opencode pass over pack.json only (never the key); resumes
+  unseal-judge [--out <dir>] [--judge-dir <name>]
+                                    per-config aggregate of the judge's scores, opened with the key
 
 Defaults: --kit C:/dev/so-lanes/artemis-flags, --out test/sessions/rating-pack/model-blind-20,
 --model openai/gpt-6-astra.`;
@@ -107,9 +109,9 @@ const opencodeConfig = (systemFile: string) => JSON.stringify({
 
 const JUDGE_SYSTEM = 'You are a careful, impartial reader of roleplay fiction. You answer with exactly one JSON object.';
 
-function runOpencode(model: string, prompt: string, cwd: string, systemFile: string) {
+function runOpencode(model: string, prompt: string, cwd: string, systemFile: string, variant: string | null) {
   return new Promise<{ code: number; stdout: string; stderr: string }>((done) => {
-    const child = spawn('opencode', ['run', '--pure', '--format', 'json', '--agent', 'so-judge', '-m', model, '--dir', cwd], {
+    const child = spawn('opencode', ['run', '--pure', '--format', 'json', '--agent', 'so-judge', '-m', model, ...(variant ? ['--variant', variant] : []), '--dir', cwd], {
       cwd, env: { ...process.env, OPENCODE_CONFIG_CONTENT: opencodeConfig(systemFile) }, windowsHide: true,
     });
     let stdout = '';
@@ -129,11 +131,12 @@ const opencodeText = (stdout: string) => stdout.split(/\r?\n/).map((line) => lin
 async function judge(args: string[]) {
   const out = resolve(argValue(args, '--out') ?? DEFAULT_OUT);
   const model = argValue(args, '--model') ?? DEFAULT_MODEL;
+  const variant = argValue(args, '--variant');
   const pack = await readJson(join(out, 'pack.json')) as Pack;
-  const dir = join(out, JUDGE_DIR);
+  const dir = join(out, argValue(args, '--judge-dir') ?? JUDGE_DIR);
   await mkdir(join(dir, 'raw'), { recursive: true });
   await writeText(join(dir, 'prompt.md'), [
-    '# Judge first pass: prompt', '', `Model: \`${model}\` via \`opencode run --pure\` (tools off, no login step; the CLI's existing provider auth).`, '',
+    '# Judge first pass: prompt', '', `Model: \`${model}\`${variant ? ` (variant \`${variant}\`)` : ''} via \`opencode run --pure\` (tools off, no login step; the CLI's existing provider auth).`, '',
     'System text:', '', '```text', JUDGE_SYSTEM, '```', '', 'Per-turn prompt (T01 shown; every turn uses the same template over its own context and replies):', '', '```text', judgePrompt(pack.turns[0]), '```', '',
   ].join('\n'));
   const scoresPath = join(dir, 'scores.json');
@@ -147,11 +150,11 @@ async function judge(args: string[]) {
       if ((scores[turn.id] as any)?.rank) continue;
       let result: ReturnType<typeof parseJudgeReply> = { problem: 'not run' };
       for (let attempt = 1; attempt <= 2; attempt += 1) {
-        const run = await runOpencode(model, judgePrompt(turn), home, systemFile);
+        const run = await runOpencode(model, judgePrompt(turn), home, systemFile, variant);
         const text = opencodeText(run.stdout);
         await writeText(join(dir, 'raw', `${turn.id}-${attempt}.txt`), `exit ${run.code}\n--- text ---\n${text}\n--- stderr ---\n${run.stderr.slice(-2000)}\n`);
         result = parseJudgeReply(text);
-        if (!('problem' in result)) { scores[turn.id] = { ...result, model, attempt, why: (() => { try { return JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)).why ?? null; } catch { return null; } })() }; break; }
+        if (!('problem' in result)) { scores[turn.id] = { ...result, model: variant ? `${model} (${variant})` : model, attempt, why: (() => { try { return JSON.parse(text.slice(text.indexOf('{'), text.lastIndexOf('}') + 1)).why ?? null; } catch { return null; } })() }; break; }
       }
       if ('problem' in result) problems.push(`${turn.id}: ${result.problem}`);
       await writeJson(scoresPath, scores);
@@ -181,7 +184,7 @@ export function unsealedMarkdown(model: string, rows: ReturnType<typeof aggregat
 
 async function unsealJudge(args: string[]) {
   const out = resolve(argValue(args, '--out') ?? DEFAULT_OUT);
-  const dir = join(out, JUDGE_DIR);
+  const dir = join(out, argValue(args, '--judge-dir') ?? JUDGE_DIR);
   const pack = await readJson(join(out, 'pack.json')) as Pack;
   const scores = await readJson(join(dir, 'scores.json')) as Record<string, { scores: Record<Letter, Record<Criterion, number>>; rank: Letter[]; model: string }>;
   const missing = pack.turns.filter((turn) => !scores[turn.id]?.rank).map((turn) => turn.id);

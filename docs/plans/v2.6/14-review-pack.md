@@ -20,18 +20,28 @@ The table is the short version; each section has the rest.
 - Items 3–8: approved as recommended.
 - Item 9: option (c) in v2.6; the house-rules question gets world-book context and is re-measured.
 - Items 2 and 10: wait for the thinking and model A/B, which is running.
+- Items 1, 2 (rating) and 10 (rating): **delegated to Astra** (user, 2026-10-02: the user has never read the Adolion campaign and wants to play it unspoiled, so they do not rate Adolion replies). Astra (`openai/gpt-6-astra`) scored every pack blind twice, default reasoning (`judge-first-pass/`) and `--variant high` (`judge-high-pass/`); both unsealed only after scoring. Results below; nothing on the user's install changes.
+- Item 7: delegated to Astra the same way (high reasoning, one call per commit). Spoiler-free result: `C:/dev/adolion-campaign/docs/reviews/2026-10-02-astra/review-summary.md` (private campaign repo); no HIGH, 9 MEDIUM fixed in the campaign (see item 7).
+
+**Astra's verdicts (mean rank, 1 best; first pass / high pass):**
+
+| Pack | Question | Winner | Runner-up | Decision |
+|---|---|---|---|---|
+| `model-blind-20` | model + sampler | tie: v1.2 min_p first 1.85 / 1.85, v1.1 min_p first 2.00 / 1.85 (high pass: v1.1 higher mean overall 3.70 vs 3.60) | prod as-is 3.05 / 3.20 (last) | keep Artemis v1.1 + min_p first (no model change; the thinking setup was tuned on v1.1) |
+| `model-blind-20-think` | thinking on/off | thinking, opener after the name: 2.00 / 2.10 | control (no thinking) 2.40 / 2.25 | thinking stays on (applied 2026-10-02) |
+| `model-blind-20-effort` | thinking budget | budget 400: 2.20 / 2.15 | budget 128: 2.50 / 2.45 | medium = 400 stays the default |
 
 Item 3 is applied with ST stopped by `C:\dev\so-lanes\backups\apply-review-item3.py`. The script refuses while :8000 listens, backs up first and reads the result back. It does not change the selected profile, `Artemis Local (Unsloth)`, because only you can fix its key.
 
 | # | Item | You | Effort |
 |---|---|---|---|
-| 1 | Blind model comparison (20 turns × 4 setups) | rate blind; it picks the model | 20–60 min |
+| 1 | Blind model comparison (20 turns × 4 setups) | decided by Astra (delegated): v1.1 and v1.2 tie, keep v1.1 | done |
 | 2 | Three ST preset edits that fix Artemis word-dropping and empty replies | approve, then apply on your install | 5 min |
 | 3 | Stale and broken Connection Manager profiles on your install | apply the script or the UI edits; say whether to delete one profile | 5 min |
 | 4 | Transition chat note now off by default | confirm or revert | 1 min |
 | 5 | Chance rolls ship with two caveats | confirm the caveats are intended | 2 min |
 | 6 | `/cp activate` jumps play the target unstaged | keep (c) or revisit (b) | 2 min |
-| 7 | Campaign rewrites (4 rounds) | skim; veto anything | 15 min |
+| 7 | Campaign rewrites (5 rounds + Primer) | reviewed by Astra (delegated, no spoilers to you); 9 MEDIUM fixed | done |
 | 8 | Judge per-lane rate is built on an assumed 90/min | decided 2026-10-02: your documented limits replace it | done |
 | 9 | House-rules judge off by default; option (c) built and re-measured 2026-10-02: broken 18/18, still below the untouched floor (165/172), stays off | nothing; read the result | 1 min |
 | 10 | Inner voice harvest cannot work with Artemis on this setup | choose a direction; optionally fund a 1 h A/B | 5 min |
