@@ -64,6 +64,25 @@ export function requiredArtifacts(doc: CardDoc, card: Card): Partial<Record<Arti
   return out;
 }
 
+export const HARVEST_WAIVED = 'required artifact harvestedReasoning: not applicable: the model produced no reasoning (thinking off in the instruct/overlay)';
+
+const reasoningText = (value: unknown) => (typeof value === 'string' ? value.trim() : '');
+
+export function replyReasoning(messages: unknown): number {
+  if (!Array.isArray(messages)) return 0;
+  return messages.filter((message: any) => message && !message.isUser && !message.is_user).reduce((sum: number, message: any) => {
+    const own = [message.reasoning, message.extra?.reasoning].some((value) => reasoningText(value));
+    const swipes = (Array.isArray(message.swipeInfo) ? message.swipeInfo : Array.isArray(message.swipe_info) ? message.swipe_info : []).filter((info: any) => reasoningText(info?.extra?.reasoning)).length;
+    return sum + (own ? 1 : 0) + swipes;
+  }, 0);
+}
+
+export function artifactWaivers(required: Partial<Record<ArtifactKey, number>>, evidence: { replyReasoning: number | null }): { required: Partial<Record<ArtifactKey, number>>; warnings: string[] } {
+  if (!required.harvestedReasoning || evidence.replyReasoning !== 0) return { required, warnings: [] };
+  const rest = Object.fromEntries(Object.entries(required).filter(([key]) => key !== 'harvestedReasoning')) as Partial<Record<ArtifactKey, number>>;
+  return { required: rest, warnings: [HARVEST_WAIVED] };
+}
+
 export interface ArtifactInventory extends Record<ArtifactKey, number> {}
 
 export function artifactProblems(required: Partial<Record<ArtifactKey, number>>, inventory: Partial<ArtifactInventory>): string[] {
