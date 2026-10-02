@@ -1,4 +1,4 @@
-import { validateJudgeRequest } from "./questions";
+import { judgeShapeIssues, judgeSizeIssues } from "./questions";
 import { isJudgeBusy, JudgeBusyError, pluginFallback, type JudgeGate } from "./gate";
 import { JUDGE_BUSY_RETRIES, JUDGE_BUSY_RETRY_MS } from "./policy";
 import type { JudgeFallback, JudgeRequest, JudgeResponse, JudgeResult, JudgeTransport, JudgeUsage } from "./types";
@@ -80,7 +80,8 @@ export async function askJudge(transport: JudgeTransport, request: JudgeRequest,
   const stateChars = JSON.stringify(request.state).length;
   const questionCount = Object.keys(request.questions).length;
   const base = { stateChars, questionCount };
-  if (validateJudgeRequest(request).length) return { ...base, answers: null, model: null, latencyMs: 0, fallback: "invalid", cached: false };
+  if (judgeShapeIssues(request).length) return { ...base, answers: null, model: null, latencyMs: 0, fallback: "invalid", cached: false };
+  if (judgeSizeIssues(request).length) return { ...base, answers: null, model: null, latencyMs: 0, fallback: "too-large", cached: false };
   const key = JSON.stringify(request);
   const hit = options.cache?.get(key);
   if (hit) return { ...base, answers: hit.answers, model: hit.model, latencyMs: 0, cached: true };

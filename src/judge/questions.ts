@@ -1,5 +1,5 @@
 import {
-  JUDGE_CHARS_PER_TOKEN, JUDGE_MAX_CHOICE_OPTIONS, JUDGE_MAX_ESTIMATED_TOKENS, JUDGE_MAX_REQUEST_CHARS,
+  JUDGE_CHARS_PER_TOKEN, JUDGE_MAX_CHOICE_OPTIONS, JUDGE_MAX_ESTIMATED_TOKENS, JUDGE_MAX_ESTIMATED_TOTAL_TOKENS,
   type JudgeAnswer, type JudgeChoiceAnswer, type JudgeChoiceQuestion, type JudgeNoulQuestion, type JudgeOption,
   type JudgeRequest, type JudgeScoreAnswer, type JudgeScoreQuestion,
 } from "./types";
@@ -15,7 +15,24 @@ export function estimateJudgeTokens(request: JudgeRequest): number {
   return Math.ceil((JSON.stringify(request.state ?? {}).length + longest) / JUDGE_CHARS_PER_TOKEN);
 }
 
+export function estimateJudgeTotalTokens(request: JudgeRequest): number {
+  return Math.ceil(JSON.stringify({ state: request.state ?? {}, questions: request.questions ?? {} }).length / JUDGE_CHARS_PER_TOKEN);
+}
+
+export function judgeSizeIssues(request: JudgeRequest): string[] {
+  const issues: string[] = [];
+  const tokens = estimateJudgeTokens(request);
+  if (tokens > JUDGE_MAX_ESTIMATED_TOKENS) issues.push(`request is over ${JUDGE_MAX_ESTIMATED_TOKENS} estimated tokens (${tokens})`);
+  const total = estimateJudgeTotalTokens(request);
+  if (total > JUDGE_MAX_ESTIMATED_TOTAL_TOKENS) issues.push(`request is over ${JUDGE_MAX_ESTIMATED_TOTAL_TOKENS} estimated tokens in total (${total})`);
+  return issues;
+}
+
 export function validateJudgeRequest(request: JudgeRequest): string[] {
+  return [...judgeShapeIssues(request), ...judgeSizeIssues(request)];
+}
+
+export function judgeShapeIssues(request: JudgeRequest): string[] {
   const issues: string[] = [];
   const entries = Object.entries(request.questions);
   if (!entries.length) issues.push("questions is empty");
@@ -31,9 +48,6 @@ export function validateJudgeRequest(request: JudgeRequest): string[] {
       if (extra.length) issues.push(`${id}: noul criteria only takes true/false (got ${extra.join(", ")})`);
     }
   }
-  if (JSON.stringify(request).length > JUDGE_MAX_REQUEST_CHARS) issues.push(`request is over ${JUDGE_MAX_REQUEST_CHARS} chars`);
-  const tokens = estimateJudgeTokens(request);
-  if (tokens > JUDGE_MAX_ESTIMATED_TOKENS) issues.push(`request is over ${JUDGE_MAX_ESTIMATED_TOKENS} estimated tokens (${tokens})`);
   return issues;
 }
 

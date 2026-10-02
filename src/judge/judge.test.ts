@@ -2,8 +2,9 @@ import { readFileSync } from "node:fs";
 import { join } from "node:path";
 import { askJudge, JUDGE_CACHE_LIMIT, JudgeTimeoutError } from "./client";
 import { buildDirectorRequest, decideDirector, directorJudgeEligible, directorRecordP, DIRECTOR_NOBODY, type JudgeDirectorInput } from "./director";
-import { choice, estimateJudgeTokens, noul, score, validateJudgeRequest } from "./questions";
-import { JUDGE_CHARS_PER_TOKEN, JUDGE_MAX_ESTIMATED_TOKENS } from "./types";
+import { choice, estimateJudgeTokens, estimateJudgeTotalTokens, judgeShapeIssues, noul, score, validateJudgeRequest } from "./questions";
+import { JudgePluginError } from "./gate";
+import { JUDGE_CHARS_PER_TOKEN, JUDGE_MAX_ESTIMATED_TOKENS, JUDGE_MAX_ESTIMATED_TOTAL_TOKENS, JUDGE_MAX_REQUEST_CHARS } from "./types";
 import { JUDGE_CALL_RING_LIMIT } from "./policy";
 import { runJudgeDirectorSelfTest, runMemoryPairsCalibration, runMemoryVerifyCalibration } from "./selfTest";
 import { buildPairRequest, buildVerifyRequest, pairDecision, PAIR_SAME_THING_CRITERIA, verifyVerdict, VERIFY_CRITERIA, type JudgePairRelation } from "./memory";
@@ -45,10 +46,10 @@ describe("validateJudgeRequest", () => {
   });
 
   it("T25: refuses a request whose estimated state + longest question tokens pass the documented limit minus 10%, under the character cap", () => {
-    expect(JUDGE_MAX_ESTIMATED_TOKENS).toBe(29491);
+    expect(JUDGE_MAX_ESTIMATED_TOKENS).toBe(28800);
     expect(JUDGE_CHARS_PER_TOKEN).toBe(3.488);
     const over = request({ state: { text: "a ".repeat(55_000) } });
-    expect(JSON.stringify(over).length).toBeLessThan(140_000);
+    expect(JSON.stringify(over).length).toBeLessThan(JUDGE_MAX_REQUEST_CHARS);
     expect(estimateJudgeTokens(over)).toBeGreaterThan(JUDGE_MAX_ESTIMATED_TOKENS);
     expect(validateJudgeRequest(over)).toEqual([`request is over ${JUDGE_MAX_ESTIMATED_TOKENS} estimated tokens (${estimateJudgeTokens(over)})`]);
     expect(validateJudgeRequest(request({ state: { text: "x".repeat(100_000) } }))).toEqual([]);
@@ -61,16 +62,36 @@ describe("validateJudgeRequest", () => {
     const longest = Math.max(...Object.values(questions).map((question) => JSON.stringify(question).length));
     expect(estimateJudgeTokens(many)).toBe(Math.ceil((JSON.stringify(many.state).length + longest) / JUDGE_CHARS_PER_TOKEN));
   });
+
+  it("2026-10-02: the whole request (state + every question) is held to the documented 64,000 tokens minus 10%", () => {
+    expect(JUDGE_MAX_ESTIMATED_TOTAL_TOKENS).toBe(57600);
+    const questions = Object.fromEntries(Array.from({ length: 40 }, (_, index) => [`fact:${index}`, noul(`fact ${index} ${"x".repeat(4_000)}`)]));
+    const wide = request({ state: { text: "y".repeat(60_000) }, questions });
+    expect(estimateJudgeTokens(wide)).toBeLessThanOrEqual(JUDGE_MAX_ESTIMATED_TOKENS);
+    expect(judgeShapeIssues(wide)).toEqual([]);
+    expect(validateJudgeRequest(wide)).toEqual([`request is over ${JUDGE_MAX_ESTIMATED_TOTAL_TOKENS} estimated tokens in total (${estimateJudgeTotalTokens(wide)})`]);
+    expect(validateJudgeRequest(request({ state: { text: "y".repeat(60_000) }, questions: Object.fromEntries(Object.entries(questions).slice(0, 20)) }))).toEqual([]);
+  });
 });
 
 describe("askJudge", () => {
   const answers = { q: { type: "noul", noul: 0.9 } as JudgeAnswer };
 
-  it("T25: never sends a request past the token guard, and never truncates it to fit", async () => {
+  it("T25: never sends a request past the token guard, and never truncates it to fit: the fallback says too-large, not invalid", async () => {
     const transport = jest.fn<ReturnType<JudgeTransport>, Parameters<JudgeTransport>>();
-    const result = await askJudge(transport, request({ state: { text: "a ".repeat(55_000) } }), { timeoutMs: 1000 });
+    const over = request({ state: { text: "a ".repeat(55_000) } });
+    const result = await askJudge(transport, over, { timeoutMs: 1000 });
     expect(transport).not.toHaveBeenCalled();
-    expect(result).toMatchObject({ answers: null, fallback: "invalid", cached: false });
+    expect(result).toMatchObject({ answers: null, fallback: "too-large", cached: false, latencyMs: 0, stateChars: JSON.stringify(over.state).length, questionCount: 1 });
+    const questions = Object.fromEntries(Array.from({ length: 40 }, (_, index) => [`fact:${index}`, noul(`fact ${index} ${"x".repeat(4_000)}`)]));
+    expect(await askJudge(transport, request({ state: { text: "y".repeat(60_000) }, questions }), { timeoutMs: 1000 })).toMatchObject({ answers: null, fallback: "too-large" });
+    expect(transport).not.toHaveBeenCalled();
+    expect(await askJudge(transport, request({ questions: {} }), { timeoutMs: 1000 })).toMatchObject({ fallback: "invalid" });
+  });
+
+  it("2026-10-02: a 413 from the plugin (its own size guard) is read as too-large", async () => {
+    const transport = jest.fn<ReturnType<JudgeTransport>, Parameters<JudgeTransport>>().mockRejectedValue(new JudgePluginError(413));
+    expect(await askJudge(transport, request(), { timeoutMs: 1000 })).toMatchObject({ answers: null, fallback: "too-large", cached: false });
   });
 
   it("returns answers and the answering model, and serves a repeat from the cache", async () => {
