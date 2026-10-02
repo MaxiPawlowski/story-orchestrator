@@ -99,9 +99,10 @@ export interface WorldInfoSettings {
   normalizedFrom: Record<string, NormalizedFrom[]>;
   /** Facts, scene history and checkpoint guidance join the World Info scan buffer. Off unless the author switches it on. */
   scanMemory: boolean;
+  keptGlobal: string[];
 }
 
-export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: true });
+export const defaultWorldInfoSettings = (): WorldInfoSettings => ({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
 
 const sanitizeProvenance = (value: unknown): Record<string, NormalizedFrom[]> => {
   if (!isRecord(value)) return {};
@@ -132,6 +133,9 @@ const sanitizeWorldInfoSettings = (value: unknown): WorldInfoSettings => {
     normalized,
     normalizedFrom: sanitizeProvenance(value.normalizedFrom),
     scanMemory: typeof value.scanMemory === "boolean" ? value.scanMemory : defaultWorldInfoSettings().scanMemory,
+    keptGlobal: Array.isArray(value.keptGlobal)
+      ? [...new Set(value.keptGlobal.filter((book): book is string => typeof book === "string").map((book) => book.trim()).filter(Boolean))]
+      : [],
   };
 };
 

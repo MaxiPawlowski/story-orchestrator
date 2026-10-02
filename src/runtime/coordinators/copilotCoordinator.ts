@@ -140,7 +140,7 @@ export class CopilotCoordinator {
         // created through the runtime path (a scenario, a scripted provision) then has to be
         // writable, or the create-only rule would forbid the wizard its own book (found live).
         this.recordCreated(op.name, "lorebook", draft);
-        return { ok: true, message: `Created the lorebook "${op.name}" and switched it on.`, created: op.name };
+        return { ok: true, message: `Created the lorebook "${op.name}".`, created: op.name };
       }
       if (op.kind === "grantLorebook") {
         // A grant is the author's own decision, taken from a card that exists the moment the wizard
@@ -161,7 +161,6 @@ export class CopilotCoordinator {
         if (!live.lorebookNames.some((name) => name.toLowerCase() === fileId.toLowerCase()) || !live.ownedLorebooks.some((name) => name.toLowerCase() === fileId.toLowerCase())) {
           return { ok: false, message: `"${op.lorebook}" is not this story's to write into any more.` };
         }
-        await host.activateGlobalLorebook(op.lorebook);
         if (!run.stillOwns()) return lapsed();
         const result = await host.upsertWIEntry(op.lorebook, op.comment, op.content, op.keys, op.constant === undefined ? {} : { constant: op.constant });
         if (result === "failed") return { ok: false, message: `Could not write "${op.comment}" into "${op.lorebook}".` };

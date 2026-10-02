@@ -16,7 +16,7 @@ interface OrderedEventSource {
 
 export interface WorldInfoScanObservers {
   activated?: (entries: HostScannableEntry[]) => void;
-  loadedFirst?: (payload: HostEntriesLoaded) => void;
+  loadedFirst?: (payload: HostEntriesLoaded) => void | Promise<void>;
   loadedLast?: (payload: HostEntriesLoaded) => void;
 }
 
@@ -47,8 +47,8 @@ export function observeWorldInfoScans(observers: WorldInfoScanObservers): WorldI
   if (!source) return { reassert: () => undefined, ordered: false, dispose: () => undefined };
   const ordered = typeof source.makeFirst === "function" && typeof source.makeLast === "function";
   const onActivated: Listener = (entries) => { if (Array.isArray(entries)) observers.activated?.(entries as HostScannableEntry[]); };
-  const onFirst: Listener = (payload) => { if (isEntriesLoaded(payload)) observers.loadedFirst?.(payload); };
-  const onLast: Listener = (payload) => { if (isEntriesLoaded(payload)) observers.loadedLast?.(payload); };
+  const onFirst: Listener = (payload) => (isEntriesLoaded(payload) ? observers.loadedFirst?.(payload) : undefined);
+  const onLast: Listener = (payload) => (isEntriesLoaded(payload) ? observers.loadedLast?.(payload) : undefined);
   const placed: Array<[string, Listener]> = [];
   if (activatedEvent && observers.activated) {
     source.on(activatedEvent, onActivated);

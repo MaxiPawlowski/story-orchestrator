@@ -18,6 +18,7 @@ import { orphanedLorebooks, reapDecisions } from "./mirrorReaper";
 import { loreEvidenceView } from "./worldInfoEvidence";
 import { samplerOverlay } from "./samplerOverlay";
 import { scanGateView, wiGatingStatus } from "./worldInfoMode";
+import { globalStoryLore } from "./storyLore";
 import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview, type NextTurnSourceBlock } from "./nextTurn";
 import { promptCost } from "./promptCost";
 import { promptBuckets } from "./promptBuckets";
@@ -272,7 +273,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     storyHash: loaded?.record.hash ?? null,
     storyIdentity: buildStoryIdentity(loaded?.record ?? null, loaded ? findStoryRecord(loaded.record.id) : null, Boolean(loaded && loadPersistedRuntime(loaded.record.id))),
     blobUnreadable: unreadable ? { foundVersion: unreadable.foundVersion, notice: UNREADABLE_NOTICE } : null,
-    orphanedLorebooks: orphanedLorebooks(), reapDecisions: reapDecisions(),
+    orphanedLorebooks: orphanedLorebooks(), reapDecisions: reapDecisions(), globalStoryLore: globalStoryLore(),
     chatIdentity: loaded ? null : readChatIdentity(),
     storyTitle: story?.title ?? null,
     storyDescription: story?.description ?? null,

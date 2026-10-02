@@ -7,18 +7,18 @@ import { defaultGlobalSettings, sanitizeGlobalSettings } from "./settingsStore";
 
 describe("worldInfo settings (v2.5 plan 01)", () => {
   it("defaults to the file path with an empty ledger and no provenance, and no plan flips that", () => {
-    expect(defaultGlobalSettings().worldInfo).toEqual({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: true });
-    expect(sanitizeGlobalSettings({}).worldInfo).toEqual({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: true });
+    expect(defaultGlobalSettings().worldInfo).toEqual({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
+    expect(sanitizeGlobalSettings({}).worldInfo).toEqual({ gatingMode: "file", normalized: {}, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
   });
 
   it("keeps an explicit scan mode and a clean ledger, and drops anything else", () => {
     expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "scan", normalized: { Ruins: ["CP1", "CP1", "", 3], Empty: [], Junk: "x" } } }).worldInfo)
-      .toEqual({ gatingMode: "scan", normalized: { Ruins: ["CP1"] }, normalizedFrom: {}, scanMemory: true });
+      .toEqual({ gatingMode: "scan", normalized: { Ruins: ["CP1"] }, normalizedFrom: {}, scanMemory: true, keptGlobal: [] });
     expect(sanitizeGlobalSettings({ worldInfo: { gatingMode: "SCAN" } }).worldInfo.gatingMode).toBe("file");
   });
 
   it("round-trips the provenance of each normalised entry (W1: a new key beside the unchanged ledger)", () => {
-    const worldInfo = { gatingMode: "scan", normalized: { Ruins: ["CP1", "CP2"] }, normalizedFrom: { Ruins: [{ comment: "CP1", wasOn: true }, { comment: "CP2", wasOn: false }] }, scanMemory: false };
+    const worldInfo = { gatingMode: "scan", normalized: { Ruins: ["CP1", "CP2"] }, normalizedFrom: { Ruins: [{ comment: "CP1", wasOn: true }, { comment: "CP2", wasOn: false }] }, scanMemory: false, keptGlobal: [] };
     const once = sanitizeGlobalSettings({ worldInfo }).worldInfo;
     expect(once).toEqual(worldInfo);
     expect(sanitizeGlobalSettings({ worldInfo: once }).worldInfo).toEqual(worldInfo);

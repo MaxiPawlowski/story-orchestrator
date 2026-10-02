@@ -71,6 +71,7 @@ declare global {
   var storyOrchestratorLoreEvidence: import("./src/runtime/worldInfoEvidence").LoreEvidence | undefined;
   var storyOrchestratorInline: { attachTimes: () => number[] } | undefined;
   var storyOrchestratorScanGating: import("./src/runtime/worldInfoScanHost").ScanGatingDebug | undefined;
+  var storyOrchestratorStoryLore: import("./src/runtime/storyLoreHost").StoryLoreDebug | undefined;
   var storyOrchestratorToolTurnProbe: import("./src/runtime/spikes/toolTurnProbe").ToolTurnProbe | undefined;
   var storyOrchestratorLore: { selector: import("./src/runtime/loreSelect").LoreSelector; willAddUserMessage: (type: string | undefined, params: Record<string, unknown> | undefined, dryRun: boolean | undefined) => boolean } | undefined;
   var storyOrchestratorDebugCuratorResponse: string | null | undefined;

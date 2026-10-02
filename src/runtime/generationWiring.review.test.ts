@@ -13,6 +13,10 @@ jest.mock("@services/STAPI", () => ({
   settingsAreLoaded: () => true,
   observeSamplerPayloads: () => () => undefined,
   installScanGating: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined, scans: () => 0 }),
+  installStoryLoreScan: () => ({ reassert: () => undefined, ordered: false, dispose: () => undefined }),
+  loadScanLorebook: async () => null,
+  listGlobalLorebooks: () => [],
+  deactivateGlobalLorebook: async () => ({ ok: true, name: "" }),
   observeWorldInfoScans: (observers: { activated?: (entries: unknown[]) => void }) => {
     mockScans.activated = observers.activated;
     return { reassert: () => undefined, ordered: false, dispose: () => { mockScans.activated = undefined; } };

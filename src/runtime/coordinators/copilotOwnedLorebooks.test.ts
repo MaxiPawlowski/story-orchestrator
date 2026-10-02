@@ -5,7 +5,6 @@ import { CopilotCoordinator } from "./copilotCoordinator";
 import { testOwnership } from "../../../test/findings/testOwnership";
 
 const host = {
-  activateGlobalLorebook: jest.fn(async () => ({ ok: true })),
   clearStoryExtensionPrompt: jest.fn(),
   createCharacterCard: jest.fn(),
   createGroup: jest.fn(),

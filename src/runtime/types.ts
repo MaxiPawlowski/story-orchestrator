@@ -58,7 +58,7 @@ export interface StoryLibraryRecord {
   updatedAt: string;
 }
 
-export type LoreSource = "global" | "chat" | "persona" | "character";
+export type LoreSource = "global" | "chat" | "persona" | "character" | "story";
 
 export interface SlotConflict {
   book: string;
@@ -480,6 +480,7 @@ export interface RuntimeSnapshot {
   scanGate?: ScanGateView | null;
   /** Lorebook gating mode, ledger summary and drift (install-wide). */
   wiGating?: WiGatingStatus | null;
+  globalStoryLore?: string[];
   /** The sampler overlay this checkpoint put on its replies, or null. */
   samplerOverlay?: SamplerOverlayView | null;
   // The story's authored curator allowlist, so the review panel can say what is in scope without

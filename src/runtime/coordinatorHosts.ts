@@ -1,5 +1,5 @@
 import {
-  activateGlobalLorebook, bindChatLorebook, capabilityState, clearStoryExtensionPrompt, countTokens,
+  bindChatLorebook, capabilityState, clearStoryExtensionPrompt, countTokens,
   createCharacterCard, createGroup, createLorebook, currentChatOwner, DEFAULT_VECTOR_SOURCE, disableWIEntry,
   ensureLorebook, getActiveGroup, getAllCharacterNames, getCharacterNameById, getContext, getPlayerName,
   hostSystemUserName, listAllLorebooks, listGlobalLorebooks, listGroupNames, loadLorebook, readInjectedPromptBlocks,
@@ -32,7 +32,7 @@ const playerHost: PlayerHost = { getPlayerName };
 const curatorHost: CuratorWiHost = { readWIEntry, readWIEntryAt, restoreWIEntryAt, updateWIEntryByUid, loadLorebook };
 
 const provisioningHost: ProvisioningHost = {
-  activateGlobalLorebook, createCharacterCard, createGroup, createLorebook, getAllCharacterNames, listAllLorebooks, listGlobalLorebooks,
+  createCharacterCard, createGroup, createLorebook, getAllCharacterNames, listAllLorebooks, listGlobalLorebooks,
   listGroupNames, readWIEntry, upsertWIEntry,
 };
 

@@ -304,12 +304,11 @@ const setDiff = (want: string[], have: string[]) => ({ missing: want.filter((ite
 
 export function storyReadiness(manifest: AdolionManifest, inventory: Inventory, story: ManifestStory): { missingLorebooks: string[]; missingMembers: string[] } {
   const listed = new Set(inventory.books.map((book) => book.name));
-  const selected = new Set(inventory.selected);
   const group = inventory.groups.find((candidate) => candidate.story === story.id);
   const present = new Set(inventory.cards);
   const names = new Set(manifest.cards.filter((card) => group?.members.includes(card.avatar) && present.has(card.avatar)).map((card) => card.name.toLowerCase()));
   return {
-    missingLorebooks: story.lorebooks.filter((book) => !listed.has(book) || !selected.has(book)),
+    missingLorebooks: story.lorebooks.filter((book) => !listed.has(book)),
     missingMembers: story.members.filter((member) => !names.has(member.toLowerCase())),
   };
 }
@@ -349,9 +348,7 @@ export function checkInventory(manifest: AdolionManifest, inventory: Inventory):
   }
   const strayStories = inventory.library.filter((story) => !manifest.stories.some((wanted) => wanted.id === story.id)).map((story) => story.id);
   if (strayStories.length) problems.push(`stories not in the build: ${strayStories.join(', ')}`);
-  const selection = setDiff(manifest.requiredBooks, inventory.selected);
-  if (selection.missing.length) problems.push(`required books not selected: ${selection.missing.join(', ')}`);
-  if (selection.extra.length) problems.push(`selected books no Adolion story requires: ${selection.extra.join(', ')}`);
+  if (inventory.selected.length) problems.push(`books selected for every chat (each story loads its own books in its own chats): ${inventory.selected.join(', ')}`);
   for (const story of manifest.stories) {
     const gap = storyReadiness(manifest, inventory, story);
     if (gap.missingLorebooks.length || gap.missingMembers.length) problems.push(`story ${story.id} not ready (install): lorebooks [${gap.missingLorebooks.join(', ')}] members [${gap.missingMembers.join(', ')}]`);

@@ -48,6 +48,13 @@ async function loadExisting(name: string): Promise<{ name: string; data: Loreboo
   return data?.entries ? { name: lorebook, data } : null;
 }
 
+export async function loadScanLorebook(name: string): Promise<{ name: string; entries: Array<LoreEntry & { world: string; content: string }> } | null> {
+  const book = await loadExisting(name);
+  if (!book) return null;
+  const entries = Object.values(book.data.entries).map(({ uid, ...rest }) => ({ ...rest, content: typeof rest.content === "string" ? rest.content : "", uid, world: book.name }));
+  return { name: book.name, entries };
+}
+
 export async function loadLorebook(name: string): Promise<Lorebook | null> {
   return (await loadExisting(name))?.data ?? null;
 }
@@ -159,16 +166,9 @@ export async function ensureLorebook(name: string): Promise<{ name: string; crea
   return created ? { name: created, created: true } : null;
 }
 
-// `createNewWorldInfo` refreshes the picker but does NOT activate the book (world-info.js:4448 — no
-// `globalSelect` write), while a story's `requirements.lorebooks` is satisfied only by the *globally
-// selected* books; `/world state=on` is ST's own activation path and is what makes it count.
 export async function createLorebook(name: string): Promise<WriteResult<{ name: string; created: boolean }>> {
   const ensured = await ensureLorebook(name);
-  if (!ensured) return couldNot(`could not create "${name}"`);
-  // A book that exists but will not stay selected is a FAILURE for the caller: a story's requirement
-  // is satisfied only by globally selected books, so "created, not active" is not a happy ending.
-  const activated = await activateGlobalLorebook(ensured.name);
-  return activated.ok ? wrote({ name: ensured.name, created: ensured.created }) : couldNot(activated.reason);
+  return ensured ? wrote({ name: ensured.name, created: ensured.created }) : couldNot(`could not create "${name}"`);
 }
 
 // Exact listed name only: `deleteWorldInfo` (world-info.js:4346) answers false for an
@@ -229,12 +229,11 @@ export async function unbindChatLorebook(name: string): Promise<WriteResult<{ na
   return wrote({ name });
 }
 
-export async function activateGlobalLorebook(name: string): Promise<WriteResult<{ name: string }>> {
-  const lorebook = findLorebook(name) ?? name.trim();
-  if (!lorebook) return couldNot("no lorebook by that name");
-  if (isGloballySelected(lorebook)) return wrote({ name: lorebook });
-  await executeSlashCommands(`/world silent=true state=on ${quoteSlashArg(lorebook)}`);
-  return isGloballySelected(lorebook) ? wrote({ name: lorebook }) : couldNot(`"${lorebook}" did not stay selected`);
+export async function deactivateGlobalLorebook(name: string): Promise<WriteResult<{ name: string }>> {
+  const lorebook = listSelectedLorebooks().find((entry) => entry.toLowerCase() === name.trim().toLowerCase());
+  if (!lorebook) return wrote({ name: name.trim() });
+  await executeSlashCommands(`/world silent=true state=off ${quoteSlashArg(lorebook)}`);
+  return isGloballySelected(lorebook) ? couldNot(`"${lorebook}" is still selected`) : wrote({ name: lorebook });
 }
 
 const isGloballySelected = (lorebook: string) => listSelectedLorebooks().some((entry) => entry.toLowerCase() === lorebook.toLowerCase());

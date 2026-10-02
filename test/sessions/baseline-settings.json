@@ -8,6 +8,7 @@
     "extraction.reasoningBudget",
     "worldInfo.normalized",
     "worldInfo.normalizedFrom",
+    "worldInfo.keptGlobal",
     "judge.noticesSeen",
     "image.directorProfileId",
     "image.comfyUrl",

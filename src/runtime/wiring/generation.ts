@@ -89,6 +89,7 @@ export const subscribeGenerationEvents = (live: LiveParts, generation: Generatio
   const onStarted = async (...args: unknown[]) => {
     lore.loreWatch.reassert();
     lore.scanGating.reassert();
+    lore.storyLore.reassert();
     apply(generation.started(args, chatLastId() + 1));
     await lore.onGenerationStarted(typeof args[0] === "string" ? args[0] : undefined, args[1] as Record<string, unknown> | undefined, args[2] === true);
   };

@@ -29,6 +29,21 @@ export const REPAIR_TARGET_IDS = { memoryModel: "so-extraction-profile" } as con
 
 export const WI_GATING_TARGET_ID = "so-wi-gating";
 
+export const STORY_LORE_TARGET_ID = "so-story-lore-global";
+
+function globalStoryLoreStep(snapshot: RuntimeSnapshot): RepairStep | null {
+  const books = snapshot.globalStoryLore ?? [];
+  if (!books.length) return null;
+  return {
+    area: "lore",
+    consequence: "Story lorebooks are switched on for every chat, so their entries reach chats that play other stories.",
+    detail: `Selected for every chat: ${books.join(", ")}`,
+    targetId: STORY_LORE_TARGET_ID,
+    provisionable: false,
+    player: null,
+  };
+}
+
 const entryCounts = (entries: Array<{ lorebook: string; comment: string }>) => {
   const counts = new Map<string, number>();
   entries.forEach((entry) => counts.set(entry.lorebook, (counts.get(entry.lorebook) ?? 0) + 1));
@@ -130,7 +145,7 @@ function requirementSteps(snapshot: RuntimeSnapshot): Array<RepairStep | null> {
     requirements.missingLorebooks.length ? {
       area: "lore",
       consequence: "The story reads from lore it cannot see, so nothing it needs to know is in play.",
-      detail: `Not selected: ${requirements.missingLorebooks.join(", ")}`,
+      detail: `Missing: ${requirements.missingLorebooks.join(", ")}`,
       targetId: null,
       provisionable: true,
       player: REPAIR_PLAYER_COPY.lore,
@@ -177,8 +192,8 @@ function laterSteps(snapshot: RuntimeSnapshot): Array<RepairStep | null> {
 
 export function repairSteps(snapshot: RuntimeSnapshot): RepairStep[] {
   const steps = snapshot.storyId
-    ? [memoryModelStep(snapshot), roleStep(snapshot), ...requirementSteps(snapshot), ...laterSteps(snapshot), wiGatingStep(snapshot), orphanedLorebookStep(snapshot)]
-    : [wiGatingStep(snapshot), orphanedLorebookStep(snapshot)];
+    ? [memoryModelStep(snapshot), roleStep(snapshot), ...requirementSteps(snapshot), ...laterSteps(snapshot), wiGatingStep(snapshot), globalStoryLoreStep(snapshot), orphanedLorebookStep(snapshot)]
+    : [wiGatingStep(snapshot), globalStoryLoreStep(snapshot), orphanedLorebookStep(snapshot)];
   return steps.filter((step): step is RepairStep => step !== null);
 }
 

@@ -126,7 +126,7 @@ const windowAccess = (): WindowAccess => {
 
 export const RUNTIME_GLOBALS = [
   "storyOrchestratorScheduler", "storyOrchestratorLoreEvidence", "storyOrchestratorLore", "storyOrchestratorJudge",
-  "storyOrchestratorLiveSuite", "storyOrchestratorScanGating", "storyOrchestratorToolTurnProbe",
+  "storyOrchestratorLiveSuite", "storyOrchestratorScanGating", "storyOrchestratorStoryLore", "storyOrchestratorToolTurnProbe",
   "storyOrchestratorSpikes", "storyOrchestratorTalk",
 ] as const;
 

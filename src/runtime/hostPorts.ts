@@ -3,7 +3,7 @@ import type { ChatWindowReader } from "@extraction/types";
 import type { MemoryMirrorHost } from "./memoryMirror";
 
 export type ProvisioningHost = Pick<typeof Stapi,
-  "activateGlobalLorebook" | "createCharacterCard" | "createGroup" | "createLorebook" | "getAllCharacterNames" | "listAllLorebooks" |
+  "createCharacterCard" | "createGroup" | "createLorebook" | "getAllCharacterNames" | "listAllLorebooks" |
   "listGlobalLorebooks" | "listGroupNames" | "readWIEntry" | "upsertWIEntry">;
 
 export type CuratorWiHost = Pick<typeof Stapi,

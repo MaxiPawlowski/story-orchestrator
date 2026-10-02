@@ -7,8 +7,10 @@ import { PLAYER_COPY } from "@runtime/narrative";
 import { getGlobalSettings, type TalkChainSettings } from "@runtime/settingsStore";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { wiGating } from "@runtime/worldInfoScanHost";
+import { keepGlobalStoryLore, releaseGlobalStoryLore } from "@runtime/storyLoreHost";
 import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/index";
 import WorldInfoGatingGroup from "./WorldInfoGatingGroup";
+import StoryLoreGlobal from "./StoryLoreGlobal";
 import { GroupHeader } from "./GroupHeader";
 import { CheckRow, FieldLabel } from "./Field";
 
@@ -43,9 +45,25 @@ export const DisplayGroup = ({ snapshot, manager }: GroupProps) => (
 
 export const LorebooksGroup = ({ snapshot, manager }: GroupProps) => {
   const [scanMemory, setScanMemory] = useState(() => getGlobalSettings().worldInfo.scanMemory);
+  const [releasing, setReleasing] = useState(false);
   return (
     <div className="flex flex-col gap-2 border-t border-solid border-white/10 pt-2">
       <GroupHeader title="Lorebooks" scope="install" id="so-lorebooks-header" />
+      <StoryLoreGlobal
+        books={snapshot.globalStoryLore ?? []}
+        busy={releasing}
+        onRelease={() => {
+          setReleasing(true);
+          void releaseGlobalStoryLore().finally(() => {
+            setReleasing(false);
+            manager.notify();
+          });
+        }}
+        onKeep={() => {
+          keepGlobalStoryLore();
+          manager.notify();
+        }}
+      />
       <WorldInfoGatingGroup
         status={snapshot.wiGating ?? null}
         authorView={snapshot.ui.authorView}

@@ -57,7 +57,7 @@ const cleanInput = (): InventoryInput => ({
       ],
       settings: { extraction: { enabled: true, cadence: 1, stabilityLag: 0, profileId: 'p' }, image: { enabled: false, comfyUrl: '' }, sprites: { enabled: false, explicit: true } },
     } },
-    world_info_settings: { world_info: { globalSelect: ['Adolion World', 'Adolion Academy Checkpoints', 'Adolion - Eshalanore'] } },
+    world_info_settings: { world_info: { globalSelect: [] as string[] } },
   },
   ledger: { lorebooks: manifest.books.map((entry) => entry.name), characters: manifest.cards.map((card) => card.avatar) },
   sprites: [{ folder: 'Natalia', labels: ['happy', 'neutral', 'extra'] }, { folder: 'Natalia/ball', labels: ['neutral'] }, { folder: 'Belle Nabba', labels: ['neutral'] }],
@@ -101,23 +101,21 @@ test('a clean seed passes the check, and a stranger\'s book, card or story is no
 test('a planted missing book fails the check and names every story it leaves unready', () => {
   const input = cleanInput();
   input.books = input.books.filter((entry) => entry.name !== 'Adolion - Eshalanore');
-  const worldInfo = input.settings.world_info_settings.world_info;
-  worldInfo.globalSelect = worldInfo.globalSelect.filter((name: string) => name !== 'Adolion - Eshalanore');
   input.runtime!['adolion-esha'] = { ready: false, storyId: 'adolion-esha', missingLorebooks: ['Adolion - Eshalanore'], missingMembers: [], missingPersonas: [] };
   const problems = checkInventory(manifest, buildInventory(manifest, input));
   assert.ok(problems.includes('book missing: Adolion - Eshalanore'), problems.join('\n'));
-  assert.ok(problems.some((line) => line.startsWith('required books not selected: Adolion - Eshalanore')));
   assert.ok(problems.some((line) => line.startsWith('story adolion-esha not ready (install): lorebooks [Adolion - Eshalanore]')));
   assert.ok(problems.some((line) => line.startsWith('story adolion-esha not ready (runtime')));
   assert.ok(!problems.some((line) => line.startsWith('story adolion-academy')));
 });
 
-test('a book that is listed but not selected still leaves its story unready', () => {
+test('a listed story book needs no global selection, and any book selected for every chat fails the check', () => {
   const input = cleanInput();
-  input.settings.world_info_settings.world_info.globalSelect = ['Adolion World', 'Adolion Academy Checkpoints', 'Xentar Checkpoints'];
+  assert.ok(!checkInventory(manifest, buildInventory(manifest, input)).some((line) => line.includes('not ready (install)')));
+  input.settings.world_info_settings.world_info.globalSelect = ['Adolion World', 'Xentar Checkpoints'];
   const problems = checkInventory(manifest, buildInventory(manifest, input));
-  assert.ok(problems.some((line) => line.startsWith('story adolion-esha not ready (install)')));
-  assert.ok(problems.includes('selected books no Adolion story requires: Xentar Checkpoints'));
+  assert.ok(problems.includes('books selected for every chat (each story loads its own books in its own chats): Adolion World, Xentar Checkpoints'), problems.join('\n'));
+  assert.ok(!problems.some((line) => line.includes('not ready (install)')));
 });
 
 test('an installer SKIP, a lost group binding, a stale library version and a missing member each fail', () => {

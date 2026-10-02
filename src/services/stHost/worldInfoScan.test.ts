@@ -24,7 +24,7 @@ jest.mock("./worldInfoActivate", () => ({
   },
 }));
 
-import { installScanGating, probeScanGating, vectorsScanWorldInfo } from "./worldInfoScan";
+import { installScanGating, installStoryLoreScan, probeScanGating, vectorsScanWorldInfo } from "./worldInfoScan";
 
 beforeEach(() => {
   emitter.events.clear();
@@ -84,5 +84,39 @@ describe("L5: vectors World Info (v25-08-H10)", () => {
     expect(vectorsScanWorldInfo()).toBe(false);
     host.extensionSettings = { vectors: { enabled_world_info: true } };
     expect(vectorsScanWorldInfo()).toBe(true);
+  });
+});
+
+describe("installStoryLoreScan (story-scoped lore)", () => {
+  const emitAwaited = async (loaded: ReturnType<typeof payload>) => {
+    for (const listener of [...(emitter.events.get("worldinfo_entries_loaded") ?? [])]) await listener(loaded);
+  };
+
+  it("runs first and is awaited, so every later listener and the scan gating see the appended book", async () => {
+    const seen: string[] = [];
+    emitter.on("worldinfo_entries_loaded", (loaded) => { seen.push(`foreign:${(loaded as ReturnType<typeof payload>).globalLore.length}`); });
+    const handle = installStoryLoreScan(async (arrays) => {
+      await Promise.resolve();
+      arrays[0].push({ world: "Hoard", uid: 0, comment: "Vaelrith", content: "", constant: true });
+      seen.push("story");
+    });
+    handle.reassert();
+    const loaded = payload();
+    await emitAwaited(loaded);
+    expect(seen).toEqual(["story", "foreign:2"]);
+    expect(loaded.globalLore.map((entry) => entry.world)).toEqual(["SO-T13 Ruins", "Hoard"]);
+    expect(handle.ordered).toBe(true);
+  });
+
+  it("a failing append leaves the scan alone", async () => {
+    const warn = jest.spyOn(console, "warn").mockImplementation(() => undefined);
+    installStoryLoreScan(async () => { throw new Error("boom"); });
+    await expect(emitAwaited(payload())).resolves.toBeUndefined();
+    warn.mockRestore();
+  });
+
+  it("a host that cannot order listeners reports it, so requirements do not count on the append", () => {
+    emitter.ordered = false;
+    expect(installStoryLoreScan(async () => undefined).ordered).toBe(false);
   });
 });

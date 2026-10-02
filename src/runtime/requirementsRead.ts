@@ -1,6 +1,7 @@
 import type { StoryRequirements } from "@engine/index";
 import type { HostLoreBindings } from "@services/STAPI";
 import type { LoreSource, RequirementsState, SlotConflict } from "./types";
+import { bookKey } from "./worldInfoMatch";
 
 export interface RequirementsView {
   persona: string;
@@ -15,6 +16,7 @@ export interface RequirementsOptions {
   scan: boolean;
   /** This chat's own mirror book, when it has one. */
   mirrorBook: string | null;
+  storyLore?: boolean;
 }
 
 const same = (left: string, right: string) => left.trim().toLowerCase() === right.trim().toLowerCase();
@@ -23,12 +25,14 @@ const holds = (books: string[], wanted: string) => books.some((book) => same(boo
 const chatSlotCounts = (lore: HostLoreBindings, options: RequirementsOptions) =>
   lore.chat !== null && (options.scan || !options.mirrorBook || !same(lore.chat, options.mirrorBook));
 
-function sourceOf(book: string, lore: HostLoreBindings, options: RequirementsOptions): { source: LoreSource | null; unbound: string[] } {
+function sourceOf(book: string, view: RequirementsView, options: RequirementsOptions): { source: LoreSource | null; unbound: string[] } {
+  const { lore } = view;
   if (holds(lore.global, book)) return { source: "global", unbound: [] };
   if (lore.chat !== null && same(lore.chat, book) && chatSlotCounts(lore, options)) return { source: "chat", unbound: [] };
   if (lore.persona !== null && same(lore.persona, book)) return { source: "persona", unbound: [] };
   const unbound = lore.characters.filter((character) => !holds(character.books, book)).map((character) => character.name);
   if (lore.characters.length && !unbound.length) return { source: "character", unbound: [] };
+  if (options.storyLore && (lore.listed ?? []).some((name) => bookKey(name) === bookKey(book))) return { source: "story", unbound: [] };
   return { source: null, unbound: unbound.length < lore.characters.length ? unbound : [] };
 }
 
@@ -47,7 +51,7 @@ export function readRequirements(requirements: StoryRequirements | undefined, vi
   const satisfiedBy: Record<string, LoreSource> = {};
   const characterGaps: Record<string, string[]> = {};
   const missingLorebooks = (requirements?.lorebooks ?? []).filter((book) => {
-    const found = sourceOf(book, view.lore, options);
+    const found = sourceOf(book, view, options);
     if (found.source) satisfiedBy[book] = found.source;
     else if (found.unbound.length) characterGaps[book] = found.unbound;
     return found.source === null;

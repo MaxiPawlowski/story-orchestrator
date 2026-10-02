@@ -8,7 +8,8 @@ export const StatusDot = ({ ok, label }: { ok: boolean; label: string }) => (
   <span role="img" aria-label={`${label}: ${ok ? "ready" : "missing"}`} className={`status-indicator status-${ok ? "success" : "error"}`} />
 );
 
-const SOURCE_LABELS: Record<LoreSource, string> = { global: "selected globally", chat: "chat lorebook", persona: "persona lorebook", character: "every member's card" };
+const SOURCE_LABELS: Record<LoreSource, string> = { global: "selected globally", chat: "chat lorebook", persona: "persona lorebook", character: "every member's card",
+  story: "loaded with this story" };
 
 const LoreBindings = ({ snapshot }: { snapshot: RuntimeSnapshot }) => {
   const { satisfiedBy = {}, characterGaps = {}, slotConflict = null } = snapshot.requirements;

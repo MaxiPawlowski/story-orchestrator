@@ -3,6 +3,7 @@ import { getContext, listGroupMembers, listMutedGroupMembers, readLoreBindings }
 import { readRequirements, type RequirementsOptions } from "./requirementsRead";
 import type { MemoryMirrorBook, RequirementsState } from "./types";
 import { scanGatingActive } from "./worldInfoMode";
+import { storyLoreActive } from "./storyLore";
 
 export function evaluateRequirements(story: NormalizedStoryV2 | null, options: RequirementsOptions, storyMuted: string[] = []): RequirementsState {
   if (!story) return { ready: true, missingPersonas: [], missingMembers: [], missingLorebooks: [] };
@@ -16,5 +17,5 @@ export function evaluateRequirements(story: NormalizedStoryV2 | null, options: R
 
 export const requirementsOptions = (book: MemoryMirrorBook | null, scan = scanGatingActive()): RequirementsOptions => {
   const chatId = getContext().chatId ?? null;
-  return { scan, mirrorBook: book && chatId !== null && book.chatId === chatId ? book.name : null };
+  return { scan, mirrorBook: book && chatId !== null && book.chatId === chatId ? book.name : null, storyLore: storyLoreActive() };
 };

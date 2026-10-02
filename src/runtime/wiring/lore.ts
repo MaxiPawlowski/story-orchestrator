@@ -7,6 +7,7 @@ import { loreEvidence } from "../worldInfoEvidence";
 import { startLoreEvidence } from "../worldInfoEvidenceHost";
 import { startSamplerOverlay } from "../samplerOverlayHost";
 import { startScanGating } from "../worldInfoScanHost";
+import { startStoryLore } from "../storyLoreHost";
 import { stagedPath } from "../worldInfoGates";
 import type { Disposers, WindowAccess } from "./types";
 import { log } from "@utils/log";
@@ -81,6 +82,8 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
   disposers.push(startSamplerOverlay({ chatId, generation: () => generation.snapshot(), journal: (summary, note) => runtimeManager.noteRecap(summary, note) }));
   startReplyEffort(disposers, generation);
   if (__SO_DEV__) globalThis.storyOrchestratorLoreEvidence = loreEvidence;
+  const storyLore = startStoryLore({ chatId, ownedChat: () => runtimeManager.getLoadedChatId(), story: () => runtimeManager.getStory() });
+  disposers.push(storyLore.dispose);
   const scanGating = startGating(disposers, {
     useActive: () => judgeRuntime.active("loreExclusive"),
     messageId: chatLastId,
@@ -111,7 +114,7 @@ export const startLore = (disposers: Disposers, judgeRuntime: JudgeRuntime, gene
     awaitsMessage = false;
     await select("MESSAGE_SENT");
   };
-  return { loreWatch, scanGating, onGenerationStarted, onIntercept, onMessageSent };
+  return { loreWatch, scanGating, storyLore, onGenerationStarted, onIntercept, onMessageSent };
 };
 
 export type LoreWiring = ReturnType<typeof startLore>;
