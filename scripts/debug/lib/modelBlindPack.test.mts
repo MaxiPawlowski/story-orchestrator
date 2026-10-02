@@ -75,6 +75,23 @@ test('build: the pack holds context and lettered replies only; the key maps ever
   for (const config of CONFIGS) assert.ok(!md.includes(config));
 });
 
+test('build: reasoning rides folded under its reply, is never sent to the judge, and is leak-checked', () => {
+  const bodies = [{ body: 'b01', prompt: prompt('Tobias', 'question 1') }];
+  const rows = replies(['b01']).map((row, at) => (at === 1 ? { ...row, reasoning: ' He wants the fee first. ' } : row));
+  const { pack, key } = buildModelPack({ seed: 'r', bodies, replies: rows });
+  const letter = LETTERS.find((candidate) => key.turns.T01.letters[candidate] === CONFIGS[1])!;
+  assert.equal(pack.turns[0].replies[letter].reasoning, 'He wants the fee first.');
+  for (const other of LETTERS.filter((candidate) => candidate !== letter)) assert.ok(!('reasoning' in pack.turns[0].replies[other]));
+  assert.deepEqual(modelPackLeaks(pack, key), []);
+  assert.match(renderPackMarkdown(pack), /<details><summary>Reasoning written before this reply \(not rated\)<\/summary>[\s\S]*He wants the fee first\./);
+  assert.ok(!judgePrompt(pack.turns[0]).includes('He wants the fee first'));
+  const leaky = structuredClone(pack);
+  leaky.turns[0].replies[letter].reasoning = 'Plan: <think> close it';
+  assert.match(modelPackLeaks(leaky, key).join(' | '), /reasoning carries a config or template marker/);
+  assert.match(readme(pack, 'x'.repeat(64), 4, 'the thinking A/B'), /from the thinking A\/B[\s\S]*Some setups think before they answer/);
+  assert.doesNotMatch(readme(buildModelPack({ seed: 'r', bodies, replies: replies(['b01']) }).pack, 'x'.repeat(64), 4), /Some setups think/);
+});
+
 test('build refuses a turn without exactly one reply per config', () => {
   const rows = replies(['b01']).slice(1);
   assert.throws(() => buildModelPack({ seed: 's', bodies: [{ body: 'b01', prompt: prompt('Tobias', 'q') }, { body: 'b02', prompt: prompt('Tobias', 'q') }], replies: [...rows, ...replies(['b02'])] }), /b01: needs exactly one reply per config/);

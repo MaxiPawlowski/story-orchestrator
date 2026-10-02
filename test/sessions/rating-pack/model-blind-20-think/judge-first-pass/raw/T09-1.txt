@@ -1,0 +1,5 @@
+exit 0
+--- text ---
+{"scores":{"A":{"coherence":4,"prose":4,"scene":3,"agency":5,"overall":3},"B":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"C":{"coherence":4,"prose":5,"scene":3,"agency":5,"overall":3},"D":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4}},"rank":["D","B","C","A"],"why":"D most directly connects Wendhope with the need for a party and leaves the player's choice open, though it invents the player's name; B is lively and responsive but adds unsupported rank and patron details. C mistakenly says Dalan heard his name and gives an evasive answer, while A invents the player's name, refers awkwardly to a bow's stock, and ends on a question rather than the scene."}
+--- stderr ---
+

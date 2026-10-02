@@ -1,0 +1,822 @@
+{
+  "T01": {
+    "scores": {
+      "A": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "B": {
+        "coherence": 3,
+        "prose": 5,
+        "scene": 2,
+        "agency": 5,
+        "overall": 2
+      },
+      "C": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "D": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      }
+    },
+    "rank": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "C and D clearly convey Tobias's suspicion and the party requirement without deciding for the player; A also offers useful alternatives but adds unsupported specifics and a less convincing endorsement of overpayment. B contradicts the unusually high reward with 'D-rank coin for a D-rank problem' and invents substantial posting details; B, C, and D also use the unestablished player name Max."
+  },
+  "T02": {
+    "scores": {
+      "A": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "B": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 5,
+        "agency": 5,
+        "overall": 4
+      },
+      "C": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 2,
+        "agency": 5,
+        "overall": 3
+      },
+      "D": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      }
+    },
+    "rank": [
+      "B",
+      "A",
+      "D",
+      "C"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "B best preserves the established setting while introducing frightened defenders who refuse entry; A delivers the intended pressure more explicitly but abruptly changes the time and wall construction. D supplies a useful but less developed response with an unclear reference to the voice changing, while C leaves the player's appeal unanswered; all four respect player agency."
+  },
+  "T03": {
+    "scores": {
+      "A": {
+        "coherence": 2,
+        "prose": 4,
+        "scene": 1,
+        "agency": 2,
+        "overall": 2
+      },
+      "B": {
+        "coherence": 1,
+        "prose": 1,
+        "scene": 1,
+        "agency": 5,
+        "overall": 1
+      },
+      "C": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 3,
+        "agency": 4,
+        "overall": 3
+      },
+      "D": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 3,
+        "agency": 4,
+        "overall": 3
+      }
+    },
+    "rank": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "C gives the clearest recap of the immediate gate encounter, with D close behind, but both introduce unsupported background and scene details. A mixes an apparent opening-scene reset with invented history and player decisions rather than giving a quick recap; B provides no answer."
+  },
+  "T04": {
+    "scores": {
+      "A": {
+        "coherence": 5,
+        "prose": 4,
+        "scene": 3,
+        "agency": 5,
+        "overall": 2
+      },
+      "B": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 5,
+        "agency": 5,
+        "overall": 5
+      },
+      "C": {
+        "coherence": 3,
+        "prose": 4,
+        "scene": 4,
+        "agency": 5,
+        "overall": 3
+      },
+      "D": {
+        "coherence": 3,
+        "prose": 4,
+        "scene": 2,
+        "agency": 5,
+        "overall": 2
+      }
+    },
+    "rank": [
+      "B",
+      "C",
+      "A",
+      "D"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "B directly follows the order and establishes a useful position without controlling the player; C does likewise but repeats its intentions and slips into narrator-style prompting. A is coherent but offers very little, while D invents a prior statement about wounded, prematurely advances late morning to sunset, and ends on the parapet rather than the promised roof."
+  },
+  "T05": {
+    "scores": {
+      "A": {
+        "coherence": 4,
+        "prose": 4,
+        "scene": 4,
+        "agency": 5,
+        "overall": 3
+      },
+      "B": {
+        "coherence": 5,
+        "prose": 4,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "C": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "D": {
+        "coherence": 5,
+        "prose": 4,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      }
+    },
+    "rank": [
+      "C",
+      "A",
+      "D",
+      "B"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "C gives Belle a focused, well-written response to the order, while A fits her established unease but repeats its assurances; D and B lean more heavily on embellished bravado, with B especially undercutting the threatening atmosphere. All respect player agency, but none advances the requested fog-and-Screecher pressure beyond taking position and waiting."
+  },
+  "T06": {
+    "scores": {
+      "A": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 3,
+        "agency": 5,
+        "overall": 4
+      },
+      "B": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "C": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "D": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 2,
+        "agency": 5,
+        "overall": 2
+      }
+    },
+    "rank": [
+      "A",
+      "C",
+      "B",
+      "D"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "A best preserves the outstanding party-selection step, while C asks the clearest follow-up but introduces an unsupported name and honorific and claims to have written while its pen remains poised; B prematurely announces registration before stating unmet requirements. D inaccurately places three people at the board, and none incorporates Ellie's private matchmaking ledger, though all leave the player's next action undecided."
+  },
+  "T07": {
+    "scores": {
+      "A": {
+        "coherence": 5,
+        "prose": 4,
+        "scene": 5,
+        "agency": 5,
+        "overall": 4
+      },
+      "B": {
+        "coherence": 1,
+        "prose": 1,
+        "scene": 1,
+        "agency": 5,
+        "overall": 1
+      },
+      "C": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "D": {
+        "coherence": 5,
+        "prose": 4,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      }
+    },
+    "rank": [
+      "A",
+      "C",
+      "D",
+      "B"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "A best maintains the companions' established behavior and the watchful northward journey without deciding anything for the player; C is polished but offers mostly scenery. D responds more directly but invents a prior 'no rescue' warning from Tobias, while B provides no continuation at all."
+  },
+  "T08": {
+    "scores": {
+      "A": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "B": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 5,
+        "agency": 5,
+        "overall": 5
+      },
+      "C": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "D": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 2,
+        "agency": 5,
+        "overall": 2
+      }
+    },
+    "rank": [
+      "B",
+      "C",
+      "A",
+      "D"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "B directly answers the watchkeeping request while leaving the player's actions open; C also responds well but adds unsupported assumptions about the player's experience. A mostly banters rather than reporting anything useful, while D introduces an unestablished addressee, Max, and unsupported backstory; all four avoid controlling the player."
+  },
+  "T09": {
+    "scores": {
+      "A": {
+        "coherence": 4,
+        "prose": 4,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "B": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "C": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "D": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      }
+    },
+    "rank": [
+      "D",
+      "B",
+      "C",
+      "A"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "D most directly connects Wendhope with the need for a party and leaves the player's choice open, though it invents the player's name; B is lively and responsive but adds unsupported rank and patron details. C mistakenly says Dalan heard his name and gives an evasive answer, while A invents the player's name, refers awkwardly to a bow's stock, and ends on a question rather than the scene."
+  },
+  "T10": {
+    "scores": {
+      "A": {
+        "coherence": 4,
+        "prose": 4,
+        "scene": 3,
+        "agency": 1,
+        "overall": 2
+      },
+      "B": {
+        "coherence": 1,
+        "prose": 1,
+        "scene": 1,
+        "agency": 5,
+        "overall": 1
+      },
+      "C": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "D": {
+        "coherence": 1,
+        "prose": 1,
+        "scene": 1,
+        "agency": 5,
+        "overall": 1
+      }
+    },
+    "rank": [
+      "C",
+      "A",
+      "B",
+      "D"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "C gives a coherent dawn aftermath and introduces recognition without controlling the player, though it substitutes a civilian's whisper for a defender shouting a name. A narrates the player's actions and physical sensations and omits the recognition beat; B and D are empty and tied for last."
+  },
+  "T11": {
+    "scores": {
+      "A": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "B": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "C": {
+        "coherence": 5,
+        "prose": 4,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "D": {
+        "coherence": 4,
+        "prose": 4,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      }
+    },
+    "rank": [
+      "A",
+      "C",
+      "B",
+      "D"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "A best combines agreement with the player, explicit skepticism about spirits, and attention to the scraping; C clearly supports the forest investigation but adds unsupported blame toward Duggy. B redirects attention toward the tunnel's end, while D introduces unestablished fog and an oddly motivated threat against Duggy; all preserve player agency, but none meaningfully advances the world-driven mystery."
+  },
+  "T12": {
+    "scores": {
+      "A": {
+        "coherence": 3,
+        "prose": 5,
+        "scene": 2,
+        "agency": 5,
+        "overall": 2
+      },
+      "B": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "C": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "D": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 5,
+        "agency": 5,
+        "overall": 5
+      }
+    },
+    "rank": [
+      "D",
+      "B",
+      "C",
+      "A"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "D best integrates the grave-marker arrangement and the need to move deeper without deciding the player's actions; B is a coherent but more generic combat continuation. C substitutes an unsupported flower-trail explanation for the intended reading, while A mistakenly returns to a wall-defense scenario."
+  },
+  "T13": {
+    "scores": {
+      "A": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "B": {
+        "coherence": 5,
+        "prose": 4,
+        "scene": 3,
+        "agency": 2,
+        "overall": 2
+      },
+      "C": {
+        "coherence": 4,
+        "prose": 4,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "D": {
+        "coherence": 4,
+        "prose": 4,
+        "scene": 2,
+        "agency": 3,
+        "overall": 2
+      }
+    },
+    "rank": [
+      "A",
+      "C",
+      "B",
+      "D"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "A gives the most grounded reaction while preserving player choice; C also preserves agency and restores Talis's noisy bravado, though its arithmetic aside is awkward. B declares the party's decision, while D invents prior conversations and ends on a reassurance question; none meaningfully develops the year-end pressure or presents a concrete posting choice."
+  },
+  "T14": {
+    "scores": {
+      "A": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "B": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "C": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 2,
+        "agency": 5,
+        "overall": 2
+      },
+      "D": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 2,
+        "agency": 5,
+        "overall": 2
+      }
+    },
+    "rank": [
+      "B",
+      "A",
+      "D",
+      "C"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "B responds naturally to the proposed fee and party name without deciding the negotiation or ending on a question; A also preserves agency but invents the player's name as Max. D ends by asking the player to reconfirm their stated intent and changes the bow into a bow-staff, while C introduces an unsupported destination and ends on another question rather than the scene."
+  },
+  "T15": {
+    "scores": {
+      "A": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "B": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "C": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 2,
+        "agency": 5,
+        "overall": 2
+      },
+      "D": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      }
+    },
+    "rank": [
+      "A",
+      "D",
+      "B",
+      "C"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "A gives a clean, enthusiastic reaction without settling the negotiation or prompting the player; D also fits, though its closing challenge is less effective. B muddles the demanded triple fee with accepting double and takes over Talis's response, while C invents a dead village and ends by asking the player to repeat a choice already expressed."
+  },
+  "T16": {
+    "scores": {
+      "A": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 3,
+        "agency": 3,
+        "overall": 3
+      },
+      "B": {
+        "coherence": 4,
+        "prose": 4,
+        "scene": 3,
+        "agency": 3,
+        "overall": 3
+      },
+      "C": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 5,
+        "agency": 5,
+        "overall": 5
+      },
+      "D": {
+        "coherence": 4,
+        "prose": 4,
+        "scene": 4,
+        "agency": 4,
+        "overall": 4
+      }
+    },
+    "rank": [
+      "C",
+      "D",
+      "A",
+      "B"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "C stays close to the declared departure, gives the companions distinct reactions, and leaves the next response to the player; D offers a solid atmospheric continuation but advances farther without interaction. A invents the player's name and equipment, while B dictates extended party travel and develops an investigation with unsupported magical observations before leaving room for player input."
+  },
+  "T17": {
+    "scores": {
+      "A": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "B": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "C": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 2,
+        "agency": 5,
+        "overall": 2
+      },
+      "D": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      }
+    },
+    "rank": [
+      "A",
+      "D",
+      "B",
+      "C"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "A best conveys Haley's near-breaking restraint, while D offers a restrained but less specific response; B introduces unsupported cult lore and a conspiracy, and C escalates an inquiry into threats and accusations of malice. All four preserve player agency and read cleanly, but none presents the King's commission or the pending choice."
+  },
+  "T18": {
+    "scores": {
+      "A": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "B": {
+        "coherence": 1,
+        "prose": 1,
+        "scene": 1,
+        "agency": 5,
+        "overall": 1
+      },
+      "C": {
+        "coherence": 4,
+        "prose": 4,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "D": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 5,
+        "agency": 5,
+        "overall": 5
+      }
+    },
+    "rank": [
+      "D",
+      "A",
+      "C",
+      "B"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "D clearly distinguishes royal command from Forre's supporting responsibilities and ends within the scene without deciding anything for the player; A is also clear and restrained, though less developed. C's strained metaphor and closing demand for confirmation weaken its fit with the requested ending, while B contains no reply to evaluate."
+  },
+  "T19": {
+    "scores": {
+      "A": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "B": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "C": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "D": {
+        "coherence": 4,
+        "prose": 5,
+        "scene": 2,
+        "agency": 5,
+        "overall": 2
+      }
+    },
+    "rank": [
+      "A",
+      "B",
+      "C",
+      "D"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "A adds a modest external beat while keeping the parley central; B is a clean, restrained handoff, though neither meaningfully advances the underlying conflict. C pads the pause with unsupported details, while D drifts away from Kanna into unestablished military spectacle and describes absolute silence despite several audible sounds; all four respect player agency."
+  },
+  "T20": {
+    "scores": {
+      "A": {
+        "coherence": 5,
+        "prose": 5,
+        "scene": 4,
+        "agency": 5,
+        "overall": 4
+      },
+      "B": {
+        "coherence": 3,
+        "prose": 4,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "C": {
+        "coherence": 4,
+        "prose": 4,
+        "scene": 3,
+        "agency": 5,
+        "overall": 3
+      },
+      "D": {
+        "coherence": 1,
+        "prose": 1,
+        "scene": 1,
+        "agency": 5,
+        "overall": 1
+      }
+    },
+    "rank": [
+      "A",
+      "C",
+      "B",
+      "D"
+    ],
+    "model": "openai/gpt-6-astra",
+    "attempt": 1,
+    "why": "A is the cleanest, most focused response, while C offers possible culprits and preserves Kanna's suspicion but introduces an unsupported name, Max. B repeatedly restates its threat without advancing the investigation, and D is empty; none narrates or decides the player's actions."
+  }
+}

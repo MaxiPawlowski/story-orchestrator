@@ -1,0 +1,5 @@
+exit 0
+--- text ---
+{"scores":{"A":{"coherence":4,"prose":5,"scene":3,"agency":5,"overall":3},"B":{"coherence":5,"prose":4,"scene":3,"agency":2,"overall":2},"C":{"coherence":4,"prose":4,"scene":3,"agency":5,"overall":3},"D":{"coherence":4,"prose":4,"scene":2,"agency":3,"overall":2}},"rank":["A","C","B","D"],"why":"A gives the most grounded reaction while preserving player choice; C also preserves agency and restores Talis's noisy bravado, though its arithmetic aside is awkward. B declares the party's decision, while D invents prior conversations and ends on a reassurance question; none meaningfully develops the year-end pressure or presents a concrete posting choice."}
+--- stderr ---
+

@@ -15,7 +15,7 @@ const USAGE = `Usage: node scripts/debug/so-model-blind.mts <command> [...]
 
 Plan 15 blind model pack (A100 experiment, blind-20): 20 real turns x 4 configs, unlabelled.
 
-  build [--kit <dir>] [--out <dir>] [--seed <s>]
+  build [--kit <dir>] [--out <dir>] [--seed <s>] [--source <text>]
       read <kit>/testset/blind-20 (context) and <kit>/results/blind-20/replies.jsonl, write pack.json,
       pack.md, rating-sheet.csv and README.md, and the sealed key (key.sealed.json, letter -> config);
       refuses when the pack names a config, a source turn or a template marker
@@ -37,11 +37,12 @@ const readJson = async (path: string) => JSON.parse(await readFile(path, 'utf-8'
 const writeText = (path: string, text: string) => writeFile(path, text.replace(/\r?\n/g, '\r\n'), 'utf-8');
 const writeJson = (path: string, value: unknown) => writeText(path, `${JSON.stringify(value, null, 2)}\n`);
 
-export function readme(pack: Pack, sha: string, configCount: number): string {
+export function readme(pack: Pack, sha: string, configCount: number, source = 'the A100 experiment'): string {
+  const reasoning = pack.turns.some((turn) => Object.values(turn.replies).some((reply) => reply.reasoning));
   return [
     '# Blind model pack: 20 turns x 4 replies',
     '',
-    `Built for the plan 14 review (item 1 of \`docs/plans/v2.6/14-review-pack.md\`). Each of the ${pack.turns.length} turns is a real moment from the T0/T1 Adolion sessions; each was answered by ${configCount} different server/model setups from the A100 experiment. The replies are labelled A–D in a random order that is drawn **independently for every turn**, so "A" is not the same setup from one turn to the next.`,
+    `Built for the plan 14 review (item 1 of \`docs/plans/v2.6/14-review-pack.md\`). Each of the ${pack.turns.length} turns is a real moment from the T0/T1 Adolion sessions; each was answered by ${configCount} different server/model setups from ${source}. The replies are labelled A–D in a random order that is drawn **independently for every turn**, so "A" is not the same setup from one turn to the next.`,
     '',
     '## How to rate',
     '',
@@ -53,6 +54,7 @@ export function readme(pack: Pack, sha: string, configCount: number): string {
     '3. Partial sheets are fine; skip a column you do not want to judge. Ranking alone is enough if time is short.',
     '',
     'A reply marked *(cut off at the length limit)* ran to the 600-token cap; judge what is there.',
+    ...(reasoning ? ['', 'Some setups think before they answer. Their reasoning is shown folded under the reply (*Reasoning written before this reply*). Rate the reply only; the reasoning is there for context and the player never sees it. Other setups answer without reasoning, so a folded block also tells you which replies came from a thinking setup.'] : []),
     '',
     '## The key stays sealed until you have rated',
     '',
@@ -78,6 +80,7 @@ async function build(args: string[]) {
   const bodies = await Promise.all(manifest.map(async (entry) => ({ body: entry.id, prompt: String((await readJson(join(kit, 'testset', 'blind-20', entry.variants.gemma.file))).prompt) })));
   const replies = (await readFile(join(kit, 'results', 'blind-20', 'replies.jsonl'), 'utf-8')).split(/\r?\n/).filter((line) => line.trim()).map((line) => JSON.parse(line) as ReplyRow);
   const { pack, key } = buildModelPack({ seed, bodies, replies });
+  const source = argValue(args, '--source') ?? undefined;
   const leaks = modelPackLeaks(pack, key);
   if (leaks.length) throw new Error(`the pack leaks:\n- ${leaks.join('\n- ')}`);
   await mkdir(out, { recursive: true });
@@ -86,7 +89,7 @@ async function build(args: string[]) {
   await writeJson(join(out, 'pack.json'), pack);
   await writeText(join(out, 'pack.md'), renderPackMarkdown(pack));
   await writeText(join(out, 'rating-sheet.csv'), ratingSheet(pack));
-  await writeText(join(out, 'README.md'), readme(pack, keySha256(keyText), key.configs.length));
+  await writeText(join(out, 'README.md'), readme(pack, keySha256(keyText), key.configs.length, source));
   return { out, turns: pack.turns.length, configs: key.configs.length, keySha256: keySha256(keyText) };
 }
 

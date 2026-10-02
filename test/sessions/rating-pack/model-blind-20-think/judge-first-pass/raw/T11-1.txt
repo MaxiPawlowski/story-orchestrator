@@ -1,0 +1,5 @@
+exit 0
+--- text ---
+{"scores":{"A":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"B":{"coherence":4,"prose":5,"scene":3,"agency":5,"overall":3},"C":{"coherence":5,"prose":4,"scene":4,"agency":5,"overall":4},"D":{"coherence":4,"prose":4,"scene":3,"agency":5,"overall":3}},"rank":["A","C","B","D"],"why":"A best combines agreement with the player, explicit skepticism about spirits, and attention to the scraping; C clearly supports the forest investigation but adds unsupported blame toward Duggy. B redirects attention toward the tunnel's end, while D introduces unestablished fog and an oddly motivated threat against Duggy; all preserve player agency, but none meaningfully advances the world-driven mystery."}
+--- stderr ---
+
