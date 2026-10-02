@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import type { InlineView } from "@runtime/inlineTimeline";
 import { inspectMessage } from "@runtime/messageInspector";
 import { InlineDetail, type InlineActions } from "../inline/InlineDetail";
@@ -12,8 +13,15 @@ export interface MessageInspectorProps {
 
 export const MessageInspector = ({ view, messageId, onClose, actions }: MessageInspectorProps) => {
   const inspection = inspectMessage(view, messageId);
+  const ref = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    ref.current?.scrollIntoView({ block: "start" });
+    ref.current?.focus({ preventScroll: true });
+  }, [messageId]);
   return (
-    <section id="so-inspector" data-mesid={messageId} aria-label={`Message ${messageId}`} className="flex flex-col gap-2 border border-solid border-white/10 rounded p-2 text-sm">
+    <section
+      ref={ref} tabIndex={-1} id="so-inspector" data-mesid={messageId}
+      aria-label={`Message ${messageId}`} className="flex flex-col gap-2 border border-solid border-white/10 rounded p-2 text-sm">
       <div className="flex items-center justify-between gap-2">
         <div className="font-medium">Message {messageId} <MessageCitation messageId={messageId} prefix="msg" /></div>
         <button type="button" id="so-inspector-close" className="menu_button text-xs" aria-label="Close the inspector" onClick={onClose}>Close</button>

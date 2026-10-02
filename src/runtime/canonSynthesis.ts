@@ -43,6 +43,11 @@ export class CanonSynthesis {
     return getCanonLite(story, state.visitedAnchors, this.deps.firedTransitions(), this.deps.facts());
   }
 
+  getCanonAt(checkpointId: string | null): string {
+    const canon = this.deps.memory().canon;
+    return canon?.text && !canon.stale && canon.checkpointId !== checkpointId ? canonHistory(canon.text) : this.getCanon();
+  }
+
   /** A decided conflict or a rollback was built from a claim this text still asserts.
    *  The text is kept (an author can read it) but its readers stop treating it as current. */
   canonStale(): boolean { return this.deps.memory().canon?.stale === true; }
@@ -107,7 +112,7 @@ export class CanonSynthesis {
       this.deps.record({ kind: "canon", inputs: sources.map((source) => source.id) });
       // The prose cannot carry envelopes sentence by sentence, so what a reader can check is what
       // it was built from — recorded as it was at the moment of synthesis.
-      this.deps.patch({ canon: { text: trimmed, inputHash, updatedAt: new Date().toISOString(), stale: false, sources } });
+      this.deps.patch({ canon: { text: trimmed, inputHash, updatedAt: new Date().toISOString(), stale: false, sources, ...(active ? { checkpointId: active.id } : {}) } });
       await this.deps.save();
       return true;
     } finally {

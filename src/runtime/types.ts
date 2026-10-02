@@ -259,6 +259,7 @@ export interface CanonState {
   text: string;
   inputHash: string;
   updatedAt: string;
+  checkpointId?: string;
   /** A decided conflict or a rollback changed what this text was built from, so it is
    *  held out of play until the next pass re-derives it. */
   stale?: boolean;
@@ -485,6 +486,7 @@ export interface RuntimeSnapshot {
   stagecraftScope: string[];
   innerCast?: CastVoice[];
   pendingDeltas: PendingDeltaReadout[];
+  gateQualities?: string[];
   convergence: ConvergenceReadout[];
   tension: {
     level: TensionLevel | null;
@@ -514,6 +516,7 @@ export interface RuntimeSnapshot {
   payloadCaptures: PayloadCapture[];
   /** What the next reply will receive, one row per injected block. */
   nextTurn: NextTurnContributor[];
+  authorMoves?: JournalRecord[];
   /** Other extensions' blocks beside ours, read-only and never persisted. */
   nextTurnForeign: NextTurnForeignRow[];
   /** The story blocks' tokens as a share of the main API's prompt budget. */

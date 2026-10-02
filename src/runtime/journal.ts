@@ -9,11 +9,11 @@ export const JOURNAL_LIMIT = 200;
 export const PAYLOAD_CAPTURE_LIMIT = 5;
 
 export type JournalEventKind = "status" | "flag" | "story" | "boundary" | "transition" | "extraction" | "delta" | "reconciliation" | "payload" | "talk" | "stagecraft"
-  | "judge" | "lore" | "chapter" | "model-call";
+  | "judge" | "lore" | "chapter" | "model-call" | "author";
 
 // The persisted half of the journal: things nothing else records. Additive kinds read back fine
 // from older chats — `sanitizeJournalRecords` keeps any record that carries a kind and a summary.
-export type JournalRecordKind = "status" | "flag" | "story" | "stagecraft" | "lore" | "chapter";
+export type JournalRecordKind = "status" | "flag" | "story" | "stagecraft" | "lore" | "chapter" | "author";
 
 export interface JournalRecord {
   at: string;
@@ -54,7 +54,7 @@ export interface JournalSources {
 }
 
 const KIND_ORDER: JournalEventKind[] = [
-  "flag", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "judge", "model-call", "stagecraft", "lore", "chapter", "payload", "status",
+  "flag", "author", "story", "boundary", "transition", "extraction", "delta", "reconciliation", "talk", "judge", "model-call", "stagecraft", "lore", "chapter", "payload", "status",
 ];
 
 const rank = (kind: JournalEventKind) => KIND_ORDER.indexOf(kind);

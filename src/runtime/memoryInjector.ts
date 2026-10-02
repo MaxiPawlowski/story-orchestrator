@@ -11,7 +11,7 @@ import { EPISTEMIC_INJECTION_DEPTH, EPISTEMIC_INJECTION_KEY, LEDGER_INJECTION_DE
 import type { ChapterPort } from "./chapterPort";
 
 import { buildScoreContext } from "./scoreContext";
-import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, namesForRosterId, rosterIdForName, rosterMemberName } from "./roster";
+import { activeSpeakerId, enabledCharacterIds, enabledCharacterNames, nameForRosterId, namesForRosterId, rosterIdForName, rosterMemberName } from "./roster";
 import type { MemoryRuntimeState } from "./types";
 import type { InjectorHosts } from "./hostPorts";
 
@@ -29,6 +29,14 @@ export interface MemoryInjectorDeps {
   beatFor: (rosterId: string) => string;
   chapters?: () => Pick<ChapterPort, "inject">;
   ledgerFocus?: () => string[];
+}
+
+export interface StagedPrivateBlock {
+  key: string;
+  depth: number;
+  role: number;
+  value: string;
+  target: string;
 }
 
 interface SharedBlocks {
@@ -72,8 +80,16 @@ export class MemoryInjector {
   }
 
   /** The read-models the snapshot takes from the injector, fates from the same update that wrote the blocks. */
-  readModels(): { ledger: LedgerView[]; memoryInjection: MemoryInjectionView | null } {
-    return { ledger: this.ledgerView(), memoryInjection: this.lastInjection };
+  readModels(): { ledger: LedgerView[]; memoryInjection: MemoryInjectionView | null; privateBlocks: StagedPrivateBlock[] } {
+    return { ledger: this.ledgerView(), memoryInjection: this.lastInjection, privateBlocks: this.stagedBlocks() };
+  }
+
+  private stagedBlocks(): StagedPrivateBlock[] {
+    const story = this.deps.getStory();
+    if (!story || this.withheld || !this.hosts.roster.getActiveGroup()) return [];
+    return [...this.stagedPrivate].filter(([, staged]) => staged.epistemic).map(([id, staged]) => ({
+      key: EPISTEMIC_INJECTION_KEY, depth: EPISTEMIC_INJECTION_DEPTH, role: 0, value: staged.epistemic, target: nameForRosterId(story, id),
+    }));
   }
 
   ledgerView(): LedgerView[] {

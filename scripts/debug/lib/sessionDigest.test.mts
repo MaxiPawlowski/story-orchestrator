@@ -215,6 +215,16 @@ test('T1-7 recorded: the re-digested session has no phantom rollbacks or jumps a
   assert.match(renderFindings(digest, 'test/sessions/T1/T1-7-1'), /### By chat/);
 });
 
+test('T5-5-1 digest: a manual boundary the journal names as an author advance is expected, not an unexpected jump', async () => {
+  const { files, paths } = await loadSessionFiles(resolve(REPO_ROOT, 'test', 'sessions', 'T5', 'T5-5-1'), await loadIndex());
+  assert.equal(digestSession(files, paths).counts['unexpected-jump'], 1, 'control: without the author record the manual boundary is still reported');
+  const chatId = '2026-10-02@06h23m29s662ms';
+  const advance = { line: files.journal.length + 1, value: { at: '2026-10-02T09:34:24.405Z', boundary: 7, messageId: 8, kind: 'author', summary: 'Author advance: The Summons → Fort Vicinitas', detail: { note: 'war-the-summons → war-the-front' }, chatId } };
+  assert.equal(digestSession({ ...files, journal: [...files.journal, advance] }, paths).counts['unexpected-jump'], 0);
+  const elsewhere = { ...advance, value: { ...advance.value, boundary: 3 } };
+  assert.equal(digestSession({ ...files, journal: [...files.journal, elsewhere] }, paths).counts['unexpected-jump'], 1, 'an author record at another boundary does not excuse this one');
+});
+
 test('T4-3 digest: a session stop marked INVALID is invalid in the digest too, with stop\'s reasons', async () => {
   const { files, paths } = await loadSessionFiles(fixture('clean'), await loadIndex());
   const stopped = digestSession({ ...files, session: { ...files.session, valid: false, invalid: ['the run header diff failed (exit 1)'] } }, paths);

@@ -214,6 +214,7 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
     let since = 0;
     let reported = false;
     let maxBoundary = -1;
+    const authorAdvances = new Set(rows.filter((row) => row.value.kind === 'author' && String(row.value.summary ?? '').startsWith('Author advance')).map((row) => Number(row.value.boundary)));
     for (const row of rows) {
       const event = row.value;
       if (event.kind === 'session') {
@@ -245,7 +246,7 @@ export function digestSession(files: SessionFiles, paths: { journal: string; pay
         maxBoundary = boundary;
       }
       maxBoundary = Math.max(maxBoundary, boundary);
-      if (event.detail?.source === 'manual') add('unexpected-jump', row, paths.journal, `manual checkpoint change at boundary ${boundary} (an author /cp or driver move, not play)`, { source: 'manual' });
+      if (event.detail?.source === 'manual' && !authorAdvances.has(boundary)) add('unexpected-jump', row, paths.journal, `manual checkpoint change at boundary ${boundary} (an author /cp or driver move, not play)`, { source: 'manual' });
       since += 1;
       const pending = !story || !active || outgoing.has(active);
       if (since >= STALL_BOUNDARIES && !reported && pending) {

@@ -19,7 +19,7 @@ const snapshotWith = (overrides: Partial<{ epistemic: EpistemicEntry[]; innerBea
   innerCast: [
     { id: "kael", name: "Kael", drive: "Clear his brother's name", motive: "Get the ledger before Lyria reads it" },
     { id: "lyria", name: "Lyria" },
-    { id: "narrator", name: "DM Narrator", omniscient: true },
+    { id: "narrator", name: "DM Narrator", omniscient: true, drive: "Keep the world honest" },
   ],
   memory: { epistemic: overrides.epistemic ?? [], derived: [], innerBeats: overrides.innerBeats ?? [] },
 } as unknown as RuntimeSnapshot);
@@ -63,5 +63,25 @@ export const LapsedIntentIsHiddenAndUsedBeatSaysSo: Story = {
     const canvas = within(canvasElement);
     await expect(canvas.queryByText(/slip out before dawn/)).toBeNull();
     await expect(canvasElement.querySelector('[data-so="inner-voice-beat"]')?.textContent).toContain("used");
+  },
+};
+
+export const EmptyCastCollapsesIntoACount: Story = {
+  args: {
+    snapshot: {
+      ...snapshotWith({ epistemic: [intent("i1", "Forre", "have the party report to him", 8)] }),
+      innerCast: [
+        { id: "forre", name: "Forre" },
+        ...Array.from({ length: 19 }, (_, index) => ({ id: `extra-${index}`, name: `Extra ${index + 1}` })),
+      ],
+    } as unknown as RuntimeSnapshot,
+  },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvasElement.querySelectorAll('[data-so="inner-voice-row"]')).toHaveLength(1);
+    await expect(canvas.getByText(/have the party report to him/)).toBeInTheDocument();
+    const quiet = canvasElement.querySelector('[data-so="inner-voice-quiet"]');
+    await expect(quiet?.querySelector("summary")?.textContent).toBe("19 cast members with no drive, motive, intent or beat");
+    await expect(quiet?.textContent).toContain("Extra 19");
   },
 };

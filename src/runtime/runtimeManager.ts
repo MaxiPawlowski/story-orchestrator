@@ -303,7 +303,9 @@ export class RuntimeManager extends CoordinatorDelegates {
     if (!run.stillOwns()) return false;
     const context = this.getBoundaryContext();
     if (jump === "skip") kit.markSealSkip(this.memory.chapters, { pathLength: this.engine.checkpointPath.length + 1, messageId: context.lastMessageId });
+    const from = this.engine.activeCheckpoint;
     this.engine.activateCheckpoint(id, context);
+    this.noteRecap(`Author advance: ${from?.name ?? "start"} → ${this.engine.activeCheckpoint?.name ?? id}`, `${from?.id ?? "start"} → ${id}`, "author");
     await this.applyActive("activate");
     if (!run.stillOwns()) return false;
     this.pacing.updateSteering();

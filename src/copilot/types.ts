@@ -103,6 +103,7 @@ export interface DriverAnchorStatus {
 export interface DriverContext {
   title: string;
   activeCheckpointId: string | null;
+  activeCheckpointName?: string | null;
   activeObjective: string;
   ownNote?: boolean;
   objectiveLine?: boolean;

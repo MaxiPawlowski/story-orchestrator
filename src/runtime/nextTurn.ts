@@ -39,6 +39,7 @@ export interface NextTurnContributor {
   target: string | null;
   /** Cleared at the end of the generation it was written for (the continuity note). */
   oneShot: boolean;
+  oneTurn: boolean;
   freshness: NextTurnFreshness;
   /** Why the contributor is not doing what it looks like it is doing, when that is known. */
   fallback: string | null;
@@ -53,6 +54,7 @@ export interface NextTurnFacts {
   sceneFallback: string | null;
   countOf?: (value: string) => TokenCount | null;
   budget?: NextTurnBudget | null;
+  privateBlocks?: NextTurnSourceBlock[];
 }
 
 export interface NextTurnSourceBlock {
@@ -62,6 +64,7 @@ export interface NextTurnSourceBlock {
   value: string;
   position?: number;
   hasFilter?: boolean;
+  target?: string;
 }
 
 export interface NextTurnForeignRow {
@@ -135,8 +138,11 @@ const previewOf = (value: string): string => {
  * registry does not know is reported with its raw key rather than dropped: something is injecting into
  * the prompt and the author is owed that fact.
  */
+const isEpistemic = (block: NextTurnSourceBlock) => block.key === INJECTION_REGISTRY.epistemic.key && block.value.length > 0;
+const ONE_TURN = new Set<string>([INJECTION_REGISTRY.continuityNote.key, INJECTION_REGISTRY.copilotNudge.key]);
+
 export const buildNextTurnPreview = (blocks: NextTurnSourceBlock[], facts: NextTurnFacts): NextTurnContributor[] =>
-  [...blocks]
+  [...blocks, ...(blocks.some(isEpistemic) ? [] : facts.privateBlocks ?? [])]
     .sort(byAssembly)
     .map((block) => {
       const spec = specFor(block.key);
@@ -146,7 +152,7 @@ export const buildNextTurnPreview = (blocks: NextTurnSourceBlock[], facts: NextT
       const isPrivate = spec?.key === INJECTION_REGISTRY.epistemic.key;
       return {
         key: block.key,
-        label: spec?.label ?? block.key,
+        label: block.target ? `${spec?.label ?? block.key} — private to ${block.target}, if drafted` : spec?.label ?? block.key,
         owner,
         ownerTab: OWNER_TABS[owner] ?? "payload",
         depth: block.depth,
@@ -157,8 +163,9 @@ export const buildNextTurnPreview = (blocks: NextTurnSourceBlock[], facts: NextT
         share: shareOf(counted, facts.budget),
         position: block.position ?? null,
         conditional: block.hasFilter === true,
-        target: isPrivate ? facts.draftedMember : null,
+        target: block.target ?? (isPrivate ? facts.draftedMember : null),
         oneShot: spec?.key === INJECTION_REGISTRY.continuityNote.key,
+        oneTurn: ONE_TURN.has(block.key),
         freshness: isScene ? (facts.scene ? (isSceneStale(facts.scene) ? "stale" : "live") : "unknown") : "live",
         fallback: isScene ? facts.sceneFallback : null,
         preview: previewOf(block.value),

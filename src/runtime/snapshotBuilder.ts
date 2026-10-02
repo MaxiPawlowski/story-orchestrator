@@ -18,7 +18,7 @@ import { orphanedLorebooks, reapDecisions } from "./mirrorReaper";
 import { loreEvidenceView } from "./worldInfoEvidence";
 import { samplerOverlay } from "./samplerOverlay";
 import { scanGateView, wiGatingStatus } from "./worldInfoMode";
-import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview } from "./nextTurn";
+import { buildForeignRows, buildNextTurnCost, buildNextTurnPreview, type NextTurnSourceBlock } from "./nextTurn";
 import { promptCost } from "./promptCost";
 import { promptBuckets } from "./promptBuckets";
 import { roleHealth } from "./roleHealth";
@@ -60,6 +60,7 @@ export interface SnapshotSources {
   rollbackUnavailable: RollbackUnavailable | null;
   ledger: LedgerView[];
   memoryInjection?: MemoryInjectionView | null;
+  privateBlocks?: NextTurnSourceBlock[];
   driver: DriverContext | null;
   activeNudge: string | null;
   payloadCaptures: PayloadCapture[];
@@ -146,6 +147,12 @@ export const loadInlineComposer = async () => {
   inlineComposer = (await import("./inlineTimeline")).composeInlineTimeline;
 };
 
+const gateQualitiesOf = (story: NormalizedStoryV2 | null, activeId: string | undefined): string[] => (story && activeId
+  ? [...new Set((story.outgoingByCheckpoint[activeId] ?? []).flatMap((transition) => gateKeys(transition.gate)))].filter((key) => Boolean(story.qualityByKey[key]))
+  : []);
+
+const authorMoves = (extras: RuntimeExtras) => extras.journal.filter((record) => record.kind === "author");
+
 const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, live: { tension: RuntimeSnapshot["tension"]; pipeline: PipelineStatus; agencyRecovery: boolean },
   castNames: Record<string, string>) => {
   const { extras } = sources;
@@ -163,7 +170,7 @@ const inlineView = (sources: SnapshotSources, story: NormalizedStoryV2 | null, l
     curatorPass: extras.stagecraft.lastPass, effects: extras.effects.ledger, tensionHistory: extras.tension.history,
     tension: { expected: live.tension.expected, hint: live.tension.hint?.text ?? null }, payloadCaptures: sources.payloadCaptures, pipeline: live.pipeline,
     agencyRecovery: live.agencyRecovery, lastRollback: sources.lastRollback, saveNotice: playerSaveNotice(extras.saveHealth), castNames,
-    firstLines: firstLines(sources.chat),
+    firstLines: firstLines(sources.chat), authorMoves: authorMoves(extras),
   });
 };
 
@@ -229,7 +236,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     scene: extras.judge.scene,
     sceneFallback: lastSceneCall?.fallback ?? null,
     countOf,
-    budget: cost.budget,
+    budget: cost.budget, privateBlocks: sources.privateBlocks,
   });
   const nextTurnForeign = buildForeignRows(sources.promptBlocks.foreign, countOf, cost.budget);
   const nextTurnCost = buildNextTurnCost(nextTurn, nextTurnForeign, cost.budget, cost.lastGenerationBudget);
@@ -275,7 +282,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     activeCheckpointName: active?.name ?? null,
     activeObjective: active?.objective ?? null,
     boundary: state?.boundary ?? 0,
-    blackboard,
+    blackboard, gateQualities: gateQualitiesOf(story, active?.id),
     blackboardMeta: Object.fromEntries(Object.keys(blackboard).map((key) => [key, {
       version: state?.blackboard.versions[key] ?? 0,
       latched: state?.blackboard.latched[key] ?? false,
@@ -330,7 +337,7 @@ export function buildRuntimeSnapshot(sources: SnapshotSources): RuntimeSnapshot 
     driver: sources.driver,
     activeNudge: sources.activeNudge,
     payloadCaptures: sources.payloadCaptures,
-    nextTurn,
+    nextTurn, authorMoves: authorMoves(extras).slice(-8).reverse(),
     chatJump: jumpIndex(sources.chat, sources.fingerprints),
     nextTurnForeign,
     nextTurnCost,
