@@ -465,8 +465,25 @@ export async function openGroup(page, idOrName) {
         const ctx = SillyTavern.getContext();
         return { groupId: ctx.groupId, characterId: ctx.characterId, chatId: ctx.chatId, chatLength: ctx.chat?.length ?? 0 };
       })
-    : await waitForEntity(page, 'group', clicked.id);
+    : await waitForGroupWithRetry(page, clicked.id);
   return { opened: clicked, state };
+}
+
+async function waitForGroupWithRetry(page, groupId, { timeout = 30000, perTry = 2500 } = {}) {
+  const deadline = Date.now() + timeout;
+  for (;;) {
+    try {
+      return await waitForEntity(page, 'group', groupId, Math.min(perTry, Math.max(250, deadline - Date.now())));
+    } catch (error) {
+      if (Date.now() >= deadline) throw error;
+    }
+    await evaluateInST(page, async (wanted) => {
+      const ctx = SillyTavern.getContext();
+      if (ctx.groupId === wanted) return;
+      const chats = await import(/* webpackIgnore: true */ '/scripts/group-chats.js' as string) as { openGroupById?: (id: string) => Promise<boolean> };
+      await chats.openGroupById?.(wanted);
+    }, groupId);
+  }
 }
 
 export async function openCharacter(page, nameOrAvatar) {
