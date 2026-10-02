@@ -2,7 +2,7 @@ import { parseStoryV2OrThrow, type StoryV2 } from "@engine/index";
 import type { ReplyEffort } from "@utils/reasoningEffort";
 import { REPLY_EFFORTS } from "@utils/replyEffort";
 import {
-  armFor, chatPlan, ReplyEffortOverlay, REPLY_EFFORT_BUDGETS, servesLlamaCpp, TEXTGEN_BUDGET_KEYS, textgenPlan, thoughtOpener,
+  armFor, chatPlan, REASONING_BUDGET_MESSAGE, ReplyEffortOverlay, REPLY_EFFORT_BUDGETS, servesLlamaCpp, TEXTGEN_BUDGET_KEYS, textgenPlan, thoughtOpener,
   type EffortHost, type EffortRequest,
 } from "./replyEffort";
 
@@ -71,7 +71,7 @@ describe("reply effort: llama.cpp Text Completion, per level", () => {
       reasoning_budget_tokens: budget,
       reasoning_budget_start_tag: "<|channel>thought",
       reasoning_budget_end_tags: ["<channel|>"],
-      reasoning_budget_message: "",
+      reasoning_budget_message: budget > 1 ? REASONING_BUDGET_MESSAGE : "",
       generation_prompt: "<|channel>thought\n",
     });
   });
