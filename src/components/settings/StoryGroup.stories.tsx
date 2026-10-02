@@ -54,3 +54,26 @@ export const ImportClosed: Story = {
     await expect(canvasElement.querySelector("#so-entry-import")).toBeNull();
   },
 };
+
+const removedFromLibrary = (): RuntimeSnapshot =>
+  ({
+    ...snapshot(),
+    storyId: "adolion-aegis",
+    storyTitle: "Adolion Between the Roads",
+    storyIdentity: { id: "adolion-aegis", playedVersion: 12, libraryVersion: null, pinned: true, drifted: false },
+    ui: { authorView: true },
+  }) as unknown as RuntimeSnapshot;
+
+export const PinnedStoryRemovedFromLibrary: Story = {
+  args: { manager: fakeManager(), snapshot: removedFromLibrary(), importOpen: false },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    const select = canvas.getByLabelText("Story for this chat") as HTMLSelectElement;
+    await expect(select.value).toBe("adolion-aegis");
+    await expect(select.selectedOptions[0].textContent).toBe("Adolion Between the Roads (pinned copy, not in the library)");
+    await expect(canvasElement.querySelector("#so-story-identity")?.textContent).toContain("It is no longer in the library");
+    await expect(canvas.getByRole("button", { name: "Delete selected story from the library" })).toBeDisabled();
+    const exportButton = canvas.getByRole("button", { name: "Export state" });
+    await expect(exportButton.scrollWidth).toBeLessThanOrEqual(exportButton.clientWidth + 1);
+  },
+};

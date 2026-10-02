@@ -293,16 +293,6 @@
       "reason": "parse attempt"
     },
     {
-      "site": "src/runtime/mirrorReaperHost.ts#confirm",
-      "kind": 1,
-      "template": "`The chat \"${chatId}\" was deleted, but its story-memory lorebook \"${book}\" is still there. Delete the lorebook too? This cannot be undone.`",
-      "surface": "player",
-      "rawError": false,
-      "silentCatch": null,
-      "verdict": "pass",
-      "reason": "popup names the chat and book, no error text"
-    },
-    {
       "site": "src/runtime/promptCost.ts#PromptCost.flush",
       "kind": 3,
       "template": "catch {} #1",

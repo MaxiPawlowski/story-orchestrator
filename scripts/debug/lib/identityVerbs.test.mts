@@ -229,14 +229,18 @@ test('runSteps dispatches the new verbs: branch_create without a sandbox and an 
 
 // v2.4 T14: ST popups as the product raises them, one at a time; `cancel` closes the dialog and lets the
 // product ask its next question, the way the serialised reaper does.
-const fakeDialogs = (texts: string[], { stuck = false } = {}) => {
+const reapDialog = (chat: string) => ({ chat, text: `You deleted the "X" chat "${chat}". Its story memory is still kept in a lorebook. Delete that lorebook too? This cannot be undone.Lorebook: Story Orchestrator - X - ${chat}` });
+
+const fakeDialogs = (prompts: Array<{ chat: string; text: string }>, { stuck = false } = {}) => {
   const open: Array<Record<string, unknown>> = [];
   const clicked: string[] = [];
-  const raise = (text: string) => {
+  const raise = ({ chat, text }: { chat: string; text: string }) => {
     const dialog: Record<string, unknown> = {};
     dialog.querySelector = (selector: string) => (selector === '.popup-content'
       ? { textContent: text }
-      : { click: () => {
+      : selector === '[data-so-reap-chat]'
+        ? { getAttribute: () => chat }
+        : { click: () => {
         clicked.push(text);
         if (stuck) return;
         open.splice(open.indexOf(dialog), 1);
@@ -245,30 +249,32 @@ const fakeDialogs = (texts: string[], { stuck = false } = {}) => {
       } });
     open.push(dialog);
   };
-  const queue = [...texts];
-  raise(queue.shift() as string);
+  const queue = [...prompts];
+  raise(queue.shift() as { chat: string; text: string });
   g.document = { querySelectorAll: (selector: string) => (selector === 'dialog[open]' ? [...open] : []) };
   return { open, clicked };
 };
 
 test('reap prompts: every question naming an owned chat is declined in turn, and a foreign popup is left alone', async () => {
-  const world = fakeDialogs([
-    'The chat "sb-1" was deleted, but its story-memory lorebook "Story Orchestrator - X - sb-1" is still there.',
-    'The chat "sb-2" was deleted, but its story-memory lorebook "Story Orchestrator - X - sb-2" is still there.',
-  ]);
-  world.open.push({ querySelector: (selector: string) => (selector === '.popup-content' ? { textContent: 'The chat "users-own" was deleted, but …' } : { click: () => assert.fail('a foreign question was answered') }) });
+  const world = fakeDialogs([reapDialog('sb-1'), reapDialog('sb-2')]);
+  world.open.push({ querySelector: (selector: string) => (selector === '.popup-content'
+    ? { textContent: reapDialog('users-own').text }
+    : selector === '[data-so-reap-chat]' ? { getAttribute: () => 'users-own' } : { click: () => assert.fail('a foreign question was answered') }) });
+  world.open.push({ querySelector: (selector: string) => (selector === '.popup-content'
+    ? { textContent: 'You deleted the "X" chat "sb-1" (an unrelated popup quoting it)' }
+    : selector === '[data-so-reap-chat]' ? null : { click: () => assert.fail('an unmarked popup was answered') }) });
   try {
     const report = await settleReapPrompts(page as never, ['sb-1', 'sb-2'], { quietMs: 60, timeoutMs: 2000, pollMs: 5 });
     assert.equal(report.dismissed.length, 2);
     assert.deepEqual(report.leaked, []);
-    assert.equal(world.open.length, 1, 'the foreign popup stays open');
+    assert.equal(world.open.length, 2, 'the foreign and the unmarked popups stay open');
   } finally {
     delete g.document;
   }
 });
 
 test('control: a reap question that will not close is reported leaked, which fails the cleanup tally', async () => {
-  fakeDialogs(['The chat "sb-1" was deleted, but its story-memory lorebook "Story Orchestrator - X - sb-1" is still there.'], { stuck: true });
+  fakeDialogs([reapDialog('sb-1')], { stuck: true });
   try {
     const report = await settleReapPrompts(page as never, ['sb-1'], { quietMs: 60, timeoutMs: 300, pollMs: 5 });
     assert.equal(report.dismissed.length, 1, 'answered once, not once per poll');

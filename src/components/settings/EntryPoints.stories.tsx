@@ -105,3 +105,13 @@ export const NoStoryYet: Story = {
     await expect(canvas.getByRole("button", { name: "New story (wizard)" })).toBeEnabled();
   },
 };
+
+export const PlayingAPinnedCopyRemovedFromTheLibrary: Story = {
+  args: { snapshot: base({ storyId: "adolion-aegis", storyTitle: "Adolion Between the Roads", ui: { authorView: false } }) },
+  play: async ({ canvasElement }) => {
+    const canvas = within(canvasElement);
+    await expect(canvas.getByText(/Playing "Adolion Between the Roads" from this chat's pinned copy/)).toBeInTheDocument();
+    await expect(canvas.queryByText("No story is playing in this chat yet.")).toBeNull();
+    await expect(canvas.getByRole("button", { name: "Restart or export" })).toBeEnabled();
+  },
+};

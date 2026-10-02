@@ -494,7 +494,7 @@
     "hostDeletes|beforeHostWrite": {
       "status": "covered",
       "evidence": "src/runtime/mirrorReaper.review.test.ts#leaves no row and attempts no delete when the book was deleted elsewhere while the confirm was open",
-      "alsoEvidence": ["src/runtime/mirrorReaper.review.test.ts#requires the player's yes: a declined reap keeps the book and leaves a Repair row"],
+      "alsoEvidence": ["src/runtime/mirrorReaper.review.test.ts#requires the player's yes: a declined reap keeps the book, journals the choice and leaves no Repair row"],
       "note": "Everything that can change before the delete (the book removed elsewhere, the player declining) is re-read and stops the delete."
     },
     "hostDeletes|afterHostWrite": {

@@ -1,6 +1,6 @@
 import * as sunRuins from "../../examples/sun-ruins/quest-for-the-sun-ruins.json";
 import { gatedWorldInfo, parseStoryV2OrThrow, readWorldInfoEffect } from "@engine/index";
-import { releasePlan, worldInfoPlan } from "./worldInfoGates";
+import { isMemoryMirrorBook, releasePlan, worldInfoPlan } from "./worldInfoGates";
 
 const story = (checkpoints: Array<{ id: string; type?: string; world_info?: unknown }>) => parseStoryV2OrThrow({
   format: 2,
@@ -95,6 +95,15 @@ describe("releasePlan", () => {
   it("keeps every entry of a story that spells its own book two ways", () => {
     const both = story([{ id: "k", world_info: { enable: [{ lorebook: "Shared", comments: ["X"] }, { lorebook: "shared", comments: ["Y"] }] } }]);
     expect(releasePlan([both], both)).toEqual([]);
+  });
+
+  it("never plans a write into a chat's memory mirror book, whatever a story names (T4-3)", () => {
+    const mirror = "Story Orchestrator - Gates - 2026-10-02@01h59m09s529ms";
+    const naming = story([{ id: "m", world_info: { enable: [{ lorebook: mirror, comments: ["so_row"] }, { lorebook: "Shared", comments: ["M"] }] } }]);
+    expect(isMemoryMirrorBook(mirror)).toBe(true);
+    expect(isMemoryMirrorBook("Shared")).toBe(false);
+    expect(releasePlan([naming], null)).toEqual([{ lorebook: "Shared", enable: [], disable: ["M"] }]);
+    expect(worldInfoPlan(naming, []).map((plan) => plan.lorebook)).toEqual(["Shared"]);
   });
 
   it("reads raw library records as well as normalized stories", () => {

@@ -1,5 +1,6 @@
 import { addGatedEntry, checkpointWorldInfo, gatedWorldInfo, validStagedFrom, type GatedWorldInfo, type NormalizedStoryV2 } from "@engine/index";
 import { bookKey } from "./worldInfoMatch";
+import { MIRROR_BOOK_PREFIX } from "./mirrorReaper";
 
 export interface WorldInfoBookPlan {
   lorebook: string;
@@ -10,6 +11,12 @@ export interface WorldInfoBookPlan {
 // A lorebook is global, so its flags say nothing about this chat. The chat's state is rebuilt from
 // its own path instead: every gated entry starts off, then each checkpoint entered switches its
 // entries in order (enables, then disables), which is what one continuous run of that path leaves.
+const MIRROR_KEY = bookKey(MIRROR_BOOK_PREFIX);
+
+export const isMemoryMirrorBook = (lorebook: string): boolean => bookKey(lorebook).startsWith(MIRROR_KEY);
+
+const lorePlans = (plans: WorldInfoBookPlan[]): WorldInfoBookPlan[] => plans.filter((plan) => !isMemoryMirrorBook(plan.lorebook));
+
 export function worldInfoPlan(story: NormalizedStoryV2, path: string[]): WorldInfoBookPlan[] {
   const enabled: GatedWorldInfo = new Map();
   for (const id of path) {
@@ -17,10 +24,10 @@ export function worldInfoPlan(story: NormalizedStoryV2, path: string[]): WorldIn
     enable.forEach((ref) => ref.comments.forEach((comment) => addGatedEntry(enabled, ref.lorebook, comment)));
     disable.forEach((ref) => ref.comments.forEach((comment) => enabled.get(ref.lorebook)?.delete(comment)));
   }
-  return [...gatedWorldInfo([story])].map(([lorebook, comments]) => {
+  return lorePlans([...gatedWorldInfo([story])].map(([lorebook, comments]) => {
     const on = enabled.get(lorebook) ?? new Set<string>();
     return { lorebook, enable: [...comments].filter((comment) => on.has(comment)), disable: [...comments].filter((comment) => !on.has(comment)) };
-  });
+  }));
 }
 
 // Switching a chat away from a story turns off everything that story gates, except what the story
@@ -30,9 +37,9 @@ export function worldInfoPlan(story: NormalizedStoryV2, path: string[]): WorldIn
 export function releasePlan(owners: unknown[], keep: unknown | null): WorldInfoBookPlan[] {
   const kept: GatedWorldInfo = new Map();
   for (const [lorebook, comments] of gatedWorldInfo(keep ? [keep] : [])) comments.forEach((comment) => addGatedEntry(kept, bookKey(lorebook), comment));
-  return [...gatedWorldInfo(owners)]
+  return lorePlans([...gatedWorldInfo(owners)]
     .map(([lorebook, comments]) => ({ lorebook, enable: [], disable: [...comments].filter((comment) => !kept.get(bookKey(lorebook))?.has(comment)) }))
-    .filter((plan) => plan.disable.length > 0);
+    .filter((plan) => plan.disable.length > 0));
 }
 
 export function stagedPath(path: string[], stagedFrom: number | undefined): string[] {

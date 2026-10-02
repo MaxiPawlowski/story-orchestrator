@@ -1,7 +1,7 @@
-import type { ChatOwner, ChatPresence } from "@services/STAPI";
+import type { ChatOwner, ChatPresence, ConfirmAnswer } from "@services/STAPI";
 import { couldNot, wrote } from "@utils/writeResult";
 import {
-  lifetimeOwnership, MirrorReaper, OrphanRegistry, ownerMarkerContent, parseOwnerMarker, reapCandidates, type MirrorReaperDeps,
+  deletedChatLabel, lifetimeOwnership, MirrorReaper, OrphanRegistry, ownerMarkerContent, parseOwnerMarker, reapCandidates, reapQuestion, type MirrorReaperDeps,
 } from "./mirrorReaper";
 import { mirrorLorebookName } from "./memoryMirror";
 import { beginRun } from "./runToken";
@@ -17,13 +17,15 @@ const marker = (chatId: string, patch: Partial<ChatOwner> = {}) => ownerMarkerCo
 interface World {
   books: Map<string, string | null>;
   presence: Map<string, ChatPresence>;
-  answer: boolean | (() => Promise<boolean>);
+  answer: boolean | ConfirmAnswer | (() => Promise<boolean | ConfirmAnswer>);
 }
+
+const asAnswer = (value: boolean | ConfirmAnswer): ConfirmAnswer => (value === true ? "confirmed" : value === false ? "declined" : value);
 
 const harness = (world: Partial<World> = {}, patch: Partial<MirrorReaperDeps> = {}) => {
   const state: World = { books: new Map(), presence: new Map(), answer: true, ...world };
   const registry = new OrphanRegistry();
-  const calls = { confirmed: [] as string[], deleted: [] as string[], probed: [] as string[], notified: 0 };
+  const calls = { confirmed: [] as string[], deleted: [] as string[], probed: [] as string[], notified: 0, journal: [] as string[] };
   const deps: MirrorReaperDeps = {
     listLorebooks: () => [...state.books.keys()],
     readMarker: async (book) => state.books.get(book) ?? null,
@@ -33,7 +35,7 @@ const harness = (world: Partial<World> = {}, patch: Partial<MirrorReaperDeps> = 
     },
     confirm: async (book) => {
       calls.confirmed.push(book);
-      return typeof state.answer === "function" ? state.answer() : state.answer;
+      return asAnswer(typeof state.answer === "function" ? await state.answer() : state.answer);
     },
     deleteLorebook: async (name) => {
       calls.deleted.push(name);
@@ -41,6 +43,7 @@ const harness = (world: Partial<World> = {}, patch: Partial<MirrorReaperDeps> = 
       return wrote({ name });
     },
     notify: () => { calls.notified += 1; },
+    journal: (summary) => { calls.journal.push(summary); },
     registry,
     ownership: testOwnership(),
     ...patch,
@@ -152,15 +155,38 @@ describe("v2.4 T14: MirrorReaper", () => {
     expect(registry.list()).toEqual([expect.objectContaining({ name: book, reason: "unverifiable" })]);
   });
 
-  it("requires the player's yes: a declined reap keeps the book and leaves a Repair row", async () => {
-    const book = bookOf("chat-b");
-    const { reaper, state, calls, registry } = harness({ books: new Map([[book, marker("chat-b")]]), presence: new Map([["chat-b", "absent"]]), answer: false });
-    expect(await reaper.onChatDeleted("chat-b")).toEqual([{ book, result: "declined" }]);
+  it("requires the player's yes: a declined reap keeps the book, journals the choice and leaves no Repair row", async () => {
+    const book = bookOf("2026-10-02@01h58m58s371ms");
+    const { reaper, state, calls, registry } = harness({ books: new Map([[book, marker("2026-10-02@01h58m58s371ms")]]), presence: new Map([["2026-10-02@01h58m58s371ms", "absent"]]), answer: false });
+    expect(await reaper.onChatDeleted("2026-10-02@01h58m58s371ms")).toEqual([{ book, result: "declined" }]);
     expect(calls.confirmed).toEqual([book]);
     expect(calls.deleted).toEqual([]);
     expect(state.books.has(book)).toBe(true);
-    expect(registry.list()).toEqual([expect.objectContaining({ name: book, reason: "declined" })]);
-    expect(calls.notified).toBe(1);
+    expect(registry.list()).toEqual([]);
+    expect(calls.journal).toEqual(['Kept the story-memory lorebook of the "Crossing" chat started 2026-10-02 01:58.']);
+  });
+
+  it("journals a dismissed question as kept, and tells it apart from a declined one (T4-3)", async () => {
+    const book = bookOf("chat-b");
+    const { reaper, calls, registry } = harness({ books: new Map([[book, marker("chat-b")]]), presence: new Map([["chat-b", "absent"]]), answer: "dismissed" });
+    expect(await reaper.onChatDeleted("chat-b")).toEqual([{ book, result: "dismissed" }]);
+    expect(calls.deleted).toEqual([]);
+    expect(registry.list()).toEqual([]);
+    expect(calls.journal).toEqual(['Kept the story-memory lorebook of the "Crossing" chat "chat-b": the question was closed without an answer.']);
+  });
+
+  it("journals a delete and a Repair row too (T4-3)", async () => {
+    const deleted = bookOf("chat-a");
+    const refused = bookOf("chat-b");
+    const { reaper, calls } = harness({ books: new Map([[deleted, marker("chat-a")], [refused, marker("chat-b")]]), presence: new Map([["chat-a", "absent"], ["chat-b", "absent"]]) }, {
+      deleteLorebook: async (name) => (name === refused ? couldNot("the host refused") : wrote({ name })),
+    });
+    await reaper.onChatDeleted("chat-a");
+    await reaper.onChatDeleted("chat-b");
+    expect(calls.journal).toEqual([
+      'Deleted the story-memory lorebook of the "Crossing" chat "chat-a".',
+      'Left the story-memory lorebook of the "Crossing" chat "chat-b": the host refused.',
+    ]);
   });
 
   it("leaves no row and attempts no delete when the book was deleted elsewhere while the confirm was open", async () => {
@@ -201,15 +227,18 @@ describe("v2.4 T14: MirrorReaper", () => {
       deleteLorebook: async () => couldNot("the host refused"),
     });
     expect(await reaper.onChatDeleted("chat-b")).toEqual([{ book, result: "delete-failed" }]);
-    expect(registry.list()).toEqual([{ name: book, chatId: "chat-b", reason: "delete-failed", detail: "the host refused" }]);
+    expect(registry.list()).toEqual([{ name: book, chatId: "chat-b", reason: "delete-failed", detail: "the host refused", label: 'the "Crossing" chat "chat-b"' }]);
   });
 
   it("clears a book's Repair row once a later reap deletes it", async () => {
     const book = bookOf("chat-b");
-    const world = harness({ books: new Map([[book, marker("chat-b")]]), presence: new Map([["chat-b", "absent"]]), answer: false });
+    let refuse = true;
+    const world = harness({ books: new Map([[book, marker("chat-b")]]), presence: new Map([["chat-b", "absent"]]) }, {
+      deleteLorebook: async (name) => (refuse ? couldNot("the host refused") : wrote({ name })),
+    });
     await world.reaper.onChatDeleted("chat-b");
     expect(world.registry.list()).toHaveLength(1);
-    world.state.answer = true;
+    refuse = false;
     await world.reaper.onChatDeleted("chat-b");
     expect(world.registry.list()).toEqual([]);
   });
@@ -254,11 +283,34 @@ describe("v2.4 T14: MirrorReaper", () => {
   });
 });
 
+describe("T4-3: the reap question reads as the player's chat, not as file names", () => {
+  it("names the story and when a group chat started", () => {
+    const book = mirrorLorebookName("Adolion Between the Roads", "2026-10-02@01h58m58s371ms");
+    expect(deletedChatLabel(book, "2026-10-02@01h58m58s371ms")).toBe('the "Adolion Between the Roads" chat started 2026-10-02 01:58');
+  });
+
+  it("names the character of a solo chat", () => {
+    const book = mirrorLorebookName("Crossing", "Akari - 2026-10-02@03h12m49s146ms");
+    expect(deletedChatLabel(book, "Akari - 2026-10-02@03h12m49s146ms")).toBe('the "Crossing" chat with Akari started 2026-10-02 03:12');
+  });
+
+  it("falls back to the chat's name when it carries no date", () => {
+    expect(deletedChatLabel("My notes", "renamed chat")).toBe('the chat "renamed chat"');
+  });
+
+  it("leads with the readable chat, never with the raw id", () => {
+    const question = reapQuestion(mirrorLorebookName("Crossing", "2026-10-02@01h58m58s371ms"), "2026-10-02@01h58m58s371ms");
+    expect(question.startsWith('You deleted the "Crossing" chat started 2026-10-02 01:58.')).toBe(true);
+    expect(question).not.toContain("01h58m58s371ms");
+    expect(question).toContain("cannot be undone");
+  });
+});
+
 describe("v2.4 T14: OrphanRegistry", () => {
   it("hides a row whose book the host no longer lists, and shows every row without a listing", () => {
     const registry = new OrphanRegistry();
-    registry.note({ name: "kept", chatId: "a", reason: "declined", detail: "" });
-    registry.note({ name: "deleted-by-hand", chatId: "b", reason: "declined", detail: "" });
+    registry.note({ name: "kept", chatId: "a", reason: "lapsed", detail: "" });
+    registry.note({ name: "deleted-by-hand", chatId: "b", reason: "lapsed", detail: "" });
     expect(registry.list().map((row) => row.name)).toEqual(["kept", "deleted-by-hand"]);
     registry.watch((name) => name === "kept");
     expect(registry.list().map((row) => row.name)).toEqual(["kept"]);

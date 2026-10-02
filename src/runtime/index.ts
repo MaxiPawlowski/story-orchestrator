@@ -101,7 +101,7 @@ const startWatches = () => {
   const requirementsWatch = new RequirementsWatch(runtimeManager.requirementsHost, subscribeToHostEvents);
   requirementsWatch.start();
   runtimeDisposers.push(() => requirementsWatch.stop());
-  runtimeDisposers.push(startMirrorReaper(() => runtimeManager.notify()));
+  runtimeDisposers.push(startMirrorReaper(() => runtimeManager.notify(), (summary, note) => runtimeManager.noteRecap(summary, note, "lore")));
   runtimeDisposers.push(onChatWrite((write) => void runtimeManager.chatSave.recordWrite(write)));
   const journalInstallWrite = (save: SettingsWrite) => void journalSettingsWrite(
     save.summary,

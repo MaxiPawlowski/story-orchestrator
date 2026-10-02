@@ -264,8 +264,8 @@ export async function settleReapPrompts(page: Page, owned: string[], { quietMs =
     const answered = new WeakSet<Element>();
     const prompts = (includeAnswered = false) => [...document.querySelectorAll('dialog[open]')]
       .filter((dialog) => includeAnswered || !answered.has(dialog))
-      .map((dialog) => ({ dialog, text: dialog.querySelector('.popup-content')?.textContent ?? '' }))
-      .filter(({ text }) => owned.some((id) => text.startsWith(`The chat "${id}" was deleted`)));
+      .map((dialog) => ({ dialog, text: dialog.querySelector('.popup-content')?.textContent ?? '', chat: dialog.querySelector('[data-so-reap-chat]')?.getAttribute('data-so-reap-chat') ?? null }))
+      .filter(({ chat }) => chat !== null && owned.includes(chat));
     const dismissed: string[] = [];
     const started = Date.now();
     let lastSeen = Date.now();

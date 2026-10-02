@@ -4,6 +4,7 @@ import type { RuntimeManager } from "@runtime/index";
 import type { RuntimeSnapshot } from "@runtime/types";
 import { STORY_STATE_RETENTION } from "@runtime/persistence";
 import { exportState } from "@runtime/stateExport";
+import { playingStory } from "@runtime/playingStory";
 import { removalRestore } from "@runtime/worldInfoScanHost";
 import { log } from "@utils/log";
 
@@ -26,12 +27,13 @@ const copyState = async () => {
 const deletionChoice = async (title: string, storyId: string) => {
   const question = `Delete "${title}" from the library? Chats already playing it keep their own pinned copy and carry on; new chats can no longer pick it.`;
   const restore = removalRestore(storyId);
-  if (!restore) return { choice: (await showConfirmPopup(question, { okButton: "Delete", cancelButton: "Keep" })) ? "delete" : null, restore };
+  if (!restore) return { choice: (await showConfirmPopup(question, { okButton: "Delete", cancelButton: "Keep", safeDefault: true })) ? "delete" : null, restore };
   const entries = `Its ${restore.entries} lorebook ${restore.entries === 1 ? "entry stays" : "entries stay"} off at rest unless you restore ${restore.entries === 1 ? "it" : "them"}.`;
   const choice = await showChoicePopup(`${question} ${entries}`, {
     okButton: { id: "delete", label: "Delete" },
     choices: [{ id: "restore", label: "Delete and restore these lorebook entries" }],
     cancelButton: "Keep",
+    safeDefault: true,
   });
   return { choice, restore };
 };
@@ -39,6 +41,7 @@ const deletionChoice = async (title: string, storyId: string) => {
 export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: StoryGroupProps) => {
   const [importText, setImportText] = useState("");
   const identity = snapshot.storyIdentity;
+  const playing = playingStory(snapshot);
 
   const whileBusy = async (work: () => Promise<unknown>) => {
     setBusy(true);
@@ -86,6 +89,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
         <div className="flex items-center gap-2">
           <select id="story-library-select" className="flex-1" value={snapshot.storyId ?? ""} disabled={busy} onChange={(event) => void selectStory(event.target.value)}>
             <option value="">Select a story</option>
+            {playing && !playing.inLibrary && <option value={playing.id}>{`${playing.title} (pinned copy, not in the library)`}</option>}
             {snapshot.library.map((story) => <option key={story.id} value={story.id}>{story.title}</option>)}
           </select>
           <button
@@ -103,7 +107,7 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
             className="menu_button fa-solid fa-trash-can"
             aria-label="Delete selected story from the library"
             title="Delete the selected story from the library"
-            disabled={busy || !snapshot.storyId}
+            disabled={busy || !playing?.inLibrary}
             onClick={() => void deleteStory()}
           />}
         </div>
@@ -111,15 +115,16 @@ export const StoryGroup = ({ snapshot, manager, busy, setBusy, importOpen }: Sto
           <div id="so-story-identity" className="text-xs opacity-70">
             Playing your pinned copy{identity.playedVersion ? ` (v${identity.playedVersion})` : ""}.
             {identity.drifted && identity.libraryVersion ? ` The library has a newer version (v${identity.libraryVersion}); this chat keeps playing what it started with.` : ""}
+            {playing && !playing.inLibrary ? " It is no longer in the library; this chat keeps playing it, and new chats can no longer pick it." : ""}
           </div>
         )}
         {snapshot.blobUnreadable && <div id="so-blob-unreadable" className="text-xs opacity-90">This chat's saved story state was {snapshot.blobUnreadable.notice}.</div>}
         {snapshot.ui.authorView && snapshot.storyId && <div id="so-retention-note" className="text-xs opacity-70 flex items-center gap-2">
-          <span>This chat keeps its progress for the {STORY_STATE_RETENTION} most recent stories; switching to a sixth drops the oldest.</span>
+          <span className="min-w-0 flex-1">This chat keeps its progress for the {STORY_STATE_RETENTION} most recent stories; switching to a sixth drops the oldest.</span>
           <button
             id="so-export-state"
             type="button"
-            className="menu_button"
+            className="menu_button shrink-0 whitespace-nowrap"
             title="Copy this chat's saved story state to the clipboard, before anything can drop it."
             onClick={() => void copyState()}
           >Export state</button>

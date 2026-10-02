@@ -21,11 +21,12 @@ const fakeHost = (options: { chatId?: string | null; books?: Record<string, Fake
       return { name, created: true };
     }),
     loadLorebook: async (name: string) => (books.has(name) ? { entries: Object.fromEntries(books.get(name)!.map((entry) => [entry.uid, entry])) } as unknown as Lorebook : null),
-    upsertWIEntry: jest.fn(async (lorebook: string, comment: string, content: string, keys: string[] = []) => {
+    upsertWIEntry: jest.fn(async (lorebook: string, comment: string, content: string, keys: string[] = [], options: { live?: boolean } = {}) => {
       const book = books.get(lorebook);
       if (!book) return "failed" as const;
       calls.upserts.push(comment);
       const found = book.find((entry) => entry.comment === comment);
+      if (found && found.content.trim() === content.trim() && !(options.live && found.disable)) return "unchanged" as const;
       if (found) {
         Object.assign(found, { content, key: keys, disable: false });
         return "updated" as const;
@@ -115,6 +116,36 @@ describe("syncMemoryMirror", () => {
     expect(enabledComments(books.get(bookA))).toEqual([`so_${stays.id}`]);
     expect(Object.keys(second!.writes)).toEqual([`so_${stays.id}`]);
     expect(second!.summary.disabled).toBe(1);
+  });
+
+  it("switches a row back on when it is live again after a sync turned it off (T4-3)", async () => {
+    const row = memory();
+    const { host, books } = fakeHost({ books: { [bookA]: [] } });
+    const first = await syncMemoryMirror(input([row]), host);
+    const quarantined = { ...row, provenance: { source: "extractor", messageId: 3, boundary: 3, pass: "shared-read", validity: "conflicted" } } as MemoryEntry;
+    const second = await syncMemoryMirror(input([quarantined], { writes: first!.writes, book: first!.book }), host);
+    expect(enabledComments(books.get(bookA))).toEqual([]);
+    expect(second!.writes).toEqual({});
+    const third = await syncMemoryMirror(input([row], { writes: second!.writes, book: second!.book }), host);
+    expect(enabledComments(books.get(bookA))).toEqual([`so_${row.id}`]);
+    expect(third).toMatchObject({ changed: true, writes: { [`so_${row.id}`]: hashMemoryText(row.text) } });
+  });
+
+  it("switches a live row back on when something else turned its entry off, even when its write is recorded (T4-3)", async () => {
+    const row = memory();
+    const { host, books } = fakeHost({ books: { [bookA]: [] } });
+    const first = await syncMemoryMirror(input([row]), host);
+    books.get(bookA)!.forEach((entry) => { entry.disable = true; });
+    const second = await syncMemoryMirror(input([row], { writes: first!.writes, book: first!.book }), host);
+    expect(enabledComments(books.get(bookA))).toEqual([`so_${row.id}`]);
+    expect(second!.summary.updated).toBe(1);
+  });
+
+  it("records a write the book already held, so an identical rewrite is not repeated every sync (T4-3)", async () => {
+    const row = memory();
+    const { host } = fakeHost({ books: { [bookA]: [{ uid: 0, comment: `so_${row.id}`, content: row.text, key: [], disable: false }] } });
+    const result = await syncMemoryMirror(input([row], { book: { name: bookA, chatId: "chat-a" } }), host);
+    expect(result).toMatchObject({ changed: true, writes: { [`so_${row.id}`]: hashMemoryText(row.text) } });
   });
 
   // V17: a refused disable used to be forgotten anyway, leaving a superseded fact live in the book

@@ -241,6 +241,32 @@ describe("writes resolve the listed name", () => {
   });
 });
 
+describe("upsertWIEntry identical rewrite (T4-3)", () => {
+  it("leaves a switched-off entry with identical text alone by default", async () => {
+    putOnDisk("Lore", [{ ...entry(0, "so_1", "Arin trusts Max."), disable: true }]);
+    st.worldNames = ["Lore"];
+    saveWorldInfo.mockClear();
+    expect(await upsertWIEntry("Lore", "so_1", "Arin trusts Max.")).toBe("unchanged");
+    expect(saveWorldInfo).not.toHaveBeenCalled();
+    expect(st.disk.get("Lore")!.entries[0].disable).toBe(true);
+  });
+
+  it("switches an identical entry back on when the writer wants it live", async () => {
+    putOnDisk("Lore", [{ ...entry(0, "so_1", "Arin trusts Max."), disable: true }]);
+    st.worldNames = ["Lore"];
+    expect(await upsertWIEntry("Lore", "so_1", "Arin trusts Max.", [], { live: true })).toBe("updated");
+    expect(st.disk.get("Lore")!.entries[0].disable).toBe(false);
+  });
+
+  it("an identical live entry that is already on stays unchanged", async () => {
+    putOnDisk("Lore", [entry(0, "so_1", "Arin trusts Max.")]);
+    st.worldNames = ["Lore"];
+    saveWorldInfo.mockClear();
+    expect(await upsertWIEntry("Lore", "so_1", "Arin trusts Max.", [], { live: true })).toBe("unchanged");
+    expect(saveWorldInfo).not.toHaveBeenCalled();
+  });
+});
+
 describe("createLorebook (wizard)", () => {
   it("creates and switches the book on globally", async () => {
     expect(await createLorebook("SO-J9 Lore")).toEqual({ ok: true, name: "SO-J9 Lore", created: true });
