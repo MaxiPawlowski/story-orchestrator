@@ -60,25 +60,33 @@ const implies = (held: GateLeaf, wanted: GateLeaf): boolean => {
   }
 };
 
+const snapshotLeaves = (snapshot: Record<string, PrimitiveValue> | undefined): GateLeaf[] =>
+  Object.entries(snapshot ?? {}).map(([q, v]) => ({ q, op: "==", v }));
+
+const opens = (held: GateLeaf[], wanted: GateLeaf[]) => wanted.every((leaf) => held.some((given) => implies(given, leaf)));
+
 export const checkGateOpenOnArrival = ({ draft, push }: ArrivalRun) => {
-  const snapshotKeys = new Map(draft.checkpoints.map((checkpoint) => [checkpoint.id, new Set(Object.keys(checkpoint.state_snapshot ?? {}))]));
+  const snapshots = new Map(draft.checkpoints.map((checkpoint) => [checkpoint.id, snapshotLeaves(checkpoint.state_snapshot)]));
   draft.transitions.forEach((exit, index) => {
     const wanted = conjuncts(exit.gate);
     if (!wanted?.length || exit.from === exit.to) return;
-    const reset = snapshotKeys.get(exit.from) ?? new Set<string>();
-    if (wanted.some((leaf) => reset.has(leaf.q))) return;
-    const entry = draft.transitions.find((candidate) => {
-      if (candidate.to !== exit.from || candidate.from === candidate.to) return false;
-      const held = conjuncts(candidate.gate);
-      return held !== null && wanted.every((leaf) => held.some((given) => implies(given, leaf)));
-    });
-    if (!entry) return;
+    const own = snapshots.get(exit.from) ?? [];
+    const reset = new Set(own.map((leaf) => leaf.q));
+    const because = opens(own, wanted) ? "the checkpoint's own state_snapshot already sets it" : (() => {
+      const entry = draft.transitions.find((candidate) => {
+        if (candidate.to !== exit.from || candidate.from === candidate.to) return false;
+        const held = conjuncts(candidate.gate);
+        return held !== null && opens([...held.filter((leaf) => !reset.has(leaf.q)), ...own], wanted);
+      });
+      return entry ? `the way in from '${entry.from}' already required it` : null;
+    })();
+    if (!because) return;
     push(
       "gate-open-on-arrival",
       "warning",
       `transitions.${index}.gate`,
-      `'${exit.from}' is passed straight through: its way out to '${exit.to}' asks for ${renderGateText(exit.gate)}, which the way in from '${entry.from}' already ` +
-        "required, so it fires at the next turn. Gate the way out on something that happens in this checkpoint.",
+      `'${exit.from}' is passed straight through: its way out to '${exit.to}' asks for ${renderGateText(exit.gate)}, and ${because}, so it fires at the next turn. ` +
+        "Gate the way out on something that happens in this checkpoint.",
     );
   });
 };

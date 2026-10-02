@@ -65,6 +65,7 @@ export interface AgentSession {
   notes: AgentNote[];
   budget: AgentBudget;
   summary?: string;
+  stopReason?: string;
 }
 
 export type AgentReply =

@@ -189,8 +189,25 @@ const readMotives = (value: unknown): Record<string, string> | undefined => {
   return kept.length ? Object.fromEntries(kept.map(([id, text]) => [id, text.trim()])) : undefined;
 };
 
+const CHECKPOINT_FIELD_TYPES: Array<[string, string, (value: unknown) => boolean]> = [
+  ["name", "a string", (value) => typeof value === "string"],
+  ["objective", "a string", (value) => typeof value === "string"],
+  ["type", "anchor or intermediate", (value) => value === "anchor" || value === "intermediate"],
+  ["start", "true or false", (value) => typeof value === "boolean"],
+  ["target_turn_length", "a number", (value) => typeof value === "number"],
+  ["convergence_threshold", "a number", (value) => typeof value === "number"],
+  ["tension_target", `one of ${TENSION_LEVELS.join(", ")}`, (value) => typeof value === "string" && (TENSION_LEVELS as readonly string[]).includes(value)],
+  ["agency", "an object {protect_player_choice?, never_narrate_player_action?, objective_kind?, alternate?}", isRecord],
+  ["talk_control", "an object {speakers?, lead?, director?, …}", isRecord],
+];
+
+const checkpointFieldIssues = (value: Record<string, unknown>, path: string): string[] => CHECKPOINT_FIELD_TYPES
+  .filter(([key, , valid]) => value[key] !== undefined && value[key] !== null && !valid(value[key]))
+  .map(([key, expected]) => `${path}.${key}: ${JSON.stringify(value[key])} is not allowed, expected ${expected}`);
+
 export const readCheckpointPatch = (value: Record<string, unknown>, path: string, issues: string[]): Partial<Checkpoint> => {
   const patch: Partial<Checkpoint> = {};
+  issues.push(...checkpointFieldIssues(value, path));
   if (typeof value.name === "string") patch.name = value.name;
   if (typeof value.objective === "string") patch.objective = value.objective;
   if (value.type === "anchor" || value.type === "intermediate") patch.type = value.type;
@@ -199,6 +216,8 @@ export const readCheckpointPatch = (value: Record<string, unknown>, path: string
   if (typeof value.target_turn_length === "number") patch.target_turn_length = value.target_turn_length;
   if (typeof value.convergence_threshold === "number") patch.convergence_threshold = value.convergence_threshold;
   if (typeof value.tension_target === "string" && (TENSION_LEVELS as readonly string[]).includes(value.tension_target)) patch.tension_target = value.tension_target as TensionLevel;
+  if (isRecord(value.agency)) patch.agency = value.agency as Checkpoint["agency"];
+  if (isRecord(value.talk_control)) patch.talk_control = value.talk_control as Checkpoint["talk_control"];
   if (value.state_snapshot !== undefined) patch.state_snapshot = readSnapshot(value.state_snapshot, `${path}.state_snapshot`, issues);
   if (value.effects !== undefined) patch.effects = readEffects(value.effects, `${path}.effects`, issues);
   const motives = readMotives(value.motives);
@@ -226,6 +245,8 @@ export const readCheckpoint = (value: unknown, path: string, issues: string[]): 
     ...(patch.target_turn_length !== undefined ? { target_turn_length: patch.target_turn_length } : {}),
     ...(patch.convergence_threshold !== undefined ? { convergence_threshold: patch.convergence_threshold } : {}),
     ...(patch.tension_target ? { tension_target: patch.tension_target } : {}),
+    ...(patch.agency ? { agency: patch.agency } : {}),
+    ...(patch.talk_control ? { talk_control: patch.talk_control } : {}),
     ...(patch.state_snapshot ? { state_snapshot: patch.state_snapshot } : {}),
     ...(patch.effects ? { effects: patch.effects } : {}),
     ...(patch.motives ? { motives: patch.motives } : {})

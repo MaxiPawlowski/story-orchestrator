@@ -1,5 +1,5 @@
 import type { Checkpoint, StoryV2 } from "@engine/index";
-import { isProvisioningKind, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
+import { draftCastNames, isProvisioningKind, type ProvisioningEnvironment, type ProvisioningOp } from "@wizard/index";
 import type { AgentSession, AgentStepStatus } from "./types";
 
 const fold = (text: string) => text.trim().toLowerCase();
@@ -33,9 +33,19 @@ const wantsGroup = (session: AgentSession, draft: StoryV2, environment: Provisio
   return created.some((op) => op.kind === "createCharacterCard") && draft.roster.length > 1 && !decided && !has(environment.groupNames, draft.title);
 };
 
+const groupGaps = (session: AgentSession, draft: StoryV2): string[] => provisioned(session, "applied").flatMap((op) => {
+  if (op.kind !== "createGroup") return [];
+  const missing = draftCastNames(draft).filter((name) => !has(op.members, name));
+  return missing.length
+    ? [`the group "${op.name}" lacks ${missing.join(", ")}, so the story never reads as ready there: the wizard cannot edit a group, so tell the author to add ` +
+      `${missing.length === 1 ? "that member" : "them"} in SillyTavern (Repair offers "Add … back to the group")`]
+    : [];
+});
+
 export const missingAtDone = (session: AgentSession, draft: StoryV2, environment: ProvisioningEnvironment): string[] => {
   const declined = provisioned(session, "rejected");
   return [
+    ...groupGaps(session, draft),
     ...missingCards(draft, environment, namesOf(declined, "createCharacterCard")),
     ...missingBooks(draft, environment, namesOf(declined, "createStoryLorebook")),
     ...(wantsGroup(session, draft, environment) ? ["no group for the cast (createGroup with every card)"] : []),

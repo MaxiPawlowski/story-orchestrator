@@ -1,4 +1,4 @@
-import { studioFailure } from "../errorCopy";
+import { routeFailure, studioFailure } from "../errorCopy";
 import React, { useEffect, useRef, useState } from "react";
 import type { StoryV2 } from "@engine/index";
 import { COPILOT_STAGES, applyOp, applyOps, isProvisioningOp, provisioningFollowUpOps, type AuthoringStageInput, type CopilotMessage, type CopilotStage, type ProposalResult } from "@copilot/index";
@@ -341,7 +341,7 @@ const StagedWizard: React.FC<Props & { modeSwitch?: React.ReactNode }> = ({ enab
       setMessage("");
       persist({ history: history2, questions: stageResult.questions });
     } catch (caught) {
-      setError(studioFailure("The wizard request failed", caught));
+      setError(routeFailure("The wizard request failed", caught));
       setHistory(nextHistory);
     } finally {
       setBusy(false);

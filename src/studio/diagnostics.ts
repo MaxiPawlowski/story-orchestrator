@@ -5,7 +5,7 @@ import {
 import { directorEnabled } from "@talk/index";
 import { checkChapters } from "./chapterDiagnostics";
 import { checkHouseRules, checkMotives, checkRequirementMembers } from "./authoringDiagnostics";
-import { CAST_CONSEQUENCES, checkBackgrounds, checkCastCards, checkCastChangeMembers, checkPlayerInRoster, checkRequiredPersonas, type InstallFacts } from "./castDiagnostics";
+import { CAST_CONSEQUENCES, checkBackgrounds, checkCastCards, checkCastChangeMembers, checkNeverEnabled, checkPlayerInRoster, checkRequiredPersonas, type InstallFacts } from "./castDiagnostics";
 import { ARRIVAL_CONSEQUENCES, checkGateOpenOnArrival } from "./arrivalDiagnostics";
 
 export type DiagnosticSeverity = "blocking" | "warning" | "info";
@@ -62,6 +62,7 @@ export const DIAGNOSTIC_CODES = [
   "cast-change-unknown-member",
   "requirement-persona-missing",
   "gate-open-on-arrival",
+  "cast-member-never-enabled",
 ] as const;
 
 // Every code says what it costs the story before it says what is technically wrong: the
@@ -525,6 +526,7 @@ const DIAGNOSTIC_CHECKS = [
   checkPlayerInRoster,
   checkRequiredPersonas,
   checkGateOpenOnArrival,
+  checkNeverEnabled,
 ];
 
 export const runDiagnostics = (draft: StoryV2, context: DiagnosticsContext = {}): Diagnostic[] => {

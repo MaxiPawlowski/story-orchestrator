@@ -2,7 +2,8 @@ import type { StoryV2 } from "@engine/index";
 import { castMemberName, isCastMember } from "@engine/index";
 import { memberIsPlayer, playerRoles, rosterMemberIsPlayer, storyPlayerTexts } from "./playerRole";
 
-type CastCode = "cast-member-no-card" | "background-missing" | "roster-member-is-player" | "cast-change-unknown-member" | "requirement-persona-missing";
+type CastCode = "cast-member-no-card" | "background-missing" | "roster-member-is-player" | "cast-change-unknown-member" | "requirement-persona-missing"
+  | "cast-member-never-enabled";
 
 export const CAST_CONSEQUENCES: Record<CastCode, string> = {
   "cast-member-no-card": "This character never joins the scene: there is no card by that name, so it cannot be switched on and the story never reads as ready.",
@@ -10,6 +11,7 @@ export const CAST_CONSEQUENCES: Record<CastCode, string> = {
   "roster-member-is-player": "Another character speaks as the player: the story casts the player's own role as someone else.",
   "cast-change-unknown-member": "This cast change switches nobody on or off: the name matches no cast member, so whoever it meant stays as they are.",
   "requirement-persona-missing": "The story never reads as ready, so its start effects never run: it requires a persona this install does not have, and nothing creates one.",
+  "cast-member-never-enabled": "This character stays muted for the rest of the story: a checkpoint switches them off and no checkpoint switches them back on.",
 };
 
 export interface InstallFacts {
@@ -45,6 +47,26 @@ const castNames = (draft: StoryV2): Array<{ name: string; path: string }> => [
 export const checkCastChangeMembers = ({ draft, push }: CastRun) => {
   castChangeNames(draft).filter(({ name }) => !isCastMember(draft.roster, name)).forEach(({ name, path }) => {
     push("cast-change-unknown-member", "warning", path, `'${name}' is not in the cast: no cast member has that name or id`);
+  });
+};
+
+export const checkNeverEnabled = ({ draft, push }: CastRun) => {
+  const enabled = new Set(draft.checkpoints.flatMap((checkpoint) => strings((checkpoint.effects?.cast_changes as { enable?: unknown } | undefined)?.enable))
+    .map((name) => castMemberName(draft.roster, name).trim().toLowerCase()));
+  const reported = new Set<string>();
+  draft.checkpoints.forEach((checkpoint, index) => {
+    strings((checkpoint.effects?.cast_changes as { disable?: unknown } | undefined)?.disable).forEach((raw, position) => {
+      const name = castMemberName(draft.roster, raw);
+      const key = name.trim().toLowerCase();
+      if (!isCastMember(draft.roster, name) || enabled.has(key) || reported.has(key)) return;
+      reported.add(key);
+      push(
+        "cast-member-never-enabled",
+        "warning",
+        `checkpoints.${index}.effects.cast_changes.disable.${position}`,
+        `'${name}' is switched off here and no checkpoint switches them on again; add them to cast_changes.enable at the checkpoint where they enter`,
+      );
+    });
   });
 };
 

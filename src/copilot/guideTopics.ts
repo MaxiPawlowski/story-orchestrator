@@ -280,6 +280,7 @@ export const DIAGNOSTIC_GUIDE_TOPIC: Record<DiagnosticCode, GuideTopicId> = {
   "cast-change-unknown-member": "cast-changes",
   "requirement-persona-missing": "requirements",
   "gate-open-on-arrival": "gates",
+  "cast-member-never-enabled": "cast-changes",
 };
 
 export const STAGE_GUIDE_TOPICS: Record<CopilotStage, readonly GuideTopicId[]> = {

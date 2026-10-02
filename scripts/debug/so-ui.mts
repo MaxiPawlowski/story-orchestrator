@@ -1,6 +1,7 @@
 import { writeFile } from 'node:fs/promises';
 import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
+import { parseCardCount, runAgentCards, type AgentCardKind } from './lib/agentCards.mts';
 import { writeJSON, writeScreenshot } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
 
@@ -1289,6 +1290,25 @@ export async function agentGoal(page, goal: string, { mode = null as string | nu
 export const agentGo = (page, { timeoutMs = AGENT_SETTLED_TIMEOUT_MS } = {}) => clickAgent(page, 'so-agent-go', timeoutMs);
 export const agentContinue = (page, { timeoutMs = AGENT_SETTLED_TIMEOUT_MS } = {}) => clickAgent(page, 'so-agent-continue', timeoutMs);
 
+async function agentCardState(page) {
+  const state = await getAgentState(page);
+  const applyEnabled = await evaluateInST(page, () => {
+    const button = document.querySelector('#so-agent [data-so="agent-card"] [data-so="provisioning-apply"]') as HTMLButtonElement | null;
+    return button ? !button.disabled : null;
+  });
+  const pending = (state as any).pending ? { ...(state as any).pending, ...(applyEnabled === null ? {} : { applyEnabled }) } : null;
+  return { status: (state as any).status ?? null, busy: Boolean((state as any).busy), pending, done: (state as any).done ?? null, error: (state as any).error ?? null };
+}
+
+export async function agentCards(page, want: AgentCardKind, limit: number, { timeoutMs = AGENT_SETTLED_TIMEOUT_MS } = {}) {
+  const run = await runAgentCards({
+    state: () => agentCardState(page),
+    click: async (selector: string) => { await page.locator(selector).first().click(); },
+    settle: () => waitAgentSettled(page, timeoutMs),
+  }, want, limit);
+  return { ...run, agent: await getAgentState(page) };
+}
+
 export async function agentNewGoal(page) {
   const button = page.locator('#so-agent-new-goal');
   if (!(await button.count())) throw new Error('#so-agent-new-goal is not on screen (the agent is waiting for a decision, working, or not started)');
@@ -1297,7 +1317,7 @@ export async function agentNewGoal(page) {
   return getAgentState(page);
 }
 
-const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|agent-mode|agent-goal|agent-go|agent-continue|agent-new-goal|agent-state|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|inline|inline-level|screenshot> [label]
+const USAGE = `Usage: node so-ui.mts <all|settings|drawer|open-drawer|open-settings|open-studio|studio|studio-tab|studio-save|drawer-tab|pipeline|assert-player-clean|wizard|open-wizard|new-story-wizard|wizard-run|wizard-answer|wizard-apply|agent-mode|agent-goal|agent-go|agent-continue|agent-new-goal|agent-state|agent-accept|agent-apply|stagecraft|curator-accept|curator-reject|memory-queue|model-calls|gate-replay|gate-replay-history|hit-test|branch-continue|inline|inline-level|screenshot> [label]
 
 all: print settings + drawer state.
 settings: print settings panel state.
@@ -1322,6 +1342,8 @@ agent-goal "<text>" [--mode review|auto-draft] [--new]: type the agent's goal an
 agent-go: approve the plan as shown (#so-agent-go) and wait until the agent settles (a card waits, done, out of budget, stopped).
 agent-continue: press Continue after Stop or Out of budget and wait until the agent settles.
 agent-new-goal: press New goal (drops the agent session for this draft).
+agent-accept [n|all]: accept the agent's waiting edit cards one at a time (default all), waiting for the agent between cards; stops at a provisioning card.
+agent-apply [n]: press "Create it" on the agent's waiting provisioning card (default 1), waiting for the agent after each; stops at an edit card or a refused step.
 agent-state: print the agent pane (status, mode, steps, the pending card, controls on screen).
 stagecraft: print the World Info curator review ring from the drawer (author view, Scheduler tab).
 curator-accept [index|text-first] [text]: accept one proposed change, optionally replacing its text first. text-first picks the
@@ -1496,7 +1518,9 @@ if (process.argv[1] === fileURLToPath(import.meta.url)) {
             : subcommand === 'agent-continue' ? await agentContinue(page, { timeoutMs })
               : subcommand === 'agent-new-goal' ? await agentNewGoal(page)
                 : subcommand === 'agent-state' ? await getAgentState(page)
-                  : null;
+                  : subcommand === 'agent-accept' ? await agentCards(page, 'edit', parseCardCount(positional[0] ?? 'all'), { timeoutMs })
+                    : subcommand === 'agent-apply' ? await agentCards(page, 'provision', parseCardCount(positional[0] ?? '1'), { timeoutMs })
+                      : null;
       if (!state) throw new Error(`unknown subcommand ${subcommand}`);
       console.log(JSON.stringify(state, null, 2));
       await writeJSON(state, `so-ui-${subcommand}`);

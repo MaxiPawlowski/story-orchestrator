@@ -6,7 +6,7 @@ import { FIRST_MESSAGE_RULE, OPENING_CAST_RULE } from "../prompts";
 import { GUIDE_TOPIC_IDS } from "../guideTopics";
 import { renderCoverage, storyCoverage } from "../../studio/coverage";
 import { runReadTool } from "./readTools";
-import { rejectedSteps } from "./rejected";
+import { createdSteps, rejectedSteps } from "./rejected";
 import { renderToolSchema } from "./tools";
 import { emptyLookup, type AgentSession, type AgentStep } from "./types";
 
@@ -81,6 +81,11 @@ const rejectedByAuthor = (session: AgentSession): string[] => {
   return rows.length ? [`REJECTED BY THE AUTHOR (never propose these again; an identical call is refused)\n${rows.join("\n")}`] : [];
 };
 
+const alreadyCreated = (session: AgentSession): string[] => {
+  const rows = createdSteps(session).map((step) => `- #${step.id} ${step.call.tool}${targetOf(step.call.args) ? `(${truncate(targetOf(step.call.args), 60)})` : ""}`);
+  return rows.length ? [`ALREADY CREATED THIS SESSION (these exist on the install now; never create them again)\n${rows.join("\n")}`] : [];
+};
+
 const BACKGROUND_LIMIT = 40;
 
 const renderBackgrounds = (backgrounds: readonly string[]): string => {
@@ -127,6 +132,7 @@ export const renderStepPrompt = (session: AgentSession, draft: StoryV2, environm
   `PLAN (agreed with the author)\n${session.plan.map((step, index) => `${index + 1}. ${step}`).join("\n")}`,
   ...earlierSteps(session),
   ...rejectedByAuthor(session),
+  ...alreadyCreated(session),
   `RECENT STEPS (newest last)\n${session.steps.slice(-RECENT_STEPS).map(renderStep).join("\n") || "(none yet)"}`,
   `Budget: step ${session.steps.length + 1} of ${session.budget.maxSteps}.`,
   native

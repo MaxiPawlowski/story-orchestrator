@@ -36,7 +36,8 @@ const installSeeded: StoryV2 = {
 
 const arrivalSeeded: StoryV2 = {
   ...clean,
-  checkpoints: [clean.checkpoints[0], { id: "road", name: "Road", objective: "", type: "intermediate" }, clean.checkpoints[1]],
+  checkpoints: [{ ...clean.checkpoints[0], effects: { cast_changes: { disable: ["The Warden"] } } }, { id: "road", name: "Road", objective: "", type: "intermediate" }, clean.checkpoints[1]],
+  roster: [{ id: "warden", name: "The Warden" }],
   transitions: [
     { from: "start", to: "road", priority: 0, gate: { q: "trust", op: ">=", v: 2 } },
     { from: "road", to: "cache", priority: 0, gate: { q: "trust", op: ">=", v: 1 } },
