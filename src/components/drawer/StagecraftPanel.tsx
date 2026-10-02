@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { decidedOp, isNoteOp, previewCuratorOp, wardenFamilyOf, type CuratorOp, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
+import { CURATOR_OP_REVERTED, decidedOp, isNoteOp, previewCuratorOp, wardenFamilyOf, type CuratorOp, type CuratorOpRecord, type CuratorProposalRecord } from "@stagecraft/index";
 import { wordDiff } from "@utils/wordDiff";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
@@ -26,7 +26,7 @@ const NOTE_LABELS: Record<CuratorOpRecord["status"], string> = {
 };
 
 const statusLabel = (entry: CuratorOpRecord): string => {
-  if (!isNoteOp(entry.op)) return STATUS_LABELS[entry.status];
+  if (!isNoteOp(entry.op)) return entry.status === "pending" && entry.message === CURATOR_OP_REVERTED ? "undone by a rollback — accept to write it again" : STATUS_LABELS[entry.status];
   if (entry.message === "lapsed") return "lapsed: a newer reply came first";
   if (entry.message === "reverted") return "withdrawn: the reply was rolled back";
   return NOTE_LABELS[entry.status];

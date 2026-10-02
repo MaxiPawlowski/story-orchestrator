@@ -1,6 +1,7 @@
 import { textModel } from "../../../test/support/modelCall";
 import { parseStoryV2OrThrow, type EngineState, type NormalizedStoryV2 } from "@engine/index";
 import { StagecraftCoordinator, type StagecraftCoordinatorDeps } from "./stagecraftCoordinator";
+import { CURATOR_OP_REVERTED, DECLINE_MEMORY_BOUNDARIES } from "@stagecraft/index";
 import { createStagecraft, sanitizeStagecraft } from "../extras";
 import { mintToken, tokenMatches, type RunContext, type RunToken } from "../runToken";
 import type { ExtractionRuntimeSettings, RuntimeExtras, StagecraftRuntimeState } from "../types";
@@ -290,17 +291,104 @@ describe("StagecraftCoordinator", () => {
     expect(read().lastPass?.dropped).toEqual(['rewrite: "The bridge" was declined earlier']);
   });
 
-  it("T17.3: a decline from an earlier visit to this checkpoint does not bind the next visit", async () => {
+  it("T3-5: a decline lapses after DECLINE_MEMORY_BOUNDARIES boundaries", async () => {
     const state = engineState(10, 20);
     const { coordinator, read } = harness({ state });
     respond("[rewrite] The bridge || The bridge is gone.");
     const first = await coordinator.runCuratorPass();
     await coordinator.setOpDecision(first.record!.id, 0, "rejected");
-    Object.assign(state, { boundary: 30, lastMessageId: 60, checkpointStartedBoundary: 25 });
+    Object.assign(state, { boundary: 10 + DECLINE_MEMORY_BOUNDARIES, lastMessageId: 80, checkpointStartedBoundary: 40 });
     respond("[rewrite] #1 || The bridge is gone.");
     const second = await coordinator.runCuratorPass();
     expect(read().lastPass?.prompt).not.toContain("THE AUTHOR DECLINED");
     expect(second.record?.ops.map((entry) => entry.op.kind)).toEqual(["rewrite"]);
+  });
+
+  it("T3-5: a declined op stays declined across a checkpoint change and after its record leaves the ring", async () => {
+    const state = engineState(4, 6);
+    const { coordinator, read } = harness({ state });
+    respond("[enable] The ferryman\n[why] The chronicle matters now.");
+    const first = await coordinator.runCuratorPass();
+    await coordinator.setOpDecision(first.record!.id, 0, "rejected");
+    read().proposals.splice(0);
+    Object.assign(state, { activeCheckpointId: "cp2", boundary: 12, lastMessageId: 17, checkpointStartedBoundary: 9 });
+    respond("[enable] #2\n[why] The chronicle matters now.");
+    const second = await coordinator.runCuratorPass();
+    expect(read().lastPass?.prompt).toContain("THE AUTHOR DECLINED (do not propose these again):\n- [enable] The ferryman");
+    expect(second.record?.ops ?? []).toEqual([]);
+    expect(read().lastPass?.dropped).toEqual(['enable: "The ferryman" was declined earlier']);
+  });
+
+  it("T3-5: a decline lapses once the entry it was about changes", async () => {
+    const state = engineState(4, 6);
+    const { coordinator, read } = harness({ state });
+    respond("[enable] The ferryman");
+    const first = await coordinator.runCuratorPass();
+    await coordinator.setOpDecision(first.record!.id, 0, "rejected");
+    book.current.entries[2].content = "The ferryman was seen at dawn.";
+    Object.assign(state, { boundary: 8, lastMessageId: 11 });
+    respond("[enable] The ferryman");
+    const second = await coordinator.runCuratorPass();
+    expect(read().lastPass?.prompt).not.toContain("THE AUTHOR DECLINED");
+    expect(second.record?.ops.map((entry) => entry.op.kind)).toEqual(["enable"]);
+  });
+
+  it("T3-5: declining all, then accepting the same op, lifts the decline", async () => {
+    const { coordinator, read } = harness();
+    respond("[enable] The ferryman");
+    const first = await coordinator.runCuratorPass();
+    await coordinator.decideProposal(first.record!.id, "rejected");
+    expect(read().declines?.map((decline) => decline.op.comment)).toEqual(["The ferryman"]);
+    await coordinator.setOpDecision(first.record!.id, 0, "accepted");
+    expect(read().declines).toEqual([]);
+  });
+
+  it("T3-5: declines persist through the chat blob and drop malformed rows", () => {
+    const decline = { key: "enable:story lore::the ferryman:", op: { kind: "enable" as const, lorebook: "Story Lore", comment: "The ferryman" }, boundary: 4 };
+    const extras = { stagecraft: { ...createStagecraft(), declines: [decline, { key: 3 }, { key: "x", boundary: 1, op: { kind: "note" } }] } } as unknown as RuntimeExtras;
+    expect(sanitizeStagecraft(extras).declines).toEqual([decline]);
+    expect(sanitizeStagecraft({ stagecraft: { proposals: [] } } as unknown as RuntimeExtras).declines).toEqual([]);
+  });
+
+  it("T3-5: a swipe of a later reply reverts the write but keeps the proposal, edit and decline included, back in review", async () => {
+    const state = engineState(8, 11);
+    const { coordinator, read, journal } = harness({ state });
+    respond("[rewrite] The bridge || The bridge is gone.\n[enable] The ferryman");
+    const { record } = await coordinator.runCuratorPass();
+    const edited = { kind: "rewrite" as const, lorebook: "Story Lore", comment: "The bridge", text: "The bridge is rubble.", uid: 1 };
+    await coordinator.setOpDecision(record!.id, 0, "accepted", edited);
+    await coordinator.setOpDecision(record!.id, 1, "rejected");
+    Object.assign(state, { boundary: 9, lastMessageId: 13 });
+    expect(await coordinator.applyAccepted()).toBe(1);
+    expect(entryOf("The bridge")?.content).toBe("The bridge is rubble.");
+    expect(await coordinator.revertAppliedSince(13)).toBe(1);
+    expect(entryOf("The bridge")?.content).toBe("The bridge stands, its ropes new and taut.");
+    const kept = read().proposals.find((proposal) => proposal.id === record!.id);
+    expect(kept).toMatchObject({ messageId: 11, appliedAt: undefined });
+    expect(kept!.ops.map((entry) => entry.status)).toEqual(["pending", "rejected"]);
+    expect(kept!.ops[0]).toMatchObject({ op: edited, message: CURATOR_OP_REVERTED, before: { content: "The bridge stands, its ropes new and taut.", disabled: false } });
+    expect(kept!.ops[0].after).toBeUndefined();
+    expect(journal).toContain("World Info curator changes rolled back (1); 1 back to review");
+    Object.assign(state, { boundary: 10, lastMessageId: 13 });
+    expect(await coordinator.applyAccepted()).toBe(0);
+    expect(entryOf("The bridge")?.content).toBe("The bridge stands, its ropes new and taut.");
+    await coordinator.setOpDecision(record!.id, 0, "accepted");
+    expect(await coordinator.applyAccepted()).toBe(1);
+    expect(entryOf("The bridge")?.content).toBe("The bridge is rubble.");
+  });
+
+  it("T3-5: a rollback past the proposal's own message still drops it, and the decline it carried survives", async () => {
+    const state = engineState(8, 11);
+    const { coordinator, read } = harness({ state });
+    respond("[rewrite] The bridge || The bridge is gone.\n[enable] The ferryman");
+    const { record } = await coordinator.runCuratorPass();
+    await coordinator.setOpDecision(record!.id, 0, "accepted");
+    await coordinator.setOpDecision(record!.id, 1, "rejected");
+    Object.assign(state, { boundary: 9, lastMessageId: 13 });
+    await coordinator.applyAccepted();
+    expect(await coordinator.revertAppliedSince(11)).toBe(1);
+    expect(read().proposals).toEqual([]);
+    expect(read().declines?.map((decline) => decline.op.comment)).toEqual(["The ferryman"]);
   });
 
   it("two passes at one boundary are two records: accepting the second never un-declines the first", async () => {

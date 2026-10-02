@@ -4,7 +4,7 @@ import {
 } from "@memory/index";
 import type { SealSkip } from "@memory/reverse";
 import { DEFAULT_TENSION_EMA_ALPHA } from "@constants/defaults";
-import { capProposalRing } from "@stagecraft/index";
+import { capProposalRing, sanitizeDeclines } from "@stagecraft/index";
 import { createJudgeRuntime, sanitizeJudgeRuntime } from "@judge/index";
 import { sanitizeModelCalls } from "./modelCallLog";
 import { sanitizeJournalRecords } from "./journal";
@@ -189,7 +189,7 @@ export const sanitizeMemory = (value: RuntimeExtras | undefined): MemoryRuntimeS
 
 export const createCopilot = (): CopilotRuntimeSettings => ({ enabled: true });
 export const createUi = (): UiRuntimeSettings => ({ authorView: false, announceTransitions: false, hudEnabled: true, inline: defaultInlineSettings() });
-export const createStagecraft = (): StagecraftRuntimeState => ({ settings: defaultStagecraftSettings(), proposals: [], lastPass: null, lastRunBoundary: -1, lastError: null });
+export const createStagecraft = (): StagecraftRuntimeState => ({ settings: defaultStagecraftSettings(), proposals: [], declines: [], lastPass: null, lastRunBoundary: -1, lastError: null });
 
 export const sanitizeStagecraft = (value: RuntimeExtras | undefined): StagecraftRuntimeState => {
   const existing = value?.stagecraft;
@@ -199,6 +199,7 @@ export const sanitizeStagecraft = (value: RuntimeExtras | undefined): Stagecraft
     proposals: Array.isArray(existing.proposals) ? capProposalRing(
       existing.proposals.filter((entry) => Boolean(entry) && Array.isArray(entry.ops)).filter((entry) => entry.curator === "warden" || entry.curator === "wi"),
     ) : [],
+    declines: sanitizeDeclines(existing.declines),
     lastPass: existing.lastPass && typeof existing.lastPass === "object" ? existing.lastPass : null,
     lastRunBoundary: typeof existing.lastRunBoundary === "number" ? existing.lastRunBoundary : -1,
     lastError: typeof existing.lastError === "string" ? existing.lastError : null,
@@ -367,6 +368,7 @@ export const stripGlobalSettings = (extras: RuntimeExtras): RuntimeExtras => ({
   talk: { enabled: extras.talk.enabled, decisions: extras.talk.decisions },
   stagecraft: {
     proposals: extras.stagecraft.proposals,
+    declines: extras.stagecraft.declines ?? [],
     lastPass: extras.stagecraft.lastPass,
     lastRunBoundary: extras.stagecraft.lastRunBoundary,
     lastError: extras.stagecraft.lastError,

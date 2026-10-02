@@ -7,6 +7,7 @@ import {
   buildWiCuratorPrompt, curatorHasScope, curatorLorebooks, decidedOp, declinedOps, entriesForScope, isCheckpointGated,
   isNoteOp, capProposalRing, parseCuratorResponse, planCuratorProposal, type CuratorEntryView, type CuratorPassOutcome,
   type CuratorOp, type CuratorOpRecord, type CuratorOpStatus, type CuratorProposalRecord, type WardenNoteOp,
+  forgetDecline, mergeDeclined, rememberDecline, standingDeclines,
   anyWardenFamily, composeWardenNote, newestCarriedNote, wardenFlagJournal, wardenNoteJournal, wardenNoteOps,
   wardenReason, wardenSummary, withdrawRemovedRules, type WardenCheckFinding, type WardenCheckInput,
   type WardenFamiliesActive, type WriteAheadCounts,
@@ -183,7 +184,8 @@ export class StagecraftCoordinator {
       const canon = this.deps.getCanon();
       const openArcs = this.deps.getOpenArcs();
       const shown = this.deps.filterEntries ? await this.deps.filterEntries(entries, { checkpoint: { name: checkpointName, objective }, canon, openThreads: openArcs }).catch(() => entries) : entries;
-      const declined = declinedOps(this.state.proposals, state.activeCheckpointId, state.checkpointStartedBoundary ?? 0);
+      const declined = mergeDeclined(declinedOps(this.state.proposals, state.activeCheckpointId, state.checkpointStartedBoundary ?? 0, { rejected: false }),
+          standingDeclines(this.state.declines ?? [], entries, state.boundary));
       const spikes = this.spikesOn() ? await this.spikeModules() : { tiers: null };
       const prompt = buildWiCuratorPrompt({ storyTitle: story.title, checkpointName, objective, canon, openArcs, entries: shown, declined });
       const response = await askText(this.deps.model, prompt, {
@@ -263,16 +265,26 @@ export class StagecraftCoordinator {
   // Author review: accept or reject a single change, optionally with the text they edited. Editing
   // is the point of the card — the model drafts, the author decides what gets written.
   async setOpDecision(id: string, index: number, status: "accepted" | "rejected", op?: CuratorOp) {
+    const proposed = this.state.proposals.find((record) => record.id === id)?.ops[index];
     this.updateOps(id, (record) => ({
       ...record,
       ops: record.ops.map((entry, entryIndex) => (entryIndex === index ? { ...entry, status, op: decidedOp(entry, status, op) } : entry)),
     }));
+    this.recordDeclines(proposed ? [proposed] : [], status);
     await this.save();
   }
 
   async decideProposal(id: string, status: "accepted" | "rejected") {
+    this.recordDeclines(this.state.proposals.find((record) => record.id === id)?.ops.filter((entry) => entry.status === "pending") ?? [], status);
     this.updateOps(id, (record) => ({ ...record, ops: record.ops.map((entry) => (entry.status === "pending" ? { ...entry, status, op: decidedOp(entry, status) } : entry)) }));
     await this.save();
+  }
+
+  private recordDeclines(proposed: CuratorOpRecord[], status: "accepted" | "rejected") {
+    const boundary = this.deps.getState()?.boundary ?? 0;
+    const current = this.state.declines ?? [];
+    const declines = proposed.reduce((list, entry) => (status === "rejected" ? rememberDecline(list, entry, boundary) : forgetDecline(list, entry.op)), current);
+    if (declines !== current) this.patch({ declines });
   }
 
   // Boundary-applied, like every other effect: an accepted change reaches World Info here and

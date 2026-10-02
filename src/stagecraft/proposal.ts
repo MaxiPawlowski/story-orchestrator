@@ -75,11 +75,11 @@ const opText = (op: WiCuratorOp) => (op.kind === "rewrite" ? op.text : op.kind =
 
 export const declineKey = (op: WiCuratorOp): string => `${op.kind}:${opTargetKey(op)}:${normalize(opText(op))}`;
 
-export const declinedOps = (proposals: CuratorProposalRecord[], checkpointId: string, sinceBoundary: number): WiCuratorOp[] =>
+export const declinedOps = (proposals: CuratorProposalRecord[], checkpointId: string, sinceBoundary: number, options: { rejected?: boolean } = {}): WiCuratorOp[] =>
   proposals
     .filter((record) => record.curator === "wi" && record.checkpointId === checkpointId && record.boundary >= sinceBoundary)
     .flatMap((record) => [
-      ...record.ops.filter((entry) => entry.status === "rejected" && !isNoteOp(entry.op)).map((entry) => entry.op as WiCuratorOp),
+      ...(options.rejected === false ? [] : record.ops.filter((entry) => entry.status === "rejected" && !isNoteOp(entry.op)).map((entry) => entry.op as WiCuratorOp)),
       ...(record.refused ?? []).filter((op) => !isNoteOp(op)),
     ]);
 

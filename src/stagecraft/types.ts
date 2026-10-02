@@ -7,6 +7,7 @@ export const CURATOR_PROPOSAL_LIMIT = 5;
 export const PATCH_ANCHOR_SEPARATOR = "||";
 export const CURATOR_SHOWN_CONTENT = 400;
 export const FUZZY_ANCHOR_THRESHOLD = 0.8;
+export const CURATOR_OP_REVERTED = "reverted";
 
 export const collapseContent = (content: string) => content.replace(/\s+/g, " ").trim();
 

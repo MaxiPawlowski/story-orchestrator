@@ -11,7 +11,7 @@ import type { SealSkip } from "@memory/reverse";
 import type { OnEnterPost } from "./npcReplyRewind";
 import type { DriverContext } from "@copilot/index";
 import type { SteeringHint } from "@pacing/index";
-import type { CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
+import type { CuratorDecline, CuratorPassAudit, CuratorProposalRecord, StagecraftAcceptMode } from "@stagecraft/index";
 import type { JournalRecord } from "./journal";
 import type { EngineHistory } from "@engine/index";
 import type { NarrativeStatus, RollbackNotice, RollbackUnavailable } from "./narrative";
@@ -111,6 +111,7 @@ export interface StagecraftSettings {
 export interface StagecraftRuntimeState {
   settings: StagecraftSettings;
   proposals: CuratorProposalRecord[];
+  declines?: CuratorDecline[];
   lastPass: CuratorPassAudit | null;
   lastRunBoundary: number;
   lastError: string | null;
