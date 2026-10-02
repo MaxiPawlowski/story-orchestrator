@@ -590,3 +590,33 @@ Keep the harness loop guard: thinking does not escape a loop already in context 
 - More than 4 seeds per cell; the blind turns are single-seed.
 - Rocinante-XL 16B (excluded by the user).
 - Turns past about 15k tokens of context.
+
+### Lane overlay switched to thinking (2026-10-02, branch `v26-thinking-on`)
+
+User decision 2026-10-02: the plan 14 lanes run the `stga` setup now. The blind pack `model-blind-20-think` is rated later and may overrule it.
+
+- `scripts/debug/adolion-fresh.presets.json` is format 2, with named variants. `thinking` is the default; `fix` is the 2026-10-01 thinking-off overlay, unchanged, kept as the control. `adolion-fresh seed --preset-overlay fix|thinking` and `so-session start --preset-overlay …` pick a variant. `--no-preset-overlay` is unchanged.
+- The thinking variant writes the following. Every value is read back, and anything missing fails the seed with nothing written.
+  - The `fix` edits. The memory/extraction profiles still use instruct `Gemma 4`.
+  - textgen `Artemis v1.1 RP` `genamt` 1400.
+  - instruct `Gemma 4 Thinking`:
+    - `story_string_prefix`, the brief-plan line, pinned;
+    - `last_output_sequence` `""`;
+    - `names_behavior` `force`;
+    - `sequences_as_stop_strings` false.
+  - That instruct is made the active one (`power_user.instruct`).
+  - context `Gemma 4` `names_as_stop_strings` false.
+  - In `settings.json`:
+    - `power_user.user_prompt_bias` (Start Reply With) `<|channel>thought\n`;
+    - `show_user_prompt_bias` false;
+    - `power_user.reasoning` `auto_parse` true, with `name`/`prefix`/`suffix` set to the `Gemma 4` template;
+    - `amount_gen` 1400.
+  - Profile `Artemis RunPod RP`: `instruct` `Gemma 4 Thinking`, `start-reply-with` `<|channel>thought\n`, `reasoning-template` `Gemma 4`. Selecting a profile overwrites these fields, so the profile has to carry them.
+- `preset-overlay.json` and `session.json` (`presetOverlay.variant`) name the variant. `so-session start` checks the page before and after the main profile is selected. It refuses a session whose main profile is not the profile the overlay wrote.
+- The run header gains `prompt` (`thinking`, instruct, Start Reply With, names as stops, reasoning parse/template, response tokens, samplers, profile).
+- `memory.harvestReasoning` is on in `test/sessions/baseline-settings.json`. `so-session stop` no longer waives the harvest artifact under the thinking variant. A thinking session whose replies carry no reasoning is INVALID.
+- Live (lane 4, re-seeded, group `Adolion - Eshalanore`, story `adolion-esha`, 3 real turns on the pod):
+  - Every main prompt ended `<|turn>model\nAdolion Narrator:<|channel>thought\n`, with `max_tokens` 1400, stop `<turn|>` only, and `min_p` first.
+  - Turns 1 and 2: reasoning parsed into `extra.reasoning` (2991 and 1792 chars, `reasoning_type: parsed`). The text was clean, with no channel markers and no repeated `Name:` (0/3).
+  - Turn 3: the reasoning was empty (parsed, `""`) and the reply was normal. This is the immediate-close case (4/20 in the A/B).
+  - The epistemic pass carried the harvested narrator reasoning (2 passes) and stored its signals.

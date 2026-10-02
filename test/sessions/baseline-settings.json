@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "about": "Plan 14 session baseline: every install-wide setting the product reads. so-session start writes it over the lane's settings (keeping only the installOwned paths), applies the card's overrides, reloads, and asserts what the runtime reads back. Judge on with every use (user decisions 2026-09-30 and 2026-10-01: a configured key is consent, there is no notice gate). Images off, sprites off: no lane may reach the shared ComfyUI.",
+  "about": "Plan 14 session baseline: every install-wide setting the product reads. so-session start writes it over the lane's settings (keeping only the installOwned paths), applies the card's overrides, reloads, and asserts what the runtime reads back. Judge on with every use (user decisions 2026-09-30 and 2026-10-01: a configured key is consent, there is no notice gate). Images off, sprites off: no lane may reach the shared ComfyUI. Reasoning harvest on (user decision 2026-10-02: the lanes run the thinking preset overlay, so replies carry reasoning).",
   "installOwned": [
     "extraction.profileId",
     "extraction.profiles",
@@ -43,6 +43,7 @@
     "memory": {
       "enabled": true,
       "epistemicLedgerCapable": true,
+      "harvestReasoning": true,
       "injectionDepths": {
         "facts": 4,
         "session_details": 3,

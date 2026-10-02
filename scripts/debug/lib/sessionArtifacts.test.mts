@@ -4,7 +4,7 @@ import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 import { REPO_ROOT } from '../../lib/stRoot.mjs';
 import {
-  artifactInventory, artifactProblems, artifactWaivers, comfyCalls, featureProblems, HARVEST_HEADER, HARVEST_WAIVED, replyReasoning, newChats, requiredArtifacts, requiredFeatures, runtimeProblems, storyFeatures, trackChat, type ChatRef,
+  artifactInventory, artifactProblems, artifactWaivers, comfyCalls, featureProblems, HARVEST_HEADER, HARVEST_WAIVED, replyReasoning, THINKING_SILENT, newChats, requiredArtifacts, requiredFeatures, runtimeProblems, storyFeatures, trackChat, type ChatRef,
 } from './sessionArtifacts.mts';
 import { findCard, loadCards, loadIndex } from '../so-session.mts';
 
@@ -124,5 +124,17 @@ test('harvest waiver: reasoning that reached a reply but not the harvest stays i
 test('harvest waiver: a card that never asked for harvest is untouched', async () => {
   const doc = await loadCards();
   const required = requiredArtifacts(doc, findCard(doc, 'T0-1'));
-  assert.deepEqual(artifactWaivers(required, { replyReasoning: 0 }), { required, warnings: [] });
+  assert.deepEqual(artifactWaivers(required, { replyReasoning: 0 }), { required, warnings: [], problems: [] });
+});
+
+test('thinking overlay: no waiver, and a session whose replies carry no reasoning is flagged; reasoning present is fine', async () => {
+  const doc = await loadCards();
+  const required = requiredArtifacts(doc, findCard(doc, 'T3-1'));
+  const silent = artifactWaivers(required, { replyReasoning: replyReasoning([reply(''), reply(null)]), thinking: true });
+  assert.deepEqual(silent, { required, warnings: [], problems: [THINKING_SILENT] });
+  assert.equal(silent.required.harvestedReasoning, 1);
+  assert.deepEqual(artifactWaivers(required, { replyReasoning: 2, thinking: true }), { required, warnings: [], problems: [] });
+  assert.deepEqual(artifactWaivers(required, { replyReasoning: null, thinking: true }).problems, []);
+  const plain = requiredArtifacts(doc, findCard(doc, 'T0-1'));
+  assert.deepEqual(artifactWaivers(plain, { replyReasoning: 0, thinking: true }).problems, [THINKING_SILENT]);
 });

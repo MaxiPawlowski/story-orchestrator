@@ -24,7 +24,7 @@ import { wizardAllowance, type WizardAllowance } from './lib/sessionWizardAssets
 import { buildPack, candidatesFromTurns, packLeaks, storyCandidate, type Candidate, type Verdict } from './lib/ratingPack.mts';
 import { AGENT_OPS, GOAL_AGENT_MODES, LIVE_VERBS, type AgentOp, type LiveChat, type LiveRequest, type LiveVerb } from './lib/sessionDriver.mts';
 import { BOOK_ANSWERS, type BookAnswer } from './lib/sessionDelete.mts';
-import { PRESET_OVERLAY_RECORD, sessionOverlay } from './lib/presetOverlay.mts';
+import { PRESET_OVERLAY_RECORD, profileProblems, sessionOverlay, thinkingExpected } from './lib/presetOverlay.mts';
 import { DEFAULT_MAIN_PROFILE, DEFAULT_ORCHESTRATOR, judgeExpectation, pinVerdict } from './lib/sessionPin.mts';
 import { scoreRow } from './lib/sessionRubric.mts';
 import { meterSession, updateBudgetDocument, type BudgetRow } from './lib/sessionSpend.mts';
@@ -36,7 +36,7 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
 
   start <charterId> [--lane n] [--profile <name>] [--orchestrator <regex>] [--age <hours>]
         [--media off|on] [--allow-comfy] [--no-seed] [--force-waiting] [--arm <label>] [--break-lease] [--judge-rate <n>]
-        [--no-preset-overlay]
+        [--preset-overlay <variant>] [--no-preset-overlay]
       the lane's judge plugin limit (SO_JUDGE_RATE_PER_MIN) is the account rate (SO_JUDGE_ACCOUNT_RATE_PER_MIN,
       default 90/min) x2 split over the running lanes plus this one, 10..60/min (lanes burst at different
       times: T1-4..7 combined used at most 56/min of 90); --judge-rate overrides it. A lane already up at another
@@ -54,8 +54,10 @@ v2.6 plan 14: one human play session per charter card, on its own adolion-fresh 
       pre-rendered ones; the card's image/sprite rubric rows are marked unexercised. --media on
       needs --allow-comfy. --arm tags the session for a blind-rating pack (W6 wizard arms).
       The lane's preset-overlay record (adolion-fresh seed) is copied into session.json with the
-      instruct/sampler values the page runs; a page that disagrees with an applied overlay fails the
-      start. --no-preset-overlay seeds without it (the pre-overlay condition, recorded as such).
+      instruct/context/sampler/reasoning/Start Reply With/response-length values the page runs, before
+      and after the main profile is selected; a page that disagrees with an applied overlay fails the
+      start. --preset-overlay picks the variant (default thinking; fix = the thinking-off control);
+      --no-preset-overlay seeds without it (the pre-overlay condition, recorded as such).
   setting <dir> <path> <json>                write one install-wide setting mid-session (a rating arm)
   turn <dir> "<line>" [--chat id] [--timeout-ms n] [--no-expect-reply] [--arm <label> [--gate C3|R4|Q-M]]
       one real turn on the open chat (refused when it is not one of the session's chats; --chat names
@@ -223,7 +225,7 @@ async function latestSession(card: Card) {
 
 export interface StartOptions {
   lane: number | null; allowComfy: boolean; seed: boolean; planned?: number | null; forceWaiting?: boolean;
-  profile?: string; orchestrator?: string; age?: number | null; media?: 'on' | 'off'; arm?: string | null; breakLease?: boolean; judgeRate?: number | null; noPresetOverlay?: boolean;
+  profile?: string; orchestrator?: string; age?: number | null; media?: 'on' | 'off'; arm?: string | null; breakLease?: boolean; judgeRate?: number | null; noPresetOverlay?: boolean; presetOverlay?: string | null;
 }
 
 export function planStart(doc: CardDoc, index: StoryIndex, card: Card, options: StartOptions, previous: { session: any } | null, sessions: SessionOnLane[] = []) {
@@ -325,7 +327,7 @@ async function start(id: string, options: StartOptions) {
   console.log(`[1/8] ${card.id} ${card.title} -> ${rel(dir)} on lane ${plan.lane}; judge ${judgeRate.perMinute}/min (${judgeRate.source}: ${judgeRate.lanes} lane(s) on a ${judgeRate.account}/min account)`);
   if (plan.seed) {
     console.log('[2/8] adolion-fresh seed (headed); images and sprites stay off');
-    await must('adolion-fresh seed', ['scripts/debug/adolion-fresh.mts', 'seed', String(plan.lane), '--headed', '--for', card.id, ...(options.breakLease ? ['--break-lease'] : []), ...(options.noPresetOverlay ? ['--no-preset-overlay'] : [])], rateEnv, true);
+    await must('adolion-fresh seed', ['scripts/debug/adolion-fresh.mts', 'seed', String(plan.lane), '--headed', '--for', card.id, ...(options.breakLease ? ['--break-lease'] : []), ...(options.noPresetOverlay ? ['--no-preset-overlay'] : []), ...(options.presetOverlay ? ['--preset-overlay', options.presetOverlay] : [])], rateEnv, true);
   } else {
     console.log('[2/8] no seed: bring the lane up headed');
     const status = existsSync(resolve(lane.debug, 'session.json')) ? await readJson(resolve(lane.debug, 'session.json')).catch(() => null) : null;
@@ -372,12 +374,16 @@ async function start(id: string, options: StartOptions) {
   const effectiveIssues = effectiveRun.code !== 0 || !effectiveRead?.settings ? [`could not read the effective settings back: ${effectiveRun.output.slice(-600)}`] : [...effectiveProblems(expected, effectiveRead.settings, baseline.installOwned), ...hostSwipesProblems(effectiveRead.host)];
   if (effectiveIssues.length) return fail('effective-settings', effectiveIssues);
   const overlayPath = resolve(lane.root, 'adolion-fresh', PRESET_OVERLAY_RECORD);
-  const presets = sessionOverlay(existsSync(overlayPath) ? await readJson(overlayPath) : null, effectiveRead.presets ?? null);
-  if (presets.problems.length) return fail('preset-overlay', presets.problems);
+  const overlayRecord = existsSync(overlayPath) ? await readJson(overlayPath) : null;
+  const presets = sessionOverlay(overlayRecord, effectiveRead.presets ?? null);
+  const overlayIssues = [...presets.problems, ...profileProblems(overlayRecord, plan.pin.profile)];
+  if (overlayIssues.length) return fail('preset-overlay', overlayIssues);
   warnings.push(...presets.warnings);
   const pinned = await inLane(plan.lane, ['scripts/debug/so-session.mts', '_page', 'pin', planPath, resolve(dir, 'page-pin.json')], viewportEnv, true);
   const pin = existsSync(resolve(dir, 'page-pin.json')) ? await readJson(resolve(dir, 'page-pin.json')) : null;
   if (pinned.code !== 0 || !pin?.verdict?.ok) return fail('pin', pin?.verdict?.problems?.length ? pin.verdict.problems : [`routing pin failed: ${pinned.output.slice(-800)}`]);
+  const pinnedPresets = sessionOverlay(overlayRecord, pin.presets ?? null);
+  if (pinnedPresets.problems.length) return fail('preset-overlay', pinnedPresets.problems.map((line) => `after selecting ${plan.pin.profile}: ${line}`));
   console.log('[5/8] open the story');
   const opened = await inLane(plan.lane, ['scripts/debug/so-session.mts', '_page', 'open', planPath, resolve(dir, 'page-open.json')], viewportEnv, true);
   if (opened.code !== 0) return fail('open', [`open phase failed: ${opened.output.slice(-1200)}`]);
@@ -405,7 +411,7 @@ async function start(id: string, options: StartOptions) {
     story: card.story, mode: card.setup.mode, startedAt: new Date().toISOString(), playFrom, stoppedAt: null,
     build: { ...servedBuild(), laneCampaign: laneCommit, indexCommit: index.commit }, pids, viewport: plan.viewport, settingsPatch: plan.patch,
     settings: { baselineVersion: baseline.version, chain: plan.chain.map((step) => step.card), effective: 'effective-settings.json' },
-    media, arm: plan.arm, logOffset: logSize(lane.log), host: effectiveRead.host, presetOverlay: presets.overlay, judgeRate: { ...judgeRate, loaded: loadedRate },
+    media, arm: plan.arm, logOffset: logSize(lane.log), host: effectiveRead.host, presetOverlay: { ...presets.overlay, liveAfterPin: pin.presets ?? null }, judgeRate: { ...judgeRate, loaded: loadedRate },
     pin: { profile: plan.pin.profile, orchestrator: plan.pin.orchestrator, judge: plan.pin.judge, verdict: pin.verdict, probe: pin.probe, routing: pin.routing },
     age, premise: plan.open.premise, continuedAtPin, startPopups: page.popups ?? [],
     chatsBefore: page.chatsBefore ?? [], chats: page.chats ?? [], continues: card.setup.continues ?? null, problems: [] as string[], warnings,
@@ -487,8 +493,9 @@ export async function verifySession(dir: string, session: any, doc: CardDoc, car
   const fullChats = names.filter((name) => /^chat-full-.+\.json$/.test(name));
   let reasoningCount: number | null = fullChats.length ? 0 : null;
   for (const name of fullChats) reasoningCount = (reasoningCount ?? 0) + replyReasoning(await readJson(resolve(dir, name)));
-  const { required, warnings } = artifactWaivers(requiredArtifacts(doc, card), { replyReasoning: reasoningCount });
   const playsStory = card.story.kind !== 'wizard';
+  const { required, warnings, problems: reasoningIssues } = artifactWaivers(requiredArtifacts(doc, card), { replyReasoning: reasoningCount, thinking: playsStory && thinkingExpected(session.presetOverlay) });
+  invalid.push(...reasoningIssues);
   for (const chat of session.chats ?? []) {
     if (!(chat.chatId in runtimes)) { invalid.push(`chat ${chat.chatId} was tracked but its persisted runtime was not exported`); continue; }
     if (chat.how === 'created' && !runtimes[chat.chatId]) continue;
@@ -1093,6 +1100,7 @@ async function pagePhase(phase: 'settings' | 'effective' | 'pin' | 'open' | 'end
       out.verdict = { ok: verdict.ok && selected.ok, problems: [...problems, ...verdict.problems] };
       out.probe = probe;
       out.routing = routing;
+      out.presets = await reads.readLivePresets(page);
     }
 
     if (phase === 'open') {
@@ -1313,7 +1321,7 @@ async function main() {
     await start(rest[0], {
       lane: lane === null ? null : Number(lane), allowComfy: rest.includes('--allow-comfy'), seed: !rest.includes('--no-seed'), forceWaiting: rest.includes('--force-waiting'),
       profile: argValue(rest, '--profile') ?? DEFAULT_MAIN_PROFILE, orchestrator: argValue(rest, '--orchestrator') ?? DEFAULT_ORCHESTRATOR.source, age: age === null ? null : Number(age),
-      media, arm: argValue(rest, '--arm'), breakLease: rest.includes('--break-lease'), noPresetOverlay: rest.includes('--no-preset-overlay'), judgeRate: argValue(rest, '--judge-rate') === null ? null : Number(argValue(rest, '--judge-rate')),
+      media, arm: argValue(rest, '--arm'), breakLease: rest.includes('--break-lease'), noPresetOverlay: rest.includes('--no-preset-overlay'), presetOverlay: argValue(rest, '--preset-overlay'), judgeRate: argValue(rest, '--judge-rate') === null ? null : Number(argValue(rest, '--judge-rate')),
     });
   } else if ((LIVE_VERBS as readonly string[]).includes(command)) await live(parseLiveArgs(command as LiveVerb, rest));
   else if (command === 'setting') await settingCommand(rest[0], rest[1], rest[2]);
