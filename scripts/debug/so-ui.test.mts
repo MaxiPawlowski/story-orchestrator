@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { attributeFindings, surfaceTextFindings, assignedRoleProfiles, branchContinue, closeCharacterPanel, gateReplayHistoryFrom, INLINE_PLAYER_FORBIDDEN_SELECTORS, inlineTextFindings, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings, errorStateFindings } from './so-ui.mts';
+import { attributeFindings, surfaceTextFindings, assignedRoleProfiles, branchContinue, closeCharacterPanel, switchDrawerTab, gateReplayHistoryFrom, INLINE_PLAYER_FORBIDDEN_SELECTORS, inlineTextFindings, jumpToCitation, memoryQueueSelector, PLAYER_FORBIDDEN_SELECTORS, PLAYER_RECOVERY_CONTROLS, recoveryControlFindings, errorStateFindings } from './so-ui.mts';
 
 test('keep and lock address the side row inside the named pair', () => {
   assert.equal(memoryQueueSelector({ action: 'keep', key: 'fact:abc' }), '[data-so="conflict-pair"][data-key="fact:abc"] [data-so="conflict-keep"] >> nth=0');
@@ -60,6 +60,20 @@ test("control: a pinned panel is the author's choice and stays open; a closed on
   assert.ok(pinned.panel.classList.has('openDrawer'));
   fakeDom(false, false);
   assert.deepEqual(await closeCharacterPanel(fakePage), { closed: false, pinned: false });
+  delete (globalThis as any).document;
+});
+
+test('T3-4 harness: drawer-tab opens the story drawer itself before it looks for the tab (a turn closes it)', async () => {
+  fakeDom(false, false);
+  const calls: string[] = [];
+  const drawerState = { open: false };
+  const tab = { count: async () => (drawerState.open ? 1 : 0), first: () => ({ click: async () => { calls.push('click'); }, getAttribute: async () => 'true' }) };
+  const page = {
+    evaluate: (fn: (arg?: unknown) => unknown, arg?: unknown) => fn(arg),
+    locator: () => ({ count: async () => 1, locator: () => tab }),
+  } as never;
+  const result = await switchDrawerTab(page, 'Memory', { open: async () => { calls.push('open'); drawerState.open = true; } });
+  assert.deepEqual([calls, result], [['open', 'click'], { tab: 'Memory', selected: true }]);
   delete (globalThis as any).document;
 });
 

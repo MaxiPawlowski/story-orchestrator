@@ -5,7 +5,8 @@ import type { SharedReadAudit } from "@extraction/index";
 import { provenance, type MemoryEntry } from "@memory/index";
 import { composeInlineTimeline, inlineMessageIds, visibleInlineItems, type InlineSources, type InlineView } from "./inlineTimeline";
 import { inspectMessage } from "./messageInspector";
-import type { EffectLedgerStatus } from "./types";
+import type { EffectLedgerRow, EffectLedgerStatus } from "./types";
+import { firstLines } from "./castInPlay";
 import { defaultInlineSettings, effectiveInlineLevel, INLINE_WINDOW_MAX, sanitizeGlobalSettings, sanitizeInlineSettings, type InlineLevel } from "./settingsModel";
 
 const ROOT = join(__dirname, "../..");
@@ -84,6 +85,7 @@ const sources = (story: NormalizedStoryV2, overrides: Partial<InlineSources> = {
     payloadCaptures: [{ at: "p", boundary: 1, messageId: 4, reason: "generation", blocks: [] }],
     pipeline: { state: "reading", text: "Reading the last few messages…", detail: "cadence read", needsSetup: false, nextAction: null },
     agencyRecovery: false, lastRollback: null, saveNotice: null,
+    firstLines: { mira: 1 },
     ...overrides,
   };
 };
@@ -174,6 +176,26 @@ describe("inline timeline composer (v2.6 plan 08 D3/D4)", () => {
     expect(player).toEqual(expect.arrayContaining([`Lore consulted: The Tavern and ${gatedNames.length} more`, `Stepped back to ${story.checkpoints[1].player_name}`]));
   });
 
+  it.each([["sun-ruins", SUN], ["adventurer", ADV]] as Array<[string, NormalizedStoryV2]>)("never names a cast member the player has not met (%s)", (_name, story) => {
+    const roster = story.roster.map((member) => ({ id: member.id, name: member.name ?? member.id }));
+    const row = (member: string, disabled: boolean, messageId: number, index: number): EffectLedgerRow => ({
+      id: `r${messageId}-${index}`, effect: "cast", target: { kind: "cast", group: "g", member: `${member}.png` }, before: { disabled: !disabled }, after: { disabled },
+      checkpointId: null, boundary: 0, messageId, at: "x", status: "applied",
+    });
+    const effects = [...roster.map((member, index) => row(member.id, true, 0, index)), ...roster.map((member, index) => row(member.id, false, 3, index))];
+    const castNames = Object.fromEntries(roster.flatMap((member) => [[member.id, member.name], [`${member.id}.png`, member.name]]));
+    const view = composeInlineTimeline(sources(story, { effects, castNames, firstLines: {}, talkDecisions: [] }));
+    const player = texts(view, 2);
+    expect(roster.length).toBeGreaterThan(0);
+    expect(player.filter((text) => roster.some((member) => text.includes(member.name)))).toEqual([]);
+    expect(Object.values(view.byMessage).flat().filter((item) => item.id.startsWith("cast:member")).length).toBe(roster.length * 2);
+  });
+
+  it("the cast property fails when the player has met everyone (control)", () => {
+    const view = composeInlineTimeline(sources(SUN, { castNames: { "Mira.png": "Mira Vell" }, firstLines: { "mira vell": 0 } }));
+    expect(texts(view, 2)).toContain("Mira Vell joined");
+  });
+
   it("the spoiler property fails on a leak (control)", () => {
     const view = composeInlineTimeline(sources(SUN, { pipeline: { state: "reading", text: `reading ${Object.keys(SUN.qualityByKey)[0]}`, detail: null, needsSetup: false, nextAction: null } }));
     expect(texts(view, 2).some((text) => text.includes(Object.keys(SUN.qualityByKey)[0]))).toBe(true);
@@ -246,5 +268,37 @@ describe("AS-8: a cast or background chip says what the ledger row really is", (
     const rolledBack = composeInlineTimeline(sources(SUN, { effects: [castRow("reverted", "e7", 3)], chatLength: 8 }));
     expect(castChips(rolledBack).filter((item) => item.level <= 2)).toEqual([]);
     expect(castChips(rolledBack).map((item) => item.text)).toEqual(["Mira joined, then undone"]);
+  });
+});
+
+describe("T3-4/T3-6: recorded cast ledgers tell the player only what they have seen", () => {
+  interface Recorded { rows: Array<{ messageId: number; member: string; disabled: boolean; status: EffectLedgerStatus }>; chat: Array<{ name: string; is_user: boolean; is_system: boolean }> }
+  const recorded = (file: string) => JSON.parse(readFileSync(join(ROOT, "test/fixtures/t3", file), "utf8")) as Recorded;
+  const view = (data: Recorded) => {
+    const effects = data.rows.map((row, index): EffectLedgerRow => ({
+      id: `rec-${index}`, effect: "cast", target: { kind: "cast", group: "g", member: row.member }, before: { disabled: !row.disabled }, after: { disabled: row.disabled },
+      checkpointId: null, boundary: 0, messageId: row.messageId, at: "x", status: row.status,
+    }));
+    const castNames = Object.fromEntries(data.rows.map((row) => [row.member, row.member.replace(/\.png$/, "")]));
+    return composeInlineTimeline(sources(SUN, { effects, castNames, firstLines: firstLines(data.chat), chatLength: data.chat.length, settings: { ...defaultInlineSettings(), level: 2, window: 200 }, authorView: false }));
+  };
+  const castTexts = (inline: InlineView) => Object.entries(inline.byMessage).flatMap(([messageId, items]) => items.filter((item) => item.id.startsWith("cast:member")).map((item) => `${messageId}: ${item.text}`));
+
+  it("aegis (T3-4): nothing at the greeting, only met characters leave, nobody is announced before their first line", () => {
+    expect(castTexts(view(recorded("aegis-cast.recorded.json")))).toEqual(["4: Domas left", "36: Sophie left", "36: Calithra left", "44: Celeste left"]);
+  });
+
+  it("adventurer (T3-6): the greeting's twelve departures are gone", () => {
+    const data = recorded("adventurer-cast.recorded.json");
+    expect(data.rows.filter((row) => row.messageId === 0).length).toBe(12);
+    expect(castTexts(view(data)).filter((text) => text.startsWith("0: "))).toEqual([]);
+  });
+
+  it("the author still sees every recorded row (author view adds)", () => {
+    const data = recorded("aegis-cast.recorded.json");
+    const author = composeInlineTimeline({ ...sources(SUN, { firstLines: firstLines(data.chat) }), effects: data.rows.map((row, index): EffectLedgerRow => ({
+      id: `rec-${index}`, effect: "cast", target: { kind: "cast", group: "g", member: row.member }, before: null, after: { disabled: row.disabled }, checkpointId: null, boundary: 0, messageId: row.messageId, at: "x", status: row.status,
+    })), chatLength: data.chat.length, settings: { ...defaultInlineSettings(), level: 4, window: 200 } });
+    expect(Object.values(author.byMessage).flat().filter((item) => item.id.startsWith("cast:member")).length).toBe(data.rows.length);
   });
 });

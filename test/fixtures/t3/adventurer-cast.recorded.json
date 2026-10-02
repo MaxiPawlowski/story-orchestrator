@@ -1,0 +1,148 @@
+{
+ "source": "test/sessions/T3/T3-6-1 (session evidence, untracked): effects ledger cast rows + chat speakers, no text",
+ "storyId": "adolion-adventurer",
+ "rows": [
+  {
+   "messageId": 0,
+   "member": "Domas.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Rydel.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Fiana.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Talis.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Alida.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Tatiana.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Kashina.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Alder.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Gustall.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Naomi.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Giada.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 0,
+   "member": "Riyo.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 5,
+   "member": "Tobias.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 5,
+   "member": "Ellie.png",
+   "disabled": true,
+   "status": "applied"
+  },
+  {
+   "messageId": 5,
+   "member": "Vallie.png",
+   "disabled": true,
+   "status": "applied"
+  }
+ ],
+ "chat": [
+  {
+   "name": "Adolion Narrator",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Tobias",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Ellie",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Belle",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Dalan",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Max Nightriver",
+   "is_user": true,
+   "is_system": false
+  },
+  {
+   "name": "Belle",
+   "is_user": false,
+   "is_system": false
+  },
+  {
+   "name": "Dalan",
+   "is_user": false,
+   "is_system": false
+  }
+ ]
+}

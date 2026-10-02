@@ -157,6 +157,16 @@ export const createGraphStyles = (themeColors: GraphThemeColors) => ([
   },
 ]);
 
+export const NARROW_GRAPH_WIDTH = 480;
+export const READABLE_ZOOM = 0.6;
+
+export const readableOnNarrow = (cy: Core): void => {
+  if (cy.width() >= NARROW_GRAPH_WIDTH || cy.zoom() >= READABLE_ZOOM || cy.elements().length === 0) return;
+  const box = cy.elements().boundingBox();
+  cy.zoom(READABLE_ZOOM);
+  cy.pan({ x: cy.width() / 2 - (box.x1 + box.w / 2) * READABLE_ZOOM, y: 32 - box.y1 * READABLE_ZOOM });
+};
+
 export const runGraphLayout = (cy: Core, name: LayoutName, dagreReady: boolean): void => {
   if (cy.elements().length === 0) return;
   const layoutName = name === "dagre" && !dagreReady ? "breadthfirst" : name;
@@ -175,6 +185,7 @@ export const runGraphLayout = (cy: Core, name: LayoutName, dagreReady: boolean):
   }
   try {
     cy.fit(undefined, 32);
+    readableOnNarrow(cy);
   } catch (err) {
     log.warn("graph panel: Failed to fit cytoscape view", err);
   }
@@ -184,6 +195,7 @@ export const resizeAndFitGraph = (cy: Core): void => {
   try {
     cy.resize();
     cy.fit(undefined, 32);
+    readableOnNarrow(cy);
   } catch (err) {
     log.warn("graph panel: Failed to resize/fit cytoscape", err);
   }

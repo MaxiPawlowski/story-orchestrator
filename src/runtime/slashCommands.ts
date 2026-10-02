@@ -2,6 +2,8 @@ import { getContext, sendSystemChatMessage } from "@services/STAPI";
 import type { RuntimeManager } from "./runtimeManager";
 import { renderBlackboardMemo } from "./blackboardMemo";
 import { loadChapterKit } from "./chapterPort";
+import { isEstablished, type MemoryEntry } from "@memory/index";
+import { CP_AUTHOR_ONLY_TEXT, MEMORY_TIER_LABELS, SO_MEM_AUTHOR_ONLY_TEXT } from "./narrative";
 
 type SlashArgs = Record<string, unknown>;
 type SlashCommandFactory = { fromProps: (props: Record<string, unknown>) => unknown };
@@ -45,7 +47,10 @@ const stringArgument = (context: ReturnType<typeof getContext>, props: Record<st
     : [];
 };
 
+const authorView = (manager: RuntimeManager) => manager.getSnapshot().ui?.authorView === true;
+
 async function cpCommand(manager: RuntimeManager, value: string | string[]) {
+  if (!authorView(manager)) return show(CP_AUTHOR_ONLY_TEXT);
   const parts = partsOf(value);
   const command = parts[0] ?? "list";
   if (command === "list") {
@@ -96,11 +101,13 @@ async function cpCommand(manager: RuntimeManager, value: string | string[]) {
 async function memCommand(manager: RuntimeManager, value: string | string[]) {
   const parts = partsOf(value);
   const command = parts[0] ?? "list";
+  const author = authorView(manager);
   if (command === "list") {
-    const entries = manager.getSnapshot().memory.entries.filter((entry) => !entry.supersededBy && !entry.foldedInto);
+    const playerVisible = (entry: MemoryEntry) => (!entry.foldedInto || isEstablished(entry)) && entry.provenance?.validity !== "conflicted";
+    const entries = manager.getSnapshot().memory.entries.filter((entry) => !entry.supersededBy && (author ? !entry.foldedInto : playerVisible(entry)));
     if (!entries.length) return show("No memory entries.");
     lastMemListIds = entries.map((entry) => entry.id);
-    return dump(entries.map((entry, index) => `${index + 1}. ${entry.pinned ? "📌 " : ""}[${entry.tier}] ${entry.text}`).join("\n"));
+    return dump(entries.map((entry, index) => `${index + 1}. ${entry.pinned ? "📌 " : ""}[${author ? entry.tier : MEMORY_TIER_LABELS[entry.tier]}] ${entry.text}`).join("\n"));
   }
   if (command === "pin") {
     const id = resolveMemId(parts[1]);
@@ -116,6 +123,7 @@ async function memCommand(manager: RuntimeManager, value: string | string[]) {
     return show(`Excluded memory ${parts[1]}`);
   }
   if (command === "backlog") {
+    if (!author) return show(SO_MEM_AUTHOR_ONLY_TEXT);
     const ok = await manager.memorizeChat();
     if (!ok) return show(manager.getSnapshot().memory.backfill?.lastError ?? "Memorize backlog could not start.");
     return show(manager.getSnapshot().status);

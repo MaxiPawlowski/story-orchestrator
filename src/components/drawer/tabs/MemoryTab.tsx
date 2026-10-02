@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { Lazy } from "@components/Lazy";
 import { lazyRetry } from "@utils/lazyRetry";
 import { isEstablished, MEMORY_TIERS, type MemoryEntry, type MemoryTier } from "@memory/index";
-import { memorizeProgressText, PLAYER_COPY, pinnedOverflowText } from "@runtime/narrative";
+import { MEMORY_TIER_LABELS, memorizeProgressText, PLAYER_COPY, pinnedOverflowText } from "@runtime/narrative";
 import type { RuntimeSnapshot } from "@runtime/types";
 import type { RuntimeManager } from "@runtime/index";
 
@@ -10,13 +10,6 @@ const ConflictQueue = lazyRetry(() => import("../ConflictQueue"));
 const AuthorMemoryPanels = lazyRetry(() => import("./MemoryPanels"));
 const AuthorMemoryControls = lazyRetry(() => import("./AuthorMemory").then((module) => ({ default: module.AuthorMemoryControls })));
 const AuthorMemoryRowExtras = lazyRetry(() => import("./AuthorMemory").then((module) => ({ default: module.AuthorMemoryRowExtras })));
-
-const MEMORY_TIER_LABELS: Record<MemoryTier, string> = {
-  facts: "Facts",
-  session_details: "Session details",
-  short_term: "Short-term",
-  scene_history: "Scene history",
-};
 
 const MEMORY_SEARCH_FROM = 50;
 

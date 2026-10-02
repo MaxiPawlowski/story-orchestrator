@@ -23,8 +23,10 @@ jest.mock("@services/STAPI", () => ({
 import { registerSlashCommands } from "./slashCommands";
 import type { RuntimeManager } from "./runtimeManager";
 
-const makeManager = () => {
+const makeManager = (authorView = true) => {
   const manager = {
+    activateCheckpoint: jest.fn(async () => undefined),
+    setQuality: jest.fn(async () => undefined),
     setMemoryPinned: jest.fn(async () => undefined),
     excludeMemoryEntry: jest.fn(async () => undefined),
     runMemorizeBacklog: jest.fn(async () => true),
@@ -39,13 +41,16 @@ const makeManager = () => {
     })),
     getSnapshot: jest.fn(() => ({
       status: "ok",
-      checkpoints: [],
-      convergence: [],
+      ui: { authorView },
+      checkpoints: [{ id: "aegis-the-board", name: "The Board", active: false, visited: false }],
+      convergence: [{ anchorId: "aegis-the-board", progress: 2, threshold: 3, reached: false }],
+      blackboard: { aegis_examiner_watching: true },
       memory: {
         backfill: null,
         entries: [
           { id: "m1", tier: "facts", text: "The key opens the vault.", pinned: false },
           { id: "m2", tier: "facts", text: "Old rumor.", supersededBy: "m1" },
+          { id: "m3", tier: "session_details", text: "A contested claim.", provenance: { validity: "conflicted" } },
         ],
       },
     })),
@@ -114,6 +119,37 @@ describe("registerSlashCommands", () => {
     expect(manager.runExpansionNow).toHaveBeenLastCalledWith("BEAT canned", false);
     await commands.cp.callback({}, "memorize");
     expect(manager.memorizeChat).toHaveBeenCalledTimes(1);
+  });
+
+  it("T3-4: /cp refuses in player mode with a neutral line, posts nothing and steers nothing", async () => {
+    const manager = makeManager(false);
+    registerSlashCommands(manager);
+    sendSystemChatMessage.mockClear();
+    for (const verb of ["", "list", "state", "converge", "activate aegis-the-board", "set aegis_examiner_watching false", "expand", "memorize", "bogus"]) {
+      const output = await commands.cp.callback({}, verb);
+      expect(output).toContain("Author view");
+      expect(output).not.toMatch(/aegis|examiner|progress_toward/);
+    }
+    expect(sendSystemChatMessage).not.toHaveBeenCalled();
+    expect([manager.activateCheckpoint, manager.setQuality, manager.runExpansionNow, manager.memorizeChat].map((fn) => fn.mock.calls.length)).toEqual([0, 0, 0, 0]);
+  });
+
+  it("T3-4: /cp still answers the author", async () => {
+    const manager = makeManager(true);
+    registerSlashCommands(manager);
+    expect(await commands.cp.callback({}, "list")).toContain("aegis-the-board");
+    expect(await commands.cp.callback({}, "converge")).toContain("2/3");
+  });
+
+  it("T3-4: /so-mem list in player mode names tiers in player words and hides held claims; backlog is author-only", async () => {
+    const manager = makeManager(false);
+    registerSlashCommands(manager);
+    const output = await commands["so-mem"].callback({}, "list");
+    expect(output).toBe("1. [Facts] The key opens the vault.");
+    expect(await commands["so-mem"].callback({}, "backlog")).toContain("Author view");
+    expect(manager.memorizeChat).not.toHaveBeenCalled();
+    await commands["so-mem"].callback({}, "pin 1");
+    expect(manager.setMemoryPinned).toHaveBeenLastCalledWith("m1", true);
   });
 
   it("/so-mem backlog starts the memorize backlog; bad subcommands return usage", async () => {

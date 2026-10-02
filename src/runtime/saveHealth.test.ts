@@ -1,4 +1,4 @@
-import { createSaveHealth, hasUnsavedChanges, markPending, markSettled, saveWasLost, verifySaved } from "./saveHealth";
+import { playerSaveNotice, SAVE_PLAYER_TEXT, createSaveHealth, hasUnsavedChanges, markPending, markSettled, saveWasLost, verifySaved } from "./saveHealth";
 
 // v2.3 plan 06 (save evidence). `saveMetadata` catches its own errors and returns normally, so the
 // only honest evidence is the request's own outcome and what the server holds afterwards. These are
@@ -73,5 +73,18 @@ describe("read-back", () => {
 
   it("has nothing to verify before the first confirmed write", () => {
     expect(verifySaved(0, createSaveHealth())).toBe("applied");
+  });
+});
+
+describe("T3-4: the player is told only of a lost save", () => {
+  const at = "2026-10-02T02:45:49.309Z";
+  it("a save in flight, or one the read-back could not confirm, says nothing to the player", () => {
+    expect(playerSaveNotice(markPending(createSaveHealth(), 30))).toBeNull();
+    expect(playerSaveNotice(markSettled(markPending(createSaveHealth(), 30), 30, "unconfirmed", "the server's copy of this chat could not be read", at))).toBeNull();
+  });
+  it("a lost write keeps the player line until a save lands", () => {
+    const lost = markSettled(markPending(createSaveHealth(), 30), 30, "unsaved", "no save request went out", at);
+    expect(playerSaveNotice(lost)).toBe(SAVE_PLAYER_TEXT);
+    expect(playerSaveNotice(markSettled(lost, 30, "applied", null, at))).toBeNull();
   });
 });

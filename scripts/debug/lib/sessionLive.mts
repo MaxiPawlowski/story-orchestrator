@@ -374,7 +374,8 @@ async function removeTrailingNotes(page: any, notes: ReplyTarget['notesAfter']) 
 const overlayState = (page: any) => evaluateInST(page, () => {
   const doc = (globalThis as any).document;
   if (!doc) return { drawerOpen: false, popups: 0 };
-  return { drawerOpen: doc.getElementById?.('drawer-manager')?.classList.contains('openDrawer') ?? false, popups: doc.querySelectorAll?.('dialog[open]')?.length ?? 0 };
+  const stDrawers = doc.querySelectorAll?.('#top-settings-holder .openDrawer:not(.pinnedOpen)')?.length ?? 0;
+  return { drawerOpen: (doc.getElementById?.('drawer-manager')?.classList.contains('openDrawer') ?? false) || stDrawers > 0, popups: doc.querySelectorAll?.('dialog[open]')?.length ?? 0 };
 });
 
 export async function clearOverlays(page: any, deps: Pick<LiveDeps, 'closeOverlays'>) {

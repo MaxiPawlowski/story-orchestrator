@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { evaluateInST } from './lib/evaluate.mts';
 import { writeJSON } from './lib/output.mts';
 import { runCli, hasHelpFlag } from './lib/cli.mts';
+import { AUTHOR_SLASH_PATTERN, authorSlashInPage } from './lib/authorSlash.mts';
 
 export async function getGenerationState(page) {
   return evaluateInST(page, () => {
@@ -198,18 +199,7 @@ export async function executeSlashCommand(page, command) {
     return SillyTavern.getContext().chat?.length ?? 0;
   });
 
-  const result = await evaluateInST(page, async (cmd) => {
-    const ctx = SillyTavern.getContext();
-    try {
-      const res = await ctx.executeSlashCommandsWithOptions(cmd);
-      return {
-        ok: true,
-        pipe: typeof res?.pipe === 'string' ? res.pipe.slice(0, 500) : null,
-      };
-    } catch (err) {
-      return { ok: false, error: err.message || String(err) };
-    }
-  }, command);
+  const result = await evaluateInST(page, authorSlashInPage, { cmd: command, pattern: AUTHOR_SLASH_PATTERN });
 
   try {
     await waitForIdle(page, 60000);

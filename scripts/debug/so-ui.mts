@@ -768,12 +768,13 @@ export async function closeCharacterPanel(page) {
 
 const LAZY_DRAWER_TABS = ['blackboard', 'scheduler', 'payload'];
 
-export async function switchDrawerTab(page, label) {
+export async function switchDrawerTab(page, label, { open = openStoryDrawer }: { open?: (page: any) => Promise<unknown> } = {}) {
   const drawer = page.locator('#drawer-manager');
   if (!(await drawer.count())) throw new Error('Drawer (#drawer-manager) is not mounted.');
+  await closeCharacterPanel(page);
+  await open(page);
   const tab = drawer.locator('[role="tablist"] button', { hasText: label });
   if (!(await tab.count())) throw new Error(`Drawer tab "${label}" not found.`);
-  await closeCharacterPanel(page);
   try {
     await tab.first().click({ timeout: 15000 });
   } catch (error) {
