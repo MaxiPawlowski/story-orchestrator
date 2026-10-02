@@ -4,7 +4,7 @@ import { STAGECRAFT_ACCEPT_MODES, type StagecraftAcceptMode } from "@stagecraft/
 import { TALK_CHAIN_MAX_CAP, TALK_CHAIN_MAX_DEFAULT } from "@engine/index";
 import { defaultJudgeSettings, sanitizeJudgeSettings, type JudgeSettings } from "@judge/index";
 import { sanitizePassProfiles, sanitizeRoleRoutes } from "./passProfiles";
-import { sanitizeReasoningBudget } from "@utils/reasoningEffort";
+import { isReplyEffort, sanitizeReasoningBudget } from "@utils/reasoningEffort";
 import type { CopilotRuntimeSettings, ExtractionRuntimeSettings, MemoryRuntimeSettings, PacingSettings, StagecraftSettings } from "./types";
 import { isRecord } from "@utils/guards";
 import { defaultImageSettings, sanitizeImageSettings, type ImageSettings } from "../image/settings";
@@ -198,7 +198,7 @@ const sanitizeTalkSettings = (value: unknown): GlobalSettings["talk"] => {
 export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
   const defaults = defaultGlobalSettings();
   if (!isRecord(value)) return defaults;
-  const { profiles: rawProfiles, routes: rawRoutes, reasoningBudget: rawBudget, fallbackProfileId: rawFallback, ...extraction }: Record<string, unknown> =
+  const { profiles: rawProfiles, routes: rawRoutes, reasoningBudget: rawBudget, fallbackProfileId: rawFallback, replyEffort, ...extraction }: Record<string, unknown> =
     isRecord(value.extraction) ? value.extraction : {};
   const fallbackProfileId = typeof rawFallback === "string" ? rawFallback.trim() : "";
   const profiles = sanitizePassProfiles(rawProfiles);
@@ -222,6 +222,7 @@ export const sanitizeGlobalSettings = (value: unknown): GlobalSettings => {
       ...(routes ? { routes } : {}),
       ...(reasoningBudget ? { reasoningBudget } : {}),
       ...(fallbackProfileId ? { fallbackProfileId } : {}),
+      ...(isReplyEffort(replyEffort) ? { replyEffort } : {}),
     },
     pacing: { alpha: clampAlpha(pacing.alpha), hintEnabled: pacing.hintEnabled !== false },
     display: { announceTransitions: display.announceTransitions === true, hudEnabled: display.hudEnabled !== false, inline: sanitizeInlineSettings(display.inline) },

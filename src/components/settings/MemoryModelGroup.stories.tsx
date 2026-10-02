@@ -36,6 +36,8 @@ export const NotConfigured: Story = {
     await expect(canvas.getByRole("button", { name: "Test memory model" })).toBeDisabled();
     await userEvent.click(enabled);
     await expect(args.manager.setExtractionSettings).toHaveBeenCalledWith({ enabled: false });
+    await userEvent.selectOptions(canvas.getByLabelText("Reply thinking"), "high");
+    await expect(args.manager.setExtractionSettings).toHaveBeenCalledWith({ replyEffort: "high" });
   },
 };
 

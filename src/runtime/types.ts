@@ -19,7 +19,7 @@ import type { AgencyRecovery } from "./agencyRecovery";
 import type { NextTurnContributor, NextTurnCost, NextTurnForeignRow } from "./nextTurn";
 import type { ChatJumpIndex } from "./messageJump";
 import type { PassProfiles, RoleRoutes } from "./passProfiles";
-import type { ReasoningBudget } from "@utils/reasoningEffort";
+import type { ReasoningBudget, ReplyEffort } from "@utils/reasoningEffort";
 import type { RoleRouteView } from "./roleHealth";
 import type { ModelCallRow } from "./modelCalls";
 import type { ModelCallRecord } from "./modelCallLog";
@@ -344,6 +344,7 @@ export interface ExtractionRuntimeSettings {
   profiles?: PassProfiles;
   routes?: RoleRoutes;
   reasoningBudget?: ReasoningBudget;
+  replyEffort?: ReplyEffort;
   cadence: number;
   reconciliationMultiplier: number;
   stabilityLag: number;

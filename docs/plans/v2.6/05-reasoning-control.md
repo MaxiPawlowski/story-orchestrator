@@ -1,6 +1,6 @@
 # Plan 05 — Reasoning control
 
-**Status: R0-R2 BUILT 2026-09-30 (code + unit tests, see §Gate record). R3/R4 are measurements, not run: recipes below.** Overview: `00-overview.md`.
+**Status: R0-R2 BUILT 2026-09-30 (code + unit tests, see §Gate record). Reply effort (install default, budget keys on llama.cpp) BUILT 2026-10-02; its ST live gate is owed. R3/R4 are measurements, not run: recipes below.** Overview: `00-overview.md`.
 
 ## Problem
 
@@ -294,3 +294,67 @@ build first).
 - Arm vs control is the spike flag on/off on a checkpoint that declares `high`; each turn's chat is opened by the operator and the runner refuses a mismatch.
 - 40 of 41 mutants killed (survivor equivalent). Live R4 run and the human rating: owed to Part B.
 - Gates and the full table: `15-review.md` §Review fixes AS (measurement).
+
+### 2026-10-02 — Reply reasoning effort built (install default ships; checkpoint override stays dev-gated)
+
+Branch `v26-reasoning-effort` (worktree `C:\dev\so-effort-build-wt`), from the A/B in `15-model-config.md` §"2026-10-02: Reasoning effort A/B".
+
+**Design**
+
+| Level | llama.cpp Text Completion (`api_type: llamacpp`) | llama-server Chat Completion (`custom`, models owned by `llamacpp`) |
+|---|---|---|
+| off | the five keys, `reasoning_budget_tokens: 1` | `custom_include_body` merged with `chat_template_kwargs.enable_thinking: false`, `include_reasoning: false` |
+| low | the five keys, budget 128 | `enable_thinking: true` + `thinking_budget_tokens: 128` |
+| medium (default) | the five keys, budget 400 | `enable_thinking: true` + `thinking_budget_tokens: 400` |
+| high | no key | `enable_thinking: true`, no budget |
+
+- The five TC keys: `reasoning_budget_tokens`, `reasoning_budget_start_tag` (the reasoning template's prefix as it ends the prompt, trailing whitespace trimmed), `reasoning_budget_end_tags` (`[suffix]`), `reasoning_budget_message: ""`, `generation_prompt` (the prefix as it ends the prompt).
+- **Never on a setup that does not think.** TC: nothing unless the prompt ends with the reasoning template's prefix (Start Reply With opens the thought). CC: nothing unless the request asks for reasoning (`include_reasoning`) and the profile's include body does not set `enable_thinking: false`. Recorded as `idle`, never journaled.
+- **Other backends are refused with a reason** and sent nothing: TC koboldcpp/ooba/tabby/…, CC openrouter/openai/claude/makersuite/…, and a `custom` endpoint whose model list is not llama.cpp.
+- Loud requests only (the X20 `isLoudRequest`), and only in the chat that plays the story. The memory model never gets a key: Connection Manager TC calls never fire `GENERATE_AFTER_DATA`, and CM CC calls are built with type `quiet` (custom-request.js:601).
+- Install-wide `extraction.replyEffort` (`off|low|medium|high`, absent = medium; unknown values dropped by the sanitizer). Control: "Reply thinking" (`#so-reply-effort`) in the Memory model group, which is a lazy chunk.
+- Journal: once per new outcome per chat + checkpoint, e.g. `Reply thinking "medium" (the install-wide setting) applied to the replies` / `... could not be applied` with the reason. The overlay is not a host write, so there is no effect-ledger row (the ledger is for restorable host writes).
+- **Checkpoint `effects.reasoning` stays behind `spikes.reasoningEffect`, dev only** (`__SO_DEV__ && flag`). Reasons:
+  - R4's predeclared floor (blind A/B, arm preferred ≥ 60 %) is unmeasured, and a spike is decided by its floor.
+  - `low` broke the form of 4/40 group replies in the A/B, so an authored `low` at a group checkpoint is a known regression.
+  - R4 is now measurable on TC: before this build the effect sent nothing there. Arm = checkpoint `high` (no budget); control = the install default `medium` (400).
+  - The module itself left `runtime/spikes/` and the D3 list (it ships for the install default): `runtime/replyEffort.ts` (pure), `replyEffortHost.ts` (hook + ring + journal), `replyEffortLive.ts` (live deps), `stHost/llamaCpp.ts`, `utils/replyEffort.ts`, all in a lazy chunk (`devOnly.guard.test` asserts they are off the static entry graph, with a planted-import control).
+- R4 tooling followed: `payloadProof` reads `thinking_budget_tokens` and the TC `reasoning_budget_tokens`; an arm lands when it carries `enable_thinking: true` without a budget (CC) or no budget on `text:llamacpp`. OpenRouter arms no longer land, because the overlay refuses them.
+- Sessions: `test/sessions/baseline-settings.json` sets `extraction.replyEffort: "medium"`; `so-session start` refuses a thinking-overlay lane whose effective effort is not the expected one (`replyEffortProblems`, node:test in `presetOverlay.test.mts`).
+
+**Host facts (ST `7c3994196`, llama.cpp b11046)**
+
+| Fact | Where |
+|---|---|
+| TC payload carries `api_type` = the textgen type | `public/scripts/textgen-settings.js:1656` |
+| main Generate emits `GENERATE_AFTER_DATA(generate_data, dryRun)` before sending | `public/script.js:5318` |
+| `llamacpp` → `/completion`, body forwarded whole | `src/endpoints/backends/text-completions.js:315-326` |
+| CC payload carries `include_reasoning` and (custom) `custom_include_body` | `public/scripts/openai.js:2820`, `:2924` |
+| `CHAT_COMPLETION_SETTINGS_READY` before every CC request | `openai.js:3146` |
+| CC model list from the status call, a live export | `openai.js:175` (`export let model_list`), `:2025` `saveModelList` |
+| llama-server lists models with `owned_by: "llamacpp"` | `tools/server/server-context.cpp:4552` (b11046, `C:\dev\so-lanes\artemis-effort\llama-src`) |
+| CM CC requests are built as type `quiet` | `public/scripts/custom-request.js:601` |
+| reasoning template prefix/suffix | `public/scripts/power-user.js:274-281`, `st-context.js:229` (`powerUserSettings`) |
+
+**Live**
+
+- **ST end-to-end lane check: NOT run (NOT green).** Every lane serves the one staged slot under the real ST tree, so staging this build would reach real ST :8000 and the player lanes 3/4 on their next reload. A private ST root for lane 1 needed `node_modules` and the real `data/default-user` linked into it, and the permission system refused that. Owed:
+  - lane 1 or 2 (adolion-fresh, thinking overlay, `st-payload.mts arm --persist`), off/low/medium/high × n ≥ 3 group turns;
+  - extraction/memory requests checked for no budget key;
+  - a CC custom arm.
+- **Raw server-hop check: done.** The exact values `textgenPlan` emits (`test/measurements/v2.6-05/reply-effort-levels-2026-10-02.json`) were sent to the production pod through the tunnel (llama-server b11046, A/B kit `run_think.py`, shape `stga`, bodies W/T/B, seed 12, 1 request at a time, 12 requests between 11:22 and 11:30Z). Rows: `reply-effort-raw-2026-10-02.jsonl`.
+
+| Level | Reasoning tokens (W, T, B) | Thought closed | First reply token (s) | Empty replies (not hand-read) |
+|---|---|---|---|---|
+| off (budget 1) | 1, 1, 1 | 3/3 | 7.7, 10.7, 7.8 | 0 |
+| low (128) | 128, 128, 128 | 3/3 | 9.9, 7.6, 7.3 | 0 |
+| medium (400) | 266, 208, 400 | 3/3 | 17.7, 10.8, 16.5 | 0 |
+| high (no key) | 269, 287, 339 | 3/3 | 16.0, 15.3, 26.7 | 0 |
+
+**Gates (this worktree, commit before this record)**
+
+| Command | Result |
+|---|---|
+| `npm run gates` | typecheck, typecheck:test, lint, test (460 suites, 5773 passed, 1 skipped), build, build:dev, test:debug, debug:typecheck, test:release, test:replay, test:plugin all ok; **test-storybook:ci RED for the known reason**: the `node_modules` junction makes the runner look under the main checkout ("No tests found") |
+| Storybook against the static build: `http-server .sb-static -p 6117`, `test-storybook.js --url http://127.0.0.1:6117 --index-json` | 65 suites, 399 tests passed, incl. `settings-replythinkingfield` and `settings-memorymodelgroup` |
+| Main entry `dist/index.js` (prod) | **1 249 653 B** (budget 1 250 000; master `86e45815` 1 249 157, so +496 B: the lazy-import wiring, the sanitizer and the chunk map). Everything else is in lazy chunks |

@@ -1,0 +1,30 @@
+{
+ "off": {
+  "reasoning_budget_tokens": 1,
+  "reasoning_budget_start_tag": "<|channel>thought",
+  "reasoning_budget_end_tags": [
+   "<channel|>"
+  ],
+  "reasoning_budget_message": "",
+  "generation_prompt": "<|channel>thought\n"
+ },
+ "low": {
+  "reasoning_budget_tokens": 128,
+  "reasoning_budget_start_tag": "<|channel>thought",
+  "reasoning_budget_end_tags": [
+   "<channel|>"
+  ],
+  "reasoning_budget_message": "",
+  "generation_prompt": "<|channel>thought\n"
+ },
+ "medium": {
+  "reasoning_budget_tokens": 400,
+  "reasoning_budget_start_tag": "<|channel>thought",
+  "reasoning_budget_end_tags": [
+   "<channel|>"
+  ],
+  "reasoning_budget_message": "",
+  "generation_prompt": "<|channel>thought\n"
+ },
+ "high": {}
+}

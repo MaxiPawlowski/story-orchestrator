@@ -64,7 +64,7 @@ declare global {
   var storyOrchestratorJudge: import("./src/runtime/judgeHarness").JudgeHarness | undefined;
   var storyOrchestratorSpikes: ({
     swipeBackCache?: { stats: () => import("./src/runtime/spikes/swipeBack").SwipeBackStats };
-    reasoningEffect?: import("./src/runtime/spikes/reasoningEffectHost").ReasoningEffectDebug;
+    reasoningEffect?: import("./src/runtime/replyEffortHost").EffortDebug;
   } & Partial<import("./src/runtime/spikes/install").SpikeDebug>) | undefined;
   var storyOrchestratorTalk: { chainPending: () => boolean } | undefined;
   var storyOrchestratorScheduler: { nextReadWindow: () => import("./src/extraction/scheduler").NextReadWindow | null } | undefined;

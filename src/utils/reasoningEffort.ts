@@ -6,6 +6,10 @@ export type ReasoningLevel = "low" | "medium" | "high";
 
 export type ReasoningBudget = Record<ReasoningLevel, number>;
 
+export type ReplyEffort = "off" | "low" | "medium" | "high";
+
+export const isReplyEffort = (value: unknown): value is ReplyEffort => /^(off|low|medium|high)$/.test(String(value));
+
 export const DEFAULT_REASONING_BUDGET: ReasoningBudget = { low: 512, medium: 2048, high: 6144 };
 
 const REASONING_BUDGET_MAX = 32768;

@@ -22,8 +22,8 @@ test('a turn generates control and arm in the seeded order, proves the key, and 
     assert.deepEqual(fake.state.flagWrites, [true, false, false]);
     assert.deepEqual(fake.state.triggers, ['/trigger await=true "Narrator"', '/trigger await=true "Narrator"']);
     const [arm, control] = record.generations;
-    assert.equal(arm.payload.reasoningEffort, 'high');
-    assert.equal(control.payload.reasoningEffort, null);
+    assert.deepEqual([arm.payload.source, arm.payload.textBudget], ['text:llamacpp', null]);
+    assert.deepEqual([control.payload.source, control.payload.textBudget], ['text:llamacpp', 400]);
     assert.ok(arm.shot);
     assert.equal(control.shot, null);
     assert.deepEqual([arm.reply, control.reply], ['The gate gives way, take 1.', 'The gate gives way, take 2.']);
@@ -42,7 +42,8 @@ test('control first when the coin says so, and a solo turn triggers without a me
 test('a custom source proves the arm through enable_thinking in the merged include body', async () => {
   await withFake({ source: 'custom' }, async (fake) => {
     const record = await runR4Turn(fake.page, turn(), { armFirst: true, deps: fake.deps });
-    assert.deepEqual(record.generations.map((generation) => generation.payload.enableThinking), [true, false]);
+    assert.deepEqual(record.generations.map((generation) => generation.payload.enableThinking), [true, true]);
+    assert.deepEqual(record.generations.map((generation) => generation.payload.thinkingBudget), [null, 400]);
     assert.deepEqual(pairProblems(record), []);
   });
 });

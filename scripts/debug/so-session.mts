@@ -24,7 +24,7 @@ import { resolveHeaderAllow, storyContext, wizardAllowance, type WizardAllowance
 import { buildPack, candidatesFromTurns, packLeaks, storyCandidate, type Candidate, type Verdict } from './lib/ratingPack.mts';
 import { AGENT_OPS, GOAL_AGENT_MODES, LIVE_VERBS, type AgentOp, type LiveChat, type LiveRequest, type LiveVerb } from './lib/sessionDriver.mts';
 import { BOOK_ANSWERS, type BookAnswer } from './lib/sessionDelete.mts';
-import { PRESET_OVERLAY_RECORD, profileProblems, sessionOverlay, thinkingExpected } from './lib/presetOverlay.mts';
+import { PRESET_OVERLAY_RECORD, profileProblems, replyEffortProblems, sessionOverlay, thinkingExpected } from './lib/presetOverlay.mts';
 import { DEFAULT_MAIN_PROFILE, DEFAULT_ORCHESTRATOR, judgeExpectation, pinVerdict } from './lib/sessionPin.mts';
 import { scoreRow } from './lib/sessionRubric.mts';
 import { meterSession, updateBudgetDocument, type BudgetRow } from './lib/sessionSpend.mts';
@@ -381,7 +381,7 @@ async function start(id: string, options: StartOptions) {
   const overlayPath = resolve(lane.root, 'adolion-fresh', PRESET_OVERLAY_RECORD);
   const overlayRecord = existsSync(overlayPath) ? await readJson(overlayPath) : null;
   const presets = sessionOverlay(overlayRecord, effectiveRead.presets ?? null);
-  const overlayIssues = [...presets.problems, ...profileProblems(overlayRecord, plan.pin.profile)];
+  const overlayIssues = [...presets.problems, ...profileProblems(overlayRecord, plan.pin.profile), ...replyEffortProblems(presets.overlay, expected, effectiveRead.settings)];
   if (overlayIssues.length) return fail('preset-overlay', overlayIssues);
   warnings.push(...presets.warnings);
   const pinned = await inLane(plan.lane, ['scripts/debug/so-session.mts', '_page', 'pin', planPath, resolve(dir, 'page-pin.json')], viewportEnv, true);

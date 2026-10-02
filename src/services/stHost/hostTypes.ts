@@ -85,8 +85,8 @@ export interface SillyTavernContext {
   groups: HostGroup[];
   characters: HostCharacter[];
   worldInfo?: Record<string, HostWorldInfoEntry>;
-  // persona_description_lorebook: the persona's own book (world-info.js:4566).
-  powerUserSettings?: { personas?: Record<string, string>; persona_description_lorebook?: unknown };
+  // persona_description_lorebook: the persona's own book (world-info.js:4566); reasoning: the reasoning template, prefix/suffix (power-user.js:274-281).
+  powerUserSettings?: { personas?: Record<string, string>; persona_description_lorebook?: unknown; reasoning?: unknown };
   SlashCommandParser?: { commands?: Record<string, HostSlashCommand> };
   // Exported on every supported host (st-context.js:98 import, :169 export, ST 1.18.0).
   SlashCommandEnumValue: new (value: string, description?: string) => unknown;
