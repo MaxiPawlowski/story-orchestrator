@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
-import { applyPresetOverlay, overlayProblems, overlaySha256, PRESET_OVERLAY_PATH, presetFile, profileProblems, sessionOverlay, thinkingExpected, THINKING_VARIANT, type OverlayFs, type OverlayRecord } from './presetOverlay.mts';
+import { applyPresetOverlay, overlayProblems, overlaySha256, PRESET_OVERLAY_PATH, presetFile, profileProblems, replyEffortProblems, sessionOverlay, thinkingExpected, THINKING_REPLY_EFFORT, THINKING_VARIANT, type OverlayFs, type OverlayRecord } from './presetOverlay.mts';
 
 const USER = join('X:', 'lanes', '3', 'data', 'default-user');
 const OVERLAY = join('X:', 'repo', 'adolion-fresh.presets.json');
@@ -344,4 +344,19 @@ test('T5-5-1 overlay: the name-echo regex drops a repeated speaker name after th
   assert.equal(forre(`${thought}Alexander: "No."`), `${thought}Alexander: "No."`);
   assert.equal(compile('Adolion Narrator')(`${thought}Adolion Narrator: The tent.`), `${thought}The tent.`);
   assert.equal(compile('Sir (A.)')(`${thought}Sir (A.): Hello`), `${thought}Hello`);
+});
+
+test('reply effort: the session baseline selects medium, and a thinking lane that reads back anything else is refused', async () => {
+  const baseline = JSON.parse(await readFile(join(import.meta.dirname, '..', '..', '..', 'test', 'sessions', 'baseline-settings.json'), 'utf-8'));
+  assert.equal(baseline.settings.extraction.replyEffort, THINKING_REPLY_EFFORT);
+  assert.equal(THINKING_REPLY_EFFORT, 'medium');
+  const thinking = { applied: true, variant: THINKING_VARIANT };
+  const expected = baseline.settings;
+  assert.deepEqual(replyEffortProblems(thinking, expected, { extraction: { replyEffort: 'medium' } }), []);
+  assert.deepEqual(replyEffortProblems(thinking, expected, { extraction: {} }), []);
+  assert.match(replyEffortProblems(thinking, expected, { extraction: { replyEffort: 'high' } }).join(';'), /reply effort "high", expected "medium"/);
+  assert.match(replyEffortProblems(thinking, {}, { extraction: { replyEffort: 'off' } }).join(';'), /expected "medium"/);
+  assert.deepEqual(replyEffortProblems(thinking, { extraction: { replyEffort: 'low' } }, { extraction: { replyEffort: 'low' } }), []);
+  assert.deepEqual(replyEffortProblems({ applied: true, variant: 'fix' }, expected, { extraction: { replyEffort: 'high' } }), []);
+  assert.deepEqual(replyEffortProblems({ applied: false, variant: THINKING_VARIANT }, expected, { extraction: { replyEffort: 'off' } }), []);
 });

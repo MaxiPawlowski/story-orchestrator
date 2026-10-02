@@ -260,6 +260,20 @@ export interface SessionOverlay {
 
 export const thinkingExpected = (overlay: { applied?: boolean; variant?: string | null } | null | undefined) => overlay?.applied === true && overlay?.variant === THINKING_VARIANT;
 
+export const THINKING_REPLY_EFFORT = 'medium';
+
+const replyEffortOf = (settings: unknown): unknown => {
+  const extraction = isRecord(settings) && isRecord(settings.extraction) ? settings.extraction : null;
+  return extraction?.replyEffort ?? THINKING_REPLY_EFFORT;
+};
+
+export function replyEffortProblems(overlay: { applied?: boolean; variant?: string | null } | null | undefined, expected: unknown, actual: unknown): string[] {
+  if (!thinkingExpected(overlay)) return [];
+  const want = isRecord(expected) && isRecord(expected.extraction) && typeof expected.extraction.replyEffort === 'string' ? expected.extraction.replyEffort : THINKING_REPLY_EFFORT;
+  const got = replyEffortOf(actual);
+  return got === want ? [] : [`the thinking overlay runs with reply effort ${JSON.stringify(got)}, expected "${want}" (budget 400 is the measured default for group narration, 15-model-config 2026-10-02)`];
+}
+
 function liveProblem(edit: EditChange, live: LivePresets | null): string | null {
   const shown = (value: unknown) => JSON.stringify(value);
   if (edit.kind === 'settings') {

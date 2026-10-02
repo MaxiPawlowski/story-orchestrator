@@ -41,6 +41,8 @@ export interface R4PayloadProof {
   reasoningEffort: unknown;
   includeReasoning: unknown;
   enableThinking: boolean | null;
+  thinkingBudget: number | null;
+  textBudget: number | null;
 }
 
 export interface R4Generation {
@@ -160,20 +162,36 @@ const thinkingFrom = (body: unknown): boolean | null => {
   }
 };
 
+const budgetFrom = (body: unknown): number | null => {
+  if (typeof body !== 'string' || !body.trim()) return null;
+  try {
+    const value = (JSON.parse(body) as { thinking_budget_tokens?: unknown })?.thinking_budget_tokens;
+    return typeof value === 'number' ? value : null;
+  } catch {
+    const match = /thinking_budget_tokens["']?\s*:\s*(\d+)/.exec(body);
+    return match ? Number(match[1]) : null;
+  }
+};
+
 export function payloadProof(body: unknown): R4PayloadProof {
-  if (!body || typeof body !== 'object') return { captured: false, source: null, reasoningEffort: null, includeReasoning: null, enableThinking: null };
+  if (!body || typeof body !== 'object') return { captured: false, source: null, reasoningEffort: null, includeReasoning: null, enableThinking: null, thinkingBudget: null, textBudget: null };
   const request = body as Record<string, unknown>;
+  const chat = typeof request.chat_completion_source === 'string' ? request.chat_completion_source : null;
   return {
     captured: true,
-    source: typeof request.chat_completion_source === 'string' ? request.chat_completion_source : null,
+    source: chat ?? (typeof request.api_type === 'string' ? `text:${request.api_type}` : null),
     reasoningEffort: request.reasoning_effort ?? null,
     includeReasoning: request.include_reasoning ?? null,
     enableThinking: thinkingFrom(request.custom_include_body),
+    thinkingBudget: budgetFrom(request.custom_include_body),
+    textBudget: typeof request.reasoning_budget_tokens === 'number' ? request.reasoning_budget_tokens : null,
   };
 }
 
-const carriesArm = (proof: R4PayloadProof): boolean =>
-  proof.source === 'custom' ? proof.enableThinking === true : proof.reasoningEffort === R4_ARM_LEVEL;
+const carriesArm = (proof: R4PayloadProof): boolean => {
+  if (proof.source === 'custom') return proof.enableThinking === true && proof.thinkingBudget === null;
+  return proof.source === 'text:llamacpp' && proof.textBudget === null;
+};
 
 export function pairProblems(record: R4TurnRecord): string[] {
   const problems: string[] = [];

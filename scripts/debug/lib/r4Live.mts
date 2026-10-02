@@ -118,7 +118,8 @@ export async function removeReply(page: any, startLength: number): Promise<numbe
 
 export function mainRequest(entries: R4CaptureEntry[]): unknown {
   const generate = entries.filter((entry) => /\/api\/backends\/(chat-completions|text-completions)\/generate/.test(String(entry.url ?? '')));
-  const loud = generate.find((entry) => (entry.parsedBody as { type?: unknown } | null)?.type === 'normal');
+  const loud = generate.find((entry) => (entry.parsedBody as { type?: unknown } | null)?.type === 'normal')
+    ?? generate.find((entry) => /thought\n?$/.test(String((entry.parsedBody as { prompt?: unknown } | null)?.prompt ?? '')));
   return loud?.parsedBody ?? null;
 }
 

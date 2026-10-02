@@ -24,11 +24,19 @@ export const fixtureTurns = (count = 20): R4TurnsFile => ({
   })),
 });
 
-const proof = (source: string, value: unknown) => (source === 'custom'
-  ? payloadProof({ chat_completion_source: 'custom', include_reasoning: value === 'high', custom_include_body: JSON.stringify({ chat_template_kwargs: { enable_thinking: value === 'high' } }) })
-  : payloadProof({ chat_completion_source: source, reasoning_effort: value, include_reasoning: value === 'high' }));
+const budgets: Record<string, number> = { off: 1, low: 128, medium: 400 };
 
-const generation = (side: 'arm' | 'control', reply: string, latencyMs: number, source = 'openrouter', value: unknown = side === 'arm' ? 'high' : undefined): R4Generation => ({
+const proof = (source: string, value: unknown) => {
+  const budget = typeof value === 'string' ? budgets[value] : undefined;
+  if (source === 'custom') {
+    const body = { chat_template_kwargs: { enable_thinking: value !== 'off' }, ...(budget && value !== 'off' ? { thinking_budget_tokens: budget } : {}) };
+    return payloadProof({ chat_completion_source: 'custom', include_reasoning: value !== 'off', custom_include_body: JSON.stringify(body) });
+  }
+  if (source === 'llamacpp') return payloadProof({ api_type: 'llamacpp', prompt: 'x<|channel>thought\n', ...(budget ? { reasoning_budget_tokens: budget } : {}) });
+  return payloadProof({ chat_completion_source: source, reasoning_effort: value, include_reasoning: value === 'high' });
+};
+
+const generation = (side: 'arm' | 'control', reply: string, latencyMs: number, source = 'llamacpp', value: unknown = side === 'arm' ? 'high' : 'medium'): R4Generation => ({
   side, order: side === 'arm' ? 0 : 1, reply, speaker: 'Narrator', latencyMs, payload: proof(source, value), shot: null,
 });
 
@@ -81,11 +89,14 @@ test('the committed turns file is the declared shape with only its placeholders 
 
 test('a pair is valid only when the arm key landed and the control did not carry it', () => {
   assert.deepEqual(pairProblems(fixtureRecord('t01')), []);
-  assert.deepEqual(pairProblems({ ...fixtureRecord('t01'), generations: [generation('control', 'x', 10, 'custom', false), generation('arm', 'y', 10, 'custom', 'high')] }), []);
-  assert.match(pairProblems(fixtureRecord('t01', { arm: { payload: proof('openrouter', undefined) } })).join(';'), /the arm key did not land/);
+  assert.deepEqual(pairProblems({ ...fixtureRecord('t01'), generations: [generation('control', 'x', 10, 'custom', 'medium'), generation('arm', 'y', 10, 'custom', 'high')] }), []);
+  assert.match(pairProblems(fixtureRecord('t01', { arm: { payload: proof('llamacpp', 'medium') } })).join(';'), /the arm key did not land/);
+  assert.match(pairProblems(fixtureRecord('t01', { arm: { payload: proof('openrouter', 'high') } })).join(';'), /the arm key did not land/);
   assert.match(pairProblems(fixtureRecord('t01', { arm: { payload: proof('custom', 'off') } })).join(';'), /the arm key did not land/);
+  assert.match(pairProblems(fixtureRecord('t01', { arm: { payload: proof('custom', 'medium') } })).join(';'), /the arm key did not land/);
   assert.match(pairProblems(fixtureRecord('t01', { arm: { payload: payloadProof(null) } })).join(';'), /no request was captured for the arm/);
-  assert.match(pairProblems(fixtureRecord('t01', { control: { payload: proof('openrouter', 'high') } })).join(';'), /already carries the arm's value/);
+  assert.match(pairProblems(fixtureRecord('t01', { control: { payload: proof('llamacpp', 'high') } })).join(';'), /already carries the arm's value/);
+  assert.deepEqual(pairProblems(fixtureRecord('t01', { arm: { payload: proof('custom', 'high') }, control: { payload: proof('custom', 'medium') } })), []);
   assert.match(pairProblems(fixtureRecord('t01', { control: { reply: '  ' } })).join(';'), /control reply is empty/);
   assert.match(pairProblems(fixtureRecord('t01', { arm: { payload: proof('custom', 'high') } })).join(';'), /different sources/);
 });
@@ -96,7 +107,7 @@ test('control: enable_thinking is read from a YAML include body the profile wrot
 
 test('a planted run whose arm key did not land is excluded from the pack and named in the key', () => {
   const planted = records(21);
-  planted[4] = fixtureRecord(planted[4].turnId, { arm: { payload: proof('openrouter', undefined) } });
+  planted[4] = fixtureRecord(planted[4].turnId, { arm: { payload: proof('llamacpp', 'medium') } });
   const { pack, key } = buildPack(planted, { seed: 's', runId: 'r', turnsSha256: 't' });
   assert.equal(pack.items.length, 20);
   assert.deepEqual(key.excluded.map((entry) => entry.turnId), ['t05']);
