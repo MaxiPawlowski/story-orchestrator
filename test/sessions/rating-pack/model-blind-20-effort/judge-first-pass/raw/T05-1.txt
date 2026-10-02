@@ -1,0 +1,5 @@
+exit 0
+--- text ---
+{"scores":{"A":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"B":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"C":{"coherence":4,"prose":4,"scene":3,"agency":5,"overall":3},"D":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4}},"rank":["D","B","A","C"],"why":"D best combines Belle's assigned position, rough voice, and a hint of approaching danger; B is cleaner and more restrained than A's extended bravado and unsupported backstory. All respect player agency but stop at preparations rather than advancing the threatened siege, while C adds awkward phrasing and an unnatural explanation of what barbarians do."}
+--- stderr ---
+

@@ -1,0 +1,5 @@
+exit 0
+--- text ---
+{"scores":{"A":{"coherence":5,"prose":5,"scene":2,"agency":5,"overall":3},"B":{"coherence":5,"prose":5,"scene":5,"agency":5,"overall":5},"C":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"D":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4}},"rank":["B","C","D","A"],"why":"B best acknowledges both the fee negotiation and the party name while leaving the outcome unresolved; C adds a useful offer of scouting, though its kitchen-related insecurity is unsupported by the excerpt. D is fitting but less substantive, while A overlooks the negotiation and party name and ends with a question contrary to the scene direction; all four respect the player's agency."}
+--- stderr ---
+

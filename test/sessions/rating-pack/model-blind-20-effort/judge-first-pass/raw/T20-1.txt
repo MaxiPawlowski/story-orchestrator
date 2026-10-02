@@ -1,0 +1,5 @@
+exit 0
+--- text ---
+{"scores":{"A":{"coherence":5,"prose":5,"scene":4,"agency":5,"overall":4},"B":{"coherence":5,"prose":5,"scene":3,"agency":5,"overall":3},"C":{"coherence":5,"prose":5,"scene":2,"agency":5,"overall":2},"D":{"coherence":1,"prose":1,"scene":1,"agency":5,"overall":1}},"rank":["A","B","C","D"],"why":"A gives plausible suspects and a forceful next intention, while B mostly restates the shared problem; both preserve player agency, though they soften Kanna's continuing suspicion of the Darrans. C introduces an unsupported addressee, Max, and more explicitly exposes the concern Kanna is supposed to conceal; D supplies no continuation."}
+--- stderr ---
+
