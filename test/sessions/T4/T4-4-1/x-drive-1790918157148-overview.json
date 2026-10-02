@@ -1,0 +1,77 @@
+{
+  "mode": "overview",
+  "args": [
+    "B-author-after-hotswap"
+  ],
+  "at": "2026-10-02T05:15:55.373Z",
+  "before": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 29,
+      "libraryVersion": 30,
+      "pinned": true,
+      "drifted": true
+    },
+    "bb": {
+      "wall_breached": false,
+      "location": "north_road",
+      "party_name": "Ash Lanterns",
+      "path": "wendhope",
+      "first_camp": false,
+      "party_injuries": 0,
+      "tension_current": 0.25
+    },
+    "lastUpdate": {
+      "applied": true,
+      "classification": "identical",
+      "choice": "keep",
+      "fromVersion": 29,
+      "toVersion": 30,
+      "storyId": "adolion-adventurer",
+      "dropped": [],
+      "at": "2026-10-02T05:13:50.783Z"
+    }
+  },
+  "overview": {
+    "overview": "Where you areThe Journey NorthAt the road north.Something is starting to stir.About this storyYou have just signed on at the Adventurer's Guild in Aegis City, with no party yet. Belle, a headstrong barbarian, and Dalan, a shy elf ranger, are looking for one too. The postings on the board are small, the pay is modest, and every rank has to be earned. Expect frontier fantasy with a dark edge: real danger, mysteries that open one clue at a time, and choices that cost something. Bring any adventurer you like; the Guild takes all kinds.RecentlyYou left The Wendhope Job behind and moved into The Journey North.Max Nightriver claimed the Wendhope job at the Adventurers' Guild in Aegis City and named the new party the Ash Lanterns, while Ellie prepared the paperwork and Belle and Dalan lingered nearby. The party set out north at once, and by dusk they traveled the dark Sheridan forests toward the foothills. When Dalan halted and warned that the silent road and untouched carriages meant something was waiting, the group's mood turned tense and wary.Open threadsThe Ash Lanterns must complete the Investigate Wendhope posting and discover why the mining village went silent.The party still needs to formally recruit Belle and Dalan, who have not yet confirmed joining.Something on the north road ahead has drawn Dalan's alarm — the party must find out what waits in the Sheridan forests.Dalan warns the party they cannot stop until they reach Wendhope's walls, with something waiting ahead in the Sheridan forests.The party must discover why the north road is unnaturally empty — no wildlife, no disturbance to the carriages they passed.The story so farMax Nightriver claimed the Wendhope job at the Adventurers' Guild in Aegis City and named the new party the Ash Lanterns, while Ellie prepared the paperwork and Belle and Dalan lingered nearby. The party set out north at once, and by dusk they traveled the dark Sheridan forests toward the foothills. When Dalan halted and warned that the silent road and untouched carriages meant something was waiting, the group's mood turned tense and wary.Following along.Waiting for the next reply.",
+    "footerButtons": [
+      "so-edit-story|Edit story",
+      "so-restart-story-drawer|Restart story",
+      "so-update-story|Update to v30"
+    ],
+    "hud": "◈ The Journey Northtension stirring"
+  },
+  "shots": [
+    "shots/x-1790918156761-B-author-after-hotswap.png"
+  ],
+  "after": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 29,
+      "libraryVersion": 30,
+      "pinned": true,
+      "drifted": true
+    },
+    "bb": {
+      "wall_breached": false,
+      "location": "north_road",
+      "party_name": "Ash Lanterns",
+      "path": "wendhope",
+      "first_camp": false,
+      "party_injuries": 0,
+      "tension_current": 0.25
+    },
+    "lastUpdate": {
+      "applied": true,
+      "classification": "identical",
+      "choice": "keep",
+      "fromVersion": 29,
+      "toVersion": 30,
+      "storyId": "adolion-adventurer",
+      "dropped": [],
+      "at": "2026-10-02T05:13:50.783Z"
+    }
+  }
+}

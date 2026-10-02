@@ -1,0 +1,72 @@
+{
+  "ok": true,
+  "value": {
+    "chatId": "2026-10-02@02h33m03s114ms",
+    "msgs": 7,
+    "lastMes": "Dalan finally lets his gaze drift from the notices, his blue-grey eyes moving to",
+    "active": "guild-hall",
+    "boundary": 0,
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 29,
+      "libraryVersion": 29,
+      "pinned": true,
+      "drifted": false
+    },
+    "playedVersion": 29,
+    "contentHashAtLoad": "v2-57e206e5",
+    "pinnedVersion": 29,
+    "pinnedQualities": 29,
+    "engBB": {
+      "values": {},
+      "versions": {},
+      "latched": {}
+    },
+    "visitedPath": [
+      "guild-hall"
+    ],
+    "memEntries": 0,
+    "arcs": 0,
+    "canon": false,
+    "journal": 1,
+    "storyUpdates": [
+      {
+        "at": "2026-10-02T05:39:03.500Z",
+        "boundary": 0,
+        "messageId": -1,
+        "kind": "story",
+        "summary": "away recap not due",
+        "note": "chat 2026-10-02@02h33m03s114ms, last seen never, gap n/a"
+      }
+    ],
+    "lastUpdate": null,
+    "ui": {
+      "authorView": false
+    },
+    "authorView": {
+      "authorView": false,
+      "announceTransitions": false,
+      "hudEnabled": true,
+      "inline": {
+        "level": 1,
+        "categories": {},
+        "window": 20
+      }
+    },
+    "wiBook": null,
+    "gated": {
+      "mode": "file",
+      "active": false,
+      "capability": null,
+      "ledger": {
+        "books": 0,
+        "entries": 0
+      },
+      "drift": [],
+      "missingKey": [],
+      "missing": [],
+      "unreadable": [],
+      "busy": false
+    }
+  }
+}

@@ -1,0 +1,1951 @@
+{
+  "charter": "T4-2",
+  "tier": "T4",
+  "continuedAtPin": null,
+  "flags": [
+    {
+      "at": "2026-10-02T05:05:13.892Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "messageId": 6,
+      "note": "switch-chat-mid-gen seq 4 failed: page.waitForFunction 15000ms timeout opening the Eshalanore group right after the reply to 'We ride north.'; no switch happened, adventurer chat intact (7 msgs, road-to-wendhope); manual open-group 30s later worked",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 303
+      },
+      "context": [
+        {
+          "id": 3,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "Tobias, sign us up. We ride north for Wendhope today."
+        },
+        {
+          "id": 4,
+          "name": "Tobias",
+          "isUser": false,
+          "text": "Tobias's ocean blue eyes widen slightly at the sudden declaration, and his fingers pause on the edge of the counter. \"Ride north today, you say?\" He lets out a long, measured breath, then shakes his head. \"I appreciate the enthusiasm, truly. But you have no party, and even a determined soul will find the road to Wendhope long and the Sheridan lands... unpredictable.\"\n*He slides the posting across the counter toward you, his expression shifting to something quieter, almost cautious.*\n\"The Guild does not send out solo adventurers, and not for a posting this peculiar. The Sheridan bonus suggests something beyond a simple collapsed shaft, and something like that requires more than just determination. It requires a party.\" *His gaze flickers momentarily toward Belle in the tavern arch, then Dalan by the notices, before returning to you.* \"I can sign you up for the posting itself, but we cannot finalize it until a proper party name is listed with at least two members. Ellie has already noted your party name, so now we simply need to determine who will join the Loose Ends.\""
+        },
+        {
+          "id": 5,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "We ride north."
+        },
+        {
+          "id": 6,
+          "name": "Tobias",
+          "isUser": false,
+          "text": "Tobias's brow furrows, a rare crack in his composed demeanor. \"I understand your determination, I truly do. But this is not a matter of will; it is a matter of Guild policy, and more importantly, a matter of survival.\" He leans forward slightly, his voice dropping to a more earnest tone. \"I will not sign you out on a posting you are not prepared for. I simply won't.\"\n*His hand rests flat on the counter, pinning the Wendhope posting in place as if to keep it from being snatched away.*\n\"You are rank-zero. This is D-rank. Alone, you are asking for a death sentence. I lost my entire party to goblins because we were unprepared, and I will not stand by and watch another adventurer make the same mistake.\" Tobias's blue eyes are steady, almost stubborn. \"If you wish to ride north, you will do it with a party. Belle and Dalan are both seeking groups. Perhaps one of them might be willing to hear you out.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    }
+  ],
+  "anomalies": [
+    {
+      "kind": "harness-error",
+      "at": null,
+      "chatId": null,
+      "summary": "WARNING: the page restarted 5 time(s); captures between the last drain and each restart are UNKNOWN, not zero.",
+      "evidence": {
+        "path": "payloads.log",
+        "line": 112
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:00:09.537Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #1",
+      "summary": "boundary went back from 6 to 2",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 561
+      },
+      "detail": {
+        "from": 6,
+        "to": 2
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:00:09.537Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "boundary went back from 14 to 2",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1441
+      },
+      "detail": {
+        "from": 14,
+        "to": 2
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T05:01:37.473Z",
+      "chatId": "2026-10-02@01h58m52s124ms",
+      "summary": "3 extraction line(s) rejected: DELTA q=<esha_at_border> value=false evidence=\"The road north ends at a roofless chapel beneath the black pines.\" (unknown quality); DELTA q=<location> value=\"esha_alks_chapel\" evidence=\"The road north ends at a roofless chapel beneath the black pines.\" (unknown quality); DELTA q=<tension_current> value=\"stirring\" evidence=\"Something small moves between the trees nearby, then goes still.\" (unknown quality)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 160
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=<esha_at_border> value=false evidence=\"The road north ends at a roofless chapel beneath the black pines.\"",
+            "reason": "unknown quality"
+          },
+          {
+            "line": "DELTA q=<location> value=\"esha_alks_chapel\" evidence=\"The road north ends at a roofless chapel beneath the black pines.\"",
+            "reason": "unknown quality"
+          },
+          {
+            "line": "DELTA q=<tension_current> value=\"stirring\" evidence=\"Something small moves between the trees nearby, then goes still.\"",
+            "reason": "unknown quality"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:02:53.534Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #1",
+      "summary": "boundary went back from 6 to 3",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 592
+      },
+      "detail": {
+        "from": 6,
+        "to": 3
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:02:53.534Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "boundary went back from 14 to 3",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1450
+      },
+      "detail": {
+        "from": 14,
+        "to": 3
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:04:03.717Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #1",
+      "summary": "boundary went back from 6 to 4",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 626
+      },
+      "detail": {
+        "from": 6,
+        "to": 4
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:04:03.717Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "boundary went back from 14 to 4",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1481
+      },
+      "detail": {
+        "from": 14,
+        "to": 4
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-02T05:06:50.084Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 395
+      },
+      "detail": {
+        "note": "an empty save of \"2026-10-02@01h58m52s124ms\" carried no chat integrity (the metadata a chat switch clears) and was held back"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-02T05:06:50.084Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #1",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 676
+      },
+      "detail": {
+        "note": "an empty save of \"2026-10-02@01h58m52s124ms\" carried no chat integrity (the metadata a chat switch clears) and was held back"
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-02T05:06:50.084Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1527
+      },
+      "detail": {
+        "note": "an empty save of \"2026-10-02@01h58m52s124ms\" carried no chat integrity (the metadata a chat switch clears) and was held back"
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:07:20.493Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #1",
+      "summary": "boundary went back from 6 to 5",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 700
+      },
+      "detail": {
+        "from": 6,
+        "to": 5
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:07:20.493Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "boundary went back from 14 to 5",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1549
+      },
+      "detail": {
+        "from": 14,
+        "to": 5
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:07:54.437Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "boundary went back from 14 to 6",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1571
+      },
+      "detail": {
+        "from": 14,
+        "to": 6
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T05:08:08.260Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "2 extraction line(s) rejected: DELTA q=first_camp value=false evidence=\"We ride north for Wendhope today.\" (evidence only in the player's line); DELTA q=reached_walls value=false evidence=\"We ride north for Wendhope today.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 477
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=first_camp value=false evidence=\"We ride north for Wendhope today.\"",
+            "reason": "evidence only in the player's line"
+          },
+          {
+            "line": "DELTA q=reached_walls value=false evidence=\"We ride north for Wendhope today.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:10:42.591Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #1",
+      "summary": "boundary went back from 6 to 5",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 792
+      },
+      "detail": {
+        "from": 6,
+        "to": 5
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:12:42.822Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "boundary went back from 14 to 7",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1608
+      },
+      "detail": {
+        "from": 14,
+        "to": 7
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:13:15.679Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "boundary went back from 14 to 8",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1639
+      },
+      "detail": {
+        "from": 14,
+        "to": 8
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:13:16.009Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "boundary went back from 14 to 9",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1640
+      },
+      "detail": {
+        "from": 14,
+        "to": 9
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:14:37.579Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "boundary went back from 14 to 10",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1685
+      },
+      "detail": {
+        "from": 14,
+        "to": 10
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:14:42.087Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge stall fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 976
+      },
+      "detail": {
+        "use": "stall",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:14:42.087Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge stall fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1691
+      },
+      "detail": {
+        "use": "stall",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:15.430Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1033
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:15.430Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1034
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:15.430Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1732
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:15.430Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1733
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-02T05:15:15.431Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 969
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:15.482Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1036
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:15.482Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1735
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:15.484Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1037
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:15.484Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1736
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:15.485Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1038
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:15.485Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1737
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:41.176Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge lore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1046
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:41.176Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge lore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1742
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:41.190Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge lore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1047
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:41.190Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge lore fell back (timeout)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1743
+      },
+      "detail": {
+        "use": "lore",
+        "fallback": "timeout"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.121Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1062
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.121Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1757
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.122Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1063
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.122Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1064
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.122Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1065
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.122Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1758
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.122Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1759
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.122Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1760
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-02T05:15:52.122Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 970
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.142Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1067
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.142Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1068
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.142Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1069
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.142Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1070
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.142Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1071
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.142Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1762
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.142Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1763
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.142Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1764
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.142Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1765
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:15:52.142Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge memoryPairs fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1766
+      },
+      "detail": {
+        "use": "memoryPairs",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:16:10.831Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "boundary went back from 14 to 11",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1769
+      },
+      "detail": {
+        "from": 14,
+        "to": 11
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:16:11.660Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge scene fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1077
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:16:11.660Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge warden fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1078
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:16:11.660Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge scene fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1772
+      },
+      "detail": {
+        "use": "scene",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:16:11.660Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge warden fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1773
+      },
+      "detail": {
+        "use": "warden",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:16:11.688Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "judge wardenLore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1079
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "judge-fallback",
+      "at": "2026-10-02T05:16:11.688Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "judge wardenLore fell back (busy)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1774
+      },
+      "detail": {
+        "use": "wardenLore",
+        "fallback": "busy"
+      }
+    },
+    {
+      "kind": "console-error",
+      "at": "2026-10-02T05:16:11.722Z",
+      "chatId": null,
+      "summary": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "evidence": {
+        "path": "console.jsonl",
+        "line": 972
+      },
+      "detail": {
+        "type": "error",
+        "location": "http://127.0.0.1:8104/api/plugins/story-orchestrator-judge/systemone:0"
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:17:50.966Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "boundary went back from 14 to 12",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1795
+      },
+      "detail": {
+        "from": 14,
+        "to": 12
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T05:19:24.033Z",
+      "chatId": "2026-10-02@01h58m52s124ms",
+      "summary": "4 extraction line(s) rejected: DELTA q=<esha_at_border> value=false evidence=\"She stops just past the chapel walls, gesturing with a waving arm toward the north where the black pines grow thick and the mist still clings to the forest floor.\" (unknown quality); DELTA q=<location> value=\"esha_alks_chapel\" evidence=\"Past the broken wall of the chapel, something pale green peeks round a pine trunk, sees it has been noticed, and melts flat against the bark.\" (unknown quality); DELTA q=<party_injuries> value=0 evidence=\"Please, rest. There is water from the well, and vegetables from the garden.\" (unknown quality)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1220
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=<esha_at_border> value=false evidence=\"She stops just past the chapel walls, gesturing with a waving arm toward the north where the black pines grow thick and the mist still clings to the forest floor.\"",
+            "reason": "unknown quality"
+          },
+          {
+            "line": "DELTA q=<location> value=\"esha_alks_chapel\" evidence=\"Past the broken wall of the chapel, something pale green peeks round a pine trunk, sees it has been noticed, and melts flat against the bark.\"",
+            "reason": "unknown quality"
+          },
+          {
+            "line": "DELTA q=<party_injuries> value=0 evidence=\"Please, rest. There is water from the well, and vegetables from the garden.\"",
+            "reason": "unknown quality"
+          },
+          {
+            "line": "DELTA q=<tension_current> value=\"stirring\" evidence=\"The forest is not kind to those who linger after dark.\"",
+            "reason": "unknown quality"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:23:16.497Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "boundary went back from 14 to 13",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1846
+      },
+      "detail": {
+        "from": 14,
+        "to": 13
+      }
+    },
+    {
+      "kind": "stall",
+      "at": "2026-10-02T05:25:14.463Z",
+      "chatId": "2026-10-02@01h59m03s658ms",
+      "summary": "10 boundaries without a transition at road-to-wendhope while its exits were pending",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1393
+      },
+      "detail": {
+        "checkpoint": "road-to-wendhope",
+        "boundaries": 10,
+        "chat": "2026-10-02@01h59m03s658ms"
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:27:20.530Z",
+      "chatId": "2026-10-02@01h59m03s658ms - Branch #2",
+      "summary": "boundary went back from 14 to 4",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 1958
+      },
+      "detail": {
+        "from": 14,
+        "to": 4
+      }
+    }
+  ],
+  "counts": {
+    "flags": 1,
+    "stall": 1,
+    "extraction-rejected": 3,
+    "empty-private-block": 0,
+    "lore-force-lost": 0,
+    "lore-constant-missed": 0,
+    "judge-fallback": 40,
+    "save-lost": 3,
+    "unexpected-jump": 0,
+    "rollback": 18,
+    "console-error": 3,
+    "model-call-failure": 0,
+    "model-defect": 0,
+    "harness-error": 1
+  },
+  "countsByChat": {
+    "(no chat)": {
+      "harness-error": 1,
+      "console-error": 3
+    },
+    "2026-10-02@01h59m03s658ms - Branch #1": {
+      "rollback": 5,
+      "save-lost": 1
+    },
+    "2026-10-02@01h59m03s658ms - Branch #2": {
+      "rollback": 13,
+      "save-lost": 1,
+      "judge-fallback": 20
+    },
+    "2026-10-02@01h58m52s124ms": {
+      "extraction-rejected": 2
+    },
+    "2026-10-02@01h59m03s658ms": {
+      "save-lost": 1,
+      "extraction-rejected": 1,
+      "judge-fallback": 20,
+      "stall": 1
+    }
+  },
+  "valid": true,
+  "invalid": [],
+  "unverifiable": {
+    "privateBlock": 0
+  },
+  "judge": {
+    "calls": 614,
+    "answered": 574,
+    "busy": 34,
+    "timeout": 6,
+    "otherFallbacks": 0,
+    "busyRate": 0.055,
+    "busyByUse": {
+      "memoryPairs": 28,
+      "scene": 2,
+      "warden": 2,
+      "wardenLore": 2
+    }
+  },
+  "modelDefects": {
+    "turns": 0,
+    "loop": 0,
+    "corrupt": 0,
+    "repaired": 0,
+    "unrepaired": 0
+  },
+  "sessionDir": "test/sessions/T4/T4-2-1",
+  "register": [
+    {
+      "id": "T4-?1",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "switch-chat-mid-gen seq 4 failed: page.waitForFunction 15000ms timeout opening the Eshalanore group right after the reply to 'We ride north.'; no switch happened, adventurer chat intact (7 msgs, road-to-wendhope); manual open-group 30s later worked",
+      "source": "flag",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:303",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?2",
+      "tier": "T4",
+      "severity": "",
+      "class": "harness",
+      "what": "WARNING: the page restarted 5 time(s); captures between the last drain and each restart are UNKNOWN, not zero.",
+      "source": "harness-error",
+      "evidence": "test/sessions/T4/T4-2-1/payloads.log:112",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?3",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 6 to 2",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:561",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?4",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 14 to 2",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1441",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?5",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "3 extraction line(s) rejected: DELTA q=<esha_at_border> value=false evidence=\"The road north ends at a roofless chapel beneath the black pines.\" (unknown quality); DELTA q=<location> value=\"esha_alks_chapel\" evidence=\"The road north ends at a roofless chapel beneath the black pines.\" (unknown quality); DELTA q=<tension_current> value=\"stirring\" evidence=\"Something small moves between the trees nearby, then goes still.\" (unknown quality)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:160",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?6",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 6 to 3",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:592",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?7",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 14 to 3",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1450",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?8",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 6 to 4",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:626",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?9",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 14 to 4",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1481",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?10",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:395",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?11",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:676",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?12",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1527",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?13",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 6 to 5",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:700",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?14",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 14 to 5",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1549",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?15",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 14 to 6",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1571",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?16",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "2 extraction line(s) rejected: DELTA q=first_camp value=false evidence=\"We ride north for Wendhope today.\" (evidence only in the player's line); DELTA q=reached_walls value=false evidence=\"We ride north for Wendhope today.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:477",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?17",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 6 to 5",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:792",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?18",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 14 to 7",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1608",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?19",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 14 to 8",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1639",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?20",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 14 to 9",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1640",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?21",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 14 to 10",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1685",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?22",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge stall fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:976",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?23",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge stall fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1691",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?24",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1033",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?25",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1034",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?26",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1732",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?27",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1733",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?28",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T4/T4-2-1/console.jsonl:969",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?29",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1036",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?30",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1735",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?31",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1037",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?32",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1736",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?33",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1038",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?34",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1737",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?35",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1046",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?36",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1742",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?37",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1047",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?38",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge lore fell back (timeout)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1743",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?39",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1062",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?40",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1757",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?41",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1063",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?42",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1064",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?43",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1065",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?44",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1758",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?45",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1759",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?46",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1760",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?47",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T4/T4-2-1/console.jsonl:970",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?48",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1067",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?49",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1068",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?50",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1069",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?51",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1070",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?52",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1071",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?53",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1762",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?54",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1763",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?55",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1764",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?56",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1765",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?57",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge memoryPairs fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1766",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?58",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 14 to 11",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1769",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?59",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1077",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?60",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1078",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?61",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge scene fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1772",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?62",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge warden fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1773",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?63",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1079",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?64",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "judge wardenLore fell back (busy)",
+      "source": "judge-fallback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1774",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?65",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "Failed to load resource: the server responded with a status of 429 (Too Many Requests)",
+      "source": "console-error",
+      "evidence": "test/sessions/T4/T4-2-1/console.jsonl:972",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?66",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 14 to 12",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1795",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?67",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "4 extraction line(s) rejected: DELTA q=<esha_at_border> value=false evidence=\"She stops just past the chapel walls, gesturing with a waving arm toward the north where the black pines grow thick and the mist still clings to the forest floor.\" (unknown quality); DELTA q=<location> value=\"esha_alks_chapel\" evidence=\"Past the broken wall of the chapel, something pale green peeks round a pine trunk, sees it has been noticed, and melts flat against the bark.\" (unknown quality); DELTA q=<party_injuries> value=0 evidence=\"Please, rest. There is water from the well, and vegetables from the garden.\" (unknown quality)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1220",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?68",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 14 to 13",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1846",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?69",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "10 boundaries without a transition at road-to-wendhope while its exits were pending",
+      "source": "stall",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1393",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?70",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 14 to 4",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-2-1/journal.jsonl:1958",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    }
+  ]
+}

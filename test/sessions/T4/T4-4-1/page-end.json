@@ -1,0 +1,62 @@
+{
+  "phase": "end",
+  "problems": [],
+  "chats": [
+    {
+      "chatId": "2026-10-02@02h04m37s728ms",
+      "groupId": "1790916741570",
+      "group": "Adolion - The Adventurer's Road",
+      "storyId": "adolion-adventurer",
+      "activeCheckpointId": "guild-hall",
+      "primary": false,
+      "adopted": true
+    },
+    {
+      "chatId": "2026-10-02@01h58m58s365ms",
+      "groupId": "1790916741570",
+      "group": "Adolion - The Adventurer's Road",
+      "storyId": "adolion-adventurer",
+      "activeCheckpointId": "road-to-wendhope",
+      "primary": true,
+      "adopted": true
+    }
+  ],
+  "ends": [
+    {
+      "chatId": "2026-10-02@02h04m37s728ms",
+      "events": 196,
+      "messages": 6,
+      "swipes": 4,
+      "reasoning": 0
+    },
+    {
+      "chatId": "2026-10-02@01h58m58s365ms",
+      "events": 241,
+      "messages": 25,
+      "swipes": 16,
+      "reasoning": 0
+    }
+  ],
+  "files": [
+    "runtime-2026-10-02@02h04m37s728ms.json",
+    "journal-2026-10-02@02h04m37s728ms.json",
+    "chat-2026-10-02@02h04m37s728ms.json",
+    "chat-full-2026-10-02@02h04m37s728ms.json",
+    "state-end-2026-10-02@02h04m37s728ms.json",
+    "snapshot-2026-10-02@02h04m37s728ms.json",
+    "evidence-2026-10-02@02h04m37s728ms.json",
+    "journal-2026-10-02@02h04m37s728ms.md",
+    "runtime-2026-10-02@01h58m58s365ms.json",
+    "journal-2026-10-02@01h58m58s365ms.json",
+    "chat-2026-10-02@01h58m58s365ms.json",
+    "chat-full-2026-10-02@01h58m58s365ms.json",
+    "state-end-2026-10-02@01h58m58s365ms.json",
+    "snapshot-2026-10-02@01h58m58s365ms.json",
+    "evidence-2026-10-02@01h58m58s365ms.json",
+    "journal-2026-10-02@01h58m58s365ms.md"
+  ],
+  "evidenceProblems": {
+    "2026-10-02@02h04m37s728ms": [],
+    "2026-10-02@01h58m58s365ms": []
+  }
+}

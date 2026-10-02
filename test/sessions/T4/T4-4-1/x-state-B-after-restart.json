@@ -1,0 +1,119 @@
+{
+  "ok": true,
+  "value": {
+    "chatId": "2026-10-02@02h04m37s728ms",
+    "msgs": 6,
+    "lastMes": "Dalan freezes mid-step, head tilting as he scans the darkened treeline. He lower",
+    "active": "road-to-wendhope",
+    "boundary": 4,
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 29,
+      "libraryVersion": 29,
+      "pinned": true,
+      "drifted": false
+    },
+    "playedVersion": 29,
+    "contentHashAtLoad": "v2-57e206e5",
+    "pinnedVersion": 29,
+    "pinnedQualities": 29,
+    "engBB": {
+      "values": {
+        "wall_breached": false,
+        "location": "north_road",
+        "party_name": "Ash Lanterns",
+        "path": "wendhope",
+        "first_camp": false,
+        "party_injuries": 0,
+        "tension_current": 0.25
+      },
+      "versions": {
+        "wall_breached": 4,
+        "location": 2,
+        "party_name": 1,
+        "path": 1,
+        "first_camp": 1,
+        "party_injuries": 1,
+        "tension_current": 1
+      },
+      "latched": {
+        "party_name": true,
+        "path": true
+      }
+    },
+    "visitedPath": [
+      "guild-hall",
+      "road-to-wendhope"
+    ],
+    "memEntries": 13,
+    "arcs": 6,
+    "canon": false,
+    "journal": 52,
+    "storyUpdates": [
+      {
+        "at": "2026-10-02T05:10:22.519Z",
+        "boundary": 4,
+        "messageId": 5,
+        "kind": "story",
+        "summary": "host change \"cast\" was reverted when this chat reloaded"
+      },
+      {
+        "at": "2026-10-02T05:10:22.519Z",
+        "boundary": 4,
+        "messageId": 5,
+        "kind": "story",
+        "summary": "host change \"background\" was reverted when this chat reloaded"
+      },
+      {
+        "at": "2026-10-02T05:10:22.519Z",
+        "boundary": 4,
+        "messageId": 5,
+        "kind": "story",
+        "summary": "host change \"cast\" was reverted when this chat reloaded"
+      },
+      {
+        "at": "2026-10-02T05:10:22.519Z",
+        "boundary": 4,
+        "messageId": 5,
+        "kind": "story",
+        "summary": "host change \"cast\" was reverted when this chat reloaded"
+      },
+      {
+        "at": "2026-10-02T05:10:22.519Z",
+        "boundary": 4,
+        "messageId": 5,
+        "kind": "story",
+        "summary": "host change \"cast\" was reverted when this chat reloaded"
+      }
+    ],
+    "lastUpdate": null,
+    "ui": {
+      "authorView": false
+    },
+    "authorView": {
+      "authorView": false,
+      "announceTransitions": false,
+      "hudEnabled": true,
+      "inline": {
+        "level": 1,
+        "categories": {},
+        "window": 20
+      }
+    },
+    "wiBook": null,
+    "gated": {
+      "mode": "file",
+      "active": false,
+      "capability": null,
+      "ledger": {
+        "books": 0,
+        "entries": 0
+      },
+      "drift": [],
+      "missingKey": [],
+      "missing": [],
+      "unreadable": [],
+      "busy": false
+    }
+  }
+}

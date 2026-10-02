@@ -1,0 +1,285 @@
+{
+  "phase": "effective",
+  "problems": [],
+  "settings": {
+    "extraction": {
+      "enabled": true,
+      "profileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "cadence": 3,
+      "reconciliationMultiplier": 1.5,
+      "stabilityLag": 0,
+      "profiles": {
+        "read": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "synthesis": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "authoring": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "director": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "curator": "975bc0dc-956b-4cd8-9fe4-9be158e01847"
+      }
+    },
+    "pacing": {
+      "alpha": 0.3,
+      "hintEnabled": true
+    },
+    "display": {
+      "announceTransitions": false,
+      "hudEnabled": true,
+      "inline": {
+        "level": 1,
+        "categories": {},
+        "window": 20
+      }
+    },
+    "copilot": {
+      "enabled": true
+    },
+    "memory": {
+      "enabled": true,
+      "epistemicLedgerCapable": true,
+      "injectionDepths": {
+        "facts": 4,
+        "session_details": 3,
+        "short_term": 2,
+        "scene_history": 6
+      },
+      "tierBudgets": {
+        "facts": 50,
+        "session_details": 40,
+        "short_term": 10,
+        "scene_history": 30
+      },
+      "tierTokenBudgets": {
+        "facts": 800,
+        "session_details": 600,
+        "short_term": 300,
+        "scene_history": 500
+      },
+      "chapters": {
+        "seal": true,
+        "storySoFar": true,
+        "fold": true,
+        "chronicleTokens": 700,
+        "chapterTokens": 500,
+        "threadTokens": 150,
+        "recap": true,
+        "dossierWindow": 12,
+        "archiveRecall": false,
+        "recallTokens": 200,
+        "eraSeals": false,
+        "foldEras": false,
+        "eraMessages": 300
+      },
+      "harvestReasoning": true,
+      "innerBeat": true
+    },
+    "talk": {
+      "enabled": true,
+      "chain": {
+        "enabled": true,
+        "max": 3,
+        "stopOnTransition": true,
+        "holdExtraction": false
+      }
+    },
+    "stagecraft": {
+      "curatorEnabled": true,
+      "acceptMode": "review",
+      "wardenEnabled": true,
+      "wardenAcceptMode": "review"
+    },
+    "judge": {
+      "enabled": true,
+      "model": "jev-1.13.0",
+      "timeoutMs": 1500,
+      "uses": {
+        "director": true,
+        "memoryVerify": true,
+        "memoryPairs": true,
+        "sceneTrigger": true,
+        "sceneTracker": true,
+        "lookahead": true,
+        "loreSelect": true,
+        "curatorFilter": true,
+        "typedExtraction": true,
+        "stallCheck": true,
+        "expansionCritic": true,
+        "expansionLookahead": true,
+        "agencyCheck": true,
+        "houseRules": false,
+        "wardenLore": true,
+        "loreExclusive": true,
+        "expressions": true
+      },
+      "expansion": {
+        "variants": 1,
+        "temperature": 0.7,
+        "pick": "code"
+      },
+      "provider": {
+        "director": "typesafe",
+        "memoryVerify": "typesafe",
+        "memoryPairs": "typesafe",
+        "sceneTrigger": "typesafe",
+        "sceneTracker": "typesafe",
+        "lookahead": "typesafe",
+        "loreSelect": "typesafe",
+        "curatorFilter": "typesafe",
+        "typedExtraction": "typesafe",
+        "stallCheck": "typesafe",
+        "expansionCritic": "typesafe",
+        "expansionLookahead": "typesafe",
+        "agencyCheck": "typesafe",
+        "houseRules": "typesafe",
+        "wardenLore": "typesafe",
+        "loreExclusive": "typesafe",
+        "expressions": "typesafe",
+        "warden": "typesafe"
+      },
+      "noticesSeen": []
+    },
+    "worldInfo": {
+      "gatingMode": "file",
+      "normalized": {},
+      "normalizedFrom": {},
+      "scanMemory": true
+    },
+    "image": {
+      "enabled": false,
+      "directorProfileId": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+      "comfyUrl": "",
+      "contextMessages": 6,
+      "maxTokens": 900,
+      "useJsonSchema": true,
+      "defaults": {
+        "quality": "base",
+        "seedPolicy": "random",
+        "fixedSeed": 1
+      },
+      "automation": {
+        "mode": "everyN",
+        "everyN": 5
+      },
+      "safeMode": false,
+      "purposes": {
+        "scene": {
+          "checkpoint": "waiIllustriousSDXL_v170.safetensors",
+          "quality": "base",
+          "aspect": "auto",
+          "shot": "cowboy",
+          "placement": "inline",
+          "candidates": 1,
+          "extraPositive": "",
+          "extraNegative": "",
+          "safeMode": "inherit",
+          "directorMayOverride": true
+        },
+        "character": {
+          "checkpoint": "waiIllustriousSDXL_v170.safetensors",
+          "quality": "base",
+          "aspect": "portrait",
+          "shot": "cowboy",
+          "placement": "inline",
+          "candidates": 1,
+          "extraPositive": "",
+          "extraNegative": "",
+          "safeMode": "inherit",
+          "directorMayOverride": false
+        },
+        "portrait": {
+          "checkpoint": "JANKUTrainedChenkinNoobai_v777.safetensors",
+          "quality": "base",
+          "aspect": "portrait",
+          "shot": "close",
+          "placement": "inline",
+          "candidates": 1,
+          "extraPositive": "",
+          "extraNegative": "",
+          "safeMode": "inherit",
+          "directorMayOverride": false
+        },
+        "user": {
+          "checkpoint": "waiIllustriousSDXL_v170.safetensors",
+          "quality": "base",
+          "aspect": "portrait",
+          "shot": "upper",
+          "placement": "inline",
+          "candidates": 1,
+          "extraPositive": "",
+          "extraNegative": "",
+          "safeMode": "inherit",
+          "directorMayOverride": false
+        },
+        "background": {
+          "checkpoint": "flux1-dev-fp8.safetensors",
+          "quality": "base",
+          "aspect": "wide",
+          "shot": "wide",
+          "placement": "background",
+          "candidates": 1,
+          "extraPositive": "no humans, scenery",
+          "extraNegative": "",
+          "safeMode": "inherit",
+          "directorMayOverride": false
+        },
+        "free": {
+          "checkpoint": "waiIllustriousSDXL_v170.safetensors",
+          "quality": "base",
+          "aspect": "auto",
+          "shot": "full",
+          "placement": "inline",
+          "candidates": 1,
+          "extraPositive": "",
+          "extraNegative": "",
+          "safeMode": "inherit",
+          "directorMayOverride": true
+        }
+      },
+      "upscalers": {},
+      "loras": [],
+      "characters": {}
+    },
+    "sprites": {
+      "enabled": false,
+      "explicit": true,
+      "stage": "vn",
+      "profileId": "",
+      "segmentChars": 400,
+      "crossfadeMs": 250,
+      "focus": true,
+      "breathing": true
+    },
+    "spikes": {
+      "swipeBackCache": false,
+      "sp5Scenario": false,
+      "sp6Complications": false,
+      "sp8CuratorTiers": false,
+      "reasoningEffect": false
+    }
+  },
+  "host": {
+    "swipes": true
+  },
+  "presets": {
+    "instruct": {
+      "preset": "Gemma 4",
+      "last_output_sequence": "<|turn>model\n<|channel>thought\n<channel|>",
+      "sequences_as_stop_strings": false
+    },
+    "textgen": {
+      "preset": "Artemis v1.1 RP",
+      "samplers": [
+        "min_p",
+        "penalties",
+        "dry",
+        "top_n_sigma",
+        "top_k",
+        "typ_p",
+        "tfs_z",
+        "typical_p",
+        "xtc",
+        "top_p",
+        "adaptive_p",
+        "temperature"
+      ]
+    }
+  }
+}

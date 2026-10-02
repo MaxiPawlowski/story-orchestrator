@@ -1,0 +1,1311 @@
+{
+  "storyId": "adolion-adventurer",
+  "activeCheckpointId": "road-to-wendhope",
+  "boundary": 14,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Adventurer Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Mountains of Shadow": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "wall_breached": false,
+    "party_rank": 0,
+    "adv_looking_for_hands": false,
+    "guild_reputation": 0,
+    "location": "north_road",
+    "party_injuries": 0,
+    "tension_current": 0.28674999999999995,
+    "party_name": "Loose Ends",
+    "path": "wendhope",
+    "first_camp": false,
+    "reached_walls": false,
+    "progress_toward_after-the-fog": 2
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "380410e3-0f0b-4254-886d-d4af8c32a91c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "Max has named the party 'Loose Ends' and taken the Wendhope posting.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "3d2ee9a9-7df4-4734-aff8-59ccb5f1abf7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Max has named the party 'Loose Ends' and taken the Wendhope posting.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "e4c5c5c7-f503-4da8-8c1b-4ccae595dfd6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "intends",
+      "content": "to see whether Max invites Belle and Dalan into the party",
+      "createdAt": 3,
+      "messageId": 4,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "edc0156d-70d0-4b6a-84e7-1a6ca9fcccd3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Guild cannot finalize the Wendhope posting until the party has at least two members.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "cb01d2f1-16fb-425e-b7da-cb3ad6ba4332",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party is registered as 'Loose Ends' and Max intends to ride north today.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "ad643acc-b188-47d4-a532-abd33a1b55c8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "The party 'Loose Ends' has committed to the Wendhope investigation.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "dc7ed866-b2b0-4ddb-a5ff-63da5ce99ded",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "To see the Loose Ends filled out with a proper party before the posting is finalized.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "434ba8de-81d2-4daf-a4fb-96df786526a0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "intends",
+      "content": "To see who among Belle and Dalan might join the Loose Ends.",
+      "createdAt": 3,
+      "messageId": 4,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "d19e04ba-9a6d-45f2-bea2-0c70552da099",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Max intends to ride north for Wendhope today with no party",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "5205602a-be22-4591-8439-b3e2fec527d1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party name 'Loose Ends' is logged in the Guild register",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "64bcf341-92eb-418a-b4fe-f7b8669e25e8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Wendhope posting is D-rank and he is rank-zero",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "4bf96f2f-f596-44cb-9651-fbea436a0868",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Tobias will not sign him out without a party of at least two members",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "5ccdaa21-a49b-45cf-be37-4704526d4de2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "keep unprepared adventurers from being sent out alone, per Guild policy and his own loss",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "eaf86e5c-7921-438d-b8f4-c151d8001635",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Max is rank-zero and the Wendhope posting is D-rank, making a solo attempt a death sentence.",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "1bb74e5b-f57f-4add-a6bd-aba7c7d93778",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party name 'Loose Ends' is logged but has no members listed yet.",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "24e925b4-9874-4f0a-bd07-99e87bf55a21",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "To refuse to sign Max out on the Wendhope posting until a party of at least two members is listed.",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "c81ddfa0-1199-4960-96f1-fb4fb239c5a3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To get out of the city for a while and check the treelines on the road.",
+      "createdAt": 7,
+      "messageId": 11,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "4adc19b9-2fd6-4ecc-8812-197c24bd5256",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "hiding",
+      "content": "that he has no party and is rank-zero attempting a D-rank posting.",
+      "hiddenFrom": "Belle",
+      "createdAt": 7,
+      "messageId": 11,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "35b8cc00-7aeb-48a6-8c36-e9dda59bd27d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "hiding",
+      "content": "that he has no party and is rank-zero attempting a D-rank posting.",
+      "hiddenFrom": "Dalan",
+      "createdAt": 7,
+      "messageId": 11,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "ddef1730-e728-4fc6-a7c1-e2fd4e2459f5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "to check the treelines on the road north.",
+      "createdAt": 7,
+      "messageId": 11,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 13,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "b5b8cfff-5630-4bfd-b9f7-c2c0660fab1a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "hiding",
+      "content": "that he has no party and is rank-zero attempting a D-rank posting.",
+      "hiddenFrom": "Belle",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "62df869c-d7bc-4bca-9486-d20c3c5f16d5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "hiding",
+      "content": "that he has no party and is rank-zero attempting a D-rank posting.",
+      "hiddenFrom": "Dalan",
+      "createdAt": 9,
+      "messageId": 13
+    },
+    {
+      "id": "f2cdd8af-e3b7-4a14-9fce-f58f9cbde7aa",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 13,
+        "boundary": 9,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To check the treelines on the road north.",
+      "createdAt": 9,
+      "messageId": 13,
+      "supersededBy": "retired@10",
+      "retiredAt": {
+        "messageId": 15,
+        "boundary": 10
+      }
+    },
+    {
+      "id": "4497863e-6642-4a31-a04e-1215a3a30e61",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To get out of the city for a while and check the treelines on the road north.",
+      "createdAt": 10,
+      "messageId": 15,
+      "supersededBy": "retired@10",
+      "retiredAt": {
+        "messageId": 15,
+        "boundary": 10
+      }
+    },
+    {
+      "id": "bd8e5333-b2f8-448d-80cc-4bf1258a2cc0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "to check the treelines along the empty road north",
+      "createdAt": 10,
+      "messageId": 15,
+      "supersededBy": "retired@10",
+      "retiredAt": {
+        "messageId": 15,
+        "boundary": 10
+      }
+    },
+    {
+      "id": "5477677d-c29d-4a8e-be11-c7136dc28572",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "The riderless Sheridan-blue horse's destination may hold more answers than the overturned carts.",
+      "createdAt": 10,
+      "messageId": 15,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 17,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "fbcec575-550b-4d5c-98cb-8d32dd345bce",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To follow the riderless horse north to find answers.",
+      "createdAt": 10,
+      "messageId": 15,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 17,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "17808131-1c9d-4f06-b594-83d884c3bc59",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle said she will turn the job around if it is an escort for a merchant's daughter.",
+      "createdAt": 10,
+      "messageId": 15
+    },
+    {
+      "id": "6ae44525-e3ec-4b42-bf6a-74acc5b0bfaa",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 15,
+        "boundary": 10,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle's assessment that the wagons were abandoned, not ambushed.",
+      "createdAt": 10,
+      "messageId": 15
+    },
+    {
+      "id": "c902fcf0-62ab-4c12-a5d6-51054c1d43b0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The riderless horse's tracks are fresh, so whatever happened is recent.",
+      "createdAt": 11,
+      "messageId": 17
+    },
+    {
+      "id": "f9358d54-74de-4532-a4cf-4c7e229e7f2f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The road north is empty of travellers and the wagons were abandoned without violence.",
+      "createdAt": 11,
+      "messageId": 17
+    },
+    {
+      "id": "bb4f559e-e6af-4085-a930-7f803a1ec617",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "Follow the riderless horse north for answers rather than linger at the wagons.",
+      "createdAt": 11,
+      "messageId": 17,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 17,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "371f014f-3d66-454a-9d89-60baacda943d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The riderless horse in Sheridan blue is still saddled and walking north.",
+      "createdAt": 11,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "51eb5734-51c8-4967-8c98-d04fdff8c1bc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The riderless horse in Sheridan blue is still saddled and walking north.",
+      "createdAt": 11,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "3ef1a8e2-f3ff-4ea6-946f-16120cac5564",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The road north is empty of other travellers and merchants.",
+      "createdAt": 11,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "fa7e39bf-67ef-4019-a71b-9a902cb515b8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The road north is empty of other travellers and merchants.",
+      "createdAt": 11,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "d0506b86-1b97-4e87-bb3e-b45eebd7ef21",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The walls of Wendhope stand shut with no one watching from the parapets.",
+      "createdAt": 11,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "90034e49-1d66-486b-91a2-520a611e140b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The walls of Wendhope stand shut with no one watching from the parapets.",
+      "createdAt": 11,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "ee10a7da-bf5a-412d-947e-646a156d5391",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "Someone else may have taken the posting or reached Wendhope first.",
+      "createdAt": 11,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "99bb678f-f16d-4d17-a577-f9b6f936362f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "hiding",
+      "content": "her worry that another party got the posting first.",
+      "hiddenFrom": "Dalan",
+      "createdAt": 11,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "869e7bea-691b-4d6c-ae43-f1bb9b011707",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 11,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To follow the riderless horse north because its destination likely holds more answers than the wagons.",
+      "createdAt": 11,
+      "messageId": 17,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "2b42f4df-446b-4839-8065-35dc36bac718",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Wendhope's gates are shut tight with nobody on the walls, which she says is not how a frontier village stays",
+      "createdAt": 12,
+      "messageId": 19,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "7c64ab00-0b78-4661-813f-fd72bea91e1d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The tracks left by the fleeing horse are still fresh, so whatever drove it off is likely still nearby",
+      "createdAt": 12,
+      "messageId": 19,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "cabe161f-6d87-46d8-9e0c-adfa950a837b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To watch the treeline and the tracks for whatever drove the horse away",
+      "createdAt": 12,
+      "messageId": 19,
+      "supersededBy": "retired@12",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 12
+      }
+    },
+    {
+      "id": "67b09e37-ca8d-4a44-bd1c-21a1fa059874",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To keep watch on the treeline for whatever is still around.",
+      "createdAt": 12,
+      "messageId": 19
+    },
+    {
+      "id": "a245d696-0867-40d3-83c7-11b0097de92b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The riderless horse in Sheridan blue is still saddled and walking north.",
+      "createdAt": 12,
+      "messageId": 19
+    },
+    {
+      "id": "cb469328-7f01-4518-aadc-827ceb7ec345",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The riderless horse in Sheridan blue is still saddled and walking north.",
+      "createdAt": 12,
+      "messageId": 19
+    },
+    {
+      "id": "d91962f6-a5de-4610-8ecd-96f435eb843a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The road north is empty of other travellers and merchants.",
+      "createdAt": 12,
+      "messageId": 19
+    },
+    {
+      "id": "60a92264-82aa-49cf-b6fa-1911cc3fb856",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The road north is empty of other travellers and merchants.",
+      "createdAt": 12,
+      "messageId": 19
+    },
+    {
+      "id": "4947d027-66f2-4440-9c5c-7a86e29f9695",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The walls of Wendhope stand shut with no one watching from the parapets.",
+      "createdAt": 12,
+      "messageId": 19
+    },
+    {
+      "id": "a19db7a7-9c7f-4a96-8b50-c5c7821a9b66",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The walls of Wendhope stand shut with no one watching from the parapets.",
+      "createdAt": 12,
+      "messageId": 19
+    },
+    {
+      "id": "f3b22eb5-ed64-4940-b530-ad45827ef7b3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "Someone else may have taken the posting or reached Wendhope first.",
+      "createdAt": 12,
+      "messageId": 19
+    },
+    {
+      "id": "e3706247-5d46-4ddc-94a7-8f239b3c9302",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "hiding",
+      "content": "her worry that another party got the posting first.",
+      "hiddenFrom": "Dalan",
+      "createdAt": 12,
+      "messageId": 19
+    },
+    {
+      "id": "1cbd475c-d068-429a-a89a-6c7f9d662406",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To follow the riderless horse north because its destination likely holds more answers than the wagons.",
+      "createdAt": 12,
+      "messageId": 19,
+      "supersededBy": "retired@13",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 13
+      }
+    },
+    {
+      "id": "25cd3ad2-e025-431d-b659-b3158209dd6d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Wendhope's gates are shut tight with nobody on the walls, which she says is not how a frontier village stays.",
+      "createdAt": 12,
+      "messageId": 19
+    },
+    {
+      "id": "dd1e4099-16b4-46ad-aa87-359b0a8b2800",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The tracks left by the fleeing horse are still fresh, so whatever drove it off is likely still nearby.",
+      "createdAt": 12,
+      "messageId": 19
+    },
+    {
+      "id": "8a46b802-0a23-4da6-b45c-e7a659196645",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 12,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To watch the treeline and the tracks for whatever drove the horse away.",
+      "createdAt": 12,
+      "messageId": 19,
+      "supersededBy": "retired@13",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 13
+      }
+    },
+    {
+      "id": "2f7d9757-cba0-4594-81d9-4a4be9b90aed",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "Someone may have reached Wendhope before the party and found what is causing the trouble",
+      "createdAt": 13,
+      "messageId": 21
+    },
+    {
+      "id": "75b5d73f-b667-4952-b7fa-ffb5bc909852",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "suspects",
+      "content": "Whatever drove the horse away is probably still around",
+      "createdAt": 13,
+      "messageId": 21
+    },
+    {
+      "id": "c165b8e7-b942-43b7-b882-d9596d387c39",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "Find answers about what happened on the road north",
+      "createdAt": 13,
+      "messageId": 21,
+      "supersededBy": "retired@13",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 13
+      }
+    },
+    {
+      "id": "6965ca7d-1211-47f6-a9de-850c08ab2977",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "Keep watch on the treeline for whatever drove the horse away",
+      "createdAt": 13,
+      "messageId": 21,
+      "supersededBy": "retired@13",
+      "retiredAt": {
+        "messageId": 21,
+        "boundary": 13
+      }
+    },
+    {
+      "id": "d2eb640a-94aa-43c7-98d9-b63a231c2f4c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The riderless horse is still walking north and she intends to follow it.",
+      "createdAt": 13,
+      "messageId": 21
+    },
+    {
+      "id": "370798b5-8d0e-4bd0-9dec-f2bb9318fb5f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To follow the riderless horse north because its destination likely holds more answers than the wagons.",
+      "createdAt": 13,
+      "messageId": 21
+    },
+    {
+      "id": "066b1ac1-2755-44ca-82e9-48ea6ef43325",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To keep watch on the treeline for whatever drove the horse away.",
+      "createdAt": 13,
+      "messageId": 21
+    },
+    {
+      "id": "b74018af-b8d3-4357-88bb-f6a63cb0644c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "A heavy dragging sound came from deep inside Wendhope's walls, not at the gate.",
+      "createdAt": 13,
+      "messageId": 21
+    },
+    {
+      "id": "24d06a13-dadd-41b0-9a61-68d45bfff832",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "A heavy dragging sound came from deep inside Wendhope's walls, not at the gate.",
+      "createdAt": 13,
+      "messageId": 21
+    },
+    {
+      "id": "1c957b7e-8368-414a-9231-d935a5142472",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "The silence and shut gates mean something is wrong inside Wendhope.",
+      "createdAt": 13,
+      "messageId": 21
+    },
+    {
+      "id": "f9e5a862-0946-4f42-aba3-72f7c6a4aef9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 13,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "suspects",
+      "content": "The dragging sound inside the walls means something is still moving within the village.",
+      "createdAt": 13,
+      "messageId": 21
+    },
+    {
+      "id": "f7bf464c-9615-4d8e-827c-e20f2d166249",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 24,
+        "boundary": 14,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To get the gate open and face whatever is inside Wendhope",
+      "createdAt": 14,
+      "messageId": 24
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 7,
+      "name": "Alder",
+      "avatar": "Alder.png"
+    },
+    {
+      "index": 10,
+      "name": "Alida",
+      "avatar": "Alida.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 57,
+      "name": "Giada",
+      "avatar": "Giada.png"
+    },
+    {
+      "index": 59,
+      "name": "Gustall",
+      "avatar": "Gustall.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 141,
+      "name": "Talis",
+      "avatar": "Talis.png"
+    },
+    {
+      "index": 145,
+      "name": "Tatiana",
+      "avatar": "Tatiana.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    }
+  ],
+  "payloadEpoch": "1790918658404-jij2od"
+}

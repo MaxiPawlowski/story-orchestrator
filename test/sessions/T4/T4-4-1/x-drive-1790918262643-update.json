@@ -1,0 +1,102 @@
+{
+  "mode": "update",
+  "args": [
+    "keep"
+  ],
+  "at": "2026-10-02T05:17:32.018Z",
+  "before": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 30,
+      "libraryVersion": 31,
+      "pinned": true,
+      "drifted": true
+    },
+    "bb": {
+      "wall_breached": true,
+      "party_name": "Party name updated to The Second Tries,",
+      "adv_looking_for_hands": false,
+      "guild_reputation": 1,
+      "location": "north_road",
+      "party_injuries": 0,
+      "path": "wendhope",
+      "first_camp": false
+    },
+    "lastUpdate": {
+      "applied": false,
+      "classification": "invalidating",
+      "choice": "cancel",
+      "fromVersion": 30,
+      "toVersion": 31,
+      "storyId": "adolion-adventurer",
+      "dropped": [
+        "guild_reputation"
+      ],
+      "at": "2026-10-02T05:16:52.094Z",
+      "reason": "author kept this chat on its pinned version"
+    }
+  },
+  "overview": {
+    "overview": "Where you areThe Journey NorthAt the road north.About this storyYou have just signed on at the Adventurer's Guild in Aegis City, with no party yet. Belle, a headstrong barbarian, and Dalan, a shy elf ranger, are looking for one too. The postings on the board are small, the pay is modest, and every rank has to be earned. Expect frontier fantasy with a dark edge: real danger, mysteries that open one clue at a time, and choices that cost something. Bring any adventurer you like; the Guild takes all kinds.RecentlyMax Nightriver noted the absence of traffic as the group continued north. Dalan observed that wildlife and insects had also vanished, leaving an unsettling silence over the road. Belle tightened her grip on Cleaver's haft, and an overturned, untouched carriage soon appeared ahead under the grey sky.Open threadsBelle and Dalan's friction is only paused, not settled.Tobias privately warned the party that the Wendhope posting is a face-saving job for the Sheridans — the party must decide how much of this to trust or act on.The party must prepare supplies and horses before first light and survive the temperamental north road to Wendhope.The unnaturally empty north road and the abandoned overturned cart hint at what happened to the missing parties before Wendhope.The riderless Sheridan-blue horse and the untouched overturned cart raise the question of what drove the missing parties off the road without a struggle.The story so farMax Nightriver registered the party as the Ash Lanterns at the guild, which Ellie recorded and Belle and Dalan approved of, though Tobias and Dalan offered quiet caution. Max then changed the name back to The Second Tries, and Ellie voided the previous entry and wrote the new one. Belle and Dalan departed to prepare for the journey to Wendhope at first light, with Dalan promising to ready the horses.\n\nMax Nightriver noted the absence of traffic as the group continued north. Dalan observed that wildlife and insects had also vanished, leaving an unsettling silence over the road.Following along.Waiting for the next reply.The story is deciding how the world answers that.",
+    "footerButtons": [
+      "so-edit-story|Edit story",
+      "so-restart-story-drawer|Restart story",
+      "so-update-story|Update to v31"
+    ],
+    "hud": "◈ The Journey North"
+  },
+  "popup": {
+    "text": "“Adolion: The Adventurer's Road” changed under this chat (v30 → v31)\n\nYour edit is already saved to the library. What is left to decide is whether this chat takes it:\n\n“guild_reputation” is gone from the story, and this chat already holds a value for it.\n\nThe lines above cannot be applied to this chat as they stand.\n\nKeep playing applies the edit and drops only what no longer fits. Restart story applies it and clears this chat's progress. Cancel applies nothing — this chat keeps playing the version it started with. Either way the library keeps your edit.",
+    "buttons": [
+      "Restart story",
+      "Keep playing",
+      "Cancel"
+    ]
+  },
+  "shots": [
+    "shots/x-1790918255016-update-popup.png",
+    "shots/x-1790918262246-update-keep-after.png"
+  ],
+  "popup2": null,
+  "toasts": [],
+  "overviewAfter": {
+    "overview": "Where you areThe Journey NorthAt the road north.About this storyYou have just signed on at the Adventurer's Guild in Aegis City, with no party yet. Belle, a headstrong barbarian, and Dalan, a shy elf ranger, are looking for one too. The postings on the board are small, the pay is modest, and every rank has to be earned. Expect frontier fantasy with a dark edge: real danger, mysteries that open one clue at a time, and choices that cost something. Bring any adventurer you like; the Guild takes all kinds.RecentlyMax Nightriver noted the absence of traffic as the group continued north. Dalan observed that wildlife and insects had also vanished, leaving an unsettling silence over the road. Belle tightened her grip on Cleaver's haft, and an overturned, untouched carriage soon appeared ahead under the grey sky.Open threadsBelle and Dalan's friction is only paused, not settled.Tobias privately warned the party that the Wendhope posting is a face-saving job for the Sheridans — the party must decide how much of this to trust or act on.The party must prepare supplies and horses before first light and survive the temperamental north road to Wendhope.The unnaturally empty north road and the abandoned overturned cart hint at what happened to the missing parties before Wendhope.The riderless Sheridan-blue horse and the untouched overturned cart raise the question of what drove the missing parties off the road without a struggle.The story so farMax Nightriver registered the party as the Ash Lanterns at the guild, which Ellie recorded and Belle and Dalan approved of, though Tobias and Dalan offered quiet caution. Max then changed the name back to The Second Tries, and Ellie voided the previous entry and wrote the new one. Belle and Dalan departed to prepare for the journey to Wendhope at first light, with Dalan promising to ready the horses.\n\nMax Nightriver noted the absence of traffic as the group continued north. Dalan observed that wildlife and insects had also vanished, leaving an unsettling silence over the road.Following along.Waiting for the next reply.",
+    "footerButtons": [
+      "so-edit-story|Edit story",
+      "so-restart-story-drawer|Restart story"
+    ],
+    "hud": "◈ The Journey North"
+  },
+  "after": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 31,
+      "libraryVersion": 31,
+      "pinned": true,
+      "drifted": false
+    },
+    "bb": {
+      "wall_breached": true,
+      "party_name": "Party name updated to The Second Tries,",
+      "adv_looking_for_hands": false,
+      "location": "north_road",
+      "party_injuries": 0,
+      "path": "wendhope",
+      "first_camp": false
+    },
+    "lastUpdate": {
+      "applied": true,
+      "classification": "invalidating",
+      "choice": "keep",
+      "fromVersion": 30,
+      "toVersion": 31,
+      "storyId": "adolion-adventurer",
+      "dropped": [
+        "guild_reputation"
+      ],
+      "at": "2026-10-02T05:17:33.421Z"
+    }
+  }
+}

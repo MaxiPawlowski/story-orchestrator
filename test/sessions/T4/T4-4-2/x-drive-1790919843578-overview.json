@@ -1,0 +1,80 @@
+{
+  "mode": "overview",
+  "args": [
+    "B-player-after-hotswap"
+  ],
+  "at": "2026-10-02T05:44:01.617Z",
+  "before": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 29,
+      "libraryVersion": 30,
+      "pinned": true,
+      "drifted": true
+    },
+    "bb": {
+      "wall_breached": false,
+      "party_rank": 0,
+      "adv_looking_for_hands": false,
+      "guild_reputation": 0,
+      "location": "north_road",
+      "party_injuries": 0,
+      "tension_current": 0.175,
+      "party_name": "Ash Lanterns",
+      "path": "wendhope"
+    },
+    "lastUpdate": {
+      "applied": true,
+      "classification": "identical",
+      "choice": "keep",
+      "fromVersion": 29,
+      "toVersion": 30,
+      "storyId": "adolion-adventurer",
+      "dropped": [],
+      "at": "2026-10-02T05:42:11.495Z"
+    }
+  },
+  "overview": {
+    "overview": "Where you areThe Journey NorthAt the road north.About this storyYou have just signed on at the Adventurer's Guild in Aegis City, with no party yet. Belle, a headstrong barbarian, and Dalan, a shy elf ranger, are looking for one too. The postings on the board are small, the pay is modest, and every rank has to be earned. Expect frontier fantasy with a dark edge: real danger, mysteries that open one clue at a time, and choices that cost something. Bring any adventurer you like; the Guild takes all kinds.RecentlyA riderless horse in Sheridan blue came down the road at a walk, still saddled. The sight carried an uneasy, somber tone, suggesting something had gone wrong for its absent rider.Open threadsEllie's flustered reaction to the party name hints at something she isn't saying.The Second Tries must survive the North Road and whatever trouble waits between Aegis City and the Sheridan border.A riderless, still-saddled horse in Sheridan blue has appeared on the North Road — its rider is missing and its origin unknown.Something on the North Road is keeping travellers away or taking them, and the party is walking into it.The story so farMax Nightriver formed the Second Tries with Belle and Dalan, and Ellie registered the party for the Wendhope posting despite her flustered confusion over the repeated entry. Belle accepted the group with blunt pragmatism, Dalan pledged his scouting skills, and the three departed the Guild for the Sheridan lands with a tense, purposeful air.\n\nA riderless horse in Sheridan blue came down the road at a walk, still saddled. The sight carried an uneasy, somber tone, suggesting something had gone wrong for its absent rider.Following along.Waiting for the next reply.The story is deciding how the world answers that.",
+    "footerButtons": [
+      "so-edit-story|Edit story",
+      "so-restart-story-drawer|Restart story"
+    ],
+    "hud": "◈ The Journey North"
+  },
+  "shots": [
+    "shots/x-1790919843086-B-player-after-hotswap.png"
+  ],
+  "after": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 29,
+      "libraryVersion": 30,
+      "pinned": true,
+      "drifted": true
+    },
+    "bb": {
+      "wall_breached": false,
+      "party_rank": 0,
+      "adv_looking_for_hands": false,
+      "guild_reputation": 0,
+      "location": "north_road",
+      "party_injuries": 0,
+      "tension_current": 0.175,
+      "party_name": "Ash Lanterns",
+      "path": "wendhope"
+    },
+    "lastUpdate": {
+      "applied": true,
+      "classification": "identical",
+      "choice": "keep",
+      "fromVersion": 29,
+      "toVersion": 30,
+      "storyId": "adolion-adventurer",
+      "dropped": [],
+      "at": "2026-10-02T05:42:11.495Z"
+    }
+  }
+}

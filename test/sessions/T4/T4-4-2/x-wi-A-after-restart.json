@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "value": {
+    "chat": "2026-10-02@02h33m03s114ms",
+    "active": "guild-hall",
+    "on": [
+      "ON  CP guild-hall - Scene"
+    ],
+    "total": 25,
+    "orphaned": [],
+    "wiBook": null,
+    "selected": null
+  }
+}

@@ -1,0 +1,434 @@
+{
+  "charter": "T4-4",
+  "tier": "T4",
+  "continuedAtPin": null,
+  "flags": [
+    {
+      "at": "2026-10-02T05:39:19.484Z",
+      "chatId": "2026-10-02@02h33m03s114ms",
+      "messageId": -1,
+      "note": "Restart story turned Author view off: before Restart the Overview footer had Edit story (extras.ui.authorView true, author-mode card); after Restart only Restart story shows and authorView is false. Messages kept (7), memory and path cleared, WI replayed. The journal restarts at 1 entry with no record that a restart happened. Same in run T4-4-1.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 357
+      },
+      "context": [
+        {
+          "id": 3,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "We take Wendhope as the Second Tries. Belle, Dalan, you're with me. Ellie, write us down."
+        },
+        {
+          "id": 4,
+          "name": "Ellie",
+          "isUser": false,
+          "text": "Ellie's pen hovers for a fraction of a second, her blue eyes widening as she glances toward the tavern arch. \"T-the Second Tries?\" A soft blush colors her cheeks, and she quickly looks back to her register. \"Right. Yes. Of course.\" Her hand moves across the page in practiced, elegant script, the nib scratching against the parchment as she enters the party name. \"Belle, Dalan, and Max Nightriver. Taking the Wendhope posting.\"\n*She sets the pen down carefully, then straightens her posture, trying to regain her professional composure though the slight tremor in her fingers betrays her.*\n\"The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity. \"It's been signed off already. You'll find the details on the posting itself—Sheridan land, north of the city. I'll file the paperwork now.\""
+        },
+        {
+          "id": 5,
+          "name": "Belle",
+          "isUser": false,
+          "text": "\"The Second Tries.\" Belle straightens up from the arch, her boredom replaced by a sharp, calculating look as her brown eyes size Max up and down. She doesn't smile, but there's a flicker of interest in the way she shifts her weight. \"Not a name that screams 'we're gonna get ourselves killed,' at least.\"\n*She pushes off from the tavern arch and walks toward the counter, the massive stone-headed greataxe Cleaver resting against her shoulder. The leather of her cuirass creaks with each step, and she stops a few paces from Max, tilting her head slightly.*\n\"I don't know you from a sack of grain,\" she says, voice blunt and loud enough to carry. \"But if you've got the stones to take the job that's actually paying something, I can live with that. I'm Belle. Don't slow me down and we'll get along fine.\""
+        },
+        {
+          "id": 6,
+          "name": "Dalan",
+          "isUser": false,
+          "text": "Dalan finally lets his gaze drift from the notices, his blue-grey eyes moving to Max with quiet curiosity. He shifts his weight, the green of his capelet rustling softly, and offers a tentative, polite smile that doesn't quite reach his eyes. \"Dalan Evergreen,\" he says, his voice soft-spoken but clear. \"I've been looking for work that... matters. If you're serious about Wendhope, I'm serious about seeing it through.\"\n*He adjusts the strap of his longbow, the movement making him seem suddenly more alert, more ready. His slender frame doesn't scream power, but there's something in the way he carries himself—the slight squaring of his shoulders, the way his gloved fingers curl loosely near his belt—that speaks of competence.*\n\"I can track, scout, and keep watch. And I've heard the Sheridan lands can be tricky.\" He glances toward Tobias at the counter, then back to Max. \"The sooner we leave, the better our chances. That's how I see it, anyway.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-02T05:46:54.631Z",
+      "chatId": "2026-10-02@02h36m26s213ms",
+      "messageId": 5,
+      "note": "After switching chats (ST openGroupChat, the chat-list path), the story drawer kept rendering the PREVIOUS chat for a while: B (player view, Ash Lanterns) showed A's story so far ('formed the Second Tries'), A's engine panel (boundary 6), Author view checked, Blackboard/Scheduler/Payload tabs and Edit story; A showed B's threads ('join the Ash Lanterns') with author view off. getSnapshot() was right for the open chat the whole time. Reproduced 4 switches in a row at ~5 s; healed by itself within ~60 s. Evidence shots/x-*-switch-*.png, x-stale-*.json.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 604
+      },
+      "context": [
+        {
+          "id": 2,
+          "name": "Ellie",
+          "isUser": false,
+          "text": "Ellie's blue eyes widen slightly, then she leans forward with an excited flutter. \"Oh! The Ash Lanterns, what a lovely name. Yes, yes.\" Her pen dances across the Guild's register in elegant script, then she looks up, blushing faintly. \"You're all... you're really forming a party? Together?\"\n*She glances between Max Nightriver and the two others, her fingers tapping her pen against her palm in a rhythmic, expectant beat. The flush on her cheeks deepens.*"
+        },
+        {
+          "id": 3,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "We set out north at once."
+        },
+        {
+          "id": 4,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "Tobias steps forward, his blue eyes sharp. \"Wait. You're taking the Wendhope posting, and you're going now, without so much as a provision list or a map?\" He taps the notice again, harder this time. \"The Sheridans aren't paying this much for a simple rescue. Something is keeping a whole mining village silent, and you're heading into their lands with nothing but your Guild badges.\"\n*From the tavern arch, Belle's bored expression shifts. She pushes off the wall with a scrape of her boots and turns fully toward the group, her brown eyes narrowed in appraisal as she grips the haft of Cleaver.*"
+        },
+        {
+          "id": 5,
+          "name": "Tobias",
+          "isUser": false,
+          "text": "\"Just wait—you need supplies. Bread, salted pork, and more importantly, water skins for the trek. The road north is dry.\" *He reaches for a small pouch on the counter and sets it down with a decisive click.* \"Here. A basic ration pack. On the Guild's account. You'll be needing it if you're not planning on raiding the countryside for meals.\"\n*Tobias straightens his vest, his expression shifting to one of quiet concern.* \"And I suggest checking your weapons before you leave the city walls. A sharp blade is worth more than gold when you're far from a smith.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    },
+    {
+      "at": "2026-10-02T05:52:42.936Z",
+      "chatId": "2026-10-02@02h33m03s114ms",
+      "messageId": 15,
+      "note": "Save/apply wording: after the invalidating save, choosing Cancel left this chat on v30 (drifted) but the Studio toolbar said 'Saved ... v31 to the library. Applied to this chat: this chat kept its version — author kept this chat on its pinned version.' Expected 'Not applied to this chat: ...'; the reason is also stated twice. The popup's Cancel line says 'keeps playing the version it started with', but this chat started on v29 and plays v30 after the hot-swap.",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 613
+      },
+      "context": [
+        {
+          "id": 12,
+          "name": "Adolion Narrator",
+          "isUser": false,
+          "text": "A riderless horse in Sheridan blue comes down the road at a walk, still saddled."
+        },
+        {
+          "id": 13,
+          "name": "Max Nightriver",
+          "isUser": true,
+          "text": "We keep moving north. Anyone else notice there's no traffic on this road?"
+        },
+        {
+          "id": 14,
+          "name": "Dalan",
+          "isUser": false,
+          "text": "\"No one has passed us since the border,\" Dalan says quietly, his eyes scanning the treeline. \"And it's not just travellers. Look at the carts.\" He gestures toward an overturned carriage a few hundred yards ahead—its cargo still lashed down, as if it had been abandoned in haste rather than plundered. \"Bandits would have taken the goods. And the animals... there are no hoof-prints but ours.\"\n*The elf's hand drifts toward his bow, not drawing it yet, but ready. He glances back at Max, his expression troubled.*\n\"Something's wrong. This road should be crawling with traffic toward the frontier. But it's empty. Just us and that horse.\""
+        },
+        {
+          "id": 15,
+          "name": "Belle",
+          "isUser": false,
+          "text": "\"I noticed, scout.\" Belle's brown eyes narrow as she looks down the long, empty stretch of road. \"Doesn't sit right. Abandoned carts with all their gear still strapped on—that's not bandits, and it ain't some natural disaster.\"\n*She shifts Cleaver on her shoulder, her grip tightening on the haft. There's an edge to her voice now, the predatory energy from the Guild hall sharpening into something more focused.*\n\"And I don't like it. Something's keeping folk off this road, or taking 'em before they get far. Either way, we're walking right into it.\""
+        }
+      ],
+      "contextFrom": "event-time"
+    }
+  ],
+  "anomalies": [
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T05:35:06.657Z",
+      "chatId": "2026-10-02@02h33m03s114ms",
+      "summary": "4 extraction line(s) rejected: DELTA q=party_rank value=0 evidence=\"The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity. (unrecognized line); DELTA q=tension_current value=\"calm\" evidence=\"The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity. (unrecognized line); FACT importance=2 text=\"The Wendhope posting is D-rank and concerns Sheridan land, north of the city.\" evidence=\"The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity. (unrecognized line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 129
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=party_rank value=0 evidence=\"The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity.",
+            "reason": "unrecognized line"
+          },
+          {
+            "line": "DELTA q=tension_current value=\"calm\" evidence=\"The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity.",
+            "reason": "unrecognized line"
+          },
+          {
+            "line": "FACT importance=2 text=\"The Wendhope posting is D-rank and concerns Sheridan land, north of the city.\" evidence=\"The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity.",
+            "reason": "unrecognized line"
+          },
+          {
+            "line": "DELTA q=adv_looking_for_hands value=false evidence=\"We take Wendhope as the Second Tries. Belle, Dalan, you're with me. Ellie, write us down.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T05:35:27.996Z",
+      "chatId": "2026-10-02@02h33m03s114ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=party_rank value=0 evidence=\"The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity. (unrecognized line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 163
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=party_rank value=0 evidence=\"The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity.",
+            "reason": "unrecognized line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:40:07.602Z",
+      "chatId": "2026-10-02@02h33m03s114ms",
+      "summary": "boundary went back from 5 to 1",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 381
+      },
+      "detail": {
+        "from": 5,
+        "to": 1
+      }
+    },
+    {
+      "kind": "extraction-rejected",
+      "at": "2026-10-02T05:40:14.115Z",
+      "chatId": "2026-10-02@02h33m03s114ms",
+      "summary": "1 extraction line(s) rejected: DELTA q=adv_looking_for_hands value=false evidence=\"We take Wendhope as the Second Tries. Belle, Dalan, you're with me. Ellie, write us down.\" (evidence only in the player's line)",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 404
+      },
+      "detail": {
+        "rejected": [
+          {
+            "line": "DELTA q=adv_looking_for_hands value=false evidence=\"We take Wendhope as the Second Tries. Belle, Dalan, you're with me. Ellie, write us down.\"",
+            "reason": "evidence only in the player's line"
+          }
+        ]
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:40:50.694Z",
+      "chatId": "2026-10-02@02h33m03s114ms",
+      "summary": "boundary went back from 5 to 2",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 420
+      },
+      "detail": {
+        "from": 5,
+        "to": 2
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:41:12.792Z",
+      "chatId": "2026-10-02@02h33m03s114ms",
+      "summary": "boundary went back from 5 to 3",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 467
+      },
+      "detail": {
+        "from": 5,
+        "to": 3
+      }
+    },
+    {
+      "kind": "rollback",
+      "at": "2026-10-02T05:41:46.847Z",
+      "chatId": "2026-10-02@02h33m03s114ms",
+      "summary": "boundary went back from 5 to 4",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 497
+      },
+      "detail": {
+        "from": 5,
+        "to": 4
+      }
+    },
+    {
+      "kind": "save-lost",
+      "at": "2026-10-02T05:45:20.956Z",
+      "chatId": "2026-10-02@02h33m03s114ms",
+      "summary": "save not confirmed",
+      "evidence": {
+        "path": "journal.jsonl",
+        "line": 577
+      },
+      "detail": {
+        "note": "an empty save of \"2026-10-02@02h36m26s213ms\" carried no chat integrity (the metadata a chat switch clears) and was held back"
+      }
+    }
+  ],
+  "counts": {
+    "flags": 3,
+    "stall": 0,
+    "extraction-rejected": 3,
+    "empty-private-block": 0,
+    "lore-force-lost": 0,
+    "lore-constant-missed": 0,
+    "judge-fallback": 0,
+    "save-lost": 1,
+    "unexpected-jump": 0,
+    "rollback": 4,
+    "console-error": 0,
+    "model-call-failure": 0,
+    "model-defect": 0,
+    "harness-error": 0
+  },
+  "countsByChat": {
+    "2026-10-02@02h33m03s114ms": {
+      "extraction-rejected": 3,
+      "rollback": 4,
+      "save-lost": 1
+    }
+  },
+  "valid": true,
+  "invalid": [],
+  "unverifiable": {
+    "privateBlock": 0
+  },
+  "judge": {
+    "calls": 188,
+    "answered": 188,
+    "busy": 0,
+    "timeout": 0,
+    "otherFallbacks": 0,
+    "busyRate": 0,
+    "busyByUse": {}
+  },
+  "modelDefects": {
+    "turns": 0,
+    "loop": 0,
+    "corrupt": 0,
+    "repaired": 0,
+    "unrepaired": 0
+  },
+  "sessionDir": "test/sessions/T4/T4-4-2",
+  "register": [
+    {
+      "id": "T4-?1",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "Restart story turned Author view off: before Restart the Overview footer had Edit story (extras.ui.authorView true, author-mode card); after Restart only Restart story shows and authorView is false. Messages kept (7), memory and path cleared, WI replayed. The journal restarts at 1 entry with no record that a restart happened. Same in run T4-4-1.",
+      "source": "flag",
+      "evidence": "test/sessions/T4/T4-4-2/journal.jsonl:357",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?2",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "After switching chats (ST openGroupChat, the chat-list path), the story drawer kept rendering the PREVIOUS chat for a while: B (player view, Ash Lanterns) showed A's story so far ('formed the Second Tries'), A's engine panel (boundary 6), Author view checked, Blackboard/Scheduler/Payload tabs and Edit story; A showed B's threads ('join the Ash Lanterns') with author view off. getSnapshot() was right for the open chat the whole time. Reproduced 4 switches in a row at ~5 s; healed by itself within ~60 s. Evidence shots/x-*-switch-*.png, x-stale-*.json.",
+      "source": "flag",
+      "evidence": "test/sessions/T4/T4-4-2/journal.jsonl:604",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?3",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "Save/apply wording: after the invalidating save, choosing Cancel left this chat on v30 (drifted) but the Studio toolbar said 'Saved ... v31 to the library. Applied to this chat: this chat kept its version — author kept this chat on its pinned version.' Expected 'Not applied to this chat: ...'; the reason is also stated twice. The popup's Cancel line says 'keeps playing the version it started with', but this chat started on v29 and plays v30 after the hot-swap.",
+      "source": "flag",
+      "evidence": "test/sessions/T4/T4-4-2/journal.jsonl:613",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?4",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "4 extraction line(s) rejected: DELTA q=party_rank value=0 evidence=\"The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity. (unrecognized line); DELTA q=tension_current value=\"calm\" evidence=\"The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity. (unrecognized line); FACT importance=2 text=\"The Wendhope posting is D-rank and concerns Sheridan land, north of the city.\" evidence=\"The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity. (unrecognized line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T4/T4-4-2/journal.jsonl:129",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?5",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=party_rank value=0 evidence=\"The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity. (unrecognized line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T4/T4-4-2/journal.jsonl:163",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?6",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 5 to 1",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-4-2/journal.jsonl:381",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?7",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "1 extraction line(s) rejected: DELTA q=adv_looking_for_hands value=false evidence=\"We take Wendhope as the Second Tries. Belle, Dalan, you're with me. Ellie, write us down.\" (evidence only in the player's line)",
+      "source": "extraction-rejected",
+      "evidence": "test/sessions/T4/T4-4-2/journal.jsonl:404",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?8",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 5 to 2",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-4-2/journal.jsonl:420",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?9",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 5 to 3",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-4-2/journal.jsonl:467",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?10",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "boundary went back from 5 to 4",
+      "source": "rollback",
+      "evidence": "test/sessions/T4/T4-4-2/journal.jsonl:497",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    },
+    {
+      "id": "T4-?11",
+      "tier": "T4",
+      "severity": "",
+      "class": "",
+      "what": "save not confirmed",
+      "source": "save-lost",
+      "evidence": "test/sessions/T4/T4-4-2/journal.jsonl:577",
+      "status": "draft",
+      "fixCommit": "",
+      "eval": ""
+    }
+  ]
+}

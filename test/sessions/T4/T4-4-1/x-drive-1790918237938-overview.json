@@ -1,0 +1,85 @@
+{
+  "mode": "overview",
+  "args": [
+    "A-after-cancel"
+  ],
+  "at": "2026-10-02T05:17:16.089Z",
+  "before": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 30,
+      "libraryVersion": 31,
+      "pinned": true,
+      "drifted": true
+    },
+    "bb": {
+      "wall_breached": true,
+      "party_name": "Party name updated to The Second Tries,",
+      "adv_looking_for_hands": false,
+      "guild_reputation": 1,
+      "location": "north_road",
+      "party_injuries": 0,
+      "path": "wendhope",
+      "first_camp": false
+    },
+    "lastUpdate": {
+      "applied": false,
+      "classification": "invalidating",
+      "choice": "cancel",
+      "fromVersion": 30,
+      "toVersion": 31,
+      "storyId": "adolion-adventurer",
+      "dropped": [
+        "guild_reputation"
+      ],
+      "at": "2026-10-02T05:16:52.094Z",
+      "reason": "author kept this chat on its pinned version"
+    }
+  },
+  "overview": {
+    "overview": "Where you areThe Journey NorthAt the road north.About this storyYou have just signed on at the Adventurer's Guild in Aegis City, with no party yet. Belle, a headstrong barbarian, and Dalan, a shy elf ranger, are looking for one too. The postings on the board are small, the pay is modest, and every rank has to be earned. Expect frontier fantasy with a dark edge: real danger, mysteries that open one clue at a time, and choices that cost something. Bring any adventurer you like; the Guild takes all kinds.RecentlyMax Nightriver noted the absence of traffic as the group continued north. Dalan observed that wildlife and insects had also vanished, leaving an unsettling silence over the road. Belle tightened her grip on Cleaver's haft, and an overturned, untouched carriage soon appeared ahead under the grey sky.Open threadsBelle and Dalan's friction is only paused, not settled.Tobias privately warned the party that the Wendhope posting is a face-saving job for the Sheridans — the party must decide how much of this to trust or act on.The party must prepare supplies and horses before first light and survive the temperamental north road to Wendhope.The unnaturally empty north road and the abandoned overturned cart hint at what happened to the missing parties before Wendhope.The riderless Sheridan-blue horse and the untouched overturned cart raise the question of what drove the missing parties off the road without a struggle.The story so farMax Nightriver registered the party as the Ash Lanterns at the guild, which Ellie recorded and Belle and Dalan approved of, though Tobias and Dalan offered quiet caution. Max then changed the name back to The Second Tries, and Ellie voided the previous entry and wrote the new one. Belle and Dalan departed to prepare for the journey to Wendhope at first light, with Dalan promising to ready the horses.\n\nMax Nightriver noted the absence of traffic as the group continued north. Dalan observed that wildlife and insects had also vanished, leaving an unsettling silence over the road.Following along.Waiting for the next reply.The story is deciding how the world answers that.",
+    "footerButtons": [
+      "so-edit-story|Edit story",
+      "so-restart-story-drawer|Restart story",
+      "so-update-story|Update to v31"
+    ],
+    "hud": "◈ The Journey North"
+  },
+  "shots": [
+    "shots/x-1790918237518-A-after-cancel.png"
+  ],
+  "after": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 30,
+      "libraryVersion": 31,
+      "pinned": true,
+      "drifted": true
+    },
+    "bb": {
+      "wall_breached": true,
+      "party_name": "Party name updated to The Second Tries,",
+      "adv_looking_for_hands": false,
+      "guild_reputation": 1,
+      "location": "north_road",
+      "party_injuries": 0,
+      "path": "wendhope",
+      "first_camp": false
+    },
+    "lastUpdate": {
+      "applied": false,
+      "classification": "invalidating",
+      "choice": "cancel",
+      "fromVersion": 30,
+      "toVersion": 31,
+      "storyId": "adolion-adventurer",
+      "dropped": [
+        "guild_reputation"
+      ],
+      "at": "2026-10-02T05:16:52.094Z",
+      "reason": "author kept this chat on its pinned version"
+    }
+  }
+}

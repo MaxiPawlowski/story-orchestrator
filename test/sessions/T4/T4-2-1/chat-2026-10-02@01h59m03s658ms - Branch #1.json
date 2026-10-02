@@ -1,0 +1,62 @@
+[
+ {
+  "id": 0,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "You came to Aegis City to make a name with a blade, a bow or a spell, and three days ago you signed the Adventurers' Guild register to do it. Your Guild badge is new, your purse is light, and you have no party yet. The Guild sends no one out alone.\n\nToday the hall is loud enough to be heard from the street. At the counter, Tobias, who hands out the Guild's work, has set a register beside the quest board and keeps tapping one notice: Wendhope, a mining village in the north that has gone silent, offering more coin than a collapsed mine should be worth.\n\nTwo others are looking for a party too. Belle, a barbarian out of the Mountains of Shadow with a greataxe as tall as she is, leans in the tavern arch and makes no secret of being bored. Dalan, a quiet elf archer who has drifted between parties for a year, pretends to read the notices. Beside Tobias, Ellie keeps glancing from those two to you, pen already inked to write a new party's name into the Guild's book."
+ },
+ {
+  "id": 1,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We take Wendhope as the Loose Ends."
+ },
+ {
+  "id": 2,
+  "name": "Ellie",
+  "isUser": false,
+  "text": "Ellie's pen is already moving across the page as you speak, her blue eyes darting toward Belle and Dalan with a hopeful glint. \"The Loose Ends. Yes, that's a wonderful name! So memorable, yet so...\" She pauses mid-sentence as a rosy flush touches her cheeks, her fingers tightening on her pen. \"Oh, sorry! I mean, it's perfectly professional, very suitable for your rank. I've logged it right here in the register.\"\n*She finishes scrawling the name in neat, looping script and lifts the ledger to read it back aloud, her voice carrying just enough that the bored barbarian in the arch and the quiet elf by the board might hear.*\n\"The party 'Loose Ends' will be taking the Wendhope investigation. Reward is standard plus the Sheridan bonus.\" *Her gaze lingers on the other two adventurers, her head tilting just slightly as she looks back to you.* \"Do you know anyone you'd like to invite, or shall we see who's interested?\""
+ },
+ {
+  "id": 3,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Tobias, sign us up. We ride north for Wendhope today."
+ },
+ {
+  "id": 4,
+  "name": "Tobias",
+  "isUser": false,
+  "text": "Tobias's ocean blue eyes widen slightly at the sudden declaration, and his fingers pause on the edge of the counter. \"Ride north today, you say?\" He lets out a long, measured breath, then shakes his head. \"I appreciate the enthusiasm, truly. But you have no party, and even a determined soul will find the road to Wendhope long and the Sheridan lands... unpredictable.\"\n*He slides the posting across the counter toward you, his expression shifting to something quieter, almost cautious.*\n\"The Guild does not send out solo adventurers, and not for a posting this peculiar. The Sheridan bonus suggests something beyond a simple collapsed shaft, and something like that requires more than just determination. It requires a party.\" *His gaze flickers momentarily toward Belle in the tavern arch, then Dalan by the notices, before returning to you.* \"I can sign you up for the posting itself, but we cannot finalize it until a proper party name is listed with at least two members. Ellie has already noted your party name, so now we simply need to determine who will join the Loose Ends.\""
+ },
+ {
+  "id": 5,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We ride north."
+ },
+ {
+  "id": 6,
+  "name": "Tobias",
+  "isUser": false,
+  "text": "Tobias's brow furrows, a rare crack in his composed demeanor. \"I understand your determination, I truly do. But this is not a matter of will; it is a matter of Guild policy, and more importantly, a matter of survival.\" He leans forward slightly, his voice dropping to a more earnest tone. \"I will not sign you out on a posting you are not prepared for. I simply won't.\"\n*His hand rests flat on the counter, pinning the Wendhope posting in place as if to keep it from being snatched away.*\n\"You are rank-zero. This is D-rank. Alone, you are asking for a death sentence. I lost my entire party to goblins because we were unprepared, and I will not stand by and watch another adventurer make the same mistake.\" Tobias's blue eyes are steady, almost stubborn. \"If you wish to ride north, you will do it with a party. Belle and Dalan are both seeking groups. Perhaps one of them might be willing to hear you out.\""
+ },
+ {
+  "id": 7,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We ride north."
+ },
+ {
+  "id": 8,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Tobias's jaw tightens and his hand removes from the counter entirely. \"Then you will do it without Guild backing, without our supplies, and without a contract to secure your pay.\" He pulls the Wendhope posting back across the counter to the board where it belongs. \"But I will not be the one who signs a death warrant.\"\n*Beside him, Ellie's hopeful expression has fallen completely. She doesn't write anything in the ledger, and her blue eyes are wide with genuine alarm as she watches the exchange. In the tavern arch, Belle has straightened up, her hand resting on the handle of her massive greataxe, her boredom suddenly gone.*\n*The Guild hall's ambient noise seems to have dipped. A few other adventurers have turned to watch the tension at the counter, and Dalan has shifted his weight, glancing over from the notice board.*"
+ },
+ {
+  "id": 9,
+  "name": "Belle",
+  "isUser": false,
+  "text": "Belle pushes off the tavern wall with a heavy thud of leather and steel, Cleaver's head scraping the floor as she strides toward the counter. She doesn't look at Tobias—her brown eyes are locked on you, sizing up the stubbornness in your posture. \"Bold. I like bold.\"\n*She stops a few feet away, arms crossed over her leather cuirass, her long black hair swinging. There's no mockery in her voice, only a hard, assessing edge.*\n\"You're either the bravest bastard in Aegis or the stupidest. But I ain't about to watch some fresh-meat suicide run just because a clerk won't sign a paper.\" She gestures with a chin toward Tobias, then back to you. \"I'm in. You get me a chance to crack some skulls, and I'll keep the Guild from pissing in your beer.\""
+ }
+]

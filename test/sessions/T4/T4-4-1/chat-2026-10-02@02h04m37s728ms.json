@@ -1,0 +1,38 @@
+[
+ {
+  "id": 0,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "You came to Aegis City to make a name with a blade, a bow or a spell, and three days ago you signed the Adventurers' Guild register to do it. Your Guild badge is new, your purse is light, and you have no party yet. The Guild sends no one out alone.\n\nToday the hall is loud enough to be heard from the street. At the counter, Tobias, who hands out the Guild's work, has set a register beside the quest board and keeps tapping one notice: Wendhope, a mining village in the north that has gone silent, offering more coin than a collapsed mine should be worth.\n\nTwo others are looking for a party too. Belle, a barbarian out of the Mountains of Shadow with a greataxe as tall as she is, leans in the tavern arch and makes no secret of being bored. Dalan, a quiet elf archer who has drifted between parties for a year, pretends to read the notices. Beside Tobias, Ellie keeps glancing from those two to you, pen already inked to write a new party's name into the Guild's book."
+ },
+ {
+  "id": 1,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We'll take the Wendhope job. Put us down as the Ash Lanterns."
+ },
+ {
+  "id": 2,
+  "name": "Ellie",
+  "isUser": false,
+  "text": "Ellie's quill scratches across the register with practiced elegance, her blue eyes darting toward Belle and Dalan as if hoping they'd step forward and confirm the party. \"Ash Lanterns... yes, a fitting name.\" She glances back at Tobias, then at the quest notice for Wendhope, and her professional composure slips just a fraction. \"Please wait here while we prepare the official paperwork for your party's first posting.\""
+ },
+ {
+  "id": 3,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We set out north at once."
+ },
+ {
+  "id": 4,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The Guild hall's noise fades behind you as you pass through the heavy timber gates and turn onto the north road. By midday the cobblestones give way to dirt and pine needles; by dusk the road is nothing more than a worn path winding between the dark silhouettes of the Sheridan forests.\nDalan keeps a steady pace ahead, his bow-staff thumping against the earth as he scouts the road. Belle carries a rolled bedroll and the heavy weight of Cleaver, her axe strapped to her back. She hasn't spoken since you left the city, her brown eyes fixed on the tree line.\nThe air grows colder as you climb into the foothills. Shadows lengthen. Somewhere ahead, a hawk screams. Dalan raises a hand to signal a stop, his fingers hovering near the arrow in his quiver."
+ },
+ {
+  "id": 5,
+  "name": "Dalan",
+  "isUser": false,
+  "text": "Dalan freezes mid-step, head tilting as he scans the darkened treeline. He lowers himself into a crouch, moving with a sudden, fluid silence that seems to erase his presence entirely. \"Something's wrong,\" he murmurs, his soft voice barely carrying in the stillness.\nHis fingers slip from the bowstaff to the arrow in his quiver, the movement unconscious and practiced. He doesn't notch it—not yet—but his posture is coiled and ready, eyes narrowing as they track movement just beyond the road's edge. \"Not right. Nothing's been moving on this road. No birds, no squirrels... and those carriages we passed? Nothing disturbed them.\" He glances back at the party, his cheeks flushed with an intensity that makes him look older. \"We need to keep moving, but we can't stop until we hit those walls. Something's waiting.\""
+ }
+]

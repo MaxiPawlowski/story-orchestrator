@@ -1,0 +1,126 @@
+{
+  "ok": true,
+  "value": {
+    "chatId": "2026-10-02@01h58m58s365ms",
+    "msgs": 18,
+    "lastMes": "Dalan pauses at the guild's exit, his hand resting on the doorframe. \"First ligh",
+    "active": "road-to-wendhope",
+    "boundary": 3,
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 29,
+      "libraryVersion": 29,
+      "pinned": true,
+      "drifted": false
+    },
+    "playedVersion": 29,
+    "contentHashAtLoad": "v2-57e206e5",
+    "pinnedVersion": 29,
+    "pinnedQualities": 29,
+    "engBB": {
+      "values": {
+        "wall_breached": true,
+        "party_name": "Party name updated to The Second Tries,",
+        "adv_looking_for_hands": false,
+        "guild_reputation": 1,
+        "location": "north_road",
+        "party_injuries": 0,
+        "path": "wendhope",
+        "first_camp": false
+      },
+      "versions": {
+        "wall_breached": 3,
+        "party_name": 1,
+        "adv_looking_for_hands": 1,
+        "guild_reputation": 1,
+        "location": 2,
+        "party_injuries": 2,
+        "path": 1,
+        "first_camp": 1
+      },
+      "latched": {
+        "party_name": true,
+        "path": true
+      }
+    },
+    "visitedPath": [
+      "guild-hall",
+      "road-to-wendhope"
+    ],
+    "memEntries": 31,
+    "arcs": 5,
+    "canon": false,
+    "journal": 26,
+    "storyUpdates": [
+      {
+        "at": "2026-10-02T05:11:35.970Z",
+        "boundary": 1,
+        "messageId": 14,
+        "kind": "story",
+        "summary": "1 rating reading(s) held: the evidence did not ground the level",
+        "note": "party_rank=\"1\" (the evidence never names E-rank) from \"That's why I'm handing this to a D-rank party.\""
+      },
+      {
+        "at": "2026-10-02T05:12:19.314Z",
+        "boundary": 2,
+        "messageId": 16,
+        "kind": "story",
+        "summary": "cast change at \"The Road North\" removed Ellie, whom the play just brought in",
+        "note": "the authored cast_changes.disable wins; to keep a member the play recruits, gate this change on a quality the play sets"
+      },
+      {
+        "at": "2026-10-02T05:12:28.326Z",
+        "boundary": 2,
+        "messageId": 16,
+        "kind": "story",
+        "summary": "1 rating reading(s) held: the evidence did not ground the level",
+        "note": "party_rank=\"1\" (the evidence never names E-rank) from \"That's why I'm handing this to a D-rank party.\""
+      },
+      {
+        "at": "2026-10-02T05:12:34.501Z",
+        "boundary": 2,
+        "messageId": 16,
+        "kind": "story",
+        "summary": "1 rating reading(s) held: the evidence did not ground the level",
+        "note": "party_rank=\"1\" (the evidence never names E-rank) from \"That's why I'm handing this to a D-rank party.\""
+      },
+      {
+        "at": "2026-10-02T05:13:28.207Z",
+        "boundary": 3,
+        "messageId": 17,
+        "kind": "story",
+        "summary": "NPC reply Adolion Narrator (sceneBreak) skipped by its roll",
+        "note": "rolled 0.522 against 0.5 at road-to-wendhope:sceneBreak:Adolion Narrator:0"
+      }
+    ],
+    "lastUpdate": null,
+    "ui": {
+      "authorView": true
+    },
+    "authorView": {
+      "authorView": true,
+      "announceTransitions": false,
+      "hudEnabled": true,
+      "inline": {
+        "level": 1,
+        "categories": {},
+        "window": 20
+      }
+    },
+    "wiBook": null,
+    "gated": {
+      "mode": "file",
+      "active": false,
+      "capability": null,
+      "ledger": {
+        "books": 0,
+        "entries": 0
+      },
+      "drift": [],
+      "missingKey": [],
+      "missing": [],
+      "unreadable": [],
+      "busy": false
+    }
+  }
+}

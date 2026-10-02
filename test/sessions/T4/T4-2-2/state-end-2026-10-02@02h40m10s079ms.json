@@ -1,0 +1,1345 @@
+{
+  "storyId": "adolion-adventurer",
+  "activeCheckpointId": "on-the-road",
+  "boundary": 13,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Adventurer Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Mountains of Shadow": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "wall_breached": false,
+    "party_rank": 0,
+    "adv_looking_for_hands": false,
+    "guild_reputation": 1,
+    "location": "north_road",
+    "party_injuries": 0,
+    "tension_current": 0.25,
+    "party_name": "Loose Ends",
+    "path": "wendhope",
+    "progress_toward_after-the-fog": 1,
+    "first_camp": true
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "dd4d2e33-1660-43fc-8292-cc7fbcb84365",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "To see the party return in one piece from Wendhope.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "9d663be7-6001-4348-a9f9-3419fd21ad50",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Tobias suspects the Wendhope silence is not an accident",
+      "createdAt": 3,
+      "messageId": 4,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "3993d7f2-9de3-408d-a280-27def7f5a48c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Tobias suspects the Wendhope silence is not an accident",
+      "createdAt": 3,
+      "messageId": 4,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "5c6d4411-6b6d-47c2-8b09-7e8f445b11c2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "warn the party that the Wendhope silence may not be an accident and send them off prepared",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "bae7f656-3504-4da2-ad0e-300c80281f9e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 5,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party Loose Ends is signed for the Wendhope posting with Belle and Dalan.",
+      "createdAt": 4,
+      "messageId": 5
+    },
+    {
+      "id": "c49ba820-27eb-499a-9cae-f2608711b291",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 5,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "The party name Loose Ends is entered in the Guild ledger for the Wendhope posting.",
+      "createdAt": 4,
+      "messageId": 5
+    },
+    {
+      "id": "52ac5a94-1143-45a3-af64-4db0276c766e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 5,
+        "boundary": 4,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "suspects",
+      "content": "The Wendhope silence is not an accident.",
+      "createdAt": 4,
+      "messageId": 5,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "2f881717-d4ec-4480-ad65-d8fc20d6bb0d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 5,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To take the front in any fight and get through Wendhope without anyone being eaten by a monster.",
+      "createdAt": 4,
+      "messageId": 5,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "3938d81e-bf21-4ea6-9432-c815fd50ffb2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 5,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party Loose Ends has committed to the Wendhope posting with Belle and Dalan signed in.",
+      "createdAt": 4,
+      "messageId": 5
+    },
+    {
+      "id": "43254723-b7c4-4d44-8d7c-bd22eb26adf7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 5,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "The party Loose Ends has been written into the Guild ledger for the Wendhope posting.",
+      "createdAt": 4,
+      "messageId": 5
+    },
+    {
+      "id": "4c75ca87-ec71-4167-9b37-ec269c07f65f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 5,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To take the front in any fight and have the others cover her back.",
+      "createdAt": 4,
+      "messageId": 5,
+      "affirmedAt": [
+        {
+          "messageId": 7,
+          "boundary": 6
+        }
+      ],
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "c614c0ba-9d15-4cc1-a35a-c8dcc4820b8e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party is bound for Wendhope and she is to take the front while the others cover her back",
+      "createdAt": 6,
+      "messageId": 7,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "4fab5db4-5347-4132-9674-c1ad43be1596",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To keep the party hidden and watch for anything wrong in the trees",
+      "createdAt": 6,
+      "messageId": 7,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "e09543c5-7788-4e1d-834a-6e1163310482",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To keep the party hidden and watch the woods for anything that moves wrong.",
+      "createdAt": 6,
+      "messageId": 7,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "5b3fb57a-9514-4b16-be5d-32e3d9d0a0c5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party is bound for Wendhope and she is to take the front while the others cover her back",
+      "createdAt": 6,
+      "messageId": 7,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "d7c48524-3316-445a-8409-1784dd2e3017",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party is bound for Wendhope and he is to scout and watch the woods",
+      "createdAt": 6,
+      "messageId": 7,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "af0c7922-3603-406d-be5d-c8ac4cb953cf",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "He suspects the Wendhope silence is not an accident",
+      "hiddenFrom": "Belle, Dalan",
+      "createdAt": 6,
+      "messageId": 7
+    },
+    {
+      "id": "71aba02e-ae76-4361-9df2-16f1def3170e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "The Sheridans' high pay suggests the posting is more dangerous than a collapsed mine",
+      "hiddenFrom": "Belle, Dalan",
+      "createdAt": 6,
+      "messageId": 7
+    },
+    {
+      "id": "7841504e-9c16-44bf-ae73-61d96c1bb107",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "suspects",
+      "content": "The Sheridans' generous payment signals the Wendhope job is not a simple collapsed mine",
+      "createdAt": 6,
+      "messageId": 7
+    },
+    {
+      "id": "52c1541b-b382-4aa8-bba5-8494395b7921",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To take the front in any fight and have the others cover her back",
+      "createdAt": 6,
+      "messageId": 7,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "31f2ecd8-2bb7-4722-afa9-e06ae2dc66b6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To keep the party hidden and watch the woods for anything that moves wrong",
+      "createdAt": 6,
+      "messageId": 7,
+      "supersededBy": "retired@6",
+      "retiredAt": {
+        "messageId": 7,
+        "boundary": 6
+      }
+    },
+    {
+      "id": "08716699-7121-4a2e-bee3-f9e8795f0d3e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Dalan says the road north is clear this time of year",
+      "createdAt": 6,
+      "messageId": 7,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "7a0be020-672f-413a-9472-d8718483ecb7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "believes",
+      "content": "The road north is clear this time of year",
+      "createdAt": 6,
+      "messageId": 7,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "64f72ac6-042d-47e0-a726-da3a95cf689c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party Loose Ends is committed to the D-rank Investigate Wendhope posting",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "8fc74be1-8d3a-4a84-a6a9-968e7e8d3b15",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "The party Loose Ends is registered for the Wendhope posting",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "6d9b0f64-8386-40e1-bd0e-fb306e003759",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party is registered as Loose Ends for the Wendhope posting",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "8e4c1760-adbb-4a6a-864d-afff98bc1510",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party rides north to Wendhope and she is to take the front",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "d50d9628-6d34-4cf5-bc0b-cf86f15d6b3f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To keep the party hidden and watch the trees on the road north",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "11fd6468-1041-4f8c-84da-6fa2f4c46ad5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The north road is unnaturally empty for the season.",
+      "createdAt": 9,
+      "messageId": 12,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "0a3f75bb-b5b5-455b-8989-e4cf43f01d00",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The north road is unnaturally empty for the season.",
+      "createdAt": 9,
+      "messageId": 12,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "44b59006-b7bc-4e39-9e02-b11bf43b725c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "Something is wrong about how empty the road is.",
+      "createdAt": 9,
+      "messageId": 12,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "5cc4717c-ddb7-4b70-919f-c79e0e42b0a3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "suspects",
+      "content": "The quiet road means something is off.",
+      "createdAt": 9,
+      "messageId": 12,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "18c2822e-2d3b-442a-9d3b-25b3ad04678e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To watch the woods through the night and wake Max for second watch.",
+      "createdAt": 9,
+      "messageId": 12,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 12,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "59a804cd-a70d-4dc2-bf3c-8191d5cfba0c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle will take the first watch and wake him when her turn is done",
+      "createdAt": 9,
+      "messageId": 12,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "f4e073a0-9c39-432c-bcb0-e32be1bcf87f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Dalan will keep watching the woods while she takes the road",
+      "createdAt": 9,
+      "messageId": 12,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "ece32893-d4e7-4b5e-8309-4fe68527dd68",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle is watching the road while he watches the woods",
+      "createdAt": 9,
+      "messageId": 12,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "4b661929-4f82-4066-aaa1-0503f78ac66a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "hiding",
+      "content": "He finds the road's quiet unnerving and thinks something is off",
+      "hiddenFrom": "Belle, Max Nightriver",
+      "createdAt": 9,
+      "messageId": 12,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "688d4c78-6347-4587-95d5-2b926f990cff",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "hiding",
+      "content": "She finds the road's emptiness wrong and suspects something is not right",
+      "hiddenFrom": "Dalan, Max Nightriver",
+      "createdAt": 9,
+      "messageId": 12,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "7f505611-ea9c-420d-a246-b0667b69046d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Giada",
+      "tag": "knows",
+      "content": "The party of three adventurers (a noble, an elf archer, and an axe-wielding woman) is traveling north on the road.",
+      "createdAt": 11,
+      "messageId": 16,
+      "supersededBy": "retired@11",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 11
+      }
+    },
+    {
+      "id": "5fddc6cd-3335-4574-8d11-1fbe54c3df97",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Giada",
+      "tag": "hiding",
+      "content": "that she is following and watching them from the treeline",
+      "hiddenFrom": "Max Nightriver,Belle,Dalan",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "fc4547cc-0b7e-4611-a163-44eb8ecce98a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Giada",
+      "tag": "intends",
+      "content": "to watch the party and decide whether they are fools to abandon or something else",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "a1f7232f-cf43-49e2-b1fc-043343a8c5a2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle will take the first watch and wake him when her turn is done",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "b84e1ba5-d167-447a-9bfb-cd326d479ffa",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Dalan will keep watching the woods while she takes the road",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "183be3ad-2291-48a1-a9a5-08a62018bc1b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Belle is watching the road while he watches the woods",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "3f9f2fcc-b2e5-4d2b-a2d4-3a0c6d545ab7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "hiding",
+      "content": "He finds the road's quiet unnerving and thinks something is off",
+      "hiddenFrom": "Belle, Max Nightriver",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "8c829f83-ae73-4133-8a7d-fb2af863d8f6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "hiding",
+      "content": "She finds the road's emptiness wrong and suspects something is not right",
+      "hiddenFrom": "Dalan, Max Nightriver",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "da43bb65-55d3-458e-a2f6-3edfaa4430ec",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Giada",
+      "tag": "knows",
+      "content": "The party of three adventurers (a noble, an elf archer, and an axe-wielding woman) is traveling north on the road.",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "0a2e7028-911b-418b-871b-713c17979aed",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "believes",
+      "content": "The road north is clear this time of year",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "9e0e3b07-53d5-4757-9581-f6eadfb5c1f7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The north road is unnaturally empty for the season.",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "aaca048f-297f-47f4-8ec7-7e45959ab92a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The north road is unnaturally empty for the season.",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "ca1d4828-dccc-4440-ae07-885f3a77d656",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "Something is wrong about how empty the road is.",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "959c0fd2-d478-47c6-883b-1379a3e6787c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "suspects",
+      "content": "The quiet road means something is off.",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "6e198a18-c007-4b60-9815-3ef044da7987",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "An overturned carriage with a dead horse and untouched cargo lies on the road north.",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "4c0b73ab-3cbb-4453-9343-c5719469a643",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "An overturned carriage with a dead horse and untouched cargo lies on the road north.",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "5d0b9dfd-825d-4ada-935d-97951cac438b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 11,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "People don't abandon coin and gear unless they're dead or scared.",
+      "createdAt": 11,
+      "messageId": 16
+    },
+    {
+      "id": "b0ec0832-d6a9-4ff0-ad0a-091645b50356",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Giada",
+      "tag": "knows",
+      "content": "The party is three adventurers — a noble with shadows, an elf archer, and a human woman with an axe — heading north to Wendhope.",
+      "createdAt": 13,
+      "messageId": 19
+    },
+    {
+      "id": "61c9421f-e2f5-4c6a-b719-4a9f05afe55c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 13,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "That Wendhope is either truly empty or someone is hiding.",
+      "createdAt": 13,
+      "messageId": 19
+    },
+    {
+      "id": "72484314-f26c-47af-ae39-469e09b57368",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 13,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Giada",
+      "tag": "hiding",
+      "content": "That she is following them north and watching from the treeline.",
+      "hiddenFrom": "The Party",
+      "createdAt": 13,
+      "messageId": 19
+    },
+    {
+      "id": "ffb98cc1-f6a2-4856-8496-3f9f99497cf9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Giada",
+      "tag": "intends",
+      "content": "To let fools wander into danger, but to watch the party to see if they are something else.",
+      "createdAt": 13,
+      "messageId": 19
+    },
+    {
+      "id": "a3f13f01-de4b-4be2-b737-e2ad518ed623",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Giada",
+      "tag": "knows",
+      "content": "The party of three adventurers has arrived at Wendhope's gate and found it silent.",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "21a67c18-a8a0-492e-9a0b-b86fec799fdc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The village is silent and no one is answering the gate.",
+      "createdAt": 13,
+      "messageId": 20,
+      "supersededBy": "retired@13",
+      "retiredAt": {
+        "messageId": 20,
+        "boundary": 13
+      }
+    },
+    {
+      "id": "ee0798d7-e5b4-427b-be9b-ef0fc564c14b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The village shows no signs of destruction or breach.",
+      "createdAt": 13,
+      "messageId": 20,
+      "supersededBy": "retired@13",
+      "retiredAt": {
+        "messageId": 20,
+        "boundary": 13
+      }
+    },
+    {
+      "id": "7aec79d4-1042-414d-8f21-6d7f60c2f946",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Giada",
+      "tag": "hiding",
+      "content": "her presence and that she is tracking them",
+      "hiddenFrom": "The Party",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "b87821a4-d5db-4033-b3da-3187c580691b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The gate of Wendhope gives no answer to the Guild call.",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "17975aee-127b-4a18-808e-fce38a39eb5c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The gate of Wendhope gives no answer to the Guild call.",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "a66a90b8-61ab-4cd3-a6ab-87b1d994d631",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "A pale woman was seen by the pines near the treeline.",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "2efe7dc1-4413-4965-ae99-c74a20abe786",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "A pale woman was seen by the pines near the treeline.",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "b51da09f-1f52-45c7-9b2b-eab389807133",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The village shows no burn marks or breach in the walls.",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "5d6d9fbe-f2d8-4fd5-8c72-5f9264ceb4e8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "hiding",
+      "content": "She intends to break the gate open if it is locked.",
+      "hiddenFrom": "Dalan, Max Nightriver",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "ad99534f-d99b-4d47-a1ca-8e9172bdcf3b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To enter Wendhope by force if the gate is locked, with Max at her side and Dalan watching the walls.",
+      "createdAt": 13,
+      "messageId": 20
+    },
+    {
+      "id": "82109fa0-06f8-4eed-86f9-01a836943cac",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 20,
+        "boundary": 13,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To watch the walls with an arrow nocked while Belle and Max approach the gate.",
+      "createdAt": 13,
+      "messageId": 20
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 7,
+      "name": "Alder",
+      "avatar": "Alder.png"
+    },
+    {
+      "index": 10,
+      "name": "Alida",
+      "avatar": "Alida.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 57,
+      "name": "Giada",
+      "avatar": "Giada.png"
+    },
+    {
+      "index": 59,
+      "name": "Gustall",
+      "avatar": "Gustall.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 141,
+      "name": "Talis",
+      "avatar": "Talis.png"
+    },
+    {
+      "index": 145,
+      "name": "Tatiana",
+      "avatar": "Tatiana.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    }
+  ],
+  "payloadEpoch": "1790920598591-9si34u"
+}

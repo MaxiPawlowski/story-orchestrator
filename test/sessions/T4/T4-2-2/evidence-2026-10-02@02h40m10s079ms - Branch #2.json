@@ -1,0 +1,6539 @@
+{
+ "capturedAt": "2026-10-02T06:04:04.010Z",
+ "chatId": "2026-10-02@02h40m10s079ms - Branch #2",
+ "groupId": "1790919206079",
+ "unread": {},
+ "slices": {
+  "memory": {
+   "entries": [
+    {
+     "id": "fc74138d-b4e5-4aa2-896f-75198419d023",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 1,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "The player character signed the Adventurers' Guild register in Aegis City three days ago and holds a new Guild badge but has no party yet.",
+     "type": "fact",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "three days ago you signed the Adventurers' Guild register to do it. Your Guild badge is new, your purse is light, and you have no party yet.",
+     "messageId": 0,
+     "tokens": 29
+    },
+    {
+     "id": "f53fd8f7-d87d-4734-992e-3c4c411530fb",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 1,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "The Guild sends no one out alone.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "The Guild sends no one out alone.",
+     "messageId": 0,
+     "tokens": 8
+    },
+    {
+     "id": "b1178aff-c099-4ec7-950f-b81b5731121e",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 1,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Wendhope, a mining village in the north, has gone silent and its posting offers more coin than a collapsed mine should be worth.",
+     "type": "fact",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Wendhope, a mining village in the north that has gone silent, offering more coin than a collapsed mine should be worth.",
+     "messageId": 0,
+     "tokens": 27
+    },
+    {
+     "id": "c7cfae4a-5588-43e8-b681-6c0da876d4e2",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 1,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Belle is a barbarian out of the Mountains of Shadow with a greataxe as tall as she is, looking for a party.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Belle, a barbarian out of the Mountains of Shadow with a greataxe as tall as she is, leans in the tavern arch and makes no secret of being bored.",
+     "messageId": 0,
+     "tokens": 26
+    },
+    {
+     "id": "c4e91d17-dc5a-4b2d-a00b-84c305a3c908",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 1,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Dalan is a quiet elf archer who has drifted between parties for a year, looking for a party.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Dalan, a quiet elf archer who has drifted between parties for a year, pretends to read the notices.",
+     "messageId": 0,
+     "tokens": 22
+    },
+    {
+     "id": "7e0aba19-2eea-41cd-a160-b14bf6e684ec",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 1,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Tobias hands out the Guild's work at the quest counter and has set a register beside the quest board.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "At the counter, Tobias, who hands out the Guild's work, has set a register beside the quest board and keeps tapping one notice",
+     "messageId": 0,
+     "tokens": 23
+    },
+    {
+     "id": "96c9ab2a-7f04-4f06-8654-d8d601caa2c3",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 1,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Ellie handles the Guild's book and is ready to write a new party's name into it.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Beside Tobias, Ellie keeps glancing from those two to you, pen already inked to write a new party's name into the Guild's book.",
+     "messageId": 0,
+     "tokens": 22
+    },
+    {
+     "id": "4a9405f8-02e7-4f7f-a727-5d95fba9fc4b",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 1,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Dalan has drifted between parties for a year.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [
+      "Dalan"
+     ],
+     "evidence": "Dalan, a quiet elf archer who has drifted between parties for a year",
+     "messageId": 0,
+     "tokens": 10
+    },
+    {
+     "id": "60bd4272-ff91-4c46-9762-9fd2aed37159",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 1,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Tobias is the Guild receptionist who hands out work at the Aegis City quest counter.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [
+      "Tobias"
+     ],
+     "evidence": "At the counter, Tobias, who hands out the Guild's work, has set a register beside the quest board",
+     "messageId": 0,
+     "tokens": 18
+    },
+    {
+     "id": "846b366e-da5c-4206-aefb-f6b8a151d890",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 1,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Ellie is the Guild receptionist beside Tobias who keeps the Guild's book and writes new party names into it.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [
+      "Ellie"
+     ],
+     "evidence": "Beside Tobias, Ellie keeps glancing from those two to you, pen already inked to write a new party's name into the Guild's book.",
+     "messageId": 0,
+     "tokens": 23
+    },
+    {
+     "id": "0b8c30fa-87ce-4e9d-a659-14d4f25b6e49",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 3,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "The party is registered in the Guild's book under the name Loose Ends.",
+     "type": "fact",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Loose Ends. Right.",
+     "messageId": 2,
+     "tokens": 16
+    },
+    {
+     "id": "b6b5f74a-122f-471b-8c36-f915dac3e25b",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 3,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "The party was registered under the name Loose Ends for the Wendhope posting.",
+     "type": "event",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [
+      "Max Nightriver",
+      "Belle",
+      "Dalan",
+      "Ellie"
+     ],
+     "evidence": "Loose Ends. Right.",
+     "messageId": 2,
+     "tokens": 15
+    },
+    {
+     "id": "a8c4067e-c8b5-4e0f-98e0-4ffd6a8f62d3",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 3,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "conflicted"
+     },
+     "tier": "session_details",
+     "text": "Ellie wrote the party's name into the ledger and noted D-rank work needs at least three members.",
+     "type": "detail",
+     "importance": 1,
+     "expiration": "session",
+     "entities": [
+      "Ellie"
+     ],
+     "evidence": "You'll need a party of at least three for D-rank work.",
+     "messageId": 2,
+     "tokens": 23
+    },
+    {
+     "id": "a19cffe5-d854-4fdf-8abc-3043080158c0",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 3,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 1,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "The party has committed to the D-rank Investigate Wendhope posting.",
+     "type": "fact",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "We take Wendhope as the Loose Ends.",
+     "messageId": 1,
+     "tokens": 15
+    },
+    {
+     "id": "4e41ad6d-84a4-4e4b-9386-3c29f2623bbd",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 3,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "D-rank work requires a party of at least three.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "You'll need a party of at least three for D-rank work.",
+     "messageId": 2,
+     "tokens": 12
+    },
+    {
+     "id": "0b40881a-bb9b-46cf-9634-1a8c160500fd",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 3,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Max named the new party Loose Ends and Ellie wrote it into the Guild ledger for the Wendhope posting.",
+     "type": "event",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [
+      "Max Nightriver",
+      "Ellie",
+      "Belle",
+      "Dalan"
+     ],
+     "evidence": "Loose Ends. Right.",
+     "messageId": 2,
+     "tokens": 21
+    },
+    {
+     "id": "34f47edf-f957-4d03-bcf7-bdce31a62e91",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 3,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Ellie handles the Guild's ledger and secretly matchmakes adventurers, pinking when a pairing looks likely.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [
+      "Ellie"
+     ],
+     "evidence": "caught between her duty to keep the counter professional and her irresistible urge to suggest a pairing.",
+     "messageId": 2,
+     "tokens": 22
+    },
+    {
+     "id": "560a2ee3-c2ad-4db2-a54b-9ffc4e93ba6e",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Belle is a barbarian out of the Mountains of Shadow with a greataxe as tall as she is, named Cleaver.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [
+      "Belle"
+     ],
+     "evidence": "Belle, a barbarian out of the Mountains of Shadow with a greataxe as tall as she is",
+     "messageId": 0,
+     "tokens": 25
+    },
+    {
+     "id": "319d344f-d646-45ab-8783-389984dffd73",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Dalan is a quiet elf archer who has drifted between parties for a year and carries a shortbow.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [
+      "Dalan"
+     ],
+     "evidence": "Dalan, a quiet elf archer who has drifted between parties for a year",
+     "messageId": 0,
+     "tokens": 22
+    },
+    {
+     "id": "085a6f7c-18c0-4a67-8daf-9c18d582971f",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Ellie wrote the party name Loose Ends into the Guild ledger and blushed while eyeing Belle and Dalan as a pairing.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "session",
+     "entities": [
+      "Ellie"
+     ],
+     "evidence": "Her pen scratches the name into the ledger with practiced speed",
+     "messageId": 2,
+     "tokens": 24
+    },
+    {
+     "id": "075a42f2-8436-408c-a148-432e0ed94507",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 7,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 7,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "The party is registered in the Guild's book under the name Loose Ends for the D-rank Investigate Wendhope posting.",
+     "type": "fact",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Loose Ends. Right.",
+     "messageId": 2,
+     "tokens": 26
+    },
+    {
+     "id": "469504ce-bf96-4541-b18d-5cc67c430399",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 7,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 7,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "The party Loose Ends was formally registered for the D-rank Investigate Wendhope posting, with Belle and Dalan signed in.",
+     "type": "event",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [
+      "Max Nightriver",
+      "Belle",
+      "Dalan",
+      "Tobias",
+      "Ellie"
+     ],
+     "evidence": "Loose Ends. Right.",
+     "messageId": 2,
+     "tokens": 26
+    },
+    {
+     "id": "10996367-7b46-4c3c-8c89-f7ab2908b842",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 1,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "The Aegis City Guild hall is loud enough to be heard from the street; Tobias taps the Wendhope notice at the counter while Belle loiters in the tavern arch and Dalan feigns reading notices.",
+     "type": "scene",
+     "importance": 2,
+     "expiration": "scene",
+     "entities": [
+      "Tobias",
+      "Ellie",
+      "Belle",
+      "Dalan"
+     ],
+     "evidence": "Today the hall is loud enough to be heard from the street.",
+     "messageId": 0,
+     "tokens": 41
+    },
+    {
+     "id": "404c663c-bcf3-4015-b528-c003b3710e27",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 3,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "The Guild hall is loud enough to be heard from the street, with a register beside the quest board at Tobias's counter.",
+     "type": "scene",
+     "importance": 1,
+     "expiration": "scene",
+     "entities": [
+      "Aegis City Guild Hall"
+     ],
+     "evidence": "Today the hall is loud enough to be heard from the street.",
+     "messageId": 0,
+     "tokens": 26
+    },
+    {
+     "id": "3342343d-cb8d-4573-9f5d-9db82b9e803d",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 4,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 4,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "The Guild hall is loud enough to be heard from the street; Tobias keeps tapping the Wendhope notice at the counter while Ellie readies the ledger.",
+     "type": "scene",
+     "importance": 2,
+     "expiration": "scene",
+     "entities": [
+      "Aegis City Guild Hall",
+      "Tobias",
+      "Ellie",
+      "Belle",
+      "Dalan"
+     ],
+     "evidence": "Today the hall is loud enough to be heard from the street.",
+     "messageId": 0,
+     "tokens": 30
+    },
+    {
+     "id": "cf99d64f-1221-4257-8a7c-ef019be02202",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 2,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 2,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Ellie wrote the party name Loose Ends into the Guild ledger for the Wendhope posting.",
+     "type": "fact",
+     "importance": 2,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Her pen scratches the name into the ledger with practiced speed",
+     "messageId": 2,
+     "tokens": 18
+    },
+    {
+     "id": "707ccf70-9a2a-4a6f-9392-6889008784c2",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 2,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 2,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Max committed the party to the Wendhope posting and Ellie wrote the name Loose Ends into the Guild ledger.",
+     "type": "event",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [
+      "Max Nightriver",
+      "Ellie"
+     ],
+     "evidence": "Loose Ends. Right.",
+     "messageId": 2,
+     "tokens": 21
+    },
+    {
+     "id": "953da0c6-caf6-498f-bb5c-d6006b49c053",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 2,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 2,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Ellie reveals that D-rank work requires a party of at least three.",
+     "type": "revelation",
+     "importance": 2,
+     "expiration": "session",
+     "entities": [
+      "Ellie"
+     ],
+     "evidence": "You'll need a party of at least three for D-rank work.",
+     "messageId": 2,
+     "tokens": 16
+    },
+    {
+     "id": "7b2051b3-95cd-49c8-ba5c-77c86e9cc6da",
+     "confidence": 0.38,
+     "activationTriggers": [],
+     "createdAt": 2,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 2,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Belle and Dalan both turned at the sound of the party decision, and Ellie glanced between them and Max.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "session",
+     "entities": [
+      "Belle",
+      "Dalan"
+     ],
+     "evidence": "She glances toward Belle and Dalan—who'd both turned at the sound of a decision",
+     "messageId": 2,
+     "tokens": 22
+    },
+    {
+     "id": "07c50cae-c255-4548-86b0-4b6cd2cf220a",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 2,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 2,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "The Guild hall is loud enough to be heard from the street; Tobias has set a register beside the quest board and keeps tapping the Wendhope notice.",
+     "type": "scene",
+     "importance": 1,
+     "expiration": "scene",
+     "entities": [
+      "Tobias",
+      "Ellie"
+     ],
+     "evidence": "Today the hall is loud enough to be heard from the street.",
+     "messageId": 0,
+     "tokens": 30
+    },
+    {
+     "id": "33f4940f-be38-4c63-a94a-f5ffe9dbb80e",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 3,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "facts",
+     "text": "Wendhope has not responded to letters or ore shipments in three weeks.",
+     "type": "fact",
+     "importance": 3,
+     "expiration": "permanent",
+     "entities": [],
+     "evidence": "Wendhope hasn't responded to letters or ore shipments in three weeks.",
+     "messageId": 4,
+     "tokens": 14
+    },
+    {
+     "id": "47805a34-1c5b-4066-9fdd-ad5c491fccc3",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 3,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Wendhope has been silent for three weeks — no letters, no ore shipments.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "session",
+     "entities": [
+      "Wendhope"
+     ],
+     "evidence": "Wendhope hasn't responded to letters or ore shipments in three weeks.",
+     "messageId": 4,
+     "tokens": 16
+    },
+    {
+     "id": "15ad24ec-aecb-453a-8be6-7345bcc1e9f1",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 3,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "The Guild hall is loud enough to be heard from the street.",
+     "type": "scene",
+     "importance": 1,
+     "expiration": "scene",
+     "entities": [
+      "Aegis City"
+     ],
+     "evidence": "Today the hall is loud enough to be heard from the street.",
+     "messageId": 0,
+     "tokens": 13
+    },
+    {
+     "id": "b81c0c60-f303-4539-81cc-052f75477835",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 3,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Belle and Dalan both turned at the decision to form a party, and Ellie glanced between them and Max.",
+     "type": "development",
+     "importance": 2,
+     "expiration": "session",
+     "entities": [
+      "Belle",
+      "Dalan",
+      "Ellie"
+     ],
+     "evidence": "She glances toward Belle and Dalan—who'd both turned at the sound of a decision—and her cheeks pinken slightly.",
+     "messageId": 2,
+     "tokens": 22
+    },
+    {
+     "id": "a079e34e-b1aa-4593-909f-b04b2ab3a3da",
+     "confidence": 1,
+     "activationTriggers": [],
+     "createdAt": 3,
+     "recallCount": 0,
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "tier": "session_details",
+     "text": "Tobias advises against departing immediately and offers the Guild's details on Wendhope.",
+     "type": "detail",
+     "importance": 2,
+     "expiration": "session",
+     "entities": [
+      "Tobias"
+     ],
+     "evidence": "I would advise against—",
+     "messageId": 4,
+     "tokens": 17
+    }
+   ],
+   "excluded": [],
+   "writeLog": [
+    {
+     "key": "facts:shared",
+     "range": {
+      "from": 0,
+      "to": 0
+     },
+     "appliedAt": 1790919622693
+    },
+    {
+     "key": "session_details:shared",
+     "range": {
+      "from": 0,
+      "to": 0
+     },
+     "appliedAt": 1790919622694
+    },
+    {
+     "key": "facts:shared",
+     "range": {
+      "from": 0,
+      "to": 2
+     },
+     "appliedAt": 1790920769674
+    },
+    {
+     "key": "session_details:shared",
+     "range": {
+      "from": 0,
+      "to": 2
+     },
+     "appliedAt": 1790920769674
+    },
+    {
+     "key": "facts:shared",
+     "range": {
+      "from": 0,
+      "to": 4
+     },
+     "appliedAt": 1790920810666
+    },
+    {
+     "key": "session_details:shared",
+     "range": {
+      "from": 0,
+      "to": 4
+     },
+     "appliedAt": 1790920810666
+    }
+   ],
+   "settings": {
+    "enabled": true,
+    "epistemicLedgerCapable": true,
+    "injectionDepths": {
+     "facts": 4,
+     "session_details": 3,
+     "short_term": 2,
+     "scene_history": 6
+    },
+    "tierBudgets": {
+     "facts": 50,
+     "session_details": 40,
+     "short_term": 10,
+     "scene_history": 30
+    },
+    "tierTokenBudgets": {
+     "facts": 800,
+     "session_details": 600,
+     "short_term": 300,
+     "scene_history": 500
+    },
+    "chapters": {
+     "seal": false,
+     "storySoFar": false,
+     "fold": false,
+     "chronicleTokens": 700,
+     "chapterTokens": 500,
+     "threadTokens": 150,
+     "recap": true,
+     "dossierWindow": 12,
+     "archiveRecall": false,
+     "recallTokens": 200,
+     "eraSeals": false,
+     "foldEras": false,
+     "eraMessages": 300
+    }
+   },
+   "backfill": null,
+   "sceneCount": 4,
+   "shortTermSummaryEnd": -1,
+   "wiWrites": {},
+   "wiBook": null,
+   "arcs": [
+    {
+     "id": "f92d9386-8ae7-469c-8924-d9e0e8aeb950",
+     "text": "The party must be formed: the player has no party and the Guild sends no one out alone.",
+     "status": "open",
+     "entities": [],
+     "openedAt": 1,
+     "openedMessageId": 0
+    },
+    {
+     "id": "dfcfda36-b71c-4769-941b-dd0078073892",
+     "text": "The Wendhope posting: a mining village gone silent, offering suspiciously high coin, awaits takers.",
+     "status": "open",
+     "entities": [],
+     "openedAt": 1,
+     "openedMessageId": 0,
+     "bridgeApplied": true
+    },
+    {
+     "id": "4e48fb89-4205-4ab4-a7ec-105f0c70e4f3",
+     "text": "Belle and Dalan are both seeking a party and are candidates to join.",
+     "status": "open",
+     "entities": [],
+     "openedAt": 1,
+     "openedMessageId": 0
+    },
+    {
+     "id": "418550b0-637d-43c3-b6d3-d0275c743416",
+     "text": "The party still needs a third member to meet the D-rank minimum of three before departing for Wendhope.",
+     "status": "open",
+     "entities": [],
+     "openedAt": 2,
+     "openedMessageId": 2
+    }
+   ],
+   "epistemic": [
+    {
+     "id": "4599f4d1-3d1d-4899-b1fe-d9eee3838343",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 2,
+      "pass": "epistemic:knows",
+      "validity": "live"
+     },
+     "subject": "Ellie",
+     "tag": "knows",
+     "content": "Max has committed the party to the Wendhope posting under the name Loose Ends",
+     "createdAt": 2,
+     "messageId": 2
+    },
+    {
+     "id": "a673abba-eca1-4452-96a2-f4b187051c4e",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 2,
+      "pass": "epistemic:knows",
+      "validity": "live"
+     },
+     "subject": "Max Nightriver",
+     "tag": "knows",
+     "content": "D-rank work requires a party of at least three",
+     "createdAt": 2,
+     "messageId": 2
+    },
+    {
+     "id": "d4620a44-e9f1-4d41-bf86-7588635877e3",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 2,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Ellie",
+     "tag": "intends",
+     "content": "to matchmake adventurers into the new party",
+     "createdAt": 2,
+     "messageId": 2
+    },
+    {
+     "id": "ded1523b-fd56-4205-9c13-1eff16887061",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 3,
+      "pass": "epistemic:knows",
+      "validity": "live"
+     },
+     "subject": "Max Nightriver",
+     "tag": "knows",
+     "content": "Wendhope has not responded to letters or ore shipments in three weeks",
+     "createdAt": 3,
+     "messageId": 4
+    },
+    {
+     "id": "60bd21db-4aa9-4a97-9d42-b8e08d116758",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 3,
+      "pass": "epistemic:knows",
+      "validity": "live"
+     },
+     "subject": "Tobias",
+     "tag": "knows",
+     "content": "Wendhope has not responded to letters or ore shipments in three weeks",
+     "createdAt": 3,
+     "messageId": 4
+    },
+    {
+     "id": "8c91c704-eda2-4844-a705-2ff7e77213a3",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 3,
+      "pass": "epistemic:intends",
+      "validity": "live"
+     },
+     "subject": "Tobias",
+     "tag": "intends",
+     "content": "to give the party the Guild's details on Wendhope before they leave",
+     "createdAt": 3,
+     "messageId": 4
+    }
+   ],
+   "ledger": [
+    {
+     "id": "4cb8f9a1-59ee-4698-807a-0b00ca6762a3",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Belle",
+     "entityType": "character",
+     "field": "role",
+     "value": "barbarian",
+     "createdAt": 1,
+     "messageId": 0
+    },
+    {
+     "id": "ee1c083b-a03e-46d0-a43b-e9d91a925003",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Belle",
+     "entityType": "character",
+     "field": "weapon",
+     "value": "greataxe as tall as she is",
+     "createdAt": 1,
+     "messageId": 0
+    },
+    {
+     "id": "8f7a9926-3570-4924-b9b6-7c2585a37286",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Belle",
+     "entityType": "character",
+     "field": "mood",
+     "value": "bored",
+     "createdAt": 1,
+     "messageId": 0
+    },
+    {
+     "id": "b5e44723-80b3-4ffc-aa5d-43eb5fc7dfab",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Dalan",
+     "entityType": "character",
+     "field": "role",
+     "value": "elf archer",
+     "createdAt": 1,
+     "messageId": 0
+    },
+    {
+     "id": "64e4e75d-18a4-446c-8bcb-49b1c600327c",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 0,
+      "boundary": 1,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Dalan",
+     "entityType": "character",
+     "field": "status",
+     "value": "between parties for a year",
+     "createdAt": 1,
+     "messageId": 0
+    },
+    {
+     "id": "39a55330-9ac1-42c0-acab-b764844079bc",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 2,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Ellie",
+     "entityType": "character",
+     "field": "mood",
+     "value": "hopeful",
+     "createdAt": 2,
+     "messageId": 2
+    },
+    {
+     "id": "5bdbc84c-0667-4b0b-a546-553823361671",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 2,
+      "boundary": 2,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Ellie",
+     "entityType": "character",
+     "field": "task",
+     "value": "writing the new party into the Guild ledger",
+     "createdAt": 2,
+     "messageId": 2
+    },
+    {
+     "id": "bb86fd9c-cce3-4648-baf6-eb583bc1dad9",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Tobias",
+     "entityType": "character",
+     "field": "role",
+     "value": "Guild receptionist at the quest counter",
+     "createdAt": 3,
+     "messageId": 4
+    },
+    {
+     "id": "044fd286-b895-463b-9b1e-73f690b02426",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Tobias",
+     "entityType": "character",
+     "field": "demeanor",
+     "value": "concerned, advising caution",
+     "createdAt": 3,
+     "messageId": 4
+    },
+    {
+     "id": "71cf8ad3-19af-41fa-b322-87f052e9cd95",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Ellie",
+     "entityType": "character",
+     "field": "role",
+     "value": "Guild receptionist handling forms and ranks",
+     "createdAt": 3,
+     "messageId": 4
+    },
+    {
+     "id": "b520049b-1a07-48f0-af74-8c40f855e40c",
+     "provenance": {
+      "source": "extractor",
+      "messageId": 4,
+      "boundary": 3,
+      "pass": "shared-read",
+      "validity": "live"
+     },
+     "entity": "Ellie",
+     "entityType": "character",
+     "field": "demeanor",
+     "value": "hopeful, eager to matchmake",
+     "createdAt": 3,
+     "messageId": 4
+    }
+   ],
+   "canon": null,
+   "verifyDrops": [],
+   "derived": [],
+   "conflicts": [
+    {
+     "key": "fact:3b43e76d-87c7-4d76-9312-f40029f06b8e:the party|members",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "3b43e76d-87c7-4d76-9312-f40029f06b8e",
+       "label": "Belle and Dalan were signed on as the party's members for the Wendhope job.",
+       "messageId": 3,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 3,
+        "boundary": 3,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "9bae7f1f-7221-4636-92fc-b5a25109ba85",
+       "label": "The Party members = 3",
+       "messageId": 9,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 3,
+      "to": 9
+     }
+    },
+    {
+     "key": "fact:a8c4067e-c8b5-4e0f-98e0-4ffd6a8f62d3:the party|members",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "a8c4067e-c8b5-4e0f-98e0-4ffd6a8f62d3",
+       "label": "Ellie wrote the party's name into the ledger and noted D-rank work needs at least three members.",
+       "messageId": 2,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 3,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "9bae7f1f-7221-4636-92fc-b5a25109ba85",
+       "label": "The Party members = 3",
+       "messageId": 9,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 2,
+      "to": 9
+     }
+    },
+    {
+     "key": "fact:0fcc8111-463c-43c8-9ee3-e480efdcc944:the party|members",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "0fcc8111-463c-43c8-9ee3-e480efdcc944",
+       "label": "Belle and Dalan both accepted the party invitation and are now members of Loose Ends.",
+       "messageId": 5,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 5,
+        "boundary": 4,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "9bae7f1f-7221-4636-92fc-b5a25109ba85",
+       "label": "The Party members = 3",
+       "messageId": 9,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 5,
+      "to": 9
+     }
+    },
+    {
+     "key": "fact:feb085e5-5dff-4aca-8048-fd5710d2cc2a:belle|watch",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "feb085e5-5dff-4aca-8048-fd5710d2cc2a",
+       "label": "Dalan is a long-time scout who can keep the party hidden in the woods and watch the trees.",
+       "messageId": 6,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 7,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "b766aff3-b0b0-4c10-a038-363af24a7ccd",
+       "label": "Belle watch = first",
+       "messageId": 12,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 6,
+      "to": 12
+     }
+    },
+    {
+     "key": "fact:feb085e5-5dff-4aca-8048-fd5710d2cc2a:max nightriver|watch",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "feb085e5-5dff-4aca-8048-fd5710d2cc2a",
+       "label": "Dalan is a long-time scout who can keep the party hidden in the woods and watch the trees.",
+       "messageId": 6,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 7,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "19a8db49-e8c9-4e1c-9b88-921f84ea61f5",
+       "label": "Max Nightriver watch = second",
+       "messageId": 12,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 6,
+      "to": 12
+     }
+    },
+    {
+     "key": "fact:c963208b-8959-4791-9403-0121815effca:belle|watch",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "c963208b-8959-4791-9403-0121815effca",
+       "label": "The new party settles into a watch rotation without friction — Belle front, Dalan on the woods, Max on second watch.",
+       "messageId": 11,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "b766aff3-b0b0-4c10-a038-363af24a7ccd",
+       "label": "Belle watch = first",
+       "messageId": 12,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 11,
+      "to": 12
+     }
+    },
+    {
+     "key": "fact:c963208b-8959-4791-9403-0121815effca:dalan|watch",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "c963208b-8959-4791-9403-0121815effca",
+       "label": "The new party settles into a watch rotation without friction — Belle front, Dalan on the woods, Max on second watch.",
+       "messageId": 11,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "08a01a4a-e377-41e7-8845-f5cf93fa9cac",
+       "label": "Dalan watch = watching the woods",
+       "messageId": 12,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 11,
+      "to": 12
+     }
+    },
+    {
+     "key": "scene:location",
+     "sides": [
+      {
+       "store": "ledger",
+       "id": "e074f2ab-2066-499a-b00b-7ac4f3498849",
+       "label": "The Party location = north road camp (ledger)",
+       "messageId": 9,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "scene",
+       "id": "scene:location",
+       "label": "scene location = north_road",
+       "messageId": 12,
+       "confidence": 0.98,
+       "provenance": {
+        "source": "judge",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "scene:sceneBreak+tracker+lookahead",
+        "inputs": [
+         {
+          "store": "scene",
+          "id": "window:12"
+         }
+        ],
+        "confidence": 0.98,
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 9,
+      "to": 12
+     }
+    }
+   ],
+   "resolvedConflicts": [],
+   "pinnedOverflow": 0,
+   "storyStart": 0,
+   "chapters": [],
+   "chronicle": {
+    "eras": []
+   },
+   "chapterSealSkip": null,
+   "updatedAt": "2026-10-02T06:00:10.693Z"
+  },
+  "chapters": {
+   "declared": true,
+   "current": {
+    "id": "wendhope",
+    "number": 1,
+    "playerTitle": "The Silent Village",
+    "interlude": false
+   },
+   "records": [],
+   "ended": false,
+   "epilogue": null
+  },
+  "canon": {
+   "canon": "Anchor guild-hall: Take a posting and form a party.\nAnchor road-to-wendhope: Travel to Wendhope and notice what the road is missing.\nGate guild-hall -> road-to-wendhope\nFact(3): The player character signed the Adventurers' Guild register in Aegis City three days ago and holds a new Guild badge but has no party yet.\nFact(3): Wendhope, a mining village in the north, has gone silent and its posting offers more coin than a collapsed mine should be worth.\nFact(3): The party is registered in the Guild's book under the name Loose Ends.\nFact(3): The party was registered under the name Loose Ends for the Wendhope posting.\nFact(3): The party has committed to the D-rank Investigate Wendhope posting.\nFact(3): Max named the new party Loose Ends and Ellie wrote it into the Guild ledger for the Wendhope posting.\nFact(3): The party is registered in the Guild's book under the name Loose Ends for the D-rank Investigate Wendhope posting.\nFact(3): The party Loose Ends was formally registered for the D-rank Investigate Wendhope posting, with Belle and Dalan signed in.",
+   "prose": "",
+   "memoryCanon": null
+  },
+  "memoryQueue": {
+   "conflicts": [
+    {
+     "key": "fact:3b43e76d-87c7-4d76-9312-f40029f06b8e:the party|members",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "3b43e76d-87c7-4d76-9312-f40029f06b8e",
+       "label": "Belle and Dalan were signed on as the party's members for the Wendhope job.",
+       "messageId": 3,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 3,
+        "boundary": 3,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "9bae7f1f-7221-4636-92fc-b5a25109ba85",
+       "label": "The Party members = 3",
+       "messageId": 9,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 3,
+      "to": 9
+     }
+    },
+    {
+     "key": "fact:a8c4067e-c8b5-4e0f-98e0-4ffd6a8f62d3:the party|members",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "a8c4067e-c8b5-4e0f-98e0-4ffd6a8f62d3",
+       "label": "Ellie wrote the party's name into the ledger and noted D-rank work needs at least three members.",
+       "messageId": 2,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 3,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "9bae7f1f-7221-4636-92fc-b5a25109ba85",
+       "label": "The Party members = 3",
+       "messageId": 9,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 2,
+      "to": 9
+     }
+    },
+    {
+     "key": "fact:0fcc8111-463c-43c8-9ee3-e480efdcc944:the party|members",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "0fcc8111-463c-43c8-9ee3-e480efdcc944",
+       "label": "Belle and Dalan both accepted the party invitation and are now members of Loose Ends.",
+       "messageId": 5,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 5,
+        "boundary": 4,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "9bae7f1f-7221-4636-92fc-b5a25109ba85",
+       "label": "The Party members = 3",
+       "messageId": 9,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 5,
+      "to": 9
+     }
+    },
+    {
+     "key": "fact:feb085e5-5dff-4aca-8048-fd5710d2cc2a:belle|watch",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "feb085e5-5dff-4aca-8048-fd5710d2cc2a",
+       "label": "Dalan is a long-time scout who can keep the party hidden in the woods and watch the trees.",
+       "messageId": 6,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 7,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "b766aff3-b0b0-4c10-a038-363af24a7ccd",
+       "label": "Belle watch = first",
+       "messageId": 12,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 6,
+      "to": 12
+     }
+    },
+    {
+     "key": "fact:feb085e5-5dff-4aca-8048-fd5710d2cc2a:max nightriver|watch",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "feb085e5-5dff-4aca-8048-fd5710d2cc2a",
+       "label": "Dalan is a long-time scout who can keep the party hidden in the woods and watch the trees.",
+       "messageId": 6,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 7,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "19a8db49-e8c9-4e1c-9b88-921f84ea61f5",
+       "label": "Max Nightriver watch = second",
+       "messageId": 12,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 6,
+      "to": 12
+     }
+    },
+    {
+     "key": "fact:c963208b-8959-4791-9403-0121815effca:belle|watch",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "c963208b-8959-4791-9403-0121815effca",
+       "label": "The new party settles into a watch rotation without friction — Belle front, Dalan on the woods, Max on second watch.",
+       "messageId": 11,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "b766aff3-b0b0-4c10-a038-363af24a7ccd",
+       "label": "Belle watch = first",
+       "messageId": 12,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 11,
+      "to": 12
+     }
+    },
+    {
+     "key": "fact:c963208b-8959-4791-9403-0121815effca:dalan|watch",
+     "sides": [
+      {
+       "store": "memory",
+       "id": "c963208b-8959-4791-9403-0121815effca",
+       "label": "The new party settles into a watch rotation without friction — Belle front, Dalan on the woods, Max on second watch.",
+       "messageId": 11,
+       "confidence": 1,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "ledger",
+       "id": "08a01a4a-e377-41e7-8845-f5cf93fa9cac",
+       "label": "Dalan watch = watching the woods",
+       "messageId": 12,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 11,
+      "to": 12
+     }
+    },
+    {
+     "key": "scene:location",
+     "sides": [
+      {
+       "store": "ledger",
+       "id": "e074f2ab-2066-499a-b00b-7ac4f3498849",
+       "label": "The Party location = north road camp (ledger)",
+       "messageId": 9,
+       "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "shared-read",
+        "validity": "live"
+       }
+      },
+      {
+       "store": "scene",
+       "id": "scene:location",
+       "label": "scene location = north_road",
+       "messageId": 12,
+       "confidence": 0.98,
+       "provenance": {
+        "source": "judge",
+        "messageId": 12,
+        "boundary": 9,
+        "pass": "scene:sceneBreak+tracker+lookahead",
+        "inputs": [
+         {
+          "store": "scene",
+          "id": "window:12"
+         }
+        ],
+        "confidence": 0.98,
+        "validity": "live"
+       }
+      }
+     ],
+     "detectedAt": "2026-10-02T05:49:32.803Z",
+     "window": {
+      "from": 9,
+      "to": 12
+     }
+    }
+   ],
+   "lastRefusal": null
+  },
+  "epistemic": [
+   {
+    "id": "4599f4d1-3d1d-4899-b1fe-d9eee3838343",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 2,
+     "boundary": 2,
+     "pass": "epistemic:knows",
+     "validity": "live"
+    },
+    "subject": "Ellie",
+    "tag": "knows",
+    "content": "Max has committed the party to the Wendhope posting under the name Loose Ends",
+    "createdAt": 2,
+    "messageId": 2
+   },
+   {
+    "id": "a673abba-eca1-4452-96a2-f4b187051c4e",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 2,
+     "boundary": 2,
+     "pass": "epistemic:knows",
+     "validity": "live"
+    },
+    "subject": "Max Nightriver",
+    "tag": "knows",
+    "content": "D-rank work requires a party of at least three",
+    "createdAt": 2,
+    "messageId": 2
+   },
+   {
+    "id": "d4620a44-e9f1-4d41-bf86-7588635877e3",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 2,
+     "boundary": 2,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Ellie",
+    "tag": "intends",
+    "content": "to matchmake adventurers into the new party",
+    "createdAt": 2,
+    "messageId": 2
+   },
+   {
+    "id": "ded1523b-fd56-4205-9c13-1eff16887061",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 4,
+     "boundary": 3,
+     "pass": "epistemic:knows",
+     "validity": "live"
+    },
+    "subject": "Max Nightriver",
+    "tag": "knows",
+    "content": "Wendhope has not responded to letters or ore shipments in three weeks",
+    "createdAt": 3,
+    "messageId": 4
+   },
+   {
+    "id": "60bd21db-4aa9-4a97-9d42-b8e08d116758",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 4,
+     "boundary": 3,
+     "pass": "epistemic:knows",
+     "validity": "live"
+    },
+    "subject": "Tobias",
+    "tag": "knows",
+    "content": "Wendhope has not responded to letters or ore shipments in three weeks",
+    "createdAt": 3,
+    "messageId": 4
+   },
+   {
+    "id": "8c91c704-eda2-4844-a705-2ff7e77213a3",
+    "provenance": {
+     "source": "extractor",
+     "messageId": 4,
+     "boundary": 3,
+     "pass": "epistemic:intends",
+     "validity": "live"
+    },
+    "subject": "Tobias",
+    "tag": "intends",
+    "content": "to give the party the Guild's details on Wendhope before they leave",
+    "createdAt": 3,
+    "messageId": 4
+   }
+  ],
+  "ledger": [
+   {
+    "entity": "The Party",
+    "field": "name",
+    "value": "Loose Ends",
+    "bound": true,
+    "turn": 1
+   },
+   {
+    "entity": "The Party",
+    "field": "rank",
+    "value": "0",
+    "bound": true,
+    "turn": 2
+   },
+   {
+    "entity": "The Party",
+    "field": "guild reputation",
+    "value": "0",
+    "bound": true,
+    "turn": 1
+   },
+   {
+    "entity": "The Party",
+    "field": "injuries",
+    "value": "0",
+    "bound": true,
+    "turn": 1
+   },
+   {
+    "entity": "Belle",
+    "field": "role",
+    "value": "barbarian",
+    "bound": false,
+    "turn": 1
+   },
+   {
+    "entity": "Belle",
+    "field": "weapon",
+    "value": "greataxe as tall as she is",
+    "bound": false,
+    "turn": 1
+   },
+   {
+    "entity": "Belle",
+    "field": "mood",
+    "value": "bored",
+    "bound": false,
+    "turn": 1
+   },
+   {
+    "entity": "Dalan",
+    "field": "role",
+    "value": "elf archer",
+    "bound": false,
+    "turn": 1
+   },
+   {
+    "entity": "Dalan",
+    "field": "status",
+    "value": "between parties for a year",
+    "bound": false,
+    "turn": 1
+   },
+   {
+    "entity": "Ellie",
+    "field": "mood",
+    "value": "hopeful",
+    "bound": false,
+    "turn": 2
+   },
+   {
+    "entity": "Ellie",
+    "field": "task",
+    "value": "writing the new party into the Guild ledger",
+    "bound": false,
+    "turn": 2
+   },
+   {
+    "entity": "Tobias",
+    "field": "role",
+    "value": "Guild receptionist at the quest counter",
+    "bound": false,
+    "turn": 3
+   },
+   {
+    "entity": "Tobias",
+    "field": "demeanor",
+    "value": "concerned, advising caution",
+    "bound": false,
+    "turn": 3
+   },
+   {
+    "entity": "Ellie",
+    "field": "role",
+    "value": "Guild receptionist handling forms and ranks",
+    "bound": false,
+    "turn": 3
+   },
+   {
+    "entity": "Ellie",
+    "field": "demeanor",
+    "value": "hopeful, eager to matchmake",
+    "bound": false,
+    "turn": 3
+   }
+  ],
+  "modelCalls": [
+   {
+    "at": "2026-10-02T05:40:15.811Z",
+    "role": "read",
+    "pass": "read",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 4586,
+    "samplers": "applied",
+    "usage": {
+     "input": 2690,
+     "output": 1095,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@02h40m10s079ms",
+    "messageId": 0
+   },
+   {
+    "at": "2026-10-02T05:40:23.055Z",
+    "role": "read",
+    "pass": "read",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 3230,
+    "samplers": "applied",
+    "usage": {
+     "input": 2956,
+     "output": 727,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@02h40m10s079ms",
+    "messageId": 0
+   },
+   {
+    "at": "2026-10-02T05:59:24.273Z",
+    "role": "read",
+    "pass": "read",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 2927,
+    "samplers": "applied",
+    "usage": {
+     "input": 3220,
+     "output": 554,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@02h40m10s079ms - Branch #2",
+    "messageId": 2
+   },
+   {
+    "at": "2026-10-02T05:59:27.202Z",
+    "role": "read",
+    "pass": "read",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 607,
+    "samplers": "applied",
+    "usage": {
+     "input": 1011,
+     "output": 4,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@02h40m10s079ms - Branch #2",
+    "messageId": 2
+   },
+   {
+    "at": "2026-10-02T06:00:07.017Z",
+    "role": "read",
+    "pass": "read",
+    "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+    "result": "ok",
+    "ms": 2377,
+    "samplers": "applied",
+    "usage": {
+     "input": 3229,
+     "output": 437,
+     "costUsd": null
+    },
+    "model": "deepseek-flash",
+    "chatId": "2026-10-02@02h40m10s079ms - Branch #2",
+    "messageId": 4
+   }
+  ],
+  "judgeCalls": [
+   {
+    "at": "2026-10-02T05:40:15.721Z",
+    "boundary": 1,
+    "messageId": 0,
+    "use": "scene",
+    "model": "jev-1.13.0",
+    "latencyMs": 275,
+    "stateChars": 3960,
+    "questionCount": 26,
+    "inputTokens": 3080,
+    "outputTokens": 726,
+    "p": {
+     "break": 0.13
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:15.756Z",
+    "boundary": 1,
+    "messageId": 0,
+    "use": "typed",
+    "model": "jev-1.13.0",
+    "latencyMs": 310,
+    "stateChars": 1177,
+    "questionCount": 7,
+    "inputTokens": 1919,
+    "outputTokens": 376
+   },
+   {
+    "at": "2026-10-02T05:40:15.811Z",
+    "boundary": 1,
+    "messageId": 0,
+    "use": "typed",
+    "model": "jev-1.13.0",
+    "latencyMs": 0,
+    "stateChars": 1177,
+    "questionCount": 7,
+    "cached": true
+   },
+   {
+    "at": "2026-10-02T05:40:20.647Z",
+    "boundary": 1,
+    "messageId": 0,
+    "use": "memoryVerify",
+    "model": "jev-1.13.0",
+    "latencyMs": 243,
+    "stateChars": 1267,
+    "questionCount": 12,
+    "inputTokens": 2078,
+    "outputTokens": 222,
+    "p": {
+     "line:0": 0.98,
+     "line:1": 0.95,
+     "line:2": 0.97,
+     "line:3": 0.89,
+     "line:4": 0.79,
+     "line:5": 0.96,
+     "line:6": 0.95,
+     "line:7": 0.97,
+     "line:8": 0.98,
+     "line:9": 0.98,
+     "line:10": 0.88,
+     "line:11": 0.76
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:23.055Z",
+    "boundary": 1,
+    "messageId": 0,
+    "use": "typed",
+    "model": "jev-1.13.0",
+    "latencyMs": 0,
+    "stateChars": 1177,
+    "questionCount": 7,
+    "cached": true
+   },
+   {
+    "at": "2026-10-02T05:40:26.581Z",
+    "boundary": 1,
+    "messageId": 0,
+    "use": "memoryVerify",
+    "model": "jev-1.13.0",
+    "latencyMs": 294,
+    "stateChars": 1267,
+    "questionCount": 5,
+    "inputTokens": 1285,
+    "outputTokens": 94,
+    "p": {
+     "line:0": 0.98,
+     "line:1": 0.99,
+     "line:2": 0.99,
+     "line:3": 0.92,
+     "line:4": 0.98
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:47.418Z",
+    "boundary": 1,
+    "messageId": 1,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 369,
+    "stateChars": 1208,
+    "questionCount": 64,
+    "inputTokens": 12875,
+    "outputTokens": 1210,
+    "p": {
+     "trigger": "MESSAGE_SENT"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:47.444Z",
+    "boundary": 1,
+    "messageId": 1,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 399,
+    "stateChars": 1208,
+    "questionCount": 64,
+    "inputTokens": 13801,
+    "outputTokens": 1210,
+    "p": {
+     "trigger": "MESSAGE_SENT"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:47.741Z",
+    "boundary": 1,
+    "messageId": 1,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 328,
+    "stateChars": 1208,
+    "questionCount": 64,
+    "inputTokens": 13494,
+    "outputTokens": 1210,
+    "p": {
+     "trigger": "MESSAGE_SENT"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:47.768Z",
+    "boundary": 1,
+    "messageId": 1,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 328,
+    "stateChars": 1208,
+    "questionCount": 64,
+    "inputTokens": 12837,
+    "outputTokens": 1210,
+    "p": {
+     "trigger": "MESSAGE_SENT"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:47.979Z",
+    "boundary": 1,
+    "messageId": 1,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 240,
+    "stateChars": 1208,
+    "questionCount": 7,
+    "inputTokens": 2042,
+    "outputTokens": 130,
+    "p": {
+     "trigger": "MESSAGE_SENT"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:48.240Z",
+    "boundary": 1,
+    "messageId": 1,
+    "use": "director",
+    "model": "jev-1.13.0",
+    "latencyMs": 226,
+    "stateChars": 2139,
+    "questionCount": 14,
+    "inputTokens": 1956,
+    "outputTokens": 323,
+    "p": {
+     "who": "Ellie",
+     "whoConfidence": 0.94,
+     "via": "choice",
+     "picked": "Ellie"
+    }
+   },
+   {
+    "at": "2026-10-02T05:41:11.779Z",
+    "boundary": 1,
+    "messageId": 2,
+    "use": "director",
+    "model": "jev-1.13.0",
+    "latencyMs": 259,
+    "stateChars": 2692,
+    "questionCount": 13,
+    "inputTokens": 2069,
+    "outputTokens": 299,
+    "p": {
+     "who": "Belle",
+     "whoConfidence": 0.4,
+     "via": "composite",
+     "picked": "the player"
+    }
+   },
+   {
+    "at": "2026-10-02T05:41:12.176Z",
+    "boundary": 2,
+    "messageId": 2,
+    "use": "typed",
+    "model": "jev-1.13.0",
+    "latencyMs": 244,
+    "stateChars": 1830,
+    "questionCount": 10,
+    "inputTokens": 2542,
+    "outputTokens": 613
+   },
+   {
+    "at": "2026-10-02T05:59:24.273Z",
+    "boundary": 2,
+    "messageId": 2,
+    "use": "typed",
+    "model": "jev-1.13.0",
+    "latencyMs": 304,
+    "stateChars": 1830,
+    "questionCount": 10,
+    "inputTokens": 2542,
+    "outputTokens": 613
+   },
+   {
+    "at": "2026-10-02T05:59:28.122Z",
+    "boundary": 2,
+    "messageId": 2,
+    "use": "memoryVerify",
+    "model": "jev-1.13.0",
+    "latencyMs": 309,
+    "stateChars": 1920,
+    "questionCount": 7,
+    "inputTokens": 1658,
+    "outputTokens": 130,
+    "p": {
+     "line:0": 0.62,
+     "line:1": 0.93,
+     "line:2": 0.98,
+     "line:3": 0.93,
+     "line:4": 0.96,
+     "line:5": 0.38,
+     "line:6": 0.96
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:34.236Z",
+    "boundary": 2,
+    "messageId": 3,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 397,
+    "stateChars": 1901,
+    "questionCount": 64,
+    "inputTokens": 13999,
+    "outputTokens": 1210,
+    "p": {
+     "trigger": "MESSAGE_SENT",
+     "Belle the Barbarian - Adventurer": 0.7
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:34.262Z",
+    "boundary": 2,
+    "messageId": 3,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 418,
+    "stateChars": 1901,
+    "questionCount": 64,
+    "inputTokens": 13073,
+    "outputTokens": 1210,
+    "p": {
+     "trigger": "MESSAGE_SENT",
+     "Ellie Sunleaf - Guild Girl": 0.79
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:34.559Z",
+    "boundary": 2,
+    "messageId": 3,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 328,
+    "stateChars": 1901,
+    "questionCount": 64,
+    "inputTokens": 13692,
+    "outputTokens": 1210,
+    "p": {
+     "trigger": "MESSAGE_SENT"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:34.608Z",
+    "boundary": 2,
+    "messageId": 3,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 350,
+    "stateChars": 1901,
+    "questionCount": 64,
+    "inputTokens": 13035,
+    "outputTokens": 1210,
+    "p": {
+     "trigger": "MESSAGE_SENT",
+     "Wendhope": 0.74
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:34.785Z",
+    "boundary": 2,
+    "messageId": 3,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 228,
+    "stateChars": 1901,
+    "questionCount": 7,
+    "inputTokens": 2240,
+    "outputTokens": 130,
+    "p": {
+     "trigger": "MESSAGE_SENT"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:35.057Z",
+    "boundary": 2,
+    "messageId": 3,
+    "use": "director",
+    "model": "jev-1.13.0",
+    "latencyMs": 259,
+    "stateChars": 2806,
+    "questionCount": 14,
+    "inputTokens": 2134,
+    "outputTokens": 324,
+    "p": {
+     "who": "Tobias",
+     "whoConfidence": 0.98,
+     "via": "choice",
+     "picked": "Tobias"
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:03.227Z",
+    "boundary": 2,
+    "messageId": 4,
+    "use": "director",
+    "model": "jev-1.13.0",
+    "latencyMs": 338,
+    "stateChars": 3268,
+    "questionCount": 6,
+    "inputTokens": 1669,
+    "outputTokens": 130,
+    "p": {
+     "who": "Belle",
+     "whoConfidence": 0.51,
+     "via": "composite",
+     "picked": "Belle"
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:04.071Z",
+    "boundary": 3,
+    "messageId": 4,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 389,
+    "stateChars": 2399,
+    "questionCount": 64,
+    "inputTokens": 13210,
+    "outputTokens": 1210,
+    "p": {
+     "trigger": "GENERATION_STARTED",
+     "Ellie Sunleaf - Guild Girl": 0.74
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:04.099Z",
+    "boundary": 3,
+    "messageId": 4,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 421,
+    "stateChars": 2399,
+    "questionCount": 64,
+    "inputTokens": 14136,
+    "outputTokens": 1210,
+    "p": {
+     "trigger": "GENERATION_STARTED"
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:04.455Z",
+    "boundary": 3,
+    "messageId": 4,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 360,
+    "stateChars": 2399,
+    "questionCount": 64,
+    "inputTokens": 13172,
+    "outputTokens": 1210,
+    "p": {
+     "trigger": "GENERATION_STARTED",
+     "Wendhope": 0.84
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:04.456Z",
+    "boundary": 3,
+    "messageId": 4,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 390,
+    "stateChars": 2399,
+    "questionCount": 64,
+    "inputTokens": 13829,
+    "outputTokens": 1210,
+    "p": {
+     "trigger": "GENERATION_STARTED"
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:04.715Z",
+    "boundary": 3,
+    "messageId": 4,
+    "use": "lore",
+    "model": "jev-1.13.0",
+    "latencyMs": 262,
+    "stateChars": 2399,
+    "questionCount": 7,
+    "inputTokens": 2377,
+    "outputTokens": 130,
+    "p": {
+     "trigger": "GENERATION_STARTED"
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:06.347Z",
+    "boundary": 3,
+    "messageId": 4,
+    "use": "scene",
+    "model": "jev-1.13.0",
+    "latencyMs": 396,
+    "stateChars": 5173,
+    "questionCount": 26,
+    "inputTokens": 3422,
+    "outputTokens": 721,
+    "p": {
+     "break": 0.07
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:06.379Z",
+    "boundary": 3,
+    "messageId": 4,
+    "use": "typed",
+    "model": "jev-1.13.0",
+    "latencyMs": 429,
+    "stateChars": 1339,
+    "questionCount": 9,
+    "inputTokens": 1383,
+    "outputTokens": 264
+   },
+   {
+    "at": "2026-10-02T06:00:06.621Z",
+    "boundary": 3,
+    "messageId": 4,
+    "use": "wardenLore",
+    "model": "jev-1.13.0",
+    "latencyMs": 244,
+    "stateChars": 5057,
+    "questionCount": 8,
+    "inputTokens": 2182,
+    "outputTokens": 156,
+    "p": {
+     "facts": 0,
+     "flagged": 0,
+     "lore": 8,
+     "contradicted": 0
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:06.678Z",
+    "boundary": 3,
+    "messageId": 4,
+    "use": "warden",
+    "model": "jev-1.13.0",
+    "latencyMs": 333,
+    "stateChars": 2427,
+    "questionCount": 21,
+    "inputTokens": 3228,
+    "outputTokens": 387,
+    "p": {
+     "facts": 20,
+     "flagged": 0,
+     "agency": 0.04
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:07.016Z",
+    "boundary": 3,
+    "messageId": 4,
+    "use": "typed",
+    "model": "jev-1.13.0",
+    "latencyMs": 271,
+    "stateChars": 2455,
+    "questionCount": 9,
+    "inputTokens": 1742,
+    "outputTokens": 318
+   },
+   {
+    "at": "2026-10-02T06:00:09.676Z",
+    "boundary": 3,
+    "messageId": 4,
+    "use": "memoryVerify",
+    "model": "jev-1.13.0",
+    "latencyMs": 278,
+    "stateChars": 2522,
+    "questionCount": 5,
+    "inputTokens": 1590,
+    "outputTokens": 94,
+    "p": {
+     "line:0": 0.98,
+     "line:1": 0.98,
+     "line:2": 0.89,
+     "line:3": 0.58,
+     "line:4": 0.97
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:23.322Z",
+    "boundary": 4,
+    "messageId": 5,
+    "use": "typed",
+    "model": "jev-1.13.0",
+    "latencyMs": 261,
+    "stateChars": 1245,
+    "questionCount": 9,
+    "inputTokens": 1363,
+    "outputTokens": 264
+   }
+  ],
+  "stagecraft": {
+   "settings": {
+    "curatorEnabled": true,
+    "acceptMode": "review",
+    "wardenEnabled": true,
+    "wardenAcceptMode": "review"
+   },
+   "proposals": [
+    {
+     "id": "wi-4-5",
+     "curator": "wi",
+     "at": "2026-10-02T05:44:23.703Z",
+     "boundary": 4,
+     "messageId": 5,
+     "checkpointId": "road-to-wendhope",
+     "reason": "checkpoint",
+     "summary": "The story has moved to the road north toward Wendhope, so the Needlehaven, Driftmere, Driftmere Mines, and House Nightriver entries are no longer relevant to the current scene.",
+     "mode": "review",
+     "ops": [
+      {
+       "op": {
+        "kind": "disable",
+        "lorebook": "Adolion Chronicle",
+        "comment": "Chronicle - Needlehaven",
+        "uid": 3
+       },
+       "status": "pending",
+       "message": "Switch \"Chronicle - Needlehaven\" off",
+       "before": {
+        "content": "[State of Needlehaven in this campaign. {{// so:protect}}The pine forest west of Wendhope is the source of the red fog and the Screechers.{{// so:end}} Its Lord Spirit is awake and in pain, and the forest is thick, alive and growing alabaster where the mine cut its roots.]",
+        "disabled": false,
+        "uid": 3
+       }
+      },
+      {
+       "op": {
+        "kind": "disable",
+        "lorebook": "Adolion Chronicle",
+        "comment": "Chronicle - Driftmere",
+        "uid": 4
+       },
+       "status": "pending",
+       "message": "Switch \"Chronicle - Driftmere\" off",
+       "before": {
+        "content": "{{// so:auto}}[State of Driftmere in this campaign. The mining town is shut: Baroness Serenola has closed the workings, the miners have no income and are running out of savings, and requested Nightriver aid has not arrived. Offerings to Filwern crumble to dust.]",
+        "disabled": false,
+        "uid": 4
+       }
+      },
+      {
+       "op": {
+        "kind": "disable",
+        "lorebook": "Adolion Chronicle",
+        "comment": "Chronicle - The Driftmere Mines",
+        "uid": 5
+       },
+       "status": "pending",
+       "message": "Switch \"Chronicle - The Driftmere Mines\" off",
+       "before": {
+        "content": "[State of the Driftmere Mines in this campaign. The workings are sealed to miners and their layout changes on its own, so no map holds. Floor Bosses hold each level against intruders, and Filwern's divine wards at the bottom are cracked but standing.]",
+        "disabled": false,
+        "uid": 5
+       }
+      },
+      {
+       "op": {
+        "kind": "disable",
+        "lorebook": "Adolion Chronicle",
+        "comment": "Chronicle - House Nightriver",
+        "uid": 6
+       },
+       "status": "pending",
+       "message": "Switch \"Chronicle - House Nightriver\" off",
+       "before": {
+        "content": "[State of House Nightriver in this campaign. Lord Javon rules the house coldly; his heir, Natalia and Welden carry the bloodline's seals without the younger two knowing what they are. The heir has been named the Crown's second against General Leevon, and marriages the children dread are being arranged.]",
+        "disabled": false,
+        "uid": 6
+       }
+      }
+     ],
+     "dropped": [],
+     "refused": [],
+     "provenance": {
+      "source": "curator",
+      "messageId": 5,
+      "boundary": 4,
+      "pass": "wi-curator:checkpoint",
+      "inputs": [
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - About this book"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - The Party"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - Wendhope"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - Needlehaven"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - Driftmere"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - The Driftmere Mines"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - House Nightriver"
+       }
+      ],
+      "validity": "live"
+     }
+    },
+    {
+     "id": "wi-9-12",
+     "curator": "wi",
+     "at": "2026-10-02T05:48:16.394Z",
+     "boundary": 9,
+     "messageId": 12,
+     "checkpointId": "road-to-wendhope",
+     "reason": "scene-break",
+     "summary": "The party has formed and the campaign's lorebook is now in active use, so the chronicle's own explanation of its purpose should be visible.",
+     "mode": "review",
+     "ops": [
+      {
+       "op": {
+        "kind": "enable",
+        "lorebook": "Adolion Chronicle",
+        "comment": "Chronicle - About this book",
+        "uid": 0
+       },
+       "status": "pending",
+       "message": "Switch \"Chronicle - About this book\" on",
+       "before": {
+        "content": "[This book holds what THIS campaign has changed about Adolion. Each entry starts in its pre-campaign state and is rewritten as play makes it untrue. Nothing here is statuotw's canon. House style: one short factual paragraph in the present tense, an Appearance line for anything that can be seen, keys that are names rather than common words.]",
+        "disabled": true,
+        "uid": 0
+       }
+      }
+     ],
+     "dropped": [],
+     "refused": [],
+     "provenance": {
+      "source": "curator",
+      "messageId": 12,
+      "boundary": 9,
+      "pass": "wi-curator:scene-break",
+      "inputs": [
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - About this book"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - The Party"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - Wendhope"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - Needlehaven"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - Driftmere"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - The Driftmere Mines"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - House Nightriver"
+       }
+      ],
+      "validity": "live"
+     }
+    },
+    {
+     "id": "wi-13-20",
+     "curator": "wi",
+     "at": "2026-10-02T05:58:06.020Z",
+     "boundary": 13,
+     "messageId": 20,
+     "checkpointId": "on-the-road",
+     "reason": "scene-break",
+     "summary": "The party has left Aegis City and the campaign's lorebook is now in active use on the road, so the chronicle's own framing entry should be on.",
+     "mode": "review",
+     "ops": [
+      {
+       "op": {
+        "kind": "enable",
+        "lorebook": "Adolion Chronicle",
+        "comment": "Chronicle - About this book",
+        "uid": 0
+       },
+       "status": "pending",
+       "message": "Switch \"Chronicle - About this book\" on",
+       "before": {
+        "content": "[This book holds what THIS campaign has changed about Adolion. Each entry starts in its pre-campaign state and is rewritten as play makes it untrue. Nothing here is statuotw's canon. House style: one short factual paragraph in the present tense, an Appearance line for anything that can be seen, keys that are names rather than common words.]",
+        "disabled": true,
+        "uid": 0
+       }
+      }
+     ],
+     "dropped": [],
+     "refused": [],
+     "provenance": {
+      "source": "curator",
+      "messageId": 20,
+      "boundary": 13,
+      "pass": "wi-curator:scene-break",
+      "inputs": [
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - About this book"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - The Party"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - Wendhope"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - Needlehaven"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - Driftmere"
+       },
+       {
+        "store": "memory",
+        "id": "Adolion Chronicle#Chronicle - The Driftmere Mines"
+       }
+      ],
+      "validity": "live"
+     }
+    }
+   ],
+   "declines": [],
+   "lastPass": {
+    "at": "2026-10-02T05:58:06.020Z",
+    "reason": "scene-break",
+    "prompt": "[WORLD INFO CURATION TASK — output structured lines only. Do NOT continue the roleplay.]\nYou keep a story's own lorebook honest as play moves on: switch entries on when they now matter, off when they no longer do, and correct text the story has overtaken.\nSTORY: Adolion: The Adventurer's Road\nWHERE THE STORY IS: On the Road — Two days north to Wendhope: whatever the road holds.\nWHAT HAS HAPPENED:\nWHAT HAS HAPPENED:\nThree days after signing the Adventurers' Guild register in Aegis City, Max Nightriver held a new Guild badge but no party, and the Guild sent no one out alone. When the mining village of Wendhope went silent, its posting offering more coin than a collapsed mine should be worth, Tobias set a register beside the quest board and Ellie readied the Guild's book. Belle, a barbarian out of the Mountains of Shadow with a greataxe as tall as she was, and Dalan, a quiet elf archer who had drifted between parties for a year, both sought a party of their own. Tobias, suspecting the silence at Wendhope was not an accident, registered the three under the name Loose Ends, and the newly formed party committed to the D-rank Investigate Wendhope posting, paid by the Sheridans. Tobias stamped the notice, warned them the silence was likely no accident, and told them to check their gear twice. Belle demanded the front in a fight and asked the others to cover her back; Dalan offered to keep the party hidden and watch the trees. The party rode north that day, made camp for its first night in a clearing behind thick pines with a low hidden fire, and set watches: Belle first, Max second…\nOPEN THREADS:\n- Tobias's suspicion that the Wendhope silence is not an accident, and his warning to check gear twice.\n- Whether the party can handle the unknown danger at Wendhope with only three members and no prior experience together.\n- Belle's insistence on taking the front and whether the party can cover her back as she demands.\n- Whether the party of three, newly formed and untested together, can handle whatever silenced Wendhope.\n- Belle's demand that the others cover her back in a fight — whether the party can hold that arrangement.\n- The riderless Sheridan-blue horse on the north road — whose it is and what happened to its rider.\n- Giada Icesong is secretly tracking the party north — whether she reveals herself, and what she wants with the road to Wendhope.\n- The overturned carriage and dead horse on the north road — who abandoned it, and where its people went.\nENTRIES YOU MAY TOUCH (no others exist for you):\n- #0 \"Chronicle - About this book\" (Adolion Chronicle) [currently off]\n  keys: adolion-chronicle-about\n  content: [This book holds what THIS campaign has changed about Adolion. Each entry starts in its pre-campaign state and is rewritten as play makes it untrue. Nothing here is statuotw's canon. House style: one short factual paragraph in the present tense, an Appearance line for anything that can be seen, keys that are names rather than common words.]\n- #1 \"Chronicle - The Party\" (Adolion Chronicle)\n  keys: the party, our party, adventuring party\n  content: [{{// so:protect}}This campaign's party, registered at the Aegis City Adventurers Guild.{{// so:end}} They are newly formed and unproven, holding the lowest working rank, with no reputation beyond the counter clerks who signed them up and no completed postings to their name.]\n- #2 \"Chronicle - Wendhope\" (Adolion Chronicle)\n  keys: Wendhope\n  content: {{// so:auto}}[State of Wendhope in this campaign. The village is cut off and under nightly attack, roughly fifty people behind a stone wall, running out of arrows and food. Nobody outside knows, because every runner it sent was lost. Its mine is still workable.]\n- #3 \"Chronicle - Needlehaven\" (Adolion Chronicle)\n  keys: Needlehaven\n  content: [State of Needlehaven in this campaign. {{// so:protect}}The pine forest west of Wendhope is the source of the red fog and the Screechers.{{// so:end}} Its Lord Spirit is awake and in pain, and the forest is thick, alive and growing alabaster where the mine cut its roots.]\n- #4 \"Chronicle - Driftmere\" (Adolion Chronicle)\n  keys: Driftmere\n  content: {{// so:auto}}[State of Driftmere in this campaign. The mining town is shut: Baroness Serenola has closed the workings, the miners have no income and are running out of savings, and requested Nightriver aid has not arrived. Offerings to Filwern crumble to dust.]\n- #5 \"Chronicle - The Driftmere Mines\" (Adolion Chronicle)\n  keys: Driftmere Mines\n  content: [State of the Driftmere Mines in this campaign. The workings are sealed to miners and their layout changes on its own, so no map holds. Floor Bosses hold each level against intruders, and Filwern's divine wards at the bottom are cracked but standing.]\nOutput one line per change, at most 4:\n[enable] <#number or entry title>\n[disable] <#number or entry title>\n[rewrite] <#number or entry title> || <the full replacement text>\n[patch] <#number or entry title> || <first words of the span to replace> || <last words of that span> || <replacement text>\nThen one final line: [why] <one sentence on what changed in the story that made these necessary>\nRULES:\n- Name each entry by its #number, or by its title exactly as listed above. Anything else is discarded.\n- [enable] only an entry marked [currently off]; every other entry is already on.\n- [disable] only an entry that is not marked [currently off].\n- An entry marked [shown in part — patch only] may only be patched: you have not seen all of it.\n- Some entries carry `{{// ...}}` bookkeeping markers. Never write, move or delete a marker, and never change the words between `{{// so:protect}}` and `{{// so:end}}`.\n- Prefer [patch] over [rewrite]: quote the first and last words of the span exactly as they appear in the content.\n- Keep replacement text under 600 characters. Never restate the whole entry in a patch.\n- Only propose a change the story has actually made necessary. Style preferences are not changes.\n- Never invent new entries, never touch anything outside the list, never write about the player's own knowledge.\nIf nothing needs changing, output NONE. That is the expected answer most of the time.\nOutput:",
+    "rawResponse": "[enable] #0 \"Chronicle - About this book\"\n[why] The party has left Aegis City and the campaign's lorebook is now in active use on the road, so the chronicle's own framing entry should be on.",
+    "proposed": 1,
+    "dropped": [],
+    "focus": {
+     "shown": 6,
+     "total": 13
+    }
+   },
+   "lastRunBoundary": 13,
+   "lastError": null
+  },
+  "talkDecisions": [
+   {
+    "at": "2026-10-02T05:43:44.705Z",
+    "messageId": 4,
+    "checkpointId": "guild-hall",
+    "chosenRosterId": "companion_a",
+    "chosenName": "Belle",
+    "source": "judge",
+    "latencyMs": 275,
+    "chainStep": 1,
+    "judge": {
+     "confidence": 0.6,
+     "via": "choice"
+    }
+   },
+   {
+    "at": "2026-10-02T05:44:10.483Z",
+    "messageId": 5,
+    "checkpointId": "guild-hall",
+    "chosenRosterId": "companion_b",
+    "chosenName": "Dalan",
+    "source": "mention",
+    "latencyMs": 0,
+    "chainStep": 2
+   },
+   {
+    "at": "2026-10-02T05:45:16.571Z",
+    "messageId": 8,
+    "checkpointId": "road-to-wendhope",
+    "chosenRosterId": "dm",
+    "chosenName": "Adolion Narrator",
+    "source": "judge",
+    "latencyMs": 227,
+    "judge": {
+     "confidence": 0.66,
+     "via": "choice"
+    }
+   },
+   {
+    "at": "2026-10-02T05:45:43.898Z",
+    "messageId": 9,
+    "checkpointId": "road-to-wendhope",
+    "chosenRosterId": null,
+    "chosenName": null,
+    "source": "judge",
+    "latencyMs": 951,
+    "chainStep": 1,
+    "judge": {
+     "confidence": 0.6,
+     "via": "composite"
+    }
+   },
+   {
+    "at": "2026-10-02T05:47:09.376Z",
+    "messageId": 10,
+    "checkpointId": "road-to-wendhope",
+    "chosenRosterId": "companion_b",
+    "chosenName": "Dalan",
+    "source": "judge",
+    "latencyMs": 249,
+    "judge": {
+     "confidence": 0.96,
+     "via": "choice"
+    }
+   },
+   {
+    "at": "2026-10-02T05:47:26.988Z",
+    "messageId": 11,
+    "checkpointId": "road-to-wendhope",
+    "chosenRosterId": "companion_a",
+    "chosenName": "Belle",
+    "source": "judge",
+    "latencyMs": 553,
+    "chainStep": 1,
+    "judge": {
+     "confidence": 0.9,
+     "via": "choice"
+    }
+   },
+   {
+    "at": "2026-10-02T05:48:39.797Z",
+    "messageId": 13,
+    "checkpointId": "road-to-wendhope",
+    "chosenRosterId": "dm",
+    "chosenName": "Adolion Narrator",
+    "source": "judge",
+    "latencyMs": 234,
+    "judge": {
+     "confidence": 0.96,
+     "via": "choice"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:03.149Z",
+    "messageId": 14,
+    "checkpointId": "road-to-wendhope",
+    "chosenRosterId": null,
+    "chosenName": null,
+    "source": "judge",
+    "latencyMs": 974,
+    "chainStep": 1,
+    "judge": {
+     "confidence": 0.55,
+     "via": "composite"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:35.057Z",
+    "messageId": 3,
+    "checkpointId": "guild-hall",
+    "chosenRosterId": "guild_rep",
+    "chosenName": "Tobias",
+    "source": "judge",
+    "latencyMs": 261,
+    "judge": {
+     "confidence": 0.98,
+     "via": "choice"
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:03.228Z",
+    "messageId": 4,
+    "checkpointId": "guild-hall",
+    "chosenRosterId": "companion_a",
+    "chosenName": "Belle",
+    "source": "judge",
+    "latencyMs": 358,
+    "chainStep": 1,
+    "judge": {
+     "confidence": 0.51,
+     "via": "composite"
+    }
+   }
+  ],
+  "inline": {
+   "level": 1,
+   "requested": 1,
+   "window": 20,
+   "categories": {},
+   "newestMessageId": 5,
+   "byMessage": {
+    "0": [
+     {
+      "id": "memory:fact:fc74138d-b4e5-4aa2-896f-75198419d023",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: The player character signed the Adventurers' Guild register in Aegis City three days ago and holds a new Guild badge but has no party yet.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "fc74138d-b4e5-4aa2-896f-75198419d023",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "fc74138d-b4e5-4aa2-896f-75198419d023"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:f53fd8f7-d87d-4734-992e-3c4c411530fb",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: The Guild sends no one out alone.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "f53fd8f7-d87d-4734-992e-3c4c411530fb",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "f53fd8f7-d87d-4734-992e-3c4c411530fb"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:b1178aff-c099-4ec7-950f-b81b5731121e",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Wendhope, a mining village in the north, has gone silent and its posting offers more coin than a collapsed mine should be worth.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "b1178aff-c099-4ec7-950f-b81b5731121e",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "b1178aff-c099-4ec7-950f-b81b5731121e"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:c7cfae4a-5588-43e8-b681-6c0da876d4e2",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Belle is a barbarian out of the Mountains of Shadow with a greataxe as tall as she is, looking for a party.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "c7cfae4a-5588-43e8-b681-6c0da876d4e2",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "c7cfae4a-5588-43e8-b681-6c0da876d4e2"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:c4e91d17-dc5a-4b2d-a00b-84c305a3c908",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Dalan is a quiet elf archer who has drifted between parties for a year, looking for a party.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "c4e91d17-dc5a-4b2d-a00b-84c305a3c908",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "c4e91d17-dc5a-4b2d-a00b-84c305a3c908"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:7e0aba19-2eea-41cd-a160-b14bf6e684ec",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Tobias hands out the Guild's work at the quest counter and has set a register beside the quest board.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "7e0aba19-2eea-41cd-a160-b14bf6e684ec",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "7e0aba19-2eea-41cd-a160-b14bf6e684ec"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:96c9ab2a-7f04-4f06-8654-d8d601caa2c3",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Ellie handles the Guild's book and is ready to write a new party's name into it.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "96c9ab2a-7f04-4f06-8654-d8d601caa2c3",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "96c9ab2a-7f04-4f06-8654-d8d601caa2c3"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "threads:open:f92d9386-8ae7-469c-8924-d9e0e8aeb950",
+      "category": "threads",
+      "level": 1,
+      "state": "applied",
+      "text": "New thread: The party must be formed: the player has no party and the Guild sends no one out alone.",
+      "persona": "player"
+     },
+     {
+      "id": "threads:open:dfcfda36-b71c-4769-941b-dd0078073892",
+      "category": "threads",
+      "level": 1,
+      "state": "applied",
+      "text": "New thread: The Wendhope posting: a mining village gone silent, offering suspiciously high coin, awaits takers.",
+      "persona": "player"
+     },
+     {
+      "id": "threads:open:4e48fb89-4205-4ab4-a7ec-105f0c70e4f3",
+      "category": "threads",
+      "level": 1,
+      "state": "applied",
+      "text": "New thread: Belle and Dalan are both seeking a party and are candidates to join.",
+      "persona": "player"
+     }
+    ],
+    "1": [
+     {
+      "id": "memory:fact:a19cffe5-d854-4fdf-8abc-3043080158c0",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: The party has committed to the D-rank Investigate Wendhope posting.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "a19cffe5-d854-4fdf-8abc-3043080158c0",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "a19cffe5-d854-4fdf-8abc-3043080158c0"
+       }
+      ],
+      "persona": "player"
+     }
+    ],
+    "2": [
+     {
+      "id": "memory:fact:0b8c30fa-87ce-4e9d-a659-14d4f25b6e49",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: The party is registered in the Guild's book under the name Loose Ends.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "0b8c30fa-87ce-4e9d-a659-14d4f25b6e49",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "0b8c30fa-87ce-4e9d-a659-14d4f25b6e49"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:b6b5f74a-122f-471b-8c36-f915dac3e25b",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: The party was registered under the name Loose Ends for the Wendhope posting.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "b6b5f74a-122f-471b-8c36-f915dac3e25b",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "b6b5f74a-122f-471b-8c36-f915dac3e25b"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:4e41ad6d-84a4-4e4b-9386-3c29f2623bbd",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: D-rank work requires a party of at least three.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "4e41ad6d-84a4-4e4b-9386-3c29f2623bbd",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "4e41ad6d-84a4-4e4b-9386-3c29f2623bbd"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:0b40881a-bb9b-46cf-9634-1a8c160500fd",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Max named the new party Loose Ends and Ellie wrote it into the Guild ledger for the Wendhope posting.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "0b40881a-bb9b-46cf-9634-1a8c160500fd",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "0b40881a-bb9b-46cf-9634-1a8c160500fd"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:075a42f2-8436-408c-a148-432e0ed94507",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: The party is registered in the Guild's book under the name Loose Ends for the D-rank Investigate Wendhope posting.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "075a42f2-8436-408c-a148-432e0ed94507",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "075a42f2-8436-408c-a148-432e0ed94507"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:469504ce-bf96-4541-b18d-5cc67c430399",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: The party Loose Ends was formally registered for the D-rank Investigate Wendhope posting, with Belle and Dalan signed in.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "469504ce-bf96-4541-b18d-5cc67c430399",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "469504ce-bf96-4541-b18d-5cc67c430399"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:cf99d64f-1221-4257-8a7c-ef019be02202",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Ellie wrote the party name Loose Ends into the Guild ledger for the Wendhope posting.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "cf99d64f-1221-4257-8a7c-ef019be02202",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "cf99d64f-1221-4257-8a7c-ef019be02202"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:707ccf70-9a2a-4a6f-9392-6889008784c2",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Max committed the party to the Wendhope posting and Ellie wrote the name Loose Ends into the Guild ledger.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "707ccf70-9a2a-4a6f-9392-6889008784c2",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "707ccf70-9a2a-4a6f-9392-6889008784c2"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "threads:open:418550b0-637d-43c3-b6d3-d0275c743416",
+      "category": "threads",
+      "level": 1,
+      "state": "applied",
+      "text": "New thread: The party still needs a third member to meet the D-rank minimum of three before departing for Wendhope.",
+      "persona": "player"
+     },
+     {
+      "id": "pacing:level:2",
+      "category": "pacing",
+      "level": 1,
+      "state": "applied",
+      "text": "Tension: stirring",
+      "persona": "player"
+     }
+    ],
+    "4": [
+     {
+      "id": "progress:transition:3",
+      "category": "progress",
+      "level": 1,
+      "state": "applied",
+      "text": "The Journey North: Wendhope lies two days north along the frontier road, and the talk on the way is the party's own.",
+      "persona": "player"
+     },
+     {
+      "id": "memory:fact:33f4940f-be38-4c63-a94a-f5ffe9dbb80e",
+      "category": "memory",
+      "level": 1,
+      "state": "applied",
+      "text": "Remembered: Wendhope has not responded to letters or ore shipments in three weeks.",
+      "actions": [
+       {
+        "kind": "pin-fact",
+        "id": "33f4940f-be38-4c63-a94a-f5ffe9dbb80e",
+        "pinned": true
+       },
+       {
+        "kind": "exclude-fact",
+        "id": "33f4940f-be38-4c63-a94a-f5ffe9dbb80e"
+       }
+      ],
+      "persona": "player"
+     },
+     {
+      "id": "cast:background:e3fd92fe-9817-4a34-99b3-ebaca3b51085",
+      "category": "cast",
+      "level": 1,
+      "state": "applied",
+      "text": "The scene changed",
+      "persona": "player"
+     }
+    ]
+   }
+  },
+  "journal": [
+   {
+    "at": "2026-10-02T05:40:10.374Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "boundary",
+    "summary": "boundary 1: nothing applied (gate)",
+    "detail": {
+     "source": "gate",
+     "applied": [],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:15.721Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "judge",
+    "summary": "judge scene in 275 ms",
+    "detail": {
+     "use": "scene",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 26,
+     "stateChars": 3960,
+     "latencyMs": 275,
+     "inputTokens": 3080,
+     "outputTokens": 726,
+     "p": {
+      "break": 0.13
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:15.756Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "judge",
+    "summary": "judge typed in 310 ms",
+    "detail": {
+     "use": "typed",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 1177,
+     "latencyMs": 310,
+     "inputTokens": 1919,
+     "outputTokens": 376
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:15.811Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "judge",
+    "summary": "judge typed in 0 ms",
+    "detail": {
+     "use": "typed",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 1177,
+     "latencyMs": 0,
+     "cached": true
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:15.811Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T05:40:15.811Z",
+     "role": "read",
+     "pass": "read",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 4586,
+     "samplers": "applied",
+     "usage": {
+      "input": 2690,
+      "output": 1095,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@02h40m10s079ms",
+     "messageId": 0
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:20.401Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "extraction",
+    "summary": "read cue:guild-hall->adv-guild-tavern msgs 0-0 → 6 accepted, 0 rejected",
+    "detail": {
+     "auditId": "3c8ff443",
+     "scope": [
+      "adv_looking_for_hands",
+      "guild_reputation",
+      "location",
+      "party_injuries",
+      "party_rank",
+      "path",
+      "tension_current"
+     ],
+     "accepted": [
+      "adv_looking_for_hands=false",
+      "guild_reputation=0",
+      "location=aegis_guild_hall",
+      "party_injuries=0",
+      "party_rank=0",
+      "tension_current=0.25"
+     ],
+     "rejected": [],
+     "sceneBreak": null
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:20.401Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "delta",
+    "summary": "adv_looking_for_hands = false",
+    "detail": {
+     "auditId": "3c8ff443",
+     "evidence": "leans in the tavern arch and makes no secret of being bored",
+     "reason": "cue:guild-hall->adv-guild-tavern"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:20.401Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "delta",
+    "summary": "guild_reputation = 0",
+    "detail": {
+     "auditId": "3c8ff443",
+     "evidence": "Your Guild badge is new, your purse is light, and you have no party yet.",
+     "reason": "cue:guild-hall->adv-guild-tavern"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:20.401Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "delta",
+    "summary": "location = aegis_guild_hall",
+    "detail": {
+     "auditId": "3c8ff443",
+     "evidence": "Today the hall is loud enough to be heard from the street.",
+     "reason": "cue:guild-hall->adv-guild-tavern"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:20.401Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "delta",
+    "summary": "party_injuries = 0",
+    "detail": {
+     "auditId": "3c8ff443",
+     "evidence": "Your Guild badge is new, your purse is light, and you have no party yet.",
+     "reason": "cue:guild-hall->adv-guild-tavern"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:20.401Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "delta",
+    "summary": "party_rank = 0",
+    "detail": {
+     "auditId": "3c8ff443",
+     "evidence": "Your Guild badge is new, your purse is light, and you have no party yet.",
+     "reason": "cue:guild-hall->adv-guild-tavern"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:20.401Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "delta",
+    "summary": "tension_current = 0.25",
+    "detail": {
+     "auditId": "3c8ff443",
+     "evidence": "Wendhope, a mining village in the north that has gone silent, offering more coin than a collapsed mine should be worth.",
+     "reason": "cue:guild-hall->adv-guild-tavern"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:20.647Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "judge",
+    "summary": "judge memoryVerify in 243 ms",
+    "detail": {
+     "use": "memoryVerify",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 12,
+     "stateChars": 1267,
+     "latencyMs": 243,
+     "inputTokens": 2078,
+     "outputTokens": 222,
+     "p": {
+      "line:0": 0.98,
+      "line:1": 0.95,
+      "line:2": 0.97,
+      "line:3": 0.89,
+      "line:4": 0.79,
+      "line:5": 0.96,
+      "line:6": 0.95,
+      "line:7": 0.97,
+      "line:8": 0.98,
+      "line:9": 0.98,
+      "line:10": 0.88,
+      "line:11": 0.76
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:23.055Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "judge",
+    "summary": "judge typed in 0 ms",
+    "detail": {
+     "use": "typed",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 1177,
+     "latencyMs": 0,
+     "cached": true
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:23.055Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T05:40:23.055Z",
+     "role": "read",
+     "pass": "read",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 3230,
+     "samplers": "applied",
+     "usage": {
+      "input": 2956,
+      "output": 727,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@02h40m10s079ms",
+     "messageId": 0
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:26.286Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "extraction",
+    "summary": "read scene:time_skip msgs 0-0 → 5 accepted, 0 rejected",
+    "detail": {
+     "auditId": "7827710f",
+     "scope": [
+      "adv_looking_for_hands",
+      "guild_reputation",
+      "location",
+      "party_injuries",
+      "party_rank",
+      "path",
+      "tension_current"
+     ],
+     "accepted": [
+      "adv_looking_for_hands=false",
+      "guild_reputation=0",
+      "location=aegis_guild_hall",
+      "party_injuries=0",
+      "tension_current=0.25"
+     ],
+     "rejected": [],
+     "sceneBreak": null
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:26.286Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "delta",
+    "summary": "adv_looking_for_hands = false",
+    "detail": {
+     "auditId": "7827710f",
+     "evidence": "Belle, a barbarian out of the Mountains of Shadow with a greataxe as tall as she is, leans in the tavern arch and makes no secret of being bored.",
+     "reason": "scene:time_skip"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:26.286Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "delta",
+    "summary": "guild_reputation = 0",
+    "detail": {
+     "auditId": "7827710f",
+     "evidence": "Your Guild badge is new, your purse is light, and you have no party yet.",
+     "reason": "scene:time_skip"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:26.286Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "delta",
+    "summary": "location = aegis_guild_hall",
+    "detail": {
+     "auditId": "7827710f",
+     "evidence": "Today the hall is loud enough to be heard from the street.",
+     "reason": "scene:time_skip"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:26.286Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "delta",
+    "summary": "party_injuries = 0",
+    "detail": {
+     "auditId": "7827710f",
+     "evidence": "Your Guild badge is new, your purse is light, and you have no party yet.",
+     "reason": "scene:time_skip"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:26.286Z",
+    "boundary": -1,
+    "messageId": 0,
+    "kind": "delta",
+    "summary": "tension_current = 0.25",
+    "detail": {
+     "auditId": "7827710f",
+     "evidence": "keeps tapping one notice: Wendhope, a mining village in the north that has gone silent, offering more coin than a collapsed mine should be worth.",
+     "reason": "scene:time_skip"
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:26.581Z",
+    "boundary": 1,
+    "messageId": 0,
+    "kind": "judge",
+    "summary": "judge memoryVerify in 294 ms",
+    "detail": {
+     "use": "memoryVerify",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 5,
+     "stateChars": 1267,
+     "latencyMs": 294,
+     "inputTokens": 1285,
+     "outputTokens": 94,
+     "p": {
+      "line:0": 0.98,
+      "line:1": 0.99,
+      "line:2": 0.99,
+      "line:3": 0.92,
+      "line:4": 0.98
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:47.418Z",
+    "boundary": 1,
+    "messageId": 1,
+    "kind": "judge",
+    "summary": "judge lore in 369 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 64,
+     "stateChars": 1208,
+     "latencyMs": 369,
+     "inputTokens": 12875,
+     "outputTokens": 1210,
+     "p": {
+      "trigger": "MESSAGE_SENT"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:47.444Z",
+    "boundary": 1,
+    "messageId": 1,
+    "kind": "judge",
+    "summary": "judge lore in 399 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 64,
+     "stateChars": 1208,
+     "latencyMs": 399,
+     "inputTokens": 13801,
+     "outputTokens": 1210,
+     "p": {
+      "trigger": "MESSAGE_SENT"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:47.741Z",
+    "boundary": 1,
+    "messageId": 1,
+    "kind": "judge",
+    "summary": "judge lore in 328 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 64,
+     "stateChars": 1208,
+     "latencyMs": 328,
+     "inputTokens": 13494,
+     "outputTokens": 1210,
+     "p": {
+      "trigger": "MESSAGE_SENT"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:47.768Z",
+    "boundary": 1,
+    "messageId": 1,
+    "kind": "judge",
+    "summary": "judge lore in 328 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 64,
+     "stateChars": 1208,
+     "latencyMs": 328,
+     "inputTokens": 12837,
+     "outputTokens": 1210,
+     "p": {
+      "trigger": "MESSAGE_SENT"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:47.979Z",
+    "boundary": 1,
+    "messageId": 1,
+    "kind": "judge",
+    "summary": "judge lore in 240 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 1208,
+     "latencyMs": 240,
+     "inputTokens": 2042,
+     "outputTokens": 130,
+     "p": {
+      "trigger": "MESSAGE_SENT"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:40:48.240Z",
+    "boundary": 1,
+    "messageId": 1,
+    "kind": "judge",
+    "summary": "judge director in 226 ms",
+    "detail": {
+     "use": "director",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 14,
+     "stateChars": 2139,
+     "latencyMs": 226,
+     "inputTokens": 1956,
+     "outputTokens": 323,
+     "p": {
+      "who": "Ellie",
+      "whoConfidence": 0.94,
+      "via": "choice",
+      "picked": "Ellie"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:41:11.730Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "boundary",
+    "summary": "applied party_rank=0, adv_looking_for_hands=false, guild_reputation=0, location=aegis_guild_hall, party_injuries=0, tension_current=0.25; discarded adv_looking_for_hands=false, guild_reputation=0, location=aegis_guild_hall, party_injuries=0, tension_current=0.25 (superseded)",
+    "detail": {
+     "source": "gate",
+     "applied": [
+      {
+       "origin": "3c8ff443",
+       "deltas": [
+        "party_rank=0"
+       ]
+      },
+      {
+       "origin": "7827710f",
+       "deltas": [
+        "adv_looking_for_hands=false",
+        "guild_reputation=0",
+        "location=aegis_guild_hall",
+        "party_injuries=0",
+        "tension_current=0.25"
+       ]
+      }
+     ],
+     "discarded": [
+      {
+       "origin": "3c8ff443",
+       "deltas": [
+        "adv_looking_for_hands=false",
+        "guild_reputation=0",
+        "location=aegis_guild_hall",
+        "party_injuries=0",
+        "tension_current=0.25"
+       ],
+       "reason": "superseded: a newer read covered the same turns"
+      }
+     ]
+    }
+   },
+   {
+    "at": "2026-10-02T05:41:11.779Z",
+    "boundary": 1,
+    "messageId": 2,
+    "kind": "judge",
+    "summary": "judge director in 259 ms",
+    "detail": {
+     "use": "director",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 13,
+     "stateChars": 2692,
+     "latencyMs": 259,
+     "inputTokens": 2069,
+     "outputTokens": 299,
+     "p": {
+      "who": "Belle",
+      "whoConfidence": 0.4,
+      "via": "composite",
+      "picked": "the player"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:41:12.176Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "judge",
+    "summary": "judge typed in 244 ms",
+    "detail": {
+     "use": "typed",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 10,
+     "stateChars": 1830,
+     "latencyMs": 244,
+     "inputTokens": 2542,
+     "outputTokens": 613
+    }
+   },
+   {
+    "at": "2026-10-02T05:43:44.705Z",
+    "boundary": -1,
+    "messageId": 4,
+    "kind": "talk",
+    "summary": "Belle speaks (judge)",
+    "detail": {
+     "checkpointId": "guild-hall",
+     "latencyMs": 275
+    }
+   },
+   {
+    "at": "2026-10-02T05:44:10.483Z",
+    "boundary": -1,
+    "messageId": 5,
+    "kind": "talk",
+    "summary": "Dalan speaks (mention)",
+    "detail": {
+     "checkpointId": "guild-hall",
+     "latencyMs": 0
+    }
+   },
+   {
+    "at": "2026-10-02T05:44:35.613Z",
+    "boundary": 5,
+    "messageId": 6,
+    "kind": "story",
+    "summary": "NPC reply Adolion Narrator (sceneBreak) fired by its roll",
+    "detail": {
+     "note": "rolled 0.228 against 0.5 at road-to-wendhope:sceneBreak:Adolion Narrator:0"
+    }
+   },
+   {
+    "at": "2026-10-02T05:45:16.571Z",
+    "boundary": -1,
+    "messageId": 8,
+    "kind": "talk",
+    "summary": "Adolion Narrator speaks (judge)",
+    "detail": {
+     "checkpointId": "road-to-wendhope",
+     "latencyMs": 227
+    }
+   },
+   {
+    "at": "2026-10-02T05:45:43.898Z",
+    "boundary": -1,
+    "messageId": 9,
+    "kind": "talk",
+    "summary": "silence speaks (judge)",
+    "detail": {
+     "checkpointId": "road-to-wendhope",
+     "latencyMs": 951
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"background\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:14.142Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:46:21.361Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@02h40m10s079ms, last seen 2026-10-02T05:46:06.256Z, gap 0h"
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:21.760Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "status",
+    "summary": "Continuing Adolion: The Adventurer's Road"
+   },
+   {
+    "at": "2026-10-02T05:46:21.787Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_guild-hall}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:21.787Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_road-to-wendhope}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:21.787Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_at-the-walls}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:21.787Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_first-night}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:21.787Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_what-wendhope-knows}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:21.787Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_into-needlehaven}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:21.787Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-lord-spirit}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:21.787Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_after-the-fog}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:21.787Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-first-descent}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:21.787Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-changed-deep}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:21.787Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-sealed-wall}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:21.787Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-devourer}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:46:21.787Z",
+    "boundary": 7,
+    "messageId": 9,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_what-filwern-left}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:47:09.376Z",
+    "boundary": -1,
+    "messageId": 10,
+    "kind": "talk",
+    "summary": "Dalan speaks (judge)",
+    "detail": {
+     "checkpointId": "road-to-wendhope",
+     "latencyMs": 249
+    }
+   },
+   {
+    "at": "2026-10-02T05:47:26.766Z",
+    "boundary": 8,
+    "messageId": 11,
+    "kind": "status",
+    "summary": "Following The Road North"
+   },
+   {
+    "at": "2026-10-02T05:47:26.988Z",
+    "boundary": -1,
+    "messageId": 11,
+    "kind": "talk",
+    "summary": "Belle speaks (judge)",
+    "detail": {
+     "checkpointId": "road-to-wendhope",
+     "latencyMs": 553
+    }
+   },
+   {
+    "at": "2026-10-02T05:48:16.394Z",
+    "boundary": 9,
+    "messageId": 12,
+    "kind": "stagecraft",
+    "summary": "World Info curator proposed 1 change(s) at The Road North",
+    "detail": {
+     "note": "The party has formed and the campaign's lorebook is now in active use, so the chronicle's own explanation of its purpose should be visible."
+    }
+   },
+   {
+    "at": "2026-10-02T05:48:39.797Z",
+    "boundary": -1,
+    "messageId": 13,
+    "kind": "talk",
+    "summary": "Adolion Narrator speaks (judge)",
+    "detail": {
+     "checkpointId": "road-to-wendhope",
+     "latencyMs": 234
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:03.149Z",
+    "boundary": -1,
+    "messageId": 14,
+    "kind": "talk",
+    "summary": "silence speaks (judge)",
+    "detail": {
+     "checkpointId": "road-to-wendhope",
+     "latencyMs": 974
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:03.199Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "status",
+    "summary": "Moved into On the Road"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:15.483Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"background\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:49:33.166Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_guild-hall}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.166Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_road-to-wendhope}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.166Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_at-the-walls}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.166Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_first-night}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.166Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_what-wendhope-knows}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.167Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_into-needlehaven}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.167Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-lord-spirit}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.167Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_after-the-fog}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.167Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-first-descent}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.167Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-changed-deep}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.167Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-sealed-wall}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.167Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-devourer}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.167Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_what-filwern-left}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.481Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@02h40m10s079ms, last seen 2026-10-02T05:49:06.547Z, gap 0h"
+    }
+   },
+   {
+    "at": "2026-10-02T05:49:33.873Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "status",
+    "summary": "Continuing Adolion: The Adventurer's Road"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:51:59.927Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:52:08.909Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@02h40m10s079ms, last seen 2026-10-02T05:49:36.668Z, gap 0h"
+    }
+   },
+   {
+    "at": "2026-10-02T05:52:09.322Z",
+    "boundary": 10,
+    "messageId": 14,
+    "kind": "status",
+    "summary": "Continuing Adolion: The Adventurer's Road"
+   },
+   {
+    "at": "2026-10-02T05:52:35.492Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "status",
+    "summary": "Following On the Road"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:36.933Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:55:53.192Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@02h40m10s079ms, last seen 2026-10-02T05:55:42.562Z, gap 0h"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:45.719Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@02h40m10s079ms, last seen 2026-10-02T05:55:53.192Z, gap 0h"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:46.128Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "status",
+    "summary": "Continuing Adolion: The Adventurer's Road"
+   },
+   {
+    "at": "2026-10-02T05:56:46.148Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_guild-hall}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:46.148Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_road-to-wendhope}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:46.148Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_at-the-walls}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:46.148Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_first-night}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:46.148Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_what-wendhope-knows}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:46.148Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_into-needlehaven}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:46.148Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-lord-spirit}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:46.148Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_after-the-fog}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:46.148Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-first-descent}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:46.148Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-changed-deep}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:46.148Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-sealed-wall}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:46.148Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-devourer}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:56:46.148Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_what-filwern-left}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:57:07.430Z",
+    "boundary": 11,
+    "messageId": 16,
+    "kind": "flag",
+    "summary": "manual reload while the reply streamed (05:56:35Z, 295 chars in): player line kept on disk, partial reply dropped, chat+HUD agree b11 On the Road, no popup. The harness reload-mid-gen (seq 12) reloads before ST's pre-generation save and loses the player line instead",
+    "detail": {
+     "note": "manual reload while the reply streamed (05:56:35Z, 295 chars in): player line kept on disk, partial reply dropped, chat+HUD agree b11 On the Road, no popup. The harness reload-mid-gen (seq 12) reloads before ST's pre-generation save and loses the player line instead"
+    }
+   },
+   {
+    "at": "2026-10-02T05:57:53.753Z",
+    "boundary": 12,
+    "messageId": 19,
+    "kind": "status",
+    "summary": "Following On the Road"
+   },
+   {
+    "at": "2026-10-02T05:58:02.052Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "1 rating reading(s) held: the evidence did not ground the level",
+    "detail": {
+     "note": "party_rank=\"1\" (the evidence never names E-rank) from \"The Guild sent us from Aegis.\""
+    }
+   },
+   {
+    "at": "2026-10-02T05:58:06.020Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "stagecraft",
+    "summary": "World Info curator proposed 1 change(s) at On the Road",
+    "detail": {
+     "note": "The party has left Aegis City and the campaign's lorebook is now in active use on the road, so the chronicle's own framing entry should be on."
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:11.810Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"author_note\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:11.811Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T05:59:19.723Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@02h40m10s079ms - Branch #2, last seen 2026-10-02T05:58:15.405Z, gap 0h"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:20.158Z",
+    "boundary": 13,
+    "messageId": 20,
+    "kind": "story",
+    "summary": "eventless change at message 3",
+    "detail": {
+     "note": "the chat ends at message 2 while the story had read up to message 20 (a branch, or messages removed while the story was not listening); stepped back from 3"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:20.172Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "1 host change(s) were edited outside this story and left alone"
+   },
+   {
+    "at": "2026-10-02T05:59:22.762Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "status",
+    "summary": "Stepped back to The Guild Hall"
+   },
+   {
+    "at": "2026-10-02T05:59:22.783Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_guild-hall}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:22.783Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_road-to-wendhope}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:22.783Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_at-the-walls}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:22.783Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_first-night}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:22.783Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_what-wendhope-knows}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:22.783Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_into-needlehaven}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:22.783Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-lord-spirit}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:22.783Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_after-the-fog}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:22.783Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-first-descent}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:22.783Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-changed-deep}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:22.783Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-sealed-wall}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:22.783Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_the-devourer}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:22.783Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "quality macro skipped",
+    "detail": {
+     "note": "{{story_quality_progress_toward_what-filwern-left}} is not registered: a macro key must be lowercase letters, digits and _"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:22.853Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "story",
+    "summary": "branch continued",
+    "detail": {
+     "note": "this chat is a branch of 2026-10-02@02h40m10s079ms; it took that chat's story state and stepped back to where the branch ends"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:24.273Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "judge",
+    "summary": "judge typed in 304 ms",
+    "detail": {
+     "use": "typed",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 10,
+     "stateChars": 1830,
+     "latencyMs": 304,
+     "inputTokens": 2542,
+     "outputTokens": 613
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:24.273Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T05:59:24.273Z",
+     "role": "read",
+     "pass": "read",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 2927,
+     "samplers": "applied",
+     "usage": {
+      "input": 3220,
+      "output": 554,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@02h40m10s079ms - Branch #2",
+     "messageId": 2
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:27.202Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T05:59:27.202Z",
+     "role": "read",
+     "pass": "read",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 607,
+     "samplers": "applied",
+     "usage": {
+      "input": 1011,
+      "output": 4,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@02h40m10s079ms - Branch #2",
+     "messageId": 2
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:27.810Z",
+    "boundary": -1,
+    "messageId": 2,
+    "kind": "extraction",
+    "summary": "read rollback:3 msgs 0-2 → 3 accepted, 1 rejected",
+    "detail": {
+     "auditId": "dd9a4981",
+     "scope": [
+      "adv_looking_for_hands",
+      "guild_reputation",
+      "location",
+      "party_injuries",
+      "party_name",
+      "party_rank",
+      "path",
+      "tension_current"
+     ],
+     "accepted": [
+      "party_name=Loose Ends",
+      "path=wendhope",
+      "location=aegis_guild_hall"
+     ],
+     "rejected": [
+      "evidence only in the player's line"
+     ],
+     "sceneBreak": null
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:27.810Z",
+    "boundary": -1,
+    "messageId": 2,
+    "kind": "delta",
+    "summary": "party_name = Loose Ends",
+    "detail": {
+     "auditId": "dd9a4981",
+     "evidence": "Loose Ends. Right.",
+     "reason": "rollback:3"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:27.810Z",
+    "boundary": -1,
+    "messageId": 2,
+    "kind": "delta",
+    "summary": "path = wendhope",
+    "detail": {
+     "auditId": "dd9a4981",
+     "evidence": "We take Wendhope as the Loose Ends.",
+     "reason": "rollback:3"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:27.810Z",
+    "boundary": -1,
+    "messageId": 2,
+    "kind": "delta",
+    "summary": "location = aegis_guild_hall",
+    "detail": {
+     "auditId": "dd9a4981",
+     "evidence": "Today the hall is loud enough to be heard from the street.",
+     "reason": "rollback:3"
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:28.122Z",
+    "boundary": 2,
+    "messageId": 2,
+    "kind": "judge",
+    "summary": "judge memoryVerify in 309 ms",
+    "detail": {
+     "use": "memoryVerify",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 1920,
+     "latencyMs": 309,
+     "inputTokens": 1658,
+     "outputTokens": 130,
+     "p": {
+      "line:0": 0.62,
+      "line:1": 0.93,
+      "line:2": 0.98,
+      "line:3": 0.93,
+      "line:4": 0.96,
+      "line:5": 0.38,
+      "line:6": 0.96
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:34.236Z",
+    "boundary": 2,
+    "messageId": 3,
+    "kind": "judge",
+    "summary": "judge lore in 397 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 64,
+     "stateChars": 1901,
+     "latencyMs": 397,
+     "inputTokens": 13999,
+     "outputTokens": 1210,
+     "p": {
+      "trigger": "MESSAGE_SENT",
+      "Belle the Barbarian - Adventurer": 0.7
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:34.262Z",
+    "boundary": 2,
+    "messageId": 3,
+    "kind": "judge",
+    "summary": "judge lore in 418 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 64,
+     "stateChars": 1901,
+     "latencyMs": 418,
+     "inputTokens": 13073,
+     "outputTokens": 1210,
+     "p": {
+      "trigger": "MESSAGE_SENT",
+      "Ellie Sunleaf - Guild Girl": 0.79
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:34.559Z",
+    "boundary": 2,
+    "messageId": 3,
+    "kind": "judge",
+    "summary": "judge lore in 328 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 64,
+     "stateChars": 1901,
+     "latencyMs": 328,
+     "inputTokens": 13692,
+     "outputTokens": 1210,
+     "p": {
+      "trigger": "MESSAGE_SENT"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:34.608Z",
+    "boundary": 2,
+    "messageId": 3,
+    "kind": "judge",
+    "summary": "judge lore in 350 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 64,
+     "stateChars": 1901,
+     "latencyMs": 350,
+     "inputTokens": 13035,
+     "outputTokens": 1210,
+     "p": {
+      "trigger": "MESSAGE_SENT",
+      "Wendhope": 0.74
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:34.785Z",
+    "boundary": 2,
+    "messageId": 3,
+    "kind": "judge",
+    "summary": "judge lore in 228 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 1901,
+     "latencyMs": 228,
+     "inputTokens": 2240,
+     "outputTokens": 130,
+     "p": {
+      "trigger": "MESSAGE_SENT"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:35.057Z",
+    "boundary": -1,
+    "messageId": 3,
+    "kind": "talk",
+    "summary": "Tobias speaks (judge)",
+    "detail": {
+     "checkpointId": "guild-hall",
+     "latencyMs": 261
+    }
+   },
+   {
+    "at": "2026-10-02T05:59:35.057Z",
+    "boundary": 2,
+    "messageId": 3,
+    "kind": "judge",
+    "summary": "judge director in 259 ms",
+    "detail": {
+     "use": "director",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 14,
+     "stateChars": 2806,
+     "latencyMs": 259,
+     "inputTokens": 2134,
+     "outputTokens": 324,
+     "p": {
+      "who": "Tobias",
+      "whoConfidence": 0.98,
+      "via": "choice",
+      "picked": "Tobias"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:02.930Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "boundary",
+    "summary": "applied party_name=Loose Ends, path=wendhope, location=aegis_guild_hall",
+    "detail": {
+     "source": "gate",
+     "applied": [
+      {
+       "origin": "dd9a4981",
+       "deltas": [
+        "party_name=Loose Ends",
+        "path=wendhope",
+        "location=aegis_guild_hall"
+       ]
+      }
+     ],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:02.930Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "transition",
+    "summary": "guild-hall → road-to-wendhope",
+    "detail": {
+     "gate": {
+      "all": [
+       {
+        "q": "path",
+        "op": "==",
+        "v": "wendhope"
+       },
+       {
+        "q": "party_name",
+        "op": "!=",
+        "v": ""
+       }
+      ]
+     },
+     "source": "gate"
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:03.006Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "story",
+    "summary": "cast change at \"The Road North\" removed Tobias, whom the play just brought in",
+    "detail": {
+     "note": "the authored cast_changes.disable wins; to keep a member the play recruits, gate this change on a quality the play sets"
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:03.227Z",
+    "boundary": 2,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge director in 338 ms",
+    "detail": {
+     "use": "director",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 6,
+     "stateChars": 3268,
+     "latencyMs": 338,
+     "inputTokens": 1669,
+     "outputTokens": 130,
+     "p": {
+      "who": "Belle",
+      "whoConfidence": 0.51,
+      "via": "composite",
+      "picked": "Belle"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:03.228Z",
+    "boundary": -1,
+    "messageId": 4,
+    "kind": "talk",
+    "summary": "Belle speaks (judge)",
+    "detail": {
+     "checkpointId": "guild-hall",
+     "latencyMs": 358
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:04.071Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge lore in 389 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 64,
+     "stateChars": 2399,
+     "latencyMs": 389,
+     "inputTokens": 13210,
+     "outputTokens": 1210,
+     "p": {
+      "trigger": "GENERATION_STARTED",
+      "Ellie Sunleaf - Guild Girl": 0.74
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:04.099Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge lore in 421 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 64,
+     "stateChars": 2399,
+     "latencyMs": 421,
+     "inputTokens": 14136,
+     "outputTokens": 1210,
+     "p": {
+      "trigger": "GENERATION_STARTED"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:04.455Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge lore in 360 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 64,
+     "stateChars": 2399,
+     "latencyMs": 360,
+     "inputTokens": 13172,
+     "outputTokens": 1210,
+     "p": {
+      "trigger": "GENERATION_STARTED",
+      "Wendhope": 0.84
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:04.456Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge lore in 390 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 64,
+     "stateChars": 2399,
+     "latencyMs": 390,
+     "inputTokens": 13829,
+     "outputTokens": 1210,
+     "p": {
+      "trigger": "GENERATION_STARTED"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:04.715Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge lore in 262 ms",
+    "detail": {
+     "use": "lore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 7,
+     "stateChars": 2399,
+     "latencyMs": 262,
+     "inputTokens": 2377,
+     "outputTokens": 130,
+     "p": {
+      "trigger": "GENERATION_STARTED"
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:05.863Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "status",
+    "summary": "Moved into The Road North"
+   },
+   {
+    "at": "2026-10-02T06:00:06.347Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge scene in 396 ms",
+    "detail": {
+     "use": "scene",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 26,
+     "stateChars": 5173,
+     "latencyMs": 396,
+     "inputTokens": 3422,
+     "outputTokens": 721,
+     "p": {
+      "break": 0.07
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:06.379Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge typed in 429 ms",
+    "detail": {
+     "use": "typed",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 9,
+     "stateChars": 1339,
+     "latencyMs": 429,
+     "inputTokens": 1383,
+     "outputTokens": 264
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:06.621Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge wardenLore in 244 ms",
+    "detail": {
+     "use": "wardenLore",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 8,
+     "stateChars": 5057,
+     "latencyMs": 244,
+     "inputTokens": 2182,
+     "outputTokens": 156,
+     "p": {
+      "facts": 0,
+      "flagged": 0,
+      "lore": 8,
+      "contradicted": 0
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:06.678Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge warden in 333 ms",
+    "detail": {
+     "use": "warden",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 21,
+     "stateChars": 2427,
+     "latencyMs": 333,
+     "inputTokens": 3228,
+     "outputTokens": 387,
+     "p": {
+      "facts": 20,
+      "flagged": 0,
+      "agency": 0.04
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:07.016Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge typed in 271 ms",
+    "detail": {
+     "use": "typed",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 9,
+     "stateChars": 2455,
+     "latencyMs": 271,
+     "inputTokens": 1742,
+     "outputTokens": 318
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:07.017Z",
+    "boundary": -1,
+    "messageId": -1,
+    "kind": "model-call",
+    "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+    "detail": {
+     "at": "2026-10-02T06:00:07.017Z",
+     "role": "read",
+     "pass": "read",
+     "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+     "result": "ok",
+     "ms": 2377,
+     "samplers": "applied",
+     "usage": {
+      "input": 3229,
+      "output": 437,
+      "costUsd": null
+     },
+     "model": "deepseek-flash",
+     "chatId": "2026-10-02@02h40m10s079ms - Branch #2",
+     "messageId": 4
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:09.396Z",
+    "boundary": -1,
+    "messageId": 4,
+    "kind": "extraction",
+    "summary": "read cue:road-to-wendhope->at-the-walls msgs 0-4 → 2 accepted, 0 rejected",
+    "detail": {
+     "auditId": "61c69b17",
+     "scope": [
+      "first_camp",
+      "guild_reputation",
+      "location",
+      "party_injuries",
+      "party_rank",
+      "reached_walls",
+      "tension_current"
+     ],
+     "accepted": [
+      "location=aegis_guild_hall",
+      "party_rank=0"
+     ],
+     "rejected": [],
+     "sceneBreak": null
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:09.396Z",
+    "boundary": -1,
+    "messageId": 4,
+    "kind": "delta",
+    "summary": "location = aegis_guild_hall",
+    "detail": {
+     "auditId": "61c69b17",
+     "evidence": "Today the hall is loud enough to be heard from the street.",
+     "reason": "cue:road-to-wendhope->at-the-walls"
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:09.396Z",
+    "boundary": -1,
+    "messageId": 4,
+    "kind": "delta",
+    "summary": "party_rank = 0",
+    "detail": {
+     "auditId": "61c69b17",
+     "evidence": "You'll need a party of at least three for D-rank work.",
+     "reason": "cue:road-to-wendhope->at-the-walls"
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:09.676Z",
+    "boundary": 3,
+    "messageId": 4,
+    "kind": "judge",
+    "summary": "judge memoryVerify in 278 ms",
+    "detail": {
+     "use": "memoryVerify",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 5,
+     "stateChars": 2522,
+     "latencyMs": 278,
+     "inputTokens": 1590,
+     "outputTokens": 94,
+     "p": {
+      "line:0": 0.98,
+      "line:1": 0.98,
+      "line:2": 0.89,
+      "line:3": 0.58,
+      "line:4": 0.97
+     }
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:22.848Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "boundary",
+    "summary": "applied location=aegis_guild_hall, party_rank=0",
+    "detail": {
+     "source": "gate",
+     "applied": [
+      {
+       "origin": "61c69b17",
+       "deltas": [
+        "location=aegis_guild_hall",
+        "party_rank=0"
+       ]
+      }
+     ],
+     "discarded": []
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:23.036Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "status",
+    "summary": "Following The Road North"
+   },
+   {
+    "at": "2026-10-02T06:00:23.322Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "judge",
+    "summary": "judge typed in 261 ms",
+    "detail": {
+     "use": "typed",
+     "model": "jev-1.13.0",
+     "route": "judge:typesafe:jev-1.13.0",
+     "questions": 9,
+     "stateChars": 1245,
+     "latencyMs": 261,
+     "inputTokens": 1363,
+     "outputTokens": 264
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"background\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:45.541Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:00:54.052Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "save not confirmed",
+    "detail": {
+     "note": "the open chat changed before the save ran: a save of \"2026-10-02@02h39m57s735ms\" (8 messages) was held back (asked for \"2026-10-02@02h40m10s079ms - Branch #2\")"
+    }
+   },
+   {
+    "at": "2026-10-02T06:00:56.667Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "away recap not due",
+    "detail": {
+     "note": "chat 2026-10-02@02h40m10s079ms - Branch #2, last seen 2026-10-02T06:00:49.409Z, gap 0h"
+    }
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:03:39.124Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"background\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:04:00.243Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:04:00.243Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:04:00.243Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:04:00.243Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:04:00.243Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:04:00.243Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:04:00.243Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:04:00.243Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:04:00.243Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "host change \"cast\" was reverted when this chat reloaded"
+   },
+   {
+    "at": "2026-10-02T06:04:00.246Z",
+    "boundary": 4,
+    "messageId": 5,
+    "kind": "story",
+    "summary": "save not confirmed",
+    "detail": {
+     "note": "an empty save of \"2026-10-02@02h40m10s079ms\" carried no chat integrity (the metadata a chat switch clears) and was held back"
+    }
+   }
+  ],
+  "awayRecap": {
+   "recap": null,
+   "lastSessionAt": "2026-10-02T06:04:03.835Z"
+  }
+ }
+}

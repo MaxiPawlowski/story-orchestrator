@@ -1,0 +1,459 @@
+{
+  "storyId": "adolion-adventurer",
+  "activeCheckpointId": "road-to-wendhope",
+  "boundary": 6,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Adventurer Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Mountains of Shadow": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "wall_breached": false,
+    "party_rank": 0,
+    "adv_looking_for_hands": false,
+    "guild_reputation": 0,
+    "location": "aegis_guild_hall",
+    "party_injuries": 0,
+    "tension_current": 0.37749999999999995,
+    "party_name": "Loose Ends",
+    "path": "wendhope",
+    "first_camp": false,
+    "reached_walls": false
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "380410e3-0f0b-4254-886d-d4af8c32a91c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "Max has named the party 'Loose Ends' and taken the Wendhope posting.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "3d2ee9a9-7df4-4734-aff8-59ccb5f1abf7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Max has named the party 'Loose Ends' and taken the Wendhope posting.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "e4c5c5c7-f503-4da8-8c1b-4ccae595dfd6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "intends",
+      "content": "to see whether Max invites Belle and Dalan into the party",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "edc0156d-70d0-4b6a-84e7-1a6ca9fcccd3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Guild cannot finalize the Wendhope posting until the party has at least two members.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "cb01d2f1-16fb-425e-b7da-cb3ad6ba4332",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party is registered as 'Loose Ends' and Max intends to ride north today.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "ad643acc-b188-47d4-a532-abd33a1b55c8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "The party 'Loose Ends' has committed to the Wendhope investigation.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "434ba8de-81d2-4daf-a4fb-96df786526a0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "intends",
+      "content": "To see who among Belle and Dalan might join the Loose Ends.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "d19e04ba-9a6d-45f2-bea2-0c70552da099",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Max intends to ride north for Wendhope today with no party",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "5205602a-be22-4591-8439-b3e2fec527d1",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party name 'Loose Ends' is logged in the Guild register",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "64bcf341-92eb-418a-b4fe-f7b8669e25e8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Wendhope posting is D-rank and he is rank-zero",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "4bf96f2f-f596-44cb-9651-fbea436a0868",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Tobias will not sign him out without a party of at least two members",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "eaf86e5c-7921-438d-b8f4-c151d8001635",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Max is rank-zero and the Wendhope posting is D-rank, making a solo attempt a death sentence.",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "1bb74e5b-f57f-4add-a6bd-aba7c7d93778",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party name 'Loose Ends' is logged but has no members listed yet.",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "24e925b4-9874-4f0a-bd07-99e87bf55a21",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "To refuse to sign Max out on the Wendhope posting until a party of at least two members is listed.",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "7ac630a6-813a-4a10-8083-90778c414ec8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Tobias lost his entire party to goblins because they were unprepared",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "ba6bb173-7ab2-4b7e-9640-b2643464f9b0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 6,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "to prevent Max from riding north alone by refusing to sign the posting until a party is formed",
+      "createdAt": 4,
+      "messageId": 6
+    },
+    {
+      "id": "f534f012-f692-421e-a9a5-52d3125de7ad",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 8,
+        "boundary": 5,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "to prevent Max from riding north unprepared, even at the cost of refusing Guild backing",
+      "createdAt": 5,
+      "messageId": 8
+    },
+    {
+      "id": "c6144b62-6ddc-41b2-8d02-d12619fa7ae5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The Guild clerk Tobias refuses to sign the party out for the Wendhope posting.",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "1d08f456-bfe9-4908-8889-8b267759f8a3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "Join the party for the Wendhope run in exchange for a chance to fight.",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "d602b721-ee40-4637-a6bf-7b9325125abb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Max is determined to ride north to Wendhope even without Guild backing",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "af711e8b-b8b5-4cdc-b38f-f018da563e67",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Belle has joined the Loose Ends",
+      "createdAt": 6,
+      "messageId": 9
+    },
+    {
+      "id": "fadf5be4-aba1-448c-a997-47b586387db3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "join the Loose Ends to get a chance to fight and keep the Guild from blocking Max",
+      "createdAt": 6,
+      "messageId": 9
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 7,
+      "name": "Alder",
+      "avatar": "Alder.png"
+    },
+    {
+      "index": 10,
+      "name": "Alida",
+      "avatar": "Alida.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 57,
+      "name": "Giada",
+      "avatar": "Giada.png"
+    },
+    {
+      "index": 59,
+      "name": "Gustall",
+      "avatar": "Gustall.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 141,
+      "name": "Talis",
+      "avatar": "Talis.png"
+    },
+    {
+      "index": 145,
+      "name": "Tatiana",
+      "avatar": "Tatiana.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    }
+  ],
+  "payloadEpoch": "1790918658404-jij2od"
+}

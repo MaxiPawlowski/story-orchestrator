@@ -1,0 +1,38 @@
+{
+  "ok": true,
+  "value": {
+    "out": {
+      "storyId": 0,
+      "storyTitle": 0,
+      "pinnedStory": 0,
+      "playedVersion": 0,
+      "contentHashAtLoad": 0,
+      "engineState": 0,
+      "engineHistory": 0,
+      "extras": 17,
+      "extras.firedNpcReplies": 0,
+      "extras.firedNpcRepliesAt": 0,
+      "extras.requirements": 0,
+      "extras.lastAppliedCheckpointId": 0,
+      "extras.lastSelfInjectionMessageId": 0,
+      "extras.extraction": 16,
+      "extras.expansion": 1,
+      "extras.memory": 0,
+      "extras.pacing": 0,
+      "extras.tension": 0,
+      "extras.copilot": 0,
+      "extras.ui": 0,
+      "extras.talk": 0,
+      "extras.stagecraft": 0,
+      "extras.effects": 0,
+      "extras.saveHealth": 0,
+      "extras.judge": 0,
+      "extras.lore": 0,
+      "extras.journal": 0,
+      "extras.modelCalls": 0,
+      "extras.lastSessionAt": 0,
+      "extras.updatedAt": 0
+    },
+    "histSample": null
+  }
+}

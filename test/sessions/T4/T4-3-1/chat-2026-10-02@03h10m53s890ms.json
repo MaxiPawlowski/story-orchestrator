@@ -1,0 +1,20 @@
+[
+ {
+  "id": 0,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The Guild hall in Aegis City has barely settled after the party's return when Vallie appears on the stairs with an announcement: the Guild will put you forward for the C-rank exam. Domas follows her with the terms in writing, and Ellie has already laid out the forms. Tobias watches from behind the counter. No one has put a pen in your hand yet."
+ },
+ {
+  "id": 1,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Put us down for the exam."
+ },
+ {
+  "id": 2,
+  "name": "Ellie",
+  "isUser": false,
+  "text": "\"Right away!\" She pulls the forms toward her with a quick, efficient motion, pen already in hand. \"The C-rank promotion exam—I'll get you signed up for this season.\" Her blue eyes flick up briefly, taking in the party with a renewed interest before she focuses on the paperwork.\n\"The interview is next, and then a week to prepare for a C-rank quest of the Guild's choosing, with an observer appointed by Guildmaster Vallie herself.\" Her handwriting is neat and flowing as she fills in the details. \"Once the observer gives their verdict, you'll either rise to C-rank or...\" She pauses, not finishing the sentence about failure. \"But you'll do fine, I'm sure.\"\nShe slides the completed forms toward the group, her fingers lingering on the edge of the paper for just a moment. \"Now we just need the party's signatures here, here, and here.\""
+ }
+]

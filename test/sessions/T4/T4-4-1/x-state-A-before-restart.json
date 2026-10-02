@@ -1,0 +1,99 @@
+{
+  "ok": true,
+  "value": {
+    "chatId": "2026-10-02@01h58m58s365ms",
+    "msgs": 13,
+    "lastMes": "Ellie's pen stops mid-stroke over the register. She blinks, her blue eyes flicki",
+    "active": "road-to-wendhope",
+    "boundary": 8,
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 29,
+      "libraryVersion": 29,
+      "pinned": true,
+      "drifted": false
+    },
+    "playedVersion": 29,
+    "contentHashAtLoad": "v2-57e206e5",
+    "pinnedVersion": 29,
+    "pinnedQualities": 29,
+    "engBB": {
+      "values": {
+        "wall_breached": false,
+        "adv_looking_for_hands": false,
+        "guild_reputation": 1,
+        "location": "north_road",
+        "party_injuries": 0,
+        "party_rank": 0,
+        "tension_current": 0.25,
+        "party_name": "The Second Tries",
+        "path": "wendhope",
+        "first_camp": false,
+        "reached_walls": false
+      },
+      "versions": {
+        "wall_breached": 8,
+        "adv_looking_for_hands": 2,
+        "guild_reputation": 2,
+        "location": 4,
+        "party_injuries": 3,
+        "party_rank": 3,
+        "tension_current": 3,
+        "party_name": 1,
+        "path": 1,
+        "first_camp": 1,
+        "reached_walls": 1
+      },
+      "latched": {
+        "party_name": true,
+        "path": true
+      }
+    },
+    "visitedPath": [
+      "guild-hall",
+      "road-to-wendhope"
+    ],
+    "memEntries": 73,
+    "arcs": 14,
+    "canon": true,
+    "journal": 56,
+    "storyUpdates": [
+      {
+        "at": "2026-10-02T05:09:25.191Z",
+        "boundary": 8,
+        "messageId": 12,
+        "kind": "story",
+        "summary": "host change \"cast\" was reverted when this chat reloaded"
+      },
+      {
+        "at": "2026-10-02T05:09:25.191Z",
+        "boundary": 8,
+        "messageId": 12,
+        "kind": "story",
+        "summary": "host change \"cast\" was reverted when this chat reloaded"
+      },
+      {
+        "at": "2026-10-02T05:09:25.191Z",
+        "boundary": 8,
+        "messageId": 12,
+        "kind": "story",
+        "summary": "host change \"cast\" was reverted when this chat reloaded"
+      },
+      {
+        "at": "2026-10-02T05:09:25.191Z",
+        "boundary": 8,
+        "messageId": 12,
+        "kind": "story",
+        "summary": "host change \"cast\" was reverted when this chat reloaded"
+      },
+      {
+        "at": "2026-10-02T05:09:25.191Z",
+        "boundary": 8,
+        "messageId": 12,
+        "kind": "story",
+        "summary": "host change \"background\" was reverted when this chat reloaded"
+      }
+    ],
+    "lastUpdate": null
+  }
+}

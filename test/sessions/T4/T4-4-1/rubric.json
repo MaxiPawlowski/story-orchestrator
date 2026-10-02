@@ -1,0 +1,49 @@
+{
+  "charter": "T4-4",
+  "title": "Restart and update",
+  "session": {
+    "dir": "test/sessions/T4/T4-4-1",
+    "lane": 2,
+    "startedAt": "2026-10-02T04:59:10.324Z",
+    "media": "full"
+  },
+  "scores": [
+    "works",
+    "annoying",
+    "broken",
+    "not-noticed"
+  ],
+  "rows": [
+    {
+      "feature": "Restart",
+      "score": null,
+      "note": "",
+      "evidence": [],
+      "scoredBy": null
+    },
+    {
+      "feature": "hot-swap",
+      "score": null,
+      "note": "",
+      "evidence": [],
+      "scoredBy": null
+    },
+    {
+      "feature": "invalidating choice",
+      "score": null,
+      "note": "",
+      "evidence": [],
+      "scoredBy": null
+    },
+    {
+      "feature": "save vocabulary",
+      "score": null,
+      "note": "",
+      "evidence": [],
+      "scoredBy": null
+    }
+  ],
+  "playerClean": {
+    "skipped": "author-mode card"
+  }
+}

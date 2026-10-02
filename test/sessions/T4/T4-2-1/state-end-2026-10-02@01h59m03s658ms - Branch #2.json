@@ -1,0 +1,307 @@
+{
+  "storyId": "adolion-adventurer",
+  "activeCheckpointId": "road-to-wendhope",
+  "boundary": 4,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Adventurer Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Mountains of Shadow": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "wall_breached": true,
+    "party_rank": 0,
+    "adv_looking_for_hands": false,
+    "guild_reputation": 0,
+    "location": "aegis_guild_hall",
+    "party_injuries": 0,
+    "tension_current": 0.25,
+    "party_name": "Loose Ends",
+    "path": "wendhope"
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "380410e3-0f0b-4254-886d-d4af8c32a91c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "Max has named the party 'Loose Ends' and taken the Wendhope posting.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "3d2ee9a9-7df4-4734-aff8-59ccb5f1abf7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "Max has named the party 'Loose Ends' and taken the Wendhope posting.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "e4c5c5c7-f503-4da8-8c1b-4ccae595dfd6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "intends",
+      "content": "to see whether Max invites Belle and Dalan into the party",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "edc0156d-70d0-4b6a-84e7-1a6ca9fcccd3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The Guild cannot finalize the Wendhope posting until the party has at least two members.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "cb01d2f1-16fb-425e-b7da-cb3ad6ba4332",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party is registered as 'Loose Ends' and Max intends to ride north today.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "ad643acc-b188-47d4-a532-abd33a1b55c8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "The party 'Loose Ends' has committed to the Wendhope investigation.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "dc7ed866-b2b0-4ddb-a5ff-63da5ce99ded",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "To see the Loose Ends filled out with a proper party before the posting is finalized.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "434ba8de-81d2-4daf-a4fb-96df786526a0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "intends",
+      "content": "To see who among Belle and Dalan might join the Loose Ends.",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "ae32fbc9-aec5-468a-ab28-54f54f4671a4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "knows",
+      "content": "The party name 'Loose Ends' is logged in the Guild register for the Wendhope investigation",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "908b23e2-c3ff-4fa3-8b26-971cd1ed1eef",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "Max wants to take the Wendhope posting as the Loose Ends",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "32791adc-81c1-4e79-afa4-191bd5c8d5a9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "intends",
+      "content": "To see who among Belle and Dalan is interested in joining the Loose Ends",
+      "createdAt": 3,
+      "messageId": 4
+    },
+    {
+      "id": "eb15b839-d6d4-4319-a1ad-fd6e2a9fabbf",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "intends",
+      "content": "To hold the Wendhope posting until a proper party of at least two members is listed",
+      "createdAt": 3,
+      "messageId": 4
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 7,
+      "name": "Alder",
+      "avatar": "Alder.png"
+    },
+    {
+      "index": 10,
+      "name": "Alida",
+      "avatar": "Alida.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 57,
+      "name": "Giada",
+      "avatar": "Giada.png"
+    },
+    {
+      "index": 59,
+      "name": "Gustall",
+      "avatar": "Gustall.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 141,
+      "name": "Talis",
+      "avatar": "Talis.png"
+    },
+    {
+      "index": 145,
+      "name": "Tatiana",
+      "avatar": "Tatiana.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    }
+  ],
+  "payloadEpoch": "1790918658404-jij2od"
+}

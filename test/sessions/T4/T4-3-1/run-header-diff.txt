@@ -1,0 +1,36 @@
+ok   build.head  "c8d7f24355b08475beecb10fd1fcf28bbebd0bef" -> "78a6666178cc70c27733c2bc2328ea51eda438ff"  (allowed by served-bundle 2807f6ab4a6af31d)
+WARNING: the page is running a bundle that is not the built one: served 2807f6ab4a6af31d vs dist 1cf6af946578135a
+ok   chat.chatId  "2026-10-02@01h59m09s529ms" -> "2026-10-02@03h10m53s890ms"  (allowed by chatId)
+ok   chat.chatLength  1 -> 3  (allowed by progress)
+DIFF inventory.groupChats  +1790916742274/2026-10-02@03h10m53s890ms -1790916742274/2026-10-02@01h58m58s371ms -1790916742274/2026-10-02@01h59m09s529ms
+DIFF inventory.lorebookCount  24 -> 26
+DIFF inventory.v2Stories  -adolion-aegis@12
+ok   story.boundary  1 -> 2  (allowed by progress)
+{
+  "baseline": "C:\\dev\\story-orchestrator\\test\\sessions\\T4\\T4-3-1\\run-header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "chatId",
+    "groupId",
+    "authorView",
+    "story",
+    "group",
+    "inventory.journal"
+  ],
+  "differences": 7,
+  "progress": 2,
+  "blocking": 3,
+  "blockingPaths": [
+    "inventory.groupChats",
+    "inventory.lorebookCount",
+    "inventory.v2Stories"
+  ],
+  "servedIdentity": [
+    "build.head"
+  ],
+  "warnings": [
+    "the page is running a bundle that is not the built one: served 2807f6ab4a6af31d vs dist 1cf6af946578135a"
+  ],
+  "wrote": "C:\\dev\\story-orchestrator\\test\\sessions\\T4\\T4-3-1\\run-header-end.json",
+  "ok": false
+}

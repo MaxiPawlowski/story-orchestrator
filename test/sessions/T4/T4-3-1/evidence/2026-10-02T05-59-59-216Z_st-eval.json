@@ -1,0 +1,22 @@
+{
+  "ok": true,
+  "value": {
+    "focused": "Delete lorebook",
+    "open": 0,
+    "chat": "2026-10-02@01h59m09s529ms",
+    "books": [
+      "Story Orchestrator - Adolion Between the Roads - 2026-10-02@01h58m58s371ms",
+      "Story Orchestrator - Adolion Between the Roads - 2026-10-02@01h59m09s529ms"
+    ],
+    "orphans": [
+      {
+        "name": "Story Orchestrator - Adolion Between the Roads - 2026-10-02@01h58m58s371ms",
+        "chatId": "2026-10-02@01h58m58s371ms",
+        "reason": "declined",
+        "detail": "you chose to keep it"
+      }
+    ],
+    "repair": "Nothing is missing.",
+    "steps": []
+  }
+}

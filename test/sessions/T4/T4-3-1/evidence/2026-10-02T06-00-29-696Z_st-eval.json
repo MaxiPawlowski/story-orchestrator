@@ -1,0 +1,14 @@
+{
+  "ok": true,
+  "value": {
+    "del": {
+      "ok": true
+    },
+    "popups": [
+      {
+        "text": "The chat \"2026-10-02@01h59m09s529ms\" was deleted, but its story-memory lorebook \"Story Orchestrator - Adolion Between the Roads - 2026-10-02@01h59m09s529ms\" is still there. Delete the lorebook too? This cannot be undone.",
+        "focused": "Delete lorebook"
+      }
+    ]
+  }
+}

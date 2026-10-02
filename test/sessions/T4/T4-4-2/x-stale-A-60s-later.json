@@ -1,0 +1,18 @@
+{
+  "ok": true,
+  "value": {
+    "chat": "2026-10-02@02h33m03s114ms",
+    "snapAuthor": true,
+    "party": "Second Tries",
+    "drawerSaysAsh": false,
+    "drawerSaysSecond": true,
+    "footer": [
+      "so-drawer-new-story",
+      "so-edit-story",
+      "so-restart-story-drawer"
+    ],
+    "tabs": "Overview,Blackboard,Memory,Scheduler,Payload",
+    "engine": "boundary 6",
+    "boundary": 6
+  }
+}

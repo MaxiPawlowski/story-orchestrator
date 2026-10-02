@@ -1,0 +1,68 @@
+[
+ {
+  "id": 0,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The road north ends at a roofless chapel beneath the black pines. A sun of bound sticks rests on the altar; beyond it, mossy shrine stones mark the edge of the elven wood. Ashliel offers shelter for the night and, just as gently, asks you to turn back in the morning. Something small moves between the trees nearby, then goes still."
+ },
+ {
+  "id": 1,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We accept Ashliel's shelter for the night, and ask what moves between the trees."
+ },
+ {
+  "id": 2,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "\"The chapel is humble, but you are welcome to it,\" *she says quietly, her gaze already drifting toward the movement in the trees.* \"A small comfort before you depart.\"\n*Her pale face is still, but her purple eyes are alert, watching the shadow between the pines. A soft wind stirs the branches and the movement ceases, but Ashliel does not relax. Under her breath, too low to hear clearly, she murmurs,* \"By Boher's light, guide those who walk in darkness...\"\n*She turns back to the party, her expression serene though her eyes remain watchful.* \"Please, rest. There is water from the well, and vegetables from the garden. I will prepare a fire in the courtyard.\" *She gestures toward the garden path, her voice gentle but carrying an undercurrent of urgency.* \"The forest is not kind to those who linger after dark.\""
+ },
+ {
+  "id": 3,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Past the broken wall of the chapel, something pale green peeks round a pine trunk, sees it has been noticed, and melts flat against the bark."
+ },
+ {
+  "id": 4,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "*Her gaze shifts back toward the tree where the pale shape vanished, her expression tightening slightly. She clasps her hands together, her knuckles white.* \"There are... creatures in these woods. Some benign, others not.\"\n*She doesn't elaborate further, turning her attention to the courtyard where a small fire pit awaits. With practiced, fluid movements, she gathers fallen branches and begins to build the fire, her movements careful and deliberate.* \"I would advise against wandering from the chapel's grounds tonight. The night air in Alks Forest carries more than just cold.\"\n*The fire catches, casting flickering shadows across her pale features. She looks up as the flames begin to grow, her purple eyes reflecting the amber light.* \"Please, tend to your needs. Rest. Tomorrow is a long day, and I would see you well-prepared for your return journey.\""
+ },
+ {
+  "id": 5,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Sali, is it you in the trees? Come sit by the fire, we mean no harm."
+ },
+ {
+  "id": 6,
+  "name": "Sali",
+  "isUser": false,
+  "text": "*The pale shape on the tree bark shivers, then melts down the trunk and reforms into an elven woman in a purple dress. Her eyes are wide with surprise.* \"You saw me! I thought I was being super stealthy!\"\n*She practically bounces toward the fire, her translucent body gleaming in the firelight. A little slime exclamation point pops up above her head.* \"Are you adventurers? Really-real adventurers? I'm Sali! I've been following you for ages—well, since you left that hamlet—and I've been practicing! See?\"\n*She strikes a pose, her form wobbling slightly as she tries to look heroic.* \"I can do quests! And fight monsters! And help people! Can I come with you? Pretty please? I promise I won't be a burden!\""
+ },
+ {
+  "id": 7,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "*Ashliel's brow furrows, her gaze moving from the slime-girl to the fire and back again. She rises slowly from her cross-legged position, her bare feet padding silently against the stone.* \"A slime... and here you call yourself an adventurer?\"\n*Her voice isn't mocking, only perplexed, though her purple eyes narrow with concern. She steps closer, not threateningly, but with the practiced caution of someone who has seen much over the centuries.* \"These woods are not a place for games or practice, little one. The creatures that dwell here do not distinguish between the seasoned and the naive.\"\n*She looks toward the dark treeline where the movement had first been spotted, then back to Sali.* \"You followed this party for days? Alone?\" *A flicker of something—perhaps pity, perhaps exasperation—crosses her features.* \"The forest has tested your resolve, it seems, but perhaps for the wrong reasons. You speak of quests and fighting monsters as though they were trifles.\""
+ },
+ {
+  "id": 8,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "In the morning we thank Ashliel and ask Sali to lead us to the shrine stones."
+ },
+ {
+  "id": 9,
+  "name": "Sali",
+  "isUser": false,
+  "text": "*Sali bounces in place, her entire form wobbling with excitement as a little slime exclamation point appears above her head.* \"Yes! Yes! I know where they are! I saw them yesterday!\"\n*She doesn't wait for another word, turning and scampering toward the forest edge. Her translucent blue-green body catches the morning light as she runs, her pale green slime-hair streaming behind her.* \"This way! This way!\"\n*She stops just past the chapel walls, gesturing with a waving arm toward the north where the black pines grow thick and the mist still clings to the forest floor.* \"Just past those trees there! I-I think that's where they are! Can you believe it? A real quest! My first-real-actual quest!\""
+ },
+ {
+  "id": 10,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "*Ashliel stands by the courtyard well, her hands clasped as she watches the party gather their things. Her purple eyes drift to Sali's excited form and a shadow of something old and painful flickers across her face.* \"You truly mean to go north,\" *she says softly, her voice barely carrying over the morning wind.*\n*She steps forward, her tattered dress fluttering slightly. Her expression is grave.* \"The shrine stones are but a short walk from here. Beyond them...\" *She trails off, her lips moving in a silent prayer before she catches herself.* \"Beyond them is a path you should not take. I have seen travelers walk that way for centuries, and not one has ever returned to these woods.\"\n*She looks at each of them in turn, her gaze lingering on Max for a moment longer.* \"Please. Turn back. Fennmarch is but a few days' journey south, and there are other quests, other ways to prove yourselves. I beg you, do not let your curiosity lead you to a place from which there is no return.\""
+ }
+]

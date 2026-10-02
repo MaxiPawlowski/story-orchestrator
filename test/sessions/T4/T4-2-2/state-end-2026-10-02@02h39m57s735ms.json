@@ -1,0 +1,775 @@
+{
+  "storyId": "adolion-esha",
+  "activeCheckpointId": "esha-the-guardians",
+  "boundary": 9,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Eshalanore Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Eshalanore": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "esha_her_gaze": false,
+    "tension_current": 0.25,
+    "esha_at_border": true,
+    "location": "esha_border",
+    "party_injuries": 0
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "cf40ac3f-105c-4c9d-a511-5b07ad2bbaf2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 2,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "knows",
+      "content": "The party is traveling north through Alks Forest toward the elven wood.",
+      "createdAt": 3,
+      "messageId": 2
+    },
+    {
+      "id": "6ff5c687-6df6-4e44-bc74-85a1a83b326a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 3,
+        "boundary": 3,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "knows",
+      "content": "The party is sheltering at Ashliel's chapel for the night",
+      "createdAt": 3,
+      "messageId": 3
+    },
+    {
+      "id": "14911dbf-5817-4b3c-b9b8-5c05c0ff6ee0",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 4,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "intends",
+      "content": "To convince the party to rest tonight and return south at dawn, not going north past the shrine stones.",
+      "createdAt": 4,
+      "messageId": 4,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "754f4776-dc87-4eb9-88be-e0e9478e64ab",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "knows",
+      "content": "Max called for her by name and the party means her no harm",
+      "createdAt": 6,
+      "messageId": 7
+    },
+    {
+      "id": "66f336f7-6e6a-48e7-b706-0926428e996a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "knows",
+      "content": "Sali is not from these woods and is a slime wearing an elf's face",
+      "createdAt": 6,
+      "messageId": 7
+    },
+    {
+      "id": "6d76afc0-9efd-42d9-b019-ffee7c4f1370",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "intends",
+      "content": "to have the party eat, rest, and leave south at first light, taking Sali with them",
+      "createdAt": 6,
+      "messageId": 7,
+      "affirmedAt": [
+        {
+          "messageId": 9,
+          "boundary": 7
+        }
+      ],
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "1a0d72e5-e634-40b7-84b1-1ecfb5f56770",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 7,
+        "boundary": 6,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "intends",
+      "content": "to join the party as an adventurer, for a little while or forever",
+      "createdAt": 6,
+      "messageId": 7
+    },
+    {
+      "id": "a0221f31-651f-4110-80fa-6dfdc48c774c",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "knows",
+      "content": "The party agreed to follow her north past the shrine stones.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "963525b5-33bf-4539-b739-8e06fb2525e6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Sali is not supposed to get close to fire because it makes her runny and goopy.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "1918f142-d5a4-41c4-836a-2d802a437168",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Sali claims she is strong, never tires, and can heal with her slime.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "49a96862-3742-4d33-a24e-7eeec16b9e99",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "hiding",
+      "content": "her true reason for insisting they turn back south",
+      "hiddenFrom": "The Party",
+      "createdAt": 7,
+      "messageId": 9,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 9,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "5dafce82-4af4-4f52-8f6b-525ddf8cad09",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "intends",
+      "content": "to join the party as an adventurer and lead them onward",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "5cbdc5e7-8aaa-4c73-9165-b5ff57bf4a14",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "The party has crossed the shrine stones into the elves' wood and a tall woman in white watches from the city's light.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "353756b8-e0d7-4f6e-8200-ce58c2bad6fb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "knows",
+      "content": "The party has crossed the shrine stones into the elves' wood and a tall woman in white watches from the city's light.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "b8b41746-54a2-4d45-beef-1d4f53217a47",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The party has crossed the shrine stones into the elves' wood and a tall woman in white watches from the city's light.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "867b087b-179f-4649-b18f-5cc5cf1bed92",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The party has crossed the shrine stones into the elves' wood and a tall woman in white watches from the city's light.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "b985a909-669c-4ae1-9e54-9b0808773124",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:unaware",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "unaware",
+      "content": "The party has crossed the shrine stones into the elves' wood and a tall woman in white watches from the city's light.",
+      "createdAt": 7,
+      "messageId": 9,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 9,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "c0ecdd6d-0cb8-4c21-806e-5d16879881c2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "intends",
+      "content": "to send the party south at first light and keep them from going north past the shrine stones",
+      "createdAt": 7,
+      "messageId": 9,
+      "affirmedAt": [
+        {
+          "messageId": 11,
+          "boundary": 9
+        }
+      ],
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "c11f90f8-d345-4a71-affc-0f3ffe025243",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "knows",
+      "content": "Sali is not from these woods and should not be here.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "819b50f9-a45c-4ea0-9aa2-18c06aeb1ec6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "knows",
+      "content": "Sali is a slime wearing an elf's face.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "11f6083a-ee0f-4b37-842a-10bbdd505866",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "knows",
+      "content": "Sali is not supposed to get close to fire because it makes her runny and goopy.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "a317afe0-1320-4fcb-ab79-a3b8149e1cc8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "knows",
+      "content": "Sali claims she is strong, never tires, and can heal with her slime.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "63bfac0e-0abb-4b52-a7e0-ae75c41e105e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "knows",
+      "content": "Sali led the party north past the shrine stones.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "019ebae4-6181-42a1-b7c4-2b67e9cca3ff",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "knows",
+      "content": "The party has crossed the shrine stones into the elves' wood and a tall woman in white watches from the city's light.",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "e579c228-e7e4-4e64-b033-06fdb08b4767",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "hiding",
+      "content": "her true reason for insisting they turn back south",
+      "hiddenFrom": "The Party",
+      "createdAt": 7,
+      "messageId": 9
+    },
+    {
+      "id": "a7d607ad-4962-4469-8355-8a89594cd336",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 9,
+        "boundary": 7,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "believes",
+      "content": "The party will heed her plea and return south at dawn.",
+      "createdAt": 7,
+      "messageId": 9,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "17c5e580-55e1-4195-8b90-f27971ee2cc2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "knows",
+      "content": "The Lady of the Forest is the silver-haired woman at the edge of the city's light, whom she says she has dreamed of.",
+      "createdAt": 9,
+      "messageId": 10,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "5092639a-d2d2-42a4-882e-3b1fea40afe3",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 9,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "intends",
+      "content": "to lead the party north past the shrine stones into the elves' wood.",
+      "createdAt": 9,
+      "messageId": 10,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "35d35879-1c0a-44c4-a653-502b069d0769",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 10,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "hiding",
+      "content": "that she is leading the party north past the shrine stones rather than south as Ashliel demanded.",
+      "hiddenFrom": "Ashliel",
+      "createdAt": 9,
+      "messageId": 10,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "3f106bc7-f667-4817-8266-3a9c33024737",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "knows",
+      "content": "The Lady of the Forest is present at the edge of the city's light.",
+      "createdAt": 9,
+      "messageId": 11,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "85f20d67-ee7c-475b-86e4-459c196e80d6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Lady of the Forest",
+      "tag": "knows",
+      "content": "The party has crossed many lines to reach her valley.",
+      "createdAt": 9,
+      "messageId": 11,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "d17b1b22-091f-4a14-bf76-0a7288b0dee5",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "suspects",
+      "content": "The Lady of the Forest is the figure she dreamed of.",
+      "createdAt": 9,
+      "messageId": 11,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "8d04f033-37aa-4a58-9d97-735ac51d6b37",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "believes",
+      "content": "The party will heed her plea and return south at dawn.",
+      "createdAt": 9,
+      "messageId": 11,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "0dfa1348-258d-4751-bf3e-c0e6fae8cf29",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "intends",
+      "content": "to lead the party north past the shrine stones into the elves' wood.",
+      "createdAt": 9,
+      "messageId": 11,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "279307ca-59b0-429e-b4be-122ba8b5dfc6",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "hiding",
+      "content": "that she is leading the party north past the shrine stones rather than south as Ashliel demanded.",
+      "hiddenFrom": "Ashliel",
+      "createdAt": 9,
+      "messageId": 11,
+      "supersededBy": "retired@9",
+      "retiredAt": {
+        "messageId": 11,
+        "boundary": 9
+      }
+    },
+    {
+      "id": "63498d1f-8ca8-4dd8-94e0-21b4e23e6312",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "knows",
+      "content": "The Lady of the Forest is the silver-haired woman at the edge of the city's light, whom she says she has dreamed of.",
+      "createdAt": 9,
+      "messageId": 11
+    },
+    {
+      "id": "e69108e0-b2ef-4ed3-92f1-4346d6978ade",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "knows",
+      "content": "The Lady of the Forest is present at the edge of the city's light.",
+      "createdAt": 9,
+      "messageId": 11
+    },
+    {
+      "id": "27c8cc78-9cdb-4f04-b694-be1869b35104",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "The Lady of the Forest",
+      "tag": "knows",
+      "content": "The party has crossed many lines to reach her valley.",
+      "createdAt": 9,
+      "messageId": 11
+    },
+    {
+      "id": "c0485c16-b81d-4d6d-b611-f7019a97d395",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "suspects",
+      "content": "The Lady of the Forest is the figure she dreamed of.",
+      "createdAt": 9,
+      "messageId": 11
+    },
+    {
+      "id": "d8164743-e0e0-4705-8f30-455cbc528ce7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Ashliel",
+      "tag": "believes",
+      "content": "The party will heed her plea and return south at dawn.",
+      "createdAt": 9,
+      "messageId": 11
+    },
+    {
+      "id": "0ea4dc97-835d-4e1f-8b5c-f4dfbeecddfd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 11,
+        "boundary": 9,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Sali",
+      "tag": "hiding",
+      "content": "that she is leading the party north past the shrine stones rather than south as Ashliel demanded.",
+      "hiddenFrom": "Ashliel",
+      "createdAt": 9,
+      "messageId": 11
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 16,
+      "name": "Ashliel",
+      "avatar": "Ashliel.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 46,
+      "name": "Elowyn",
+      "avatar": "Elowyn.png"
+    },
+    {
+      "index": 127,
+      "name": "Sali",
+      "avatar": "Sali.png"
+    },
+    {
+      "index": 148,
+      "name": "The Lady of the Forest",
+      "avatar": "The Lady of the Forest.png"
+    }
+  ],
+  "payloadEpoch": "1790920598591-9si34u"
+}

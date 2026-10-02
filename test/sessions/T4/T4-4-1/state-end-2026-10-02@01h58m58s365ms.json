@@ -1,0 +1,949 @@
+{
+  "storyId": "adolion-adventurer",
+  "activeCheckpointId": "on-the-road",
+  "boundary": 8,
+  "requirements": {
+    "ready": true,
+    "missingPersonas": [],
+    "missingMembers": [],
+    "missingLorebooks": [],
+    "mutedMembers": [],
+    "satisfiedBy": {
+      "Adolion World": "global",
+      "Adolion Adventurer Checkpoints": "global",
+      "Adolion Chronicle": "global",
+      "Adolion - Mountains of Shadow": "global"
+    },
+    "characterGaps": {},
+    "slotConflict": null
+  },
+  "blackboard": {
+    "wall_breached": true,
+    "party_name": "Party name updated to The Second Tries,",
+    "adv_looking_for_hands": false,
+    "location": "north_road",
+    "party_injuries": 0,
+    "path": "wendhope",
+    "first_camp": true,
+    "tension_current": 0.25
+  },
+  "lastRollback": null,
+  "epistemic": [
+    {
+      "id": "6b698610-eec5-412e-bfbf-528693280a6b",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 1,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "The Guild's private knowledge that Wendhope has swallowed two prior parties and that the Sheridans conceal their failures.",
+      "hiddenFrom": "everyone",
+      "createdAt": 1,
+      "messageId": 14
+    },
+    {
+      "id": "ffd0447e-62bc-4601-a279-3525da577b95",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 14,
+        "boundary": 1,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To gather supplies and march north at first light.",
+      "createdAt": 1,
+      "messageId": 14,
+      "supersededBy": "retired@2",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 2
+      }
+    },
+    {
+      "id": "74a65685-cbaa-4a31-a3ea-1d147d3994ca",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Two prior C-rank veteran parties sent to Wendhope never returned, and the Sheridans will not admit failure to the Crown or Guild.",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "373dc63c-7a4f-46e2-9481-e2eb3efbb967",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Two prior C-rank veteran parties sent to Wendhope never returned, and the Sheridans will not admit failure to the Crown or Guild.",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "a9da5d5e-fe0d-4f83-92f0-efbf1cc122bc",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Two prior C-rank veteran parties sent to Wendhope never returned, and the Sheridans will not admit failure to the Crown or Guild.",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "93bec549-e661-4316-996e-083a727cae2f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "That the Guild knows about the lost Wendhope parties and is quietly using a D-rank party to save face at court.",
+      "hiddenFrom": "everyone",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "4cda955a-c2ce-4c80-bb23-15ca0b33b39f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To leave for Wendhope immediately without dawdling.",
+      "createdAt": 2,
+      "messageId": 16,
+      "supersededBy": "retired@2",
+      "retiredAt": {
+        "messageId": 16,
+        "boundary": 2
+      }
+    },
+    {
+      "id": "9b199b16-a39b-49b3-8ad0-363f629c7f3f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "knows",
+      "content": "Two prior C-rank veteran parties sent to Wendhope never returned, and the Guild carries those losses while the Sheridans refuse to admit failure.",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "ff207a7d-9eb1-45eb-b3b3-318c8475f784",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Two prior C-rank veteran parties sent to Wendhope never returned, and the Guild carries those losses while the Sheridans refuse to admit failure.",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "df1ed5d7-82a4-4dae-85ab-27cd9fab46bf",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Two prior C-rank veteran parties sent to Wendhope never returned, and the Guild carries those losses while the Sheridans refuse to admit failure.",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "a80bdbdb-a1d2-4d94-a736-89411ebe1469",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "That the Wendhope posting is a face-saving job for the Sheridans and that the Guild is quietly accounting for the lost parties.",
+      "hiddenFrom": "everyone",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "524b0128-2aec-45f1-ba6d-ca17dfce0726",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Tobias said the first two Wendhope parties were C-rank veterans who left and never returned.",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "2f0de157-9bf1-4a48-8554-9186e22c4e93",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Tobias said the first two Wendhope parties were C-rank veterans who left and never returned.",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "a0bdc3bd-f935-4901-8e4f-65236eb0cf22",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Tobias said the Guild has losses to account for and the Sheridans will not admit failure to the Crown or Guild.",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "c119577a-8953-4fd1-87fd-fd6ffa26346a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Tobias said the Guild has losses to account for and the Sheridans will not admit failure to the Crown or Guild.",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "cb1121eb-58c2-4d35-9352-6d5cbe7b3763",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "Tobias said the Wendhope posting is being handed to a D-rank party so a loss is just another entry in a long list of failures.",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "421956b1-66ed-4553-93bf-a926c3743c44",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "Tobias said the Wendhope posting is being handed to a D-rank party so a loss is just another entry in a long list of failures.",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "ff1b45fb-bcf1-4fc4-9902-cf8856e8bc45",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "The Wendhope posting's history and the Guild's accounting of the lost parties.",
+      "hiddenFrom": "guild-mates",
+      "createdAt": 2,
+      "messageId": 16
+    },
+    {
+      "id": "e80849e9-695e-4b5f-ae9c-78e3f8284a38",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "Max first registered the party as the Ash Lanterns, then had it voided and rewritten as the Second Tries.",
+      "createdAt": 2,
+      "messageId": 16,
+      "supersededBy": "retired@4",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 4
+      }
+    },
+    {
+      "id": "e643a4a9-0c41-4083-beed-2f9069be0bc9",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "believes",
+      "content": "Max's request to \"start fresh\" means he wants the Ash Lanterns registration voided.",
+      "createdAt": 2,
+      "messageId": 16,
+      "supersededBy": "retired@4",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 4
+      }
+    },
+    {
+      "id": "422f9efe-e682-42ae-b8f8-42d34e62d9bd",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 16,
+        "boundary": 2,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To leave for Wendhope immediately without dawdling.",
+      "createdAt": 2,
+      "messageId": 16,
+      "affirmedAt": [
+        {
+          "messageId": 17,
+          "boundary": 3
+        }
+      ],
+      "supersededBy": "retired@4",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 4
+      }
+    },
+    {
+      "id": "d2b5ede4-580d-4459-af0b-05369ac1d1e8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 3,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Tobias",
+      "tag": "hiding",
+      "content": "The Sheridans' history of wasting adventurers and the Guild's losses at Wendhope, told quietly at the counter.",
+      "hiddenFrom": "everyone",
+      "createdAt": 3,
+      "messageId": 17
+    },
+    {
+      "id": "e7979675-2617-4aae-b134-bedc49475f53",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 17,
+        "boundary": 3,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To have the horses ready and move early on the north road.",
+      "createdAt": 3,
+      "messageId": 17,
+      "affirmedAt": [
+        {
+          "messageId": 19,
+          "boundary": 4
+        }
+      ],
+      "supersededBy": "retired@4",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 4
+      }
+    },
+    {
+      "id": "456f7ed8-d4ee-4378-8fb3-002f6338730a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The north road shows no wildlife or traffic, which he finds unnatural.",
+      "createdAt": 4,
+      "messageId": 19,
+      "supersededBy": "retired@4",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 4
+      }
+    },
+    {
+      "id": "b862775d-9f08-408d-8c0b-a212b6dcf4bb",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The empty road confirms her feeling that something is wrong.",
+      "createdAt": 4,
+      "messageId": 19,
+      "supersededBy": "retired@4",
+      "retiredAt": {
+        "messageId": 19,
+        "boundary": 4
+      }
+    },
+    {
+      "id": "b0e19ef5-666d-4a0c-b191-7da0f84d182a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "knows",
+      "content": "Max asked to register the party as the Second Tries and to \"start fresh.\"",
+      "createdAt": 4,
+      "messageId": 19
+    },
+    {
+      "id": "f1ae4767-e517-4ff8-9124-1d0d2d00e2d7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 4,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Ellie",
+      "tag": "believes",
+      "content": "Max's request to \"start fresh\" means he wants the Ash Lanterns registration voided.",
+      "createdAt": 4,
+      "messageId": 19
+    },
+    {
+      "id": "d03cb661-4718-4a1e-abf4-c17c5ac7d75d",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 4,
+        "pass": "epistemic:hiding",
+        "validity": "live"
+      },
+      "subject": "Max Nightriver",
+      "tag": "hiding",
+      "content": "That he intends the party to be the Second Tries, not the Ash Lanterns.",
+      "hiddenFrom": "Ellie",
+      "createdAt": 4,
+      "messageId": 19
+    },
+    {
+      "id": "9b1045ab-cb99-4d94-91cd-cf7040ce6eba",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The north road shows no traffic, no wildlife, no birds, and quiet insects.",
+      "createdAt": 4,
+      "messageId": 19,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "12538084-426c-4a89-81a6-7f8c5923fd9a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The empty road confirms her feeling that something is wrong.",
+      "createdAt": 4,
+      "messageId": 19,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "8bbdb7b6-60e9-44a8-aabd-e11e536bc568",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "An overturned cart with a snapped wheel sits ahead, cargo still strapped and untouched, rotting.",
+      "createdAt": 4,
+      "messageId": 19,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "82bbf19a-602a-48dc-91d5-b9212d105412",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 4,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "An overturned cart with a snapped wheel sits ahead, cargo still strapped and untouched, rotting.",
+      "createdAt": 4,
+      "messageId": 19,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "f144a2ed-eab0-4950-9f04-7f4452d679c4",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To leave for Wendhope immediately without dawdling.",
+      "createdAt": 4,
+      "messageId": 19,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "ebeec5e6-3e62-4d2c-90ce-949987ad3cd8",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 19,
+        "boundary": 4,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To have the horses ready and move early on the north road.",
+      "createdAt": 4,
+      "messageId": 19,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "4a5176c6-71ca-4db7-a22a-eba092225c57",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The north road is unnaturally empty and the overturned cart's cargo was left untouched.",
+      "createdAt": 6,
+      "messageId": 21,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "ad1479e1-44e5-4e80-ad89-9e5e421de685",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 6,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The north road has no wildlife or insects, only silence.",
+      "createdAt": 6,
+      "messageId": 21,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "9147c241-3713-4523-bc75-7d055186f4ed",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 21,
+        "boundary": 6,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "Something drove the cart's owners off fast enough that they abandoned their goods.",
+      "createdAt": 6,
+      "messageId": 21,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "3ef9fe72-e08b-46a5-8a0c-40644583d0c2",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The cart's tracks show no struggle, no boot prints, no blood.",
+      "createdAt": 7,
+      "messageId": 23,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "fd816900-7980-4105-9a55-eaacfd6d56a7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The riderless Sheridan horse has walked for hours or days without tiring.",
+      "createdAt": 7,
+      "messageId": 23,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "fae46874-2c45-4970-8d6d-a82382f6413f",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To decide with Max whether to camp at the cart or push on toward Wendhope.",
+      "createdAt": 7,
+      "messageId": 23,
+      "supersededBy": "retired@7",
+      "retiredAt": {
+        "messageId": 23,
+        "boundary": 7
+      }
+    },
+    {
+      "id": "3c0211b0-d5d5-4e45-a5f0-859508a1fe1a",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The riderless Sheridan horse has walked for hours or days without tiring.",
+      "createdAt": 7,
+      "messageId": 23
+    },
+    {
+      "id": "7de778e8-aece-4caa-957e-4c3a226a5380",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "knows",
+      "content": "The cart's tracks show no struggle, no boot prints, no blood.",
+      "createdAt": 7,
+      "messageId": 23
+    },
+    {
+      "id": "6b5568c1-8c3d-493b-bedd-e4f40e8bc8c7",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 7,
+        "pass": "epistemic:knows",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "knows",
+      "content": "The overturned cart's cargo was left untouched and the wheel was clean-snapped, not shattered.",
+      "createdAt": 7,
+      "messageId": 23
+    },
+    {
+      "id": "09b4fad4-6b13-4fba-8882-ea8d8e74f52e",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 7,
+        "pass": "epistemic:suspects",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "suspects",
+      "content": "Something drove the cart's owners off fast enough that they abandoned their goods.",
+      "createdAt": 7,
+      "messageId": 23
+    },
+    {
+      "id": "96145f69-5818-4544-8e35-8f1ad4ee5457",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Belle",
+      "tag": "intends",
+      "content": "To decide with Max whether to camp at the cart or push on toward Wendhope.",
+      "createdAt": 7,
+      "messageId": 23
+    },
+    {
+      "id": "f42ef3e4-db4c-4674-83d6-4049527be278",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 7,
+        "pass": "epistemic:intends",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "intends",
+      "content": "To have the horses ready and move at first light.",
+      "createdAt": 7,
+      "messageId": 23
+    },
+    {
+      "id": "637b1b6a-5942-49e8-903c-3723b60c26db",
+      "provenance": {
+        "source": "extractor",
+        "messageId": 23,
+        "boundary": 7,
+        "pass": "epistemic:believes",
+        "validity": "live"
+      },
+      "subject": "Dalan",
+      "tag": "believes",
+      "content": "The north road is temperamental this time of year but they will make good time if they move early.",
+      "createdAt": 7,
+      "messageId": 23
+    }
+  ],
+  "characters": [
+    {
+      "index": 1,
+      "name": "Adolion Narrator",
+      "avatar": "Adolion Narrator.png"
+    },
+    {
+      "index": 7,
+      "name": "Alder",
+      "avatar": "Alder.png"
+    },
+    {
+      "index": 10,
+      "name": "Alida",
+      "avatar": "Alida.png"
+    },
+    {
+      "index": 18,
+      "name": "Belle",
+      "avatar": "Belle.png"
+    },
+    {
+      "index": 35,
+      "name": "Dalan",
+      "avatar": "Dalan.png"
+    },
+    {
+      "index": 43,
+      "name": "Domas",
+      "avatar": "Domas.png"
+    },
+    {
+      "index": 45,
+      "name": "Ellie",
+      "avatar": "Ellie.png"
+    },
+    {
+      "index": 53,
+      "name": "Fiana",
+      "avatar": "Fiana.png"
+    },
+    {
+      "index": 57,
+      "name": "Giada",
+      "avatar": "Giada.png"
+    },
+    {
+      "index": 59,
+      "name": "Gustall",
+      "avatar": "Gustall.png"
+    },
+    {
+      "index": 80,
+      "name": "Kashina",
+      "avatar": "Kashina.png"
+    },
+    {
+      "index": 106,
+      "name": "Naomi",
+      "avatar": "Naomi.png"
+    },
+    {
+      "index": 120,
+      "name": "Riyo",
+      "avatar": "Riyo.png"
+    },
+    {
+      "index": 124,
+      "name": "Rydel",
+      "avatar": "Rydel.png"
+    },
+    {
+      "index": 141,
+      "name": "Talis",
+      "avatar": "Talis.png"
+    },
+    {
+      "index": 145,
+      "name": "Tatiana",
+      "avatar": "Tatiana.png"
+    },
+    {
+      "index": 151,
+      "name": "Tobias",
+      "avatar": "Tobias.png"
+    },
+    {
+      "index": 153,
+      "name": "Vallie",
+      "avatar": "Vallie.png"
+    }
+  ],
+  "payloadEpoch": "1790917150047-uj5u4w"
+}

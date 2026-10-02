@@ -1,0 +1,4224 @@
+{
+  "chatId": "2026-10-02@02h33m03s114ms",
+  "storyTitle": "Adolion: The Adventurer's Road",
+  "activeCheckpoint": "The Road North",
+  "boundary": 7,
+  "events": [
+    {
+      "at": "2026-10-02T05:39:03.500Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "away recap not due",
+      "detail": {
+        "note": "chat 2026-10-02@02h33m03s114ms, last seen never, gap n/a"
+      }
+    },
+    {
+      "at": "2026-10-02T05:39:03.734Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "status",
+      "summary": "Started Adolion: The Adventurer's Road"
+    },
+    {
+      "at": "2026-10-02T05:39:03.760Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "status",
+      "summary": "Story restarted"
+    },
+    {
+      "at": "2026-10-02T05:39:19.484Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "flag",
+      "summary": "Restart story turned Author view off: before Restart the Overview footer had Edit story (extras.ui.authorView true, author-mode card); after Restart only Restart story shows and authorView is false. Messages kept (7), memory and path cleared, WI replayed. The journal restarts at 1 entry with no record that a restart happened. Same in run T4-4-1.",
+      "detail": {
+        "note": "Restart story turned Author view off: before Restart the Overview footer had Edit story (extras.ui.authorView true, author-mode card); after Restart only Restart story shows and authorView is false. Messages kept (7), memory and path cleared, WI replayed. The journal restarts at 1 entry with no record that a restart happened. Same in run T4-4-1."
+      }
+    },
+    {
+      "at": "2026-10-02T05:39:36.567Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:39:36.567Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:39:36.567Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:39:36.567Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:39:36.567Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:39:36.567Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:39:36.567Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:39:36.567Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:39:36.567Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:39:36.567Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:39:36.567Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:39:36.567Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:39:36.567Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "host change \"background\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:39:41.371Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "story",
+      "summary": "away recap not due",
+      "detail": {
+        "note": "chat 2026-10-02@02h33m03s114ms, last seen 2026-10-02T05:39:19.484Z, gap 0h"
+      }
+    },
+    {
+      "at": "2026-10-02T05:39:41.614Z",
+      "boundary": 0,
+      "messageId": -1,
+      "kind": "status",
+      "summary": "Continuing Adolion: The Adventurer's Road"
+    },
+    {
+      "at": "2026-10-02T05:39:44.341Z",
+      "boundary": 0,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge lore in 383 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 5085,
+        "latencyMs": 383,
+        "inputTokens": 13888,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:39:44.361Z",
+      "boundary": 0,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge lore in 417 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 5085,
+        "latencyMs": 417,
+        "inputTokens": 14814,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "Belle the Barbarian - Adventurer": 0.73,
+          "Dalan Evergreen": 0.7
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:39:44.675Z",
+      "boundary": 0,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge lore in 320 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 5085,
+        "latencyMs": 320,
+        "inputTokens": 13850,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "Wendhope": 0.79
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:39:44.725Z",
+      "boundary": 0,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge lore in 389 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 5085,
+        "latencyMs": 389,
+        "inputTokens": 14507,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:39:44.932Z",
+      "boundary": 0,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge lore in 259 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 5085,
+        "latencyMs": 259,
+        "inputTokens": 3055,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:39:45.176Z",
+      "boundary": -1,
+      "messageId": 7,
+      "kind": "talk",
+      "summary": "Ellie speaks (judge)",
+      "detail": {
+        "checkpointId": "guild-hall",
+        "latencyMs": 233
+      }
+    },
+    {
+      "at": "2026-10-02T05:39:45.176Z",
+      "boundary": 0,
+      "messageId": 7,
+      "kind": "judge",
+      "summary": "judge director in 227 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 14,
+        "stateChars": 5938,
+        "latencyMs": 227,
+        "inputTokens": 2909,
+        "outputTokens": 323,
+        "p": {
+          "who": "Ellie",
+          "whoConfidence": 0.98,
+          "via": "choice",
+          "picked": "Ellie"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:07.738Z",
+      "boundary": 1,
+      "messageId": 8,
+      "kind": "status",
+      "summary": "Following The Guild Hall"
+    },
+    {
+      "at": "2026-10-02T05:40:07.866Z",
+      "boundary": -1,
+      "messageId": 8,
+      "kind": "talk",
+      "summary": "silence speaks (judge)",
+      "detail": {
+        "checkpointId": "guild-hall",
+        "latencyMs": 320
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:07.866Z",
+      "boundary": 0,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge director in 300 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 13,
+        "stateChars": 5767,
+        "latencyMs": 300,
+        "inputTokens": 2818,
+        "outputTokens": 300,
+        "p": {
+          "who": "the player",
+          "whoConfidence": 0.94,
+          "via": "choice",
+          "picked": "the player"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:08.036Z",
+      "boundary": 1,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge typed in 258 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 10,
+        "stateChars": 2144,
+        "latencyMs": 258,
+        "inputTokens": 2513,
+        "outputTokens": 590
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:08.205Z",
+      "boundary": 1,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge scene in 341 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 26,
+        "stateChars": 7753,
+        "latencyMs": 341,
+        "inputTokens": 4065,
+        "outputTokens": 726,
+        "p": {
+          "break": 0.06
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:08.306Z",
+      "boundary": 1,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge warden in 272 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 1,
+        "stateChars": 979,
+        "latencyMs": 272,
+        "inputTokens": 698,
+        "outputTokens": 17,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "agency": 0.22
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:08.526Z",
+      "boundary": 1,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge wardenLore in 322 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5306,
+        "latencyMs": 322,
+        "inputTokens": 2217,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:08.549Z",
+      "boundary": 1,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge typed in 244 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 10,
+        "stateChars": 4970,
+        "latencyMs": 244,
+        "inputTokens": 4215,
+        "outputTokens": 985
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:08.549Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:40:08.549Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 5020,
+        "samplers": "applied",
+        "usage": {
+          "input": 3604,
+          "output": 1036,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 8
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:13.572Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:40:13.572Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 543,
+        "samplers": "applied",
+        "usage": {
+          "input": 1495,
+          "output": 4,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 8
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:14.115Z",
+      "boundary": -1,
+      "messageId": 8,
+      "kind": "extraction",
+      "summary": "read cue:guild-hall->road-to-wendhope,guild-hall->adv-guild-tavern msgs 1-8 → 7 accepted, 1 rejected",
+      "detail": {
+        "auditId": "6ddba3ac",
+        "scope": [
+          "adv_looking_for_hands",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_name",
+          "party_rank",
+          "path",
+          "tension_current"
+        ],
+        "accepted": [
+          "guild_reputation=1",
+          "location=aegis_guild_hall",
+          "party_injuries=0",
+          "party_name=Second Tries",
+          "party_rank=0",
+          "path=wendhope",
+          "tension_current=0"
+        ],
+        "rejected": [
+          "evidence only in the player's line"
+        ],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:14.115Z",
+      "boundary": -1,
+      "messageId": 8,
+      "kind": "delta",
+      "summary": "guild_reputation = 1",
+      "detail": {
+        "auditId": "6ddba3ac",
+        "evidence": "Ellie's pen hovers for a fraction of a second, her blue eyes widening as she glances toward the tavern arch.",
+        "reason": "cue:guild-hall->road-to-wendhope,guild-hall->adv-guild-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:14.115Z",
+      "boundary": -1,
+      "messageId": 8,
+      "kind": "delta",
+      "summary": "location = aegis_guild_hall",
+      "detail": {
+        "auditId": "6ddba3ac",
+        "evidence": "Ellie's pen hovers for a fraction of a second, her blue eyes widening as she glances toward the tavern arch.",
+        "reason": "cue:guild-hall->road-to-wendhope,guild-hall->adv-guild-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:14.115Z",
+      "boundary": -1,
+      "messageId": 8,
+      "kind": "delta",
+      "summary": "party_injuries = 0",
+      "detail": {
+        "auditId": "6ddba3ac",
+        "evidence": "I can track, scout, and keep watch.",
+        "reason": "cue:guild-hall->road-to-wendhope,guild-hall->adv-guild-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:14.115Z",
+      "boundary": -1,
+      "messageId": 8,
+      "kind": "delta",
+      "summary": "party_name = Second Tries",
+      "detail": {
+        "auditId": "6ddba3ac",
+        "evidence": "Second Tries, freshly registered. Of course.",
+        "reason": "cue:guild-hall->road-to-wendhope,guild-hall->adv-guild-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:14.115Z",
+      "boundary": -1,
+      "messageId": 8,
+      "kind": "delta",
+      "summary": "party_rank = 0",
+      "detail": {
+        "auditId": "6ddba3ac",
+        "evidence": "The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity.",
+        "reason": "cue:guild-hall->road-to-wendhope,guild-hall->adv-guild-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:14.115Z",
+      "boundary": -1,
+      "messageId": 8,
+      "kind": "delta",
+      "summary": "path = wendhope",
+      "detail": {
+        "auditId": "6ddba3ac",
+        "evidence": "Taking the Wendhope posting.",
+        "reason": "cue:guild-hall->road-to-wendhope,guild-hall->adv-guild-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:14.115Z",
+      "boundary": -1,
+      "messageId": 8,
+      "kind": "delta",
+      "summary": "tension_current = 0",
+      "detail": {
+        "auditId": "6ddba3ac",
+        "evidence": "The notice is D-rank,\" she adds, her voice regaining its steady, guild-receptionist clarity.",
+        "reason": "cue:guild-hall->road-to-wendhope,guild-hall->adv-guild-tavern"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:14.367Z",
+      "boundary": 1,
+      "messageId": 8,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 246 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 11,
+        "stateChars": 5060,
+        "latencyMs": 246,
+        "inputTokens": 2911,
+        "outputTokens": 203,
+        "p": {
+          "line:0": 0.42,
+          "line:1": 0.17,
+          "line:2": 0.97,
+          "line:3": 0.9,
+          "line:4": 0.2,
+          "line:5": 0.98,
+          "line:6": 0.98,
+          "line:7": 0.97,
+          "line:8": 0.89,
+          "line:9": 0.87,
+          "line:10": 0.95
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:27.093Z",
+      "boundary": 1,
+      "messageId": 9,
+      "kind": "judge",
+      "summary": "judge lore in 364 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4919,
+        "latencyMs": 364,
+        "inputTokens": 14750,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "Belle the Barbarian - Adventurer": 0.77
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:27.103Z",
+      "boundary": 1,
+      "messageId": 9,
+      "kind": "judge",
+      "summary": "judge lore in 370 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4919,
+        "latencyMs": 370,
+        "inputTokens": 13824,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT",
+          "Ellie Sunleaf - Guild Girl": 0.72
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:27.398Z",
+      "boundary": 1,
+      "messageId": 9,
+      "kind": "judge",
+      "summary": "judge lore in 299 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4919,
+        "latencyMs": 299,
+        "inputTokens": 13786,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:27.452Z",
+      "boundary": 1,
+      "messageId": 9,
+      "kind": "judge",
+      "summary": "judge lore in 365 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4919,
+        "latencyMs": 365,
+        "inputTokens": 14443,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:27.638Z",
+      "boundary": 1,
+      "messageId": 9,
+      "kind": "judge",
+      "summary": "judge lore in 241 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 4919,
+        "latencyMs": 241,
+        "inputTokens": 2991,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:27.897Z",
+      "boundary": 1,
+      "messageId": 9,
+      "kind": "judge",
+      "summary": "judge director in 240 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 14,
+        "stateChars": 5772,
+        "latencyMs": 240,
+        "inputTokens": 2845,
+        "outputTokens": 327,
+        "p": {
+          "who": "Adolion Narrator",
+          "whoConfidence": 0.44,
+          "via": "composite",
+          "picked": "Belle"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:27.898Z",
+      "boundary": -1,
+      "messageId": 9,
+      "kind": "talk",
+      "summary": "Belle speaks (judge)",
+      "detail": {
+        "checkpointId": "guild-hall",
+        "latencyMs": 244
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:50.399Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "talk",
+      "summary": "Dalan speaks (mention)",
+      "detail": {
+        "checkpointId": "guild-hall",
+        "latencyMs": 0
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:50.850Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "story",
+      "summary": "cast change at \"The Road North\" removed Ellie, whom the play just brought in",
+      "detail": {
+        "note": "the authored cast_changes.disable wins; to keep a member the play recruits, gate this change on a quality the play sets"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:51.192Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge lore in 389 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4773,
+        "latencyMs": 389,
+        "inputTokens": 14721,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "GENERATION_STARTED",
+          "Belle the Barbarian - Adventurer": 0.78
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:51.203Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge lore in 383 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4773,
+        "latencyMs": 383,
+        "inputTokens": 13795,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "GENERATION_STARTED"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:51.508Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge lore in 320 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4773,
+        "latencyMs": 320,
+        "inputTokens": 14414,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "GENERATION_STARTED"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:51.511Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge lore in 313 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 4773,
+        "latencyMs": 313,
+        "inputTokens": 13757,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "GENERATION_STARTED",
+          "Wendhope": 0.78
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:51.735Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge lore in 230 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 4773,
+        "latencyMs": 230,
+        "inputTokens": 2962,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "GENERATION_STARTED"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:53.424Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "status",
+      "summary": "Moved into The Road North"
+    },
+    {
+      "at": "2026-10-02T05:40:53.526Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "generation via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:40:53.526Z",
+        "role": "authoring",
+        "pass": "generation",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 3933,
+        "samplers": "applied",
+        "usage": {
+          "input": 2379,
+          "output": 757,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 10
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:53.875Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge typed in 344 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 9,
+        "stateChars": 1813,
+        "latencyMs": 344,
+        "inputTokens": 1483,
+        "outputTokens": 268
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:53.881Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge scene in 349 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 26,
+        "stateChars": 7547,
+        "latencyMs": 349,
+        "inputTokens": 4007,
+        "outputTokens": 721,
+        "p": {
+          "break": 0.15
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:54.105Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge warden in 231 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 9,
+        "stateChars": 1359,
+        "latencyMs": 231,
+        "inputTokens": 1679,
+        "outputTokens": 161,
+        "p": {
+          "facts": 8,
+          "flagged": 0,
+          "agency": 0.05
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:54.517Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge wardenLore in 637 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 5517,
+        "latencyMs": 637,
+        "inputTokens": 2299,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:54.520Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge typed in 415 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 9,
+        "stateChars": 4830,
+        "latencyMs": 415,
+        "inputTokens": 2403,
+        "outputTokens": 402
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:54.520Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:40:54.520Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 5433,
+        "samplers": "applied",
+        "usage": {
+          "input": 3601,
+          "output": 1139,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 10
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:57.460Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "generation via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:40:57.460Z",
+        "role": "authoring",
+        "pass": "generation",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 3489,
+        "samplers": "applied",
+        "usage": {
+          "input": 2421,
+          "output": 657,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 10
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:59.957Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "extraction",
+      "summary": "read cue:road-to-wendhope->at-the-walls msgs 3-10 → 7 accepted, 0 rejected",
+      "detail": {
+        "auditId": "7bf2ab43",
+        "scope": [
+          "first_camp",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "reached_walls",
+          "tension_current"
+        ],
+        "accepted": [
+          "location=north_road",
+          "party_rank=0",
+          "first_camp=false",
+          "party_injuries=0",
+          "guild_reputation=0",
+          "reached_walls=false",
+          "tension_current=0.25"
+        ],
+        "rejected": [],
+        "sceneBreak": "location"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:59.957Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "location = north_road",
+      "detail": {
+        "auditId": "7bf2ab43",
+        "evidence": "Wendhope, right? North. Sheridan lands.",
+        "reason": "cue:road-to-wendhope->at-the-walls"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:59.957Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "party_rank = 0",
+      "detail": {
+        "auditId": "7bf2ab43",
+        "evidence": "The notice is D-rank,",
+        "reason": "cue:road-to-wendhope->at-the-walls"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:59.957Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "first_camp = false",
+      "detail": {
+        "auditId": "7bf2ab43",
+        "evidence": "Let's see what kind of fight's waiting for us.",
+        "reason": "cue:road-to-wendhope->at-the-walls"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:59.957Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "party_injuries = 0",
+      "detail": {
+        "auditId": "7bf2ab43",
+        "evidence": "Let's see what kind of fight's waiting for us.",
+        "reason": "cue:road-to-wendhope->at-the-walls"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:59.957Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "guild_reputation = 0",
+      "detail": {
+        "auditId": "7bf2ab43",
+        "evidence": "Not a name that screams 'we're gonna get ourselves killed,' at least.",
+        "reason": "cue:road-to-wendhope->at-the-walls"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:59.957Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "reached_walls = false",
+      "detail": {
+        "auditId": "7bf2ab43",
+        "evidence": "Wendhope, right? North. Sheridan lands.",
+        "reason": "cue:road-to-wendhope->at-the-walls"
+      }
+    },
+    {
+      "at": "2026-10-02T05:40:59.957Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "tension_current = 0.25",
+      "detail": {
+        "auditId": "7bf2ab43",
+        "evidence": "Let's see what kind of fight's waiting for us.",
+        "reason": "cue:road-to-wendhope->at-the-walls"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:00.225Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 264 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 13,
+        "stateChars": 4897,
+        "latencyMs": 264,
+        "inputTokens": 3118,
+        "outputTokens": 241,
+        "p": {
+          "line:0": 0.65,
+          "line:1": 0.26,
+          "line:2": 0.98,
+          "line:3": 0.94,
+          "line:4": 0.98,
+          "line:5": 0.98,
+          "line:6": 0.95,
+          "line:7": 0.95,
+          "line:8": 0.96,
+          "line:9": 0.8,
+          "line:10": 0.93,
+          "line:11": 0.99,
+          "line:12": 0.64
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:01.227Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge critic in 276 ms",
+      "detail": {
+        "use": "critic",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 4,
+        "stateChars": 1671,
+        "latencyMs": 276,
+        "inputTokens": 1098,
+        "outputTokens": 70,
+        "p": {
+          "contradicts": 0.08,
+          "advances": 0.94,
+          "newCharacter": 0.05,
+          "shape": 0.9275
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:02.049Z",
+      "boundary": 2,
+      "messageId": 10,
+      "kind": "judge",
+      "summary": "judge typed in 0 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 9,
+        "stateChars": 4830,
+        "latencyMs": 0,
+        "cached": true
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:02.050Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:02.050Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 4120,
+        "samplers": "applied",
+        "usage": {
+          "input": 3601,
+          "output": 713,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 10
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:06.173Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "extraction",
+      "summary": "read scene:cast msgs 3-10 → 7 accepted, 0 rejected",
+      "detail": {
+        "auditId": "e88c3f1a",
+        "scope": [
+          "first_camp",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "reached_walls",
+          "tension_current"
+        ],
+        "accepted": [
+          "location=north_road",
+          "party_rank=0",
+          "first_camp=false",
+          "party_injuries=0",
+          "guild_reputation=1",
+          "reached_walls=false",
+          "tension_current=0.25"
+        ],
+        "rejected": [],
+        "sceneBreak": "location"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:06.173Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "location = north_road",
+      "detail": {
+        "auditId": "e88c3f1a",
+        "evidence": "Wendhope, right? North. Sheridan lands.",
+        "reason": "scene:cast"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:06.173Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "party_rank = 0",
+      "detail": {
+        "auditId": "e88c3f1a",
+        "evidence": "The notice is D-rank,",
+        "reason": "scene:cast"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:06.173Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "first_camp = false",
+      "detail": {
+        "auditId": "e88c3f1a",
+        "evidence": "Wendhope, right? North. Sheridan lands.",
+        "reason": "scene:cast"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:06.173Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "party_injuries = 0",
+      "detail": {
+        "auditId": "e88c3f1a",
+        "evidence": "Don't expect me to wait up if you're dawdling.",
+        "reason": "scene:cast"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:06.173Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "guild_reputation = 1",
+      "detail": {
+        "auditId": "e88c3f1a",
+        "evidence": "Not a name that screams 'we're gonna get ourselves killed,' at least.",
+        "reason": "scene:cast"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:06.173Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "reached_walls = false",
+      "detail": {
+        "auditId": "e88c3f1a",
+        "evidence": "Wendhope, right? North. Sheridan lands.",
+        "reason": "scene:cast"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:06.173Z",
+      "boundary": -1,
+      "messageId": 10,
+      "kind": "delta",
+      "summary": "tension_current = 0.25",
+      "detail": {
+        "auditId": "e88c3f1a",
+        "evidence": "Let's see what kind of fight's waiting for us.",
+        "reason": "scene:cast"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:06.428Z",
+      "boundary": 2,
+      "messageId": 11,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 253 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 4897,
+        "latencyMs": 253,
+        "inputTokens": 2543,
+        "outputTokens": 148,
+        "p": {
+          "line:0": 0.27,
+          "line:1": 0.98,
+          "line:2": 0.93,
+          "line:3": 0.44,
+          "line:4": 0.98,
+          "line:5": 0.23,
+          "line:6": 0.83,
+          "line:7": 0.97
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:07.815Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:07.815Z",
+        "role": "read",
+        "pass": "epistemic",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 2003,
+        "samplers": "applied",
+        "usage": {
+          "input": 1901,
+          "output": 269,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 11
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:09.835Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:09.835Z",
+        "role": "read",
+        "pass": "ledger",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1572,
+        "samplers": "applied",
+        "usage": {
+          "input": 1321,
+          "output": 188,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 11
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:13.309Z",
+      "boundary": 3,
+      "messageId": 11,
+      "kind": "status",
+      "summary": "Following The Road North"
+    },
+    {
+      "at": "2026-10-02T05:41:13.828Z",
+      "boundary": 3,
+      "messageId": 11,
+      "kind": "judge",
+      "summary": "judge warden in 368 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 9,
+        "stateChars": 1406,
+        "latencyMs": 368,
+        "inputTokens": 1680,
+        "outputTokens": 161,
+        "p": {
+          "facts": 8,
+          "flagged": 0,
+          "agency": 0.06
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:13.829Z",
+      "boundary": 3,
+      "messageId": 11,
+      "kind": "judge",
+      "summary": "judge scene in 371 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 26,
+        "stateChars": 8125,
+        "latencyMs": 371,
+        "inputTokens": 4125,
+        "outputTokens": 721,
+        "p": {
+          "break": 0.17
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:15.630Z",
+      "boundary": 3,
+      "messageId": 11,
+      "kind": "judge",
+      "summary": "judge wardenLore in 1803 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 4668,
+        "latencyMs": 1803,
+        "inputTokens": 2064,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:15.849Z",
+      "boundary": 3,
+      "messageId": 11,
+      "kind": "judge",
+      "summary": "judge typed in 241 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 6,
+        "stateChars": 891,
+        "latencyMs": 241,
+        "inputTokens": 994,
+        "outputTokens": 117
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:15.850Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:15.850Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1227,
+        "samplers": "applied",
+        "usage": {
+          "input": 2680,
+          "output": 182,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 11
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:17.077Z",
+      "boundary": -1,
+      "messageId": 11,
+      "kind": "extraction",
+      "summary": "read cadence msgs 11-11 → 1 accepted, 0 rejected",
+      "detail": {
+        "auditId": "a0e10592",
+        "scope": [
+          "first_camp",
+          "location",
+          "party_rank",
+          "reached_walls",
+          "tension_current"
+        ],
+        "accepted": [
+          "location=north_road"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:17.077Z",
+      "boundary": -1,
+      "messageId": 11,
+      "kind": "delta",
+      "summary": "location = north_road",
+      "detail": {
+        "auditId": "a0e10592",
+        "evidence": "The North Road. We should reach the Sheridan border by sunset if we move now.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:17.295Z",
+      "boundary": 3,
+      "messageId": 11,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 217 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 2,
+        "stateChars": 958,
+        "latencyMs": 217,
+        "inputTokens": 799,
+        "outputTokens": 40,
+        "p": {
+          "line:0": 0.98,
+          "line:1": 0.95
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:18.177Z",
+      "boundary": 3,
+      "messageId": 11,
+      "kind": "judge",
+      "summary": "judge typed in 248 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 9,
+        "stateChars": 5409,
+        "latencyMs": 248,
+        "inputTokens": 2525,
+        "outputTokens": 405
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:18.177Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:18.177Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 3211,
+        "samplers": "applied",
+        "usage": {
+          "input": 3751,
+          "output": 579,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 11
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:21.389Z",
+      "boundary": -1,
+      "messageId": 11,
+      "kind": "extraction",
+      "summary": "read scene:location msgs 4-11 → 1 accepted, 0 rejected",
+      "detail": {
+        "auditId": "3b99cb82",
+        "scope": [
+          "first_camp",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "reached_walls",
+          "tension_current"
+        ],
+        "accepted": [
+          "location=north_road"
+        ],
+        "rejected": [],
+        "sceneBreak": "location"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:21.389Z",
+      "boundary": -1,
+      "messageId": 11,
+      "kind": "delta",
+      "summary": "location = north_road",
+      "detail": {
+        "auditId": "3b99cb82",
+        "evidence": "The North Road. We should reach the Sheridan border by sunset if we move now.",
+        "reason": "scene:location"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:21.641Z",
+      "boundary": 3,
+      "messageId": 11,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 250 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 6,
+        "stateChars": 5476,
+        "latencyMs": 250,
+        "inputTokens": 2450,
+        "outputTokens": 112,
+        "p": {
+          "line:0": 0.58,
+          "line:1": 0.96,
+          "line:2": 0.91,
+          "line:3": 0.96,
+          "line:4": 0.98,
+          "line:5": 0.98
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:23.337Z",
+      "boundary": 3,
+      "messageId": 11,
+      "kind": "judge",
+      "summary": "judge curatorFilter in 382 ms",
+      "detail": {
+        "use": "curatorFilter",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 13,
+        "stateChars": 5847,
+        "latencyMs": 382,
+        "inputTokens": 2577,
+        "outputTokens": 241,
+        "p": {
+          "entries": 13,
+          "kept": 4,
+          "answered": 13
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:23.338Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:23.338Z",
+        "role": "curator",
+        "pass": "curator",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 971,
+        "samplers": "applied",
+        "usage": {
+          "input": 1140,
+          "output": 38,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 11
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:24.310Z",
+      "boundary": 3,
+      "messageId": 11,
+      "kind": "stagecraft",
+      "summary": "World Info curator proposed 1 change(s) at The Road North",
+      "detail": {
+        "note": "The party has left the guild hall and the road north is now the active scene, so the chronicle's framing entry becomes relevant to play."
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:25.381Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "shortTerm via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:25.381Z",
+        "role": "synthesis",
+        "pass": "shortTerm",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1838,
+        "samplers": "applied",
+        "usage": {
+          "input": 1670,
+          "output": 126,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 11
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:27.882Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:27.882Z",
+        "role": "synthesis",
+        "pass": "sceneSummary",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1478,
+        "samplers": "applied",
+        "usage": {
+          "input": 1249,
+          "output": 69,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 11
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:29.598Z",
+      "boundary": 3,
+      "messageId": 11,
+      "kind": "story",
+      "summary": "NPC reply Adolion Narrator (sceneBreak) fired by its roll",
+      "detail": {
+        "note": "rolled 0.490 against 0.5 at road-to-wendhope:sceneBreak:Adolion Narrator:0"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:30.047Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:30.047Z",
+        "role": "read",
+        "pass": "epistemic",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1896,
+        "samplers": "applied",
+        "usage": {
+          "input": 2305,
+          "output": 293,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 12
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:31.961Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:31.961Z",
+        "role": "read",
+        "pass": "ledger",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1597,
+        "samplers": "applied",
+        "usage": {
+          "input": 1448,
+          "output": 199,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 12
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:47.328Z",
+      "boundary": 4,
+      "messageId": 12,
+      "kind": "judge",
+      "summary": "judge typed in 266 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 9,
+        "stateChars": 1699,
+        "latencyMs": 266,
+        "inputTokens": 1467,
+        "outputTokens": 276
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:47.344Z",
+      "boundary": 4,
+      "messageId": 12,
+      "kind": "judge",
+      "summary": "judge scene in 281 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 26,
+        "stateChars": 7379,
+        "latencyMs": 281,
+        "inputTokens": 3951,
+        "outputTokens": 717,
+        "p": {
+          "break": 0.82
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:47.605Z",
+      "boundary": 4,
+      "messageId": 12,
+      "kind": "judge",
+      "summary": "judge warden in 278 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 11,
+        "stateChars": 1033,
+        "latencyMs": 278,
+        "inputTokens": 1820,
+        "outputTokens": 197,
+        "p": {
+          "facts": 10,
+          "flagged": 0,
+          "agency": 0.01
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:48.043Z",
+      "boundary": 4,
+      "messageId": 12,
+      "kind": "judge",
+      "summary": "judge typed in 228 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 9,
+        "stateChars": 4664,
+        "latencyMs": 228,
+        "inputTokens": 2355,
+        "outputTokens": 409
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:48.043Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:48.043Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 3150,
+        "samplers": "applied",
+        "usage": {
+          "input": 3664,
+          "output": 540,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 12
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:51.194Z",
+      "boundary": -1,
+      "messageId": 12,
+      "kind": "extraction",
+      "summary": "read scene:judge msgs 5-12 → 1 accepted, 0 rejected",
+      "detail": {
+        "auditId": "153dccc6",
+        "scope": [
+          "first_camp",
+          "guild_reputation",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "reached_walls",
+          "tension_current"
+        ],
+        "accepted": [
+          "location=north_road"
+        ],
+        "rejected": [],
+        "sceneBreak": "location"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:51.194Z",
+      "boundary": -1,
+      "messageId": 12,
+      "kind": "delta",
+      "summary": "location = north_road",
+      "detail": {
+        "auditId": "153dccc6",
+        "evidence": "A riderless horse in Sheridan blue comes down the road at a walk, still saddled.",
+        "reason": "scene:judge"
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:51.436Z",
+      "boundary": 4,
+      "messageId": 12,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 236 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 6,
+        "stateChars": 4731,
+        "latencyMs": 236,
+        "inputTokens": 2250,
+        "outputTokens": 112,
+        "p": {
+          "line:0": 0.97,
+          "line:1": 0.96,
+          "line:2": 0.93,
+          "line:3": 0.97,
+          "line:4": 0.96,
+          "line:5": 0.42
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:53.862Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:53.862Z",
+        "role": "synthesis",
+        "pass": "sceneSummary",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1372,
+        "samplers": "applied",
+        "usage": {
+          "input": 116,
+          "output": 39,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 12
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:55.673Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:55.673Z",
+        "role": "read",
+        "pass": "epistemic",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 876,
+        "samplers": "applied",
+        "usage": {
+          "input": 2321,
+          "output": 87,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 12
+      }
+    },
+    {
+      "at": "2026-10-02T05:41:56.571Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:41:56.571Z",
+        "role": "read",
+        "pass": "ledger",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1738,
+        "samplers": "applied",
+        "usage": {
+          "input": 1283,
+          "output": 200,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 12
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:12.315Z",
+      "boundary": 4,
+      "messageId": 12,
+      "kind": "story",
+      "summary": "story updated v29 → v30 (identical, keep)"
+    },
+    {
+      "at": "2026-10-02T05:42:30.291Z",
+      "boundary": 4,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge lore in 368 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3872,
+        "latencyMs": 368,
+        "inputTokens": 14493,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:30.660Z",
+      "boundary": 4,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge lore in 728 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3872,
+        "latencyMs": 728,
+        "inputTokens": 13567,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:30.919Z",
+      "boundary": 4,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge lore in 632 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3872,
+        "latencyMs": 632,
+        "inputTokens": 14186,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:30.972Z",
+      "boundary": 4,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge lore in 316 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3872,
+        "latencyMs": 316,
+        "inputTokens": 13529,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:31.188Z",
+      "boundary": 4,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge lore in 270 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 3872,
+        "latencyMs": 270,
+        "inputTokens": 2734,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:31.427Z",
+      "boundary": -1,
+      "messageId": 13,
+      "kind": "talk",
+      "summary": "Dalan speaks (judge)",
+      "detail": {
+        "checkpointId": "road-to-wendhope",
+        "latencyMs": 228
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:31.427Z",
+      "boundary": 4,
+      "messageId": 13,
+      "kind": "judge",
+      "summary": "judge director in 226 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 4352,
+        "latencyMs": 226,
+        "inputTokens": 2001,
+        "outputTokens": 179,
+        "p": {
+          "who": "Dalan",
+          "whoConfidence": 0.61,
+          "via": "choice",
+          "picked": "Dalan"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:52.024Z",
+      "boundary": 4,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge director in 300 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 4034,
+        "latencyMs": 300,
+        "inputTokens": 1917,
+        "outputTokens": 155,
+        "p": {
+          "who": "Belle",
+          "whoConfidence": 0.88,
+          "via": "choice",
+          "picked": "Belle"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:52.025Z",
+      "boundary": -1,
+      "messageId": 14,
+      "kind": "talk",
+      "summary": "Belle speaks (judge)",
+      "detail": {
+        "checkpointId": "road-to-wendhope",
+        "latencyMs": 386
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:52.269Z",
+      "boundary": 5,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge typed in 312 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 9,
+        "stateChars": 1122,
+        "latencyMs": 312,
+        "inputTokens": 1339,
+        "outputTokens": 276
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:52.273Z",
+      "boundary": 5,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge scene in 250 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 26,
+        "stateChars": 6328,
+        "latencyMs": 250,
+        "inputTokens": 3710,
+        "outputTokens": 716,
+        "p": {
+          "break": 0.17
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:53.426Z",
+      "boundary": 5,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge wardenLore in 1155 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 4949,
+        "latencyMs": 1155,
+        "inputTokens": 2154,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:53.440Z",
+      "boundary": 5,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge warden in 1172 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 11,
+        "stateChars": 1602,
+        "latencyMs": 1172,
+        "inputTokens": 1942,
+        "outputTokens": 197,
+        "p": {
+          "facts": 10,
+          "flagged": 0,
+          "agency": 0.09
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:53.756Z",
+      "boundary": 5,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge lore in 335 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3554,
+        "latencyMs": 335,
+        "inputTokens": 14424,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "GENERATION_STARTED"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:53.775Z",
+      "boundary": 5,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge lore in 338 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3554,
+        "latencyMs": 338,
+        "inputTokens": 13498,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "GENERATION_STARTED"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:54.053Z",
+      "boundary": 5,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge lore in 283 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3554,
+        "latencyMs": 283,
+        "inputTokens": 13460,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "GENERATION_STARTED"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:54.059Z",
+      "boundary": 5,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge lore in 307 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3554,
+        "latencyMs": 307,
+        "inputTokens": 14117,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "GENERATION_STARTED"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:42:54.277Z",
+      "boundary": 5,
+      "messageId": 14,
+      "kind": "judge",
+      "summary": "judge lore in 225 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 3554,
+        "latencyMs": 225,
+        "inputTokens": 2665,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "GENERATION_STARTED"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:43:41.512Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "judge",
+      "summary": "judge warden in 298 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 11,
+        "stateChars": 1516,
+        "latencyMs": 298,
+        "inputTokens": 1923,
+        "outputTokens": 197,
+        "p": {
+          "facts": 10,
+          "flagged": 0,
+          "agency": 0.1
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:43:41.515Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "judge",
+      "summary": "judge scene in 303 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 26,
+        "stateChars": 6800,
+        "latencyMs": 303,
+        "inputTokens": 3814,
+        "outputTokens": 716,
+        "p": {
+          "break": 0.1
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:43:42.525Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "judge",
+      "summary": "judge wardenLore in 1014 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 4845,
+        "latencyMs": 1014,
+        "inputTokens": 2130,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:43:43.188Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "judge",
+      "summary": "judge typed in 245 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 9,
+        "stateChars": 1726,
+        "latencyMs": 245,
+        "inputTokens": 1524,
+        "outputTokens": 306
+      }
+    },
+    {
+      "at": "2026-10-02T05:43:43.189Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:43:43.189Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 3536,
+        "samplers": "applied",
+        "usage": {
+          "input": 3003,
+          "output": 606,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 15
+      }
+    },
+    {
+      "at": "2026-10-02T05:43:46.727Z",
+      "boundary": -1,
+      "messageId": 15,
+      "kind": "extraction",
+      "summary": "read cadence msgs 12-15 → 2 accepted, 0 rejected",
+      "detail": {
+        "auditId": "79c529ac",
+        "scope": [
+          "first_camp",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "reached_walls",
+          "tension_current"
+        ],
+        "accepted": [
+          "location=north_road",
+          "tension_current=0.25"
+        ],
+        "rejected": [],
+        "sceneBreak": null
+      }
+    },
+    {
+      "at": "2026-10-02T05:43:46.727Z",
+      "boundary": -1,
+      "messageId": 15,
+      "kind": "delta",
+      "summary": "location = north_road",
+      "detail": {
+        "auditId": "79c529ac",
+        "evidence": "A riderless horse in Sheridan blue comes down the road at a walk, still saddled.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T05:43:46.727Z",
+      "boundary": -1,
+      "messageId": 15,
+      "kind": "delta",
+      "summary": "tension_current = 0.25",
+      "detail": {
+        "auditId": "79c529ac",
+        "evidence": "Something's wrong. This road should be crawling with traffic toward the frontier. But it's empty. Just us and that horse.",
+        "reason": "cadence"
+      }
+    },
+    {
+      "at": "2026-10-02T05:43:46.973Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 245 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 6,
+        "stateChars": 1793,
+        "latencyMs": 245,
+        "inputTokens": 1563,
+        "outputTokens": 112,
+        "p": {
+          "line:0": 0.76,
+          "line:1": 0.67,
+          "line:2": 0.81,
+          "line:3": 0.91,
+          "line:4": 0.8,
+          "line:5": 0.93
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"background\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:34.874Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:44:41.752Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "away recap not due",
+      "detail": {
+        "note": "chat 2026-10-02@02h33m03s114ms, last seen 2026-10-02T05:43:48.548Z, gap 0h"
+      }
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:07.890Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"background\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.950Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"background\" was dropped when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:20.956Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "save not confirmed",
+      "detail": {
+        "note": "an empty save of \"2026-10-02@02h36m26s213ms\" carried no chat integrity (the metadata a chat switch clears) and was held back"
+      }
+    },
+    {
+      "at": "2026-10-02T05:45:27.505Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "away recap not due",
+      "detail": {
+        "note": "chat 2026-10-02@02h33m03s114ms, last seen 2026-10-02T05:45:13.922Z, gap 0h"
+      }
+    },
+    {
+      "at": "2026-10-02T05:45:48.819Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.819Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.819Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.819Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.819Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.820Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.820Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.820Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.820Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.820Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.820Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.820Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.820Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.820Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.820Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:48.820Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"background\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:45:55.544Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "away recap not due",
+      "detail": {
+        "note": "chat 2026-10-02@02h33m03s114ms, last seen 2026-10-02T05:45:27.505Z, gap 0h"
+      }
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:05.497Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"background\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:46:12.552Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "away recap not due",
+      "detail": {
+        "note": "chat 2026-10-02@02h33m03s114ms, last seen 2026-10-02T05:45:55.545Z, gap 0h"
+      }
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:07.396Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"background\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:47:14.769Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "away recap not due",
+      "detail": {
+        "note": "chat 2026-10-02@02h33m03s114ms, last seen 2026-10-02T05:46:12.552Z, gap 0h"
+      }
+    },
+    {
+      "at": "2026-10-02T05:47:15.047Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "status",
+      "summary": "Continuing Adolion: The Adventurer's Road"
+    },
+    {
+      "at": "2026-10-02T05:52:25.464Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "story updated v30 → v31 (invalidating, cancel)",
+      "detail": {
+        "note": "author kept this chat on its pinned version"
+      }
+    },
+    {
+      "at": "2026-10-02T05:52:42.936Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "flag",
+      "summary": "Save/apply wording: after the invalidating save, choosing Cancel left this chat on v30 (drifted) but the Studio toolbar said 'Saved ... v31 to the library. Applied to this chat: this chat kept its version — author kept this chat on its pinned version.' Expected 'Not applied to this chat: ...'; the reason is also stated twice. The popup's Cancel line says 'keeps playing the version it started with', but this chat started on v29 and plays v30 after the hot-swap.",
+      "detail": {
+        "note": "Save/apply wording: after the invalidating save, choosing Cancel left this chat on v30 (drifted) but the Studio toolbar said 'Saved ... v31 to the library. Applied to this chat: this chat kept its version — author kept this chat on its pinned version.' Expected 'Not applied to this chat: ...'; the reason is also stated twice. The popup's Cancel line says 'keeps playing the version it started with', but this chat started on v29 and plays v30 after the hot-swap."
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:10.458Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "host change \"background\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:54:17.329Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "story",
+      "summary": "away recap not due",
+      "detail": {
+        "note": "chat 2026-10-02@02h33m03s114ms, last seen 2026-10-02T05:52:53.578Z, gap 0h"
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:17.623Z",
+      "boundary": 6,
+      "messageId": 15,
+      "kind": "status",
+      "summary": "Continuing Adolion: The Adventurer's Road"
+    },
+    {
+      "at": "2026-10-02T05:54:18.467Z",
+      "boundary": 6,
+      "messageId": 16,
+      "kind": "judge",
+      "summary": "judge lore in 390 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3267,
+        "latencyMs": 390,
+        "inputTokens": 14371,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:18.778Z",
+      "boundary": 6,
+      "messageId": 16,
+      "kind": "judge",
+      "summary": "judge lore in 354 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3267,
+        "latencyMs": 354,
+        "inputTokens": 13445,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:18.792Z",
+      "boundary": 6,
+      "messageId": 16,
+      "kind": "judge",
+      "summary": "judge lore in 329 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3267,
+        "latencyMs": 329,
+        "inputTokens": 14064,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:19.029Z",
+      "boundary": 6,
+      "messageId": 16,
+      "kind": "judge",
+      "summary": "judge lore in 239 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 3267,
+        "latencyMs": 239,
+        "inputTokens": 2612,
+        "outputTokens": 130,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:19.089Z",
+      "boundary": 6,
+      "messageId": 16,
+      "kind": "judge",
+      "summary": "judge lore in 316 ms",
+      "detail": {
+        "use": "lore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 64,
+        "stateChars": 3267,
+        "latencyMs": 316,
+        "inputTokens": 13407,
+        "outputTokens": 1210,
+        "p": {
+          "trigger": "MESSAGE_SENT"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:19.329Z",
+      "boundary": -1,
+      "messageId": 16,
+      "kind": "talk",
+      "summary": "Adolion Narrator speaks (judge)",
+      "detail": {
+        "checkpointId": "road-to-wendhope",
+        "latencyMs": 232
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:19.329Z",
+      "boundary": 6,
+      "messageId": 16,
+      "kind": "judge",
+      "summary": "judge director in 230 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 3747,
+        "latencyMs": 230,
+        "inputTokens": 1879,
+        "outputTokens": 183,
+        "p": {
+          "who": "Adolion Narrator",
+          "whoConfidence": 0.43,
+          "via": "composite",
+          "picked": "Adolion Narrator"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:51.734Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "boundary",
+      "summary": "boundary 7: nothing applied (gate)",
+      "detail": {
+        "source": "gate",
+        "applied": [],
+        "discarded": []
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:51.991Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "status",
+      "summary": "Following The Road North"
+    },
+    {
+      "at": "2026-10-02T05:54:52.103Z",
+      "boundary": -1,
+      "messageId": 17,
+      "kind": "talk",
+      "summary": "silence speaks (judge)",
+      "detail": {
+        "checkpointId": "road-to-wendhope",
+        "latencyMs": 410
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:52.103Z",
+      "boundary": 6,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge director in 375 ms",
+      "detail": {
+        "use": "director",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 7,
+        "stateChars": 4264,
+        "latencyMs": 375,
+        "inputTokens": 1913,
+        "outputTokens": 156,
+        "p": {
+          "who": "Dalan",
+          "whoConfidence": 0.55,
+          "via": "composite",
+          "picked": "the player"
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:52.599Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge typed in 524 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 6,
+        "stateChars": 1504,
+        "latencyMs": 524,
+        "inputTokens": 1168,
+        "outputTokens": 183
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:52.624Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge scene in 523 ms",
+      "detail": {
+        "use": "scene",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 26,
+        "stateChars": 6558,
+        "latencyMs": 523,
+        "inputTokens": 3769,
+        "outputTokens": 716,
+        "p": {
+          "break": 0.16
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:53.505Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge wardenLore in 883 ms",
+      "detail": {
+        "use": "wardenLore",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 8,
+        "stateChars": 4794,
+        "latencyMs": 883,
+        "inputTokens": 2113,
+        "outputTokens": 156,
+        "p": {
+          "facts": 0,
+          "flagged": 0,
+          "lore": 8,
+          "contradicted": 0
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:53.524Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge warden in 927 ms",
+      "detail": {
+        "use": "warden",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 12,
+        "stateChars": 1791,
+        "latencyMs": 927,
+        "inputTokens": 2092,
+        "outputTokens": 216,
+        "p": {
+          "facts": 11,
+          "flagged": 0,
+          "agency": 0.05
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:53.914Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge typed in 217 ms",
+      "detail": {
+        "use": "typed",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 6,
+        "stateChars": 3848,
+        "latencyMs": 217,
+        "inputTokens": 1888,
+        "outputTokens": 283
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:53.915Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "read via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:54:53.915Z",
+        "role": "read",
+        "pass": "read",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 4291,
+        "samplers": "applied",
+        "usage": {
+          "input": 3523,
+          "output": 869,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 17
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:58.208Z",
+      "boundary": -1,
+      "messageId": 17,
+      "kind": "extraction",
+      "summary": "read cue:road-to-wendhope->on-the-road msgs 10-17 → 6 accepted, 0 rejected",
+      "detail": {
+        "auditId": "d5ec1270",
+        "scope": [
+          "first_camp",
+          "location",
+          "party_injuries",
+          "party_rank",
+          "reached_walls",
+          "tension_current"
+        ],
+        "accepted": [
+          "location=north_road",
+          "first_camp=true",
+          "party_injuries=0",
+          "party_rank=0",
+          "reached_walls=false",
+          "tension_current=0.5"
+        ],
+        "rejected": [],
+        "sceneBreak": "time_skip"
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:58.208Z",
+      "boundary": -1,
+      "messageId": 17,
+      "kind": "delta",
+      "summary": "location = north_road",
+      "detail": {
+        "auditId": "d5ec1270",
+        "evidence": "No one has passed us since the border",
+        "reason": "cue:road-to-wendhope->on-the-road"
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:58.208Z",
+      "boundary": -1,
+      "messageId": 17,
+      "kind": "delta",
+      "summary": "first_camp = true",
+      "detail": {
+        "auditId": "d5ec1270",
+        "evidence": "The carriages sit overturned like dead beetles on the road, their wheels twisted into the dirt.",
+        "reason": "cue:road-to-wendhope->on-the-road"
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:58.208Z",
+      "boundary": -1,
+      "messageId": 17,
+      "kind": "delta",
+      "summary": "party_injuries = 0",
+      "detail": {
+        "auditId": "d5ec1270",
+        "evidence": "No blood stains the road. No signs of a struggle.",
+        "reason": "cue:road-to-wendhope->on-the-road"
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:58.208Z",
+      "boundary": -1,
+      "messageId": 17,
+      "kind": "delta",
+      "summary": "party_rank = 0",
+      "detail": {
+        "auditId": "d5ec1270",
+        "evidence": "this 'Second Tries' better deliver on both",
+        "reason": "cue:road-to-wendhope->on-the-road"
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:58.208Z",
+      "boundary": -1,
+      "messageId": 17,
+      "kind": "delta",
+      "summary": "reached_walls = false",
+      "detail": {
+        "auditId": "d5ec1270",
+        "evidence": "No one has passed us since the border",
+        "reason": "cue:road-to-wendhope->on-the-road"
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:58.208Z",
+      "boundary": -1,
+      "messageId": 17,
+      "kind": "delta",
+      "summary": "tension_current = 0.5",
+      "detail": {
+        "auditId": "d5ec1270",
+        "evidence": "Something's keeping folk off this road, or taking 'em before they get far. Either way, we're walking right into it.",
+        "reason": "cue:road-to-wendhope->on-the-road"
+      }
+    },
+    {
+      "at": "2026-10-02T05:54:58.463Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge memoryVerify in 252 ms",
+      "detail": {
+        "use": "memoryVerify",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 9,
+        "stateChars": 3915,
+        "latencyMs": 252,
+        "inputTokens": 2449,
+        "outputTokens": 166,
+        "p": {
+          "line:0": 0.72,
+          "line:1": 0.97,
+          "line:2": 0.98,
+          "line:3": 0.97,
+          "line:4": 0.94,
+          "line:5": 0.87,
+          "line:6": 0.9,
+          "line:7": 0.14,
+          "line:8": 0.87
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:55:00.753Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "judge",
+      "summary": "judge curatorFilter in 507 ms",
+      "detail": {
+        "use": "curatorFilter",
+        "model": "jev-1.13.0",
+        "route": "judge:typesafe:jev-1.13.0",
+        "questions": 13,
+        "stateChars": 6345,
+        "latencyMs": 507,
+        "inputTokens": 2691,
+        "outputTokens": 241,
+        "p": {
+          "entries": 13,
+          "kept": 6,
+          "answered": 13
+        }
+      }
+    },
+    {
+      "at": "2026-10-02T05:55:00.753Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "curator via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:55:00.753Z",
+        "role": "curator",
+        "pass": "curator",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 940,
+        "samplers": "applied",
+        "usage": {
+          "input": 1434,
+          "output": 46,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 17
+      }
+    },
+    {
+      "at": "2026-10-02T05:55:01.582Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "sceneSummary via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:55:01.582Z",
+        "role": "synthesis",
+        "pass": "sceneSummary",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1077,
+        "samplers": "applied",
+        "usage": {
+          "input": 543,
+          "output": 83,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 17
+      }
+    },
+    {
+      "at": "2026-10-02T05:55:01.694Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "stagecraft",
+      "summary": "World Info curator proposed 1 change(s) at The Road North",
+      "detail": {
+        "note": "The campaign has accumulated enough changed lore (party, road, Wendhope) that the chronicle's own framing entry is now relevant to keep on."
+      }
+    },
+    {
+      "at": "2026-10-02T05:55:03.148Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "epistemic via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:55:03.148Z",
+        "role": "read",
+        "pass": "epistemic",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1784,
+        "samplers": "applied",
+        "usage": {
+          "input": 2155,
+          "output": 242,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 17
+      }
+    },
+    {
+      "at": "2026-10-02T05:55:04.994Z",
+      "boundary": -1,
+      "messageId": -1,
+      "kind": "model-call",
+      "summary": "ledger via 975bc0dc-956b-4cd8-9fe4-9be158e01847: ok",
+      "detail": {
+        "at": "2026-10-02T05:55:04.994Z",
+        "role": "read",
+        "pass": "ledger",
+        "route": "975bc0dc-956b-4cd8-9fe4-9be158e01847",
+        "result": "ok",
+        "ms": 1420,
+        "samplers": "applied",
+        "usage": {
+          "input": 1099,
+          "output": 152,
+          "costUsd": null
+        },
+        "model": "deepseek-flash",
+        "chatId": "2026-10-02@02h33m03s114ms",
+        "messageId": 17
+      }
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"cast\" was reverted when this chat reloaded"
+    },
+    {
+      "at": "2026-10-02T05:55:34.582Z",
+      "boundary": 7,
+      "messageId": 17,
+      "kind": "story",
+      "summary": "host change \"background\" was reverted when this chat reloaded"
+    }
+  ]
+}

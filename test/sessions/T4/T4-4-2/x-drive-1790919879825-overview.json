@@ -1,0 +1,81 @@
+{
+  "mode": "overview",
+  "args": [
+    "A-author-check"
+  ],
+  "at": "2026-10-02T05:44:37.434Z",
+  "before": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 30,
+      "libraryVersion": 30,
+      "pinned": true,
+      "drifted": false
+    },
+    "bb": {
+      "wall_breached": false,
+      "guild_reputation": 1,
+      "location": "north_road",
+      "party_injuries": 0,
+      "party_name": "Second Tries",
+      "party_rank": 0,
+      "path": "wendhope",
+      "first_camp": false,
+      "reached_walls": false,
+      "tension_current": 0.25
+    },
+    "lastUpdate": {
+      "applied": true,
+      "classification": "identical",
+      "choice": "keep",
+      "fromVersion": 29,
+      "toVersion": 30,
+      "storyId": "adolion-adventurer",
+      "dropped": [],
+      "at": "2026-10-02T05:42:11.495Z"
+    }
+  },
+  "overview": {
+    "overview": "Where you areThe Journey NorthAt the Guild hall in Aegis City.Wendhope lies two days north along the frontier road, and the talk on the way is the party's own.Something is starting to stir.About this storyYou have just signed on at the Adventurer's Guild in Aegis City, with no party yet. Belle, a headstrong barbarian, and Dalan, a shy elf ranger, are looking for one too. The postings on the board are small, the pay is modest, and every rank has to be earned. Expect frontier fantasy with a dark edge: real danger, mysteries that open one clue at a time, and choices that cost something. Bring any adventurer you like; the Guild takes all kinds.RecentlyYou left The Wendhope Job behind and moved into The Journey North.Open threadsWhether Belle and Dalan will actually join the Ash Lanterns, since Ellie is still waiting on their answer.Whether the party will heed Tobias's warning and prepare provisions and a map before heading into Sheridan lands.Whether the party will actually leave Aegis City prepared, given Tobias's insistence on supplies and a map before the trek north.The story so farThree days after signing the Adventurers' Guild register in Aegis City, the player still had no party, and the Guild sent no one out alone. At the Guild counter, Tobias kept tapping the Wendhope notice, a posting for a silent mining village in the north offering more coin than a collapsed mine should be worth. Belle, a barbarian out of the Mountains of Shadow with a greataxe as tall as she was, and Dalan, a quiet elf archer who had drifted between parties for a year, each sought a party of their own.Following along.Waiting for the next reply.",
+    "footerButtons": [
+      "so-restart-story-drawer|Restart story"
+    ],
+    "hud": "◈ The Journey Northtension stirring"
+  },
+  "shots": [
+    "shots/x-1790919879116-A-author-check.png"
+  ],
+  "after": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 30,
+      "libraryVersion": 30,
+      "pinned": true,
+      "drifted": false
+    },
+    "bb": {
+      "wall_breached": false,
+      "guild_reputation": 1,
+      "location": "north_road",
+      "party_injuries": 0,
+      "party_name": "Second Tries",
+      "party_rank": 0,
+      "path": "wendhope",
+      "first_camp": false,
+      "reached_walls": false,
+      "tension_current": 0.25
+    },
+    "lastUpdate": {
+      "applied": true,
+      "classification": "identical",
+      "choice": "keep",
+      "fromVersion": 29,
+      "toVersion": 30,
+      "storyId": "adolion-adventurer",
+      "dropped": [],
+      "at": "2026-10-02T05:42:11.495Z"
+    }
+  }
+}

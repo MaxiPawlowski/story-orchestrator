@@ -1,0 +1,78 @@
+{
+  "mode": "close-studio",
+  "args": [],
+  "at": "2026-10-02T05:17:13.340Z",
+  "before": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 30,
+      "libraryVersion": 31,
+      "pinned": true,
+      "drifted": true
+    },
+    "bb": {
+      "wall_breached": true,
+      "party_name": "Party name updated to The Second Tries,",
+      "adv_looking_for_hands": false,
+      "guild_reputation": 1,
+      "location": "north_road",
+      "party_injuries": 0,
+      "path": "wendhope",
+      "first_camp": false
+    },
+    "lastUpdate": {
+      "applied": false,
+      "classification": "invalidating",
+      "choice": "cancel",
+      "fromVersion": 30,
+      "toVersion": 31,
+      "storyId": "adolion-adventurer",
+      "dropped": [
+        "guild_reputation"
+      ],
+      "at": "2026-10-02T05:16:52.094Z",
+      "reason": "author kept this chat on its pinned version"
+    }
+  },
+  "studio": {
+    "feedback": "Saved “Adolion: The Adventurer's Road” v31 to the library. Applied to this chat: this chat kept its version — author kept this chat on its pinned version.",
+    "unsaved": false,
+    "toolbar": null
+  },
+  "popup": null,
+  "popupAfter": null,
+  "after": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 30,
+      "libraryVersion": 31,
+      "pinned": true,
+      "drifted": true
+    },
+    "bb": {
+      "wall_breached": true,
+      "party_name": "Party name updated to The Second Tries,",
+      "adv_looking_for_hands": false,
+      "guild_reputation": 1,
+      "location": "north_road",
+      "party_injuries": 0,
+      "path": "wendhope",
+      "first_camp": false
+    },
+    "lastUpdate": {
+      "applied": false,
+      "classification": "invalidating",
+      "choice": "cancel",
+      "fromVersion": 30,
+      "toVersion": 31,
+      "storyId": "adolion-adventurer",
+      "dropped": [
+        "guild_reputation"
+      ],
+      "at": "2026-10-02T05:16:52.094Z",
+      "reason": "author kept this chat on its pinned version"
+    }
+  }
+}

@@ -1,0 +1,38 @@
+[
+ {
+  "id": 0,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "You came to Aegis City to make a name with a blade, a bow or a spell, and three days ago you signed the Adventurers' Guild register to do it. Your Guild badge is new, your purse is light, and you have no party yet. The Guild sends no one out alone.\n\nToday the hall is loud enough to be heard from the street. At the counter, Tobias, who hands out the Guild's work, has set a register beside the quest board and keeps tapping one notice: Wendhope, a mining village in the north that has gone silent, offering more coin than a collapsed mine should be worth.\n\nTwo others are looking for a party too. Belle, a barbarian out of the Mountains of Shadow with a greataxe as tall as she is, leans in the tavern arch and makes no secret of being bored. Dalan, a quiet elf archer who has drifted between parties for a year, pretends to read the notices. Beside Tobias, Ellie keeps glancing from those two to you, pen already inked to write a new party's name into the Guild's book."
+ },
+ {
+  "id": 1,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We'll take the Wendhope job. Put us down as the Ash Lanterns."
+ },
+ {
+  "id": 2,
+  "name": "Ellie",
+  "isUser": false,
+  "text": "Ellie's blue eyes widen slightly, then she leans forward with an excited flutter. \"Oh! The Ash Lanterns, what a lovely name. Yes, yes.\" Her pen dances across the Guild's register in elegant script, then she looks up, blushing faintly. \"You're all... you're really forming a party? Together?\"\n*She glances between Max Nightriver and the two others, her fingers tapping her pen against her palm in a rhythmic, expectant beat. The flush on her cheeks deepens.*"
+ },
+ {
+  "id": 3,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We set out north at once."
+ },
+ {
+  "id": 4,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Tobias steps forward, his blue eyes sharp. \"Wait. You're taking the Wendhope posting, and you're going now, without so much as a provision list or a map?\" He taps the notice again, harder this time. \"The Sheridans aren't paying this much for a simple rescue. Something is keeping a whole mining village silent, and you're heading into their lands with nothing but your Guild badges.\"\n*From the tavern arch, Belle's bored expression shifts. She pushes off the wall with a scrape of her boots and turns fully toward the group, her brown eyes narrowed in appraisal as she grips the haft of Cleaver.*"
+ },
+ {
+  "id": 5,
+  "name": "Tobias",
+  "isUser": false,
+  "text": "\"Just wait—you need supplies. Bread, salted pork, and more importantly, water skins for the trek. The road north is dry.\" *He reaches for a small pouch on the counter and sets it down with a decisive click.* \"Here. A basic ration pack. On the Guild's account. You'll be needing it if you're not planning on raiding the countryside for meals.\"\n*Tobias straightens his vest, his expression shifting to one of quiet concern.* \"And I suggest checking your weapons before you leave the city walls. A sharp blade is worth more than gold when you're far from a smith.\""
+ }
+]

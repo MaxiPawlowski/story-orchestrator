@@ -1,0 +1,31 @@
+ok   chat.chatId  "2026-10-02@01h59m03s658ms" -> "2026-10-02@01h59m03s658ms - Branch #2"  (allowed by chatId)
+WARNING: the page is running a bundle that is not the built one: served 2807f6ab4a6af31d vs dist 1cf6af946578135a
+ok   chat.chatLength  1 -> 7  (allowed by progress)
+ok   group.disabledMembers  +Ellie.png +Tobias.png +Vallie.png  (allowed by group)
+DIFF inventory.groupChats  +1790916740063/2026-10-02@01h59m03s658ms - Branch #1 +1790916740063/2026-10-02@01h59m03s658ms - Branch #2
+ok   story.activeCheckpointId  "guild-hall" -> "road-to-wendhope"  (allowed by progress)
+ok   story.boundary  1 -> 4  (allowed by progress)
+{
+  "baseline": "C:\\dev\\story-orchestrator\\test\\sessions\\T4\\T4-2-1\\run-header-start.json",
+  "label": "diff-end",
+  "allow": [
+    "chatId",
+    "groupId",
+    "authorView",
+    "story",
+    "group",
+    "inventory.journal"
+  ],
+  "differences": 6,
+  "progress": 3,
+  "blocking": 1,
+  "blockingPaths": [
+    "inventory.groupChats"
+  ],
+  "servedIdentity": [],
+  "warnings": [
+    "the page is running a bundle that is not the built one: served 2807f6ab4a6af31d vs dist 1cf6af946578135a"
+  ],
+  "wrote": "C:\\dev\\story-orchestrator\\test\\sessions\\T4\\T4-2-1\\run-header-end.json",
+  "ok": false
+}

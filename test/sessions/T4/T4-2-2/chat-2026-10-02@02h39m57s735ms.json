@@ -1,0 +1,74 @@
+[
+ {
+  "id": 0,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The road north ends at a roofless chapel beneath the black pines. A sun of bound sticks rests on the altar; beyond it, mossy shrine stones mark the edge of the elven wood. Ashliel offers shelter for the night and, just as gently, asks you to turn back in the morning. Something small moves between the trees nearby, then goes still."
+ },
+ {
+  "id": 1,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We accept Ashliel's shelter for the night, and ask what moves between the trees."
+ },
+ {
+  "id": 2,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "Ashliel's gaze drifts to the shadows between the pines, her expression distant. \"Perhaps only the wind,\" she says softly. \"Or a creature of the forest, passing by.\" She doesn't sound convinced. \"The wargs howl more often in the dark. Do not wander far from the chapel tonight.\"\n*A ripple of green appears against the dark bark of a nearby pine, then shifts. A shape detaches itself from the wood—translucent, shimmering—and drops lightly to the forest floor. The form is that of an elven woman with long, flowing green hair, wearing a dress of the same iridescent material. Her eyes wide and excited, she bounces slightly on her toes.*\n\"Adventurers!\" *The slime-girl beams, her voice bubbling with enthusiasm.* \"I-I've been following you for miles! I'm Sali! Please, please, let me come with you? I'm going to be a great adventurer one day, and this is exactly how it's supposed to start!\"\n*Ashliel's eyes flicker with concern, then she looks back at the party, her voice dropping to a pleading tone.* \"Another soul to guide... Please. All of you. Rest tonight, and at dawn, return south. I beg it of you.\""
+ },
+ {
+  "id": 3,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Past the broken wall of the chapel, something pale green peeks round a pine trunk, sees it has been noticed, and melts flat against the bark."
+ },
+ {
+  "id": 4,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "*Ashliel's brow furrows slightly as she watches the pale shape press itself against the tree, her purple eyes filled with a quiet sadness.* \"Someone else... seeking something that is not there.\" *She turns back to the party, her hands clasped before her.* \"You see how they come. I have seen them come for many years. And I have seen how they leave. Please, rest here tonight. The chapel's pews are soft enough, and the fire will keep you warm.\"\n*She steps toward the garden, plucking a few herbs from the earth with practiced care.* \"I will prepare something for you to eat. Tomorrow, when the sun rises, you must go south. This is my wish, my prayer. Do not go north past the shrine stones.\""
+ },
+ {
+  "id": 5,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "Sali, is it you in the trees? Come sit by the fire, we mean no harm."
+ },
+ {
+  "id": 6,
+  "name": "Sali",
+  "isUser": false,
+  "text": "*The pale green shape against the bark ripples, then separates from the tree. Sali's translucent form bounces toward the firelight, her eyes wide with wonder. A small slime exclamation point pops up above her head.* \"You saw me! You called for me!\"\n*She practically vibrates with excitement, her dress shimmering in the firelight as she skitters closer, her pointed elf ears twitching.* \"I'm not supposed to get too close to fire—it makes me all runny and goopy—but you're so nice! Most people just scream or try to stab me when they see what I am!\" *She beams up at the party, then looks back at the chapel wall as if making sure Ashliel isn't watching.* \"I-I can be really helpful! I'm strong, and I never get tired, and I can heal people with my slime! Please let me join your party? Just for a little while? Or forever! Either works!\""
+ },
+ {
+  "id": 7,
+  "name": "Ashliel",
+  "isUser": false,
+  "text": "*Ashliel emerges from the garden with a bundle of herbs in her arms, her gaze lingering on the translucent figure by the fire with a mix of wariness and old pity. She doesn't approach too close, keeping her distance.* \"You are... not from these woods. You should not be here.\" *Her voice is gentle but carries the weight of centuries of watching things drift where they ought not go.* \"Traveler, if you mean to keep this one with you, take her and go south at first light. The forest is no place for the trusting.\"\n*She sets the herbs near the hearth, her black wings twitching slightly beneath her tattered dress as she steps back into the shadows of the roofless chapel.* \"I will make enough food for all of you. Eat and rest. Then leave this place behind you.\""
+ },
+ {
+  "id": 8,
+  "name": "Max Nightriver",
+  "isUser": true,
+  "text": "We follow Sali north past the shrine stones, slowly, hands away from our weapons."
+ },
+ {
+  "id": 9,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The shrine stones are cold and mossy under Max Nightriver's feet, their carvings worn smooth by centuries of wind and rain. The scent of incense clings to them still, a faint sweetness that tastes of blood and old wood. Beyond the line of stones, the black pines stop abruptly, as if cut away by an invisible blade.\nAhead, the forest floor drops into a valley filled with silver-barked trees that glow softly in the twilight. The air here is different—thicker, humming with a current that makes the fine hairs on Max Nightriver's arms stand up.\nSali doesn't look back as she leads the way down the slope, her translucent form leaving a faint trail of slime on the pale grass. She moves with a confidence she lacked back at the chapel, humming a tune that doesn't quite follow a human scale. The valley opens up before them, and there, rising from the silver-white trees, are the spires of a city carved from living wood and white stone, its gates glowing with a light that seems to breathe.\nAnd there, standing at the very edge of that light, a figure watches them approach. She is tall and barefoot, with silver hair that falls past her waist and dark blue eyes that seem to see everything at once. Around her brow rests a wreath of yellow flowers, and she wears a white dress that shifts like moonlight on water."
+ },
+ {
+  "id": 10,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "The figure's presence is like a chord of music held just on the edge of hearing, a pressure in the air that makes breath catch in throats. She doesn't move, doesn't speak, simply watches as the party descends the slope.\nSali stops just before the light of the city touches her feet, her excitement finally seeming to dampen into something closer to awe. She looks back at the party, then at the silver-haired woman, then back again. \"That's her,\" she whispers, her voice trembling. \"The Lady. I've... I've dreamed of this place.\"\nThe Lady of the Forest finally speaks, and her voice carries through the valley without her shouting, clear as a bell. \"Travelers. You have come far, and crossed many lines.\" Her gaze fixes on Max Nightriver with an intensity that feels like weight on the chest. \"Tell me: do you come seeking something lost, or do you come to take something that was never yours?\""
+ },
+ {
+  "id": 11,
+  "name": "Adolion Narrator",
+  "isUser": false,
+  "text": "Ten steps past the shrine stones every bird stops singing. Between two trunks stands a stag, perfectly still, and when it opens its mouth there is a second pair of eyes inside, looking out."
+ }
+]

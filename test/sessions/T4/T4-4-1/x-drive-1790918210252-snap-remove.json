@@ -1,0 +1,75 @@
+{
+  "mode": "snap-remove",
+  "args": [
+    "guild_reputation"
+  ],
+  "at": "2026-10-02T05:16:48.308Z",
+  "before": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 30,
+      "libraryVersion": 30,
+      "pinned": true,
+      "drifted": false
+    },
+    "bb": {
+      "wall_breached": true,
+      "party_name": "Party name updated to The Second Tries,",
+      "adv_looking_for_hands": false,
+      "guild_reputation": 1,
+      "location": "north_road",
+      "party_injuries": 0,
+      "path": "wendhope",
+      "first_camp": false
+    },
+    "lastUpdate": {
+      "applied": true,
+      "classification": "identical",
+      "choice": "keep",
+      "fromVersion": 29,
+      "toVersion": 30,
+      "storyId": "adolion-adventurer",
+      "dropped": [],
+      "at": "2026-10-02T05:13:50.783Z"
+    }
+  },
+  "checkpoints": [
+    "After the Fog",
+    "What Filwern Left"
+  ],
+  "shots": [
+    "shots/x-1790918209977-snap-removed.png"
+  ],
+  "errors": null,
+  "after": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 30,
+      "libraryVersion": 30,
+      "pinned": true,
+      "drifted": false
+    },
+    "bb": {
+      "wall_breached": true,
+      "party_name": "Party name updated to The Second Tries,",
+      "adv_looking_for_hands": false,
+      "guild_reputation": 1,
+      "location": "north_road",
+      "party_injuries": 0,
+      "path": "wendhope",
+      "first_camp": false
+    },
+    "lastUpdate": {
+      "applied": true,
+      "classification": "identical",
+      "choice": "keep",
+      "fromVersion": 29,
+      "toVersion": 30,
+      "storyId": "adolion-adventurer",
+      "dropped": [],
+      "at": "2026-10-02T05:13:50.783Z"
+    }
+  }
+}

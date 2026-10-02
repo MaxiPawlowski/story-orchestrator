@@ -1,0 +1,89 @@
+{
+  "mode": "update",
+  "args": [
+    "keep"
+  ],
+  "at": "2026-10-02T05:18:36.326Z",
+  "before": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 29,
+      "libraryVersion": 31,
+      "pinned": true,
+      "drifted": true
+    },
+    "bb": {
+      "wall_breached": false,
+      "location": "north_road",
+      "party_name": "Ash Lanterns",
+      "path": "wendhope",
+      "first_camp": false,
+      "party_injuries": 0,
+      "tension_current": 0.25
+    },
+    "lastUpdate": {
+      "applied": true,
+      "classification": "invalidating",
+      "choice": "keep",
+      "fromVersion": 30,
+      "toVersion": 31,
+      "storyId": "adolion-adventurer",
+      "dropped": [
+        "guild_reputation"
+      ],
+      "at": "2026-10-02T05:17:33.421Z"
+    }
+  },
+  "overview": {
+    "overview": "Where you areThe Journey NorthAt the road north.About this storyYou have just signed on at the Adventurer's Guild in Aegis City, with no party yet. Belle, a headstrong barbarian, and Dalan, a shy elf ranger, are looking for one too. The postings on the board are small, the pay is modest, and every rank has to be earned. Expect frontier fantasy with a dark edge: real danger, mysteries that open one clue at a time, and choices that cost something. Bring any adventurer you like; the Guild takes all kinds.RecentlyMax Nightriver noted the absence of traffic as the group continued north. Dalan observed that wildlife and insects had also vanished, leaving an unsettling silence over the road. Belle tightened her grip on Cleaver's haft, and an overturned, untouched carriage soon appeared ahead under the grey sky.Open threadsBelle and Dalan's friction is only paused, not settled.Tobias privately warned the party that the Wendhope posting is a face-saving job for the Sheridans — the party must decide how much of this to trust or act on.The party must prepare supplies and horses before first light and survive the temperamental north road to Wendhope.The unnaturally empty north road and the abandoned overturned cart hint at what happened to the missing parties before Wendhope.The riderless Sheridan-blue horse and the untouched overturned cart raise the question of what drove the missing parties off the road without a struggle.The story so farMax Nightriver registered the party as the Ash Lanterns at the guild, which Ellie recorded and Belle and Dalan approved of, though Tobias and Dalan offered quiet caution. Max then changed the name back to The Second Tries, and Ellie voided the previous entry and wrote the new one. Belle and Dalan departed to prepare for the journey to Wendhope at first light, with Dalan promising to ready the horses.\n\nMax Nightriver noted the absence of traffic as the group continued north. Dalan observed that wildlife and insects had also vanished, leaving an unsettling silence over the road.Following along.Waiting for the next reply.",
+    "footerButtons": [
+      "so-edit-story|Edit story",
+      "so-restart-story-drawer|Restart story"
+    ],
+    "hud": "◈ The Journey North"
+  },
+  "popup": null,
+  "shots": [
+    "shots/x-1790918319874-update-popup.png",
+    "shots/x-1790918325614-update-keep-after.png"
+  ],
+  "toasts": [],
+  "overviewAfter": {
+    "overview": "Where you areThe Journey NorthAt the road north.About this storyYou have just signed on at the Adventurer's Guild in Aegis City, with no party yet. Belle, a headstrong barbarian, and Dalan, a shy elf ranger, are looking for one too. The postings on the board are small, the pay is modest, and every rank has to be earned. Expect frontier fantasy with a dark edge: real danger, mysteries that open one clue at a time, and choices that cost something. Bring any adventurer you like; the Guild takes all kinds.RecentlyMax Nightriver claimed the Wendhope job at the Adventurers' Guild in Aegis City and named the new party the Ash Lanterns, while Ellie prepared the paperwork and Belle and Dalan lingered nearby. The party set out north at once, and by dusk they traveled the dark Sheridan forests toward the foothills. When Dalan halted and warned that the silent road and untouched carriages meant something was waiting, the group's mood turned tense and wary.Open threadsThe Ash Lanterns must complete the Investigate Wendhope posting and discover why the mining village went silent.The party still needs to formally recruit Belle and Dalan, who have not yet confirmed joining.Something on the north road ahead has drawn Dalan's alarm — the party must find out what waits in the Sheridan forests.Dalan warns the party they cannot stop until they reach Wendhope's walls, with something waiting ahead in the Sheridan forests.The party must discover why the north road is unnaturally empty — no wildlife, no disturbance to the carriages they passed.The story so farMax Nightriver claimed the Wendhope job at the Adventurers' Guild in Aegis City and named the new party the Ash Lanterns, while Ellie prepared the paperwork and Belle and Dalan lingered nearby. The party set out north at once, and by dusk they traveled the dark Sheridan forests toward the foothills. When Dalan halted and warned that the silent road and untouched carriages meant something was waiting, the group's mood turned tense and wary.Following along.Waiting for the next reply.",
+    "footerButtons": [
+      "so-edit-story|Edit story",
+      "so-restart-story-drawer|Restart story"
+    ],
+    "hud": "◈ The Journey North"
+  },
+  "after": {
+    "active": "road-to-wendhope",
+    "identity": {
+      "id": "adolion-adventurer",
+      "playedVersion": 31,
+      "libraryVersion": 31,
+      "pinned": true,
+      "drifted": false
+    },
+    "bb": {
+      "wall_breached": false,
+      "location": "north_road",
+      "party_name": "Ash Lanterns",
+      "path": "wendhope",
+      "first_camp": false,
+      "party_injuries": 0,
+      "tension_current": 0.25
+    },
+    "lastUpdate": {
+      "applied": true,
+      "classification": "compatible",
+      "choice": "keep",
+      "fromVersion": 29,
+      "toVersion": 31,
+      "storyId": "adolion-adventurer",
+      "dropped": [],
+      "at": "2026-10-02T05:18:38.344Z"
+    }
+  }
+}
